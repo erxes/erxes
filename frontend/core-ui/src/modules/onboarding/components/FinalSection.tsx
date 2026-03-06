@@ -1,7 +1,6 @@
-import { Button } from 'erxes-ui';
-import { motion } from 'framer-motion';
 import { IconCircleCheck } from '@tabler/icons-react';
-import { useScopedHotkeys } from 'erxes-ui';
+import { Button, useScopedHotkeys } from 'erxes-ui';
+import { motion } from 'framer-motion';
 
 export const FinalSection = ({ onContinue }: { onContinue: () => void }) => {
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');

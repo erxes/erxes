@@ -1,4 +1,3 @@
-import { IModels } from '~/connectionResolvers';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
 import {
   getPageAccessToken,
@@ -6,8 +5,8 @@ import {
   subscribePage,
   unsubscribePage,
 } from '@/integrations/facebook/utils';
-import fetch from 'node-fetch';
 import { getEnv, resetConfigsCache } from 'erxes-api-shared/utils';
+import fetch from 'node-fetch';
 import { generateModels } from '~/connectionResolvers';
 
 export const removeIntegration = async (
@@ -58,7 +57,7 @@ export const removeIntegration = async (
         await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
         debugError(
-          `Error occured while trying to unsubscribe page pageId: ${pageId}`,
+          `Error occurred while trying to unsubscribe page pageId: ${pageId}: ${e.message}`,
         );
       }
     }
@@ -287,8 +286,7 @@ export const facebookCreateIntegration = async (
       } catch (e) {
         // Log and throw error if token retrieval fails
         debugError(
-          `Error occurred while trying to get page access token with ${
-            e.message || e
+          `Error occurred while trying to get page access token with ${e.message || e
           }`,
         );
         throw e;

@@ -1,16 +1,15 @@
 import { Control } from 'react-hook-form';
-
 import { Editor, Form, Input, Select, Switch, Upload } from 'erxes-ui';
-
 import { CustomerFormType } from '@/contacts/customers/constants/formSchema';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { SelectMember } from 'ui-modules';
-
+import { useTranslation } from 'react-i18next';
 export const AvatarField = ({
   control,
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       name="avatar"
@@ -31,7 +30,7 @@ export const AvatarField = ({
               <div className="flex flex-col justify-center gap-2">
                 <div className="flex gap-4">
                   <Upload.Button size="sm" variant="outline" type="button">
-                    Upload picture
+                    {t('upload')}
                   </Upload.Button>
 
                   <Upload.RemoveButton
@@ -40,9 +39,7 @@ export const AvatarField = ({
                     type="button"
                   />
                 </div>
-                <Form.Description>
-                  Recommended size 1:1, up to 2MB
-                </Form.Description>
+                <Form.Description>{t('upload-description')}</Form.Description>
               </div>
             </Upload.Root>
           </Form.Control>
@@ -57,13 +54,14 @@ export const CodeField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       control={control}
       name="code"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>CODE</Form.Label>
+          <Form.Label>{t('code')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -79,13 +77,14 @@ export const DescriptionField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       control={control}
       name="description"
       render={({ field }) => (
         <Form.Item className="mb-5">
-          <Form.Label>DESCRIPTION</Form.Label>
+          <Form.Label>{t('description')}</Form.Label>
 
           <Form.Control>
             <Editor
@@ -117,13 +116,14 @@ export const EmailValidationStatusField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       control={control}
       name="emailValidationStatus"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>EMAIL VERIFICATION STATUS</Form.Label>
+          <Form.Label>{t('email-verification-status')}</Form.Label>
           <Select onValueChange={field.onChange} value={field.value}>
             <Form.Control>
               <Select.Trigger>
@@ -162,13 +162,14 @@ export const FirstNameField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       control={control}
       name="firstName"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>FIRST NAME</Form.Label>
+          <Form.Label>{t('first-name')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -184,6 +185,7 @@ export const IsSubscribedField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       name="isSubscribed"
@@ -198,7 +200,7 @@ export const IsSubscribedField = ({
               }
             />
           </Form.Control>
-          <Form.Label variant="peer">Subscribed</Form.Label>
+          <Form.Label variant="peer">{t('subscribed')}</Form.Label>
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
@@ -211,13 +213,14 @@ export const LastNameField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       control={control}
       name="lastName"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>LAST NAME</Form.Label>
+          <Form.Label>{t('last-name')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -233,13 +236,14 @@ export const OwnerIdField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       control={control}
       name="ownerId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>CHOOSE AN OWNER</Form.Label>
+          <Form.Label>{t('owner')}</Form.Label>
           <Form.Control>
             <div className="w-full">
               <SelectMember.FormItem
@@ -268,13 +272,14 @@ export const PhoneValidationStatusField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       control={control}
       name="phoneValidationStatus"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>PHONE VERIFICATION STATUS</Form.Label>
+          <Form.Label>{t('phone-verification-status')}</Form.Label>
           <Select onValueChange={field.onChange} value={field.value}>
             <Form.Control>
               <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground h-8">
@@ -313,13 +318,14 @@ export const PrimaryEmailField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       control={control}
       name="primaryEmail"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>EMAIL</Form.Label>
+          <Form.Label>{t('email')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -335,13 +341,14 @@ export const PrimaryPhoneField = ({
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Form.Field
       control={control}
       name="primaryPhone"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>PHONE</Form.Label>
+          <Form.Label>{t('phone')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>

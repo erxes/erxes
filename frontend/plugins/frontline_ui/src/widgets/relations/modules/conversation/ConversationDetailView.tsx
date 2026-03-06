@@ -1,7 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Button, Resizable, Separator, Skeleton } from 'erxes-ui';
 
-import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
+import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { ConversationIntegrationDetail } from '@/integrations/components/ConversationIntegrationDetail';
@@ -77,8 +77,8 @@ export const ConversationDetailView = ({
   }
 
   return (
-    <ConversationContext.Provider
-      value={
+    <ConversationProvider
+      conversation={
         {
           ...currentConversation,
           ...conversationDetail,
@@ -130,6 +130,6 @@ export const ConversationDetailView = ({
           </Resizable.PanelGroup>
         </div>
       </div>
-    </ConversationContext.Provider>
+    </ConversationProvider>
   );
 };

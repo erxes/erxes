@@ -1,4 +1,4 @@
-import { ErxesLogoIcon } from '@/auth/components/Logo';
+import { OrgLogoIcon } from '@/auth/components/Logo';
 import { Polygons } from '@/auth/components/Polygons';
 import { cn, Spinner, TextEffect } from 'erxes-ui';
 import { AnimatePresence, motion, Variants } from 'motion/react';
@@ -118,7 +118,7 @@ export const IconAnimation = () => {
         {showSpinner ? (
           <Spinner />
         ) : (
-          <ErxesLogoIcon className="size-9 text-primary" />
+          <OrgLogoIcon className="size-7 text-primary" />
         )}
       </motion.div>
     </AnimatePresence>

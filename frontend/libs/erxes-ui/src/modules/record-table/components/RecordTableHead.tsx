@@ -12,7 +12,7 @@ import { cn } from 'erxes-ui/lib/utils';
 import { useRecordTable } from './RecordTableProvider';
 
 export const recordTableHeadVariants = cva(
-  'sticky z-2 top-0 transition-transform duration-200 whitespace-nowrap text-xs',
+  'sticky z-2 top-0 transition-transform duration-200 whitespace-nowrap text-xs [&_svg]:flex-none',
   {
     variants: {
       isDragging: {

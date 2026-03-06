@@ -1,8 +1,12 @@
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  graphqlPubsub,
+  RPError,
+  RPResult,
+  RPSuccess,
+  sendTRPCMessage
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
-import { RPError, RPResult, RPSuccess } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 const sendError = (message): RPError => ({
   status: 'error',
@@ -40,11 +44,9 @@ export const receiveInboxMessage = async (
 
     const { primaryEmail, primaryPhone } = doc;
     let customer;
-
     const getCustomer = async (selector) => {
-      await sendTRPCMessage({
+      return await sendTRPCMessage({
         subdomain,
-
         pluginName: 'core',
         method: 'query',
         module: 'customers',
@@ -57,9 +59,8 @@ export const receiveInboxMessage = async (
       if (customer) {
         await sendTRPCMessage({
           subdomain,
-
           pluginName: 'core',
-          method: 'mutation', // this is a mutation, not a query
+          method: 'mutation',
           module: 'customers',
           action: 'updateCustomer',
           input: {
@@ -78,7 +79,7 @@ export const receiveInboxMessage = async (
     }
 
     if (customer) {
-      return sendSuccess({ _id: customer._id });
+      return sendSuccess({ _id: customer?._id });
     } else {
       customer = await sendTRPCMessage({
         subdomain,
@@ -94,7 +95,7 @@ export const receiveInboxMessage = async (
         },
       });
     }
-    return sendSuccess({ _id: customer._id });
+    return sendSuccess({ _id: customer?._id });
   }
 
   if (action === 'create-or-update-conversation') {

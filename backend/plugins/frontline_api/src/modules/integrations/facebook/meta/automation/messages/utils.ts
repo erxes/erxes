@@ -502,16 +502,13 @@ export const getData = async (
 
   const customer = await models.FacebookCustomers.findOne({
     userId: senderId,
-  }).lean();
+  });
 
   if (!customer) {
     throw new Error(`Customer not found`);
   }
 
-  const bot = await models.FacebookBots.findOne(
-    { _id: botId },
-    { tag: 1 },
-  ).lean();
+  const bot = await models.FacebookBots.findOne({ _id: botId }, { tag: 1 });
 
   if (!bot) {
     throw new Error(`Bot not found`);

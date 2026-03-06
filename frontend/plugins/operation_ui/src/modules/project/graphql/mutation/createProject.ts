@@ -5,6 +5,7 @@ export const CREATE_PROJECT_MUTATION = gql`
     $name: String!
     $teamIds: [String!]!
     $leadId: String
+    $memberIds: [String]
     $icon: String
     $description: String
     $status: Int
@@ -18,6 +19,7 @@ export const CREATE_PROJECT_MUTATION = gql`
       name: $name
       teamIds: $teamIds
       leadId: $leadId
+      memberIds: $memberIds
       icon: $icon
       description: $description
       status: $status
@@ -35,6 +37,7 @@ export const CREATE_PROJECT_MUTATION = gql`
       priority
       teamIds
       leadId
+      memberIds
       startDate
       targetDate
       tagIds

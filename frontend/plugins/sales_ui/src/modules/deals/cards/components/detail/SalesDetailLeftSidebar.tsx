@@ -1,5 +1,7 @@
 import { Sidebar, Tabs, useQueryState } from 'erxes-ui';
 
+import React from 'react';
+
 export const SalesDetailLeftSidebar = ({
   children,
 }: {
@@ -25,7 +27,7 @@ export const SalesDetailLeftSidebar = ({
               <Sidebar.Menu>
                 <Sidebar.MenuItem>
                   <Tabs.Trigger value="overview" asChild>
-                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
+                    <Sidebar.MenuButton className="justify-start data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
                       Overview
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
@@ -33,14 +35,16 @@ export const SalesDetailLeftSidebar = ({
               </Sidebar.Menu>
             </Sidebar.GroupContent>
           </Sidebar.Group>
+
           <Sidebar.Separator />
+
           <Sidebar.Group>
             <Sidebar.GroupLabel>Plugins</Sidebar.GroupLabel>
             <Sidebar.GroupContent>
               <Sidebar.Menu>
                 <Sidebar.MenuItem>
                   <Tabs.Trigger value="products" asChild>
-                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
+                    <Sidebar.MenuButton className="justify-start data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
                       Products
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
@@ -50,6 +54,7 @@ export const SalesDetailLeftSidebar = ({
           </Sidebar.Group>
         </Sidebar>
       </Tabs.List>
+
       {children}
     </Tabs>
   );

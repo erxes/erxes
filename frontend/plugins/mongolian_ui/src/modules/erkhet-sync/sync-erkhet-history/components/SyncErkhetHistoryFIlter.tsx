@@ -6,20 +6,26 @@ import {
   IconUpload,
   IconExchange,
   IconAlertTriangle,
+  IconUser,
 } from '@tabler/icons-react';
 import {
   Combobox,
   Command,
   Filter,
+  Popover,
   useFilterQueryState,
+  useFilterContext,
   useMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
 import { SyncHistoryHotKeyScope } from '../types/SyncHistoryHotKeyScope';
 import { useSyncErkhetHistoryLeadSessionKey } from '../hooks/useSyncErkhetHistoryLeadSessionKey';
 import { SelectMember } from 'ui-modules';
 import { SyncErkhetHistoryTotalCount } from './SyncErkhetHistoryTotalCount';
+import { useState } from 'react';
 
 export const SyncErkhetHistoryFilterPopover = () => {
+  const [user, setUser] = useQueryState<string>('user');
   const [queries] = useMultiQueryState<{
     user: string;
     dateRange: string;
@@ -42,6 +48,7 @@ export const SyncErkhetHistoryFilterPopover = () => {
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
   );
+  const { resetFilterState } = useFilterContext();
   return (
     <>
       <Filter.Popover scope={SyncHistoryHotKeyScope.SyncHistoryPage}>
@@ -56,10 +63,13 @@ export const SyncErkhetHistoryFilterPopover = () => {
               />
 
               <Command.List className="p-1">
-                <SelectMember.FilterItem />
+                <Filter.Item value="user">
+                  <IconUser />
+                  Assigned To
+                </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  Date range
+                  Date Range
                 </Filter.Item>
                 <Filter.Item value="contentType" inDialog>
                   <IconTag />
@@ -92,13 +102,21 @@ export const SyncErkhetHistoryFilterPopover = () => {
           <Filter.View filterKey="dateRange">
             <Filter.DateView filterKey="dateRange" />
           </Filter.View>
-          <SelectMember.FilterView />
+          <Filter.View filterKey="user">
+            <SelectMember.Provider
+              mode="single"
+              value={user || ''}
+              onValueChange={(value) => {
+                setUser(value as any);
+                resetFilterState();
+              }}
+            >
+              <SelectMember.Content />
+            </SelectMember.Provider>
+          </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
-        <Filter.View filterKey="user" inDialog>
-          <Filter.DialogStringView filterKey="user" />
-        </Filter.View>
         <Filter.View filterKey="dateRange" inDialog>
           <Filter.DialogDateView filterKey="dateRange" />
         </Filter.View>
@@ -126,6 +144,7 @@ export const SyncErkhetHistoryFilterPopover = () => {
 };
 
 export const SyncErkhetHistoryFilter = () => {
+  const [user, setUser] = useQueryState<string>('user');
   const [contentType] = useFilterQueryState<string>('contentType');
   const [contentId] = useFilterQueryState<string>('contentId');
   const [searchConsume] = useFilterQueryState<string>('searchConsume');
@@ -133,14 +152,40 @@ export const SyncErkhetHistoryFilter = () => {
   const [searchResponse] = useFilterQueryState<string>('searchResponse');
   const [searchError] = useFilterQueryState<string>('searchError');
   const { sessionKey } = useSyncErkhetHistoryLeadSessionKey();
+  const [open, setOpen] = useState<boolean>(false);
   return (
     <Filter id="sync-erkhet-history-filter" sessionKey={sessionKey}>
       <Filter.Bar>
         <SyncErkhetHistoryFilterPopover />
+        <Filter.BarItem queryKey="user">
+          <Filter.BarName>
+            <IconUser />
+            Assigned To
+          </Filter.BarName>
+          <SelectMember.Provider
+            mode="single"
+            value={user || ''}
+            onValueChange={(value) => {
+              setUser(value as any);
+              setOpen(false);
+            }}
+          >
+            <Popover open={open} onOpenChange={setOpen}>
+              <Popover.Trigger asChild>
+                <Filter.BarButton filterKey="user">
+                  <SelectMember.Value />
+                </Filter.BarButton>
+              </Popover.Trigger>
+              <Combobox.Content>
+                <SelectMember.Content />
+              </Combobox.Content>
+            </Popover>
+          </SelectMember.Provider>
+        </Filter.BarItem>
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            Date range
+            Date Range
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>
@@ -199,7 +244,6 @@ export const SyncErkhetHistoryFilter = () => {
           </Filter.BarButton>
         </Filter.BarItem>
 
-        <SelectMember.FilterBar />
         <SyncErkhetHistoryTotalCount />
       </Filter.Bar>
     </Filter>

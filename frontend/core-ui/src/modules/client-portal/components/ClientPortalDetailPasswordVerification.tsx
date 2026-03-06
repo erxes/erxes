@@ -11,11 +11,17 @@ export const ClientPortalDetailResetPassword = ({
 }: {
   clientPortal: IClientPortal;
 }) => {
+  const resetPasswordConfig = clientPortal?.securityAuthConfig?.resetPasswordConfig;
   const form = useForm<
     z.infer<typeof CLIENTPORTAL_PASSWORD_VERIFICATION_SCHEMA>
   >({
     resolver: zodResolver(CLIENTPORTAL_PASSWORD_VERIFICATION_SCHEMA),
-    defaultValues: clientPortal?.passwordVerificationConfig,
+    defaultValues: {
+      verifyByOTP: resetPasswordConfig?.mode === 'code',
+      emailSubject: resetPasswordConfig?.emailSubject,
+      emailContent: resetPasswordConfig?.emailContent,
+      smsContent: '',
+    },
   });
   const { updateClientPortal, loading } = useUpdateClientPortal();
 
@@ -25,7 +31,15 @@ export const ClientPortalDetailResetPassword = ({
     updateClientPortal({
       variables: {
         id: clientPortal?._id,
-        clientPortal: { passwordVerificationConfig: data },
+        clientPortal: {
+          securityAuthConfig: {
+            resetPasswordConfig: {
+              mode: data.verifyByOTP ? 'code' : 'link',
+              emailSubject: data.emailSubject || '',
+              emailContent: data.emailContent || '',
+            },
+          },
+        },
       },
     });
   }

@@ -6,12 +6,15 @@ import {
   IconPhone,
   IconClock,
   IconUser,
+  IconTag,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
+  RelativeDateDisplay,
+  Badge,
 } from 'erxes-ui';
 
 import { IOrder } from '@/pos/types/order';
@@ -40,9 +43,11 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     header: () => <RecordTable.InlineHead icon={IconMobiledata} label="Date" />,
     cell: ({ cell }) => {
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       );
     },
   },
@@ -77,6 +82,31 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     },
   },
   {
+    id: 'undefined',
+    accessorKey: 'undefined',
+    header: () => <RecordTable.InlineHead icon={IconClock} label="Undefined" />,
+    cell: ({ cell }) => {
+      const value = cell.getValue() as string;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={value} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'paidAmounts.amount',
+    accessorKey: 'paidAmounts.amount',
+    header: () => <RecordTable.InlineHead icon={IconClock} label="Loyalty" />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
     header: () => <RecordTable.InlineHead icon={IconChartBar} label="Amount" />,
@@ -90,8 +120,8 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     },
   },
   {
-    id: 'customer',
-    accessorKey: 'customer',
+    id: 'customerType',
+    accessorKey: 'customerType',
     header: () => <RecordTable.InlineHead icon={IconClock} label="Customer" />,
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
@@ -117,24 +147,23 @@ export const orderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Type" />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <Badge variant="default">{cell.getValue() as string}</Badge>
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'user.email',
-    accessorKey: 'user.email',
+    id: 'user.username',
+    accessorKey: 'user.username',
     header: () => <RecordTable.InlineHead icon={IconUser} label="User" />,
     cell: ({ cell }) => {
-      const value = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value || 'N/A'} />
+          <TextOverflowTooltip value={cell.getValue() as string} />
         </RecordTableInlineCell>
       );
     },

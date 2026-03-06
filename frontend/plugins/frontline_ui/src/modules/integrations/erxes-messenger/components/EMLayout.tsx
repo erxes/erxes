@@ -50,7 +50,7 @@ export const EMLayoutPreviousStepButton = () => {
   return (
     <Button
       variant="secondary"
-      className="mr-auto bg-border"
+      className="bg-border ml-auto"
       disabled={step === 1}
       onClick={() => setStep(step - 1)}
     >

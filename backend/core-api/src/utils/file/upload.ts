@@ -303,6 +303,7 @@ export const uploadFileCloudflare = async (
     : await getConfig('FILE_SYSTEM_PUBLIC', 'false');
 
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
+
   if (!isValidPath(file.filepath)) {
     throw new Error('Unsafe file path');
   }
@@ -363,7 +364,6 @@ export const uploadFileCloudflare = async (
         if (err) {
           return reject(err);
         }
-
         return resolve(res);
       },
     );

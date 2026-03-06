@@ -157,7 +157,7 @@ export const loadTaskClass = (models: IModels) => {
         number: nextNumber,
       });
 
-      if (doc.assigneeId && doc.assigneeId !== userId) {
+      if (doc.assigneeId) {
         await createNotifications({
           contentType: 'task',
           contentTypeId: task._id,
@@ -166,6 +166,7 @@ export const loadTaskClass = (models: IModels) => {
           notificationType: 'taskAssignee',
           userIds: [doc.assigneeId],
           action: 'assignee',
+          models,
         });
       }
 
@@ -259,7 +260,38 @@ export const loadTaskClass = (models: IModels) => {
           notificationType: 'note',
           userIds: [doc.assigneeId],
           action: 'assignee',
+          models,
         });
+      }
+
+      if (doc.targetDate) {
+        const teamId = doc.teamId || task.teamId;
+        const targetDate = new Date(doc.targetDate);
+
+        const matchingCycle = await models.Cycle.findOne({
+          teamId,
+          isCompleted: false,
+          startDate: { $lte: targetDate },
+          endDate: { $gte: targetDate },
+        });
+
+        if (
+          matchingCycle &&
+          matchingCycle._id.toString() !== task.cycleId?.toString()
+        ) {
+          rest.cycleId = matchingCycle._id;
+
+          await models.Activity.createActivity({
+            action: 'CHANGED',
+            contentId: task._id,
+            module: 'CYCLE',
+            metadata: {
+              newValue: matchingCycle._id.toString(),
+              previousValue: task.cycleId?.toString(),
+            },
+            createdBy: userId,
+          });
+        }
       }
 
       return models.Task.findOneAndUpdate(

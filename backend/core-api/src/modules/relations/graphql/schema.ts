@@ -31,4 +31,7 @@ export const mutations = `
     updateRelation(id: String!, relation: RelationInput!): Relation!
     deleteRelation(id: String!): String!
     createMultipleRelations(relations: [RelationInput!]!): JSON
+    manageRelations(
+        contentType: String!, contentId: String!, relatedContentType: String!, relatedContentIds: [String]
+    ): [Relation!]
 `;

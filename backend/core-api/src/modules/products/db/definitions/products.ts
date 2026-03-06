@@ -46,6 +46,11 @@ export const productSchema = schemaWrapper(
         optional: true,
         label: 'Custom fields data',
       },
+      propertiesData: {
+        type: Schema.Types.Mixed,
+        optional: true,
+        label: 'Properties data',
+      },
       attachment: { type: attachmentSchema },
       attachmentMore: { type: [attachmentSchema] },
       status: {
@@ -83,12 +88,14 @@ export const productSchema = schemaWrapper(
         optional: true,
         label: 'PDF attachment',
       },
+
+      remainders: { type: Object, optional: true },
+      discounts: { type: Object, optional: true },
     },
     {
       timestamps: true,
     },
   ),
-  { contentType: 'core:product' },
 );
 
 productSchema.index({ _id: 1, createdAt: 1 });

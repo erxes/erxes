@@ -1,8 +1,14 @@
 import {
   ICursorPaginateParams,
   IListParams,
+  IOffsetPaginateParams,
 } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+
+export interface FieldOption {
+  label: string;
+  value: string;
+}
 
 export interface IField {
   name: string;
@@ -14,19 +20,26 @@ export interface IField {
   type: string;
   order: number;
 
-  options?: string[];
+  options?: FieldOption[];
+  icon?: string;
 
   logics?: any;
   validations?: any;
 }
 
 export interface IFieldDocument extends IField, Document {
+  _id: string;
+
   createdBy: string;
   updatedBy: string;
 }
 
-export interface IFieldParams extends IListParams, ICursorPaginateParams {
+export interface IFieldParams extends IListParams {
   contentType: string;
   contentTypeId?: string;
-  groupIds?: string[];
+  groupId?: string[];
+  icon?: string;
 }
+
+export interface IFieldCursorParams extends ICursorPaginateParams {}
+export interface IFieldOffsetParams extends IOffsetPaginateParams {}

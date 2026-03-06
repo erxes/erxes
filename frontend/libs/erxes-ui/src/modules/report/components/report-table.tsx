@@ -52,7 +52,7 @@ function ReportTableFooter({
     <tfoot
       data-slot="table-footer"
       className={cn(
-        'bg-muted/50 border-t font-medium [&>tr]:last:border-b-0',
+        'border-t font-medium [&>tr]:last:border-b-0',
         className,
       )}
       {...props}
@@ -78,7 +78,7 @@ function ReportTableHead({ className, ...props }: React.ComponentProps<'th'>) {
     <th
       data-slot="table-head"
       className={cn(
-        'text-foreground h-[2.5em] px-[0.5em] text-left align-middle font-medium border',
+        'text-foreground h-[2.5em] px-[0.5em] text-middle align-middle font-medium border',
         className,
       )}
       {...props}
@@ -91,7 +91,7 @@ function ReportTableCell({ className, ...props }: React.ComponentProps<'td'>) {
     <td
       data-slot="table-cell"
       className={cn(
-        'p-[0.5em] align-middle border text-[1em] whitespace-normal break-all',
+        'p-[0.3em] align-middle border text-[1em] whitespace-normal break-all',
         className,
       )}
       {...props}

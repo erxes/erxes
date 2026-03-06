@@ -29,6 +29,13 @@ export const GET_PIPELINE_DETAIL = gql`
       departmentIds
       branchIds
       boardId
+      numberConfig
+      numberSize
+      nameConfig
+      isCheckDate
+      isCheckUser
+      isCheckDepartment
+      excludeCheckUserIds
     }
   }
 `;

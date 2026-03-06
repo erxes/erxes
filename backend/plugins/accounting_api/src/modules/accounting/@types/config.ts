@@ -1,12 +1,12 @@
 import { Document } from 'mongoose';
 
-export interface IAccountingConfig {
+export interface IConfig {
   code: string;
   value: any;
 }
 
-export interface IAccountingConfigDocument
-  extends IAccountingConfig,
+export interface IConfigDocument
+  extends IConfig,
   Document {
   _id: string;
 }

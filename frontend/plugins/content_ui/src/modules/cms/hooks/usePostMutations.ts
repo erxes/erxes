@@ -3,8 +3,7 @@ import {
   POSTS_ADD,
   CMS_POSTS_EDIT,
   CMS_POSTS_REMOVE,
-  POST_LIST,
-} from '../graphql/posts';
+} from '../graphql/queries';
 
 interface PostInput {
   [key: string]: any;
@@ -16,8 +15,7 @@ interface UsePostMutationsOptions {
 
 export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
   const [createPostMutation, createState] = useMutation(POSTS_ADD, {
-    update(cache, { data }) {
-      // Evict all POST_LIST queries to force refetch
+    update(cache) {
       cache.evict({ fieldName: 'cmsPostList' });
       cache.gc();
     },
@@ -27,6 +25,17 @@ export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
   const [editPostMutation, editState] = useMutation(CMS_POSTS_EDIT, {
     refetchQueries: 'all',
     awaitRefetchQueries: true,
+    update(cache, { data }) {
+      if (data?.cmsPostsEdit?._id) {
+        cache.evict({
+          id: cache.identify({
+            __typename: 'Post',
+            _id: data.cmsPostsEdit._id,
+          }),
+        });
+        cache.gc();
+      }
+    },
   });
 
   const [removePostMutation, removeState] = useMutation(CMS_POSTS_REMOVE);

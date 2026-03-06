@@ -1,9 +1,23 @@
 import { ITagFilterQueryParams } from '@/tags/@types/tag';
-import { cursorPaginate, getPlugin, getPlugins } from 'erxes-api-shared/utils';
+import { ITagDocument, Resolver } from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getPlugin,
+  getPlugins,
+} from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 
-const generateFilter = async ({ params, commonQuerySelector, models }) => {
+const generateFilter = async ({
+  params,
+  models,
+  commonQuerySelector,
+}: {
+  params: ITagFilterQueryParams;
+  models: IModels;
+  commonQuerySelector?: any;
+}) => {
   const {
     searchValue,
     parentId,
@@ -14,7 +28,7 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
     includeWorkspaceTags,
   } = params;
 
-  const filter: FilterQuery<ITagFilterQueryParams> = {
+  const filter: FilterQuery<ITagDocument> = {
     ...commonQuerySelector,
     type: { $in: [null, ''] },
   };
@@ -36,7 +50,17 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
   }
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    const matchingTags = await models.Tags.find({
+      ...commonQuerySelector,
+      name: new RegExp(`.*${searchValue}.*`, 'i'),
+    }).lean();
+
+    const matchingTagIds = matchingTags.map((tag) => tag._id);
+    const parentIds = matchingTags
+      .map((tag) => tag.parentId)
+      .filter((id) => !!id);
+
+    filter._id = { $in: [...matchingTagIds, ...parentIds] };
   }
 
   if (ids?.length) {
@@ -71,14 +95,18 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
   return filter;
 };
 
-export const tagQueries = {
+export const tagQueries: Record<string, Resolver> = {
   /**
    * Get tags types
    */
   async tagsGetTypes() {
     const services = await getPlugins();
-    const fieldTypes: Array<{ description: string; contentType: string }> = [];
+    const types = {};
+
     for (const serviceName of services) {
+      const fieldTypes: Array<{ description: string; contentType: string }> =
+        [];
+
       const service = await getPlugin(serviceName);
       const meta = service.config.meta || {};
       if (meta && meta.tags) {
@@ -91,9 +119,13 @@ export const tagQueries = {
           });
         }
       }
+
+      if (fieldTypes.length > 0) {
+        types[serviceName] = fieldTypes;
+      }
     }
 
-    return fieldTypes;
+    return types;
   },
   /**
    * Get tags
@@ -119,6 +151,29 @@ export const tagQueries = {
     });
 
     return { list, totalCount, pageInfo };
+  },
+
+  async tagsMain(
+    _parent: undefined,
+    {
+      type,
+      excludeWorkspaceTags,
+    }: { type: string; excludeWorkspaceTags?: boolean },
+    { models }: IContext,
+  ) {
+    const filter: FilterQuery<ITagDocument> = {
+      type: { $in: [null, ''] },
+    };
+
+    if (type) {
+      filter.type = { $in: [null, '', type] };
+    }
+
+    if (type && excludeWorkspaceTags) {
+      filter.type = { $eq: type };
+    }
+
+    return await models.Tags.find(filter).sort({ name: 1 });
   },
 
   async tagsQueryCount(
@@ -152,4 +207,59 @@ export const tagQueries = {
   ) {
     return models.Tags.getTag(_id);
   },
+
+  async cpTags(
+    _parent: undefined,
+    params: ITagFilterQueryParams,
+    { models }: IContext,
+  ) {
+    const {
+      type,
+      searchValue,
+      ids,
+      excludeIds,
+      isGroup,
+      includeWorkspaceTags,
+    } = params;
+
+    const filter: FilterQuery<ITagDocument> = {};
+
+    let contentType = type;
+
+    if (type) {
+      const [_pluginName, _moduleName, instanceId] = type.split(':');
+
+      if (!instanceId && params.instanceId) {
+        contentType = `${type}:${params.instanceId}`;
+      }
+
+      filter.type = contentType;
+
+      if (includeWorkspaceTags) {
+        filter.type = { $in: [null, '', contentType] };
+      }
+    }
+
+    if (searchValue) {
+      filter.name = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    }
+
+    if (ids?.length) {
+      filter._id = excludeIds ? { $nin: ids } : { $in: ids };
+    }
+
+    if (isGroup) {
+      filter.isGroup = isGroup;
+    }
+
+    if ('isGroup' in (params || {}) && isGroup === false) {
+      filter.isGroup = { $ne: true };
+    }
+
+    return models.Tags.find(filter).lean();
+  },
+};
+
+tagQueries.cpTags.wrapperConfig = {
+  forClientPortal: true,
 };

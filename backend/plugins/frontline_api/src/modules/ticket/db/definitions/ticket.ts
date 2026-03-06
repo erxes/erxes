@@ -14,6 +14,10 @@ export const ticketSchema = new Schema(
       type: String,
       label: 'statusId',
     },
+    state: {
+      type: String,
+      label: 'state',
+    },
     description: { type: String, label: 'Description' },
     type: {
       type: String,
@@ -36,6 +40,12 @@ export const ticketSchema = new Schema(
     targetDate: { type: Date, label: 'Target Date' },
     number: { type: String, label: 'Number' },
     statusType: { type: Number, label: 'Status Type', default: 0 },
+    subscribedUserIds: { type: [String], label: 'subscribed user IDs' },
+    propertiesData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
+    },
   },
   {
     timestamps: true,

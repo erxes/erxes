@@ -252,6 +252,8 @@ export const getOrSetCallCookie = async (wsServer) => {
   }
 };
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const getRecordUrl = async (params, user, models, subdomain) => {
   const {
     operatorPhone,
@@ -262,6 +264,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     _id,
     transferredCallStatus,
   } = params;
+
   if (transferredCallStatus === 'local' && callType === 'incoming') {
     return 'Check the transferred call record URL!';
   }
@@ -269,6 +272,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   const history = await getCallHistory(models, _id);
   const { inboxIntegrationId = '' } = history;
   const operator = operatorPhone || history.operatorPhone;
+
   const fetchRecordUrl = async (retryCount) => {
     try {
       const { response, extensionNumber } = await sendToGrandStream(
@@ -295,20 +299,15 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
 
       const queues = response?.response?.queue || response?.queue;
-      if (!queues) {
-        throw new Error('Queue not found');
-      }
+      if (!queues) throw new Error('Queue not found');
 
       const extension = queues.find((queueItem) =>
         queueItem.members.split(',').includes(extensionNumber),
       )?.extension;
+
       const tz = 'Asia/Ulaanbaatar';
-      const startDate = (
-        momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
-      ).format('YYYY-MM-DD');
-      const endDate = (
-        momentTz(callEndTime).tz(tz) || momentTz(callEndTime)
-      ).format('YYYY-MM-DD');
+      const startDate = (momentTz(callStartTime).tz(tz) || momentTz(callStartTime)).format('YYYY-MM-DD');
+      const endDate = (momentTz(callEndTime).tz(tz) || momentTz(callEndTime)).format('YYYY-MM-DD');
 
       let caller = customerPhone;
       let callee = extensionNumber || extension || operator;
@@ -322,8 +321,10 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         caller = extensionNumber;
         callee = customerPhone;
       }
+
       const startTime = `${startDate}T00:00:00`;
       const endTime = `${endDate}T23:59:59`;
+
       const cdrData = await sendToGrandStream(
         models,
         {
@@ -350,104 +351,66 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
 
       const cdrRoot = cdrData.response?.cdr_root || cdrData.cdr_root;
-
-      if (!cdrRoot) {
-        console.log(
-          'CDR root not found',
-          caller,
-          callee,
-          'startedDate: ',
-          startTime,
-          endTime,
-          callStartTime,
-        );
-        throw new Error('CDR root not found');
-      }
+      if (!cdrRoot) throw new Error('CDR root not found');
 
       const sortedCdr = cdrRoot.sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
 
       let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
-      if (!lastCreatedObject) {
-        console.log(
-          'Not found cdr',
-          caller,
-          callee,
-          'startedDate: ',
-          startTime,
-          endTime,
-          callStartTime,
-        );
-        throw new Error('Not found cdr');
-      }
+      if (!lastCreatedObject) throw new Error('Not found cdr');
 
-      const transferCall = findTransferCall(lastCreatedObject);
       const answeredCall = findAnsweredCall(lastCreatedObject);
+      const transferCall = findTransferCall(lastCreatedObject);
 
-      if (answeredCall) {
-        lastCreatedObject = answeredCall;
-      }
-
+      if (answeredCall) lastCreatedObject = answeredCall;
       if (transferCall) {
         lastCreatedObject = transferCall;
         fileDir = 'monitor';
       }
+
       if (lastCreatedObject?.disposition !== 'ANSWERED' && !transferCall) {
-        console.log(
-          'caller callee:',
-          caller,
-          callee,
-          'startedDate: ',
-          startDate,
-          callStartTime,
-        );
         throw new Error('Last created object disposition is not ANSWERED');
       }
 
       if (
-        ['QUEUE', 'TRANSFER'].some((substring) =>
-          lastCreatedObject?.action_type?.includes(substring),
-        ) &&
+        ['QUEUE', 'TRANSFER'].some((substring) => lastCreatedObject?.action_type?.includes(substring)) &&
         !(transferredCallStatus === 'remote' && callType === 'incoming')
       ) {
         fileDir = 'queue';
       }
+
       const recordfiles = lastCreatedObject?.recordfiles;
-      if (!recordfiles) {
-        console.log(
-          'record not found:',
-          caller,
-          callee,
-          'startedDate: ',
-          startDate,
-          callStartTime,
-        );
-        throw new Error('Record files not found');
-      }
+      if (!recordfiles) throw new Error('Record files not found');
+
       return await cfRecordUrl(
         { fileDir, recordfiles, inboxIntegrationId, retryCount },
         user,
         models,
         subdomain,
       );
+
     } catch (error) {
-      console.error('Error in fetchRecordUrl:', error.message);
-      if (
-        error.message !== 'Success' &&
-        Object.values(errorList).includes(error.message)
-      ) {
+      console.error(`Error in fetchRecordUrl (Retries left: ${retryCount}):`, error.message);
+
+      const isAuthError = error.message.toLowerCase().includes('wrong account') ||
+        error.message.toLowerCase().includes('auth failed') ||
+        error.message.toLowerCase().includes('password');
+
+      if (isAuthError) {
+        console.error('Critical Auth Error: Please check GrandStream credentials!');
         throw error;
       }
+
       if (retryCount > 1) {
+        await delay(1000);
         return fetchRecordUrl(retryCount - 1);
       }
       throw error;
     }
   };
 
-  return fetchRecordUrl(MAX_RETRY_COUNT);
+  return fetchRecordUrl(MAX_RETRY_COUNT || 3);
 };
 
 function sanitizeFileName(rawFileName: string): string {
@@ -460,19 +423,13 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
   try {
     const { fileDir, recordfiles, inboxIntegrationId, retryCount } = params;
 
-    if (!recordfiles) {
-      throw new Error('Missing required parameter: recordfiles');
-    }
+    if (!recordfiles) throw new Error('Missing required parameter: recordfiles');
 
     const filePathParts = recordfiles.split('/');
     const rawFileName = filePathParts[1]?.split('@')[0];
 
-    if (!rawFileName) {
-      console.warn('Could not extract filename from recordfiles path');
-      return;
-    }
+    if (!rawFileName) return;
 
-    // Fetch file buffer from GrandStream API
     const grandStreamResponse = await sendToGrandStream(
       models,
       {
@@ -493,36 +450,43 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
       user,
     );
 
-    if (!grandStreamResponse) {
-      throw new Error('Failed to get response from GrandStream API');
-    }
-    const fileBuffer = await grandStreamResponse.arrayBuffer();
-    if (!fileBuffer) {
+    if (!grandStreamResponse) throw new Error('Failed to get response from GrandStream API');
+
+    const fileBuffer = await grandStreamResponse.buffer();
+    if (!fileBuffer || fileBuffer.length === 0) {
       throw new Error('Received empty buffer from GrandStream API');
     }
-    // Prepare file upload
+
     const uploadUrl = getUrl(subdomain);
     const sanitizedFileName = sanitizeFileName(rawFileName);
 
     const formData = new FormData();
-    formData.append('file', Buffer.from(fileBuffer), {
-      filename: sanitizedFileName,
-    });
+    formData.append('file', fileBuffer, sanitizedFileName);
 
-    console.log(uploadUrl, 'uploadUrl');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const uploadResponse = await fetch(uploadUrl, {
-      method: 'POST',
-      body: formData,
-    });
-    if (!uploadResponse.ok) {
-      throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+    try {
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+      }
+
+      return await uploadResponse.text();
+    } catch (fetchError) {
+      if (fetchError.name === 'AbortError') throw new Error('Upload to Erxes timed out');
+      throw fetchError;
     }
 
-    const responseText = await uploadResponse.text();
-    return responseText;
   } catch (error) {
-    console.error('Error in cfRecordUrl:', error);
+    console.error('Error in cfRecordUrl:', error.message);
     throw error;
   }
 };
@@ -650,13 +614,13 @@ export const findIntegration = async (
     if (!integration && args.inboxIntegrationId) {
       integration = await models.CallIntegrations.findOne({
         inboxId: args.inboxIntegrationId,
-      }).lean();
+      });
     }
   } else if (args.inboxIntegrationId) {
     // If queueName is not provided, directly search by inboxId
     integration = await models.CallIntegrations.findOne({
       inboxId: args.inboxIntegrationId,
-    }).lean();
+    });
   }
 
   if (!integration) {
@@ -675,8 +639,8 @@ export const checkForExistingIntegrations = async (
     typeof details?.queues === 'string'
       ? details.queues.split(',').flatMap((q) => q.trim().split(/\s+/))
       : (details?.queues || []).flatMap((q) =>
-          typeof q === 'string' ? q.trim().split(/\s+/) : q,
-        );
+        typeof q === 'string' ? q.trim().split(/\s+/) : q,
+      );
 
   const models = await generateModels(subdomain);
   // Check for existing integrations with the same wsServer and overlapping queues

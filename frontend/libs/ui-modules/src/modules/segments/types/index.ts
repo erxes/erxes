@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { segmentFormSchema } from '../states/segmentFormSchema';
+import { IField } from 'ui-modules/modules/properties';
 
 export type TSegmentForm = z.infer<typeof segmentFormSchema>;
 export interface ListQueryResponse {
@@ -58,27 +59,6 @@ export interface ISegment {
   config?: any;
 }
 
-export type IField = {
-  _id: string;
-  name: string;
-  selectOptions?: Array<{ label: string; value: string | number }>;
-  type?: string;
-  group?: string;
-  value: string;
-  label: string;
-  options?: string[];
-  validation?: string;
-  choiceOptions?: string[];
-  selectionConfig?: {
-    queryName: string;
-    selectionName: string;
-    valueField: string;
-    labelField: string;
-    multi?: boolean;
-  };
-  groupDetail?: any;
-};
-
 export type FieldQueryResponse = {
   fieldsCombinedByContentType: IField[];
   segmentsGetAssociationTypes: { value: string; description: string }[];
@@ -95,6 +75,12 @@ export type IProperty = {
   parentFieldName?: `conditionSegments.${number}`;
 };
 
+export type ConditionFieldKey =
+  | 'propertyType'
+  | 'propertyName'
+  | 'propertyOperator'
+  | 'propertyValue';
+
 export type IPropertyField = {
   index: number;
   fields: IField[];
@@ -102,6 +88,8 @@ export type IPropertyField = {
   parentFieldName: IFormFieldName;
   defaultValue?: any;
   propertyTypes: any[];
+  loading: boolean;
+  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
 
 export type IPropertyCondtion = {
@@ -110,6 +98,8 @@ export type IPropertyCondtion = {
   operators: IOperator[];
   parentFieldName: IFormFieldName;
   defaultValue?: any;
+  loading: boolean;
+  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
 
 export type IPropertyInput = {
@@ -118,6 +108,8 @@ export type IPropertyInput = {
   defaultValue?: any;
   operators: IOperator[];
   selectedField?: IField;
+  loading: boolean;
+  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
 
 export interface ISegmentMap {

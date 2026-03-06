@@ -1,4 +1,7 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_OFFSET_PARAM_DEFS,
+} from 'erxes-api-shared/utils';
 
 export const types = `
     enum PostStatus {
@@ -11,6 +14,12 @@ export const types = `
     enum PostAuthorKind {
         user
         clientPortalUser
+    }
+
+    enum PostDateField {
+        createdAt
+        updatedAt
+        scheduledDate
     }
 
     union Author = User 
@@ -30,10 +39,11 @@ export const types = `
         categoryIds: [String]
         status: PostStatus
         tagIds: [String]
-  
+        tags: [PostTag]
         featured: Boolean
         featuredDate: Date
         scheduledDate: Date
+        publishedDate: Date
         autoArchiveDate: Date
         reactions: [String]
         reactionCounts: JSON
@@ -62,6 +72,12 @@ export const types = `
         pageInfo: PageInfo
     }
 
+    type PostListPagination {
+        posts: [Post]
+        totalCount: Int
+    }
+
+
     type Translation {
         _id: String!
         postId: String
@@ -86,6 +102,7 @@ export const inputs = `
         tagIds: [String]
         authorId: String
         scheduledDate: Date
+        publishedDate: Date
         autoArchiveDate: Date
         reactions: [String]
         reactionCounts: JSON
@@ -123,6 +140,21 @@ const commonPostQuerySelector = `
     sortField: String
     sortDirection: String
     language: String
+    dateField: PostDateField
+    dateFrom: Date
+    dateTo: Date
+`;
+
+const commonPostQuerySelectorPagination = `
+    ${GQL_OFFSET_PARAM_DEFS}
+    featured: Boolean
+    type: String
+    categoryIds: [String]
+    searchValue: String
+    status: PostStatus
+    tagIds: [String]
+    language: String
+
 `;
 
 export const queries = `
@@ -134,12 +166,14 @@ export const queries = `
     cpPosts(language: String, ${commonPostQuerySelector}): [Post]
     cpPostList(language: String, ${commonPostQuerySelector}): PostList
     cpPost(_id: String, slug: String, language: String, clientPortalId: String): Post
+    cpPostListWithPagination(language:String, ${commonPostQuerySelectorPagination}): PostListPagination
 `;
 
 export const mutations = `
     cmsPostsAdd(input: PostInput!): Post
     cmsPostsEdit(_id: String!, input: PostInput!): Post
     cmsPostsRemove(_id: String!): JSON
+    cmsPostsRemoveMany(_ids: [String]!): JSON
     cmsPostsChangeStatus(_id: String!, status: PostStatus!): Post
     cmsPostsToggleFeatured(_id: String!): Post
 

@@ -1,8 +1,5 @@
+import { IListParams, IPropertyField } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
-import {
-  ICursorPaginateParams,
-  IListParams,
-} from 'erxes-api-shared/core-types';
 
 export interface ITicket {
   name: string;
@@ -23,6 +20,10 @@ export interface ITicket {
   statusChangedDate?: Date;
   statusType?: number;
   number?: string;
+  subscribedUserIds?: string[];
+  state?: string;
+  isSubscribed?: boolean;
+  propertiesData?: IPropertyField;
 }
 
 export interface ITicketUpdate extends ITicket {
@@ -35,10 +36,7 @@ export interface ITicketDocument extends ITicket, Document {
   updatedAt: Date;
 }
 
-export interface ITicketFilter
-  extends ICursorPaginateParams,
-    IListParams,
-    ITicket {
+export interface ITicketFilter extends IListParams, ITicket {
   userId?: string;
   createdAt?: Date;
 }

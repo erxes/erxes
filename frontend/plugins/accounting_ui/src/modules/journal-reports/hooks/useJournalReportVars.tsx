@@ -6,7 +6,7 @@ import {
 } from 'erxes-ui';
 import { trsQueryParamTypes } from '~/modules/transactions/types/Transaction';
 import { IJournalReport } from '../types/journalReport';
-import { GroupRules } from '../types/reportsMap';
+import { ReportRules } from '../types/reportsMap';
 
 const getConvertedValue = (key: string, value: string) => {
   const typeName = trsQueryParamTypes[key];
@@ -69,6 +69,7 @@ export const useTransactionsQueryParams = () => {
       toDate: string,
       report: string,
       groupKey: string,
+      isMore: string,
     }>([
       'status', 'searchValue', 'number',
       'accountIds', 'accountKind', 'accountExcludeIds', 'accountStatus',
@@ -76,7 +77,7 @@ export const useTransactionsQueryParams = () => {
       'accountBranchId', 'accountDepartmentId', 'accountCurrency', 'accountJournal',
       'brandId', 'isOutBalance', 'branchId', 'departmentId', 'currency', 'journal',
       'statuses', 'createdUserId', 'modifiedUserId',
-      'fromDate', 'toDate', 'report', 'groupKey'
+      'fromDate', 'toDate', 'report', 'groupKey', 'isMore'
     ]);
 
   return queryParams
@@ -84,7 +85,7 @@ export const useTransactionsQueryParams = () => {
 
 export const useJouranlReportVariables = (
   variables?: QueryHookOptions<ICursorListResponse<IJournalReport>>['variables'],
-) => {
+): any => {
   const { report, groupKey, ...queryParams } = useTransactionsQueryParams();
 
   const curVariables = Object.entries(queryParams).reduce((acc, [key, value]) => {
@@ -94,7 +95,7 @@ export const useJouranlReportVariables = (
     return acc;
   }, {} as Record<string, string | boolean | Date | string[]>);
 
-  const groupRule = GroupRules[report || '']?.groups[groupKey || 'default'] || {};
+  const groupRule = ReportRules[report || '']?.groups?.[groupKey || 'default'];
 
   return {
     ...variables,

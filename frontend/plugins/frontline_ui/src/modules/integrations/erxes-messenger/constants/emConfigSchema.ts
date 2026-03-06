@@ -3,15 +3,16 @@ import { z } from 'zod';
 export const EM_CONFIG_SCHEMA = z.object({
   name: z.string().min(1, 'Name is required'),
   channelId: z.string(),
-  ticketConfigId: z.string().optional(),
+  ticketConfigId: z.string().optional().nullable(),
   botSetup: z
     .object({
       greetingMessage: z.string().optional(),
       persistentMenu: z
         .array(
           z.object({
-            title: z.string().optional(),
+            text: z.string().optional(),
             type: z.enum(['button', 'link']).optional(),
+            link: z.string().optional(),
           }),
         )
         .optional(),

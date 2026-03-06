@@ -1,24 +1,24 @@
-import type { FC } from 'react';
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { CANVAS, SNAP_GRID } from '@/pos/constants';
 import {
-  ReactFlow,
   Background,
+  ReactFlow,
   ReactFlowProvider,
   useViewport,
   type NodeMouseHandler,
   type ReactFlowInstance,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { TableNode } from './tableNode';
+import { cn, Spinner, Tabs } from 'erxes-ui';
+import type { FC } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSlotManager } from '../hooks/customHooks';
+import { useNodeEvents } from '../hooks/useNodeEvents';
+import { CustomNode, POSSlotsManagerProps } from '../types';
+import MiniMapToggle from './miniMap';
 import NodeControls from './nodeControl';
-import { cn, Tabs, Spinner } from 'erxes-ui';
 import SidebarList from './sideBar';
 import SidebarDetail from './sideBarDetail';
-import MiniMapToggle from './miniMap';
-import { CustomNode, POSSlotsManagerProps } from '../types';
-import { useSlotManager } from '../hooks/customHooks';
-import { SNAP_GRID, CANVAS } from '@/pos/constants';
-import { useNodeEvents } from '../hooks/useNodeEvents';
+import { TableNode } from './tableNode';
 
 type CanvasBoundsProps = {
   width: number;

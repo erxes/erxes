@@ -34,7 +34,7 @@ export const ConversationRelationDetails = ({
       _id: conversationId,
     },
   });
-  const { customer, createdAt, integration, updatedAt } =
+  const { customer, createdAt, integration, updatedAt, tagIds } =
     conversationDetail || {};
   const { channelId } = integration || {};
   const { channelDetail } = useChannelInline({
@@ -73,6 +73,7 @@ export const ConversationRelationDetails = ({
           channelId: integration?.channelId || '',
           channel: integration?.channel || null,
         },
+        tagIds: tagIds || [],
       }}
     >
       <Sheet open={open} onOpenChange={handleOpen}>

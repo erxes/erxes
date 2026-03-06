@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useBranchList } from '@/tms/hooks/BranchList';
 import { useBranchRemove } from '@/tms/hooks/BranchRemove';
 import { useBranchDuplicate } from '@/tms/hooks/BranchDuplicate';
@@ -6,46 +5,46 @@ import { useBranchEdit } from '@/tms/hooks/BranchEdit';
 import { IBranch } from '@/tms/types/branch';
 import { EmptyList } from './EmptyList';
 import { BranchCard } from './BranchCard';
-import { ConfirmationDialog } from './ConfirmationDialog';
-import { Sheet, Spinner } from 'erxes-ui';
+import { Sheet, Spinner, useConfirm } from 'erxes-ui';
 import CreateTmsForm from './CreateTmsForm';
 
 export const BranchList = () => {
   const { list, totalCount, loading, error, refetch } = useBranchList();
 
-  const { handleDeleteBranch, loading: removeLoading } = useBranchRemove();
+  const { handleDeleteBranch } = useBranchRemove();
 
   const { handleDuplicateBranch, loading: duplicateLoading } =
     useBranchDuplicate();
 
   const { editingBranch, handleEditBranch, closeEditDialog } = useBranchEdit();
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
+  const { confirm } = useConfirm();
 
-  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState<string | null>(
-    null,
-  );
+  const deleteConfirmOptions = { confirmationValue: 'delete' };
+  const duplicateConfirmOptions = { confirmationValue: 'duplicate' };
 
-  const onDuplicateConfirm = async () => {
-    const branchId = duplicateDialogOpen;
-
-    setDuplicateDialogOpen(null);
-
+  const onDuplicate = (branchId: string) => {
+    const branchName = list?.find((b) => b._id === branchId)?.name || '';
     const branch = list?.find((b) => b._id === branchId);
+    if (!branch) return;
 
-    if (branch) {
+    confirm({
+      message: `Are you sure you want to create a duplicate of "${branchName}"?`,
+      options: duplicateConfirmOptions,
+    }).then(async () => {
       await handleDuplicateBranch(branch, refetch);
-    }
+    });
   };
 
-  const onDeleteConfirm = async () => {
-    const branchId = deleteDialogOpen;
+  const onDelete = (branchId: string) => {
+    const branchName = list?.find((b) => b._id === branchId)?.name || '';
 
-    setDeleteDialogOpen(null);
-
-    if (branchId) {
+    confirm({
+      message: `Are you sure you want to permanently delete "${branchName}"?`,
+      options: deleteConfirmOptions,
+    }).then(async () => {
       await handleDeleteBranch(branchId, refetch);
-    }
+    });
   };
 
   if (loading)
@@ -63,20 +62,18 @@ export const BranchList = () => {
 
   return (
     <>
-      <div className="w-full p-2 sm:p-3 md:p-4 flex flex-col min-h-[calc(100vh-150px)] sm:min-h-[calc(100vh-180px)] md:min-h-[calc(100vh-200px)]">
-        <div className="flex-1">
-          <div className="grid grid-cols-1 gap-2 sm:gap-3 md:gap-4 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-            {list.map((branch: IBranch) => (
-              <BranchCard
-                key={branch._id}
-                branch={branch}
-                onEdit={handleEditBranch}
-                onDuplicate={setDuplicateDialogOpen}
-                onDelete={setDeleteDialogOpen}
-                duplicateLoading={duplicateLoading}
-              />
-            ))}
-          </div>
+      <div className="w-full p-2 sm:p-3 md:p-4 flex flex-col min-h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+          {list.map((branch: IBranch) => (
+            <BranchCard
+              key={branch._id}
+              branch={branch}
+              onEdit={handleEditBranch}
+              onDuplicate={onDuplicate}
+              onDelete={onDelete}
+              duplicateLoading={duplicateLoading}
+            />
+          ))}
         </div>
       </div>
 
@@ -104,26 +101,6 @@ export const BranchList = () => {
           />
         )}
       </Sheet>
-
-      <ConfirmationDialog
-        open={!!duplicateDialogOpen}
-        onOpenChange={(open) => !open && setDuplicateDialogOpen(null)}
-        type="duplicate"
-        branchName={
-          list?.find((b) => b._id === duplicateDialogOpen)?.name || ''
-        }
-        loading={duplicateLoading}
-        onConfirm={onDuplicateConfirm}
-      />
-
-      <ConfirmationDialog
-        open={!!deleteDialogOpen}
-        onOpenChange={(open) => !open && setDeleteDialogOpen(null)}
-        type="delete"
-        branchName={list?.find((b) => b._id === deleteDialogOpen)?.name || ''}
-        loading={removeLoading}
-        onConfirm={onDeleteConfirm}
-      />
     </>
   );
 };

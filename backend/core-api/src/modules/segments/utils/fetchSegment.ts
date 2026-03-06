@@ -1,16 +1,15 @@
+import { splitType } from 'erxes-api-shared/core-modules';
 import {
+  fetchEs,
   fetchEsWithScroll,
+  generateElkIds,
   getEsIndexByContentType,
   getPluginSegmentConfig,
+  getRealIdFromElk,
 } from 'erxes-api-shared/utils';
-
-import { generateElkIds, getRealIdFromElk } from 'erxes-api-shared/utils';
-
-import { fetchEs } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IOptions } from '../types';
 import { generateQueryBySegment } from './common';
-import { splitType } from 'erxes-api-shared/core-modules';
 
 export const fetchSegment = async (
   models: IModels,

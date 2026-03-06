@@ -13,10 +13,10 @@ export function ClientPortalDetailToki({ clientPortal }: Props) {
   const form = useForm<ReturnType<(typeof CLIENTPORTAL_TOKI_SCHEMA)['parse']>>({
     resolver: zodResolver(CLIENTPORTAL_TOKI_SCHEMA),
     defaultValues: {
-      merchantId: clientPortal?.tokiConfig?.merchantId || '',
-      apiKey: clientPortal?.tokiConfig?.apiKey || '',
-      username: clientPortal?.tokiConfig?.username || '',
-      password: clientPortal?.tokiConfig?.password || '',
+      merchantId: clientPortal?.auth?.tokiConfig?.merchantId || '',
+      apiKey: clientPortal?.auth?.tokiConfig?.apiKey || '',
+      username: clientPortal?.auth?.tokiConfig?.username || '',
+      password: clientPortal?.auth?.tokiConfig?.password || '',
     },
   });
 
@@ -29,11 +29,13 @@ export function ClientPortalDetailToki({ clientPortal }: Props) {
       variables: {
         id: clientPortal?._id,
         clientPortal: {
-          tokiConfig: {
-            merchantId: values.merchantId,
-            apiKey: values.apiKey,
-            username: values.username,
-            password: values.password,
+          auth: {
+            tokiConfig: {
+              merchantId: values.merchantId,
+              apiKey: values.apiKey,
+              username: values.username,
+              password: values.password,
+            },
           },
         },
       },
@@ -94,7 +96,7 @@ export function ClientPortalDetailToki({ clientPortal }: Props) {
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Toki Password</Form.Label>
-              <Input {...field} type="password" autoComplete="off" />
+              <Input {...field} type="password" autoComplete="new-password" />
               <Form.Description>
                 Your Toki Password (provided by Toki)
               </Form.Description>

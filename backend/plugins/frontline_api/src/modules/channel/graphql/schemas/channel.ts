@@ -4,7 +4,7 @@ export const types = `
         _id: String @external
     }
 
-    type Channel {
+    type Channel @key(fields: "_id") {
         _id: String!
         icon: String
         name: String!

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import {
   Combobox,
   Command,
@@ -7,7 +7,18 @@ import {
   PopoverScoped,
   useFilterContext,
   useQueryState,
+  HoverCard,
+  Avatar,
+  readImage,
+  IconComponent,
+  Button,
 } from 'erxes-ui';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  IconChevronRight,
+  IconUsers,
+  IconClipboard,
+} from '@tabler/icons-react';
 import {
   useUsers,
   SelectMember,
@@ -15,9 +26,11 @@ import {
   IUser,
   useSelectMemberContext,
   MembersInline,
+  useAssignedMember,
 } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useGetTeamMembers } from '@/team/hooks/useGetTeamMembers';
+import { useGetTeams } from '@/team/hooks/useGetTeams';
 import { useDebounce } from 'use-debounce';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import {
@@ -25,8 +38,201 @@ import {
   SelectTriggerOperation,
   SelectTriggerVariant,
 } from '@/operation/components/SelectOperation';
+import { useProjects } from '@/project/hooks/useGetProjects';
 
 const SelectAssigneeProvider = SelectMember.Provider;
+
+interface ExpandableSectionProps<T> {
+  title: string;
+  icon: React.ElementType;
+  items?: T[];
+  loading: boolean;
+  renderItem: (item: T) => React.ReactNode;
+  keyExtractor: (item: T) => string | number;
+  emptyText: string;
+}
+
+const ExpandableSection = <T,>({
+  title,
+  icon: Icon,
+  items,
+  loading,
+  renderItem,
+  keyExtractor,
+  emptyText,
+}: ExpandableSectionProps<T>) => {
+  const [expanded, setExpanded] = useState(false);
+  const LIMIT = 2;
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-2 pt-2 border-t">
+        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+          <Icon className="size-3.5" />
+          <span>{title}</span>
+        </div>
+        <div className="text-xs text-muted-foreground pl-5">Loading...</div>
+      </div>
+    );
+  }
+
+  const hasItems = items && items.length > 0;
+  const displayedItems = expanded ? items : items?.slice(0, LIMIT);
+  const remainingCount = (items?.length || 0) - LIMIT;
+
+  return (
+    <div className="flex flex-col gap-2 ">
+      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+        <Icon className="size-3.5" />
+        <span>
+          {title} {hasItems && `(${items?.length})`}
+        </span>
+      </div>
+
+      <div className="flex gap-2.5 items-center flex-wrap">
+        {hasItems ? (
+          <>
+            {displayedItems?.map((item) => (
+              <div key={keyExtractor(item)} className="min-w-0 max-w-full">
+                {renderItem(item)}
+              </div>
+            ))}
+
+            {remainingCount > 0 && (
+              <Button
+                variant="link"
+                size="sm"
+                className="text-xs text-muted-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpanded(!expanded);
+                }}
+              >
+                {expanded ? 'Show less' : `+${remainingCount} more`}
+              </Button>
+            )}
+          </>
+        ) : (
+          <div className="text-xs text-muted-foreground pl-5">{emptyText}</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const AssigneeHoverCard = forwardRef(
+  (
+    {
+      assigneeId,
+      children,
+      ...props
+    }: {
+      assigneeId: string;
+      children: React.ReactNode;
+    },
+    ref,
+  ) => {
+    const { details: assigneeDetails, loading: userLoading } =
+      useAssignedMember({
+        variables: { _id: assigneeId },
+        skip: !assigneeId,
+      });
+
+    const { teams, loading: teamsLoading } = useGetTeams({
+      variables: { userId: assigneeId },
+      skip: !assigneeId,
+    });
+
+    const { projects, loading: projectsLoading } = useProjects({
+      variables: {
+        userId: assigneeId,
+      },
+      skip: !assigneeId,
+    });
+
+    if (!assigneeId || userLoading || !assigneeDetails) {
+      return (
+        <div
+          ref={ref as React.Ref<HTMLDivElement>}
+          {...props}
+          style={{ display: 'inline-block' }}
+        >
+          {children}
+        </div>
+      );
+    }
+
+    const { fullName, avatar } = assigneeDetails;
+
+    return (
+      <HoverCard openDelay={300}>
+        <HoverCard.Trigger asChild>
+          <div
+            ref={ref as React.Ref<HTMLDivElement>}
+            {...props}
+            style={{ display: 'inline-block' }}
+          >
+            {children}
+          </div>
+        </HoverCard.Trigger>
+        <HoverCard.Content className="w-60 p-3" side="right" align="start">
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-4 items-center pb-2 border-b">
+              <Avatar size="xl">
+                <Avatar.Image src={readImage(avatar as string, 200)} />
+                <Avatar.Fallback>{fullName?.charAt(0) || ''}</Avatar.Fallback>
+              </Avatar>
+              <div className="font-semibold text-sm truncate">
+                {fullName || 'Unnamed user'}
+              </div>
+            </div>
+            <ExpandableSection
+              title="Teams"
+              icon={IconUsers}
+              loading={teamsLoading}
+              items={teams}
+              emptyText="No teams assigned"
+              keyExtractor={(team) => team._id}
+              renderItem={(team) => (
+                <div key={team._id} className="text-xs flex items-center gap-1">
+                  {team.icon && (
+                    <IconComponent
+                      name={team.icon}
+                      className="size-4 shrink-0"
+                    />
+                  )}
+                  <span className="truncate">{team.name}</span>
+                </div>
+              )}
+            />
+            <ExpandableSection
+              title="Projects"
+              icon={IconClipboard}
+              loading={projectsLoading}
+              items={projects}
+              emptyText="No projects assigned"
+              keyExtractor={(project) => project._id}
+              renderItem={(project) => (
+                <div
+                  key={project._id}
+                  className="text-xs flex items-center gap-1"
+                >
+                  {project.icon && (
+                    <IconComponent
+                      name={project.icon as string}
+                      className="size-4 shrink-0"
+                    />
+                  )}
+                  <span className="truncate">{project.name}</span>
+                </div>
+              )}
+            />
+          </div>
+        </HoverCard.Content>
+      </HoverCard>
+    );
+  },
+);
 
 const SelectAssigneeValue = ({
   placeholder,
@@ -58,6 +264,7 @@ const SelectTeamMemberContent = ({
   teamIds?: string[] | string;
   exclude: boolean;
 }) => {
+  const hasTeamIds = Array.isArray(teamIds) ? teamIds.length > 0 : !!teamIds;
   const { members: teamMembers } = useGetTeamMembers({ teamIds });
   const excludeIds = teamMembers?.map((member) => member.memberId);
   const [search, setSearch] = useState('');
@@ -68,20 +275,20 @@ const SelectTeamMemberContent = ({
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
       searchValue: debouncedSearch,
-      excludeIds: exclude,
-      ids: filteredIds,
+      ...(hasTeamIds ? { excludeIds: exclude, ids: filteredIds } : {}),
     },
-    skip: !excludeIds || !filteredIds?.length,
+    skip: hasTeamIds ? !excludeIds || !filteredIds?.length : false,
   });
-  const membersList = exclude
-    ? [currentUser, ...users].filter(
-        (user) =>
-          !memberIds?.find((memberId) => memberId === user._id) &&
-          !excludeIds?.find((excludeId) => excludeId === user._id),
-      )
-    : [currentUser, ...users].filter(
-        (user) => !members.find((member) => member._id === user._id),
-      );
+  const membersList =
+    exclude && hasTeamIds
+      ? [currentUser, ...users].filter(
+          (user) =>
+            !memberIds?.find((memberId) => memberId === user._id) &&
+            !excludeIds?.find((excludeId) => excludeId === user._id),
+        )
+      : [currentUser, ...users].filter(
+          (user) => !members.find((member) => member._id === user._id),
+        );
 
   return (
     <Command shouldFilter={false}>
@@ -131,7 +338,9 @@ const SelectAssigneeFilterView = ({
     <Filter.View filterKey="assignee">
       <SelectAssigneeProvider
         mode="single"
-        value={assignee === 'no-assignee' ? 'no-assignee' : assignee ?? undefined}
+        value={
+          assignee === 'no-assignee' ? 'no-assignee' : (assignee ?? undefined)
+        }
         onValueChange={(value) => {
           setAssignee(value === null ? 'no-assignee' : (value as string));
           resetFilterState();
@@ -193,30 +402,66 @@ const SelectAssigneeTaskRoot = ({
 }) => {
   const { updateTask } = useUpdateTask();
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { teamId } = useParams();
+  const [internalValue, setInternalValue] = useState(value);
 
-  const handleValueChange = (value: string | string[] | null) => {
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
+  const handleValueChange = (newValue: string | string[] | null) => {
+    setInternalValue((newValue as string) ?? undefined);
     if (id) {
       updateTask({
         variables: {
           _id: id,
-          assigneeId: value,
+          assigneeId: newValue,
         },
       });
     }
     setOpen(false);
   };
 
+  const handleViewTasks = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const basePath = teamId
+      ? `/operation/team/${teamId}/tasks`
+      : '/operation/tasks';
+    navigate(`${basePath}?assignee=${internalValue}`);
+  };
+
+  const trigger =
+    variant === 'detail' && internalValue ? (
+      <AssigneeHoverCard assigneeId={internalValue}>
+        <SelectTriggerOperation variant={variant}>
+          <SelectAssigneeValue variant={variant} />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 shrink-0 ml-1"
+            onClick={handleViewTasks}
+            title="View assigned tasks"
+          >
+            <IconChevronRight className="size-4" />
+          </Button>
+        </SelectTriggerOperation>
+      </AssigneeHoverCard>
+    ) : (
+      <SelectTriggerOperation variant={variant === 'card' ? 'icon' : variant}>
+        <SelectAssigneeValue variant={variant} />
+      </SelectTriggerOperation>
+    );
+
   return (
     <SelectAssigneeProvider
-      value={value}
+      value={internalValue}
       onValueChange={handleValueChange}
       mode="single"
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant={variant === 'card' ? 'icon' : variant}>
-          <SelectAssigneeValue variant={variant} />
-        </SelectTriggerOperation>
+        {trigger}
         <SelectOperationContent variant={variant}>
           <SelectTeamMemberContent teamIds={teamIds} exclude={false} />
         </SelectOperationContent>

@@ -36,49 +36,49 @@ import {
 } from '@/integrations/imap/graphql/schema/imap';
 
 import {
-  mutations as PipelineMutations,
-  queries as PipelineQuery,
-  types as PipelineTypes,
-} from '@/ticket/graphql/schemas/pipeline';
-
-import {
-  mutations as StatusMutations,
-  queries as StatusQuery,
-  types as StatusTypes,
-} from '@/ticket/graphql/schemas/status';
-import {
-  mutations as TicketMutations,
-  queries as TicketQuery,
-  types as TicketTypes,
-} from '@/ticket/graphql/schemas/ticket';
-
-import {
   queries as WidgetQueries,
   types as WidgetTypes,
   mutations as WidgetMutations,
 } from '~/modules/inbox/graphql/schemas/widget';
 
 import {
-  queries as ActivityQueries,
-  types as ActivityTypes,
-} from '@/ticket/graphql/schemas/activity';
-
-import {
-  mutations as NoteMutations,
-  queries as NoteQueries,
-  types as NoteTypes,
-} from '@/ticket/graphql/schemas/note';
-import {
-  mutations as TicketConfigMutations,
-  queries as TicketConfigQueries,
-  types as TicketConfigTypes,
-} from '@/ticket/graphql/schemas/ticketConfig';
-
-import {
   mutations as ResponseTemplateMutations,
   queries as ResponseTemplateQueries,
   types as ResponseTemplateTypes,
 } from '~/modules/response/graphql/schema';
+import {
+  mutations as FormMutations,
+  queries as FormQueries,
+  types as FormTypes,
+} from '~/modules/form/graphql/schema/form';
+
+import {
+  fieldsMutations as FieldMutations,
+  fieldsQueries as FieldQueries,
+  fieldsTypes as FieldTypes,
+} from '~/modules/form/graphql/schema/field';
+
+import {
+  queries as ReportInboxQueries,
+  types as ReportInboxTypes,
+} from '@/reports/graphql/schema/inbox';
+
+import {
+  queries as ReportTicketQueries,
+  types as ReportTicketTypes,
+} from '@/reports/graphql/schema/ticket';
+
+import {
+  queries as KnowledgeBaseQueries,
+  mutations as KnowledgeBaseMutations,
+  types as KnowledgeBaseTypes,
+} from '@/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs';
+
+import {
+  mutations as TicketMutations,
+  queries as TicketQuery,
+  types as TicketTypes,
+} from '@/ticket/graphql/schemas';
 
 export const types = `
     ${ChannelsTypes}
@@ -87,15 +87,13 @@ export const types = `
     ${FacebookTypes}
     ${CallTypes}
     ${ImapTypes}
-    ${PipelineTypes}
-    ${StatusTypes}
     ${TicketTypes}
     ${WidgetTypes}
-    ${ActivityTypes}
-    ${NoteTypes}
-    ${TicketConfigTypes}
     ${ResponseTemplateTypes}
-
+    ${ReportInboxTypes}
+    ${ReportTicketTypes}
+    ${FormTypes}
+    ${FieldTypes}    ${KnowledgeBaseTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -104,14 +102,14 @@ export const queries = `
     ${FacebookQueries}
     ${CallQueries}
     ${ImapQueries}
-    ${PipelineQuery}
-    ${StatusQuery}
     ${TicketQuery}
     ${WidgetQueries}
-    ${ActivityQueries}
-    ${NoteQueries}
-    ${TicketConfigQueries}
     ${ResponseTemplateQueries}
+    ${ReportInboxQueries}
+    ${ReportTicketQueries}
+    ${FormQueries}
+    ${FieldQueries}
+    ${KnowledgeBaseQueries}
   `;
 
 export const mutations = `
@@ -121,12 +119,11 @@ export const mutations = `
    ${FacebookMutations}
    ${CallMutations}
    ${ImapMutations}
-   ${PipelineMutations}
-   ${StatusMutations}
    ${TicketMutations}
    ${WidgetMutations}
-   ${NoteMutations}
-   ${TicketConfigMutations}
    ${ResponseTemplateMutations}
+   ${FormMutations}
+   ${FieldMutations}
+   ${KnowledgeBaseMutations}
 `;
 export default { types, queries, mutations };

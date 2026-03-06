@@ -1,10 +1,8 @@
 import * as _ from 'underscore';
-
 import {
   ISettlePaymentParams,
   getStatus,
 } from './graphql/resolvers/mutations/orders';
-
 import moment from 'moment';
 import { productSchema } from '~/modules/posclient/db/definitions/products';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
@@ -15,8 +13,7 @@ import {
   BILL_TYPES,
   SUBSCRIPTION_INFO_STATUS,
 } from '~/modules/posclient/db/definitions/constants';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { fetchEs, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fetchEs,graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IDoc } from '~/modules/posclient/db/models/PutData';
 import {
   checkOrderStatus,

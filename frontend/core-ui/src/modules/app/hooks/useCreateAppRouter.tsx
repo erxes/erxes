@@ -13,8 +13,9 @@ import { AppPath } from '@/types/paths/AppPath';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
 import { ComponentsRoutes } from '../components/ComponentsRoutes';
 
+import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
+import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
 import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
-import { ProductsRoutes } from '@/app/components/ProductsRoutes';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
@@ -26,7 +27,8 @@ import { currentUserState, useVersion } from 'ui-modules';
 import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 import { Providers } from '~/providers';
-import { DocumentsRoutes } from '../components/DocumentsRoutes';
+import { ImportExportRoutes } from '../components/ImportExportRoutes';
+import { TemplateRoutes } from '../components/TemplateRoutes';
 
 const UserConfirmInvitationPage = lazy(
   () => import('~/pages/auth/UserConfirmInvitationPage'),
@@ -84,11 +86,6 @@ export const useCreateAppRouter = () => {
               />
 
               <Route
-                path={AppPath.ProductsCatchAll}
-                element={<ProductsRoutes />}
-              />
-
-              <Route
                 path={AppPath.ContactsCatchAll}
                 element={<ContactsRoutes />}
               />
@@ -113,6 +110,25 @@ export const useCreateAppRouter = () => {
                   element={<DocumentsRoutes />}
                 />
               )}
+
+              {isOS && (
+                <Route
+                  path={AppPath.BroadcastsCatchAll}
+                  element={<BroadcastRoutes />}
+                />
+              )}
+
+              {isOS && (
+                <Route
+                  path={AppPath.TemplatesCatchAll}
+                  element={<TemplateRoutes />}
+                />
+              )}
+
+              <Route
+                path={AppPath.ImportExportCatchAll}
+                element={<ImportExportRoutes />}
+              />
 
               <Route
                 path={AppPath.MyInboxCatchAll}

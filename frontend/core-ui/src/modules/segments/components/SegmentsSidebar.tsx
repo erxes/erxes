@@ -1,17 +1,20 @@
-import { Sidebar, useQueryState } from 'erxes-ui';
+import { cn, Sidebar, useQueryState } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   types: { contentType: string; description: string }[];
+  className?: string;
 };
 
-export const SegmentListSidebar = ({ types }: Props) => {
+export const SegmentListSidebar = ({ types, className }: Props) => {
   const [selectedContentType] = useQueryState<string>('contentType');
+  const { t } = useTranslation('segment');
 
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
+    <Sidebar collapsible="none" className={cn('flex-none', className)}>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Segment Types</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('segment-types')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {types.map(({ description, contentType }) => (

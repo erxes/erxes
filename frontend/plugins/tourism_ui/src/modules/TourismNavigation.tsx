@@ -5,14 +5,14 @@ export const TourismNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name="pms"
+        name="PMS"
         icon={IconSandbox}
         pathPrefix="tourism"
         path="pms"
       />
 
       <NavigationMenuLinkItem
-        name="tms"
+        name="TMS"
         icon={IconBox}
         pathPrefix="tourism"
         path="tms"

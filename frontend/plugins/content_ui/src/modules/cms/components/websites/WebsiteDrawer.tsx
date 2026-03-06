@@ -29,7 +29,8 @@ interface Website {
   description: string;
   domain: string;
   url: string;
-  kind: string;
+  kind?: string;
+  clientPortalId: string;
   createdAt: string;
   languages?: string[];
   language?: string;
@@ -90,7 +91,7 @@ export function WebsiteDrawer({
           description: website.description || '',
           domain: website.domain || '',
           url: website.url || '',
-          kind: website.kind || 'client',
+          kind: website.clientPortalId || '',
           languages: website.languages || [],
           language: website.language || '',
         });
@@ -444,10 +445,10 @@ export function WebsiteDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : hasPermissionError
-                  ? 'Permission Required'
-                  : isEditing
-                  ? 'Save Changes'
-                  : 'Create CMS'}
+                    ? 'Permission Required'
+                    : isEditing
+                      ? 'Save Changes'
+                      : 'Create CMS'}
               </Button>
 
               {isEditing && (
@@ -458,7 +459,9 @@ export function WebsiteDrawer({
                     if (website?._id) {
                       try {
                         await deleteCMS({ variables: { id: website._id } });
-                      } catch (error) {}
+                      } catch (error) {
+                        console.error('Error deleting CMS:', error);
+                      }
                     }
                   }}
                   disabled={removing}

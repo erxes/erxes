@@ -124,7 +124,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
   }, [posDetail, reset]);
 
   const parseMaxSkipNumber = (value: string): number => {
-    const parsed = parseInt(value, 10);
+    const parsed = Number.parseInt(value, 10);
     return Number.isNaN(parsed) ? 0 : parsed;
   };
 
@@ -218,7 +218,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
               </div>
 
               {isEcomType && isOnline && (
-                <div className="grid grid-cols-2 gap-4">
+                <>
                   {isFieldVisible('allowBranches', posType) && (
                     <AllowBranchesField control={control} />
                   )}
@@ -228,7 +228,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
                   {isFieldVisible('beginNumber', posType) && (
                     <BeginNumberField control={control} />
                   )}
-                </div>
+                </>
               )}
 
               {isRestaurantType && (

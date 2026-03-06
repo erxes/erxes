@@ -263,7 +263,7 @@ export const taskQueries = {
         ...filter,
         orderBy: {
           statusType: 'asc',
-          createdAt: 'asc',
+          createdAt: 'desc',
         },
       },
       query: filterQuery,

@@ -1,6 +1,4 @@
-import { z } from 'zod';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useTicketForm } from '../hooks/useTicketForm';
+import { getLocalStorageItem } from '@libs/utils';
 import {
   Button,
   Form,
@@ -11,13 +9,14 @@ import {
   toast,
   Upload,
 } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Path } from 'react-hook-form';
+import { z } from 'zod';
 import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
-import { ticketConfigAtom } from '../../states';
+import { ticketConfigAtom, userTicketCreatedNumberAtom } from '../../states';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
-import { getLocalStorageItem } from '@libs/utils';
+import { useTicketForm } from '../hooks/useTicketForm';
 import { SelectTicketTag } from './tags/select-ticket-tag';
-import { userTicketCreatedNumberAtom } from '../../states';
 
 const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
 
@@ -45,6 +44,7 @@ export const TicketForm = ({
     const formData = data as Record<string, unknown>;
 
     createTicket({
+      refetchQueries: ['WidgetTicketsByCustomer'],
       variables: {
         name: (formData?.name as string) ?? '',
         description: (formData?.description as string) ?? '',
@@ -241,7 +241,7 @@ export const TicketForm = ({
             <Button
               type="button"
               variant="outline"
-              className="h-8 shadow-2xs flex-1"
+              className="shadow-2xs flex-1"
               onClick={handleCancel}
             >
               Cancel
@@ -249,7 +249,7 @@ export const TicketForm = ({
             <Button
               type="submit"
               disabled={loading || saveTicketCustomersLoading}
-              className="bg-primary h-8 shadow-2xs flex-1"
+              className="bg-primary shadow-2xs flex-1"
             >
               {loading || saveTicketCustomersLoading ? (
                 <Spinner size="sm" />

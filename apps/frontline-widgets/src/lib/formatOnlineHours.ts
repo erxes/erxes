@@ -19,13 +19,16 @@ interface FormatOnlineHoursOptions {
 function parseTime(timeString: string): { hour: number; minute: number } {
   const normalized = timeString.toLowerCase().trim();
   const colonIndex = normalized.indexOf(':');
-  
+
   if (colonIndex === -1) {
     throw new Error(`Invalid time format: ${timeString}`);
   }
 
-  let hour = parseInt(normalized.substring(0, colonIndex), 10);
-  const minute = parseInt(normalized.substring(colonIndex + 1, colonIndex + 3), 10);
+  let hour = Number.parseInt(normalized.substring(0, colonIndex), 10);
+  const minute = Number.parseInt(
+    normalized.substring(colonIndex + 1, colonIndex + 3),
+    10,
+  );
 
   const isPM = normalized.includes('pm');
   const isAM = normalized.includes('am');
@@ -45,8 +48,7 @@ function parseTime(timeString: string): { hour: number; minute: number } {
  */
 function formatTimeTo12Hour(timeString: string): string {
   const { hour, minute } = parseTime(timeString);
-  
-  const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  const hour12 = hour > 12 ? hour - 12 : hour || 12;
   const period = hour < 12 ? 'am' : 'pm';
   const minuteStr = minute.toString().padStart(2, '0');
 
@@ -68,7 +70,7 @@ export function formatOnlineHours({
 
   // Get the first online hour entry (assuming same hours for all days or using first as example)
   const firstHour = onlineHours[0];
-  
+
   if (!firstHour?.from || !firstHour?.to) {
     return '';
   }
@@ -85,27 +87,28 @@ export function formatOnlineHours({
       const gmtMatch = timezoneLabel.match(/\(GMT([+-])(\d{1,2}):?(\d{0,2})\)/);
       if (gmtMatch) {
         const sign = gmtMatch[1] === '+' ? '+' : '-';
-        const hours = parseInt(gmtMatch[2], 10);
+        const hours = Number.parseInt(gmtMatch[2], 10);
         // Only show minutes if they're not zero
-        const minutes = gmtMatch[3] ? parseInt(gmtMatch[3], 10) : 0;
+        const minutes = gmtMatch[3] ? Number.parseInt(gmtMatch[3], 10) : 0;
         if (minutes === 0) {
           result += ` (GMT ${sign}${hours})`;
         } else {
-          result += ` (GMT ${sign}${hours}:${minutes.toString().padStart(2, '0')})`;
+          result += ` (GMT ${sign}${hours}:${minutes
+            .toString()
+            .padStart(2, '0')})`;
         }
       } else {
         result += ` (${timezoneLabel})`;
       }
     }
-
-    result += '.';
+    const onlineDays = onlineHours?.map((item) => item.day).join(', ');
+    result += `, ${onlineDays}.`;
 
     return result;
   } catch (error) {
     // Fallback to original format if parsing fails
     return `We're available between ${firstHour.from} and ${firstHour.to}${
       showTimezone && timezone ? ` (${formatTimeZoneLabel(timezone)})` : ''
-    }.`;
+    }`;
   }
 }
-

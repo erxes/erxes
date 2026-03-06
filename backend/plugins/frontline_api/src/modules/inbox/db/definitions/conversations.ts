@@ -82,7 +82,6 @@ export const conversationSchema = schemaWrapper(
     },
     ...conversationSchemaOptions,
   }),
-  { contentType: 'frontline:inbox.conversation' },
 );
 
 conversationSchema.index(

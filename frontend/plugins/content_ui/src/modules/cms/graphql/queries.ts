@@ -38,8 +38,8 @@ export const CMS_MENU_ADD = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
+      # contentType
+      # contentTypeID
       kind
       icon
       url
@@ -56,8 +56,8 @@ export const CMS_MENU_EDIT = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
+      # contentType
+      # contentTypeID
       kind
       icon
       url
@@ -137,7 +137,6 @@ export const POST_LIST = gql`
     $clientPortalId: String!
     $type: String
     $featured: Boolean
-    $categoryIds: [String]
     $searchValue: String
     $status: PostStatus
     $limit: Int
@@ -151,7 +150,6 @@ export const POST_LIST = gql`
       clientPortalId: $clientPortalId
       featured: $featured
       type: $type
-      categoryIds: $categoryIds
       searchValue: $searchValue
       status: $status
       limit: $limit
@@ -194,12 +192,6 @@ export const POST_LIST = gql`
             __typename
           }
           # Remove or replace the ClientPortalUser fragment if not needed
-          __typename
-        }
-        categoryIds
-        categories {
-          _id
-          name
           __typename
         }
         featured
@@ -749,8 +741,6 @@ export const CMS_MENU_LIST = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
       kind
       icon
       url
@@ -779,6 +769,161 @@ export const GET_CLIENT_PORTALS = gql`
         __typename
       }
       __typename
+    }
+  }
+`;
+
+export const CMS_CUSTOM_FIELD_GROUPS = gql`
+  query cmsCustomFieldGroupList($clientPortalId: String!) {
+    cmsCustomFieldGroupList(clientPortalId: $clientPortalId) {
+      list {
+        _id
+        label
+        code
+        clientPortalId
+        customPostTypeIds
+        customPostTypes {
+          _id
+          code
+          label
+          pluralLabel
+        }
+        fields
+      }
+    }
+  }
+`;
+
+export const CMS_CUSTOM_FIELD_GROUP_ADD = gql`
+  mutation cmsCustomFieldGroupsAdd($input: CustomFieldGroupInput!) {
+    cmsCustomFieldGroupsAdd(input: $input) {
+      _id
+      label
+      code
+      clientPortalId
+      customPostTypeIds
+      customPostTypes {
+        _id
+        code
+        label
+        pluralLabel
+      }
+      fields
+    }
+  }
+`;
+
+export const CMS_CUSTOM_FIELD_GROUP_EDIT = gql`
+  mutation cmsCustomFieldGroupsEdit(
+    $_id: String!
+    $input: CustomFieldGroupInput!
+  ) {
+    cmsCustomFieldGroupsEdit(_id: $_id, input: $input) {
+      _id
+      label
+      code
+      clientPortalId
+      customPostTypeIds
+      customPostTypes {
+        _id
+        code
+        label
+        pluralLabel
+      }
+      fields
+    }
+  }
+`;
+
+export const CMS_CUSTOM_FIELD_GROUP_REMOVE = gql`
+  mutation cmsCustomFieldGroupsRemove($_id: String!) {
+    cmsCustomFieldGroupsRemove(_id: $_id)
+  }
+`;
+
+export const CMS_CUSTOM_POST_TYPES = gql`
+  query cmsCustomPostTypes($clientPortalId: String) {
+    cmsCustomPostTypes(clientPortalId: $clientPortalId) {
+      _id
+      code
+      label
+      pluralLabel
+      description
+      createdAt
+    }
+  }
+`;
+
+export const CMS_CUSTOM_POST_TYPE_ADD = gql`
+  mutation cmsCustomPostTypesAdd($input: CustomPostTypeInput!) {
+    cmsCustomPostTypesAdd(input: $input) {
+      _id
+      code
+      label
+      pluralLabel
+      description
+      createdAt
+    }
+  }
+`;
+
+export const CMS_CUSTOM_POST_TYPE_EDIT = gql`
+  mutation cmsCustomPostTypesEdit($_id: String!, $input: CustomPostTypeInput!) {
+    cmsCustomPostTypesEdit(_id: $_id, input: $input) {
+      _id
+      code
+      label
+      pluralLabel
+      description
+      createdAt
+    }
+  }
+`;
+
+export const CMS_CUSTOM_POST_TYPE_REMOVE = gql`
+  mutation cmsCustomPostTypesRemove($_id: String!) {
+    cmsCustomPostTypesRemove(_id: $_id)
+  }
+`;
+
+export const CMS_TRANSLATIONS = gql`
+  query cmsTranslations($postId: String!) {
+    cmsTranslations(postId: $postId) {
+      _id
+      postId
+      language
+      title
+      content
+      excerpt
+      customFieldsData
+    }
+  }
+`;
+
+export const CMS_ADD_TRANSLATION = gql`
+  mutation cmsAddTranslation($input: TranslationInput!) {
+    cmsAddTranslation(input: $input) {
+      _id
+      postId
+      language
+      title
+      content
+      excerpt
+      customFieldsData
+    }
+  }
+`;
+
+export const CMS_EDIT_TRANSLATION = gql`
+  mutation cmsEditTranslation($input: TranslationInput!) {
+    cmsEditTranslation(input: $input) {
+      _id
+      postId
+      language
+      title
+      content
+      excerpt
+      customFieldsData
     }
   }
 `;

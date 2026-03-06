@@ -44,20 +44,29 @@ export const ticketMutations = {
 
   removeTicket: async (
     _parent: undefined,
-    { _id }: { _id: string },
+    { _id }: { _id: string[] },
     { models }: IContext,
   ) => {
-    const ticket = await models.Ticket.getTicket(_id);
-    const deletedTicket = await models.Ticket.removeTicket(_id);
-
-    graphqlPubsub.publish(`ticketChanged:${_id}`, {
-      ticketChanged: { type: 'delete', ticket },
+    const tickets = await models.Ticket.find({
+      _id: { $in: _id },
     });
+
+    await models.Ticket.removeTicket(_id);
+
+    tickets.forEach((ticket) => {
+      graphqlPubsub.publish(`ticketChanged:${ticket._id}`, {
+        ticketChanged: { type: 'delete', ticket },
+      });
+    });
+
     graphqlPubsub.publish('ticketListChanged', {
-      ticketListChanged: { type: 'delete', ticket },
+      ticketListChanged: { type: 'delete', tickets },
     });
 
-    return deletedTicket;
+    return {
+      ok: 1,
+      removedIds: _id,
+    };
   },
 };
 

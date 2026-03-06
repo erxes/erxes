@@ -1,6 +1,5 @@
 import { Skeleton, TextOverflowTooltip, Tooltip } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useUsersGroup } from 'ui-modules/modules/team-members/hooks';
 import { IUserGroup } from 'ui-modules/modules/team-members/types/TeamMembers';
 

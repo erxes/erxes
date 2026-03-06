@@ -47,7 +47,7 @@ const ChecklistForm = () => {
         <h3 className="text-sm font-semibold text-gray-600 border-b pb-2">
           Add Checklist
         </h3>
-        <div className="flex-auto overflow-hidden py-2">
+        <div className="flex-auto overflow-hidden py-2 px-1">
           <Form.Field
             control={form.control}
             name="title"
@@ -55,7 +55,7 @@ const ChecklistForm = () => {
               <Form.Item>
                 <Form.Label>NAME</Form.Label>
                 <Form.Control>
-                  <Input {...field} />
+                  <Input {...field} className="" />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>

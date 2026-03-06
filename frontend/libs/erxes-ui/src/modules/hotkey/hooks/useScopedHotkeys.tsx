@@ -1,10 +1,9 @@
+import { isDefined } from 'erxes-ui/utils/isDefined';
 import { useAtom } from 'jotai';
-import { HotkeyCallback, Options } from 'react-hotkeys-hook/dist/types';
-import { Keys } from 'react-hotkeys-hook/dist/types';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { HotkeyCallback, Keys, Options } from 'react-hotkeys-hook/dist/types';
 import { pendingHotkeyState } from '../states/internal/pendingHotkeyState';
 import { useScopedHotKeysCallback } from './useScopedHotKeysCallback';
-import { isDefined } from 'erxes-ui/utils/isDefined';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 export type UseHotkeysOptionsWithoutBuggyOptions = Omit<Options, 'enabled'>;
 

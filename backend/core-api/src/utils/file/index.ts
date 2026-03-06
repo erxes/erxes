@@ -58,19 +58,17 @@ export const checkFile = async (
     throw new Error('Invalid or unsafe file path');
   }
 
-  const { size } = file;
-
-  // 20mb
-  if (size > 20 * 1024 * 1024) {
-    return 'Too large file';
-  }
+  const { size, originalFilename } = file;
+  // // 20mb
+  // if (size > 20 * 1024 * 1024) {
+  //   return 'Too large file';
+  // }
 
   // read file
   const buffer = await fs.promises.readFile(file.filepath);
 
   // determine file type using magic numbers
   const ft = await fileTypeFromBuffer(buffer);
-
   const unsupportedMimeTypes = [
     'text/csv',
     'image/svg+xml',

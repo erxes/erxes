@@ -1,28 +1,22 @@
 import {
+  AUTOMATION_ACTIONS,
+  AUTOMATION_CORE_PROPERTY_TYPES,
+  AUTOMATION_STATUSES,
+  AUTOMATION_TRIGGERS,
+  AutomationConstants,
+  IAutomationDocument,
+  IAutomationExecutionDocument,
+  requireLogin,
+} from 'erxes-api-shared/core-modules';
+import { IAutomationEmailTemplateDocument, ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import {
   cursorPaginate,
   getEnv,
   getPlugin,
   getPlugins,
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
-
-import {
-  AUTOMATION_ACTIONS,
-  AUTOMATION_CORE_PROPERTY_TYPES,
-  AUTOMATION_STATUSES,
-  AUTOMATION_TRIGGERS,
-  AutomationConstants,
-  checkPermission,
-  IAutomationDocument,
-  IAutomationExecutionDocument,
-  IAutomationsActionConfig,
-  IAutomationsTriggerConfig,
-  requireLogin,
-} from 'erxes-api-shared/core-modules';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-
 import { IContext } from '~/connectionResolvers';
-import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
 
 export interface IListArgs extends ICursorPaginateParams {
   status: string;
@@ -385,7 +379,7 @@ export const automationQueries = {
     return await models.AiAgents.findOne({});
   },
 
-  async getTrainingStatus(_root, { agentId }, {}: IContext) {
+  async getTrainingStatus(_root, { agentId }, { }: IContext) {
     const agent = await this.models.AiAgents.findById(agentId);
     if (!agent) {
       throw new Error('AI Agent not found');
@@ -465,9 +459,3 @@ requireLogin(automationQueries, 'automationNotes');
 requireLogin(automationQueries, 'automationDetail');
 requireLogin(automationQueries, 'automationEmailTemplates');
 requireLogin(automationQueries, 'automationEmailTemplateDetail');
-
-checkPermission(automationQueries, 'automations', 'showAutomations', []);
-checkPermission(automationQueries, 'automationsMain', 'showAutomations', {
-  list: [],
-  totalCount: 0,
-});

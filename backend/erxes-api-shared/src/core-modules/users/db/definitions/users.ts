@@ -184,13 +184,23 @@ export const userSchema = schemaWrapper(
       optional: true,
       label: 'Custom fields data',
     }),
+    propertiesData: mongooseField({
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
+    }),
+    permissionGroupIds: mongooseField({
+      type: [String],
+      default: [],
+      label: 'Permission Groups',
+    }),
+
     lastSeenAt: mongooseField({
       type: Date,
       optional: true,
       label: 'Last seen at',
     }),
   }),
-  { contentType: 'core:contact.user' },
 );
 
 export const userMovemmentSchema = schemaWrapper(

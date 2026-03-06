@@ -5,7 +5,7 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { transactionSchema } from '~/modules/payment/db/definitions/transactions';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
-  getTransaction(doc: any, leanObject?: boolean): ITransactionDocument;
+  getTransaction(doc: any, leanObject?: boolean): Promise<ITransactionDocument>;
   createTransaction({
     invoiceId,
     paymentId,
@@ -83,7 +83,7 @@ export const loadTransactionClass = (models: IModels) => {
 
     public static async createTransaction(doc: any) {
       const { subdomain } = doc;
-      if (!doc.amount && doc.amount === 0) {
+      if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
 

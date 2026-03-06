@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router';
 
 import { NotificationsPath } from '@/types/paths/NotificationsPath';
 import { Spinner } from 'erxes-ui';
-import { MyInboxPageChangeEffect } from '@/notification/my-inbox/components/MyInboxPageChangeEffect';
+import { MyInboxPageChangeEffect } from '@/notification/components/MyInboxPageChangeEffect';
 
 const MyInboxIndexPage = lazy(() =>
   import('~/pages/notifications/MyInboxIndexPage').then((module) => ({

@@ -1,7 +1,8 @@
-import { useAutomationRecordTableNodeTypeFilter } from '@/automations/hooks/useAutomationRecordTableNodeTypeFilter';
+import { Combobox, Command, IconComponent } from 'erxes-ui';
+
 import { AutomationNodeType } from '@/automations/types';
 import { IconCheck } from '@tabler/icons-react';
-import { Combobox, Command, IconComponent } from 'erxes-ui';
+import { useAutomationRecordTableNodeTypeFilter } from '@/automations/hooks/useAutomationRecordTableNodeTypeFilter';
 
 export const AutomationRecordTableNodeTypeFilter = ({
   nodeType,
@@ -27,7 +28,6 @@ export const AutomationRecordTableNodeTypeFilter = ({
                   ? queryValue.filter((type) => type !== item.type)
                   : [...queryValue, item.type],
               });
-              console.log(queryValue, item.type, queryKey);
             }}
           >
             {item.icon && <IconComponent name={item.icon} />}

@@ -1,11 +1,13 @@
+import {
+  automationBuilderPanelOpenState,
+  automationBuilderSiderbarOpenState,
+  toggleAutomationBuilderOpenPanel,
+  toggleAutomationBuilderOpenSidebar
+} from '@/automations/states/automationState';
+import { AutomationsHotKeyScope } from '@/automations/types';
+import { usePreviousHotkeyScope } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo } from 'react';
-import { toggleAutomationBuilderOpenPanel } from '@/automations/states/automationState';
-import { automationBuilderPanelOpenState } from '@/automations/states/automationState';
-import { usePreviousHotkeyScope } from 'erxes-ui';
-import { automationBuilderSiderbarOpenState } from '@/automations/states/automationState';
-import { toggleAutomationBuilderOpenSidebar } from '@/automations/states/automationState';
-import { AutomationsHotKeyScope } from '@/automations/types';
 
 export const useAutomationBilderWorkSpace = () => {
   const isPanelOpen = useAtomValue(automationBuilderPanelOpenState);

@@ -1,5 +1,5 @@
 import { Sidebar } from 'erxes-ui';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router-dom';
 import { SETTINGS_ROUTES } from '@/ebarimt/settings/constants/settingRoutes';
 
 export const EBarimtSidebar = () => {

@@ -11,6 +11,8 @@ import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
+  RelativeDateDisplay,
+  Badge,
 } from 'erxes-ui';
 
 import { IPosItem } from '@/pos/pos-items/types/posItem';
@@ -20,10 +22,10 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   PosItemMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IPosItem>,
   {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
+    id: 'createdTime',
+    accessorKey: 'createdTime',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Created Date" />
+      <RecordTable.InlineHead icon={IconLabel} label="Created Time" />
     ),
     cell: ({ cell }) => {
       return (
@@ -33,6 +35,23 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       );
     },
   },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label="Created Date" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      );
+    },
+  },
+
   {
     id: 'number',
     accessorKey: 'number',
@@ -102,14 +121,14 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <Badge variant="default">{cell.getValue() as string}</Badge>
         </RecordTableInlineCell>
       );
     },
   },
   {
     id: 'billType',
-    accessorKey: 'billType',
+    accessorKey: 'billTypex',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Bill Type" />,
     cell: ({ cell }) => {
       return (
@@ -120,8 +139,8 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     },
   },
   {
-    id: 'companyRD',
-    accessorKey: 'companyRD',
+    id: 'registerNumber',
+    accessorKey: 'registerNumber',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Company RD" />,
     cell: ({ cell }) => {
       return (
@@ -141,15 +160,15 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <Badge variant="default">{cell.getValue() as string}</Badge>
         </RecordTableInlineCell>
       );
     },
   },
 
   {
-    id: 'customer',
-    accessorKey: 'customer',
+    id: 'customer.firstName',
+    accessorKey: 'customer.firstName',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Customer" />,
     cell: ({ cell }) => {
       return (
@@ -160,8 +179,8 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     },
   },
   {
-    id: 'barCode',
-    accessorKey: 'barCode',
+    id: 'items.product.barcodes',
+    accessorKey: 'items.product.barcodes',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Barcode" />,
     cell: ({ cell }) => {
       return (
@@ -210,10 +229,10 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     },
   },
   {
-    id: 'items.product.name',
-    accessorKey: 'items.product.name',
+    id: 'items.productCategory.name',
+    accessorKey: 'items.productCategory.name',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label="Product Name" />
+      <RecordTable.InlineHead icon={IconUser} label="Category Name" />
     ),
     cell: ({ cell }) => {
       return (
@@ -262,8 +281,8 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     },
   },
   {
-    id: 'discountPercent',
-    accessorKey: 'discountPercent',
+    id: 'items.discountAmount',
+    accessorKey: 'discountAmount',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Discount" />,
     cell: ({ cell }) => {
       return (
@@ -282,7 +301,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <Badge variant="default">{cell.getValue() as string}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -313,15 +332,15 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
 
   {
-    id: 'paymentType',
-    accessorKey: 'paymentType',
+    id: 'paidAmounts.type',
+    accessorKey: 'paidAmounts.type',
     header: () => (
       <RecordTable.InlineHead icon={IconUser} label="Payment Type" />
     ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <Badge variant="default">{cell.getValue() as string}</Badge>
         </RecordTableInlineCell>
       );
     },

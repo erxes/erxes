@@ -1,12 +1,13 @@
-import React, { useCallback, useMemo, useState } from 'react';
 import {
   Combobox,
   Command,
   PopoverScoped,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { useBoards } from '@/deals/boards/hooks/useBoards';
+import React, { useCallback, useMemo, useState } from 'react';
+
 import { IBoard } from '@/deals/types/boards';
+import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
 
 // SelectBoard Context
 interface SelectBoardContextType {

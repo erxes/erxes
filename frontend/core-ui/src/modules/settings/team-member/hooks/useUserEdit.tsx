@@ -87,6 +87,16 @@ export const useUserEdit = () => {
   return { usersEdit, loading };
 };
 
+export const useUserCustomFieldEdit = () => {
+  const { usersEdit, loading: usersEditLoading } = useUserEdit();
+  return {
+    mutate: (variables: { _id: string } & Record<string, unknown>) =>
+      usersEdit({ variables }),
+    loading: usersEditLoading,
+  };
+};
+
+
 export const useUsersStatusEdit = () => {
   const { toast } = useToast();
   const [editStatus, { loading }] = useMutation(

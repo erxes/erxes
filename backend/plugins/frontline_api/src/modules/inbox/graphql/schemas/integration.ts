@@ -39,11 +39,7 @@ export const types = `
     departments: [CloudflareCallDataDepartment]
     isReceiveWebCall: Boolean
   }
-    type Form {
-      _id: String
-      title: String
-      code: String
-    }
+
   type Integration @key(fields: "_id") {
    _id: String!
     kind: String!
@@ -87,7 +83,6 @@ export const types = `
     total: Int
     byTag: JSON
     byChannel: JSON
-    byBrand: JSON
     byKind: JSON
     byStatus: JSON
   }
@@ -203,7 +198,6 @@ export const queries = `
 export const mutations = `
   integrationsCreateMessengerOnboarding(
     channelId: String!,
-    brandName: String!,
     languageCode: String
     color: String
     logo:String
@@ -213,7 +207,6 @@ export const mutations = `
   integrationsEditMessengerOnboarding(
     _id: String!,
     channelId: String!,
-    brandName: String!,
     languageCode: String
     color: String
     logo:String

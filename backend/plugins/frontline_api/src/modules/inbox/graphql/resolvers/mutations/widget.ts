@@ -1,33 +1,31 @@
+import { IAttachment, IBrowserInfo, Resolver } from 'erxes-api-shared/core-types';
 import {
   getEnv,
   graphqlPubsub,
   isEnabled,
+  markResolvers,
   redis,
   sendTRPCMessage,
-  markResolvers,
 } from 'erxes-api-shared/utils';
-import { IAttachment, Resolver } from 'erxes-api-shared/core-types';
-import { IModels, generateModels } from '~/connectionResolvers';
+import strip from 'strip';
+import { IContext, IModels, generateModels } from '~/connectionResolvers';
 import {
   IIntegrationDocument,
   IMessengerDataMessagesItem,
 } from '~/modules/inbox/@types/integrations';
-import { IContext } from '~/connectionResolvers';
+import { VERIFY_EMAIL_TRANSLATIONS } from '~/modules/inbox/constants';
 import {
   AUTO_BOT_MESSAGES,
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   MESSAGE_TYPES,
 } from '~/modules/inbox/db/definitions/constants';
-import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
-import strip from 'strip';
-import { IBrowserInfo } from 'erxes-api-shared/core-types';
-import { VERIFY_EMAIL_TRANSLATIONS } from '~/modules/inbox/constants';
 import { trackViewPageEvent } from '~/modules/inbox/events';
+import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
 
 export const pConversationClientMessageInserted = async (
   subdomain,
-  message: { _id: string; [other: string]: any },
+  message: { _id: string;[other: string]: any },
 ) => {
   const models = await generateModels(subdomain);
 
@@ -308,28 +306,28 @@ export const widgetMutations: Record<string, Resolver> = {
       };
       customer = customer
         ? await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'mutation',
-            module: 'customers',
-            action: 'updateMessengerCustomer',
-            input: {
-              _id: customer._id,
-              doc,
-              customData,
-            },
-          })
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'updateMessengerCustomer',
+          input: {
+            _id: customer._id,
+            doc,
+            customData,
+          },
+        })
         : await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'mutation',
-            module: 'customers',
-            action: 'createMessengerCustomer',
-            input: {
-              doc,
-              customData,
-            },
-          });
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'createMessengerCustomer',
+          input: {
+            doc,
+            customData,
+          },
+        });
     }
 
     // get or create company
@@ -347,12 +345,12 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      const { customFieldsData, trackedData } = await sendTRPCMessage({
+      const { propertiesData } = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
         module: 'fields',
-        action: 'generateCustomFieldsData',
+        action: 'generatePropertiesData',
         input: {
           query: {
             customData: companyData,
@@ -361,8 +359,10 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      companyData.customFieldsData = customFieldsData;
-      companyData.trackedData = trackedData;
+      companyData.propertiesData = propertiesData;
+
+      // trackData note: trackedData is not used for now
+      // companyData.trackedData = trackedData;
 
       if (!company) {
         companyData.primaryName = companyData.name;
@@ -415,7 +415,7 @@ export const widgetMutations: Record<string, Resolver> = {
           subdomain,
           pluginName: 'core',
           method: 'mutation',
-          module: 'conformities',
+          module: 'conformity',
           action: 'create',
           input: {
             mainType: 'customer',
@@ -533,7 +533,7 @@ export const widgetMutations: Record<string, Resolver> = {
           (config) => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS',
         ) || { value: '0' };
 
-        const timeDelayIntValue = parseInt(timeDelay.value || '0', 10);
+        const timeDelayIntValue = Number.parseInt(timeDelay.value || '0', 10);
 
         const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
 
@@ -676,11 +676,11 @@ export const widgetMutations: Record<string, Resolver> = {
           responses.length !== 0
             ? responses
             : [
-                {
-                  type: 'text',
-                  text: AUTO_BOT_MESSAGES.NO_RESPONSE,
-                },
-              ];
+              {
+                type: 'text',
+                text: AUTO_BOT_MESSAGES.NO_RESPONSE,
+              },
+            ];
 
         const botMessage = await models.ConversationMessages.createMessage({
           conversationId: conversation._id,
@@ -811,7 +811,7 @@ export const widgetMutations: Record<string, Resolver> = {
       customerId,
       browserInfo,
     }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
-    { subdomain }: IContext,
+    { models, subdomain }: IContext,
   ) {
     if (customerId) {
       await sendTRPCMessage({
@@ -852,7 +852,7 @@ export const widgetMutations: Record<string, Resolver> = {
     // }
 
     try {
-      await trackViewPageEvent(subdomain, {
+      await trackViewPageEvent(models, subdomain, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url },
@@ -1218,9 +1218,10 @@ export const widgetMutations: Record<string, Resolver> = {
       content: string;
       customerId: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const { content, contentId, customerId } = args;
+    const userId = user._id;
     return await models.Note.createNote({
       doc: {
         content,
@@ -1228,6 +1229,7 @@ export const widgetMutations: Record<string, Resolver> = {
         createdBy: customerId,
       },
       subdomain,
+      userId,
     });
   },
   async widgetTicketCommentRemove(

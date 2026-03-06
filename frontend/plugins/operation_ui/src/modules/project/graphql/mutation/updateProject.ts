@@ -12,6 +12,7 @@ export const UPDATE_PROJECT_MUTATION = gql`
     $startDate: Date
     $targetDate: Date
     $leadId: String
+    $memberIds: [String]
     $tagIds: [String]
   ) {
     updateProject(
@@ -25,10 +26,25 @@ export const UPDATE_PROJECT_MUTATION = gql`
       startDate: $startDate
       targetDate: $targetDate
       leadId: $leadId
+      memberIds: $memberIds
       tagIds: $tagIds
     ) {
       _id
+      name
+      icon
+      description
+      status
+      priority
+      teamIds
+      startDate
+      targetDate
+      leadId
+      memberIds
       tagIds
+      createdBy
+      createdAt
+      updatedAt
+      convertedFromId
     }
   }
 `;

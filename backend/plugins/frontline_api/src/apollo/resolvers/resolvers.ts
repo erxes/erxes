@@ -4,6 +4,13 @@ import { Channel } from '@/channel/graphql/resolvers/customResolvers/channel';
 import { ChannelMember } from '@/channel/graphql/resolvers/customResolvers/member';
 import { Pipeline } from '@/ticket/graphql/resolvers/customResolvers/pipeline';
 import { Ticket } from '@/ticket/graphql/resolvers/customResolvers/status';
+import { Form } from '@/form/graphql/resolvers/customResolvers/forms';
+import KnowledgeBaseArticle from '@/knowledgebase/graphql/resolvers/customResolvers/article';
+import {
+  KnowledgeBaseCategory,
+  KnowledgeBaseParentCategory,
+} from '@/knowledgebase/graphql/resolvers/customResolvers/category';
+import KnowledgeBaseTopic from '@/knowledgebase/graphql/resolvers/customResolvers/topic';
 
 export const customResolvers = {
   ...inboxResolvers,
@@ -12,4 +19,9 @@ export const customResolvers = {
   ChannelMember,
   Pipeline,
   Ticket,
+  Form,
+  KnowledgeBaseArticle,
+  KnowledgeBaseCategory,
+  KnowledgeBaseParentCategory,
+  KnowledgeBaseTopic,
 };

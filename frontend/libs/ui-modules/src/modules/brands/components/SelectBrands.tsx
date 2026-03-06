@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { IBrand, ISelectBrandsProviderProps } from '../types/brand';
-import { SelectBrandsContext } from '../contexts/SelectBrandsContext';
+import { IconCheck, IconChessKnight, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -8,19 +6,20 @@ import {
   Command,
   Filter,
   Form,
+  Popover,
   PopoverScoped,
   RecordTableInlineCell,
-  Popover,
   TextOverflowTooltip,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import React, { useState } from 'react';
+import { useDebounce } from 'use-debounce';
+import { SelectBrandsContext } from '../contexts/SelectBrandsContext';
 import { useBrands } from '../hooks/useBrands';
 import { useSelectBrandsContext } from '../hooks/useSelectBrandsContext';
-import { useDebounce } from 'use-debounce';
-import { IconCheck, IconChessKnight, IconPlus } from '@tabler/icons-react';
+import { IBrand, ISelectBrandsProviderProps } from '../types/brand';
 import { BrandBadge } from './BrandBadge';
-import React from 'react';
 import {
   CreateBrandForm,
   SelectBrandCreateContainer,
@@ -46,14 +45,14 @@ export const SelectBrandsProvider = ({
     const newSelectedBrandIds = isSingleMode
       ? [brand._id]
       : isSelected
-      ? multipleValue.filter((b) => b !== brand._id)
-      : [...multipleValue, brand._id];
+        ? multipleValue.filter((b) => b !== brand._id)
+        : [...multipleValue, brand._id];
 
     const newSelectedBrands = isSingleMode
       ? [brand]
       : isSelected
-      ? selectedBrands.filter((b) => b._id !== brand._id)
-      : [...selectedBrands, brand];
+        ? selectedBrands.filter((b) => b._id !== brand._id)
+        : [...selectedBrands, brand];
 
     setSelectedBrands(newSelectedBrands);
     onValueChange?.(isSingleMode ? brand._id : newSelectedBrandIds);
@@ -282,12 +281,12 @@ export const SelectBrandsInlineCell = ({
 export const SelectBrandsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectBrandsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
 >(({ onValueChange, scope, value, mode, options, ...props }, ref) => {
   const [open, setOpen] = useState(false);
   return (

@@ -1,27 +1,84 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-  enum TokenPassMethod {
+  enum TokenDeliveryMethod {
     cookie
     header
   }
 
-  type OTPConfig {
-    content: String
-    codeLength: Int
-    smsTransporterType: String
-    loginWithOTP: Boolean
-    expireAfter: Int
+  type OTPEmailConfig {
     emailSubject: String
+    messageTemplate: String
+    codeLength: Int
+    duration: Int
+    enableEmailVerification: Boolean
+    enablePasswordlessLogin: Boolean
+  }
+
+  type OTPSMSConfig {
+    messageTemplate: String
+    codeLength: Int
+    smsProvider: String
+    duration: Int
+    enablePhoneVerification: Boolean
+    enablePasswordlessLogin: Boolean
+  }
+
+  type OTPConfig {
+    email: OTPEmailConfig
+    sms: OTPSMSConfig
+  }
+
+  type MultiFactorConfig {
+    isEnabled: Boolean
+    email: OTPEmailConfig
+    sms: OTPSMSConfig
   }
 
   type TwoFactorConfig {
-    content: String
+    messageTemplate: String
     codeLength: Int
-    smsTransporterType: String
-    enableTwoFactor: Boolean
-    expireAfter: Int
+    smsProvider: String
+    isEnabled: Boolean
+    duration: Int
     emailSubject: String
+  }
+
+  type OTPResendConfig {
+    cooldownPeriodInSeconds: Int
+    maxAttemptsPerHour: Int
+  }
+
+  type ResetPasswordConfig {
+    mode: String
+    emailSubject: String
+    emailContent: String
+  }
+
+  type SMSProvidersConfig {
+    callPro: JSON
+    twilio: JSON
+  }
+
+  type AuthConfig {
+    accessTokenExpirationInDays: Int
+    refreshTokenExpirationInDays: Int
+    deliveryMethod: TokenDeliveryMethod
+  }
+
+  type Auth {
+    authConfig: AuthConfig
+    googleOAuth: GoogleOAuthConfig
+    facebookOAuth: FacebookOAuthConfig
+    socialpayConfig: SocialpayConfig
+    tokiConfig: TokiConfig
+  }
+
+  type SecurityAuthConfig {
+    otpConfig: OTPConfig
+    multiFactorConfig: MultiFactorConfig
+    otpResendConfig: OTPResendConfig
+    resetPasswordConfig: ResetPasswordConfig
   }
 
   type MailConfig {
@@ -45,17 +102,45 @@ export const types = `
 
 
   type SocialpayConfig {
+    enableSocialpay: Boolean
     publicKey: String
     certId: String
   }
 
   type TokiConfig {
+    enableToki: Boolean
     merchantId: String
     apiKey: String
     username: String
     password: String
+    production: Boolean
   }
 
+  type TestUser {
+    enableTestUser: Boolean
+    email: String
+    phone: String
+    password: String
+    otp: String
+  }
+
+  type GoogleOAuthConfig {
+    credentials: String
+    clientId: String
+    clientSecret: String
+    redirectUri: String
+  }
+
+  type FacebookOAuthConfig {
+    appId: String
+    appSecret: String
+    redirectUri: String
+  }
+
+  type FirebaseConfig {
+    serviceAccountKey: String
+    enabled: Boolean
+  }
 
 type ClientPortal {
     _id: String!
@@ -63,45 +148,17 @@ type ClientPortal {
     description: String
     domain: String
 
-    googleCredentials: JSON
-    googleClientId: String
-    googleClientSecret: String
-    googleRedirectUri: String
-    facebookAppId: String
-    erxesAppToken: String
-  
-    otpConfig: OTPConfig
-    twoFactorConfig: TwoFactorConfig
-
-    verificationMailConfig: MailConfig
-    manualVerificationConfig: ManualVerificationConfig
-    passwordVerificationConfig: PasswordVerificationConfig
-
-    verificationType: VerificationType
-    verificationCodeExpiresIn: Int
-
     token: String
-    tokenExpiration: Int
-    refreshTokenExpiration: Int
-    tokenPassMethod: TokenPassMethod
-    vendorParentProductCategoryId: String
-
-    testUserEmail: String
-    testUserPhone: String
-    testUserPassword: String
-    testUserOTP: String
-
-    socialpayConfig: SocialpayConfig
-    tokiConfig: TokiConfig
-
-    enableOTP: Boolean
-    enableTwoFactor: Boolean
-    enableSocialpay: Boolean
-    enableToki: Boolean
+    url: String
+    erxesIntegrationToken: String
+  
+    auth: Auth
+    securityAuthConfig: SecurityAuthConfig
+    smsProvidersConfig: SMSProvidersConfig
+    manualVerificationConfig: ManualVerificationConfig
     enableManualVerification: Boolean
-    enablePasswordVerification: Boolean
-    enableEmailVerification: Boolean
-    enableTestUser: Boolean
+    testUser: TestUser
+    firebaseConfig: FirebaseConfig
 
     createdAt: Date
     updatedAt: Date
@@ -113,22 +170,79 @@ type ClientPortal {
     totalCount: Int
   }
 
-  input OTPConfigInput {
-    content: String
-    codeLength: Int
-    smsTransporterType: String
-    loginWithOTP: Boolean
-    expireAfter: Int
+  input OTPEmailConfigInput {
     emailSubject: String
+    messageTemplate: String
+    codeLength: Int
+    duration: Int
+    enableEmailVerification: Boolean
+    enablePasswordlessLogin: Boolean
+  }
+
+  input OTPSMSConfigInput {
+    messageTemplate: String
+    codeLength: Int
+    smsProvider: String
+    duration: Int
+    enablePhoneVerification: Boolean
+    enablePasswordlessLogin: Boolean
+  }
+
+  input OTPConfigInput {
+    email: OTPEmailConfigInput
+    sms: OTPSMSConfigInput
+  }
+
+  input MultiFactorConfigInput {
+    isEnabled: Boolean
+    email: OTPEmailConfigInput
+    sms: OTPSMSConfigInput
   }
 
   input TwoFactorConfigInput {
-    content: String
+    messageTemplate: String
     codeLength: Int
-    smsTransporterType: String
-    enableTwoFactor: Boolean
-    expireAfter: Int
+    smsProvider: String
+    isEnabled: Boolean
+    duration: Int
     emailSubject: String
+  }
+
+  input OTPResendConfigInput {
+    cooldownPeriodInSeconds: Int
+    maxAttemptsPerHour: Int
+  }
+
+  input ResetPasswordConfigInput {
+    mode: String
+    emailSubject: String
+    emailContent: String
+  }
+
+  input SMSProvidersConfigInput {
+    callPro: JSON
+    twilio: JSON
+  }
+
+  input AuthConfigInput {
+    accessTokenExpirationInDays: Int
+    refreshTokenExpirationInDays: Int
+    deliveryMethod: TokenDeliveryMethod
+  }
+
+  input AuthInput {
+    authConfig: AuthConfigInput
+    googleOAuth: GoogleOAuthConfigInput
+    facebookOAuth: FacebookOAuthConfigInput
+    socialpayConfig: SocialpayConfigInput
+    tokiConfig: TokiConfigInput
+  }
+
+  input SecurityAuthConfigInput {
+    otpConfig: OTPConfigInput
+    multiFactorConfig: MultiFactorConfigInput
+    otpResendConfig: OTPResendConfigInput
+    resetPasswordConfig: ResetPasswordConfigInput
   }
 
 
@@ -152,22 +266,44 @@ type ClientPortal {
   }
 
   input SocialpayConfigInput {
+    enableSocialpay: Boolean
     publicKey: String
     certId: String
   }
 
   input TokiConfigInput {
+    enableToki: Boolean
     merchantId: String  
     apiKey: String
     username: String
     password: String
+    production: Boolean
   }
 
-  enum VerificationType {
-    email
-    phone
-    both
-    none
+  input TestUserInput {
+    enableTestUser: Boolean
+    email: String
+    phone: String
+    password: String
+    otp: String
+  }
+
+  input GoogleOAuthConfigInput {
+    credentials: String
+    clientId: String
+    clientSecret: String
+    redirectUri: String
+  }
+
+  input FacebookOAuthConfigInput {
+    appId: String
+    appSecret: String
+    redirectUri: String
+  }
+
+  input FirebaseConfigInput {
+    serviceAccountKey: String
+    enabled: Boolean
   }
 
   input ClientPortalConfigInput {
@@ -175,40 +311,17 @@ type ClientPortal {
     description: String
     domain: String
 
-    googleCredentials: JSON
-    googleClientId: String
-    googleClientSecret: String
-    googleRedirectUri: String
-    facebookAppId: String
     token: String
+    url: String
+    erxesIntegrationToken: String
   
-    otpConfig: OTPConfigInput
-    twoFactorConfig: TwoFactorConfigInput
-    tokiConfig: TokiConfigInput
-    socialpayConfig: SocialpayConfigInput
-    verificationMailConfig: MailConfigInput
+    auth: AuthInput
+    securityAuthConfig: SecurityAuthConfigInput
+    smsProvidersConfig: SMSProvidersConfigInput
     manualVerificationConfig: ManualVerificationConfigInput
-    passwordVerificationConfig: PasswordVerificationConfigInput
-
-    verificationType: VerificationType
-
-    enableOTP: Boolean
-    enableTwoFactor: Boolean
-    enableSocialpay: Boolean
-    enableToki: Boolean
     enableManualVerification: Boolean
-    enablePasswordVerification: Boolean
-    enableTestUser: Boolean
-
-    tokenExpiration: Int
-    refreshTokenExpiration: Int
-    tokenPassMethod: TokenPassMethod
-    vendorParentProductCategoryId: String
-
-    testUserEmail: String
-    testUserPhone: String
-    testUserPassword: String
-    testUserOTP: String
+    testUser: TestUserInput
+    firebaseConfig: FirebaseConfigInput
   }
 
   input IClientPortalFilter {

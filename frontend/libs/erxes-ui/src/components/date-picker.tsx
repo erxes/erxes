@@ -6,7 +6,7 @@ import React from 'react';
 import { cn } from '../lib/utils';
 import dayjs from 'dayjs';
 
-type DatePickerProps = {
+export type DatePickerProps = {
   value: Date | Date[] | undefined;
   onChange: (date: Date | Date[] | undefined) => void;
   placeholder?: string;

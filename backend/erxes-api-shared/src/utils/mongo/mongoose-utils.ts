@@ -1,4 +1,9 @@
-import mongoose, { Document, FilterQuery, PipelineStage, Schema } from 'mongoose';
+import mongoose, {
+  Document,
+  FilterQuery,
+  PipelineStage,
+  Schema,
+} from 'mongoose';
 import { nanoid } from 'nanoid';
 
 import {
@@ -113,8 +118,8 @@ export const cursorPaginate = async <T extends Document>({
       direction === 'forward'
         ? normalizedOrder
         : normalizedOrder === 1
-          ? -1
-          : 1;
+        ? -1
+        : 1;
   }
 
   sortOrder._id = (direction === 'forward' ? 1 : -1) as 1 | -1;
@@ -191,7 +196,7 @@ export async function cursorPaginateAggregation<T>({
     aggPipeline.push({
       $addFields: {
         compositeField: {
-          $concat: uniqConcatFields.map(field => ({ $toString: field })),
+          $concat: uniqConcatFields.map((field) => ({ $toString: field })),
         },
       },
     });
@@ -204,7 +209,10 @@ export async function cursorPaginateAggregation<T>({
   const listRaw = await model.aggregate(aggPipeline);
 
   // --- filtered totalCount ---
-  const countPipeline: PipelineStage[] = [...pipeline, { $count: 'totalCount' }];
+  const countPipeline: PipelineStage[] = [
+    ...pipeline,
+    { $count: 'totalCount' },
+  ];
   const countResult = await model.aggregate(countPipeline);
   const totalCount = countResult[0]?.totalCount ?? 0;
 
@@ -253,17 +261,9 @@ export const checkCollectionCodeDuplication = async (
   }
 };
 
-export const schemaWrapper = (
-  schema: Schema,
-  options?: { contentType?: string },
-) => {
+export const schemaWrapper = (schema: Schema) => {
   schema.add({ _id: mongooseStringRandomId });
   schema.add({ processId: { type: String, optional: true } });
-  // schema.add({ createdAt: { type: Date, default: new Date() } });
-
-  if (options?.contentType) {
-    (schema.statics as any)._contentType = options.contentType;
-  }
 
   return schema;
 };

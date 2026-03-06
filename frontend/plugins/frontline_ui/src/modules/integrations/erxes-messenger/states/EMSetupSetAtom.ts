@@ -48,14 +48,26 @@ export const erxesMessengerSetSetupAtom = atom(
         '';
       const config = {
         name: payload?.name || '',
-        brandId: payload?.brandId || '',
-        languageCode: payload?.languageCode || DEFAULT_LANGUAGE,
         channelId,
         ticketConfigId: payload?.ticketConfigId,
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,
-          persistentMenus: payload?.messengerData?.persistentMenus,
-          generate: payload?.messengerData?.botCheck,
+          persistentMenu: (payload?.messengerData?.persistentMenus || []).map(
+            (menu: {
+              _id?: string;
+              name?: string;
+              text?: string;
+              type?: string;
+              link?: string;
+            }) => ({
+              text: menu.text ?? menu.name ?? '',
+              type: (menu.type === 'link' ? 'link' : 'button') as
+                | 'button'
+                | 'link',
+              link: menu.link ?? '',
+            }),
+          ),
+          botCheck: payload?.messengerData?.botCheck,
         },
       };
 
@@ -129,7 +141,7 @@ export const erxesMessengerSetSetupAtom = atom(
       const intro = {
         welcome: messages?.welcome ?? '',
         away: messages?.away ?? '',
-        thankyou: messages?.thank ?? '',
+        thank: messages?.thank ?? '',
       };
       set(erxesMessengerSetupIntroAtom, intro);
       set(settedIntegrationDetailAtom, true);

@@ -1,6 +1,6 @@
 import { IconChevronLeft } from '@tabler/icons-react';
 import { activePluginState, NavigationMenuGroup, Sidebar } from 'erxes-ui';
-import { usePluginsNavigationGroups } from '../hooks/usePluginsModules';
+import { usePluginsNavigationGroups } from '../hooks/usePluginsNavigationGroups';
 import { useAtom } from 'jotai';
 
 export const NavigationPluginExitButton = () => {
@@ -36,6 +36,7 @@ export const NavigationPlugins = () => {
   }
 
   if (activePlugin && navigationGroups[activePlugin]) {
+    const { subGroups } = navigationGroups[activePlugin];
     return (
       <>
         <NavigationMenuGroup
@@ -50,7 +51,7 @@ export const NavigationPlugins = () => {
             <Content key={index} />
           ))}
         </NavigationMenuGroup>
-        {navigationGroups[activePlugin].subGroups.map((SubGroup, index) => (
+        {subGroups.map((SubGroup, index) => (
           <SubGroup key={index} />
         ))}
       </>

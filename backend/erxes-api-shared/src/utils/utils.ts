@@ -5,7 +5,9 @@ import fetch from 'node-fetch'; // or global fetch in Node 18+
 import { IOrderInput } from '../core-types';
 import { randomAlphanumeric } from './random';
 import { redis } from './redis';
-import { random } from './string';
+import { nanoid } from 'nanoid';
+import * as _loadash from 'lodash';
+import { isValidURL, random } from './string';
 
 export const getEnv = ({
   name,
@@ -416,4 +418,204 @@ export const checkServiceRunning = async (
   } catch (err) {
     return false;
   }
+};
+
+export const generateRequestProcess = () => {
+  const processId = nanoid(12);
+
+  return { processId };
+};
+
+export function getDiffObjects<TDocument = any>(
+  obj1: mongoose.Document<TDocument> | undefined,
+  obj2: mongoose.Document<TDocument>,
+) {
+  const plainObj1 = obj1?.toObject ? obj1.toObject() : obj1;
+  const plainObj2 = obj2?.toObject ? obj2.toObject() : obj2;
+
+  const added: Record<string, any> = {};
+  const removed: Record<string, any> = {};
+  const updated: Record<string, { prev: any; current: any }> = {};
+
+  function deepDiff(
+    oldObj: any,
+    newObj: any,
+    path: string = '',
+    addedAcc: Record<string, any>,
+    removedAcc: Record<string, any>,
+    updatedAcc: Record<string, { prev: any; current: any }>,
+  ) {
+    // Handle null/undefined cases
+    if (oldObj === null || oldObj === undefined) {
+      if (newObj !== null && newObj !== undefined) {
+        if (path) {
+          _loadash.set(addedAcc, path, newObj);
+        } else {
+          Object.assign(addedAcc, newObj);
+        }
+      }
+      return;
+    }
+
+    if (newObj === null || newObj === undefined) {
+      if (oldObj !== null && oldObj !== undefined) {
+        if (path) {
+          _loadash.set(removedAcc, path, oldObj);
+        } else {
+          Object.assign(removedAcc, oldObj);
+        }
+      }
+      return;
+    }
+
+    // Handle arrays
+    if (Array.isArray(newObj) || Array.isArray(oldObj)) {
+      if (!_loadash.isEqual(oldObj, newObj)) {
+        if (path) {
+          _loadash.set(updatedAcc, path, { prev: oldObj, current: newObj });
+        } else {
+          Object.assign(updatedAcc, {
+            array: { prev: oldObj, current: newObj },
+          });
+        }
+      }
+      return;
+    }
+
+    // Handle primitive values
+    if (
+      typeof oldObj !== 'object' ||
+      typeof newObj !== 'object' ||
+      oldObj instanceof Date ||
+      newObj instanceof Date
+    ) {
+      if (!_loadash.isEqual(oldObj, newObj)) {
+        if (path) {
+          _loadash.set(updatedAcc, path, { prev: oldObj, current: newObj });
+        } else {
+          // For top-level primitives, this shouldn't happen in normal flow
+          if (oldObj !== newObj) {
+            Object.assign(updatedAcc, {
+              value: { prev: oldObj, current: newObj },
+            });
+          }
+        }
+      }
+      return;
+    }
+
+    // Get all keys from both objects
+    const allKeys = new Set([
+      ...Object.keys(oldObj || {}),
+      ...Object.keys(newObj || {}),
+    ]);
+
+    for (const key of allKeys) {
+      const currentPath = path ? `${path}.${key}` : key;
+      const oldValue = oldObj?.[key];
+      const newValue = newObj?.[key];
+
+      // Key exists in new but not in old
+      if (!(key in (oldObj || {})) && key in (newObj || {})) {
+        _loadash.set(addedAcc, currentPath, newValue);
+      }
+      // Key exists in old but not in new
+      else if (key in (oldObj || {}) && !(key in (newObj || {}))) {
+        _loadash.set(removedAcc, currentPath, oldValue);
+      }
+      // Key exists in both - need to compare
+      else {
+        const isOldObject =
+          oldValue !== null &&
+          typeof oldValue === 'object' &&
+          !Array.isArray(oldValue) &&
+          !(oldValue instanceof Date);
+        const isNewObject =
+          newValue !== null &&
+          typeof newValue === 'object' &&
+          !Array.isArray(newValue) &&
+          !(newValue instanceof Date);
+
+        // Both are objects - recurse
+        if (isOldObject && isNewObject) {
+          deepDiff(
+            oldValue,
+            newValue,
+            currentPath,
+            addedAcc,
+            removedAcc,
+            updatedAcc,
+          );
+        }
+        // One is object, one is not - it's an update
+        else if (isOldObject !== isNewObject) {
+          _loadash.set(updatedAcc, currentPath, {
+            prev: oldValue,
+            current: newValue,
+          });
+        }
+        // Both are primitives/arrays/dates - compare directly
+        else if (!_loadash.isEqual(oldValue, newValue)) {
+          _loadash.set(updatedAcc, currentPath, {
+            prev: oldValue,
+            current: newValue,
+          });
+        }
+      }
+    }
+  }
+
+  deepDiff(plainObj1, plainObj2, '', added, removed, updated);
+
+  return {
+    added: Object.keys(added).length > 0 ? added : undefined,
+    removed: Object.keys(removed).length > 0 ? removed : undefined,
+    updated: Object.keys(updated).length > 0 ? updated : undefined,
+  };
+}
+
+export function flattenObject(
+  value: unknown,
+  parentKey = '',
+  result: Record<string, unknown> = {},
+): Record<string, unknown> {
+  if (value === null || value === undefined) {
+    if (parentKey) result[parentKey] = value;
+    return result;
+  }
+
+  // Handle arrays
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      const path = parentKey ? `${parentKey}.${index}` : String(index);
+
+      flattenObject(item, path, result);
+    });
+    return result;
+  }
+
+  // Handle objects
+  if (typeof value === 'object') {
+    for (const [key, val] of Object.entries(value)) {
+      const path = parentKey ? `${parentKey}.${key}` : key;
+      flattenObject(val, path, result);
+    }
+    return result;
+  }
+
+  // Primitive
+  result[parentKey] = value;
+  return result;
+}
+
+export const readFileUrl = (value: string) => {
+  if (!value || isValidURL(value) || value.includes('/')) {
+    return value;
+  }
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+  });
+
+  return `${DOMAIN}/gateway/read-file?key=${value}`;
 };

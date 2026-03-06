@@ -57,7 +57,7 @@ export const SelectAccountCategory = React.forwardRef<
         onOpenChange={setOpen}
         scope={`select-account-category.${recordId}`}
       >
-        <RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Trigger className="overflow-visible px-0">
           <SelectAccountCategoryTrigger
             ref={ref}
             {...props}

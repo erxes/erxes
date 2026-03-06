@@ -1,3 +1,3 @@
-import queries from './queries';
+import queries from './queries/queries';
 
 export { queries };

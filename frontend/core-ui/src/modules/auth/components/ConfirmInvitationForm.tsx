@@ -1,14 +1,13 @@
-import { ErxesLogoIcon } from 'erxes-ui';
-import { currentOrganizationState, isCurrentUserLoadedState } from 'ui-modules';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { Button } from 'erxes-ui';
+import { OrgLogoIcon } from '@/auth/components/Logo';
 import { useUserConfirmInvitation } from '@/auth/hooks/useUserConfirmInvitation';
-import { useQueryState } from 'erxes-ui';
-import { useToast } from 'erxes-ui';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { AppPath } from '@/types/paths/AppPath';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { Button, useQueryState, useToast } from 'erxes-ui';
+import { motion } from 'framer-motion';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useNavigate } from 'react-router-dom';
+import { currentOrganizationState, isCurrentUserLoadedState } from 'ui-modules';
+
 export const ConfirmInvitationForm = () => {
   const navigate = useNavigate();
   const [token] = useQueryState<string>('token');
@@ -89,15 +88,6 @@ export const ConfirmInvitationForm = () => {
             </motion.div>
           </div>
         </motion.div>
-
-        <motion.footer
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.4 }}
-          className="absolute bottom-8 text-sm text-muted-foreground/70"
-        >
-          © 2024 erxes
-        </motion.footer>
       </>
     );
   }
@@ -126,7 +116,7 @@ export const ConfirmInvitationForm = () => {
               whileHover={{ scale: 1.05, rotate: 5 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
-              <ErxesLogoIcon className="relative w-24 h-24 text-primary drop-shadow-lg" />
+              <OrgLogoIcon className="relative w-24 h-24 text-primary drop-shadow-lg" />
             </motion.div>
           </motion.div>
 
@@ -142,7 +132,7 @@ export const ConfirmInvitationForm = () => {
             <p className="text-muted-foreground text-base">
               Join{' '}
               <span className="font-semibold text-foreground">
-                {currentOrganization?.name || 'erxes'}
+                {currentOrganization?.orgShortName || 'erxes'}
               </span>{' '}
               and start collaborating
             </p>
@@ -164,15 +154,6 @@ export const ConfirmInvitationForm = () => {
           </Button>
         </motion.div>
       </motion.div>
-
-      <motion.footer
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.4 }}
-        className="absolute bottom-8 text-sm text-muted-foreground/70"
-      >
-        © 2024 erxes
-      </motion.footer>
     </>
   );
 };

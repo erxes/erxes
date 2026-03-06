@@ -17,6 +17,7 @@ export const GET_PROJECTS = gql`
         teamIds
         tagIds
         leadId
+        memberIds
         startDate
         targetDate
         createdBy

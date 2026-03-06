@@ -2,6 +2,7 @@ import { Button, Label, Sheet } from 'erxes-ui';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
 import { useSegmentStats } from 'ui-modules/modules/segments/hooks/useSegmentStats';
+import { useTranslation } from 'react-i18next';
 
 export const SegmentFormFooter = ({
   callback,
@@ -11,6 +12,7 @@ export const SegmentFormFooter = ({
   const { form } = useSegment();
   const { stats, handleCalculateStats, loading } = useSegmentStats();
   const { handleSave } = useSegmentActions({ callback });
+  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
   return (
     <>
@@ -34,15 +36,17 @@ export const SegmentFormFooter = ({
           </div>
         </Sheet.Footer>
       )}
-      <Sheet.Footer>
+      <Sheet.Footer className="px-2">
         <Button
           variant="secondary"
           onClick={handleCalculateStats}
           disabled={loading}
         >
-          {loading ? 'Calculating...' : 'Calculate segment reach'}
+          {loading ? 'Calculating...' : t('calculate-segment-reach')}
         </Button>
-        <Button onClick={form.handleSubmit(handleSave)}>Save Segment</Button>
+        <Button onClick={form.handleSubmit(handleSave)}>
+          {t('save-segment')}
+        </Button>
       </Sheet.Footer>
     </>
   );

@@ -2,7 +2,7 @@ const { composePlugins, withNx, withReact } = require('@nx/rspack');
 const rspack = require('@rspack/core');
 const path = require('path');
 
-module.exports = composePlugins(withNx(), withReact(), (config) => {
+module.exports = composePlugins(withNx(), withReact(), (config: any) => {
   // Define environment variables
   config.plugins = config.plugins || [];
   config.plugins.push(
@@ -58,7 +58,7 @@ module.exports = composePlugins(withNx(), withReact(), (config) => {
 
   config.resolve = config.resolve || {};
   config.resolve.alias = {
-    ...(config.resolve.alias || {}),
+    ...config.resolve.alias,
     '@': path.resolve(__dirname, './src'),
     '@libs': path.resolve(__dirname, './src/lib'),
   };
@@ -69,7 +69,7 @@ module.exports = composePlugins(withNx(), withReact(), (config) => {
 
   // Find and replace existing CSS rule or add new one
   const cssRuleIndex = config.module.rules.findIndex(
-    (rule) =>
+    (rule: any) =>
       rule &&
       typeof rule === 'object' &&
       rule.test &&

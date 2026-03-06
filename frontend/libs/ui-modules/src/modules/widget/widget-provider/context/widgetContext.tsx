@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import { Icon } from '@tabler/icons-react';
+import { REACT_APP_HIDE_CORE_MODULES } from 'erxes-ui';
 
 export interface IRelationWidgetProps {
   module: string;
@@ -52,6 +53,13 @@ export const useRelationWidget = (options?: {
   const context = useContext(RelationWidgetContext);
 
   const { hiddenPlugins, hiddenModules, hideCoreRelations } = options || {};
+
+  const hideCore = hideCoreRelations
+    ? hideCoreRelations
+    : REACT_APP_HIDE_CORE_MODULES === 'true'
+    ? true
+    : false;
+
   let filteredModules = context.relationWidgetsModules;
 
   if (hiddenPlugins) {
@@ -60,7 +68,7 @@ export const useRelationWidget = (options?: {
     );
   }
 
-  if (hideCoreRelations) {
+  if (hideCore) {
     filteredModules = filteredModules.filter(
       (module) => module.pluginName !== 'core',
     );

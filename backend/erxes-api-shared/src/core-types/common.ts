@@ -1,6 +1,7 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { SortOrder } from 'mongoose';
 import { IUserDocument } from './modules/team-member/user';
+import { Request as ApiRequest, Response as ApiResponse } from 'express';
 
 export interface IRule {
   kind: string;
@@ -16,6 +17,16 @@ export interface ILink {
 export interface IRuleDocument extends IRule, Document {
   _id: string;
 }
+
+export interface IOffsetPaginateParams {
+  limit?: number;
+  page?: number;
+  perPage?: number;
+
+  sortField?: string;
+  sortDirection?: SortOrder;
+}
+
 export interface ICursorPaginateParams {
   limit?: number;
   cursor?: string;
@@ -50,6 +61,7 @@ export interface ICustomField {
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;
+  locationValue?: ILocationOption
   extraValue?: string;
 }
 
@@ -84,7 +96,7 @@ export interface IPdfAttachment {
 
 export interface IMainContext {
   res: any;
-  req: any;
+  req: ApiRequest;
   requestInfo: any;
   user: IUserDocument;
   cpUser?: any;
@@ -133,3 +145,9 @@ export type Resolver<
   info: GraphQLResolveInfo,
 ) => Promise<Result> | Result) &
   IResolverSymbol;
+
+export interface ILocationOption {
+  lat: number;
+  lng: number;
+  description?: string;
+}

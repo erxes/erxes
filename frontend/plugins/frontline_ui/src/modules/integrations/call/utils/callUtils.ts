@@ -64,7 +64,6 @@ export function safeFormatDate(value: unknown, fmt = 'MM-dd HH:mm'): string {
 }
 
 export const renderFullName = (data: any, noPhone?: boolean) => {
-  console.log(data, 'datadatadata');
   if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
     return (
       (data.firstName || '') +

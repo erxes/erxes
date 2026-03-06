@@ -5,6 +5,10 @@ import { checkCycle, dailyCheckCycles } from '~/worker/dailyCheckCycles';
 export const initMQWorkers = async (redis: any) => {
   const myQueue = new Queue('operations-daily-cycles-check', {
     connection: redis,
+    defaultJobOptions: {
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
   });
 
   await myQueue.upsertJobScheduler(

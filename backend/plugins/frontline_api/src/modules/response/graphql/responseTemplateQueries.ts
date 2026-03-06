@@ -1,4 +1,4 @@
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
+import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import {
@@ -71,10 +71,6 @@ export const responseTemplateQueries = {
   },
 };
 
+requireLogin(responseTemplateQueries, 'responseTemplates');
+requireLogin(responseTemplateQueries, 'responseTemplate');
 requireLogin(responseTemplateQueries, 'responseTemplatesTotalCount');
-checkPermission(
-  responseTemplateQueries,
-  'responseTemplates',
-  'showResponseTemplates',
-  [],
-);

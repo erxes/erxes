@@ -1,20 +1,22 @@
-import { SelectBoard } from '~/modules/deals/boards/components/SelectBoards';
 import {
-  salesActionConfigFormSchema,
-  TSalesActionConfigForm,
-} from '../../states/salesActionConfigFormDefinitions';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch } from 'react-hook-form';
-import { Form, toast } from 'erxes-ui';
-import { SelectPipeline } from '~/modules/deals/pipelines/components/SelectPipelines';
-import { SelectStage } from '~/modules/deals/stage/components/SelectStages';
-import {
+  AutomationActionFormProps,
+  PlaceholderInput,
+  SelectBoard,
+  SelectPipeline,
+  SelectStage,
   splitAutomationNodeType,
   useAutomationRemoteFormSubmit,
+  useFormValidationErrorHandler,
 } from 'ui-modules';
-import { AutomationActionFormProps, PlaceholderInput } from 'ui-modules';
+import {
+  TSalesActionConfigForm,
+  salesActionConfigFormSchema,
+} from '../../states/salesActionConfigFormDefinitions';
+import { useForm, useWatch } from 'react-hook-form';
+
+import { Form } from 'erxes-ui';
 import { PipelineLabelsCommandList } from '../PipelineLabelsCommandList';
-import { useFormValidationErrorHandler } from 'ui-modules';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const CreateDealActionConfigForm = ({
   formRef,
@@ -24,7 +26,7 @@ export const CreateDealActionConfigForm = ({
   type,
 }: AutomationActionFormProps<TSalesActionConfigForm>) => {
   const [, , collectionType] = splitAutomationNodeType(type);
-  console.log({ collectionType });
+
   const form = useForm<TSalesActionConfigForm>({
     resolver: zodResolver(salesActionConfigFormSchema),
     defaultValues: {

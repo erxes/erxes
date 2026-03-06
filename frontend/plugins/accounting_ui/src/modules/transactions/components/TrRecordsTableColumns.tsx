@@ -1,4 +1,3 @@
-import { ExtendedColumnDef } from '@/transactions/types/tables';
 import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
@@ -163,10 +162,9 @@ const transactionMoreColumn = {
   id: 'more',
   cell: TransactionMoreColumnCell,
   size: 33,
-  colOrder: 1,
 };
 
-export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
+export const trRecordColumns: ColumnDef<ITrRecord>[] = [
   transactionMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ITrRecord>,
   {
@@ -177,14 +175,12 @@ export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
     accessorKey: 'details',
     cell: ({ row }) => <AccountCell row={row} />,
     size: 300,
-    colOrder: 3,
   },
   {
     id: 'number',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Number" />,
     accessorKey: 'number',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
-    colOrder: 5,
   },
   {
     id: 'date',
@@ -192,7 +188,26 @@ export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
     size: 100,
-    colOrder: 7,
+  },
+  {
+    id: 'product-inv',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
+    ),
+    accessorKey: 'product-inv',
+    cell: ({ row }) => <ProductCell row={row} />,
+  },
+  {
+    id: 'unitPrice-inv',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
+    accessorKey: 'unitPrice-inv',
+    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.details?.unitPrice ?? 0} />,
+  },
+  {
+    id: 'count-inv',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
+    accessorKey: 'count-inv',
+    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.details?.count ?? 0} />,
   },
   {
     id: 'Debit',
@@ -201,7 +216,6 @@ export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
     ),
     accessorKey: 'Debit',
     cell: ({ getValue, row }) => <DebitCell getValue={getValue} row={row} />,
-    colOrder: 31,
   },
   {
     id: 'Credit',
@@ -210,7 +224,6 @@ export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
     ),
     accessorKey: 'Credit',
     cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
-    colOrder: 32,
   },
   {
     id: 'description',
@@ -222,53 +235,23 @@ export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
       <DescriptionCell getValue={getValue} row={row} />
     ),
     size: 200,
-    colOrder: 33,
   },
   {
     id: 'branch',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Branch" />,
     accessorKey: 'branch',
     cell: ({ row }) => <BranchCell row={row} />,
-    colOrder: 41,
   },
   {
     id: 'department',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Department" />,
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
-    colOrder: 42,
   },
   {
     id: 'journal',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Journal" />,
     accessorKey: 'journal',
     cell: ({ row }) => <JournalCell row={row} />,
-    colOrder: 43,
-  },
-];
-
-export const trRecordInvColumns: ExtendedColumnDef<ITrRecord>[] = [
-  {
-    id: 'product',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
-    ),
-    accessorKey: 'product',
-    cell: ({ row }) => <ProductCell row={row} />,
-    colOrder: 21,
-  },
-  {
-    id: 'unitPrice',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
-    accessorKey: 'unitPrice',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.details?.unitPrice ?? 0} />,
-    colOrder: 24,
-  },
-  {
-    id: 'count',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
-    accessorKey: 'count',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.details?.count ?? 0} />,
-    colOrder: 27,
   },
 ];

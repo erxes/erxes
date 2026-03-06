@@ -6,7 +6,6 @@ const userQueries = {
    * Current user
    */
   async posCurrentUser(_root, _args, { models, posUser }: IContext) {
-    console.log('posUser pisdaaa', posUser);
     return posUser
       ? models.PosUsers.findOne({ _id: posUser._id, isActive: { $ne: false } })
       : null;

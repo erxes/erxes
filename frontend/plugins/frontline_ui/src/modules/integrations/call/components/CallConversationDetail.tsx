@@ -27,20 +27,16 @@ export function CallConversationDetail() {
   });
   const { callSyncRecordFile, loading: syncFileLoading } =
     useCallSyncAudioRecord(conversationId);
-  const setIsInternalNote = useSetAtom(isInternalState);
-  const setOnlyInternal = useSetAtom(onlyInternalState);
 
   const { callHistoryDetail } = useCallConversationDetail({
     conversationId: conversationId || '',
   });
+  const setIsInternalNote = useSetAtom(isInternalState);
+  const setOnlyInternal = useSetAtom(onlyInternalState);
 
   useEffect(() => {
     setIsInternalNote(true);
     setOnlyInternal(true);
-    return () => {
-      setIsInternalNote(false);
-      setOnlyInternal(false);
-    };
   }, []);
 
   const syncRecord = async (acctId: string, inboxId: string) => {

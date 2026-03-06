@@ -96,7 +96,7 @@ export const loadPosUserClass = (models) => {
     }
 
     public static getSecret() {
-      return process.env.JWT_TOKEN_SECRET || '';
+      return process.env.JWT_TOKEN_SECRET || 'secret';
     }
 
     /**

@@ -1,5 +1,6 @@
 import { IconBriefcase, IconSandbox } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
+
 import { IUIConfig } from 'erxes-ui';
 
 const MainNavigation = lazy(() =>
@@ -24,11 +25,21 @@ const GoalsNavigation = lazy(() =>
   import('./modules/goals/GoalsNavigation').then((module) => ({
     default: module.GoalsNavigation,
   })),
+)
+const SalesSettingsNavigation = lazy(() =>
+  import('./modules/SalesSettingsNavigation').then((module) => ({
+    default: module.SalesSettingsNavigation,
+  })),
 );
 
 export const CONFIG: IUIConfig = {
   name: 'sales',
-  icon: IconBriefcase,
+  path: 'sales',
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <SalesSettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'sales',
     icon: IconBriefcase,
@@ -37,7 +48,7 @@ export const CONFIG: IUIConfig = {
         <MainNavigation />
       </Suspense>
     ),
-    subGroups: () => (
+    subGroup: () => (
       <Suspense fallback={<div />}>
         <SalesSubNavigation />
         <PosOrderNavigation />
@@ -50,14 +61,20 @@ export const CONFIG: IUIConfig = {
       name: 'sales',
       icon: IconBriefcase,
       path: 'sales',
-      hasSettings: true,
-      hasAutomation: true,
+    },
+    {
+      name: 'deals',
+      path: 'sales/deals',
+    },
+    {
+      name: 'pos',
+      icon: IconBriefcase,
+      path: 'sales/pos',
     },
     {
       name: 'goals',
       icon: IconSandbox,
       path: 'goals',
-      hasSettings: false,
       hasAutomation: false,
       hasSegmentConfigWidget: true,
     },

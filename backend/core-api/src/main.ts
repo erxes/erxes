@@ -1,27 +1,27 @@
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { isDev } from 'erxes-api-shared/utils';
-import express from 'express';
-import * as http from 'http';
-import { appRouter } from '~/init-trpc';
-import { initApolloServer } from './apollo/apolloServer';
-import { router } from './routes';
 import * as dotenv from 'dotenv';
-
 import {
   closeMongooose,
   createTRPCContext,
+  isDev,
   joinErxesGateway,
   leaveErxesGateway,
 } from 'erxes-api-shared/utils';
-
+import express from 'express';
 import rateLimit from 'express-rate-limit';
+import * as http from 'http';
 import * as path from 'path';
+import { appRouter } from '~/init-trpc';
+import { initApolloServer } from './apollo/apolloServer';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
+import { initBroadcast } from './meta/broadcast';
+import initImportExport from './meta/import-export/import';
 import { initSegmentCoreProducers } from './meta/segments';
+import { router } from './routes';
 
 dotenv.config();
 
@@ -84,7 +84,7 @@ app.use(
   trpcExpress.createExpressMiddleware({
     router: appRouter,
     createContext: createTRPCContext(async (subdomain, context) => {
-      const models = await generateModels(subdomain);
+      const models = await generateModels(subdomain, context);
 
       context.models = models;
 
@@ -111,6 +111,8 @@ httpServer.listen(port, async () => {
   });
   await initAutomation(app);
   await initSegmentCoreProducers(app);
+  await initImportExport(app);
+  await initBroadcast(app);
 });
 
 // GRACEFULL SHUTDOWN

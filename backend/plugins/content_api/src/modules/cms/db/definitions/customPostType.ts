@@ -1,6 +1,9 @@
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
-import { ICustomPostTypeDocument } from '@/cms/@types/customPostType';
+import {
+  ICustomPostTypeDocument,
+  ICustomFieldGroupDocument,
+} from '@/cms/@types/customPostType';
 
 export const customPostTypeSchema = new Schema<ICustomPostTypeDocument>(
   {
@@ -18,3 +21,31 @@ export const customPostTypeSchema = new Schema<ICustomPostTypeDocument>(
 );
 
 customPostTypeSchema.index({ name: 1, clientPortalId: 1 }, { unique: true });
+
+const fieldSchema = new Schema({
+  _id: mongooseStringRandomId,
+  label: { type: String, required: true },
+  code: { type: String },
+  type: { type: String, required: true, default: 'text' },
+  description: { type: String },
+  isRequired: { type: Boolean, default: false },
+  options: { type: [String] },
+});
+
+export const fieldGroupSchema = new Schema<ICustomFieldGroupDocument>(
+  {
+    _id: mongooseStringRandomId,
+    clientPortalId: { type: String, required: true },
+    label: { type: String, required: true },
+    code: { type: String, unique: true },
+    parentId: { type: String },
+    order: { type: Number },
+    customPostTypeIds: { type: [String] },
+
+    enabledPageIds: { type: [String] },
+    enabledCategoryIds: { type: [String] },
+    type: { type: String, required: true, default: 'user' },
+    fields: { type: [fieldSchema], default: [] },
+  },
+  { timestamps: true },
+);

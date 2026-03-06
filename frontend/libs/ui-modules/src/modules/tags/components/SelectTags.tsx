@@ -1,28 +1,36 @@
 import {
+  Button,
   Combobox,
   Command,
-  Button,
+  Filter,
+  Popover,
   PopoverScoped,
   RecordTableInlineCell,
-  Popover,
-  TextOverflowTooltip,
+  ScrollArea,
+  SelectOperationContent,
   SelectTree,
   SelectTriggerOperation,
-  SelectOperationContent,
+  SelectTriggerVariant,
+  TextOverflowTooltip,
+  useFilterContext,
+  useQueryState,
 } from 'erxes-ui';
-import { useTags } from '../hooks/useTags';
-import { useDebounce } from 'use-debounce';
-import React, { useState } from 'react';
+import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
 import {
   ISelectTagsProviderProps,
   ITag,
   useGiveTags,
 } from 'ui-modules/modules';
-import { SelectTagsContext } from '../contexts/SelectTagsContext';
-import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
 import { IconPlus, IconTag } from '@tabler/icons-react';
-import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
+import React, { useEffect, useState } from 'react';
+
+import { SelectTagsContext } from '../contexts/SelectTagsContext';
 import { TagBadge } from './TagBadge';
+import { useDebounce } from 'use-debounce';
+import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
+import { IconTagPlus } from '@tabler/icons-react';
+import { useTags } from '../hooks/useTags';
+import { useTranslation } from 'react-i18next';
 
 export const SelectTagsProvider = ({
   children,
@@ -36,6 +44,7 @@ export const SelectTagsProvider = ({
   const [newTagName, setNewTagName] = useState('');
   const { giveTags } = useGiveTags();
   const [selectedTags, setSelectedTags] = useState<ITag[]>([]);
+
   const handleSelectCallback = (tag: ITag) => {
     if (!tag) return;
 
@@ -46,14 +55,14 @@ export const SelectTagsProvider = ({
     const newSelectedTagIds = isSingleMode
       ? [tag._id]
       : isSelected
-      ? multipleValue.filter((t) => t !== tag._id)
-      : [...multipleValue, tag._id];
+        ? multipleValue.filter((t) => t !== tag._id)
+        : [...multipleValue, tag._id];
 
     const newSelectedTags = isSingleMode
       ? [tag]
       : isSelected
-      ? selectedTags.filter((t) => t._id !== tag._id)
-      : [...selectedTags, tag];
+        ? selectedTags.filter((t) => t._id !== tag._id)
+        : [...selectedTags, tag];
 
     setSelectedTags(newSelectedTags);
     onValueChange?.(isSingleMode ? tag._id : newSelectedTagIds);
@@ -71,7 +80,7 @@ export const SelectTagsProvider = ({
   return (
     <SelectTagsContext.Provider
       value={{
-        tagType,
+        tagType: tagType || '',
         onSelect: handleSelectCallback,
         value,
         selectedTags,
@@ -118,11 +127,9 @@ export const SelectTagGroupsCommand = ({
         focusOnMount
       />
       {selectedTags?.length > 0 && (
-        <>
-          <div className="flex flex-wrap p-2 gap-2">
-            <TagList />
-          </div>
-        </>
+        <div className="flex flex-wrap gap-2 p-2">
+          <TagList />
+        </div>
       )}
       <Command.List>
         <SelectTree.Provider id={targetIds.join(',')} ordered={!search}>
@@ -178,7 +185,7 @@ export const SelectTagsCommand = ({
       />
       {selectedTags?.length > 0 && (
         <>
-          <div className="flex flex-wrap p-2 gap-2">
+          <div className="flex flex-wrap gap-2 p-2">
             <TagList />
           </div>
           <Command.Separator />
@@ -192,39 +199,97 @@ export const SelectTagsCommand = ({
             show={!disableCreateOption && !loading && !tags?.length}
           />
           <Combobox.Empty loading={loading} error={error} />
-          {tags
-            ?.filter((tag) => !tag.parentId && !tag.isGroup)
-            ?.map((tag) => (
-              <SelectTagsItem
-                key={tag._id}
-                tag={{
-                  ...tag,
-                  hasChildren: false,
-                }}
-              />
-            ))}
+          {search ? (
+            <>
+              {tags
+                ?.filter((tag) => !tag.parentId && !tag.isGroup)
+                ?.map((tag) => (
+                  <SelectTagsItem
+                    key={tag._id}
+                    tag={{
+                      ...tag,
+                      hasChildren: false,
+                    }}
+                  />
+                ))}
 
-          {tags
-            ?.filter(
-              (tag) => tag.isGroup && tags.some((t) => t.parentId === tag._id),
-            )
-            ?.map((tag) => (
-              <Command.Group key={tag._id} heading={tag.name}>
-                {tags
-                  .filter((t) => t.parentId === tag._id)
-                  .map((childTag) => (
-                    <SelectTagsItem
-                      key={childTag._id}
-                      tag={{
-                        ...childTag,
-                        hasChildren: tags.some(
-                          (t) => t.parentId === childTag._id,
-                        ),
-                      }}
-                    />
-                  ))}
-              </Command.Group>
-            ))}
+              {tags
+                ?.filter(
+                  (tag) =>
+                    tag.isGroup && tags.some((t) => t.parentId === tag._id),
+                )
+                ?.map((tag) => (
+                  <Command.Group key={tag._id} heading={tag.name}>
+                    {tags
+                      .filter((t) => t.parentId === tag._id)
+                      .map((childTag) => (
+                        <SelectTagsItem
+                          key={childTag._id}
+                          tag={{
+                            ...childTag,
+                            hasChildren: tags.some(
+                              (t) => t.parentId === childTag._id,
+                            ),
+                          }}
+                        />
+                      ))}
+                  </Command.Group>
+                ))}
+              {tags
+                ?.filter(
+                  (tag) =>
+                    tag.parentId &&
+                    !tags.some((t) => t._id === tag.parentId) &&
+                    !tag.isGroup,
+                )
+                .map((tag) => (
+                  <SelectTagsItem
+                    key={tag._id}
+                    tag={{
+                      ...tag,
+                      hasChildren: false,
+                    }}
+                  />
+                ))}
+            </>
+          ) : (
+            <>
+              {tags
+                ?.filter((tag) => !tag.parentId && !tag.isGroup)
+                ?.map((tag) => (
+                  <SelectTagsItem
+                    key={tag._id}
+                    tag={{
+                      ...tag,
+                      hasChildren: false,
+                    }}
+                  />
+                ))}
+
+              {tags
+                ?.filter(
+                  (tag) =>
+                    tag.isGroup && tags.some((t) => t.parentId === tag._id),
+                )
+                ?.map((tag) => (
+                  <Command.Group key={tag._id} heading={tag.name}>
+                    {tags
+                      .filter((t) => t.parentId === tag._id)
+                      .map((childTag) => (
+                        <SelectTagsItem
+                          key={childTag._id}
+                          tag={{
+                            ...childTag,
+                            hasChildren: tags.some(
+                              (t) => t.parentId === childTag._id,
+                            ),
+                          }}
+                        />
+                      ))}
+                  </Command.Group>
+                ))}
+            </>
+          )}
           <Combobox.FetchMore
             fetchMore={handleFetchMore}
             currentLength={tags?.length || 0}
@@ -291,7 +356,12 @@ export const TagList = ({
   const selectedTagIds = Array.isArray(value) ? value : [value];
 
   if (!value || !value.length) {
-    return <Combobox.Value placeholder={placeholder || ''} />;
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <IconTagPlus className="size-4 text-muted-foreground" />
+        <Combobox.Value placeholder={placeholder || ''} />
+      </div>
+    );
   }
 
   return (
@@ -325,11 +395,18 @@ export const TagList = ({
 export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
   const { selectedTags, mode } = useSelectTagsContext();
 
-  if (selectedTags?.length > 1) return <>{selectedTags.length} tags selected</>;
+  if ((selectedTags || []).length !== 0) {
+    return (
+      <span className="flex gap-1 items-center -ml-1 text-muted-foreground">
+        <IconTag className="w-4 h-4 text-gray-400" /> Tag +
+        {(selectedTags || []).length}
+      </span>
+    );
+  }
 
   return (
     <TagList
-      placeholder={placeholder === undefined ? 'Select tags' : placeholder}
+      placeholder={placeholder === undefined ? 'Select Tags' : placeholder}
       renderAsPlainText={mode === 'single'}
     />
   );
@@ -381,12 +458,12 @@ export const SelectTagsInlineCell = ({
 export const SelectTagsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
 >(
   (
     {
@@ -402,6 +479,9 @@ export const SelectTagsDetail = React.forwardRef<
     ref,
   ) => {
     const [open, setOpen] = useState(false);
+    const { t } = useTranslation('contact', {
+      keyPrefix: 'customer.detail',
+    });
     return (
       <SelectTagsProvider
         onValueChange={(value) => {
@@ -410,7 +490,7 @@ export const SelectTagsDetail = React.forwardRef<
         }}
         {...{ targetIds, tagType, value, mode, options }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
           <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
             <Popover.Trigger asChild>
               <Button
@@ -419,7 +499,7 @@ export const SelectTagsDetail = React.forwardRef<
                 className="w-min text-sm font-medium shadow-xs"
                 variant="outline"
               >
-                Add Tags
+                {t('add-tags')}
                 <IconPlus className="text-lg" />
               </Button>
             </Popover.Trigger>
@@ -435,6 +515,121 @@ export const SelectTagsDetail = React.forwardRef<
 );
 
 SelectTagsDetail.displayName = 'SelectTagsDetail';
+
+
+export const ConversationTagList = ({
+  placeholder,
+  renderAsPlainText,
+  ...props
+}: Omit<React.ComponentProps<typeof TagBadge>, 'onClose'> & {
+  placeholder?: string;
+  renderAsPlainText?: boolean;
+}) => {
+  const { value, selectedTags, setSelectedTags, onSelect } =
+    useSelectTagsContext();
+
+  const selectedTagIds = Array.isArray(value) ? value : [value];
+
+  if (!value || !value.length) {
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <IconTagPlus className="size-4 text-muted-foreground" />
+        <Combobox.Value placeholder={placeholder || ''} />
+      </div>
+    );
+  }
+
+  return (
+    <ScrollArea className='flex-1'>
+      <div className="flex flex-nowrap gap-2">
+        {selectedTagIds.map((tagId) => (
+          <TagBadge
+            key={tagId}
+            tagId={tagId}
+            tag={selectedTags.find((t) => t._id === tagId)}
+            renderAsPlainText={renderAsPlainText}
+            variant="secondary"
+            onCompleted={(tag) => {
+              if (!tag) return;
+              if (selectedTagIds.includes(tag._id)) {
+                setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
+              }
+              if (!selectedTags.includes(tag)) {
+                setSelectedTags([...selectedTags, tag]);
+              }
+            }}
+            onClose={() =>
+              onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
+            }
+            {...props}
+          />
+        ))}
+      </div>
+      <ScrollArea.Bar orientation="horizontal" />
+    </ScrollArea>
+  );
+};
+
+export const SelectTagsConversationDetail = React.forwardRef<
+  React.ElementRef<typeof Combobox.Trigger>,
+  Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
+>(
+  (
+    {
+      onValueChange,
+      scope,
+      targetIds,
+      tagType,
+      value,
+      mode = 'multiple',
+      options,
+      ...props
+    },
+    ref,
+  ) => {
+    const [open, setOpen] = useState(false);
+    const { t } = useTranslation('contact', {
+      keyPrefix: 'customer.detail',
+    });
+    return (
+      <SelectTagsProvider
+        onValueChange={(value) => {
+          onValueChange?.(value);
+          setOpen(false);
+        }}
+        {...{ targetIds, tagType, value, mode, options }}
+      >
+        <div className="flex gap-2 items-center overflow-x-hidden p-0.5">
+          <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+            <Popover.Trigger asChild>
+              <Button
+                ref={ref}
+                {...props}
+                className="w-min text-sm font-medium shadow-xs"
+                variant="outline"
+              >
+                {t('add-tags')}
+                <IconPlus className="text-lg" />
+              </Button>
+            </Popover.Trigger>
+            <Combobox.Content>
+              <SelectTagsContent />
+            </Combobox.Content>
+          </PopoverScoped>
+          <ConversationTagList />
+        </div>
+      </SelectTagsProvider>
+    );
+  },
+);
+
+SelectTagsConversationDetail.displayName = 'SelectTagsConversationDetail';
 
 export const SelectTagsFormItem = ({
   onValueChange,
@@ -505,12 +700,12 @@ export const SelectTagsCommandbarItem = ({
 export const SelectTagsRoot = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
 >(
   (
     {
@@ -548,6 +743,127 @@ export const SelectTagsRoot = React.forwardRef<
 );
 SelectTagsRoot.displayName = 'SelectTagsRoot';
 
+export const SelectTagsFilterItem = ({
+  value,
+  label,
+}: {
+  value: string;
+  label: string;
+}) => {
+  return (
+    <Filter.Item value={value}>
+      <IconTag />
+      {label}
+    </Filter.Item>
+  );
+};
+
+export const SelectTagsFilterView = ({
+  mode,
+  filterKey,
+}: {
+  mode: 'single' | 'multiple';
+  filterKey: string;
+}) => {
+  const [query, setQuery] = useQueryState<string[] | string | undefined>(
+    filterKey,
+  );
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Filter.View filterKey={filterKey}>
+      <SelectTagsProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={(value) => {
+          setQuery(value as any);
+          resetFilterState();
+        }}
+      >
+        <SelectTagsContent />
+      </SelectTagsProvider>
+    </Filter.View>
+  );
+};
+
+export const SelectTagsFilterBar = ({
+  mode = 'multiple',
+  filterKey,
+  label,
+  variant,
+  scope,
+  targetId,
+  initialValue,
+  onValueChange,
+  tagType,
+}: {
+  mode: 'single' | 'multiple';
+  filterKey: string;
+  label: string;
+  variant?: `${SelectTriggerVariant}`;
+  scope?: string;
+  targetId?: string;
+  initialValue?: string[];
+  tagType?: string;
+  onValueChange?: (value: string[] | string) => void;
+}) => {
+  const isCardVariant = variant === 'card';
+
+  const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
+  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
+  const [open, setOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isCardVariant && initialValue) {
+      setLocalQuery(initialValue);
+    }
+  }, [initialValue, isCardVariant]);
+
+  const query = isCardVariant ? localQuery : urlQuery;
+
+  if (!query && variant !== 'card') {
+    return null;
+  }
+
+  const handleValueChange = (value: string[] | string) => {
+    if (onValueChange) {
+      onValueChange(value);
+    }
+
+    if (value && value.length > 0) {
+      if (isCardVariant) {
+        setLocalQuery(value as string[]);
+      } else {
+        setUrlQuery(value as string[]);
+      }
+    } else {
+      if (isCardVariant) {
+        setLocalQuery([]);
+      } else {
+        setUrlQuery(null);
+      }
+    }
+  };
+
+  return (
+    <SelectTagsProvider
+      mode={mode}
+      value={query || []}
+      onValueChange={handleValueChange}
+      tagType={tagType}
+    >
+      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+        <SelectTriggerOperation variant={variant || 'filter'}>
+          <SelectTagsValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant={variant || 'filter'}>
+          <SelectTagsContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectTagsProvider>
+  );
+};
+
 export const SelectTags = Object.assign(SelectTagsRoot, {
   Provider: SelectTagsProvider,
   CommandbarItem: SelectTagsCommandbarItem,
@@ -559,5 +875,9 @@ export const SelectTags = Object.assign(SelectTagsRoot, {
   List: TagList,
   InlineCell: SelectTagsInlineCell,
   Detail: SelectTagsDetail,
+  ConversationDetail: SelectTagsConversationDetail,
   FormItem: SelectTagsFormItem,
+  FilterItem: SelectTagsFilterItem,
+  FilterView: SelectTagsFilterView,
+  FilterBar: SelectTagsFilterBar,
 });

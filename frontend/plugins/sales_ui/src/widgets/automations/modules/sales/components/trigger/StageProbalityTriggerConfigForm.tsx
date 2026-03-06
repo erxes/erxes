@@ -1,19 +1,20 @@
 import {
   AutomationTriggerFormProps,
+  SelectBoard,
+  SelectPipeline,
+  SelectStage,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
+import { Form, Select } from 'erxes-ui';
 import {
-  stageProbalityTriggerConfigFormSchema,
   TStageProbalityTriggerConfigForm,
+  stageProbalityTriggerConfigFormSchema,
 } from '~/widgets/automations/modules/sales/states/stageProbalityTriggerConfigFormDefinitions';
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, Select } from 'erxes-ui';
+
 import { STAGE_PROBABILITIES } from '~/widgets/automations/modules/sales/constants/configForm';
-import { SelectStage } from '~/modules/deals/stage/components/SelectStages';
-import { SelectPipeline } from '~/modules/deals/pipelines/components/SelectPipelines';
-import { SelectBoard } from '~/modules/deals/boards/components/SelectBoards';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const StageProbalityTriggerConfigForm = ({
   formRef,

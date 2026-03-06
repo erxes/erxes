@@ -1,18 +1,20 @@
-import { IconCashRegister, IconPlus, IconSettings } from '@tabler/icons-react';
+import { IconCashRegister, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { Link } from 'react-router-dom';
-import { PosCardGrid } from '@/pos/components/PosRecordList';
-import { PosCreate } from '~/modules/pos/components/pos-create';
-import { PosFilter } from '~/modules/pos/pos/PosFilter';
-import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { usePosList } from '@/pos/hooks/usePosList';
 
 export const PosIndexPage = () => {
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const navigate = useNavigate();
+  const { posList, loading } = usePosList();
 
-  const onCreatePos = () => {
-    setCreateDialogOpen(true);
-  };
+  useEffect(() => {
+    if (!loading && posList && posList.length > 0) {
+      const firstPos = posList[0];
+      navigate(`/sales/pos/${firstPos._id}/orders`);
+    }
+  }, [loading, posList, navigate]);
 
   return (
     <div className="flex flex-col h-full">
@@ -35,23 +37,13 @@ export const PosIndexPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
-            <Link to="/settings/pos">
+            <Link to="/settings/sales/pos">
               <IconSettings />
               Go to settings
             </Link>
           </Button>
-          <Button onClick={onCreatePos}>
-            <IconPlus className="mr-2 w-4 h-4" />
-            Create POS
-          </Button>
         </PageHeader.End>
       </PageHeader>
-      <PageHeader>
-        <PosFilter />
-      </PageHeader>
-      <PosCardGrid />
-
-      <PosCreate open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </div>
   );
 };

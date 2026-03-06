@@ -9,7 +9,7 @@ import {
 } from '@/ebarimt/settings/product-group/constants/productGroupSchema';
 import { useProductGroupRowDetail } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowDetail';
 import { useGroupProductRowEdit } from '@/ebarimt/settings/product-group/hooks/useGroupProductRowEdit';
-import { EBarimtDialog } from '~/modules/put-response/layout/components/Dialog';
+import { EBarimtDialog } from '~/modules/ebarimt/put-response/layout/components/Dialog';
 
 export const EditProductGroupRow = () => {
   const [open, setOpen] = useQueryState<string>('product_group_id');

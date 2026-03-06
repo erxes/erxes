@@ -115,8 +115,8 @@ export interface AfterProcessConfigs {
   rules: IAfterProcessRule[];
   afterMutation?: (
     context: IContext,
-    args: { mutationName: string; args: { [key: string]: any }; result: any },
-  ) => void;
+    args: { data: { mutationName: string; args: { [key: string]: any }; result: any, userId?: string } },
+  ) => void | Promise<void>;
   afterAuth?: (
     context: IContext,
     args: { userId: string; email: string; result: string },
@@ -125,22 +125,52 @@ export interface AfterProcessConfigs {
   afterDocumentUpdated?: <TDocument = any>(
     context: IContext,
     args: {
-      contentType: string;
-      fullDocument: TDocument;
-      prevDocument: TDocument;
-      updateDescription: {
-        updatedFields: { [key: string]: any };
-        removedFields: string[];
-      };
+      data: {
+        collectionName: string,
+        docId: string,
+        prevDocument?: any,
+        currentDocument?: any,
+        updateDescription: {
+          added: { [key: string]: any };
+          updated: { [key: string]: any };
+          removed: string[];
+        };
+        userId: string;
+        processId: string;
+        contentType: string;
+      }
     },
   ) => void;
   afterDocumentCreated?: <TDocument = any>(
     context: IContext,
     args: {
-      contentType: string;
-      fullDocument: TDocument;
+      data: {
+        collectionName: string,
+        docId: string,
+        currentDocument?: any,
+        userId: string;
+        processId: string;
+        contentType: string;
+      }
     },
   ) => void;
+}
+
+export interface AfterProcessModuleConfig<TModels = any> {
+  rules: IAfterProcessRule[];
+  createdDocument?: Record<
+    string,
+    (models: TModels, data: any) => Promise<void>
+  >;
+  updatedDocument?: Record<
+    string,
+    (subdomain: string, models: TModels, data: any) => Promise<void>
+  >;
+  afterMutation?: Record<string, (subdomain: string, models: TModels, data: any) => Promise<void>>;
+}
+
+export interface AfterProcessModules<TModels = any> {
+  [moduleName: string]: AfterProcessModuleConfig<TModels>;
 }
 
 export const startAfterProcess = async (
@@ -203,5 +233,5 @@ export const startAfterProcess = async (
     }),
   });
 
-  app.use('/after-process', trpcMiddleware);
+  app.use('/afterProcess', trpcMiddleware);
 };

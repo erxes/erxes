@@ -52,6 +52,17 @@ export const projectQueries: Record<string, Resolver> = {
       filterQuery.leadId = filter.leadId;
     }
 
+    if (filter.memberIds && filter.memberIds.length > 0) {
+      filterQuery.memberIds = { $in: filter.memberIds };
+    }
+
+    if (filter.memberId) {
+      filterQuery.$or = [
+        { memberIds: { $in: [filter.memberId] } },
+        { leadId: filter.memberId },
+      ];
+    }
+
     if (filter.tagIds && filter.tagIds.length > 0) {
       filterQuery.tagIds = { $in: filter.tagIds };
     }
@@ -64,13 +75,21 @@ export const projectQueries: Record<string, Resolver> = {
 
     if (
       (filter.teamIds && filter.teamIds.length <= 0 && filter.userId) ||
-      !filter.teamIds
+      (!filter.teamIds && !filter.memberId)
     ) {
       const teamIds = await models.TeamMember.find({
         memberId: filter.userId,
       }).distinct('teamId');
 
-      filterQuery.teamIds = { $in: teamIds };
+      if (filter.userId) {
+        filterQuery.$or = [
+          { teamIds: { $in: teamIds } },
+          { leadId: filter.userId },
+          { memberIds: filter.userId },
+        ];
+      } else {
+        filterQuery.teamIds = { $in: teamIds };
+      }
     }
 
     if (filter.active) {
@@ -97,7 +116,13 @@ export const projectQueries: Record<string, Resolver> = {
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IProjectDocument>({
         model: models.Project,
-        params: filter,
+        params: {
+          ...filter,
+          orderBy: {
+            status: 1,
+            createdAt: -1,
+          },
+        },
         query: filterQuery,
       });
 

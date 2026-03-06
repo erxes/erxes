@@ -1,17 +1,15 @@
-import * as _ from 'underscore';
-import { IUserDocument } from 'erxes-api-shared/core-types';
-import { IConversationDocument } from '@/inbox/@types/conversations';
-import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import {
   IConversationMessageAdd,
   IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
-import { AUTO_BOT_MESSAGES } from '@/inbox/db/definitions/constants';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IConversationDocument } from '@/inbox/@types/conversations';
+import { AUTO_BOT_MESSAGES, CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as _ from 'underscore';
+import { generateModels, IContext, IModels } from '~/connectionResolvers';
+import { createNotifications } from '~/utils/notifications';
 
 interface DispatchConversationData {
   action: string;
@@ -260,6 +258,20 @@ export const conversationMutations = {
         });
       }
 
+      if (doc.mentionedUserIds && doc.mentionedUserIds.length > 0) {
+        const userIds = doc.mentionedUserIds.filter((id) => id !== userId);
+
+        await createNotifications({
+          contentType: 'inbox',
+          contentTypeId: doc.conversationId,
+          fromUserId: userId,
+          subdomain,
+          notificationType: 'internalNote',
+          userIds,
+          action: 'created',
+        });
+      }
+
       const serviceName = integration.kind.split('-')[0];
       const actionType = kind?.split('-')[1] || 'unknown';
 
@@ -367,6 +379,17 @@ export const conversationMutations = {
       type: 'conversationAssigneeChange',
     });
 
+    if (assignedUserId && assignedUserId !== user?._id) {
+      await createNotifications({
+        contentType: 'inbox',
+        contentTypeId: conversationIds?.[0],
+        fromUserId: user?._id,
+        subdomain,
+        notificationType: 'inboxAssignee',
+        userIds: [assignedUserId],
+        action: 'assignee',
+      });
+    }
     return conversations;
   },
 
@@ -390,7 +413,6 @@ export const conversationMutations = {
       type: 'unassign',
     });
 
-    // notify graphl subscription
     publishConversationsChanged(subdomain, _ids, 'assigneeChanged');
 
     return updatedConversations;
@@ -404,13 +426,8 @@ export const conversationMutations = {
     { _ids, status }: { _ids: string[]; status: string },
     { user, models, subdomain }: IContext,
   ) {
-    await models.Conversations.changeStatusConversation(
-      _ids,
-      status,
-      'OQgac3z4G3I2LW9QPpAtL',
-    );
+    await models.Conversations.changeStatusConversation(_ids, status, user._id);
 
-    // notify graphl subscription
     publishConversationsChanged(subdomain, _ids, status);
 
     const updatedConversations = await models.Conversations.find({
@@ -425,7 +442,6 @@ export const conversationMutations = {
 
     return updatedConversations;
   },
-
   /**
    * Resolve all conversations
    */

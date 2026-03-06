@@ -12,7 +12,7 @@ export const getIncomeData = async (
     subdomain,
     pluginName: 'core',
     method: 'query',
-    module: 'conformities',
+    module: 'conformity',
     action: 'savedConformity',
     input: {
       mainType: 'purchase',
@@ -49,7 +49,7 @@ export const getIncomeData = async (
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'conformities',
+      module: 'conformity',
       action: 'savedConformity',
       input: {
         mainType: 'purchase',

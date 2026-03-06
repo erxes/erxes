@@ -11,7 +11,6 @@ import {
   supergraphPath,
 } from '~/apollo-router/paths';
 import supergraphCompose from '~/apollo-router/supergraph-compose';
-import { isDev } from 'erxes-api-shared/utils';
 
 dotenv.config();
 

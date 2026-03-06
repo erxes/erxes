@@ -5,6 +5,7 @@ import { IActivity } from '@/activity/types';
 import { ICursorListResponse } from 'erxes-ui';
 
 import { ACTIVITY_CHANGED } from '@/activity/graphql/subscriptions/activityChanged';
+import { useLocation } from 'react-router-dom';
 
 interface ISubscriptionData {
   ticketActivityChanged: {
@@ -14,10 +15,14 @@ interface ISubscriptionData {
 }
 
 export const useActivities = (contentId: string) => {
+  const location = useLocation();
+  const isInInbox = location.pathname.includes('my-inbox');
+
   const { data, loading, refetch, subscribeToMore } = useQuery<
     ICursorListResponse<IActivity>
   >(GET_ACTIVITIES, {
     variables: { contentId },
+    fetchPolicy: isInInbox ? 'network-only' : 'cache-first',
   });
 
   const {

@@ -1,8 +1,7 @@
 import { Combobox, Command, Popover } from 'erxes-ui/components';
 import { IANA_TIME_ZONES } from 'erxes-ui/constants/IanaTimeZones';
 import { formatTimeZoneLabel } from 'erxes-ui/utils/localization/formatTimeZoneLabel';
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export const TimezoneSelect = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,

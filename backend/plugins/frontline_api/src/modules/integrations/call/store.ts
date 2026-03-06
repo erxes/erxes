@@ -57,11 +57,21 @@ export const getOrCreateCustomer = async (
       };
       const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
 
-      if (apiCustomerResponse.status === 'success') {
-        if (customer) {
+      if (apiCustomerResponse && apiCustomerResponse.status === 'success') {
+        if (
+          customer &&
+          apiCustomerResponse.data &&
+          apiCustomerResponse.data._id
+        ) {
           customer.erxesApiId = apiCustomerResponse.data._id;
           customer.status = 'completed';
           await customer.save();
+        } else {
+          throw new Error(
+            `API success but no customer ID returned: ${JSON.stringify(
+              apiCustomerResponse,
+            )}`,
+          );
         }
       } else {
         throw new Error(
@@ -84,12 +94,12 @@ export const getOrCreateCustomer = async (
         query: { _id: customer.erxesApiId },
       },
     });
-    if (coreCustomer) {
+    if (coreCustomer && coreCustomer._id) {
       await sendTRPCMessage({
         subdomain,
 
         pluginName: 'core',
-        method: 'mutation', // this is a mutation, not a query
+        method: 'mutation',
         module: 'customers',
         action: 'updateCustomer',
         input: {
@@ -115,7 +125,7 @@ export const getOrCreateCustomer = async (
           },
         },
       });
-      if (newCustomer) {
+      if (newCustomer && newCustomer._id) {
         customer.erxesApiId = newCustomer._id;
         await customer.save();
       }

@@ -1,9 +1,9 @@
 import type React from 'react';
-
 import { RefObject, useCallback, useEffect, useState } from 'react';
 import {
   SuggestionConfig,
   SuggestionType,
+  UsePlaceHolderInputProps,
 } from '../types/placeholderInputTypes';
 import {
   findActualTriggerPosition,
@@ -13,7 +13,6 @@ import {
   isInsideLockedExpression,
   shouldEnableDateSuggestions,
 } from '../utils/placeholderInputDetectionUtils';
-import { UsePlaceHolderInputProps } from '../types/placeholderInputTypes';
 
 type PlaceholderInputTriggerDetectionProps = {
   value: string;
@@ -237,8 +236,8 @@ export function usePlaceHolderInputTriggerDetection({
         const finalValue = wrap
           ? wrap(composed)
           : wrapPrefix || wrapSuffix
-          ? `${wrapPrefix}${composed}${wrapSuffix}`
-          : composed;
+            ? `${wrapPrefix}${composed}${wrapSuffix}`
+            : composed;
 
         onChange(finalValue);
         setShowSuggestions(false);

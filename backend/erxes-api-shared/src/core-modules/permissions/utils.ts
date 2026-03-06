@@ -1,9 +1,4 @@
-import {
-  IPermissionContext,
-  IResolverSymbol,
-  IUserDocument,
-  Resolver,
-} from '../../core-types';
+import { IUserDocument, Resolver } from '../../core-types';
 import { getEnv } from '../../utils';
 import { getUserActionsMap } from './user-actions-map';
 
@@ -22,12 +17,7 @@ export const permissionWrapper = (
 ) => {
   const oldMethod = cls[methodName];
 
-  cls[methodName] = async (
-    root: any,
-    args: any,
-    context: IPermissionContext,
-    info: any,
-  ) => {
+  cls[methodName] = async (root: any, args: any, context: any, info: any) => {
     const { user } = context;
 
     for (const checker of checkers) {
@@ -98,15 +88,17 @@ export const checkPermission = async (
 
     checkLogin(user);
 
-    const allowed = await can(subdomain, actionName, user);
+    // deprecated
 
-    if (!allowed) {
-      if (defaultValue) {
-        return defaultValue;
-      }
+    // const allowed = await can(subdomain, actionName, user);
 
-      throw new Error('Permission required');
-    }
+    // if (!allowed) {
+    //   if (defaultValue) {
+    //     return defaultValue;
+    //   }
+
+    //   throw new Error('Permission required');
+    // }
 
     const VERSION = getEnv({ name: 'VERSION' });
 
@@ -155,21 +147,6 @@ export const checkRolePermission = async (
   user: IUserDocument,
   resolverKey: string,
 ) => {
-  const { role } = user || {};
-
-  if (!role) {
-    return false;
-  }
-
-  if (
-    role === 'member' &&
-    ['remove', 'delete'].some((resolver) =>
-      resolverKey.toLowerCase().includes(resolver),
-    )
-  ) {
-    return false;
-  }
-
   return true;
 };
 
@@ -179,11 +156,11 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
 
     checkLogin(user);
 
-    const permission = await checkRolePermission(user, resolverKey);
+    // const permission = await checkRolePermission(user, resolverKey);
 
-    if (!permission) {
-      throw new Error('Permission denied');
-    }
+    // if (!permission) {
+    //   throw new Error('Permission denied');
+    // }
 
     return resolver(parent, args, context, info);
   };
@@ -194,13 +171,12 @@ export const wrapPublicResolver = (resolver: Resolver, wrapperConfig: any) => {
     const { cpUserRequired, forClientPortal } = wrapperConfig || {};
 
     if (forClientPortal) {
-      if (cpUserRequired) {
-        if (!context.cpUser) {
-          throw new Error('Client portal user required');
-        }
-      }
       if (!context.clientPortal) {
         throw new Error('Client portal required');
+      }
+
+      if (cpUserRequired && !context.cpUser) {
+        throw new Error('Client portal user required');
       }
     }
 

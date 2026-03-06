@@ -2,16 +2,19 @@ import { noteSchema } from '@/ticket/db/definitions/note';
 import { INote, INoteDocument } from '@/ticket/@types/note';
 import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { createNotifications } from '~/modules/ticket/utils/ticket';
+import { createNotifications } from '~/utils/notifications';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 export interface INoteModel extends Model<INoteDocument> {
   getNote(_id: string): Promise<INoteDocument>;
   getNotes(filter: FilterQuery<INoteDocument>): Promise<INoteDocument[]>;
   createNote({
     doc,
     subdomain,
+    userId,
   }: {
     doc: INote;
     subdomain: string;
+    userId: string;
   }): Promise<INoteDocument>;
   updateNote(doc: INoteDocument): Promise<INoteDocument>;
   removeNote({
@@ -44,9 +47,11 @@ export const loadNoteClass = (models: IModels) => {
     public static async createNote({
       doc,
       subdomain,
+      userId,
     }: {
       doc: INote;
       subdomain: string;
+      userId: string;
     }): Promise<INoteDocument> {
       const note = await models.Note.create(doc);
 
@@ -61,21 +66,46 @@ export const loadNoteClass = (models: IModels) => {
         createdBy: doc.createdBy,
       });
 
-      if (doc.mentions && doc.mentions.length > 0) {
-        const userIds = doc.mentions.filter(
-          (userId) => userId !== doc.createdBy,
+      const mentionUserIds = new Set<string>();
+      const subscriberUserIds = new Set<string>();
+
+      if (doc.mentions?.length) {
+        doc.mentions
+          .filter((id) => id !== doc.createdBy)
+          .forEach((id) => mentionUserIds.add(id));
+      }
+
+      if (note.contentId) {
+        await models.Ticket.updateOne(
+          { _id: note.contentId },
+          { $addToSet: { subscribedUserIds: userId } },
+          { new: true },
         );
+      }
 
-        const contentType = 'ticket';
+      mentionUserIds.forEach((id) => subscriberUserIds.delete(id));
 
+      if (mentionUserIds.size > 0) {
         await createNotifications({
-          contentType,
-          contentTypeId: doc.contentId,
-          fromUserId: doc.createdBy,
+          contentType: 'ticket',
+          contentTypeId: note.contentId,
+          fromUserId: userId,
           subdomain,
           notificationType: 'note',
-          userIds,
-          action: 'note',
+          userIds: Array.from(mentionUserIds),
+          action: 'create',
+        });
+      }
+
+      if (subscriberUserIds.size > 0) {
+        await createNotifications({
+          contentType: 'ticket',
+          contentTypeId: note.contentId,
+          fromUserId: userId,
+          subdomain,
+          notificationType: 'updateTicket',
+          userIds: Array.from(subscriberUserIds),
+          action: 'updated',
         });
       }
 

@@ -1,6 +1,7 @@
-import { Label } from 'erxes-ui';
-import { SelectTags } from 'ui-modules';
+import { Combobox, Label } from 'erxes-ui';
+import { TagsSelect } from 'ui-modules';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const CustomerDetailSelectTag = ({
   tagIds,
@@ -10,14 +11,17 @@ export const CustomerDetailSelectTag = ({
   customerId: string;
 }) => {
   const [tagIdsValue, setTagIdsValue] = useState<string[]>(tagIds);
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'customer.detail',
+  });
   return (
     <fieldset className="space-y-2 px-8">
       <Label asChild>
-        <legend>Tags</legend>
-      </Label>
-      <SelectTags.Detail
+        <legend>{t('tags')}</legend>
+      </Label>{' '}
+      <TagsSelect.Provider
         mode="multiple"
-        tagType="core:customer"
+        type="core:customer"
         value={tagIdsValue}
         targetIds={[customerId]}
         onValueChange={(value) => {
@@ -35,7 +39,15 @@ export const CustomerDetailSelectTag = ({
             });
           },
         })}
-      />
+      >
+        <div className="gap-2 flex flex-wrap w-full items-center">
+          <TagsSelect.SelectedList />
+          <TagsSelect.Trigger variant="ICON" />
+          <Combobox.Content>
+            <TagsSelect.Content />
+          </Combobox.Content>
+        </div>
+      </TagsSelect.Provider>
     </fieldset>
   );
 };

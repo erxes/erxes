@@ -5,7 +5,7 @@ import { RecordTable } from 'erxes-ui';
 import { ICovers } from '@/pos/pos-covers/types/posCover';
 import { renderingCoverDetailAtom } from '@/pos/states/coverDetail';
 
-export const coverMoreColumnCell = ({
+export const useCoverMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<ICovers, unknown>;
@@ -33,6 +33,6 @@ export const coverMoreColumnCell = ({
 
 export const coverMoreColumn = {
   id: 'more',
-  cell: coverMoreColumnCell,
+  cell: useCoverMoreColumnCell,
   size: 33,
 };

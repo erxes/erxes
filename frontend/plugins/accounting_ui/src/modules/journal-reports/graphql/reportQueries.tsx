@@ -4,7 +4,8 @@ const trsFilterParamDefs = `
   $status: String,
   $searchValue: String,
   $number: String,
-
+  
+  $accountId: String,
   $accountIds: [String],
   $accountKind: String,
   $accountExcludeIds: Boolean,
@@ -39,6 +40,7 @@ const trsFilterParams = `
   searchValue: $searchValue,
   number: $number,
 
+  accountId: $accountId,
   accountIds: $accountIds,
   accountKind: $accountKind,
   accountExcludeIds: $accountExcludeIds,
@@ -72,6 +74,14 @@ export const JOURNAL_REPORT_QUERY = gql`
   query JournalReportData(${trsFilterParamDefs}) {
     journalReportData(${trsFilterParams}) {
       records
+    }
+  }
+`;
+
+export const JOURNAL_REPORT_MORE_QUERY = gql`
+  query JournalReportMore(${trsFilterParamDefs}) {
+    journalReportMore(${trsFilterParams}) {
+      trDetails
     }
   }
 `;

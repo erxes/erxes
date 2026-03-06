@@ -5,19 +5,20 @@ import {
 } from '@/automations/states/automationState';
 import { NodeData } from '@/automations/types';
 import { Node, useReactFlow } from '@xyflow/react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 
 export const useAutomationBuilderSidebarHooks = () => {
-  const isOpenSideBar = useAtomValue(automationBuilderSiderbarOpenState);
+  const [isOpenSideBar, setIsOpenSideBar] = useAtom(automationBuilderSiderbarOpenState);
   const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
   const { queryParams, setQueryParams } = useAutomation();
   const { getNode } = useReactFlow<Node<NodeData>>();
   const activeNode = getNode(queryParams?.activeNodeId || '')?.data;
 
   const handleClose = () => {
-    toggleSideBarOpen();
+    setIsOpenSideBar(false);
     setQueryParams({
       activeNodeId: null,
+      activeNodeTab: null,
     });
   };
 
@@ -29,6 +30,7 @@ export const useAutomationBuilderSidebarHooks = () => {
   };
 
   return {
+    setIsOpenSideBar,
     isOpenSideBar,
     activeNode,
     handleBack,

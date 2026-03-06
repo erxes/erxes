@@ -14,8 +14,7 @@ export const types = `
     barcodeDescription: String
     unitPrice: Float
     categoryId: String
-    customFieldsData: JSON
-    customFieldsDataByFieldCode: JSON
+    propertiesData: JSON
     createdAt: Date
     tagIds: [String]
     attachment: Attachment
@@ -33,6 +32,11 @@ export const types = `
     pdfAttachment: PdfAttachment
 
     cursor: String
+    remainders: JSON
+    discounts: JSON
+
+    remainder: JSON
+    discount: JSON
   }
 
   type ProductSimilarityGroup {
@@ -74,12 +78,22 @@ const queryParams = `
   image: String,
   brand: String,
 
-  ${GQL_CURSOR_PARAM_DEFS}
+  branchId: String,
+  departmentId: String,
+  minRemainder: Float,
+  maxRemainder: Float,
+  minPrice: Float,
+  maxPrice: Float,
+  minDiscountValue: Float,
+  maxDiscountValue: Float,
+  minDiscountPercent: Float,
+  maxDiscountPercent: Float,
 `;
 
 export const queries = `
   productsMain(
     ${queryParams}
+    ${GQL_CURSOR_PARAM_DEFS}
     sortField: String,
     sortDirection: Int,
   ): ProductsListResponse
@@ -107,7 +121,7 @@ export const mutationParams = `
   barcodeDescription: String,
   unitPrice: Float,
   code: String,
-  customFieldsData: JSON,
+  propertiesData: JSON
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
   vendorId: String,

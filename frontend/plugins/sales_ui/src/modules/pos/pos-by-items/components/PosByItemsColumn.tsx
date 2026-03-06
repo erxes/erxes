@@ -88,7 +88,9 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="Count" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconChartBar} label="POS Sale" />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -100,7 +102,9 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => <RecordTable.InlineHead icon={IconBuilding} label="Amount" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuilding} label="POS Amount" />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

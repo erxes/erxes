@@ -15,8 +15,8 @@ export function ClientPortalDetailSocialPay({ clientPortal }: Props) {
   >({
     resolver: zodResolver(CLIENTPORTAL_SOCIALPAY_SCHEMA),
     defaultValues: {
-      publicKey: clientPortal?.socialpayConfig?.publicKey || '',
-      certId: clientPortal?.socialpayConfig?.certId || '',
+      publicKey: clientPortal?.auth?.socialpayConfig?.publicKey || '',
+      certId: clientPortal?.auth?.socialpayConfig?.certId || '',
     },
   });
 
@@ -29,9 +29,11 @@ export function ClientPortalDetailSocialPay({ clientPortal }: Props) {
       variables: {
         id: clientPortal?._id,
         clientPortal: {
-          socialpayConfig: {
-            publicKey: values.publicKey,
-            certId: values.certId,
+          auth: {
+            socialpayConfig: {
+              publicKey: values.publicKey,
+              certId: values.certId,
+            },
           },
         },
       },

@@ -67,6 +67,8 @@ const queryParams = `
   closeDateStartDate: Date
   closeDateEndDate: Date
   resolvedDayBetween:[Int]
+  relationType: String
+  relationId: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -110,7 +112,7 @@ export const types = `
     labels: [SalesPipelineLabel]
     pipeline: SalesPipeline
     createdUser: User
-    customFieldsData: JSON
+    propertiesData: JSON
     score: Float
     timeTrack: SalesTimeTrack
     number: String
@@ -207,7 +209,7 @@ const mutationParams = `
   priority: String,
   status: String,
   sourceConversationIds: [String],
-  customFieldsData: JSON,
+  propertiesData: JSON,
   tagIds: [String],
   branchIds: [String],
   departmentIds: [String],

@@ -9,7 +9,7 @@ import redis from '~/utils/redis';
 
 
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
-  getInvoice(doc: any, leanObject?: boolean): IInvoiceDocument;
+  getInvoice(doc: any, leanObject?: boolean): Promise<IInvoiceDocument>;
   createInvoice(doc: IInvoice, subdomain?: string): Promise<IInvoiceDocument>;
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
@@ -33,7 +33,7 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
-      if (!doc.amount && doc.amount === 0) {
+      if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
 

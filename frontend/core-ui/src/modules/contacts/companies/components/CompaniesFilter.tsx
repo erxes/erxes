@@ -16,6 +16,7 @@ import { TagsFilter } from 'ui-modules';
 import { CompaniesTotalCount } from '@/contacts/companies/components/CompaniesTotalCount';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { COMPANIES_CURSOR_SESSION_KEY } from '@/contacts/companies/constants/companiesCursorSessionKey';
+import { useTranslation } from 'react-i18next';
 
 const CompaniesFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -29,6 +30,9 @@ const CompaniesFilterPopover = () => {
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
   );
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'filter',
+  });
 
   return (
     <>
@@ -45,21 +49,21 @@ const CompaniesFilterPopover = () => {
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 <TagsFilter />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="created">
                   <IconCalendarPlus />
-                  Created At
+                  {t('created-at')}
                 </Filter.Item>
                 <Filter.Item value="updated">
                   <IconCalendarUp />
-                  Updated At
+                  {t('updated-at')}
                 </Filter.Item>
                 <Filter.Item value="lastSeen">
                   <IconCalendarTime />
-                  Last Seen At
+                  {t('last-seen-at')}
                 </Filter.Item>
               </Command.List>
             </Command>

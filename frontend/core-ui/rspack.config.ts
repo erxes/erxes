@@ -15,7 +15,7 @@ export default composePlugins(
   withNx(),
   withReact(),
   withModuleFederation(config, { dts: false }),
-  (config) => {
+  (config: any) => {
     // Define environment variables
     config.plugins?.push(
       new DefinePlugin({
@@ -32,6 +32,10 @@ export default composePlugins(
 
         'process.env.REACT_APP_GOOGLE_MAP_API_KEY': JSON.stringify(
           process.env.REACT_APP_GOOGLE_MAP_API_KEY,
+        ),
+
+        'process.env.REACT_APP_HIDE_CORE_MODULES': JSON.stringify(
+          process.env.REACT_APP_HIDE_CORE_MODULES,
         ),
       }),
     );

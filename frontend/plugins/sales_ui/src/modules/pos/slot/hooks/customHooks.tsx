@@ -117,7 +117,7 @@ export const useSlotManager = (
   const generateNextId = useCallback((currentNodes: CustomNode[]): string => {
     if (currentNodes.length === 0) return '1';
     const numericIds = currentNodes
-      .map((node) => parseInt(node.id, 10))
+      .map((node) => Number.parseInt(node.id, 10))
       .filter((id) => !isNaN(id));
     if (numericIds.length === 0) return '1';
     return String(Math.max(...numericIds) + 1);

@@ -1,7 +1,7 @@
 // scripts/start-dev.js
 require('dotenv').config();
 
-const { ENABLED_PLUGINS, ENABLED_SERVICES } = process.env;
+const { ENABLED_PLUGINS, ENABLED_SERVICES, ENABLED_PLUGINS_ONLY_API } = process.env;
 const { execSync } = require('child_process');
 
 let plugins = '';
@@ -15,6 +15,21 @@ if (ENABLED_PLUGINS) {
       .join(' ');
 
     projectsCount += plugins.split(' ').length;
+  } catch (error) {
+    console.error('Error parsing DEV_REMOTES:', error);
+    process.exit(1);
+  }
+}
+
+if (ENABLED_PLUGINS_ONLY_API) {
+  try {
+    const apiPlugins = ENABLED_PLUGINS_ONLY_API.split(',')
+      .map((plugin) => `${plugin}_api`)
+      .join(' ');
+
+    plugins = `${plugins} ${apiPlugins}`
+
+    projectsCount += apiPlugins.split(' ').length;
   } catch (error) {
     console.error('Error parsing DEV_REMOTES:', error);
     process.exit(1);

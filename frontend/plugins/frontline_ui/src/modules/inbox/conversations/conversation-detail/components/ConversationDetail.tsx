@@ -1,7 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Separator, Skeleton, useQueryState } from 'erxes-ui';
 
-import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
+import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationHeader } from './ConversationHeader';
 import { useConversationDetail } from '../hooks/useConversationDetail';
 
@@ -21,6 +21,7 @@ import { MessageInputIntegrationWrapper } from '@/integrations/components/Messag
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useEffect } from 'react';
 import { ConversationSideWidget } from '@/inbox/conversations/conversation-detail/components/ConversationSideWidget';
+import { useLocation } from 'react-router-dom';
 
 export const ConversationDetail = () => {
   const [conversationId] = useQueryState<string>('conversationId');
@@ -29,6 +30,9 @@ export const ConversationDetail = () => {
   );
   const activeConversationCandidate = useAtomValue(activeConversationState);
   const setExtraInfo = useSetAtom(messageExtraInfoState);
+
+  const location = useLocation();
+  const isInInbox = location.pathname.includes('my-inbox');
 
   const currentConversation =
     activeConversationCandidate?._id === conversationId ||
@@ -41,7 +45,7 @@ export const ConversationDetail = () => {
       _id: conversationId || relatedConversationId,
     },
     skip: !conversationId && !relatedConversationId,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: isInInbox ? 'network-only' : 'cache-and-network',
   });
 
   const { integrationId } = currentConversation || conversationDetail || {};
@@ -91,7 +95,7 @@ export const ConversationDetail = () => {
   return (
     <div className="flex h-full overflow-hidden">
       <div className="flex flex-col h-full overflow-hidden flex-auto">
-        <ConversationContext.Provider value={conversationAllDetails}>
+        <ConversationProvider conversation={conversationAllDetails}>
           <ConversationHeader />
           <Separator />
           <ConversationDetailLayout
@@ -102,13 +106,13 @@ export const ConversationDetail = () => {
             }
           >
             {integration?.kind &&
-              ['messenger', 'lead'].includes(integration?.kind) && (
+              ['messenger', 'lead'].includes(integration.kind) && (
                 <ConversationMessages conversationId={conversationId || ''} />
               )}
             <ConversationIntegrationDetail />
           </ConversationDetailLayout>
           <ConversationMarkAsReadEffect />
-        </ConversationContext.Provider>
+        </ConversationProvider>
       </div>
       <ConversationSideWidget
         customerId={conversationAllDetails?.customerId || ''}

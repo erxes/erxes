@@ -14,6 +14,7 @@ import {
 } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { SegmentGroups } from './SegmentGroups';
 import { SegmentConfigWidget } from './SegmentConfigWidget';
+import { useTranslation } from 'react-i18next';
 
 function hasSegmentMetadataForm(children: React.ReactNode): boolean {
   let found = false;
@@ -73,7 +74,7 @@ const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <FormProvider {...form}>
-      <form id="segment-form" className="h-full min-h-0 flex flex-col">
+      <form id="segment-form" className="h-full min-h-0 flex flex-col p-2">
         {children}
       </form>
     </FormProvider>
@@ -82,14 +83,13 @@ const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
 
 const SegmentFormHeader = () => {
   return (
-    <div className="w-full p-2 pb-4">
+    <div className="w-full p-2 pb-0">
       <SegmentMetadataForm />
     </div>
   );
 };
 
 SegmentFormHeader.displayName = 'SegmentFormHeader';
-
 
 const SegmentFormContent = ({
   callback,
@@ -102,11 +102,12 @@ const SegmentFormContent = ({
     control: form.control,
     name: 'conditionSegments',
   });
+  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
   const { onAddSegmentGroup } = useSegmentActions({ callback });
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2">
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2 pt-0">
       <SegmentConfigWidget contentType={contentType} />
       <div className="pb-4">
         <SegmentGroups />
@@ -123,7 +124,7 @@ const SegmentFormContent = ({
         onClick={onAddSegmentGroup}
       >
         <IconPlus />
-        Add Group
+        {t('add-group')}
       </Button>
     </div>
   );

@@ -14,7 +14,7 @@ import { IconDotsVertical, IconLink, IconSettings } from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { IBoard } from '@/deals/types/boards';
-import { useBoards } from '@/deals/boards/hooks/useBoards';
+import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
 import { useEffect } from 'react';
 import { usePipelines } from '@/deals/boards/hooks/usePipelines';
 

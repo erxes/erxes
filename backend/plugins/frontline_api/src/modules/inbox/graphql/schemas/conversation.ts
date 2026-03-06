@@ -5,9 +5,6 @@ export const types = `
     _id: String @external
     conversations: [Conversation]
   }
-  extend type Brand @key(fields: "_id") {
-    _id: String @external
-  }
 
   extend type Tag @key(fields: "_id") {
     _id: String @external
@@ -226,6 +223,7 @@ export const queries = `
 export const mutations = `
   conversationMessageAdd(
     conversationId: String,
+    responseTemplateId: String,
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,

@@ -15,9 +15,7 @@ export const GenJournalReport = () => {
         <ReportTable.Header>
           <ReportTableHeader />
         </ReportTable.Header>
-        <ReportTable.Body>
-          <ReportTableBody />
-        </ReportTable.Body>
+        <ReportTableBody />
         <ReportTable.Footer>
           <ReportTableFooter />
         </ReportTable.Footer>

@@ -1,43 +1,44 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   BlockEditor,
   Button,
-  Toggle,
+  Input,
   Kbd,
   Spinner,
+  Toggle,
   cn,
   getMentionedUserIds,
+  toast,
   useBlockEditor,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useUpload,
-  toast,
-  Input,
 } from 'erxes-ui';
 import {
   IconArrowUp,
-  IconPaperclip,
-  IconX,
   IconCommand,
   IconCornerDownLeft,
   IconMessage2,
+  IconPaperclip,
+  IconX,
 } from '@tabler/icons-react';
-import { useAtom, useAtomValue } from 'jotai';
-import { Block } from '@blocknote/core';
-
-import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
-import { AssignMemberInEditor } from 'ui-modules';
-import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import {
   isInternalState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { useAtom, useAtomValue } from 'jotai';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { AssignMemberInEditor } from 'ui-modules';
+import { Block } from '@blocknote/core';
+import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
+import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { ResponseTemplateSelector } from './ResponseTemplateSelector';
 import { getPreviewText } from '@/inbox/types/inbox';
-import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
+import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+
 export const MessageInput = ({
   conversationId,
 }: {
@@ -64,6 +65,9 @@ export const MessageInput = ({
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [responseTemplateId, setResponseTemplateId] = useState<string | null>(
+    null,
+  );
 
   const preparedResponses = useMemo(
     () =>
@@ -117,7 +121,10 @@ export const MessageInput = ({
     return tmp.textContent || tmp.innerText || '';
   };
 
-  const handleTemplateSelect = async (templateContent: string) => {
+  const handleTemplateSelect = async (
+    templateContent: string,
+    templateId?: string,
+  ) => {
     if (!editor) {
       return toast({ title: 'Editor not ready', variant: 'destructive' });
     }
@@ -151,6 +158,7 @@ export const MessageInput = ({
 
       await editor.focus();
       setShowSuggestions(false);
+      setResponseTemplateId(templateId || null);
     } catch (error) {
       console.error('Error inserting template:', error);
       toast({ title: 'Failed to insert template', variant: 'destructive' });
@@ -175,7 +183,10 @@ export const MessageInput = ({
         case 'Enter':
           e.preventDefault();
           if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-            handleTemplateSelect(suggestions[selectedIndex].content);
+            handleTemplateSelect(
+              suggestions[selectedIndex].content,
+              suggestions[selectedIndex]._id,
+            );
             setShowSuggestions(false);
           }
           break;
@@ -232,6 +243,7 @@ export const MessageInput = ({
         internal: isInternalNote,
         extraInfo: messageExtraInfo,
         attachments,
+        responseTemplateId: responseTemplateId,
       },
       onCompleted: () => {
         toast({ title: 'Message sent!', variant: 'default' });
@@ -243,7 +255,9 @@ export const MessageInput = ({
         setAttachments([]);
         setAttachmentPreview(null);
         setShowSuggestions(false);
+        setResponseTemplateId(null);
       },
+      refetchQueries: ['Conversations'],
       onError: (err) =>
         toast({
           title: `Failed to send: ${err.message}`,
@@ -260,6 +274,7 @@ export const MessageInput = ({
     editor,
     addConversationMessage,
     setIsInternalNote,
+    responseTemplateId,
   ]);
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
@@ -280,8 +295,8 @@ export const MessageInput = ({
             suggestions={suggestions}
             selectedIndex={selectedIndex}
             availableChannels={availableChannels}
-            onSelect={(content) => {
-              handleTemplateSelect(content);
+            onSelect={(content: string, templateId: string) => {
+              handleTemplateSelect(content, templateId);
               setShowSuggestions(false);
             }}
           />

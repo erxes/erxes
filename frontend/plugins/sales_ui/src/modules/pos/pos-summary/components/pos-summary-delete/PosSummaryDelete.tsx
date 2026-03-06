@@ -3,7 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useConfirm } from 'erxes-ui/hooks';
 import { useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
-import { useRemovePos } from '@/pos/hooks/usePosRemove';
+import { useDeletePosSummary } from '@/pos/pos-summary/hooks/useDeletePosSummary';
 
 interface PosSummaryDeleteProps {
   posSummaryIds: string;
@@ -15,7 +15,7 @@ export const PosSummaryDelete = ({
   onDeleteSuccess,
 }: PosSummaryDeleteProps) => {
   const { confirm } = useConfirm();
-  const { removePos } = useRemovePos();
+  const { removePosSummary } = useDeletePosSummary();
   const { toast } = useToast();
 
   const posSummaryCount = posSummaryIds.includes(',')
@@ -30,7 +30,7 @@ export const PosSummaryDelete = ({
         confirm({
           message: `Are you sure you want to delete the ${posSummaryCount} selected pos summary?`,
         }).then(() => {
-          removePos(posSummaryIds, {
+          removePosSummary(posSummaryIds, {
             onError: (e: ApolloError) => {
               toast({
                 title: 'Error',

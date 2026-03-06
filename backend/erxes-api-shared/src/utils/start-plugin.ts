@@ -3,11 +3,9 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import * as trpcExpress from '@trpc/server/adapters/express';
-import * as dotenv from 'dotenv';
-
 import cookieParser from 'cookie-parser';
-
 import cors from 'cors';
+import * as dotenv from 'dotenv';
 import express, {
   Request as ApiRequest,
   Response as ApiResponse,
@@ -17,14 +15,13 @@ import express, {
 import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
-
 import { startPayments } from '../common-modules/payment/worker';
-import {
-  SegmentConfigs,
-  startAutomations,
-  initSegmentProducers,
-} from '../core-modules';
+import type { IPropertyMeta, SegmentConfigs } from '../core-modules';
+import { initSegmentProducers, startAutomations } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
+import type { ImportExportConfigs } from '../core-modules/import-export/types';
+import { startImportExportWorker } from '../core-modules/import-export/worker';
+import { IMainContext, IPermissionConfig } from '../core-types';
 import { generateApolloContext, wrapApolloResolvers } from './apollo';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
@@ -44,7 +41,10 @@ type IMeta = {
   segments?: SegmentConfigs;
   afterProcess?: AfterProcessConfigs;
   payments?: any;
-  notificationModules?: any[];
+  notifications?: any;
+  tags?: any;
+  properties?: IPropertyMeta;
+  permissions?: IPermissionConfig;
 };
 
 type ApiHandler = {
@@ -73,14 +73,14 @@ type ConfigTypes = {
     context: any,
     req: ApiRequest,
     res: ApiResponse,
-  ) => Promise<void>;
+  ) => Promise<IMainContext>;
   onServerInit?: (app: express.Express) => Promise<void>;
-  importExportTypes?: any;
   middlewares?: any;
   apiHandlers?: ApiHandler[];
   hasSubscriptions?: boolean;
   corsOptions?: any;
   subscriptionPluginPath?: any;
+  importExport?: ImportExportConfigs;
   trpcAppRouter?: {
     router: any;
     createContext: <TContext>(
@@ -196,6 +196,8 @@ export async function startPlugin(
   // });
 
   const httpServer = http.createServer(app);
+  httpServer.keepAliveTimeout = 120000;
+  httpServer.headersTimeout = 121000;
 
   // GRACEFULL SHUTDOWN
   process.stdin.resume(); // so the program will not close instantly
@@ -260,7 +262,7 @@ export async function startPlugin(
   app.use(
     '/graphql',
     expressMiddleware(apolloServer, {
-      context: generateApolloContext(configs.apolloServerContext),
+      context: generateApolloContext<IMainContext>(configs.apolloServerContext),
     }),
   );
 
@@ -273,13 +275,8 @@ export async function startPlugin(
   );
 
   if (configs.meta) {
-    const {
-      automations,
-      segments,
-      afterProcess,
-      notificationModules,
-      payments,
-    } = configs.meta || {};
+    const { automations, segments, afterProcess, notifications, payments } =
+      configs.meta || {};
 
     if (automations) {
       await startAutomations(app, configs.name, automations);
@@ -293,11 +290,11 @@ export async function startPlugin(
       await startAfterProcess(app, configs.name, afterProcess);
     }
 
-    if (notificationModules) {
+    if (notifications) {
       await initializePluginConfig(
         configs.name,
-        'notificationModules',
-        notificationModules,
+        'notifications',
+        notifications,
       );
     }
 
@@ -310,12 +307,21 @@ export async function startPlugin(
     name: configs.name,
     port: PORT,
     hasSubscriptions: configs.hasSubscriptions,
-    importExportTypes: configs.importExportTypes,
     meta: configs.meta,
   });
 
   if (configs.onServerInit) {
     configs.onServerInit(app);
+  }
+
+  if (configs.importExport) {
+    startImportExportWorker({
+      pluginName: configs.name,
+      config: {
+        ...configs.importExport,
+      },
+      app,
+    });
   }
 
   //   applyInspectorEndpoints(configs.name);

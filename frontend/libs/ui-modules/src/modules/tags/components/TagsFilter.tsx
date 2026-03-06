@@ -6,7 +6,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { SelectTags } from './SelectTags';
+import { TagsSelect } from 'ui-modules/modules/tags-new/components/TagsSelect';
 import { useState } from 'react';
 
 const TagsFilterCommandItem = () => {
@@ -23,8 +23,8 @@ export const TagsFilterView = ({ tagType }: { tagType?: string }) => {
   const { resetFilterState } = useFilterContext();
   return (
     <Filter.View filterKey="tags">
-      <SelectTags.Provider
-        tagType={tagType || ''}
+      <TagsSelect.Provider
+        type={tagType || null}
         mode="multiple"
         value={tags || []}
         onValueChange={(tags) => {
@@ -32,8 +32,8 @@ export const TagsFilterView = ({ tagType }: { tagType?: string }) => {
           resetFilterState();
         }}
       >
-        <SelectTags.Content />
-      </SelectTags.Provider>
+        <TagsSelect.Content />
+      </TagsSelect.Provider>
     </Filter.View>
   );
 };
@@ -52,8 +52,8 @@ const TagsFilterBar = ({ tagType }: { tagType?: string }) => {
         <IconTags />
         Tags
       </Filter.BarName>
-      <SelectTags.Provider
-        tagType={tagType || ''}
+      <TagsSelect.Provider
+        type={tagType || ''}
         value={tags || []}
         mode="multiple"
         onValueChange={(tags) => {
@@ -66,14 +66,14 @@ const TagsFilterBar = ({ tagType }: { tagType?: string }) => {
               filterKey="tags"
               className="max-w-72 overflow-hidden justify-start"
             >
-              <SelectTags.List />
+              <TagsSelect.SelectedList />
             </Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content className="w-72">
-            <SelectTags.Content />
+            <TagsSelect.Content />
           </Combobox.Content>
         </Popover>
-      </SelectTags.Provider>
+      </TagsSelect.Provider>
     </Filter.BarItem>
   );
 };

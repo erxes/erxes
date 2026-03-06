@@ -59,9 +59,9 @@ export const useProjectsVariables = (
     leadId: lead || undefined,
     tagIds: tags || undefined,
     ...variables,
-    ...(variables?.teamIds || variables?.userId || !currentUser?._id
+    ...(variables?.teamIds || variables?.memberId || !currentUser?._id
       ? {}
-      : { userId: currentUser._id }),
+      : { memberId: currentUser._id }),
     teamIds: team ? [team] : variables?.teamIds,
   };
 };

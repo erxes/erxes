@@ -1,10 +1,9 @@
-import { Meta } from '@storybook/react';
-
 import type { StoryObj } from '@storybook/react';
-import { Table } from 'erxes-ui/components/table';
+import { Meta } from '@storybook/react';
+import { IconDotsVertical } from '@tabler/icons-react';
 import { Button } from 'erxes-ui/components/button';
 import { Checkbox } from 'erxes-ui/components/checkbox';
-import { IconDotsVertical } from '@tabler/icons-react';
+import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 
 const meta: Meta<typeof Table> = {
