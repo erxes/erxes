@@ -49,4 +49,8 @@ export const mutations = `
     cmsAddMenu(input: MenuItemInput!): MenuItem
     cmsEditMenu(_id: String!, input: MenuItemInput!): MenuItem
     cmsRemoveMenu(_id: String!): JSON
+
+    cpCmsAddMenu(input: MenuItemInput!): MenuItem
+    cpCmsEditMenu(_id: String!, input: MenuItemInput!): MenuItem
+    cpCmsRemoveMenu(_id: String!): JSON
 `;
