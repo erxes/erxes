@@ -3,20 +3,15 @@ import { IAddress } from '~/modules/ecommerce/@types/address';
 
 export const addressMutations = {
   addressAdd: async (_root, params: IAddress, { models }: IContext) => {
-    console.log('addressMutations', params);
+    const address = await models.Address.createAddress(params);
 
-    try {
-      const address = await models.Address.createAddress(params);
-
-      if (!address) {
-        return;
-      }
-
-      return address;
-    } catch (error) {
-      //   debugError(error.message);
+    if (!address) {
+      throw new Error('Failed to create address');
     }
+
+    return address;
   },
+
   addressUpdate: async (
     _root,
     params: { _id: string } & IAddress,
@@ -24,34 +19,27 @@ export const addressMutations = {
   ) => {
     const { _id, ...doc } = params;
 
-    try {
-      const address = await models.Address.updateAddress(_id, doc);
+    const address = await models.Address.updateAddress(_id, doc);
 
-      if (!address) {
-        return;
-      }
-
-      return address;
-    } catch (error) {
-      //   debugError(error.message);
+    if (!address) {
+      throw new Error(`Address not found: ${_id}`);
     }
+
+    return address;
   },
+
   addressRemove: async (
     _root,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    try {
-      const address = await models.Address.removeAddress(_id);
+    const address = await models.Address.removeAddress(_id);
 
-      if (!address) {
-        return;
-      }
-
-      return address;
-    } catch (error) {
-      //   debugError(error.message);
+    if (!address) {
+      throw new Error(`Address not found: ${_id}`);
     }
+
+    return address;
   },
 };
 

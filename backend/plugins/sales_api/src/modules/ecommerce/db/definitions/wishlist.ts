@@ -1,7 +1,8 @@
 import { Schema } from 'mongoose';
+import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const wishlistSchema = new Schema({
-  _id: { type: String, required: true },
-  productId: { type: String, label: 'ProductId' },
-  customerId: { type: String, label: 'CustomerId' },
+  _id: mongooseStringRandomId,
+  productId: ({ type: String, label: 'ProductId' }),
+  customerId: ({ type: String, label: 'CustomerId' })
 });

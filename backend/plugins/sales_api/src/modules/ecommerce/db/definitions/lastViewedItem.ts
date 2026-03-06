@@ -1,7 +1,8 @@
 import { Schema } from 'mongoose';
+import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const lastvieweditemSchema = new Schema({
-  _id: { type: String, required: true },
+  _id: mongooseStringRandomId,
   productId: { type: String, label: 'ProductId', index: true },
   customerId: { type: String, label: 'CustomerId', index: true },
   modifiedAt: { type: Date, label: 'Date' },

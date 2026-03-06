@@ -65,5 +65,5 @@ const commonFields = `
 export const mutations = `
     addressAdd(${commonFields}): Address
     addressUpdate(_id: String!, ${commonFields}): Address
-    addressRemove(_id: String!): JSON
+    addressRemove(_id: String!): Address
 `;

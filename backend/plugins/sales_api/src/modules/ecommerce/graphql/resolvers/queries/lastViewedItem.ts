@@ -24,15 +24,17 @@ export const lastViewedItemQueries = {
       },
     });
 
-    const productsById = {};
+    const productsById: Record<string, any> = {};
 
-    for (const product of products) {
+    for (const product of products || []) {
       productsById[product._id] = product;
     }
 
+    const productIdsSet = new Set(Object.keys(productsById));
+
     return items
-      .filter((i) => Object.keys(productsById).includes(i.productId))
-      .map((i) => ({ ...i, product: productsById[i.productId] }));
-  },
+      .filter(i => productIdsSet.has(i.productId))
+      .map(i => ({ ...i, product: productsById[i.productId] }));
+  }
 };
 export default lastViewedItemQueries;

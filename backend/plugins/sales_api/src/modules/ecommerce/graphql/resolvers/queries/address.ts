@@ -12,41 +12,32 @@ export interface IListParams {
   street: string;
 }
 
-const generateFilter = async (params: IListParams) => {
+const generateFilter = (params: IListParams) => {
   const { searchValue, customerId, aliasType, city, district, street } = params;
 
-  let filter: any = {};
+  const filter: any = {};
+
+  const escapeRegExp = (value: string) =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
   if (searchValue) {
+    const escaped = escapeRegExp(searchValue);
+
     filter.$or = [
-      { address1: { $regex: new RegExp(searchValue) } },
-      { address2: { $regex: new RegExp(searchValue) } },
-      { city: { $regex: new RegExp(searchValue) } },
-      { district: { $regex: new RegExp(searchValue) } },
-      { street: { $regex: new RegExp(searchValue) } },
-      { phone: { $regex: new RegExp(searchValue) } },
+      { address1: { $regex: new RegExp(escaped, 'i') } },
+      { address2: { $regex: new RegExp(escaped, 'i') } },
+      { city: { $regex: new RegExp(escaped, 'i') } },
+      { district: { $regex: new RegExp(escaped, 'i') } },
+      { street: { $regex: new RegExp(escaped, 'i') } },
+      { phone: { $regex: new RegExp(escaped, 'i') } },
     ];
   }
 
-  if (customerId) {
-    filter.customerId = customerId;
-  }
-
-  if (aliasType) {
-    filter.alias = aliasType;
-  }
-
-  if (city) {
-    filter.city = city;
-  }
-
-  if (district) {
-    filter.district = district;
-  }
-
-  if (street) {
-    filter.alias = street;
-  }
+  if (customerId) filter.customerId = customerId;
+  if (aliasType) filter.alias = aliasType;
+  if (city) filter.city = city;
+  if (district) filter.district = district;
+  if (street) filter.street = street;
 
   return filter;
 };
@@ -61,7 +52,7 @@ export const addressQueries = {
   },
 
   addressList: async (_root, params: IListParams, { models }: IContext) => {
-    const filter = await generateFilter(params);
+    const filter = generateFilter(params);
 
     const list = await cursorPaginate({
       model: models.Address,
@@ -72,7 +63,8 @@ export const addressQueries = {
       query: filter,
     });
 
-    return list;
+
+    return list.list;
   },
 };
 

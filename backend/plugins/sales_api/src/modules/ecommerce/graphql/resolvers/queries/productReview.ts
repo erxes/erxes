@@ -8,30 +8,36 @@ export const productReviewQueries = {
     { models: { ProductReview } }: IContext,
   ) => {
     const { productId } = params;
+
     const reviews = await ProductReview.find({ productId }).lean();
-    if (!reviews.length)
+
+    if (!reviews.length) {
       return {
         productId,
         average: 0,
         length: 0,
       };
+    }
+
+    const average =
+      reviews.reduce((sum, cur) => sum + (cur.review || 0), 0) /
+      reviews.length;
 
     return {
       productId,
-      average:
-        reviews.reduce((sum, cur) => sum + cur.review, 0) / reviews.length,
+      average,
       length: reviews.length,
-      reviews,
     };
   },
+
   productReviews: async (
     _root,
     params,
     { models: { ProductReview } }: IContext,
   ) => {
-    const { customerId, productIds, ...pagintationArgs } = params;
+    const { customerId, productIds, ...paginationArgs } = params;
 
-    const filter: any = {};
+    const filter: Record<string, any> = {};
 
     if (customerId) {
       filter.customerId = customerId;
@@ -41,11 +47,13 @@ export const productReviewQueries = {
       filter.productId = { $in: productIds };
     }
 
-    return cursorPaginate({
+    const result = await cursorPaginate({
       model: ProductReview,
       query: filter,
-      params: pagintationArgs,
+      params: paginationArgs,
     });
+
+    return result.list;
   },
 };
 
