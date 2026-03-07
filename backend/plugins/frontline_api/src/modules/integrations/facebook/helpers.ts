@@ -57,7 +57,7 @@ export const removeIntegration = async (
         await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
         debugError(
-          `Error occured while trying to unsubscribe page pageId: ${pageId}`,
+          `Error occurred while trying to unsubscribe page pageId: ${pageId}`,
         );
       }
     }
