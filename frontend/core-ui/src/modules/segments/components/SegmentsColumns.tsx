@@ -32,7 +32,7 @@ const columns: (
 
       const onSave = () => {
         if (name !== _name) {
-          console.log('Saving segment:', _id, _name);
+          // Save segment logic here
         }
       };
 
