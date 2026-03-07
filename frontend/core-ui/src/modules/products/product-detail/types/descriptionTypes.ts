@@ -33,8 +33,7 @@ export interface BlockStyles {
     document: Block[];
     tryParseMarkdownToBlocks: (markdown: string) => Promise<Block[]>;
     replaceBlocks: (targetBlocks: Block[], newBlocks: Block[]) => void;
-    mergeBlocks: (targetBlock: Block, blockToMerge: Block) => void;  
-    splitBlock: (block: Block, index: number) => Block[]; 
-    reserializeBlocks: (blocks: Block[]) => string; 
+    mergeBlocks: (targetBlock: Block, blockToMerge: Block) => void;
+    splitBlock: (block: Block, index: number) => Block[];
+    reserializeBlocks: (blocks: Block[]) => string;
   }
-  
