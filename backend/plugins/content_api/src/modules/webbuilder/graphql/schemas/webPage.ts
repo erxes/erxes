@@ -75,4 +75,3 @@ export const mutations = `
   cpWebPagesEdit(_id: String!, input: WebPageInput!): WebPage
   cpWebPagesRemove(_id: String!): JSON
 `;
-

@@ -37,7 +37,10 @@ import {
 } from '@/cms/db/models/FieldGroups';
 import { IWebModel, loadWebClass } from '@/webbuilder/db/models/Web';
 import { IWebDocument } from '@/webbuilder/@types/web';
-import { IWebPageModel, loadWebPageClass } from '@/webbuilder/db/models/WebPage';
+import {
+  IWebPageModel,
+  loadWebPageClass,
+} from '@/webbuilder/db/models/WebPage';
 import { IWebPageDocument } from '@/webbuilder/@types/webPage';
 export interface IModels {
   CMS: ICMSModel;

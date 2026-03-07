@@ -172,7 +172,7 @@ function updateCustomerDoc(
   return customerDoc;
 }
 
-export const widgetFormMutation : Record<string, Resolver> = {
+export const widgetFormMutation: Record<string, Resolver> = {
   async widgetsLeadConnect(
     _root,
     args: { channelId: string; formCode: string; cachedCustomerId?: string },
@@ -463,7 +463,6 @@ export const widgetFormMutation : Record<string, Resolver> = {
     };
   },
 
-
   async cpWidgetsSaveLead(
     _root,
     args: {
@@ -719,7 +718,6 @@ export const widgetFormMutation : Record<string, Resolver> = {
   },
 };
 
-
-widgetFormMutation.cpWidgetsSaveLead.wrapperConfig={
-  forClientPortal:true,
-}
+widgetFormMutation.cpWidgetsSaveLead.wrapperConfig = {
+  forClientPortal: true,
+};

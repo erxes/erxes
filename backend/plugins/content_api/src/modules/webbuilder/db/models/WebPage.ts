@@ -83,4 +83,3 @@ export function loadWebPageClass(models: IModels) {
 
   return webPageSchema;
 }
-

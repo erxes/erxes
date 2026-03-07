@@ -8,27 +8,48 @@ import {
 } from '~/modules/webbuilder/utils/utils';
 
 export const webBuilderMutations: Record<string, Resolver> = {
-  async createWeb(
-    _root,
-    { doc }: { doc: IWeb },
-    { models }: IContext,
-  ) {
+  async createWeb(_root, { doc }: { doc: IWeb }, { models }: IContext) {
     const web = await models.Web.createWeb(doc);
-  
-    const defaultPages = ['home', 'about', 'contact', 'privacy', 'terms', 'blogs', 'blog'];
-    const tourPages = ['tours', 'tour', 'checkout', 'confirmation', 'profile', 'login', 'register'];
-    const ecommercePages = ['products', 'product', 'checkout', 'profile', 'confirmation', 'login', 'register'];
+
+    const defaultPages = [
+      'home',
+      'about',
+      'contact',
+      'privacy',
+      'terms',
+      'blogs',
+      'blog',
+    ];
+    const tourPages = [
+      'tours',
+      'tour',
+      'checkout',
+      'confirmation',
+      'profile',
+      'login',
+      'register',
+    ];
+    const ecommercePages = [
+      'products',
+      'product',
+      'checkout',
+      'profile',
+      'confirmation',
+      'login',
+      'register',
+    ];
     const commerceKinds = ['ecommerce', 'restaurant', 'hotel'];
-  
+
     const templateType = web.templateType || '';
-    const extraPages = templateType === 'tour'
-      ? tourPages
-      : commerceKinds.includes(templateType)
-        ? ecommercePages
-        : [];
-  
+    const extraPages =
+      templateType === 'tour'
+        ? tourPages
+        : commerceKinds.includes(templateType)
+          ? ecommercePages
+          : [];
+
     const uniqueSlugs = [...new Set([...defaultPages, ...extraPages])];
-  
+
     const bulk = uniqueSlugs.map((slug) => ({
       webId: web._id,
       clientPortalId: web.clientPortalId,
@@ -36,9 +57,9 @@ export const webBuilderMutations: Record<string, Resolver> = {
       slug,
       pageItems: [],
     }));
-  
+
     await models.WebPages.insertMany(bulk);
-  
+
     return web;
   },
 
@@ -50,14 +71,10 @@ export const webBuilderMutations: Record<string, Resolver> = {
     return models.Web.updateWeb(_id, doc);
   },
 
-  async removeWeb(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  async removeWeb(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Web.removeWeb(_id);
   },
-  
+
   async cpEditWeb(
     _root,
     { _id, doc }: { _id: string; doc: IWeb },
@@ -78,11 +95,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
     });
   },
 
-  async cpRemoveWeb(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  async cpRemoveWeb(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Web.removeWeb(_id);
   },
 
@@ -95,20 +108,21 @@ export const webBuilderMutations: Record<string, Resolver> = {
       const web = await models.Web.findOne({ _id });
       if (!web) throw new Error('Web not found');
 
-      if(!web.erxesAppToken && clientPortal?.token){
+      if (!web.erxesAppToken && clientPortal?.token) {
         web.erxesAppToken = clientPortal.token;
       }
 
       const result = await deploy(subdomain, web, models);
 
-      
       await models.Web.findOneAndUpdate(
         { _id },
-        { $set: {
-          projectId: result.project?.id,
-          lastDeploymentId: result.id,
-          lastDeploymentUrl: result.url,
-        }},
+        {
+          $set: {
+            projectId: result.project?.id,
+            lastDeploymentId: result.id,
+            lastDeploymentUrl: result.url,
+          },
+        },
       );
       return result;
     } catch (error) {

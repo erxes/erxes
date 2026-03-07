@@ -2,7 +2,11 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
 export const webPageQueries: Record<string, Resolver> = {
-  async cpWebPages(_parent: unknown, args: any, { models, clientPortal }: IContext) {
+  async cpWebPages(
+    _parent: unknown,
+    args: any,
+    { models, clientPortal }: IContext,
+  ) {
     const { webId, searchValue } = args;
 
     if (!webId) throw new Error('webId is required');
@@ -20,7 +24,11 @@ export const webPageQueries: Record<string, Resolver> = {
     return models.WebPages.find(query).sort({ name: 1 }).lean();
   },
 
-  async cpWebPageList(_parent: unknown, args: any, { models, clientPortal }: IContext) {
+  async cpWebPageList(
+    _parent: unknown,
+    args: any,
+    { models, clientPortal }: IContext,
+  ) {
     const { webId, searchValue } = args;
 
     if (!webId) throw new Error('webId is required');
@@ -41,7 +49,11 @@ export const webPageQueries: Record<string, Resolver> = {
     return { pages, totalCount, pageInfo: null };
   },
 
-  async cpWebPage(_parent: unknown, args: any, { models, clientPortal }: IContext) {
+  async cpWebPage(
+    _parent: unknown,
+    args: any,
+    { models, clientPortal }: IContext,
+  ) {
     const { _id, slug, webId } = args;
 
     if (!_id && !slug) return null;
