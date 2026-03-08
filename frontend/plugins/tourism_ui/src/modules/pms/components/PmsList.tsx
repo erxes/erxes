@@ -13,7 +13,7 @@ import { IconCalendarPlus, IconPhoto } from '@tabler/icons-react';
 import { PmsCreateSheet } from './CreatePmsSheet';
 import { usePmsRemoveBranch } from '@/pms/hooks/usePmsRemoveBranch';
 import { ActionMenu } from '@/pms/components/ActionMenu';
-import { getWebsiteUrl } from '~/utils/websiteUrl';
+import { useVisitWebsite } from '~/hooks/useVisitWebsite';
 import { Sheet } from 'erxes-ui';
 import { useState, useEffect } from 'react';
 import { useSetAtom } from 'jotai';
@@ -141,6 +141,7 @@ export function PmsList() {
 
   const { toast } = useToast();
   const { confirm } = useConfirm();
+  const onVisitWebsite = useVisitWebsite('pms', list);
 
   const confirmOptions = { confirmationValue: 'delete' };
 
@@ -188,29 +189,6 @@ export function PmsList() {
     });
   };
 
-  const onVisitWebsite = (branchId: string) => {
-    const branch = list?.find((b) => b._id === branchId);
-    if (!branch) return;
-
-    const { protocol, hostname } = window.location;
-    const url = getWebsiteUrl(
-      'pms',
-      hostname,
-      protocol,
-      branch.uiOptions?.website,
-    );
-
-    if (!url) {
-      toast({
-        title: 'Error',
-        description: 'Unable to open website, unexpected hostname format',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
   if (loading) {
     return (
       <div className="flex justify-center items-center w-full min-h-screen">

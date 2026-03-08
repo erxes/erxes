@@ -5,9 +5,9 @@ import { useBranchEdit } from '@/tms/hooks/BranchEdit';
 import { IBranch } from '@/tms/types/branch';
 import { EmptyList } from './EmptyList';
 import { BranchCard } from './BranchCard';
-import { Sheet, Spinner, useConfirm, toast } from 'erxes-ui';
+import { Sheet, Spinner, useConfirm } from 'erxes-ui';
 import CreateTmsForm from './CreateTmsForm';
-import { getWebsiteUrl } from '~/utils/websiteUrl';
+import { useVisitWebsite } from '~/hooks/useVisitWebsite';
 
 export const BranchList = () => {
   const { list, totalCount, loading, error, refetch } = useBranchList();
@@ -20,6 +20,8 @@ export const BranchList = () => {
   const { editingBranch, handleEditBranch, closeEditDialog } = useBranchEdit();
 
   const { confirm } = useConfirm();
+
+  const onVisitWebsite = useVisitWebsite('tms', list);
 
   const deleteConfirmOptions = { confirmationValue: 'delete' };
   const duplicateConfirmOptions = { confirmationValue: 'duplicate' };
@@ -35,30 +37,6 @@ export const BranchList = () => {
     }).then(async () => {
       await handleDuplicateBranch(branch, refetch);
     });
-  };
-
-  const onVisitWebsite = (branchId: string) => {
-    const branch = list?.find((b) => b._id === branchId);
-    if (!branch) return;
-
-    const { protocol, hostname } = window.location;
-    const url = getWebsiteUrl(
-      'tms',
-      hostname,
-      protocol,
-      branch.uiOptions?.website,
-    );
-
-    if (!url) {
-      toast({
-        title: 'Error',
-        description: 'Unable to open website, unexpected hostname format',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const onDelete = (branchId: string) => {

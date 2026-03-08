@@ -7,6 +7,9 @@ const PMS_LOCAL_PORT = env.VITE_PMS_LOCAL_PORT || '7004';
 const TMS_LOCAL_PORT = env.VITE_TMS_LOCAL_PORT || '3200';
 const PMS_DOMAIN_SUFFIX = env.VITE_PMS_DOMAIN_SUFFIX || '.pms.';
 const TMS_DOMAIN_SUFFIX = env.VITE_TMS_DOMAIN_SUFFIX || '.tms.';
+// Expects hostnames like: app.next.example.com
+// Transforms to: app.{suffix}.example.com (e.g. app.pms.example.com)
+const NEXT_SUBDOMAIN_PATTERN = env.VITE_NEXT_SUBDOMAIN_PATTERN || '.next.';
 
 const LOCAL_PORTS = { pms: PMS_LOCAL_PORT, tms: TMS_LOCAL_PORT };
 const DOMAIN_SUFFIXES = { pms: PMS_DOMAIN_SUFFIX, tms: TMS_DOMAIN_SUFFIX };
@@ -23,7 +26,10 @@ export const getWebsiteUrl = (
     return `http://localhost:${LOCAL_PORTS[type]}`;
   }
 
-  if (!hostname.includes('.next.')) return null;
+  if (!hostname.includes(NEXT_SUBDOMAIN_PATTERN)) return null;
 
-  return `${protocol}//${hostname.replace('.next.', DOMAIN_SUFFIXES[type])}`;
+  return `${protocol}//${hostname.replace(
+    NEXT_SUBDOMAIN_PATTERN,
+    DOMAIN_SUFFIXES[type],
+  )}`;
 };
