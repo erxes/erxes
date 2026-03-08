@@ -10,12 +10,11 @@ export type TmsForm = {
   favIcon: string;
   generalManager: string[];
   managers: string[];
-  payment: string;
+  payment: string[];
   token: string;
   otherPayments: Array<{
     type: string;
     title: string;
-    icon: string;
     config?: string;
   }>;
 };
@@ -27,7 +26,7 @@ const DEFAULT_STORAGE_FORM: TmsFormStorage = {
   favIcon: '',
   generalManager: [],
   managers: [],
-  payment: '',
+  payment: [],
   token: '',
   otherPayments: [],
 };

@@ -31,7 +31,7 @@ export const PropertyForm = ({
   isEdit?: boolean;
 }) => {
   const { id } = useParams<{ id: string }>();
-  
+
   const form = useForm<IPropertyForm>({
     resolver: zodResolver(propertySchema),
     defaultValues,
@@ -53,9 +53,7 @@ export const PropertyForm = ({
     <Form {...form}>
       <form
         className="w-full flex flex-col gap-5"
-        onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-          console.log(errors);
-        })}
+        onSubmit={form.handleSubmit(handleSubmit)}
       >
         <div className="flex gap-5">
           <Form.Field

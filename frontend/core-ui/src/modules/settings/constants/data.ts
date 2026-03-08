@@ -8,6 +8,7 @@ import {
   IconBuilding,
   IconChessKnight,
   IconFile,
+  IconHierarchy,
   IconHierarchy2,
   IconMail,
   IconNotification,
@@ -137,11 +138,11 @@ export const SETTINGS_PATH_DATA = (
       icon: IconUsersGroup,
       path: SettingsWorkspacePath.TeamMember,
     },
-    // {
-    //   name: t('structure'),
-    //   icon: IconHierarchy,
-    //   path: SettingsWorkspacePath.Structure,
-    // },
+    {
+      name: t('structure'),
+      icon: IconHierarchy,
+      path: SettingsWorkspacePath.Structure,
+    },
     {
       name: t('tags'),
       icon: IconTag,

@@ -134,7 +134,7 @@ const ProductsPayment = ({
     editDeals({
       variables: {
         paymentsData,
-        proccessId: processId,
+        processId: processId,
         _id: deal._id,
       },
     });

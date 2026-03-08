@@ -32,7 +32,7 @@ export const PreviewPage = () => {
   const themeColor = formData.color || '#4F46E5';
 
   return (
-    <div className="flex flex-col justify-center items-center p-4 min-h-screen md:flex-row md:p-6">
+    <div className="flex flex-col justify-center items-center p-4 min-h-screen md:flex-row md:p-6 bg-muted">
       <div className="p-4 w-full max-w-md sm:max-w-lg md:w-1/2">
         <div className="p-4 mx-auto rounded-lg border shadow-md sm:p-6 bg-background">
           <div className="flex justify-center mb-4 sm:mb-6">

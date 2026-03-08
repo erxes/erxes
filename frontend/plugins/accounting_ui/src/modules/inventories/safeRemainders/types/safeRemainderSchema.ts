@@ -6,5 +6,5 @@ export const safeRemainderSchema = z.object({
 
   branchId: z.string(),
   departmentId: z.string(),
-  productCategoryId: z.string().nullish(),
+  productCategoryId: z.string().optional(),
 });

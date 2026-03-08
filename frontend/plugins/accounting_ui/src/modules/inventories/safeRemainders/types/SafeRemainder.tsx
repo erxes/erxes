@@ -44,8 +44,9 @@ export type ISafeRemainderItem = {
 
 export const SAFE_REMAINDER_STATUSES = {
   DRAFT: 'draft',
+  DONE: 'done',
   PUBLISHED: 'published',
-  ALL: ['draft', 'published'],
+  ALL: ['draft', 'done', 'published'],
 };
 
 export const SAFE_REMAINDER_ITEM_STATUSES = {

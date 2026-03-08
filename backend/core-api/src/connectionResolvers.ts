@@ -237,6 +237,19 @@ import {
   IPermissionGroupModel,
   loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
+import {
+  ITemplateCategoryModal,
+  loadTemplateCategoryClass,
+} from '@/template/db/models/Category';
+import {
+  ITemplateModal,
+  loadTemplateClass,
+} from '@/template/db/models/Template';
+import {
+  ITemplateCategoryDocument,
+  ITemplateDocument,
+} from '@/template/@types';
+
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -294,6 +307,9 @@ export interface IModels {
   PermissionGroups: IPermissionGroupModel;
 
   NotificationSettings: Model<NotificationSettings>;
+
+  Template: ITemplateModal;
+  TemplateCategory: ITemplateCategoryModal;
 }
 
 export interface IContext extends IMainContext {
@@ -543,6 +559,7 @@ export const loadClasses = (
     IActivityLogDocument,
     Model<IActivityLogDocument>
   >('activity_logs', activityLogsSchema);
+
   models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(
     'broadcast_engage_messages',
     loadEngageMessageClass(models, subdomain),
@@ -637,6 +654,16 @@ export const loadClasses = (
     IPermissionGroupDocument,
     IPermissionGroupModel
   >('permission_groups', loadPermissionGroupClass(models));
+
+  models.Template = db.model<ITemplateDocument, ITemplateModal>(
+    'templates',
+    loadTemplateClass(models, subdomain),
+  );
+
+  models.TemplateCategory = db.model<
+    ITemplateCategoryDocument,
+    ITemplateCategoryModal
+  >('template_categories', loadTemplateCategoryClass(models));
 
   return models;
 };

@@ -1,6 +1,7 @@
 import {
   IconAddressBook,
   IconAffiliate,
+  IconBrandDatabricks,
   IconBroadcast,
   IconBuilding,
   IconCategory,
@@ -84,6 +85,11 @@ export const GET_CORE_MODULES = (
         name: t('broadcasts'),
         icon: IconBroadcast,
         path: 'broadcasts',
+      },
+      {
+        name: t('templates'),
+        icon: IconBrandDatabricks,
+        path: 'templates',
       },
     );
   }

@@ -93,18 +93,11 @@ export const loadSafeRemainderItemClass = (
         throw new Error('Cant edit cause remainder has submited');
       }
 
-      const liveRem = await models.Remainders.findOne({
-        productId: item.productId,
-        branchId: item.branchId,
-        departmentId: item.departmentId,
-      }).lean();
-
       await models.SafeRemainderItems.updateOne(
         { _id },
         {
           $set: {
             ...doc,
-            preCount: liveRem?.count || 0,
             modifiedAt: new Date(),
             modifiedBy: userId,
           },

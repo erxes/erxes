@@ -35,6 +35,10 @@ export enum AppPath {
 
   Broadcasts = 'broadcasts',
   BroadcastsCatchAll = `/${Broadcasts}/*`,
+
+  Templates = 'templates',
+  TemplatesCatchAll = `/${Templates}/*`,
+
   ImportExport = 'import-export',
   ImportExportCatchAll = `/${ImportExport}/*`,
 

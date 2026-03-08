@@ -24,6 +24,7 @@ const elementOfItinerarySchema = new Schema(
 const groupDay = new Schema(
   {
     day: { type: Number, label: 'day' },
+    title: { type: String, label: 'title' },
     images: { type: [String], label: 'images' },
     content: { type: String, label: 'content' },
     elements: { type: [elementOfItinerarySchema], label: 'elements' },

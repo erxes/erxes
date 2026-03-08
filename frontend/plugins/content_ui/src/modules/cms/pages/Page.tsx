@@ -8,7 +8,7 @@ import { PagesRecordTable } from './components/PagesRecordTable';
 import { IPage } from './types/pageTypes';
 import { EmptyState } from '../shared/EmptyState';
 import { PagesHeader } from './components/PagesHeader';
-import { PagesSidebar } from './components/PagesSidebar';
+import { CmsSidebar } from '../shared/CmsSidebar';
 
 export function Page() {
   const { websiteId } = useParams();
@@ -37,7 +37,7 @@ export function Page() {
     <PageContainer>
       <PagesHeader>{headerActions}</PagesHeader>
       <div className="flex overflow-hidden flex-auto">
-        <PagesSidebar />
+        <CmsSidebar />
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">

@@ -4,7 +4,10 @@ import { dealQueries } from '@/sales/graphql/resolvers/queries/deals';
 import { pipelineLabelQueries } from '@/sales/graphql/resolvers/queries/labels';
 import { pipelineQueries } from '@/sales/graphql/resolvers/queries/pipelines';
 import { stageQueries } from '@/sales/graphql/resolvers/queries/stages';
-
+import { addressQueries } from '@/ecommerce/graphql/resolvers/queries/address';
+import { lastViewedItemQueries } from '@/ecommerce/graphql/resolvers/queries/lastViewedItem';
+import { productReviewQueries } from '@/ecommerce/graphql/resolvers/queries/productReview';
+import { wishlistQueries } from '@/ecommerce/graphql/resolvers/queries/wishlist';
 import {
   Pos as QueriesPos,
   PosCovers as QueriesPosCovers,
@@ -21,4 +24,8 @@ export const queries = {
   ...QueriesPos,
   ...QueriesPosOrders,
   ...QueriesPosCovers,
+  ...addressQueries,
+  ...lastViewedItemQueries,
+  ...productReviewQueries,
+  ...wishlistQueries,
 };

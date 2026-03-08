@@ -13,7 +13,6 @@ import {
   GET_POSITIONS_LIST,
   REMOVE_POSITIONS,
 } from '../graphql';
-import { data } from 'react-router';
 
 interface PositionData {
   positionsMain: {
@@ -50,7 +49,7 @@ export function usePositionAdd(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
     refetchQueries: ['Positions'],
@@ -92,7 +91,7 @@ export function usePositionEdit(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
   });

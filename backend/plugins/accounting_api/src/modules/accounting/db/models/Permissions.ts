@@ -1,7 +1,7 @@
-import { IPermission, IPermissionDocument } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { permissionSchema } from '../definitions/permission';
+import { IPermission, IPermissionDocument } from '../../@types/permission';
 
 export interface IPermissionModel extends Model<IPermissionDocument> {
   getPermission(selector: any): Promise<IPermissionDocument>;

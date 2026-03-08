@@ -149,7 +149,7 @@ export const EMConfig = () => {
                 />
               </Collapsible.Content>
             </Collapsible>
-            <Collapsible>
+            {/* <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
                 Cloudflare calls setup
@@ -228,7 +228,7 @@ export const EMConfig = () => {
                   )}
                 />
               </Collapsible.Content>
-            </Collapsible>
+            </Collapsible> */}
             <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
@@ -263,12 +263,14 @@ const PersistentMenu = ({
 }: {
   form: UseFormReturn<z.infer<typeof EM_CONFIG_SCHEMA>>;
 }) => {
-  const { control } = form;
+  const { control, watch } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'botSetup.persistentMenu',
   });
+
+  const persistentMenuValues = watch('botSetup.persistentMenu');
 
   return (
     <Form.Item>
@@ -293,52 +295,76 @@ const PersistentMenu = ({
         </Tooltip.Provider>
       </Form.Label>
       <div className="space-y-3">
-        {fields.map((field, index) => (
-          <div className="flex gap-2 items-end" key={field.id}>
-            <Form.Field
-              key={field.id}
-              name={`botSetup.persistentMenu.${index}.text`}
-              render={({ field }) => (
-                <Form.Item className="flex-auto">
-                  <Form.Label>Text</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              key={field.id}
-              name={`botSetup.persistentMenu.${index}.type`}
-              render={({ field }) => (
-                <Form.Item className="flex-auto">
-                  <Form.Label>Type</Form.Label>
-                  <Select value={field.value} onValueChange={field.onChange}>
+        {fields.map((field, index) => {
+          const currentType = persistentMenuValues?.[index]?.type;
+          return (
+            <div className="space-y-2" key={field.id}>
+              <div className="flex gap-2 items-end">
+                <Form.Field
+                  name={`botSetup.persistentMenu.${index}.text`}
+                  render={({ field }) => (
+                    <Form.Item className="flex-auto">
+                      <Form.Label>Text</Form.Label>
+                      <Form.Control>
+                        <Input {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name={`botSetup.persistentMenu.${index}.type`}
+                  render={({ field }) => (
+                    <Form.Item className="flex-auto">
+                      <Form.Label>Type</Form.Label>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Form.Control>
+                          <Select.Trigger className="mb-0">
+                            <Select.Value placeholder="Select a type" />
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content>
+                          <Select.Item value="button">Button</Select.Item>
+                          <Select.Item value="link">Link</Select.Item>
+                        </Select.Content>
+                      </Select>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Button
+                  onClick={() => remove(index)}
+                  variant="secondary"
+                  size="icon"
+                  className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
+                >
+                  <IconTrash />
+                </Button>
+              </div>
+              {/* Always register `link` so reset() retains its value;
+                  only show the UI when type === 'link' */}
+              <Form.Field
+                name={`botSetup.persistentMenu.${index}.link`}
+                render={({ field }) => (
+                  <Form.Item className={currentType === 'link' ? '' : 'hidden'}>
+                    <Form.Label>URL</Form.Label>
                     <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select a type" />
-                      </Select.Trigger>
+                      <Input
+                        {...field}
+                        type="url"
+                        placeholder="https://example.com"
+                      />
                     </Form.Control>
-                    <Select.Content>
-                      <Select.Item value="button">Button</Select.Item>
-                      <Select.Item value="link">Link</Select.Item>
-                    </Select.Content>
-                  </Select>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Button
-              onClick={() => remove(index)}
-              variant="secondary"
-              size="icon"
-              className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
-            >
-              <IconTrash />
-            </Button>
-          </div>
-        ))}
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </div>
+          );
+        })}
       </div>
       <Button
         onClick={() => append({ text: '', type: 'button' })}
