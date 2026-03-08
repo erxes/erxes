@@ -11,6 +11,7 @@ interface BranchCardProps {
   onEdit: (branchId: string) => void;
   onDuplicate: (branchId: string) => void;
   onDelete: (branchId: string) => void;
+  onVisitWebsite?: (branchId: string) => void;
   duplicateLoading: boolean;
 }
 
@@ -51,6 +52,7 @@ export const BranchCard = ({
   onEdit,
   onDuplicate,
   onDelete,
+  onVisitWebsite,
   duplicateLoading,
 }: BranchCardProps) => {
   return (
@@ -66,6 +68,9 @@ export const BranchCard = ({
           onEdit={() => onEdit(branch._id)}
           onDuplicate={() => onDuplicate(branch._id)}
           onDelete={() => onDelete(branch._id)}
+          onVisitWebsite={
+            onVisitWebsite ? () => onVisitWebsite(branch._id) : undefined
+          }
           duplicateLoading={duplicateLoading}
         />
       </div>

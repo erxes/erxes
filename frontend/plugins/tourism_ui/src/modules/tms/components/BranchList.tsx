@@ -5,7 +5,7 @@ import { useBranchEdit } from '@/tms/hooks/BranchEdit';
 import { IBranch } from '@/tms/types/branch';
 import { EmptyList } from './EmptyList';
 import { BranchCard } from './BranchCard';
-import { Sheet, Spinner, useConfirm } from 'erxes-ui';
+import { Sheet, Spinner, useConfirm, toast } from 'erxes-ui';
 import CreateTmsForm from './CreateTmsForm';
 
 export const BranchList = () => {
@@ -34,6 +34,32 @@ export const BranchList = () => {
     }).then(async () => {
       await handleDuplicateBranch(branch, refetch);
     });
+  };
+
+  const onVisitWebsite = (branchId: string) => {
+    const branch = list?.find((b) => b._id === branchId);
+    if (!branch) return;
+
+    const { protocol, hostname } = window.location;
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      window.open('http://localhost:3200', '_blank');
+      return;
+    }
+
+    if (!hostname.includes('.next.')) {
+      toast({
+        title: 'Error',
+        description: 'Unable to open website, unexpected hostname format',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    window.open(
+      `${protocol}//${hostname.replace('.next.', '.tms.')}`,
+      '_blank',
+    );
   };
 
   const onDelete = (branchId: string) => {
@@ -71,6 +97,7 @@ export const BranchList = () => {
               onEdit={handleEditBranch}
               onDuplicate={onDuplicate}
               onDelete={onDelete}
+              onVisitWebsite={onVisitWebsite}
               duplicateLoading={duplicateLoading}
             />
           ))}

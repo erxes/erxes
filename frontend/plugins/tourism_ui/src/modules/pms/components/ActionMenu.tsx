@@ -1,10 +1,16 @@
 import type { ReactNode } from 'react';
-import { IconChevronDown, IconEdit, IconTrash } from '@tabler/icons-react';
+import {
+  IconChevronDown,
+  IconEdit,
+  IconTrash,
+  IconWorld,
+} from '@tabler/icons-react';
 import { Popover } from 'erxes-ui';
 
 interface ActionMenuProps {
   onEdit: () => void;
   onDelete: () => void;
+  onVisitWebsite?: () => void;
 }
 
 interface DropdownItem {
@@ -13,13 +19,26 @@ interface DropdownItem {
   onClick: () => void;
 }
 
-export const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => {
+export const ActionMenu = ({
+  onEdit,
+  onDelete,
+  onVisitWebsite,
+}: ActionMenuProps) => {
   const dropdownItems: DropdownItem[] = [
     {
       label: 'Edit',
       icon: <IconEdit size={16} stroke={1.5} />,
       onClick: onEdit,
     },
+    ...(onVisitWebsite
+      ? [
+          {
+            label: 'Open website',
+            icon: <IconWorld size={16} stroke={1.5} />,
+            onClick: onVisitWebsite,
+          },
+        ]
+      : []),
     {
       label: 'Remove',
       icon: <IconTrash size={16} stroke={1.5} />,

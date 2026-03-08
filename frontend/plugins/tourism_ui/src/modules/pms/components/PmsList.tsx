@@ -84,10 +84,12 @@ function PmsBranchCard({
   branch,
   onEdit,
   onDelete,
+  onVisitWebsite,
 }: {
   branch: IPmsBranch;
   onEdit: (branchId: string) => void;
   onDelete: (branchId: string) => void;
+  onVisitWebsite?: (branchId: string) => void;
 }) {
   return (
     <div className="flex flex-col w-full rounded-sm shadow-sm bg-background">
@@ -101,6 +103,9 @@ function PmsBranchCard({
         <ActionMenu
           onEdit={() => onEdit(branch._id)}
           onDelete={() => onDelete(branch._id)}
+          onVisitWebsite={
+            onVisitWebsite ? () => onVisitWebsite(branch._id) : undefined
+          }
         />
       </div>
 
@@ -182,6 +187,31 @@ export function PmsList() {
     });
   };
 
+  const onVisitWebsite = (branchId: string) => {
+    const branch = list?.find((b) => b._id === branchId);
+    if (!branch) return;
+
+    const { protocol, hostname } = window.location;
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      window.open('http://localhost:7004', '_blank');
+      return;
+    }
+
+    if (!hostname.includes('.next.')) {
+      toast({
+        title: 'Error',
+        description: 'Unable to open website, unexpected hostname format',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    window.open(
+      `${protocol}//${hostname.replace('.next.', '.pms.')}`,
+      '_blank',
+    );
+  };
   if (loading) {
     return (
       <div className="flex justify-center items-center w-full min-h-screen">
@@ -231,6 +261,7 @@ export function PmsList() {
               branch={branch}
               onEdit={onEdit}
               onDelete={onDelete}
+              onVisitWebsite={onVisitWebsite}
             />
           ))}
         </div>
