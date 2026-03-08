@@ -99,6 +99,15 @@ const SettingsNotificationRoutes = lazy(() =>
   ),
 );
 
+const StructureSettings = lazy(() =>
+  import('~/pages/settings/workspace/structure/StructureSettingsPage').then(
+    (module) => ({
+      default: module.StructureSettingsPage,
+    }),
+  ),
+);
+
+
 export function SettingsRoutes() {
   const isOs = useVersion();
 
@@ -152,10 +161,10 @@ export function SettingsRoutes() {
           element={<ClientPortalDetailPage />}
         />
         <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
-        {/* <Route
+        <Route
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}
-        /> */}
+        />
         <Route path={SettingsWorkspacePath.Tags} element={<TagsPage />} />
         <Route
           path={SettingsWorkspacePath.Brands}
