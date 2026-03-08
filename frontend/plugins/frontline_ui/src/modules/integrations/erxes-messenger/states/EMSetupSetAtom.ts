@@ -58,12 +58,13 @@ export const erxesMessengerSetSetupAtom = atom(
               name?: string;
               text?: string;
               type?: string;
-              url?: string;
+              link?: string;
             }) => ({
               text: menu.text ?? menu.name ?? '',
               type: (menu.type === 'link' ? 'link' : 'button') as
                 | 'button'
                 | 'link',
+              link: menu.link ?? '',
             }),
           ),
           botCheck: payload?.messengerData?.botCheck,
