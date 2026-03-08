@@ -1,7 +1,7 @@
 type ViteEnvMap = Record<string, string | undefined>;
 
-const env = ((globalThis as { importMeta?: { env?: ViteEnvMap } }).importMeta
-  ?.env || {}) as ViteEnvMap;
+const env =
+  (globalThis as { importMeta?: { env?: ViteEnvMap } }).importMeta?.env ?? {};
 
 const PMS_LOCAL_PORT = env.VITE_PMS_LOCAL_PORT || '7004';
 const TMS_LOCAL_PORT = env.VITE_TMS_LOCAL_PORT || '3200';

@@ -13,7 +13,7 @@ import { IconCalendarPlus, IconPhoto } from '@tabler/icons-react';
 import { PmsCreateSheet } from './CreatePmsSheet';
 import { usePmsRemoveBranch } from '@/pms/hooks/usePmsRemoveBranch';
 import { ActionMenu } from '@/pms/components/ActionMenu';
-import { getWebsiteUrl } from '../../../utils/websiteUrl';
+import { getWebsiteUrl } from '~/utils/websiteUrl';
 import { Sheet } from 'erxes-ui';
 import { useState, useEffect } from 'react';
 import { useSetAtom } from 'jotai';

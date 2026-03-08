@@ -7,7 +7,7 @@ import { EmptyList } from './EmptyList';
 import { BranchCard } from './BranchCard';
 import { Sheet, Spinner, useConfirm, toast } from 'erxes-ui';
 import CreateTmsForm from './CreateTmsForm';
-import { getWebsiteUrl } from '../../../utils/websiteUrl';
+import { getWebsiteUrl } from '~/utils/websiteUrl';
 
 export const BranchList = () => {
   const { list, totalCount, loading, error, refetch } = useBranchList();
