@@ -7,6 +7,7 @@ import { EmptyList } from './EmptyList';
 import { BranchCard } from './BranchCard';
 import { Sheet, Spinner, useConfirm, toast } from 'erxes-ui';
 import CreateTmsForm from './CreateTmsForm';
+import { getWebsiteUrl } from '../../../utils/websiteUrl';
 
 export const BranchList = () => {
   const { list, totalCount, loading, error, refetch } = useBranchList();
@@ -41,13 +42,14 @@ export const BranchList = () => {
     if (!branch) return;
 
     const { protocol, hostname } = window.location;
+    const url = getWebsiteUrl(
+      'tms',
+      hostname,
+      protocol,
+      branch.uiOptions?.website,
+    );
 
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      window.open('http://localhost:3200', '_blank');
-      return;
-    }
-
-    if (!hostname.includes('.next.')) {
+    if (!url) {
       toast({
         title: 'Error',
         description: 'Unable to open website, unexpected hostname format',
@@ -56,10 +58,7 @@ export const BranchList = () => {
       return;
     }
 
-    window.open(
-      `${protocol}//${hostname.replace('.next.', '.tms.')}`,
-      '_blank',
-    );
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const onDelete = (branchId: string) => {
