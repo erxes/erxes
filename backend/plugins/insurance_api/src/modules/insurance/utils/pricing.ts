@@ -8,7 +8,11 @@ export function calculatePremium(
   for (let i = 1; i <= 3; i++) {
     const trailerPrice = insuredObject?.[`Чиргүүл ${i} үнэ`];
     if (trailerPrice) {
-      totalAssessedValue += parseInt(trailerPrice) || 0;
+      // Parse number with commas support
+      const numValue = typeof trailerPrice === 'string' 
+        ? parseFloat(trailerPrice.replace(/,/g, '')) 
+        : trailerPrice;
+      totalAssessedValue += numValue || 0;
     }
   }
 
