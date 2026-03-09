@@ -14,12 +14,15 @@ export const types = `
     isForSubscription:Boolean
     subscriptionConfig:JSON
     timely: TimelyType
+    webId: String
   }
 `;
 
 export const queries = `
   uoms: [Uom]
   uomsTotalCount: Int
+
+  cpUoms: [Uom]
 `;
 
 const mutationParams = `

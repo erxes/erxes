@@ -22,6 +22,7 @@ export const productSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     categoryId: field({ type: String, label: 'Category' }),
+    webId: field({ type: String, optional: true, label: 'Web ID' }),
     name: field({ type: String, label: 'Name' }),
     shortName: field({ type: String, optional: true, label: 'Short name' }),
     code: field({ type: String, label: 'Code' }),
@@ -139,6 +140,7 @@ export const productCategorySchema = schemaHooksWrapper(
       optional: true,
       label: 'Mask type',
     }),
+    webId: field({ type: String, optional: true, label: 'Web ID' }),
   }),
   'erxes_productCategorySchema',
 );

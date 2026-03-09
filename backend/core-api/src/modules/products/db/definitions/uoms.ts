@@ -24,6 +24,7 @@ export const uomSchema = schemaWrapper(
       _id: mongooseStringRandomId,
       name: { type: String, label: 'Name' },
       code: { type: String, unique: true, label: 'Code' },
+      webId: { type: String, optional: true, label: 'Web ID' },
       isForSubscription: {
         type: Boolean,
         optional: true,
