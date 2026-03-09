@@ -105,7 +105,7 @@ export default async function userMiddleware(
     }
   }
 
-  const clientPortalToken = req.headers['x-cp-token'];
+  const clientPortalToken = req.headers['x-app-token'];
   const clientAuthToken =
     req.headers['client-auth-token'] || req.cookies['client-auth-token'];
 

@@ -76,7 +76,7 @@ const app = express();
 app.use(cookieParser());
 
 app.use(async (req, res, next) => {
-  const appToken = req.headers['x-app-token'] as string;
+  const appToken = req.headers['x-app-api-token'] as string;
 
   if (appToken) {
     try {

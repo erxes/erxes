@@ -15,7 +15,7 @@ export const { getClient, query, PreloadQuery } = registerApolloClient(() => {
     return {
       headers: {
         ...headers,
-        'x-cp-token': process.env.NEXT_PUBLIC_ERXES_CP_TOKEN,
+        'x-app-token': process.env.NEXT_PUBLIC_ERXES_CP_TOKEN,
       },
     };
   });
