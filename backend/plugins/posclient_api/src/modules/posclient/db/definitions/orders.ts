@@ -120,7 +120,7 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Total amount before tax',
     }),
     finalAmount: getNumberFieldDefinition({
-      ...commonAttributes, 
+      ...commonAttributes,
       label: 'Final amount after tax',
     }),
     shouldPrintEbarimt: field({
