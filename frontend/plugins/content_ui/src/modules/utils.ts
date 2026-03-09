@@ -16,8 +16,8 @@ const getWebBuilderUrl = (): string => {
   // if (memoizedApiUrl) return memoizedApiUrl;
 
   const envApiUrl =
-    window.env?.REACT_APP_WIDGETS_URL ??
-    (process.env.REACT_APP_WIDGETS_URL || getDefaultUrl());
+    window.env?.REACT_APP_WEBBUILDER_URL ??
+    (process.env.REACT_APP_WEBBUILDER_URL || getDefaultUrl());
 
   memoizedApiUrl = envApiUrl?.includes('<subdomain>')
     ? envApiUrl.replace('<subdomain>', getSubdomain())
