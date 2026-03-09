@@ -14,8 +14,7 @@ export const useRemoveWeb = () => {
     },
   });
 
-  const removeWeb = (id: string) =>
-    removeWebMutation({ variables: { id } });
+  const removeWeb = (id: string) => removeWebMutation({ variables: { id } });
 
   return { removeWeb, loading };
 };

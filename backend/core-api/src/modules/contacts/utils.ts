@@ -223,7 +223,6 @@ export const customersCount = async ({
       });
 
       for (const integration of integrations) {
-
         if (!integration.brandId) {
           continue;
         }
