@@ -71,8 +71,11 @@ export function CustomFields() {
     setEditingGroup(null);
   };
 
-  const handleFieldSubmit = (data: any) => {
+  const handleFieldSubmit = async (data: any) => {
     if (!selectedGroup) return;
+
+    const latestGroup =
+      groups.find((g) => g._id === selectedGroup._id) || selectedGroup;
 
     const newField = {
       _id: editingField?._id || `field_${Date.now()}`,
@@ -86,8 +89,8 @@ export function CustomFields() {
         : [],
     };
 
-    const currentFields = Array.isArray(selectedGroup.fields)
-      ? selectedGroup.fields
+    const currentFields = Array.isArray(latestGroup.fields)
+      ? latestGroup.fields
       : [];
     let updatedFields;
 
@@ -101,23 +104,30 @@ export function CustomFields() {
 
     editGroup({
       variables: {
-        _id: selectedGroup._id,
+        _id: latestGroup._id,
         input: {
-          label: selectedGroup.label,
-          code: selectedGroup.code,
+          label: latestGroup.label,
           clientPortalId: websiteId || '',
-          customPostTypeIds: selectedGroup.customPostTypeIds || [],
+          customPostTypeIds: latestGroup.customPostTypeIds || [],
           fields: updatedFields,
         },
       },
-      onCompleted: () => {
+      onCompleted: async () => {
         toast({
           title: 'Success',
           description: editingField ? 'Field updated!' : 'Field created!',
         });
         setIsFieldDrawerOpen(false);
         setEditingField(null);
-        refetch();
+        const result = await refetch();
+        if (result.data?.cmsCustomFieldGroupList?.list) {
+          const updatedGroup = result.data.cmsCustomFieldGroupList.list.find(
+            (g: ICustomFieldGroup) => g._id === latestGroup._id,
+          );
+          if (updatedGroup) {
+            setSelectedGroup(updatedGroup);
+          }
+        }
       },
     });
   };
@@ -145,27 +155,35 @@ export function CustomFields() {
     if (!selectedGroup) return;
     confirm({
       message: 'Are you sure you want to delete this field?',
-    }).then(() => {
-      const currentFields = Array.isArray(selectedGroup.fields)
-        ? selectedGroup.fields
+    }).then(async () => {
+      const latestGroup =
+        groups.find((g) => g._id === selectedGroup._id) || selectedGroup;
+      const currentFields = Array.isArray(latestGroup.fields)
+        ? latestGroup.fields
         : [];
       const updatedFields = currentFields.filter((f: any) => f._id !== fieldId);
 
       editGroup({
         variables: {
-          _id: selectedGroup._id,
+          _id: latestGroup._id,
           input: {
-            label: selectedGroup.label,
-            code: selectedGroup.code,
+            label: latestGroup.label,
             clientPortalId: websiteId || '',
-            customPostTypeIds: selectedGroup.customPostTypeIds || [],
+            customPostTypeIds: latestGroup.customPostTypeIds || [],
             fields: updatedFields,
           },
         },
-        onCompleted: () => {
+        onCompleted: async () => {
           toast({ title: 'Success', description: 'Field deleted!' });
-          const updatedGroup = { ...selectedGroup, fields: updatedFields };
-          setSelectedGroup(updatedGroup);
+          const result = await refetch();
+          if (result.data?.cmsCustomFieldGroupList?.list) {
+            const updatedGroup = result.data.cmsCustomFieldGroupList.list.find(
+              (g: ICustomFieldGroup) => g._id === latestGroup._id,
+            );
+            if (updatedGroup) {
+              setSelectedGroup(updatedGroup);
+            }
+          }
         },
       });
     });

@@ -9,24 +9,32 @@ import {
 } from 'erxes-ui';
 import { useEffect, useId, useRef, useState } from 'react';
 import { DateRange } from 'react-day-picker';
-import { endOfDay, startOfDay, subDays, subMonths } from 'date-fns';
+import {
+  endOfDay,
+  endOfMonth,
+  endOfWeek,
+  endOfYear,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+  subDays,
+  subMonths,
+  subYears,
+  format
+} from 'date-fns';
+import { MONTHS, QUARTERS } from 'erxes-ui/modules/filter/date-filter/constants/dateTypes';
 
-const MONTHS = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-const QUARTERS = ['quarter-1', 'quarter-2', 'quarter-3', 'quarter-4'];
+export const REPORT_FIXED_DATES = [
+  'today',
+  'yesterday',
+  'this-week',
+  'last-week',
+  'this-month',
+  'last-month',
+  'this-year',
+  'last-year',
+]
 
 const getYearsArray = (startYearOffset: number, endYearOffset: number) => {
   const currentYear = new Date().getFullYear();
@@ -68,25 +76,33 @@ const parseDateRangeFromString = (
       from: startOfDay(today),
       to: endOfDay(today),
     },
-    'in-the-past': {
-      from: startOfDay(new Date(1979, 0, 1)),
-      to: endOfDay(today),
-    },
-    '1-day-from-now': {
+    yesterday: {
       from: startOfDay(subDays(today, 1)),
-      to: endOfDay(today),
+      to: endOfDay(subDays(today, 1)),
     },
-    '3-days-from-now': {
-      from: startOfDay(subDays(today, 3)),
-      to: endOfDay(today),
+    'this-week': {
+      from: startOfWeek(today, { weekStartsOn: 1 }),
+      to: endOfWeek(today, { weekStartsOn: 1 }),
     },
-    '1-week-from-now': {
-      from: startOfDay(subDays(today, 7)),
-      to: endOfDay(today),
+    'last-week': {
+      from: startOfWeek(subDays(today, 7), { weekStartsOn: 1 }),
+      to: endOfWeek(subDays(today, 7), { weekStartsOn: 1 }),
     },
-    '3-months-from-now': {
-      from: startOfDay(subMonths(today, 3)),
-      to: endOfDay(today),
+    'this-month': {
+      from: startOfMonth(today),
+      to: endOfMonth(today),
+    },
+    'last-month': {
+      from: startOfMonth(subMonths(today, 1)),
+      to: endOfMonth(subMonths(today, 1)),
+    },
+    'this-year': {
+      from: startOfYear(today),
+      to: endOfYear(today),
+    },
+    'last-year': {
+      from: startOfYear(subYears(today, 1)),
+      to: endOfYear(subYears(today, 1)),
     },
   };
 
@@ -125,7 +141,7 @@ const parseDateRangeFromString = (
     };
   }
 
-  // Year format: YYYY
+  // Year format: YYYY-y
   if (/^\d{4}-y$/.test(date)) {
     const year = Number.parseInt(date);
     return {
@@ -378,4 +394,58 @@ const DateFilterRadioGroupItem = ({
       </label>
     </Button>
   );
+};
+
+export const getReportDisplayValue = (value: string) => {
+  if (value === 'today') {
+    return 'Today';
+  }
+  if (value === 'yesterday') {
+    return 'Yesterday';
+  }
+  if (value === 'this-week') {
+    return 'This week';
+  }
+  if (value === 'last-week') {
+    return 'Last week';
+  }
+  if (value === 'this-month') {
+    return 'This month';
+  }
+  if (value === 'last-month') {
+    return 'Last month';
+  }
+  if (value === 'this-year') {
+    return 'This year';
+  }
+  if (value === 'last-year') {
+    return 'Last year';
+  }
+
+  if (MONTHS.some((month) => value.includes(month))) {
+    return value;
+  }
+
+  if (value.includes('quarter')) {
+    const [year] = value.split('-');
+    const quarterNumber = Number.parseInt(value.split('quarter')[1]);
+    return `${year} Q${quarterNumber}`;
+  }
+
+  if (value.includes('half')) {
+    const [year] = value.split('-');
+    const halfNumber = Number.parseInt(value.split('half')[1]);
+    return `${year} H${halfNumber}`;
+  }
+
+  if (/^\d{4}-y$/.test(value)) {
+    return value.replace('-y', '');
+  }
+
+  if (value.includes(',')) {
+    const [from, to] = value.split(',');
+    return `${format(from, 'MMM d, yyyy')} - ${format(to, 'MMM d, yyyy')}`;
+  }
+
+  return 'Unknown';
 };

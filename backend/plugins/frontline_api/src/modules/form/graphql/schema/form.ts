@@ -204,5 +204,12 @@ export const mutations = `
       cachedCustomerId: String
     ): SaveFormResponse
 
+  cpWidgetsSaveLead(
+    formId: String!
+    submissions: [FieldValueInput]
+    browserInfo: JSON!
+    cachedCustomerId: String
+  ): SaveFormResponse
+
 
 `;

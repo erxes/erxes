@@ -13,6 +13,7 @@ import { IconCalendarPlus, IconPhoto } from '@tabler/icons-react';
 import { PmsCreateSheet } from './CreatePmsSheet';
 import { usePmsRemoveBranch } from '@/pms/hooks/usePmsRemoveBranch';
 import { ActionMenu } from '@/pms/components/ActionMenu';
+import { useVisitWebsite } from '~/hooks/useVisitWebsite';
 import { Sheet } from 'erxes-ui';
 import { useState, useEffect } from 'react';
 import { useSetAtom } from 'jotai';
@@ -84,10 +85,12 @@ function PmsBranchCard({
   branch,
   onEdit,
   onDelete,
+  onVisitWebsite,
 }: {
   branch: IPmsBranch;
   onEdit: (branchId: string) => void;
   onDelete: (branchId: string) => void;
+  onVisitWebsite?: (branchId: string) => void;
 }) {
   return (
     <div className="flex flex-col w-full rounded-sm shadow-sm bg-background">
@@ -101,6 +104,9 @@ function PmsBranchCard({
         <ActionMenu
           onEdit={() => onEdit(branch._id)}
           onDelete={() => onDelete(branch._id)}
+          onVisitWebsite={
+            onVisitWebsite ? () => onVisitWebsite(branch._id) : undefined
+          }
         />
       </div>
 
@@ -135,6 +141,7 @@ export function PmsList() {
 
   const { toast } = useToast();
   const { confirm } = useConfirm();
+  const onVisitWebsite = useVisitWebsite('pms', list);
 
   const confirmOptions = { confirmationValue: 'delete' };
 
@@ -231,6 +238,7 @@ export function PmsList() {
               branch={branch}
               onEdit={onEdit}
               onDelete={onDelete}
+              onVisitWebsite={onVisitWebsite}
             />
           ))}
         </div>
