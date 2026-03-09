@@ -68,6 +68,7 @@ export const types = `
 
     visibility: String
     departmentIds: [String]
+    brandId: String
 
     details: JSON
     callData: CloudflareCallsData
@@ -247,6 +248,7 @@ export const mutations = `
     channelId: String!,
     name: String!,
     accountId: String,
+    brandId: String,
     data: JSON): Integration
 
   integrationsEditCommonFields(_id: String!, name: String!, channelId: String, details: JSON): Integration

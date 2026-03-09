@@ -1,3 +1,4 @@
+
 import {
   InfoCard,
   Button,
@@ -51,6 +52,13 @@ export const PipelinePermissionsList = memo(() => {
 
   const myTicketsOnly = form.watch('myTicketsOnly');
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Pipeline data:', pipeline);
+    console.log('myTicketsOnly value:', myTicketsOnly);
+    console.log('isCheckUser from pipeline:', pipeline?.isCheckUser);
+  }, [pipeline, myTicketsOnly]);
+
   const initialValuesRef = useRef<PermissionState | null>(null);
   const isUpdatingRef = useRef(false);
 
@@ -84,6 +92,21 @@ export const PipelinePermissionsList = memo(() => {
 
   const formValues = form.watch();
 
+  // Handle pipeline visibility changes to clear member permissions
+  useEffect(() => {
+    if (!pipeline || isUpdatingRef.current || !initialValuesRef.current) return;
+
+    const currentVisibility = formValues.visibility;
+    const initialVisibility = initialValuesRef.current.visibility;
+
+    // Check if visibility changed to public
+    if (currentVisibility === 'public' && initialVisibility !== 'public') {
+      // Clear member permissions when visibility is set to public
+      form.setValue('memberIds', []);
+      form.setValue('selectedUsers', []);
+    }
+  }, [formValues.visibility, pipeline, form]);
+
   useEffect(() => {
     if (!pipeline || isUpdatingRef.current || !initialValuesRef.current) return;
 
@@ -97,9 +120,9 @@ export const PipelinePermissionsList = memo(() => {
       formValues.allowAllUsers !== initialValues.allowAllUsers ||
       formValues.visibility !== initialValues.visibility ||
       JSON.stringify(formValues.selectedUsers) !==
-        JSON.stringify(initialValues.selectedUsers) ||
+      JSON.stringify(initialValues.selectedUsers) ||
       JSON.stringify(formValues.memberIds) !==
-        JSON.stringify(initialValues.memberIds);
+      JSON.stringify(initialValues.memberIds);
 
     if (hasChanges) {
       isUpdatingRef.current = true;
@@ -247,9 +270,9 @@ export const PipelinePermissionsList = memo(() => {
                         {visibleStatusCount >= statuses.length
                           ? 'Show Less'
                           : `Show ${Math.min(
-                              5,
-                              statuses.length - visibleStatusCount,
-                            )} More`}
+                            5,
+                            statuses.length - visibleStatusCount,
+                          )} More`}
                       </Button>
                     </div>
                   )}
@@ -262,3 +285,4 @@ export const PipelinePermissionsList = memo(() => {
     </Form>
   );
 });
+

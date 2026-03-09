@@ -48,7 +48,7 @@ export interface IMessengerOnlineHours {
 
 export interface IMessengerOnlineHoursDocument
   extends IMessengerOnlineHours,
-  Document { }
+    Document {}
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -102,7 +102,7 @@ export interface IMessengerData {
   isReceiveWebCall?: boolean;
 }
 
-export interface IMessengerDataDocument extends IMessengerData, Document { }
+export interface IMessengerDataDocument extends IMessengerData, Document {}
 
 export interface ICallout extends Document {
   title?: string;
@@ -164,7 +164,7 @@ export interface IUiOptions {
 }
 
 // subdocument schema for messenger UiOptions
-export interface IUiOptionsDocument extends IUiOptions, Document { }
+export interface IUiOptionsDocument extends IUiOptions, Document {}
 
 export interface IIntegration {
   kind: string;
@@ -182,6 +182,7 @@ export interface IIntegration {
   visibility?: string;
   configId?: string;
   ticketConfigId?: string;
+  brandId?: string;
 }
 
 export interface IExternalLink {
