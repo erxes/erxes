@@ -40,6 +40,21 @@ export const TEMPLATES = [
       'A great starting template for those looking for simplicity and functionality.',
   },
   {
+    id: 'tour-template-0',
+    type: 'tour',
+    name: 'Summit Adventures',
+    thumbnail: '/template-screenshots/tour-template-0.png',
+    description:
+      'A modern tour operator template with deep emerald green design, full-screen hero, tour cards, stats section, and testimonials. Built for adventure and travel companies.',
+    screenshots: ['/template-screenshots/tour-template-0.png'],
+    primaryColor: '#065f46',
+    secondaryColor: '#f59e0b',
+    author: 'erxes',
+    authorUrl: 'https://erxes.io',
+    version: '1.0.0',
+    review: 'A clean, modern template built specifically for tour operators.',
+  },
+  {
     id: 'tour-template-1',
     type: 'tour',
     name: 'Tour Website',
