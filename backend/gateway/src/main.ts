@@ -22,6 +22,7 @@ import {
 
 import { getPlugin, getSubdomain, isDev, redis } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
+// import * as jwt from 'jsonwebtoken';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
 import {
   startSubscriptionServer,
@@ -77,6 +78,7 @@ app.use(cookieParser());
 
 app.use(async (req, res, next) => {
   const appToken = req.headers['x-app-api-token'] as string;
+  // const clientPortalToken = req.headers['x-app-token'] as string;
 
   if (appToken) {
     try {
@@ -94,6 +96,21 @@ app.use(async (req, res, next) => {
       // Fall through to regular CORS
     }
   }
+
+  // if (clientPortalToken) {
+  //   try {
+  //     const decoded: any = jwt.verify(
+  //       clientPortalToken,
+  //       process.env.JWT_TOKEN_SECRET || 'SECRET',
+  //     );
+
+  //     if (decoded?.clientPortalId) {
+  //       return cors({ credentials: true, origin: true })(req, res, next);
+  //     }
+  //   } catch {
+  //     // Fall through to regular CORS
+  //   }
+  // }
 
   return cors(corsOptions)(req, res, next);
 });
