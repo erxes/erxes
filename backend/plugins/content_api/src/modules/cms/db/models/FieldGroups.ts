@@ -15,7 +15,7 @@ function omitUndefined<T extends Record<string, any>>(obj: T): Partial<T> {
 }
 
 async function generateUniqueSlugForUpdate(params: {
-  model: any;
+  model: ICustomFieldGroupModel;
   clientPortalId: string;
   field: string;
   baseSlug: string;
@@ -92,10 +92,9 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
         throw new Error('Field group not found');
       }
 
-      const clientPortalId =
-        data.clientPortalId || (existingGroup as any).clientPortalId;
+      const clientPortalId = data.clientPortalId || existingGroup.clientPortalId;
 
-      if (data.code && data.code !== (existingGroup as any).code) {
+      if (data.code && data.code !== existingGroup.code) {
         data.code = await generateUniqueSlugForUpdate({
           model: models.CustomFieldGroups,
           clientPortalId,
@@ -105,7 +104,10 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
         });
       }
 
-      const updateData: any = omitUndefined({ ...data, clientPortalId });
+      const updateData: Partial<ICustomFieldGroup> = omitUndefined({
+        ...data,
+        clientPortalId,
+      });
 
       if (!('fields' in data)) {
         updateData.fields = existingGroup.fields;
