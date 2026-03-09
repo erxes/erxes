@@ -14,6 +14,7 @@ export const types = `
     barcodeDescription: String
     unitPrice: Float
     categoryId: String
+    webId: String
     propertiesData: JSON
     createdAt: Date
     tagIds: [String]
@@ -77,6 +78,7 @@ const queryParams = `
   groupedSimilarity: String,
   image: String,
   brand: String,
+  webId: String,
 
   branchId: String,
   departmentId: String,
@@ -108,6 +110,14 @@ export const queries = `
   productDetail(_id: String): Product
   productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
   productCountByTags: JSON
+
+  cpProducts(
+    ${queryParams}
+    page: Int,
+    perPage: Int,
+    sortField: String,
+    sortDirection: Int,
+  ): [Product]
 `;
 
 export const mutationParams = `

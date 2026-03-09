@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { formSetupStepAtom } from '../states/formSetupStates';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 export const FormMutateLayout = ({
   children,
@@ -23,6 +23,7 @@ export const FormMutateLayout = ({
 }) => {
   const [step, setStep] = useAtom(formSetupStepAtom);
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   return (
     <Form {...form}>
@@ -48,7 +49,7 @@ export const FormMutateLayout = ({
           <Button
             variant="secondary"
             className="mr-auto bg-border"
-            onClick={() => null}
+            onClick={() => navigate(`/settings/frontline/channels/${id}/forms`)}
           >
             Cancel
           </Button>
@@ -59,10 +60,10 @@ export const FormMutateLayout = ({
                 ? 'Updating form...'
                 : 'Creating form...'
               : step === 3
-              ? id
-                ? 'Update form'
-                : 'Create form'
-              : 'Next step'}
+                ? id
+                  ? 'Update form'
+                  : 'Create form'
+                : 'Next step'}
           </Button>
         </Sheet.Footer>
       </form>

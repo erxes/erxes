@@ -1,5 +1,11 @@
-import { IconMessage2 } from '@tabler/icons-react';
-import { Button, Popover, hexToOklch, useQueryState } from 'erxes-ui';
+import {
+  Button,
+  ErxesLogoIcon,
+  Popover,
+  hexToOklch,
+  readImage,
+  useQueryState,
+} from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { erxesMessengerSetupAppearanceAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMPreviewMessages } from '@/integrations/erxes-messenger/components/EMPreviewMessages';
@@ -51,7 +57,11 @@ export const ErxesMessengerPreview = () => {
               variant="secondary"
               className="size-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/80 [&>svg]:size-5 shadow-md"
             >
-              <IconMessage2 />
+              {appearance?.logo ? (
+                <img src={readImage(appearance?.logo)} alt="em-logo" />
+              ) : (
+                <ErxesLogoIcon />
+              )}
             </Button>
           </Popover.Trigger>
           <Popover.Content
@@ -62,10 +72,10 @@ export const ErxesMessengerPreview = () => {
               e.preventDefault();
             }}
           >
-            {[1, 3, 5, 6].includes(erxesMessengerSetupStep) && (
+            {[1, 3, 6].includes(erxesMessengerSetupStep) && (
               <EMPreviewMessages />
             )}
-            {[2, 4].includes(erxesMessengerSetupStep) && <EMPreviewIntro />}
+            {[2, 4, 5].includes(erxesMessengerSetupStep) && <EMPreviewIntro />}
           </Popover.Content>
         </Popover>
       </div>

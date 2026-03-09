@@ -14,7 +14,6 @@ import { IContext } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
-import { generateUserActivityLogs } from '../utils/activityLogs';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];

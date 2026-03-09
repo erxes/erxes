@@ -237,6 +237,19 @@ import {
   IPermissionGroupModel,
   loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
+import {
+  ITemplateCategoryModal,
+  loadTemplateCategoryClass,
+} from '@/template/db/models/Category';
+import {
+  ITemplateModal,
+  loadTemplateClass,
+} from '@/template/db/models/Template';
+import {
+  ITemplateCategoryDocument,
+  ITemplateDocument,
+} from '@/template/@types';
+
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -294,6 +307,9 @@ export interface IModels {
   PermissionGroups: IPermissionGroupModel;
 
   NotificationSettings: Model<NotificationSettings>;
+
+  Template: ITemplateModal;
+  TemplateCategory: ITemplateCategoryModal;
 }
 
 export interface IContext extends IMainContext {
@@ -454,8 +470,12 @@ export const loadClasses = (
     ),
   );
   models.Apps = db.model<IAppDocument, IAppModel>(
-    'apps',
-    loadAppClass(subdomain, models, eventDispatcher('core', 'apps', 'apps')),
+    'app_tokens',
+    loadAppClass(
+      models,
+      eventDispatcher('core', 'app_tokens', 'app_tokens'),
+      subdomain,
+    ),
   );
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
@@ -638,6 +658,16 @@ export const loadClasses = (
     IPermissionGroupDocument,
     IPermissionGroupModel
   >('permission_groups', loadPermissionGroupClass(models));
+
+  models.Template = db.model<ITemplateDocument, ITemplateModal>(
+    'templates',
+    loadTemplateClass(models, subdomain),
+  );
+
+  models.TemplateCategory = db.model<
+    ITemplateCategoryDocument,
+    ITemplateCategoryModal
+  >('template_categories', loadTemplateCategoryClass(models));
 
   return models;
 };

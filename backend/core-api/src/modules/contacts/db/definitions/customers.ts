@@ -144,6 +144,7 @@ export const customerSchema = schemaWrapper(
       },
       links: { type: Object, default: {}, label: 'Links' },
       code: { type: String, label: 'Code', optional: true },
+      webId: { type: String, label: 'Web ID', optional: true },
       tagIds: {
         type: [String],
         optional: true,

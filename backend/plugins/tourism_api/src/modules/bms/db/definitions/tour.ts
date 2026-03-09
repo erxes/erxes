@@ -27,6 +27,7 @@ export const tourSchema = new Schema({
   refNumber: { type: String, optional: true, label: 'refnumber' },
   name: { type: String, optional: true, label: 'name' },
   groupCode: { type: String, optional: true, label: 'groupCode' },
+  webId: { type: String, optional: true, label: 'Web ID' },
   content: { type: String, optional: true, label: 'content' },
   duration: { type: Number, optional: true, label: 'number' },
   location: {
