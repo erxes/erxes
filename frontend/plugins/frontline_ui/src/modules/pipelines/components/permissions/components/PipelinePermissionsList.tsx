@@ -128,9 +128,9 @@ export const PipelinePermissionsList = memo(() => {
     }
   }, [formValues, pipeline, pipelineId, updatePipeline]);
 
-  if (pipelineLoading || statusesLoading || updating) {
+  if (pipelineLoading || statusesLoading) {
     return (
-      <div className="flex items-center justify-center p-10">
+      <div className="flex items-center justify-center p-10 shrink-0">
         <Spinner />
       </div>
     );

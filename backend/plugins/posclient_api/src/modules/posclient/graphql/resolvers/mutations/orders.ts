@@ -320,7 +320,7 @@ const ordersEdit = async (
   let status = getStatus(config, doc.buttonType, doc, order);
   let saleStatus = getSaleStatus(config, doc, preparedDoc);
 
-  // dont change isPre
+  // don't change isPre
   const updatedOrder = await models.Orders.updateOrder(doc._id, {
     deliveryInfo: doc.deliveryInfo,
     branchId: config.branchId || doc.branchId,
@@ -619,7 +619,9 @@ const orderMutations: Record<string, Resolver> = {
           },
           defaultValue: {},
         });
-      } catch (e) {}
+      } catch (e) {
+        console.error('Error confirming cover:', e);
+      }
     }
     return await models.Orders.getOrder(_id);
   },

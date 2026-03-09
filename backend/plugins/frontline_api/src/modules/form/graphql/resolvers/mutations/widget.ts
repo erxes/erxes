@@ -1,5 +1,5 @@
-import { ICustomField, Resolver } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ICustomField } from 'erxes-api-shared/core-types';
+import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IContext, IModels } from '~/connectionResolvers';
 import { getSocialLinkKey } from '~/modules/form/utils';
@@ -721,3 +721,9 @@ export const widgetFormMutation: Record<string, Resolver> = {
 widgetFormMutation.cpWidgetsSaveLead.wrapperConfig = {
   forClientPortal: true,
 };
+
+markResolvers(widgetFormMutation, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

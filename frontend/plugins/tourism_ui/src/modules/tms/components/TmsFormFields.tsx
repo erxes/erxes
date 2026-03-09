@@ -6,15 +6,15 @@ import {
   Button,
   Form,
   Input,
-  Select,
   Upload,
   ColorPicker,
   Spinner,
+  readImage,
 } from 'erxes-ui';
 import { TmsFormType } from '@/tms/constants/formSchema';
 import { IconUpload, IconPlus, IconTrash } from '@tabler/icons-react';
-import PaymentIcon, { paymentIconOptions } from '@/tms/components/PaymentIcon';
 import { SelectMember } from 'ui-modules';
+import { SelectPayment } from '@/pms/components/payment/SelectPayment';
 
 export interface PaymentType {
   _id: string;
@@ -72,182 +72,114 @@ export const SelectColor = ({ control }: { control: Control<TmsFormType> }) => {
   );
 };
 
-export const LogoField = ({ control }: { control: Control<TmsFormType> }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  return (
-    <Form.Field
-      name="logo"
-      control={control}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>LOGO</Form.Label>
-          <Form.Description>
-            Image can be shown on the top of the post also
-          </Form.Description>
-          <Form.Control>
-            <Upload.Root
-              value={field.value || ''}
-              onChange={(fileInfo) => {
-                if ('url' in fileInfo) {
-                  field.onChange(fileInfo.url);
-                }
-              }}
-            >
-              {isLoading ? (
-                <>
-                  <Upload.Preview
-                    className="hidden"
-                    onUploadStart={() => setIsLoading(true)}
-                    onAllUploadsComplete={() => setIsLoading(false)}
-                  />
-                  <div className="flex flex-col justify-center items-center w-full h-28 rounded-md border border-dashed bg-accent">
-                    <div className="mb-2">
-                      <Spinner size="md" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Uploading...
-                    </p>
-                  </div>
-                </>
-              ) : field.value ? (
-                <div className="relative w-full">
-                  <div className="flex justify-center items-center w-full min-h-28 p-4 rounded-md border bg-accent">
-                    <Upload.Preview
-                      className="object-contain max-w-full max-h-32"
-                      onUploadStart={() => setIsLoading(true)}
-                      onAllUploadsComplete={() => setIsLoading(false)}
-                    />
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    type="button"
-                    className="absolute right-2 bottom-2 size-6"
-                    onClick={() => {
-                      field.onChange('');
-                    }}
-                  >
-                    <IconTrash size={12} color="red" />
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <Upload.Preview
-                    className="hidden"
-                    onUploadStart={() => setIsLoading(true)}
-                    onAllUploadsComplete={() => setIsLoading(false)}
-                  />
-                  <Upload.Button
-                    size="sm"
-                    variant="secondary"
-                    type="button"
-                    className="flex flex-col justify-center items-center w-full h-28 border border-dashed text-muted-foreground"
-                  >
-                    <IconUpload className="mb-2" />
-                    <Button variant="outline" className="text-sm font-medium">
-                      Upload logo
-                    </Button>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Max size: 15MB, File type: PNG
-                    </p>
-                  </Upload.Button>
-                </>
-              )}
-            </Upload.Root>
-          </Form.Control>
-        </Form.Item>
-      )}
-    />
-  );
-};
-
-export const FavIconField = ({
+const ImageUploadField = ({
   control,
+  name,
+  label,
+  description,
 }: {
   control: Control<TmsFormType>;
+  name: 'logo' | 'favIcon';
+  label: string;
+  description: string;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   return (
     <Form.Field
-      name="favIcon"
+      name={name}
       control={control}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>FAV ICON</Form.Label>
-
-          <Form.Description>
-            Fav icon can be shown on the top of the post also in
-          </Form.Description>
+          <Form.Label>{label}</Form.Label>
+          <Form.Description>{description}</Form.Description>
           <Form.Control>
             <Upload.Root
               {...field}
               value={field.value || ''}
               onChange={(fileInfo) => {
-                if ('url' in fileInfo) {
+                if (
+                  typeof fileInfo === 'object' &&
+                  fileInfo !== null &&
+                  'url' in fileInfo
+                ) {
                   field.onChange(fileInfo.url);
+                } else {
+                  field.onChange('');
                 }
               }}
+              className="relative group"
             >
               {isLoading ? (
-                <>
-                  <Upload.Preview
-                    className="hidden"
-                    onUploadStart={() => setIsLoading(true)}
-                    onAllUploadsComplete={() => setIsLoading(false)}
-                  />
-                  <div className="flex flex-col justify-center items-center w-full h-28 rounded-md border border-dashed bg-accent">
-                    <div className="mb-2">
-                      <Spinner size="md" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Uploading...
-                    </p>
-                  </div>
-                </>
-              ) : field.value ? (
-                <div className="relative w-full">
-                  <div className="flex justify-center items-center w-full min-h-28 p-4 rounded-md border bg-accent">
-                    <Upload.Preview
-                      className="object-contain max-w-full max-h-32"
-                      onUploadStart={() => setIsLoading(true)}
-                      onAllUploadsComplete={() => setIsLoading(false)}
-                    />
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    type="button"
-                    className="absolute right-2 bottom-2 size-6"
-                    onClick={() => {
-                      field.onChange('');
-                    }}
-                  >
-                    <IconTrash size={12} color="red" />
-                  </Button>
+                <div className="flex flex-col justify-center items-center w-full h-28 rounded-md border border-dashed bg-accent">
+                  <Spinner className="text-muted-foreground" size="md" />
                 </div>
               ) : (
                 <>
-                  <Upload.Preview
-                    className="hidden"
-                    onUploadStart={() => setIsLoading(true)}
-                    onAllUploadsComplete={() => setIsLoading(false)}
-                  />
                   <Upload.Button
                     size="sm"
                     variant="secondary"
                     type="button"
-                    className="flex flex-col justify-center items-center w-full h-28 border border-dashed text-muted-foreground"
+                    className={`flex overflow-hidden relative flex-col justify-center items-center w-full h-28 rounded-md border border-border text-muted-foreground group bg-background ${
+                      field.value ? '' : 'border-dashed'
+                    }`}
+                    style={
+                      field.value
+                        ? {
+                            backgroundImage: `url(${readImage(field.value)})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                          }
+                        : {}
+                    }
                   >
-                    <IconUpload className="mb-2" />
-                    <Button variant="outline" className="text-sm font-medium">
-                      Upload favicon
-                    </Button>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Max size: 15MB, File type: PNG
-                    </p>
+                    {!field.value && (
+                      <div className="flex relative z-10 flex-col gap-3 justify-center items-center">
+                        <IconUpload size={20} />
+                        <span className="text-xs text-muted-foreground">
+                          Max size: 15MB, File type: PNG
+                        </span>
+                      </div>
+                    )}
+                    {field.value && (
+                      <div className="flex absolute inset-0 justify-center items-center transition-all duration-200 bg-black/0 group-hover:bg-black/20">
+                        <div className="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          <div className="px-2 py-1 text-xs font-medium text-black rounded-lg backdrop-blur-sm bg-white/90">
+                            Change
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </Upload.Button>
+
+                  {field.value && (
+                    <Upload.RemoveButton
+                      size="sm"
+                      variant="destructive"
+                      disabled={isRemoving}
+                      className="absolute top-2 right-2 z-30 shadow-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                      onClick={() => {
+                        setIsRemoving(true);
+                        field.onChange('');
+                        setIsRemoving(false);
+                      }}
+                    >
+                      {isRemoving ? (
+                        <Spinner size="sm" className="text-white" />
+                      ) : (
+                        <IconTrash size={14} />
+                      )}
+                    </Upload.RemoveButton>
+                  )}
+
+                  <div className="hidden">
+                    <Upload.Preview
+                      onUploadStart={() => setIsLoading(true)}
+                      onAllUploadsComplete={() => setIsLoading(false)}
+                    />
+                  </div>
                 </>
               )}
             </Upload.Root>
@@ -257,6 +189,28 @@ export const FavIconField = ({
     />
   );
 };
+
+export const LogoField = ({ control }: { control: Control<TmsFormType> }) => (
+  <ImageUploadField
+    control={control}
+    name="logo"
+    label="LOGO"
+    description="Image can be shown on the top of the post also"
+  />
+);
+
+export const FavIconField = ({
+  control,
+}: {
+  control: Control<TmsFormType>;
+}) => (
+  <ImageUploadField
+    control={control}
+    name="favIcon"
+    label="FAV ICON"
+    description="Fav icon can be shown on the top of the post also in"
+  />
+);
 
 export const GeneralManager = ({
   control,
@@ -269,7 +223,9 @@ export const GeneralManager = ({
       name="generalManager"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>General Managers</Form.Label>
+          <Form.Label>
+            General Managers <span className="text-destructive">*</span>
+          </Form.Label>
           <Form.Description>
             General manager can be shown on the top of the post also in the list
             view
@@ -317,17 +273,7 @@ export const Manager = ({ control }: { control: Control<TmsFormType> }) => {
   );
 };
 
-export const Payments = ({
-  control,
-  payments = [],
-  loading = false,
-}: {
-  control: Control<TmsFormType>;
-  payments?: PaymentType[];
-  loading?: boolean;
-}) => {
-  const isEmpty = !loading && payments.length === 0;
-
+export const Payments = ({ control }: { control: Control<TmsFormType> }) => {
   return (
     <Form.Field
       control={control}
@@ -340,34 +286,14 @@ export const Payments = ({
           </Form.Description>
           <div className="flex gap-4 justify-between items-end">
             <Form.Control className="flex-1">
-              <Select
-                value={
-                  Array.isArray(field.value)
-                    ? field.value[0] || ''
-                    : field.value || ''
-                }
-                onValueChange={field.onChange}
-                disabled={loading}
-              >
-                <Select.Trigger className="placeholder:text-accent-foreground/70">
-                  <Select.Value
-                    placeholder={loading ? 'Loading...' : 'Select payments'}
-                  />
-                </Select.Trigger>
-                <Select.Content>
-                  {isEmpty ? (
-                    <Select.Item value="__empty__" disabled>
-                      the payment list is empty
-                    </Select.Item>
-                  ) : (
-                    payments.map((payment: PaymentType) => (
-                      <Select.Item key={payment._id} value={payment._id}>
-                        {payment.name}
-                      </Select.Item>
-                    ))
-                  )}
-                </Select.Content>
-              </Select>
+              <SelectPayment.FormItem
+                mode="multiple"
+                value={field.value || []}
+                onValueChange={(value) => {
+                  field.onChange(Array.isArray(value) ? value : []);
+                }}
+                placeholder="Select payments"
+              />
             </Form.Control>
           </div>
           <Form.Message className="text-destructive" />
@@ -387,7 +313,7 @@ export const Token = ({ control }: { control: Control<TmsFormType> }) => {
           <Form.Label>Erxes app token</Form.Label>
           <Form.Description>What is erxes app token ?</Form.Description>
           <Form.Control>
-            <Input className="w-40 h-8 rounded-md" {...field} />
+            <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -407,17 +333,17 @@ export const OtherPayments = ({
   });
 
   const handleAddPayment = () => {
-    append({ type: '', title: '', icon: '', config: '' });
+    append({ type: '', title: '', config: '' });
   };
 
   return (
     <div className="py-3">
       <div className="flex flex-col gap-2 items-start self-stretch">
-        <h2 className="self-stretch text-[#4F46E5] text-sm font-medium leading-tight">
+        <h2 className="self-stretch text-sm font-medium leading-tight text-primary">
           Other Payments
         </h2>
 
-        <p className="text-[#71717A] font-['Inter'] text-xs font-medium leading-[140%]">
+        <p className="text-muted-foreground font-['Inter'] text-xs font-medium leading-[140%]">
           Type is must latin, some default types: golomtCard, khaanCard, TDBCard
           Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
           Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
@@ -438,130 +364,63 @@ export const OtherPayments = ({
         </Button>
       </div>
 
-      {fields.map((field, index) => (
-        <div
-          key={field.id}
-          className="flex gap-10 justify-between items-end self-stretch px-4 mb-4 w-full"
-        >
-          <div className="flex flex-col justify-end items-start">
-            <Form.Field
-              control={control}
-              name={`otherPayments.${index}.type`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="text-xs text-gray-600">
-                    TYPE
-                  </Form.Label>
-                  <Form.Control>
-                    <Input
-                      className="px-0 w-full bg-transparent rounded border-0 border-b border-gray-200 shadow-none"
-                      {...field}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-
-          <div className="flex flex-col justify-end items-start">
-            <Form.Field
-              control={control}
-              name={`otherPayments.${index}.title`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="text-xs text-gray-600">
-                    TITLE
-                  </Form.Label>
-                  <Form.Control>
-                    <Input
-                      className="px-0 w-full bg-transparent rounded border-0 border-b border-gray-200 shadow-none"
-                      {...field}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-
-          <div className="flex flex-col items-start">
-            <Form.Field
-              control={control}
-              name={`otherPayments.${index}.icon`}
-              render={({ field }) => (
-                <Form.Item className="flex flex-col w-full">
-                  <Form.Label className="text-xs text-gray-600">
-                    ICON
-                  </Form.Label>
-                  <Select
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  >
+      <div className="space-y-3">
+        {fields.map((field, index) => (
+          <div key={field.id} className="flex gap-6 items-end">
+            <div className="grid grid-cols-3 gap-6 w-full">
+              <Form.Field
+                control={control}
+                name={`otherPayments.${index}.type`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Type</Form.Label>
                     <Form.Control>
-                      <Select.Trigger className="w-full px-0 border-0 border-b border-gray-200 rounded shadow-none [&>span]:flex-1 [&>svg]:w-0 [&>svg]:mr-0">
-                        <Select.Value placeholder="Select">
-                          {field.value && (
-                            <div className="flex gap-2 items-center">
-                              <PaymentIcon iconType={field.value} size={16} />
-                              {
-                                paymentIconOptions.find(
-                                  (icon) => icon.value === field.value,
-                                )?.label
-                              }
-                            </div>
-                          )}
-                        </Select.Value>
-                      </Select.Trigger>
+                      <Input {...field} />
                     </Form.Control>
-                    <Select.Content>
-                      {paymentIconOptions.map((icon) => (
-                        <Select.Item
-                          key={icon.value}
-                          className="text-xs"
-                          value={icon.value}
-                        >
-                          <div className="flex gap-2 items-center">
-                            <PaymentIcon iconType={icon.value} size={16} />
-                            {icon.label}
-                          </div>
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                </Form.Item>
-              )}
-            />
-          </div>
+                  </Form.Item>
+                )}
+              />
 
-          <div className="flex flex-col justify-end items-start">
-            <Form.Field
-              control={control}
-              name={`otherPayments.${index}.config`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="text-xs text-gray-600">
-                    CONFIG
-                  </Form.Label>
-                  <Form.Control>
-                    <Input
-                      className="px-0 w-full bg-transparent rounded border-0 border-b border-gray-200 shadow-none"
-                      {...field}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
+              <Form.Field
+                control={control}
+                name={`otherPayments.${index}.title`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Title</Form.Label>
+                    <Form.Control>
+                      <Input {...field} />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
 
-          <Button
-            variant="ghost"
-            className="px-2 h-8 text-destructive"
-            type="button"
-            onClick={() => remove(index)}
-          >
-            <IconTrash size={16} />
-          </Button>
-        </div>
-      ))}
+              <Form.Field
+                control={control}
+                name={`otherPayments.${index}.config`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Config</Form.Label>
+                    <Form.Control>
+                      <Input {...field} />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+            </div>
+
+            <Button
+              variant="destructive"
+              size="icon"
+              type="button"
+              aria-label="Remove payment method"
+              className="w-8 h-8"
+              onClick={() => remove(index)}
+            >
+              <IconTrash size={16} />
+            </Button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

@@ -15,7 +15,9 @@ name = "javascript"
   skip_doc_coverage = [
     "class-expression",
     "method-definition",
-    "arrow-function-expression"
+    "arrow-function-expression",
+    "function-declaration",
+    "function-expression"
   ]
   cyclomatic_complexity_threshold = "high"
 

@@ -1,5 +1,3 @@
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
-import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
 const mutations: Record<string, Resolver> = {
@@ -54,14 +52,6 @@ const mutations: Record<string, Resolver> = {
     return models.MenuItems.deleteMenuItem(_id);
   },
 };
-
-requireLogin(mutations, 'cmsAddMenu');
-requireLogin(mutations, 'cmsEditMenu');
-requireLogin(mutations, 'cmsRemoveMenu');
-
-checkPermission(mutations, 'cmsAddMenu', 'manageCms', []);
-checkPermission(mutations, 'cmsEditMenu', 'manageCms', []);
-checkPermission(mutations, 'cmsRemoveMenu', 'manageCms', []);
 
 export default mutations;
 
