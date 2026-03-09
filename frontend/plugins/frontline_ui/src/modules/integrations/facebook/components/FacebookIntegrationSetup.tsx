@@ -19,7 +19,7 @@ import { selectedFacebookAccountAtom } from '../states/facebookStates';
 import { IntegrationType } from '@/types/Integration';
 import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
 import { useParams } from 'react-router';
-import { useBrands } from "ui-modules/modules/brands/hooks/useBrands"
+import { useBrands } from 'ui-modules/modules/brands/hooks/useBrands';
 import { IBrand } from 'ui-modules';
 
 export const FacebookIntegrationSetup = () => {
@@ -89,7 +89,6 @@ export const FacebookIntegrationSetup = () => {
             description=""
           />
           <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-4">
-
             <Form.Field
               name="name"
               render={({ field }) => (
@@ -105,7 +104,6 @@ export const FacebookIntegrationSetup = () => {
                 </Form.Item>
               )}
             />
-
 
             <Form.Field
               name="brandId"

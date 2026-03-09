@@ -1,4 +1,3 @@
-
 import {
   InfoCard,
   Button,
@@ -120,9 +119,9 @@ export const PipelinePermissionsList = memo(() => {
       formValues.allowAllUsers !== initialValues.allowAllUsers ||
       formValues.visibility !== initialValues.visibility ||
       JSON.stringify(formValues.selectedUsers) !==
-      JSON.stringify(initialValues.selectedUsers) ||
+        JSON.stringify(initialValues.selectedUsers) ||
       JSON.stringify(formValues.memberIds) !==
-      JSON.stringify(initialValues.memberIds);
+        JSON.stringify(initialValues.memberIds);
 
     if (hasChanges) {
       isUpdatingRef.current = true;
@@ -270,9 +269,9 @@ export const PipelinePermissionsList = memo(() => {
                         {visibleStatusCount >= statuses.length
                           ? 'Show Less'
                           : `Show ${Math.min(
-                            5,
-                            statuses.length - visibleStatusCount,
-                          )} More`}
+                              5,
+                              statuses.length - visibleStatusCount,
+                            )} More`}
                       </Button>
                     </div>
                   )}
@@ -285,4 +284,3 @@ export const PipelinePermissionsList = memo(() => {
     </Form>
   );
 });
-
