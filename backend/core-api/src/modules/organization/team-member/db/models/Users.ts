@@ -10,7 +10,6 @@ import {
   userSchema,
 } from 'erxes-api-shared/core-modules';
 import {
-  IAppDocument,
   IDetail,
   IEmailSignature,
   ILink,
@@ -123,7 +122,6 @@ export interface IUserModel extends Model<IUserDocument> {
   getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
   logout(_user: IUserDocument, token: string): Promise<string>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
-  createSystemUser(doc: IAppDocument): IUserDocument;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
 }
 
@@ -921,33 +919,7 @@ export const loadUserClass = (
 
       return models.Users.find(filter, options).lean();
     }
-    public static async createSystemUser(app: IAppDocument) {
-      const user = await models.Users.findOne({ appId: app._id });
 
-      if (user) {
-        return user;
-      }
-
-      const newUser = await models.Users.create({
-        role: USER_ROLES.SYSTEM,
-        password: await this.generatePassword(app._id),
-        username: app.name,
-        code: await this.generateUserCode(),
-        groupIds: [app.userGroupId],
-        appId: app._id,
-        isActive: true,
-        email: `${app._id}@domain.com`,
-        details: {
-          fullName: app.name,
-        },
-      });
-      sendDbEventLog({
-        action: 'create',
-        docId: newUser._id,
-        currentDocument: newUser.toObject(),
-      });
-      return newUser;
-    }
     public static async checkLoginAuth({
       email,
       password,

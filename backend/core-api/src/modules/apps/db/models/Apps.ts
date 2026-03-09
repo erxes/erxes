@@ -17,6 +17,7 @@ export interface IAppModel extends Model<IAppDocument> {
 export const loadAppClass = (
   models: IModels,
   { sendDbEventLog }: EventDispatcherReturn,
+  subdomain: string,
 ) => {
   class App {
     public static async getApp(_id: string) {
@@ -71,6 +72,8 @@ export const loadAppClass = (
 
       await models.Apps.updateOne({ _id }, { $set: { status: 'revoked' } });
 
+      await redis.del(`app_token:${subdomain}:${app.token}`);
+
       const updatedApp = await models.Apps.findOne({ _id: app._id });
 
       if (updatedApp) {
@@ -87,6 +90,8 @@ export const loadAppClass = (
 
     public static async removeApp(_id: string) {
       const app = await models.Apps.getApp(_id);
+
+      await redis.del(`app_token:${subdomain}:${app.token}`);
 
       sendDbEventLog({
         action: 'delete',
