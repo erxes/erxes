@@ -92,7 +92,8 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
         throw new Error('Field group not found');
       }
 
-      const clientPortalId = data.clientPortalId || existingGroup.clientPortalId;
+      const clientPortalId =
+        data.clientPortalId || existingGroup.clientPortalId;
 
       if (data.code && data.code !== existingGroup.code) {
         data.code = await generateUniqueSlugForUpdate({
