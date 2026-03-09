@@ -45,7 +45,7 @@ const Pages = lazy(() =>
 );
 
 const PagesDetail = lazy(() =>
-  import('~/pages/cms/pages-detail/PagesDetailPage').then((module) => ({
+  import('~/pages/cms/page-detail/PageDetailPage').then((module) => ({
     default: module.PagesDetailPage,
   })),
 );
