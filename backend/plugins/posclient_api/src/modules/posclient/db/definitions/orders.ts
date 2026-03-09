@@ -86,12 +86,6 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Order number',
       index: true,
     }),
-    webId: field({
-      type: String,
-      optional: true,
-      label: 'Web ID',
-      index: true,
-    }),
     customerId: field({ type: String, optional: true, label: 'Customer' }),
     customerType: field({
       type: String,
@@ -126,7 +120,7 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Total amount before tax',
     }),
     finalAmount: getNumberFieldDefinition({
-      ...commonAttributes,
+      ...commonAttributes, 
       label: 'Final amount after tax',
     }),
     shouldPrintEbarimt: field({

@@ -14,7 +14,7 @@ export const postSchema = new Schema<IPostDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
-    webId: { type: String, optional: true },
+    webId:{ type: String, optional:true},
     title: { type: String, required: true },
     type: { type: String, required: true, default: 'post' },
     slug: { type: String, required: true, unique: true },

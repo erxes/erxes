@@ -28,7 +28,6 @@ export interface ISearchParams {
   dueEndDate?: Date;
   isPreExclude?: boolean;
   slotCode?: string;
-  webId?: string;
 }
 
 const generateFilter = (config: IConfig, params: ISearchParams) => {
@@ -47,7 +46,6 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     dueEndDate,
     isPreExclude,
     slotCode,
-    webId,
   } = params;
 
   const mustFilter: any = {
@@ -68,10 +66,6 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
 
   if (slotCode) {
     filter.slotCode = slotCode;
-  }
-
-  if (webId) {
-    filter.webId = webId;
   }
 
   if (saleStatus) {
@@ -344,7 +338,6 @@ const orderQueries: Record<string, Resolver> = {
     _root,
     {
       customerId,
-      webId,
       page,
       perPage,
       sortField,
@@ -352,7 +345,6 @@ const orderQueries: Record<string, Resolver> = {
     }: Pick<
       ISearchParams,
       | 'customerId'
-      | 'webId'
       | 'page'
       | 'perPage'
       | 'sortField'
@@ -375,7 +367,6 @@ const orderQueries: Record<string, Resolver> = {
       models.Orders.find({
         ...tokenFilter,
         ...(customerId ? { customerId } : {}),
-        ...(webId ? { webId } : {}),
         paidDate: { $exists: true },
       })
         .sort(sort)
