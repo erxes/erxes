@@ -4,6 +4,7 @@ import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { appSchema } from '@/apps/db/definitions/apps';
 import { IAppDocument, IApp } from 'erxes-api-shared/core-types';
+import { redis } from 'erxes-api-shared/utils';
 
 export interface IAppModel extends Model<IAppDocument> {
   getApp(_id: string): Promise<IAppDocument>;

@@ -83,13 +83,21 @@ app.use(async (req, res, next) => {
   if (appToken) {
     try {
       const subdomain = getSubdomain(req);
-      const models = await generateModels(subdomain);
-      const appInDb = await models.Apps.findOne({
-        token: appToken,
-        status: 'active',
-      });
+      const cacheKey = `app_token:${subdomain}:${appToken}`;
 
-      if (appInDb) {
+      let isValid = await redis.get(cacheKey);
+
+      if (isValid === null) {
+        const models = await generateModels(subdomain);
+        const appInDb = await models.Apps.findOne({
+          token: appToken,
+          status: 'active',
+        });
+        isValid = appInDb ? '1' : '0';
+        await redis.set(cacheKey, isValid, 'EX', 3600);
+      }
+
+      if (isValid === '1') {
         return cors({ credentials: true, origin: true })(req, res, next);
       }
     } catch {
