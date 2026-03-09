@@ -85,11 +85,19 @@ export default async function userMiddleware(
 
   if (appToken) {
     try {
-      const appInDb = await models.Apps.findOne({ accessToken: appToken });
+      const appInDb = await models.Apps.findOne({
+        token: appToken,
+        status: 'active',
+      });
 
       if (!appInDb) {
         return res.status(401).json({ error: 'Invalid app token' });
       }
+
+      await models.Apps.updateOne(
+        { _id: appInDb._id },
+        { $set: { lastUsedAt: new Date() } },
+      );
     } catch (e) {
       console.error(e);
 

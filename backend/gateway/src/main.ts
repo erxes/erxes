@@ -3,7 +3,6 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import * as jwt from 'jsonwebtoken';
 import * as http from 'http';
 import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
@@ -21,7 +20,8 @@ import {
   proxyReq,
 } from '~/proxy/middleware';
 
-import { getPlugin, isDev, redis } from 'erxes-api-shared/utils';
+import { getPlugin, getSubdomain, isDev, redis } from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolver';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
 import {
   startSubscriptionServer,
@@ -75,18 +75,23 @@ const app = express();
 
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  const appToken =
-    (req.headers['app-token'] as string) ||
-    (req.headers['x-app-token'] as string);
+app.use(async (req, res, next) => {
+  const appToken = req.headers['x-app-token'] as string;
 
   if (appToken) {
     try {
-      jwt.verify(appToken, process.env.JWT_TOKEN_SECRET || 'SECRET');
-      // Valid app token — allow any origin so developer UIs can connect
-      return cors({ credentials: true, origin: true })(req, res, next);
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+      const appInDb = await models.Apps.findOne({
+        token: appToken,
+        status: 'active',
+      });
+
+      if (appInDb) {
+        return cors({ credentials: true, origin: true })(req, res, next);
+      }
     } catch {
-      // Invalid token — fall through to regular CORS
+      // Fall through to regular CORS
     }
   }
 
