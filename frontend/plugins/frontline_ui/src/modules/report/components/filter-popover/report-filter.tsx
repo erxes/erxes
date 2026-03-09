@@ -1,10 +1,4 @@
-import {
-  cn,
-  Combobox,
-  Command,
-  Filter,
-  useFilterContext,
-} from 'erxes-ui';
+import { cn, Combobox, Command, Filter, useFilterContext } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
 
@@ -19,7 +13,11 @@ import {
 } from '@/report/states';
 import { MemberFormContent } from '../frontline-card/MemberFormContent';
 import { SelectMember } from 'ui-modules';
-import { getReportDisplayValue, REPORT_FIXED_DATES, ReportDateFilter } from './ReportDateFilter';
+import {
+  getReportDisplayValue,
+  REPORT_FIXED_DATES,
+  ReportDateFilter,
+} from './ReportDateFilter';
 
 interface ReportFilterProps {
   cardId: string;
@@ -293,19 +291,18 @@ export const DateFilterCommand = ({
         </Command.Item>
       </Command.List>
     </Command>
-  )
-}
+  );
+};
 
 export const DateView = ({
   filterKey,
   selected,
-  onSelect
+  onSelect,
 }: {
-  filterKey: string,
-  selected?: string,
+  filterKey: string;
+  selected?: string;
   onSelect?: (value: string) => void;
 }) => {
-
   return (
     <DateFilterCommand
       focusOnMount
@@ -315,5 +312,5 @@ export const DateView = ({
         onSelect?.(value ?? '');
       }}
     />
-  )
-}
+  );
+};

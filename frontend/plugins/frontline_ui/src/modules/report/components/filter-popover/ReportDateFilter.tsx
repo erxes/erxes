@@ -21,9 +21,12 @@ import {
   subDays,
   subMonths,
   subYears,
-  format
+  format,
 } from 'date-fns';
-import { MONTHS, QUARTERS } from 'erxes-ui/modules/filter/date-filter/constants/dateTypes';
+import {
+  MONTHS,
+  QUARTERS,
+} from 'erxes-ui/modules/filter/date-filter/constants/dateTypes';
 
 export const REPORT_FIXED_DATES = [
   'today',
@@ -34,7 +37,7 @@ export const REPORT_FIXED_DATES = [
   'last-month',
   'this-year',
   'last-year',
-]
+];
 
 const getYearsArray = (startYearOffset: number, endYearOffset: number) => {
   const currentYear = new Date().getFullYear();

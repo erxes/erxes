@@ -23,7 +23,10 @@ export const ReportsViewSkeleton = () => {
         </div>
         <div className="grid grid-cols-12 gap-3 p-1 w-full">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-32 w-full col-span-6 aspect-video" />
+            <Skeleton
+              key={index}
+              className="h-32 w-full col-span-6 aspect-video"
+            />
           ))}
         </div>
       </div>

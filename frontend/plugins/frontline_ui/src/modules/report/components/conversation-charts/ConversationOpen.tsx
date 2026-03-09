@@ -374,15 +374,9 @@ export const ConversationOpen = ({
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
+  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
+  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
+  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -401,7 +395,6 @@ export const ConversationOpen = ({
     },
     notifyOnNetworkStatusChange: true,
   });
-
 
   const chartData = useMemo(() => {
     return reports?.reportConversationOpenDate || [];
