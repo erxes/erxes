@@ -16,7 +16,7 @@
     "base64-stream": "^1.0.0",
     "debug": "^4.4.0",
     "erxes-api-shared": "workspace:^",
-    "fast-xml-parser": "^5.2.5",
+    "fast-xml-parser": "^5.3.6",
     "fbgraph": "^1.4.4",
     "mailparser": "^3.9.1",
     "moment-timezone": "^0.5.48",
