@@ -3,7 +3,6 @@ import {
   RecordTableInlineCell,
   Input,
   Popover,
-  useToast,
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
@@ -13,26 +12,10 @@ import { useState } from 'react';
 import {
   IconLayout,
   IconCalendar,
-  IconId,
   IconArticle,
 } from '@tabler/icons-react';
 import { ICustomPostType } from '../types/customTypeTypes';
 import { useEditCustomType } from '../hooks/useEditCustomType';
-
-const BadgeCell = ({ children }: { children: React.ReactNode }) => (
-  <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-    <span className="text-sm text-gray-500">{children}</span>
-  </div>
-);
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 
 export const createCustomTypesColumns = (
   websiteId: string,
@@ -40,7 +23,6 @@ export const createCustomTypesColumns = (
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
   const { editType } = useEditCustomType(onRefetch);
-  const { toast } = useToast();
 
   return [
     customTypeMoreColumn(onEdit, onRefetch),
@@ -139,34 +121,6 @@ export const createCustomTypesColumns = (
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       ),
-    },
-    {
-      id: '_id',
-      header: () => <RecordTable.InlineHead icon={IconId} label="ID" />,
-      accessorKey: '_id',
-      cell: ({ cell }) => {
-        const id = cell.getValue() as string;
-        const handleCopyId = () => {
-          navigator.clipboard.writeText(id);
-          toast({
-            title: 'Copied',
-            description: 'ID copied to clipboard',
-            variant: 'success',
-          });
-        };
-
-        return (
-          <BadgeCell>
-            <button
-              onClick={handleCopyId}
-              className="hover:text-blue-600 cursor-pointer text-xs font-mono"
-              title="Copy ID"
-            >
-              {id}
-            </button>
-          </BadgeCell>
-        );
-      },
     },
   ];
 };

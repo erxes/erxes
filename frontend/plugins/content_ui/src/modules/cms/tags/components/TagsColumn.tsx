@@ -3,22 +3,15 @@ import {
   RecordTableInlineCell,
   Input,
   Popover,
-  useToast,
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { tagMoreColumn } from './TagsMoreColumn';
 import { useState } from 'react';
-import { IconTag, IconCalendar, IconId } from '@tabler/icons-react';
+import { IconTag, IconCalendar } from '@tabler/icons-react';
 import { CmsTag } from '../types/tagTypes';
 import { useEditTag } from '../hooks/useEditTag';
-
-const BadgeCell = ({ children }: { children: React.ReactNode }) => (
-  <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-    <span className="text-sm text-gray-500">{children}</span>
-  </div>
-);
 
 export const createTagsColumns = (
   clientPortalId: string,
@@ -26,7 +19,6 @@ export const createTagsColumns = (
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
   const { editTag } = useEditTag();
-  const { toast } = useToast();
 
   return [
     tagMoreColumn(clientPortalId, onEdit, undefined, onRefetch),
@@ -121,34 +113,6 @@ export const createTagsColumns = (
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       ),
-    },
-    {
-      id: '_id',
-      header: () => <RecordTable.InlineHead icon={IconId} label="ID" />,
-      accessorKey: '_id',
-      cell: ({ cell }) => {
-        const id = cell.getValue() as string;
-        const handleCopyId = () => {
-          navigator.clipboard.writeText(id);
-          toast({
-            title: 'Copied',
-            description: 'ID copied to clipboard',
-            variant: 'success',
-          });
-        };
-
-        return (
-          <BadgeCell>
-            <button
-              onClick={handleCopyId}
-              className="hover:text-blue-600 cursor-pointer text-xs font-mono"
-              title="Copy ID"
-            >
-              {id}
-            </button>
-          </BadgeCell>
-        );
-      },
     },
   ];
 };
