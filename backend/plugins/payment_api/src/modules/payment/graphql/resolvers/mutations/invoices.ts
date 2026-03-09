@@ -1,11 +1,6 @@
 import { splitType } from 'erxes-api-shared/core-modules';
-import {
-  Resolver,
-} from 'erxes-api-shared/core-types';
-import {
-  getEnv,
-  sendWorkerMessage,
-} from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
+import { getEnv, sendWorkerMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IInvoice } from '~/modules/payment/@types/invoices';
 
@@ -13,7 +8,7 @@ const mutations: Record<string, Resolver> = {
   async generateInvoiceUrl(
     _root,
     { input }: { input: IInvoice },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const domain = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
@@ -29,13 +24,13 @@ const mutations: Record<string, Resolver> = {
   async invoiceCreate(
     _root,
     { input }: { input: IInvoice },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const invoice = await models.Invoices.createInvoice(
       {
         ...input,
       },
-      subdomain
+      subdomain,
     );
     return invoice;
   },
@@ -43,13 +38,13 @@ const mutations: Record<string, Resolver> = {
   async cpInvoiceCreate(
     _root,
     { input }: { input: IInvoice },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const invoice = await models.Invoices.createInvoice(
       {
         ...input,
       },
-      subdomain
+      subdomain,
     );
     return invoice;
   },
@@ -57,14 +52,16 @@ const mutations: Record<string, Resolver> = {
   async invoicesCheck(
     _root,
     { _id }: { _id: string },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const status = await models.Invoices.checkInvoice(_id, subdomain);
 
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
       if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(invoice.contentType);
+        const [pluginName, moduleName, collectionType] = splitType(
+          invoice.contentType,
+        );
 
         await sendWorkerMessage({
           subdomain,
@@ -107,7 +104,7 @@ const mutations: Record<string, Resolver> = {
   async invoicesRemove(
     _root,
     { _ids }: { _ids: string[] },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Invoices.removeInvoices(_ids);
   },
@@ -115,7 +112,7 @@ const mutations: Record<string, Resolver> = {
   async invoiceUpdate(
     _root,
     { _id, paymentId }: { _id: string; paymentId: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
@@ -141,7 +138,7 @@ mutations.invoicesCheck.wrapperConfig = {
   skipPermission: true,
 };
 
-mutations.cpInvoiceCreate.wrapperConfig={
-  skipPermission:true,
-  forClientPortal:true,
-}
+mutations.cpInvoiceCreate.wrapperConfig = {
+  skipPermission: true,
+  forClientPortal: true,
+};

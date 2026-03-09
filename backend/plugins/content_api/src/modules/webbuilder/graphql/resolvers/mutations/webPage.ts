@@ -48,4 +48,3 @@ export const webPageMutations: Record<string, Resolver> = {
 webPageMutations.cpWebPagesAdd.wrapperConfig = { forClientPortal: true };
 webPageMutations.cpWebPagesEdit.wrapperConfig = { forClientPortal: true };
 webPageMutations.cpWebPagesRemove.wrapperConfig = { forClientPortal: true };
-

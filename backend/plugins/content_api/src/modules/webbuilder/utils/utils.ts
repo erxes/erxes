@@ -289,7 +289,9 @@ export const deploy = async (
     console.log('total files to upload:', files.length);
 
     // Deploy to Vercel
-    const projectName = `${web.name}`.toLowerCase().replace(/[^a-z0-9._-]/g, '-');
+    const projectName = `${web.name}`
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]/g, '-');
     console.log('calling vercel api...');
 
     const response = await fetch(

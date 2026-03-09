@@ -9,7 +9,6 @@ import translationMutations from '@/cms/graphql/mutations/translation';
 import { webBuilderMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/web';
 import { webPageMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/webPage';
 
-
 export const mutations = {
   ...webBuilderMutations,
   ...contentCmsMutations,

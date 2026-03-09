@@ -11,7 +11,7 @@ export interface IWebPageItem {
 }
 
 export interface IWebPage {
-  webId: string; 
+  webId: string;
   clientPortalId: string;
   name: string;
   description?: string;
@@ -29,4 +29,3 @@ export interface IWebPageDocument extends IWebPage, Document {
   createdAt: Date;
   updatedAt: Date;
 }
-

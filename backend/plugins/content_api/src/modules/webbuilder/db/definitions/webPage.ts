@@ -32,4 +32,3 @@ export const webPageSchema = new mongoose.Schema<IWebPageDocument>(
   },
   { timestamps: true },
 );
-

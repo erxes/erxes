@@ -35,7 +35,7 @@ const generateFilterQuery = (params: IParam) => {
   return query;
 };
 
-const queries : Record<string, Resolver> = {
+const queries: Record<string, Resolver> = {
   async payments(_root, args, { models }: IContext) {
     const filter = generateFilterQuery(args);
 
@@ -76,8 +76,8 @@ const queries : Record<string, Resolver> = {
       counts.byKind[kind] = !args.kind
         ? countQueryResult
         : args.kind === kind
-        ? countQueryResult
-        : 0;
+          ? countQueryResult
+          : 0;
     }
 
     counts.byStatus.active = await count({ status: 'active', ...qry });
@@ -119,7 +119,6 @@ checkPermission(queries, 'payments', 'showPayments', []);
 
 export default queries;
 
-
-queries.cpPayments.wrapperConfig={
-  forClientPortal:true,
-}
+queries.cpPayments.wrapperConfig = {
+  forClientPortal: true,
+};

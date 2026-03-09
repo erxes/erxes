@@ -247,4 +247,3 @@ export const pipelineQueries: Record<string, Resolver> = {
 pipelineQueries.cpSalesPipelines.wrapperConfig = {
   forClientPortal: true,
 };
-

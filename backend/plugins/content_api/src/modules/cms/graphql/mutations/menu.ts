@@ -1,7 +1,4 @@
-import {
-  checkPermission,
-  requireLogin,
-} from 'erxes-api-shared/core-modules';
+import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
@@ -68,14 +65,12 @@ checkPermission(mutations, 'cmsRemoveMenu', 'manageCms', []);
 
 export default mutations;
 
-
-
-mutations.cpCmsAddMenu.wrapperConfig={
-  forClientPortal:true,
-}
-mutations.cpCmsEditMenu.wrapperConfig={
-  forClientPortal:true,
-}
-mutations.cpCmsRemoveMenu.wrapperConfig={
-  forClientPortal:true,
-}
+mutations.cpCmsAddMenu.wrapperConfig = {
+  forClientPortal: true,
+};
+mutations.cpCmsEditMenu.wrapperConfig = {
+  forClientPortal: true,
+};
+mutations.cpCmsRemoveMenu.wrapperConfig = {
+  forClientPortal: true,
+};
