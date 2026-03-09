@@ -1,5 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 
+import { Resolver } from 'erxes-api-shared/core-types';
+
 const mutations: Record<string, Resolver> = {
   cmsAddMenu(_parent: any, args: any, context: IContext) {
     const { models } = context;
