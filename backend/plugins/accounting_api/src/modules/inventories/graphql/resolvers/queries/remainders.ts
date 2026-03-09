@@ -1,46 +1,9 @@
 import { requireLogin, checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
-import {
-  IRemaindersParams,
-  IRemainderParams,
-  IRemainderProductsParams,
-} from '~/modules/inventories/@types/remainders';
 import { getSafeRemainders } from '../utils/safeRemainders';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const remainderQueries = {
-  remainders: async (
-    _root: any,
-    params: IRemaindersParams,
-    { models, subdomain }: IContext,
-  ) => {
-    return await models.Remainders.getRemainders(subdomain, params);
-  },
-
-  remainderDetail: async (
-    _root: any,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) => {
-    return await models.Remainders.getRemainder(_id);
-  },
-
-  remainderCount: async (
-    _root: any,
-    params: IRemainderParams,
-    { models, subdomain }: IContext,
-  ) => {
-    return await models.Remainders.getRemainderCount(subdomain, params);
-  },
-
-  remainderProducts: async (
-    _root: any,
-    params: IRemainderProductsParams,
-    { models, subdomain }: IContext,
-  ) => {
-    return await models.Remainders.getRemainderProducts(subdomain, params);
-  },
-
   remaindersLog: async (
     _root: any,
     params: {

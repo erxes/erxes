@@ -48,10 +48,6 @@ import {
   loadVatRowClass,
 } from './modules/accounting/db/models/VatRows';
 import {
-  IRemainderModel,
-  loadRemainderClass,
-} from './modules/inventories/db/models/Remainders';
-import {
   IReserveRemModel,
   loadReserveRemClass,
 } from './modules/inventories/db/models/ReserveRems';
@@ -63,7 +59,6 @@ import {
   ISafeRemainderModel,
   loadSafeRemainderClass,
 } from './modules/inventories/db/models/SafeRemainders';
-import { IRemainderDocument } from './modules/inventories/@types/remainders';
 import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
 import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
@@ -79,7 +74,6 @@ export interface IModels {
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
 
-  Remainders: IRemainderModel;
   ReserveRems: IReserveRemModel;
   SafeRemainderItems: ISafeRemainderItemModel;
   SafeRemainders: ISafeRemainderModel;
@@ -161,10 +155,6 @@ export const loadClasses = (
     loadCtaxRowClass(models, subdomain),
   );
 
-  models.Remainders = db.model<IRemainderDocument, IRemainderModel>(
-    'remainders',
-    loadRemainderClass(models, subdomain),
-  );
   models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
     'inventories_reserverems',
     loadReserveRemClass(models, subdomain),

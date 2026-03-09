@@ -31,10 +31,16 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
     <div className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
       <div className="flex items-center gap-4">
         <div
-          className={`w-12 h-12 ${thumbnailUrl ? 'bg-gray-100' : gradient} rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden`}
+          className={`w-12 h-12 ${
+            thumbnailUrl ? 'bg-gray-100' : gradient
+          } rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden`}
         >
           {thumbnailUrl ? (
-            <img src={thumbnailUrl} alt={web.name} className="w-full h-full object-cover" />
+            <img
+              src={thumbnailUrl}
+              alt={web.name}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <IconWorldPlus className="w-5 h-5 text-white" />
           )}
@@ -47,7 +53,9 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
           </p>
           <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
             {web.domain && <span className="font-medium">{web.domain}</span>}
-            {web.templateType && <span className="capitalize">{web.templateType}</span>}
+            {web.templateType && (
+              <span className="capitalize">{web.templateType}</span>
+            )}
           </div>
         </div>
 

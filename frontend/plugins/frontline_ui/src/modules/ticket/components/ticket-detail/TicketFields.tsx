@@ -181,7 +181,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       message: 'Are you sure you want to delete this ticket?',
     }).then(async () => {
       try {
-        await removeTicket(ticketId);
+        await removeTicket([ticketId]);
         toast({
           title: 'Success',
           variant: 'success',

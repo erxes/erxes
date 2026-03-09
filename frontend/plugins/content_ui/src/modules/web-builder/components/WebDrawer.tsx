@@ -155,7 +155,9 @@ export const WebDrawer = () => {
                 rules={{ required: 'Client portal is required' }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Client Portal <span className="text-destructive">*</span></Form.Label>
+                    <Form.Label>
+                      Client Portal <span className="text-destructive">*</span>
+                    </Form.Label>
                     <FormComboSelect
                       options={portalOptions}
                       value={field.value || ''}
@@ -205,7 +207,9 @@ export const WebDrawer = () => {
                 rules={{ required: 'Template type is required' }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Template Type <span className="text-destructive">*</span></Form.Label>
+                    <Form.Label>
+                      Template Type <span className="text-destructive">*</span>
+                    </Form.Label>
                     <FormComboSelect
                       options={TEMPLATE_TYPES}
                       value={field.value || ''}
@@ -226,7 +230,9 @@ export const WebDrawer = () => {
                 rules={{ required: 'Template is required' }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Template <span className="text-destructive">*</span></Form.Label>
+                    <Form.Label>
+                      Template <span className="text-destructive">*</span>
+                    </Form.Label>
                     <TemplateSelect
                       type={selectedType || ''}
                       value={field.value || ''}

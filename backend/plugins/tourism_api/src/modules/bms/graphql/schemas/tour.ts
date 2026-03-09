@@ -45,6 +45,7 @@ export const types = `
     info3: String
     info4: String
     info5: String
+    personCost: JSON
     extra: JSON
     images: [String]
     imageThumbnail: String
@@ -141,6 +142,7 @@ const params = `
   info3: String,
   info4: String,
   info5: String,
+  personCost: JSON,
   extra: JSON,
   images: [String],
   imageThumbnail: String
