@@ -66,11 +66,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
-    (module) => ({
-      default: module.AutomationSettingsRoutes,
-    }),
-  ),
+  import(
+    '@/automations/components/settings/components/AutomationSettingsRoutes'
+  ).then((module) => ({
+    default: module.AutomationSettingsRoutes,
+  })),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>
@@ -106,7 +106,6 @@ const StructureSettings = lazy(() =>
     }),
   ),
 );
-
 
 export function SettingsRoutes() {
   const isOs = useVersion();
@@ -179,7 +178,10 @@ export function SettingsRoutes() {
           element={<AutomationSettingsRoutes />}
         />
 
-        <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
+        <Route
+          path={SettingsWorkspacePath.AppTokens}
+          element={<AppsSettings />}
+        />
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}
           element={<PropertiesSettingsRoutes />}

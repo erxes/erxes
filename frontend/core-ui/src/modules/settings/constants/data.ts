@@ -171,6 +171,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.ClientPortals,
     },
     {
+      name: 'App tokens',
+      icon: IconBuilding,
+      path: SettingsWorkspacePath.AppTokens,
+    },
+    {
       name: 'System Logs',
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,
