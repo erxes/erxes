@@ -351,7 +351,12 @@ const orderQueries: Record<string, Resolver> = {
       sortDirection,
     }: Pick<
       ISearchParams,
-      'customerId' | 'webId' | 'page' | 'perPage' | 'sortField' | 'sortDirection'
+      | 'customerId'
+      | 'webId'
+      | 'page'
+      | 'perPage'
+      | 'sortField'
+      | 'sortDirection'
     >,
     { models, config }: IContext,
   ) {
