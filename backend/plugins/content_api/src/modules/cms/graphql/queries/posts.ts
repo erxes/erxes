@@ -99,12 +99,16 @@ class PostQueryResolver extends BaseQueryResolver {
   }
 
   async cpPosts(_parent: any, args: any, context: IContext): Promise<any> {
-    const { language } = args;
+    const { language, webId } = args;
     const { models, clientPortal } = context;
     const clientPortalId = clientPortal._id;
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+
+    if (webId) {
+      (query as any).webId = webId;
+    }
 
     const { list } = await this.getListWithTranslations(
       models.Posts,
@@ -117,12 +121,16 @@ class PostQueryResolver extends BaseQueryResolver {
   }
 
   async cpPostList(_parent: any, args: any, context: IContext): Promise<any> {
-    const { language } = args;
+    const { language, webId } = args;
     const { models, clientPortal } = context;
     const clientPortalId = clientPortal._id;
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+
+    if (webId) {
+      (query as any).webId = webId;
+    }
 
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Posts,

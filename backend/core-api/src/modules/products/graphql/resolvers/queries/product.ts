@@ -228,6 +228,10 @@ const generateFilter = async (
     filter.scopeBrandIds = { $in: brandIds };
   }
 
+  // if (webId) {
+  //   (filter as any).webId = webId;
+  // }
+
   if (image) {
     filter['attachment.url'] =
       image === 'hasImage' ? { $exists: true } : { $exists: false };

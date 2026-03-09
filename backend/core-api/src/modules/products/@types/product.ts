@@ -22,7 +22,6 @@ export interface IProductParams extends IListParams, ICursorPaginateParams {
   segmentData?: string;
   groupedSimilarity?: string;
   image?: string;
-
   branchId: string;
   departmentId: string;
   minRemainder: number;

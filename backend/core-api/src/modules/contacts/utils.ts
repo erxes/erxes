@@ -20,6 +20,7 @@ export const generateFilter = async (
     status,
     ids,
     excludeIds,
+    webId,
   } = params;
 
   const filter = {};
@@ -38,6 +39,10 @@ export const generateFilter = async (
 
   if (ids?.length) {
     filter['_id'] = excludeIds ? { $nin: ids } : { $in: ids };
+  }
+
+  if (webId) {
+    filter['webId'] = webId;
   }
 
   if (brandIds || integrationIds || integrationTypes) {

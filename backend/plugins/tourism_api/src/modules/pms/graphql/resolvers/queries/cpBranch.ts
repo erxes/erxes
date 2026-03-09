@@ -12,7 +12,13 @@ export const cpPms: Record<string, Resolver> = {
       throw new Error('Models not found in context');
     }
 
-    return paginate(models.PmsBranch.find(commonQuerySelector || {}), params);
+    const selector: any = commonQuerySelector || {};
+
+    if (params?.webId) {
+      selector.webId = params.webId;
+    }
+
+    return paginate(models.PmsBranch.find(selector), params);
   },
 
   async cpPmsBranchDetail(_root, { _id }, context) {

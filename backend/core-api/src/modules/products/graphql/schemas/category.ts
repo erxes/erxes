@@ -16,6 +16,7 @@ export const types = `
     mask: JSON
     isSimilarity: Boolean
     similarities: JSON
+    webId: String
   }
 `;
 
@@ -26,7 +27,8 @@ const queryParams = `
   searchValue: String, 
   status: String, 
   meta: String, 
-  brandIds: [String]
+  brandIds: [String],
+  webId: String
 `;
 
 export const queries = `

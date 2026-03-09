@@ -74,4 +74,5 @@ export interface IOrderInput {
   deviceId?: string;
   couponCode?: string;
   voucherId?: string;
+  webId?: string;
 }
