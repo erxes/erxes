@@ -36,7 +36,7 @@ export const MediaSection = ({ form }: { form: any }) => (
           <Form.Item>
             <Form.Label>Image gallery</Form.Label>
             <Form.Description>
-              Image gallery with maximum of 10 images
+              Image gallery with maximum of 100 images
             </Form.Description>
             <Form.Control>
               <GalleryUploader

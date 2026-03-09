@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 
-import { USER_ROLES, userActionsMap } from 'erxes-api-shared/core-modules';
 import {
   getSubdomain,
   redis,
@@ -86,68 +85,19 @@ export default async function userMiddleware(
 
   if (appToken) {
     try {
-      const { app }: any = jwt.verify(
-        appToken,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
+      const appInDb = await models.Apps.findOne({
+        token: appToken,
+        status: 'active',
+      });
 
-      if (app && app._id) {
-        const appInDb = await models.Apps.findOne({ _id: app._id });
-
-        if (appInDb) {
-          const permissions = await models.Permissions.find({
-            groupId: appInDb.userGroupId,
-            allowed: true,
-          }).lean();
-
-          const user = await models.Users.findOne({
-            role: USER_ROLES.SYSTEM,
-            groupIds: { $in: [app.userGroupId] },
-            appId: app._id,
-          }).lean();
-
-          if (user) {
-            const key = `user_permissions_${user._id}`;
-            const cachedPermissions = await redis.get(key);
-
-            if (
-              !cachedPermissions ||
-              (cachedPermissions && cachedPermissions === '{}')
-            ) {
-              const userPermissions = await models.Permissions.find({
-                userId: user._id,
-              });
-              const groupPermissions = await models.Permissions.find({
-                groupId: { $in: user.groupIds },
-              });
-
-              const actionMap = await userActionsMap(
-                userPermissions,
-                groupPermissions,
-                user,
-              );
-
-              await redis.set(key, JSON.stringify(actionMap));
-            }
-
-            req.user = {
-              _id: user._id || 'userId',
-              ...user,
-              role: USER_ROLES.SYSTEM,
-              isOwner: appInDb.allowAllPermission || false,
-              customPermissions: permissions.map((p) => ({
-                action: p.action,
-                allowed: p.allowed,
-                requiredActions: p.requiredActions,
-              })),
-            };
-          }
-        }
+      if (!appInDb) {
+        return res.status(401).json({ error: 'Invalid app token' });
       }
 
-      setUserHeader(req.headers, req.user);
-
-      return next();
+      await models.Apps.updateOne(
+        { _id: appInDb._id },
+        { $set: { lastUsedAt: new Date() } },
+      );
     } catch (e) {
       console.error(e);
 

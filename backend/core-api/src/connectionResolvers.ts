@@ -470,8 +470,12 @@ export const loadClasses = (
     ),
   );
   models.Apps = db.model<IAppDocument, IAppModel>(
-    'apps',
-    loadAppClass(subdomain, models, eventDispatcher('core', 'apps', 'apps')),
+    'app_tokens',
+    loadAppClass(
+      models,
+      eventDispatcher('core', 'app_tokens', 'app_tokens'),
+      subdomain,
+    ),
   );
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
