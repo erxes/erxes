@@ -46,8 +46,6 @@ export const afterProcess: AfterProcessConfigs = {
 
     // PRODUCT PLACES
     if (productPlacesMutationNames.includes(mutationName)) {
-
-
       await productPlacesAfterMutation(ctx.subdomain, {
         type: 'sales:deal',
         action: 'update',

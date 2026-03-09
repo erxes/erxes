@@ -8,7 +8,6 @@ export const setPlace = async (
   config,
   productById,
 ) => {
-
   if (!config.conditions?.length) {
     return productsData;
   }
@@ -57,7 +56,6 @@ export const setPlace = async (
   }
 
   for (const pdata of pdatas) {
-
     for (const condition of conditions) {
       const matches = await checkCondition(
         subdomain,
@@ -79,7 +77,6 @@ export const setPlace = async (
     ...new Set(pdatas.map((p) => p.departmentId).filter(Boolean)),
   ];
 
-
   await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
@@ -97,6 +94,6 @@ export const setPlace = async (
       },
     },
   });
-  
+
   return pdatas;
 };

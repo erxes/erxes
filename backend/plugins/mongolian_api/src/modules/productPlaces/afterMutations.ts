@@ -40,7 +40,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
     destinationStageId,
   );
 
-
   if (!splitConfig && !placeConfig && !printConfig) {
     return;
   }
@@ -73,10 +72,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
   }
 
-
   // If print config exists and we still don't have productById, fetch products now
   if (printConfig && !productById) {
-
     const productIds = productsData.map((pd) => pd.productId).filter(Boolean);
     if (productIds.length) {
       try {
@@ -89,8 +86,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           input: { _id: { $in: productIds } },
         });
         productById = Object.fromEntries(products.map((p) => [p._id, p]));
-      } catch (error) {
-      }
+      } catch (error) {}
     } else {
       productById = {}; // still truthy, but no product details
     }
@@ -107,6 +103,5 @@ export const afterMutationHandlers = async (subdomain, params) => {
       productById,
     );
   } else {
-
   }
 };

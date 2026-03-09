@@ -9,7 +9,6 @@ export const handlePrint = async (
   printConfig,
   productById,
 ) => {
-
   const { customerCode, customerName } = await getCustomer(subdomain, deal);
 
   const branchIds = productsData.map((pd) => pd.branchId).filter(Boolean);
@@ -109,7 +108,6 @@ export const handlePrint = async (
   if (!content.length) {
     return;
   }
-
 
   await graphqlPubsub.publish(`productPlacesResponded:${user._id}`, {
     productPlacesResponded: {

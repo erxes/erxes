@@ -62,7 +62,6 @@ type Definintion = {
 
 // Setting up subscription with link
 const link = split(
-  
   // split based on operation type
   ({ query }) => {
     const { kind, operation }: Definintion = getMainDefinition(query);

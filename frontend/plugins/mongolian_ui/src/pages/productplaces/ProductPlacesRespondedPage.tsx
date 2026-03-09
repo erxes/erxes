@@ -4,7 +4,6 @@ import { currentUserState } from 'ui-modules';
 import { PerResponse } from '~/modules/productplaces/components/PerResponse';
 import { Response } from '~/modules/productplaces/components/Response';
 
-
 let globalWs: WebSocket | null = null;
 let globalSubscribed = false;
 let globalUserId: string | null = null;
@@ -62,7 +61,6 @@ export const ProductPlacesRespondedPage = () => {
             try {
               const parsedPayload = JSON.parse(rawData);
               const content = JSON.parse(parsedPayload.content);
-
 
               if (!content?.length) return;
 
