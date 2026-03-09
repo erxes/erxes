@@ -27,9 +27,11 @@ async function generateUniqueSlugForUpdate(params: {
   const MAX_ATTEMPTS = 1000;
 
   if (count > MAX_ATTEMPTS) {
-    throw new Error(`Unable to generate unique slug after ${MAX_ATTEMPTS} attempts`);
+    throw new Error(
+      `Unable to generate unique slug after ${MAX_ATTEMPTS} attempts`,
+    );
   }
-  
+
   const potentialSlug = count === 1 ? baseSlug : `${baseSlug}_${count}`;
 
   const existing = await model.findOne({
