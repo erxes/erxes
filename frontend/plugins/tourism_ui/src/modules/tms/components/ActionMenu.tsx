@@ -1,8 +1,10 @@
+import type { ReactNode } from 'react';
 import {
   IconEdit,
   IconCopy,
   IconTrash,
   IconChevronDown,
+  IconWorld,
 } from '@tabler/icons-react';
 import { Popover, Spinner } from 'erxes-ui';
 
@@ -10,12 +12,13 @@ interface ActionMenuProps {
   onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  onVisitWebsite?: () => void;
   duplicateLoading: boolean;
 }
 
 interface DropdownItem {
   label: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   onClick: () => void;
   disabled?: boolean;
 }
@@ -24,9 +27,10 @@ export const ActionMenu = ({
   onEdit,
   onDuplicate,
   onDelete,
+  onVisitWebsite,
   duplicateLoading,
 }: ActionMenuProps) => {
-  const dropdownItems = [
+  const dropdownItems: DropdownItem[] = [
     {
       label: 'Edit',
       icon: <IconEdit size={16} stroke={1.5} />,
@@ -42,11 +46,15 @@ export const ActionMenu = ({
       onClick: () => onDuplicate(),
       disabled: duplicateLoading,
     },
-    // {
-    //   label: 'Visit website',
-    //   icon: <IconWorld size={16} stroke={1.5} />,
-    //   onClick: () => window.open(branch.website, '_blank'),
-    // },
+    ...(onVisitWebsite
+      ? [
+          {
+            label: 'Open website',
+            icon: <IconWorld size={16} stroke={1.5} />,
+            onClick: onVisitWebsite,
+          },
+        ]
+      : []),
     {
       label: 'Delete',
       icon: <IconTrash size={16} stroke={1.5} />,
