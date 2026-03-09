@@ -12,8 +12,7 @@ const CustomFieldGroup = {
         if (Array.isArray(parsed)) {
           return parsed;
         }
-      } catch {
-      }
+      } catch {}
     }
 
     const fields = await sendTRPCMessage({

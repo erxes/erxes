@@ -47,8 +47,7 @@ async function generateUniqueSlugForUpdate(params: {
   });
 }
 
-export interface ICustomFieldGroupModel
-  extends Model<ICustomFieldGroupDocument> {
+export interface ICustomFieldGroupModel extends Model<ICustomFieldGroupDocument> {
   getCustomFieldGroups: (query: any) => Promise<ICustomFieldGroupDocument[]>;
   createFieldGroup: (
     data: ICustomFieldGroup,
@@ -87,7 +86,6 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
       id: string,
       data: ICustomFieldGroup,
     ) => {
-
       const existingGroup = await models.CustomFieldGroups.findById(id);
 
       if (!existingGroup) {
