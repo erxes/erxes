@@ -8,6 +8,8 @@ interface GalleryUploaderProps {
   onChange: (urls: string[]) => void;
 }
 
+const MAX_GALLERY_IMAGES = 100;
+
 export const GalleryUploader = ({
   value = [],
   onChange,
@@ -16,14 +18,14 @@ export const GalleryUploader = ({
 
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['image/*'],
-    maxFiles: 10,
+    maxFiles: MAX_GALLERY_IMAGES,
     maxFileSize: 20 * 1024 * 1024,
     onFilesAdded: (addedFiles) => {
       const existing = urls || [];
       const addedUrls = (addedFiles || [])
         .map((file: any) => file.url)
         .filter(Boolean);
-      const next = [...existing, ...addedUrls].slice(0, 10);
+      const next = [...existing, ...addedUrls].slice(0, MAX_GALLERY_IMAGES);
       onChange(next);
     },
   });
