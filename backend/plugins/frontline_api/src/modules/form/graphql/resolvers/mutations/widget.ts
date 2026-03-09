@@ -716,6 +716,13 @@ export const widgetFormMutation: Record<string, Resolver> = {
       conversationId: conversationId || null,
     };
   },
+<<<<<<< HEAD
+};
+
+widgetFormMutation.cpWidgetsSaveLead.wrapperConfig = {
+  forClientPortal: true,
+=======
+>>>>>>> 4d39fe38a7c819efd2c8f0879a012ff5cfca1c7b
 };
 
 widgetFormMutation.cpWidgetsSaveLead.wrapperConfig = {

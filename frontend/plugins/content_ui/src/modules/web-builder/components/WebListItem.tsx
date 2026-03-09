@@ -31,7 +31,9 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
     <div className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
       <div className="flex items-center gap-4">
         <div
-          className={`w-12 h-12 ${thumbnailUrl ? 'bg-gray-100' : gradient} rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden`}
+          className={`w-12 h-12 ${
+            thumbnailUrl ? 'bg-gray-100' : gradient
+          } rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden`}
         >
           {thumbnailUrl ? (
             <img
