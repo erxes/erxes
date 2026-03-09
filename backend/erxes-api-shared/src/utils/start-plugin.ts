@@ -45,6 +45,7 @@ type IMeta = {
   tags?: any;
   properties?: IPropertyMeta;
   permissions?: IPermissionConfig;
+  templates?: any;
 };
 
 type ApiHandler = {

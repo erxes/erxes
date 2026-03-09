@@ -2,20 +2,23 @@ import * as crypto from 'crypto';
 import { Document, ObjectId } from 'mongoose';
 import { nanoid } from 'nanoid';
 
-export class TemplateManager<T extends Document> {
-  private EXCLUDE_FIELDS: (keyof T)[];
+export class TemplateManager {
+  private EXCLUDE_FIELDS_MAP?: Record<string, string[]>;
   private INCLUDE_FEILDS?: Record<string, unknown>;
 
-  constructor(EXCLUDE_FIELDS: (keyof T)[] = [], INCLUDE_FEILDS?: Record<string, unknown>) {
-    this.EXCLUDE_FIELDS = EXCLUDE_FIELDS;
-    this.INCLUDE_FEILDS = INCLUDE_FEILDS
+  constructor(
+    EXCLUDE_FIELDS_MAP?: Record<string, string[]>,
+    INCLUDE_FEILDS?: Record<string, unknown>,
+  ) {
+    this.EXCLUDE_FIELDS_MAP = EXCLUDE_FIELDS_MAP;
+    this.INCLUDE_FEILDS = INCLUDE_FEILDS;
   }
 
   public generateIdentity(): string {
-    return nanoid()
+    return nanoid();
   }
 
-  private generateHash(doc: T): string {
+  private generateHash(doc: any): string {
     return crypto
       .createHash('sha256')
       .update(JSON.stringify(doc))
@@ -23,69 +26,93 @@ export class TemplateManager<T extends Document> {
       .slice(0, 8);
   }
 
-  public getContent(documents: T[]): Record<string, T> {
-    const hashMap: Record<string, string> = {};
+  public getContent(
+    collections: Record<string, any[]>,
+  ): Record<string, Record<string, any[]>> {
+    try {
+      const hashMap: Record<string, string> = {};
 
-    if (!documents?.length) return {};
+      if (!Object.keys(collections || {})?.length) return {};
 
-    for (const document of documents) {
-      hashMap[String(document._id)] = this.generateHash(document);
-    }
-
-    const content: Record<string, T> = {};
-
-    for (const document of documents) {
-      const hash = hashMap[String(document._id)];
-
-      for (const key of Object.keys(document) as (keyof T)[]) {
-        const value = document[key];
-
-        if (this.EXCLUDE_FIELDS.includes(key)) {
-          delete document[key];
-          
-          continue;
+      for (const documents of Object.values(collections)) {
+        for (const document of documents) {
+          hashMap[String(document._id)] = this.generateHash(document);
         }
-
-        if (!hashMap[String(value)]) continue;
-
-        document[key] = hashMap[String(value)] as T[keyof T];
       }
 
-      content[hash] = document;
-    }
+      const content: Record<string, Record<string, any>> = {};
 
-    return content;
+      for (const [collection, documents] of Object.entries(collections)) {
+        const EXCLUDE_FIELDS = this.EXCLUDE_FIELDS_MAP?.[collection] || [];
+
+        if (!content[collection]) {
+          content[collection] = {};
+        }
+
+        for (const document of documents) {
+          const hash = hashMap[String(document._id)];
+
+          for (const key of Object.keys(document) as string[]) {
+            const value = document[key];
+
+            if (EXCLUDE_FIELDS.includes(key)) {
+              delete document[key];
+
+              continue;
+            }
+
+            if (!hashMap[String(value)]) continue;
+
+            document[key] = hashMap[String(value)];
+          }
+
+          content[collection][hash] = document;
+        }
+      }
+
+      return content;
+    } catch (error) {
+      throw new Error(error)
+    }
   }
 
-  public setContent(content: Record<string, T>) {
-    const identityMap: Record<string, string | ObjectId> = {};
+  public setContent(collections: Record<string, Record<string, any>>) {
+    try {
+      const identityMap: Record<string, string | ObjectId> = {};
 
-    const documents: Array<T> = []
-    
-    for (const [hash, fields] of Object.entries(content)) {
-      identityMap[String(hash)] = this.generateIdentity();
+      const contents: Record<string, any[]> = {}
 
-      const document: T = { ...fields, _id: identityMap[hash] }
+      for (const [collection, documents] of Object.entries(collections)) {
+        contents[collection] = [] 
 
-      if (Object.keys(this.INCLUDE_FEILDS || {}).length) {
-        Object.assign(document, this.INCLUDE_FEILDS)
-      }
+        for (const [hash, fields] of Object.entries(documents)) {
+          identityMap[String(hash)] = this.generateIdentity();
 
-      for (const key of Object.keys(document) as (keyof T)[]) {
-        const value = document[key];
+          const document: any = { ...fields, _id: identityMap[hash] };
 
-        if (key === 'code') {
-          document[key] = this.generateIdentity() as T[keyof T];
+          if (Object.keys(this.INCLUDE_FEILDS || {}).length) {
+            Object.assign(document, this.INCLUDE_FEILDS);
+          }
+
+          for (const key of Object.keys(document)) {
+            const value = document[key];
+
+            if (key === 'code') {
+              document[key] = this.generateIdentity();
+            }
+
+            if (!identityMap[String(value)]) continue;
+
+            document[key] = identityMap[String(value)];
+          }
+
+          contents[collection].push(document);
         }
-
-        if (!identityMap[String(value)]) continue;
-
-        document[key] = identityMap[String(value)] as T[keyof T];
       }
 
-      documents.push(document)
+      return contents;
+    } catch (error) {
+      throw new Error(error)
     }
-
-    return documents
   }
 }

@@ -5,7 +5,7 @@ import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 export const channelSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
-    createdAt: { type: Date, label: 'Created at' },
+    createdAt: { type: Date, label: 'Created at', default: Date.now },
     createdBy: { type: String, label: 'Created by' },
     name: { type: String, label: 'Name' },
     icon: { type: String, label: 'Icon' },

@@ -67,6 +67,7 @@ const templateMutations = {
         input: {
           template,
           user,
+          collectionName
         },
         defaultValue: '',
       });

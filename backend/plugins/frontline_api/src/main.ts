@@ -10,6 +10,7 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
 import { notifications } from './meta/notifications';
+import { templates } from './meta/templates';
 
 startPlugin({
   name: 'frontline',
@@ -60,6 +61,7 @@ startPlugin({
     automations,
     afterProcess,
     notifications,
+    templates,
     tags: {
       types: [
         {

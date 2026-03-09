@@ -2,6 +2,7 @@ import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { FormDelete } from './delete/form-delete';
 import { FormStatusToggle } from './status/form-status-toggle';
+import { TemplateSheet } from 'ui-modules';
 
 export const FormCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -16,6 +17,14 @@ export const FormCommandBar = () => {
         <Separator.Inline />
         <FormDelete formIds={formIds} rows={selectedRows} />
         <FormStatusToggle formIds={formIds} rows={selectedRows} />
+        <TemplateSheet
+          contentType="frontline:form:form"
+          contentId={
+            table
+              .getFilteredSelectedRowModel()
+              .rows.map((row) => row.original._id)[0]
+          }
+        />
       </CommandBar.Bar>
     </CommandBar>
   );

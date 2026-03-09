@@ -1,10 +1,11 @@
-import { IProductCategoryDocument, IProductDocument, IUomDocument } from 'erxes-api-shared/core-types';
+import {
+  IProductCategoryDocument,
+  IProductDocument,
+  IUomDocument,
+} from 'erxes-api-shared/core-types';
 
-export const PRODUCT_CATEGORY_TEMPLATE_OMIT_FIELDS: (keyof IProductCategoryDocument)[] = [
-  '_id',
-  'attachment',
-  'createdAt',
-];
+export const PRODUCT_CATEGORY_TEMPLATE_OMIT_FIELDS: (keyof IProductCategoryDocument)[] =
+  ['_id', 'attachment', 'createdAt'];
 
 export const PRODUCT_TEMPLATE_OMIT_FIELDS: (keyof IProductDocument)[] = [
   '_id',
@@ -20,7 +21,7 @@ export const UOM_TEMPLATE_OMIT_FIELDS: (keyof IUomDocument)[] = [
 export const PRODUCT_PIPELINE_STAGE = {
   $lookup: {
     from: 'products',
-    let: { categoryIds: { $concatArrays: [['$_id'], '$descendants._id']}},
+    let: { categoryIds: { $concatArrays: [['$_id'], '$descendants._id'] } },
     pipeline: [
       {
         $match: {
@@ -49,4 +50,10 @@ export const PRODUCT_UOM_STAGE = {
     ],
     as: 'uoms',
   },
+};
+
+export const RODUCT_TEMPLATE_EXCLUDE_FIELDS = {
+  productCategories: PRODUCT_CATEGORY_TEMPLATE_OMIT_FIELDS,
+  product: PRODUCT_TEMPLATE_OMIT_FIELDS,
+  uom: UOM_TEMPLATE_OMIT_FIELDS,
 };

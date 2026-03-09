@@ -69,9 +69,11 @@ export const loadTemplateClass = (models: IModels, subdomain: string) => {
           method: 'query',
           module: moduleName,
           action: 'template.getContent',
-          input: { contentId: template.contentId, collectionName },
+          input: { template, collectionName },
           defaultValue: null,
         });
+
+        console.log('content', content);
 
         if (!content) {
           throw new Error(`This ${moduleName} doesn't have content`);
