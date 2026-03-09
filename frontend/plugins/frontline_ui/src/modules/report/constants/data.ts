@@ -4,7 +4,7 @@ export const SOURCE_OPTIONS = [
   { value: 'facebook-post', label: 'Facebook Post' },
   { value: 'instagram-messenger', label: 'Instagram Messenger' },
   { value: 'instagram-post', label: 'Instagram Post' },
-  { value: 'call', label: 'Call' },
+  { value: 'calls', label: 'Calls' },
   { value: 'messenger', label: 'Messenger' },
   { value: 'form', label: 'Form' },
 ];

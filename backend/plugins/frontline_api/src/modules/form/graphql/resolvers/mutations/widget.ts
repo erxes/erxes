@@ -718,12 +718,12 @@ export const widgetFormMutation: Record<string, Resolver> = {
   },
 };
 
-widgetFormMutation.cpWidgetsSaveLead.wrapperConfig = {
-  forClientPortal: true,
-};
-
 markResolvers(widgetFormMutation, {
   wrapperConfig: {
     skipPermission: true,
   },
 });
+
+widgetFormMutation.cpWidgetsSaveLead.wrapperConfig = {
+  forClientPortal: true,
+};
