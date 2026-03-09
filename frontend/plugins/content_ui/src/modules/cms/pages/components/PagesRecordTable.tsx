@@ -1,5 +1,5 @@
 import { RecordTable } from 'erxes-ui';
-import { pagesColumns } from './PagesColumn';
+import { usePagesColumns } from './PagesColumn';
 
 import { PagesCommandbar } from './pages-command-bar/PagesCommandBar';
 import { PAGES_CURSOR_SESSION_KEY } from '../constants/pagesCursorSessionKey';
@@ -20,7 +20,7 @@ export const PagesRecordTable = ({
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const columns = pagesColumns(onEditPage, refetch);
+  const columns = usePagesColumns(onEditPage, refetch);
 
   return (
     <RecordTable.Provider
