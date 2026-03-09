@@ -12,6 +12,5 @@ export const appRouter = t.router({
   productPlaces: productPlacesTrpcRouter,
   configs: configsTrpcRouter,
 });
-console.log('🔍 tRPC routes:', Object.keys(appRouter));
 
 export type AppRouter = typeof appRouter;

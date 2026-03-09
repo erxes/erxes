@@ -5,14 +5,14 @@ import { ProductPlacesRespondedPage } from '~/pages/productplaces/ProductPlacesR
 const FloatingWidget = () => {
   const { pathname } = useLocation();
 
-  if (pathname !== '/sales/deals') {
-    return null;
-  }
-
   return (
     <>
       <EbarimtRespondedPage />
       <ProductPlacesRespondedPage />
+      {pathname === '/sales/deals' && (
+        /* other floating widgets go here */
+        <div>Your widget</div>
+      )}
     </>
   );
 };

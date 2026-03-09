@@ -9,7 +9,6 @@ export const handlePrint = async (
   printConfig,
   productById,
 ) => {
-  console.log('🔥 handlePrint started');
 
   const { customerCode, customerName } = await getCustomer(subdomain, deal);
 
@@ -108,14 +107,9 @@ export const handlePrint = async (
   }
 
   if (!content.length) {
-    console.log('🔥 handlePrint: no content generated, exiting');
     return;
   }
 
-  console.log(
-    '🔥 handlePrint: publishing subscription with content length',
-    content.length,
-  );
 
   await graphqlPubsub.publish(`productPlacesResponded:${user._id}`, {
     productPlacesResponded: {

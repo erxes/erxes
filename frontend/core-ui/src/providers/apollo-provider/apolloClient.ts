@@ -43,9 +43,11 @@ const authLink = setContext((_, { headers }) => {
 const httpLinkWithMiddleware = from([errorLink, authLink, httpLink]);
 
 // Subscription config
+const wsUrl = REACT_APP_API_URL.replace(/^http/, 'ws') + '/graphql';
+console.log('🔥 WebSocket URL:', wsUrl);
 export const wsLink = new GraphQLWsLink(
   createClient({
-    url: `${REACT_APP_API_URL}/graphql`,
+    url: wsUrl,
     retryAttempts: 1000,
     retryWait: async () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -60,6 +62,7 @@ type Definintion = {
 
 // Setting up subscription with link
 const link = split(
+  
   // split based on operation type
   ({ query }) => {
     const { kind, operation }: Definintion = getMainDefinition(query);
@@ -68,7 +71,7 @@ const link = split(
   wsLink,
   httpLinkWithMiddleware,
 );
-
+console.log('🔥 Apollo Client link:', link);
 const typePolicies = {
   customers: {
     keyFields: ['_id'],

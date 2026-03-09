@@ -2,7 +2,7 @@ import { AfterProcessConfigs, IAfterProcessRule } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { afterMutationHandlers as dealAfterEbarimt } from '~/modules/ebarimt/afterMutations';
 import { afterMutationHandlers as productPlacesAfterMutation } from '~/modules/productPlaces/afterMutations';
-console.log('✅ afterProcess.ts loaded');
+
 const ebarimtMutationNames = ['dealsChange', 'dealsEdit', 'dealsAdd'];
 
 // You can reuse same mutation names because productPlaces
@@ -20,12 +20,6 @@ export const afterProcess: AfterProcessConfigs = {
 
   afterMutation: async (ctx, input) => {
     const { mutationName, args, result, userId } = input?.data ?? {};
-    console.log('🔥 afterProcess triggered', {
-      mutationName,
-      args: JSON.stringify(args),
-      resultId: result?._id,
-      userId,
-    });
     if (!mutationName) return;
 
     const { itemId, destinationStageId, sourceStageId } = args || {};
@@ -52,13 +46,7 @@ export const afterProcess: AfterProcessConfigs = {
 
     // PRODUCT PLACES
     if (productPlacesMutationNames.includes(mutationName)) {
-      console.log('🔥 afterProcess: productPlaces condition met', {
-        mutationName,
-        sourceStageId,
-        destinationStageId,
-        resultStageId: result?.stageId,
-        itemId,
-      });
+
 
       await productPlacesAfterMutation(ctx.subdomain, {
         type: 'sales:deal',

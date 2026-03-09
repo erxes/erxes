@@ -7,13 +7,6 @@ export const handlePlace = async (
   productsData,
   placeConfig,
 ) => {
-  console.log('🔥 handlePlace RUNNING', {
-    dealId: deal._id,
-    dealStageId: deal.stageId,
-    productsDataCount: productsData.length,
-    placeConfigKeys: Object.keys(placeConfig),
-  });
-
   const products = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -31,9 +24,6 @@ export const handlePlace = async (
   for (const product of products) {
     productById[product._id] = product;
   }
-  console.log('🔥 handlePlace products fetched', {
-    productIds: Object.keys(productById),
-  });
 
   const result = await setPlace(
     subdomain,
@@ -41,14 +31,6 @@ export const handlePlace = async (
     productsData,
     placeConfig,
     productById,
-  );
-  console.log(
-    '🔥 handlePlace result productsData',
-    result.map((p) => ({
-      _id: p._id,
-      branchId: p.branchId,
-      departmentId: p.departmentId,
-    })),
   );
 
   return { productsData: result, productById };

@@ -31,7 +31,6 @@ export const productPlacesTrpcRouter = t.router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      console.log('🔥 afterDealStageChanged procedure called', input);
       const { deal, sourceStageId, userId } = input;
       const { subdomain } = ctx;
 
