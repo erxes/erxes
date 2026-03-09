@@ -791,6 +791,7 @@ export const loadUserClass = (
         throw new Error('Invalid login');
       }
       const valid = await this.comparePassword(password, user.password);
+      console.log(valid);
 
       if (!valid) {
         // bad password

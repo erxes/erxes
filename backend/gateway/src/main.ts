@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import * as jwt from 'jsonwebtoken';
 import * as http from 'http';
 import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
@@ -72,8 +73,25 @@ serverAdapter.setBasePath('/bullmq-board');
 
 const app = express();
 
-app.use(cors(corsOptions));
 app.use(cookieParser());
+
+app.use((req, res, next) => {
+  const appToken =
+    (req.headers['app-token'] as string) ||
+    (req.headers['x-app-token'] as string);
+
+  if (appToken) {
+    try {
+      jwt.verify(appToken, process.env.JWT_TOKEN_SECRET || 'SECRET');
+      // Valid app token — allow any origin so developer UIs can connect
+      return cors({ credentials: true, origin: true })(req, res, next);
+    } catch {
+      // Invalid token — fall through to regular CORS
+    }
+  }
+
+  return cors(corsOptions)(req, res, next);
+});
 
 app.use(userMiddleware);
 
