@@ -9,11 +9,7 @@ import {
 import { ColumnDef } from '@tanstack/react-table';
 import { customTypeMoreColumn } from './CustomTypesMoreColumn';
 import { useState } from 'react';
-import {
-  IconLayout,
-  IconCalendar,
-  IconArticle,
-} from '@tabler/icons-react';
+import { IconLayout, IconCalendar, IconArticle } from '@tabler/icons-react';
 import { ICustomPostType } from '../types/customTypeTypes';
 import { useEditCustomType } from '../hooks/useEditCustomType';
 
