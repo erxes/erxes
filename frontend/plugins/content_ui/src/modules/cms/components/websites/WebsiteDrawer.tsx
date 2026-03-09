@@ -26,7 +26,7 @@ import { LANGUAGES } from '../../../../constants';
 interface Website {
   _id: string;
   name: string;
-  description: string;
+  description?: string;
   domain: string;
   url: string;
   kind?: string;
@@ -45,7 +45,7 @@ interface WebsiteDrawerProps {
 
 interface WebsiteFormData {
   name: string;
-  description: string;
+  description?: string;
   domain: string;
   url: string;
   kind: string;
@@ -445,10 +445,10 @@ export function WebsiteDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : hasPermissionError
-                    ? 'Permission Required'
-                    : isEditing
-                      ? 'Save Changes'
-                      : 'Create CMS'}
+                  ? 'Permission Required'
+                  : isEditing
+                  ? 'Save Changes'
+                  : 'Create CMS'}
               </Button>
 
               {isEditing && (

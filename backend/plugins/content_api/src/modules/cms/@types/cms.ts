@@ -1,6 +1,6 @@
 export interface IContentCMS {
   name: string;
-  description: string;
+  description?: string;
   clientPortalId: string;
   content: string;
   language?: string;
@@ -15,7 +15,7 @@ export interface IContentCMSDocument extends IContentCMS, Document {
 
 export interface IContentCMSInput {
   name: string;
-  description: string;
+  description?: string;
   clientPortalId: string;
   content: string;
   language?: string;
