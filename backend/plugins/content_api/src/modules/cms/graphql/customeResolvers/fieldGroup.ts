@@ -3,6 +3,19 @@ import { IContext } from '~/connectionResolvers';
 
 const CustomFieldGroup = {
   async fields(group: any, _params, { subdomain }: IContext) {
+    if (Array.isArray(group?.fields)) {
+      return group.fields;
+    }
+    if (typeof group?.fields === 'string') {
+      try {
+        const parsed = JSON.parse(group.fields);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch {
+      }
+    }
+
     const fields = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
