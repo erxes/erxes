@@ -53,8 +53,6 @@ export const PipelinePermissionsList = memo(() => {
 
   useEffect(() => {
     console.log('Pipeline data:', pipeline);
-    console.log('myTicketsOnly value:', myTicketsOnly);
-    console.log('isCheckUser from pipeline:', pipeline?.isCheckUser);
   }, [pipeline, myTicketsOnly]);
 
   const initialValuesRef = useRef<PermissionState | null>(null);
