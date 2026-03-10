@@ -13,7 +13,7 @@ import {
   BILL_TYPES,
   SUBSCRIPTION_INFO_STATUS,
 } from '~/modules/posclient/db/definitions/constants';
-import { fetchEs,graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fetchEs, graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IDoc } from '~/modules/posclient/db/models/PutData';
 import {
   checkOrderStatus,
@@ -37,81 +37,6 @@ export const getEsTypes = () => {
   });
 
   return typesMap;
-};
-
-export const countBySegment = async (
-  subdomain: string,
-  contentType: string,
-  qb,
-): Promise<ICountBy> => {
-  const counts: ICountBy = {};
-
-  let segments: any[] = [];
-
-  // segments = await sendCoreMessage({
-  //   subdomain,
-  //   action: 'segmentFind',
-  //   data: { contentType, name: { $exists: true } },
-  //   isRPC: true,
-  //   defaultValue: [],
-  // });
-  segments = await sendTRPCMessage({
-    subdomain,
-
-    method: 'query',
-    pluginName: 'core',
-    module: 'core',
-    action: 'segmentFind',
-    input: { contentType, name: { $exists: true } },
-    defaultValue: [],
-  });
-
-  for (const s of segments) {
-    try {
-      await qb.buildAllQueries();
-      await qb.segmentFilter(s);
-      counts[s._id] = await qb.runQueries('count');
-    } catch (e) {
-      debugError(`Error during segment count ${e.message}`);
-      counts[s._id] = 0;
-    }
-  }
-
-  return counts;
-};
-
-export const countByTag = async (
-  subdomain: string,
-  type: string,
-  qb,
-): Promise<ICountBy> => {
-  const counts: ICountBy = {};
-
-  // const tags = await sendCoreMessage({
-  //   subdomain,
-  //   action: 'tagFind',
-  //   data: { type },
-  //   isRPC: true,
-  //   defaultValue: [],
-  // });
-  const tags = await sendTRPCMessage({
-    subdomain,
-
-    method: 'query',
-    pluginName: 'core',
-    module: 'tags',
-    action: 'find',
-    input: { query: { type } },
-    defaultValue: [],
-  });
-  for (const tag of tags) {
-    await qb.buildAllQueries();
-    await qb.tagFilter(tag._id);
-
-    counts[tag._id] = await qb.runQueries('count');
-  }
-
-  return counts;
 };
 
 export interface IListArgs {
@@ -165,10 +90,8 @@ export class Builder {
     // );
     const selector = await sendTRPCMessage({
       subdomain: this.subdomain,
-
       pluginName: 'core',
-      method: 'query',
-      module: 'segments',
+      module: 'segment',
       action: 'fetchSegment',
       input: {
         segmentId: segment._id,
@@ -361,29 +284,17 @@ export const updateMobileAmount = async (
     }
 
     try {
-      // sendPosMessage({
-      //   subdomain,
-      //   action: 'createOrUpdateOrders',
-      //   data: {
-      //     posToken,
-      //     action: 'makePayment',
-      //     order,
-      //     items,
-      //   },
-      // });
       await sendTRPCMessage({
         subdomain,
-
+        method: 'mutation',
         pluginName: 'sales',
         module: 'pos',
         action: 'createOrUpdateOrders',
         input: {
-          data: {
-            posToken,
-            action: 'makePayment',
-            order,
-            items,
-          },
+          posToken,
+          action: 'makePayment',
+          order,
+          items,
         },
       });
     } catch (e) {
@@ -454,8 +365,8 @@ export const prepareSettlePayment = async (
           config.token,
           user,
         );
-        putData && ebarimtResponses.push(putData);
-        innerData && ebarimtResponses.push(innerData);
+        if (putData) { ebarimtResponses.push(putData); }
+        if (innerData) { ebarimtResponses.push(innerData); }
       } catch (e) {
         ebarimtResponses.push({
           _id: `Err${cryptoRandom()}`,
@@ -610,20 +521,9 @@ export const prepareSettlePayment = async (
     }
 
     try {
-      // sendPosMessage({
-      //   subdomain,
-      //   action: 'createOrUpdateOrders',
-      //   data: {
-      //     posToken: config.token,
-      //     action: 'makePayment',
-      //     responses: ebarimtResponses,
-      //     order,
-      //     items,
-      //   },
-      // });
       await sendTRPCMessage({
         subdomain,
-
+        method: 'mutation',
         pluginName: 'sales',
         module: 'pos',
         action: 'createOrUpdateOrders',

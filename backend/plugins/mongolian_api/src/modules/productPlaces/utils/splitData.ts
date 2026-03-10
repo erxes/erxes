@@ -62,7 +62,7 @@ const checkSplit = async (
       const isInSegment = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'segments',
+        module: 'segment',
         action: 'isInSegment',
         method: 'query',
         input: {

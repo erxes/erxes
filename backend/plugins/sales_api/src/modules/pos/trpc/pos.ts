@@ -27,11 +27,16 @@ export const posTrpcRouter = t.router({
       }),
     }),
 
-    confirm: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
+    confirmCover: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models } = ctx;
+      const { cover } = input;
+      await models.Covers.updateOne(
+        { _id: cover._id },
+        { ...cover },
+        { upsert: true }
+      );
 
-      return await models.Pos.find(query).lean();
+      return await models.Covers.findOne({ _id: cover._id });
     }),
     ecommerceGetBranches: t.procedure
       .input(z.any())
@@ -106,7 +111,7 @@ export const posTrpcRouter = t.router({
       }),
     createOrUpdateOrders: t.procedure
       .input(z.any())
-      .query(async ({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
         const { action, posToken, responses, order, items } = input;
@@ -139,7 +144,7 @@ export const posTrpcRouter = t.router({
       }),
     createOrUpdateOrdersMany: t.procedure
       .input(z.any())
-      .query(async ({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
         const { posToken, syncOrders } = input;
