@@ -12,7 +12,7 @@ export const PosByItemsRecordTable = ({ posId }: { posId?: string }) => {
       columns={PosByItemsColumns}
       data={posByItemsList}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'code', 'name']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={pageInfo?.hasPreviousPage}

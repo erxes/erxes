@@ -12,4 +12,11 @@ export interface ICovers {
   createdUser?: {
     email: string;
   };
+  totalAmount?: number;
+  cashAmount?: number;
+  mobileAmount?: number;
+  paidAmounts?: Array<{
+    type: string;
+    amount: number;
+  }>;
 }

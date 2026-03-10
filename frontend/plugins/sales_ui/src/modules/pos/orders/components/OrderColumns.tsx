@@ -1,12 +1,12 @@
 import {
-  IconBuilding,
-  IconChartBar,
   IconLabel,
   IconMobiledata,
-  IconPhone,
   IconClock,
   IconUser,
   IconTag,
+  IconBuildingBank,
+  IconFileInvoice,
+  IconCoin,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -20,6 +20,99 @@ import {
 import { IOrder } from '@/pos/types/order';
 import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
 import { ClickableBillNumber } from './ClickableBillNumber';
+
+// Статик багануудын түлхүүрүүд - эдгээрийг динамик баганаас ХАСАХ
+const staticKeys = [
+  '_id',
+  'billNumber',
+  'number',
+  'paidDate',
+  'cashAmount',
+  'mobileAmount',
+  'totalAmount',
+  'paidAmounts',
+  'user.email',
+  'user',
+  'pos',
+  'posName',
+  'customer',
+  'customerType',
+  'type',
+  'invoice', // invoice-ийг энд оруулахгүй (тусгай багана)
+  'loan', // loan-ийг энд оруулахгүй (тусгай багана)
+];
+
+// Тусгай баганууд (хамгийн сүүлд харагдах)
+const specialTypes = ['bank', 'invoice', 'loan'];
+const columnConfig: { [key: string]: { header: string; icon: any } } = {
+  bank: { header: 'BANK', icon: IconBuildingBank },
+  invoice: { header: 'INVOICE', icon: IconFileInvoice },
+  loan: { header: 'LOAN', icon: IconCoin },
+};
+
+export const generateOtherPaymentColumns = (
+  summary: any,
+): ColumnDef<unknown>[] => {
+  if (!summary) return [];
+
+  // summary-аас бүх түлхүүрүүдийг авах
+  const otherPayTitles = Object.keys(summary)
+    // Статик багануудыг ХАСАХ
+    .filter((key) => !staticKeys.includes(key))
+    // Тусгай багануудыг (bank, invoice, loan) ХАСАХ - эдгээрийг тусгайлан сүүлд нэмнэ
+    .filter((key) => !specialTypes.includes(key))
+    .sort();
+
+  return otherPayTitles.map((title: string) => ({
+    id: title,
+    accessorKey: title,
+    header: () => <RecordTable.InlineHead icon={IconClock} label={title} />,
+    cell: ({ row }: any) => {
+      const order = row.original;
+      // paidAmounts-аас хайх
+      const paidAmount = order.paidAmounts?.find(
+        (payment: any) => payment.type === title,
+      );
+      // Хэрэв paidAmounts-д байхгүй бол шууд order-ийн талбараас авах
+      const value = paidAmount?.amount || order[title] || 0;
+
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={value?.toLocaleString()} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 150,
+  }));
+};
+
+// Тусгай баганууд (bank, invoice, loan) үүсгэх функц
+export const generateSpecialColumns = (): ColumnDef<unknown>[] => {
+  return specialTypes.map((type) => ({
+    id: type,
+    accessorKey: type,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={columnConfig[type]?.icon || IconClock}
+        label={columnConfig[type]?.header || type}
+      />
+    ),
+    cell: ({ row }: any) => {
+      const order = row.original;
+      const paidAmount = order.paidAmounts?.find(
+        (payment: any) => payment.type === type,
+      );
+      const value = paidAmount?.amount || order[type] || 0;
+
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={value?.toLocaleString()} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 120,
+  }));
+};
 
 export const orderColumns: ColumnDef<IOrder>[] = [
   ordersMoreColumn,
@@ -53,73 +146,47 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     id: 'cashAmount',
     accessorKey: 'cashAmount',
     header: () => (
-      <RecordTable.InlineHead icon={IconPhone} label="Cash Amount" />
+      <RecordTable.InlineHead icon={IconLabel} label="Cash Amount" />
     ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
+          <TextOverflowTooltip value={value?.toLocaleString()} />
         </RecordTableInlineCell>
       );
     },
-    size: 120,
+    size: 150,
   },
   {
     id: 'mobileAmount',
     accessorKey: 'mobileAmount',
     header: () => (
-      <RecordTable.InlineHead icon={IconBuilding} label="Mobile Amount" />
+      <RecordTable.InlineHead icon={IconLabel} label="Mobile Amount" />
     ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
+          <TextOverflowTooltip value={value?.toLocaleString()} />
         </RecordTableInlineCell>
       );
     },
-  },
-  {
-    id: 'loyalty',
-    accessorKey: 'loyalty',
-    header: () => <RecordTable.InlineHead icon={IconClock} label="Loyalty" />,
-    cell: ({ cell }) => {
-      const value = cell.getValue() as string;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={value} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'paidAmounts',
-    accessorKey: 'paidAmounts',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Paid Amounts" />
-    ),
-    cell: ({ cell }) => {
-      const value = cell.getValue() as any;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={JSON.stringify(value)} />
-        </RecordTableInlineCell>
-      );
-    },
+    size: 150,
   },
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="Amount" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label="Amount" />,
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
+          <TextOverflowTooltip value={value?.toLocaleString()} />
         </RecordTableInlineCell>
       );
     },
+    size: 150,
   },
   {
     id: 'customerType',
@@ -133,7 +200,7 @@ export const orderColumns: ColumnDef<IOrder>[] = [
         </RecordTableInlineCell>
       );
     },
-    size: 120,
+    size: 150,
   },
   {
     id: 'posName',
@@ -146,7 +213,7 @@ export const orderColumns: ColumnDef<IOrder>[] = [
         </RecordTableInlineCell>
       );
     },
-    size: 80,
+    size: 120,
   },
   {
     id: 'type',
@@ -159,7 +226,7 @@ export const orderColumns: ColumnDef<IOrder>[] = [
         </RecordTableInlineCell>
       );
     },
-    size: 80,
+    size: 100,
   },
   {
     id: 'user',
@@ -173,6 +240,6 @@ export const orderColumns: ColumnDef<IOrder>[] = [
         </RecordTableInlineCell>
       );
     },
-    size: 120,
+    size: 150,
   },
 ];

@@ -27,7 +27,9 @@ export const useCoverMoreColumnCell = ({
         setOpen(_id);
         setRenderingCoverDetail(false);
       }}
-    />
+    >
+      edit
+    </RecordTable.MoreButton>
   );
 };
 

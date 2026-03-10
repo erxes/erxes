@@ -128,7 +128,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'billType',
-    accessorKey: 'billTypex',
+    accessorKey: 'billType',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Bill Type" />,
     cell: ({ cell }) => {
       return (
@@ -341,18 +341,6 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       return (
         <RecordTableInlineCell>
           <Badge variant="default">{cell.getValue() as string}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'actions',
-    accessorKey: 'actions',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Actions" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
         </RecordTableInlineCell>
       );
     },

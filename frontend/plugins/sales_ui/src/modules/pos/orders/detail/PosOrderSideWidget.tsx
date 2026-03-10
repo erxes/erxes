@@ -13,18 +13,7 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
 
   const { posOrdersSummary, loading } = usePosOrdersSummary({ posId });
 
-  const count = posOrdersSummary?.count || 0;
-  const totalAmount = posOrdersSummary?.totalAmount || 0;
-  const cashAmount = posOrdersSummary?.cashAmount || 0;
-  const mobileAmount = posOrdersSummary?.mobileAmount || 0;
-  const khaanAmount = posOrdersSummary?.khaanAmount || 0;
-  const golomtCardAmount = posOrdersSummary?.golomtCardAmount || 0;
-  const invoice = posOrdersSummary?.Invoice || 0;
-  const undefinedAmount = posOrdersSummary?.undefinedAmount || 0;
-  const barterAmount = posOrdersSummary?.barterAmount || 0;
-  const skipEbarimtAmount = posOrdersSummary?.skipEbarimtAmount || 0;
-
-  if (loading && count === 0) {
+  if (loading && !posOrdersSummary) {
     return null;
   }
 
@@ -47,18 +36,7 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
               </Button>
             </Collapsible.Trigger>
             <Collapsible.Content>
-              <PosOrderSummary
-                count={count}
-                totalAmount={totalAmount}
-                cashAmount={cashAmount}
-                mobileAmount={mobileAmount}
-                khaanAmount={khaanAmount}
-                golomtCardAmount={golomtCardAmount}
-                invoice={invoice}
-                undefinedAmount={undefinedAmount}
-                barterAmount={barterAmount}
-                skipEbarimtAmount={skipEbarimtAmount}
-              />
+              <PosOrderSummary summary={posOrdersSummary || {}} />
             </Collapsible.Content>
           </Collapsible>
         </div>

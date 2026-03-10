@@ -52,6 +52,18 @@ export const coverColumns: ColumnDef<ICovers>[] = [
   coverMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICovers>,
   {
+    id: 'pos',
+    accessorKey: 'pos',
+    header: () => <RecordTable.InlineHead icon={IconPhone} label="Pos" />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
     id: 'beginDate',
     accessorKey: 'beginDate',
     header: () => (
@@ -85,18 +97,7 @@ export const coverColumns: ColumnDef<ICovers>[] = [
       );
     },
   },
-  {
-    id: 'pos',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label="Pos" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+
   {
     id: 'user.email',
     accessorKey: 'createdBy',
@@ -108,13 +109,5 @@ export const coverColumns: ColumnDef<ICovers>[] = [
         </RecordTableInlineCell>
       );
     },
-  },
-  {
-    id: 'actions',
-    accessorKey: 'actions',
-    header: () => (
-      <RecordTable.InlineHead icon={IconChartBar} label="Actions" />
-    ),
-    cell: ActionsCell,
   },
 ];

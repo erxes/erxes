@@ -40,6 +40,7 @@ export const usePosByItemsVariables = (
     {
       searchValue,
       customer,
+      category,
       company,
       user,
       pos,
@@ -52,6 +53,7 @@ export const usePosByItemsVariables = (
   ] = useMultiQueryState<{
     searchValue: string;
     customer: string;
+    category: string;
     company: string;
     user: string;
     pos: string;
@@ -63,6 +65,7 @@ export const usePosByItemsVariables = (
   }>([
     'searchValue',
     'customer',
+    'category',
     'company',
     'user',
     'pos',
@@ -77,6 +80,7 @@ export const usePosByItemsVariables = (
 
   return {
     perPage: POS_PER_PAGE,
+    page: 1,
     posId: posId !== undefined ? posId : pos || undefined,
     search: (() => {
       const searchParts = [];
@@ -86,6 +90,7 @@ export const usePosByItemsVariables = (
     })(),
     customerId: customerIdValue,
     userId: user || undefined,
+    categoryId: category && category !== 'all' ? category : undefined,
     types: types && types !== 'all' ? [types] : undefined,
     statuses: status && status !== 'all' ? [status] : undefined,
     excludeStatuses:
@@ -96,30 +101,26 @@ export const usePosByItemsVariables = (
     createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
     ...otherOptions,
   };
-};
+}
 
 export const usePosByItemsList = (
   options: UsePosByItemsListOptions = {},
 ): UsePosByItemsListReturn => {
   const variables = usePosByItemsVariables(options);
-  console.log('UsePosByItemsList - variables:', variables);
   const setPosByItemsTotalCount = useSetAtom(posByItemsTotalCountAtom);
   const { data, loading, fetchMore } = useQuery(POS_BY_ITEMS_QUERY, {
-    variables: {
-      ...variables,
-      page: 1,
-      limit: 30,
-    },
+    variables,
   });
 
-  const posByItemsList = useMemo<IProduct[]>(() => {
-    const products = data?.posProducts?.products || [];
-    console.log('UsePosByItemsList - data:', data);
-    console.log('UsePosByItemsList - products length:', products.length);
-    return products;
-  }, [data]);
+  const posByItemsList = useMemo<IProduct[]>(
+    () => data?.posProducts?.products || [],
+    [data?.posProducts],
+  );
 
-  const totalCount = useMemo(() => data?.posProducts?.totalCount || 0, [data]);
+  const totalCount = useMemo(
+    () => data?.posProducts?.totalCount || 0,
+    [data?.posProducts],
+  );
 
   const handleFetchMore = useCallback(() => {
     if (!data?.posProducts) return;
@@ -129,7 +130,6 @@ export const usePosByItemsList = (
         ...variables,
         page: Math.ceil(posByItemsList.length / POS_PER_PAGE) + 1,
         perPage: POS_PER_PAGE,
-        limit: 30,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult?.posProducts) {

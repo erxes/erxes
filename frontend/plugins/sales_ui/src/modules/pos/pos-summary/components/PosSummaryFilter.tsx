@@ -24,7 +24,6 @@ import { usePosSummaryLeadSessionKey } from '../hooks/usePosSummaryLeadSessionKe
 
 import { PosSummaryHotKeyScope } from '../types/path/PosSummaryHotKeyScope';
 import { useState } from 'react';
-import { SelectPos } from './selects/SelectPos';
 import { SelectTypes } from './selects/SelectTypes';
 import { SelectStatus } from './selects/SelectStatus';
 import { SelectExcludeStatus } from './selects/SelectExcludeStatus';
@@ -33,7 +32,6 @@ import { PosSummaryTotalCount } from './PosSummaryTotalCount';
 export const PosSummaryFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     number: string;
-    pos: string;
     types: string;
     status: string;
     excludeStatus: string;
@@ -43,7 +41,6 @@ export const PosSummaryFilterPopover = () => {
     user: string;
   }>([
     'number',
-    'pos',
     'types',
     'status',
     'paidDateRange',
@@ -87,11 +84,6 @@ export const PosSummaryFilterPopover = () => {
                 <Filter.Item value="user">
                   <IconUser />
                   Assign to
-                </Filter.Item>
-
-                <Filter.Item value="pos">
-                  <IconCashRegister />
-                  POS
                 </Filter.Item>
                 <Filter.Item value="types">
                   <IconCategory />
@@ -153,9 +145,6 @@ export const PosSummaryFilterPopover = () => {
             >
               <SelectMember.Content />
             </SelectMember.Provider>
-          </Filter.View>
-          <Filter.View filterKey="pos">
-            <SelectPos.FilterView />
           </Filter.View>
           <Filter.View filterKey="types">
             <SelectTypes.FilterView />
@@ -299,7 +288,6 @@ export const PosSummaryFilter = () => {
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>
 
-        <SelectPos.FilterBar />
         <SelectTypes.FilterBar />
         <SelectStatus.FilterBar />
         <SelectExcludeStatus.FilterBar />

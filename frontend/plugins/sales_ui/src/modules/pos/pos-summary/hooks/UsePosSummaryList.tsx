@@ -123,6 +123,7 @@ export const usePosSummaryList = (
           cashAmount: item.cashAmount || 0,
           mobileAmount: item.mobileAmount || 0,
           invoice: item.invoice || 0,
+          qpayAmount: item.qpayAmount || 0,
         },
       })) || [],
     [data?.posOrdersGroupSummary?.amounts],
