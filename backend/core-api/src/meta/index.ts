@@ -2,10 +2,12 @@ import { documents } from './documents';
 import { permissions } from './permissions';
 import { tags } from './tags';
 import { properties } from './properties';
+import { templates } from './templates';
 
 export default {
-  permissions: permissions,
+  permissions,
   tags,
   documents,
   properties,
+  templates,
 };

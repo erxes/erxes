@@ -39,14 +39,14 @@ class MenuQueryResolver extends BaseQueryResolver {
       query.kind = kind;
     }
 
-    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+    const { list } = await this.getListWithTranslations(
       models.MenuItems,
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.MENU,
     );
 
-    return { menus: list, totalCount, pageInfo };
+    return list;
   }
 
   async cmsMenu(_parent: any, args: any, context: IContext) {
@@ -74,12 +74,19 @@ class MenuQueryResolver extends BaseQueryResolver {
 
   async cpMenus(_parent: any, args: any, context: IContext) {
     const { models, clientPortal } = context;
-    const { language } = args;
+    const { language, kind, webId } = args;
 
     const query: any = {
       clientPortalId: clientPortal._id,
-      isActive: true,
     };
+
+    if (webId) {
+      query.webId = webId;
+    }
+
+    if (kind) {
+      query.kind = kind;
+    }
 
     const { list } = await this.getListWithTranslations(
       models.MenuItems,

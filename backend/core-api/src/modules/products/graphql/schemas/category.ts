@@ -16,6 +16,7 @@ export const types = `
     mask: JSON
     isSimilarity: Boolean
     similarities: JSON
+    webId: String
   }
 `;
 
@@ -26,13 +27,16 @@ const queryParams = `
   searchValue: String, 
   status: String, 
   meta: String, 
-  brandIds: [String]
+  brandIds: [String],
+  webId: String
 `;
 
 export const queries = `
   productCategories(${queryParams}): [ProductCategory]
   productCategoriesTotalCount(${queryParams}): Int
   productCategoryDetail(_id: String): ProductCategory
+
+  cpProductCategories(${queryParams}): [ProductCategory]
 `;
 
 const mutationParams = `

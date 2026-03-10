@@ -2,6 +2,7 @@ import { IconCopy, IconCheck, IconCode } from '@tabler/icons-react';
 import { useState } from 'react';
 import { Badge, Button, Dialog, DropdownMenu, toast } from 'erxes-ui';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
+import { Link } from 'react-router';
 
 export function FormInstallScript({
   formId,
@@ -26,11 +27,11 @@ export function FormInstallScript({
       };
 
       (function () {
-        var script = document.createElement('script');
+        const script = document.createElement('script');
         script.src = '${API}/formBundle.js';
         script.async = true;
 
-        var entry = document.getElementsByTagName('script')[0];
+        const entry = document.getElementsByTagName('script')[0];
         entry.parentNode.insertBefore(script, entry);
       })();
     </script>`;
@@ -125,7 +126,14 @@ export function FormInstallScript({
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>
               Close
             </Button>
-            <Button>Preview Form</Button>
+            <Button>
+              <Link
+                target="_blank"
+                to={`/settings/frontline/forms/form-preview?inPreview=true&formId=${formId}`}
+              >
+                Preview Form
+              </Link>
+            </Button>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>

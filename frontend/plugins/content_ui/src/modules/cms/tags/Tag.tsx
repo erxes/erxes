@@ -5,7 +5,7 @@ import { TagsHeader } from './components/TagsHeader';
 import { TagDrawer } from './TagDrawer';
 import { useRemoveTag } from './hooks/useRemoveTag';
 import { CmsTag } from './types/tagTypes';
-import { TagsSidebar } from './components/TagsSidebar';
+import { CmsSidebar } from '../shared/CmsSidebar';
 import { PageContainer } from 'erxes-ui';
 import { EmptyState } from '../shared/EmptyState';
 import { IconTags } from '@tabler/icons-react';
@@ -60,7 +60,7 @@ export function Tag() {
     <PageContainer>
       <TagsHeader>{headerActions}</TagsHeader>
       <div className="flex overflow-hidden flex-auto">
-        <TagsSidebar />
+        <CmsSidebar />
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">

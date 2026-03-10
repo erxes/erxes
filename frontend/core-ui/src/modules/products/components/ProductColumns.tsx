@@ -99,9 +99,9 @@ export const productColumns: (
     size: 150,
   },
   {
-    id: 'oum',
-    accessorKey: 'oum',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('oum')} />,
+    id: 'uom',
+    accessorKey: 'uom',
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('uom')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>

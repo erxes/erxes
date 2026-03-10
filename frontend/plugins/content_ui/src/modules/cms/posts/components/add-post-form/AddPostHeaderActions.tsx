@@ -21,6 +21,7 @@ interface PostFormData {
   documents?: string[];
   attachments?: string[];
   pdf?: string | null;
+  publishDate?: Date | null;
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
@@ -57,7 +58,7 @@ export const AddPostHeaderActions = ({
           {status === 'published' && (
             <Form.Field
               control={form.control}
-              name="scheduledDate"
+              name="publishDate"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Control>

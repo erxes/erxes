@@ -23,6 +23,7 @@ export interface IOrder {
   paidDate?: Date;
   dueDate?: Date;
   number?: string;
+  webId?: string;
   customerId?: string;
   customerType?: string;
   cashAmount?: number;

@@ -1,10 +1,14 @@
 import { checkPermission } from 'erxes-api-shared/core-modules';
-import { ICustomer, ICustomerDocument } from 'erxes-api-shared/core-types';
+import {
+  ICustomer,
+  ICustomerDocument,
+  Resolver,
+} from 'erxes-api-shared/core-types';
 import { getEnv } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { COC_LIFECYCLE_STATE_TYPES } from '~/modules/contacts/constants';
 
-export const customerMutations = {
+export const customerMutations: Record<string, Resolver> = {
   /**
    * Create new customer also adds Customer registration log
    */
@@ -14,6 +18,15 @@ export const customerMutations = {
     return customer;
   },
 
+  async cpCustomersAdd(
+    _parent: undefined,
+    doc: ICustomer,
+    { models }: IContext,
+  ) {
+    const customer = await models.Customers.createCustomer(doc);
+
+    return customer;
+  },
   /**
    * Updates a customer
    */
@@ -257,6 +270,10 @@ export const customerMutations = {
       { $set: { state: value } },
     );
   },
+};
+
+customerMutations.cpCustomersAdd.wrapperConfig = {
+  forClientPortal: true,
 };
 
 checkPermission(customerMutations, 'customersAdd', 'customersAdd');

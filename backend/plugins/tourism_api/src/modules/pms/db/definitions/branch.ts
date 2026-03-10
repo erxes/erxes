@@ -16,6 +16,7 @@ export const branchSchema = new Schema({
   paymentIds: { type: [String], label: 'Online Payments' },
   paymentTypes: { type: [Object], label: 'Other Payments' },
   token: { type: String, label: ' token' },
+  webId: { type: String, optional: true, label: 'Web ID' },
   uiOptions: { type: Object, label: 'UI Options' },
   pipelineConfig: { type: Object, label: 'UI Options' },
   erxesAppToken: { type: String, label: 'Erxes App token' },
@@ -25,6 +26,12 @@ export const branchSchema = new Schema({
     label: 'Permission',
   },
   status: { type: String, label: 'Status', optional: true },
+  websiteReservationLock: {
+    type: Boolean,
+    label: 'websiteReservationLock',
+    optional: true,
+    default: false,
+  },
   time: { type: String, label: 'time', optional: true },
   discount: { type: Object, label: 'object', optional: true },
   extraProductCategories: {

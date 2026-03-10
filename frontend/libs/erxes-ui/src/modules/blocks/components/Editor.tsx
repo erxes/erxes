@@ -97,7 +97,7 @@ export const Editor = ({
     <BlockEditor
       variant="outline"
       className={cn(
-        'overflow-y-auto h-28 rounded-md min-h-28 styled-scroll',
+        'overflow-y-auto h-28 rounded-md min-h-28 styled-scroll shadow-xs transition-[color,box-shadow]',
         className,
       )}
       {...props}

@@ -90,6 +90,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  commonQuerySelector: any;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {

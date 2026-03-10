@@ -39,7 +39,7 @@ export const PostsDetailPage = ({
           />
         )}
       </PostsHeader>
-      <div className="w-full h-full">
+      <div className="flex flex-col overflow-hidden w-full h-full">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Spinner />

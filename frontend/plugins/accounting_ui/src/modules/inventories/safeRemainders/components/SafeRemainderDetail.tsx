@@ -1,13 +1,23 @@
+import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
+import { Button, Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
-import { useSafeRemainderSubmit } from '../hooks/useSafeRemainderSubmit';
-import { ISafeRemainder } from '../types/SafeRemainder';
+import {
+  useSafeRemainderCancel,
+  useSafeRemainderDoTr,
+  useSafeRemainderReCalc,
+  useSafeRemainderSubmit,
+  useSafeRemainderUndoTr,
+} from '../hooks/useSafeRemainderChange';
+import {
+  ISafeRemainder,
+  SAFE_REMAINDER_STATUSES,
+} from '../types/SafeRemainder';
 import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
-import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
+import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 
 export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
@@ -27,8 +37,12 @@ export const SafeRemainderDetail = () => {
     skip: !id,
   });
 
-  const { submitSafeRemainder } = useSafeRemainderSubmit(id ?? '');
-  const { removeSafeRemainder } = useSafeRemainderRemove(id ?? '');
+  const { reCalcSafeRemainder } = useSafeRemainderReCalc();
+  const { submitSafeRemainder } = useSafeRemainderSubmit();
+  const { cancelSafeRemainder } = useSafeRemainderCancel();
+  const { doTrSafeRemainder } = useSafeRemainderDoTr();
+  const { undoTrSafeRemainder } = useSafeRemainderUndoTr();
+  const { removeSafeRemainder } = useSafeRemainderRemove();
 
   if (loading || detailsLoading) {
     return <Spinner />;
@@ -38,12 +52,68 @@ export const SafeRemainderDetail = () => {
     return;
   }
 
-  const handleSubmit = () => {
-    submitSafeRemainder();
-  };
+  const renderEvents = () => {
+    const status = safeRemainder?.status || SAFE_REMAINDER_STATUSES.DRAFT;
+    switch (status) {
+      case SAFE_REMAINDER_STATUSES.DRAFT:
+        return (
+          <>
+            <Button onClick={() => reCalcSafeRemainder(id)}>
+              <IconCrane />
+              ReCalc
+            </Button>
+            <Button onClick={() => submitSafeRemainder(id)}>
+              <IconAccessPoint />
+              Submit
+            </Button>
+            <Button
+              variant="secondary"
+              className="text-destructive"
+              onClick={() => removeSafeRemainder({ variables: { _id: id } })}
+            >
+              <IconTrashX />
+              Delete
+            </Button>
+          </>
+        );
+      case SAFE_REMAINDER_STATUSES.DONE:
+        return (
+          <>
+            <Button onClick={() => doTrSafeRemainder(id)}>
+              <IconCrane />
+              Do Transaction
+            </Button>
+            <Button
+              variant="secondary"
+              className="text-destructive"
+              onClick={() => cancelSafeRemainder(id)}
+            >
+              <IconTrashX />
+              Cancel Submition
+            </Button>
+          </>
+        );
 
-  const handleDelete = () => {
-    removeSafeRemainder();
+      case SAFE_REMAINDER_STATUSES.PUBLISHED:
+        return (
+          <>
+            <Button onClick={() => doTrSafeRemainder(id)}>
+              <IconCrane />
+              ReDo Transaction
+            </Button>
+            <Button
+              variant="secondary"
+              className="text-destructive"
+              onClick={() => undoTrSafeRemainder(id)}
+            >
+              <IconTrashX />
+              Undo transaction
+            </Button>
+          </>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -60,7 +130,7 @@ export const SafeRemainderDetail = () => {
               {safeRemainder?.status}
             </span>
           </div>
-          {/* {renderEvents()} */}
+          {renderEvents()}
         </div>
       </div>
 
@@ -103,18 +173,18 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
       </div>
       <div className="flex items-center gap-2 text-sm">
         <Label>Branch:</Label>
-        <span>{`${safeRemainder.branch?.code} - ${safeRemainder.branch?.title}`}</span>
+        <span>{`${safeRemainder.branch?.code ?? ''} - ${safeRemainder.branch?.title ?? ''}`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
         <Label>Department:</Label>
-        <span>{`${safeRemainder.department?.code} - ${safeRemainder.department?.title}`}</span>
+        <span>{`${safeRemainder.department?.code ?? ''} - ${safeRemainder.department?.title ?? ''}`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       {safeRemainder.productCategoryId && (
         <div className="flex items-center gap-2 text-sm">
           <Label>Product Category:</Label>
-          <span>{`${safeRemainder.productCategory?.code} - ${safeRemainder.productCategory?.name}`}</span>
+          <span>{`${safeRemainder.productCategory?.code ?? ''} - ${safeRemainder.productCategory?.name ?? ''}`}</span>
           <span className="text-accent-foreground">{'|'}</span>
         </div>
       )}

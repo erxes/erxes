@@ -12,6 +12,8 @@ export const types = `
 export const queries = `
   salesPipelineLabels(pipelineId: String, pipelineIds: [String]): [SalesPipelineLabel]
   salesPipelineLabelDetail(_id: String!): SalesPipelineLabel
+
+  cpSalesPipelineLabels(pipelineId: String, pipelineIds: [String]): [SalesPipelineLabel]
 `;
 
 const mutationParams = `

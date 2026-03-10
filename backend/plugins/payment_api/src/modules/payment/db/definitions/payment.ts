@@ -8,6 +8,7 @@ export const paymentSchema = schemaWrapper(
     {
       _id: mongooseStringRandomId,
       name: { type: String, label: 'Name' },
+      webId: { type: String, optional: true, label: 'Web ID' },
       kind: { type: String, label: 'Kind', enum: PAYMENTS.ALL },
       status: {
         type: String,
