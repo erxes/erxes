@@ -1,4 +1,8 @@
-export function DateSeparator({ date }: { date: string }) {
+interface DateSeparatorProps {
+  readonly date: string;
+}
+
+export function DateSeparator({ date }: DateSeparatorProps) {
   return (
     <div className="relative flex items-center justify-center my-3">
       <div className="absolute inset-0 flex items-center">

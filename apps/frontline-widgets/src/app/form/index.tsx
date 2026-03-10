@@ -88,7 +88,7 @@ export const Form = () => {
                     isLastStep={
                       step.order ===
                       stepsArray.reduce(
-                        (acc, curr) => (curr.order > acc ? curr.order : acc),
+                        (acc, curr) => Math.max(curr.order, acc),
                         0,
                       )
                     }
