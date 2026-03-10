@@ -29,7 +29,10 @@ interface UseTicketPermissionsParams {
 const resolveStatusPermissions = (
   status: IStatusPermissions,
   userId: string,
-): Pick<ITicketPermissions, 'canViewTicket' | 'canEditTicket' | 'canMoveTicket'> => {
+): Pick<
+  ITicketPermissions,
+  'canViewTicket' | 'canEditTicket' | 'canMoveTicket'
+> => {
   if (
     status.visibilityType === 'private' &&
     !(status.memberIds || []).includes(userId)
