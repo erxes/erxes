@@ -38,7 +38,8 @@ export const getVisitorId = async () => {
 
 export const getErxesSettings = () => {
   return (
-    (globalThis as unknown as Window & { erxesSettings: any }).erxesSettings || {}
+    (globalThis as unknown as Window & { erxesSettings: any }).erxesSettings ||
+    {}
   );
 };
 
