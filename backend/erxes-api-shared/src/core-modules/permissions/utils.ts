@@ -1,5 +1,5 @@
 import { IUserDocument, Resolver } from '../../core-types';
-import { getEnv } from '../../utils';
+import { getEnv, getPlugins, getPlugin, sendTRPCMessage } from '../../utils';
 import { getUserActionsMap } from './user-actions-map';
 
 export const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
@@ -88,18 +88,6 @@ export const checkPermission = async (
 
     checkLogin(user);
 
-    // deprecated
-
-    // const allowed = await can(subdomain, actionName, user);
-
-    // if (!allowed) {
-    //   if (defaultValue) {
-    //     return defaultValue;
-    //   }
-
-    //   throw new Error('Permission required');
-    // }
-
     const VERSION = getEnv({ name: 'VERSION' });
 
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
@@ -143,33 +131,98 @@ export const moduleCheckPermission = async (
   }
 };
 
-export const checkRolePermission = async (
-  user: IUserDocument,
-  resolverKey: string,
-) => {
-  return true;
-};
-
 export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
   return async (parent: any, args: any, context: any, info: any) => {
     const { user } = context;
 
     checkLogin(user);
 
-    // const permission = await checkRolePermission(user, resolverKey);
-
-    // if (!permission) {
-    //   throw new Error('Permission denied');
-    // }
-
     return resolver(parent, args, context, info);
+  };
+};
+
+export const canGroup = async (
+  subdomain: string,
+  action: string,
+  user?: IUserDocument,
+): Promise<boolean> => {
+  if (!user || !user._id) return false;
+
+  if (user.isOwner) return true;
+
+  const groupIds = user.permissionGroupIds || [];
+
+  if (groupIds.length === 0) return false;
+
+  const defaultGroupIds = groupIds.filter((id) => id.includes(':'));
+
+  if (defaultGroupIds?.length) {
+    const plugins = await getPlugins();
+
+    for (const pluginName of plugins) {
+      const plugin = await getPlugin(pluginName);
+      const permissions = plugin?.config?.meta?.permissions;
+
+      if (!permissions?.defaultGroups) continue;
+
+      for (const group of permissions.defaultGroups) {
+        if (!defaultGroupIds.includes(group.id)) continue;
+
+        for (const permission of group.permissions) {
+          if (permission.actions.includes(action)) return true;
+        }
+      }
+    }
+  }
+
+  const customGroupIds = groupIds.filter((id) => !id.includes(':'));
+
+  if (customGroupIds?.length) {
+    const groups = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'permissionGroups',
+      action: 'find',
+      input: {
+        query: { _id: { $in: customGroupIds } },
+      },
+      defaultValue: [],
+    });
+
+    for (const group of groups) {
+      for (const permission of group.permissions || []) {
+        if (permission.actions.includes(action)) return true;
+      }
+    }
+  }
+
+  for (const permission of user.customPermissions || []) {
+    if (permission.actions.includes(action)) return true;
+  }
+
+  return false;
+};
+
+export const checkPermissionGroup = (
+  subdomain: string,
+  user?: IUserDocument,
+) => {
+  return async (action: string) => {
+    checkLogin(user);
+
+    const allowed = await canGroup(subdomain, action, user);
+
+    if (!allowed) {
+      throw new Error('Permission required');
+    }
   };
 };
 
 export const wrapPublicResolver = (resolver: Resolver, wrapperConfig: any) => {
   return async (parent: any, args: any, context: any, info: any) => {
     const { cpUserRequired, forClientPortal } = wrapperConfig || {};
-    console.log(context.clientPortal, '*******');
+
     if (forClientPortal) {
       if (!context.clientPortal) {
         throw new Error('Client portal required');
