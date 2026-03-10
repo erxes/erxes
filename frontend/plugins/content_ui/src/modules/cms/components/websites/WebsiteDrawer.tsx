@@ -7,13 +7,11 @@ import {
   Select,
   Sheet,
   Textarea,
-  Upload,
   toast,
   MultipleSelector,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CLIENT_PORTAL_REMOVE } from '../../graphql/queries';
 import { GET_WEBSITES } from '../../graphql/queries';
 import {
   CONTENT_CREATE_CMS,
@@ -64,8 +62,6 @@ export function WebsiteDrawer({
 
   const {
     clientPortals,
-    totalCount,
-    pageInfo,
     loading: clientPortalsLoading,
     error: clientPortalsError,
     refetch: refetchClientPortals,
@@ -150,9 +146,7 @@ export function WebsiteDrawer({
       const permissionError = error.graphQLErrors?.some(
         (e) =>
           e.message === 'Permission required' ||
-          e.extensions?.code === 'PERMISSION_DENIED' ||
-          e.message?.toLowerCase().includes('permission') ||
-          e.message?.toLowerCase().includes('unauthorized'),
+          e.extensions?.code === 'INTERNAL_SERVER_ERROR',
       );
 
       if (permissionError) {
@@ -165,50 +159,10 @@ export function WebsiteDrawer({
           duration: 8000,
         });
       } else {
-        const errorMessage = error.message.toLowerCase();
-        let userFriendlyMessage = 'Failed to create CMS. Please try again.';
-
-        if (
-          errorMessage.includes('required') ||
-          errorMessage.includes('field')
-        ) {
-          userFriendlyMessage = 'Please fill in all required fields.';
-        } else if (
-          errorMessage.includes('name') &&
-          errorMessage.includes('empty')
-        ) {
-          userFriendlyMessage = 'CMS name is required.';
-        } else if (
-          errorMessage.includes('duplicate') ||
-          errorMessage.includes('already exists')
-        ) {
-          userFriendlyMessage =
-            'A CMS with this name or domain already exists.';
-        } else if (
-          errorMessage.includes('invalid') ||
-          errorMessage.includes('validation')
-        ) {
-          userFriendlyMessage = 'Please check your input and try again.';
-        } else if (
-          errorMessage.includes('domain') &&
-          errorMessage.includes('invalid')
-        ) {
-          userFriendlyMessage = 'Please enter a valid domain name.';
-        } else if (
-          errorMessage.includes('language') &&
-          errorMessage.includes('required')
-        ) {
-          userFriendlyMessage = 'Please select a language for the CMS.';
-        } else if (
-          errorMessage.includes('description') &&
-          errorMessage.includes('required')
-        ) {
-          userFriendlyMessage = 'Description is required.';
-        }
-
         toast({
-          title: 'Create Failed',
-          description: userFriendlyMessage,
+          title: 'Error',
+          description:
+            error.message || 'Failed to create CMS. Please try again.',
           variant: 'destructive',
           duration: 5000,
         });
@@ -346,7 +300,7 @@ export function WebsiteDrawer({
                       required
                     />
                   </Form.Control>
-                  <Form.Message />
+                  <Form.Message className="text-destructive" />
                 </Form.Item>
               )}
             />
@@ -363,7 +317,7 @@ export function WebsiteDrawer({
                       placeholder="Enter website description"
                     />
                   </Form.Control>
-                  <Form.Message />
+                  <Form.Message className="text-destructive" />
                 </Form.Item>
               )}
             />
@@ -400,7 +354,7 @@ export function WebsiteDrawer({
                         </Select.Content>
                       </Select>
                     </Form.Control>
-                    <Form.Message />
+                    <Form.Message className="text-destructive" />
                   </Form.Item>
                 );
               }}
@@ -437,7 +391,7 @@ export function WebsiteDrawer({
                       commandProps={{ shouldFilter: false }}
                     />
                   </Form.Control>
-                  <Form.Message />
+                  <Form.Message className="text-destructive" />
                 </Form.Item>
               )}
             />
@@ -471,7 +425,7 @@ export function WebsiteDrawer({
                         </Select.Content>
                       </Select>
                     </Form.Control>
-                    <Form.Message />
+                    <Form.Message className="text-destructive" />
                   </Form.Item>
                 );
               }}
@@ -487,10 +441,10 @@ export function WebsiteDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : hasPermissionError
-                    ? 'Permission Required'
-                    : isEditing
-                      ? 'Save Changes'
-                      : 'Create CMS'}
+                  ? 'Permission Required'
+                  : isEditing
+                  ? 'Save Changes'
+                  : 'Create CMS'}
               </Button>
 
               {isEditing && (
