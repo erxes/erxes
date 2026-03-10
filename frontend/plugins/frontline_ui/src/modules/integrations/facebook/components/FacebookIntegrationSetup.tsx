@@ -87,7 +87,6 @@ export const FacebookIntegrationSetup = () => {
             description=""
           />
           <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-4">
-
             <Form.Field
               name="name"
               render={({ field }) => (
@@ -103,7 +102,6 @@ export const FacebookIntegrationSetup = () => {
                 </Form.Item>
               )}
             />
-
 
             <Form.Field
               name="brandId"

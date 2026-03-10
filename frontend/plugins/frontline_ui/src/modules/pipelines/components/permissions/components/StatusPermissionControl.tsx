@@ -121,8 +121,9 @@ export const StatusPermissionControl = ({
       } catch (error) {
         toast({
           title: 'Error',
-          description: `Failed to update visibility: ${error instanceof Error ? error.message : 'Unknown error'
-            }`,
+          description: `Failed to update visibility: ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }`,
           variant: 'destructive',
         });
       } finally {
@@ -150,8 +151,9 @@ export const StatusPermissionControl = ({
       } catch (error) {
         toast({
           title: 'Error',
-          description: `Failed to update ${memberType}: ${error instanceof Error ? error.message : 'Unknown error'
-            }`,
+          description: `Failed to update ${memberType}: ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }`,
           variant: 'destructive',
         });
       } finally {
@@ -274,4 +276,3 @@ export const StatusPermissionControl = ({
     </div>
   );
 };
-
