@@ -1,4 +1,10 @@
-import { Button, Input, Skeleton, TextOverflowTooltip, useQueryState } from 'erxes-ui';
+import {
+  Button,
+  Input,
+  Skeleton,
+  TextOverflowTooltip,
+  useQueryState,
+} from 'erxes-ui';
 import { IconBuildingStore, IconCheck } from '@tabler/icons-react';
 import { useBrands } from 'ui-modules/modules/brands/hooks/useBrands';
 import { useState } from 'react';
