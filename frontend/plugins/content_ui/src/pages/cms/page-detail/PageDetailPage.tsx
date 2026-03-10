@@ -1,9 +1,8 @@
-import { PageContainer } from 'erxes-ui';
+import { PageContainer, Spinner } from 'erxes-ui';
 import { PageDrawer } from '~/modules/cms/pages/PageDrawer';
 import { PagesHeader } from '~/modules/cms/pages/components/PagesHeader';
 import { usePageDetail } from '~/modules/cms/pages/hooks/usePageDetail';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Spinner } from 'erxes-ui';
 
 export const PagesDetailPage = ({
   clientPortalId,
@@ -12,7 +11,7 @@ export const PagesDetailPage = ({
   clientPortalId: string;
   pageId?: string;
 }) => {
-  const isEditing = !!pageId;
+  const isEditing = Boolean(pageId);
   const { page, loading } = usePageDetail(pageId ?? '');
   const navigate = useNavigate();
   const { websiteId } = useParams();
@@ -23,7 +22,7 @@ export const PagesDetailPage = ({
 
   return (
     <PageContainer key={pageId}>
-      <PagesHeader></PagesHeader>
+      <PagesHeader>{/* add action if needed */}</PagesHeader>
       <div className="flex flex-col overflow-hidden w-full h-full">
         {loading ? (
           <div className="flex items-center justify-center h-full">

@@ -23,7 +23,7 @@ export const usePagesColumns = (
       id: 'name',
       header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
       accessorKey: 'name',
-      cell: ({ cell, row }) => {
+      cell: ({ row }) => {
         const page = row.original;
         return (
           <RecordTableInlineCell>
@@ -34,7 +34,7 @@ export const usePagesColumns = (
                   `/content/cms/${page.clientPortalId}/pages/detail/${page._id}`,
                 );
               }}
-              className="cursor-pointer "
+              className="cursor-pointer"
             >
               <Badge variant="secondary">
                 <TextOverflowTooltip value={page.name} />

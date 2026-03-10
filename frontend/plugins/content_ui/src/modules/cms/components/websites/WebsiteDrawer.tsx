@@ -9,7 +9,7 @@ import {
   toast,
   MultipleSelector,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GET_WEBSITES } from '../../graphql/queries';
@@ -36,23 +36,6 @@ interface Website {
   createdAt: string;
   languages?: string[];
   language?: string;
-}
-
-interface WebsiteDrawerProps {
-  website?: Website;
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-}
-
-interface WebsiteFormData {
-  name: string;
-  description: string;
-  domain: string;
-  url: string;
-  kind: string;
-  languages: string[];
-  language: string;
 }
 
 interface WebsiteDrawerProps {
@@ -411,8 +394,8 @@ export function WebsiteDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create CMS'}
+                  ? 'Save Changes'
+                  : 'Create CMS'}
               </Button>
 
               {isEditing && (
