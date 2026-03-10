@@ -9,7 +9,12 @@ interface HeaderTabItemProps {
   readonly title: string;
 }
 
-export function HeaderTabItem({ Icon, value, disabled, title }: HeaderTabItemProps) {
+export function HeaderTabItem({
+  Icon,
+  value,
+  disabled,
+  title,
+}: HeaderTabItemProps) {
   const { activeTab, switchToTab } = useMessenger();
 
   return (
