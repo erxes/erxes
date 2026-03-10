@@ -17,7 +17,6 @@ export const generateFilter = async (
       _id: filter.pipelineId,
     });
 
-    console.log(pipeline, 'pipeline');
     if (!pipeline) {
       throw new Error('Pipeline not found');
     }
