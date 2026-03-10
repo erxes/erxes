@@ -76,7 +76,6 @@ export const pipelineMutations = {
   },
 };
 
-// Require login
 requireLogin(pipelineMutations, 'createPipeline');
 requireLogin(pipelineMutations, 'updatePipeline');
 requireLogin(pipelineMutations, 'removePipeline');

@@ -12,7 +12,6 @@ export const ticketMutations = {
   ) => {
     const permissionValidator = createPermissionValidator(models);
 
-    // Resolve pipelineId from the provided statusId when not explicitly passed
     const pipelineId =
       params.pipelineId ||
       (params.statusId
@@ -67,7 +66,6 @@ export const ticketMutations = {
       _id: { $in: _id },
     });
 
-    // Validate pipeline access for all affected tickets
     const checkedPipelines = new Set<string>();
     for (const ticket of tickets) {
       if (ticket.pipelineId && !checkedPipelines.has(ticket.pipelineId)) {
