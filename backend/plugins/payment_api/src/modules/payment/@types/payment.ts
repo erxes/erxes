@@ -6,7 +6,6 @@ export interface IPayment {
   status: string;
   config: any;
   acceptedCurrencies: string[];
-  webId?: string;
 }
 
 export interface IPaymentDocument extends IPayment, Document {
