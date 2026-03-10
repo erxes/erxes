@@ -13,7 +13,6 @@ export const ticketConfigMutations = {
       pipelineId: input.pipelineId,
     });
 
-    // Check for duplicate name
     const duplicateQuery: { [key: string]: any } = {
       name: input.name,
     };
