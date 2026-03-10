@@ -50,7 +50,7 @@ export const types = `
     tagIds: [String]
     createdAt: Date
     tags: [Tag]
-
+    brandId: String
     leadData: JSON
     messengerData: JSON
     ticketConfigId: JSON
@@ -68,7 +68,6 @@ export const types = `
 
     visibility: String
     departmentIds: [String]
-    brandId: String
 
     details: JSON
     callData: CloudflareCallsData
@@ -251,7 +250,7 @@ export const mutations = `
     brandId: String,
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, channelId: String, details: JSON): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, channelId: String, brandId: String, details: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!, kind: String): JSON

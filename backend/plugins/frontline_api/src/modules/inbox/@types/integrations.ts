@@ -192,6 +192,7 @@ export interface IExternalLink {
 export interface IIntegrationDocument extends IIntegration, Document {
   _id: string;
   createdUserId: string;
+  brandId: string;
   // TODO remove
   formData?: ILeadData;
   leadData?: ILeadDataDocument;

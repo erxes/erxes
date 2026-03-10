@@ -1,4 +1,3 @@
-
 import {
   InfoCard,
   Button,
@@ -29,7 +28,7 @@ export const PipelinePermissionsList = memo(() => {
   const { pipeline, loading: pipelineLoading } = useGetPipeline(pipelineId);
   const { statuses, loading: statusesLoading } =
     useGetTicketStatusesByPipeline();
-  const { updatePipeline, loading: updating } = useUpdatePipeline();
+  const { updatePipeline } = useUpdatePipeline();
   const { updateStatus } = useUpdateTicketStatus();
 
   const [visibleStatusCount, setVisibleStatusCount] = useState(5);
@@ -52,7 +51,6 @@ export const PipelinePermissionsList = memo(() => {
 
   const myTicketsOnly = form.watch('myTicketsOnly');
 
-  // Debug logging
   useEffect(() => {
     console.log('Pipeline data:', pipeline);
     console.log('myTicketsOnly value:', myTicketsOnly);
@@ -61,6 +59,7 @@ export const PipelinePermissionsList = memo(() => {
 
   const initialValuesRef = useRef<PermissionState | null>(null);
   const isUpdatingRef = useRef(false);
+  const prevVisibilityRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!pipeline) return;
@@ -92,19 +91,21 @@ export const PipelinePermissionsList = memo(() => {
 
   const formValues = form.watch();
 
-  // Handle pipeline visibility changes to clear member permissions
   useEffect(() => {
     if (!pipeline || isUpdatingRef.current || !initialValuesRef.current) return;
 
     const currentVisibility = formValues.visibility;
-    const initialVisibility = initialValuesRef.current.visibility;
 
-    // Check if visibility changed to public
-    if (currentVisibility === 'public' && initialVisibility !== 'public') {
-      // Clear member permissions when visibility is set to public
+    if (
+      prevVisibilityRef.current !== null &&
+      prevVisibilityRef.current !== 'public' &&
+      currentVisibility === 'public'
+    ) {
       form.setValue('memberIds', []);
       form.setValue('selectedUsers', []);
     }
+
+    prevVisibilityRef.current = currentVisibility;
   }, [formValues.visibility, pipeline, form]);
 
   useEffect(() => {
@@ -120,9 +121,9 @@ export const PipelinePermissionsList = memo(() => {
       formValues.allowAllUsers !== initialValues.allowAllUsers ||
       formValues.visibility !== initialValues.visibility ||
       JSON.stringify(formValues.selectedUsers) !==
-      JSON.stringify(initialValues.selectedUsers) ||
+        JSON.stringify(initialValues.selectedUsers) ||
       JSON.stringify(formValues.memberIds) !==
-      JSON.stringify(initialValues.memberIds);
+        JSON.stringify(initialValues.memberIds);
 
     if (hasChanges) {
       isUpdatingRef.current = true;
@@ -270,9 +271,9 @@ export const PipelinePermissionsList = memo(() => {
                         {visibleStatusCount >= statuses.length
                           ? 'Show Less'
                           : `Show ${Math.min(
-                            5,
-                            statuses.length - visibleStatusCount,
-                          )} More`}
+                              5,
+                              statuses.length - visibleStatusCount,
+                            )} More`}
                       </Button>
                     </div>
                   )}
@@ -285,4 +286,3 @@ export const PipelinePermissionsList = memo(() => {
     </Form>
   );
 });
-

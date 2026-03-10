@@ -10,20 +10,45 @@ export const generateFilter = async (
 ) => {
   const filterQuery: FilterQuery<ITicketDocument> = {};
 
+  let ownershipOrCondition: FilterQuery<ITicketDocument>['$or'] | null = null;
+
   if (filter.pipelineId) {
     const pipeline = await models.Pipeline.findOne({
       _id: filter.pipelineId,
     });
 
+    console.log(pipeline, 'pipeline');
     if (!pipeline) {
       throw new Error('Pipeline not found');
     }
 
     if (pipeline.visibility === 'private') {
-      const hasAccess = (pipeline.memberIds || []).includes(user._id);
+      const isMember = (pipeline.memberIds || []).includes(user._id);
+      if (!isMember) {
+        ownershipOrCondition = [{ assigneeId: user._id }];
+      }
+    }
+
+    if (pipeline.isCheckDepartment && pipeline.departmentIds?.length) {
+      const userDeptIds = user.departmentIds || [];
+      const hasAccess = pipeline.departmentIds.some((id) =>
+        userDeptIds.includes(id),
+      );
       if (!hasAccess) {
         throw new Error(
-          'Access denied: You do not have permission to view this pipeline',
+          'Access denied: You do not belong to the required department for this pipeline',
+        );
+      }
+    }
+
+    if (pipeline.isCheckBranch && pipeline.branchIds?.length) {
+      const userBranchIds = user.branchIds || [];
+      const hasAccess = pipeline.branchIds.some((id) =>
+        userBranchIds.includes(id),
+      );
+      if (!hasAccess) {
+        throw new Error(
+          'Access denied: You do not belong to the required branch for this pipeline',
         );
       }
     }
@@ -32,9 +57,13 @@ export const generateFilter = async (
       pipeline.isCheckUser &&
       (pipeline.excludeCheckUserIds || []).includes(user._id)
     ) {
-      filterQuery.$or = [{ assigneeId: user._id }, { createdBy: user._id }];
+      ownershipOrCondition = [
+        { assigneeId: user._id },
+        { createdBy: user._id },
+      ];
     }
   }
+
   if (filter.name) {
     filterQuery.name = { $regex: filter.name, $options: 'i' };
   }
@@ -76,19 +105,33 @@ export const generateFilter = async (
     filterQuery.assigneeId = filter.userId;
   }
 
+  let stateCondition: FilterQuery<ITicketDocument> | null = null;
+
   switch (filter.state) {
     case 'active':
-      filterQuery.$or = [{ state: 'active' }, { state: { $exists: false } }];
+      stateCondition = {
+        $or: [{ state: 'active' }, { state: { $exists: false } }],
+      };
       break;
     case 'archived':
-      filterQuery.state = 'archived';
+      stateCondition = { state: 'archived' };
       break;
     case 'deleted':
-      filterQuery.state = 'deleted';
+      stateCondition = { state: 'deleted' };
       break;
     default:
-      filterQuery.$or = [{ state: 'active' }, { state: { $exists: false } }];
+      stateCondition = {
+        $or: [{ state: 'active' }, { state: { $exists: false } }],
+      };
       break;
+  }
+
+  if (ownershipOrCondition && stateCondition) {
+    filterQuery.$and = [{ $or: ownershipOrCondition }, stateCondition];
+  } else if (ownershipOrCondition) {
+    filterQuery.$or = ownershipOrCondition;
+  } else if (stateCondition) {
+    Object.assign(filterQuery, stateCondition);
   }
 
   return filterQuery;

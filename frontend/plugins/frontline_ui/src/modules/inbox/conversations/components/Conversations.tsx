@@ -65,7 +65,7 @@ export const Conversations = () => {
     }
   }, [refetchNewMessages]);
 
-  const { channelId, integrationType, unassigned, status, created } =
+  const { channelId, integrationType, unassigned, status, created, brandId } =
     useNonNullMultiQueryState<{
       channelId: string;
       integrationType: string;
@@ -73,6 +73,7 @@ export const Conversations = () => {
       status: string;
       conversationId: string;
       created: string;
+      brandId: string;
     }>([
       'channelId',
       'integrationType',
@@ -80,6 +81,7 @@ export const Conversations = () => {
       'status',
       'conversationId',
       'created',
+      'brandId',
     ]);
 
   const parsedDate = parseDateRangeFromString(created || '');
@@ -94,6 +96,7 @@ export const Conversations = () => {
         status: status || '',
         startDate: parsedDate?.from,
         endDate: parsedDate?.to,
+        brandId,
         cursorMode: EnumCursorMode.INCLUSIVE,
       },
     });
@@ -117,7 +120,7 @@ export const Conversations = () => {
           {conversations?.map((conversation: IConversation) => (
             <ConversationContext.Provider
               key={conversation._id}
-              value={conversation}
+              value={{ ...conversation, tagIds: conversation.tagIds ?? [] }}
             >
               <ConversationItem
                 onConversationSelect={() => {

@@ -466,7 +466,7 @@ export const integrationMutations = {
 
   async integrationsEditCommonFields(
     _root,
-    { _id, name, details, channelId },
+    { _id, name, details, channelId, brandId },
     { models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
@@ -481,7 +481,13 @@ export const integrationMutations = {
     }
     await models.Integrations.updateOne(
       { _id },
-      { $set: { ...doc, ...(channelId && { channelId }) } },
+      {
+        $set: {
+          ...doc,
+          ...(channelId && { channelId }),
+          ...(brandId && { brandId }),
+        },
+      },
     );
 
     const updated = await models.Integrations.getIntegration({ _id });

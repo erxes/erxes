@@ -1,4 +1,5 @@
-import { Button, Form, Input, Select } from 'erxes-ui';
+import { Button, Form, Input } from 'erxes-ui';
+import { SelectBrand } from 'ui-modules';
 import {
   FacebookIntegrationFormSteps,
   FacebookIntegrationFormLayout,
@@ -19,8 +20,6 @@ import { selectedFacebookAccountAtom } from '../states/facebookStates';
 import { IntegrationType } from '@/types/Integration';
 import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
 import { useParams } from 'react-router';
-import { useBrands } from "ui-modules/modules/brands/hooks/useBrands"
-import { IBrand } from 'ui-modules';
 
 export const FacebookIntegrationSetup = () => {
   const { id: channelId } = useParams();
@@ -32,7 +31,6 @@ export const FacebookIntegrationSetup = () => {
       brandId: '',
     },
   });
-  const { brands = [] as IBrand[] } = useBrands();
 
   const accountId = useAtomValue(selectedFacebookAccountAtom);
   const pageId = useAtomValue(selectedFacebookPageAtom);
@@ -51,7 +49,7 @@ export const FacebookIntegrationSetup = () => {
         name: data.name,
         accountId,
         channelId: channelId as string,
-        brandId: data.brandId as string,
+        brandId: data.brandId,
         data: {
           pageIds: [pageId],
         },
@@ -113,22 +111,12 @@ export const FacebookIntegrationSetup = () => {
                 <Form.Item>
                   <Form.Label>Brand</Form.Label>
                   <Form.Control>
-                    <Select
-                      {...field}
+                    <SelectBrand
                       value={field.value}
                       onValueChange={field.onChange}
-                    >
-                      <Select.Trigger className="w-full h-10 rounded-lg border bg-background">
-                        <Select.Value placeholder="Select a brand" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {brands.map((brand) => (
-                          <Select.Item key={brand._id} value={brand._id}>
-                            {brand.name}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
+                      placeholder="Select a brand"
+                      className="w-full h-10 rounded-lg border bg-background"
+                    />
                   </Form.Control>
                   <Form.Description>
                     Choose the brand for this integration

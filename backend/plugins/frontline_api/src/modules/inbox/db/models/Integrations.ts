@@ -18,6 +18,7 @@ export interface IMessengerIntegration {
   integrationId: string;
   languageCode: string;
   channelId: string;
+  brandId: string;
 }
 
 export interface IExternalIntegrationParams {
@@ -383,7 +384,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
       userId: string,
     ): Promise<IIntegrationDocument> {
       return models.Integrations.createIntegration(
-        { ...doc, channelId: doc.channelId || '', brandId: doc.brandId || '' },
+        {
+          ...doc,
+          channelId: doc.channelId || '',
+          brandId: doc.brandId || '',
+        },
         userId,
       );
     }
