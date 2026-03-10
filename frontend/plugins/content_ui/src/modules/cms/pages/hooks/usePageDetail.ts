@@ -8,7 +8,7 @@ export const usePageDetail = (id: string) => {
     skip: !id,
   });
 
-  const page = (data?.cmsPageDetail || {}) as IPage;
+  const page = (data?.cmsPage || {}) as IPage;
 
   return {
     page,

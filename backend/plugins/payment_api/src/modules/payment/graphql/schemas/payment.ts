@@ -32,12 +32,11 @@ export const inputs = `
     kind: String!
     status: PaymentMethodStatus
     config: JSON
-    webId: String
   }
 `;
 
 export const queries = `
-  payments(status: String, kind: String, webId: String): [Payment]
+  payments(status: String, kind: String): [Payment]
 
   paymentsPublic(kind: String, _ids:[String], currency: String): [PaymentPublic]
   paymentsCountByType: paymentsTotalCount
@@ -49,11 +48,11 @@ export const queries = `
   paymentsGetStripeKey(_id: String!): String
 
 
-  cpPayments(status: String, kind: String, webId: String): [Payment]
+  cpPayments(status: String, kind: String): [Payment]
 `;
 
 export const mutations = `
   paymentAdd(input: PaymentInput!): Payment
   paymentEdit(_id: String!, input: PaymentInput!): Payment
-  paymentRemove(_ids: [String!]!): String
+  paymentRemove(_id: String!): String
 `;

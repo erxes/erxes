@@ -53,7 +53,6 @@ export interface IProductParams extends ICommonParams {
   maxRemainder?: number;
   minPrice?: number;
   maxPrice?: number;
-  webId?: string;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -89,7 +88,6 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
-    webId,
     minRemainder,
     maxRemainder,
     minPrice,
@@ -212,10 +210,6 @@ const generateFilter = async (
 
   if (vendorId) {
     filter.vendorId = vendorId;
-  }
-
-  if (webId) {
-    filter.webId = webId;
   }
 
   if (image) {

@@ -91,7 +91,7 @@ export default class Builder {
 
       pluginName: 'core',
       method: 'query',
-      module: 'segments',
+      module: 'segment',
       action: 'fetchSegment',
       input: {
         segmentId,

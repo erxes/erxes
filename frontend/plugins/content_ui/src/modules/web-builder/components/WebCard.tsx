@@ -10,6 +10,7 @@ import { useSetAtom } from 'jotai';
 import { webDrawerState } from '../states/webBuilderState';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
 import { IWeb } from '../types';
+import { REACT_APP_WEBBUILDER_URL } from '@/utils';
 
 interface WebCardProps {
   web: IWeb;
@@ -24,9 +25,11 @@ export const WebCard = ({ web, index }: WebCardProps) => {
   const thumbnailUrl = web.thumbnail?.url;
 
   const sessionCode = sessionStorage.getItem('sessioncode') || '';
-  const buildUrl = `http://localhost:3400/dashboard/projects/${
+  const buildUrl = `${REACT_APP_WEBBUILDER_URL}/dashboard/projects/${
     web._id
-  }?template=${web.templateId || ''}&pageName=home&sessioncode=${sessionCode}`;
+  }?template=${web.templateId || ''}&cpId=${
+    web.clientPortalId
+  }&pageName=home&sessioncode=${sessionCode}`;
 
   const handleEdit = () => setDrawer({ open: true, editingWeb: web });
 

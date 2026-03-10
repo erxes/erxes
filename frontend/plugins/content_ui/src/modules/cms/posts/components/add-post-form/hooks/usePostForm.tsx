@@ -23,6 +23,7 @@ interface PostFormData {
   thumbnail?: any | null;
   gallery?: string[];
   video?: string | null;
+  videoUrl?: string;
   audio?: string | null;
   documents?: string[];
   attachments?: string[];
@@ -60,6 +61,7 @@ export const usePostForm = (editingPost?: any) => {
       thumbnail: null,
       gallery: [],
       video: null,
+      videoUrl: '',
       audio: null,
       documents: [],
       attachments: [],
@@ -135,6 +137,7 @@ export const usePostForm = (editingPost?: any) => {
         thumbnail: fullPost.thumbnail || null,
         gallery: (fullPost.images || []).map((i: any) => i.url).filter(Boolean),
         video: (fullPost.video && fullPost.video.url) || fullPost.video || null,
+        videoUrl: fullPost.videoUrl || '',
         audio: (fullPost.audio && fullPost.audio.url) || fullPost.audio || null,
         documents: (fullPost.documents || [])
           .map((d: any) => d.url)
