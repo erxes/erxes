@@ -59,7 +59,7 @@ export const loadInvoiceClass = (models: IModels) => {
         try {
           const reponse = await api.createInvoice(transaction.toObject());
           transaction.response = reponse;
-          invoice.save();
+          await invoice.save();
 
           return invoice;
         } catch (e) {

@@ -105,7 +105,7 @@ export const loadTransactionClass = (models: IModels) => {
       try {
         const reponse = await api.createInvoice(transaction.toObject());
         transaction.response = reponse;
-        transaction.save();
+        await transaction.save();
 
         return transaction;
       } catch (e) {
