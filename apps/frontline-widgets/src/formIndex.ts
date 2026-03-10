@@ -49,6 +49,7 @@ export const getBrowserInfo = async () => {
 
     location = await response.json();
   } catch (e) {
+    console.log(e);
     location = {
       city: '',
       remoteAddress: '',
@@ -289,11 +290,7 @@ window.addEventListener('message', async (event: MessageEvent) => {
       const selector = `[data-erxes-modal="${settings.form_id}"]`;
       const elements = document.querySelectorAll(selector);
 
-      // Using for instead of for to get correct element
-      // tslint:disable-next-line
-      for (let i = 0; i < elements.length; i++) {
-        const elm = elements[i];
-
+      for (const elm of Array.from(elements)) {
         elm.addEventListener('click', () => {
           iframe?.contentWindow.postMessage(
             {

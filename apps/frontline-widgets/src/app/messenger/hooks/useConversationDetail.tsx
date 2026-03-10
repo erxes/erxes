@@ -94,7 +94,7 @@ export const useConversationDetail = (
             const typingData = data.conversationBotTypingStatus;
             setIsBotTyping(
               typeof typingData === 'object' && typingData !== null
-                ? (typingData as any).typing
+                ? (typingData).typing
                 : false,
             );
           }

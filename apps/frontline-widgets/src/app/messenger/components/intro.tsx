@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Skeleton } from 'erxes-ui';
 import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import { ConversationMessage, EmptyChat } from './conversation';
