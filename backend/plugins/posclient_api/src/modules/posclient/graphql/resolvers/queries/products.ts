@@ -728,7 +728,7 @@ const productQueries = {
         departmentId: config.departmentId,
         branchId: config.branchId,
         products: [
-          { ...product, unitPrice: (product.prices || {})[config.token] },
+          { ...product, unitPrice: product.prices?.[config.token] },
         ],
       },
       defaultValue: {},
