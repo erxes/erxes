@@ -76,8 +76,8 @@ export const handlePricing = async (subdomain, deal, productsData) => {
     await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
-      module: 'deals',
-      action: 'updateOne',
+      module: 'deal',
+      action: 'editItem',
       method: 'mutation',
       input: {
         selector: { _id: deal._id },

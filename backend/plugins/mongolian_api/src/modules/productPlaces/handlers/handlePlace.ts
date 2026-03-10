@@ -6,6 +6,8 @@ export const handlePlace = async (
   deal,
   productsData,
   placeConfig,
+  userId,      // new
+  processId,  
 ) => {
   const products = await sendTRPCMessage({
     subdomain,
@@ -31,6 +33,8 @@ export const handlePlace = async (
     productsData,
     placeConfig,
     productById,
+    userId,
+    processId,
   );
 
   return { productsData: result, productById };

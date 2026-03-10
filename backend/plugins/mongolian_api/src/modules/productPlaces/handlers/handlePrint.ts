@@ -21,6 +21,7 @@ export const handlePrint = async (
       action: 'find',
       method: 'query',
       input: { _id: { $in: branchIds } },
+      context: { userId: user._id },
     });
     for (const branch of branches) {
       branchById[branch._id] = branch;
@@ -39,6 +40,7 @@ export const handlePrint = async (
       action: 'find',
       method: 'query',
       input: { _id: { $in: departmentIds } },
+      context: { userId: user._id },
     });
     for (const department of departments) {
       departmentById[department._id] = department;

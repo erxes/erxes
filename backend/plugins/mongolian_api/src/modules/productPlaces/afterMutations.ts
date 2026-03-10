@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { isEnabled } from 'erxes-api-shared/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { handleSplit } from './handlers/handleSplit';
@@ -11,22 +12,36 @@ export default {
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
+  console.log('🟡 [productPlacesAfterMutation] START');
+
   const { type, action, user } = params;
 
+  console.log('type:', type);
+  console.log('action:', action);
+
   if (type !== 'sales:deal' || action !== 'update') {
+    console.log('❌ skipped: wrong type/action');
     return;
   }
 
   const deal = params.updatedDocument;
   const oldDeal = params.object;
 
+  console.log('dealId:', deal?._id);
+  console.log('stageId:', deal?.stageId);
+  console.log('oldStageId:', oldDeal?.stageId);
+
   if (!deal.stageId) {
+    console.log('❌ skipped: no stageId');
     return;
   }
 
   if (!deal.productsData?.length) {
+    console.log('❌ skipped: no productsData');
     return;
   }
+
+  console.log('productsData count:', deal.productsData.length);
 
   const destinationStageId = deal.stageId;
 
@@ -40,41 +55,78 @@ export const afterMutationHandlers = async (subdomain, params) => {
     destinationStageId,
   );
 
+  console.log('splitConfig:', splitConfig);
+  console.log('placeConfig:', placeConfig);
+  console.log('printConfig:', printConfig);
+
   if (!splitConfig && !placeConfig && !printConfig) {
+    console.log('❌ no configs matched');
     return;
   }
 
   let productsData = deal.productsData;
 
+  console.log(
+    'productsData productIds:',
+    productsData.map((p) => p.productId),
+  );
+
   if (splitConfig && Object.keys(splitConfig).length > 0) {
+    console.log('🔵 running handleSplit');
+
     productsData = await handleSplit(
       subdomain,
       deal,
       productsData,
       splitConfig,
     );
+
+    console.log('handleSplit result count:', productsData.length);
   }
 
   let productById: Record<string, any> | undefined;
 
   if (placeConfig && Object.keys(placeConfig).length > 0) {
+    console.log('🟢 running handlePlace');
+
     const placeResult = await handlePlace(
       subdomain,
       deal,
       productsData,
       placeConfig,
+      params.user,
+      crypto.randomUUID(),
     );
+
+    console.log('handlePlace result:', placeResult);
+
     productsData = placeResult.productsData;
     productById = placeResult.productById;
 
+    console.log(
+      'productsData after place:',
+      JSON.stringify(productsData, null, 2),
+    );
+
     if ((await isEnabled('pricing')) && placeConfig.checkPricing) {
+      console.log('🟣 running handlePricing');
+
       productsData = await handlePricing(subdomain, deal, productsData);
+
+      console.log(
+        'productsData after pricing:',
+        JSON.stringify(productsData, null, 2),
+      );
     }
   }
 
-  // If print config exists and we still don't have productById, fetch products now
   if (printConfig && !productById) {
+    console.log('🟠 fetching products for print');
+
     const productIds = productsData.map((pd) => pd.productId).filter(Boolean);
+
+    console.log('productIds:', productIds);
+
     if (productIds.length) {
       try {
         const products = await sendTRPCMessage({
@@ -85,15 +137,21 @@ export const afterMutationHandlers = async (subdomain, params) => {
           method: 'query',
           input: { _id: { $in: productIds } },
         });
+
+        console.log('products fetched:', products);
+
         productById = Object.fromEntries(products.map((p) => [p._id, p]));
-      } catch (error) {}
+      } catch (error) {
+        console.log('❌ product fetch error:', error);
+      }
     } else {
-      productById = {}; // still truthy, but no product details
+      productById = {};
     }
   }
 
-  // Now handle printing if we have a print config and product data
   if (printConfig && productById) {
+    console.log('🖨 running handlePrint');
+
     await handlePrint(
       subdomain,
       deal,
@@ -102,6 +160,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       printConfig,
       productById,
     );
-  } else {
   }
+
+  console.log('🟢 [productPlacesAfterMutation] END');
 };

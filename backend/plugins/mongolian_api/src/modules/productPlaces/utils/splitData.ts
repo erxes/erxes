@@ -173,8 +173,8 @@ export const splitData = async (
   await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
-    module: 'deals',
-    action: 'updateOne',
+    module: 'deal',
+    action: 'editItem',
     method: 'mutation',
     input: {
       selector: { _id: dealId },

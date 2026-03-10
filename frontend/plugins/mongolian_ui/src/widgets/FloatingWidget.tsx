@@ -9,10 +9,6 @@ const FloatingWidget = () => {
     <>
       <EbarimtRespondedPage />
       <ProductPlacesRespondedPage />
-      {pathname === '/sales/deals' && (
-        /* other floating widgets go here */
-        <div>Your widget</div>
-      )}
     </>
   );
 };

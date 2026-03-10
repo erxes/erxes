@@ -45,17 +45,20 @@ export const afterProcess: AfterProcessConfigs = {
     }
 
     // PRODUCT PLACES
-    if (productPlacesMutationNames.includes(mutationName)) {
-      await productPlacesAfterMutation(ctx.subdomain, {
-        type: 'sales:deal',
-        action: 'update',
-        updatedDocument: result,
+if (productPlacesMutationNames.includes(mutationName)) {
 
-        object: {
-          stageId: sourceStageId,
-        },
-        user: userId,
-      });
-    }
+  await productPlacesAfterMutation(
+    ctx.subdomain,
+    {
+      type: 'sales:deal',
+      action: 'update',
+      updatedDocument: result,
+      object: {
+        stageId: sourceStageId,
+      },
+      user: userId,
+    },
+  );
+}
   },
 };
