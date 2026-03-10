@@ -10,7 +10,7 @@ import mongoose, { Schema } from 'mongoose';
 export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
   {
     name: { type: String, required: true },
-    description: { type: String, optional: true },
+    description: { type: String, required: true },
     clientPortalId: { type: String, required: true },
     content: { type: String, required: true },
     language: { type: String, optional: true },
