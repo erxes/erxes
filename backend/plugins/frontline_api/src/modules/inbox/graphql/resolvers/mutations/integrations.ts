@@ -366,7 +366,12 @@ export const integrationMutations = {
       _id,
       messengerData,
       brandId,
-    }: { _id: string; messengerData: IMessengerData; callData: any; brandId: string },
+    }: {
+      _id: string;
+      messengerData: IMessengerData;
+      callData: any;
+      brandId: string;
+    },
     { models }: IContext,
   ) {
     if (brandId) {
