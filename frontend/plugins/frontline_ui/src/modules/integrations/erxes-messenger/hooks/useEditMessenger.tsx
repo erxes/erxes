@@ -43,16 +43,12 @@ export const useEditMessenger = () => {
       async onCompleted({ integrationsEditMessengerIntegration }) {
         const { _id: integrationId } = integrationsEditMessengerIntegration;
 
-        // Run all three saves in parallel and wait for every one to finish
-        // before refetching — this guarantees integrationDetail reflects ALL
-        // updated fields (messengerData + uiOptions + ticketConfigId) at once.
-        // NOTE: onComplete is called AFTER the refetch so the sheet stays open
-        // (keeping the integrationDetail query active) until the refetch fires.
         const saves: Promise<any>[] = [
           saveConfigsMutation({
             variables: {
               _id: integrationId,
               channelId: createVariables.channelId,
+              brandId: createVariables.brandId,
               ...saveConfigVariables,
             },
           }).catch((e) =>
@@ -67,6 +63,7 @@ export const useEditMessenger = () => {
               _id: integrationId,
               channelId: configFormValues.channelId,
               uiOptions,
+              brandId: configFormValues.brandId,
             },
           }).catch((e) =>
             toast({
@@ -96,14 +93,10 @@ export const useEditMessenger = () => {
 
         await Promise.all(saves);
 
-        // Single refetch after everything is done.
-        // integrationDetail is still active here because onComplete (which
-        // closes the sheet) hasn't been called yet.
         await client.refetchQueries({
           include: ['Integrations', 'integrationDetail'],
         });
 
-        // Now close the sheet / reset state.
         onComplete?.();
       },
       onError(e) {

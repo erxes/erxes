@@ -344,9 +344,16 @@ export const integrationMutations = {
    */
   async integrationsSaveMessengerAppearanceData(
     _root,
-    { _id, uiOptions }: { _id: string; uiOptions: IUiOptions },
+    {
+      _id,
+      uiOptions,
+      brandId,
+    }: { _id: string; uiOptions: IUiOptions; brandId: string },
     { models }: IContext,
   ) {
+    if (brandId) {
+      await models.Integrations.updateOne({ _id }, { $set: { brandId } });
+    }
     return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
@@ -358,9 +365,13 @@ export const integrationMutations = {
     {
       _id,
       messengerData,
-    }: { _id: string; messengerData: IMessengerData; callData: any },
+      brandId,
+    }: { _id: string; messengerData: IMessengerData; callData: any; brandId: string },
     { models }: IContext,
   ) {
+    if (brandId) {
+      await models.Integrations.updateOne({ _id }, { $set: { brandId } });
+    }
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
 

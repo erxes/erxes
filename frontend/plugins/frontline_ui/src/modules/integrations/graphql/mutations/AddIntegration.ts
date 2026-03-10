@@ -6,7 +6,7 @@ export const ADD_INTEGRATION = gql`
     $name: String!
     $accountId: String
     $channelId: String!
-    $brandId: String
+    $brandId: String!
     $data: JSON
   ) {
     integrationsCreateExternalIntegration(
