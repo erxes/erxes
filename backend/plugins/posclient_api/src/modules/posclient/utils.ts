@@ -13,7 +13,11 @@ import {
   BILL_TYPES,
   SUBSCRIPTION_INFO_STATUS,
 } from '~/modules/posclient/db/definitions/constants';
-import { fetchEs, graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  fetchEs,
+  graphqlPubsub,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IDoc } from '~/modules/posclient/db/models/PutData';
 import {
   checkOrderStatus,
@@ -365,8 +369,12 @@ export const prepareSettlePayment = async (
           config.token,
           user,
         );
-        if (putData) { ebarimtResponses.push(putData); }
-        if (innerData) { ebarimtResponses.push(innerData); }
+        if (putData) {
+          ebarimtResponses.push(putData);
+        }
+        if (innerData) {
+          ebarimtResponses.push(innerData);
+        }
       } catch (e) {
         ebarimtResponses.push({
           _id: `Err${cryptoRandom()}`,
