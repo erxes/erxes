@@ -7,8 +7,8 @@ export const setPlace = async (
   productsData,
   config,
   productById,
-  userId,     
-  processId, 
+  userId,
+  processId,
 ) => {
   console.log('🟢 [setPlace] START');
   console.log('dealId:', dealId);
@@ -72,10 +72,7 @@ export const setPlace = async (
     }
   }
 
-  console.log(
-    'productsData before matching:',
-    JSON.stringify(pdatas, null, 2),
-  );
+  console.log('productsData before matching:', JSON.stringify(pdatas, null, 2));
 
   for (const pdata of pdatas) {
     console.log('checking product:', pdata.productId);
@@ -104,10 +101,7 @@ export const setPlace = async (
     }
   }
 
-  console.log(
-    'productsData after matching:',
-    JSON.stringify(pdatas, null, 2),
-  );
+  console.log('productsData after matching:', JSON.stringify(pdatas, null, 2));
 
   const branchIds = [...new Set(pdatas.map((p) => p.branchId).filter(Boolean))];
   const departmentIds = [
@@ -120,20 +114,20 @@ export const setPlace = async (
   console.log('🔵 updating deal through TRPC');
 
   await sendTRPCMessage({
-  subdomain,
-  pluginName: 'sales',
-  module: 'deal',
-  action: 'editItem',
-  method: 'mutation',
-  input: {
-    itemId: dealId,
-    processId: processId || 'manual-update',
-    user: userId,
-    productsData: pdatas,
-    branchIds,
-    departmentIds,
-  },
-});
+    subdomain,
+    pluginName: 'sales',
+    module: 'deal',
+    action: 'editItem',
+    method: 'mutation',
+    input: {
+      itemId: dealId,
+      processId: processId || 'manual-update',
+      user: userId,
+      productsData: pdatas,
+      branchIds,
+      departmentIds,
+    },
+  });
 
   console.log('✅ deal updated');
 
