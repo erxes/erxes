@@ -1,11 +1,10 @@
-import { Button, cn, Combobox, Command, Filter } from 'erxes-ui';
+import { cn, Combobox, Command, Filter, useFilterContext } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
-import { Except } from 'type-fest';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/inbox/types/Channel';
-import { DATE_OPTIONS, SOURCE_OPTIONS } from '@/report/constants/data';
+import { SOURCE_OPTIONS } from '@/report/constants/data';
 import {
   getReportChannelFilterAtom,
   getReportDateFilterAtom,
@@ -14,7 +13,11 @@ import {
 } from '@/report/states';
 import { MemberFormContent } from '../frontline-card/MemberFormContent';
 import { SelectMember } from 'ui-modules';
-import { ReportDateFilter } from './ReportDateFilter';
+import {
+  getReportDisplayValue,
+  REPORT_FIXED_DATES,
+  ReportDateFilter,
+} from './ReportDateFilter';
 
 interface ReportFilterProps {
   cardId: string;
@@ -105,7 +108,11 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
             </Command>
           </Filter.View>
           <Filter.View filterKey="date">
-            <Filter.DateView filterKey="date" />
+            <DateView
+              filterKey="date"
+              selected={dateValue}
+              onSelect={setDateValue}
+            />
           </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
@@ -234,5 +241,76 @@ export const ReportDateFilterView = ({
         <ReportDateFilter value={value} onChange={onChange} />
       </Filter.View>
     </Filter.Dialog>
+  );
+};
+
+export const DateFilterCommand = ({
+  value,
+  selected,
+  onSelect,
+  focusOnMount,
+}: {
+  value: string;
+  selected: string;
+  onSelect: (value: string | null) => void;
+  focusOnMount?: boolean;
+}) => {
+  const { setDialogView, setOpenDialog } = useFilterContext();
+  return (
+    <Command>
+      <Command.Input
+        placeholder={value.charAt(0).toUpperCase() + value.slice(1) + ' date'}
+        focusOnMount={focusOnMount}
+      />
+      <Command.List>
+        {REPORT_FIXED_DATES.map((date) => (
+          <Command.Item
+            key={date}
+            value={date}
+            onSelect={() => {
+              onSelect(date);
+            }}
+            className={cn('h-8', selected === date && 'text-primary')}
+          >
+            {getReportDisplayValue(date)}
+            <Combobox.Check
+              checked={selected === date}
+              className="text-primary"
+            />
+          </Command.Item>
+        ))}
+        <Command.Item
+          className="h-8"
+          value="custom-date"
+          onSelect={() => {
+            setDialogView(value);
+            setOpenDialog(true);
+          }}
+        >
+          Custom date
+        </Command.Item>
+      </Command.List>
+    </Command>
+  );
+};
+
+export const DateView = ({
+  filterKey,
+  selected,
+  onSelect,
+}: {
+  filterKey: string;
+  selected?: string;
+  onSelect?: (value: string) => void;
+}) => {
+  return (
+    <DateFilterCommand
+      focusOnMount
+      value={filterKey}
+      selected={selected ?? ''}
+      onSelect={(value) => {
+        onSelect?.(value ?? '');
+      }}
+    />
   );
 };

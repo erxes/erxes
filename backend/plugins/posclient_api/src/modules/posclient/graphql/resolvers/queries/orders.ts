@@ -8,7 +8,7 @@ import {
 import { IConfig } from '~/modules/posclient/@types/configs';
 import { IContext } from '~/modules/posclient/@types/types';
 import { getCompanyInfo } from '~/modules/posclient/db/models/PutData';
-
+import { Resolver } from 'erxes-api-shared/core-types';
 export interface ISearchParams {
   searchValue?: string;
   startDate?: Date;
@@ -28,6 +28,7 @@ export interface ISearchParams {
   dueEndDate?: Date;
   isPreExclude?: boolean;
   slotCode?: string;
+  webId?: string;
 }
 
 const generateFilter = (config: IConfig, params: ISearchParams) => {
@@ -46,6 +47,7 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     dueEndDate,
     isPreExclude,
     slotCode,
+    webId,
   } = params;
 
   const mustFilter: any = {
@@ -66,6 +68,10 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
 
   if (slotCode) {
     filter.slotCode = slotCode;
+  }
+
+  if (webId) {
+    filter.webId = webId;
   }
 
   if (saleStatus) {
@@ -148,12 +154,28 @@ const filterOrders = (params: ISearchParams, models, config) => {
   );
 };
 
-const orderQueries = {
+const orderQueries: Record<string, Resolver> = {
   async orders(_root, params: ISearchParams, { models, config }: IContext) {
     return filterOrders(params, models, config);
   },
 
+  async cpCurrentOrder(
+    _root,
+    params: ISearchParams,
+    { models, config }: IContext,
+  ) {
+    return filterOrders(params, models, config);
+  },
+
   async fullOrders(_root, params: ISearchParams, { models, config }: IContext) {
+    return filterOrders(params, models, config);
+  },
+
+  async cpFullOrders(
+    _root,
+    params: ISearchParams,
+    { models, config }: IContext,
+  ) {
     return filterOrders(params, models, config);
   },
 
@@ -228,6 +250,66 @@ const orderQueries = {
     return order;
   },
 
+  async cpOrderDetail(
+    _root,
+    { _id, customerId }: { _id: string; customerId?: string },
+    { posUser, models, config }: IContext,
+  ) {
+    const tokenFilter = {
+      $or: [{ posToken: config.token }, { subToken: config.token }],
+    };
+    if (posUser) {
+      return models.Orders.findOne({ _id, ...tokenFilter });
+    }
+
+    const order = await models.Orders.findOne({ _id, ...tokenFilter }).lean();
+
+    if (
+      !order ||
+      !(order.customerType === 'visitor' || order.customerId === customerId)
+    ) {
+      throw new Error('Not found');
+    }
+
+    return order;
+  },
+
+  async cpOrderItemDetail(
+    _root,
+    {
+      searchValue,
+      statuses,
+      page,
+      perPage,
+      sortField,
+      sortDirection,
+    }: ISearchParams,
+    { models }: IContext,
+  ) {
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.number = { $regex: new RegExp(escapeRegExp(searchValue), 'i') };
+    }
+    const sort: { [key: string]: any } = {};
+
+    if (sortField) {
+      sort[sortField] = sortDirection;
+    } else {
+      sort.createdAt = 1;
+    }
+
+    return paginate(
+      models.OrderItems.find({
+        ...filter,
+        status: { $in: statuses },
+      })
+        .sort(sort)
+        .lean(),
+      { page, perPage },
+    );
+  },
+
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
     const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
 
@@ -241,6 +323,106 @@ const orderQueries = {
     }
 
     return resp.result?.data;
+  },
+
+  async cpOrdersCheckCompany(_root, { registerNumber }, { config }: IContext) {
+    const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
+
+    if (!checkTaxpayerUrl) {
+      throw new Error('Not found check taxpayer url');
+    }
+    const resp = await getCompanyInfo({ checkTaxpayerUrl, no: registerNumber });
+
+    if (resp.status !== 'checked' || !resp.tin) {
+      throw new Error('Company register number required for checking');
+    }
+
+    return resp.result?.data;
+  },
+
+  async cpInvoices(
+    _root,
+    {
+      customerId,
+      webId,
+      page,
+      perPage,
+      sortField,
+      sortDirection,
+    }: Pick<
+      ISearchParams,
+      | 'customerId'
+      | 'webId'
+      | 'page'
+      | 'perPage'
+      | 'sortField'
+      | 'sortDirection'
+    >,
+    { models, config }: IContext,
+  ) {
+    const sort: { [key: string]: any } = {};
+    if (sortField) {
+      sort[sortField] = sortDirection;
+    } else {
+      sort.createdAt = sortDirection || -1;
+    }
+
+    const tokenFilter = {
+      $or: [{ posToken: config.token }, { subToken: config.token }],
+    };
+
+    return await paginate(
+      models.Orders.find({
+        ...tokenFilter,
+        ...(customerId ? { customerId } : {}),
+        ...(webId ? { webId } : {}),
+        paidDate: { $exists: true },
+      })
+        .sort(sort)
+        .lean(),
+      { page, perPage },
+    );
+  },
+
+  async cpGetLastProductView(
+    _root,
+    { customerId }: { customerId?: string },
+    { models, config }: IContext,
+  ) {
+    const tokenFilter = {
+      $or: [{ posToken: config.token }, { subToken: config.token }],
+    };
+
+    const order = await models.Orders.findOne({
+      ...tokenFilter,
+      ...(customerId ? { customerId } : {}),
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (!order) {
+      return null;
+    }
+
+    return await models.OrderItems.find({ orderId: order._id }).lean();
+  },
+
+  async cpAddresses(_root, { orderId }, { subdomain }: IContext) {
+    const info = await sendTRPCMessage({
+      subdomain,
+
+      method: 'query',
+      pluginName: 'sales',
+      module: 'pos',
+      action: 'ordersDeliveryInfo',
+      input: { orderId: orderId },
+      defaultValue: {},
+    });
+    if (info.error) {
+      throw new Error(info.error);
+    }
+
+    return info;
   },
 
   async ordersDeliveryInfo(_root, { orderId }, { subdomain }: IContext) {
@@ -274,4 +456,29 @@ markResolvers(orderQueries, {
     skipPermission: true,
   },
 });
+
+orderQueries.cpAddresses.wrapperConfig = {
+  forClientPortal: true,
+};
+orderQueries.cpCurrentOrder.wrapperConfig = {
+  forClientPortal: true,
+};
+orderQueries.cpFullOrders.wrapperConfig = {
+  forClientPortal: true,
+};
+orderQueries.cpGetLastProductView.wrapperConfig = {
+  forClientPortal: true,
+};
+
+// not done yet
+orderQueries.cpInvoices.wrapperConfig = {
+  forClientPortal: true,
+};
+orderQueries.cpOrderDetail.wrapperConfig = {
+  forClientPortal: true,
+};
+orderQueries.cpOrdersCheckCompany.wrapperConfig = {
+  forClientPortal: true,
+};
+
 export default orderQueries;

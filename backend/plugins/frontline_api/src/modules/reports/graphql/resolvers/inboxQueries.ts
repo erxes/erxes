@@ -8,6 +8,7 @@ import {
   buildConversationMatch,
   buildDateMatch,
   calculatePercentage,
+  sourceMap,
   normalizeStatus,
 } from '@/reports/utils';
 import { IReportFilters } from '@/reports/@types/reportFilters';
@@ -375,35 +376,71 @@ export const reportInboxQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
   ) {
-    const conversationPipeline = await buildConversationPipeline(
-      filters,
-      models,
-    );
+    const pipeline: any[] = [];
+    const needsConversationLookup =
+      filters.channelIds?.length || filters.memberIds?.length || filters.source;
 
-    const pipeline: any[] = [
-      {
-        $lookup: {
-          from: 'conversations',
-          localField: 'conversationId',
-          foreignField: '_id',
-          as: 'conversation',
+    const match: any = {
+      internal: false,
+      userId: { $exists: true, $ne: null },
+    };
+
+    if (filters.fromDate || filters.toDate) {
+      const dateRange: any = {};
+      if (filters.fromDate) dateRange.$gte = new Date(filters.fromDate);
+      if (filters.toDate) dateRange.$lte = new Date(filters.toDate);
+      match.createdAt = dateRange;
+    }
+
+    if (needsConversationLookup) {
+      pipeline.push(
+        {
+          $lookup: {
+            from: 'conversations',
+            localField: 'conversationId',
+            foreignField: '_id',
+            as: 'conversation',
+          },
         },
-      },
-      { $unwind: '$conversation' },
-    ];
+        { $unwind: '$conversation' },
+      );
 
-    conversationPipeline.forEach((stage) => {
-      if (stage.$match) {
-        const nested: any = {};
-        Object.entries(stage.$match).forEach(([k, v]) => {
-          nested[`conversation.${k}`] = v;
-        });
-        pipeline.push({ $match: nested });
+      if (filters.channelIds?.length) {
+        const integrations = await models.Integrations.find({
+          channelId: { $in: filters.channelIds },
+        }).lean();
+
+        if (!integrations.length) {
+          return [];
+        }
+
+        const integrationIds = integrations.map((i) => i._id);
+        match['conversation.integrationId'] = { $in: integrationIds };
       }
-    });
+
+      if (filters.memberIds?.length) {
+        match['conversation.assignedUserId'] = { $in: filters.memberIds };
+      }
+
+      if (filters.source && sourceMap[filters.source]) {
+        pipeline.push(
+          {
+            $lookup: {
+              from: 'integrations',
+              localField: 'conversation.integrationId',
+              foreignField: '_id',
+              as: 'integration',
+            },
+          },
+          { $unwind: '$integration' },
+        );
+        match['integration.kind'] = sourceMap[filters.source];
+      }
+    }
+
+    pipeline.push({ $match: match });
 
     pipeline.push(
-      { $match: { internal: false, userId: { $exists: true, $ne: null } } },
       {
         $lookup: {
           from: 'users',

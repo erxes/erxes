@@ -69,6 +69,7 @@ const queryParams = `
   resolvedDayBetween:[Int]
   relationType: String
   relationId: String
+  webId: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -132,6 +133,8 @@ export const types = `
     productsData: JSON
     paymentsData: JSON
 
+    webId: String
+
     cursor: String
   }
 
@@ -191,6 +194,9 @@ export const queries = `
   
   archivedDeals(${archivedDealsParams}): DealsListResponse
   archivedDealsCount(${archivedDealsParams}): Int
+
+  cpDeals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
+  cpDealDetail(_id: String!, clientPortalCard: Boolean): Deal
 `;
 
 const mutationParams = `

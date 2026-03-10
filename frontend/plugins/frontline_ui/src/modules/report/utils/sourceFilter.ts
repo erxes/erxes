@@ -5,7 +5,7 @@ type SourceType =
   | 'instagram-messenger'
   | 'instagram-post'
   | 'messenger'
-  | 'call'
+  | 'calls'
   | 'form';
 
 interface SourceOption {
@@ -23,7 +23,7 @@ export function getSourceFilter(value: string): SourceOption {
     'instagram-post': { label: 'Instagram Post' },
     form: { label: 'Form' },
     messenger: { label: 'Messenger' },
-    call: { label: 'Call' },
+    calls: { label: 'Calls' },
   };
 
   const normalizedValue = value.toLowerCase() as SourceType;

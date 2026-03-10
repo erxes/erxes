@@ -24,6 +24,9 @@ export const queries = `
   pmsConfigsGetValue(code:String): PmsConfig
   pmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date ): [Deal]
   pmsCheckRooms(skipStageIds : [String],pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
+
+  cpPmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date, webId: String ): [Deal]
+  cpPmsCheckRooms(skipStageIds : [String],pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
 `;
 
 const params = `
