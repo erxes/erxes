@@ -424,12 +424,12 @@ const productQueries = {
       const getRegex = (str) => {
         return ['*', '.', '_'].includes(str)
           ? new RegExp(
-            `^${str
-              .replace(/\./g, '\\.')
-              .replace(/\*/g, '.')
-              .replace(/_/g, '.')}.*`,
-            'igu',
-          )
+              `^${str
+                .replace(/\./g, '\\.')
+                .replace(/\*/g, '.')
+                .replace(/_/g, '.')}.*`,
+              'igu',
+            )
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
@@ -731,7 +731,7 @@ const productQueries = {
           { ...product, unitPrice: (product.prices || {})[config.token] },
         ],
       },
-      defaultValue: {}
+      defaultValue: {},
     });
 
     return JSON.stringify(response ?? {});

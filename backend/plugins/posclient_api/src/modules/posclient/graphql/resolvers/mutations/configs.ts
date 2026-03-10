@@ -1,4 +1,8 @@
-import { authCookieOptions, escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  authCookieOptions,
+  escapeRegExp,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 
 // import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 // import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
@@ -188,9 +192,10 @@ const configMutations = {
         module: 'pos',
         action: 'createOrUpdateOrdersMany',
         input: {
-          posToken: config.token, syncOrders: data
-        }
-      })
+          posToken: config.token,
+          syncOrders: data,
+        },
+      });
     }
 
     return {

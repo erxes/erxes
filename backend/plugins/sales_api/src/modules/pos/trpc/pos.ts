@@ -27,17 +27,19 @@ export const posTrpcRouter = t.router({
       }),
     }),
 
-    confirmCover: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { cover } = input;
-      await models.Covers.updateOne(
-        { _id: cover._id },
-        { ...cover },
-        { upsert: true }
-      );
+    confirmCover: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { cover } = input;
+        await models.Covers.updateOne(
+          { _id: cover._id },
+          { ...cover },
+          { upsert: true },
+        );
 
-      return await models.Covers.findOne({ _id: cover._id });
-    }),
+        return await models.Covers.findOne({ _id: cover._id });
+      }),
     ecommerceGetBranches: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {

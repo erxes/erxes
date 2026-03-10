@@ -1118,8 +1118,9 @@ const orderMutations: Record<string, Resolver> = {
             lng: marker.longitude || marker.lng,
             description: 'location',
           },
-          stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat
-            }`,
+          stringValue: `${marker.longitude || marker.lng},${
+            marker.latitude || marker.lat
+          }`,
         },
       ];
     }
