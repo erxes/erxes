@@ -7,7 +7,7 @@ import {
 } from 'erxes-ui';
 import { IconBuildingStore, IconCheck } from '@tabler/icons-react';
 import { useBrands } from 'ui-modules/modules/brands/hooks/useBrands';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
 
 export const ChooseBrand = () => {
@@ -18,6 +18,31 @@ export const ChooseBrand = () => {
     variables: { searchValue: debouncedSearch || undefined },
   });
 
+  let brandContent: ReactNode;
+  if (loading) {
+    brandContent = (
+      <>
+        <Skeleton className="w-32 h-4 mt-1" />
+        <Skeleton className="w-36 h-4 mt-1" />
+        <Skeleton className="w-32 h-4 mt-1" />
+      </>
+    );
+  } else if (!brands?.length) {
+    brandContent = (
+      <div className="text-sm text-accent-foreground ml-1 my-2">
+        No brands found
+      </div>
+    );
+  } else {
+    brandContent = brands.map((brand) => (
+      <BrandItem
+        key={brand._id}
+        _id={brand._id}
+        name={brand.name ?? 'Unnamed brand'}
+      />
+    ));
+  }
+
   return (
     <div className="flex flex-col gap-1">
       <Input
@@ -26,25 +51,7 @@ export const ChooseBrand = () => {
         onChange={(e) => setSearch(e.target.value)}
         className="h-7 text-xs"
       />
-      {loading ? (
-        <>
-          <Skeleton className="w-32 h-4 mt-1" />
-          <Skeleton className="w-36 h-4 mt-1" />
-          <Skeleton className="w-32 h-4 mt-1" />
-        </>
-      ) : !brands?.length ? (
-        <div className="text-sm text-accent-foreground ml-1 my-2">
-          No brands found
-        </div>
-      ) : (
-        brands.map((brand) => (
-          <BrandItem
-            key={brand._id}
-            _id={brand._id}
-            name={brand.name ?? 'Unnamed brand'}
-          />
-        ))
-      )}
+      {brandContent}
     </div>
   );
 };

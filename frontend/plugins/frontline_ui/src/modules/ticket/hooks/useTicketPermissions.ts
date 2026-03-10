@@ -26,6 +26,28 @@ interface UseTicketPermissionsParams {
   assigneeId?: string;
 }
 
+const resolveStatusPermissions = (
+  status: IStatusPermissions,
+  userId: string,
+): Pick<ITicketPermissions, 'canViewTicket' | 'canEditTicket' | 'canMoveTicket'> => {
+  if (
+    status.visibilityType === 'private' &&
+    !(status.memberIds || []).includes(userId)
+  ) {
+    return { canViewTicket: false, canEditTicket: false, canMoveTicket: false };
+  }
+
+  const canEditTicket = status.canEditMemberIds?.length
+    ? status.canEditMemberIds.includes(userId)
+    : true;
+
+  const canMoveTicket = status.canMoveMemberIds?.length
+    ? status.canMoveMemberIds.includes(userId)
+    : true;
+
+  return { canViewTicket: true, canEditTicket, canMoveTicket };
+};
+
 const DENIED: ITicketPermissions = {
   canViewPipeline: false,
   canViewTicket: false,
@@ -63,31 +85,12 @@ export const useTicketPermissions = ({
     return DENIED;
   }
 
-  let canViewTicket = true;
   const canCreateTicket = true;
   const canDeleteTicket = isPipelineOwner;
 
-  let canEditTicket = true;
-  let canMoveTicket = true;
-
-  if (status) {
-    if (status.visibilityType === 'private') {
-      const canViewStatus = (status.memberIds || []).includes(userId);
-      if (!canViewStatus) {
-        canViewTicket = false;
-        canEditTicket = false;
-        canMoveTicket = false;
-      }
-    }
-
-    if (canViewTicket && status.canEditMemberIds?.length) {
-      canEditTicket = status.canEditMemberIds.includes(userId);
-    }
-
-    if (canViewTicket && status.canMoveMemberIds?.length) {
-      canMoveTicket = status.canMoveMemberIds.includes(userId);
-    }
-  }
+  const { canViewTicket, canEditTicket, canMoveTicket } = status
+    ? resolveStatusPermissions(status, userId)
+    : { canViewTicket: true, canEditTicket: true, canMoveTicket: true };
 
   return {
     canViewPipeline,

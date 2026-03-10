@@ -17,6 +17,36 @@ export interface ITicketPermissions {
   canMoveTicket: boolean;
 }
 
+const resolveStatusPermissions = (
+  status: {
+    visibilityType?: string;
+    memberIds?: string[];
+    canEditMemberIds?: string[];
+    canMoveMemberIds?: string[];
+  },
+  userId: string,
+): Pick<
+  ITicketPermissions,
+  'canViewTicket' | 'canEditTicket' | 'canMoveTicket'
+> => {
+  if (
+    status.visibilityType === 'private' &&
+    !(status.memberIds || []).includes(userId)
+  ) {
+    return { canViewTicket: false, canEditTicket: false, canMoveTicket: false };
+  }
+
+  const canEditTicket = status.canEditMemberIds?.length
+    ? status.canEditMemberIds.includes(userId)
+    : true;
+
+  const canMoveTicket = status.canMoveMemberIds?.length
+    ? status.canMoveMemberIds.includes(userId)
+    : true;
+
+  return { canViewTicket: true, canEditTicket, canMoveTicket };
+};
+
 export class PermissionValidator {
   constructor(private models: IModels) {}
 
@@ -108,30 +138,10 @@ export class PermissionValidator {
       const status = await this.models.Status.findOne({ _id: statusId });
 
       if (status) {
-        if (status.canEditMemberIds?.length) {
-          permissions.canEditTicket = status.canEditMemberIds.includes(
-            user._id,
-          );
-        } else {
-          permissions.canEditTicket = true;
-        }
-
-        if (status.canMoveMemberIds?.length) {
-          permissions.canMoveTicket = status.canMoveMemberIds.includes(
-            user._id,
-          );
-        } else {
-          permissions.canMoveTicket = true;
-        }
-
-        if (status.visibilityType === 'private') {
-          const canViewStatus = (status.memberIds || []).includes(user._id);
-          if (!canViewStatus) {
-            permissions.canViewTicket = false;
-            permissions.canEditTicket = false;
-            permissions.canMoveTicket = false;
-          }
-        }
+        const resolved = resolveStatusPermissions(status, user._id);
+        permissions.canViewTicket = resolved.canViewTicket;
+        permissions.canEditTicket = resolved.canEditTicket;
+        permissions.canMoveTicket = resolved.canMoveTicket;
       }
     } else {
       permissions.canEditTicket = true;

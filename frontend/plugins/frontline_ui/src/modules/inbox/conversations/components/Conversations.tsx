@@ -20,7 +20,7 @@ import {
 import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
 import { ConversationItem } from './ConversationItem';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
 import { conversationsContainerScrollState } from '@/inbox/conversations/states/conversationsContainerScrollState';
@@ -101,14 +101,13 @@ export const Conversations = () => {
       },
     });
 
+  const conversationListContextValue = useMemo(
+    () => ({ conversations, loading, totalCount }),
+    [conversations, loading, totalCount],
+  );
+
   return (
-    <ConversationListContext.Provider
-      value={{
-        conversations,
-        loading,
-        totalCount,
-      }}
-    >
+    <ConversationListContext.Provider value={conversationListContextValue}>
       <div className="flex flex-col h-full overflow-hidden w-full">
         <Filter id="conversations">
           <ConversationsHeader>

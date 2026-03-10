@@ -108,6 +108,7 @@ export const generateFilter = async (
 
   switch (filter.state) {
     case 'active':
+    default:
       stateCondition = {
         $or: [{ state: 'active' }, { state: { $exists: false } }],
       };
@@ -117,11 +118,6 @@ export const generateFilter = async (
       break;
     case 'deleted':
       stateCondition = { state: 'deleted' };
-      break;
-    default:
-      stateCondition = {
-        $or: [{ state: 'active' }, { state: { $exists: false } }],
-      };
       break;
   }
 
