@@ -31,10 +31,23 @@ export const queries = `
     page: Int
     perPage: Int
   ): [ProductReview]
-`;
+
+  cpProductReviews(
+    productIds: [String]
+    customerId: String
+    page: Int
+    perPage: Int
+  ): [ProductReview]
+
+  cpProductReview(productId: String!): AverageReview
+`
 
 export const mutations = `
   productReviewAdd(${mutationParams}): ProductReview
   productReviewUpdate(_id: String!, ${mutationParams}): ProductReview
   productReviewRemove(_id: String!): ProductReview
+
+  cpProductReviewAdd(${mutationParams}): ProductReview
+  cpProductReviewUpdate(_id: String!, ${mutationParams}): ProductReview
+  cpProductReviewRemove(_id: String!): ProductReview
 `;

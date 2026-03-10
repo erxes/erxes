@@ -32,6 +32,8 @@ export const inputs = `
 
 export const mutations = `
   paymentTransactionsAdd(input: PaymentTransactionInput!): PaymentTransaction
+
+  cpPaymentTransactionsAdd(input: PaymentTransactionInput!): PaymentTransaction
 `;
 
 const queryParams = `
