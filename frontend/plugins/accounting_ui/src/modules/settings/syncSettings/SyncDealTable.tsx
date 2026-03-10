@@ -5,6 +5,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { useAccountingConfigs } from '../hooks/useAccountingConfigs';
 import { accountingConfigDetailAtom } from '../states/accountingConfigState';
@@ -80,7 +81,9 @@ export const columns: ColumnDef<IConfig>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          {cell.row.original.value?.boardId}
+          <BoardSelect
+            boardId={cell.row.original.value?.boardId}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -92,7 +95,9 @@ export const columns: ColumnDef<IConfig>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          {cell.row.original.value?.pipelineId}
+          <PipelineSelect
+            pipelineId={cell.row.original.value?.pipelineId}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -104,7 +109,10 @@ export const columns: ColumnDef<IConfig>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          {cell.row.original.value?.stageId}
+          <StageSelect
+            pipelineId={cell.row.original.value?.pipelineId}
+            stageId={cell.row.original.value?.stageId}
+          />
         </RecordTableInlineCell>
       );
     },

@@ -1,10 +1,23 @@
 import { ITagFilterQueryParams } from '@/tags/@types/tag';
-import { cursorPaginate, getPlugin, getPlugins } from 'erxes-api-shared/utils';
+import { ITagDocument, Resolver } from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getPlugin,
+  getPlugins,
+} from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
-import { Resolver } from 'erxes-api-shared/core-types';
+import { IContext, IModels } from '~/connectionResolvers';
 
-const generateFilter = async ({ params, commonQuerySelector, models }) => {
+const generateFilter = async ({
+  params,
+  models,
+  commonQuerySelector,
+}: {
+  params: ITagFilterQueryParams;
+  models: IModels;
+  commonQuerySelector?: any;
+}) => {
   const {
     searchValue,
     parentId,
@@ -15,7 +28,7 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
     includeWorkspaceTags,
   } = params;
 
-  const filter: FilterQuery<ITagFilterQueryParams> = {
+  const filter: FilterQuery<ITagDocument> = {
     ...commonQuerySelector,
     type: { $in: [null, ''] },
   };
@@ -148,7 +161,7 @@ export const tagQueries: Record<string, Resolver> = {
     }: { type: string; excludeWorkspaceTags?: boolean },
     { models }: IContext,
   ) {
-    const filter: FilterQuery<ITagFilterQueryParams> = {
+    const filter: FilterQuery<ITagDocument> = {
       type: { $in: [null, ''] },
     };
 
@@ -198,28 +211,55 @@ export const tagQueries: Record<string, Resolver> = {
   async cpTags(
     _parent: undefined,
     params: ITagFilterQueryParams,
-    { models, commonQuerySelector }: IContext,
+    { models }: IContext,
   ) {
-    const filter = await generateFilter({
-      params,
-      commonQuerySelector,
-      models,
-    });
+    const {
+      type,
+      searchValue,
+      ids,
+      excludeIds,
+      isGroup,
+      includeWorkspaceTags,
+    } = params;
 
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.Tags,
-      params: {
-        orderBy: { order: 1 },
-        ...params,
-      },
-      query: filter,
-    });
+    const filter: FilterQuery<ITagDocument> = {};
 
-    return { list, totalCount, pageInfo };
+    let contentType = type;
+
+    if (type) {
+      const [_pluginName, _moduleName, instanceId] = type.split(':');
+
+      if (!instanceId && params.instanceId) {
+        contentType = `${type}:${params.instanceId}`;
+      }
+
+      filter.type = contentType;
+
+      if (includeWorkspaceTags) {
+        filter.type = { $in: [null, '', contentType] };
+      }
+    }
+
+    if (searchValue) {
+      filter.name = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    }
+
+    if (ids?.length) {
+      filter._id = excludeIds ? { $nin: ids } : { $in: ids };
+    }
+
+    if (isGroup) {
+      filter.isGroup = isGroup;
+    }
+
+    if ('isGroup' in (params || {}) && isGroup === false) {
+      filter.isGroup = { $ne: true };
+    }
+
+    return models.Tags.find(filter).lean();
   },
 };
 
 tagQueries.cpTags.wrapperConfig = {
   forClientPortal: true,
-  cpUserRequired: true,
 };

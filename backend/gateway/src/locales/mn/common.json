@@ -8,8 +8,10 @@
     "automations": "Автоматжуулалтууд",
     "documents": "Баримтууд",
     "broadcasts": "Броадкастууд",
+    "templates": "Загварууд",
     "success": "Амжилттай",
     "cancel": "Цуцлах",
+    "delete": "Устгах",
     "save": "Хадгалах",
     "settings": "Тохиргоо"
   },
@@ -36,9 +38,11 @@
   },
   "sidebar": {
     "profile": "Профайл",
+    "notification" : "Мэдэгдэл",
     "change-password": "Нууц үг солих",
     "general": "Ерөнхий",
     "team-member": "Багийн гишүүн",
+    "structure": "Багийн бүтэц",
     "tags": "Тагууд",
     "brands": "Брэндүүд",
     "file-upload": "Файл байршуулах",
@@ -51,6 +55,7 @@
     "developer": "Хөгжүүлэгч",
     "workspace": "Ажлын орчин",
     "core-modules": "Үндсэн модулиуд",
+    "templates": "Загварууд",
     "exit-settings": "Тохиргооноос гарах",
     "favorites": "Дуртай",
     "my-inbox": "Миний инбокс"

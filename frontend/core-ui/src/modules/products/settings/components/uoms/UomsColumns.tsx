@@ -7,6 +7,7 @@ import {
 } from 'erxes-ui';
 import { IUom } from 'ui-modules';
 import { uomNameColumn } from './UomNameColumn';
+import { uomMoreColumn } from './UomMoreColumn';
 
 export const uomsColumns: ColumnDef<IUom>[] = [
   uomNameColumn,
@@ -40,4 +41,5 @@ export const uomsColumns: ColumnDef<IUom>[] = [
     },
     size: 150,
   },
+  uomMoreColumn,
 ];

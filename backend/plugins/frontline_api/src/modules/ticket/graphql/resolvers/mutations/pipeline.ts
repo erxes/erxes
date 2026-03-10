@@ -9,6 +9,10 @@ export const pipelineMutations = {
     params: ITicketPipelineUpdate,
     { models, user }: IContext,
   ) => {
+    if (!user) {
+      throw new Error('Authentication required');
+    }
+
     const pipeline = await models.Pipeline.addPipeline({
       ...params,
       userId: user._id,
@@ -27,11 +31,12 @@ export const pipelineMutations = {
   updatePipeline: async (
     _parent: undefined,
     params: ITicketPipelineUpdate & { _id: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     const updatedPipeline = await models.Pipeline.updatePipeline(
       params._id,
       params,
+      user,
     );
 
     graphqlPubsub.publish(`ticketPipelineChanged:${updatedPipeline?._id}`, {

@@ -84,6 +84,20 @@ export const usePipelineRemove = (
     },
     refetchQueries: ['SalesPipelines'],
     awaitRefetchQueries: true,
+    onCompleted: (...args) => {
+      toast({
+        title: 'Successfully removed a pipeline',
+        variant: 'default',
+      });
+      options?.onCompleted?.(...args);
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err.message || 'Remove failed',
+        variant: 'destructive',
+      });
+    },
   });
 
   return {
@@ -126,7 +140,7 @@ export const usePipelineEdit = () => {
     editPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines'],
+      refetchQueries: ['SalesPipelines', 'SalesStages'],
       awaitRefetchQueries: true,
       update: (cache, { data: { salesPipelinesEdit } }) => {
         if (!salesPipelinesEdit) return;

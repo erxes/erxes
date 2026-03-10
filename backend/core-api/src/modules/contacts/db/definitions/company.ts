@@ -136,9 +136,15 @@ export const companySchema = schemaWrapper(
       },
 
       customFieldsData: {
-        type: Schema.Types.Mixed,
+        type: [customFieldSchema],
         optional: true,
         label: 'Custom fields data',
+      },
+
+      propertiesData: {
+        type: Schema.Types.Mixed,
+        optional: true,
+        label: 'Properties data',
       },
 
       trackedData: {

@@ -10,10 +10,10 @@ import {
   userSchema,
 } from 'erxes-api-shared/core-modules';
 import {
-  IAppDocument,
   IDetail,
   IEmailSignature,
   ILink,
+  IPropertyField,
   IUser,
   IUserDocument,
   IUserMovementDocument,
@@ -23,7 +23,6 @@ import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
-import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 import {
   generateLoginActivityLog,
   generateLogoutActivityLog,
@@ -41,6 +40,7 @@ interface IEditProfile {
   links?: ILink;
   employeeId?: string;
   positionIds?: string[];
+  propertiesData?: IPropertyField;
 }
 
 interface IUpdateUser extends IEditProfile {
@@ -122,7 +122,6 @@ export interface IUserModel extends Model<IUserDocument> {
   getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
   logout(_user: IUserDocument, token: string): Promise<string>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
-  createSystemUser(doc: IAppDocument): IUserDocument;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
 }
 
@@ -251,11 +250,6 @@ export const loadUserClass = (
         currentDocument: user.toObject(),
       });
 
-      models.Roles.create({
-        userId: user._id,
-        role: isOwner ? PERMISSION_ROLES.OWNER : PERMISSION_ROLES.MEMBER,
-      });
-
       return user;
     }
 
@@ -296,6 +290,14 @@ export const loadUserClass = (
           employeeId: doc.employeeId,
           idsToExclude: _id,
         });
+      }
+
+      if (doc.propertiesData) {
+        const propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
+        );
+
+        doc.propertiesData = propertiesData;
       }
 
       const operations: any = { $set: doc };
@@ -373,11 +375,6 @@ export const loadUserClass = (
       });
 
       createActivityLog(generateUserInvitationActivityLog(user));
-
-      models.Roles.create({
-        userId: user._id,
-        role: PERMISSION_ROLES.MEMBER,
-      });
 
       return token;
     }
@@ -713,12 +710,6 @@ export const loadUserClass = (
         departmentIds: _user.departmentIds,
       };
 
-      const { role } = (await models.Roles.getRole(user._id)) || {};
-
-      if (role) {
-        user['role'] = role;
-      }
-
       return user;
     }
 
@@ -730,12 +721,6 @@ export const loadUserClass = (
         _id: _user._id,
         isOwner: _user.isOwner,
       };
-
-      const { role } = (await models.Roles.getRole(user._id)) || {};
-
-      if (role) {
-        user['role'] = role;
-      }
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
 
@@ -804,6 +789,7 @@ export const loadUserClass = (
         throw new Error('Invalid login');
       }
       const valid = await this.comparePassword(password, user.password);
+      console.log(valid);
 
       if (!valid) {
         // bad password
@@ -933,33 +919,7 @@ export const loadUserClass = (
 
       return models.Users.find(filter, options).lean();
     }
-    public static async createSystemUser(app: IAppDocument) {
-      const user = await models.Users.findOne({ appId: app._id });
 
-      if (user) {
-        return user;
-      }
-
-      const newUser = await models.Users.create({
-        role: USER_ROLES.SYSTEM,
-        password: await this.generatePassword(app._id),
-        username: app.name,
-        code: await this.generateUserCode(),
-        groupIds: [app.userGroupId],
-        appId: app._id,
-        isActive: true,
-        email: `${app._id}@domain.com`,
-        details: {
-          fullName: app.name,
-        },
-      });
-      sendDbEventLog({
-        action: 'create',
-        docId: newUser._id,
-        currentDocument: newUser.toObject(),
-      });
-      return newUser;
-    }
     public static async checkLoginAuth({
       email,
       password,

@@ -114,6 +114,10 @@ export const findOrCreateCustomer = async (
     defaultValue: {},
   });
 
+  if (!apiCustomerResponse || !apiCustomerResponse._id) {
+    throw new Error('Failed to create customer in Core');
+  }
+
   await models.ImapCustomers.create({
     inboxIntegrationId: integrationId,
     contactsId: apiCustomerResponse._id,

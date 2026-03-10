@@ -1,4 +1,8 @@
-import { authCookieOptions, escapeRegExp } from 'erxes-api-shared/utils';
+import {
+  authCookieOptions,
+  escapeRegExp,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 
 // import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 // import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
@@ -147,7 +151,7 @@ const configMutations = {
       ],
     };
 
-    let sumCount = await models.Orders.find({
+    const sumCount = await models.Orders.find({
       ...orderFilter,
     }).countDocuments();
     const orders = await models.Orders.find({ ...orderFilter })
@@ -181,11 +185,17 @@ const configMutations = {
     }
 
     if (data.length) {
-      // await sendPosMessage({
-      //   subdomain,
-      //   action: 'createOrUpdateOrdersMany',
-      //   data: { posToken: config.token, syncOrders: data },
-      // });
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'sales',
+        module: 'pos',
+        action: 'createOrUpdateOrdersMany',
+        input: {
+          posToken: config.token,
+          syncOrders: data,
+        },
+      });
     }
 
     return {

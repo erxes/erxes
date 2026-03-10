@@ -121,9 +121,8 @@ export const uploadMedia = async (
   url: string,
   video: boolean,
 ) => {
-  const mediaFile = `uploads/${randomAlphanumeric(16)}.${
-    video ? 'mp4' : 'jpg'
-  }`;
+  const mediaFile = `uploads/${randomAlphanumeric(16)}.${video ? 'mp4' : 'jpg'
+    }`;
 
   // 1. Ensure we have cachedUploadConfig (with promise-based concurrency control)
   if (!cachedUploadConfig) {
@@ -448,8 +447,7 @@ export const sendReply = async (
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to facebook ${
-        e.message
+      `Error ocurred while trying to send post request to facebook ${e.message
       } data: ${JSON.stringify(data)}`,
     );
 
@@ -576,7 +574,7 @@ export const getFacebookUserProfilePic = async (
       pageAccessToken,
     );
 
-    const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+    const uploadConfig = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
@@ -585,6 +583,8 @@ export const getFacebookUserProfilePic = async (
       action: 'getFileUploadConfigs',
       input: {},
     });
+
+    const { UPLOAD_SERVICE_TYPE } = uploadConfig || {};
 
     if (UPLOAD_SERVICE_TYPE === 'AWS') {
       const awsResponse = await uploadMedia(

@@ -37,8 +37,6 @@ export interface IProductParams extends ICommonParams {
   tags?: string[];
   excludeTags?: string[];
   tagWithRelated?: boolean;
-  pipelineId?: string;
-  boardId?: string;
   segment?: string;
   segmentData?: string;
   isKiosk?: boolean;
@@ -120,17 +118,8 @@ const generateFilter = async (
     let tagIds: string[] = tags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -147,17 +136,8 @@ const generateFilter = async (
     let tagIds: string[] = excludeTags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -370,7 +350,7 @@ const productQueries = {
       page: params?.page ?? 1,
     };
 
-    let filter = await generateFilter(subdomain, models, config, params);
+    const filter = await generateFilter(subdomain, models, config, params);
 
     let sortParams: any = { code: 1 };
 
@@ -453,9 +433,8 @@ const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(
@@ -740,22 +719,20 @@ const productQueries = {
     { models, subdomain, config }: IContext,
   ) {
     const product = await models.Products.getProduct({ _id: productId });
-    const d = {};
-    // const d = await sendPricingMessage({
-    //   subdomain,
-    //   action: 'getQuantityRules',
-    //   data: {
-    //     departmentId: config.departmentId,
-    //     branchId: config.branchId,
-    //     products: [
-    //       { ...product, unitPrice: (product.prices || {})[config.token] },
-    //     ],
-    //   },
-    //   isRPC: true,
-    //   defaultValue: {},
-    // });
+    const response = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'pricing',
+      action: 'getQuantityRules',
+      input: {
+        departmentId: config.departmentId,
+        branchId: config.branchId,
+        products: [{ ...product, unitPrice: product.prices?.[config.token] }],
+      },
+      defaultValue: {},
+    });
 
-    return JSON.stringify(d);
+    return JSON.stringify(response ?? {});
   },
 };
 markResolvers(productQueries, {

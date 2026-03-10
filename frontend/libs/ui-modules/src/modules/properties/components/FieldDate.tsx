@@ -17,7 +17,7 @@ export const FieldDate = (props: SpecificFieldProps) => {
       variant={inCell ? 'ghost' : 'outline'}
       className={cn(inCell && 'rounded-none [&_svg]:hidden')}
       placeholder=""
-      mode={(field.multiple ? 'multiple' : 'single') as any}
+      mode={'single'}
     />
   );
 };

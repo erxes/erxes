@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { formSetupStepAtom } from '../states/formSetupStates';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 export const FormMutateLayout = ({
   children,
@@ -22,20 +22,16 @@ export const FormMutateLayout = ({
   isLoading?: boolean;
 }) => {
   const [step, setStep] = useAtom(formSetupStepAtom);
-  const { formId } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(
-          (values) => {
-            onSubmit?.(values);
-            setStep((prev) => (prev === 3 ? prev : prev + 1));
-          },
-          (errors) => {
-            console.log(errors);
-          },
-        )}
+        onSubmit={form.handleSubmit((values) => {
+          onSubmit?.(values);
+          setStep((prev) => (prev === 3 ? prev : prev + 1));
+        })}
         className="flex-auto flex flex-col h-full overflow-hidden bg-sidebar"
       >
         <Sheet.Content className="grow overflow-hidden flex flex-col">
@@ -53,21 +49,21 @@ export const FormMutateLayout = ({
           <Button
             variant="secondary"
             className="mr-auto bg-border"
-            onClick={() => null}
+            onClick={() => navigate(`/settings/frontline/channels/${id}/forms`)}
           >
             Cancel
           </Button>
           <FormMutateLayoutPreviousStepButton />
           <Button type="submit" disabled={isLoading}>
             {isLoading
-              ? formId
+              ? id
                 ? 'Updating form...'
                 : 'Creating form...'
               : step === 3
-              ? formId
-                ? 'Update form'
-                : 'Create form'
-              : 'Next step'}
+                ? id
+                  ? 'Update form'
+                  : 'Create form'
+                : 'Next step'}
           </Button>
         </Sheet.Footer>
       </form>

@@ -43,9 +43,15 @@ export const ChannelFormsPage = lazy(() =>
   })),
 );
 
+export const FormCreatePage = lazy(() =>
+  import('~/pages/FormCreatePage').then((module) => ({
+    default: module.FormCreatePage,
+  })),
+);
+
 export const FormDetailPage = lazy(() =>
   import('~/pages/FormDetailPage').then((module) => ({
-    default: module.FormDetailPage,
+    default: module.ChannelFormDetailPage,
   })),
 );
 
@@ -76,6 +82,12 @@ export const PipelineDetailPage = lazy(() =>
 export const PipielineConfigListPage = lazy(() =>
   import('~/pages/PipielineConfigListPage').then((module) => ({
     default: module.PipielineConfigListPage,
+  })),
+);
+
+export const PipelinePermissionsPage = lazy(() =>
+  import('~/pages/PipelinePermissionsPage').then((module) => ({
+    default: module.PipelinePermissionsPage,
   })),
 );
 
@@ -135,6 +147,10 @@ const ChannelsSettings = () => {
             element={<PipielineConfigListPage />}
           />
           <Route
+            path={FrontlinePaths.PipelinePermissions}
+            element={<PipelinePermissionsPage />}
+          />
+          <Route
             path={FrontlinePaths.TicketsStatuses}
             element={<TicketStatusesPage />}
           />
@@ -151,8 +167,12 @@ const ChannelsSettings = () => {
             element={<ChannelFormsPage />}
           />
           <Route
+            path={FrontlinePaths.FormsCreate}
+            element={<FormCreatePage />}
+          />
+          <Route
             path={FrontlinePaths.FormDetail}
-            element={<ChannelFormsPage />}
+            element={<FormDetailPage />}
           />
         </Route>
       </Routes>

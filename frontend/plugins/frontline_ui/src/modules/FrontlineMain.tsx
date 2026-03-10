@@ -41,6 +41,30 @@ const Report = lazy(() =>
   })),
 );
 
+const Forms = lazy(() =>
+  import('~/pages/FormsIndexPage').then((module) => ({
+    default: module.default,
+  })),
+);
+
+const FormDetailPage = lazy(() =>
+  import('~/pages/FormDetailPage').then((module) => ({
+    default: module.FormDetailPage,
+  })),
+);
+
+const FormCreatePage = lazy(() =>
+  import('~/pages/FormCreatePage').then((module) => ({
+    default: module.FormCreatePage,
+  })),
+);
+
+const FormPreviewPage = lazy(() =>
+  import('~/pages/FormPreviewPage').then((module) => ({
+    default: module.FormPreviewPage,
+  })),
+);
+
 const KnowledgeBase = lazy(() =>
   import('~/pages/knowledgebase/IndexPage').then((module) => ({
     default: module.default,
@@ -56,6 +80,10 @@ const IntegrationsMain = () => {
         <Route path="/calls" element={<CallDashboardIndexPage />} />
         <Route path="/calls/:id" element={<CallDashboardDetailPage />} />
         <Route path="/reports" element={<Report />} />
+        <Route path="/forms" element={<Forms />} />
+        <Route path="/forms/:formId" element={<FormDetailPage />} />
+        <Route path="/forms/create" element={<FormCreatePage />} />
+        <Route path="/forms/preview" element={<FormPreviewPage />} />
         <Route path="/knowledgebase" element={<KnowledgeBase />} />
       </Routes>
     </Suspense>

@@ -127,7 +127,8 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     doc: IExternalIntegrationParams,
     userId: string,
   ): Promise<IIntegrationDocument>;
-  removeIntegration(_id: string): void;
+  removeIntegration(_id: string): Promise<void>;
+  removeIntegrations(_ids: string[]): Promise<void>;
   updateBasicInfo(
     _id: string,
     doc: IIntegrationBasicInfo,
@@ -159,7 +160,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
 export const loadClass = (models: IModels, subdomain: string) => {
   class Integration {
     /**
-     * Retreives integration
+     * Retrieves integration
      */
     public static async getIntegration(doc: any) {
       const integration = await models.Integrations.findOne(doc);
@@ -418,6 +419,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async removeIntegration(_id: string) {
       return models.Integrations.deleteMany({ _id });
+    }
+
+    public static async removeIntegrations(_ids: string[]) {
+      return models.Integrations.deleteMany({ _id: { $in: _ids } });
     }
 
     public static async updateBasicInfo(

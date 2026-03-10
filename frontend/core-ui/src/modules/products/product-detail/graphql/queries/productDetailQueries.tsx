@@ -47,7 +47,7 @@ export const PRODUCT_DETAIL_QUERY = gql`
       }
       uom
       subUoms
-      customFieldsData
+      propertiesData
     }
   }
 `;

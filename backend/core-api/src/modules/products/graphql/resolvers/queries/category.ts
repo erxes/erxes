@@ -3,6 +3,7 @@ import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 import { IProductCategoryParams } from '@/products/@types';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 const generateFilter = async (
   models: IModels,
@@ -66,8 +67,20 @@ const generateFilter = async (
   return filter;
 };
 
-export const categoryQueries = {
+export const categoryQueries: Record<string, Resolver> = {
   async productCategories(
+    _parent: undefined,
+    params: IProductCategoryParams,
+    { models }: IContext,
+  ) {
+    const filter = await generateFilter(models, params);
+
+    const sortParams: any = { order: 1 };
+
+    return await models.ProductCategories.find(filter).sort(sortParams).lean();
+  },
+
+  async cpProductCategories(
     _parent: undefined,
     params: IProductCategoryParams,
     { models }: IContext,
@@ -96,4 +109,8 @@ export const categoryQueries = {
   ) {
     return models.ProductCategories.findOne({ _id }).lean();
   },
+};
+
+categoryQueries.cpProductCategories.wrapperConfig = {
+  forClientPortal: true,
 };

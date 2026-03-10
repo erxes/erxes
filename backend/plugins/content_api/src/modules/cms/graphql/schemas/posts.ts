@@ -1,4 +1,7 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_OFFSET_PARAM_DEFS,
+} from 'erxes-api-shared/utils';
 
 export const types = `
     enum PostStatus {
@@ -13,11 +16,18 @@ export const types = `
         clientPortalUser
     }
 
+    enum PostDateField {
+        createdAt
+        updatedAt
+        scheduledDate
+    }
+
     union Author = User 
 
     type Post @key(fields: "_id") @cacheControl(maxAge: 3){
         _id: String!
         type: String
+        webId: String
         customPostType: CustomPostType
         authorKind: PostAuthorKind
         authorId: String
@@ -30,7 +40,7 @@ export const types = `
         categoryIds: [String]
         status: PostStatus
         tagIds: [String]
-  
+        tags: [PostTag]
         featured: Boolean
         featuredDate: Date
         scheduledDate: Date
@@ -63,6 +73,12 @@ export const types = `
         pageInfo: PageInfo
     }
 
+    type PostListPagination {
+        posts: [Post]
+        totalCount: Int
+    }
+
+
     type Translation {
         _id: String!
         postId: String
@@ -77,6 +93,7 @@ export const types = `
 export const inputs = `
     input PostInput {
         clientPortalId: String
+        webId: String
         title: String
         slug: String
         content: String
@@ -125,6 +142,21 @@ const commonPostQuerySelector = `
     sortField: String
     sortDirection: String
     language: String
+    dateField: PostDateField
+    dateFrom: Date
+    dateTo: Date
+`;
+
+const commonPostQuerySelectorPagination = `
+    ${GQL_OFFSET_PARAM_DEFS}
+    featured: Boolean
+    type: String
+    categoryIds: [String]
+    searchValue: String
+    status: PostStatus
+    tagIds: [String]
+    language: String
+
 `;
 
 export const queries = `
@@ -133,15 +165,17 @@ export const queries = `
     cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList
     cmsTranslations(postId: String): [Translation]
 
-    cpPosts(language: String, ${commonPostQuerySelector}): [Post]
-    cpPostList(language: String, ${commonPostQuerySelector}): PostList
+    cpPosts(language: String, webId: String, ${commonPostQuerySelector}): [Post]
+    cpPostList(language: String, webId: String, ${commonPostQuerySelector}): PostList
     cpPost(_id: String, slug: String, language: String, clientPortalId: String): Post
+    cpPostListWithPagination(language:String, ${commonPostQuerySelectorPagination}): PostListPagination
 `;
 
 export const mutations = `
     cmsPostsAdd(input: PostInput!): Post
     cmsPostsEdit(_id: String!, input: PostInput!): Post
     cmsPostsRemove(_id: String!): JSON
+    cmsPostsRemoveMany(_ids: [String]!): JSON
     cmsPostsChangeStatus(_id: String!, status: PostStatus!): Post
     cmsPostsToggleFeatured(_id: String!): Post
 

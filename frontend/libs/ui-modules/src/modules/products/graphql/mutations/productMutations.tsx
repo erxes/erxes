@@ -12,7 +12,7 @@ export const PRODUCTS_ADD = gql`
     $barcodeDescription: String
     $unitPrice: Float
     $code: String
-    $customFieldsData: JSON
+    $propertiesData: JSON
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
     $pdfAttachment: PdfAttachmentInput
@@ -33,7 +33,7 @@ export const PRODUCTS_ADD = gql`
       barcodeDescription: $barcodeDescription
       unitPrice: $unitPrice
       code: $code
-      customFieldsData: $customFieldsData
+      propertiesData: $propertiesData
       attachment: $attachment
       attachmentMore: $attachmentMore
       pdfAttachment: $pdfAttachment
@@ -50,7 +50,7 @@ export const PRODUCTS_ADD = gql`
       categoryId
       code
       createdAt
-      customFieldsData
+      propertiesData
       description
       tagIds
       name
@@ -77,7 +77,7 @@ export const PRODUCTS_EDIT = gql`
     $description: String
     $unitPrice: Float
     $code: String
-    $customFieldsData: JSON
+    $propertiesData: JSON
     $vendorId: String
     $uom: String
     $barcodeDescription: String
@@ -98,7 +98,7 @@ export const PRODUCTS_EDIT = gql`
       description: $description
       unitPrice: $unitPrice
       code: $code
-      customFieldsData: $customFieldsData
+      propertiesData: $propertiesData
       vendorId: $vendorId
       barcodes: $barcodes
       uom: $uom
