@@ -1,8 +1,8 @@
 import * as _ from 'lodash';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { generateModels } from '../../../connectionResolvers';
 
-// OLD function - keep for backward compatibility if needed elsewhere
-// But productPlaces should NOT use this anymore
+// OLD function - keep for backward compatibility
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return sendTRPCMessage({
     subdomain,
@@ -15,7 +15,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
   });
 };
 
-// NEW function for mnConfigs system
+// NEW function for mnConfigs (direct model access)
 export const getMnConfig = async (
   subdomain,
   code,
@@ -23,76 +23,62 @@ export const getMnConfig = async (
   defaultValue = null,
 ) => {
   try {
-    const result = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'mongolian',
-      module: 'configs',
-      action: 'mnConfig',
-      method: 'query',
-      input: { code, subId },
-    });
+    const models = await generateModels(subdomain);
 
-    // Normalize array value to object
+    const result = await models.Configs.findOne({
+      code,
+      subId,
+    }).lean();
+
     if (result?.value && Array.isArray(result.value)) {
       return result.value.reduce((acc: any, item: any) => {
         acc[item.key] = item.value;
         return acc;
       }, {});
     }
+
     return defaultValue;
-  } catch (error) {
-    // Config not found for this stage
+  } catch {
     return defaultValue;
   }
 };
 
-// For multiple configs at once (optimized)
+// Get multiple configs
 export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
   try {
-    const promises = codes.map(async (code) => {
-      try {
-        // 1️⃣ try stage-specific config
-        let result = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'mongolian',
-          module: 'configs',
-          action: 'mnConfig',
-          method: 'query',
-          input: { code, subId },
-        });
+    const models = await generateModels(subdomain);
 
-        // 2️⃣ fallback to global config
-        if (!result && subId) {
-          result = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'mongolian',
-            module: 'configs',
-            action: 'mnConfig',
-            method: 'query',
-            input: { code, subId: '' },
-          });
+    const results = await Promise.all(
+      codes.map(async (code) => {
+        let config = await models.Configs.findOne({
+          code,
+          subId,
+        }).lean();
+
+        if (!config && subId) {
+          config = await models.Configs.findOne({
+            code,
+            subId: '',
+          }).lean();
         }
 
-        if (result?.value && Array.isArray(result.value)) {
-          return result.value.reduce((acc: any, item: any) => {
+        if (config?.value && Array.isArray(config.value)) {
+          return config.value.reduce((acc: any, item: any) => {
             acc[item.key] = item.value;
             return acc;
           }, {});
         }
 
         return null;
-      } catch {
-        return null;
-      }
-    });
+      }),
+    );
 
-    return await Promise.all(promises);
+    return results;
   } catch {
     return codes.map(() => null);
   }
 };
 
-// Keep the rest of your existing functions unchanged...
 export const getChildCategories = async (
   subdomain: string,
   categoryIds: string[],
@@ -129,12 +115,10 @@ export const getChildTags = async (subdomain: string, tagIds: string[]) => {
 
   if (!Array.isArray(childs)) return [];
 
-  // If the array contains strings, treat them as IDs
   if (childs.length > 0 && typeof childs[0] === 'string') {
     return childs;
   }
 
-  // Otherwise assume they are objects with _id
   const foundTagIds = childs.map((ch: any) => ch?._id).filter(Boolean);
   return Array.from(new Set(foundTagIds));
 };
@@ -195,9 +179,7 @@ export const checkCondition = async (
     }
   }
 
-  if (!checkUomRes) {
-    return false;
-  }
+  if (!checkUomRes) return false;
 
   if (condition.productCategoryIds?.length) {
     categoryRes = false;
@@ -211,9 +193,7 @@ export const checkCondition = async (
     }
   }
 
-  if (!categoryRes) {
-    return false;
-  }
+  if (!categoryRes) return false;
 
   if (condition.productTagIds?.length) {
     tagRes = false;
@@ -227,9 +207,7 @@ export const checkCondition = async (
     }
   }
 
-  if (!tagRes) {
-    return false;
-  }
+  if (!tagRes) return false;
 
   if (condition.segmentIds?.length) {
     segmentRes = false;
@@ -255,37 +233,22 @@ export const checkCondition = async (
     }
   }
 
-  if (!segmentRes) {
-    return false;
-  }
+  if (!segmentRes) return false;
 
   return categoryRes && segmentRes && numberRes && checkUomRes && tagRes;
 };
 
 const getCustomerName = (customer) => {
-  if (!customer) {
-    return '';
-  }
+  if (!customer) return '';
 
   if (customer.firstName && customer.lastName) {
     return `${customer.firstName} - ${customer.lastName}`;
   }
 
-  if (customer.firstName) {
-    return customer.firstName;
-  }
-
-  if (customer.lastName) {
-    return customer.lastName;
-  }
-
-  if (customer.primaryEmail) {
-    return customer.primaryEmail;
-  }
-
-  if (customer.primaryPhone) {
-    return customer.primaryPhone;
-  }
+  if (customer.firstName) return customer.firstName;
+  if (customer.lastName) return customer.lastName;
+  if (customer.primaryEmail) return customer.primaryEmail;
+  if (customer.primaryPhone) return customer.primaryPhone;
 
   return '';
 };
@@ -322,6 +285,7 @@ export const getCustomer = async (subdomain, deal) => {
 
     if (companies?.length) {
       const company = companies[0];
+
       return {
         customerCode: company.code,
         customerName: company.primaryName,
@@ -376,6 +340,7 @@ export const getCustomer = async (subdomain, deal) => {
 
     if (customers.length) {
       customer = customers[0];
+
       return {
         customerCode: customer.code || '',
         customerName: getCustomerName(customer),

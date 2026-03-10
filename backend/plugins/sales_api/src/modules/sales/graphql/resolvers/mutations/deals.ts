@@ -83,19 +83,17 @@ export const dealMutations = {
 
       checkMovePermission(destinationStage, user);
 
-      //   await doScoreCampaign(subdomain, models, itemId, {
-      //     ...item.toObject(),
-      //     ...extendedDoc,
-      //   });
-
       extendedDoc.stageChangedDate = new Date();
     }
 
     const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
+
+    // Sales should NOT call mongolian plugin directly
+    // Instead it writes a log which triggers afterProcesses
     await sendTRPCMessage({
       subdomain,
-      pluginName: 'mongolian',
-      module: 'productPlaces',
+      pluginName: 'logs',
+      module: 'afterProcesses',
       action: 'afterDealStageChanged',
       method: 'mutation',
       input: {
@@ -106,6 +104,7 @@ export const dealMutations = {
     });
 
     await itemMover(models, user._id, item, destinationStageId);
+
     await subscriptionWrapper(models, {
       action: 'update',
       deal: updatedItem,
@@ -298,7 +297,7 @@ export const dealMutations = {
     // undefenid or null then true
     const tickUsed = !(stage.defaultTick === false);
     const addDocs = (docs || []).map(
-      (doc) => ({ ...doc, tickUsed }) as IProductData,
+      (doc) => ({ ...doc, tickUsed } as IProductData),
     );
     const productsData: IProductData[] = (deal.productsData || []).concat(
       addDocs,
@@ -371,8 +370,8 @@ export const dealMutations = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map(
-      (data) => (data._id === dataId ? { ...doc } : data),
+    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
+      data._id === dataId ? { ...doc } : data,
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
