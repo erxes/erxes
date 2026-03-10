@@ -5,15 +5,15 @@
       var o = (r) => {
           try {
             g(n.next(r));
-          } catch (f) {
-            d(f);
+          } catch (error_) {
+            d(error_);
           }
         },
         p = (r) => {
           try {
             g(n.throw(r));
-          } catch (f) {
-            d(f);
+          } catch (error_) {
+            d(error_);
           }
         },
         g = (r) => (r.done ? m(r.value) : Promise.resolve(r.value).then(o, p));
@@ -240,8 +240,8 @@
       }),
     S = () => localStorage.getItem('erxes') || '{}',
     I = (t, e) => {
-      let n = window.Erxes || {};
-      (n[t] = e), (window.Erxes = n);
+      let n = globalThis.Erxes || {};
+      (n[t] = e), (globalThis.Erxes = n);
     },
     V = (t) => {
       I('showMessenger', () => {
@@ -250,7 +250,7 @@
     },
     F = (t) => {
       var n;
-      let e = (n = window.erxesSettings) == null ? void 0 : n.messenger;
+      let e = (n = globalThis.erxesSettings) == null ? void 0 : n.messenger;
       t.postMessage({ fromPublisher: !0, settings: e, storage: S() }, '*');
     };
   s.addEventListener('load', H);

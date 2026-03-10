@@ -11,7 +11,6 @@ const commonFields = `
   paymentTypes: [JSON]
   departmentId: String
   token: String
-  webId: String
   erxesAppToken: String
   permissionConfig: JSON
   uiOptions: JSON
@@ -36,6 +35,6 @@ export const types = `
   }
 `;
 export const queries = `
-  cpPmsBranchList(page: Int, perPage: Int, sortField: String, sortDirection: Int, webId: String): [cpPmsBranch]
+  cpPmsBranchList(page: Int, perPage: Int, sortField: String, sortDirection: Int): [cpPmsBranch]
   cpPmsBranchDetail(_id: String!): cpPmsBranch
 `;

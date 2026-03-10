@@ -6,5 +6,4 @@ export interface IProductCategoryParams {
   brandIds: string;
   meta: string | number;
   ids: string[];
-  webId?: string;
 }

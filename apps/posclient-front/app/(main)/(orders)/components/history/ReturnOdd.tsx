@@ -12,7 +12,7 @@ const ReturnOdd = ({
 
   const total = Object.values(results).reduce(
     (acc: number, curr: any) =>
-      isNaN(Number(curr)) ? acc : acc + Number(curr),
+      Number.isNaN(Number(curr)) ? acc : acc + Number(curr),
     0
   )
   return (

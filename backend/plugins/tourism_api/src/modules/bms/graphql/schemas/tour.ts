@@ -19,7 +19,6 @@ export const types = `
     name: String
     refNumber: String
     groupCode: String
-    webId: String
     content: String
     duration: Int
     location: [BMSLocation]
@@ -110,9 +109,9 @@ export const queries = `
   bmToursGroup(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
   bmToursGroupDetail(groupCode:String,status: String): GroupTourItem
 
-  cpBmsTours(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS, webId: String): TourListResponse
+  cpBmsTours(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS): TourListResponse
   cpBmsTourDetail(_id:String!,branchId: String): Tour
-  cpBmToursGroup(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS, webId: String): GroupTour
+  cpBmToursGroup(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
   cpBmToursGroupDetail(groupCode:String,status: String): GroupTourItem
 `;
 

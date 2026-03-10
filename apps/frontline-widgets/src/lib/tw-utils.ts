@@ -24,9 +24,9 @@ class ColorUtils {
     }
 
     // Parse hex to RGB (0-1 range)
-    const r = Number.parseInt(cleanHex.substr(0, 2), 16) / 255;
-    const g = Number.parseInt(cleanHex.substr(2, 2), 16) / 255;
-    const b = Number.parseInt(cleanHex.substr(4, 2), 16) / 255;
+    const r = Number.parseInt(cleanHex.substring(0, 2), 16) / 255;
+    const g = Number.parseInt(cleanHex.substring(2, 4), 16) / 255;
+    const b = Number.parseInt(cleanHex.substring(4, 6), 16) / 255;
 
     // Convert RGB to Linear RGB
     const linearR =
@@ -57,7 +57,7 @@ class ColorUtils {
     const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
 
     // OKLab → OKLCH
-    const C = Math.sqrt(a * a + b_ * b_);
+    const C = Math.hypot(a, b_);
     let h = Math.atan2(b_, a) * (180 / Math.PI);
     if (h < 0) h += 360;
 
@@ -85,9 +85,9 @@ class ColorUtils {
    */
   static getLuminance(hex: string): number {
     const cleanHex = hex.replace('#', '');
-    const r = Number.parseInt(cleanHex.substr(0, 2), 16) / 255;
-    const g = Number.parseInt(cleanHex.substr(2, 2), 16) / 255;
-    const b = Number.parseInt(cleanHex.substr(4, 2), 16) / 255;
+    const r = Number.parseInt(cleanHex.substring(0, 2), 16) / 255;
+    const g = Number.parseInt(cleanHex.substring(2, 4), 16) / 255;
+    const b = Number.parseInt(cleanHex.substring(4, 6), 16) / 255;
     const [rs, gs, bs] = [r, g, b].map((c) =>
       c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4),
     );

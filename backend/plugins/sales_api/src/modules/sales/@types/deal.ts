@@ -80,7 +80,6 @@ export interface IDeal {
   branchIds?: string[];
   departmentIds?: string[];
   parentId?: string;
-  webId?: string;
 
   productsData?: IProductData[];
   paymentsData?: IPaymentsData;
@@ -122,7 +121,6 @@ export interface IDealQueryParams extends IListParams, ICursorPaginateParams {
   tagIds?: string[];
   number?: string;
   productIds?: string[];
-  webId?: string;
 }
 
 export interface IArchiveArgs extends ICursorPaginateParams {

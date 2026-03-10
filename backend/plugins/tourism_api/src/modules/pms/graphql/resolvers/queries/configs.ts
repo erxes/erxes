@@ -29,7 +29,6 @@ const configQueries: Record<string, Resolver> = {
       perPage = 50,
       page = 1,
       skipStageIds = [],
-      webId,
     }: {
       startDate1: Date;
       startDate2: Date;
@@ -39,7 +38,6 @@ const configQueries: Record<string, Resolver> = {
       perPage: number;
       page: number;
       skipStageIds: string[];
-      webId?: string;
     },
     { models, subdomain }: IContext,
   ) {
@@ -64,7 +62,6 @@ const configQueries: Record<string, Resolver> = {
       input: {
         query: {
           stageId: { $in: newArray },
-          ...(webId ? { webId } : {}),
           productsData: {
             $elemMatch: {
               startDate: {
@@ -96,7 +93,6 @@ const configQueries: Record<string, Resolver> = {
       perPage = 50,
       page = 1,
       skipStageIds = [],
-      webId,
     }: {
       startDate1: Date;
       startDate2: Date;
@@ -106,7 +102,6 @@ const configQueries: Record<string, Resolver> = {
       perPage: number;
       page: number;
       skipStageIds: string[];
-      webId?: string;
     },
     { models, subdomain }: IContext,
   ) {
@@ -131,7 +126,6 @@ const configQueries: Record<string, Resolver> = {
       input: {
         query: {
           stageId: { $in: newArray },
-          ...(webId ? { webId } : {}),
           productsData: {
             $elemMatch: {
               startDate: {
