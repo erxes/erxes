@@ -635,7 +635,7 @@ const orderMutations: Record<string, Resolver> = {
 
     return await models.Orders.getOrder(_id);
   },
-  
+
   async cpOrderChangeSaleStatus(
     _root,
     { _id, saleStatus }: { _id: string; saleStatus: string },
