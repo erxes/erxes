@@ -42,7 +42,6 @@ export const types = `
   }
 `;
 
-
 export const inputs = `
   input InvoiceInput {
     amount: Float!
@@ -60,7 +59,7 @@ export const inputs = `
     callback: String
     currency: String
   }
-`
+`;
 
 export const mutations = `
   generateInvoiceUrl(input: InvoiceInput!): String
@@ -68,6 +67,8 @@ export const mutations = `
   invoiceUpdate(_id: String!, input: InvoiceInput!): Invoice
   invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
+
+  cpInvoiceCreate(input: InvoiceInput!): Invoice
 `;
 
 const cursorParams = `
@@ -75,7 +76,6 @@ const cursorParams = `
   cursor: String
   direction: CURSOR_DIRECTION
 `;
-
 
 const queryParams = `
   searchValue: String

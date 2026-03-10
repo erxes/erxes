@@ -652,6 +652,22 @@ const orderMutations: Record<string, Resolver> = {
     return await models.Orders.getOrder(_id);
   },
 
+  async cpOrderChangeSaleStatus(
+    _root,
+    { _id, saleStatus }: { _id: string; saleStatus: string },
+    { models, subdomain, config }: IContext,
+  ) {
+    const oldOrder = await models.Orders.getOrder(_id);
+
+    await models.Orders.updateOrder(_id, {
+      ...oldOrder,
+      saleStatus,
+      modifiedAt: new Date(),
+    });
+
+    return await models.Orders.getOrder(_id);
+  },
+
   async ordersChange(
     _root,
     params: IOrderChangeParams,

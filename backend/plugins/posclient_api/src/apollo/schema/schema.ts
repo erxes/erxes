@@ -31,6 +31,11 @@ import {
   queries as ReportQueries,
   types as ReportTypes,
 } from '@/posclient/graphql/schemas/report';
+import {
+  queries as cpProductQueries,
+  types as cpProductTypes,
+  // mutations as cpProductMutations
+} from '@/posclient/graphql/schemas/cpProducts';
 
 export const types = `
     extend type User @key(fields: "_id") {
@@ -38,6 +43,7 @@ export const types = `
     }
 
     ${ProductTypes}
+    ${cpProductTypes}
     ${PosUserTypes}
     ${OrderTypes}
     ${ConfigTypes}
@@ -48,6 +54,7 @@ export const types = `
 
 export const queries = `
     ${PosUserQueries}
+    ${cpProductQueries}
     ${ProductQueries}
     ${OrderQueries}
     ${ConfigQueries}
@@ -58,6 +65,7 @@ export const queries = `
 
 export const mutations = `
     ${PosUserMutations}
+
     ${OrderMutations}
     ${ConfigMutations}
     ${BridgesMutations}
