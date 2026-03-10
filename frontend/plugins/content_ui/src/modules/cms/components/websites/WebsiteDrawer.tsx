@@ -1,5 +1,4 @@
 import { useMutation } from '@apollo/client';
-import { IconAlertCircle } from '@tabler/icons-react';
 import {
   Button,
   Form,
@@ -12,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { GET_WEBSITES } from '../../graphql/queries';
 import {
   CONTENT_CREATE_CMS,
@@ -20,6 +20,10 @@ import {
 } from '../../graphql/mutations';
 import { useClientPortals } from '../../hooks/useClientPortals';
 import { LANGUAGES } from '../../../../constants';
+import {
+  websiteFormSchema,
+  WebsiteFormType,
+} from '../../constants/websiteFormSchema';
 
 interface Website {
   _id: string;
@@ -51,6 +55,13 @@ interface WebsiteFormData {
   language: string;
 }
 
+interface WebsiteDrawerProps {
+  website?: Website;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
 export function WebsiteDrawer({
   website,
   isOpen,
@@ -58,7 +69,6 @@ export function WebsiteDrawer({
   onSuccess,
 }: WebsiteDrawerProps) {
   const isEditing = !!website;
-  const [hasPermissionError, setHasPermissionError] = useState(false);
 
   const {
     clientPortals,
@@ -67,10 +77,13 @@ export function WebsiteDrawer({
     refetch: refetchClientPortals,
   } = useClientPortals({}, !isOpen);
 
-  const form = useForm<WebsiteFormData>({
+  const form = useForm<WebsiteFormType>({
+    resolver: zodResolver(websiteFormSchema),
     defaultValues: {
       name: '',
       description: '',
+      domain: '',
+      url: '',
       kind: 'client',
       languages: [],
       language: '',
@@ -102,7 +115,6 @@ export function WebsiteDrawer({
           language: '',
         });
       }
-      setHasPermissionError(false);
     }
   }, [website, form, isOpen, refetchClientPortals]);
 
@@ -143,30 +155,12 @@ export function WebsiteDrawer({
       });
     },
     onError: (error) => {
-      const permissionError = error.graphQLErrors?.some(
-        (e) =>
-          e.message === 'Permission required' ||
-          e.extensions?.code === 'INTERNAL_SERVER_ERROR',
-      );
-
-      if (permissionError) {
-        setHasPermissionError(true);
-        toast({
-          title: 'Permission Required',
-          description:
-            'You do not have permission to create CMS. Please contact your administrator.',
-          variant: 'destructive',
-          duration: 8000,
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description:
-            error.message || 'Failed to create CMS. Please try again.',
-          variant: 'destructive',
-          duration: 5000,
-        });
-      }
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to create CMS. Please try again.',
+        variant: 'destructive',
+        duration: 5000,
+      });
     },
   });
 
@@ -224,7 +218,7 @@ export function WebsiteDrawer({
     },
   });
 
-  const onSubmit = (data: WebsiteFormData) => {
+  const onSubmit = (data: WebsiteFormType) => {
     const { name, description, language, languages } = data;
 
     if (isEditing && website?._id) {
@@ -270,23 +264,6 @@ export function WebsiteDrawer({
             onSubmit={form.handleSubmit(onSubmit)}
             className="p-4 space-y-4"
           >
-            {hasPermissionError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                <div className="flex items-start gap-2">
-                  <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm">
-                    <p className="font-medium text-red-800">
-                      Permission Required
-                    </p>
-                    <p className="text-red-700 mt-1">
-                      You need the "manageClientPortal" permission to create or
-                      edit websites. Please contact your administrator to grant
-                      this permission.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
             <Form.Field
               control={form.control}
               name="name"
@@ -294,11 +271,7 @@ export function WebsiteDrawer({
                 <Form.Item>
                   <Form.Label>Cms Name</Form.Label>
                   <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder="Enter website name"
-                      required
-                    />
+                    <Input {...field} placeholder="Enter website name" />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -432,16 +405,11 @@ export function WebsiteDrawer({
             />
 
             <div className="flex justify-end space-x-2">
-              <Button
-                type="submit"
-                disabled={saving || savingUpdate || hasPermissionError}
-              >
+              <Button type="submit" disabled={saving || savingUpdate}>
                 {saving || savingUpdate
                   ? isEditing
                     ? 'Saving...'
                     : 'Creating...'
-                  : hasPermissionError
-                  ? 'Permission Required'
                   : isEditing
                   ? 'Save Changes'
                   : 'Create CMS'}
