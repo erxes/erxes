@@ -88,12 +88,12 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
     }
   }, [config]);
 
-  const update = useCallback(<K extends keyof PerSplitConfig>(
-    key: K,
-    value: PerSplitConfig[K],
-  ) => {
-    setLocalConfig((prev) => ({ ...prev, [key]: value }));
-  }, []);
+  const update = useCallback(
+    <K extends keyof PerSplitConfig>(key: K, value: PerSplitConfig[K]) => {
+      setLocalConfig((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
   // ---------- Actions ----------
   const handleSave = async () => {

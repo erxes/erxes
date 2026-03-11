@@ -98,9 +98,7 @@ export default function SelectUsers({
   return (
     <Select
       value={value || ''}
-      onValueChange={(v) =>
-        onChange(v === CLEAR_VALUE ? '' : v)
-      }
+      onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
       disabled={disabled || loading}
     >
       <Select.Trigger className="w-full">

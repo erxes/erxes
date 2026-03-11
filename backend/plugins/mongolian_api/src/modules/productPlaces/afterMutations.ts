@@ -92,7 +92,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       deal,
       productsData,
       placeConfig,
-      user,           // user is the user ID string
+      user, // user is the user ID string
       crypto.randomUUID(),
     );
 
@@ -150,7 +150,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     await handlePrint(
       subdomain,
       deal,
-      user,          // user ID string
+      user, // user ID string
       productsData,
       printConfig,
       productById,
