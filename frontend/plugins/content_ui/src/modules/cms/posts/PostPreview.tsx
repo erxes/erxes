@@ -37,7 +37,7 @@ export const PostPreview = ({
               </Form.Label>
               <Form.Control>
                 <Editor
-                  className="h-[calc(100vh-200px)] border"
+                  className="h-[calc(100vh-200px)] border text-justify"
                   key={`editor-${selectedLanguage}-${fullPost?._id || 'new'}`}
                   initialContent={formatInitialContent(
                     form.getValues('content') || '',

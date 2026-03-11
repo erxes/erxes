@@ -7,11 +7,6 @@ export interface IGuideItem {
   type: string;
 }
 
-export interface PersonCostItem {
-  persons: string;
-  price: number;
-}
-
 export interface ITour {
   name: string;
   groupCode: string;
@@ -31,7 +26,7 @@ export interface ITour {
   viewCount: number;
   advancePercent?: number;
   joinPercent?: number;
-  personCost?: PersonCostItem[];
+  personCost?: Record<string, number>;
   advanceCheck?: boolean;
   info1?: string;
   info2?: string;
