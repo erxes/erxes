@@ -15,7 +15,6 @@ export const productSchema = schemaWrapper(
       shortName: { type: String, optional: true, label: 'Short name' },
       code: { type: String, unique: true, label: 'Code' },
       categoryId: { type: String, label: 'Category' },
-      webId: { type: String, optional: true, label: 'Web ID' },
       type: {
         type: String,
         enum: PRODUCT_TYPES.ALL,

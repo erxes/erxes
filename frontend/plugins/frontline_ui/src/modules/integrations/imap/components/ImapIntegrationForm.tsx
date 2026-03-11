@@ -8,8 +8,17 @@ import { imapFormSheetAtom } from '../states/imapStates';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { IntegrationType } from '@/types/Integration';
 import { useParams } from 'react-router';
+import { SelectBrand } from 'ui-modules';
 
-const FORM_FIELDS = [
+type FormFieldConfig = {
+  name: keyof ImapFormValues;
+  label: string;
+  placeholder: string;
+  required?: boolean;
+  type?: string;
+};
+
+const FORM_FIELDS: FormFieldConfig[] = [
   {
     name: 'name',
     label: 'Name',
@@ -52,7 +61,7 @@ const FORM_FIELDS = [
     type: 'password',
     required: true,
   },
-] as const;
+];
 
 const GMAIL_CONFIG = {
   host: 'imap.gmail.com',
@@ -69,6 +78,7 @@ export const imapFormSchema = z.object({
   mainUser: z.string().optional(),
   user: z.string().min(1),
   password: z.string().min(1),
+  brandId: z.string().min(1, 'Brand is required'),
 });
 
 export type ImapFormValues = z.infer<typeof imapFormSchema>;
@@ -152,6 +162,7 @@ export const ImapIntegrationFormSheet = () => {
       mainUser: '',
       user: '',
       password: '',
+      brandId: '',
     },
   });
 
@@ -163,7 +174,15 @@ export const ImapIntegrationFormSheet = () => {
         name: data.name,
         kind: IntegrationType.IMAP,
         channelId: id || '',
-        data,
+        brandId: data.brandId,
+        data: {
+          host: data.host,
+          smtpHost: data.smtpHost,
+          smtpPort: data.smtpPort,
+          mainUser: data.mainUser,
+          user: data.user,
+          password: data.password,
+        },
       },
       onCompleted() {
         form.reset();
@@ -188,7 +207,7 @@ export const ImapIntegrationFormSheet = () => {
         </Sheet.Header>
 
         <Sheet.Content className="px-6 py-4 overflow-y-auto max-h-[calc(100vh-180px)]">
-          <GmailConfigHelper className="sticky top-0 bg-background z-10" />
+          <GmailConfigHelper />
 
           <Form {...form}>
             <form
@@ -206,6 +225,27 @@ export const ImapIntegrationFormSheet = () => {
                   control={form.control}
                 />
               ))}
+              <Form.Field
+                name="brandId"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Brand</Form.Label>
+                    <Form.Control>
+                      <SelectBrand
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select a brand"
+                        className="w-full h-10 rounded-lg border bg-background"
+                      />
+                    </Form.Control>
+                    <Form.Description>
+                      Choose the brand for this integration
+                    </Form.Description>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </form>
           </Form>
         </Sheet.Content>
