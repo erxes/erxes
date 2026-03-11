@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
+import { attachmentSchema } from 'erxes-api-shared/core-modules';
 
 export const ticketSchema = new Schema(
   {
@@ -27,7 +28,7 @@ export const ticketSchema = new Schema(
     priority: { type: Number, label: 'Priority', default: 0 },
     assigneeId: { type: String, label: 'Assignee' },
     createdBy: { type: String, label: 'Created By' },
-    attachments: [{ filename: String, url: String }],
+    attachments: { type: [attachmentSchema], label: 'Attachments' },
     labelIds: { type: [String], label: 'Label IDs' },
     tagIds: { type: [String], label: 'Tag IDs' },
     userId: { type: String, label: 'userId' },
