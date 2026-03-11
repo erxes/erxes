@@ -91,7 +91,8 @@ export const postMutations: Record<string, Resolver> = {
 
         await models.Translations.upsertTranslation(translationDoc);
 
-        const { title, content, excerpt, customFieldsData, ...safePostInput } = postInput;
+        const { title, content, excerpt, customFieldsData, ...safePostInput } =
+          postInput;
 
         const post = await models.Posts.updatePost(_id, safePostInput);
 
