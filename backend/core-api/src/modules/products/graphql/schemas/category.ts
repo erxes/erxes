@@ -33,6 +33,8 @@ export const queries = `
   productCategories(${queryParams}): [ProductCategory]
   productCategoriesTotalCount(${queryParams}): Int
   productCategoryDetail(_id: String): ProductCategory
+
+  cpProductCategories(${queryParams}): [ProductCategory]
 `;
 
 const mutationParams = `

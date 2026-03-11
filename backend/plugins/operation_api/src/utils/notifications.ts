@@ -1,4 +1,5 @@
 import { sendNotification } from 'erxes-api-shared/core-modules';
+import { IModels } from '~/connectionResolvers';
 
 const getTitle = (contentType: string) => {
   if (contentType === 'task') {
@@ -39,6 +40,38 @@ const getMessage = (contentType: string, notificationType: string) => {
   }
 };
 
+const getContent = async (
+  contentType: string,
+  contentTypeId: string,
+  models: IModels,
+) => {
+  let content;
+
+  switch (contentType) {
+    case 'task': {
+      const task = await models.Task.findOne({ _id: contentTypeId }).lean();
+      content = task?.name;
+      break;
+    }
+    case 'project': {
+      const project = await models.Project.findOne({
+        _id: contentTypeId,
+      }).lean();
+      content = project?.name;
+      break;
+    }
+    case 'team': {
+      const team = await models.Team.findOne({ _id: contentTypeId }).lean();
+      content = team?.name;
+      break;
+    }
+    default:
+      content = '';
+  }
+
+  return content;
+};
+
 export const createNotifications = async ({
   contentType,
   contentTypeId,
@@ -47,6 +80,7 @@ export const createNotifications = async ({
   notificationType,
   userIds,
   action,
+  models,
 }: {
   contentType: string;
   contentTypeId: string;
@@ -55,6 +89,7 @@ export const createNotifications = async ({
   notificationType: string;
   userIds: string[];
   action: string;
+  models: IModels;
 }) => {
   sendNotification(subdomain, {
     title: getTitle(contentType),
@@ -71,5 +106,6 @@ export const createNotifications = async ({
     metadata: {
       contentTypeId,
     },
+    content: await getContent(contentType, contentTypeId, models),
   });
 };

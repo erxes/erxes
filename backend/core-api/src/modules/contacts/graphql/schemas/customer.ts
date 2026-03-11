@@ -34,9 +34,8 @@ export const types = `
     remoteAddress: String
     location: JSON
     visitorContactInfo: JSON
-    customFieldsData: JSON
-    customFieldsDataByFieldCode: JSON
     trackedData: JSON
+    propertiesData: JSON
     ownerId: String
     position: String
     department: String
@@ -57,7 +56,6 @@ export const types = `
     links: JSON
     companies: [Company]
     getTags: [Tag]
-
     cursor: String
   }
 
@@ -118,7 +116,9 @@ export const queries = `
   customersCount(types: [CUSTOMER_RELATION_TYPE]): JSON
   customerDetail(_id: String!): Customer
   contactsLogs(action: String, content:JSON, contentType: String): JSON
-`;
+  
+  cpCustomers(${queryParams}): CustomersListResponse
+  `;
 
 const fields = `
   avatar: String
@@ -139,7 +139,7 @@ const fields = `
   description: String
   isSubscribed: String
   links: JSON
-  customFieldsData: JSON
+  propertiesData: JSON
   code: String
   sex: Int
   birthDate: Date
@@ -158,4 +158,6 @@ export const mutations = `
   customersChangeState(_id: String!, value: String!): Customer
   customersChangeVerificationStatus(customerIds: [String], type: String!, status: String!): [Customer]
   customersChangeStateBulk(_ids: [String]!, value: String!): JSON
+
+  cpCustomersAdd(state: String, ${fields}): Customer
 `;

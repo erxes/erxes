@@ -46,7 +46,7 @@ export function useUnitAdd(options?: MutationHookOptions<AddUnitResult, any>) {
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
     refetchQueries: ['Units'],
@@ -82,7 +82,7 @@ export function useUnitEdit(options?: MutationHookOptions<AddUnitResult, any>) {
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
   });

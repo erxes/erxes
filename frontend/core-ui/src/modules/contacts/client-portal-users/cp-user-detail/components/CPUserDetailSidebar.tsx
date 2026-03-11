@@ -1,8 +1,18 @@
 import { Sidebar, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
-const CP_USER_DETAIL_TABS = ['overview', 'activity'] as const;
+const CP_USER_DETAIL_TABS = ['overview', 'activity', 'notifications'] as const;
+
+const TAB_LABELS: Record<(typeof CP_USER_DETAIL_TABS)[number], string> = {
+  overview: 'Overview',
+  activity: 'Activity log',
+  notifications: 'Notifications',
+};
 
 export function CPUserDetailSidebar() {
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'clientPortalUser.detail',
+  });
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
 
   return (
@@ -19,7 +29,9 @@ export function CPUserDetailSidebar() {
                   }
                   onClick={() => setSelectedTab(tab)}
                 >
-                  {tab === 'overview' ? 'Overview' : 'Activity log'}
+                  {tab === 'notifications'
+                    ? t('notifications', { defaultValue: TAB_LABELS[tab] })
+                    : TAB_LABELS[tab]}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

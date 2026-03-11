@@ -27,7 +27,10 @@ import { clientPortalMoreColumn } from './ClientPortalMoreColumn';
 
 export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   clientPortalMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IClientPortal>,
+  {
+    ...RecordTable.checkboxColumn,
+    size: 20,
+  } as ColumnDef<IClientPortal>,
 
   {
     id: 'name',

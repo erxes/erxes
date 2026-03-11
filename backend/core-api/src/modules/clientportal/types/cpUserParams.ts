@@ -11,6 +11,8 @@ export interface RegisterParams {
 }
 
 export interface EditUserParams {
+  email?: string;
+  phone?: string;
   firstName?: string;
   lastName?: string;
   avatar?: string;
@@ -21,7 +23,7 @@ export interface EditUserParams {
 
 export interface VerifyParams {
   userId: string;
-  code: number;
+  code: string;
   email: string;
   phone: string;
 }
@@ -49,7 +51,7 @@ export interface RequestOTPParams {
 
 export interface LoginOTPParams {
   identifier: string;
-  otp: number;
+  otp: string;
 }
 
 export interface SocialAuthParams {
@@ -65,8 +67,16 @@ export interface RefreshTokenParams {
   refreshToken: string;
 }
 
-export interface FcmTokenParams {
-  fcmToken: string;
+export type FcmPlatform = 'ios' | 'android' | 'web';
+
+export interface FcmTokenAddParams {
+  deviceId: string;
+  token: string;
+  platform: FcmPlatform;
+}
+
+export interface FcmTokenRemoveParams {
+  deviceId: string;
 }
 
 export interface CpUsersAddParams {
@@ -90,9 +100,26 @@ export interface CpUsersEditParams {
   username?: string;
   companyName?: string;
   companyRegistrationNumber?: string;
+  erxesCustomerId?: string;
 }
 
 export interface CpUsersSetPasswordParams {
   _id: string;
   newPassword: string;
+}
+
+export interface RequestChangeEmailParams {
+  newEmail: string;
+}
+
+export interface ConfirmChangeEmailParams {
+  code: string;
+}
+
+export interface RequestChangePhoneParams {
+  newPhone: string;
+}
+
+export interface ConfirmChangePhoneParams {
+  code: string;
 }

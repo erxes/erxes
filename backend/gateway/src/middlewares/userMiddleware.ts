@@ -1,9 +1,7 @@
 import * as dotenv from 'dotenv';
 
-import { USER_ROLES, userActionsMap } from 'erxes-api-shared/core-modules';
 import {
   getSubdomain,
-  PERMISSION_ROLES,
   redis,
   setClientPortalHeader,
   setCPUserHeader,
@@ -87,68 +85,19 @@ export default async function userMiddleware(
 
   if (appToken) {
     try {
-      const { app }: any = jwt.verify(
-        appToken,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
+      const appInDb = await models.Apps.findOne({
+        token: appToken,
+        status: 'active',
+      });
 
-      if (app && app._id) {
-        const appInDb = await models.Apps.findOne({ _id: app._id });
-
-        if (appInDb) {
-          const permissions = await models.Permissions.find({
-            groupId: appInDb.userGroupId,
-            allowed: true,
-          }).lean();
-
-          const user = await models.Users.findOne({
-            role: USER_ROLES.SYSTEM,
-            groupIds: { $in: [app.userGroupId] },
-            appId: app._id,
-          }).lean();
-
-          if (user) {
-            const key = `user_permissions_${user._id}`;
-            const cachedPermissions = await redis.get(key);
-
-            if (
-              !cachedPermissions ||
-              (cachedPermissions && cachedPermissions === '{}')
-            ) {
-              const userPermissions = await models.Permissions.find({
-                userId: user._id,
-              });
-              const groupPermissions = await models.Permissions.find({
-                groupId: { $in: user.groupIds },
-              });
-
-              const actionMap = await userActionsMap(
-                userPermissions,
-                groupPermissions,
-                user,
-              );
-
-              await redis.set(key, JSON.stringify(actionMap));
-            }
-
-            req.user = {
-              _id: user._id || 'userId',
-              ...user,
-              role: USER_ROLES.SYSTEM,
-              isOwner: appInDb.allowAllPermission || false,
-              customPermissions: permissions.map((p) => ({
-                action: p.action,
-                allowed: p.allowed,
-                requiredActions: p.requiredActions,
-              })),
-            };
-          }
-        }
+      if (!appInDb) {
+        return res.status(401).json({ error: 'Invalid app token' });
       }
 
-      setUserHeader(req.headers, req.user);
-
-      return next();
+      await models.Apps.updateOne(
+        { _id: appInDb._id },
+        { $set: { lastUsedAt: new Date() } },
+      );
     } catch (e) {
       console.error(e);
 
@@ -157,7 +106,8 @@ export default async function userMiddleware(
   }
 
   const clientPortalToken = req.headers['x-app-token'];
-  const clientAuthToken = req.headers['client-auth-token'] || req.cookies['client-auth-token'];
+  const clientAuthToken =
+    req.headers['client-auth-token'] || req.cookies['client-auth-token'];
 
   if (clientPortalToken) {
     const clientPortalTokenString = String(clientPortalToken);
@@ -207,7 +157,7 @@ export default async function userMiddleware(
         }
       }
 
-      return next();
+      // return next();
     } catch (e) {
       console.error(e);
 
@@ -238,19 +188,6 @@ export default async function userMiddleware(
       return next();
     }
 
-    let userRole = await models.Roles.findOne({ userId: userDoc._id }).lean();
-
-    if (!userRole) {
-      const role = userDoc.isOwner
-        ? PERMISSION_ROLES.OWNER
-        : PERMISSION_ROLES.MEMBER;
-
-      userRole = await models.Roles.create({
-        userId: userDoc._id,
-        role,
-      });
-    }
-
     const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
 
     // invalid token access.
@@ -259,7 +196,7 @@ export default async function userMiddleware(
     }
 
     // save user in request
-    req.user = { ...userDoc, role: userRole.role };
+    req.user = { ...userDoc };
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
 

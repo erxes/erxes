@@ -6,6 +6,7 @@ export interface IGuideItem {
   guideId: string;
   type: string;
 }
+
 export interface ITour {
   name: string;
   groupCode: string;
@@ -25,6 +26,7 @@ export interface ITour {
   viewCount: number;
   advancePercent?: number;
   joinPercent?: number;
+  personCost?: Record<string, number>;
   advanceCheck?: boolean;
   info1?: string;
   info2?: string;

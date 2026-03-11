@@ -1,70 +1,64 @@
+import { checkPermission } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { ICPNotificationDocument } from '@/clientportal/types/cpNotification';
+import {
+  buildCPNotificationQuery,
+  CPNotificationFilterParams,
+} from '@/clientportal/services/helpers/queryBuilders';
 
 export const cpNotificationQueries: Record<string, Resolver> = {
+  async getClientPortalNotificationsByCpUserId(
+    _root: unknown,
+    params: {
+      cpUserId: string;
+      cursor?: string;
+      limit?: number;
+    } & CPNotificationFilterParams,
+    { models }: IContext,
+  ) {
+    const query = buildCPNotificationQuery(
+      { cpUserId: params.cpUserId },
+      params,
+    );
+
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ICPNotificationDocument>({
+        model: models.CPNotifications,
+        params: {
+          ...params,
+          orderBy: { createdAt: -1 },
+        },
+        query,
+      });
+
+    return { list, totalCount, pageInfo };
+  },
+
   async clientPortalNotifications(
     _root: unknown,
     params: {
       cursor?: string;
       limit?: number;
-      status?: 'READ' | 'UNREAD' | 'ALL';
-      priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-      type?: 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR';
-      kind?: 'SYSTEM' | 'USER';
-      fromDate?: string;
-      endDate?: string;
-      clientPortalId?: string;
-    },
+    } & CPNotificationFilterParams,
     { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
       throw new Error('User is not logged in');
     }
 
-    const query: any = { cpUserId: cpUser._id };
+    const query = buildCPNotificationQuery({ cpUserId: cpUser._id }, params);
 
-    if (params.clientPortalId) {
-      query.clientPortalId = params.clientPortalId;
-    }
-
-    if (params.status && params.status !== 'ALL') {
-      query.isRead = params.status === 'READ';
-    }
-
-    if (params.priority) {
-      query.priority = params.priority.toLowerCase();
-    }
-
-    if (params.type) {
-      query.type = params.type.toLowerCase();
-    }
-
-    if (params.kind) {
-      query.kind = params.kind.toLowerCase();
-    }
-
-    if (params.fromDate || params.endDate) {
-      query.createdAt = {};
-      if (params.fromDate) {
-        query.createdAt.$gte = new Date(params.fromDate);
-      }
-      if (params.endDate) {
-        query.createdAt.$lte = new Date(params.endDate);
-      }
-    }
-
-    const { list, totalCount, pageInfo } = await cursorPaginate<
-      ICPNotificationDocument
-    >({
-      model: models.CPNotifications,
-      params: {
-        ...params,
-        orderBy: { createdAt: -1 },
-      },
-      query,
-    });
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ICPNotificationDocument>({
+        model: models.CPNotifications,
+        params: {
+          ...params,
+          orderBy: { createdAt: -1 },
+        },
+        query,
+      });
 
     return { list, totalCount, pageInfo };
   },
@@ -123,3 +117,9 @@ cpNotificationQueries.clientPortalNotificationDetail.wrapperConfig = {
 cpNotificationQueries.clientPortalUnreadNotificationCount.wrapperConfig = {
   forClientPortal: true,
 };
+
+checkPermission(
+  cpNotificationQueries,
+  'getClientPortalNotificationsByCpUserId',
+  'showClientPortalUsers',
+);

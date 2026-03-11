@@ -1,7 +1,19 @@
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
-import { IUserDetail, IUserDetailsType, UsersHotKeyScope } from '@/settings/team-member/types';
+import {
+  IUserDetail,
+  IUserDetailsType,
+  UsersHotKeyScope,
+} from '@/settings/team-member/types';
 import { IconTrash } from '@tabler/icons-react';
-import { Avatar, Button, FullNameField, FullNameValue, Popover, readImage, Upload } from 'erxes-ui';
+import {
+  Avatar,
+  Button,
+  FullNameField,
+  FullNameValue,
+  Popover,
+  readImage,
+  Upload,
+} from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React from 'react';
 import { currentUserState } from 'ui-modules';
@@ -10,12 +22,13 @@ import { useUserEdit } from '../../hooks/useUserEdit';
 export const MemberDetailGeneral = () => {
   const { userDetail } = useUserDetail();
   const { _id, details, email } = userDetail || {};
-  const { firstName, lastName, middleName, } =
-    details || {};
+  const { firstName, lastName, middleName } = details || {};
   const { usersEdit } = useUserEdit();
-  const currentUser = useAtomValue(currentUserState)
+  const currentUser = useAtomValue(currentUserState);
 
-  const handleEditDetails = (changedDetails: Partial<IUserDetail['details']>) => {
+  const handleEditDetails = (
+    changedDetails: Partial<IUserDetail['details']>,
+  ) => {
     const { __typename, ...rest } = details || {};
     usersEdit({
       variables: {
@@ -26,14 +39,18 @@ export const MemberDetailGeneral = () => {
         },
       },
     });
-  }
+  };
 
   const Trigger = currentUser?.isOwner ? Popover.Trigger : React.Fragment;
 
   return (
     <div className="py-5 px-8 flex flex-col gap-6">
       <div className="flex gap-3 items-center flex-col lg:flex-row ">
-        <MemberDetailAvatar details={details} email={email || ''} handleEditDetails={handleEditDetails} />
+        <MemberDetailAvatar
+          details={details}
+          email={email || ''}
+          handleEditDetails={handleEditDetails}
+        />
         <div className="flex flex-col items-start">
           <FullNameField
             scope={UsersHotKeyScope.UserDetailPage + '.' + _id + '.Name'}
@@ -48,7 +65,7 @@ export const MemberDetailGeneral = () => {
                 handleEditDetails({
                   firstName: _firstName,
                   lastName: _lastName,
-                })
+                });
               }
             }}
           >
@@ -64,10 +81,17 @@ export const MemberDetailGeneral = () => {
   );
 };
 
-
-export const MemberDetailAvatar = ({ details, email, handleEditDetails }: { email: string; details?: IUserDetailsType; handleEditDetails: (changedDetails: Partial<IUserDetailsType>) => void }) => {
+export const MemberDetailAvatar = ({
+  details,
+  email,
+  handleEditDetails,
+}: {
+  email: string;
+  details?: IUserDetailsType;
+  handleEditDetails: (changedDetails: Partial<IUserDetailsType>) => void;
+}) => {
   const { avatar, firstName, lastName, operatorPhone } = details || {};
-  const currentUser = useAtomValue(currentUserState)
+  const currentUser = useAtomValue(currentUserState);
 
   if (!currentUser?.isOwner) {
     return (
@@ -77,7 +101,7 @@ export const MemberDetailAvatar = ({ details, email, handleEditDetails }: { emai
           {(firstName || lastName || email || operatorPhone)?.charAt(0)}
         </Avatar.Fallback>
       </Avatar>
-    )
+    );
   }
 
   return (
@@ -87,16 +111,20 @@ export const MemberDetailAvatar = ({ details, email, handleEditDetails }: { emai
         if (fileInfo.url !== avatar) {
           handleEditDetails({
             avatar: fileInfo?.url || '',
-          })
+          });
         }
       }}
     >
       <div className="relative">
         <Upload.Preview />
-        <Upload.RemoveButton className="absolute -top-2 -right-2 rounded-full" variant="outline" size="icon">
+        <Upload.RemoveButton
+          className="absolute -top-2 -right-2 rounded-full"
+          variant="outline"
+          size="icon"
+        >
           <IconTrash />
         </Upload.RemoveButton>
       </div>
-    </Upload.Root >
-  )
-}
+    </Upload.Root>
+  );
+};

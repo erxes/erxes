@@ -8,6 +8,7 @@ import { startPlugin } from 'erxes-api-shared/utils';
 import { afterProcess } from '~/meta/afterProcess';
 import { typeDefs } from './apollo/typeDefs';
 import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
+import { notifications } from './meta/notifications';
 
 startPlugin({
   name: 'sales',
@@ -50,23 +51,15 @@ startPlugin({
     automations,
     segments,
     tags: { types: [{ type: 'deal', description: 'Sales' }] },
-    notificationModules: [
-      {
-        name: 'deals',
-        description: 'Deals',
-        icon: 'IconChecklist',
-        types: [
-          { name: 'dealAssignee', text: 'Deal assignee' },
-          { name: 'dealStatus', text: 'Deal status changed' },
-        ],
-      },
-      {
-        name: 'note',
-        description: 'Note',
-        icon: 'IconNote',
-        types: [{ name: 'note', text: 'Mentioned in note' }],
-      },
-    ],
+    properties: {
+      types: [
+        {
+          description: 'Sales pipelines',
+          type: 'deal',
+        },
+      ],
+    },
+    notifications,
     afterProcess,
   },
 });

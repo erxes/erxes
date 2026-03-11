@@ -16,6 +16,12 @@ export interface ICPNotification {
   metadata?: any;
   action?: string;
   kind: 'system' | 'user';
+  /** Result of sending push: which platforms had FCM tokens */
+  result?: {
+    ios?: boolean;
+    android?: boolean;
+    web?: boolean;
+  };
   createdAt?: Date;
   expiresAt?: Date;
   updatedAt?: Date;

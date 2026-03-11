@@ -80,6 +80,19 @@ export const socialAuthProviderSchema = new Schema(
   { _id: false },
 );
 
+export const fcmDeviceSchema = new Schema(
+  {
+    deviceId: { type: String, required: true },
+    token: { type: String, required: true },
+    platform: {
+      type: String,
+      required: true,
+      enum: ['ios', 'android', 'web'],
+    },
+  },
+  { _id: false },
+);
+
 const actionCodeSchema = new Schema(
   {
     code: { type: String, required: true },
@@ -92,6 +105,8 @@ const actionCodeSchema = new Schema(
         'PHONE_VERIFICATION',
         'PASSWORD_RESET',
         'TWO_FACTOR_VERIFICATION',
+        'EMAIL_CHANGE',
+        'PHONE_CHANGE',
       ],
     },
   },
@@ -126,6 +141,8 @@ export const cpUserSchema = new Schema(
       sparse: true,
     },
     phone: { type: String, sparse: true },
+    pendingEmail: { type: String },
+    pendingPhone: { type: String },
     username: {
       type: String,
       unique: true,
@@ -167,7 +184,7 @@ export const cpUserSchema = new Schema(
       default: false,
     },
     fcmTokens: {
-      type: [String],
+      type: [fcmDeviceSchema],
       default: [],
     },
     actionCode: {

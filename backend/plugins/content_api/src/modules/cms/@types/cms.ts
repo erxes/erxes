@@ -24,6 +24,7 @@ export interface IContentCMSInput {
 
 export interface ICMSMenu {
   clientPortalId: string;
+  webId?: string;
   label: string;
   objectType: string;
   objectId: string;
@@ -36,7 +37,7 @@ export interface ICMSMenu {
 }
 
 export interface ICMSMenuDocument extends ICMSMenu, Document {
-   _id: string;
+  _id: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -58,6 +59,7 @@ export interface ICMSPage {
   content?: string;
   slug: string;
   layout?: string;
+  status?: string;
   createdUserId?: string;
   coverImage?: string;
   customFieldsData?: any[];
@@ -69,4 +71,3 @@ export interface ICMSPageDocument extends ICMSPage, Document {
   createdAt: Date;
   updatedAt: Date;
 }
-

@@ -17,6 +17,12 @@ export interface ICPNotificationDocument extends Document {
   metadata?: any;
   action?: string;
   kind: 'system' | 'user';
+  /** Result of sending push: which platforms had FCM tokens */
+  result?: {
+    ios?: boolean;
+    android?: boolean;
+    web?: boolean;
+  };
   createdAt: Date;
   expiresAt?: Date;
   updatedAt: Date;
@@ -88,6 +94,11 @@ export const cpNotificationSchema = new Schema(
       enum: ['system', 'user'],
       default: 'user',
       index: true,
+    },
+    result: {
+      ios: { type: Boolean },
+      android: { type: Boolean },
+      web: { type: Boolean },
     },
     expiresAt: {
       type: Date,

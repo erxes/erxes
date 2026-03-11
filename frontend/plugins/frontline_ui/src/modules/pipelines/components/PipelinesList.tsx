@@ -97,52 +97,52 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
             <Table.Body>
               {loading
                 ? Array.from({ length: 3 }).map((_, index) => (
-                    <TableRowSkeleton key={index} />
-                  ))
+                  <TableRowSkeleton key={index} />
+                ))
                 : pipelines?.map((pipeline: any) => (
-                    <Table.Row
-                      key={pipeline._id}
-                      onClick={() => onClick(pipeline._id)}
-                      className="hover:cursor-pointer shadow-xs group/row"
-                    >
-                      <Table.Cell className="font-medium border-none pl-2">
-                        <span className="w-full flex gap-2 text-base font-medium">
-                          <IconComponent
-                            name={pipeline.icon}
-                            className="size-4"
-                          />
-                          <TextOverflowTooltip value={pipeline.name} />
-                        </span>
-                      </Table.Cell>
+                  <Table.Row
+                    key={pipeline._id}
+                    onClick={() => onClick(pipeline._id)}
+                    className="hover:cursor-pointer shadow-xs group/row"
+                  >
+                    <Table.Cell className="font-medium border-none pl-2">
+                      <span className="w-full flex gap-2 text-base font-medium">
+                        <IconComponent
+                          name={pipeline.icon}
+                          className="size-4"
+                        />
+                        <TextOverflowTooltip value={pipeline.name} />
+                      </span>
+                    </Table.Cell>
 
-                      <Table.Cell className="font-medium border-none pl-2 w-32">
-                        {pipeline.createdUser ? (
-                          <MembersInline.Provider
-                            memberIds={[pipeline.createdUser._id]}
-                          >
-                            <span className="w-full flex gap-2 items-center">
-                              <MembersInline.Avatar />
-                              <MembersInline.Title />
-                            </span>
-                          </MembersInline.Provider>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">
-                            —
+                    <Table.Cell className="font-medium border-none pl-2 w-32">
+                      {pipeline.createdUser ? (
+                        <MembersInline.Provider
+                          memberIds={[pipeline.createdUser._id]}
+                        >
+                          <span className="w-full flex gap-2 items-center">
+                            <MembersInline.Avatar />
+                            <MembersInline.Title />
                           </span>
-                        )}
-                      </Table.Cell>
+                        </MembersInline.Provider>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">
+                          —
+                        </span>
+                      )}
+                    </Table.Cell>
 
-                      <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
-                        <DateDisplay date={pipeline.createdAt} />
-                      </Table.Cell>
-                      <Table.Cell className="pipeline-none px-2 w-32 text-muted-foreground">
-                        <DateDisplay date={pipeline.updatedAt} />
-                      </Table.Cell>
-                      <Table.Cell className="border-none px-2 w-10">
-                        <DeletePipeline pipelineId={pipeline._id} />
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
+                    <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
+                      <DateDisplay date={pipeline.createdAt} />
+                    </Table.Cell>
+                    <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
+                      <DateDisplay date={pipeline.updatedAt} />
+                    </Table.Cell>
+                    <Table.Cell className="border-none px-2 w-10">
+                      <DeletePipeline pipelineId={pipeline._id} />
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
             </Table.Body>
           </Table>
         </ScrollArea>

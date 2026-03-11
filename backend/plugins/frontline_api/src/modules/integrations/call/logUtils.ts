@@ -53,7 +53,8 @@ export default {
         contentTypeDetail: {
           history,
           conversationMessages: messages ? messages : [],
-          assignedUser: user ? { details: user.details, _id: user._id } : {},
+          assignedUser:
+            user && user._id ? { details: user.details, _id: user._id } : {},
         },
       });
     }

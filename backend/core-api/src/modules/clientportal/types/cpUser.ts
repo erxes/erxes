@@ -20,8 +20,9 @@ export interface ICPUserRegisterParams {
   username?: string;
   firstName?: string;
   lastName?: string;
+  companyName?: string;
   password?: string;
-  type?: string | 'customer' | 'company';
+  userType?: string | 'customer' | 'company';
 }
 
 export interface IRefreshToken {
@@ -38,6 +39,12 @@ export interface ISocialAuthProvider {
   providerId: string;
   email?: string;
   linkedAt: Date;
+}
+
+export interface IFcmDevice {
+  deviceId: string;
+  token: string;
+  platform: 'ios' | 'android' | 'web';
 }
 
 export interface ICPUser {
@@ -69,8 +76,8 @@ export interface ICPUser {
 
   isPhoneVerified: boolean;
   isEmailVerified: boolean;
-  // firebase cloud messaging tokens for push notifications and web push notifications
-  fcmTokens?: string[];
+  // firebase cloud messaging devices (deviceId, token, platform) for push notifications
+  fcmTokens?: IFcmDevice[];
   // Verification codes - unified structure
   actionCode?: {
     code: string;
@@ -79,8 +86,14 @@ export interface ICPUser {
       | 'EMAIL_VERIFICATION'
       | 'PHONE_VERIFICATION'
       | 'PASSWORD_RESET'
-      | 'TWO_FACTOR_VERIFICATION';
+      | 'TWO_FACTOR_VERIFICATION'
+      | 'EMAIL_CHANGE'
+      | 'PHONE_CHANGE';
   };
+
+  // Pending contact change (set while waiting for OTP confirmation)
+  pendingEmail?: string;
+  pendingPhone?: string;
 
   // Refresh tokens for token management
   refreshTokens?: IRefreshToken[];

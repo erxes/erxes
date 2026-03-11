@@ -29,6 +29,11 @@ import {
   resetPasswordWithCode,
   resetPasswordWithToken,
 } from '~/modules/clientportal/services/auth/password';
+import {
+  generateCPUserLoginActivityLog,
+  generateCPUserLogoutActivityLog,
+  createCPUserActivityLog,
+} from '@/clientportal/utils/activityLogs';
 
 export const authMutations: Record<string, Resolver> = {
   async clientPortalUserRegister(
@@ -65,7 +70,7 @@ export const authMutations: Record<string, Resolver> = {
   async clientPortalUserLoginWithCredentials(
     _root: unknown,
     { email, phone, password }: LoginCredentialsParams,
-    { models, clientPortal, res }: IContext,
+    { models, subdomain, clientPortal, res }: IContext,
   ) {
     const user = await loginWithCredentials(
       email,
@@ -76,6 +81,8 @@ export const authMutations: Record<string, Resolver> = {
     );
 
     const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
+    const payload = generateCPUserLoginActivityLog(user, 'credentials');
+    await createCPUserActivityLog(models, subdomain, payload, user);
 
     if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
@@ -87,13 +94,15 @@ export const authMutations: Record<string, Resolver> = {
   async clientPortalLogout(
     _root: unknown,
     _args: unknown,
-    { res, models, cpUser }: IContext,
+    { res, models, subdomain, cpUser }: IContext,
   ) {
     if (cpUser) {
       await models.CPUser.updateOne(
         { _id: cpUser._id || '' },
         { $set: { lastSeenAt: new Date(), isOnline: false } },
       );
+      const payload = generateCPUserLogoutActivityLog(cpUser);
+      await createCPUserActivityLog(models, subdomain, payload, cpUser);
     }
 
     jwtManager.clearAuthCookie(res);
@@ -158,10 +167,13 @@ export const authMutations: Record<string, Resolver> = {
   async clientPortalUserLoginWithOTP(
     _root: unknown,
     { identifier, otp }: LoginOTPParams,
-    { models, clientPortal, res }: IContext,
+    { models, subdomain, clientPortal, res }: IContext,
   ) {
     const user = await loginWithOTP(identifier, otp, clientPortal, models);
     const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
+
+    const payload = generateCPUserLoginActivityLog(user, 'otp');
+    await createCPUserActivityLog(models, subdomain, payload, user);
 
     if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
@@ -192,10 +204,12 @@ export const authMutations: Record<string, Resolver> = {
   async clientPortalUserLoginWithSocial(
     _root: unknown,
     { provider, token }: SocialAuthParams,
-    { models, clientPortal, res }: IContext,
+    { models, subdomain, clientPortal, res }: IContext,
   ) {
     const user = await loginWithSocial(provider, token, clientPortal, models);
     const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
+    const payload = generateCPUserLoginActivityLog(user, 'social');
+    await createCPUserActivityLog(models, subdomain, payload, user);
 
     if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };

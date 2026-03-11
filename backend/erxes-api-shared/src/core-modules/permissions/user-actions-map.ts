@@ -2,25 +2,21 @@ import {
   IBranchDocument,
   IDepartmentDocument,
 } from '../../core-types/modules/structure/structure';
-import {
-  IActionMap,
-  IPermissionDocument,
-  IUserDocument,
-} from '../../core-types';
+import { IUserDocument } from '../../core-types';
 import { redis, sendTRPCMessage } from '../../utils';
 import { getKey } from './utils';
 
 export const userActionsMap = async (
-  userPermissions: IPermissionDocument[],
-  groupPermissions: IPermissionDocument[],
+  userPermissions: any[],
+  groupPermissions: any[],
   user: any,
-): Promise<IActionMap> => {
-  const totalPermissions: IPermissionDocument[] = [
+): Promise<any> => {
+  const totalPermissions: any[] = [
     ...userPermissions,
     ...groupPermissions,
     ...(user.customPermissions || []),
   ];
-  const allowedActions: IActionMap = {};
+  const allowedActions: any = {};
 
   const check = (name: string, allowed: boolean) => {
     if (typeof allowedActions[name] === 'undefined') {
@@ -50,11 +46,11 @@ export const getUserActionsMap = async (
   subdomain: string,
   user: IUserDocument,
   permissionsFind?: (query: any) => any,
-): Promise<IActionMap> => {
+): Promise<any> => {
   const key = getKey(user);
   const permissionCache = await redis.get(key);
 
-  let actionMap: IActionMap;
+  let actionMap: any;
 
   if (permissionCache && permissionCache !== '{}') {
     actionMap = JSON.parse(permissionCache);

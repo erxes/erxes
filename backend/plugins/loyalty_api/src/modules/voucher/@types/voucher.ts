@@ -1,24 +1,16 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
-import { LOYALTY_CONDITIONS, OWNER_TYPES, STATUSES } from '~/@types';
+import { ICommonDocument, ICommonFields } from '~/utils';
 
-export interface IVoucher {
-  campaignId: string;
+export interface IVoucher extends ICommonFields {
+  status?: string;
+  bonusInfo?: any;
 
-  ownerId: string;
-  ownerType: OWNER_TYPES;
-
-  status?: STATUSES;
-
-  createdBy?: string;
-  updatedBy?: string;
-
-  conditions?: LOYALTY_CONDITIONS;
+  config?: any;
 }
 
-export interface IVoucherDocument extends IVoucher, Document {
-  createdAt: Date;
-  updatedAt: Date;
+export interface IVoucherDocument extends IVoucher, ICommonDocument, Document {
+  _id: string;
 }
 
 export interface IVoucherParams extends ICursorPaginateParams {
@@ -28,4 +20,9 @@ export interface IVoucherParams extends ICursorPaginateParams {
   status?: string;
   fromDate?: string;
   toDate?: string;
+}
+
+export interface IVoucherInput extends IVoucher {
+  ownerIds?: string[];
+  tagIds?: string[];
 }

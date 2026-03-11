@@ -1,4 +1,4 @@
-import { Cell } from '@tanstack/table-core';
+import { CellContext } from '@tanstack/react-table';
 import { IIntegrationDetail } from '@/integrations/types/Integration';
 import {
   Button,
@@ -18,6 +18,7 @@ import { z } from 'zod';
 import { useEffect, useState } from 'react';
 import { imapFormSchema } from './ImapIntegrationForm';
 import { ImapIntegrationFormLayout } from '@/integrations/imap/components/ImapIntegrationFormLayout';
+import { SelectBrand } from 'ui-modules';
 
 export const ImapIntegrationDetail = () => {
   return <ImapIntegrationFormLayout />;
@@ -26,7 +27,7 @@ export const ImapIntegrationDetail = () => {
 export const ImapIntegrationActions = ({
   cell,
 }: {
-  cell: Cell<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
   return <ImapIntegrationEditSheet id={cell.row.original._id} />;
 };
@@ -36,9 +37,10 @@ export const ImapIntegrationEditSheet = ({ id }: { id: string }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="outline" size="icon">
-          <IconEdit />
-        </Button>
+        <div className="flex items-center gap-2 w-full">
+          <IconEdit size={16} />
+          Edit
+        </div>
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
         <ImapIntegrationEditForm id={id} setOpen={setOpen} />
@@ -74,6 +76,7 @@ export const ImapIntegrationEditForm = ({
         mainUser: details.mainUser || '',
         user: details.user || '',
         password: details.password || '',
+        brandId: integrationDetail.brandId || '',
       });
     }
   }, [integrationDetail, form]);
@@ -84,6 +87,7 @@ export const ImapIntegrationEditForm = ({
         _id: id,
         name: data.name,
         channelId: integrationDetail?.channelId || '',
+        brandId: data.brandId,
         details: {
           host: data.host,
           smtpHost: data.smtpHost,
@@ -116,9 +120,7 @@ export const ImapIntegrationEditForm = ({
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit, (error) => {
-            console.log(error);
-          })}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="p-6 flex-auto overflow-auto"
         >
           <Form.Field
@@ -200,6 +202,24 @@ export const ImapIntegrationEditForm = ({
                 <Form.Label>Password</Form.Label>
                 <Form.Control>
                   <Input type="password" {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            name="brandId"
+            control={form.control}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Brand</Form.Label>
+                <Form.Control>
+                  <SelectBrand
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select a brand"
+                    className="w-full h-10 rounded-lg border bg-background"
+                  />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>

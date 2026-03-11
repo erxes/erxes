@@ -1,25 +1,25 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
-import { LOYALTY_CONDITIONS, OWNER_TYPES, STATUSES } from '~/@types';
+import { ICommonDocument } from '~/utils';
 
 export interface ICoupon {
   campaignId: string;
-
-  ownerId: string;
-  ownerType: OWNER_TYPES;
-
   code: string;
-  status: STATUSES;
-
-  createdBy?: string;
-  updatedBy?: string;
-
-  conditions?: LOYALTY_CONDITIONS;
+  usageLimit: number;
+  usageCount: number;
+  status: string;
+  usageLogs: Array<{
+    usedDate: Date;
+    ownerId: string;
+    ownerType: string;
+    targetId: string;
+    targetType: string;
+  }>;
+  redemptionLimitPerUser: number;
 }
 
-export interface ICouponDocument extends ICoupon, Document {
-  createdAt: Date;
-  updatedAt: Date;
+export interface ICouponDocument extends ICoupon, ICommonDocument, Document {
+  _id: string;
 }
 
 export interface ICouponParams extends ICursorPaginateParams {
@@ -29,4 +29,12 @@ export interface ICouponParams extends ICursorPaginateParams {
   status?: string;
   fromDate?: string;
   toDate?: string;
+}
+
+export interface ICouponInput {
+  campaignId: string;
+  customConfig?: Array<{
+    usageLimit: number;
+    redemptionLimitPerUser: number;
+  }>;
 }

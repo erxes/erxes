@@ -62,6 +62,55 @@ export function buildUserQuery(
   return query;
 }
 
+export interface CPNotificationFilterParams {
+  status?: 'READ' | 'UNREAD' | 'ALL';
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  type?: 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR';
+  kind?: 'SYSTEM' | 'USER';
+  fromDate?: string;
+  endDate?: string;
+  clientPortalId?: string;
+}
+
+export function buildCPNotificationQuery(
+  baseQuery: Record<string, any>,
+  params: CPNotificationFilterParams,
+): Record<string, any> {
+  const query = { ...baseQuery };
+
+  if (params.clientPortalId) {
+    query.clientPortalId = params.clientPortalId;
+  }
+
+  if (params.status && params.status !== 'ALL') {
+    query.isRead = params.status === 'READ';
+  }
+
+  if (params.priority) {
+    query.priority = params.priority.toLowerCase();
+  }
+
+  if (params.type) {
+    query.type = params.type.toLowerCase();
+  }
+
+  if (params.kind) {
+    query.kind = params.kind.toLowerCase();
+  }
+
+  if (params.fromDate || params.endDate) {
+    query.createdAt = {};
+    if (params.fromDate) {
+      query.createdAt.$gte = new Date(params.fromDate);
+    }
+    if (params.endDate) {
+      query.createdAt.$lte = new Date(params.endDate);
+    }
+  }
+
+  return query;
+}
+
 export function buildDuplicationQuery(
   userFields: UserFields,
   idsToExclude?: string[] | string,

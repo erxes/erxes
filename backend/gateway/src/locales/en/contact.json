@@ -5,7 +5,7 @@
   "customer": {
     "_": "Customer",
     "add": {
-      "_": "Customer add",
+      "_": "Add Customer",
       "upload": "Upload",
       "upload-description": "Upload 1:1, 2MB max",
       "first-name": "First name",
@@ -76,12 +76,22 @@
       "industry-placeholder": "Select industries"
     },
     "add": {
-      "_": "Add company",
+      "_": "Add Company",
       "success-message": "Company added successfully"
+    }
+  },
+  "lead": {
+    "add": {
+      "_": "Add Lead",
+      "success-message": "Lead added successfully"
+    },
+    "detail": {
+      "lead-detail": "Lead details"
     }
   },
   "upload": "Upload",
   "upload-description": "Upload 1:1, 2MB max",
   "save": "Save",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "success": "Success"
 }

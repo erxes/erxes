@@ -25,7 +25,7 @@ export const adminMutations: Record<string, Resolver> = {
         password: params.password,
         firstName: params.firstName,
         lastName: params.lastName,
-        type: params.userType as 'customer' | 'company' | undefined,
+        userType: params.userType as 'customer' | 'company' | undefined,
       },
       models,
     );

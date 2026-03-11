@@ -1,16 +1,30 @@
 import {
   erxesMessengerSetupGreetingAtom,
   erxesMessengerSetupHoursAtom,
+  erxesMessengerSetupSettingsAtom,
+  erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { IconX } from '@tabler/icons-react';
-import { Avatar, Button, Popover, readImage } from 'erxes-ui';
+import {
+  Avatar,
+  Button,
+  formatTimeZoneLabel,
+  InfoCard,
+  Input,
+  Label,
+  PhoneInput,
+  Popover,
+  readImage,
+  Tabs,
+} from 'erxes-ui';
 import { MembersInline, useMembersInlineContext } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { EMGreetingAvatar } from '@/integrations/erxes-messenger/components/EMGreeting';
 import { EMPreviewChatInput } from './EMPreviewChatInput';
 import { Weekday } from '../types/Weekday';
 import { ScheduleDay } from '../constants/emHoursSchema';
-import { formatDate } from 'date-fns';
+import { format, parse } from 'date-fns';
+import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 
 const MAX_COUNT = 2;
 
@@ -20,7 +34,11 @@ export const ActiveUsers = () => {
   return (
     <div className="flex items-center -space-x-2">
       {members.slice(0, MAX_COUNT).map((member) => (
-        <Avatar key={member._id} size="xl" className='border-2 border-transparent'>
+        <Avatar
+          key={member._id}
+          size="xl"
+          className="border-2 border-transparent"
+        >
           <Avatar.Image src={readImage(member.details?.avatar || '', 200)} />
           <Avatar.Fallback>
             {member.details?.fullName?.charAt(0) || ''}
@@ -28,10 +46,8 @@ export const ActiveUsers = () => {
         </Avatar>
       ))}
       {extraCount > 0 && (
-        <Avatar size="xl" className='border-2 border-transparent'>
-          <Avatar.Fallback>
-            {'+' + extraCount}
-          </Avatar.Fallback>
+        <Avatar size="xl" className="border-2 border-transparent">
+          <Avatar.Fallback>{'+' + extraCount}</Avatar.Fallback>
         </Avatar>
       )}
     </div>
@@ -39,43 +55,99 @@ export const ActiveUsers = () => {
 };
 
 export const EMPreviewIntro = () => {
+  const step = useAtomValue(erxesMessengerSetupStepAtom);
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const hours = useAtomValue(erxesMessengerSetupHoursAtom);
+  const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
 
-  const getSchedule = (obj: Partial<Record<Weekday | ScheduleDay, { work?: boolean | undefined; from?: string | undefined; to?: string | undefined; }>>) => {
-    const days = Object.entries(obj).filter(([_, value]) => value.work).map(([key, _]) => key);
-    const times = Object.entries(obj).filter(([_, value]) => value.work).map(([_, value]) => `${value.from} - ${value.to}`);
-    return {
-      days,
-      times
-    }
-  }
+  const formatScheduleDays = (
+    obj: Partial<
+      Record<
+        Weekday | ScheduleDay,
+        { work?: boolean; from?: string; to?: string }
+      >
+    >,
+  ): string => {
+    // Only look at individual weekday keys, not the group synthetic keys
+    const WEEKDAY_VALUES = new Set<string>(Object.values(Weekday));
+
+    const activeDays = (Object.keys(obj) as (Weekday | ScheduleDay)[]).filter(
+      (key) => WEEKDAY_VALUES.has(key) && obj[key]?.work,
+    ) as Weekday[];
+
+    if (activeDays.length === 0) return '';
+
+    const allWeekdays = [
+      Weekday.MONDAY,
+      Weekday.TUESDAY,
+      Weekday.WEDNESDAY,
+      Weekday.THURSDAY,
+      Weekday.FRIDAY,
+    ];
+    const weekend = [Weekday.SATURDAY, Weekday.SUNDAY];
+    const allDays = [...allWeekdays, ...weekend];
+
+    const hasAll = (set: Weekday[]) =>
+      set.every((d) => activeDays.includes(d)) &&
+      activeDays.length === set.length;
+
+    if (hasAll(allDays)) return 'Everyday';
+    if (hasAll(allWeekdays)) return 'Monday – Friday';
+    if (hasAll(weekend)) return 'Weekends';
+
+    // Fallback: capitalise and join the individual day names
+    return activeDays
+      .map((d) => d.charAt(0).toUpperCase() + d.slice(1))
+      .join(', ');
+  };
+
+  /** Converts "HH:mm:ss" → "9:00 am" using date-fns */
+  const formatTime = (raw: string): string =>
+    format(parse(raw, 'HH:mm:ss', new Date()), 'h:mm aa').toLowerCase();
+
+  const getFirstActiveTime = (
+    obj: Partial<
+      Record<
+        Weekday | ScheduleDay,
+        { work?: boolean; from?: string; to?: string }
+      >
+    >,
+  ): string => {
+    const WEEKDAY_VALUES = new Set<string>(Object.values(Weekday));
+    const entry = Object.entries(obj).find(
+      ([key, value]) =>
+        WEEKDAY_VALUES.has(key) && value?.work && value.from && value.to,
+    );
+    if (!entry) return '9:00 am – 5:00 pm';
+    return `${formatTime(entry[1].from!)} – ${formatTime(entry[1].to!)}`;
+  };
 
   return (
     <>
       <div className="bg-background text-foreground p-6 pt-4 space-y-3">
-        {/* <Popover.Close asChild>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="absolute top-4 right-4"
-          >
-            <IconX />
-          </Button>
-        </Popover.Close> */}
         <h1 className="font-semibold text-accent-foreground text-base">
-          Need help?
+          {greeting?.title || 'Need help?'}
         </h1>
         <p className="text-sm text-foreground/80">
-          {greeting?.title || 'Welcome to Erxes Messenger'}
+          {greeting?.message || 'Welcome to Erxes Messenger'}
         </p>
-        {
-          hours?.availabilityMethod === 'manual' ? (
-            <p className='text-sm text-medium text-accent-foreground'>We're available between 9.00 pm and 5.00 am</p>
-          ) : (
-            <p className='text-sm text-medium text-accent-foreground'>We're available between {getSchedule(hours?.onlineHours || {}).times[0] || '9.00 am - 5.00 pm'}, {getSchedule(hours?.onlineHours || {}).days.join(', ') || ''}</p>
-          )
-        }
+        {hours?.availabilityMethod === 'manual' ? (
+          <p className="text-sm text-medium text-accent-foreground">
+            We're available between 9.00 pm and 5.00 am
+          </p>
+        ) : (
+          <p className="text-sm text-medium text-accent-foreground">
+            We're available between{' '}
+            {getFirstActiveTime(hours?.onlineHours || {})}
+            {formatScheduleDays(hours?.onlineHours || {}) &&
+              `, ${formatScheduleDays(hours?.onlineHours || {})}`}
+          </p>
+        )}
+        {hours?.displayOperatorTimezone && (
+          <p className="text-sm text-medium text-accent-foreground">
+            {formatTimeZoneLabel(hours?.timezone as string) || 'UTC'}
+          </p>
+        )}
         <p className="text-xs text-accent-foreground">
           Contact us for any questions or concerns.
         </p>
@@ -98,37 +170,71 @@ export const EMPreviewIntro = () => {
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2 flex-1 justify-start px-4">
-        <MembersInline.Provider memberIds={greeting?.supporterIds || []}>
-          <ActiveUsers />
-        </MembersInline.Provider>
-        <span className="text-xs text-accent-foreground">
-          Our usual reply time <span className="font-medium text-primary">(A few {hours?.responseRate || 'minutes'})</span>
-        </span>
-      </div>
+      {settings?.requireAuth && step === 5 ? (
+        <div className="flex items-center gap-2 flex-1 justify-start px-4 pt-2">
+          <EMPreviewAuthForm />
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 flex-1 justify-start px-4">
+          <MembersInline.Provider memberIds={greeting?.supporterIds || []}>
+            <ActiveUsers />
+          </MembersInline.Provider>
+          <span className="text-xs text-accent-foreground">
+            Our usual reply time{' '}
+            <span className="font-medium text-primary">
+              (A few {hours?.responseRate || 'minutes'})
+            </span>
+          </span>
+        </div>
+      )}
       <div className="mt-auto">
         <EMPreviewChatInput />
       </div>
-      {/* <div className="bg-a px-4 py-6 -mt-8 mx-6 rounded-xl shadow-md">
-        <div className="font-medium text-accent-foreground mb-2 text-sm px-3">
-          Recent conversations
-        </div>
-        <Button
-          className="w-full text-left h-auto justify-start rounded-md px-2 my-2"
-          variant="ghost"
-        >
-          <div className="flex items-center bg-muted text-muted-foreground p-2 rounded-full">
-            <IconPlus className="size-5" strokeWidth={1.5} />
-          </div>
-          <div className="flex flex-col gap-1">
-            <span>Start new conversation</span>
-            <span className="text-xs font-normal text-accent-foreground">
-              Our usual response time is a few {hours?.responseRate}.
-            </span>
-          </div>
-        </Button>
-        <Separator />
-      </div> */}
     </>
+  );
+};
+
+export const EMPreviewAuthForm = () => {
+  const [value, setValue] = useState<string>('email');
+  return (
+    <InfoCard title="Enter your email or phone number" className="w-full">
+      <InfoCard.Content>
+        <Tabs
+          value={value}
+          onValueChange={setValue}
+          className="w-full space-y-3"
+        >
+          <Tabs.List className="w-full">
+            <Tabs.Trigger value="email" className="flex-1">
+              Email
+            </Tabs.Trigger>
+            <Tabs.Trigger value="phone" className="flex-1">
+              Phone
+            </Tabs.Trigger>
+          </Tabs.List>
+          <Input placeholder="First name" />
+          <Input placeholder="Last name" />
+          <AnimatePresence mode="popLayout">
+            {value === 'email' && (
+              <>
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" placeholder="Email" />
+              </>
+            )}
+          </AnimatePresence>
+          <AnimatePresence mode="popLayout">
+            {value === 'phone' && (
+              <>
+                <Label htmlFor="phone">Phone</Label>
+                <PhoneInput defaultCountry="MN" className="bg-background" />
+              </>
+            )}
+          </AnimatePresence>
+        </Tabs>
+        <Button type="submit" className="w-full self-end mt-auto">
+          Save
+        </Button>
+      </InfoCard.Content>
+    </InfoCard>
   );
 };
