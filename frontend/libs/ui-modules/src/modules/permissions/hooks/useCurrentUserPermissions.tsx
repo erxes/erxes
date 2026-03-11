@@ -9,61 +9,67 @@ export interface ICurrentUserPermission {
   scope: string;
 }
 
-export const useCurrentUserPermissions = () => {
-  const { data, error, loading } = useQuery<{
-    currentUserPermissions: ICurrentUserPermission[];
-  }>(CURRENT_USER_PERMISSIONS);
+interface CurrentUserPermissionsData {
+  currentUserPermissions: ICurrentUserPermission[];
+}
 
-  const currentUserPermissions = useMemo(
+export const useCurrentUserPermissions = () => {
+  const { data, error, loading } = useQuery<CurrentUserPermissionsData>(CURRENT_USER_PERMISSIONS);
+
+  const permissions = useMemo(
     () => data?.currentUserPermissions ?? [],
     [data?.currentUserPermissions],
   );
 
-  const hasPermission = useCallback(
-    (action: string): boolean => {
-      if (!currentUserPermissions.length) return false;
+  const isOwner = useMemo(
+    () => permissions.some((p) => p.module === '*' && p.actions.includes('*')),
+    [permissions],
+  );
 
-      // Owner has all permissions
+  const can = useCallback(
+    (name: string): boolean => {
+      if (loading || !permissions.length) return false;
+      
+      if (isOwner) return true;
+
+      // Try both the name and its singular form (e.g. 'tasks' → 'task')
+      const variants = [name];
+      
+      if (name.endsWith('s')) {
+        variants.push(name.slice(0, -1));
+      }
+
+      // Action-level: exact match (e.g. 'taskUpdate', 'contactsDelete')
+      if (permissions.some((p) => p.actions.includes(name))) {
+        return true;
+      }
+
+      // Module-level: has any read action in module
       if (
-        currentUserPermissions.some(
-          (p) => p.module === '*' && p.actions.includes('*'),
+        permissions.some(
+          (p) =>
+            variants.includes(p.module) &&
+            p.actions.some((a) => a.toLowerCase().includes('read')),
         )
       ) {
         return true;
       }
 
-      return currentUserPermissions.some((p) => p.actions.includes(action));
-    },
-    [currentUserPermissions],
-  );
-
-  const hasAnyReadPermissionForPlugin = useCallback(
-    (pluginName: string): boolean => {
-      if (!currentUserPermissions.length) return false;
-
-      // Owner has all permissions
+      // Plugin-level: has any read action in plugin
       if (
-        currentUserPermissions.some(
-          (p) => p.module === '*' && p.actions.includes('*'),
+        permissions.some(
+          (p) =>
+            variants.includes(p.plugin || '') &&
+            p.actions.some((a) => a.toLowerCase().includes('read')),
         )
       ) {
         return true;
       }
 
-      return currentUserPermissions.some(
-        (p) =>
-          p.plugin === pluginName &&
-          p.actions.some((a) => a.toLowerCase().includes('read')),
-      );
+      return false;
     },
-    [currentUserPermissions],
+    [permissions, loading, isOwner],
   );
 
-  return {
-    currentUserPermissions,
-    hasPermission,
-    hasAnyReadPermissionForPlugin,
-    error,
-    loading,
-  };
+  return { can, permissions, loading, error };
 };

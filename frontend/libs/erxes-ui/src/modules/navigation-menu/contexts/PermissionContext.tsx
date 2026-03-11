@@ -1,11 +1,11 @@
 import { createContext, useContext } from 'react';
 
 export interface IPermissionContext {
-  canAccessModule: (module: string) => boolean;
+  can: (name: string) => boolean;
 }
 
 const defaultContext: IPermissionContext = {
-  canAccessModule: () => true,
+  can: () => true,
 };
 
 export const PermissionContext =

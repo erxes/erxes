@@ -19,7 +19,7 @@ import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
-import { CorePermissionGuard } from '~/modules/navigation/components/CorePermissionGuard';
+import { PermissionGuard } from 'erxes-ui';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { OrganizationProvider } from '@/organization/providers/OrganizationProvider';
 import { useAtomValue } from 'jotai';
@@ -89,9 +89,9 @@ export const useCreateAppRouter = () => {
               <Route
                 path={AppPath.ContactsCatchAll}
                 element={
-                  <CorePermissionGuard module="contacts">
+                  <PermissionGuard module="contacts">
                     <ContactsRoutes />
-                  </CorePermissionGuard>
+                  </PermissionGuard>
                 }
               />
 

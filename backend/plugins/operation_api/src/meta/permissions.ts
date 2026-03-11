@@ -506,7 +506,7 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'operation',
           module: 'task',
-          actions: [],
+          actions: ['taskRead'],
           scope: 'group',
         },
         {

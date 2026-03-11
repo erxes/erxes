@@ -21,7 +21,7 @@ export const ProjectDetailBreadCrumb = () => {
     variables: { _id: projectId },
     skip: !projectId,
   });
-  const { canAccessModule } = usePermissionContext();
+  const { can } = usePermissionContext();
 
   if (loading) {
     return <Skeleton className="w-12 h-lh" />;
@@ -48,7 +48,7 @@ export const ProjectDetailBreadCrumb = () => {
           <ToggleGroup.Item value={`${basePath}/overview`} asChild>
             <Link to={`${basePath}/overview`}>Overview</Link>
           </ToggleGroup.Item>
-          {canAccessModule('tasks') && (
+          {can('task') && (
             <ToggleGroup.Item value={`${basePath}/tasks`} asChild>
               <Link to={`${basePath}/tasks`}>Tasks</Link>
             </ToggleGroup.Item>
