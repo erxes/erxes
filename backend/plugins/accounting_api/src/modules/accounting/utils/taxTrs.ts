@@ -53,8 +53,7 @@ class TaxTrs {
         }
       }
 
-      const vatAccs = await this.models.Configs.getConfigValue(configKey);
-      this.vatAccountId = vatAccs[configKey]
+      this.vatAccountId = await this.models.Configs.getConfigValue(configKey);
 
       if (!this.vatAccountId) {
         throw new Error(`must init vat account ${configKey}`)
@@ -65,9 +64,7 @@ class TaxTrs {
     }
 
     if (hasCtax && this.doc.hasCtax) {
-      const ctaxAccs = await this.models.Configs.getConfigValue('CtaxPayableAccount');
-
-      this.ctaxAccountId = ctaxAccs.CtaxPayableAccount;
+      this.ctaxAccountId = await this.models.Configs.getConfigValue('CtaxPayableAccount');
 
       if (!this.ctaxAccountId) {
         throw new Error('must init ctax account id')

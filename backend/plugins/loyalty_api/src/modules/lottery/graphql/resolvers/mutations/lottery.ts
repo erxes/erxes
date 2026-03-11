@@ -1,63 +1,29 @@
 import { ILottery } from '@/lottery/@types/lottery';
 import { IContext } from '~/connectionResolvers';
+import { IBuyParams } from '~/utils';
 
 export const lotteryMutations = {
-  createLottery: async (
-    _parent: undefined,
-    doc: ILottery,
-    { models, user }: IContext,
-  ) => {
-    return models.Lottery.createLottery(doc, user);
+  async lotteriesAdd(_root: undefined, doc: ILottery, { models }: IContext) {
+    return models.Lotteries.createLottery(doc);
   },
 
-  updateLottery: async (
-    _parent: undefined,
+  async lotteriesEdit(
+    _root: undefined,
     { _id, ...doc }: ILottery & { _id: string },
     { models, user }: IContext,
-  ) => {
-    return models.Lottery.updateLottery(_id, { ...doc }, user);
+  ) {
+    return models.Lotteries.updateLottery(_id, { ...doc, userId: user._id });
   },
 
-  removeLottery: async (
-    _parent: undefined,
-    { _id }: { _id: string },
+  async lotteriesRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
     { models }: IContext,
-  ) => {
-    return models.Lottery.removeLottery(_id);
+  ) {
+    return models.Lotteries.removeLotteries(_ids);
   },
 
-  buyLottery: async (
-    _parent: undefined,
-    params: {
-      campaignId: string;
-      ownerType: string;
-      ownerId: string;
-      count?: number;
-    },
-    { models, user }: IContext,
-  ) => {
-    return models.Lottery.buyLottery(params, user);
-  },
-
-  doLottery: async (
-    _parent: undefined,
-    params: { campaignId: string; awardId: string },
-    { models, user }: IContext,
-  ) => {
-    return models.Lottery.doLottery(params, user);
-  },
-  doLotteryMultiple: async (
-    _parent: undefined,
-    params: { campaignId: string; awardId: string; multiple: number },
-    { models, user }: IContext,
-  ) => {
-    return models.Lottery.multipleDoLottery(params, user);
-  },
-  getNextChar: async (
-    _parent: undefined,
-    params: { campaignId: string; awardId: string; prevChars: string },
-    { models, user }: IContext,
-  ) => {
-    return models.Lottery.getNextChar(params, user);
+  async buyLottery(_root: undefined, param: IBuyParams, { models }: IContext) {
+    return models.Lotteries.buyLottery(param);
   },
 };

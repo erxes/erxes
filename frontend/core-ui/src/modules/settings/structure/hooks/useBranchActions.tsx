@@ -48,7 +48,7 @@ export function useBranchAdd(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
     refetchQueries: ['Branches'],
@@ -86,7 +86,7 @@ export function useBranchEdit(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
   });

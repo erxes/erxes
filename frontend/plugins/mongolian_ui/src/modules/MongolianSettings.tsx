@@ -9,8 +9,8 @@ const MongolianSettings = () => {
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="ebarimt/*" element={<EBarimtSettings />} />
-        <Route path="sync-erkhet/*" element={<ErkhetSettings />} />
         <Route path="product-places/*" element={<ProductPlacesSettings />} />
+        <Route path="sync-erkhet/*" element={<ErkhetSettings />} />
         <Route index element={<Navigate to="ebarimt" replace />} />
       </Routes>
     </Suspense>

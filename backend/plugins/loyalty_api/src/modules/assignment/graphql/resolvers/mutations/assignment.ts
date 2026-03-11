@@ -1,28 +1,36 @@
+import { IAssignment } from '@/assignment/@types/assignment';
 import { IContext } from '~/connectionResolvers';
-import { IAssignment } from '~/modules/assignment/@types/assignment';
 
 export const assignmentMutations = {
-  createAssignment: async (
-    _parent: undefined,
+  async assignmentsAdd(
+    _root: undefined,
     doc: IAssignment,
     { models }: IContext,
-  ) => {
-    return models.Assignment.createAssignment(doc);
+  ) {
+    return models.Assignments.createAssignment(doc);
   },
 
-  updateAssignment: async (
-    _parent: undefined,
-    { _id, ...doc }: IAssignment & { _id: string },
+  async assignmentsRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
     { models }: IContext,
-  ) => {
-    return models.Assignment.updateAssignment(_id, doc);
+  ) {
+    return models.Assignments.removeAssignments(_ids);
   },
 
-  removeAssignment: async (
-    _parent: undefined,
-    { _id }: { _id: string },
+  async cpAssignmentsAdd(
+    _root: undefined,
+    doc: IAssignment,
     { models }: IContext,
-  ) => {
-    return models.Assignment.removeAssignment(_id);
+  ) {
+    return models.Assignments.createAssignment(doc);
+  },
+
+  async cpAssignmentsRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models }: IContext,
+  ) {
+    return models.Assignments.removeAssignments(_ids);
   },
 };

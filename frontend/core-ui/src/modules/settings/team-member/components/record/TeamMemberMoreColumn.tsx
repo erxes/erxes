@@ -1,5 +1,6 @@
 import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
 import { RecordTable, Spinner, toast, useQueryState } from 'erxes-ui';
 import { IUser } from '@/settings/team-member/types';
 import { renderingTeamMemberResetPasswordAtom } from '@/settings/team-member/states/teamMemberDetailStates';
@@ -8,6 +9,7 @@ import {
   IconEdit,
   IconLock,
   IconRefresh,
+  IconSettings,
   IconToggleLeft,
   IconToggleRight,
 } from '@tabler/icons-react';
@@ -18,14 +20,29 @@ export const TeamMemberMoreColumnCell = ({
 }: {
   cell: Cell<IUser, unknown>;
 }) => {
-  const [, setOpen] = useQueryState('user_id');
+  const [searchParams, setSearchParams] = useSearchParams();
   const [, setResetPasswordOpen] = useQueryState('reset_password_id');
+
   const setRenderingTeamMemberResetPasswordAtom = useSetAtom(
     renderingTeamMemberResetPasswordAtom,
   );
   const { email, _id, isActive } = cell.row.original;
   const { resend, loading } = useResendInvite();
   const { editStatus } = useUsersStatusEdit();
+
+  const handleEditPermissions = () => {
+    const next = new URLSearchParams(searchParams);
+    next.set('user_id', _id);
+    next.set('tab', 'permissions');
+    setSearchParams(next);
+  };
+
+  const handleEdit = () => {
+    const next = new URLSearchParams(searchParams);
+    next.set('user_id', _id);
+    next.set('tab', 'overview');
+    setSearchParams(next);
+  };
 
   return (
     <Popover>
@@ -35,8 +52,11 @@ export const TeamMemberMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={() => setOpen(_id)}>
+            <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="permissions" onSelect={handleEditPermissions}>
+              <IconSettings size={18} /> Edit Permission Groups
             </Command.Item>
             <Command.Item
               value="reset-password"

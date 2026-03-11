@@ -20,7 +20,7 @@ import {
 // ---------- Types ----------
 export interface PlaceConfigData {
   _id?: string;
-  subId?: string; // add subId to interface
+  subId?: string;
   title: string;
   boardId: string;
   pipelineId: string;
@@ -79,7 +79,7 @@ const PlaceConfig: React.FC = () => {
         : Object.values(data.mnConfigs);
       const transformed = rawConfigs.map((cfg: any) => ({
         _id: cfg._id,
-        subId: cfg.subId, // include subId from the document
+        subId: cfg.subId,
         ...keyValueArrayToObject(cfg.value),
       }));
       setSavedConfigs(transformed);
@@ -135,14 +135,12 @@ const PlaceConfig: React.FC = () => {
       const valueArray = objectToKeyValueArray(rest);
 
       if (_id) {
-        // Update existing config – keep same subId
         await updateConfig({ variables: { _id, value: valueArray } });
       } else {
-        // Create new config – use the selected stageId as subId
         await createConfig({
           variables: {
             code: 'dealsProductsDataPlaces',
-            subId: rest.stageId, // use the stage ID from the form
+            subId: rest.stageId,
             value: valueArray,
           },
         });
@@ -206,12 +204,12 @@ const PlaceConfig: React.FC = () => {
                     key={cfg._id || i}
                     onClick={() => setActiveIndex(i)}
                     className={`cursor-pointer p-4 rounded-lg border transition-all
-                    ${
-                      i === activeIndex
-                        ? 'border-primary bg-primary/5'
-                        : 'hover:bg-muted/40'
-                    }
-                  `}
+                      ${
+                        i === activeIndex
+                          ? 'border-primary bg-primary/5'
+                          : 'hover:bg-muted/40'
+                      }
+                    `}
                   >
                     <div className="font-medium">
                       {cfg.title || '(Untitled)'}

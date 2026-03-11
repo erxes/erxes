@@ -14,10 +14,40 @@ const ProductsCategoryPage = lazy(() =>
   })),
 );
 
-const ProductsGeneralSettings = lazy(() =>
-  import('~/pages/products/ProductsUomPage').then(
-    (module) => ({ default: module.ProductUomPage }),
-  ),
+const ProductsUomPage = lazy(() =>
+  import('~/pages/products/ProductsUomPage').then((module) => ({
+    default: module.ProductUomPage,
+  })),
+);
+
+const ProductsGeneralConfigPage = lazy(() =>
+  import('~/pages/products/ProductsGeneralConfigPage').then((module) => ({
+    default: module.ProductsGeneralConfigPage,
+  })),
+);
+
+const ProductsSimilarityGroupPage = lazy(() =>
+  import('~/pages/products/ProductsSimilarityGroupPage').then((module) => ({
+    default: module.ProductsSimilarityGroupPage,
+  })),
+);
+
+const ProductsBundleConditionPage = lazy(() =>
+  import('~/pages/products/ProductsBundleConditionPage').then((module) => ({
+    default: module.ProductsBundleConditionPage,
+  })),
+);
+
+const ProductsBundleRulePage = lazy(() =>
+  import('~/pages/products/ProductsBundleRulePage').then((module) => ({
+    default: module.ProductsBundleRulePage,
+  })),
+);
+
+const ProductsProductRulePage = lazy(() =>
+  import('~/pages/products/ProductsProductRulePage').then((module) => ({
+    default: module.ProductsProductRulePage,
+  })),
 );
 
 export const ProductsSettingRoutes = () => {
@@ -25,14 +55,19 @@ export const ProductsSettingRoutes = () => {
     <Suspense fallback={<></>}>
       <Routes>
         <Route index element={<ProductsIndexPage />} />
+        <Route path="categories" element={<ProductsCategoryPage />} />
+        <Route path="uoms" element={<ProductsUomPage />} />
+        <Route path="general-config" element={<ProductsGeneralConfigPage />} />
         <Route
-          path='/categories'
-          element={<ProductsCategoryPage />}
+          path="similarity-group"
+          element={<ProductsSimilarityGroupPage />}
         />
         <Route
-          path='/uoms'
-          element={<ProductsGeneralSettings />}
+          path="bundle-condition"
+          element={<ProductsBundleConditionPage />}
         />
+        <Route path="bundle-rule" element={<ProductsBundleRulePage />} />
+        <Route path="product-rule" element={<ProductsProductRulePage />} />
       </Routes>
       <ProductsPageEffect />
     </Suspense>

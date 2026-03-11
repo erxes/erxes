@@ -31,8 +31,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
   console.log('stageId:', deal?.stageId);
   console.log('oldStageId:', oldDeal?.stageId);
 
-  if (!deal.stageId) {
-    console.log('❌ skipped: no stageId');
+  if (!deal.stageId || deal.stageId === oldDeal?.stageId) {
+    console.log('❌ skipped: no stage change or missing stageId');
     return;
   }
 
@@ -73,14 +73,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   if (splitConfig && Object.keys(splitConfig).length > 0) {
     console.log('🔵 running handleSplit');
-
     productsData = await handleSplit(
       subdomain,
       deal,
       productsData,
       splitConfig,
     );
-
     console.log('handleSplit result count:', productsData.length);
   }
 
@@ -94,7 +92,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       deal,
       productsData,
       placeConfig,
-      params.user,
+      user,           // user is the user ID string
       crypto.randomUUID(),
     );
 
@@ -110,9 +108,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
     if ((await isEnabled('pricing')) && placeConfig.checkPricing) {
       console.log('🟣 running handlePricing');
-
       productsData = await handlePricing(subdomain, deal, productsData);
-
       console.log(
         'productsData after pricing:',
         JSON.stringify(productsData, null, 2),
@@ -151,11 +147,10 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   if (printConfig && productById) {
     console.log('🖨 running handlePrint');
-
     await handlePrint(
       subdomain,
       deal,
-      user,
+      user,          // user ID string
       productsData,
       printConfig,
       productById,

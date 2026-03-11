@@ -1,73 +1,81 @@
 import { ISpin, ISpinDocument } from '@/spin/@types/spin';
-import { IUserDocument } from 'erxes-api-shared/core-types';
+import { SPIN_STATUS } from '@/spin/constants';
+import { spinSchema } from '@/spin/db/definitions/spin';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { LOYALTY_STATUSES } from '~/constants';
-import { randomBetween } from '~/utils';
-import { spinSchema } from '../definitions/spin';
+import { IBuyParams, randomBetween } from '~/utils';
 
 export interface ISpinModel extends Model<ISpinDocument> {
   getSpin(_id: string): Promise<ISpinDocument>;
-  createSpin(doc: ISpin, user: IUserDocument): Promise<ISpinDocument>;
-  updateSpin(
-    _id: string,
-    doc: ISpin,
-    user: IUserDocument,
-  ): Promise<ISpinDocument>;
-  removeSpins(_ids: string[]): Promise<{ ok: number }>;
-
-  buySpin(
-    params: {
-      campaignId: string;
-      ownerType: string;
-      ownerId: string;
-      count?: number;
-    },
-    user: IUserDocument,
-  ): Promise<ISpinDocument>;
-  doSpin(spinId: string, user: IUserDocument): Promise<ISpinDocument>;
+  createSpin(doc: ISpin): Promise<ISpinDocument>;
+  updateSpin(_id: string, doc: ISpin): Promise<ISpinDocument>;
+  removeSpins(_ids: string[]): void;
+  buySpin(params: IBuyParams): Promise<ISpinDocument>;
+  doSpin(spinId: string): Promise<ISpinDocument>;
 }
 
 export const loadSpinClass = (models: IModels) => {
   class Spin {
     public static async getSpin(_id: string) {
-      const spin = await models.Spin.findOne({ _id }).lean();
+      const spin = await models.Spins.findOne({ _id }).lean();
 
       if (!spin) {
-        throw new Error('Spin not found');
+        throw new Error('not found spin rule');
       }
 
       return spin;
     }
 
-    public static async createSpin(doc: ISpin, user: IUserDocument) {
-      return models.Spin.create({
-        ...doc,
-        createdBy: user._id,
-      });
-    }
-
-    public static async updateSpin(
-      _id: string,
-      doc: ISpin,
-      user: IUserDocument,
-    ) {
-      const { ownerId, ownerType, status } = doc;
+    public static async createSpin(doc: ISpin) {
+      const {
+        campaignId,
+        ownerType,
+        ownerId,
+        voucherCampaignId = '',
+        userId = '',
+      } = doc;
       if (!ownerId || !ownerType) {
         throw new Error('Not create spin, owner is undefined');
       }
 
-      const spin = await models.Spin.findOne({ _id }).lean();
+      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(
+        campaignId,
+      );
+
+      const now = new Date();
+
+      if (spinCampaign.startDate > now || spinCampaign.endDate < now) {
+        throw new Error('Not create spin, expired');
+      }
+
+      return await models.Spins.create({
+        campaignId,
+        ownerType,
+        ownerId,
+        createdAt: new Date(),
+        status: SPIN_STATUS.NEW,
+        voucherCampaignId,
+        userId,
+      });
+    }
+
+    public static async updateSpin(_id: string, doc: ISpin) {
+      const { ownerId, ownerType, status, userId } = doc;
+      if (!ownerId || !ownerType) {
+        throw new Error('Not create spin, owner is undefined');
+      }
+
+      const spin = await models.Spins.findOne({ _id }).lean();
       if (!spin) {
         throw new Error(`Spin ${_id} not found`);
       }
       const campaignId = spin.campaignId;
 
-      await models.Campaign.getCampaign(campaignId);
+      await models.SpinCampaigns.getSpinCampaign(campaignId);
 
       const now = new Date();
 
-      return await models.Spin.findOneAndUpdate(
+      return await models.Spins.updateOne(
         { _id },
         {
           $set: {
@@ -75,66 +83,48 @@ export const loadSpinClass = (models: IModels) => {
             ownerType,
             ownerId,
             modifiedAt: now,
-            status: status || LOYALTY_STATUSES.NEW,
-            updatedBy: user._id,
+            status: status || SPIN_STATUS.NEW,
+            userId,
           },
         },
-        { new: true },
       );
     }
 
-    public static async buySpin(
-      params: {
-        campaignId: string;
-        ownerType: string;
-        ownerId: string;
-        count?: number;
-      },
-      user: IUserDocument,
-    ): Promise<ISpinDocument[]> {
+    public static async buySpin(params: IBuyParams) {
       const { campaignId, ownerType, ownerId, count = 1 } = params;
 
       if (!ownerId || !ownerType) {
         throw new Error('can not buy spin, owner is undefined');
       }
 
-      const spinCampaign = await models.Campaign.getCampaign(campaignId);
+      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(
+        campaignId,
+      );
 
-      if (!spinCampaign.conditions?.buyScore) {
+      if (!spinCampaign.buyScore) {
         throw new Error('can not buy this spin');
       }
 
-      await models.Score.changeScore({
+      await models.ScoreLogs.changeScore({
         ownerType,
         ownerId,
-        change: -1 * spinCampaign.conditions?.buyScore * count,
+        changeScore: -1 * spinCampaign.buyScore * count,
         description: 'buy spin',
-        campaignId,
-        action: 'buy',
-        contentId: campaignId,
-        contentType: 'campaign',
-        createdBy: user._id,
       });
 
-      const spins: ISpinDocument[] = [];
-      for (let i = 0; i < count; i++) {
-        const spin = await models.Spin.createSpin(
-          { campaignId, ownerType, ownerId },
-          user,
-        );
-        spins.push(spin);
-      }
-      return spins;
+      return models.Spins.createSpin({ campaignId, ownerType, ownerId });
     }
 
     public static async removeSpins(_ids: string[]) {
-      return models.Spin.deleteMany({ _id: { $in: _ids } });
+      return models.Spins.deleteMany({ _id: { $in: _ids } });
     }
 
-    public static async doSpin(spinId: string, user: IUserDocument) {
-      const spin = await models.Spin.getSpin(spinId);
+    public static async doSpin(spinId: string) {
+      const spin = await models.Spins.getSpin(spinId);
       const { ownerType, ownerId } = spin;
-      const spinCampaign = await models.Campaign.getCampaign(spin.campaignId);
+      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(
+        spin.campaignId,
+      );
 
       const now = new Date();
 
@@ -142,7 +132,7 @@ export const loadSpinClass = (models: IModels) => {
         throw new Error('This spin is expired');
       }
 
-      const awards = spinCampaign.conditions?.awards || [];
+      const awards = spinCampaign.awards || [];
 
       interface IInterval {
         awardId: string;
@@ -168,27 +158,24 @@ export const loadSpinClass = (models: IModels) => {
       const interval = intervals.find((i) => i.min <= random && random < i.max);
 
       if (!interval) {
-        await models.Spin.updateOne(
+        await models.Spins.updateOne(
           { _id: spinId },
-          { status: LOYALTY_STATUSES.LOSS, usedAt: new Date() },
+          { status: SPIN_STATUS.LOSS, usedAt: new Date() },
         );
-        return models.Spin.getSpin(spinId);
+        return models.Spins.getSpin(spinId);
       }
 
       const award =
         awards.find((a) => a._id === interval.awardId) || ({} as any);
-      const voucher = await models.Voucher.createVoucher(
-        {
-          campaignId: award.voucherCampaignId,
-          ownerType,
-          ownerId,
-        },
-        user,
-      );
-      await models.Spin.updateOne(
+      const voucher = await models.Vouchers.createVoucher({
+        campaignId: award.voucherCampaignId,
+        ownerType,
+        ownerId,
+      });
+      await models.Spins.updateOne(
         { _id: spinId },
         {
-          status: LOYALTY_STATUSES.WON,
+          status: SPIN_STATUS.WON,
           voucherCampaignId: award.voucherCampaignId,
           voucherId: voucher._id,
           awardId: award._id,
@@ -196,7 +183,7 @@ export const loadSpinClass = (models: IModels) => {
         },
       );
 
-      return models.Spin.getSpin(spinId);
+      return models.Spins.getSpin(spinId);
     }
   }
 

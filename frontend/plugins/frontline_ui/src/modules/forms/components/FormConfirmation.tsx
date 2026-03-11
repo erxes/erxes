@@ -4,12 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FORM_CONFIRMATION_SCHEMA } from '../constants/formSchema';
 import { FormValueEffectComponent } from './FormValueEffectComponent';
-import {
-  formSetupConfirmationAtom,
-  formSetupGeneralAtom,
-  formSetupContentAtom,
-  formSetupStepAtom,
-} from '../states/formSetupStates';
+import { formSetupConfirmationAtom } from '../states/formSetupStates';
 import {
   Form,
   Input,

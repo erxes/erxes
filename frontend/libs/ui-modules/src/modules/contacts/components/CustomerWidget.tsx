@@ -4,6 +4,7 @@ import {
   IconUser,
   IconUserCog,
 } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 
 import { CustomersInline } from './CustomersInline';
 import { SelectCustomersBulk } from './SelectCustomersBulk';
@@ -16,6 +17,8 @@ const CustomerWidgetItem = ({
   customerId: string;
   scope: string;
 }) => {
+  const navigate = useNavigate();
+
   const { customerDetail, loading } = useCustomerDetail(
     {
       variables: {
@@ -57,62 +60,9 @@ const CustomerWidgetItem = ({
             variant="ghost"
             size="sm"
             className="w-full text-accent-foreground"
-          >
-            View details
-            <IconCaretDownFilled />
-          </Button>
-        </div>
-      </div>
-    </CustomersInline.Provider>
-  );
-};
-
-export const CustomerWidgetDetail = ({
-  customerId,
-  scope,
-}: {
-  customerId: string;
-  scope: string;
-}) => {
-  const { customerDetail, loading } = useCustomerDetail({
-    variables: {
-      _id: customerId,
-    },
-  });
-
-  const { primaryEmail, primaryPhone } = customerDetail || {};
-
-  if (loading) {
-    return (
-      <Spinner containerClassName="py-6 bg-background rounded-lg shadow-xs" />
-    );
-  }
-
-  return (
-    <CustomersInline.Provider
-      customers={customerDetail ? [customerDetail] : []}
-    >
-      <div className="bg-background rounded-lg shadow-xs">
-        <div className="p-3 space-y-2">
-          <div className="flex items-center gap-2">
-            <CustomersInline.Avatar size="xl" />
-            <CustomersInline.Title />
-          </div>
-          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
-            Customer phone
-            <span className="text-foreground">{primaryPhone || '-'}</span>
-          </div>
-          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
-            Customer email
-            <span className="text-foreground">{primaryEmail || '-'}</span>
-          </div>
-        </div>
-        <Separator />
-        <div className="py-1 px-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full text-accent-foreground"
+            onClick={() =>
+              navigate(`/contacts/customers?contactId=${customerId}`)
+            }
           >
             View details
             <IconCaretDownFilled />

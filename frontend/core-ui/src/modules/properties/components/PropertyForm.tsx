@@ -17,7 +17,7 @@ import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
 import { FIELD_TYPES, FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
-import { PropertyFormMultiple } from './PropertyFormMultiple';
+import { useParams } from 'react-router-dom';
 
 export const PropertyForm = ({
   onSubmit,
@@ -30,6 +30,8 @@ export const PropertyForm = ({
   defaultValues: IPropertyForm;
   isEdit?: boolean;
 }) => {
+  const { id } = useParams<{ id: string }>();
+
   const form = useForm<IPropertyForm>({
     resolver: zodResolver(propertySchema),
     defaultValues,
@@ -37,12 +39,7 @@ export const PropertyForm = ({
 
   const handleSubmit = (data: IPropertyForm) => {
     let sendData = data;
-    if (sendData.multiple) {
-      sendData = {
-        ...sendData,
-        logics: { ...(sendData.logics || {}), multiple: true },
-      };
-    }
+
     if (FIELD_TYPES_OBJECT.relation.value === sendData.type) {
       sendData = {
         ...sendData,
@@ -56,9 +53,7 @@ export const PropertyForm = ({
     <Form {...form}>
       <form
         className="w-full flex flex-col gap-5"
-        onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-          console.log(errors);
-        })}
+        onSubmit={form.handleSubmit(handleSubmit)}
       >
         <div className="flex gap-5">
           <Form.Field
@@ -127,6 +122,7 @@ export const PropertyForm = ({
                   field.onChange(value);
                   form.setValue('options', []);
                 }}
+                disabled={Boolean(id)}
               >
                 <Form.Control>
                   <Select.Trigger>
@@ -148,7 +144,6 @@ export const PropertyForm = ({
             </Form.Item>
           )}
         />
-        <PropertyFormMultiple form={form} />
         <PropertyFormValidation form={form} />
         <PropertyFormSelectFields form={form} />
         <PropertySelectRelationType form={form} />

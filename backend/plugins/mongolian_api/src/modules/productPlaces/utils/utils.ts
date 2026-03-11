@@ -43,7 +43,7 @@ export const getMnConfig = async (
   }
 };
 
-// Get multiple configs
+// Get multiple configs (direct model access)
 export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
   try {
     const models = await generateModels(subdomain);
@@ -132,7 +132,6 @@ export const checkCondition = async (
   let categoryRes = true;
   let tagRes = true;
   let segmentRes = true;
-  let numberRes = true;
   let checkUomRes = true;
 
   if (condition.gtCount !== undefined && pdata.quantity <= condition.gtCount) {
@@ -216,7 +215,7 @@ export const checkCondition = async (
       const inSegment = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'segments',
+        module: 'segment',
         action: 'isInSegment',
         method: 'query',
         input: {
@@ -235,7 +234,7 @@ export const checkCondition = async (
 
   if (!segmentRes) return false;
 
-  return categoryRes && segmentRes && numberRes && checkUomRes && tagRes;
+  return categoryRes && segmentRes && checkUomRes && tagRes;
 };
 
 const getCustomerName = (customer) => {

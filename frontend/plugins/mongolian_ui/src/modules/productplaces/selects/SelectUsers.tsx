@@ -4,7 +4,7 @@ import { Select } from 'erxes-ui';
 
 const CLEAR_VALUE = '__clear__';
 
-/* ✅ CORRECT SCHEMA-ALIGNED QUERY */
+/*  CORRECT SCHEMA-ALIGNED QUERY */
 const USERS_QUERY = gql`
   query users(
     $status: String
@@ -98,7 +98,9 @@ export default function SelectUsers({
   return (
     <Select
       value={value || ''}
-      onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
+      onValueChange={(v) =>
+        onChange(v === CLEAR_VALUE ? '' : v)
+      }
       disabled={disabled || loading}
     >
       <Select.Trigger className="w-full">

@@ -21,7 +21,7 @@ export const handlePrint = async (
       action: 'find',
       method: 'query',
       input: { _id: { $in: branchIds } },
-      context: { userId: user._id },
+      context: { userId: user },
     });
     for (const branch of branches) {
       branchById[branch._id] = branch;
@@ -40,7 +40,7 @@ export const handlePrint = async (
       action: 'find',
       method: 'query',
       input: { _id: { $in: departmentIds } },
-      context: { userId: user._id },
+      context: { userId: user },
     });
     for (const department of departments) {
       departmentById[department._id] = department;
@@ -111,12 +111,12 @@ export const handlePrint = async (
     return;
   }
 
-  await graphqlPubsub.publish(`productPlacesResponded:${user._id}`, {
+  await graphqlPubsub.publish(`productPlacesResponded:${user}`, {
     productPlacesResponded: {
-      userId: user._id,
+      userId: user,
       responseId: deal._id,
-      sessionCode: user.sessionCode || '',
-      content: JSON.stringify(content),
+      sessionCode: '',
+      content,
     },
   });
 };

@@ -1,18 +1,72 @@
-import { Button, cn, Collapsible, Spinner } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
+import { Button, cn, Collapsible, InfoCard, Spinner, Tooltip } from 'erxes-ui';
+import { useState } from 'react';
 import { useFieldGroups } from '../hooks/useFieldGroups';
-import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
 import { useFields } from '../hooks/useFields';
-import { Field } from './Field';
+import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
+import { Field, FieldMultiple } from './Field';
+
+const FieldGroupContent = ({
+  group,
+  contentType,
+  propertiesData,
+  mutateHook,
+  id,
+}: {
+  group: IFieldGroup;
+  id: string;
+  inCell?: boolean;
+  contentType: string;
+  propertiesData: Record<string, any>;
+  mutateHook: () => {
+    mutate: mutateFunction;
+    loading: boolean;
+  };
+}) => {
+  const { configs } = group || {};
+
+  if (configs?.isMultiple) {
+    return (
+      <MultipleFieldsInGroup
+        group={group}
+        id={id}
+        contentType={contentType}
+        propertiesData={propertiesData}
+        mutateHook={mutateHook}
+      />
+    );
+  }
+
+  return (
+    <Collapsible key={group._id} className="group" defaultOpen>
+      <Collapsible.Trigger asChild>
+        <Button variant="secondary" className="justify-start w-full">
+          <Collapsible.TriggerIcon />
+          {group.name}
+        </Button>
+      </Collapsible.Trigger>
+      <Collapsible.Content className="pt-4">
+        <FieldsInGroup
+          group={group}
+          id={id}
+          contentType={contentType}
+          propertiesData={propertiesData}
+          mutateHook={mutateHook}
+        />
+      </Collapsible.Content>
+    </Collapsible>
+  );
+};
 
 export const FieldsInDetail = ({
   fieldContentType,
-  customFieldsData,
+  propertiesData,
   mutateHook,
   id,
   className,
 }: {
   fieldContentType: string;
-  customFieldsData: Record<string, unknown>;
+  propertiesData: Record<string, any>;
   mutateHook: () => {
     mutate: mutateFunction;
     loading: boolean;
@@ -30,25 +84,20 @@ export const FieldsInDetail = ({
 
   return (
     <div className={cn('flex flex-col gap-4', className)}>
-      {fieldGroups.map((group) => (
-        <Collapsible key={group._id} className="group" defaultOpen>
-          <Collapsible.Trigger asChild>
-            <Button variant="secondary" className="w-full justify-start">
-              <Collapsible.TriggerIcon />
-              {group.name}
-            </Button>
-          </Collapsible.Trigger>
-          <Collapsible.Content className="pt-4">
-            <FieldsInGroup
+      <InfoCard title="Product Properties">
+        <InfoCard.Content>
+          {fieldGroups.map((group) => (
+            <FieldGroupContent
+              key={group._id}
               group={group}
               id={id}
               contentType={fieldContentType}
-              customFieldsData={customFieldsData}
+              propertiesData={propertiesData}
               mutateHook={mutateHook}
             />
-          </Collapsible.Content>
-        </Collapsible>
-      ))}
+          ))}
+        </InfoCard.Content>
+      </InfoCard>
     </div>
   );
 };
@@ -56,7 +105,7 @@ export const FieldsInDetail = ({
 export const FieldsInGroup = ({
   group,
   contentType,
-  customFieldsData,
+  propertiesData,
   mutateHook,
   id,
 }: {
@@ -64,7 +113,7 @@ export const FieldsInGroup = ({
   id: string;
   inCell?: boolean;
   contentType: string;
-  customFieldsData: Record<string, unknown>;
+  propertiesData: Record<string, any>;
   mutateHook: () => {
     mutate: mutateFunction;
     loading: boolean;
@@ -77,17 +126,97 @@ export const FieldsInGroup = ({
   }
 
   return (
-    <div className="grid gap-4 grid-cols-2">
+    <div className="grid grid-cols-2 gap-4">
       {fields.map((field) => (
         <Field
           key={field._id}
           field={field}
-          value={customFieldsData[field._id] as string}
-          customFieldsData={customFieldsData}
+          value={propertiesData[field._id] as string}
+          propertiesData={propertiesData}
           id={id}
           mutateHook={mutateHook}
         />
       ))}
     </div>
+  );
+};
+
+export const MultipleFieldsInGroup = ({
+  group,
+  contentType,
+  propertiesData,
+  mutateHook,
+  id,
+}: {
+  group: IFieldGroup;
+  id: string;
+  inCell?: boolean;
+  contentType: string;
+  propertiesData: Record<string, any>;
+  mutateHook: () => {
+    mutate: mutateFunction;
+    loading: boolean;
+  };
+}) => {
+  const { fields, loading } = useFields({ groupId: group._id, contentType });
+
+  const [properties, setProperties] = useState<any[]>(
+    propertiesData[group._id] || [{}],
+  );
+
+  if (loading) {
+    return <Spinner containerClassName="py-6" />;
+  }
+
+  const handleAddProperty = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    setProperties([...properties, {}]);
+  };
+
+  return (
+    <Collapsible key={group._id} className="group" defaultOpen>
+      <Collapsible.Trigger asChild>
+        <Button
+          variant="secondary"
+          className="flex gap-2 justify-start items-center px-0 pl-3 w-full"
+        >
+          <Collapsible.TriggerIcon />
+          <span className="flex-1 text-left">{group.name}</span>
+
+          <Tooltip delayDuration={1}>
+            <Tooltip.Trigger asChild>
+              <Button onClick={handleAddProperty} variant="ghost" size="icon">
+                <IconPlus />
+              </Button>
+            </Tooltip.Trigger>
+
+            <Tooltip.Content side="left">
+              <p>Add row</p>
+            </Tooltip.Content>
+          </Tooltip>
+        </Button>
+      </Collapsible.Trigger>
+      <Collapsible.Content className="pt-4">
+        <div className="flex flex-col gap-4">
+          {properties.map((property: any, index: number) => (
+            <div className="grid grid-cols-2 gap-4">
+              {fields.map((field) => (
+                <FieldMultiple
+                  key={field._id}
+                  group={group}
+                  field={field}
+                  propertyIndex={index}
+                  value={property[field._id] as string}
+                  propertiesData={propertiesData}
+                  id={id}
+                  mutateHook={mutateHook}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </Collapsible.Content>
+    </Collapsible>
   );
 };

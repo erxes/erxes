@@ -13,61 +13,73 @@ import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { NextFunction, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 
-export const facebookGetPost = async (req, res) => {
-  debugFacebook(`Request to get post data with: ${JSON.stringify(req.query)}`);
+export const facebookGetPost = async (req, res, next) => {
+  try {
+    debugFacebook(`Request to get post data with: ${JSON.stringify(req.query)}`);
 
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
 
-  const { erxesApiId } = req.query;
+    const { erxesApiId } = req.query;
 
-  const post = await models.FacebookPostConversations.findOne({ erxesApiId });
+    const post = await models.FacebookPostConversations.findOne({ erxesApiId });
 
-  return res.json({ ...post });
+    return res.json({ ...post });
+  } catch (e) {
+    next(e);
+  }
 };
 
-export const facebookGetStatus = async (req, res) => {
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+export const facebookGetStatus = async (req, res, next) => {
+  try {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
 
-  const { integrationId } = req.query;
+    const { integrationId } = req.query;
 
-  const integration = await models.FacebookIntegrations.findOne({
-    erxesApiId: integrationId,
-  });
+    const integration = await models.FacebookIntegrations.findOne({
+      erxesApiId: integrationId,
+    });
 
-  let result = {
-    status: 'healthy',
-  } as any;
+    let result = {
+      status: 'healthy',
+    } as any;
 
-  if (integration) {
-    result = {
-      status: integration.healthStatus || 'healthy',
-      error: integration.error,
-    };
+    if (integration) {
+      result = {
+        status: integration.healthStatus || 'healthy',
+        error: integration.error,
+      };
+    }
+
+    return res.send(result);
+  } catch (e) {
+    next(e);
   }
-
-  return res.send(result);
 };
 
 const accessTokensByPageId = {};
-export const facebookSubscription = async (req, res) => {
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+export const facebookSubscription = async (req, res, next) => {
+  try {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
 
-  const FACEBOOK_VERIFY_TOKEN = await getConfig(
-    models,
-    'FACEBOOK_VERIFY_TOKEN',
-  );
+    const FACEBOOK_VERIFY_TOKEN = await getConfig(
+      models,
+      'FACEBOOK_VERIFY_TOKEN',
+    );
 
-  // when the endpoint is registered as a webhook, it must echo back
-  // the 'hub.challenge' value it receives in the query arguments
-  if (req.query['hub.mode'] === 'subscribe') {
-    if (req.query['hub.verify_token'] === FACEBOOK_VERIFY_TOKEN) {
-      res.send(req.query['hub.challenge']);
-    } else {
-      res.send('OK');
+    // when the endpoint is registered as a webhook, it must echo back
+    // the 'hub.challenge' value it receives in the query arguments
+    if (req.query['hub.mode'] === 'subscribe') {
+      if (req.query['hub.verify_token'] === FACEBOOK_VERIFY_TOKEN) {
+        res.send(req.query['hub.challenge']);
+      } else {
+        res.send('OK');
+      }
     }
+  } catch (e) {
+    next(e);
   }
 };
 export const facebookWebhook = async (req, res, next) => {

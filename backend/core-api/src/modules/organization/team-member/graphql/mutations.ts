@@ -14,7 +14,6 @@ import { IContext } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
-import { generateUserActivityLogs } from '../utils/activityLogs';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -103,14 +102,6 @@ export const userMutations: Record<string, Resolver> = {
    */
   async usersEdit(_parent: undefined, args: IUsersEdit, { models }: IContext) {
     const { _id, ...doc } = args;
-
-    // clean custom field values
-    if (doc.customFieldsData) {
-      doc.customFieldsData = doc.customFieldsData.map((cd) => ({
-        ...cd,
-        stringValue: cd.value ? cd.value.toString() : '',
-      }));
-    }
 
     let updatedDoc = doc;
 

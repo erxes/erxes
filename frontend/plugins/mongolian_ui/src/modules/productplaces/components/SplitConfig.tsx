@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
 import { Button, Label, Form } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
-
 import { PerSplitConfig } from '../types';
 import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
@@ -12,38 +10,16 @@ import SelectProductTags from '../selects/SelectTags';
 import SelectProducts from '../selects/SelectProducts';
 import SelectSegments from '../selects/SelectSegments';
 
-// Import GraphQL from client files
-import { MN_CONFIGS } from '../graphql/clientQueries';
-import {
-  MN_CONFIGS_CREATE,
-  MN_CONFIGS_UPDATE,
-  MN_CONFIGS_REMOVE,
-} from '../graphql/clientMutations';
-
 // ---------- Types ----------
-// PerSplitConfig should be defined in ../types – we import it.
+interface SplitConfigProps {
+  config: PerSplitConfig | null;
+  save: (data: PerSplitConfig) => Promise<boolean>;
+  deleteConfig: () => Promise<void>;
+  loading?: boolean;
+  currentStageId?: string;
+}
 
-// ---------- Transformers ----------
-const objectToKeyValueArray = (obj: Record<string, any>) =>
-  Object.entries(obj).map(([key, value]) => ({ key, value }));
-
-const keyValueArrayToObject = (
-  arr: Array<{ key: string; value: any }>,
-): Record<string, any> => {
-  const obj: any = {};
-  arr.forEach(({ key, value }) => {
-    obj[key] = value;
-  });
-  return obj;
-};
-
-// ---------- Component ----------
-type Props = {
-  currentStageId: string;
-  // Optionally allow passing a code, default to 'dealsSplitConfig'
-  configCode?: string;
-};
-
+// ---------- Helpers ----------
 const normalize = (
   config: Partial<PerSplitConfig>,
   stageId: string,
@@ -70,107 +46,78 @@ const normalize = (
 const getSingle = (arr: string[]) => arr[0] || '';
 const toSingleArray = (id?: string) => (id ? [id] : []);
 
-const SplitConfig: React.FC<Props> = ({
-  currentStageId,
-  configCode = 'dealsSplitConfig', // default code
+// ---------- Component ----------
+const SplitConfig: React.FC<SplitConfigProps> = ({
+  config,
+  save,
+  deleteConfig,
+  loading = false,
+  currentStageId = '',
 }) => {
   const form = useForm();
 
-  // Local UI state
+  /** UI-only saved configs (just for display in list) */
   const [savedConfigs, setSavedConfigs] = useState<PerSplitConfig[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  /** Active form data */
   const [localConfig, setLocalConfig] = useState<PerSplitConfig>(
     normalize({}, currentStageId),
   );
 
-  // GraphQL hooks
-  const { data, loading, refetch } = useQuery(MN_CONFIGS, {
-    variables: { code: configCode },
-    fetchPolicy: 'network-only',
-  });
-
-  const [createConfig] = useMutation(MN_CONFIGS_CREATE);
-  const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
-  const [deleteConfig] = useMutation(MN_CONFIGS_REMOVE);
-
-  // Load configs from backend into local state
-  useEffect(() => {
-    if (data?.mnConfigs) {
-      const rawConfigs = Array.isArray(data.mnConfigs)
-        ? data.mnConfigs
-        : Object.values(data.mnConfigs);
-      const transformed = rawConfigs.map((cfg: any) => {
-        const obj = keyValueArrayToObject(cfg.value);
-        // The backend value should contain all PerSplitConfig fields
-        return {
-          _id: cfg._id,
-          ...obj,
-        } as PerSplitConfig & { _id?: string };
-      });
-      setSavedConfigs(transformed);
-    }
-  }, [data]);
-
-  // Sync form with active config
+  // Sync with incoming config
   useEffect(() => {
     if (activeIndex !== null) {
       const selected = savedConfigs[activeIndex];
       if (selected) setLocalConfig(selected);
-    } else {
-      setLocalConfig(normalize({}, currentStageId));
+      return;
     }
-  }, [activeIndex, savedConfigs, currentStageId]);
 
-  // Field update helper
-  const update = <K extends keyof PerSplitConfig>(
+    if (!config) {
+      setLocalConfig(normalize({}, currentStageId));
+      return;
+    }
+
+    setLocalConfig(normalize(config, currentStageId));
+  }, [config, activeIndex, savedConfigs, currentStageId]);
+
+  // If there's a config from parent, add it to savedConfigs (if not already)
+  useEffect(() => {
+    if (config && !savedConfigs.some((c) => c.stageId === config.stageId)) {
+      setSavedConfigs((prev) => [...prev, config as PerSplitConfig]);
+    }
+  }, [config]);
+
+  const update = useCallback(<K extends keyof PerSplitConfig>(
     key: K,
     value: PerSplitConfig[K],
   ) => {
     setLocalConfig((prev) => ({ ...prev, [key]: value }));
-  };
+  }, []);
 
   // ---------- Actions ----------
   const handleSave = async () => {
-    try {
-      const { _id, ...rest } = localConfig as any; // _id might exist if editing
-      const valueArray = objectToKeyValueArray(rest);
+    const ok = await save(localConfig);
+    if (!ok) return;
 
-      if (_id) {
-        await updateConfig({ variables: { _id, value: valueArray } });
-      } else {
-        const subId = crypto.randomUUID();
-        await createConfig({
-          variables: {
-            code: configCode,
-            subId,
-            value: valueArray,
-          },
-        });
+    setSavedConfigs((prev) => {
+      if (activeIndex === null) {
+        return [...prev, localConfig];
       }
+      const next = [...prev];
+      next[activeIndex] = localConfig;
+      return next;
+    });
 
-      await refetch();
-      setActiveIndex(null);
-      setLocalConfig(normalize({}, currentStageId));
-    } catch (error) {
-      console.error('Save failed', error);
-    }
+    setActiveIndex(null);
   };
 
   const handleDelete = async () => {
-    if (activeIndex === null) return;
     if (!window.confirm('Delete this split config?')) return;
-
-    const config = savedConfigs[activeIndex];
-    if (!config._id) return;
-
-    try {
-      await deleteConfig({ variables: { _id: config._id } });
-      await refetch();
-      setActiveIndex(null);
-      setLocalConfig(normalize({}, currentStageId));
-    } catch (error) {
-      console.error('Delete failed', error);
-    }
+    await deleteConfig();
+    setSavedConfigs([]);
+    setActiveIndex(null);
+    setLocalConfig(normalize({}, currentStageId));
   };
 
   const handleNewConfig = () => {
@@ -205,14 +152,14 @@ const SplitConfig: React.FC<Props> = ({
               <div className="space-y-3">
                 {savedConfigs.map((cfg, index) => (
                   <div
-                    key={cfg._id || index}
+                    key={`${cfg.stageId}-${index}`}
                     onClick={() => setActiveIndex(index)}
                     className={`cursor-pointer rounded-lg border p-4 transition
-                    ${
-                      index === activeIndex
-                        ? 'border-primary bg-primary/5'
-                        : 'hover:bg-muted/40'
-                    }`}
+                      ${
+                        index === activeIndex
+                          ? 'border-primary bg-primary/5'
+                          : 'hover:bg-muted/40'
+                      }`}
                   >
                     <div className="font-medium">
                       {cfg.title || '(Untitled config)'}

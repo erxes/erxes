@@ -95,7 +95,7 @@ const SettingsContainer = ({
       return [
         {
           _id: raw._id,
-          subId: raw.subId, // include subId for stage selection
+          subId: raw.subId,
           ...normalized,
         },
       ];
@@ -122,7 +122,6 @@ const SettingsContainer = ({
    * SAVE (create or update)
    * Accepts an optional formSubId that overrides any stageId inside config.
    */
-
   const save = async (config: Record<string, any>, formSubId?: string) => {
     const { _id, ...rest } = config;
     const value = denormalizeConfig(rest);
@@ -163,7 +162,14 @@ const SettingsContainer = ({
     await refetch();
   };
 
-  return <Component configs={normalizedConfigs} save={save} delete={remove} />;
+  return (
+    <Component
+      configs={normalizedConfigs}
+      save={save}
+      delete={remove}
+      loading={loading}
+    />
+  );
 };
 
 export default SettingsContainer;

@@ -43,11 +43,12 @@ export const eventLogHandler = async (
 
     if (status === 'success') {
       const resultDoc = Array.isArray(result) ? result[0] : result;
+
       handleAfterProcess(subdomain, {
         source,
         action: resultDoc?.action || action,
         contentType,
-        payload: { ...resultDoc?.payload, userId, processId },
+        payload: { ...payload, userId, processId },
       }).catch((err) => {
         models.Logs.insertOne({
           source: 'afterProcess',
@@ -59,7 +60,7 @@ export const eventLogHandler = async (
           processId,
         });
         console.error(
-          `Error occured during afterProcess job ${jobId}: ${err.message}`,
+          `Error occurred during afterProcess job ${jobId}: ${err.message}`,
         );
       });
     }

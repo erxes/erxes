@@ -5,7 +5,7 @@ import { JOURNALS, PTR_STATUSES, TR_DETAIL_FOLLOW_TYPES, TR_FOLLOW_TYPES, TR_SID
 export const transactionDetailSchema = new Schema({
   _id: mongooseStringRandomId,
   accountId: { type: String, label: 'Account', index: true },
-  
+
   followInfos: {
     type: Object, label: 'Follower tr detail input'
   },
@@ -105,8 +105,12 @@ export const transactionSchema = schemaWrapper(
     isHandleCtax: { type: Boolean, optional: true, label: 'isHandleCtax' },
     ctaxAmount: { type: Number, optional: true, label: 'ctaxAmount' },
 
-    extraData: { type: Object, optional: true }
+    extraData: { type: Object, optional: true },
+
+    contentType: { type: String, optional: true, label: 'sync content type' },
+    contentId: { type: String, optional: true, label: 'sync content id' },
   })
 );
 
 transactionSchema.index({ originId: 1, originType: 1, originSubId: 1 });
+transactionSchema.index({ contentType: 1, contentId: 1 });

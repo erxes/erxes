@@ -114,15 +114,40 @@ const AccountCategoryMoreColumnCell = ({
   );
 };
 
-export const accountCategoryMoreColumn = {
+const AccountCategoryParentCell = ({
+  cell,
+}: {
+  cell: Cell<IAccountCategory & { hasChildren: boolean }, unknown>;
+}) => {
+  const { editAccountCategory } = useAccountCategoryEdit();
+  return (
+    <SelectAccountCategory
+      recordId={cell.row.original._id}
+      selected={cell.row.original.parentId}
+      exclude={[cell.row.original._id]}
+      className="w-full font-normal"
+      nullable
+      onSelect={(parentId) => {
+        editAccountCategory({
+          variables: {
+            ...cell.row.original,
+            parentId,
+          },
+        });
+      }}
+      variant="ghost"
+      hideChevron
+    />
+  );
+};
+
+const accountCategoryMoreColumn = {
   id: 'more',
   cell: AccountCategoryMoreColumnCell,
   size: 33,
 };
 
-export const accountCategoriesColumns: ColumnDef<
-  IAccountCategory & { hasChildren: boolean }
->[] = [
+export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildren: boolean }>[] = [
   accountCategoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<
     IAccountCategory & { hasChildren: boolean }
@@ -191,29 +216,3 @@ export const accountCategoriesColumns: ColumnDef<
   },
 ];
 
-const AccountCategoryParentCell = ({
-  cell,
-}: {
-  cell: Cell<IAccountCategory & { hasChildren: boolean }, unknown>;
-}) => {
-  const { editAccountCategory } = useAccountCategoryEdit();
-  return (
-    <SelectAccountCategory
-      recordId={cell.row.original._id}
-      selected={cell.row.original.parentId}
-      exclude={[cell.row.original._id]}
-      className="w-full font-normal"
-      nullable
-      onSelect={(parentId) => {
-        editAccountCategory({
-          variables: {
-            ...cell.row.original,
-            parentId,
-          },
-        });
-      }}
-      variant="ghost"
-      hideChevron
-    />
-  );
-};

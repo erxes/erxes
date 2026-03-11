@@ -44,6 +44,6 @@ export const CoreNotificationContent = {
   welcome: WelcomeNotificationContent,
   branch: BranchNotificationContent,
   department: DepartmentNotificationContent,
-  exports: ExportNotificationContent,
+  exports: ExportNotificationContent, 
   imports: ImportNotificationContent,
 };

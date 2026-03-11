@@ -19,6 +19,8 @@ export const PropertyEdit = () => {
 
   const navigate = useNavigate();
 
+  const [fieldType, ...relationType] = (fieldDetail?.type?.split(':') || []);
+
   const handleSubmit = (data: IPropertyForm) => {
     editProperty({
       variables: {
@@ -42,7 +44,8 @@ export const PropertyEdit = () => {
       loading={editPropertyLoading}
       defaultValues={{
         ...fieldDetail,
-        multiple: !!fieldDetail?.logics?.multiple,
+        type: fieldType,
+        relationType: relationType.join(':'),
       }}
       isEdit
     />
