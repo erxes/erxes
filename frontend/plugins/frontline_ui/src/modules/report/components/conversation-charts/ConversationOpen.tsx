@@ -35,6 +35,7 @@ import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
 import {
+  getReportCallStatusFilterAtom,
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
@@ -377,6 +378,7 @@ export const ConversationOpen = ({
   const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
   const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
   const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
+  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -391,6 +393,10 @@ export const ConversationOpen = ({
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        callStatus:
+          sourceFilter === 'calls' && callStatusFilter !== 'all'
+            ? callStatusFilter
+            : undefined,
       },
     },
     notifyOnNetworkStatusChange: true,
