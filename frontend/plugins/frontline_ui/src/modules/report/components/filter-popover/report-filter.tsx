@@ -46,10 +46,10 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
     sourceFilter === 'calls' && callStatusFilter !== 'all';
   const hasFilters = Boolean(
     sourceFilter !== 'all' ||
-      (channelFilter && channelFilter.length > 0) ||
-      (memberFilter && memberFilter.length > 0) ||
-      (dateValue && dateValue.length > 0) ||
-      isCallsWithStatus,
+    (channelFilter && channelFilter.length > 0) ||
+    (memberFilter && memberFilter.length > 0) ||
+    (dateValue && dateValue.length > 0) ||
+    isCallsWithStatus,
   );
 
   const handleClear = () => {
