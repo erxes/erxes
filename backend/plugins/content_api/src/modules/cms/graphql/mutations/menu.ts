@@ -130,26 +130,24 @@ const mutations: Record<string, Resolver> = {
 
     const { clientPortalId: _ignoredClientPortalId, ...restInput } = rawInput;
 
-    return models.MenuItems
-      .updateMenuItem(_id, {
-        ...restInput,
-        clientPortalId: clientPortal?._id,
-      })
-      .then(async (menu) => {
-        if (Array.isArray(translations) && translations.length > 0) {
-          await Promise.all(
-            translations.map((translation: any) =>
-              models.Translations.updateTranslation({
-                ...translation,
-                postId: _id,
-                type: translation.type || 'menu',
-              }),
-            ),
-          );
-        }
+    return models.MenuItems.updateMenuItem(_id, {
+      ...restInput,
+      clientPortalId: clientPortal?._id,
+    }).then(async (menu) => {
+      if (Array.isArray(translations) && translations.length > 0) {
+        await Promise.all(
+          translations.map((translation: any) =>
+            models.Translations.updateTranslation({
+              ...translation,
+              postId: _id,
+              type: translation.type || 'menu',
+            }),
+          ),
+        );
+      }
 
-        return menu;
-      });
+      return menu;
+    });
   },
 
   cpCmsRemoveMenu(_parent: any, args: any, context: IContext) {

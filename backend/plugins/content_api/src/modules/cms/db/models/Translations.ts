@@ -16,7 +16,9 @@ export const loadTranslationClass = (models: IModels) => {
       return models.Translations.create(doc);
     }
 
-    public static async upsertTranslation(doc: ITranslation): Promise<ITranslationDocument> {
+    public static async upsertTranslation(
+      doc: ITranslation,
+    ): Promise<ITranslationDocument> {
       const { postId, language, type = 'post' } = doc;
 
       const result = await models.Translations.findOneAndUpdate(
@@ -29,7 +31,9 @@ export const loadTranslationClass = (models: IModels) => {
     }
 
     // kept for backward compat — delegates to upsert
-    public static async updateTranslation(doc: ITranslation): Promise<ITranslationDocument> {
+    public static async updateTranslation(
+      doc: ITranslation,
+    ): Promise<ITranslationDocument> {
       return Translations.upsertTranslation(doc);
     }
 

@@ -75,6 +75,6 @@ export const lastViewedItemQueries: Record<string, Resolver> = {
 };
 export default lastViewedItemQueries;
 
-lastViewedItemQueries.cpLastViewedItems.wrapperConfig={
-  forClientPortal:true,
-}
+lastViewedItemQueries.cpLastViewedItems.wrapperConfig = {
+  forClientPortal: true,
+};

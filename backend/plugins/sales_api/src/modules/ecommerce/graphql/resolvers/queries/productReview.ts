@@ -112,10 +112,9 @@ export const productReviewQueries: Record<string, Resolver> = {
 
 export default productReviewQueries;
 
-
-productReviewQueries.cpProductReviews.wrapperConfig={
-  forClientPortal:true,
-}
-productReviewQueries.cpProductReview.wrapperConfig={
-  forClientPortal:true,
-}
+productReviewQueries.cpProductReviews.wrapperConfig = {
+  forClientPortal: true,
+};
+productReviewQueries.cpProductReview.wrapperConfig = {
+  forClientPortal: true,
+};

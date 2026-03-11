@@ -40,7 +40,11 @@ export const wishlistMutations: Record<string, Resolver> = {
     });
     return added;
   },
-  cpWishlistUpdate: async (_root, params, { models: { Wishlist } }: IContext) => {
+  cpWishlistUpdate: async (
+    _root,
+    params,
+    { models: { Wishlist } }: IContext,
+  ) => {
     const { _id, productId, customerId } = params;
     const updated = await Wishlist.updateWishlist(_id, {
       productId,
@@ -48,7 +52,11 @@ export const wishlistMutations: Record<string, Resolver> = {
     });
     return updated;
   },
-  cpWishlistRemove: async (_root, params, { models: { Wishlist } }: IContext) => {
+  cpWishlistRemove: async (
+    _root,
+    params,
+    { models: { Wishlist } }: IContext,
+  ) => {
     const { _id } = params;
     const removed = await Wishlist.removeWishlist(_id);
     return removed;
@@ -57,12 +65,12 @@ export const wishlistMutations: Record<string, Resolver> = {
 
 export default wishlistMutations;
 
-wishlistMutations.cpWishlistAdd.wrapperConfig={
-  forClientPortal:true,
-}
-wishlistMutations.cpWishlistUpdate.wrapperConfig={
-  forClientPortal:true,
-}
-wishlistMutations.cpWishlistRemove.wrapperConfig={
-  forClientPortal:true,
-}
+wishlistMutations.cpWishlistAdd.wrapperConfig = {
+  forClientPortal: true,
+};
+wishlistMutations.cpWishlistUpdate.wrapperConfig = {
+  forClientPortal: true,
+};
+wishlistMutations.cpWishlistRemove.wrapperConfig = {
+  forClientPortal: true,
+};

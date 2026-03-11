@@ -82,8 +82,11 @@ class PostQueryResolver extends BaseQueryResolver {
     return { posts: list, totalCount, pageInfo };
   }
 
-
-  async cmsTranslations(_parent: any, args: any, context: IContext): Promise<any> {
+  async cmsTranslations(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
     const { postId, type = 'post' } = args;
     const { models } = context;
     return models.Translations.find({ postId, type });
@@ -129,7 +132,11 @@ class PostQueryResolver extends BaseQueryResolver {
     return { posts: list, totalCount, pageInfo };
   }
 
-  async cpPostListWithPagination(_parent: any, args: any, context: IContext): Promise<any> {
+  async cpPostListWithPagination(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
     const { language } = args;
     const { models, clientPortal } = context;
     const clientPortalId = clientPortal._id;
@@ -220,5 +227,3 @@ postQueries.cpPost.wrapperConfig = {
 postQueries.cpPostListWithPagination.wrapperConfig = {
   forClientPortal: true,
 };
-
-

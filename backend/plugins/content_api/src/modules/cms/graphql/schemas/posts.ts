@@ -1,9 +1,9 @@
 import {
-    GQL_CURSOR_PARAM_DEFS,
-    GQL_OFFSET_PARAM_DEFS,
-  } from 'erxes-api-shared/utils';
-  
-  export const types = `
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_OFFSET_PARAM_DEFS,
+} from 'erxes-api-shared/utils';
+
+export const types = `
       enum PostStatus {
           draft
           published
@@ -86,8 +86,8 @@ import {
           type: String
       }
   `;
-  
-  export const inputs = `
+
+export const inputs = `
       input PostInput {
           clientPortalId: String
           webId: String
@@ -129,8 +129,8 @@ import {
           type: String
       }
   `;
-  
-  const commonPostQuerySelector = `
+
+const commonPostQuerySelector = `
       ${GQL_CURSOR_PARAM_DEFS}
       featured: Boolean
       type: String
@@ -145,8 +145,8 @@ import {
       dateFrom: Date
       dateTo: Date
   `;
-  
-  const commonPostQuerySelectorPagination = `
+
+const commonPostQuerySelectorPagination = `
       ${GQL_OFFSET_PARAM_DEFS}
       featured: Boolean
       type: String
@@ -156,8 +156,8 @@ import {
       tagIds: [String]
       language: String
   `;
-  
-  export const queries = `
+
+export const queries = `
       cmsPost(_id: String, slug: String, language: String): Post
       cmsPosts(clientPortalId: String, ${commonPostQuerySelector}): [Post]
       cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList
@@ -168,8 +168,8 @@ import {
       cpPost(_id: String, slug: String, language: String, clientPortalId: String): Post
       cpPostListWithPagination(language: String, ${commonPostQuerySelectorPagination}): PostListPagination
   `;
-  
-  export const mutations = `
+
+export const mutations = `
       cmsPostsAdd(input: PostInput!): Post
       cmsPostsEdit(_id: String!, input: PostInput!): Post
       cmsPostsRemove(_id: String!): JSON

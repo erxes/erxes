@@ -40,7 +40,7 @@ export const queries = `
   ): [ProductReview]
 
   cpProductReview(productId: String!): AverageReview
-`
+`;
 
 export const mutations = `
   productReviewAdd(${mutationParams}): ProductReview

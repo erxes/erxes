@@ -72,7 +72,7 @@ export const productReviewMutations = {
     });
     return updated;
   },
-  
+
   cpProductReviewRemove: async (
     _root,
     params,

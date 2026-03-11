@@ -54,10 +54,9 @@ export const lastViewedItemMutations: Record<string, Resolver> = {
 
 export default lastViewedItemMutations;
 
-lastViewedItemMutations.cpLastViewedItemAdd.wrapperConfig={
-  forClientPortal:true,
-}
-lastViewedItemMutations.cpLastViewedItemRemove.wrapperConfig={
-  forClientPortal:true,
-}
-
+lastViewedItemMutations.cpLastViewedItemAdd.wrapperConfig = {
+  forClientPortal: true,
+};
+lastViewedItemMutations.cpLastViewedItemRemove.wrapperConfig = {
+  forClientPortal: true,
+};

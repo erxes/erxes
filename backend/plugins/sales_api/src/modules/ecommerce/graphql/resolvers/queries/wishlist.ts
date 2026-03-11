@@ -95,6 +95,6 @@ export const wishlistQueries: Record<string, Resolver> = {
 
 export default wishlistQueries;
 
-wishlistQueries.cpWishlist.wrapperConfig={
-  forClientPortal:true,
-}
+wishlistQueries.cpWishlist.wrapperConfig = {
+  forClientPortal: true,
+};

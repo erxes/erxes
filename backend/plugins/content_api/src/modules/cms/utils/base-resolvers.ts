@@ -40,10 +40,13 @@ export class BaseQueryResolver {
   }
 
   protected buildTranslationMap(translations: any[]): Record<string, any> {
-    return translations.reduce((acc, translation) => {
-      acc[translation.postId.toString()] = translation;
-      return acc;
-    }, {} as Record<string, any>);
+    return translations.reduce(
+      (acc, translation) => {
+        acc[translation.postId.toString()] = translation;
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
   }
 
   protected applyTranslationsToList<T extends { _id: string }>(
@@ -60,16 +63,22 @@ export class BaseQueryResolver {
       if (!translation) return item;
 
       const translatedItem = { ...item };
-      Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
-        if (
-          Object.prototype.hasOwnProperty.call(translation, translationField) &&
-          translation[translationField] !== undefined &&
-          translation[translationField] !== null &&
-          translation[translationField] !== ''
-        ) {
-          (translatedItem as any)[originalField] = translation[translationField];
-        }
-      });
+      Object.entries(fieldMappings).forEach(
+        ([originalField, translationField]) => {
+          if (
+            Object.prototype.hasOwnProperty.call(
+              translation,
+              translationField,
+            ) &&
+            translation[translationField] !== undefined &&
+            translation[translationField] !== null &&
+            translation[translationField] !== ''
+          ) {
+            (translatedItem as any)[originalField] =
+              translation[translationField];
+          }
+        },
+      );
 
       return translatedItem;
     });
@@ -83,16 +92,19 @@ export class BaseQueryResolver {
     if (!translation) return item;
 
     const translatedItem = { ...item };
-    Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
-      if (
-        Object.prototype.hasOwnProperty.call(translation, translationField) &&
-        translation[translationField] !== undefined &&
-        translation[translationField] !== null &&
-        translation[translationField] !== ''
-      ) {
-        (translatedItem as any)[originalField] = translation[translationField];
-      }
-    });
+    Object.entries(fieldMappings).forEach(
+      ([originalField, translationField]) => {
+        if (
+          Object.prototype.hasOwnProperty.call(translation, translationField) &&
+          translation[translationField] !== undefined &&
+          translation[translationField] !== null &&
+          translation[translationField] !== ''
+        ) {
+          (translatedItem as any)[originalField] =
+            translation[translationField];
+        }
+      },
+    );
 
     return translatedItem;
   }
@@ -165,15 +177,26 @@ export class BaseQueryResolver {
       return { list, totalCount, pageInfo };
     }
 
-    const shouldSkip = await this.shouldSkipTranslation(clientPortalId, args.language);
+    const shouldSkip = await this.shouldSkipTranslation(
+      clientPortalId,
+      args.language,
+    );
 
     if (shouldSkip) {
       return { list, totalCount, pageInfo };
     }
 
     const itemIds = list.map((item: any) => item._id.toString());
-    const translations = await this.getTranslations(itemIds, args.language, translationType);
-    const translatedList = this.applyTranslationsToList(list, translations, fieldMappings);
+    const translations = await this.getTranslations(
+      itemIds,
+      args.language,
+      translationType,
+    );
+    const translatedList = this.applyTranslationsToList(
+      list,
+      translations,
+      fieldMappings,
+    );
 
     return { list: translatedList, totalCount, pageInfo };
   }
@@ -185,11 +208,19 @@ export class BaseQueryResolver {
     fieldMappings: Record<string, string>,
     translationType = 'post',
   ): Promise<T[]> {
-    const { sortField = 'scheduledDate', sortDirection, page = 1, perPage = 20 } = args;
+    const {
+      sortField = 'scheduledDate',
+      sortDirection,
+      page = 1,
+      perPage = 20,
+    } = args;
     const sortOrder: SortOrder = sortDirection === 'asc' ? 1 : -1;
 
     const list = (await defaultPaginate(
-      model.find(query).sort({ [sortField]: sortOrder }).lean(),
+      model
+        .find(query)
+        .sort({ [sortField]: sortOrder })
+        .lean(),
       { page, perPage },
     )) as T[];
 
@@ -203,15 +234,26 @@ export class BaseQueryResolver {
       return list;
     }
 
-    const shouldSkip = await this.shouldSkipTranslation(clientPortalId, args.language);
+    const shouldSkip = await this.shouldSkipTranslation(
+      clientPortalId,
+      args.language,
+    );
 
     if (shouldSkip) {
       return list;
     }
 
     const itemIds = list.map((item) => item._id.toString());
-    const translations = await this.getTranslations(itemIds, args.language, translationType);
-    const translatedList = this.applyTranslationsToList(list, translations, fieldMappings);
+    const translations = await this.getTranslations(
+      itemIds,
+      args.language,
+      translationType,
+    );
+    const translatedList = this.applyTranslationsToList(
+      list,
+      translations,
+      fieldMappings,
+    );
 
     return translatedList;
   }
@@ -237,11 +279,18 @@ export class BaseQueryResolver {
 
     if (!effectiveClientPortalId) return item;
 
-    const shouldSkip = await this.shouldSkipTranslation(effectiveClientPortalId, language);
+    const shouldSkip = await this.shouldSkipTranslation(
+      effectiveClientPortalId,
+      language,
+    );
 
     if (shouldSkip) return item;
 
-    const translation = await this.getTranslation(item._id.toString(), language, translationType);
+    const translation = await this.getTranslation(
+      item._id.toString(),
+      language,
+      translationType,
+    );
     return this.applyTranslationsToItem(item, translation, fieldMappings);
   }
 }
@@ -255,7 +304,11 @@ export class BaseMutationResolver {
     this.context = context;
   }
 
-  protected async create<T>(model: any, input: any, userId?: string): Promise<T> {
+  protected async create<T>(
+    model: any,
+    input: any,
+    userId?: string,
+  ): Promise<T> {
     if (userId) {
       input.createdUserId = userId;
     }
@@ -264,15 +317,24 @@ export class BaseMutationResolver {
       input.clientPortalId = this.context.clientPortal._id;
     }
 
-    return model.createDoc ? model.createDoc(input, userId) : model.create(input);
+    return model.createDoc
+      ? model.createDoc(input, userId)
+      : model.create(input);
   }
 
-  protected async update<T>(model: any, id: string, input: any, userId?: string): Promise<T> {
+  protected async update<T>(
+    model: any,
+    id: string,
+    input: any,
+    userId?: string,
+  ): Promise<T> {
     if (this.context.clientPortal._id) {
       input.clientPortalId = this.context.clientPortal._id;
     }
 
-    return model.updateDoc ? model.updateDoc(id, input, userId) : model.updateOne({ _id: id }, input);
+    return model.updateDoc
+      ? model.updateDoc(id, input, userId)
+      : model.updateOne({ _id: id }, input);
   }
 
   protected async remove<T>(model: any, id: string): Promise<T> {
