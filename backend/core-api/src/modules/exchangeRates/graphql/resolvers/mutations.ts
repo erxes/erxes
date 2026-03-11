@@ -1,5 +1,5 @@
-import { IContext } from "~/connectionResolvers";
-import { IExchangeRate } from "../../@types/exchangeRate";
+import { IContext } from '~/connectionResolvers';
+import { IExchangeRate } from '../../@types/exchangeRate';
 
 export const exchangeRateMutations = {
   /**
@@ -9,10 +9,13 @@ export const exchangeRateMutations = {
   async exchangeRateAdd(
     _root,
     doc: IExchangeRate,
-    { models }: IContext
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('exchangeRatesManage');
+
     return await models.ExchangeRates.createExchangeRate({
-      ...doc, createdAt: new Date()
+      ...doc,
+      createdAt: new Date(),
     });
   },
 
@@ -24,8 +27,10 @@ export const exchangeRateMutations = {
   async exchangeRateEdit(
     _root,
     { _id, ...doc }: IExchangeRate & { _id: string },
-    { models }: IContext
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('exchangeRatesManage');
+
     return await models.ExchangeRates.updateExchangeRate(_id, {
       ...doc,
       modifiedAt: new Date(),
@@ -39,12 +44,10 @@ export const exchangeRateMutations = {
   async exchangeRatesRemove(
     _root,
     { rateIds }: { rateIds: string[] },
-    { models }: IContext
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('exchangeRatesManage');
+
     return await models.ExchangeRates.removeExchangeRates(rateIds);
   },
 };
-
-// checkPermission( exchangeRateMutations, 'exchangeRateAdd', 'manageExchangeRates' );
-// checkPermission( exchangeRateMutations, 'exchangeRateEdit', 'manageExchangeRates' );
-// checkPermission( exchangeRateMutations, 'exchangeRatesRemove', 'manageExchangeRates' );

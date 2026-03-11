@@ -13,9 +13,10 @@ export const permissionMutations = {
       description?: string;
       permissions: IPermissionInput[];
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    console.log('log');
+    await checkPermission('permissionsManage');
+
     return models.PermissionGroups.create({
       name,
       description,
@@ -37,8 +38,10 @@ export const permissionMutations = {
       description?: string;
       permissions?: IPermissionInput[];
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const group = await models.PermissionGroups.findOne({ _id });
     if (!group) throw new Error('Permission group not found');
 
@@ -56,8 +59,10 @@ export const permissionMutations = {
   async permissionGroupRemove(
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const group = await models.PermissionGroups.findOne({ _id });
     if (!group) throw new Error('Permission group not found');
 
@@ -76,8 +81,10 @@ export const permissionMutations = {
   async userUpdatePermissionGroups(
     _root: any,
     { userId, groupIds }: { userId: string; groupIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
@@ -93,8 +100,10 @@ export const permissionMutations = {
   async userAddCustomPermission(
     _root: any,
     { userId, permission }: { userId: string; permission: IPermissionInput },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
@@ -117,8 +126,10 @@ export const permissionMutations = {
   async userRemoveCustomPermission(
     _root: any,
     { userId, module }: { userId: string; module: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
