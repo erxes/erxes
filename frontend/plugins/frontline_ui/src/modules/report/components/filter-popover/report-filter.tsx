@@ -169,8 +169,8 @@ const SourceFilterView = ({
           items.push(
             ...CALL_STATUS_OPTIONS.map((statusOption) => (
               <Command.Item
-                key={`call-status-${statusOption.value}`}
-                value={`call-status-${statusOption.value}`}
+                key={`calls-status-${statusOption.value}`}
+                value={`calls-status-${statusOption.value}`}
                 onSelect={() => onCallStatusChange(statusOption.value)}
                 className="pl-7"
               >
