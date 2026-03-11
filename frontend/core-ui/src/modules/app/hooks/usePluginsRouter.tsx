@@ -15,19 +15,20 @@ const PluginRouteGuard = ({
   children: React.ReactNode;
 }) => {
   const { can, permissions } = useCurrentUserPermissions();
+
   const { pathname } = useLocation();
 
-  // Build set of known module names from permissions data (+ plural forms)
   const knownModules = useMemo(() => {
     const modules = new Set<string>();
     for (const p of permissions) {
       modules.add(p.module);
-      modules.add(p.module + 's'); // plural form
+      modules.add(p.module + 's');
     }
     return modules;
   }, [permissions]);
 
   const prefix = `/${pluginName}/`;
+
   if (pathname.startsWith(prefix)) {
     const segments = pathname.slice(prefix.length).split('/').filter(Boolean);
 
