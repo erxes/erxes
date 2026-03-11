@@ -4,7 +4,7 @@ import {
   RPError,
   RPResult,
   RPSuccess,
-  sendTRPCMessage
+  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
