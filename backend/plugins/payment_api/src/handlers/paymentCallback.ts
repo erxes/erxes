@@ -5,7 +5,10 @@ interface IInvoiceDocument extends IInvoice {
   _id: string;
 }
 
-export const handlePaymentCallback = async (subdomain: string, invoice: IInvoiceDocument) => {
+export const handlePaymentCallback = async (
+  subdomain: string,
+  invoice: IInvoiceDocument,
+) => {
   const { contentType, contentTypeId, amount, _id } = invoice;
 
   if (!contentType || !contentTypeId) {

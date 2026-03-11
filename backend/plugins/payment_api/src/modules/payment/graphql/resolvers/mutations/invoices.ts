@@ -79,14 +79,11 @@ const mutations: Record<string, Resolver> = {
           },
           defaultValue: null,
         })
-          .then(() => {
-          })
-          .catch((err) => {
-          });
+          .then(() => {})
+          .catch((err) => {});
       }
 
       if (invoice.callback) {
-
         // Fire callback – do not await
         fetch(invoice.callback, {
           method: 'POST',
@@ -103,10 +100,15 @@ const mutations: Record<string, Resolver> = {
             if (!res.ok) {
               throw new Error(`HTTP ${res.status} – ${res.statusText}`);
             }
-            console.log(`[invoicesCheck] Callback succeeded for invoice ${_id}`);
+            console.log(
+              `[invoicesCheck] Callback succeeded for invoice ${_id}`,
+            );
           })
           .catch((err) => {
-            console.error(`[invoicesCheck] Callback failed for invoice ${_id}:`, err);
+            console.error(
+              `[invoicesCheck] Callback failed for invoice ${_id}:`,
+              err,
+            );
           });
       }
     }
