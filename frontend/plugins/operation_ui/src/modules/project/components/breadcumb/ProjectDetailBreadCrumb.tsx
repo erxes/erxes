@@ -8,6 +8,7 @@ import {
 } from 'erxes-ui';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useGetProject } from '@/project/hooks/useGetProject';
+import { usePermissionContext } from 'erxes-ui';
 
 export const ProjectDetailBreadCrumb = () => {
   const { teamId, projectId } = useParams<{
@@ -20,6 +21,7 @@ export const ProjectDetailBreadCrumb = () => {
     variables: { _id: projectId },
     skip: !projectId,
   });
+  const { canAccessModule } = usePermissionContext();
 
   if (loading) {
     return <Skeleton className="w-12 h-lh" />;
@@ -46,9 +48,11 @@ export const ProjectDetailBreadCrumb = () => {
           <ToggleGroup.Item value={`${basePath}/overview`} asChild>
             <Link to={`${basePath}/overview`}>Overview</Link>
           </ToggleGroup.Item>
-          <ToggleGroup.Item value={`${basePath}/tasks`} asChild>
-            <Link to={`${basePath}/tasks`}>Tasks</Link>
-          </ToggleGroup.Item>
+          {canAccessModule('tasks') && (
+            <ToggleGroup.Item value={`${basePath}/tasks`} asChild>
+              <Link to={`${basePath}/tasks`}>Tasks</Link>
+            </ToggleGroup.Item>
+          )}
         </ToggleGroup>
       </Breadcrumb.List>
     </Breadcrumb>

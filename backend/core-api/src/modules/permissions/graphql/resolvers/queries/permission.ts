@@ -1,11 +1,12 @@
 import { IContext } from '~/connectionResolvers';
 import { getPlugins, getPlugin } from 'erxes-api-shared/utils';
 
-const mergePerm = (map: Map<string, any>, perm: any) => {
+const mergePerm = (map: Map<string, any>, perm: any, plugin?: string) => {
   const existing = map.get(perm.module);
 
   if (!existing) {
     map.set(perm.module, {
+      plugin: perm.plugin || plugin,
       module: perm.module,
       actions: [...perm.actions],
       scope: perm.scope,
@@ -84,13 +85,17 @@ export const permissionQueries = {
     const groupIds = user.permissionGroupIds || [];
     const permMap = new Map();
 
-    const services = await getPlugins();
+    const plugins = await getPlugins();
+
     const allDefaultGroups: any[] = [];
 
-    for (const name of services) {
-      const service = await getPlugin(name);
-      const permissions = service?.config?.meta?.permissions;
+    for (const pluginName of plugins) {
+      const plugin = await getPlugin(pluginName);
+
+      const permissions = plugin?.config?.meta?.permissions;
+
       if (!permissions?.defaultGroups) continue;
+      
       allDefaultGroups.push(...permissions.defaultGroups);
     }
 
@@ -104,6 +109,7 @@ export const permissionQueries = {
         }
       } else {
         const group = await models.PermissionGroups.findOne({ _id: groupId });
+      
         if (group) {
           for (const perm of group.permissions) {
             mergePerm(permMap, perm);

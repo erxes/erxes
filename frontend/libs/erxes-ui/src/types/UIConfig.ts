@@ -42,4 +42,5 @@ export type ICoreModule = {
     path: string;
     icon?: React.ElementType;
   }[];
+  module?: string;
 };

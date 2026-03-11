@@ -3,6 +3,7 @@ import { Route } from 'react-router';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
 import { pluginsConfigState } from 'ui-modules';
 import { useAtom } from 'jotai';
+import { PermissionGuard } from '~/modules/navigation/components/PermissionGuard';
 
 export const getPluginsRoutes = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
@@ -13,10 +14,12 @@ export const getPluginsRoutes = () => {
       key={module.name}
       path={`/${module.path}/*`}
       element={
-        <RenderPluginsComponent
-          pluginName={`${module.name}_ui`}
-          remoteModuleName={module.name}
-        />
+        <PermissionGuard pluginName={module.name}>
+          <RenderPluginsComponent
+            pluginName={`${module.name}_ui`}
+            remoteModuleName={module.name}
+          />
+        </PermissionGuard>
       }
     />
   ));

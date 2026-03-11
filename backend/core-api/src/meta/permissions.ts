@@ -54,7 +54,6 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'contacts',
           actions: [
-            'contactsRead',
             'contactsCreate',
             'contactsUpdate',
             'contactsDelete',

@@ -9,12 +9,14 @@ export const MainNavigation = () => {
         icon={IconClipboard}
         pathPrefix="operation"
         path="projects"
+        module="project"
       />
       <NavigationMenuLinkItem
         name="My tasks"
         icon={IconUserFilled}
         pathPrefix="operation"
         path="tasks"
+        module="task"
       />
     </>
   );

@@ -61,6 +61,7 @@ export const types = `
   }
 
   type UserPermission {
+    plugin: String
     module: String!
     actions: [String]!
     scope: String!
