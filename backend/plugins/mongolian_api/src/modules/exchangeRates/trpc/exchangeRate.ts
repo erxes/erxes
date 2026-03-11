@@ -8,12 +8,9 @@ import { IModels } from '~/connectionResolvers';
  * ExchangeRate TRPC Context
  * (matches Erkhet pattern exactly)
  */
-export type ExchangeRateTRPCContext =
-  ITRPCContext<{ models: IModels }>;
+export type ExchangeRateTRPCContext = ITRPCContext<{ models: IModels }>;
 
-const t = initTRPC
-  .context<ExchangeRateTRPCContext>()
-  .create();
+const t = initTRPC.context<ExchangeRateTRPCContext>().create();
 
 export const exchangeRateTrpcRouter = t.router({
   exchangeRates: {
@@ -26,9 +23,7 @@ export const exchangeRateTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
 
-        return await models.ExchangeRates
-          .findOne(input.query)
-          .lean();
+        return await models.ExchangeRates.findOne(input.query).lean();
       }),
 
     create: t.procedure
@@ -40,8 +35,7 @@ export const exchangeRateTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
 
-        return await models.ExchangeRates
-          .createExchangeRate(input.data);
+        return await models.ExchangeRates.createExchangeRate(input.data);
       }),
 
     update: t.procedure
@@ -71,9 +65,7 @@ export const exchangeRateTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
 
-        return await models.ExchangeRates.getActiveRate(
-          input,
-        );
+        return await models.ExchangeRates.getActiveRate(input);
       }),
   },
 });

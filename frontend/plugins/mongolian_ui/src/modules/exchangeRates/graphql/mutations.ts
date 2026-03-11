@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 
-
 const commonParamsDef = `
   $date: Date
   $mainCurrency: String
@@ -14,7 +13,6 @@ const commonParams = `
   rateCurrency: $rateCurrency
   rate: $rate
 `;
-
 
 export const exchangeRateAdd = gql`
   mutation ExchangeRateAdd(${commonParamsDef}) {
@@ -45,7 +43,6 @@ export const exchangeRatesRemove = gql`
     exchangeRatesRemove(rateIds: $rateIds)
   }
 `;
-
 
 export default {
   exchangeRateAdd,

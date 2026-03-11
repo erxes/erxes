@@ -18,7 +18,7 @@ const MainListContainer = ({ queryParams }: Props) => {
         perPage: Number(queryParams.perPage || 20),
       },
       fetchPolicy: 'network-only',
-    }
+    },
   );
 
   const list = data?.exchangeRatesMain?.list || [];
@@ -28,12 +28,12 @@ const MainListContainer = ({ queryParams }: Props) => {
     mutations.exchangeRatesRemove, // ✅ NO gql()
     {
       refetchQueries: ['exchangeRatesMain'], // ✅ STRING
-    }
+    },
   );
 
   const deleteExchangeRates = async (
     rateIds: string[],
-    callback: () => void
+    callback: () => void,
   ) => {
     try {
       await removeExchangeRates({ variables: { rateIds } });

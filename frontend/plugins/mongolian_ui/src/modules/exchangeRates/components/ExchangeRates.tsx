@@ -23,9 +23,7 @@ const ExchangeRates = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [searchValue, setSearchValue] = useState(
-    queryParams.searchValue ?? '',
-  );
+  const [searchValue, setSearchValue] = useState(queryParams.searchValue ?? '');
 
   /* ---------------- search ---------------- */
 
@@ -47,7 +45,7 @@ const ExchangeRates = ({
   /* ---------------- actions ---------------- */
 
   const goCreate = () => {
-     console.log('CLICKED');
+    console.log('CLICKED');
     navigate('/settings/mongolian/exchange-rates/create');
   };
 

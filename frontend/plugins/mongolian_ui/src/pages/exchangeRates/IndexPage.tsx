@@ -5,9 +5,7 @@ import ExchangeRateFormPage from './ExchangeRateFormPage';
 const IndexPage = () => {
   const location = useLocation();
 
-  const queryParams = Object.fromEntries(
-    new URLSearchParams(location.search),
-  );
+  const queryParams = Object.fromEntries(new URLSearchParams(location.search));
 
   return (
     <>

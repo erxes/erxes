@@ -10,7 +10,7 @@ const t = initTRPC.context<ITRPCContext>().create();
 export const appRouter = t.mergeRouters(
   ebarimtTrpcRouter,
   productPlacesTrpcRouter,
-  exchangeRateTrpcRouter
+  exchangeRateTrpcRouter,
 );
 
 export type AppRouter = typeof appRouter;

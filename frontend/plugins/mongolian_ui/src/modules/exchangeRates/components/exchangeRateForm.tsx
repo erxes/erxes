@@ -15,9 +15,7 @@ const ExchangeRateForm = ({
   submitting,
   onSubmit,
 }: Props) => {
-  const [date, setDate] = useState<Date>(
-    exchangeRate?.date ?? new Date(),
-  );
+  const [date, setDate] = useState<Date>(exchangeRate?.date ?? new Date());
 
   const [mainCurrency, setMainCurrency] = useState<string>(
     exchangeRate?.mainCurrency ?? '',
@@ -27,9 +25,7 @@ const ExchangeRateForm = ({
     exchangeRate?.rateCurrency ?? '',
   );
 
-  const [rate, setRate] = useState<number>(
-    exchangeRate?.rate ?? 0,
-  );
+  const [rate, setRate] = useState<number>(exchangeRate?.rate ?? 0);
 
   const handleSubmit = () => {
     const values: ExchangeRateFormValues = {
@@ -110,11 +106,7 @@ const ExchangeRateForm = ({
           Close
         </Button>
 
-        <Button
-          type="button"
-          onClick={handleSubmit}
-          disabled={submitting}
-        >
+        <Button type="button" onClick={handleSubmit} disabled={submitting}>
           Save
         </Button>
       </div>

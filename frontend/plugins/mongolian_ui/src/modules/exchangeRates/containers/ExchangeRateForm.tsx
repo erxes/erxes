@@ -1,10 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 
 import ExchangeRateForm from '../components/ExchangeRateForm';
-import {
-  IExchangeRate,
-  ExchangeRateFormValues,
-} from '../types';
+import { IExchangeRate, ExchangeRateFormValues } from '../types';
 
 import { queries } from '../graphql/index';
 import { mutations } from '../graphql/index';
@@ -13,38 +10,29 @@ type Props = {
   exchangeRate?: IExchangeRate;
 };
 
-const ExchangeRateFormContainer = ({
-  exchangeRate,
-}: Props) => {
+const ExchangeRateFormContainer = ({ exchangeRate }: Props) => {
+  const { data, loading } = useQuery(queries.configs, {
+    variables: { code: 'dealCurrency' },
+    fetchPolicy: 'network-only',
+  });
 
+  const currencies: string[] = data?.configsGetValue?.value || [];
 
-  const { data, loading } = useQuery(
-    queries.configs,
+  const [addExchangeRate, { loading: adding }] = useMutation(
+    mutations.exchangeRateAdd,
     {
-      variables: { code: 'dealCurrency' },
-      fetchPolicy: 'network-only',
-    }
+      refetchQueries: ['exchangeRatesMain'],
+    },
   );
 
-  const currencies: string[] =
-    data?.configsGetValue?.value || [];
-
-
-
-  const [addExchangeRate, { loading: adding }] =
-    useMutation(mutations.exchangeRateAdd, {
+  const [editExchangeRate, { loading: editing }] = useMutation(
+    mutations.exchangeRateEdit,
+    {
       refetchQueries: ['exchangeRatesMain'],
-    });
+    },
+  );
 
-  const [editExchangeRate, { loading: editing }] =
-    useMutation(mutations.exchangeRateEdit, {
-      refetchQueries: ['exchangeRatesMain'],
-    });
-
-
-  const handleSubmit = async (
-    values: ExchangeRateFormValues,
-  ) => {
+  const handleSubmit = async (values: ExchangeRateFormValues) => {
     if (exchangeRate?._id) {
       await editExchangeRate({
         variables: {

@@ -28,9 +28,9 @@ const MongolianSettings = () => {
         <Route index element={<Navigate to="sync-erkhet" replace />} />
       </Routes>
       <Routes>
-    <Route path="exchange-rates/*" element={<ExchangeRatesPage />} />
-    <Route index element={<Navigate to="exchange-rates" replace />} />
-  </Routes>
+        <Route path="exchange-rates/*" element={<ExchangeRatesPage />} />
+        <Route index element={<Navigate to="exchange-rates" replace />} />
+      </Routes>
     </Suspense>
   );
 };
