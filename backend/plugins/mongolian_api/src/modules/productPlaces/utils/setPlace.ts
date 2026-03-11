@@ -72,7 +72,10 @@ export const setPlace = async (
     }
   }
 
-  console.log('productsData before matching:', JSON.stringify(pdatas, null, 2));
+  console.log(
+    'productsData before matching:',
+    JSON.stringify(pdatas, null, 2),
+  );
 
   for (const pdata of pdatas) {
     console.log('checking product:', pdata.productId);
@@ -101,7 +104,10 @@ export const setPlace = async (
     }
   }
 
-  console.log('productsData after matching:', JSON.stringify(pdatas, null, 2));
+  console.log(
+    'productsData after matching:',
+    JSON.stringify(pdatas, null, 2),
+  );
 
   const branchIds = [...new Set(pdatas.map((p) => p.branchId).filter(Boolean))];
   const departmentIds = [
@@ -113,23 +119,33 @@ export const setPlace = async (
 
   console.log('🔵 updating deal through TRPC');
 
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'sales',
-    module: 'deal',
-    action: 'editItem',
-    method: 'mutation',
-    input: {
-      itemId: dealId,
-      processId: processId || 'manual-update',
-      user: userId,
-      productsData: pdatas,
-      branchIds,
-      departmentIds,
-    },
-  });
+  try {
+    const result = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'sales',
+      module: 'deal',
+      action: 'editItem',
+      method: 'mutation',
+      input: {
+        itemId: dealId,
+        processId: processId || 'manual-update',
+        user: userId,
+        productsData: pdatas,
+        branchIds,
+        departmentIds,
+      },
+    });
 
-  console.log('✅ deal updated');
+    console.log('🔵 deal.editItem response:', JSON.stringify(result, null, 2));
+
+    if (result?.status === 'error') {
+      console.error('❌ deal update failed:', result.errorMessage);
+    } else {
+      console.log('✅ deal updated');
+    }
+  } catch (error) {
+    console.error('❌ deal update threw exception:', error);
+  }
 
   console.log('🟢 [setPlace] END');
 

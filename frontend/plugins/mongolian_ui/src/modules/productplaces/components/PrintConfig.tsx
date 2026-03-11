@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { Button, Label, Form } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { nanoid } from 'nanoid';
@@ -9,6 +10,12 @@ import PerPrintConditions from './PerPrintConditions';
 import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
 import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
+import { MN_CONFIGS } from '../graphql/clientQueries';
+import {
+  MN_CONFIGS_CREATE,
+  MN_CONFIGS_UPDATE,
+  MN_CONFIGS_REMOVE,
+} from '../graphql/clientMutations';
 
 // ---------- Transformers ----------
 const objectToKeyValueArray = (obj: Record<string, any>) =>
@@ -25,14 +32,17 @@ const keyValueArrayToObject = (
 };
 
 // ---------- Types ----------
-interface PrintConfigProps {
-  config: PerPrintConfig | null;
-  save: (data: PerPrintConfig) => Promise<boolean>;
-  deleteConfig: () => Promise<void>;
-  loading?: boolean;
+export interface PrintConfigData {
+  _id?: string;
+  subId?: string;
+  title: string;
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
+  conditions: Condition[];
 }
 
-const emptyForm: PerPrintConfig = {
+const emptyForm: PrintConfigData = {
   title: '',
   boardId: '',
   pipelineId: '',
@@ -40,34 +50,52 @@ const emptyForm: PerPrintConfig = {
   conditions: [],
 };
 
-const PrintConfig: React.FC<PrintConfigProps> = ({
-  config,
-  save,
-  deleteConfig,
-  loading = false,
-}) => {
+const PrintConfig: React.FC = () => {
   const form = useForm();
 
-  const [formData, setFormData] = useState<PerPrintConfig>(emptyForm);
+  const [savedConfigs, setSavedConfigs] = useState<PrintConfigData[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [formData, setFormData] = useState<PrintConfigData>(emptyForm);
 
-  // Sync form with incoming config
+  // GraphQL hooks
+  const { data, loading, refetch } = useQuery(MN_CONFIGS, {
+    variables: { code: 'dealsProductsDataPrint' },
+    fetchPolicy: 'network-only',
+  });
+
+  const [createConfig] = useMutation(MN_CONFIGS_CREATE);
+  const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
+  const [deleteConfig] = useMutation(MN_CONFIGS_REMOVE);
+
+  // Load configs from backend into local state
   useEffect(() => {
-    if (!config) {
-      setFormData(emptyForm);
-      return;
+    if (data?.mnConfigs) {
+      const rawConfigs = Array.isArray(data.mnConfigs)
+        ? data.mnConfigs
+        : Object.values(data.mnConfigs);
+      const transformed = rawConfigs.map((cfg: any) => {
+        const obj = keyValueArrayToObject(cfg.value);
+        return {
+          _id: cfg._id,
+          subId: cfg.subId,
+          ...obj,
+        } as PrintConfigData;
+      });
+      setSavedConfigs(transformed);
     }
+  }, [data]);
 
-    setFormData({
-      title: config.title ?? '',
-      boardId: config.boardId ?? '',
-      pipelineId: config.pipelineId ?? '',
-      stageId: config.stageId ?? '',
-      conditions: config.conditions ?? [],
-    });
-  }, [config]);
+  // Sync form with active config
+  useEffect(() => {
+    if (activeIndex !== null) {
+      setFormData(savedConfigs[activeIndex] ?? emptyForm);
+    } else {
+      setFormData(emptyForm);
+    }
+  }, [activeIndex, savedConfigs]);
 
   const updateField = useCallback(
-    <K extends keyof PerPrintConfig>(key: K, value: PerPrintConfig[K]) => {
+    <K extends keyof PrintConfigData>(key: K, value: PrintConfigData[K]) => {
       setFormData((prev) => ({ ...prev, [key]: value }));
     },
     [],
@@ -101,18 +129,53 @@ const PrintConfig: React.FC<PrintConfigProps> = ({
   };
 
   const handleSave = async () => {
-    const ok = await save(formData);
-    if (!ok) return;
-    // Optional: keep saved state if needed
+    try {
+      const { _id, ...rest } = formData;
+      const valueArray = objectToKeyValueArray(rest);
+
+      if (_id) {
+        await updateConfig({ variables: { _id, value: valueArray } });
+      } else {
+        await createConfig({
+          variables: {
+            code: 'dealsProductsDataPrint',
+            subId: rest.stageId,
+            value: valueArray,
+          },
+        });
+      }
+
+      await refetch();
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } catch (error) {
+      console.error('Save failed', error);
+    }
   };
 
   const handleDelete = async () => {
+    if (activeIndex === null) return;
     if (!window.confirm('Delete this print config?')) return;
-    await deleteConfig();
+
+    const config = savedConfigs[activeIndex];
+    if (!config._id) return;
+
+    try {
+      await deleteConfig({ variables: { _id: config._id } });
+      await refetch();
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } catch (error) {
+      console.error('Delete failed', error);
+    }
+  };
+
+  const handleNewConfig = () => {
+    setActiveIndex(null);
     setFormData(emptyForm);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
     <Form {...form}>
@@ -121,7 +184,40 @@ const PrintConfig: React.FC<PrintConfigProps> = ({
           {/* HEADER */}
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Print Configuration</h2>
+            <Button variant="outline" onClick={handleNewConfig}>
+              + New Config
+            </Button>
           </div>
+
+          {/* SAVED CONFIGS */}
+          {savedConfigs.length > 0 && (
+            <div className="bg-white rounded-xl border p-5 shadow-sm space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Saved Configs
+              </h3>
+              <div className="space-y-3">
+                {savedConfigs.map((cfg, index) => (
+                  <div
+                    key={cfg._id || index}
+                    onClick={() => setActiveIndex(index)}
+                    className={`cursor-pointer rounded-lg border p-4 transition
+                      ${
+                        index === activeIndex
+                          ? 'border-primary bg-primary/5'
+                          : 'hover:bg-muted/40'
+                      }`}
+                  >
+                    <div className="font-medium">
+                      {cfg.title || '(Untitled config)'}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Stage: {cfg.stageId || '—'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* FORM CARD */}
           <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
@@ -192,7 +288,6 @@ const PrintConfig: React.FC<PrintConfigProps> = ({
               <h3 className="text-sm font-semibold text-muted-foreground">
                 Print Conditions
               </h3>
-
               <Button
                 type="button"
                 variant="outline"
@@ -223,10 +318,11 @@ const PrintConfig: React.FC<PrintConfigProps> = ({
 
           {/* ACTIONS */}
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
-
+            {activeIndex !== null && (
+              <Button type="button" variant="destructive" onClick={handleDelete}>
+                Delete
+              </Button>
+            )}
             <Button type="button" onClick={handleSave}>
               Save
             </Button>

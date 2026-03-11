@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { Button, Label, Form } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+
 import { PerSplitConfig } from '../types';
 import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
@@ -10,134 +12,163 @@ import SelectProductTags from '../selects/SelectTags';
 import SelectProducts from '../selects/SelectProducts';
 import SelectSegments from '../selects/SelectSegments';
 
+import { MN_CONFIGS } from '../graphql/clientQueries';
+import {
+  MN_CONFIGS_CREATE,
+  MN_CONFIGS_UPDATE,
+  MN_CONFIGS_REMOVE,
+} from '../graphql/clientMutations';
+
 // ---------- Types ----------
-interface SplitConfigProps {
-  config: PerSplitConfig | null;
-  save: (data: PerSplitConfig) => Promise<boolean>;
-  deleteConfig: () => Promise<void>;
-  loading?: boolean;
-  currentStageId?: string;
+export interface SplitConfigData extends PerSplitConfig {
+  _id?: string;
+  subId?: string;
 }
 
-// ---------- Helpers ----------
-const normalize = (
-  config: Partial<PerSplitConfig>,
-  stageId: string,
-): PerSplitConfig => ({
-  title: config.title ?? '',
-  boardId: config.boardId ?? '',
-  pipelineId: config.pipelineId ?? '',
-  stageId: config.stageId ?? stageId,
+// ---------- Transformers ----------
+const objectToKeyValueArray = (obj: Record<string, any>) =>
+  Object.entries(obj).map(([key, value]) => ({ key, value }));
 
-  productCategoryIds: config.productCategoryIds ?? [],
-  excludeCategoryIds: config.excludeCategoryIds ?? [],
-  productTagIds: config.productTagIds ?? [],
-  excludeTagIds: config.excludeTagIds ?? [],
-  excludeProductIds: config.excludeProductIds ?? [],
-  segmentIds: config.segmentIds ?? [],
-
-  subUomType: config.subUomType,
-  gtCount: config.gtCount,
-  ltCount: config.ltCount,
-  gtUnitPrice: config.gtUnitPrice,
-  ltUnitPrice: config.ltUnitPrice,
-});
+const keyValueArrayToObject = (
+  arr: Array<{ key: string; value: any }>,
+): Record<string, any> => {
+  const obj: any = {};
+  arr.forEach(({ key, value }) => {
+    obj[key] = value;
+  });
+  return obj;
+};
 
 const getSingle = (arr: string[]) => arr[0] || '';
 const toSingleArray = (id?: string) => (id ? [id] : []);
 
 // ---------- Component ----------
-const SplitConfig: React.FC<SplitConfigProps> = ({
-  config,
-  save,
-  deleteConfig,
-  loading = false,
-  currentStageId = '',
-}) => {
+const emptyForm: SplitConfigData = {
+  title: '',
+  boardId: '',
+  pipelineId: '',
+  stageId: '',
+  productCategoryIds: [],
+  excludeCategoryIds: [],
+  productTagIds: [],
+  excludeTagIds: [],
+  excludeProductIds: [],
+  segmentIds: [],
+  subUomType: undefined,
+  gtCount: undefined,
+  ltCount: undefined,
+  gtUnitPrice: undefined,
+  ltUnitPrice: undefined,
+};
+
+const SplitConfig: React.FC = () => {
   const form = useForm();
 
-  /** UI-only saved configs (just for display in list) */
-  const [savedConfigs, setSavedConfigs] = useState<PerSplitConfig[]>([]);
+  const [savedConfigs, setSavedConfigs] = useState<SplitConfigData[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [formData, setFormData] = useState<SplitConfigData>(emptyForm);
 
-  /** Active form data */
-  const [localConfig, setLocalConfig] = useState<PerSplitConfig>(
-    normalize({}, currentStageId),
-  );
+  // GraphQL hooks
+  const { data, loading, refetch } = useQuery(MN_CONFIGS, {
+    variables: { code: 'dealsProductsDataSplit' },
+    fetchPolicy: 'network-only',
+  });
 
-  // Sync with incoming config
+  const [createConfig] = useMutation(MN_CONFIGS_CREATE);
+  const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
+  const [deleteConfig] = useMutation(MN_CONFIGS_REMOVE);
+
+  // Load configs from backend into local state
+  useEffect(() => {
+    if (data?.mnConfigs) {
+      const rawConfigs = Array.isArray(data.mnConfigs)
+        ? data.mnConfigs
+        : Object.values(data.mnConfigs);
+      const transformed = rawConfigs.map((cfg: any) => {
+        const obj = keyValueArrayToObject(cfg.value);
+        return {
+          _id: cfg._id,
+          subId: cfg.subId,
+          ...obj,
+        } as SplitConfigData;
+      });
+      setSavedConfigs(transformed);
+    }
+  }, [data]);
+
+  // Sync form with active config
   useEffect(() => {
     if (activeIndex !== null) {
-      const selected = savedConfigs[activeIndex];
-      if (selected) setLocalConfig(selected);
-      return;
+      setFormData(savedConfigs[activeIndex] ?? emptyForm);
+    } else {
+      setFormData(emptyForm);
     }
+  }, [activeIndex, savedConfigs]);
 
-    if (!config) {
-      setLocalConfig(normalize({}, currentStageId));
-      return;
-    }
+  const updateField = useCallback(
+    <K extends keyof SplitConfigData>(key: K, value: SplitConfigData[K]) => {
+      setFormData((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
-    setLocalConfig(normalize(config, currentStageId));
-  }, [config, activeIndex, savedConfigs, currentStageId]);
-
-  // If there's a config from parent, add it to savedConfigs (if not already)
-  useEffect(() => {
-    if (config && !savedConfigs.some((c) => c.stageId === config.stageId)) {
-      setSavedConfigs((prev) => [...prev, config as PerSplitConfig]);
-    }
-  }, [config]);
-
-  const update = useCallback(<K extends keyof PerSplitConfig>(
-    key: K,
-    value: PerSplitConfig[K],
-  ) => {
-    setLocalConfig((prev) => ({ ...prev, [key]: value }));
-  }, []);
-
-  // ---------- Actions ----------
   const handleSave = async () => {
-    const ok = await save(localConfig);
-    if (!ok) return;
+    try {
+      const { _id, ...rest } = formData;
+      const valueArray = objectToKeyValueArray(rest);
 
-    setSavedConfigs((prev) => {
-      if (activeIndex === null) {
-        return [...prev, localConfig];
+      if (_id) {
+        await updateConfig({ variables: { _id, value: valueArray } });
+      } else {
+        await createConfig({
+          variables: {
+            code: 'dealsProductsDataSplit',
+            subId: rest.stageId,
+            value: valueArray,
+          },
+        });
       }
-      const next = [...prev];
-      next[activeIndex] = localConfig;
-      return next;
-    });
 
-    setActiveIndex(null);
+      await refetch();
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } catch (error) {
+      console.error('Save failed', error);
+    }
   };
 
   const handleDelete = async () => {
+    if (activeIndex === null) return;
     if (!window.confirm('Delete this split config?')) return;
-    await deleteConfig();
-    setSavedConfigs([]);
-    setActiveIndex(null);
-    setLocalConfig(normalize({}, currentStageId));
+
+    const config = savedConfigs[activeIndex];
+    if (!config._id) return;
+
+    try {
+      await deleteConfig({ variables: { _id: config._id } });
+      await refetch();
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } catch (error) {
+      console.error('Delete failed', error);
+    }
   };
 
   const handleNewConfig = () => {
     setActiveIndex(null);
-    setLocalConfig(normalize({}, currentStageId));
+    setFormData(emptyForm);
   };
 
   if (loading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
     <Form {...form}>
-      {/* SCROLL WRAPPER */}
       <div className="w-full h-full overflow-y-auto">
-        {/* CENTERED CONTAINER */}
         <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
           {/* HEADER */}
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Split Configuration</h2>
-
-            <Button type="button" variant="outline" onClick={handleNewConfig}>
+            <Button variant="outline" onClick={handleNewConfig}>
               + New Config
             </Button>
           </div>
@@ -148,11 +179,10 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
               <h3 className="text-sm font-semibold text-muted-foreground">
                 Saved Configs
               </h3>
-
               <div className="space-y-3">
                 {savedConfigs.map((cfg, index) => (
                   <div
-                    key={`${cfg.stageId}-${index}`}
+                    key={cfg._id || index}
                     onClick={() => setActiveIndex(index)}
                     className={`cursor-pointer rounded-lg border p-4 transition
                       ${
@@ -179,8 +209,8 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
               <Label>Title</Label>
               <input
                 className="w-full rounded-md border px-3 py-2"
-                value={localConfig.title}
-                onChange={(e) => update('title', e.target.value)}
+                value={formData.title}
+                onChange={(e) => updateField('title', e.target.value)}
               />
             </div>
 
@@ -189,15 +219,15 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
                 <Label>Board</Label>
                 <SelectSalesBoard
                   variant="form"
-                  value={localConfig.boardId || ''}
-                  onValueChange={(boardId: string) =>
-                    setLocalConfig((p) => ({
+                  value={formData.boardId || ''}
+                  onValueChange={(boardId: string) => {
+                    setFormData((p) => ({
                       ...p,
                       boardId,
                       pipelineId: '',
                       stageId: '',
-                    }))
-                  }
+                    }));
+                  }}
                 />
               </div>
 
@@ -205,16 +235,16 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
                 <Label>Pipeline</Label>
                 <SelectPipeline
                   variant="form"
-                  boardId={localConfig.boardId || ''}
-                  value={localConfig.pipelineId || ''}
-                  disabled={!localConfig.boardId}
-                  onValueChange={(pipelineId: string) =>
-                    setLocalConfig((p) => ({
+                  boardId={formData.boardId || ''}
+                  value={formData.pipelineId || ''}
+                  disabled={!formData.boardId}
+                  onValueChange={(pipelineId: string) => {
+                    setFormData((p) => ({
                       ...p,
                       pipelineId,
                       stageId: '',
-                    }))
-                  }
+                    }));
+                  }}
                 />
               </div>
 
@@ -223,11 +253,11 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
                 <SelectStage
                   id="split-stage"
                   variant="form"
-                  pipelineId={localConfig.pipelineId || ''}
-                  value={localConfig.stageId || ''}
-                  disabled={!localConfig.pipelineId}
+                  pipelineId={formData.pipelineId || ''}
+                  value={formData.stageId || ''}
+                  disabled={!formData.pipelineId}
                   onValueChange={(stageId: string) =>
-                    update('stageId', stageId)
+                    updateField('stageId', stageId)
                   }
                 />
               </div>
@@ -238,14 +268,14 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
           <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
             <Label>Include Categories</Label>
             <SelectProductCategories
-              value={localConfig.productCategoryIds}
-              onChange={(v) => update('productCategoryIds', v)}
+              value={formData.productCategoryIds}
+              onChange={(v) => updateField('productCategoryIds', v)}
             />
 
             <Label>Exclude Categories</Label>
             <SelectProductCategories
-              value={localConfig.excludeCategoryIds}
-              onChange={(v) => update('excludeCategoryIds', v)}
+              value={formData.excludeCategoryIds}
+              onChange={(v) => updateField('excludeCategoryIds', v)}
             />
           </div>
 
@@ -253,14 +283,14 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
           <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
             <Label>Include Tags</Label>
             <SelectProductTags
-              value={localConfig.productTagIds}
-              onChange={(v) => update('productTagIds', v)}
+              value={formData.productTagIds}
+              onChange={(v) => updateField('productTagIds', v)}
             />
 
             <Label>Exclude Tags</Label>
             <SelectProductTags
-              value={localConfig.excludeTagIds}
-              onChange={(v) => update('excludeTagIds', v)}
+              value={formData.excludeTagIds}
+              onChange={(v) => updateField('excludeTagIds', v)}
             />
           </div>
 
@@ -268,8 +298,8 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
           <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
             <Label>Exclude Products</Label>
             <SelectProducts
-              value={localConfig.excludeProductIds}
-              onChange={(v) => update('excludeProductIds', v)}
+              value={formData.excludeProductIds}
+              onChange={(v) => updateField('excludeProductIds', v)}
             />
           </div>
 
@@ -278,26 +308,19 @@ const SplitConfig: React.FC<SplitConfigProps> = ({
             <Label>Segment</Label>
             <SelectSegments
               contentTypes={['core:product']}
-              value={getSingle(localConfig.segmentIds)}
-              onChange={(id) => update('segmentIds', toSingleArray(id))}
+              value={getSingle(formData.segmentIds)}
+              onChange={(id) => updateField('segmentIds', toSingleArray(id))}
             />
           </div>
 
           {/* ACTIONS */}
           <div className="flex justify-end gap-3 pt-2">
             {activeIndex !== null && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleDelete}
-              >
+              <Button variant="destructive" onClick={handleDelete}>
                 Delete Config
               </Button>
             )}
-
-            <Button type="button" onClick={handleSave}>
-              Save Config
-            </Button>
+            <Button onClick={handleSave}>Save Config</Button>
           </div>
         </div>
       </div>
