@@ -407,7 +407,6 @@ export const ConversationResolved = ({
     notifyOnNetworkStatusChange: true,
   });
 
-
   const chartData = useMemo(() => {
     return reports?.reportConversationResolvedDate || [];
   }, [reports]);

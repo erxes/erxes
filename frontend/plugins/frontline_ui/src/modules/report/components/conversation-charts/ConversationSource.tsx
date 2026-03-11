@@ -52,7 +52,6 @@ interface ConversationSourceProps {
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
-
 interface SourceChartProps {
   conversationSources: SourceData[];
 }
@@ -204,7 +203,6 @@ export const ConversationSource = ({
     </FrontlineCard>
   );
 };
-
 
 export const SourceBarChart = memo(function SourceBarChart({
   conversationSources,
