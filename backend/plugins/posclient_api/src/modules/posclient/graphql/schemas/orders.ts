@@ -25,7 +25,6 @@ export const orderTypeFields = `
   saleStatus: String
   customerId: String
   number: String
-  webId: String
   ${paymentInputDefs}
   paidAmounts: [PaidAmount]
 
@@ -80,7 +79,6 @@ const addEditParams = `
   deviceId: String,
   couponCode: String,
   voucherId: String,
-  webId: String
 `;
 
 export const types = `
@@ -243,7 +241,7 @@ export const queries = `
   cpFullOrders(${ordersQueryParams}): [Order]
   cpOrderDetail(_id: String!, customerId: String): OrderDetail
   cpOrderItemDetail(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
-  cpInvoices(customerId: String, webId: String, page: Int, perPage: Int, sortField: String, sortDirection: Int): [Order]
+  cpInvoices(customerId: String, page: Int, perPage: Int, sortField: String, sortDirection: Int): [Order]
   cpAddresses(orderId: String!): JSON
   cpOrdersCheckCompany(registerNumber: String!): JSON
 `;

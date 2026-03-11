@@ -1,6 +1,7 @@
+import { Resolver } from 'erxes-api-shared/src/core-types';
 import { IContext } from '~/connectionResolvers';
 
-const mutations = {
+const mutations: Record<string, Resolver> = {
   async paymentTransactionsAdd(
     _root,
     args: any,
@@ -42,6 +43,10 @@ const mutations = {
       details: { ...input.details, ...invoice.data },
     });
   },
+};
+
+mutations.paymentTransactionsAdd.wrapperConfig = {
+  skipPermission: true,
 };
 
 export default mutations;

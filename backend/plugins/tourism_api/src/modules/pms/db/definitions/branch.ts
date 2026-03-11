@@ -16,7 +16,6 @@ export const branchSchema = new Schema({
   paymentIds: { type: [String], label: 'Online Payments' },
   paymentTypes: { type: [Object], label: 'Other Payments' },
   token: { type: String, label: ' token' },
-  webId: { type: String, optional: true, label: 'Web ID' },
   uiOptions: { type: Object, label: 'UI Options' },
   pipelineConfig: { type: Object, label: 'UI Options' },
   erxesAppToken: { type: String, label: 'Erxes App token' },

@@ -129,7 +129,6 @@ export const dealSchema = schemaWrapper(
         sparse: true,
         label: 'Item number',
       },
-      webId: { type: String, optional: true, label: 'Web ID' },
       relations: {
         type: [relationSchema],
         optional: true,

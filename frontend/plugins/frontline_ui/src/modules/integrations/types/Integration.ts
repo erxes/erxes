@@ -3,6 +3,7 @@ import { IChannel } from '@/channels/types';
 export interface IIntegration {
   _id: string;
   name: string;
+  brandId?: string;
   kind: string;
   channelId: string;
   channel: any;
