@@ -43,18 +43,15 @@ type NavigationGroups = Record<string, NavigationGroupResult>;
 
 export const usePluginsNavigationGroups = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
-  const { can, loading } = useCurrentUserPermissions();
 
   const navigationGroups = useMemo(() => {
-    if (!pluginsMetaData || loading) {
+    if (!pluginsMetaData) {
       return {};
     }
 
     return Object.values(pluginsMetaData).reduce<NavigationGroups>(
       (acc, plugin) => {
         if (!plugin?.modules?.length) return acc;
-
-        if (!can(plugin.name)) return acc;
 
         const groupName = plugin.navigationGroup?.name || plugin.name;
 
@@ -84,7 +81,7 @@ export const usePluginsNavigationGroups = () => {
       },
       {},
     );
-  }, [pluginsMetaData, can, loading]);
+  }, [pluginsMetaData]);
 
   return navigationGroups;
 };

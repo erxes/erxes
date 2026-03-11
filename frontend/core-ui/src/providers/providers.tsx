@@ -12,7 +12,6 @@ import { WidgetsComponent } from '@/widgets/components/WidgetsComponent';
 import { useRelationWidgetsModules } from '@/widgets/hooks/useRelationWidgets';
 import { RelationWidgetProvider } from 'ui-modules';
 import { IconsProvider } from 'erxes-ui';
-import { PermissionProvider } from '~/modules/navigation/components/PermissionProvider';
 
 export const Providers = () => {
   return (
@@ -20,18 +19,16 @@ export const Providers = () => {
       <OrganizationProviderEffect />
       <UserProviderEffect />
       <PluginConfigsProvidersEffect />
-      <PermissionProvider>
-        <IconsProvider>
-          <RelationWidgetProvider
-            RelationWidget={WidgetsComponent}
-            relationWidgetsModules={useRelationWidgetsModules()}
-          >
-            <Suspense fallback={<div>Loading...</div>}>
-              <Outlet />
-            </Suspense>
-          </RelationWidgetProvider>
-        </IconsProvider>
-      </PermissionProvider>
+      <IconsProvider>
+        <RelationWidgetProvider
+          RelationWidget={WidgetsComponent}
+          relationWidgetsModules={useRelationWidgetsModules()}
+        >
+          <Suspense fallback={<div>Loading...</div>}>
+            <Outlet />
+          </Suspense>
+        </RelationWidgetProvider>
+      </IconsProvider>
     </ApolloProvider>
   );
 };

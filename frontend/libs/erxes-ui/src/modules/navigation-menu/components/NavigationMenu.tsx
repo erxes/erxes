@@ -32,11 +32,7 @@ export const NavigationMenuLinkItem = forwardRef<
     ref,
   ) => {
     const { pathname } = useLocation();
-    const { can } = usePermissionContext();
-
-    if (module && !can(module)) {
-      return null;
-    }
+ 
     const normalizedPathPrefix = pathPrefix
       ? `${pathPrefix.replace(/\/$/, '')}/`
       : '';

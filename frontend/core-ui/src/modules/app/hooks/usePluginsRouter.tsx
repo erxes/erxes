@@ -51,12 +51,10 @@ export const getPluginsRoutes = () => {
       key={module.name}
       path={`/${module.path}/*`}
       element={
-        <PluginRouteGuard pluginName={module.name}>
-          <RenderPluginsComponent
-            pluginName={`${module.name}_ui`}
-            remoteModuleName={module.name}
-          />
-        </PluginRouteGuard>
+        <RenderPluginsComponent
+          pluginName={`${module.name}_ui`}
+          remoteModuleName={module.name}
+        />
       }
     />
   ));
