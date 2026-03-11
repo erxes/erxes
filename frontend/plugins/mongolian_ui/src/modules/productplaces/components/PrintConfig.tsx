@@ -319,7 +319,11 @@ const PrintConfig: React.FC = () => {
           {/* ACTIONS */}
           <div className="flex justify-end gap-3 pt-2">
             {activeIndex !== null && (
-              <Button type="button" variant="destructive" onClick={handleDelete}>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+              >
                 Delete
               </Button>
             )}

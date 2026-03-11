@@ -72,10 +72,7 @@ export const setPlace = async (
     }
   }
 
-  console.log(
-    'productsData before matching:',
-    JSON.stringify(pdatas, null, 2),
-  );
+  console.log('productsData before matching:', JSON.stringify(pdatas, null, 2));
 
   for (const pdata of pdatas) {
     console.log('checking product:', pdata.productId);
@@ -104,10 +101,7 @@ export const setPlace = async (
     }
   }
 
-  console.log(
-    'productsData after matching:',
-    JSON.stringify(pdatas, null, 2),
-  );
+  console.log('productsData after matching:', JSON.stringify(pdatas, null, 2));
 
   const branchIds = [...new Set(pdatas.map((p) => p.branchId).filter(Boolean))];
   const departmentIds = [
