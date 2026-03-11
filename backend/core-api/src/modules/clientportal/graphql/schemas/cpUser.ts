@@ -132,6 +132,7 @@ const userRegisterParams = `
   firstName: String,
   lastName: String,
   userType: CPUserType,
+  code: String
 `;
 
 const userEditParams = `
