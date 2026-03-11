@@ -40,7 +40,6 @@ const tourQueries: Record<string, Resolver> = {
       startDate2,
       endDate2,
       date_status,
-      webId,
       ...params
     }: TourFilterParams,
     { models }: IContext,
@@ -55,9 +54,6 @@ const tourQueries: Record<string, Resolver> = {
     }
     if (branchId) {
       selector.branchId = branchId;
-    }
-    if (webId) {
-      selector.webId = webId;
     }
     if (tags?.length) {
       selector.tags = { $in: tags };
@@ -95,7 +91,6 @@ const tourQueries: Record<string, Resolver> = {
       startDate2,
       endDate2,
       date_status,
-      webId,
       ...params
     }: TourFilterParams,
     { models }: IContext,
@@ -110,9 +105,6 @@ const tourQueries: Record<string, Resolver> = {
     }
     if (branchId) {
       selector.branchId = branchId;
-    }
-    if (webId) {
-      selector.webId = webId;
     }
     if (tags?.length) {
       selector.tags = { $in: tags };
@@ -167,7 +159,6 @@ const tourQueries: Record<string, Resolver> = {
       endDate2,
       groupCode,
       date_status,
-      webId,
       ...params
     },
     { models }: IContext,
@@ -214,9 +205,6 @@ const tourQueries: Record<string, Resolver> = {
     }
     if (date_status) {
       selector.date_status = date_status;
-    }
-    if (webId) {
-      selector.webId = webId;
     }
 
     const total = await models.Tours.find({
@@ -258,7 +246,6 @@ const tourQueries: Record<string, Resolver> = {
       endDate2,
       groupCode,
       date_status,
-      webId,
       ...params
     },
     { models }: IContext,
@@ -305,9 +292,6 @@ const tourQueries: Record<string, Resolver> = {
     }
     if (date_status) {
       selector.date_status = date_status;
-    }
-    if (webId) {
-      selector.webId = webId;
     }
 
     const total = await models.Tours.find({

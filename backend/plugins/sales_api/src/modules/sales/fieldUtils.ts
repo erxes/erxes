@@ -444,7 +444,7 @@ export const generateSalesFields = async (
       ? await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
-          module: 'segments',
+          module: 'segment',
           action: 'findOne',
           input: { _id: segmentId },
         })

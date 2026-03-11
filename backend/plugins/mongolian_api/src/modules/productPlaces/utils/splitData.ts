@@ -9,7 +9,7 @@ const checkSplit = async (
   config,
   categoryIds,
   tagIds,
-  productById
+  productById,
 ) => {
   const product = productById[pdata.productId];
 
@@ -62,7 +62,7 @@ const checkSplit = async (
       const isInSegment = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'segments',
+        module: 'segment',
         action: 'isInSegment',
         method: 'query',
         input: {
@@ -93,7 +93,7 @@ export const splitData = async (
   dealId,
   productsData,
   config,
-  productById
+  productById,
 ) => {
   let pdatas = [...productsData];
   let calcedCatIds: string[] = [];
@@ -102,33 +102,29 @@ export const splitData = async (
   if (config.productCategoryIds?.length) {
     const includeCatIds = (await getChildCategories(
       subdomain,
-      config.productCategoryIds
+      config.productCategoryIds,
     )) as string[];
 
     const excludeCatIds = (await getChildCategories(
       subdomain,
-      config.excludeCategoryIds ?? []
+      config.excludeCategoryIds ?? [],
     )) as string[];
 
-    calcedCatIds = includeCatIds.filter(
-      c => !excludeCatIds.includes(c)
-    );
+    calcedCatIds = includeCatIds.filter((c) => !excludeCatIds.includes(c));
   }
 
   if (config.productTagIds?.length) {
     const includeTagIds = (await getChildTags(
       subdomain,
-      config.productTagIds
+      config.productTagIds,
     )) as string[];
 
     const excludeTagIds = (await getChildTags(
       subdomain,
-      config.excludeTagIds ?? []
+      config.excludeTagIds ?? [],
     )) as string[];
 
-    calcedTagIds = includeTagIds.filter(
-      id => !excludeTagIds.includes(id)
-    );
+    calcedTagIds = includeTagIds.filter((id) => !excludeTagIds.includes(id));
   }
 
   for (const pdata of productsData) {
@@ -138,7 +134,7 @@ export const splitData = async (
       config,
       calcedCatIds,
       calcedTagIds,
-      productById
+      productById,
     );
 
     if (newCount) {
@@ -147,7 +143,7 @@ export const splitData = async (
       const tax = (pdata.tax / pdata.quantity) * newCount;
       const discount = (pdata.discount / pdata.quantity) * newCount;
 
-      pdatas = pdatas.map(pd =>
+      pdatas = pdatas.map((pd) =>
         pd._id === pdata._id
           ? {
               ...pdata,
@@ -156,7 +152,7 @@ export const splitData = async (
               tax: pdata.tax - tax,
               discount: pdata.discount - discount,
             }
-          : pd
+          : pd,
       );
 
       pdatas.push({

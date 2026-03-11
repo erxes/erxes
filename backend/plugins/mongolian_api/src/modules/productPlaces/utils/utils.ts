@@ -16,7 +16,12 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 };
 
 // NEW function for mnConfigs system
-export const getMnConfig = async (subdomain, code, subId = '', defaultValue = null) => {
+export const getMnConfig = async (
+  subdomain,
+  code,
+  subId = '',
+  defaultValue = null,
+) => {
   try {
     const result = await sendTRPCMessage({
       subdomain,
@@ -44,15 +49,16 @@ export const getMnConfig = async (subdomain, code, subId = '', defaultValue = nu
 // For multiple configs at once (optimized)
 export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
   try {
-    const promises = codes.map(code =>
-      sendTRPCMessage({
-        subdomain,
-        pluginName: 'mongolian',
-        module: 'configs',
-        action: 'mnConfig',
-        method: 'query',
-        input: { code, subId },
-      }).catch(() => null) // Handle individual failures
+    const promises = codes.map(
+      (code) =>
+        sendTRPCMessage({
+          subdomain,
+          pluginName: 'mongolian',
+          module: 'configs',
+          action: 'mnConfig',
+          method: 'query',
+          input: { code, subId },
+        }).catch(() => null), // Handle individual failures
     );
 
     const results = await Promise.all(promises);
@@ -76,7 +82,7 @@ export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
 // Keep the rest of your existing functions unchanged...
 export const getChildCategories = async (
   subdomain: string,
-  categoryIds: string[]
+  categoryIds: string[],
 ) => {
   const childs =
     (await sendTRPCMessage({
@@ -93,10 +99,7 @@ export const getChildCategories = async (
   return Array.from(new Set(catIds));
 };
 
-export const getChildTags = async (
-  subdomain: string,
-  tagIds: string[]
-) => {
+export const getChildTags = async (subdomain: string, tagIds: string[]) => {
   const childs =
     (await sendTRPCMessage({
       subdomain,
@@ -119,12 +122,11 @@ export const checkCondition = async (
   subdomain,
   pdata,
   condition,
-  productById
+  productById,
 ) => {
   let categoryRes = true;
   let tagRes = true;
   let segmentRes = true;
-  let numberRes = true;
   let checkUomRes = true;
 
   if (condition.gtCount !== undefined && pdata.quantity <= condition.gtCount) {
@@ -214,7 +216,7 @@ export const checkCondition = async (
       const inSegment = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'segments',
+        module: 'segment',
         action: 'isInSegment',
         method: 'query',
         input: {
@@ -235,10 +237,10 @@ export const checkCondition = async (
     return false;
   }
 
-  return categoryRes && segmentRes && numberRes && checkUomRes && tagRes;
+  return categoryRes && segmentRes && checkUomRes && tagRes;
 };
 
-const getCustomerName = customer => {
+const getCustomerName = (customer) => {
   if (!customer) {
     return '';
   }
@@ -273,7 +275,11 @@ export const getCustomer = async (subdomain, deal) => {
       pluginName: 'core',
       module: 'relation',
       action: 'getRelationIds',
-      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:company',
+      },
       defaultValue: [],
     })) || [];
 
@@ -307,7 +313,11 @@ export const getCustomer = async (subdomain, deal) => {
       pluginName: 'core',
       module: 'relation',
       action: 'getRelationIds',
-      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
+      },
       defaultValue: [],
     })) || [];
 
@@ -333,7 +343,7 @@ export const getCustomer = async (subdomain, deal) => {
         defaultValue: [],
       })) || [];
 
-    let customer = customers.find(c => c.code?.match(/^\d{8}$/g));
+    let customer = customers.find((c) => c.code?.match(/^\d{8}$/g));
 
     if (customer) {
       return {

@@ -18,6 +18,7 @@ import { z } from 'zod';
 import { useEffect, useState } from 'react';
 import { imapFormSchema } from './ImapIntegrationForm';
 import { ImapIntegrationFormLayout } from '@/integrations/imap/components/ImapIntegrationFormLayout';
+import { SelectBrand } from 'ui-modules';
 
 export const ImapIntegrationDetail = () => {
   return <ImapIntegrationFormLayout />;
@@ -75,6 +76,7 @@ export const ImapIntegrationEditForm = ({
         mainUser: details.mainUser || '',
         user: details.user || '',
         password: details.password || '',
+        brandId: integrationDetail.brandId || '',
       });
     }
   }, [integrationDetail, form]);
@@ -85,6 +87,7 @@ export const ImapIntegrationEditForm = ({
         _id: id,
         name: data.name,
         channelId: integrationDetail?.channelId || '',
+        brandId: data.brandId,
         details: {
           host: data.host,
           smtpHost: data.smtpHost,
@@ -199,6 +202,24 @@ export const ImapIntegrationEditForm = ({
                 <Form.Label>Password</Form.Label>
                 <Form.Control>
                   <Input type="password" {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            name="brandId"
+            control={form.control}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Brand</Form.Label>
+                <Form.Control>
+                  <SelectBrand
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select a brand"
+                    className="w-full h-10 rounded-lg border bg-background"
+                  />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
