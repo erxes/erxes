@@ -29,6 +29,7 @@ export const types = `
     isSubscribed: Boolean
     propertiesData: JSON
     state: String
+    attachments: [Attachment]
   }
   type RemoveResponse {
     ok: Int!
@@ -98,6 +99,7 @@ const createTicketParams = `
   targetDate: Date
   assigneeId: String
   state: String
+  attachments: [AttachmentInput]
 `;
 
 const updateTicketParams = `
@@ -117,6 +119,7 @@ const updateTicketParams = `
   isSubscribed: Boolean
   propertiesData: JSON
   state: String
+  attachments: [AttachmentInput]
 `;
 
 export const queries = `
