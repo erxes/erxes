@@ -13,6 +13,7 @@ import { ResponsesChartType } from '@/report/types';
 import { useState, useMemo, memo, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import {
+  getReportCallStatusFilterAtom,
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
@@ -78,7 +79,6 @@ export const ResolvedBarChart = memo(function ResolvedBarChart({
         margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <Bar dataKey="count" fill="var(--primary)" name="Count" />
         <XAxis
           dataKey="date"
           tickLine={false}
@@ -89,11 +89,11 @@ export const ResolvedBarChart = memo(function ResolvedBarChart({
           label={{ angle: -45, position: 'insideBottom' }}
         />
         <YAxis
-          dataKey="count"
           tickLine={false}
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
+        <Bar dataKey="count" fill="var(--primary)" name="Count" />
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
       </BarChart>
@@ -383,6 +383,7 @@ export const ConversationResolved = ({
   const [memberFilter, setMemberFilter] = useAtom(
     getReportMemberFilterAtom(id),
   );
+  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -397,6 +398,10 @@ export const ConversationResolved = ({
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        callStatus:
+          sourceFilter === 'calls' && callStatusFilter !== 'all'
+            ? callStatusFilter
+            : undefined,
       },
     },
     notifyOnNetworkStatusChange: true,

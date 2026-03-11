@@ -7,6 +7,7 @@ export const sourceMap: Record<string, string> = {
   'instagram-messenger': 'instagram-messenger',
   'instagram-post': 'instagram-post',
   call: 'call',
+  calls: 'call',
   messenger: 'messenger',
   form: 'form',
 };
@@ -35,13 +36,76 @@ export const normalizeStatus = (status?: string) => {
   return status.toLowerCase();
 };
 
-export function buildConversationMatch(filters: IReportFilters) {
-  const match: any = {};
+export async function generateConversationReportFilter(
+  filters: IReportFilters,
+  models: IModels,
+  options: {
+    dateField?: 'createdAt' | 'closedAt';
+    statusOverride?: string;
+  } = {},
+): Promise<Record<string, any>> {
+  const match: Record<string, any> = {};
 
-  const status = normalizeStatus(filters.status);
+  const status = options.statusOverride ?? normalizeStatus(filters.status);
   if (status) match.status = status;
 
-  Object.assign(match, buildDateMatch(filters, 'createdAt'));
+  const dateField = options.dateField ?? 'createdAt';
+  Object.assign(match, buildDateMatch(filters, dateField));
+
+  if (filters.channelIds?.length) {
+    const integrations = await models.Integrations.find({
+      channelId: { $in: filters.channelIds },
+    }).lean();
+
+    if (!integrations.length) {
+      return { integrationId: { $in: [] } };
+    }
+
+    match.integrationId = { $in: integrations.map((i) => i._id) };
+  }
+
+  if (filters.memberIds?.length) {
+    match.assignedUserId = { $in: filters.memberIds };
+  }
+
+  if (filters.source && sourceMap[filters.source]) {
+    const sourceIntegrations = await models.Integrations.find({
+      kind: sourceMap[filters.source],
+    }).lean();
+
+    if (match.integrationId) {
+      const channelIdSet = new Set(
+        (match.integrationId.$in as any[]).map(String),
+      );
+      const intersection = sourceIntegrations
+        .filter((i) => channelIdSet.has(i._id.toString()))
+        .map((i) => i._id);
+      match.integrationId = { $in: intersection };
+    } else {
+      match.integrationId = { $in: sourceIntegrations.map((i) => i._id) };
+    }
+  }
+
+  if (
+    filters.callStatus &&
+    filters.source &&
+    sourceMap[filters.source] === 'call'
+  ) {
+    const callHistories = await models.CallHistory.find(
+      { callStatus: filters.callStatus },
+      { conversationId: 1 },
+    ).lean();
+
+    const conversationIds = (callHistories as any[])
+      .map((h) => h.conversationId)
+      .filter(Boolean);
+
+    if (!conversationIds.length) {
+      return { _id: { $in: [] } };
+    }
+
+    match._id = { $in: conversationIds };
+  }
 
   return match;
 }
@@ -52,53 +116,10 @@ export const buildConversationPipeline = async (
   options: { withPagination?: boolean } = {},
 ) => {
   const pipeline: any[] = [];
-  const match = buildConversationMatch(filters);
+  const match = await generateConversationReportFilter(filters, models);
 
   if (Object.keys(match).length) {
     pipeline.push({ $match: match });
-  }
-
-  if (filters.channelIds?.length) {
-    const integrations = await models.Integrations.find({
-      channelId: { $in: filters.channelIds },
-    }).lean();
-
-    if (!integrations.length) {
-      pipeline.push({ $match: { _id: null } });
-      return pipeline;
-    }
-
-    const integrationIds = integrations.map((i) => i._id);
-
-    pipeline.push({
-      $match: {
-        integrationId: { $in: integrationIds },
-      },
-    });
-  }
-  if (filters.memberIds?.length) {
-    pipeline.push({
-      $match: {
-        assignedUserId: { $in: filters.memberIds },
-      },
-    });
-  }
-
-  if (filters.source && sourceMap[filters.source]) {
-    pipeline.push(
-      {
-        $lookup: {
-          from: 'integrations',
-          localField: 'integrationId',
-          foreignField: '_id',
-          as: 'integration',
-        },
-      },
-      { $unwind: '$integration' },
-      {
-        $match: { 'integration.kind': sourceMap[filters.source] },
-      },
-    );
   }
 
   if (options.withPagination) {
@@ -114,6 +135,129 @@ export const buildConversationPipeline = async (
 
   return pipeline;
 };
+
+export async function buildConversationStatusCountReport(
+  filters: IReportFilters,
+  models: IModels,
+  options: {
+    statusDefault: string;
+    dateField: 'createdAt' | 'closedAt';
+  },
+) {
+  const statusOverride =
+    normalizeStatus(filters.status) ?? options.statusDefault;
+
+  const [statusFilter, baseFilter] = await Promise.all([
+    generateConversationReportFilter(filters, models, {
+      statusOverride,
+      dateField: options.dateField,
+    }),
+    generateConversationReportFilter(filters, models),
+  ]);
+
+  const [count, totalCount] = await Promise.all([
+    models.Conversations.countDocuments(statusFilter),
+    models.Conversations.countDocuments(baseFilter),
+  ]);
+
+  return {
+    count,
+    percentage: calculatePercentage(count, totalCount),
+  };
+}
+
+export async function buildConversationDateReport(
+  filters: IReportFilters,
+  models: IModels,
+  dateField: string,
+  extraMatch?: Record<string, any>,
+): Promise<Array<{ date: string; count: number }>> {
+  const pipeline = await buildConversationPipeline(filters, models);
+
+  if (extraMatch) {
+    pipeline.unshift({ $match: extraMatch });
+  }
+
+  pipeline.push(...buildDateGroupPipeline(dateField));
+
+  if (filters.limit) {
+    pipeline.push({ $limit: filters.limit });
+  }
+
+  const result = await models.Conversations.aggregate(pipeline);
+  return result.map((r) => ({ date: r._id, count: r.count }));
+}
+
+export async function buildConversationResponsesPipeline(
+  filters: IReportFilters,
+  models: IModels,
+): Promise<any[] | null> {
+  const pipeline: any[] = [];
+  const messageMatch: any = {
+    internal: false,
+    userId: { $exists: true, $ne: null },
+  };
+
+  if (filters.fromDate || filters.toDate) {
+    const range: any = {};
+    if (filters.fromDate) range.$gte = new Date(filters.fromDate);
+    if (filters.toDate) range.$lte = new Date(filters.toDate);
+    messageMatch.createdAt = range;
+  }
+
+  const needsConversationJoin =
+    filters.channelIds?.length || filters.memberIds?.length || filters.source;
+
+  if (needsConversationJoin) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'conversations',
+          localField: 'conversationId',
+          foreignField: '_id',
+          as: 'conversation',
+        },
+      },
+      { $unwind: '$conversation' },
+    );
+
+    if (filters.channelIds?.length) {
+      const integrations = await models.Integrations.find({
+        channelId: { $in: filters.channelIds },
+      }).lean();
+
+      if (!integrations.length) return null;
+
+      messageMatch['conversation.integrationId'] = {
+        $in: integrations.map((i) => i._id),
+      };
+    }
+
+    if (filters.memberIds?.length) {
+      messageMatch['conversation.assignedUserId'] = {
+        $in: filters.memberIds,
+      };
+    }
+
+    if (filters.source && sourceMap[filters.source]) {
+      pipeline.push(
+        {
+          $lookup: {
+            from: 'integrations',
+            localField: 'conversation.integrationId',
+            foreignField: '_id',
+            as: 'integration',
+          },
+        },
+        { $unwind: '$integration' },
+      );
+      messageMatch['integration.kind'] = sourceMap[filters.source];
+    }
+  }
+
+  pipeline.push({ $match: messageMatch });
+  return pipeline;
+}
 
 export function normalizeDateField(field: string) {
   return {
@@ -145,6 +289,17 @@ export function buildDateGroupPipeline(field: string) {
     },
     { $sort: { _id: 1 } },
   ];
+}
+
+export function buildConversationMatch(filters: IReportFilters) {
+  const match: any = {};
+
+  const status = normalizeStatus(filters.status);
+  if (status) match.status = status;
+
+  Object.assign(match, buildDateMatch(filters, 'createdAt'));
+
+  return match;
 }
 
 export function buildTicketMatch(filters: IReportFilters) {

@@ -13,6 +13,8 @@ export const reportChannelFilterState = atom<Record<string, string[]>>({});
 
 export const reportMemberFilterState = atom<Record<string, string[]>>({});
 
+export const reportCallStatusFilterState = atom<Record<string, string>>({});
+
 const chartTypeAtomCache = new Map<
   string,
   WritableAtom<ResponsesChartType, [ResponsesChartType], void>
@@ -35,6 +37,11 @@ const channelFilterAtomCache = new Map<
 const memberFilterAtomCache = new Map<
   string,
   WritableAtom<string[], [string[]], void>
+>();
+
+const callStatusFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
 >();
 export const getReportChartTypeAtom = (cardId: string) => {
   if (!chartTypeAtomCache.has(cardId)) {
@@ -123,4 +130,22 @@ export const getReportMemberFilterAtom = (cardId: string) => {
     );
   }
   return memberFilterAtomCache.get(cardId)!;
+};
+
+export const getReportCallStatusFilterAtom = (cardId: string) => {
+  if (!callStatusFilterAtomCache.has(cardId)) {
+    callStatusFilterAtomCache.set(
+      cardId,
+      atom(
+        (get) => get(reportCallStatusFilterState)[cardId] || 'all',
+        (get, set, newValue: string) => {
+          set(reportCallStatusFilterState, {
+            ...get(reportCallStatusFilterState),
+            [cardId]: newValue,
+          });
+        },
+      ),
+    );
+  }
+  return callStatusFilterAtomCache.get(cardId)!;
 };

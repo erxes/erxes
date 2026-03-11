@@ -31,6 +31,7 @@ import { memo, useMemo, useState, useEffect } from 'react';
 import { ResponsesChartType, SourceData } from '@/report/types';
 import { useAtom } from 'jotai';
 import {
+  getReportCallStatusFilterAtom,
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
@@ -73,6 +74,7 @@ export const ConversationSource = ({
   const [memberFilter, setMemberFilter] = useAtom(
     getReportMemberFilterAtom(id),
   );
+  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -87,6 +89,10 @@ export const ConversationSource = ({
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        callStatus:
+          sourceFilter === 'calls' && callStatusFilter !== 'all'
+            ? callStatusFilter
+            : undefined,
       },
     },
   });

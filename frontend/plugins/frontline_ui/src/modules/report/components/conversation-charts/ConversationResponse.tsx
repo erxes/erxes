@@ -43,6 +43,7 @@ import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { useAtom } from 'jotai';
 import {
+  getReportCallStatusFilterAtom,
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
@@ -56,7 +57,6 @@ interface ConversationResponseProps {
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
-
 
 interface ResponseChartProps {
   conversationResponses: ConversationUserMessageStat[];
@@ -79,6 +79,7 @@ export const ConversationResponse = ({
   const [memberFilter, setMemberFilter] = useAtom(
     getReportMemberFilterAtom(id),
   );
+  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -93,10 +94,13 @@ export const ConversationResponse = ({
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        callStatus:
+          sourceFilter === 'calls' && callStatusFilter !== 'all'
+            ? callStatusFilter
+            : undefined,
       },
     },
   });
-
 
   if (loading) {
     return (
@@ -303,7 +307,6 @@ export const ResponseBarChart = memo(function ResponseBarChart({
   if (scaledChartData.length === 0) {
     return null;
   }
-
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <BarChart data={scaledChartData}>
@@ -318,13 +321,11 @@ export const ResponseBarChart = memo(function ResponseBarChart({
         <Bar
           dataKey="messageCount"
           fill="var(--primary)"
-          stackId="stack-responses"
           name="Message Count"
         />
         <Bar
           dataKey="percentageScaled"
           fill="var(--success)"
-          stackId="stack-responses"
           name="Percentage"
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
