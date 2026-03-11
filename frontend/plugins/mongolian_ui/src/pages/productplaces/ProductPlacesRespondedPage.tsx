@@ -41,7 +41,7 @@ export const ProductPlacesRespondedPage = () => {
       if (!parsedContent?.length) return;
 
       const printContents = parsedContent.map((receipt: any, index: number) =>
-        PerResponse(receipt, index)
+        PerResponse(receipt, index),
       );
       const printMainContent = Response(printContents.join(''));
 
@@ -59,4 +59,4 @@ export const ProductPlacesRespondedPage = () => {
   });
 
   return null;
-}
+};
