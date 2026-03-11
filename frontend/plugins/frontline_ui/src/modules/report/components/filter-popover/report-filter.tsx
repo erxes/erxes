@@ -48,7 +48,7 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
     (channelFilter && channelFilter.length > 0) ||
     (memberFilter && memberFilter.length > 0) ||
     (dateValue && dateValue.length > 0) ||
-    isCallsWithStatus
+    isCallsWithStatus,
   );
 
   const handleClear = () => {
