@@ -37,6 +37,7 @@ export const inputs = `
     url: String
     order: Int
     target: String
+    translations: [TranslationInput]
   }
 `;
 
@@ -45,6 +46,7 @@ export const queries = `
     cmsMenu(_id: String!, language: String): MenuItem
 
     cpMenus(language: String, kind: String, webId: String): [MenuItem]
+    cpCmsMenuList(clientPortalId: String, kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [MenuItem]
 `;
 
 export const mutations = `

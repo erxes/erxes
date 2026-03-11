@@ -65,6 +65,7 @@ export const inputs = `
         content: String
         pageItems: [PageItemInput]
         customFieldsData: JSON
+        translations: [TranslationInput]
     }
 `;
 

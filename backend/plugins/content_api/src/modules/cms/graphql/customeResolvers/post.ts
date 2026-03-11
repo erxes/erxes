@@ -65,7 +65,6 @@ export default {
   },
 
   async customFieldsMap(post: any, _params, { models, subdomain }: IContext) {
-    // Get field groups for this post type and categories
     const query: any = {
       $or: [
         { customPostTypeIds: post.type },
@@ -80,5 +79,12 @@ export default {
       fieldGroups,
       post.customFieldsData,
     );
+  },
+
+  async translations(post: any, _params, { models }: IContext) {
+    return models.Translations.find({
+      postId: post._id,
+      type: 'post',
+    }).lean();
   },
 };
