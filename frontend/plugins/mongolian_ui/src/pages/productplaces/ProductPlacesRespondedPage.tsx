@@ -1,116 +1,62 @@
-import { useEffect, useRef } from 'react';
+import { useSubscription } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
+import { PRODUCT_PLACES_RESPONDED } from '~/modules/productplaces/graphql/subscriptions';
 import { PerResponse } from '~/modules/productplaces/components/PerResponse';
 import { Response } from '~/modules/productplaces/components/Response';
 
-let globalWs: WebSocket | null = null;
-let globalSubscribed = false;
-let globalUserId: string | null = null;
-
 export const ProductPlacesRespondedPage = () => {
+  console.log(' ProductPlacesRespondedPage mounted');
   const currentUser = useAtomValue(currentUserState);
-  const wsRef = useRef<WebSocket | null>(null);
 
-  useEffect(() => {
-    const userId = currentUser?._id;
-    if (!userId) return;
+  useSubscription(PRODUCT_PLACES_RESPONDED, {
+    variables: {
+      userId: currentUser?._id,
+      sessionCode: '',
+    },
+    skip: !currentUser?._id,
+    onData: ({ data }) => {
+      console.log(' Subscription data received:', data);
+      const productPlacesResponded = data.data?.productPlacesResponded;
+      if (!productPlacesResponded) return;
 
-    if (globalWs && globalUserId === userId) {
-      wsRef.current = globalWs;
-      return;
-    }
+      // Parse the JSON string returned by the subscription
+      let parsedPayload;
+      try {
+        parsedPayload = JSON.parse(productPlacesResponded);
+      } catch (e) {
+        console.error('Failed to parse payload', e);
+        return;
+      }
 
-    if (globalWs) {
-      globalWs.close();
-      globalWs = null;
-      globalSubscribed = false;
-    }
+      const { content } = parsedPayload;
+      let parsedContent;
+      try {
+        parsedContent = JSON.parse(content);
+      } catch (e) {
+        console.error('Failed to parse content', e);
+        return;
+      }
 
-    const connect = () => {
-      const ws = new WebSocket('ws://localhost:4000/graphql');
-      globalWs = ws;
-      globalUserId = userId;
-      wsRef.current = ws;
+      if (!parsedContent?.length) return;
 
-      ws.onopen = () => {
-        if (!globalSubscribed) {
-          const subMsg = {
-            id: '1',
-            type: 'subscribe',
-            payload: {
-              query: `subscription { productPlacesResponded(userId: "${userId}") }`,
-            },
-          };
+      const printContents = parsedContent.map((receipt: any, index: number) =>
+        PerResponse(receipt, index)
+      );
+      const printMainContent = Response(printContents.join(''));
 
-          ws.send(JSON.stringify(subMsg));
-          globalSubscribed = true;
-        }
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const msg = JSON.parse(event.data);
-
-          if (
-            msg.type === 'data' &&
-            msg.payload?.data?.productPlacesResponded
-          ) {
-            const rawData = msg.payload.data.productPlacesResponded;
-
-            try {
-              const parsedPayload = JSON.parse(rawData);
-              const content = JSON.parse(parsedPayload.content);
-
-              if (!content?.length) return;
-
-              const printContents = content.map((receipt: any, index: number) =>
-                PerResponse(receipt, index),
-              );
-
-              const printMainContent = Response(printContents.join(''));
-
-              const myWindow = window.open(
-                '',
-                '_blank',
-                'width=800,height=800',
-              );
-
-              if (myWindow) {
-                myWindow.document.write(printMainContent);
-                myWindow.document.close();
-              } else {
-                alert('Please allow pop-ups and redirects in site settings!');
-              }
-            } catch (e) {
-              console.error('Failed to parse subscription payload', e);
-            }
-          }
-        } catch (e) {
-          console.error('Failed to parse message', e);
-        }
-      };
-
-      ws.onerror = (err) => {
-        console.error('WebSocket error', err);
-      };
-
-      ws.onclose = (event) => {
-        globalWs = null;
-        globalSubscribed = false;
-        globalUserId = null;
-        wsRef.current = null;
-
-        setTimeout(connect, 5000);
-      };
-    };
-
-    connect();
-
-    return () => {
-      wsRef.current = null;
-    };
-  }, [currentUser?._id]);
+      const myWindow = window.open('__', '_blank', 'width=800, height=800');
+      if (myWindow) {
+        myWindow.document.write(printMainContent);
+        myWindow.document.close();
+      } else {
+        alert('Please allow pop-ups and redirects in site settings!');
+      }
+    },
+    onError: (error) => {
+      console.error(' Subscription error:', error);
+    },
+  });
 
   return null;
-};
+}

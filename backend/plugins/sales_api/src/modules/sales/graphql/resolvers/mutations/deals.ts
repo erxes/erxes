@@ -88,20 +88,20 @@ export const dealMutations = {
 
     const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
 
-    // Sales should NOT call mongolian plugin directly
-    // Instead it writes a log which triggers afterProcesses
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'logs',
-      module: 'afterProcesses',
-      action: 'afterDealStageChanged',
-      method: 'mutation',
-      input: {
-        deal: updatedItem,
-        sourceStageId,
-        userId: user._id,
-      },
-    });
+    // // Sales should NOT call mongolian plugin directly
+    // // Instead it writes a log which triggers afterProcesses
+    // await sendTRPCMessage({
+    //   subdomain,
+    //   pluginName: 'logs',
+    //   module: 'afterProcesses',
+    //   action: 'afterDealStageChanged',
+    //   method: 'mutation',
+    //   input: {
+    //     deal: updatedItem,
+    //     sourceStageId,
+    //     userId: user._id,
+    //   },
+    // });
 
     await itemMover(models, user._id, item, destinationStageId);
 
