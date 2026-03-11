@@ -1,6 +1,15 @@
 import { atom, WritableAtom } from 'jotai';
 import { ResponsesChartType } from './types';
 
+function getOrCreate<K, V>(map: Map<K, V>, key: K, factory: () => V): V {
+  let value = map.get(key);
+  if (value === undefined) {
+    value = factory();
+    map.set(key, value);
+  }
+  return value;
+}
+
 export const reportChartTypeState = atom<Record<string, ResponsesChartType>>(
   {},
 );
@@ -43,109 +52,79 @@ const callStatusFilterAtomCache = new Map<
   string,
   WritableAtom<string, [string], void>
 >();
-export const getReportChartTypeAtom = (cardId: string) => {
-  if (!chartTypeAtomCache.has(cardId)) {
-    chartTypeAtomCache.set(
-      cardId,
-      atom(
-        (get) => get(reportChartTypeState)[cardId] || ResponsesChartType.Bar,
-        (get, set, newValue: ResponsesChartType) => {
-          set(reportChartTypeState, {
-            ...get(reportChartTypeState),
-            [cardId]: newValue,
-          });
-        },
-      ),
-    );
-  }
-  return chartTypeAtomCache.get(cardId)!;
-};
+export const getReportChartTypeAtom = (cardId: string) =>
+  getOrCreate(chartTypeAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportChartTypeState)[cardId] || ResponsesChartType.Bar,
+      (get, set, newValue: ResponsesChartType) => {
+        set(reportChartTypeState, {
+          ...get(reportChartTypeState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
 
-export const getReportDateFilterAtom = (cardId: string) => {
-  if (!dateFilterAtomCache.has(cardId)) {
-    dateFilterAtomCache.set(
-      cardId,
-      atom(
-        (get) => get(reportDateFilterState)[cardId] || '',
-        (get, set, newValue: string) => {
-          set(reportDateFilterState, {
-            ...get(reportDateFilterState),
-            [cardId]: newValue,
-          });
-        },
-      ),
-    );
-  }
-  return dateFilterAtomCache.get(cardId)!;
-};
+export const getReportDateFilterAtom = (cardId: string) =>
+  getOrCreate(dateFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportDateFilterState)[cardId] || '',
+      (get, set, newValue: string) => {
+        set(reportDateFilterState, {
+          ...get(reportDateFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
 
-export const getReportSourceFilterAtom = (cardId: string) => {
-  if (!sourceFilterAtomCache.has(cardId)) {
-    sourceFilterAtomCache.set(
-      cardId,
-      atom(
-        (get) => get(reportSourceFilterState)[cardId] || 'all',
-        (get, set, newValue: string) => {
-          set(reportSourceFilterState, {
-            ...get(reportSourceFilterState),
-            [cardId]: newValue,
-          });
-        },
-      ),
-    );
-  }
-  return sourceFilterAtomCache.get(cardId)!;
-};
-export const getReportChannelFilterAtom = (cardId: string) => {
-  if (!channelFilterAtomCache.has(cardId)) {
-    channelFilterAtomCache.set(
-      cardId,
-      atom(
-        (get) => get(reportChannelFilterState)[cardId] || [],
-        (get, set, newValue: string[]) => {
-          set(reportChannelFilterState, {
-            ...get(reportChannelFilterState),
-            [cardId]: newValue,
-          });
-        },
-      ),
-    );
-  }
-  return channelFilterAtomCache.get(cardId)!;
-};
+export const getReportSourceFilterAtom = (cardId: string) =>
+  getOrCreate(sourceFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportSourceFilterState)[cardId] || 'all',
+      (get, set, newValue: string) => {
+        set(reportSourceFilterState, {
+          ...get(reportSourceFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+export const getReportChannelFilterAtom = (cardId: string) =>
+  getOrCreate(channelFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportChannelFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportChannelFilterState, {
+          ...get(reportChannelFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
 
-export const getReportMemberFilterAtom = (cardId: string) => {
-  if (!memberFilterAtomCache.has(cardId)) {
-    memberFilterAtomCache.set(
-      cardId,
-      atom(
-        (get) => get(reportMemberFilterState)[cardId] || [],
-        (get, set, newValue: string[]) => {
-          set(reportMemberFilterState, {
-            ...get(reportMemberFilterState),
-            [cardId]: newValue,
-          });
-        },
-      ),
-    );
-  }
-  return memberFilterAtomCache.get(cardId)!;
-};
+export const getReportMemberFilterAtom = (cardId: string) =>
+  getOrCreate(memberFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportMemberFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportMemberFilterState, {
+          ...get(reportMemberFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
 
-export const getReportCallStatusFilterAtom = (cardId: string) => {
-  if (!callStatusFilterAtomCache.has(cardId)) {
-    callStatusFilterAtomCache.set(
-      cardId,
-      atom(
-        (get) => get(reportCallStatusFilterState)[cardId] || 'all',
-        (get, set, newValue: string) => {
-          set(reportCallStatusFilterState, {
-            ...get(reportCallStatusFilterState),
-            [cardId]: newValue,
-          });
-        },
-      ),
-    );
-  }
-  return callStatusFilterAtomCache.get(cardId)!;
-};
+export const getReportCallStatusFilterAtom = (cardId: string) =>
+  getOrCreate(callStatusFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportCallStatusFilterState)[cardId] || 'all',
+      (get, set, newValue: string) => {
+        set(reportCallStatusFilterState, {
+          ...get(reportCallStatusFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );

@@ -24,7 +24,7 @@ export function buildDateMatch(
 ) {
   if (!filters.fromDate && !filters.toDate) return {};
 
-  const range: any = {};
+  const range: { $gte?: Date; $lte?: Date } = {};
   if (filters.fromDate) range.$gte = new Date(filters.fromDate);
   if (filters.toDate) range.$lte = new Date(filters.toDate);
 
@@ -193,13 +193,18 @@ export async function buildConversationResponsesPipeline(
   models: IModels,
 ): Promise<any[] | null> {
   const pipeline: any[] = [];
-  const messageMatch: any = {
+  const messageMatch: {
+    internal: boolean;
+    userId: { $exists: boolean; $ne: null };
+    createdAt?: { $gte?: Date; $lte?: Date };
+    [key: string]: unknown;
+  } = {
     internal: false,
     userId: { $exists: true, $ne: null },
   };
 
   if (filters.fromDate || filters.toDate) {
-    const range: any = {};
+    const range: { $gte?: Date; $lte?: Date } = {};
     if (filters.fromDate) range.$gte = new Date(filters.fromDate);
     if (filters.toDate) range.$lte = new Date(filters.toDate);
     messageMatch.createdAt = range;
@@ -292,7 +297,7 @@ export function buildDateGroupPipeline(field: string) {
 }
 
 export function buildConversationMatch(filters: IReportFilters) {
-  const match: any = {};
+  const match: Record<string, unknown> = {};
 
   const status = normalizeStatus(filters.status);
   if (status) match.status = status;
@@ -303,7 +308,7 @@ export function buildConversationMatch(filters: IReportFilters) {
 }
 
 export function buildTicketMatch(filters: IReportFilters) {
-  const match: any = { type: 'ticket' };
+  const match: Record<string, unknown> = { type: 'ticket' };
 
   if (filters.status) {
     match.statusId = filters.status;
