@@ -6,8 +6,7 @@ export const sourceMap: Record<string, string> = {
   'facebook-post': 'facebook-post',
   'instagram-messenger': 'instagram-messenger',
   'instagram-post': 'instagram-post',
-  call: 'call',
-  calls: 'call',
+  calls: 'calls',
   messenger: 'messenger',
   form: 'form',
 };
@@ -89,7 +88,7 @@ export async function generateConversationReportFilter(
   if (
     filters.callStatus &&
     filters.source &&
-    sourceMap[filters.source] === 'call'
+    sourceMap[filters.source] === 'calls'
   ) {
     const callHistories = await models.CallHistory.find(
       { callStatus: filters.callStatus },

@@ -45,10 +45,10 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
     sourceFilter === 'calls' && callStatusFilter !== 'all';
   const hasFilters = Boolean(
     sourceFilter !== 'all' ||
-    (channelFilter && channelFilter.length > 0) ||
-    (memberFilter && memberFilter.length > 0) ||
-    (dateValue && dateValue.length > 0) ||
-    isCallsWithStatus,
+      (channelFilter && channelFilter.length > 0) ||
+      (memberFilter && memberFilter.length > 0) ||
+      (dateValue && dateValue.length > 0) ||
+      isCallsWithStatus,
   );
 
   const handleClear = () => {
@@ -169,8 +169,8 @@ const SourceFilterView = ({
           items.push(
             ...CALL_STATUS_OPTIONS.map((statusOption) => (
               <Command.Item
-                key={`call-status-${statusOption.value}`}
-                value={`call-status-${statusOption.value}`}
+                key={`calls-status-${statusOption.value}`}
+                value={`calls-status-${statusOption.value}`}
                 onSelect={() => onCallStatusChange(statusOption.value)}
                 className="pl-7"
               >
