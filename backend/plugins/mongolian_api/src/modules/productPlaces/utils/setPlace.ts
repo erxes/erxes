@@ -10,7 +10,6 @@ export const setPlace = async (
   userId,
   processId,
 ) => {
-
   if (!config.conditions?.length) {
     return productsData;
   }
@@ -22,7 +21,6 @@ export const setPlace = async (
   );
 
   for (const condition of conditions) {
-
     if (condition.productCategoryIds?.length) {
       const includeCatIds = await getChildCategories(
         subdomain,
@@ -37,7 +35,6 @@ export const setPlace = async (
       condition.calcedCatIds = includeCatIds.filter(
         (c) => !excludeCatIds.includes(c),
       );
-
     } else {
       condition.calcedCatIds = [];
     }
@@ -56,14 +53,12 @@ export const setPlace = async (
       condition.calcedTagIds = includeTagIds.filter(
         (c) => !excludeTagIds.includes(c),
       );
-
     } else {
       condition.calcedTagIds = [];
     }
   }
 
   for (const pdata of pdatas) {
-
     for (const condition of conditions) {
       const matches = await checkCondition(
         subdomain,
@@ -72,18 +67,14 @@ export const setPlace = async (
         productById,
       );
 
-
       if (matches) {
-
         pdata.branchId = condition.branchId;
         pdata.departmentId = condition.departmentId;
-
 
         break;
       }
     }
   }
-
 
   const branchIds = [...new Set(pdatas.map((p) => p.branchId).filter(Boolean))];
   const departmentIds = [
@@ -108,13 +99,9 @@ export const setPlace = async (
     });
 
     if (result?.status === 'error') {
-
     } else {
     }
-  } catch (error) {
-
-  }
-
+  } catch (error) {}
 
   return pdatas;
 };

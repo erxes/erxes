@@ -12,7 +12,6 @@ export default {
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
-
   const { type, action, user } = params;
 
   if (type !== 'sales:deal' || action !== 'update') {
@@ -42,7 +41,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
     destinationStageId,
   );
 
-
   if (!splitConfig && !placeConfig && !printConfig) {
     return;
   }
@@ -61,7 +59,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
   let productById: Record<string, any> | undefined;
 
   if (placeConfig && Object.keys(placeConfig).length > 0) {
-
     const placeResult = await handlePlace(
       subdomain,
       deal,
@@ -74,16 +71,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
     productsData = placeResult.productsData;
     productById = placeResult.productById;
 
-
     if ((await isEnabled('pricing')) && placeConfig.checkPricing) {
       productsData = await handlePricing(subdomain, deal, productsData);
     }
   }
 
   if (printConfig && !productById) {
-
     const productIds = productsData.map((pd) => pd.productId).filter(Boolean);
-
 
     if (productIds.length) {
       try {
@@ -96,11 +90,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
           input: { _id: { $in: productIds } },
         });
 
-
         productById = Object.fromEntries(products.map((p) => [p._id, p]));
-      } catch (error) {
-
-      }
+      } catch (error) {}
     } else {
       productById = {};
     }
