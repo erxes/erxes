@@ -71,9 +71,6 @@ export const postMutations: Record<string, Resolver> = {
     const { _id, input } = args;
     const { translations, language, ...postInput } = input;
 
-    // If a language is specified and it differs from the CMS default,
-    // write translatable fields to the Translations collection instead of
-    // overwriting the default-language content on the post document.
     if (language && postInput.clientPortalId) {
       const defaultLanguage = await getDefaultLanguage(
         models,
@@ -94,19 +91,19 @@ export const postMutations: Record<string, Resolver> = {
 
         await models.Translations.upsertTranslation(translationDoc);
 
-        // Strip translatable fields — only update shared fields on the post
-        const { title, content, excerpt, customFieldsData, ...safePostInput } =
-          postInput;
+        const { title, content, excerpt, customFieldsData, ...safePostInput } = postInput;
 
         const post = await models.Posts.updatePost(_id, safePostInput);
 
-        await saveTranslations(models, _id, translations || []);
+        const remainingTranslations = (translations || []).filter(
+          (t: any) => t?.language !== language,
+        );
+        await saveTranslations(models, _id, remainingTranslations);
 
         return post;
       }
     }
 
-    // Default language edit — update everything on the post document
     const post = await models.Posts.updatePost(_id, postInput);
 
     await saveTranslations(models, _id, translations || []);
