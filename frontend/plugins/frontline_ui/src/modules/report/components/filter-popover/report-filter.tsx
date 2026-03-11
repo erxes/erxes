@@ -4,8 +4,9 @@ import { useAtom } from 'jotai';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/inbox/types/Channel';
-import { SOURCE_OPTIONS } from '@/report/constants/data';
+import { CALL_STATUS_OPTIONS, SOURCE_OPTIONS } from '@/report/constants/data';
 import {
+  getReportCallStatusFilterAtom,
   getReportChannelFilterAtom,
   getReportDateFilterAtom,
   getReportMemberFilterAtom,
@@ -34,14 +35,20 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
     getReportMemberFilterAtom(cardId),
   );
   const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(cardId));
+  const [callStatusFilter, setCallStatusFilter] = useAtom(
+    getReportCallStatusFilterAtom(cardId),
+  );
 
   const { channels } = useGetChannels();
 
-  const hasFilters = !!(
+  const isCallsWithStatus =
+    sourceFilter === 'calls' && callStatusFilter !== 'all';
+  const hasFilters = Boolean(
     sourceFilter !== 'all' ||
     (channelFilter && channelFilter.length > 0) ||
     (memberFilter && memberFilter.length > 0) ||
-    (dateValue && dateValue.length > 0)
+    (dateValue && dateValue.length > 0) ||
+    isCallsWithStatus,
   );
 
   const handleClear = () => {
@@ -49,6 +56,14 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
     setChannelFilter([]);
     setMemberFilter([]);
     setDateValue('');
+    setCallStatusFilter('all');
+  };
+
+  const handleSourceChange = (value: string) => {
+    setSourceFilter(value);
+    if (value !== 'calls') {
+      setCallStatusFilter('all');
+    }
   };
 
   return (
@@ -84,8 +99,10 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
           <Filter.View filterKey="source">
             <Command shouldFilter={false}>
               <SourceFilterView
-                value={sourceFilter}
-                onValueChange={setSourceFilter}
+                sourceValue={sourceFilter}
+                callStatus={callStatusFilter}
+                onSourceChange={handleSourceChange}
+                onCallStatusChange={setCallStatusFilter}
               />
             </Command>
           </Filter.View>
@@ -121,35 +138,57 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
   );
 };
 
-// Removed SourceFilter and other unused imports
-// Kept helper components adjusted for Filter context
-
 const SourceFilterView = ({
-  value,
-  onValueChange,
+  sourceValue,
+  callStatus,
+  onSourceChange,
+  onCallStatusChange,
 }: {
-  value: string;
-  onValueChange: (value: string) => void;
+  sourceValue: string;
+  callStatus: string;
+  onSourceChange: (value: string) => void;
+  onCallStatusChange: (value: string) => void;
 }) => {
-  const handleSelect = (selectedValue: string) => {
-    onValueChange(selectedValue);
-    // Filter view transition is handled by Filter.View's back button
-  };
-
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      {SOURCE_OPTIONS.map((option) => (
-        <Command.Item
-          key={option.value}
-          value={option.value}
-          onSelect={() => handleSelect(option.value)}
-        >
-          <div className="flex items-center gap-2">
-            {value === option.value && <IconCheck className="size-4" />}
-            <span>{option.label}</span>
-          </div>
-        </Command.Item>
-      ))}
+      {SOURCE_OPTIONS.flatMap((option) => {
+        const items = [
+          <Command.Item
+            key={option.value}
+            value={option.value}
+            onSelect={() => onSourceChange(option.value)}
+          >
+            <div className="flex items-center gap-2">
+              {sourceValue === option.value && <IconCheck className="size-4" />}
+              <span>{option.label}</span>
+            </div>
+          </Command.Item>,
+        ];
+
+        if (option.value === 'calls' && sourceValue === 'calls') {
+          items.push(
+            ...CALL_STATUS_OPTIONS.map((statusOption) => (
+              <Command.Item
+                key={`calls-status-${statusOption.value}`}
+                value={`calls-status-${statusOption.value}`}
+                onSelect={() => onCallStatusChange(statusOption.value)}
+                className="pl-7"
+              >
+                <div className="flex items-center gap-2">
+                  {callStatus === statusOption.value && (
+                    <IconCheck className="size-4" />
+                  )}
+                  <span className="text-muted-foreground">
+                    {statusOption.label}
+                  </span>
+                </div>
+              </Command.Item>
+            )),
+          );
+        }
+
+        return items;
+      })}
     </Command.List>
   );
 };

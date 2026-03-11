@@ -9,6 +9,15 @@ export const SOURCE_OPTIONS = [
   { value: 'form', label: 'Form' },
 ];
 
+export const CALL_STATUS_OPTIONS = [
+  { value: 'all', label: 'All Statuses' },
+  { value: 'connected', label: 'Connected' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'missed', label: 'Missed' },
+  { value: 'transferred', label: 'Transferred' },
+  { value: 'rejected', label: 'Rejected' },
+];
+
 export const DATE_OPTIONS = [
   { value: 'all-time', label: 'All Time' },
   { value: 'today', label: 'Today' },
