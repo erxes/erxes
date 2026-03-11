@@ -99,11 +99,6 @@ export const groupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
               <TextOverflowTooltip
                 value={row.original.isGroup ? row.original._id : value || '-'}
               />
-              {row.original.isGroup && (
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {row.original.childCount} tours
-                </div>
-              )}
             </div>
           </RecordTableTree.Trigger>
         </RecordTableInlineCell>
@@ -137,8 +132,8 @@ export const groupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
             row.original.isGroup
               ? row.original.dateRangeLabel || '-'
               : `${formatDate(row.original.startDate)} - ${formatDate(
-                  row.original.endDate,
-                )}`
+                row.original.endDate,
+              )}`
           }
         />
       </RecordTableInlineCell>
@@ -155,9 +150,8 @@ export const groupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
           value={
             row.original.isGroup
               ? row.original.statusLabel || '-'
-              : `${row.original.status || '-'} / ${
-                  row.original.date_status || '-'
-                }`
+              : `${row.original.status || '-'} / ${row.original.date_status || '-'
+              }`
           }
         />
       </RecordTableInlineCell>

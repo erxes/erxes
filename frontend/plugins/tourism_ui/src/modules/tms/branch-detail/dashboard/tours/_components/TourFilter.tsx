@@ -9,7 +9,6 @@ import {
   IconCalendarEvent,
   IconCheck,
   IconProgressCheck,
-  IconSearch,
 } from '@tabler/icons-react';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 

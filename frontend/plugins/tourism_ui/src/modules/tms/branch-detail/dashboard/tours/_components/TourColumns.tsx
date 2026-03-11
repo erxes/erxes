@@ -1,10 +1,10 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
   IconCalendar,
-  IconCurrencyDollar,
   IconHash,
   IconLabel,
   IconUsers,
+  IconProgressCheck,
 } from '@tabler/icons-react';
 import {
   RecordTable,
@@ -37,7 +37,7 @@ export const tourColumns = (): ColumnDef<ITour>[] => [
         <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
       </RecordTableInlineCell>
     ),
-    size: 260,
+    size: 240,
   },
   {
     id: 'refNumber',
@@ -51,9 +51,9 @@ export const tourColumns = (): ColumnDef<ITour>[] => [
     size: 140,
   },
   {
-    id: 'groupCode',
-    accessorKey: 'groupCode',
-    header: () => <RecordTable.InlineHead icon={IconUsers} label="Group" />,
+    id: 'status',
+    accessorKey: 'status',
+    header: () => <RecordTable.InlineHead icon={IconProgressCheck} label="Status" />,
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
@@ -64,7 +64,7 @@ export const tourColumns = (): ColumnDef<ITour>[] => [
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Start" />,
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />,
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
@@ -75,7 +75,7 @@ export const tourColumns = (): ColumnDef<ITour>[] => [
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="End" />,
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label="End Date" />,
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
@@ -83,23 +83,5 @@ export const tourColumns = (): ColumnDef<ITour>[] => [
     ),
     size: 140,
   },
-  {
-    id: 'cost',
-    accessorKey: 'cost',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Cost" />
-    ),
-    cell: ({ cell }: { cell: any }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={
-            cell.getValue() === undefined || cell.getValue() === null
-              ? '-'
-              : String(cell.getValue())
-          }
-        />
-      </RecordTableInlineCell>
-    ),
-    size: 120,
-  },
+
 ];

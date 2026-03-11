@@ -54,7 +54,7 @@ export const flattenGroups = (groups: ITourGroup[]): TourGroupRow[] => {
   return sortGroups(groups).flatMap((group) => {
     const groupId = group._id || 'Ungrouped';
     const parentRow: TourGroupRow = {
-      _id: `group-${groupId}`,
+      _id: `${groupId}`,
       name: groupId,
       order: groupId,
       hasChildren: group.items.length > 0,

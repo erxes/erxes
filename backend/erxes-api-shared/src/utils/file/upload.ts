@@ -1,7 +1,11 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 import { Storage } from '@google-cloud/storage';
-import AWS from 'aws-sdk';
-import { fileTypeFromBuffer } from 'file-type/core';
+import {
+  PutObjectCommand,
+  S3Client,
+  type ObjectCannedACL,
+  type S3ClientConfig,
+} from '@aws-sdk/client-s3';
 import FormData from 'form-data';
 import * as fs from 'fs';
 import fetch from 'node-fetch';
@@ -11,6 +15,11 @@ import { sendTRPCMessage } from '../trpc';
 import { getEnv, isImage, isVideo } from '../utils';
 import { sanitizeFilename } from '../sanitize';
 import { randomAlphanumeric } from '../random';
+
+type FileTypeResult = {
+  mime: string;
+  ext: string;
+};
 
 const STORAGE_CONFIG_CODES = [
   'UPLOAD_SERVICE_TYPE',
@@ -103,13 +112,23 @@ const isValidPath = (filepath: string): boolean => {
   return resolved.startsWith(tempDir);
 };
 
+const getFileTypeFromBuffer = async (
+  buffer: Buffer,
+): Promise<FileTypeResult | undefined> => {
+  const { fileTypeFromBuffer } = await import('file-type/core');
+
+  return fileTypeFromBuffer(new Uint8Array(buffer));
+};
+
 const createAwsClient = (configs: StorageConfigMap) => {
   const accessKeyId = requireConfigValue(configs, 'AWS_ACCESS_KEY_ID');
   const secretAccessKey = requireConfigValue(configs, 'AWS_SECRET_ACCESS_KEY');
 
-  const clientConfig: AWS.S3.ClientConfiguration = {
-    accessKeyId,
-    secretAccessKey,
+  const clientConfig: S3ClientConfig = {
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
   };
 
   const endpoint = readConfigValue(
@@ -125,14 +144,14 @@ const createAwsClient = (configs: StorageConfigMap) => {
   }
 
   if (parseBoolean(forcePathStyle)) {
-    clientConfig.s3ForcePathStyle = true;
+    clientConfig.forcePathStyle = true;
   }
 
   if (region) {
     clientConfig.region = region;
   }
 
-  return new AWS.S3(clientConfig);
+  return new S3Client(clientConfig);
 };
 
 const createCloudflareR2Client = (configs: StorageConfigMap) => {
@@ -143,13 +162,44 @@ const createCloudflareR2Client = (configs: StorageConfigMap) => {
     'CLOUDFLARE_SECRET_ACCESS_KEY',
   );
 
-  return new AWS.S3({
+  return new S3Client({
     endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    accessKeyId,
-    secretAccessKey,
-    signatureVersion: 'v4',
     region: 'auto',
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
   });
+};
+
+const normalizeEndpoint = (endpoint: string) => endpoint.replace(/\/+$/, '');
+
+const buildS3ObjectUrl = ({
+  bucket,
+  key,
+  endpoint,
+  region,
+  forcePathStyle,
+}: {
+  bucket: string;
+  key: string;
+  endpoint?: string;
+  region?: string;
+  forcePathStyle?: boolean;
+}) => {
+  if (endpoint) {
+    const normalizedEndpoint = normalizeEndpoint(endpoint);
+
+    return forcePathStyle
+      ? `${normalizedEndpoint}/${bucket}/${key}`
+      : `${normalizedEndpoint.replace('://', `://${bucket}.`)}/${key}`;
+  }
+
+  if (region && region !== 'us-east-1') {
+    return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+  }
+
+  return `https://${bucket}.s3.amazonaws.com/${key}`;
 };
 
 const uploadToCFImages = async (
@@ -314,31 +364,39 @@ const uploadToAWS = async (
 
   const awsPrefix = readConfigValue(configs, 'AWS_PREFIX', '');
   const bucket = requireConfigValue(configs, 'AWS_BUCKET');
+  const endpoint = readConfigValue(
+    configs,
+    'AWS_COMPATIBLE_SERVICE_ENDPOINT',
+    '',
+  );
+  const region = readConfigValue(configs, 'AWS_REGION', '');
+  const forcePathStyle = parseBoolean(
+    readConfigValue(configs, 'AWS_FORCE_PATH_STYLE', ''),
+  );
 
   const s3 = createAwsClient(configs);
   const finalFileName = `${awsPrefix}${randomAlphanumeric()}${sanitizedFilename}`;
   const buffer = await fs.promises.readFile(filePath);
 
-  const response: any = await new Promise((resolve, reject) => {
-    s3.upload(
-      {
-        ContentType: mimetype,
-        Bucket: bucket,
-        Key: finalFileName,
-        Body: buffer,
-        ACL: isPublic ? 'public-read' : undefined,
-      },
-      (err, res) => {
-        if (err) {
-          return reject(err);
-        }
+  await s3.send(
+    new PutObjectCommand({
+      ContentType: mimetype,
+      Bucket: bucket,
+      Key: finalFileName,
+      Body: buffer,
+      ACL: isPublic ? ('public-read' as ObjectCannedACL) : undefined,
+    }),
+  );
 
-        return resolve(res);
-      },
-    );
-  });
-
-  return isPublic ? response.Location : finalFileName;
+  return isPublic
+    ? buildS3ObjectUrl({
+        bucket,
+        key: finalFileName,
+        endpoint,
+        region,
+        forcePathStyle,
+      })
+    : finalFileName;
 };
 
 const uploadToGCS = async (
@@ -418,7 +476,9 @@ const uploadToCloudflare = async (
     readConfigValue(configs, 'CLOUDFLARE_USE_CDN', ''),
   );
 
-  const detectedType = await fileTypeFromBuffer(fs.readFileSync(filePath));
+  const detectedType = await getFileTypeFromBuffer(
+    await fs.promises.readFile(filePath),
+  );
 
   let adjustedFileName = fileName;
   if (path.extname(fileName).toLowerCase() === '.jfif') {
@@ -447,26 +507,26 @@ const uploadToCloudflare = async (
   const buffer = await fs.promises.readFile(filePath);
   const r2 = createCloudflareR2Client(configs);
 
-  const response: any = await new Promise((resolve, reject) => {
-    r2.upload(
-      {
-        ContentType: mimetype,
-        Bucket: bucketName,
-        Key: finalFileName,
-        Body: buffer,
-        ACL: isPublic ? 'public-read' : undefined,
-      },
-      (err, res) => {
-        if (err) {
-          return reject(err);
-        }
+  await r2.send(
+    new PutObjectCommand({
+      ContentType: mimetype,
+      Bucket: bucketName,
+      Key: finalFileName,
+      Body: buffer,
+      ACL: isPublic ? ('public-read' as ObjectCannedACL) : undefined,
+    }),
+  );
 
-        return resolve(res);
-      },
-    );
-  });
-
-  return isPublic ? response.Location : finalFileName;
+  return isPublic
+    ? buildS3ObjectUrl({
+        bucket: bucketName,
+        key: finalFileName,
+        endpoint: `https://${requireConfigValue(
+          configs,
+          'CLOUDFLARE_ACCOUNT_ID',
+        )}.r2.cloudflarestorage.com`,
+      })
+    : finalFileName;
 };
 
 export const uploadFileToStorage = async ({
