@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 
 import { ICovers } from '@/pos/pos-covers/types/posCover';
+
 import { coverMoreColumn } from '@/pos/pos-covers/components/CoversMoreColumns';
 
 const ActionsCell = ({ cell }: { cell: Cell<ICovers, unknown> }) => {
