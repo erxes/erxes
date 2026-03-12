@@ -6,6 +6,11 @@ export const types = `
     guide: User
     type: String
   }
+  type TourCategory {
+    _id: String!
+    name: String
+    parentId: String
+  }
   enum DATE_STATUS {
     running
     completed
@@ -38,6 +43,8 @@ export const types = `
     advanceCheck: Boolean
     advancePercent: Float
     joinPercent: Float
+    categories: [String]
+    categoriesObject: [TourCategory]
     tagIds: [String]
     info1: String
     info2: String
@@ -103,15 +110,16 @@ export const types = `
 `;
 
 export const queries = `
-  bmsTours(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS): TourListResponse
+  bmsTours(branchId:String, categories: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS): TourListResponse
   bmsTourDetail(_id:String!,branchId: String): Tour
+  bmsTourCategories(parentId:String): [TourCategory]
   bmsOrders( tourId:String, customerId:String ,branchId: String, ${GQL_CURSOR_PARAM_DEFS}):BmsOrderListResponse
-  bmToursGroup(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
+  bmToursGroup(branchId:String, categories: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
   bmToursGroupDetail(groupCode:String,status: String): GroupTourItem
 
-  cpBmsTours(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS): TourListResponse
+  cpBmsTours(branchId:String, categories: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS, webId: String): TourListResponse
   cpBmsTourDetail(_id:String!,branchId: String): Tour
-  cpBmToursGroup(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
+  cpBmToursGroup(branchId:String, categories: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS, webId: String): GroupTour
   cpBmToursGroupDetail(groupCode:String,status: String): GroupTourItem
 `;
 
@@ -133,6 +141,7 @@ const params = `
   cost: Float,
   location: [BMSLocationInput],
   guides:[GuideItemInput],
+  categories:[String],
   refNumber: String,
   tagIds:[String],
   viewCount: Int,
@@ -152,6 +161,9 @@ export const mutations = `
   bmsTourRemove(ids: [String]): JSON
   bmsTourViewCount(_id: String): JSON
   bmsTourEdit(_id:String!, ${params}): Tour
+  bmsTourCategoryAdd(name:String,parentId:String):TourCategory
+  bmsTourCategoryRemove(_id: String!):JSON
+  bmsTourCategoryEdit(_id: String!, name:String,parentId:String): TourCategory
   bmsOrderAdd(order:BmsOrderInput): BmsOrder
   bmsOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder
   bmsOrderRemove(ids:[String]): JSON
