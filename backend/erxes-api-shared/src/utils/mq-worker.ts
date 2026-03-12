@@ -95,7 +95,7 @@ export const sendWorkerMessage = async ({
   const job = await queue.add(
     jobName,
     { subdomain, data },
-    { ...(options || {}) },
+    { ...options },
   );
   const result = await Promise.race([
     job.waitUntilFinished(queueEvents),
