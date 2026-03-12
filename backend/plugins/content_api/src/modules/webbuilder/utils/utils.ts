@@ -213,6 +213,10 @@ export const deploy = async (
       ERXES_FILE_URL: `${domain}/read-file?key=`,
       ERXES_CP_ID: web.clientPortalId || '',
       ERXES_APP_TOKEN: web.erxesAppToken,
+      ERXES_WEB_ID: web._id || '',
+      TEMPLATE_TYPE: web.templateType || '',
+      BUILD_MODE: 'production',
+      NEXT_PUBLIC_BUILD_MODE: 'production',
     };
 
     for (const ev of web.environmentVariables || []) {
