@@ -1,176 +1,215 @@
 import { IContext } from '~/connectionResolvers';
-
 import { Resolver } from 'erxes-api-shared/core-types';
+
+const getDefaultLanguage = async (
+  models: IContext['models'],
+  clientPortalId: string,
+): Promise<string | undefined> => {
+  const cms = await models.CMS.findOne({ clientPortalId }).lean();
+  return cms?.language;
+};
+
+const saveMenuTranslations = async (
+  models: IContext['models'],
+  objectId: string,
+  translations: any[],
+  excludeLanguage?: string,
+) => {
+  if (!Array.isArray(translations) || translations.length === 0) return;
+
+  const filtered = excludeLanguage
+    ? translations.filter((t: any) => t?.language !== excludeLanguage)
+    : translations;
+
+  if (filtered.length === 0) return;
+
+  await Promise.all(
+    filtered.map((t) =>
+      models.Translations.upsertTranslation({
+        ...t,
+        objectId,
+        type: t.type || 'menu',
+      }),
+    ),
+  );
+};
 
 const mutations: Record<string, Resolver> = {
   async cmsAddMenu(_parent: any, args: any, context: IContext) {
     const { models } = context;
     const { input } = args;
-    const { translations, ...menuInput } = input;
+    const { translations, language, ...menuInput } = input;
 
     if (
       (!menuInput.label || !String(menuInput.label).trim()) &&
       Array.isArray(translations) &&
       translations.length > 0
     ) {
-      const cms = await models.CMS.findOne({
-        clientPortalId: menuInput.clientPortalId,
-      }).lean();
+      const defaultLanguage =
+        (await getDefaultLanguage(models, menuInput.clientPortalId)) || 'en';
 
-      const defaultLanguage = cms?.language;
-      const fallbackTranslation =
+      const fallback =
         (defaultLanguage &&
           translations.find((t: any) => t?.language === defaultLanguage)) ||
         translations[0];
 
-      if (fallbackTranslation) {
-        menuInput.label = fallbackTranslation.title || menuInput.label;
+      if (fallback) {
+        menuInput.label = fallback.title || menuInput.label;
       }
     }
 
     const menu = await models.MenuItems.createMenuItem(menuInput);
 
-    if (Array.isArray(translations) && translations.length > 0) {
-      const docs = translations.map((translation: any) => ({
-        ...translation,
-        postId: menu._id,
-        type: translation.type || 'menu',
-      }));
-
-      await models.Translations.insertMany(docs);
-    }
+    await saveMenuTranslations(models, menu._id, translations || []);
 
     return menu;
   },
-  cmsEditMenu(_parent: any, args: any, context: IContext) {
+
+  async cmsEditMenu(_parent: any, args: any, context: IContext) {
     const { models } = context;
     const { _id, input } = args;
-    const { translations, ...menuInput } = input;
+    const { translations, language, ...menuInput } = input;
 
-    return models.MenuItems.updateMenuItem(_id, menuInput).then(
-      async (menu) => {
-        if (Array.isArray(translations) && translations.length > 0) {
-          await Promise.all(
-            translations.map((translation: any) =>
-              models.Translations.updateTranslation({
-                ...translation,
-                postId: _id,
-                type: translation.type || 'menu',
-              }),
-            ),
-          );
-        }
+    if (language && menuInput.clientPortalId) {
+      const rawDefault = await getDefaultLanguage(
+        models,
+        menuInput.clientPortalId,
+      );
+      const defaultLanguage = rawDefault || 'en';
+
+      if (language !== defaultLanguage) {
+        const translationDoc: any = { objectId: _id, language, type: 'menu' };
+
+        if (menuInput.label !== undefined)
+          translationDoc.title = menuInput.label;
+
+        await models.Translations.upsertTranslation(translationDoc);
+
+        const { label, ...safeMenuInput } = menuInput;
+
+        const menu = await models.MenuItems.updateMenuItem(_id, safeMenuInput);
+
+        await saveMenuTranslations(models, _id, translations || [], language);
 
         return menu;
-      },
-    );
+      }
+    }
+
+    const menu = await models.MenuItems.updateMenuItem(_id, menuInput);
+
+    await saveMenuTranslations(models, _id, translations || []);
+
+    return menu;
   },
 
-  cmsRemoveMenu(_parent: any, args: any, context: IContext) {
+  async cmsRemoveMenu(_parent: any, args: any, context: IContext) {
     const { models } = context;
     const { _id } = args;
 
-    const result = models.MenuItems.deleteMenuItem(_id);
+    await models.Translations.deleteMany({ objectId: _id, type: 'menu' });
 
-    // Best-effort cleanup of related translations
-    models.Translations.deleteMany({ postId: _id }).catch(() => {});
-
-    return result;
+    return models.MenuItems.deleteMenuItem(_id);
   },
 
   async cpCmsAddMenu(_parent: any, args: any, context: IContext) {
     const { models, clientPortal } = context;
     const { input } = args;
-    const { translations, ...rawInput } = input;
+    const {
+      translations,
+      language,
+      clientPortalId: _ignored,
+      ...restInput
+    } = input;
 
-    const { clientPortalId: _ignoredClientPortalId, ...restInput } = rawInput;
+    const clientPortalId = clientPortal?._id;
 
     if (
       (!restInput.label || !String(restInput.label).trim()) &&
       Array.isArray(translations) &&
       translations.length > 0
     ) {
-      const cms = await models.CMS.findOne({
-        clientPortalId: clientPortal?._id,
-      }).lean();
+      const defaultLanguage =
+        (await getDefaultLanguage(models, clientPortalId)) || 'en';
 
-      const defaultLanguage = cms?.language;
-      const fallbackTranslation =
+      const fallback =
         (defaultLanguage &&
           translations.find((t: any) => t?.language === defaultLanguage)) ||
         translations[0];
 
-      if (fallbackTranslation) {
-        restInput.label = fallbackTranslation.title || restInput.label;
+      if (fallback) {
+        restInput.label = fallback.title || restInput.label;
       }
     }
 
     const menu = await models.MenuItems.createMenuItem({
       ...restInput,
-      clientPortalId: clientPortal?._id,
+      clientPortalId,
     });
 
-    if (Array.isArray(translations) && translations.length > 0) {
-      const docs = translations.map((translation: any) => ({
-        ...translation,
-        postId: menu._id,
-        type: translation.type || 'menu',
-      }));
-
-      await models.Translations.insertMany(docs);
-    }
+    await saveMenuTranslations(models, menu._id, translations || []);
 
     return menu;
   },
 
-  cpCmsEditMenu(_parent: any, args: any, context: IContext) {
+  async cpCmsEditMenu(_parent: any, args: any, context: IContext) {
     const { models, clientPortal } = context;
     const { _id, input } = args;
-    const { translations, ...rawInput } = input;
+    const {
+      translations,
+      language,
+      clientPortalId: _ignored,
+      ...restInput
+    } = input;
 
-    const { clientPortalId: _ignoredClientPortalId, ...restInput } = rawInput;
+    const clientPortalId = clientPortal?._id;
 
-    return models.MenuItems.updateMenuItem(_id, {
-      ...restInput,
-      clientPortalId: clientPortal?._id,
-    }).then(async (menu) => {
-      if (Array.isArray(translations) && translations.length > 0) {
-        await Promise.all(
-          translations.map((translation: any) =>
-            models.Translations.updateTranslation({
-              ...translation,
-              postId: _id,
-              type: translation.type || 'menu',
-            }),
-          ),
-        );
+    if (language && clientPortalId) {
+      const rawDefault = await getDefaultLanguage(models, clientPortalId);
+      const defaultLanguage = rawDefault || 'en';
+
+      if (language !== defaultLanguage) {
+        const translationDoc: any = { objectId: _id, language, type: 'menu' };
+
+        if (restInput.label !== undefined)
+          translationDoc.title = restInput.label;
+
+        await models.Translations.upsertTranslation(translationDoc);
+
+        const { label, ...safeRestInput } = restInput;
+
+        const menu = await models.MenuItems.updateMenuItem(_id, {
+          ...safeRestInput,
+          clientPortalId,
+        });
+
+        await saveMenuTranslations(models, _id, translations || [], language);
+
+        return menu;
       }
+    }
 
-      return menu;
+    const menu = await models.MenuItems.updateMenuItem(_id, {
+      ...restInput,
+      clientPortalId,
     });
+
+    await saveMenuTranslations(models, _id, translations || []);
+
+    return menu;
   },
 
-  cpCmsRemoveMenu(_parent: any, args: any, context: IContext) {
+  async cpCmsRemoveMenu(_parent: any, args: any, context: IContext) {
     const { models } = context;
     const { _id } = args;
 
-    const result = models.MenuItems.deleteMenuItem(_id);
+    await models.Translations.deleteMany({ objectId: _id, type: 'menu' });
 
-    // Best-effort cleanup of related translations
-    models.Translations.deleteMany({ postId: _id }).catch(() => {});
-
-    return result;
+    return models.MenuItems.deleteMenuItem(_id);
   },
 };
 
 export default mutations;
 
-mutations.cpCmsAddMenu.wrapperConfig = {
-  forClientPortal: true,
-};
-mutations.cpCmsEditMenu.wrapperConfig = {
-  forClientPortal: true,
-};
-mutations.cpCmsRemoveMenu.wrapperConfig = {
-  forClientPortal: true,
-};
+mutations.cpCmsAddMenu.wrapperConfig = { forClientPortal: true };
+mutations.cpCmsEditMenu.wrapperConfig = { forClientPortal: true };
+mutations.cpCmsRemoveMenu.wrapperConfig = { forClientPortal: true };

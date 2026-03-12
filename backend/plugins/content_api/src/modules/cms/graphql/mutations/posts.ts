@@ -40,22 +40,17 @@ export const postMutations: Record<string, Resolver> = {
       Array.isArray(translations) &&
       translations.length > 0
     ) {
-      const defaultLanguage = await getDefaultLanguage(
-        models,
-        postInput.clientPortalId,
-      );
+      const defaultLanguage = await getDefaultLanguage(models, postInput.clientPortalId);
 
       const fallback =
-        (defaultLanguage &&
-          translations.find((t: any) => t?.language === defaultLanguage)) ||
+        (defaultLanguage && translations.find((t: any) => t?.language === defaultLanguage)) ||
         translations[0];
 
       if (fallback) {
         postInput.title = fallback.title || postInput.title;
         postInput.content = fallback.content || postInput.content;
         postInput.excerpt = fallback.excerpt || postInput.excerpt;
-        postInput.customFieldsData =
-          fallback.customFieldsData || postInput.customFieldsData;
+        postInput.customFieldsData = fallback.customFieldsData || postInput.customFieldsData;
       }
     }
 
@@ -72,20 +67,16 @@ export const postMutations: Record<string, Resolver> = {
     const { translations, language, ...postInput } = input;
 
     if (language && postInput.clientPortalId) {
-      const defaultLanguage = await getDefaultLanguage(
-        models,
-        postInput.clientPortalId,
-      );
+      const rawDefault = await getDefaultLanguage(models, postInput.clientPortalId);
 
-      if (defaultLanguage && language !== defaultLanguage) {
-        const translationDoc: any = { postId: _id, language, type: 'post' };
+      const defaultLanguage = rawDefault || 'en';
 
-        if (postInput.title !== undefined)
-          translationDoc.title = postInput.title;
-        if (postInput.content !== undefined)
-          translationDoc.content = postInput.content;
-        if (postInput.excerpt !== undefined)
-          translationDoc.excerpt = postInput.excerpt;
+      if (language !== defaultLanguage) {
+        const translationDoc: any = { objectId: _id, language, type: 'post' };
+
+        if (postInput.title !== undefined) translationDoc.title = postInput.title;
+        if (postInput.content !== undefined) translationDoc.content = postInput.content;
+        if (postInput.excerpt !== undefined) translationDoc.excerpt = postInput.excerpt;
         if (postInput.customFieldsData !== undefined)
           translationDoc.customFieldsData = postInput.customFieldsData;
 

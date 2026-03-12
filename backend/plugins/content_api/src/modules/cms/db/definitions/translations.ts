@@ -5,7 +5,7 @@ import { Schema } from 'mongoose';
 
 export const translationSchema = new Schema<ITranslationDocument>({
   _id: mongooseStringRandomId,
-  postId: { type: String, required: true },
+  objectId: { type: String, required: true },
   language: { type: String, required: true },
   title: { type: String, default: '' },
   content: { type: String, default: '' },
@@ -23,9 +23,10 @@ export const translationSchema = new Schema<ITranslationDocument>({
       'knowledgeBaseCategory',
       'knowledgeBaseTopic',
       'knowledgeBaseArticle',
+      'webPage',
     ],
     default: 'post',
   },
 });
 
-translationSchema.index({ postId: 1, language: 1, type: 1 }, { unique: true });
+translationSchema.index({ objectId: 1, language: 1, type: 1 }, { unique: true });

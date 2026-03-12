@@ -21,6 +21,13 @@ const Page = {
 
     return await buildCustomFieldsMap(subdomain, fieldGroups, page.customFieldsData);
   },
+  
+  async translations(page: any, _params: any, { models }: IContext) {
+    return models.Translations.find({
+      objectId: page._id,
+      type: 'page',
+    }).lean();
+  },
 };
 
 export { Page };
