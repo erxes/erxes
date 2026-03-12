@@ -45,6 +45,7 @@ interface PostFormData {
   thumbnail?: string | null;
   gallery?: string[];
   video?: string | null;
+  videoUrl?: string;
   audio?: string | null;
   documents?: string[];
   attachments?: string[];
@@ -61,12 +62,6 @@ interface UsePostSubmissionProps {
   onClose?: () => void;
 }
 
-/**
- * Converts editor block JSON into HTML.
- *
- * @param raw Raw editor JSON string
- * @returns HTML string
- */
 const blocksToHtml = (raw: string): string => {
   try {
     const blocks = JSON.parse(raw) as BlockContent[];
@@ -131,9 +126,7 @@ const redirectToPosts = (
   navigate: (url: string) => void,
 ) => {
   const typeCode = searchParams.get('type');
-
   const typeParam = typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
-
   navigate(`/content/cms/${websiteId}/posts${typeParam}`);
 };
 
@@ -204,6 +197,7 @@ export const usePostSubmission = ({
       thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
       images: imagesPayload.length ? imagesPayload : undefined,
       video: videoPayload,
+      videoUrl: data.videoUrl,
       audio: audioPayload,
       documents: documentsPayload.length ? documentsPayload : undefined,
       attachments: attachmentsPayload.length ? attachmentsPayload : undefined,

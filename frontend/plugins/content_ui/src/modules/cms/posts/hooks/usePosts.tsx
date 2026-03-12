@@ -69,6 +69,7 @@ export const usePostsVariables = (
   let dateField: string | undefined;
   let dateFrom: Date | undefined;
   let dateTo: Date | undefined;
+
   const parsedSortDirection =
     sortDirection !== undefined &&
     sortDirection !== null &&
@@ -122,10 +123,10 @@ export const usePosts = (options?: QueryHookOptions) => {
     variables,
   });
 
-  const { posts, totalCount, pageInfo } = data?.cmsPostList || {};
+  const { posts = [], totalCount = 0, pageInfo } = data?.cmsPostList || {};
 
   useEffect(() => {
-    if (!totalCount) return;
+    if (totalCount === undefined) return;
     setPostsTotalCount(totalCount);
   }, [totalCount, setPostsTotalCount]);
 
