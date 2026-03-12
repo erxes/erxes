@@ -476,8 +476,8 @@ export const CarInsurancePage = () => {
                       <label className="block text-sm font-medium mb-2">
                         Duration *
                       </label>
-                      {selectedProduct &&
-                      (selectedProduct.pricingConfig)
+                      {
+                      selectedProduct?.pricingConfig
                         ?.percentageByDuration ? (
                         <Select
                           value={
