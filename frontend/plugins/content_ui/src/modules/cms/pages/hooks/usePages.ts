@@ -25,17 +25,7 @@ export const usePagesVariables = (
     };
   }>['variables'],
 ) => {
-  const [
-    {
-      name,
-      path,
-      createdAt,
-      updatedAt,
-      publishedDate,
-      sortField,
-      sortDirection,
-    },
-  ] = useMultiQueryState<{
+  const [{ name, path, sortField, sortDirection }] = useMultiQueryState<{
     name: string;
     path: string;
     createdAt: string;
