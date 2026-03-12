@@ -1,4 +1,5 @@
 import tourBoilerplate from '~/assets/template-screenshots/tour-boilerplate.png';
+import tourTemplate0 from '~/assets/template-screenshots/tour-template-0.png';
 import tourTemplate1 from '~/assets/template-screenshots/tour-template-1.png';
 import tourTemplate2 from '~/assets/template-screenshots/tour-template-2.png';
 import tourTemplate3 from '~/assets/template-screenshots/tour-template-3.png';
@@ -43,10 +44,10 @@ export const TEMPLATES = [
     id: 'tour-template-0',
     type: 'tour',
     name: 'Summit Adventures',
-    thumbnail: '/template-screenshots/tour-template-0.png',
+    thumbnail: tourTemplate0,
     description:
       'A modern tour operator template with deep emerald green design, full-screen hero, tour cards, stats section, and testimonials. Built for adventure and travel companies.',
-    screenshots: ['/template-screenshots/tour-template-0.png'],
+    screenshots: [tourTemplate0],
     primaryColor: '#065f46',
     secondaryColor: '#f59e0b',
     author: 'erxes',

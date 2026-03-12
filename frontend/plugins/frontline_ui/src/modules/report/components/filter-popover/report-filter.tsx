@@ -19,6 +19,7 @@ import {
   REPORT_FIXED_DATES,
   ReportDateFilter,
 } from './ReportDateFilter';
+import { BackButton } from './back-button';
 
 interface ReportFilterProps {
   cardId: string;
@@ -103,6 +104,7 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
                 callStatus={callStatusFilter}
                 onSourceChange={handleSourceChange}
                 onCallStatusChange={setCallStatusFilter}
+                cardId={cardId}
               />
             </Command>
           </Filter.View>
@@ -143,14 +145,17 @@ const SourceFilterView = ({
   callStatus,
   onSourceChange,
   onCallStatusChange,
+  cardId,
 }: {
   sourceValue: string;
   callStatus: string;
   onSourceChange: (value: string) => void;
   onCallStatusChange: (value: string) => void;
+  cardId?: string;
 }) => {
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
+      <BackButton />
       {SOURCE_OPTIONS.flatMap((option) => {
         const items = [
           <Command.Item
@@ -221,6 +226,7 @@ const ChannelFilterView = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
+      <BackButton />
       <Command.Item value="all" onSelect={() => handleSelect('all')}>
         <div className="flex items-center gap-2">
           {(!value || value.length === 0) && <IconCheck className="size-4" />}
@@ -254,6 +260,7 @@ const MemberFilterView = ({
 }) => {
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
+      <BackButton />
       <SelectMember.Provider
         value={value}
         mode="multiple"
@@ -302,6 +309,7 @@ export const DateFilterCommand = ({
         focusOnMount={focusOnMount}
       />
       <Command.List>
+        <BackButton />
         {REPORT_FIXED_DATES.map((date) => (
           <Command.Item
             key={date}
