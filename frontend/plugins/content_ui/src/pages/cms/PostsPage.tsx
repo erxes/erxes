@@ -7,15 +7,15 @@ import { useNavigate, useParams } from 'react-router';
 import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
 import { Posts } from '~/modules/cms/posts/types/postsType';
 
-interface PostsIndexPageContentProps {
+interface PostsPageContentProps {
   clientPortalId: string;
   handleEditPost: (post: Posts) => void;
 }
 
-const PostsIndexPageContent = ({
+const PostsPageContent = ({
   clientPortalId,
   handleEditPost,
-}: PostsIndexPageContentProps) => {
+}: PostsPageContentProps) => {
   return (
     <>
       <PageSubHeader>
@@ -53,7 +53,7 @@ export const PostsIndexPage = ({
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
         <div className="flex flex-col w-full overflow-hidden flex-auto">
-          <PostsIndexPageContent
+          <PostsPageContent
             clientPortalId={clientPortalId}
             handleEditPost={handleEditPost}
           />

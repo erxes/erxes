@@ -14,7 +14,7 @@ export const PostsEmptyState = ({ clientPortalId }: PostsEmptyStateProps) => {
             size={64}
             className="mx-auto mb-4 text-muted-foreground"
           />
-          <h3 className="mb-2 text-xl font-semibold">No post yet</h3>
+          <h3 className="mb-2 text-xl font-semibold">No posts yet</h3>
           <p className="max-w-md text-muted-foreground">
             Get started by creating your first post.
           </p>

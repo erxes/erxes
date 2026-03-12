@@ -100,9 +100,9 @@ export const usePostsVariables = (
     type: type || 'post',
     tagIds: tags || undefined,
     categoryIds: categories || undefined,
-    dateField,
-    dateFrom,
-    dateTo,
+    dateField: dateField || undefined,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
     ...variables,
   };
 };
