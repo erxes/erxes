@@ -1,26 +1,26 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import { ApolloError, useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router';
 import { ADJUST_CLOSING_ENTRY_REMOVE } from '../graphql/adjustClosingRemove';
 
-export const useAdjustClosingEntryRemove = (options?: OperationVariables) => {
+export const useAdjustClosingEntryRemove = () => {
   const navigate = useNavigate();
 
   const [_removeMutation, { loading }] = useMutation(
     ADJUST_CLOSING_ENTRY_REMOVE,
-    options,
   );
 
   const removeAdjust = (
-    adjustClosingIds: string[],
-    options?: OperationVariables,
+    _id: string,
+    options?: {
+      onError?: (e: ApolloError) => void;
+      onCompleted?: () => void;
+    },
   ) => {
     return _removeMutation({
-      ...options,
-      variables: {
-        adjustClosingIds,
-        ...options?.variables,
-      },
+      variables: { _id },
+      onError: options?.onError,
       onCompleted: () => {
+        options?.onCompleted?.();
         navigate('/accounting/adjustment/closing');
       },
     });

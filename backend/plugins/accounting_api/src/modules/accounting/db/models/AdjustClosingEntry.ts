@@ -20,7 +20,7 @@ export interface IAdjustClosingEntryModel
     _id: string,
     doc: IAdjustClosing,
   ): Promise<IAdjustClosingDocument>;
-  removeAdjustClosing(_ids: string[]): Promise<{ n: number; ok: number }>;
+  removeAdjustClosing(_id: string): Promise<{ n: number; ok: number }>;
   publishAdjustClosing(_id: string): Promise<IAdjustClosingDocument>;
 }
 
@@ -100,11 +100,7 @@ export const loadAdjustClosingEntryClass = (
     /**
      * Remove Adjust Closings
      */
-    public static async removeAdjustClosing(_ids: string[]) {
-      if (_ids.length !== 1) {
-        throw new Error('Only one Adjust Closing can be removed at a time');
-      }
-
+    public static async removeAdjustClosing(_id: string) {
       const lastEntry = await models.AdjustClosingEntries.findOne({})
         .sort({ createdAt: -1 })
         .lean();
@@ -113,15 +109,14 @@ export const loadAdjustClosingEntryClass = (
         throw new Error('No Adjust Closing found');
       }
 
-      if (lastEntry._id.toString() !== _ids[0]) {
+      if (lastEntry._id.toString() !== _id) {
         throw new Error('Only the latest Adjust Closing can be removed');
       }
 
-      await models.AdjustClosingEntries.deleteOne({ _id: _ids[0] });
+      await models.AdjustClosingEntries.deleteOne({ _id });
 
       return 'success delete';
     }
-
     /**
      * Publish Adjust Closing
      */

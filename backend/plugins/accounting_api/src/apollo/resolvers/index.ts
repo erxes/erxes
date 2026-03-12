@@ -42,6 +42,7 @@ import {
   SafeRemainderItems as MutationsSafeRemainderItem,
   SafeRemainders as MutationsSafeRemainder,
 } from '@/inventories/graphql/resolvers/mutations';
+import adjustClosingEntryMutations from '~/modules/accounting/graphql/resolvers/mutations/adjustClosingEntry';
 
 const resolvers: any = {
   ...apolloCustomScalars,
@@ -70,6 +71,7 @@ const resolvers: any = {
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
     ...MutationsSafeRemainder,
+    ...adjustClosingEntryMutations,
   },
   Query: {
     ...QueriesAccount,

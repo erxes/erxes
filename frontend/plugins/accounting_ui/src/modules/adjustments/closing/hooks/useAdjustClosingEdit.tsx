@@ -1,9 +1,11 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { ADJUST_CLOSING_ENTRIES_EDIT } from '../graphql/adjustClosingEdit';
 import { IAdjustClosingDetail } from '../types/AdjustClosing';
-import { toast } from 'erxes-ui';
+import { toast, useQueryState } from 'erxes-ui';
 
 export const useAdjustClosingEntryEdit = () => {
+  const [adjustClosingId] = useQueryState<string>('adjustClosingId');
+
   const [mutate, { loading }] = useMutation(ADJUST_CLOSING_ENTRIES_EDIT);
 
   const adjustClosingEdit = ({
@@ -11,12 +13,15 @@ export const useAdjustClosingEntryEdit = () => {
     onError,
     ...options
   }: MutationHookOptions<
-    { adjustClosingEntry: { _id: string } },
+    { adjustClosingEntriesEdit: { _id: string } },
     Partial<IAdjustClosingDetail>
   >) => {
     mutate({
       ...options,
-      variables,
+      variables: {
+        ...variables,
+        _id: adjustClosingId,
+      },
       update: (cache, { data }) => {
         if (!data?.adjustClosingEntry || !variables) return;
 

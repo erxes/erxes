@@ -18,16 +18,18 @@ export interface IAdjustClosing {
 
 export interface IAdjustClosingDetail extends IAdjustClosing {
   _id: string;
-  createdAt: Date;
-  updatedAt: Date;
+
+  entries: any[];
+
+  accountId: string;
+  balance?: number;
+  percent?: number;
+
+  mainAccTrId?: string;
+  integrateTrId?: string;
 
   branchId?: string;
   departmentId?: string;
-
-  entries?: any[];
-
-  closeIntegrateTrId?: string;
-  periodGLTrId?: string;
 }
 
 export interface AdjustClosingDetailQueryData {

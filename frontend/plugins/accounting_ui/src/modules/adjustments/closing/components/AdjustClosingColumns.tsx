@@ -2,11 +2,9 @@ import { ColumnDef } from '@tanstack/table-core';
 import { IAdjustClosing } from '../types/AdjustClosing';
 import {
   Input,
-  Popover,
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  useQueryState,
 } from 'erxes-ui';
 import {
   IconBuildingBank,
@@ -18,10 +16,9 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import { renderingAdjustClosingDetailAtom } from '../types/adjustClosingDetailStates';
 import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { AdjustClosingDetail } from './AdjustClosingDetail';
 import { TFunction } from 'i18next';
 import { useNavigate } from 'react-router';
+import { AdjustClosingMoreColumn } from './AdjustClosingMoreColumn';
 
 const StatusCell = ({ row }: { row: any }) => {
   const navigate = useNavigate();
@@ -79,6 +76,7 @@ export const adjustClosingTableColumns: (
   t: TFunction,
 ) => ColumnDef<IAdjustClosing>[] = (t) => {
   return [
+    AdjustClosingMoreColumn,
     checkBoxColumn,
     {
       id: 'status',

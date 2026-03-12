@@ -14,6 +14,7 @@ export const AdjustClosingCommandBar = () => {
   const adjustClosingIds = selectedRows.map(
     (row: Row<IAdjustClosing>) => row.original._id,
   );
+  const selectedRow = table.getFilteredSelectedRowModel().rows[0];
 
   const intersection = (arrays: string[][]): string[] => {
     if (arrays.length === 0) return [];
@@ -29,9 +30,7 @@ export const AdjustClosingCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
-
         <Separator.Inline />
-
         <TagsSelect
           type="core:adjustClosing"
           mode="multiple"
@@ -62,13 +61,8 @@ export const AdjustClosingCommandBar = () => {
             },
           })}
         />
-
         <Separator.Inline />
-
-        <AdjustClosingDelete
-          adjustClosingIds={adjustClosingIds}
-          rows={selectedRows}
-        />
+        {selectedRow && <AdjustClosingDelete row={selectedRow} />}
       </CommandBar.Bar>
     </CommandBar>
   );

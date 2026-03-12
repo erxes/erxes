@@ -65,7 +65,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const handleRun = () => runAdjust();
   const handlePublish = () => publishAdjust();
   const handleCancel = () => cancelAdjust();
-  const handleDelete = () => removeAdjust([id]);
+  const handleDelete = () => removeAdjust(id);
 
   const renderEvents = () => {
     const status = adjustClosingDetail?.status || ADJ_INV_STATUSES.DRAFT;

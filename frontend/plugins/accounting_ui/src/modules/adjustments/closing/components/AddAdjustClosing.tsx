@@ -37,7 +37,7 @@ export const AddAdjustClosing = () => {
   );
 };
 
-const AddAdjustClosingForm = ({
+export const AddAdjustClosingForm = ({
   setOpen,
 }: {
   setOpen: (open: boolean) => void;

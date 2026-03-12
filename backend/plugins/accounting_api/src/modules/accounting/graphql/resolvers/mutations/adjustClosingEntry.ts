@@ -22,6 +22,7 @@ const adjustClosingEntryMutations = {
     { _id, ...doc }: { _id: string } & IAdjustClosing,
     { models }: IContext,
   ) {
+    console.log('_id', _id);
     await models.AdjustClosingEntries.getAdjustClosingEntry({ _id });
     return await models.AdjustClosingEntries.updateAdjustClosingEntry(_id, {
       ...doc,
@@ -33,10 +34,10 @@ const adjustClosingEntryMutations = {
    */
   async adjustClosingEntriesRemove(
     _root: undefined,
-    { ids }: { ids: string[] },
+    { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const response = await models.AdjustClosingEntries.removeAdjustClosing(ids);
+    const response = await models.AdjustClosingEntries.removeAdjustClosing(_id);
     return response;
   },
 

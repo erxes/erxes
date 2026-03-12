@@ -5,13 +5,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useAdjustClosingEntryRemove } from '../../hooks/useAdjustClosingRemove';
 import { ApolloError } from '@apollo/client';
 
-export const AdjustClosingDelete = ({
-  adjustClosingIds,
-  rows,
-}: {
-  adjustClosingIds: string[];
-  rows: Row<IAdjustClosing>[];
-}) => {
+export const AdjustClosingDelete = ({ row }: { row: Row<IAdjustClosing> }) => {
   const { confirm } = useConfirm();
   const { removeAdjust } = useAdjustClosingEntryRemove();
   const { toast } = useToast();
@@ -22,9 +16,11 @@ export const AdjustClosingDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${adjustClosingIds.length} selected adjustments?`,
+          message: `Are you sure you want to delete this adjustment?`,
         }).then(() => {
-          removeAdjust(adjustClosingIds, {
+          const entryId = row.original?._id;
+
+          removeAdjust(entryId, {
             onError: (e: ApolloError) => {
               toast({
                 title: 'Error',
@@ -33,11 +29,11 @@ export const AdjustClosingDelete = ({
               });
             },
             onCompleted: () => {
-              rows.forEach((row) => row.toggleSelected(false));
+              row.toggleSelected(false);
 
               toast({
                 title: 'Success',
-                description: 'Adjustments deleted successfully',
+                description: 'Adjustment deleted successfully',
                 variant: 'success',
               });
             },
