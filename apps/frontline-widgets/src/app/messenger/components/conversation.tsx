@@ -105,8 +105,8 @@ export function ConversationMessage({
 
   if (customerId || fromBot) {
     return (
-      <button
-        role="button"
+      <div
+        role="tabpanel"
         id={lastMessage?._id}
         tabIndex={0}
         className="flex items-center gap-3 cursor-pointer p-3 hover:bg-primary/5 rounded-md transition-all duration-300"
@@ -130,12 +130,12 @@ export function ConversationMessage({
             )}
           </span>
         </div>
-      </button>
+      </div>
     );
   } else if (userId) {
     return (
-      <button
-        role="button"
+      <div
+        role="tabpanel"
         id={lastMessage?._id}
         tabIndex={0}
         className={cn(
@@ -192,7 +192,7 @@ export function ConversationMessage({
             )}
           </span>
         </div>
-      </button>
+      </div>
     );
   }
   return null;
