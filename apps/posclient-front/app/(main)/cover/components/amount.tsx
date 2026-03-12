@@ -36,8 +36,7 @@ const Amount = ({
               onChange={(e) =>
                 setAmounts({
                   ...amounts,
-                  [type]:
-                    Math.max(Number(e.target.value), 0),
+                  [type]: Math.max(Number(e.target.value), 0),
                 })
               }
               type="number"
