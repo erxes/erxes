@@ -64,7 +64,7 @@ const mutations: Record<string, Resolver> = {
           invoice.contentType,
         );
 
-        // Fire worker message –
+        // Fire worker message – do not await
         sendWorkerMessage({
           subdomain,
           pluginName: 'payment',
