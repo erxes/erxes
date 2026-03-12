@@ -92,11 +92,7 @@ export const sendWorkerMessage = async ({
     queueEventsMap.set(queueKey, queueEvents);
   }
 
-  const job = await queue.add(
-    jobName,
-    { subdomain, data },
-    { ...(options || {}) },
-  );
+  const job = await queue.add(jobName, { subdomain, data }, { ...options });
   const result = await Promise.race([
     job.waitUntilFinished(queueEvents),
     new Promise((_, reject) =>
