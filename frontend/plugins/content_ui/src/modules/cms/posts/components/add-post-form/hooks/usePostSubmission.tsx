@@ -61,6 +61,12 @@ interface UsePostSubmissionProps {
   onClose?: () => void;
 }
 
+/**
+ * Converts editor block JSON into HTML.
+ *
+ * @param raw Raw editor JSON string
+ * @returns HTML string
+ */
 const blocksToHtml = (raw: string): string => {
   try {
     const blocks = JSON.parse(raw) as BlockContent[];
@@ -117,6 +123,18 @@ const generateSlug = (title: string): string => {
   const timestamp = Date.now().toString(36).slice(-6);
 
   return `${baseSlug || 'post'}-${timestamp}`;
+};
+
+const redirectToPosts = (
+  websiteId: string,
+  searchParams: URLSearchParams,
+  navigate: (url: string) => void,
+) => {
+  const typeCode = searchParams.get('type');
+
+  const typeParam = typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+
+  navigate(`/content/cms/${websiteId}/posts${typeParam}`);
 };
 
 export const usePostSubmission = ({
@@ -199,18 +217,10 @@ export const usePostSubmission = ({
     try {
       if (editingPost?._id) {
         await editPost(editingPost._id, input);
-
-        toast({
-          title: 'Saved',
-          description: 'Post saved successfully',
-        });
+        toast({ title: 'Saved', description: 'Post saved successfully' });
       } else {
         await createPost(input);
-
-        toast({
-          title: 'Saved',
-          description: 'Post created successfully',
-        });
+        toast({ title: 'Saved', description: 'Post created successfully' });
       }
 
       if (onClose) {
@@ -218,12 +228,7 @@ export const usePostSubmission = ({
         return;
       }
 
-      const typeCode = searchParams.get('type');
-
-      const typeParam =
-        typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
-
-      navigate(`/content/cms/${websiteId}/posts${typeParam}`);
+      redirectToPosts(websiteId, searchParams, navigate);
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : 'Failed to save post';

@@ -21,6 +21,7 @@ const PostsPageContent = ({
       <PageSubHeader>
         <PostsFilter clientPortalId={clientPortalId} />
       </PageSubHeader>
+
       <div className="overflow-hidden flex-auto p-3">
         <div className="h-full">
           <PostsRecordTable
@@ -50,8 +51,10 @@ export const PostsIndexPage = ({
       <PostsHeader>
         <PostsAdd clientPortalId={clientPortalId} />
       </PostsHeader>
+
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
+
         <div className="flex flex-col w-full overflow-hidden flex-auto">
           <PostsPageContent
             clientPortalId={clientPortalId}

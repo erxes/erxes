@@ -19,6 +19,7 @@ export const PostsEmptyState = ({ clientPortalId }: PostsEmptyStateProps) => {
             Get started by creating your first post.
           </p>
         </div>
+
         <PostsAdd clientPortalId={clientPortalId} />
       </div>
     </div>
