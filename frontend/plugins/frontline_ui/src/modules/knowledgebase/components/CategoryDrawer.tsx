@@ -86,8 +86,9 @@ export function CategoryDrawer({
 
   const onSubmit = (data: CategoryFormData) => {
     // Prevent self-parenting
-    const safeParentCategoryId = parentCategoryId === category?._id ? undefined : parentCategoryId;
-    
+    const safeParentCategoryId =
+      parentCategoryId === category?._id ? undefined : parentCategoryId;
+
     if (isEditing && category) {
       editCategory({
         variables: {
@@ -183,7 +184,7 @@ export function CategoryDrawer({
                   <Form.Message className="text-destructive" />
                 </Form.Item>
               )}
-            />            
+            />
 
             <Form.Field
               control={form.control}
@@ -202,14 +203,18 @@ export function CategoryDrawer({
           <Button onClick={onClose} variant="outline">
             Cancel
           </Button>
-          <Button type="submit" disabled={adding || editing} onClick={form.handleSubmit(onSubmit)}>
+          <Button
+            type="submit"
+            disabled={adding || editing}
+            onClick={form.handleSubmit(onSubmit)}
+          >
             {adding || editing
               ? isEditing
                 ? 'Saving...'
                 : 'Creating...'
               : isEditing
-              ? 'Save Changes'
-              : 'Create Category'}
+                ? 'Save Changes'
+                : 'Create Category'}
           </Button>
         </div>
       </Sheet.View>
