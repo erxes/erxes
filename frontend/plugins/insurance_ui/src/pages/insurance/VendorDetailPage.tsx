@@ -473,7 +473,7 @@ export const VendorDetailPage = () => {
                 value={vendorPercentage ?? ''}
                 onChange={(e) => {
                   const value = e.target.value;
-                  setVendorPercentage(value ? parseFloat(value) : undefined);
+                  setVendorPercentage(value ? Number.parseFloat(value) : undefined);
                 }}
                 placeholder="Uses product's rate"
               />
@@ -535,7 +535,7 @@ export const VendorDetailPage = () => {
                             const newFields = [...vendorDurationFields];
                             newFields[index] = {
                               ...newFields[index],
-                              percentage: parseFloat(e.target.value) || 0,
+                              percentage: Number.parseFloat(e.target.value) || 0,
                             };
                             setVendorDurationFields(newFields);
                           }}

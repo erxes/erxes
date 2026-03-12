@@ -142,7 +142,7 @@ export const CarInsurancePage = () => {
     }
 
     // Check if product has duration-based pricing
-    const percentageByDuration = (selectedProduct.pricingConfig as any)
+    const percentageByDuration = (selectedProduct.pricingConfig)
       ?.percentageByDuration;
     if (percentageByDuration && durationInMonths > 0) {
       const durationKey = `${durationInMonths}months`;
@@ -152,7 +152,7 @@ export const CarInsurancePage = () => {
     }
 
     // Fall back to product's base percentage
-    return (selectedProduct.pricingConfig as any)?.percentage || 3;
+    return (selectedProduct.pricingConfig)?.percentage || 3;
   };
 
   const productPercentage = getEffectivePercentage();
@@ -316,7 +316,7 @@ export const CarInsurancePage = () => {
                             onChange={(e) =>
                               setInsuredObject({
                                 ...insuredObject,
-                                assessedValue: parseFloat(e.target.value) || 0,
+                                assessedValue: Number.parseFloat(e.target.value) || 0,
                               })
                             }
                             min={0}
@@ -361,7 +361,7 @@ export const CarInsurancePage = () => {
                                     setInsuredObject({
                                       ...insuredObject,
                                       [attr.name]:
-                                        parseFloat(e.target.value) || 0,
+                                        Number.parseFloat(e.target.value) || 0,
                                     })
                                   }
                                   required={attr.required}
@@ -477,7 +477,7 @@ export const CarInsurancePage = () => {
                         Duration *
                       </label>
                       {selectedProduct &&
-                      (selectedProduct.pricingConfig as any)
+                      (selectedProduct.pricingConfig)
                         ?.percentageByDuration ? (
                         <Select
                           value={
@@ -486,7 +486,7 @@ export const CarInsurancePage = () => {
                               : ''
                           }
                           onValueChange={(value) => {
-                            const months = parseInt(
+                            const months = Number.parseFloat(
                               value.replace('months', ''),
                             );
                             if (formData.startDate && months > 0) {
@@ -501,14 +501,14 @@ export const CarInsurancePage = () => {
                           </Select.Trigger>
                           <Select.Content>
                             {Object.keys(
-                              (selectedProduct.pricingConfig as any)
+                              (selectedProduct.pricingConfig)
                                 .percentageByDuration,
                             ).map((duration) => {
-                              const months = parseInt(
+                              const months = Number.parseFloat(
                                 duration.replace('months', ''),
                               );
                               const percentage = (
-                                selectedProduct.pricingConfig as any
+                                selectedProduct.pricingConfig
                               ).percentageByDuration[duration];
                               return (
                                 <Select.Item key={duration} value={duration}>
@@ -528,7 +528,7 @@ export const CarInsurancePage = () => {
                         />
                       )}
                       {selectedProduct &&
-                        !(selectedProduct.pricingConfig as any)
+                        !(selectedProduct.pricingConfig)
                           ?.percentageByDuration && (
                           <p className="text-xs text-muted-foreground mt-1">
                             End Date
