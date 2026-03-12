@@ -23,7 +23,7 @@ interface PostFormData {
   featured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
-  thumbnail?: unknown | null;
+  thumbnail?: string | null;
   gallery?: string[];
   video?: string | null;
   audio?: string | null;
@@ -86,12 +86,10 @@ const blocksToHtml = (raw: string): string => {
 };
 
 const extractText = (html: string): string => {
-  if (typeof window === 'undefined') return html;
+  if (typeof globalThis.window === 'undefined') return html;
 
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-
-  return (tmp.textContent || '').trim();
+  const doc = new DOMParser().parseFromString(html || '', 'text/html');
+  return (doc.body.textContent || '').trim();
 };
 
 const generateSlug = (title: string): string => {
