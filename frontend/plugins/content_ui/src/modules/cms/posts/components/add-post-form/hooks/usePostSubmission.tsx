@@ -6,6 +6,25 @@ import {
 } from '../../../formHelpers';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
+interface InlineContent {
+  text?: string;
+  styles?: {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strike?: boolean;
+    code?: boolean;
+  };
+}
+
+interface BlockContent {
+  type?: string;
+  content?: InlineContent[];
+  props?: {
+    level?: number;
+  };
+}
+
 interface CustomField {
   field: string;
   value: unknown;
@@ -44,7 +63,7 @@ interface UsePostSubmissionProps {
 
 const blocksToHtml = (raw: string): string => {
   try {
-    const blocks = JSON.parse(raw);
+    const blocks = JSON.parse(raw) as BlockContent[];
 
     if (!Array.isArray(blocks)) {
       return raw;
@@ -52,24 +71,24 @@ const blocksToHtml = (raw: string): string => {
 
     return blocks
       .map((block) => {
-        const inlines = block.content || [];
+        const inlines = block.content ?? [];
 
         const html = inlines
-          .map((i: any) => {
-            let text = i.text || '';
+          .map((inline) => {
+            let text = inline.text ?? '';
 
-            if (i.styles?.bold) text = `<strong>${text}</strong>`;
-            if (i.styles?.italic) text = `<em>${text}</em>`;
-            if (i.styles?.underline) text = `<u>${text}</u>`;
-            if (i.styles?.strike) text = `<s>${text}</s>`;
-            if (i.styles?.code) text = `<code>${text}</code>`;
+            if (inline.styles?.bold) text = `<strong>${text}</strong>`;
+            if (inline.styles?.italic) text = `<em>${text}</em>`;
+            if (inline.styles?.underline) text = `<u>${text}</u>`;
+            if (inline.styles?.strike) text = `<s>${text}</s>`;
+            if (inline.styles?.code) text = `<code>${text}</code>`;
 
             return text;
           })
           .join('');
 
         if (block.type === 'heading') {
-          const level = block.props?.level || 1;
+          const level = block.props?.level ?? 1;
           return `<h${level}>${html}</h${level}>`;
         }
 
@@ -86,10 +105,7 @@ const blocksToHtml = (raw: string): string => {
 };
 
 const extractText = (html: string): string => {
-  if (typeof globalThis.window === 'undefined') return html;
-
-  const doc = new DOMParser().parseFromString(html || '', 'text/html');
-  return (doc.body.textContent || '').trim();
+  return html.replace(/<[^>]*>/g, '').trim();
 };
 
 const generateSlug = (title: string): string => {
@@ -125,7 +141,7 @@ export const usePostSubmission = ({
       return;
     }
 
-    const rawContent = data.content || '';
+    const rawContent = data.content ?? '';
 
     const contentHtml = rawContent.trimStart().startsWith('[')
       ? blocksToHtml(rawContent)
@@ -137,14 +153,14 @@ export const usePostSubmission = ({
       extractText(contentHtml).split('\n')[0].slice(0, 80) ||
       'Untitled';
 
-    const imagesPayload = makeAttachmentArrayFromUrls(data.gallery || []);
-    const videoPayload = normalizeAttachment(data.video || undefined);
-    const audioPayload = normalizeAttachment(data.audio || undefined);
-    const documentsPayload = makeAttachmentArrayFromUrls(data.documents || []);
+    const imagesPayload = makeAttachmentArrayFromUrls(data.gallery ?? []);
+    const videoPayload = normalizeAttachment(data.video ?? undefined);
+    const audioPayload = normalizeAttachment(data.audio ?? undefined);
+    const documentsPayload = makeAttachmentArrayFromUrls(data.documents ?? []);
     const attachmentsPayload = makeAttachmentArrayFromUrls(
-      data.attachments || [],
+      data.attachments ?? [],
     );
-    const pdfPayload = normalizeAttachment(data.pdf || undefined);
+    const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
 
     const filteredCustomFields = data.customFieldsData?.filter(
       (item) =>
@@ -161,13 +177,13 @@ export const usePostSubmission = ({
       categoryIds: data.categoryIds,
       tagIds: data.tagIds,
       featured: data.featured,
-      scheduledDate: data.scheduledDate || undefined,
+      scheduledDate: data.scheduledDate ?? undefined,
       autoArchiveDate: data.enableAutoArchive
         ? data.autoArchiveDate
         : undefined,
       excerpt:
         data.description?.trim() === '' ? null : data.description?.trim(),
-      thumbnail: normalizeAttachment(data.thumbnail || undefined),
+      thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
       images: imagesPayload.length ? imagesPayload : undefined,
       video: videoPayload,
       audio: audioPayload,
