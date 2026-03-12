@@ -21,6 +21,7 @@ interface PostFormData {
   thumbnail?: any | null;
   gallery?: string[];
   video?: string | null;
+  videoUrl?: string;
   audio?: string | null;
   documents?: string[];
   attachments?: string[];
@@ -166,6 +167,7 @@ export const usePostSubmission = ({
       thumbnail: normalizeAttachment(data.thumbnail || undefined),
       images: imagesPayload.length ? imagesPayload : undefined,
       video: videoPayload,
+      videoUrl: data.videoUrl,
       audio: audioPayload,
       documents: documentsPayload.length ? documentsPayload : undefined,
       attachments: attachmentsPayload.length ? attachmentsPayload : undefined,

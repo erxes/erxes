@@ -45,7 +45,10 @@ export function TagsManager({
         onTagsUpdated();
       }
     } catch (error) {
-      // Error handled silently
+      toast({
+        title: 'Error refreshing data',
+        variant: 'destructive',
+      });
     }
   };
   const handleRemoveTag = async () => {

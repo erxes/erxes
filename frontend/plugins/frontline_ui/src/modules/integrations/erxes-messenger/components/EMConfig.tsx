@@ -17,7 +17,7 @@ import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { SelectMember } from 'ui-modules';
+import { SelectMember, SelectBrand } from 'ui-modules';
 import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
 import { erxesMessengerSetupConfigAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
@@ -103,6 +103,27 @@ export const EMConfig = () => {
                     </Form.Item>
                   )}
                 />
+                <Form.Field
+                  name="brandId"
+                  rules={{ required: 'Brand is required' }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Brand</Form.Label>
+                      <Form.Control>
+                        <SelectBrand
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select a brand"
+                          className="w-full h-10 rounded-lg border bg-background"
+                        />
+                      </Form.Control>
+                      <Form.Description>
+                        Choose the brand for this integration
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
               </Collapsible.Content>
             </Collapsible>
             <Collapsible>
@@ -149,7 +170,7 @@ export const EMConfig = () => {
                 />
               </Collapsible.Content>
             </Collapsible>
-            <Collapsible>
+            {/* <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
                 Cloudflare calls setup
@@ -228,7 +249,7 @@ export const EMConfig = () => {
                   )}
                 />
               </Collapsible.Content>
-            </Collapsible>
+            </Collapsible> */}
             <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
@@ -344,24 +365,24 @@ const PersistentMenu = ({
                   <IconTrash />
                 </Button>
               </div>
-              {currentType === 'link' && (
-                <Form.Field
-                  name={`botSetup.persistentMenu.${index}.link`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>URL</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          type="url"
-                          placeholder="https://example.com"
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
+              {/* Always register `link` so reset() retains its value;
+                  only show the UI when type === 'link' */}
+              <Form.Field
+                name={`botSetup.persistentMenu.${index}.link`}
+                render={({ field }) => (
+                  <Form.Item className={currentType === 'link' ? '' : 'hidden'}>
+                    <Form.Label>URL</Form.Label>
+                    <Form.Control>
+                      <Input
+                        {...field}
+                        type="url"
+                        placeholder="https://example.com"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </div>
           );
         })}

@@ -289,6 +289,7 @@ export const integrationSchema = schemaWrapper(
     _id: { type: String, label: '_id' },
     createdUserId: { type: String, label: 'Created by' },
     channelId: { type: String, label: 'Channel id' },
+    brandId: { type: String, label: 'Brand id' },
     kind: {
       type: String,
       label: 'Kind',

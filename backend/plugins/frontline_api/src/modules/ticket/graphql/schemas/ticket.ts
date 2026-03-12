@@ -29,6 +29,11 @@ export const types = `
     isSubscribed: Boolean
     propertiesData: JSON
     state: String
+    attachments: [Attachment]
+  }
+  type RemoveResponse {
+    ok: Int!
+    removedIds: [String!]!
   }
 
   type TicketListResponse {
@@ -94,6 +99,7 @@ const createTicketParams = `
   targetDate: Date
   assigneeId: String
   state: String
+  attachments: [AttachmentInput]
 `;
 
 const updateTicketParams = `
@@ -113,6 +119,7 @@ const updateTicketParams = `
   isSubscribed: Boolean
   propertiesData: JSON
   state: String
+  attachments: [AttachmentInput]
 `;
 
 export const queries = `
@@ -126,8 +133,7 @@ export const queries = `
 export const mutations = `
   createTicket(${createTicketParams}): Ticket
   updateTicket(${updateTicketParams}): Ticket
-  removeTicket(_id: String!): Ticket
-
+  removeTicket(_id: [String!]!): RemoveResponse!
   cpCreateTicket(${createTicketParams}): Ticket
   cpUpdateTicket(${updateTicketParams}): Ticket
 `;

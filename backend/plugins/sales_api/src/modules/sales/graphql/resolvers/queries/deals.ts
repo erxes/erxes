@@ -26,6 +26,7 @@ import { FilterQuery } from 'mongoose';
 import dealResolvers from '../customResolvers/deal';
 import moment from 'moment';
 import { fetchSegment } from '~/modules/sales/trpc/deal';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 const contains = (values: string[]) => {
   return { $in: values };
@@ -159,9 +160,9 @@ export const generateFilter = async (
       input: {
         contentType: 'core:customer',
         contentIds: customerIds,
-        relatedContentType: 'sales:deal'
+        relatedContentType: 'sales:deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = relIds;
@@ -176,9 +177,9 @@ export const generateFilter = async (
       input: {
         contentType: 'core:company',
         contentIds: companyIds,
-        relatedContentType: 'sales:deal'
+        relatedContentType: 'sales:deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = filterIds.length
@@ -203,8 +204,8 @@ export const generateFilter = async (
       input: {
         contentType: relationType,
         contentId: relationId,
-        relatedContentType: 'sales:deal'
-      }
+        relatedContentType: 'sales:deal',
+      },
     });
     filter._id = contains(relIds || []);
   }
@@ -521,6 +522,7 @@ export const generateFilter = async (
   if (number) {
     filter.number = { $regex: `${number}`, $options: 'mui' };
   }
+
   if (vendorCustomerIds?.length > 0) {
     const cards = await sendTRPCMessage({
       subdomain,
@@ -623,11 +625,98 @@ export const generateFilter = async (
   return filter;
 };
 
-export const dealQueries = {
+export const dealQueries: Record<string, Resolver> = {
   /**
    * Deals list
    */
   async deals(
+    _root,
+    args: IDealQueryParams,
+    { user, models, subdomain }: IContext,
+  ) {
+    const filter = await generateFilter(models, subdomain, user._id, args);
+
+    const getExtraFields = async (item: any) => ({
+      amount: await dealResolvers.amount(item),
+      unUsedAmount: await dealResolvers.unusedAmount(item),
+    });
+
+    const {
+      list: deals,
+      pageInfo,
+      totalCount,
+    } = await getItemList(
+      models,
+      subdomain,
+      filter,
+      args,
+      user,
+      getExtraFields,
+    );
+
+    const dealProductIds = deals.flatMap((deal) => {
+      if (deal.productsData && deal.productsData.length > 0) {
+        return deal.productsData.flatMap((pData) => pData.productId || []);
+      }
+
+      return [];
+    });
+
+    const products =
+      (dealProductIds.length &&
+        (await sendTRPCMessage({
+          subdomain,
+
+          pluginName: 'core',
+          method: 'query',
+          module: 'products',
+          action: 'find',
+          input: {
+            query: {
+              _id: { $in: [...new Set(dealProductIds)] },
+            },
+          },
+          defaultValue: [],
+        }))) ||
+      [];
+
+    for (const deal of deals) {
+      let pd = deal.productsData;
+
+      if (!pd || pd.length === 0) {
+        continue;
+      }
+
+      deal.products = [];
+
+      // do not display to many products
+      pd = pd.slice(0, 10);
+
+      for (const pData of pd) {
+        if (!pData.productId) {
+          continue;
+        }
+
+        deal.products.push({
+          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
+          product: products.find((p) => p._id === pData.productId) || {},
+        });
+      }
+
+      // do not display to many products
+      if (deal.productsData.length > pd.length) {
+        deal.products.push({
+          product: {
+            name: '...More',
+          },
+        });
+      }
+    }
+
+    return { list: deals, pageInfo, totalCount };
+  },
+
+  async cpDeals(
     _root,
     args: IDealQueryParams,
     { user, models, subdomain }: IContext,
@@ -897,8 +986,30 @@ export const dealQueries = {
     return checkItemPermByUser(models, subdomain, user, deal);
   },
 
+  async cpDealDetail(
+    _root,
+    { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
+    { user, models, subdomain }: IContext,
+  ) {
+    const deal = await models.Deals.getDeal(_id);
+
+    // no need to check permission on cp deal
+    if (clientPortalCard) {
+      return deal;
+    }
+
+    return checkItemPermByUser(models, subdomain, user, deal);
+  },
+
   //   async checkDiscount() {}
 };
 
 // moduleRequireLogin(dealQueries);
 // checkPermission(dealQueries, 'deals', 'showDeals');
+
+dealQueries.cpDeals.wrapperConfig = {
+  forClientPortal: true,
+};
+dealQueries.cpDealDetail.wrapperConfig = {
+  forClientPortal: true,
+};

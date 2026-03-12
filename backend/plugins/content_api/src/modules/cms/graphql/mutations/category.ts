@@ -11,8 +11,20 @@ export const contentCmsCategoryMutations = {
   ): Promise<any> => {
     const { models } = context;
     const { input } = args;
+    const { translations, ...categoryInput } = input;
 
-    const category = await models.Categories.createCategory(input);
+    const category = await models.Categories.createCategory(categoryInput);
+
+    if (Array.isArray(translations) && translations.length > 0) {
+      const docs = translations.map((translation: any) => ({
+        ...translation,
+        postId: category._id,
+        type: translation.type || 'category',
+      }));
+
+      await models.Translations.insertMany(docs);
+    }
+
     return category;
   },
 
@@ -26,8 +38,23 @@ export const contentCmsCategoryMutations = {
   ): Promise<any> => {
     const { models } = context;
     const { _id, input } = args;
+    const { translations, ...categoryInput } = input;
 
-    return models.Categories.updateCategory(_id, input);
+    const category = await models.Categories.updateCategory(_id, categoryInput);
+
+    if (Array.isArray(translations) && translations.length > 0) {
+      await Promise.all(
+        translations.map((translation: any) =>
+          models.Translations.updateTranslation({
+            ...translation,
+            postId: _id,
+            type: translation.type || 'category',
+          }),
+        ),
+      );
+    }
+
+    return category;
   },
 
   /**
@@ -41,7 +68,11 @@ export const contentCmsCategoryMutations = {
     const { models } = context;
     const { _id } = args;
 
-    return models.Categories.deleteOne({ _id });
+    const result = await models.Categories.deleteOne({ _id });
+
+    await models.Translations.deleteMany({ postId: _id });
+
+    return result;
   },
 
   /**

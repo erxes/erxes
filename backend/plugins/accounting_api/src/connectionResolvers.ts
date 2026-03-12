@@ -48,18 +48,41 @@ import {
   loadAdjustClosingEntryClass,
 } from './modules/accounting/db/models/AdjustClosingEntry';
 import { IAdjustClosingDocument } from './modules/accounting/@types/adjustClosingEntry';
+import {
+  IVatRowModel,
+  loadVatRowClass,
+} from './modules/accounting/db/models/VatRows';
+import {
+  IReserveRemModel,
+  loadReserveRemClass,
+} from './modules/inventories/db/models/ReserveRems';
+import {
+  ISafeRemainderItemModel,
+  loadSafeRemainderItemClass,
+} from './modules/inventories/db/models/SafeRemainderItems';
+import {
+  ISafeRemainderModel,
+  loadSafeRemainderClass,
+} from './modules/inventories/db/models/SafeRemainders';
+import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
+import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
+import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
 
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
   AccountCategories: IAccountCategoryModel;
   Configs: IConfigModel;
-  // VatRows: IVatRowModel;
+  VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
   Permissions: IPermissionModel;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
   AdjustClosingEntries: IAdjustClosingEntryModel;
+
+  ReserveRems: IReserveRemModel;
+  SafeRemainderItems: ISafeRemainderItemModel;
+  SafeRemainders: ISafeRemainderModel;
 }
 
 export interface IContext extends IMainContext {
@@ -129,10 +152,10 @@ export const loadClasses = (
     loadTransactionClass(models, subdomain),
   );
 
-  // models.VatRows = db.model<IVatRowDocument, IVatRowModel>(
-  //   'vat_rows',
-  //   loadVatRowClass(models, subdomain),
-  // );
+  models.VatRows = db.model<IVatRowDocument, IVatRowModel>(
+    'vat_rows',
+    loadVatRowClass(models, subdomain),
+  );
   models.CtaxRows = db.model<ICtaxRowDocument, ICtaxRowModel>(
     'ctax_rows',
     loadCtaxRowClass(models, subdomain),
@@ -142,6 +165,19 @@ export const loadClasses = (
     IAdjustClosingDocument,
     IAdjustClosingEntryModel
   >('adjust_closing_entries', loadAdjustClosingEntryClass(models, subdomain));
+
+  models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
+    'inventories_reserverems',
+    loadReserveRemClass(models, subdomain),
+  );
+  models.SafeRemainderItems = db.model<
+    ISafeRemainderItemDocument,
+    ISafeRemainderItemModel
+  >('safe_remainder_items', loadSafeRemainderItemClass(models, subdomain));
+  models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
+    'safe_remainders',
+    loadSafeRemainderClass(models, subdomain),
+  );
 
   return models;
 };

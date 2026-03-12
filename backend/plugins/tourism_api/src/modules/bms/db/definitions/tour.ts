@@ -11,6 +11,7 @@ export const guideItemSchema = new Schema(
   },
   { _id: false },
 );
+
 export const tourSchema = new Schema({
   _id: mongooseStringRandomId,
 
@@ -61,6 +62,11 @@ export const tourSchema = new Schema({
     type: Boolean,
     optional: true,
     label: 'advanceCheck',
+  },
+  personCost: {
+    type: Object,
+    optional: true,
+    label: 'personCost',
   },
 
   branchId: { type: String, optional: true, label: 'branchId' },

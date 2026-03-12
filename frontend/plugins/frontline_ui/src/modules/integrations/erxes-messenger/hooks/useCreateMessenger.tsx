@@ -47,6 +47,7 @@ export const useCreateMessenger = () => {
             variables: {
               _id,
               channelId: createVariables.channelId,
+              brandId: createVariables.brandId,
               ...saveConfigVariables,
             },
           }).catch((e) =>
@@ -60,6 +61,7 @@ export const useCreateMessenger = () => {
             variables: {
               _id,
               channelId: configFormValues.channelId,
+              brandId: configFormValues.brandId,
               uiOptions,
             },
           }).catch((e) =>

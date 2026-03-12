@@ -69,7 +69,7 @@ const IntegrationsMain = () => {
         <Route path="/calls/:id" element={<CallDetailPage />} />
         <Route path="/reports" element={<Report />} />
         <Route path="/forms" element={<Forms />} />
-        <Route path="/forms/:id" element={<FormDetailPage />} />
+        <Route path="/forms/:formId" element={<FormDetailPage />} />
         <Route path="/forms/create" element={<FormCreatePage />} />
         <Route path="/forms/preview" element={<FormPreviewPage />} />
         <Route path="/knowledgebase" element={<KnowledgeBase />} />

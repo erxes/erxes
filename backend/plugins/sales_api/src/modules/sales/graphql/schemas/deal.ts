@@ -191,6 +191,9 @@ export const queries = `
   
   archivedDeals(${archivedDealsParams}): DealsListResponse
   archivedDealsCount(${archivedDealsParams}): Int
+
+  cpDeals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
+  cpDealDetail(_id: String!, clientPortalCard: Boolean): Deal
 `;
 
 const mutationParams = `

@@ -22,7 +22,7 @@ export interface ICPUserRegisterParams {
   lastName?: string;
   companyName?: string;
   password?: string;
-  type?: string | 'customer' | 'company';
+  userType?: string | 'customer' | 'company';
 }
 
 export interface IRefreshToken {

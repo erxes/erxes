@@ -11,17 +11,17 @@ interface BranchCardProps {
   onEdit: (branchId: string) => void;
   onDuplicate: (branchId: string) => void;
   onDelete: (branchId: string) => void;
+  onVisitWebsite?: (branchId: string) => void;
   duplicateLoading: boolean;
 }
 
 const BranchImage = ({ logo, name }: { logo?: string; name?: string }) => {
   const [imageLoading, setImageLoading] = useState(true);
-  const [imageError, setImageError] = useState(false);
 
-  if (!logo || imageError) {
+  if (!logo) {
     return (
-      <div className="flex flex-col gap-2 justify-center items-center text-muted-foreground">
-        <IconPhoto size={48} className="opacity-40" />
+      <div className="flex justify-center items-center w-full h-full text-muted-foreground">
+        <IconPhoto size={40} className="opacity-40" />
       </div>
     );
   }
@@ -29,24 +29,19 @@ const BranchImage = ({ logo, name }: { logo?: string; name?: string }) => {
   return (
     <div className="relative w-full h-full">
       {imageLoading && (
-        <div className="absolute inset-0">
+        <div className="flex absolute inset-0 justify-center items-center">
           <Spinner size="md" />
         </div>
       )}
       <img
         src={readImage(logo)}
         alt={name || 'Branch logo'}
-        className={`object-contain w-full h-full transition-opacity duration-200 ${
-          imageLoading ? 'opacity-0' : 'opacity-100'
-        }`}
+        className="object-cover w-full h-full"
         loading="lazy"
         width={290}
         height={150}
         onLoad={() => setImageLoading(false)}
-        onError={() => {
-          setImageError(true);
-          setImageLoading(false);
-        }}
+        onError={() => setImageLoading(false)}
       />
     </div>
   );
@@ -57,52 +52,47 @@ export const BranchCard = ({
   onEdit,
   onDuplicate,
   onDelete,
+  onVisitWebsite,
   duplicateLoading,
 }: BranchCardProps) => {
   return (
-    <div className="flex flex-col items-start p-1 w-full h-full sm:p-2 bg-background shrink-0">
-      <div className="flex gap-2 items-start self-stretch sm:gap-4">
-        <div className="flex flex-col items-start w-full sm:w-[290px] rounded-sm bg-background shadow-lg">
-          <div className="flex justify-between items-center self-stretch px-2 h-8 sm:px-3 sm:h-9">
-            <div className="flex flex-1 gap-1 items-center min-w-0">
-              <h3 className="text-xs sm:text-sm font-semibold leading-[100%] text-foreground font-inter truncate">
-                {branch.name || 'Unnamed Branch'}
-              </h3>
-            </div>
-
-            <ActionMenu
-              onEdit={() => onEdit(branch._id)}
-              onDuplicate={() => onDuplicate(branch._id)}
-              onDelete={() => onDelete(branch._id)}
-              duplicateLoading={duplicateLoading}
-            />
-          </div>
-
-          <div className="flex h-[120px] sm:h-[150px] w-full flex-col items-start gap-2 sm:gap-3 self-stretch">
-            <div className="flex overflow-hidden justify-center items-center w-full h-full rounded-sm bg-accent/30">
-              <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center self-stretch px-2 h-8 sm:px-3 sm:h-9">
-            <div className="flex flex-1 gap-1 items-center min-w-0 sm:gap-2">
-              <IconCalendarPlus
-                size={16}
-                className="shrink-0 text-foreground"
-              />
-              <span className="text-[10px] sm:text-[12px] font-semibold leading-[100%] font-inter truncate">
-                Created:{' '}
-                {branch.createdAt
-                  ? format(new Date(branch.createdAt), 'dd MMM yyyy')
-                  : 'N/A'}
-              </span>
-            </div>
-
-            <MembersInline.Provider memberIds={[branch.userId]}>
-              <MembersInline.Avatar size="lg" />
-            </MembersInline.Provider>
+    <div className="flex flex-col w-full rounded-sm shadow-sm bg-background">
+      <div className="flex justify-between items-center px-3 py-2">
+        <div className="min-w-0">
+          <div className="text-sm font-semibold truncate">
+            {branch.name || 'Unnamed Branch'}
           </div>
         </div>
+
+        <ActionMenu
+          onEdit={() => onEdit(branch._id)}
+          onDuplicate={() => onDuplicate(branch._id)}
+          onDelete={() => onDelete(branch._id)}
+          onVisitWebsite={
+            onVisitWebsite ? () => onVisitWebsite(branch._id) : undefined
+          }
+          duplicateLoading={duplicateLoading}
+        />
+      </div>
+
+      <div className="w-full h-[140px] bg-accent/30 overflow-hidden flex items-center justify-center">
+        <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
+      </div>
+
+      <div className="flex justify-between items-center px-3 py-2 border-t">
+        <div className="flex gap-2 items-center min-w-0">
+          <IconCalendarPlus size={16} className="shrink-0" />
+          <span className="text-xs font-medium truncate">
+            Created:{' '}
+            {branch.createdAt
+              ? format(new Date(branch.createdAt), 'dd MMM yyyy')
+              : 'N/A'}
+          </span>
+        </div>
+
+        <MembersInline.Provider memberIds={[branch.userId]}>
+          <MembersInline.Avatar size="lg" />
+        </MembersInline.Provider>
       </div>
     </div>
   );

@@ -76,7 +76,7 @@ const DiffField = ({
           {
             variables: {
               ...remItem,
-              remainder: remItem.preCount - value,
+              remainder: remItem.preCount + value,
               status: 'checked',
             },
           },
@@ -162,7 +162,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     accessorKey: 'remainder',
     cell: ({ row }) => (
       <RemainderField
-        value={row.original.count}
+        value={row.original.count ?? 0}
         field="count"
         _id={row.original._id}
         remItem={row.original}
@@ -175,7 +175,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     accessorKey: 'diff',
     cell: ({ row }) => (
       <DiffField
-        value={row.original.preCount - row.original.count}
+        value={row.original.count - row.original.preCount}
         field="diff"
         _id={row.original._id}
         remItem={row.original}

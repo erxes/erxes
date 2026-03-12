@@ -1,4 +1,4 @@
-import { Form, Upload, Button } from 'erxes-ui';
+import { Form, Upload, Button, Input } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconX } from '@tabler/icons-react';
 import { GalleryUploader } from '../../GalleryUploader';
@@ -36,7 +36,7 @@ export const MediaSection = ({ form }: { form: any }) => (
           <Form.Item>
             <Form.Label>Image gallery</Form.Label>
             <Form.Description>
-              Image gallery with maximum of 10 images
+              Image gallery with maximum of 100 images
             </Form.Description>
             <Form.Control>
               <GalleryUploader
@@ -57,6 +57,20 @@ export const MediaSection = ({ form }: { form: any }) => (
             <Form.Label>Video</Form.Label>
             <Form.Control>
               <VideoUploader value={field.value} onChange={field.onChange} />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={form.control}
+        name="videoUrl"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Video URL</Form.Label>
+            <Form.Control>
+              <Input value={field.value} onChange={field.onChange} />
             </Form.Control>
             <Form.Message />
           </Form.Item>

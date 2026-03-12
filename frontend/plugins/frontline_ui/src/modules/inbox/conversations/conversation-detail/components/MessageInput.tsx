@@ -257,6 +257,7 @@ export const MessageInput = ({
         setShowSuggestions(false);
         setResponseTemplateId(null);
       },
+      refetchQueries: ['Conversations'],
       onError: (err) =>
         toast({
           title: `Failed to send: ${err.message}`,

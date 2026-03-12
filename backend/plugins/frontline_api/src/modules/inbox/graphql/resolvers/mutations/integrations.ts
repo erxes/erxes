@@ -344,9 +344,16 @@ export const integrationMutations = {
    */
   async integrationsSaveMessengerAppearanceData(
     _root,
-    { _id, uiOptions }: { _id: string; uiOptions: IUiOptions },
+    {
+      _id,
+      uiOptions,
+      brandId,
+    }: { _id: string; uiOptions: IUiOptions; brandId: string },
     { models }: IContext,
   ) {
+    if (brandId) {
+      await models.Integrations.updateOne({ _id }, { $set: { brandId } });
+    }
     return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
@@ -358,9 +365,18 @@ export const integrationMutations = {
     {
       _id,
       messengerData,
-    }: { _id: string; messengerData: IMessengerData; callData: any },
+      brandId,
+    }: {
+      _id: string;
+      messengerData: IMessengerData;
+      callData: any;
+      brandId: string;
+    },
     { models }: IContext,
   ) {
+    if (brandId) {
+      await models.Integrations.updateOne({ _id }, { $set: { brandId } });
+    }
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
@@ -466,7 +482,7 @@ export const integrationMutations = {
 
   async integrationsEditCommonFields(
     _root,
-    { _id, name, details, channelId },
+    { _id, name, details, channelId, brandId },
     { models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
@@ -481,7 +497,13 @@ export const integrationMutations = {
     }
     await models.Integrations.updateOne(
       { _id },
-      { $set: { ...doc, ...(channelId && { channelId }) } },
+      {
+        $set: {
+          ...doc,
+          ...(channelId && { channelId }),
+          ...(brandId && { brandId }),
+        },
+      },
     );
 
     const updated = await models.Integrations.getIntegration({ _id });
