@@ -1,0 +1,29 @@
+{
+  "name": "erxes-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for erxes CRM integration",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "erxes-mcp-server": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node --esm src/index.ts",
+    "test": "node dist/index.js"
+  },
+  "keywords": ["erxes", "mcp", "claude", "ai", "crm"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "graphql-request": "^6.1.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
