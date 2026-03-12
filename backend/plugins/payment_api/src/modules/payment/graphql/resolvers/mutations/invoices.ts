@@ -86,7 +86,11 @@ const mutations: Record<string, Resolver> = {
           },
         })
           .then(() => {})
-          .catch((err) => { process.stderr.write(`[invoicesCheck] Worker message failed for invoice ${_id}: ${err.stack}\n`)});
+          .catch((err) => {
+            process.stderr.write(
+              `[invoicesCheck] Worker message failed for invoice ${_id}: ${err.stack}\n`,
+            );
+          });
       }
 
       if (invoice.callback) {
