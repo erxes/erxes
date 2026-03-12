@@ -4,10 +4,8 @@ import { Suspense, lazy } from 'react';
 import { Spinner } from 'erxes-ui/components';
 
 const OrdersMain = lazy(() => {
-  console.log('Attempting to load OrdersPage...');
   return import('../../pages/OrdersPage')
     .then((module) => {
-      console.log('OrdersPage loaded successfully:', module);
       return {
         default: module.OrdersPage,
       };
@@ -61,8 +59,6 @@ const PosByItemsMain = lazy(() =>
 );
 
 const App = () => {
-  console.log('POS Main App component rendered');
-
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>

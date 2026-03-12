@@ -1,15 +1,15 @@
-import { POS_ORDER_FORM_SCHEMA } from '../constants/posOrderSchema';
-import { z } from 'zod';
-
 export interface TPosOrderForm {
   cashAmount: number;
   mobileAmount: number;
   spendPoints: number;
   name?: string;
   description?: string;
+  [key: string]: number | string | undefined;
 }
 
-export type TPosOrderFormData = z.infer<typeof POS_ORDER_FORM_SCHEMA>;
+export type TPosOrderFormData = {
+  [key: string]: number | string | undefined;
+};
 
 export interface TPosOrder {
   _id: string;

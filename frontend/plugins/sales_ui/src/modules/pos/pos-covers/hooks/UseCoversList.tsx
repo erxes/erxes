@@ -9,6 +9,7 @@ import { posCoverTotalCountAtom } from '../states/usePosCoversCounts';
 const COVERS_PER_PAGE = 30;
 
 interface UseCoversListOptions {
+  posId?: string;
   [key: string]: any;
 }
 
@@ -26,6 +27,7 @@ interface UseCoversListReturn {
 }
 
 export const useCoversVariables = (options: UseCoversListOptions = {}) => {
+  const { posId, ...otherOptions } = options;
   const [{ pos, user, dateRange }] = useMultiQueryState<{
     pos: string;
     user: string;
@@ -34,11 +36,11 @@ export const useCoversVariables = (options: UseCoversListOptions = {}) => {
 
   return {
     perPage: COVERS_PER_PAGE,
-    posId: pos || undefined,
+    posId: posId !== undefined ? posId : pos || undefined,
     userId: user || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
-    ...options,
+    ...otherOptions,
   };
 };
 

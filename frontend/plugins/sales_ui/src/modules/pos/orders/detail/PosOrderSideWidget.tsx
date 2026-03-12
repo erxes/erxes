@@ -13,6 +13,11 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
 
   const { posOrdersSummary, loading } = usePosOrdersSummary({ posId });
 
+  const summaryData =
+    posOrdersSummary && Object.keys(posOrdersSummary).length > 0
+      ? posOrdersSummary
+      : {};
+
   if (loading && !posOrdersSummary) {
     return null;
   }
@@ -36,7 +41,7 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
               </Button>
             </Collapsible.Trigger>
             <Collapsible.Content>
-              <PosOrderSummary summary={posOrdersSummary || {}} />
+              <PosOrderSummary summary={summaryData} />
             </Collapsible.Content>
           </Collapsible>
         </div>

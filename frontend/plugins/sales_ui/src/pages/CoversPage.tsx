@@ -27,7 +27,7 @@ export const CoversPage = () => {
       <PageSubHeader>
         <PosCoverFilter />
       </PageSubHeader>
-      <CoversRecordTable />
+      <CoversRecordTable posId={posId} />
     </>
   );
 };

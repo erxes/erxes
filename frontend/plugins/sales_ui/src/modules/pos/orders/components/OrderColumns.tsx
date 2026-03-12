@@ -4,9 +4,6 @@ import {
   IconClock,
   IconUser,
   IconTag,
-  IconBuildingBank,
-  IconFileInvoice,
-  IconCoin,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -21,60 +18,19 @@ import { IOrder } from '@/pos/types/order';
 import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
 import { ClickableBillNumber } from './ClickableBillNumber';
 
-// Статик багануудын түлхүүрүүд - эдгээрийг динамик баганаас ХАСАХ
-const staticKeys = [
-  '_id',
-  'billNumber',
-  'number',
-  'paidDate',
-  'cashAmount',
-  'mobileAmount',
-  'totalAmount',
-  'paidAmounts',
-  'user.email',
-  'user',
-  'pos',
-  'posName',
-  'customer',
-  'customerType',
-  'type',
-  'invoice', // invoice-ийг энд оруулахгүй (тусгай багана)
-  'loan', // loan-ийг энд оруулахгүй (тусгай багана)
-];
-
-// Тусгай баганууд (хамгийн сүүлд харагдах)
-const specialTypes = ['bank', 'invoice', 'loan'];
-const columnConfig: { [key: string]: { header: string; icon: any } } = {
-  bank: { header: 'BANK', icon: IconBuildingBank },
-  invoice: { header: 'INVOICE', icon: IconFileInvoice },
-  loan: { header: 'LOAN', icon: IconCoin },
-};
-
 export const generateOtherPaymentColumns = (
   summary: any,
 ): ColumnDef<unknown>[] => {
-  if (!summary) return [];
-
-  // summary-аас бүх түлхүүрүүдийг авах
-  const otherPayTitles = Object.keys(summary)
-    // Статик багануудыг ХАСАХ
-    .filter((key) => !staticKeys.includes(key))
-    // Тусгай багануудыг (bank, invoice, loan) ХАСАХ - эдгээрийг тусгайлан сүүлд нэмнэ
-    .filter((key) => !specialTypes.includes(key))
+  const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
+    .filter((a) => !['_id'].includes(a))
     .sort();
 
-  return otherPayTitles.map((title: string) => ({
-    id: title,
-    accessorKey: title,
+  return otherPayTitles.map((title: string, index) => ({
+    id: `${title}_${index}`,
     header: () => <RecordTable.InlineHead icon={IconClock} label={title} />,
     cell: ({ row }: any) => {
       const order = row.original;
-      // paidAmounts-аас хайх
-      const paidAmount = order.paidAmounts?.find(
-        (payment: any) => payment.type === title,
-      );
-      // Хэрэв paidAmounts-д байхгүй бол шууд order-ийн талбараас авах
-      const value = paidAmount?.amount || order[title] || 0;
+      const value = order[title] || 0;
 
       return (
         <RecordTableInlineCell>
@@ -85,36 +41,7 @@ export const generateOtherPaymentColumns = (
     size: 150,
   }));
 };
-
-// Тусгай баганууд (bank, invoice, loan) үүсгэх функц
-export const generateSpecialColumns = (): ColumnDef<unknown>[] => {
-  return specialTypes.map((type) => ({
-    id: type,
-    accessorKey: type,
-    header: () => (
-      <RecordTable.InlineHead
-        icon={columnConfig[type]?.icon || IconClock}
-        label={columnConfig[type]?.header || type}
-      />
-    ),
-    cell: ({ row }: any) => {
-      const order = row.original;
-      const paidAmount = order.paidAmounts?.find(
-        (payment: any) => payment.type === type,
-      );
-      const value = paidAmount?.amount || order[type] || 0;
-
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={value?.toLocaleString()} />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 120,
-  }));
-};
-
-export const orderColumns: ColumnDef<IOrder>[] = [
+export const firstOrderColumns: ColumnDef<IOrder>[] = [
   ordersMoreColumn,
   {
     id: 'number',
@@ -174,6 +101,9 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     },
     size: 150,
   },
+];
+
+export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
@@ -242,4 +172,9 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     },
     size: 150,
   },
+];
+
+export const orderColumns: ColumnDef<IOrder>[] = [
+  ...firstOrderColumns,
+  ...secondOrderColumns,
 ];

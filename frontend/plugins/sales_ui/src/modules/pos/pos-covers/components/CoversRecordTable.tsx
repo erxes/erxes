@@ -5,8 +5,14 @@ import { useIsPosCoverLeadSessionKey } from '@/pos/pos-covers/hooks/UsePosCoverL
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { PosCoverCommandBar } from './pos-cover-command-bar/PosCoverCommandbar';
 
-export const CoversRecordTable = () => {
-  const { coversList, handleFetchMore, loading, pageInfo } = useCoversList();
+interface CoversRecordTableProps {
+  posId?: string;
+}
+
+export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
+  const { coversList, handleFetchMore, loading, pageInfo } = useCoversList({
+    posId,
+  });
   const { sessionKey } = useIsPosCoverLeadSessionKey();
 
   return (

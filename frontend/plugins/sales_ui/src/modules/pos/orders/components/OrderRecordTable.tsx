@@ -1,14 +1,13 @@
 import { RecordTable } from 'erxes-ui';
 import {
-  orderColumns,
+  firstOrderColumns,
+  secondOrderColumns,
   generateOtherPaymentColumns,
-  generateSpecialColumns,
 } from '@/pos/orders/components/OrderColumns';
 import { useOrdersList } from '@/pos/orders/hooks/UseOrderList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
 import { Spinner } from 'erxes-ui';
-import { useMemo } from 'react';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { ordersList, handleFetchMore, loading, pageInfo } = useOrdersList({
@@ -17,20 +16,11 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { posOrdersSummary } = usePosOrdersSummary({ posId });
 
-  // Динамик баганууд (cash, mobile, total, bank, invoice, loan-оос бусад)
-  const dynamicColumns = useMemo(() => {
-    return generateOtherPaymentColumns(posOrdersSummary);
-  }, [posOrdersSummary]);
-
-  // Тусгай баганууд (bank, invoice, loan) - хамгийн сүүлд харагдах
-  const specialColumns = useMemo(() => {
-    return generateSpecialColumns();
-  }, []);
-
-  // Бүх багануудыг нэгтгэх
-  const allColumns = useMemo(() => {
-    return [...orderColumns, ...dynamicColumns, ...specialColumns];
-  }, [dynamicColumns]);
+  const allColumns = [
+    ...firstOrderColumns,
+    ...generateOtherPaymentColumns(posOrdersSummary),
+    ...secondOrderColumns,
+  ];
 
   if (loading) return <Spinner />;
 

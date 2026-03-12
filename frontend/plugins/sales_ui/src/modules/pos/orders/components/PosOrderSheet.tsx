@@ -9,15 +9,16 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
 import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
 import { usePosOrderChangePayments } from '../detail/hooks/usePosOrderChangePayments';
 import { SubmitHandler } from 'react-hook-form';
-import { TPosOrderForm } from '../types/posOrderType';
 import { PosOrderForm } from '../detail/PosOrderForm';
 import { ColumnDef } from '@tanstack/table-core';
 import { IconTag, IconShoppingCart } from '@tabler/icons-react';
+import { TPosOrder, TPosOrderFormData } from '../types/posOrderType';
+import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
 
 const itemColumns: ColumnDef<any>[] = [
   {
@@ -82,92 +83,107 @@ const itemColumns: ColumnDef<any>[] = [
 ];
 
 export const PosOrderSheet = () => {
-  const {
-    methods,
-    methods: { reset, handleSubmit },
-  } = usePosOrderForm();
+  const [posOrderId, setPosOrderId] = React.useState<string>('');
   const [searchParams, setSearchParams] = useSearchParams();
-  const posOrderId = searchParams.get('pos_order_id');
-  const { toast } = useToast();
-  const { posOrder, loading } = usePosOrderQuery(posOrderId || undefined);
-  const { posOrderChangePayments, loading: mutationLoading } =
-    usePosOrderChangePayments();
 
-  const setOpen = React.useCallback(
-    (newPosOrderId: string | null) => {
-      const newSearchParams = new URLSearchParams(searchParams);
-      if (newPosOrderId) {
-        newSearchParams.set('pos_order_id', newPosOrderId);
+  React.useEffect(() => {
+    const orderId = searchParams.get('pos_order_id');
+    if (orderId !== posOrderId) {
+      setPosOrderId(orderId || '');
+    }
+  }, [searchParams, posOrderId]);
+
+  const updatePosOrderId = React.useCallback(
+    (orderId: string) => {
+      setPosOrderId(orderId);
+      if (orderId) {
+        searchParams.set('pos_order_id', orderId);
       } else {
-        newSearchParams.delete('pos_order_id');
+        searchParams.delete('pos_order_id');
       }
-      setSearchParams(newSearchParams);
+      setSearchParams(searchParams);
     },
     [searchParams, setSearchParams],
   );
 
-  const submitHandler: SubmitHandler<TPosOrderForm> = React.useCallback(
+  const { toast } = useToast();
+
+  const { posOrder, loading } = usePosOrderQuery(posOrderId || undefined);
+  const { posId } = useParams();
+
+  const shouldFetchSummary = Boolean(posId && posId.trim() !== '');
+  const { posOrdersSummary } = usePosOrdersSummary({
+    posId: shouldFetchSummary ? posId : undefined,
+  });
+  const { posOrderChangePayments, loading: mutationLoading } =
+    usePosOrderChangePayments();
+
+  const combinedSummary = React.useMemo(() => {
+    const summary = { ...(posOrdersSummary || {}) };
+
+    if (posOrder && typeof posOrder === 'object') {
+      try {
+        (Object.keys(posOrder) as Array<keyof TPosOrder | string>).forEach(
+          (key) => {
+            if (
+              key !== '_id' &&
+              key !== '__typename' &&
+              typeof posOrder[key as keyof TPosOrder] === 'number'
+            ) {
+              summary[key as keyof TPosOrder] =
+                posOrder[key as keyof TPosOrder];
+            }
+          },
+        );
+      } catch (error) {
+        console.error('Error processing posOrder for summary:', error);
+      }
+    }
+
+    if (posOrder?.paidAmounts && Array.isArray(posOrder.paidAmounts)) {
+      posOrder.paidAmounts.forEach((paidAmount: any) => {
+        if (paidAmount.type && typeof paidAmount.amount === 'number') {
+          summary[paidAmount.type] = paidAmount.amount;
+        }
+      });
+    }
+
+    return summary;
+  }, [posOrdersSummary, posOrder]);
+
+  const { methods } = usePosOrderForm(posOrder?.paidAmounts, combinedSummary);
+
+  const submitHandler: SubmitHandler<TPosOrderFormData> = React.useCallback(
     async (data) => {
       if (!posOrderId) return;
 
       try {
-        const paidAmounts = [];
-        if (data.cashAmount > 0) {
-          paidAmounts.push({ type: 'cash', amount: data.cashAmount });
-        }
-        if (data.mobileAmount > 0) {
-          paidAmounts.push({ type: 'mobile', amount: data.mobileAmount });
-        }
-        if (data.spendPoints > 0) {
-          paidAmounts.push({ type: 'khaanCard', amount: data.spendPoints });
-        }
-
         await posOrderChangePayments({
           variables: {
             id: posOrderId,
-            cashAmount: parseFloat(data.cashAmount.toString()),
-            mobileAmount: parseFloat(data.mobileAmount.toString()),
-            paidAmounts: paidAmounts.length > 0 ? paidAmounts : null,
-            description: null,
           },
         });
-
         toast({ title: 'Order updated successfully', variant: 'success' });
         methods.reset();
-        setOpen(null);
+        updatePosOrderId('');
       } catch (error) {
-        console.error('Failed to update order:', error);
+        toast({
+          title: 'Failed to update order',
+          variant: 'destructive',
+          description: error instanceof Error ? error.message : 'Unknown error',
+        });
       }
     },
-    [posOrderId, posOrderChangePayments, toast, methods, setOpen],
+    [posOrderId, posOrderChangePayments, toast, methods, updatePosOrderId],
   );
-
-  React.useEffect(() => {
-    if (posOrder) {
-      const khaanCardPayment = posOrder.paidAmounts?.find(
-        (p) => p.type === 'khaanCard',
-      );
-      methods.reset({
-        cashAmount: posOrder.cashAmount || 0,
-        mobileAmount: posOrder.mobileAmount || 0,
-        spendPoints: khaanCardPayment?.amount || 0,
-      });
-    } else if (posOrderId) {
-      methods.reset({
-        cashAmount: 0,
-        mobileAmount: 0,
-        spendPoints: 0,
-      });
-    }
-  }, [posOrder, posOrderId, methods]);
 
   return (
     <Sheet
       open={!!posOrderId}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
-          reset();
-          setOpen(null);
+          methods.reset();
+          updatePosOrderId('');
         }
       }}
     >
@@ -175,7 +191,7 @@ export const PosOrderSheet = () => {
         <Form {...methods}>
           <form
             className="flex flex-col gap-0 size-full"
-            onSubmit={handleSubmit(submitHandler)}
+            onSubmit={methods.handleSubmit(submitHandler)}
           >
             <Sheet.Header>
               <IconChessKnight />
@@ -198,7 +214,7 @@ export const PosOrderSheet = () => {
                       Total Amount:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.totalAmount}
+                      {posOrder.totalAmount?.toLocaleString('en-US')}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -206,7 +222,7 @@ export const PosOrderSheet = () => {
                       Final Amount:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.finalAmount}
+                      {posOrder.finalAmount?.toLocaleString('en-US')}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -233,7 +249,10 @@ export const PosOrderSheet = () => {
                       </RecordTable.Provider>
                     </div>
                   )}
-                  <PosOrderForm control={methods.control} />
+                  <PosOrderForm
+                    control={methods.control}
+                    summary={posOrdersSummary}
+                  />
                 </div>
               )}
             </Sheet.Content>
