@@ -3,6 +3,7 @@ import { usePostsColumns } from './PostsColumn';
 import { PostsCommandbar } from './posts-command-bar/PostsCommandbar';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
 import { usePosts } from '../hooks/usePosts';
+import { PostsEmptyState } from './PostsEmptyState';
 import { Posts } from '../types/postsType';
 
 interface PostsRecordTableProps {
@@ -48,6 +49,9 @@ export const PostsRecordTable = ({
             />
           </RecordTable.Body>
         </RecordTable>
+        {!loading && posts?.length === 0 && (
+          <PostsEmptyState clientPortalId={clientPortalId} />
+        )}
       </RecordTable.CursorProvider>
       <PostsCommandbar refetch={refetch} />
     </RecordTable.Provider>
