@@ -41,19 +41,19 @@ Routes are defined in `src/modules/[Module]Main.tsx` or `[Module]Settings.tsx`.
 
 ## Naming Conventions
 
-| Element | Convention | Example |
-|---|---|---|
-| Components | PascalCase | `TaskBoardCard`, `SelectStatusTask` |
-| Component files | PascalCase.tsx | `TaskBoardCard.tsx` |
-| Hook files | camelCase.tsx | `useGetCycles.tsx` |
-| GraphQL queries | SCREAMING_SNAKE_CASE | `GET_CYCLES` |
-| GraphQL files | camelCase.ts | `getCycles.ts` |
-| Jotai atoms | camelCase + `Atom` or `State` | `cycleDetailSheetState`, `taskCountByBoardAtom` |
-| State files | camelCase + `State.ts` | `cycleDetailSheetState.ts` |
-| Constants | SCREAMING_SNAKE_CASE | `CYCLES_PER_PAGE` |
-| Interfaces | `I` prefix | `ICycle`, `ITask` |
-| Enums | PascalCase | `SelectTriggerVariant` |
-| Pages | PascalCase + `Page` suffix | `TasksPage`, `CyclesPage` |
+| Element         | Convention                    | Example                                         |
+| --------------- | ----------------------------- | ----------------------------------------------- |
+| Components      | PascalCase                    | `TaskBoardCard`, `SelectStatusTask`             |
+| Component files | PascalCase.tsx                | `TaskBoardCard.tsx`                             |
+| Hook files      | camelCase.tsx                 | `useGetCycles.tsx`                              |
+| GraphQL queries | SCREAMING_SNAKE_CASE          | `GET_CYCLES`                                    |
+| GraphQL files   | camelCase.ts                  | `getCycles.ts`                                  |
+| Jotai atoms     | camelCase + `Atom` or `State` | `cycleDetailSheetState`, `taskCountByBoardAtom` |
+| State files     | camelCase + `State.ts`        | `cycleDetailSheetState.ts`                      |
+| Constants       | SCREAMING_SNAKE_CASE          | `CYCLES_PER_PAGE`                               |
+| Interfaces      | `I` prefix                    | `ICycle`, `ITask`                               |
+| Enums           | PascalCase                    | `SelectTriggerVariant`                          |
+| Pages           | PascalCase + `Page` suffix    | `TasksPage`, `CyclesPage`                       |
 
 ---
 
@@ -65,6 +65,7 @@ Routes are defined in `src/modules/[Module]Main.tsx` or `[Module]Settings.tsx`.
 ```
 
 Examples:
+
 ```typescript
 import { TasksPage } from '~/pages/TasksPage';
 import { GET_CYCLES } from '@/cycle/graphql/queries/getCycles';
@@ -92,6 +93,7 @@ import { Breadcrumb, Button } from 'erxes-ui';
 ## GraphQL Patterns
 
 ### Query file
+
 ```typescript
 import { gql } from '@apollo/client';
 
@@ -109,6 +111,7 @@ export const GET_ITEMS = gql`
 ```
 
 ### Hook with query
+
 ```typescript
 export const useGetItems = (options?: QueryHookOptions<...>) => {
   const { toast } = useToast();
@@ -125,6 +128,7 @@ export const useGetItems = (options?: QueryHookOptions<...>) => {
 ```
 
 ### Mutation hook
+
 ```typescript
 export const useUpdateItem = () => {
   const [updateItem, { loading }] = useMutation(UPDATE_ITEM, {
@@ -139,6 +143,7 @@ export const useUpdateItem = () => {
 ## State Management
 
 ### Jotai atom (simple)
+
 ```typescript
 // states/itemDetailSheetState.ts
 import { atom } from 'jotai';
@@ -146,13 +151,13 @@ export const itemDetailSheetState = atom<string | null>(null);
 ```
 
 ### Jotai atom (derived)
+
 ```typescript
-export const itemByIdAtom = atom(
-  (get) => (id: string) => get(allItemsMapState)[id]
-);
+export const itemByIdAtom = atom((get) => (id: string) => get(allItemsMapState)[id]);
 ```
 
 ### Usage in component
+
 ```typescript
 const activeId = useAtomValue(itemDetailSheetState);
 const setActiveId = useSetAtom(itemDetailSheetState);
@@ -163,6 +168,7 @@ const setActiveId = useSetAtom(itemDetailSheetState);
 ## Component Patterns
 
 ### Page component (layout only, no business logic)
+
 ```typescript
 export const ItemsPage = () => {
   const { teamId } = useParams();
@@ -183,6 +189,7 @@ export const ItemsPage = () => {
 ```
 
 ### Variant-driven select component
+
 ```typescript
 export enum SelectTriggerVariant {
   TABLE = 'table',
@@ -217,6 +224,7 @@ export const SelectTriggerItem = ({
 ```
 
 ### Context for shared data
+
 ```typescript
 export const FeatureContext = createContext<IItem | null>(null);
 
@@ -278,6 +286,7 @@ export * from './validations';
 ## Do / Don't
 
 **Do:**
+
 - Keep components under 200 lines
 - Extract all data fetching into custom hooks
 - Use Jotai atoms for modal/sheet open state
@@ -287,6 +296,7 @@ export * from './validations';
 - Name query files after the operation (getCycles.ts → GET_CYCLES)
 
 **Don't:**
+
 - Put GraphQL queries directly in components
 - Use local `useState` for data that belongs in atoms
 - Mix layout and business logic in the same component

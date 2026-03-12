@@ -47,8 +47,14 @@ export const AddPostForm = ({
 
   const selectedType = form.watch('type');
 
-  const { categories, tags, customTypes, availableLanguages, defaultLanguage, fieldGroups } =
-    usePostData(websiteId, selectedType);
+  const {
+    categories,
+    tags,
+    customTypes,
+    availableLanguages,
+    defaultLanguage,
+    fieldGroups,
+  } = usePostData(websiteId, selectedType);
 
   const languageOptions = useMemo(
     () =>
@@ -82,7 +88,8 @@ export const AddPostForm = ({
   }, [form, onSubmit, creating, saving, onFormReady]);
 
   useEffect(() => {
-    if (!selectedLanguage && defaultLanguage) setSelectedLanguage(defaultLanguage);
+    if (!selectedLanguage && defaultLanguage)
+      setSelectedLanguage(defaultLanguage);
   }, [defaultLanguage, selectedLanguage, setSelectedLanguage]);
 
   useEffect(() => {

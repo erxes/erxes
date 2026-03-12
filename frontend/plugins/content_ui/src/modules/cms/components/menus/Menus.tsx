@@ -191,7 +191,9 @@ export function Menus() {
           <div className="flex-auto">
             <div className="flex flex-col">
               <div className="flex pt-2 pl-4 justify-between items-center mb-2">
-                <div className="text-sm text-gray-600">Found {totalCount} menus</div>
+                <div className="text-sm text-gray-600">
+                  Found {totalCount} menus
+                </div>
               </div>
 
               {loading ? (
@@ -203,7 +205,9 @@ export function Menus() {
                 </div>
               ) : error ? (
                 <div className="flex justify-center items-center h-64">
-                  <div className="text-red-500">Error loading menus: {error.message}</div>
+                  <div className="text-red-500">
+                    Error loading menus: {error.message}
+                  </div>
                 </div>
               ) : !menus || menus.length === 0 ? (
                 <div className="rounded-lg overflow-hidden">

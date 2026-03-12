@@ -13,18 +13,16 @@ Load large data or modules only when a feature is activated.
 
 ```tsx
 function AnimationPlayer({ enabled, setEnabled }: { enabled: boolean; setEnabled: React.Dispatch<React.SetStateAction<boolean>> }) {
-  const [frames, setFrames] = useState<Frame[] | null>(null)
+  const [frames, setFrames] = useState<Frame[] | null>(null);
 
   useEffect(() => {
     if (enabled && !frames && typeof window !== 'undefined') {
-      import('./animation-frames.js')
-        .then(mod => setFrames(mod.frames))
-        .catch(() => setEnabled(false))
+      import('./animation-frames.js').then((mod) => setFrames(mod.frames)).catch(() => setEnabled(false));
     }
-  }, [enabled, frames, setEnabled])
+  }, [enabled, frames, setEnabled]);
 
-  if (!frames) return <Skeleton />
-  return <Canvas frames={frames} />
+  if (!frames) return <Skeleton />;
+  return <Canvas frames={frames} />;
 }
 ```
 
