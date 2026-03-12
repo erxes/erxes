@@ -186,7 +186,9 @@ export function TopicList(props: TopicListProps) {
           >
             <span>Categories</span>
           </Sidebar.GroupLabel>
-          <Collapsible.Content className={isCategoriesCollapsed ? 'hidden' : 'block'}>
+          <Collapsible.Content
+            className={isCategoriesCollapsed ? 'hidden' : 'block'}
+          >
             <Sidebar.GroupContent className="p-2">
               <Sidebar.Menu>
                 {allCategories.map((category) => {
