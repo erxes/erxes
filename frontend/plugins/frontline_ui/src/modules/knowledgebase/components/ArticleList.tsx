@@ -1,4 +1,4 @@
-import { Button, Checkbox, CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
+import { CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useArticles } from '../hooks/useArticles';
@@ -9,14 +9,13 @@ import {
   IconUser, 
   IconCalendar, 
   IconEye,
-  IconPlus
 } from '@tabler/icons-react';
 
 type StatusFilter = 'all' | 'draft' | 'published' | 'archived';
 
 interface ArticleListProps {
-  onEditArticle: (article: any) => void;
-  onCreateArticle: () => void;
+  readonly onEditArticle: (article: any) => void;
+  readonly onCreateArticle: () => void;
 }
 
 export function ArticleList({ onEditArticle, onCreateArticle }: ArticleListProps) {
@@ -133,6 +132,7 @@ export function ArticleList({ onEditArticle, onCreateArticle }: ArticleListProps
           </div>
         );
       } catch (error) {
+        console.log(error)
         return <div className="opacity-80 ml-2">Invalid date</div>;
       }
     },

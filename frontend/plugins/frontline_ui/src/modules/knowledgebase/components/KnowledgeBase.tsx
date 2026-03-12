@@ -8,10 +8,8 @@ import { ICategory, ITopic } from '../types';
 import { ArticleDrawer } from './ArticleDrawer';
 import { ArticleList } from './ArticleList';
 import { TopicDrawer } from './TopicDrawer';
-import { TopicList } from './TopicList';
 import { CategoryDrawer } from './CategoryDrawer';
-import { IconCaretRightFilled, IconSearch } from '@tabler/icons-react';
-import { Button, Sidebar } from 'erxes-ui';
+import { Button } from 'erxes-ui';
 
 export function KnowledgeBase() {
   const [isTopicDrawerOpen, setIsTopicDrawerOpen] = useState(false);

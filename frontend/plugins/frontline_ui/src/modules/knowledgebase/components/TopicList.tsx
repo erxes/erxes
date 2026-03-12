@@ -12,19 +12,18 @@ import {
 import { IconDotsVertical } from '@tabler/icons-react';
 
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { REMOVE_CATEGORY } from '../graphql/mutations';
 import { useTopics } from '../hooks/useTopics';
 import { ICategory, ITopic } from '../types';
 import {CategoryDrawer }from './CategoryDrawer';
 
 interface TopicListProps {
-  topics: ITopic[];
-  loading: boolean;
-
-  removeTopic: (topicId: string) => void;
-  onEditTopic: (topic: ITopic) => void;
-  onAddCategory?: (topicId: string) => void;
+  readonly topics: ITopic[];
+  readonly loading: boolean;
+  readonly removeTopic: (topicId: string) => void;
+  readonly onEditTopic: (topic: ITopic) => void;
+  readonly onAddCategory?: (topicId: string) => void;
 }
 
 export function TopicList(props: TopicListProps) {
@@ -66,6 +65,7 @@ export function TopicList(props: TopicListProps) {
         refetch();
       });
     } catch (error) {
+      console.log(error);
       toast({
         type: 'foreground',
         title: 'Failed to delete category. Please try again.',
@@ -155,7 +155,7 @@ export function TopicList(props: TopicListProps) {
           >
             <span>Topics</span>
           </Sidebar.GroupLabel>
-          <Collapsible.Content className={!isTopicsCollapsed ? 'block' : 'hidden'}>
+          <Collapsible.Content className={isTopicsCollapsed ? 'hidden' : 'block'}>
             <Sidebar.GroupContent className="pt-2">
               <Sidebar.Menu>
                 {topics.map((topic) => {
@@ -236,10 +236,10 @@ export function TopicList(props: TopicListProps) {
 }
 
 export function TopicItem(props: {
-  topic: ITopic;
-  removeTopic: (topicId: string) => void;
-  onEditTopic: (topic: ITopic) => void;
-  onAddCategory?: (topicId: string) => void;
+  readonly topic: ITopic;
+  readonly removeTopic: (topicId: string) => void;
+  readonly onEditTopic: (topic: ITopic) => void;
+  readonly onAddCategory?: (topicId: string) => void;
 }) {
   const [removeCategory] = useMutation(REMOVE_CATEGORY);
   const { refetch } = useTopics();
@@ -301,6 +301,7 @@ export function TopicItem(props: {
         refetch();
       });
     } catch (error) {
+      console.log(error);
       toast({
         type: 'foreground',
         title: 'Failed to delete category. Please try again.',

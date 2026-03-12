@@ -1,17 +1,13 @@
-import { IconBook, IconCaretRightFilled, IconFolder, IconSearch, IconPlus, IconDotsVertical, IconFileText } from '@tabler/icons-react';
-import { Sidebar, Spinner, cn, Kbd, Input, Button, DropdownMenu, NavigationMenuGroup, TextOverflowTooltip, IconComponent, useQueryState, Collapsible } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { IconFolder, IconDotsVertical, IconFileText } from '@tabler/icons-react';
+import { Sidebar, cn, DropdownMenu, NavigationMenuGroup, TextOverflowTooltip, useQueryState, Collapsible, useConfirm } from 'erxes-ui';
+import { useEffect, useState } from 'react';
 import { useTopics } from '../hooks/useTopics';
-import { buildCategoryTree } from '../utils/buildGategoryTree';
 import { TopicDrawer } from './TopicDrawer';
 import { CategoryDrawer } from './CategoryDrawer';
 import { useMutation } from '@apollo/client';
 import { REMOVE_TOPIC, REMOVE_CATEGORY } from '../graphql/mutations';
-import { TopicList } from './TopicList';
 import { ITopic, ICategory } from '../types';
 import { ICONS } from '../constants';
-import { useConfirm } from 'erxes-ui';
 
 function LoadingSkeleton() {
   return (
@@ -24,10 +20,10 @@ function LoadingSkeleton() {
 }
 
 interface TopicItemProps {
-  topic: ITopic;
-  onEditTopic: (topic: ITopic) => void;
-  onAddCategory: (topicId: string) => void;
-  onRemoveTopic: (topicId: string) => void;
+  readonly topic: ITopic;
+  readonly onEditTopic: (topic: ITopic) => void;
+  readonly onAddCategory: (topicId: string) => void;
+  readonly onRemoveTopic: (topicId: string) => void;
 }
 
 function TopicItem({ topic, onEditTopic, onAddCategory, onRemoveTopic }: TopicItemProps) {

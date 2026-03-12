@@ -9,12 +9,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPicker } from '@/knowledgebase/components/IconPicker';
 
 interface CategoryDrawerProps {
-  category?: ICategory;
-  topicId: string;
-  parentCategoryId?: string;
-  isOpen: boolean;
-  onClose: () => void;
-  refetch: () => void;
+  readonly category?: ICategory;
+  readonly topicId: string;
+  readonly parentCategoryId?: string;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly refetch: () => void;
 }
 
 const categorySchema = z.object({
