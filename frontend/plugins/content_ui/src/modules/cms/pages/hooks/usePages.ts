@@ -25,38 +25,56 @@ export const usePagesVariables = (
     };
   }>['variables'],
 ) => {
-  const [{ name, path, createdAt, updatedAt, publishedDate }] =
-    useMultiQueryState<{
-      name: string[];
-      path: string;
-      createdAt: string;
-      updatedAt: string;
-      publishedDate: string;
-    }>(['name', 'path', 'createdAt', 'updatedAt', 'publishedDate']);
+  const [
+    {
+      name,
+      path,
+      createdAt,
+      updatedAt,
+      publishedDate,
+      sortField,
+      sortDirection,
+    },
+  ] = useMultiQueryState<{
+    name: string;
+    path: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedDate: string;
+    sortField: string;
+    sortDirection: string;
+  }>([
+    'name',
+    'path',
+    'createdAt',
+    'updatedAt',
+    'publishedDate',
+    'sortField',
+    'sortDirection',
+  ]);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: PAGES_CURSOR_SESSION_KEY,
   });
 
+  const parsedSortDirection =
+    sortDirection !== undefined &&
+    sortDirection !== null &&
+    sortDirection !== ''
+      ? sortDirection.toString()
+      : '-1';
+
+  const orderBy = {
+    [sortField || 'createdAt']: parsedSortDirection === '-1' ? -1 : 1,
+  };
+
   return {
     limit: PAGES_PER_PAGE,
     cursor,
+    orderBy,
     name: name || undefined,
     path: path || undefined,
-    dateFilters: {
-      createdAt: {
-        gte: parseDateRangeFromString(createdAt)?.from,
-        lte: parseDateRangeFromString(createdAt)?.to,
-      },
-      updatedAt: {
-        gte: parseDateRangeFromString(updatedAt)?.from,
-        lte: parseDateRangeFromString(updatedAt)?.to,
-      },
-      publishedDate: {
-        gte: parseDateRangeFromString(publishedDate)?.from,
-        lte: parseDateRangeFromString(publishedDate)?.to,
-      },
-    },
+    type: 'page',
     ...variables,
   };
 };
@@ -110,14 +128,31 @@ export const usePages = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
+        const isForward = direction === EnumCursorDirection.FORWARD;
+        const fetchPageInfo = fetchMoreResult.cmsPageList?.pageInfo || {};
+        const prevPageInfo = prev.cmsPageList?.pageInfo || {};
+        const fetchPosts = fetchMoreResult.cmsPageList?.pages || [];
+        const prevPosts = prev.cmsPageList?.pages || [];
         return Object.assign({}, prev, {
           cmsPageList: {
-            pages: [
-              ...(prev.cmsPageList?.pages || []),
-              ...fetchMoreResult.cmsPageList.pages,
-            ],
-            totalCount: fetchMoreResult.cmsPageList.totalCount,
-            pageInfo: fetchMoreResult.cmsPageList.pageInfo,
+            ...fetchMoreResult.cmsPageList,
+            pages: isForward
+              ? [...prevPosts, ...fetchPosts]
+              : [...fetchPosts, ...prevPosts],
+            pageInfo: {
+              endCursor: isForward
+                ? fetchPageInfo.endCursor
+                : prevPageInfo.endCursor,
+              hasNextPage: isForward
+                ? fetchPageInfo.hasNextPage
+                : prevPageInfo.hasNextPage,
+              hasPreviousPage: isForward
+                ? prevPageInfo.hasPreviousPage
+                : fetchPageInfo.hasPreviousPage,
+              startCursor: isForward
+                ? prevPageInfo.startCursor
+                : fetchPageInfo.startCursor,
+            },
           },
         });
       },
