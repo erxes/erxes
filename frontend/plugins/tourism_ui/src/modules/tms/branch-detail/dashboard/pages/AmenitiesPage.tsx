@@ -1,15 +1,20 @@
 import { IBranch } from '@/tms/types/branch';
+import { PageSubHeader } from 'erxes-ui';
+import { AmenityFilter, AmenityRecordTable } from '../amenities';
 
 export const AmenitiesPage = ({ branch }: { branch: IBranch }) => {
   return (
-    <div className="p-4">
-      <div className="p-4 rounded-md border bg-background">
-        <h3 className="text-base font-semibold">Amenities</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Maintain amenity catalog for{' '}
-          <span className="font-medium">{branch.name}</span>.
-        </p>
+    <>
+      <PageSubHeader>
+        <div className="flex gap-4 justify-between items-center w-full">
+          <AmenityFilter />
+        </div>
+      </PageSubHeader>
+      <div className="overflow-hidden flex-auto p-3">
+        <div className="h-full">
+          <AmenityRecordTable branchId={branch._id} />
+        </div>
       </div>
-    </div>
+    </>
   );
 };

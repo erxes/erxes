@@ -8,8 +8,8 @@ import { useBranchDetailPage } from '@/tms/branch-detail/hooks/useBranchDetailPa
 
 import { TourCreateSheet } from '@/tms/branch-detail/dashboard/tours/_components/TourCreateSheet';
 import { ItineraryCreateSheet } from '@/tms/branch-detail/dashboard/itinerary/_components/ItineraryCreateSheet';
-// import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements/_components/ElementCreateSheet';
-// import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities/_components/AmenityCreateSheet';
+import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements/_components/ElementCreateSheet';
+import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities/_components/AmenityCreateSheet';
 
 export const BranchDetailIndexPage = () => {
   const [searchParams] = useSearchParams();
@@ -35,14 +35,14 @@ export const BranchDetailIndexPage = () => {
       case 'itinerary':
         return <ItineraryCreateSheet branchId={branchId} />;
 
-      case 'element':
-        return null;
+      case 'elements':
+        return <ElementCreateSheet branchId={branchId} />;
 
-      case 'amenity':
-        return null;
+      case 'amenities':
+        return <AmenityCreateSheet branchId={branchId} />;
 
       default:
-        return null;
+        return <TourCreateSheet branchId={branchId} />;
     }
   };
 
