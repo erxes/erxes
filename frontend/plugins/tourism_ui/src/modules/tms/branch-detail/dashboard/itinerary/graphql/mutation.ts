@@ -4,22 +4,64 @@ export const CREATE_ITINERARY = gql`
   mutation BmsItineraryAdd(
     $groupDays: [DayItemInput]
     $totalCost: Float
-    $images: [String]
     $branchId: String
     $name: String
-    $content: String
     $duration: Int
     $color: String
+    $guideCost: Float
+    $driverCost: Float
+    $foodCost: Float
+    $gasCost: Float
+    $personCost: JSON
+    $guideCostExtra: Float
   ) {
     bmsItineraryAdd(
       groupDays: $groupDays
       totalCost: $totalCost
-      images: $images
       branchId: $branchId
       name: $name
-      content: $content
       duration: $duration
       color: $color
+      guideCost: $guideCost
+      driverCost: $driverCost
+      foodCost: $foodCost
+      gasCost: $gasCost
+      personCost: $personCost
+      guideCostExtra: $guideCostExtra
+    ) {
+      _id
+    }
+  }
+`;
+
+export const EDIT_ITINERARY = gql`
+  mutation BmsItineraryEdit(
+    $id: String!
+    $name: String
+    $duration: Int
+    $totalCost: Float
+    $groupDays: [DayItemInput]
+    $color: String
+    $foodCost: Float
+    $personCost: JSON
+    $gasCost: Float
+    $driverCost: Float
+    $guideCost: Float
+    $guideCostExtra: Float
+  ) {
+    bmsItineraryEdit(
+      _id: $id
+      name: $name
+      duration: $duration
+      totalCost: $totalCost
+      groupDays: $groupDays
+      color: $color
+      foodCost: $foodCost
+      personCost: $personCost
+      gasCost: $gasCost
+      driverCost: $driverCost
+      guideCost: $guideCost
+      guideCostExtra: $guideCostExtra
     ) {
       _id
     }

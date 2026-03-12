@@ -1,13 +1,14 @@
 import { useMutation } from '@apollo/client';
-import { CREATE_ITINERARY } from '../graphql/mutation';
+import { EDIT_ITINERARY } from '../graphql/mutation';
 
-interface CreateItineraryResponse {
-  bmsItineraryAdd: {
+interface EditItineraryResponse {
+  bmsItineraryEdit: {
     _id: string;
   };
 }
 
-export interface ICreateItineraryVariables {
+export interface IEditItineraryVariables {
+  id: string;
   branchId?: string;
   name?: string;
   duration?: number;
@@ -29,25 +30,25 @@ export interface ICreateItineraryVariables {
   guideCostExtra?: number;
 }
 
-export const useCreateItinerary = () => {
-  const [createItineraryMutation, { loading, error }] = useMutation<
-    CreateItineraryResponse,
-    ICreateItineraryVariables
-  >(CREATE_ITINERARY, {
-    refetchQueries: ['BmsItineraries'],
+export const useEditItinerary = () => {
+  const [editItineraryMutation, { loading, error }] = useMutation<
+    EditItineraryResponse,
+    IEditItineraryVariables
+  >(EDIT_ITINERARY, {
+    refetchQueries: ['BmsItineraries', 'BmsItineraryDetail'],
     awaitRefetchQueries: true,
   });
 
-  const createItinerary = (options: {
-    variables: ICreateItineraryVariables;
-    onCompleted?: (data: CreateItineraryResponse) => void;
+  const editItinerary = (options: {
+    variables: IEditItineraryVariables;
+    onCompleted?: (data: EditItineraryResponse) => void;
     onError?: (error: unknown) => void;
   }) => {
-    return createItineraryMutation(options);
+    return editItineraryMutation(options);
   };
 
   return {
-    createItinerary,
+    editItinerary,
     loading,
     error,
   };

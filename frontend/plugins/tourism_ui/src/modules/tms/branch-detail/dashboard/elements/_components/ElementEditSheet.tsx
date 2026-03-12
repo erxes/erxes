@@ -16,6 +16,7 @@ import {
   ElementDurationField,
   ElementCostField,
 } from './ElementFormFields';
+
 import { SelectElementCategories } from './SelectElementCategories';
 import { useEditElement } from '../hooks/useEditElement';
 import { IElement } from '../types/element';
@@ -41,11 +42,8 @@ export const ElementEditSheet = ({
   const sheetOpen = isControlled ? open : internalOpen;
 
   const handleOpenChange = (value: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(value);
-    } else {
-      setInternalOpen(value);
-    }
+    if (onOpenChange) onOpenChange(value);
+    else setInternalOpen(value);
   };
 
   const { editElement, loading } = useEditElement();
@@ -110,17 +108,21 @@ export const ElementEditSheet = ({
     <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
       {showTrigger && !children && (
         <Sheet.Trigger asChild>
-          <Button variant="ghost" size="sm">
+          <Button type="button" variant="ghost" size="sm">
             <IconEdit size={16} />
           </Button>
         </Sheet.Trigger>
       )}
+
       {children && <Sheet.Trigger asChild>{children}</Sheet.Trigger>}
 
       <Sheet.View className="w-[600px] sm:max-w-[600px] p-0">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={(e) => {
+              e.stopPropagation();
+              form.handleSubmit(handleSubmit)(e);
+            }}
             className="flex flex-col h-full"
           >
             <Sheet.Header>

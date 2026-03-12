@@ -1,16 +1,7 @@
-import { Control } from 'react-hook-form';
-import {
-  Form,
-  Input,
-  Editor,
-  Upload,
-  readImage,
-  useErxesUpload,
-  Button,
-} from 'erxes-ui';
+import { Control, useWatch } from 'react-hook-form';
+import { Form, Input, ColorPicker, Button } from 'erxes-ui';
 import { ItineraryCreateFormType } from '../constants/formSchema';
-import { IconUpload, IconTrash } from '@tabler/icons-react';
-import { useState, useEffect } from 'react';
+import { IconMinus } from '@tabler/icons-react';
 
 export const ItineraryNameField = ({
   control,
@@ -36,54 +27,6 @@ export const ItineraryNameField = ({
   );
 };
 
-export const ItineraryDescriptionField = ({
-  control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
-  return (
-    <Form.Field
-      control={control}
-      name="content"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>Content</Form.Label>
-          <Form.Control>
-            <Editor
-              initialContent={field.value}
-              onChange={field.onChange}
-              isHTML
-            />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
-export const ItineraryDurationField = ({
-  control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
-  return (
-    <Form.Field
-      control={control}
-      name="duration"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>Duration (days)</Form.Label>
-          <Form.Control>
-            <Input type="number" placeholder="1" {...field} />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
 export const ItineraryColorField = ({
   control,
 }: {
@@ -97,20 +40,11 @@ export const ItineraryColorField = ({
         <Form.Item>
           <Form.Label>Color</Form.Label>
           <Form.Control>
-            <div className="flex gap-2 items-center">
-              <Input
-                type="color"
-                className="w-16 h-10"
-                {...field}
-                value={field.value || '#000000'}
-              />
-              <Input
-                type="text"
-                placeholder="#000000"
-                {...field}
-                value={field.value || ''}
-              />
-            </div>
+            <ColorPicker
+              value={field.value || '#000000'}
+              onValueChange={field.onChange}
+              className="w-24 h-8"
+            />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -119,7 +53,7 @@ export const ItineraryColorField = ({
   );
 };
 
-export const ItineraryTotalCostField = ({
+export const ItineraryGuideCostField = ({
   control,
 }: {
   control: Control<ItineraryCreateFormType>;
@@ -127,12 +61,18 @@ export const ItineraryTotalCostField = ({
   return (
     <Form.Field
       control={control}
-      name="totalCost"
+      name="guideCost"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Total Cost</Form.Label>
+          <Form.Label>Guide's daily wage</Form.Label>
           <Form.Control>
-            <Input type="number" placeholder="0" {...field} />
+            <Input
+              type="number"
+              placeholder="0"
+              {...field}
+              value={field.value || 0}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+            />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -141,112 +81,161 @@ export const ItineraryTotalCostField = ({
   );
 };
 
-const ItineraryImagesFieldContent = ({
-  field,
+export const ItineraryDriverCostField = ({
+  control,
 }: {
-  field: {
-    value?: string[];
-    onChange: (value: string[]) => void;
-  };
+  control: Control<ItineraryCreateFormType>;
 }) => {
-  const urls = field.value || [];
-
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 10,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (addedFiles) => {
-      const existing = urls || [];
-      const addedUrls = (addedFiles || [])
-        .map((file: any) => file.url)
-        .filter(Boolean);
-      const next = Array.from(new Set([...existing, ...addedUrls])).slice(
-        0,
-        50,
-      );
-      field.onChange(next);
-    },
-  });
-
-  const { files, loading, onUpload } = uploadProps;
-
-  useEffect(() => {
-    if (files.length > 0 && !loading) {
-      onUpload();
-    }
-  }, [files.length, loading, onUpload]);
-
-  const handleRemove = (url: string) => {
-    const next = (urls || []).filter((u: string) => u !== url);
-    field.onChange(next);
-  };
-
   return (
-    <div className="space-y-2">
-      {urls.length > 0 && (
-        <div className="relative">
-          <div className="flex flex-wrap gap-4">
-            {urls.map((url: string) => (
-              <div
-                key={url}
-                className="overflow-hidden relative w-24 rounded-md border aspect-square shadow-xs bg-muted group"
-              >
-                <img
-                  src={readImage(url)}
-                  alt=""
-                  className="object-cover w-full h-full"
-                />
-                <button
-                  className="inline-flex absolute top-0 right-0 z-30 justify-center items-center p-1 rounded-md shadow-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100 bg-destructive/90 text-destructive-foreground hover:bg-destructive"
-                  type="button"
-                  onClick={() => handleRemove(url)}
-                >
-                  <IconTrash size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-          {uploadProps.loading && (
-            <div className="flex absolute inset-0 justify-center items-center border bg-background">
-              <div className="text-sm text-muted-foreground">Uploading...</div>
-            </div>
-          )}
-        </div>
+    <Form.Field
+      control={control}
+      name="driverCost"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Driver's daily wage</Form.Label>
+          <Form.Control>
+            <Input
+              type="number"
+              placeholder="0"
+              {...field}
+              value={field.value || 0}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
       )}
-      <div>
-        <input {...uploadProps.getInputProps()} />
-        <Button
-          variant="outline"
-          className="w-full h-12 border-dashed"
-          onClick={uploadProps.open}
-          disabled={uploadProps.loading}
-          type="button"
-        >
-          {uploadProps.loading ? 'Uploading...' : 'Add Images'}
-        </Button>
+    />
+  );
+};
+
+export const ItineraryFoodCostField = ({
+  control,
+}: {
+  control: Control<ItineraryCreateFormType>;
+}) => {
+  return (
+    <Form.Field
+      control={control}
+      name="foodCost"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Daily cost of food per person</Form.Label>
+          <Form.Control>
+            <Input
+              type="number"
+              placeholder="0"
+              {...field}
+              value={field.value || 0}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const ItineraryGasCostField = ({
+  control,
+}: {
+  control: Control<ItineraryCreateFormType>;
+}) => {
+  return (
+    <Form.Field
+      control={control}
+      name="gasCost"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Gasoline fee per car</Form.Label>
+          <Form.Control>
+            <Input
+              type="number"
+              placeholder="0"
+              {...field}
+              value={field.value || 0}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const ItineraryGuideCostExtraField = ({
+  control,
+}: {
+  control: Control<ItineraryCreateFormType>;
+}) => {
+  return (
+    <Form.Field
+      control={control}
+      name="guideCostExtra"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Total price of a additive assistant</Form.Label>
+          <Form.Control>
+            <Input
+              type="number"
+              placeholder="0"
+              {...field}
+              value={field.value || 0}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const ItineraryPersonCostField = ({
+  control,
+  duration,
+}: {
+  control: Control<ItineraryCreateFormType>;
+  duration: number;
+}) => {
+  return (
+    <div className="space-y-3">
+      <Form.Label>The daily cost per person</Form.Label>
+      <div className="grid grid-cols-1 gap-2">
+        {Array.from({ length: duration }, (_, i) => {
+          const dayKey = `day${i + 1}`;
+          return (
+            <Form.Field
+              key={dayKey}
+              control={control}
+              name={`personCost.${dayKey}`}
+              render={({ field }) => (
+                <Form.Item className="flex gap-2 items-center space-y-0">
+                  <Form.Control className="flex-1">
+                    <Input
+                      type="number"
+                      placeholder={`Cost for day ${i + 1}`}
+                      value={field.value || 0}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </Form.Control>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0"
+                    disabled
+                  >
+                    <IconMinus className="w-4 h-4" />
+                  </Button>
+                </Form.Item>
+              )}
+            />
+          );
+        })}
       </div>
     </div>
-  );
-};
-
-export const ItineraryImagesField = ({
-  control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
-  return (
-    <Form.Field
-      control={control}
-      name="images"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>Itinerary Images</Form.Label>
-          <Form.Control>
-            <ItineraryImagesFieldContent field={field} />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
   );
 };

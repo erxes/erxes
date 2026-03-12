@@ -1,5 +1,5 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Form, Sheet, useToast } from 'erxes-ui';
+import { Button, Form, Sheet, useToast, Tabs } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,14 +10,19 @@ import {
 } from '../constants/formSchema';
 
 import {
-  ItineraryDescriptionField,
   ItineraryNameField,
-  ItineraryDurationField,
   ItineraryColorField,
-  ItineraryTotalCostField,
-  ItineraryImagesField,
+  ItineraryGuideCostField,
+  ItineraryDriverCostField,
+  ItineraryFoodCostField,
+  ItineraryGasCostField,
+  ItineraryGuideCostExtraField,
+  ItineraryPersonCostField,
 } from './ItineraryFormFields';
 import { useCreateItinerary } from '../hooks/useCreateItinerary';
+import { ItineraryBuilder } from '../itinerary-builder';
+import { useElements } from '../../elements/hooks/useElements';
+import { useAmenities } from '../../amenities/hooks/useAmenities';
 
 interface ItineraryCreateSheetProps {
   branchId?: string;
@@ -26,6 +31,8 @@ interface ItineraryCreateSheetProps {
   showTrigger?: boolean;
 }
 
+type Step = 'build' | 'info';
+
 export const ItineraryCreateSheet = ({
   branchId,
   open,
@@ -33,33 +40,71 @@ export const ItineraryCreateSheet = ({
   showTrigger = true,
 }: ItineraryCreateSheetProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState<Step>('build');
+
+  const { toast } = useToast();
+  const { createItinerary, loading } = useCreateItinerary();
 
   const isControlled = typeof open === 'boolean';
   const sheetOpen = isControlled ? open : internalOpen;
 
+  const { elements: elementsData = [] } = useElements({
+    variables: { branchId, quick: false },
+    skip: !branchId,
+  });
+
+  const { amenities: amenitiesData = [] } = useAmenities({
+    variables: { branchId, quick: true },
+    skip: !branchId,
+  });
+
+  const form = useForm<ItineraryCreateFormType>({
+    resolver: zodResolver(ItineraryCreateFormSchema),
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      name: '',
+      duration: 1,
+      color: '#000000',
+      totalCost: 0,
+      groupDays: [],
+      guideCost: 0,
+      driverCost: 0,
+      foodCost: 0,
+      gasCost: 0,
+      personCost: {},
+      guideCostExtra: 0,
+    },
+  });
+
   const handleOpenChange = (value: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(value);
+    if (!value) {
+      form.reset();
+      setCurrentStep('build');
+    }
+
+    if (isControlled) {
+      onOpenChange?.(value);
     } else {
       setInternalOpen(value);
     }
   };
 
-  const { createItinerary, loading } = useCreateItinerary();
-  const { toast } = useToast();
+  const stepFields: Record<Step, (keyof ItineraryCreateFormType)[]> = {
+    build: ['groupDays'],
+    info: ['name', 'color'],
+  };
 
-  const form = useForm<ItineraryCreateFormType>({
-    resolver: zodResolver(ItineraryCreateFormSchema),
-    defaultValues: {
-      name: '',
-      content: '',
-      duration: 1,
-      color: '#000000',
-      totalCost: 0,
-      images: [],
-      groupDays: [],
-    },
-  });
+  const handleNextStep = async () => {
+    const fields = stepFields.build;
+
+    const isValid = await form.trigger(fields);
+
+    if (!isValid) return;
+
+    form.clearErrors();
+    setCurrentStep('info');
+  };
 
   const handleSubmit = async (values: ItineraryCreateFormType) => {
     if (!branchId) {
@@ -71,17 +116,57 @@ export const ItineraryCreateSheet = ({
       return;
     }
 
+    if (!values.groupDays || values.groupDays.length === 0) {
+      toast({
+        title: 'Error',
+        description: 'At least one day is required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const transformedGroupDays = values.groupDays.map((day, index) => ({
+      day: index + 1,
+      title: day.title,
+      elements: (day.elements || []).map((elementId, order) => ({
+        elementId,
+        orderOfDay: order + 1,
+      })),
+      elementsQuick: (day.amenities || []).map((amenityId, order) => ({
+        elementId: amenityId,
+        orderOfDay: order + 1,
+      })),
+      images: day.images || [],
+    }));
+
+    const totalDays = values.groupDays.length;
+
+    const totalCost = values.groupDays.reduce((sum, day) => {
+      const dayCost = (day.elements || []).reduce((daySum, elementId) => {
+        const element = elementsData.find(
+          (el: { _id: string; cost?: number }) => el._id === elementId,
+        );
+        return daySum + (element?.cost || 0);
+      }, 0);
+
+      return sum + dayCost;
+    }, 0);
+
     try {
       await createItinerary({
         variables: {
           branchId,
           name: values.name,
-          content: values.content,
-          duration: values.duration,
+          duration: totalDays,
           color: values.color,
-          totalCost: values.totalCost,
-          images: values.images,
-          groupDays: values.groupDays,
+          totalCost,
+          groupDays: transformedGroupDays,
+          guideCost: values.guideCost,
+          driverCost: values.driverCost,
+          foodCost: values.foodCost,
+          gasCost: values.gasCost,
+          personCost: values.personCost,
+          guideCostExtra: values.guideCostExtra,
         },
       });
 
@@ -92,15 +177,22 @@ export const ItineraryCreateSheet = ({
 
       form.reset();
       handleOpenChange(false);
-    } catch (error) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to create itinerary';
+
       toast({
         title: 'Error',
-        description:
-          error instanceof Error ? error.message : 'Failed to create itinerary',
+        description: message,
         variant: 'destructive',
       });
     }
   };
+
+  const sheetWidth =
+    currentStep === 'info'
+      ? 'w-[500px] sm:max-w-[500px]'
+      : 'w-[1200px] sm:max-w-[1200px]';
 
   return (
     <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
@@ -113,7 +205,9 @@ export const ItineraryCreateSheet = ({
         </Sheet.Trigger>
       )}
 
-      <Sheet.View className="w-[800px] sm:max-w-[800px] p-0">
+      <Sheet.View
+        className={`p-0 transition-all duration-300 ease-in-out ${sheetWidth}`}
+      >
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
@@ -124,46 +218,87 @@ export const ItineraryCreateSheet = ({
               <Sheet.Close />
             </Sheet.Header>
 
-            <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4">
-              <div className="flex flex-col gap-6">
-                {/* Basic Information */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold">Basic Information</h3>
-                  <ItineraryNameField control={form.control} />
-                  <ItineraryDescriptionField control={form.control} />
-                </div>
+            <Sheet.Content className="overflow-hidden flex-1 p-0">
+              <Tabs value={currentStep} className="flex flex-col h-full">
+                <Tabs.Content
+                  value="build"
+                  className="overflow-hidden flex-1 p-3"
+                >
+                  <ItineraryBuilder
+                    control={form.control}
+                    setValue={form.setValue}
+                    watch={form.watch}
+                    elements={elementsData}
+                    amenities={amenitiesData}
+                    branchId={branchId}
+                  />
+                </Tabs.Content>
 
-                {/* Itinerary Details */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold">Itinerary Details</h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    <ItineraryDurationField control={form.control} />
-                    <ItineraryTotalCostField control={form.control} />
+                <Tabs.Content value="info" className="p-3 overflow-y-auto">
+                  <div className="space-y-4 w-full">
+                    <ItineraryNameField control={form.control} />
                     <ItineraryColorField control={form.control} />
-                  </div>
-                </div>
 
-                {/* Images */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold">Images</h3>
-                  <ItineraryImagesField control={form.control} />
-                </div>
-              </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <ItineraryGuideCostField control={form.control} />
+                      <ItineraryDriverCostField control={form.control} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <ItineraryFoodCostField control={form.control} />
+                      <ItineraryGasCostField control={form.control} />
+                    </div>
+
+                    <ItineraryGuideCostExtraField control={form.control} />
+
+                    <ItineraryPersonCostField
+                      control={form.control}
+                      duration={form.watch('groupDays')?.length || 1}
+                    />
+                  </div>
+                </Tabs.Content>
+              </Tabs>
             </Sheet.Content>
 
-            <Sheet.Footer>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={loading}
-                onClick={() => handleOpenChange(false)}
-              >
-                Cancel
-              </Button>
+            <Sheet.Footer className="bg-background">
+              {currentStep === 'build' ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleOpenChange(false)}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </Button>
 
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Creating...' : 'Create'}
-              </Button>
+                  <Button
+                    type="button"
+                    disabled={loading}
+                    onClick={handleNextStep}
+                  >
+                    Next
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      form.clearErrors();
+                      setCurrentStep('build');
+                    }}
+                    disabled={loading}
+                  >
+                    Back
+                  </Button>
+
+                  <Button type="submit" disabled={loading}>
+                    {loading ? 'Creating...' : 'Create'}
+                  </Button>
+                </>
+              )}
             </Sheet.Footer>
           </form>
         </Form>

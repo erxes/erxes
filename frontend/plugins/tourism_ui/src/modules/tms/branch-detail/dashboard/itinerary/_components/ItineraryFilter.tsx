@@ -1,4 +1,4 @@
-import { Filter } from 'erxes-ui';
+import { Combobox, Command, Filter } from 'erxes-ui';
 import { ITINERARIES_CURSOR_SESSION_KEY } from '../constants/itineraryCursorSessionKey';
 
 const ItineraryFilterPopover = () => {
@@ -6,6 +6,16 @@ const ItineraryFilterPopover = () => {
     <>
       <Filter.Popover>
         <Filter.Trigger />
+        <Combobox.Content>
+          <Filter.View>
+            <Command>
+              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Command.List className="p-1">
+                <Filter.SearchValueTrigger />
+              </Command.List>
+            </Command>
+          </Filter.View>
+        </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
         <Filter.View filterKey="searchValue" inDialog>

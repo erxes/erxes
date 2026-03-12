@@ -15,6 +15,7 @@ const ITINERARIES_PER_PAGE = 30;
 
 type ItinerariesQueryVariables = {
   branchId?: string;
+  name?: string;
   limit?: number;
   cursor?: string;
   direction?: EnumCursorDirection;

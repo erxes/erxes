@@ -27,6 +27,12 @@ export const GET_ITINERARIES = gql`
         name
         duration
         color
+        guideCost
+        driverCost
+        foodCost
+        gasCost
+        personCost
+        guideCostExtra
         createdAt
         modifiedAt
       }
@@ -37,6 +43,41 @@ export const GET_ITINERARIES = gql`
         endCursor
       }
       totalCount
+    }
+  }
+`;
+
+export const GET_ITINERARY_DETAIL = gql`
+  query BmsItineraryDetail($id: String!) {
+    bmsItineraryDetail(_id: $id) {
+      _id
+      branchId
+      name
+      duration
+      totalCost
+      groupDays {
+        content
+        day
+        elements {
+          elementId
+          orderOfDay
+        }
+        elementsQuick {
+          elementId
+          orderOfDay
+        }
+        images
+        title
+      }
+      color
+      foodCost
+      personCost
+      gasCost
+      driverCost
+      guideCost
+      guideCostExtra
+      createdAt
+      modifiedAt
     }
   }
 `;

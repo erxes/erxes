@@ -3,8 +3,7 @@ import { useBranchDetailPage } from '@/tms/branch-detail/hooks/useBranchDetailPa
 import { Button, Spinner } from 'erxes-ui';
 import { useSearchParams } from 'react-router';
 import { useEffect } from 'react';
-import { BranchSideBar } from '@/tms/branch-detail/components/BranchSideBar';
-import { MainContent } from '@/tms/branch-detail/components/MainContent';
+import { MainContent, BranchSideBar } from '@/tms/branch-detail/components';
 
 export const BranchDetailView = () => {
   const [searchParams, setSearchParams] = useSearchParams();

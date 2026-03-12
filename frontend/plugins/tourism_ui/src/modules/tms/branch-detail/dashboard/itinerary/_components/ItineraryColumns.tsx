@@ -1,41 +1,44 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  IconCalendar,
+  IconCalendarPlus,
   IconClock,
   IconLabel,
   IconPalette,
+  IconCalendarDot,
 } from '@tabler/icons-react';
 import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  RelativeDateDisplay,
+  Badge,
 } from 'erxes-ui';
 import { IItinerary } from '../types/itinerary';
 
-const dateFormatter = new Intl.DateTimeFormat('en-US', {
-  year: 'numeric',
-  month: 'short',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-});
+interface ItineraryColumnsProps {
+  onEditClick?: (itineraryId: string, branchId?: string) => void;
+}
 
-const formatDate = (value?: string) => {
-  if (!value) return '-';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '-';
-  return dateFormatter.format(date);
-};
-
-export const itineraryColumns = (): ColumnDef<IItinerary>[] => [
+export const itineraryColumns = (
+  props?: ItineraryColumnsProps,
+): ColumnDef<IItinerary>[] => [
   RecordTable.checkboxColumn as ColumnDef<IItinerary>,
   {
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
-    cell: ({ cell }: { cell: any }) => (
+    cell: ({ cell, row }: { cell: any; row: any }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
+        <Badge
+          variant="secondary"
+          className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+          onClick={() => {
+            const itinerary = row.original as IItinerary;
+            props?.onEditClick?.(itinerary._id, itinerary.branchId);
+          }}
+        >
+          <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
+        </Badge>
       </RecordTableInlineCell>
     ),
     size: 240,
@@ -43,10 +46,14 @@ export const itineraryColumns = (): ColumnDef<IItinerary>[] => [
   {
     id: 'duration',
     accessorKey: 'duration',
-    header: () => <RecordTable.InlineHead icon={IconClock} label="Duration (days)" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label="Duration (days)" />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() ? String(cell.getValue()) : '-'} />
+        <TextOverflowTooltip
+          value={cell.getValue() ? String(cell.getValue()) : '-'}
+        />
       </RecordTableInlineCell>
     ),
     size: 140,
@@ -57,31 +64,55 @@ export const itineraryColumns = (): ColumnDef<IItinerary>[] => [
     header: () => <RecordTable.InlineHead icon={IconPalette} label="Color" />,
     cell: ({ cell }: { cell: any }) => {
       const color = cell.getValue() as string;
+
       return (
         <RecordTableInlineCell>
-          <div className="flex items-center gap-2">
-            {color && (
-              <div
-                className="w-4 h-4 rounded border"
-                style={{ backgroundColor: color }}
-              />
-            )}
-            <TextOverflowTooltip value={color || '-'} />
-          </div>
+          {color ? (
+            <div
+              className="w-6 h-6 rounded-md border border-border"
+              style={{ backgroundColor: color }}
+              title={color}
+            />
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          )}
         </RecordTableInlineCell>
       );
     },
-    size: 140,
+    size: 80,
   },
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Created" />,
-    cell: ({ cell }: { cell: any }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
-      </RecordTableInlineCell>
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarPlus} label="Created" />
     ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      );
+    },
+    size: 180,
+  },
+  {
+    id: 'modifiedAt',
+    accessorKey: 'modifiedAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarDot} label="Modified" />
+    ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      );
+    },
     size: 180,
   },
 ];

@@ -16,6 +16,7 @@ import {
   ElementDurationField,
   ElementCostField,
 } from './ElementFormFields';
+
 import { SelectElementCategories } from './SelectElementCategories';
 import { useCreateElement } from '../hooks/useCreateElement';
 
@@ -38,11 +39,8 @@ export const ElementCreateSheet = ({
   const sheetOpen = isControlled ? open : internalOpen;
 
   const handleOpenChange = (value: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(value);
-    } else {
-      setInternalOpen(value);
-    }
+    if (onOpenChange) onOpenChange(value);
+    else setInternalOpen(value);
   };
 
   const { createElement, loading } = useCreateElement();
@@ -105,7 +103,7 @@ export const ElementCreateSheet = ({
     <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
       {showTrigger && (
         <Sheet.Trigger asChild>
-          <Button>
+          <Button type="button">
             <IconPlus />
             Create element
           </Button>
@@ -115,7 +113,10 @@ export const ElementCreateSheet = ({
       <Sheet.View className="w-[600px] sm:max-w-[600px] p-0">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={(e) => {
+              e.stopPropagation();
+              form.handleSubmit(handleSubmit)(e);
+            }}
             className="flex flex-col h-full"
           >
             <Sheet.Header>

@@ -7,20 +7,15 @@ import {
   Editor,
   Upload,
   readImage,
-  useErxesUpload,
   DatePicker,
   Button,
 } from 'erxes-ui';
 import { TourCreateFormType } from '../constants/formSchema';
-import {
-  IconUpload,
-  IconTrash,
-  IconGripVertical,
-  IconPlus,
-} from '@tabler/icons-react';
+import { IconPlus, IconTrash, IconUpload } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
+import { ImageUploadGrid } from '../../../components';
 
 export const TourNameField = ({
   control,
@@ -753,135 +748,6 @@ export const TourImageThumbnailField = ({
 
 const MAX_IMAGES = 10;
 
-const TourImagesFieldContent = ({
-  field,
-}: {
-  field: {
-    value?: string[];
-    onChange: (value: string[]) => void;
-  };
-}) => {
-  const urls = field.value ?? [];
-
-  const processedRef = useRef<string[]>([]);
-
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: MAX_IMAGES,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (uploadedFiles) => {
-      const existing = field.value ?? [];
-
-      const uploadedUrls = (uploadedFiles ?? [])
-        .map((file) => file?.url)
-        .filter((url): url is string => Boolean(url));
-
-      if (!uploadedUrls.length) return;
-
-      const newUrls = uploadedUrls.filter(
-        (url) => !processedRef.current.includes(url),
-      );
-
-      if (!newUrls.length) return;
-
-      processedRef.current.push(...newUrls);
-
-      const merged = [...existing, ...newUrls];
-      const unique = Array.from(new Set(merged));
-
-      field.onChange(unique.slice(0, MAX_IMAGES));
-    },
-  });
-
-  const { files, loading, onUpload } = uploadProps;
-
-  useEffect(() => {
-    if (!files?.length) return;
-
-    void onUpload();
-  }, [files, onUpload]);
-
-  const handleRemove = (url: string) => {
-    field.onChange(urls.filter((u) => u !== url));
-  };
-
-  const handleDrag = (from: number, to: number) => {
-    if (from === to) return;
-
-    const updated = [...urls];
-    const item = updated.splice(from, 1)[0];
-
-    updated.splice(to, 0, item);
-
-    field.onChange(updated);
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-4">
-        {urls.map((url, index) => (
-          <div
-            key={`${url}-${index}`}
-            draggable
-            onDragStart={(e) => e.dataTransfer.setData('index', String(index))}
-            onDrop={(e) => {
-              const from = Number(e.dataTransfer.getData('index'));
-              handleDrag(from, index);
-            }}
-            onDragOver={(e) => e.preventDefault()}
-            className="overflow-hidden relative w-24 rounded-md border shadow-sm cursor-move aspect-square bg-muted group"
-          >
-            <img
-              src={readImage(url)}
-              alt="Tour preview"
-              loading="lazy"
-              className="object-cover w-full h-full"
-            />
-
-            <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
-              <button
-                type="button"
-                onClick={() => handleRemove(url)}
-                className="p-1 text-white rounded-md shadow opacity-0 transition group-hover:opacity-100 bg-destructive"
-              >
-                <IconTrash size={14} />
-              </button>
-            </div>
-
-            <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100">
-              <IconGripVertical size={14} className="text-white" />
-            </div>
-          </div>
-        ))}
-
-        {urls.length < MAX_IMAGES && (
-          <div
-            className="flex flex-col justify-center items-center w-24 rounded-md border border-dashed transition cursor-pointer aspect-square text-muted-foreground bg-background hover:bg-accent"
-            onClick={uploadProps.open}
-          >
-            {loading ? (
-              <span className="text-xs">Uploading...</span>
-            ) : (
-              <>
-                <IconUpload size={18} />
-                <span className="text-[11px]">Add images</span>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-      {urls.length >= MAX_IMAGES && (
-        <p className="text-xs text-muted-foreground">
-          Maximum {MAX_IMAGES} images allowed
-        </p>
-      )}
-
-      <input {...uploadProps.getInputProps()} />
-    </div>
-  );
-};
-
 export const TourImagesField = ({
   control,
 }: {
@@ -896,9 +762,13 @@ export const TourImagesField = ({
           <Form.Label>Tour Images</Form.Label>
 
           <Form.Control>
-            <TourImagesFieldContent field={field} />
+            <ImageUploadGrid
+              value={field.value}
+              onChange={field.onChange}
+              maxImages={MAX_IMAGES}
+              maxFileSize={20 * 1024 * 1024}
+            />
           </Form.Control>
-
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
