@@ -287,7 +287,7 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
 };
 
 export const fixNum = (value: any, p = 4) => {
-  const cleanNumber = Number((value ?? '').toString().replaceAll(/,/g, ''));
+  const cleanNumber = Number((value ?? '').toString().replaceAll(',', ''));
 
   if (Number.isNaN(cleanNumber)) {
     return 0;
