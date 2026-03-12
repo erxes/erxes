@@ -1,50 +1,76 @@
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Sheet } from 'erxes-ui';
+import { useState } from 'react';
 import { TourCreateSheet } from './TourCreateSheet';
-import { tourColumns } from './TourColumns';
+import { TourEditForm } from './TourEditForm';
+import { TourColumns } from './TourColumns';
 import { useTours } from '../hooks/useTours';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { TourCommandBar } from './TourCommandBar';
 
 export const TourRecordTable = ({ branchId }: { branchId: string }) => {
+  const [editTourId, setEditTourId] = useState<string | null>(null);
+
   const { tours, handleFetchMore, loading, pageInfo, totalCount } = useTours({
     variables: { branchId },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  const handleEdit = (tourId: string) => {
+    setEditTourId(tourId);
+  };
+
+  const handleCloseEdit = () => {
+    setEditTourId(null);
+  };
 
   if (!loading && (totalCount ?? 0) === 0) {
     return <EmptyStateRow branchId={branchId} />;
   }
 
   return (
-    <RecordTable.Provider
-      columns={tourColumns()}
-      data={tours || []}
-      className="h-full"
-      stickyColumns={['checkbox', 'name']}
-    >
-      <TourCommandBar />
-      <RecordTable.CursorProvider
-        hasPreviousPage={hasPreviousPage}
-        hasNextPage={hasNextPage}
-        dataLength={tours?.length}
-        sessionKey={TOURS_CURSOR_SESSION_KEY}
+    <>
+      <RecordTable.Provider
+        columns={TourColumns(handleEdit)}
+        data={tours || []}
+        className="h-full"
+        stickyColumns={['checkbox', 'name']}
       >
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
+        <TourCommandBar />
+        <RecordTable.CursorProvider
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          dataLength={tours?.length}
+          sessionKey={TOURS_CURSOR_SESSION_KEY}
+        >
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.CursorBackwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+              {loading && <RecordTable.RowSkeleton rows={30} />}
+              <RecordTable.RowList />
+              <RecordTable.CursorForwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.CursorProvider>
+      </RecordTable.Provider>
+
+      <Sheet open={!!editTourId} onOpenChange={handleCloseEdit}>
+        <Sheet.View className="w-[800px] sm:max-w-[800px] p-0">
+          {editTourId && (
+            <TourEditForm
+              tourId={editTourId}
+              branchId={branchId}
+              onSuccess={handleCloseEdit}
             />
-            {loading && <RecordTable.RowSkeleton rows={30} />}
-            <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.CursorProvider>
-    </RecordTable.Provider>
+          )}
+        </Sheet.View>
+      </Sheet>
+    </>
   );
 };
 

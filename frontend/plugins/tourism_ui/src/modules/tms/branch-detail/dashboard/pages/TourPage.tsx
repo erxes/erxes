@@ -1,7 +1,5 @@
 import { IBranch } from '@/tms/types/branch';
-import { TourFilter } from '../tours/_components/TourFilter';
-import { TourGroupList } from '../tours/_components/TourGroupList';
-import { TourRecordTable } from '../tours/_components/TourRecordTable';
+import { TourFilter, TourGroupList, TourRecordTable } from '../tours';
 import { PageSubHeader, ToggleGroup, useQueryState } from 'erxes-ui';
 
 export const TourPage = ({ branch }: { branch: IBranch }) => {

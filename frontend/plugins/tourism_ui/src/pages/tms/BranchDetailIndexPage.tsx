@@ -7,7 +7,7 @@ import { BranchDetailView } from '@/tms/branch-detail/components/BranchDetailVie
 import { useBranchDetailPage } from '@/tms/branch-detail/hooks/useBranchDetailPage';
 
 import { TourCreateSheet } from '@/tms/branch-detail/dashboard/tours/_components/TourCreateSheet';
-// import { ItineraryCreateSheet } from '@/tms/branch-detail/dashboard/itineraries/_components/ItineraryCreateSheet';
+import { ItineraryCreateSheet } from '@/tms/branch-detail/dashboard/itinerary/_components/ItineraryCreateSheet';
 // import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements/_components/ElementCreateSheet';
 // import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities/_components/AmenityCreateSheet';
 
@@ -33,7 +33,7 @@ export const BranchDetailIndexPage = () => {
         return <TourCreateSheet branchId={branchId} />;
 
       case 'itinerary':
-        return null;
+        return <ItineraryCreateSheet branchId={branchId} />;
 
       case 'element':
         return null;

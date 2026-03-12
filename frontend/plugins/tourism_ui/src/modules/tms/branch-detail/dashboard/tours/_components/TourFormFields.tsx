@@ -8,12 +8,19 @@ import {
   Upload,
   readImage,
   useErxesUpload,
-  Button,
   DatePicker,
+  Button,
 } from 'erxes-ui';
 import { TourCreateFormType } from '../constants/formSchema';
-import { IconUpload, IconTrash } from '@tabler/icons-react';
-import { useState, useEffect } from 'react';
+import {
+  IconUpload,
+  IconTrash,
+  IconGripVertical,
+  IconPlus,
+} from '@tabler/icons-react';
+import { nanoid } from 'nanoid';
+import { useState, useEffect, useRef } from 'react';
+import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
 
 export const TourNameField = ({
   control,
@@ -171,7 +178,7 @@ export const TourDurationField = ({
         <Form.Item>
           <Form.Label>Duration (days)</Form.Label>
           <Form.Control>
-            <Input type="number" placeholder="1" {...field} />
+            <Input type="number" placeholder="1" {...field} disabled />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -202,6 +209,178 @@ export const TourGroupSizeField = ({
   );
 };
 
+type PersonCostEntry = {
+  id: string;
+  range: string;
+  price: string;
+};
+
+const createPersonCostEntry = (
+  range = '',
+  price: string | number = '',
+): PersonCostEntry => ({
+  id: nanoid(),
+  range,
+  price: price === '' ? '' : String(price),
+});
+
+const personCostToEntries = (
+  value?: TourCreateFormType['personCost'],
+): PersonCostEntry[] => {
+  const entries = Object.entries(value ?? {}).map(([range, price]) =>
+    createPersonCostEntry(range, price as string | number),
+  );
+
+  return entries.length ? entries : [createPersonCostEntry()];
+};
+
+const personCostEntriesToRecord = (entries: PersonCostEntry[]) =>
+  entries.reduce<Record<string, number>>((acc, entry) => {
+    const range = entry.range.trim();
+    const price = Number(entry.price);
+
+    if (!range || Number.isNaN(price)) {
+      return acc;
+    }
+
+    acc[range] = price;
+
+    return acc;
+  }, {});
+
+const TourPersonCostFieldContent = ({
+  value,
+  onChange,
+}: {
+  value?: TourCreateFormType['personCost'];
+  onChange: (value: Record<string, number>) => void;
+}) => {
+  const [entries, setEntries] = useState<PersonCostEntry[]>(() =>
+    personCostToEntries(value),
+  );
+
+  useEffect(() => {
+    const normalizedValue = personCostEntriesToRecord(entries);
+    const currentSerialized = JSON.stringify(normalizedValue);
+    const incomingSerialized = JSON.stringify(value ?? {});
+
+    if (currentSerialized === incomingSerialized) {
+      return;
+    }
+
+    setEntries(personCostToEntries(value));
+  }, [entries, value]);
+
+  const handleChange = (
+    index: number,
+    key: 'range' | 'price',
+    nextValue: string,
+  ) => {
+    const nextEntries = entries.map((entry, entryIndex) =>
+      entryIndex === index ? { ...entry, [key]: nextValue } : entry,
+    );
+
+    setEntries(nextEntries);
+    onChange(personCostEntriesToRecord(nextEntries));
+  };
+
+  const handleAdd = () => {
+    setEntries((prev) => [...prev, createPersonCostEntry()]);
+  };
+
+  const handleRemove = (index: number) => {
+    const nextEntries = entries.filter((_, entryIndex) => entryIndex !== index);
+    const normalizedNextEntries = nextEntries.length
+      ? nextEntries
+      : [createPersonCostEntry()];
+
+    setEntries(normalizedNextEntries);
+    onChange(personCostEntriesToRecord(normalizedNextEntries));
+  };
+
+  return (
+    <Form.Item className="space-y-4">
+      <div className="flex justify-between items-center">
+        <Form.Label>Person Cost</Form.Label>
+        <Button type="button" variant="outline" onClick={handleAdd}>
+          <IconPlus />
+          Add
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        {entries.map((entry, index) => (
+          <div
+            key={entry.id}
+            className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-4"
+          >
+            <div className="space-y-2">
+              <Form.Label>Persons Count</Form.Label>
+              <Input
+                value={entry.range}
+                onChange={(event) =>
+                  handleChange(index, 'range', event.target.value)
+                }
+                placeholder="2-3 / 4-5 / 6+"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Form.Label>Price per Person</Form.Label>
+              <Input
+                type="number"
+                min="0"
+                value={entry.price}
+                onChange={(event) =>
+                  handleChange(index, 'price', event.target.value)
+                }
+                placeholder="0"
+              />
+            </div>
+
+            <div className="flex items-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => handleRemove(index)}
+                disabled={
+                  entries.length === 1 &&
+                  !entry.range &&
+                  (entry.price === '' || entry.price === '0')
+                }
+              >
+                <IconTrash size={16} />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Form.Message className="text-destructive" />
+    </Form.Item>
+  );
+};
+
+export const TourPersonCostField = ({
+  control,
+}: {
+  control: Control<TourCreateFormType>;
+}) => {
+  return (
+    <Form.Field
+      control={control}
+      name="personCost"
+      render={({ field }) => (
+        <TourPersonCostFieldContent
+          value={field.value}
+          onChange={field.onChange}
+        />
+      )}
+    />
+  );
+};
+
 export const TourStartDateField = ({
   control,
 }: {
@@ -218,7 +397,7 @@ export const TourStartDateField = ({
             <DatePicker
               value={field.value}
               onChange={field.onChange}
-              defaultMonth={field.value}
+              defaultMonth={field.value as Date}
               mode="single"
             />
           </Form.Control>
@@ -240,13 +419,14 @@ export const TourEndDateField = ({
       name="endDate"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>End Date</Form.Label>
+          <Form.Label>End Date (Auto-calculated)</Form.Label>
           <Form.Control>
             <DatePicker
               value={field.value}
               onChange={field.onChange}
               defaultMonth={field.value}
               mode="single"
+              disabled
             />
           </Form.Control>
           <Form.Message className="text-destructive" />
@@ -267,7 +447,6 @@ export const TourInfo1Field = ({
       name="info1"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Info 1</Form.Label>
           <Form.Control>
             <Editor
               initialContent={field.value}
@@ -293,7 +472,6 @@ export const TourInfo2Field = ({
       name="info2"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Info 2</Form.Label>
           <Form.Control>
             <Editor
               initialContent={field.value}
@@ -319,7 +497,6 @@ export const TourInfo3Field = ({
       name="info3"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Info 3</Form.Label>
           <Form.Control>
             <Editor
               initialContent={field.value}
@@ -345,7 +522,6 @@ export const TourInfo4Field = ({
       name="info4"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Info 4</Form.Label>
           <Form.Control>
             <Editor
               initialContent={field.value}
@@ -371,7 +547,9 @@ export const TourInfo5Field = ({
       name="info5"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Info 5</Form.Label>
+          <Form.Description>
+            Not visible for clients and agents
+          </Form.Description>
           <Form.Control>
             <Editor
               initialContent={field.value}
@@ -454,8 +632,10 @@ export const TourJoinPercentField = ({
 
 export const TourItineraryIdField = ({
   control,
+  branchId,
 }: {
   control: Control<TourCreateFormType>;
+  branchId?: string;
 }) => {
   return (
     <Form.Field
@@ -464,10 +644,15 @@ export const TourItineraryIdField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Itinerary ID <span className="text-destructive">*</span>
+            Itinerary <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input placeholder="Itinerary ID" {...field} />
+            <SelectItinerary
+              value={field.value}
+              onValueChange={field.onChange}
+              branchId={branchId}
+              placeholder="Select itinerary"
+            />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -490,6 +675,7 @@ export const TourImageThumbnailField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Thumbnail Image</Form.Label>
+
           <Form.Control>
             <Upload.Root
               value={typeof field.value === 'string' ? field.value : ''}
@@ -502,72 +688,70 @@ export const TourImageThumbnailField = ({
               }}
               className="relative group"
             >
-              {isLoading ? (
-                <div className="flex flex-col justify-center items-center w-full h-32 rounded-md border border-dashed">
-                  <div className="text-sm text-muted-foreground">
-                    Uploading...
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <Upload.Button
-                    size="sm"
-                    variant="secondary"
-                    type="button"
-                    className="flex overflow-hidden relative flex-col justify-center items-center w-full h-32 rounded-md border border-dashed text-muted-foreground group bg-background hover:bg-accent"
-                    style={
-                      typeof field.value === 'string' && field.value
-                        ? {
-                            backgroundImage: `url(${readImage(field.value)})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                          }
-                        : {}
-                    }
-                  >
-                    {!field.value && (
-                      <div className="flex relative z-10 flex-col gap-2 justify-center items-center">
-                        <IconUpload size={20} />
-                        <span className="text-xs">Upload thumbnail</span>
-                      </div>
+              <Upload.Button
+                size="sm"
+                type="button"
+                variant="secondary"
+                className="overflow-hidden relative w-full rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
+                style={
+                  typeof field.value === 'string' && field.value
+                    ? {
+                        backgroundImage: `url(${readImage(field.value)})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }
+                    : {}
+                }
+              >
+                {!field.value && (
+                  <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
+                    {isLoading ? (
+                      <span>Uploading...</span>
+                    ) : (
+                      <>
+                        <IconUpload size={22} />
+                        <span>Upload thumbnail</span>
+                      </>
                     )}
+                  </div>
+                )}
 
-                    {field.value && (
-                      <div className="flex absolute inset-0 justify-center items-center transition-all duration-200 bg-black/0 group-hover:bg-black/20">
-                        <div className="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                          <div className="px-2 py-1 text-xs font-medium text-black rounded-lg backdrop-blur-sm bg-white/90">
-                            Change
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </Upload.Button>
-                  {field.value && (
-                    <Upload.RemoveButton
-                      size="sm"
-                      variant="destructive"
-                      className="absolute top-0 right-0 z-30 shadow-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                    >
-                      <IconTrash size={14} />
-                    </Upload.RemoveButton>
-                  )}
-                  <div className="hidden">
-                    <Upload.Preview
-                      onUploadStart={() => setIsLoading(true)}
-                      onAllUploadsComplete={() => setIsLoading(false)}
-                    />
+                {field.value && (
+                  <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
+                    <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 group-hover:opacity-100 bg-black/70">
+                      Change image
+                    </span>
                   </div>
-                </>
+                )}
+              </Upload.Button>
+
+              {field.value && (
+                <Upload.RemoveButton
+                  size="sm"
+                  variant="destructive"
+                  className="absolute top-2 right-2 shadow opacity-0 group-hover:opacity-100"
+                >
+                  <IconTrash size={14} />
+                </Upload.RemoveButton>
               )}
+
+              <div className="hidden">
+                <Upload.Preview
+                  onUploadStart={() => setIsLoading(true)}
+                  onAllUploadsComplete={() => setIsLoading(false)}
+                />
+              </div>
             </Upload.Root>
           </Form.Control>
+
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
     />
   );
 };
+
+const MAX_IMAGES = 10;
 
 const TourImagesFieldContent = ({
   field,
@@ -577,82 +761,123 @@ const TourImagesFieldContent = ({
     onChange: (value: string[]) => void;
   };
 }) => {
-  const urls = field.value || [];
+  const urls = field.value ?? [];
+
+  const processedRef = useRef<string[]>([]);
 
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['image/*'],
-    maxFiles: 10,
+    maxFiles: MAX_IMAGES,
     maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (addedFiles) => {
-      const existing = urls || [];
-      const addedUrls = (addedFiles || [])
-        .map((file: any) => file.url)
-        .filter(Boolean);
-      const next = Array.from(new Set([...existing, ...addedUrls])).slice(
-        0,
-        50,
+    onFilesAdded: (uploadedFiles) => {
+      const existing = field.value ?? [];
+
+      const uploadedUrls = (uploadedFiles ?? [])
+        .map((file) => file?.url)
+        .filter((url): url is string => Boolean(url));
+
+      if (!uploadedUrls.length) return;
+
+      const newUrls = uploadedUrls.filter(
+        (url) => !processedRef.current.includes(url),
       );
-      field.onChange(next);
+
+      if (!newUrls.length) return;
+
+      processedRef.current.push(...newUrls);
+
+      const merged = [...existing, ...newUrls];
+      const unique = Array.from(new Set(merged));
+
+      field.onChange(unique.slice(0, MAX_IMAGES));
     },
   });
 
   const { files, loading, onUpload } = uploadProps;
 
   useEffect(() => {
-    if (files.length > 0 && !loading) {
-      onUpload();
-    }
-  }, [files.length, loading, onUpload]);
+    if (!files?.length) return;
+
+    void onUpload();
+  }, [files, onUpload]);
 
   const handleRemove = (url: string) => {
-    const next = (urls || []).filter((u: string) => u !== url);
-    field.onChange(next);
+    field.onChange(urls.filter((u) => u !== url));
+  };
+
+  const handleDrag = (from: number, to: number) => {
+    if (from === to) return;
+
+    const updated = [...urls];
+    const item = updated.splice(from, 1)[0];
+
+    updated.splice(to, 0, item);
+
+    field.onChange(updated);
   };
 
   return (
-    <div className="space-y-2">
-      {urls.length > 0 && (
-        <div className="relative">
-          <div className="flex flex-wrap gap-4">
-            {urls.map((url: string) => (
-              <div
-                key={url}
-                className="overflow-hidden relative w-24 rounded-md border aspect-square shadow-xs bg-muted group"
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-4">
+        {urls.map((url, index) => (
+          <div
+            key={`${url}-${index}`}
+            draggable
+            onDragStart={(e) => e.dataTransfer.setData('index', String(index))}
+            onDrop={(e) => {
+              const from = Number(e.dataTransfer.getData('index'));
+              handleDrag(from, index);
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            className="overflow-hidden relative w-24 rounded-md border shadow-sm cursor-move aspect-square bg-muted group"
+          >
+            <img
+              src={readImage(url)}
+              alt="Tour preview"
+              loading="lazy"
+              className="object-cover w-full h-full"
+            />
+
+            <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
+              <button
+                type="button"
+                onClick={() => handleRemove(url)}
+                className="p-1 text-white rounded-md shadow opacity-0 transition group-hover:opacity-100 bg-destructive"
               >
-                <img
-                  src={readImage(url)}
-                  alt=""
-                  className="object-cover w-full h-full"
-                />
-                <button
-                  className="inline-flex absolute top-0 right-0 z-30 justify-center items-center p-1 rounded-md shadow-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100 bg-destructive/90 text-destructive-foreground hover:bg-destructive"
-                  type="button"
-                  onClick={() => handleRemove(url)}
-                >
-                  <IconTrash size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-          {uploadProps.loading && (
-            <div className="flex absolute inset-0 justify-center items-center border bg-background">
-              <div className="text-sm text-muted-foreground">Uploading...</div>
+                <IconTrash size={14} />
+              </button>
             </div>
-          )}
-        </div>
-      )}
-      <div>
-        <input {...uploadProps.getInputProps()} />
-        <Button
-          variant="outline"
-          className="w-full h-12 border-dashed"
-          onClick={uploadProps.open}
-          disabled={uploadProps.loading}
-          type="button"
-        >
-          {uploadProps.loading ? 'Uploading...' : 'Add Images'}
-        </Button>
+
+            <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100">
+              <IconGripVertical size={14} className="text-white" />
+            </div>
+          </div>
+        ))}
+
+        {urls.length < MAX_IMAGES && (
+          <div
+            className="flex flex-col justify-center items-center w-24 rounded-md border border-dashed transition cursor-pointer aspect-square text-muted-foreground bg-background hover:bg-accent"
+            onClick={uploadProps.open}
+          >
+            {loading ? (
+              <span className="text-xs">Uploading...</span>
+            ) : (
+              <>
+                <IconUpload size={18} />
+                <span className="text-[11px]">Add images</span>
+              </>
+            )}
+          </div>
+        )}
       </div>
+
+      {urls.length >= MAX_IMAGES && (
+        <p className="text-xs text-muted-foreground">
+          Maximum {MAX_IMAGES} images allowed
+        </p>
+      )}
+
+      <input {...uploadProps.getInputProps()} />
     </div>
   );
 };
@@ -669,9 +894,11 @@ export const TourImagesField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Tour Images</Form.Label>
+
           <Form.Control>
             <TourImagesFieldContent field={field} />
           </Form.Control>
+
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}

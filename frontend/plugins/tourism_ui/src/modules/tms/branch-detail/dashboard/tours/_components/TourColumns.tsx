@@ -3,10 +3,10 @@ import {
   IconCalendar,
   IconHash,
   IconLabel,
-  IconUsers,
   IconProgressCheck,
 } from '@tabler/icons-react';
 import {
+  Badge,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -26,15 +26,23 @@ const formatDate = (value?: string) => {
   return dateFormatter.format(date);
 };
 
-export const tourColumns = (): ColumnDef<ITour>[] => [
+export const TourColumns = (
+  onEdit?: (tourId: string) => void,
+): ColumnDef<ITour>[] => [
   RecordTable.checkboxColumn as ColumnDef<ITour>,
   {
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
-    cell: ({ cell }: { cell: any }) => (
+    cell: ({ cell, row }: { cell: any; row: any }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
+        <Badge
+          variant="ghost"
+          className="px-2 py-1 font-medium"
+          onClick={() => onEdit?.(row.original._id)}
+        >
+          <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
+        </Badge>
       </RecordTableInlineCell>
     ),
     size: 240,
@@ -53,7 +61,9 @@ export const tourColumns = (): ColumnDef<ITour>[] => [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconProgressCheck} label="Status" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconProgressCheck} label="Status" />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
@@ -64,7 +74,9 @@ export const tourColumns = (): ColumnDef<ITour>[] => [
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
@@ -75,7 +87,9 @@ export const tourColumns = (): ColumnDef<ITour>[] => [
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="End Date" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label="End Date" />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
@@ -83,5 +97,4 @@ export const tourColumns = (): ColumnDef<ITour>[] => [
     ),
     size: 140,
   },
-
 ];

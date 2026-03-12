@@ -9,43 +9,39 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
-import { useRemoveTours } from '../hooks/useRemoveTours';
+import { useRemoveItineraries } from '../hooks/useRemoveItineraries';
 
-export const TourCommandBar = () => {
+export const ItineraryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue: 'delete' };
   const { toast } = useToast();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const tourIds = selectedRows.map((row) => row.original._id);
-  const selectedCount = tourIds.length;
-  const { removeTours, loading } = useRemoveTours();
+  const itineraryIds = selectedRows.map((row) => row.original._id);
+  const selectedCount = itineraryIds.length;
+  const { removeItineraries, loading } = useRemoveItineraries();
 
   const onRemove = () => {
     confirm({
-      message: `Are you sure you want to delete the ${selectedCount} selected tours?`,
+      message: `Are you sure you want to delete the ${selectedCount} selected itineraries?`,
       options: confirmOptions,
     }).then(() => {
-      removeTours({
-        variables: {
-          ids: tourIds,
-        },
-        onError: (e: ApolloError) => {
+      removeItineraries(itineraryIds)
+        .then(() => {
+          table.resetRowSelection();
+          toast({
+            title: 'Success',
+            variant: 'success',
+            description: 'Itineraries deleted successfully',
+          });
+        })
+        .catch((e: ApolloError) => {
           toast({
             title: 'Error',
             description: e.message,
             variant: 'destructive',
           });
-        },
-        onCompleted: () => {
-          table.resetRowSelection();
-          toast({
-            title: 'Success',
-            variant: 'success',
-            description: 'Tours deleted successfully',
-          });
-        },
-      });
+        });
     });
   };
 

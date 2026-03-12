@@ -36,7 +36,7 @@ const formatDate = (value?: string) => {
   return dateFormatter.format(date);
 };
 
-export const groupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
+export const GroupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
   {
     id: 'checkbox',
     header: ({ table }) => {
@@ -132,8 +132,8 @@ export const groupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
             row.original.isGroup
               ? row.original.dateRangeLabel || '-'
               : `${formatDate(row.original.startDate)} - ${formatDate(
-                row.original.endDate,
-              )}`
+                  row.original.endDate,
+                )}`
           }
         />
       </RecordTableInlineCell>
@@ -150,8 +150,9 @@ export const groupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
           value={
             row.original.isGroup
               ? row.original.statusLabel || '-'
-              : `${row.original.status || '-'} / ${row.original.date_status || '-'
-              }`
+              : `${row.original.status || '-'} / ${
+                  row.original.date_status || '-'
+                }`
           }
         />
       </RecordTableInlineCell>

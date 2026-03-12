@@ -78,3 +78,33 @@ export const GET_TOUR_GROUPS = gql`
     }
   }
 `;
+
+export const GET_TOUR_DETAIL = gql`
+  query BmsTourDetail($id: String!) {
+    bmsTourDetail(_id: $id) {
+      _id
+      advanceCheck
+      advancePercent
+      content
+      cost
+      date_status
+      duration
+      endDate
+      groupSize
+      imageThumbnail
+      images
+      info1
+      info2
+      info3
+      info4
+      info5
+      itineraryId
+      joinPercent
+      name
+      personCost
+      refNumber
+      startDate
+      status
+    }
+  }
+`;

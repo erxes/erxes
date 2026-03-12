@@ -5,7 +5,7 @@ import { RecordTable, RecordTableTree } from 'erxes-ui';
 import { useTourGroups } from '../hooks/useTourGroups';
 import { TourCreateSheet } from './TourCreateSheet';
 import { TourCommandBar } from './TourCommandBar';
-import { groupedTourColumns, TourGroupRow } from './TourGroupColumns';
+import { GroupedTourColumns, TourGroupRow } from './TourGroupColumns';
 import { flattenGroups } from './TourGroupUtils';
 
 export const TourGroupList = ({ branchId }: { branchId: string }) => {
@@ -14,7 +14,7 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
   });
 
   const groupedTours = useMemo(() => flattenGroups(groups), [groups]);
-  const columns = useMemo(() => groupedTourColumns(), []);
+  const columns = useMemo(() => GroupedTourColumns(), []);
   const tableOptions: TableOptions<TourGroupRow> = useMemo(
     () => ({
       data: groupedTours,
