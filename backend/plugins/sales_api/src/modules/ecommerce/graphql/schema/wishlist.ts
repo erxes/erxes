@@ -10,10 +10,16 @@ export const types = `
 export const queries = `
   wish(productId: String!, customerId: String!): Wish
   wishlist(customerId: String!): [Wish]
+
+  cpWishlist(customerId: String!): [Wish]
 `;
 
 export const mutations = `
   wishlistAdd(productId: String!, customerId: String!): Wish
   wishlistUpdate(_id: String!, productId: String, customerId: String): Wish
   wishlistRemove(_id: String!): Wish
+
+  cpWishlistAdd(productId: String!, customerId: String!): Wish
+  cpWishlistUpdate(_id: String!, productId: String, customerId: String): Wish
+  cpWishlistRemove(_id: String!): Wish
 `;

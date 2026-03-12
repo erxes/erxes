@@ -229,7 +229,7 @@ export const CitizenInsurancePage = () => {
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            age: parseInt(e.target.value),
+                            age: Number.parseInt(e.target.value),
                           })
                         }
                         min={0}
@@ -443,7 +443,7 @@ export const CitizenInsurancePage = () => {
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            coverageAmount: parseFloat(e.target.value),
+                            coverageAmount: Number.parseFloat(e.target.value),
                           })
                         }
                         min={0}
