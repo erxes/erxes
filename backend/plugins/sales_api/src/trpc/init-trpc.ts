@@ -20,7 +20,13 @@ const fieldQueryInput = z.object({
 });
 
 // Factory to create a field list procedure for a specific module
-const createFieldListProcedure = (fieldGenerator: (subdomain: string, models: IModels, input: any) => Promise<any[]>) => {
+const createFieldListProcedure = (
+  fieldGenerator: (
+    subdomain: string,
+    models: IModels,
+    input: any,
+  ) => Promise<any[]>,
+) => {
   return t.procedure.input(fieldQueryInput).query(async ({ ctx, input }) => {
     const { models, subdomain } = ctx;
     return fieldGenerator(subdomain, models, input);
@@ -33,12 +39,14 @@ export const appRouter = t.mergeRouters(
   t.router({
     fields: t.router({
       // Use the factory with sales-specific generator
-      getFieldList: createFieldListProcedure(async (subdomain, models, input) => {
-        if (input.moduleType === 'sales') {
-          return await generateSalesFields(subdomain, models, input);
-        }
-        return [];
-      }),
+      getFieldList: createFieldListProcedure(
+        async (subdomain, models, input) => {
+          if (input.moduleType === 'sales') {
+            return await generateSalesFields(subdomain, models, input);
+          }
+          return [];
+        },
+      ),
     }),
   }),
 );

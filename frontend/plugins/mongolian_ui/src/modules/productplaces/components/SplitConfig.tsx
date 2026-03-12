@@ -15,7 +15,10 @@ import {
   MN_CONFIGS_UPDATE,
   MN_CONFIGS_REMOVE,
 } from '../graphql/clientMutations';
-import { objectToKeyValueArray, keyValueArrayToObject } from '../utils/transformers';
+import {
+  objectToKeyValueArray,
+  keyValueArrayToObject,
+} from '../utils/transformers';
 
 // ---------- Types ----------
 export interface SplitConfigData extends PerSplitConfig {
@@ -82,69 +85,86 @@ const SplitConfig: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // GraphQL hooks with proper typing
-  const { data, loading: queryLoading, refetch } = useQuery<MnConfigsQueryResponse>(MN_CONFIGS, {
+  const {
+    data,
+    loading: queryLoading,
+    refetch,
+  } = useQuery<MnConfigsQueryResponse>(MN_CONFIGS, {
     variables: { code: 'dealsProductsDataSplit' },
     fetchPolicy: 'network-only',
   });
 
-  const [createConfig] = useMutation<MnConfigCreateMutationResponse>(MN_CONFIGS_CREATE, {
-    update(cache, { data }) {
-      if (!data) return;
-      const existing = cache.readQuery<MnConfigsQueryResponse>({
-        query: MN_CONFIGS,
-        variables: { code: 'dealsProductsDataSplit' },
-      });
-      if (existing?.mnConfigs) {
-        cache.writeQuery<MnConfigsQueryResponse>({
+  const [createConfig] = useMutation<MnConfigCreateMutationResponse>(
+    MN_CONFIGS_CREATE,
+    {
+      update(cache, { data }) {
+        if (!data) return;
+        const existing = cache.readQuery<MnConfigsQueryResponse>({
           query: MN_CONFIGS,
           variables: { code: 'dealsProductsDataSplit' },
-          data: {
-            mnConfigs: [...existing.mnConfigs, data.mnConfigsCreate],
-          },
         });
-      }
+        if (existing?.mnConfigs) {
+          cache.writeQuery<MnConfigsQueryResponse>({
+            query: MN_CONFIGS,
+            variables: { code: 'dealsProductsDataSplit' },
+            data: {
+              mnConfigs: [...existing.mnConfigs, data.mnConfigsCreate],
+            },
+          });
+        }
+      },
     },
-  });
+  );
 
-  const [updateConfig] = useMutation<MnConfigUpdateMutationResponse>(MN_CONFIGS_UPDATE, {
-    update(cache, { data }) {
-      if (!data) return;
-      const existing = cache.readQuery<MnConfigsQueryResponse>({
-        query: MN_CONFIGS,
-        variables: { code: 'dealsProductsDataSplit' },
-      });
-      if (existing?.mnConfigs) {
-        cache.writeQuery<MnConfigsQueryResponse>({
+  const [updateConfig] = useMutation<MnConfigUpdateMutationResponse>(
+    MN_CONFIGS_UPDATE,
+    {
+      update(cache, { data }) {
+        if (!data) return;
+        const existing = cache.readQuery<MnConfigsQueryResponse>({
           query: MN_CONFIGS,
           variables: { code: 'dealsProductsDataSplit' },
-          data: {
-            mnConfigs: existing.mnConfigs.map((cfg) =>
-              cfg._id === data.mnConfigsUpdate._id ? data.mnConfigsUpdate : cfg
-            ),
-          },
         });
-      }
+        if (existing?.mnConfigs) {
+          cache.writeQuery<MnConfigsQueryResponse>({
+            query: MN_CONFIGS,
+            variables: { code: 'dealsProductsDataSplit' },
+            data: {
+              mnConfigs: existing.mnConfigs.map((cfg) =>
+                cfg._id === data.mnConfigsUpdate._id
+                  ? data.mnConfigsUpdate
+                  : cfg,
+              ),
+            },
+          });
+        }
+      },
     },
-  });
+  );
 
-  const [deleteConfig] = useMutation<MnConfigRemoveMutationResponse>(MN_CONFIGS_REMOVE, {
-    update(cache, { data }) {
-      if (!data) return;
-      const existing = cache.readQuery<MnConfigsQueryResponse>({
-        query: MN_CONFIGS,
-        variables: { code: 'dealsProductsDataSplit' },
-      });
-      if (existing?.mnConfigs) {
-        cache.writeQuery<MnConfigsQueryResponse>({
+  const [deleteConfig] = useMutation<MnConfigRemoveMutationResponse>(
+    MN_CONFIGS_REMOVE,
+    {
+      update(cache, { data }) {
+        if (!data) return;
+        const existing = cache.readQuery<MnConfigsQueryResponse>({
           query: MN_CONFIGS,
           variables: { code: 'dealsProductsDataSplit' },
-          data: {
-            mnConfigs: existing.mnConfigs.filter((cfg) => cfg._id !== data.mnConfigsRemove._id),
-          },
         });
-      }
+        if (existing?.mnConfigs) {
+          cache.writeQuery<MnConfigsQueryResponse>({
+            query: MN_CONFIGS,
+            variables: { code: 'dealsProductsDataSplit' },
+            data: {
+              mnConfigs: existing.mnConfigs.filter(
+                (cfg) => cfg._id !== data.mnConfigsRemove._id,
+              ),
+            },
+          });
+        }
+      },
     },
-  });
+  );
 
   // Load configs from backend into local state
   useEffect(() => {
@@ -170,9 +190,12 @@ const SplitConfig: React.FC = () => {
     }
   }, [activeIndex, savedConfigs]);
 
-  const updateField = useCallback(<K extends keyof SplitConfigData>(key: K, value: SplitConfigData[K]) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  }, []);
+  const updateField = useCallback(
+    <K extends keyof SplitConfigData>(key: K, value: SplitConfigData[K]) => {
+      setFormData((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
   // Centralized selection change handlers
   const handleBoardChange = (boardId: string) => {
@@ -251,7 +274,11 @@ const SplitConfig: React.FC = () => {
         {/* HEADER */}
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Split Configuration</h2>
-          <Button variant="outline" onClick={handleNewConfig} disabled={loading}>
+          <Button
+            variant="outline"
+            onClick={handleNewConfig}
+            disabled={loading}
+          >
             + New Config
           </Button>
         </div>
@@ -332,7 +359,9 @@ const SplitConfig: React.FC = () => {
                 pipelineId={formData.pipelineId || ''}
                 value={formData.stageId || ''}
                 disabled={!formData.pipelineId || loading}
-                onValueChange={(stageId: string) => updateField('stageId', stageId)}
+                onValueChange={(stageId: string) =>
+                  updateField('stageId', stageId)
+                }
               />
             </div>
           </div>
@@ -394,7 +423,11 @@ const SplitConfig: React.FC = () => {
         {/* ACTIONS */}
         <div className="flex justify-end gap-3 pt-2">
           {activeIndex !== null && (
-            <Button variant="destructive" onClick={handleDelete} disabled={loading}>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={loading}
+            >
               Delete Config
             </Button>
           )}
