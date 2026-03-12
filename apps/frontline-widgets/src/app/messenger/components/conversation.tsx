@@ -106,7 +106,7 @@ export function ConversationMessage({
   if (customerId || fromBot) {
     return (
       <button
-        role="tabpanel"
+        role="button"
         id={lastMessage?._id}
         tabIndex={0}
         className="flex items-center gap-3 cursor-pointer p-3 hover:bg-primary/5 rounded-md transition-all duration-300"
@@ -135,7 +135,7 @@ export function ConversationMessage({
   } else if (userId) {
     return (
       <button
-        role="tabpanel"
+        role="button"
         id={lastMessage?._id}
         tabIndex={0}
         className={cn(

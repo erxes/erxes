@@ -411,7 +411,7 @@
   p('sendExtraFormContent', (e, t) => {
     w(e, { action: 'extraFormContent', html: t });
   });
-  var k = globalThis.erxesSettings.forms || [],
+  let k = globalThis.erxesSettings.forms || [],
     f = {},
     v = (e) => JSON.stringify({ form_id: e.form_id, channel_id: e.channel_id }),
     R = (e) =>

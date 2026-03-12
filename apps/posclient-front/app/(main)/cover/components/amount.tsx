@@ -37,7 +37,7 @@ const Amount = ({
                 setAmounts({
                   ...amounts,
                   [type]:
-                    Number(e.target.value) > 0 ? Number(e.target.value) : 0,
+                    Math.max(Number(e.target.value), 0),
                 })
               }
               type="number"
