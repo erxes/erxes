@@ -380,10 +380,7 @@ export const ContractTemplateEditorPage = () => {
                       <iframe
                         srcDoc={template
                           .replaceAll('{{contractNumber}}', 'INS2026010001')
-                          .replaceAll(
-                            '{{vendorName}}',
-                            'Sample Insurance LLC',
-                          )
+                          .replaceAll('{{vendorName}}', 'Sample Insurance LLC')
                           .replaceAll('{{customerName}}', 'John Smith')
                           .replaceAll('{{registrationNumber}}', 'AB12345678')
                           .replaceAll('{{insuranceType}}', 'Car Insurance')
