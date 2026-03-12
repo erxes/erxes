@@ -7,18 +7,11 @@ import { useNavigate, useParams } from 'react-router';
 import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
 import { Posts } from '~/modules/cms/posts/types/postsType';
 
-/**
- * Props for the PostsIndexPageContent component
- */
 interface PostsIndexPageContentProps {
   clientPortalId: string;
   handleEditPost: (post: Posts) => void;
 }
 
-/**
- * Content component for the posts index page
- * Contains the filter and posts table
- */
 const PostsIndexPageContent = ({
   clientPortalId,
   handleEditPost,

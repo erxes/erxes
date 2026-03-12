@@ -108,8 +108,7 @@ export const usePostsColumns = (
       header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
       cell: ({ row }) => {
         const post = row.original;
-        const typeLabel =
-          post.type === 'post' ? 'Post' : post.customPostType?.label || '';
+        const typeLabel = post.customPostType?.label || post.type;
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip value={typeLabel} />
