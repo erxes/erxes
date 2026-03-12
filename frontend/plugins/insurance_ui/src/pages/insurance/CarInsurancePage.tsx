@@ -142,8 +142,8 @@ export const CarInsurancePage = () => {
     }
 
     // Check if product has duration-based pricing
-    const percentageByDuration = (selectedProduct.pricingConfig)
-      ?.percentageByDuration;
+    const percentageByDuration =
+      selectedProduct.pricingConfig?.percentageByDuration;
     if (percentageByDuration && durationInMonths > 0) {
       const durationKey = `${durationInMonths}months`;
       if (percentageByDuration[durationKey] !== undefined) {
@@ -152,7 +152,7 @@ export const CarInsurancePage = () => {
     }
 
     // Fall back to product's base percentage
-    return (selectedProduct.pricingConfig)?.percentage || 3;
+    return selectedProduct.pricingConfig?.percentage || 3;
   };
 
   const productPercentage = getEffectivePercentage();
@@ -316,7 +316,8 @@ export const CarInsurancePage = () => {
                             onChange={(e) =>
                               setInsuredObject({
                                 ...insuredObject,
-                                assessedValue: Number.parseFloat(e.target.value) || 0,
+                                assessedValue:
+                                  Number.parseFloat(e.target.value) || 0,
                               })
                             }
                             min={0}
@@ -477,8 +478,7 @@ export const CarInsurancePage = () => {
                         Duration *
                       </label>
                       {selectedProduct &&
-                      (selectedProduct.pricingConfig)
-                        ?.percentageByDuration ? (
+                      selectedProduct.pricingConfig?.percentageByDuration ? (
                         <Select
                           value={
                             durationInMonths > 0
@@ -501,15 +501,15 @@ export const CarInsurancePage = () => {
                           </Select.Trigger>
                           <Select.Content>
                             {Object.keys(
-                              (selectedProduct.pricingConfig)
+                              selectedProduct.pricingConfig
                                 .percentageByDuration,
                             ).map((duration) => {
                               const months = Number.parseFloat(
                                 duration.replace('months', ''),
                               );
-                              const percentage = (
+                              const percentage =
                                 selectedProduct.pricingConfig
-                              ).percentageByDuration[duration];
+                                  .percentageByDuration[duration];
                               return (
                                 <Select.Item key={duration} value={duration}>
                                   {months} months ({percentage}%)
@@ -528,7 +528,7 @@ export const CarInsurancePage = () => {
                         />
                       )}
                       {selectedProduct &&
-                        !(selectedProduct.pricingConfig)
+                        !selectedProduct.pricingConfig
                           ?.percentageByDuration && (
                           <p className="text-xs text-muted-foreground mt-1">
                             End Date

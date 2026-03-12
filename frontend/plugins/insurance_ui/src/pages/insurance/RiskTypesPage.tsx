@@ -20,7 +20,10 @@ export const RiskTypesPage = () => {
       setIsFormOpen(true);
     };
 
-    globalThis.addEventListener('edit-risk-type', handleEditRisk as EventListener);
+    globalThis.addEventListener(
+      'edit-risk-type',
+      handleEditRisk as EventListener,
+    );
     return () => {
       globalThis.removeEventListener(
         'edit-risk-type',
