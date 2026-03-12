@@ -14,7 +14,13 @@ export const automationMutations = {
   /**
    * Creates a new automation
    */
-  async automationsAdd(_root, doc: IAutomation, { user, models }: IContext) {
+  async automationsAdd(
+    _root,
+    doc: IAutomation,
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsCreate');
+
     const automation = await models.Automations.create({
       ...doc,
       createdAt: new Date(),
@@ -31,8 +37,10 @@ export const automationMutations = {
   async automationsEdit(
     _root,
     { _id, ...doc }: IAutomationsEdit,
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('automationsUpdate');
+
     const automation = await models.Automations.getAutomation(_id);
     if (!automation) {
       throw new Error('Automation not found');
@@ -53,8 +61,10 @@ export const automationMutations = {
   async archiveAutomations(
     _root,
     { automationIds, isRestore },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('automationsUpdate');
+
     await models.Automations.updateMany(
       { _id: { $in: automationIds } },
       {
@@ -73,8 +83,10 @@ export const automationMutations = {
   async automationsRemove(
     _root,
     { automationIds }: { automationIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('automationsDelete');
+
     const automations = await models.Automations.find({
       _id: { $in: automationIds },
     });
@@ -147,8 +159,10 @@ export const automationMutations = {
   async automationEmailTemplatesAdd(
     _root,
     doc: { name: string; description?: string; content: string },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('automationsCreate');
+
     const template = await models.AutomationEmailTemplates.createEmailTemplate({
       ...doc,
       createdBy: user._id,
@@ -166,8 +180,10 @@ export const automationMutations = {
       _id,
       ...doc
     }: { _id: string; name: string; description?: string; content: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('automationsUpdate');
+
     return models.AutomationEmailTemplates.updateEmailTemplate(_id, doc);
   },
 
@@ -177,8 +193,10 @@ export const automationMutations = {
   async automationEmailTemplatesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('automationsDelete');
+
     await models.AutomationEmailTemplates.removeEmailTemplate(_id);
     return { success: true };
   },

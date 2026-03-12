@@ -474,6 +474,66 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'clientPortal',
+      description: 'Client portal management',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'View client portal',
+          name: 'clientPortalRead',
+          description: 'View client portal settings',
+          always: true,
+        },
+        {
+          title: 'Manage client portal',
+          name: 'clientPortalManage',
+          description: 'Create, edit, delete client portals',
+        },
+      ],
+    },
+    {
+      name: 'automations',
+      description: 'Automation management',
+      scopeField: null,
+      ownerFields: ['createdBy'],
+
+      scopes: [
+        {
+          name: 'own',
+          description: 'Records user created',
+        },
+        { name: 'all', description: 'All records' },
+      ],
+
+      actions: [
+        {
+          title: 'View automations',
+          name: 'automationsRead',
+          description: 'View automations',
+          always: true,
+        },
+        {
+          title: 'Create automations',
+          name: 'automationsCreate',
+          description: 'Create automations',
+        },
+        {
+          title: 'Edit automations',
+          name: 'automationsUpdate',
+          description: 'Edit automations',
+        },
+        {
+          title: 'Delete automations',
+          name: 'automationsDelete',
+          description: 'Delete automations',
+        },
+      ],
+    },
+    {
       name: 'internalNotes',
       description: 'Internal note management',
       scopeField: null,
@@ -609,6 +669,22 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'apps',
           actions: ['appsManage'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'clientPortal',
+          actions: ['clientPortalManage'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'automations',
+          actions: [
+            'automationsCreate',
+            'automationsUpdate',
+            'automationsDelete',
+          ],
           scope: 'all',
         },
       ],
