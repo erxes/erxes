@@ -31,16 +31,20 @@ export function KnowledgeBase() {
   const selectedTopicId = searchParams.get('topicId');
 
   const { topics, loading, refetch } = useTopics();
-  
+
   // Memoize setSearchParams to prevent infinite loops
-  const memoizedSetSearchParams = useCallback((updater: (prev: URLSearchParams) => URLSearchParams) => {
-    setSearchParams(updater);
-  }, [setSearchParams]);
-  
+  const memoizedSetSearchParams = useCallback(
+    (updater: (prev: URLSearchParams) => URLSearchParams) => {
+      setSearchParams(updater);
+    },
+    [setSearchParams],
+  );
+
   // Get selected topic
-  const selectedTopic = topics.find(topic => topic._id === selectedTopicId);
-  const hasCategories = selectedTopic?.categories && selectedTopic.categories.length > 0;
-  
+  const selectedTopic = topics.find((topic) => topic._id === selectedTopicId);
+  const hasCategories =
+    selectedTopic?.categories && selectedTopic.categories.length > 0;
+
   const { refetch: refetchArticles } = useArticles({
     categoryIds: selectedCategoryId ? [selectedCategoryId] : [],
   });
@@ -61,17 +65,25 @@ export function KnowledgeBase() {
   // Auto-select first category when topic is selected
   useEffect(() => {
     if (selectedTopicId && topics.length > 0) {
-      const selectedTopic = topics.find(topic => topic._id === selectedTopicId);
-      
+      const selectedTopic = topics.find(
+        (topic) => topic._id === selectedTopicId,
+      );
+
       // Check if selected category belongs to the current topic
-      const isCategoryBelongsToTopic = selectedCategoryId && 
-        selectedTopic?.categories?.some(cat => cat._id === selectedCategoryId);
-      
+      const isCategoryBelongsToTopic =
+        selectedCategoryId &&
+        selectedTopic?.categories?.some(
+          (cat) => cat._id === selectedCategoryId,
+        );
+
       // Auto-select only if no category selected OR selected category doesn't belong to this topic
-      if ((!selectedCategoryId || !isCategoryBelongsToTopic) && 
-          selectedTopic?.categories && selectedTopic.categories.length > 0) {
+      if (
+        (!selectedCategoryId || !isCategoryBelongsToTopic) &&
+        selectedTopic?.categories &&
+        selectedTopic.categories.length > 0
+      ) {
         const firstCategory = selectedTopic.categories[0];
-        
+
         memoizedSetSearchParams((prev) => {
           const next = new URLSearchParams(prev.toString());
           next.set('categoryId', firstCategory._id);
@@ -118,22 +130,27 @@ export function KnowledgeBase() {
   return (
     <div className="flex-1 p-4 overflow-hidden">
       {/* Show no category state when topic is selected but has no categories */}
-      {selectedTopicId && !selectedCategoryId && !hasCategories && !isArticleDrawerOpen && !isCategoryDrawerOpen && (
-        <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <div className="text-lg font-semibold mb-2">
-              No categories found
+      {selectedTopicId &&
+        !selectedCategoryId &&
+        !hasCategories &&
+        !isArticleDrawerOpen &&
+        !isCategoryDrawerOpen && (
+          <div className="flex justify-center items-center h-64">
+            <div className="text-center">
+              <div className="text-lg font-semibold mb-2">
+                No categories found
+              </div>
+              <div className="text-sm opacity-70 mb-4">
+                This topic doesn't have any categories yet. Create your first
+                category to start organizing articles.
+              </div>
+              <Button onClick={() => setIsCategoryDrawerOpen(true)}>
+                Create Category
+              </Button>
             </div>
-            <div className="text-sm opacity-70 mb-4">
-              This topic doesn't have any categories yet. Create your first category to start organizing articles.
-            </div>
-            <Button onClick={() => setIsCategoryDrawerOpen(true)}>
-              Create Category
-            </Button>
           </div>
-        </div>
-      )}
-      
+        )}
+
       {selectedCategoryId && !isArticleDrawerOpen && (
         <ArticleList
           onCreateArticle={() => setIsArticleDrawerOpen(true)}
@@ -167,7 +184,10 @@ export function KnowledgeBase() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {topics.map((topic: ITopic) => (
-                <div key={topic._id} className="bg-white rounded-lg border p-6 hover:shadow-md transition-shadow cursor-pointer">
+                <div
+                  key={topic._id}
+                  className="bg-white rounded-lg border p-6 hover:shadow-md transition-shadow cursor-pointer"
+                >
                   <h3 className="text-lg font-semibold mb-2">{topic.title}</h3>
                   <p className="text-muted-foreground mb-4">
                     {topic.description || 'No description available'}

@@ -315,7 +315,7 @@ export function TopicDrawer({
                           typeof fileInfo === 'object' &&
                           'url' in fileInfo
                         ) {
-                          field.onChange((fileInfo).url);
+                          field.onChange(fileInfo.url);
                         }
                       }}
                     >

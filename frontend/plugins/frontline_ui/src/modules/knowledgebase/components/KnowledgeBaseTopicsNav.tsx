@@ -1,5 +1,18 @@
-import { IconFolder, IconDotsVertical, IconFileText } from '@tabler/icons-react';
-import { Sidebar, cn, DropdownMenu, NavigationMenuGroup, TextOverflowTooltip, useQueryState, Collapsible, useConfirm } from 'erxes-ui';
+import {
+  IconFolder,
+  IconDotsVertical,
+  IconFileText,
+} from '@tabler/icons-react';
+import {
+  Sidebar,
+  cn,
+  DropdownMenu,
+  NavigationMenuGroup,
+  TextOverflowTooltip,
+  useQueryState,
+  Collapsible,
+  useConfirm,
+} from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useTopics } from '../hooks/useTopics';
 import { TopicDrawer } from './TopicDrawer';
@@ -26,10 +39,15 @@ interface TopicItemProps {
   readonly onRemoveTopic: (topicId: string) => void;
 }
 
-function TopicItem({ topic, onEditTopic, onAddCategory, onRemoveTopic }: TopicItemProps) {
+function TopicItem({
+  topic,
+  onEditTopic,
+  onAddCategory,
+  onRemoveTopic,
+}: TopicItemProps) {
   const [topicId, setTopicId] = useQueryState<string | null>('topicId');
   const isActive = topicId === topic._id;
-  
+
   const renderTopicActions = (topic: ITopic) => (
     <DropdownMenu>
       <DropdownMenu.Trigger className="ml-2 p-1.5 hover:bg-accent rounded-md transition-colors">
@@ -39,9 +57,7 @@ function TopicItem({ topic, onEditTopic, onAddCategory, onRemoveTopic }: TopicIt
         <DropdownMenu.Item onClick={() => onEditTopic(topic)}>
           Edit Topic
         </DropdownMenu.Item>
-        <DropdownMenu.Item
-          onClick={() => onAddCategory(topic._id)}
-        >
+        <DropdownMenu.Item onClick={() => onAddCategory(topic._id)}>
           Add Category
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
@@ -90,9 +106,15 @@ function TopicItem({ topic, onEditTopic, onAddCategory, onRemoveTopic }: TopicIt
 export function KnowledgeBaseSubGroup() {
   const { topics, loading, refetch } = useTopics();
   const [topicId, setTopicId] = useQueryState<string | null>('topicId');
-  const [categoryId, setCategoryId] = useQueryState<string | null>('categoryId');
-  const [editingTopic, setEditingTopic] = useState<ITopic | undefined>(undefined);
-  const [addingCategoryToTopic, setAddingCategoryToTopic] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useQueryState<string | null>(
+    'categoryId',
+  );
+  const [editingTopic, setEditingTopic] = useState<ITopic | undefined>(
+    undefined,
+  );
+  const [addingCategoryToTopic, setAddingCategoryToTopic] = useState<
+    string | null
+  >(null);
 
   const [deleteTopic] = useMutation(REMOVE_TOPIC, {
     onCompleted: () => {
@@ -137,7 +159,7 @@ export function KnowledgeBaseSubGroup() {
   };
 
   const handleRemoveTopic = async (topicId: string) => {
-    const topic = topics.find(t => t._id === topicId);
+    const topic = topics.find((t) => t._id === topicId);
     if (!topic) return;
 
     const message = `Are you sure you want to delete "${topic.title}"? This will also delete all associated categories and articles. This action cannot be undone.`;
@@ -173,12 +195,12 @@ export function KnowledgeBaseSubGroup() {
     setEditingTopic(topic);
   };
 
-  const allCategories = topics.flatMap(topic => 
-    (topic.categories || []).map(category => ({
+  const allCategories = topics.flatMap((topic) =>
+    (topic.categories || []).map((category) => ({
       ...category,
       topicId: topic._id,
-      topicTitle: topic.title
-    }))
+      topicTitle: topic.title,
+    })),
   );
 
   const getIconComponent = (iconName?: string) => {
@@ -228,8 +250,8 @@ export function KnowledgeBaseSubGroup() {
           <LoadingSkeleton />
         ) : (
           topics?.map((topic) => (
-            <TopicItem 
-              key={topic._id} 
+            <TopicItem
+              key={topic._id}
               topic={topic}
               onEditTopic={handleEditTopic}
               onAddCategory={handleAddCategory}
@@ -239,16 +261,18 @@ export function KnowledgeBaseSubGroup() {
         )}
       </NavigationMenuGroup>
       <NavigationMenuGroup name="Categories">
-        {topicId && <Categories 
-          topics={topics}
-          topicId={topicId}
-          categoryId={categoryId}
-          setCategoryId={setCategoryId}
-          onEditCategory={setEditingCategory}
-          onSetCategoryDrawerOpen={setIsCategoryDrawerOpen}
-          onSetParentCategoryId={setParentCategoryId}
-          onDeleteCategory={handleDeleteCategory}
-        />}
+        {topicId && (
+          <Categories
+            topics={topics}
+            topicId={topicId}
+            categoryId={categoryId}
+            setCategoryId={setCategoryId}
+            onEditCategory={setEditingCategory}
+            onSetCategoryDrawerOpen={setIsCategoryDrawerOpen}
+            onSetParentCategoryId={setParentCategoryId}
+            onDeleteCategory={handleDeleteCategory}
+          />
+        )}
       </NavigationMenuGroup>
 
       {editingTopic && (
@@ -312,7 +336,7 @@ const Categories = ({
   onSetParentCategoryId,
   onDeleteCategory,
 }: CategoriesProps) => {
-  const selectedTopic = topics.find(topic => topic._id === topicId);
+  const selectedTopic = topics.find((topic) => topic._id === topicId);
   const topicCategories = selectedTopic?.categories || [];
 
   const getIconComponent = (iconName?: string) => {
@@ -349,7 +373,7 @@ const Categories = ({
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
-  ); 
+  );
 
   return (
     <Collapsible.Content className="pt-1">
