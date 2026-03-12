@@ -64,7 +64,7 @@ const mutations: Record<string, Resolver> = {
           invoice.contentType,
         );
 
-        // Fire worker message – do not await
+        // Fire worker message –
         sendWorkerMessage({
           subdomain,
           pluginName: 'payment',
@@ -78,9 +78,15 @@ const mutations: Record<string, Resolver> = {
             apiResponse: 'success',
           },
           defaultValue: null,
+          timeout: 30000, // keep increased timeout
+          options: {
+            //  added this to enable retries
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 2000 },
+          },
         })
           .then(() => {})
-          .catch((err) => {});
+          .catch((err) => { process.stderr.write(`[invoicesCheck] Worker message failed for invoice ${_id}: ${err.stack}\n`)});
       }
 
       if (invoice.callback) {
