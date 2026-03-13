@@ -165,7 +165,7 @@ export const initializePluginConfig = async <TConfig extends object>(
     JSON.stringify({
       ...configJSON,
       meta: {
-        ...(configJSON?.meta || {}),
+        ...configJSON?.meta,
         [propertyName]: getNonFunctionProps<TConfig>(config),
       },
     }),
