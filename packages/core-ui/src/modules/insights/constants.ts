@@ -53,4 +53,5 @@ export const SERVICE_MAP = {
   Contacts: 'core:contacts',
   Forms: 'core:forms',
   Pms: 'pms',
+  CallPro: 'integrations:callPro'
 };
