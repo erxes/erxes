@@ -11,6 +11,7 @@
     "@types/body-parser": "^1.17.0",
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
+    "dayjs": "^1.11.13",
     "@types/jest": "^23.3.0",
     "formidable": "^1.2.1",
     "gmail-api-parse-message": "^2.1.2",

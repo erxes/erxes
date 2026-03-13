@@ -6,6 +6,7 @@ import initApp from './initApp';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
+import reports from "./reports/reports";
 
 export default {
   name: 'integrations',
@@ -18,7 +19,9 @@ export default {
   hasSubscriptions: false,
   meta: {
     dashboards,
+    reports,
   },
+
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
