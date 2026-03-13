@@ -30,11 +30,7 @@ const tourMutations = {
     return models.BmsTourCategories.createTourCategory(doc);
   },
 
-  bmsTourCategoryEdit: async (
-    _root,
-    { _id, ...doc },
-    { models }: IContext,
-  ) => {
+  bmsTourCategoryEdit: async (_root, { _id, ...doc }, { models }: IContext) => {
     const updated = await models.BmsTourCategories.updateTourCategory(
       _id,
       doc as any,

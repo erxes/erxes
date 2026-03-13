@@ -7,10 +7,7 @@ import {
   ITourCategoryDocument,
   ITourDocument,
 } from '@/bms/@types/tour';
-import {
-  tourCategorySchema,
-  tourSchema,
-} from '@/bms/db/definitions/tour';
+import { tourCategorySchema, tourSchema } from '@/bms/db/definitions/tour';
 
 export interface ITourModel extends Model<ITourDocument> {
   createTour(doc: ITour, user: any): Promise<ITourDocument>;
