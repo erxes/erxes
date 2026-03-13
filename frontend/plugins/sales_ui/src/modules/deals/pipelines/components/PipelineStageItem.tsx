@@ -301,9 +301,7 @@ const PipelineStageItem = (props: Props) => {
                       )}
                     />
                   </Form.Control>
-                  <Label
-                    htmlFor={`defaultTick-${index}`}
-                  >
+                  <Label htmlFor={`defaultTick-${index}`}>
                     Select products by default
                   </Label>
                 </Form.Item>
