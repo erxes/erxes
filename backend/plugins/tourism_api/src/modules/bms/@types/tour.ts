@@ -22,7 +22,9 @@ export interface ITour {
   date_status: string;
   cost: number;
   branchId: string;
-  tags: string[];
+  tagIds?: string[];
+  tags?: string[];
+  categories?: string[];
   viewCount: number;
   advancePercent?: number;
   joinPercent?: number;
@@ -45,8 +47,19 @@ export interface ITourDocument extends ITour, Document {
   searchText: string;
 }
 
+export interface ITourCategory {
+  name: string;
+  parentId?: string;
+}
+
+export interface ITourCategoryDocument extends ITourCategory, Document {
+  _id: string;
+  createdAt: Date;
+}
+
 export interface TourFilterParams {
   categories?: string[];
+  name?: string;
   status?: string;
   innerDate?: Date;
   branchId?: string;

@@ -4,6 +4,17 @@ import { TOUR_STATUS_TYPES } from '@/bms/constants';
 import { getEnum } from '@/bms/utils';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
+export const tourCategorySchema = new Schema({
+  _id: mongooseStringRandomId,
+  name: { type: String, label: 'Name' },
+  parentId: { type: String, label: 'parentId' },
+  createdAt: {
+    type: Date,
+    default: new Date(),
+    label: 'Created at',
+  },
+});
+
 export const guideItemSchema = new Schema(
   {
     guideId: { type: String, optional: true },
@@ -46,6 +57,7 @@ export const tourSchema = new Schema({
     selectOptions: getEnum(TOUR_STATUS_TYPES),
   },
   cost: { type: Number, optional: true, label: 'cost' },
+  categories: { type: [String], optional: true, label: 'categories' },
   tagIds: { type: [String], optional: true, label: 'tagIds' },
   viewCount: { type: Number, optional: true, label: 'viewCount' },
   advancePercent: {
