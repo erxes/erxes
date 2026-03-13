@@ -35,6 +35,7 @@ class Modal extends React.Component<Props, {}> {
       { label: "Confirmed Event Update", value: "CONFIRMED_EVENT_UPDATE" },
       { label: "Post-Purchase Update", value: "POST_PURCHASE_UPDATE" },
       { label: "Account Update", value: "ACCOUNT_UPDATE" },
+      { label: "Human Agent", value: "HUMAN_AGENT" }
     ];
 
     const { extraInfo = { tag: "" } } = this.props;
