@@ -28,6 +28,11 @@ export type IUIConfig = {
     hasRelationWidget?: boolean;
     hasFloatingWidget?: boolean;
     hasSegmentConfigWidget?: boolean;
+    submenus?: {
+      name: string;
+      path: string;
+      icon?: React.ElementType;
+    }[];
   }[];
 };
 

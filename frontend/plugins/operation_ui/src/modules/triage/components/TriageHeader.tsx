@@ -2,6 +2,7 @@ import { IconCaretLeftRight } from '@tabler/icons-react';
 import { Button, Separator, Sidebar } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { AddTriageSheet } from './add-triage/AddTriageSheet';
+import { FavoriteToggleIconButton } from 'ui-modules';
 
 export const TriageHeader = () => {
   const { teamId } = useParams();
@@ -17,6 +18,8 @@ export const TriageHeader = () => {
               Triage
             </Link>
           </Button>
+          <Separator.Inline />
+          <FavoriteToggleIconButton />
           <div className="ml-auto">
             <AddTriageSheet />
           </div>

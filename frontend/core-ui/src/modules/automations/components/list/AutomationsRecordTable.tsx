@@ -12,7 +12,7 @@ import {
   useScopedHotkeys,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { AutomationRecordTableCommandBar } from '@/automations/components/list/AutomationRecordTableCommandBar';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -55,7 +55,7 @@ export const AutomationsRecordTable = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
+          <Separator.Inline /> <FavoriteToggleIconButton />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>

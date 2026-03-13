@@ -1,7 +1,7 @@
 import { Breadcrumb, PageSubHeader } from 'erxes-ui';
 import { useParams, useLocation } from 'react-router-dom';
 
-import { PageHeader } from 'ui-modules';
+import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
 import { Separator } from 'erxes-ui';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
@@ -33,6 +33,8 @@ export const TasksPage = () => {
                 </>
               )}
               <TaskBreadCrump link={basePath} />
+              <Separator.Inline />
+              <FavoriteToggleIconButton />
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>

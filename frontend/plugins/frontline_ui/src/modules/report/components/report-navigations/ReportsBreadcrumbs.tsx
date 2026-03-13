@@ -7,6 +7,7 @@ import {
 } from 'erxes-ui';
 import { REPORT_MODULES } from '../../constants/modules';
 import { Link } from 'react-router-dom';
+import { FavoriteToggleIconButton } from 'ui-modules';
 
 export const ReportsBreadcrumbs = () => {
   const [reportModule] = useQueryState<string | undefined>('reportModule');
@@ -26,6 +27,7 @@ export const ReportsBreadcrumbs = () => {
             {currentReportModule?.name}
           </Link>
         </Button>
+        <FavoriteToggleIconButton />
       </Breadcrumb.Item>
     </>
   );

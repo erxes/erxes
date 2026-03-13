@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, PageContainer, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { IconTicket } from '@tabler/icons-react';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import {
@@ -23,6 +23,7 @@ const TicketsIndexPage = () => {
                     Tickets
                   </Link>
                 </Button>
+                <FavoriteToggleIconButton />
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
