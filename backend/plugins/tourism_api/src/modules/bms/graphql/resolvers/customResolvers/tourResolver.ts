@@ -8,6 +8,19 @@ const item = {
   async orders(touritem: any, _args, { models }: IContext) {
     return await models.Orders.find({ tourId: touritem?._id });
   },
+  categoryId(touritem: any) {
+    return (
+      touritem.categoryId ||
+      touritem.tagIds?.[0] ||
+      touritem.categoryIds?.[0] ||
+      null
+    );
+  },
+  async categoriesObject(touritem: any, _args, { models }: IContext) {
+    return await models.BmsTourCategories.find({
+      _id: { $in: touritem.categories || [] },
+    });
+  },
   async guides(touritem: any, _args, { models, subdomain }: IContext) {
     const users = await sendTRPCMessage({
       subdomain,
