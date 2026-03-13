@@ -103,8 +103,9 @@ export async function registerUser(
     validateUserRegistration(params);
   }
 
+  const { ...documentParams } = params;
   const document = {
-    ...params,
+    ...documentParams,
     isEmailVerified: false,
     isPhoneVerified: false,
   };
@@ -130,31 +131,17 @@ export async function registerUser(
     if (shouldAutoVerify) {
       await autoVerifyUser(user, models);
       resultUser = user;
-    } else {
-      const actionCodeType = identifierTypeToActionCodeType(identifierType);
-
-      await sendAndStoreOTP({
-        user,
-        identifierType,
-        actionCodeType,
-        context: 'registration',
-        clientPortal,
-        subdomain,
-        models,
-      });
-
-      resultUser = user;
     }
   }
 
-  return resultUser;
+  return (await models.CPUser.findOne({ _id: resultUser._id })) || resultUser;
 }
 
 export async function verifyUser(
   userId: string,
   email: string,
   phone: string,
-  code: number,
+  code: string,
   clientPortal: IClientPortalDocument,
   models: IModels,
 ): Promise<ICPUserDocument> {
@@ -205,6 +192,7 @@ export async function updateUser(
     username?: string;
     companyName?: string;
     companyRegistrationNumber?: string;
+    erxesCustomerId?: string;
   },
   models: IModels,
 ): Promise<ICPUserDocument> {
@@ -244,6 +232,16 @@ export async function updateUser(
   }
   if (params.phone !== undefined && !(params.phone || '').trim()) {
     unsetData.phone = '';
+  }
+
+  if (params.erxesCustomerId !== undefined) {
+    const trimmedCustomerId = params.erxesCustomerId.trim();
+    if (trimmedCustomerId) {
+      setData.erxesCustomerId = trimmedCustomerId;
+      await updateCustomerStateToCustomer(trimmedCustomerId, models);
+    } else {
+      unsetData.erxesCustomerId = '';
+    }
   }
 
   if (

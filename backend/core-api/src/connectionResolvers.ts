@@ -1,4 +1,13 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
+import { IBundleConditionDocument, IBundleRuleDocument } from '@/bundle/@types';
+import {
+  IBundleConditionModel,
+  loadBundleConditionClass,
+} from '@/bundle/db/models/BundleConditions';
+import {
+  IBundleRuleModel,
+  loadBundleRuleClass,
+} from '@/bundle/db/models/BundleRules';
 import {
   IConformityModel,
   loadConformityClass,
@@ -51,6 +60,7 @@ import {
   loadUserClass,
   loadUserMovemmentClass,
 } from '@/organization/team-member/db/models/Users';
+import { IProductRuleDocument } from '@/products/@types/rule';
 import {
   IProductCategoryModel,
   loadProductCategoryClass,
@@ -60,6 +70,10 @@ import {
   loadProductsConfigClass,
 } from '@/products/db/models/Configs';
 import { IProductModel, loadProductClass } from '@/products/db/models/Products';
+import {
+  IProductRuleModel,
+  loadProductRuleClass,
+} from '@/products/db/models/Rules';
 import { IUomModel, loadUomClass } from '@/products/db/models/Uoms';
 import {
   IRelationModel,
@@ -78,6 +92,8 @@ import {
   IEmailDeliveryDocument,
   INotificationDocument,
   notificationSchema,
+  NotificationSettings,
+  notificationSettingsSchema,
 } from 'erxes-api-shared/core-modules';
 import {
   IAppDocument,
@@ -87,18 +103,17 @@ import {
   ICustomerDocument,
   ILogDocument,
   IMainContext,
-  IPermissionDocument,
+  IPermissionGroupDocument,
   IProductCategoryDocument,
   IProductDocument,
   IProductsConfigDocument,
   IRelationDocument,
-  IRoleDocument,
   ITagDocument,
   IUomDocument,
   IUserDocument,
-  IUserGroupDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
+
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose, { Document, Model } from 'mongoose';
 import {
@@ -121,18 +136,7 @@ import {
   IConfigModel,
   loadConfigClass,
 } from '~/modules/organization/settings/db/models/Configs';
-import {
-  IPermissionModel,
-  loadPermissionClass,
-} from '~/modules/permissions/db/models/Permissions';
-import {
-  IRoleModel,
-  loadRoleClass,
-} from '~/modules/permissions/db/models/Roles';
-import {
-  IUserGroupModel,
-  loadUserGroupClass,
-} from '~/modules/permissions/db/models/UserGroups';
+
 import {
   IAutomationEmailTemplateModel,
   loadAutomationEmailTemplateClass,
@@ -165,6 +169,10 @@ import {
   ISmsRequestModel,
   loadSmsRequestClass,
 } from './modules/broadcast/db/models/SmsRequests';
+import {
+  ICPNotificationModel,
+  loadCPNotificationClass,
+} from './modules/clientportal/db/models/CPNotification';
 import {
   ICPUserModel,
   loadCPUserClass,
@@ -217,11 +225,26 @@ import {
   ISegmentModel,
   loadSegmentClass,
 } from './modules/segments/db/models/Segments';
-import {
-  ICPNotificationModel,
-  loadCPNotificationClass,
-} from './modules/clientportal/db/models/CPNotification';
+
 import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
+
+import {
+  IPermissionGroupModel,
+  loadPermissionGroupClass,
+} from '@/permissions/db/models/Permissions';
+import {
+  ITemplateCategoryModal,
+  loadTemplateCategoryClass,
+} from '@/template/db/models/Category';
+import {
+  ITemplateModal,
+  loadTemplateClass,
+} from '@/template/db/models/Template';
+import {
+  ITemplateCategoryDocument,
+  ITemplateDocument,
+} from '@/template/@types';
+
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -229,9 +252,6 @@ export interface IModels {
   Users: IUserModel;
   UserMovements: IUserMovemmentModel;
   Configs: IConfigModel;
-  Permissions: IPermissionModel;
-  UsersGroups: IUserGroupModel;
-  Roles: IRoleModel;
   Tags: ITagModel;
   InternalNotes: IInternalNoteModel;
   Products: IProductModel;
@@ -274,6 +294,16 @@ export interface IModels {
   SmsRequests: ISmsRequestModel;
   DeliveryReports: IDeliveryReportModel;
   OrgWhiteLabel: IOrgWhiteLabelModel;
+
+  BundleCondition: IBundleConditionModel;
+  BundleRule: IBundleRuleModel;
+  ProductRules: IProductRuleModel;
+  PermissionGroups: IPermissionGroupModel;
+
+  NotificationSettings: Model<NotificationSettings>;
+
+  Template: ITemplateModal;
+  TemplateCategory: ITemplateCategoryModal;
 }
 
 export interface IContext extends IMainContext {
@@ -345,33 +375,6 @@ export const loadClasses = (
       subdomain,
       models,
       eventDispatcher('core', 'organization', 'configs'),
-    ),
-  );
-
-  models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
-    'permissions',
-    loadPermissionClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'permissions', 'permissions'),
-    ),
-  );
-
-  models.Roles = db.model<IRoleDocument, IRoleModel>(
-    'roles',
-    loadRoleClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'permissions', 'roles'),
-    ),
-  );
-
-  models.UsersGroups = db.model<IUserGroupDocument, IUserGroupModel>(
-    'user_groups',
-    loadUserGroupClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'permissions', 'user_groups'),
     ),
   );
 
@@ -461,8 +464,12 @@ export const loadClasses = (
     ),
   );
   models.Apps = db.model<IAppDocument, IAppModel>(
-    'apps',
-    loadAppClass(subdomain, models, eventDispatcher('core', 'apps', 'apps')),
+    'app_tokens',
+    loadAppClass(
+      models,
+      eventDispatcher('core', 'app_tokens', 'app_tokens'),
+      subdomain,
+    ),
   );
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
@@ -521,6 +528,11 @@ export const loadClasses = (
     Model<INotificationDocument>
   >('notifications', notificationSchema);
 
+  models.NotificationSettings = db.model<
+    NotificationSettings,
+    Model<NotificationSettings>
+  >('notification_settings', notificationSettingsSchema);
+
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,
     IEmailDeliveryModel
@@ -540,6 +552,7 @@ export const loadClasses = (
     IActivityLogDocument,
     Model<IActivityLogDocument>
   >('activity_logs', activityLogsSchema);
+
   models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(
     'broadcast_engage_messages',
     loadEngageMessageClass(models, subdomain),
@@ -606,6 +619,21 @@ export const loadClasses = (
     ICPNotificationModel
   >('client_portal_notifications', loadCPNotificationClass(models));
 
+  models.BundleCondition = db.model<
+    IBundleConditionDocument,
+    IBundleConditionModel
+  >('bundle_conditions', loadBundleConditionClass(models, subdomain));
+
+  models.BundleRule = db.model<IBundleRuleDocument, IBundleRuleModel>(
+    'bundle_rules',
+    loadBundleRuleClass(models, subdomain),
+  );
+
+  models.ProductRules = db.model<IProductRuleDocument, IProductRuleModel>(
+    'product_rules',
+    loadProductRuleClass(models, subdomain),
+  );
+
   const db_name = db.name;
 
   const logDb = db.useDb(`${db_name}_logs`);
@@ -614,6 +642,21 @@ export const loadClasses = (
     'logs',
     loadLogsClass(models),
   );
+
+  models.PermissionGroups = db.model<
+    IPermissionGroupDocument,
+    IPermissionGroupModel
+  >('permission_groups', loadPermissionGroupClass(models));
+
+  models.Template = db.model<ITemplateDocument, ITemplateModal>(
+    'templates',
+    loadTemplateClass(models, subdomain),
+  );
+
+  models.TemplateCategory = db.model<
+    ITemplateCategoryDocument,
+    ITemplateCategoryModal
+  >('template_categories', loadTemplateCategoryClass(models));
 
   return models;
 };

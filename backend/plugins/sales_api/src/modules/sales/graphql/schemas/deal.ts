@@ -112,7 +112,7 @@ export const types = `
     labels: [SalesPipelineLabel]
     pipeline: SalesPipeline
     createdUser: User
-    customFieldsData: JSON
+    propertiesData: JSON
     score: Float
     timeTrack: SalesTimeTrack
     number: String
@@ -191,6 +191,9 @@ export const queries = `
   
   archivedDeals(${archivedDealsParams}): DealsListResponse
   archivedDealsCount(${archivedDealsParams}): Int
+
+  cpDeals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
+  cpDealDetail(_id: String!, clientPortalCard: Boolean): Deal
 `;
 
 const mutationParams = `
@@ -209,7 +212,7 @@ const mutationParams = `
   priority: String,
   status: String,
   sourceConversationIds: [String],
-  customFieldsData: JSON,
+  propertiesData: JSON,
   tagIds: [String],
   branchIds: [String],
   departmentIds: [String],

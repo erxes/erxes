@@ -7,6 +7,7 @@ const itineraryMutations = {
 
   bmsItineraryEdit: async (_root, { _id, ...doc }, { models }: IContext) => {
     const updated = await models.Itineraries.updateItinerary(_id, doc as any);
+
     return updated;
   },
 

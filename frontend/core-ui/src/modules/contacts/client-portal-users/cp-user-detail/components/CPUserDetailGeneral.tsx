@@ -79,7 +79,21 @@ export function CPUserDetailGeneral() {
 
   if (!cpUser) return null;
 
-  const { avatar, type, isVerified, isEmailVerified, isPhoneVerified } = cpUser;
+  const {
+    avatar,
+    type,
+    isVerified,
+    isEmailVerified,
+    isPhoneVerified,
+    fcmTokens,
+  } = cpUser;
+  const fcmCount = fcmTokens?.length ?? 0;
+  const fcmPlatforms = (fcmTokens?.map((d) => d.platform).filter(Boolean) ??
+    []) as string[];
+  const fcmPlatformLabel =
+    fcmPlatforms.length > 0
+      ? ` (${[...new Set(fcmPlatforms)].join(', ')})`
+      : '';
 
   return (
     <>
@@ -97,7 +111,9 @@ export function CPUserDetailGeneral() {
             </Avatar.Fallback>
           </Avatar>
           <div className="flex flex-col items-start flex-1">
-            <span className="text-base font-semibold">{displayName(cpUser)}</span>
+            <span className="text-base font-semibold">
+              {displayName(cpUser)}
+            </span>
             <div className="flex flex-wrap gap-2 mt-1">
               {type && <Badge variant="secondary">{type}</Badge>}
               <Badge variant={isVerified ? 'success' : 'secondary'}>
@@ -115,6 +131,16 @@ export function CPUserDetailGeneral() {
                   {t('phoneVerified', { defaultValue: 'Phone verified' })}
                 </Badge>
               )}
+              <Badge variant={fcmCount > 0 ? 'secondary' : 'default'}>
+                {fcmCount > 0
+                  ? t('clientPortalUser.pushDevices', {
+                      defaultValue: 'Push: {{count}} device(s)',
+                      count: fcmCount,
+                    }) + fcmPlatformLabel
+                  : t('clientPortalUser.pushNoDevices', {
+                      defaultValue: 'Push: No devices',
+                    })}
+              </Badge>
             </div>
           </div>
           <div className="flex gap-2 shrink-0">

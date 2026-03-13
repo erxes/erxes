@@ -4,6 +4,7 @@ import { MemberLinks } from './MemberLinks';
 import { ActivityLogs, FieldsInDetail } from 'ui-modules';
 import { useUserDetail } from '../../hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '../../hooks/useUserEdit';
+import { MembersPermissions } from './MembersPermissions';
 
 export const MemberDetailMainContents = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -19,13 +20,16 @@ export const MemberDetailMainContents = () => {
         <Tabs.Content value="overview">
           <MemberGeneral />
         </Tabs.Content>
+        <Tabs.Content value="permissions">
+          <MembersPermissions />
+        </Tabs.Content>
         <Tabs.Content value="links">
           <MemberLinks />
         </Tabs.Content>
         <Tabs.Content value="properties">
           <FieldsInDetail
             fieldContentType="core:user"
-            customFieldsData={userDetail?.customFieldsData || {}}
+            propertiesData={userDetail?.propertiesData || {}}
             mutateHook={useUserCustomFieldEdit}
             id={userDetail?._id || ''}
             className="p-6"

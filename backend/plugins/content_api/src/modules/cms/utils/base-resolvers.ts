@@ -1,4 +1,4 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
 import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext, IModels } from '~/connectionResolvers';
 import { SortOrder } from 'mongoose';
@@ -12,6 +12,8 @@ export interface BaseQueryArgs {
   cursor?: string;
   direction?: 'forward' | 'backward';
   orderBy?: Record<string, SortOrder>;
+  sortField?: string;
+  sortDirection?: string;
   [key: string]: any;
 }
 
@@ -37,19 +39,16 @@ export class BaseQueryResolver {
     this.context = context;
   }
 
-  /**
-   * Build translation map for efficient lookup
-   */
   protected buildTranslationMap(translations: any[]): Record<string, any> {
-    return translations.reduce((acc, translation) => {
-      acc[translation.postId.toString()] = translation;
-      return acc;
-    }, {} as Record<string, any>);
+    return translations.reduce(
+      (acc, translation) => {
+        acc[translation.postId.toString()] = translation;
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
   }
 
-  /**
-   * Apply translations to a list of items
-   */
   protected applyTranslationsToList<T extends { _id: string }>(
     items: T[],
     translations: any[],
@@ -71,7 +70,9 @@ export class BaseQueryResolver {
               translation,
               translationField,
             ) &&
-            translation[translationField] !== undefined
+            translation[translationField] !== undefined &&
+            translation[translationField] !== null &&
+            translation[translationField] !== ''
           ) {
             (translatedItem as any)[originalField] =
               translation[translationField];
@@ -83,9 +84,6 @@ export class BaseQueryResolver {
     });
   }
 
-  /**
-   * Apply translations to a single item
-   */
   protected applyTranslationsToItem<T extends { _id: string }>(
     item: T,
     translation: any,
@@ -98,7 +96,9 @@ export class BaseQueryResolver {
       ([originalField, translationField]) => {
         if (
           Object.prototype.hasOwnProperty.call(translation, translationField) &&
-          translation[translationField] !== undefined
+          translation[translationField] !== undefined &&
+          translation[translationField] !== null &&
+          translation[translationField] !== ''
         ) {
           (translatedItem as any)[originalField] =
             translation[translationField];
@@ -109,59 +109,61 @@ export class BaseQueryResolver {
     return translatedItem;
   }
 
-  /**
-   * Get translations for items
-   */
   protected async getTranslations(
     itemIds: string[],
     language: string,
+    type = 'post',
   ): Promise<any[]> {
     return this.models.Translations.find({
       postId: { $in: itemIds },
       language,
+      type,
     }).lean();
   }
 
-  /**
-   * Get translation for single item
-   */
   protected async getTranslation(
     itemId: string,
     language: string,
+    type = 'post',
   ): Promise<any> {
     return this.models.Translations.findOne({
       postId: itemId,
       language,
+      type,
     }).lean();
   }
 
-  /**
-   * Check if portal language matches requested language
-   */
   protected async shouldSkipTranslation(
     clientPortalId: string,
     language: string,
   ): Promise<boolean> {
     if (!clientPortalId || !language) return true;
 
-    const cms = await this.models.CMS.findOne({
-      clientPortalId,
-    }).lean();
+    const cms = await this.models.CMS.findOne({ clientPortalId }).lean();
+
     return !cms || cms.language === language;
   }
 
-  /**
-   * Generic list query with translation support
-   */
+  private resolveClientPortalId(args: BaseQueryArgs): string {
+    return args.clientPortalId || this.context.clientPortal?._id || '';
+  }
+
   protected async getListWithTranslations<T extends { _id: string }>(
     model: any,
     query: any,
     args: BaseQueryArgs,
     fieldMappings: Record<string, string>,
+    translationType = 'post',
   ): Promise<{ list: T[]; totalCount: number; pageInfo: any }> {
+    const params = { ...args };
+    if (args.sortField && !args.orderBy) {
+      const sortOrder: SortOrder = args.sortDirection === 'asc' ? 1 : -1;
+      params.orderBy = { [args.sortField]: sortOrder };
+    }
+
     const { list, totalCount, pageInfo } = await cursorPaginate<any>({
       model,
-      params: args,
+      params,
       query,
     });
 
@@ -169,21 +171,27 @@ export class BaseQueryResolver {
       return { list, totalCount, pageInfo };
     }
 
-    if (!args.clientPortalId && !this.context.clientPortal._id) {
-      throw new Error('Client portal ID is required');
+    const clientPortalId = this.resolveClientPortalId(args);
+
+    if (!clientPortalId) {
+      return { list, totalCount, pageInfo };
     }
 
     const shouldSkip = await this.shouldSkipTranslation(
-      args.clientPortalId || this.context.clientPortal._id || '',
-      args.language || '',
+      clientPortalId,
+      args.language,
     );
 
     if (shouldSkip) {
       return { list, totalCount, pageInfo };
     }
 
-    const itemIds = list.map((item: any) => item._id);
-    const translations = await this.getTranslations(itemIds, args.language);
+    const itemIds = list.map((item: any) => item._id.toString());
+    const translations = await this.getTranslations(
+      itemIds,
+      args.language,
+      translationType,
+    );
     const translatedList = this.applyTranslationsToList(
       list,
       translations,
@@ -193,28 +201,96 @@ export class BaseQueryResolver {
     return { list: translatedList, totalCount, pageInfo };
   }
 
-  /**
-   * Generic single item query with translation support
-   */
+  protected async getListWithDefaultPagination<T extends { _id: string }>(
+    model: any,
+    query: any,
+    args: BaseQueryArgs,
+    fieldMappings: Record<string, string>,
+    translationType = 'post',
+  ): Promise<T[]> {
+    const {
+      sortField = 'scheduledDate',
+      sortDirection,
+      page = 1,
+      perPage = 20,
+    } = args;
+    const sortOrder: SortOrder = sortDirection === 'asc' ? 1 : -1;
+
+    const list = (await defaultPaginate(
+      model
+        .find(query)
+        .sort({ [sortField]: sortOrder })
+        .lean(),
+      { page, perPage },
+    )) as T[];
+
+    if (!args.language) {
+      return list;
+    }
+
+    const clientPortalId = this.resolveClientPortalId(args);
+
+    if (!clientPortalId) {
+      return list;
+    }
+
+    const shouldSkip = await this.shouldSkipTranslation(
+      clientPortalId,
+      args.language,
+    );
+
+    if (shouldSkip) {
+      return list;
+    }
+
+    const itemIds = list.map((item) => item._id.toString());
+    const translations = await this.getTranslations(
+      itemIds,
+      args.language,
+      translationType,
+    );
+    const translatedList = this.applyTranslationsToList(
+      list,
+      translations,
+      fieldMappings,
+    );
+
+    return translatedList;
+  }
+
   protected async getItemWithTranslation<T>(
     model: any,
     query: any,
     language: string,
     fieldMappings: Record<string, string>,
+    clientPortalId?: string,
+    translationType = 'post',
   ): Promise<T | null> {
     const item = await model.findOne(query).lean();
     if (!item) return null;
 
     if (!language) return item;
 
+    const effectiveClientPortalId =
+      clientPortalId ||
+      (item as any).clientPortalId ||
+      this.context.clientPortal?._id ||
+      '';
+
+    if (!effectiveClientPortalId) return item;
+
     const shouldSkip = await this.shouldSkipTranslation(
-      this.context.clientPortal._id || '',
+      effectiveClientPortalId,
       language,
     );
 
     if (shouldSkip) return item;
 
-    const translation = await this.getTranslation(item._id, language);
+    const translation = await this.getTranslation(
+      item._id.toString(),
+      language,
+      translationType,
+    );
     return this.applyTranslationsToItem(item, translation, fieldMappings);
   }
 }
@@ -228,9 +304,6 @@ export class BaseMutationResolver {
     this.context = context;
   }
 
-  /**
-   * Generic create operation
-   */
   protected async create<T>(
     model: any,
     input: any,
@@ -249,9 +322,6 @@ export class BaseMutationResolver {
       : model.create(input);
   }
 
-  /**
-   * Generic update operation
-   */
   protected async update<T>(
     model: any,
     id: string,
@@ -267,16 +337,10 @@ export class BaseMutationResolver {
       : model.updateOne({ _id: id }, input);
   }
 
-  /**
-   * Generic delete operation
-   */
   protected async remove<T>(model: any, id: string): Promise<T> {
     return model.removeDoc ? model.removeDoc(id) : model.deleteOne({ _id: id });
   }
 
-  /**
-   * Apply permission checks to mutations
-   */
   protected applyPermissions(
     mutations: any,
     permission: string,
@@ -292,9 +356,6 @@ export class BaseMutationResolver {
   }
 }
 
-/**
- * Common field mappings for different entity types
- */
 export const FIELD_MAPPINGS = {
   POST: {
     title: 'title',

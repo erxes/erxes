@@ -1,6 +1,6 @@
-import { typeDefs } from '~/apollo/typeDefs';
-
 import { startPlugin } from 'erxes-api-shared/utils';
+import { typeDefs } from '~/apollo/typeDefs';
+import { afterProcess } from '~/meta/afterProcess';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { appRouter } from './init-trpc';
@@ -12,7 +12,6 @@ startPlugin({
     typeDefs: await typeDefs(),
     resolvers: resolvers,
   }),
-
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
@@ -39,4 +38,7 @@ startPlugin({
       return context;
     },
   },
+  meta: {
+    afterProcess,
+  }
 });

@@ -10,6 +10,7 @@ import { IOrignalCallCdr } from '@/integrations/call/@types/cdrs';
 import { ICallCustomer } from '@/integrations/call/@types/customers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -94,12 +95,12 @@ export const getOrCreateCustomer = async (
         query: { _id: customer.erxesApiId },
       },
     });
-    if (coreCustomer) {
+    if (coreCustomer && coreCustomer._id) {
       await sendTRPCMessage({
         subdomain,
 
         pluginName: 'core',
-        method: 'mutation', // this is a mutation, not a query
+        method: 'mutation',
         module: 'customers',
         action: 'updateCustomer',
         input: {
@@ -125,7 +126,7 @@ export const getOrCreateCustomer = async (
           },
         },
       });
-      if (newCustomer) {
+      if (newCustomer && newCustomer._id) {
         customer.erxesApiId = newCustomer._id;
         await customer.save();
       }
@@ -225,15 +226,17 @@ export const getOrCreateCdr = async (
         );
       }
 
+      const cdrMessage = {
+        ...createdCdr?.toObject(),
+        conversationId: createdCdr.conversationId,
+      };
+
       await graphqlPubsub.publish(
         `conversationMessageInserted:${createdCdr.conversationId}`,
-        {
-          conversationMessageInserted: {
-            ...createdCdr?.toObject(),
-            conversationId: createdCdr.conversationId,
-          },
-        },
+        { conversationMessageInserted: cdrMessage },
       );
+
+      await pConversationClientMessageInserted(subdomain, cdrMessage);
 
       await saveRecordUrl(createdCdr, models, inboxId, subdomain);
     } catch (error) {

@@ -30,6 +30,7 @@ const CP_USER_ACTIVITY_FIELDS = [
   { field: 'companyName', label: 'Company Name' },
   { field: 'companyRegistrationNumber', label: 'Company Registration Number' },
   { field: 'avatar', label: 'Avatar' },
+  { field: 'erxesCustomerId', label: 'Customer' },
 ];
 
 const getCPUserFieldLabel = (field: string) => {

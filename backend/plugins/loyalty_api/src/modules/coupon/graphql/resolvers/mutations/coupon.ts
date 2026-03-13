@@ -1,28 +1,24 @@
+import { ICouponInput } from '@/coupon/@types/coupon';
 import { IContext } from '~/connectionResolvers';
-import { ICoupon } from '~/modules/coupon/@types/coupon';
 
 export const couponMutations = {
-  createCoupon: async (
-    _parent: undefined,
-    doc: ICoupon,
-    { models, user }: IContext,
-  ) => {
-    return models.Coupon.createCoupon(doc, user);
+  async couponAdd(_root: undefined, doc: ICouponInput, { models }: IContext) {
+    return models.Coupons.createCoupon(doc);
   },
 
-  updateCoupon: async (
-    _parent: undefined,
-    { _id, ...doc }: { _id: string } & ICoupon,
-    { models, user }: IContext,
-  ) => {
-    return models.Coupon.updateCoupon(_id, doc, user);
-  },
-
-  removeCoupon: async (
-    _parent: undefined,
-    { _id }: { _id: string },
+  async couponEdit(
+    _root: undefined,
+    { _id, ...doc }: ICouponInput & { _id: string },
     { models }: IContext,
-  ) => {
-    return models.Coupon.removeCoupon(_id);
+  ) {
+    return models.Coupons.updateCoupon(_id, doc);
+  },
+
+  async couponsRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models }: IContext,
+  ) {
+    return models.Coupons.removeCoupons(_ids);
   },
 };

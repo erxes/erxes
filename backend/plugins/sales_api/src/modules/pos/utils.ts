@@ -353,25 +353,18 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     //   },
     //   "stringValue": "106.93628311157227,47.920138551642026"
     // }
-    dealsData.customFieldsData = [
-      {
-        field: deliveryConfig.mapCustomField.replace('customFieldsData.', ''),
-        locationValue: {
-          type: 'Point',
-          coordinates: [
-            marker.longitude || marker.lng,
-            marker.latitude || marker.lat,
-          ],
-        },
-        value: {
-          lat: marker.latitude || marker.lat,
-          lng: marker.longitude || marker.lng,
-          description: 'location',
-        },
-        stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat
-          }`,
-      },
-    ];
+
+    const field = deliveryConfig.mapCustomField.replace('customFieldsData.', '')
+
+    dealsData.propertiesData = {
+      [field]: {
+        type: 'Point',
+        coordinates: [
+          marker.longitude || marker.lng,
+          marker.latitude || marker.lat,
+        ],
+      }
+    }
   }
 
   if ((doneOrder.deliveryInfo || {}).dealId) {

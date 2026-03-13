@@ -2,6 +2,7 @@ import { requireLogin } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ITicketPipelineUpdate } from '@/ticket/@types/pipeline';
+import { PermissionError } from '@/ticket/utils/permissionValidator';
 
 export const pipelineMutations = {
   createPipeline: async (
@@ -9,6 +10,10 @@ export const pipelineMutations = {
     params: ITicketPipelineUpdate,
     { models, user }: IContext,
   ) => {
+    if (!user) {
+      throw new Error('Authentication required');
+    }
+
     const pipeline = await models.Pipeline.addPipeline({
       ...params,
       userId: user._id,
@@ -27,11 +32,12 @@ export const pipelineMutations = {
   updatePipeline: async (
     _parent: undefined,
     params: ITicketPipelineUpdate & { _id: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     const updatedPipeline = await models.Pipeline.updatePipeline(
       params._id,
       params,
+      user,
     );
 
     graphqlPubsub.publish(`ticketPipelineChanged:${updatedPipeline?._id}`, {
@@ -47,9 +53,16 @@ export const pipelineMutations = {
   removePipeline: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     const pipeline = await models.Pipeline.getPipeline(_id);
+
+    if (pipeline.userId !== user._id) {
+      throw new PermissionError(
+        'Access denied: Only the pipeline owner can delete this pipeline',
+      );
+    }
+
     const deletedPipeline = await models.Pipeline.removePipeline(_id);
 
     graphqlPubsub.publish(`ticketPipelineChanged:${_id}`, {
@@ -63,7 +76,6 @@ export const pipelineMutations = {
   },
 };
 
-// Require login
 requireLogin(pipelineMutations, 'createPipeline');
 requireLogin(pipelineMutations, 'updatePipeline');
 requireLogin(pipelineMutations, 'removePipeline');

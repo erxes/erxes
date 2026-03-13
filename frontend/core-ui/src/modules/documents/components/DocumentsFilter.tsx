@@ -11,8 +11,6 @@ import { SelectMember } from 'ui-modules';
 import { DocumentFilterState } from '../types';
 import { useTranslation } from 'react-i18next';
 
-// TODO: Change assignedTo to createdBy
-
 export const DocumentsFilter = () => {
   const [searchParams] = useSearchParams();
 
@@ -20,7 +18,7 @@ export const DocumentsFilter = () => {
 
   const [queries] = useMultiQueryState<DocumentFilterState>([
     'createdAt',
-    'assignedTo',
+    'createdBy',
     'searchValue',
   ]);
 
@@ -60,7 +58,7 @@ export const DocumentsFilter = () => {
 };
 
 const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
-  const { searchValue, assignedTo } = queries || {};
+  const { searchValue, createdBy } = queries || {};
   const { t } = useTranslation('documents', {
     keyPrefix: 'filter',
   });
@@ -84,7 +82,7 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
-      {assignedTo && <SelectMember.FilterBar />}
+      {createdBy && <SelectMember.FilterBar queryKey="createdBy" label="Created By" />}
     </>
   );
 };
@@ -108,7 +106,7 @@ const DocumentFilterView = () => {
               {t('search')}
             </Filter.Item>
 
-            <SelectMember.FilterItem />
+            <SelectMember.FilterItem value="createdBy" label="Created By" />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdAt">
               <IconCalendarPlus />
@@ -117,7 +115,7 @@ const DocumentFilterView = () => {
           </Command.List>
         </Command>
       </Filter.View>
-      <SelectMember.FilterView />
+      <SelectMember.FilterView queryKey="createdBy" />
       <Filter.View filterKey="createdAt">
         <Filter.DateView filterKey="createdAt" />
       </Filter.View>

@@ -1,9 +1,9 @@
 import { redis, startPlugin } from 'erxes-api-shared/utils';
+import resolvers from '~/apollo/resolvers';
 import { typeDefs } from '~/apollo/typeDefs';
+import { generateModels } from '~/connectionResolvers';
 import { appRouter } from '~/trpc/init-trpc';
-import resolvers from './apollo/resolvers';
-import { generateModels } from './connectionResolvers';
-import { initMQWorkers } from './worker';
+import { initMQWorkers } from '~/worker';
 
 startPlugin({
   name: 'loyalty',

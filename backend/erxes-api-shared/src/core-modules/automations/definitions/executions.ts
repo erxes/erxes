@@ -29,8 +29,7 @@ export interface IAutomationExecution {
 }
 
 export interface IAutomationExecutionDocument
-  extends IAutomationExecution,
-    Document {
+  extends IAutomationExecution, Document {
   _id: string;
 }
 
@@ -44,7 +43,7 @@ export const AUTOMATION_EXECUTION_STATUS = {
 };
 
 const execActionSchema = new Schema({
-  createdAt: { type: Date, default: Date.now(), required: true },
+  createdAt: { type: Date, default: Date.now, required: true },
   actionId: { type: String },
   actionType: { type: String },
   actionConfig: { type: Object },
@@ -53,8 +52,8 @@ const execActionSchema = new Schema({
 });
 
 export const automationExecutionSchema = new Schema({
-  createdAt: { type: Date, default: Date.now(), required: true },
-  modifiedAt: { type: Date, default: Date.now(), required: true },
+  createdAt: { type: Date, default: Date.now, required: true },
+  modifiedAt: { type: Date, default: Date.now, required: true },
   automationId: { type: String, required: true, index: true },
   triggerId: { type: String, required: true, index: true },
   triggerType: { type: String },

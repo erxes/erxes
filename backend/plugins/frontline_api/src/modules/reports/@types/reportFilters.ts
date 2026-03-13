@@ -7,6 +7,7 @@ export type IReportFilters = {
   limit?: number;
   status?: string;
   source?: string;
+  callStatus?: string;
   page?: number;
 };
 

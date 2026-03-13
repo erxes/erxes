@@ -22,6 +22,8 @@ export interface ICPUser {
   accountLockedUntil?: string;
   lastLoginAt?: string;
   primaryAuthMethod?: string;
+  /** FCM devices (list query may omit token) */
+  fcmTokens?: { deviceId: string; token?: string; platform: string }[];
   createdAt?: string;
   updatedAt?: string;
 }

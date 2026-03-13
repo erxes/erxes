@@ -3,7 +3,7 @@ import {
   IBrowserInfo,
   ICustomer,
   ICustomerDocument,
-  ICustomField,
+  IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { validSearchText } from 'erxes-api-shared/utils';
@@ -168,9 +168,9 @@ export const loadCustomerClass = (
         doc.phones = [doc.primaryPhone];
       }
 
-      if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.validateFieldValues(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        doc.propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
       }
 
@@ -218,12 +218,12 @@ export const loadCustomerClass = (
 
       const oldCustomer = await models.Customers.getCustomer(_id);
 
-      if (doc.customFieldsData) {
-        // clean custom field values
-
-        doc.customFieldsData = await models.Fields.validateFieldValues(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        const propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
+
+        doc.propertiesData = propertiesData;
       }
 
       const pssDoc = models.Customers.calcPSS({
@@ -285,7 +285,7 @@ export const loadCustomerClass = (
 
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
-      let customFieldsData: ICustomField[] = [];
+      let propertiesData: IPropertyField = {};
       let state: any = '';
 
       let emails: string[] = [];
@@ -306,11 +306,11 @@ export const loadCustomerClass = (
       for (const customer of customers) {
         customerFields.integrationId = customer.integrationId;
 
-        // merge custom fields data
-        customFieldsData = [
-          ...customFieldsData,
-          ...(customer.customFieldsData || []),
-        ];
+        // property note: prepare mergeProperties method
+        propertiesData = {
+          ...propertiesData,
+          ...(customer.propertiesData || {}),
+        };
 
         // Merging scopeBrandIds
         scopeBrandIds = [...scopeBrandIds, ...(customer.scopeBrandIds || [])];
@@ -345,7 +345,7 @@ export const loadCustomerClass = (
         {
           ...customerFields,
           scopeBrandIds,
-          customFieldsData,
+          propertiesData,
           tagIds,
           mergedIds: customerIds,
           emails,
@@ -463,11 +463,14 @@ export const loadCustomerClass = (
       doc,
       customData,
     }: ICreateMessengerCustomerParams) {
-      this.fixListFields(doc, customData);
+      doc = this.fixListFields(doc, customData);
+
+      const { propertiesData } = await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       return this.createCustomer({
         ...doc,
-        customFieldsData: customData,
+        // trackedData: [], trackData note: trackedData is not used for now
+        propertiesData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1,
@@ -484,7 +487,9 @@ export const loadCustomerClass = (
     }: IUpdateMessengerCustomerParams) {
       const customer = await models.Customers.getCustomer(_id);
 
-      this.fixListFields(doc, customData, customer);
+      doc = this.fixListFields(doc, customData, customer);
+
+      const { propertiesData } = await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       const modifier: any = {
         ...doc,
@@ -492,10 +497,17 @@ export const loadCustomerClass = (
         updatedAt: new Date(),
       };
 
-      if (customData && customData.length > 0) {
-        modifier.customFieldsData = customData;
+      // trackData note: trackedData is not used for now
+      // if (trackedData && trackedData.length > 0) {
+      //   modifier.trackedData = trackedData;
+      // }
+
+      if (Object.keys(propertiesData)?.length > 0) {
+        // if use Customers.updateCustomer method then just pass propertiesData no spread neede
+        modifier.propertiesData = propertiesData;
       }
 
+      
       await models.Customers.updateOne({ _id }, { $set: modifier });
 
       const updateCustomer = await models.Customers.getCustomer(_id);

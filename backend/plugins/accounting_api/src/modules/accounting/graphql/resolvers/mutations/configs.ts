@@ -13,7 +13,7 @@ const configMutations = {
     return await models.Configs.removeConfig(_id);
   },
 
-  async accountingsConfigsUpdateByCode(_root, { configsMap }, { models }: IContext) {
+  async accountingsConfigsUpdateByCode(_root, { configsMap }: { configsMap: any }, { models }: IContext) {
     const codes = Object.keys(configsMap);
 
     for (const code of codes) {

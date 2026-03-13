@@ -45,8 +45,8 @@ export const FORM_BULK_ACTION = gql`
 `;
 
 export const FORM_REMOVE = gql`
-  mutation FormsRemove($id: String!) {
-    formsRemove(_id: $id)
+  mutation FormsRemove($_ids: [String]) {
+    formsRemove(_ids: $_ids)
   }
 `;
 
@@ -75,5 +75,11 @@ export const FORM_EDIT = gql`
     ) {
       _id
     }
+  }
+`;
+
+export const FORM_TOGGLE_STATUS = gql`
+  mutation FormsToggleStatus($ids: [String]!, $status: String) {
+    formsToggleStatus(_ids: $ids, status: $status)
   }
 `;

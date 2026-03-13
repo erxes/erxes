@@ -13,15 +13,19 @@ import { Express } from 'express';
 import { contactExportHandlers } from '~/modules/contacts/meta/import-export/export/exportHandlers';
 import { productImportHandlers } from '~/modules/products/meta/import-export/import/importHandlers';
 import { productExportHandlers } from '~/modules/products/meta/import-export/export/exportHandlers';
+import { userImportHandlers } from '~/modules/organization/team-member/meta/import-export/import/importHandlers';
+import { userExportHandlers } from '~/modules/organization/team-member/meta/import-export/export/exportHandlers';
 
 const importModules = {
   contact: contactImportHandlers,
   product: productImportHandlers,
+  user: userImportHandlers,
 };
 
 const exportModules = {
   contact: contactExportHandlers,
   product: productExportHandlers,
+  user: userExportHandlers,
 };
 
 const modules = {

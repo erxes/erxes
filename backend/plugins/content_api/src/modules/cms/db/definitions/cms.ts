@@ -23,6 +23,7 @@ export const cmsMenuSchema = new mongoose.Schema<ICMSMenuDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
+    webId: { type: String, optional: true },
     label: { type: String, required: true },
     objectType: { type: String },
     objectId: { type: String },
@@ -45,6 +46,7 @@ export const cmsPageSchema = new mongoose.Schema<ICMSPageDocument>(
     content: { type: String },
     slug: { type: String, required: true },
     layout: { type: String, required: false },
+    status: { type: String },
     createdUserId: { type: String, ref: 'User' },
     coverImage: { type: String },
     customFieldsData: { type: [customFieldSchema], optional: true },

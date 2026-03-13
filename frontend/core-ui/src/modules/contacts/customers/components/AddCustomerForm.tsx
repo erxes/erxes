@@ -52,7 +52,7 @@ export function AddCustomerForm({
         toast({
           title: t('success'),
           variant: 'success',
-          description: t('customer.add.success-message'),
+          description: state === 'lead' ? t('lead.add.success-message') : t('customer.add.success-message'),
         });
       },
     });

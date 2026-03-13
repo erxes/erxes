@@ -124,6 +124,7 @@ const generateDbEventPayload = (
 ) => {
   if (input.action === 'create') {
     return {
+      ...input,
       collectionName: collectionName,
       fullDocument: input.currentDocument,
     };
@@ -131,6 +132,7 @@ const generateDbEventPayload = (
 
   if (input.action === 'update') {
     return {
+      ...input,
       collectionName: collectionName,
       updateDescription: getDiffObjects(
         input.prevDocument,
@@ -140,7 +142,9 @@ const generateDbEventPayload = (
   }
   if (input.action === 'delete') {
     return {
+      ...input,
       collectionName: collectionName,
+      docId: input.docId,
     };
   }
   if (input.action === 'updateMany') {
@@ -353,11 +357,11 @@ export function createEventDispatcher(
       action: 'createActivityLog',
       input: Array.isArray(input)
         ? input.map((activity) => ({
-            ...activity,
-            pluginName,
-            moduleName,
-            collectionName,
-          }))
+          ...activity,
+          pluginName,
+          moduleName,
+          collectionName,
+        }))
         : [{ ...input, pluginName, moduleName, collectionName }],
       context: {
         processId,

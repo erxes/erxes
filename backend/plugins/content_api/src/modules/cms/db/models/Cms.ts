@@ -20,7 +20,9 @@ export const loadCmsClass = (models: IModels) => {
       return models.CMS.findOne({ _id });
     }
     public static async getContentCMSs() {
-      return models.CMS.find();
+      const data = await models.CMS.find();
+      console.log(data, 'data');
+      return data;
     }
     public static async createContentCMS(doc: IContentCMSInput) {
       return models.CMS.create(doc);

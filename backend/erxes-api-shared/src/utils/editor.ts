@@ -10,7 +10,7 @@ export interface IReplacer {
 
 export interface IArgs {
   content: string;
-  customer?: any | null;
+  customer?: any;
   user?: IUser;
   customerFields?: string[];
   item?: any;

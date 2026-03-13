@@ -18,6 +18,7 @@ export const PRODUCT_DETAIL_QUERY = gql`
       variants
       barcodeDescription
       createdAt
+      currency
       attachment {
         url
         name
@@ -46,7 +47,7 @@ export const PRODUCT_DETAIL_QUERY = gql`
       }
       uom
       subUoms
-      customFieldsData
+      propertiesData
     }
   }
 `;

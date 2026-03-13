@@ -42,5 +42,6 @@ export const GET_COMPANY_DETAIL = gql`query CompanyDetail($id: String!) {
     location
     size
     website
+    propertiesData
   }
 }`

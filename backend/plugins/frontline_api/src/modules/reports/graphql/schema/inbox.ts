@@ -5,6 +5,7 @@ export const types = `
     toDate: String
     status: String
     source: String
+    callStatus: String
     limit: Int
     page: Int
     channelIds: [String]

@@ -25,7 +25,8 @@ const ProjectsFilterPopover = () => {
     team: string[];
     priority: string;
     status: string;
-  }>(['name', 'lead', 'team', 'priority', 'status']);
+    tags: string[];
+  }>(['name', 'lead', 'team', 'priority', 'status', 'tags']);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,

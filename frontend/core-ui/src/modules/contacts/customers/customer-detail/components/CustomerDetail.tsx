@@ -9,7 +9,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
+  AddInternalNote,
   FieldsInDetail,
+  internalNoteCustomActivity,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { CustomerDetailGeneral } from './CustomerDetailGeneral';
@@ -18,14 +20,14 @@ import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQue
 import { useCustomerCustomFieldEdit } from '../../hooks/useEditCustomerCustomFields';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { ContactSidebar } from '@/contacts/components/ContactSidebar';
+import { useIsCustomerLeadSessionKey } from '../../hooks/useCustomerLeadSessionKey';
 
 export const CustomerDetail = () => {
-  const { t } = useTranslation('contact', {
-    keyPrefix: 'customer.detail',
-  });
+  const { t } = useTranslation('contact');
   const [open, setOpen] = useQueryState<string>('contactId');
   const { customerDetail, loading, error } = useCustomerDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { isLead } = useIsCustomerLeadSessionKey();
 
   return (
     <FocusSheet open={!!open} onOpenChange={() => setOpen(null)}>
@@ -36,7 +38,13 @@ export const CustomerDetail = () => {
         notFoundState={<CustomerDetailEmptyState />}
         errorState={<CustomerDetailErrorState />}
       >
-        <FocusSheet.Header title={t('customer-detail')} />
+        <FocusSheet.Header
+          title={
+            isLead
+              ? t('lead.detail.lead-detail')
+              : t('customer.detail.customer-detail')
+          }
+        />
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <ContactSidebar />
@@ -51,17 +59,26 @@ export const CustomerDetail = () => {
               >
                 <Tabs.Content value="overview">
                   <CustomerDetailFields />
+                  {!!customerDetail?._id && (
+                    <div className="flex flex-col mb-12">
+                      <ActivityLogs
+                        targetId={customerDetail?._id || ''}
+                        customActivities={[internalNoteCustomActivity]}
+                      />
+                      <AddInternalNote
+                        contentTypeId={customerDetail._id}
+                        contentType="core:customer"
+                      />
+                    </div>
+                  )}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail
                     fieldContentType="core:customer"
-                    customFieldsData={customerDetail?.customFieldsData || {}}
+                    propertiesData={customerDetail?.propertiesData || {}}
                     mutateHook={useCustomerCustomFieldEdit}
                     id={customerDetail?._id || ''}
                   />
-                </Tabs.Content>
-                <Tabs.Content value="activity">
-                  <ActivityLogs targetId={customerDetail?._id || ''} />
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

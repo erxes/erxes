@@ -1,7 +1,5 @@
 import { initTRPC } from '@trpc/server';
-
 import { ITRPCContext } from 'erxes-api-shared/utils';
-
 import { conformityTrpcRouter } from '~/modules/conformities/trpc/conformity';
 import { contactTrpcRouter } from '~/modules/contacts/trpc';
 import { brandTrpcRouter } from '~/modules/organization/brand/trpc/brand';
@@ -12,7 +10,6 @@ import { productTrpcRouter } from '~/modules/products/trpc';
 import { relationTrpcRouter } from '~/modules/relations/trpc/relation';
 import { tagTrpcRouter } from '~/modules/tags/trpc/tag';
 import { formsTrpcRouter } from './modules/forms/trpc';
-import { permissionTrpcRouter } from './modules/permissions/trpc';
 import { segmentsTRPCRouter } from './modules/segments/trpc';
 import { automationsRouter } from './modules/automations/trpc/automations';
 import { IModels } from './connectionResolvers';
@@ -39,7 +36,6 @@ export const appRouter = t.mergeRouters(
   productTrpcRouter,
   brandTrpcRouter,
   tagTrpcRouter,
-  permissionTrpcRouter,
   segmentsTRPCRouter,
   automationsRouter,
   notificationTrpcRouter,

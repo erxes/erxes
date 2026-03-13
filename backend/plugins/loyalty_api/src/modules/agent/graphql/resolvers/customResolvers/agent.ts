@@ -4,19 +4,17 @@ import { IContext } from '~/connectionResolvers';
 
 export default {
   async rulesOfProducts(
-    agent: IAgentDocument,
+    { productRuleIds }: IAgentDocument,
     _args: undefined,
     { subdomain }: IContext,
   ) {
-    const rules = await sendTRPCMessage({
+    return sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'query',
       module: 'products',
       action: 'rules.find',
-      input: { _ids: agent.productRuleIds },
+      input: { _ids: productRuleIds },
     });
-
-    return rules;
   },
 };
