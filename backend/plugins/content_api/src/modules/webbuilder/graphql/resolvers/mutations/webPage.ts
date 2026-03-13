@@ -51,7 +51,10 @@ export const webPageMutations: Record<string, Resolver> = {
 
     if (!restInput.webId) throw new Error('webId is required');
 
-    const clientPortalId = clientPortal?._id;
+    if (!clientPortal?._id) {
+        throw new Error('Client portal context is required');
+      }
+      const clientPortalId = clientPortal._id;
 
     // If name is empty, derive from default-language translation
     if (
@@ -97,7 +100,10 @@ export const webPageMutations: Record<string, Resolver> = {
       ...restInput
     } = input;
 
-    const clientPortalId = clientPortal?._id;
+    if (!clientPortal?._id) {
+      throw new Error('Client portal context is required');
+    }
+    const clientPortalId = clientPortal._id;
 
     if (language && clientPortalId) {
       const defaultLanguage = await getDefaultLanguage(models, clientPortalId);

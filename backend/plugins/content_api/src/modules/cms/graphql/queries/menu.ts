@@ -49,8 +49,11 @@ class MenuQueryResolver extends BaseQueryResolver {
 
     if (!_id && !slug) return null;
 
-    const query = slug ? { slug, clientPortalId } : { _id };
-
+    if (!clientPortalId) throw new Error('clientPortalId is required');
+    const query = slug
+      ? { slug, clientPortalId }
+      : { _id, clientPortalId };
+      
     return this.getItemWithTranslation(
       models.MenuItems,
       query,

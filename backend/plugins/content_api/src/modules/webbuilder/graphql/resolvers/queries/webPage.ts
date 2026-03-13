@@ -53,7 +53,8 @@ class WebPageQueryResolver extends BaseQueryResolver {
     const { models, clientPortal } = context;
     const { _id, slug, webId, language } = args;
 
-    if (!_id && !slug) return null;
+    if (slug && !webId)
+        throw new Error('webId is required when querying by slug');
 
     const clientPortalId = clientPortal?._id;
 

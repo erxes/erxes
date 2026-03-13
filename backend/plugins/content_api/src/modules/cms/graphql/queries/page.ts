@@ -50,7 +50,9 @@ class PageQueryResolver extends BaseQueryResolver {
 
     if (!_id && !slug) return null;
 
-    const query = slug ? { slug, clientPortalId } : { _id };
+    const query = slug
+      ? { slug, ...(clientPortalId ? { clientPortalId } : {}) }
+      : { _id };
 
     return this.getItemWithTranslation(
       models.Pages,

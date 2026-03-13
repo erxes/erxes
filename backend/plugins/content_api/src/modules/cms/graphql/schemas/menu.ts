@@ -44,9 +44,9 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsMenus(clientPortalId: String, kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [MenuItem]
+    cmsMenus(clientPortalId: String!, kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [MenuItem]
     cmsMenuList(clientPortalId: String, kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [MenuItem]
-    cmsMenu(_id: String!, language: String, clientPortalId: String): MenuItem
+    cmsMenu(_id: String!, language: String, clientPortalId: String!): MenuItem
 
     cpMenus(language: String, kind: String, webId: String): [MenuItem]
     cpCmsMenuList(clientPortalId: String, kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [MenuItem]
