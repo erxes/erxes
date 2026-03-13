@@ -12,19 +12,18 @@ import {
 import { IconDotsVertical } from '@tabler/icons-react';
 
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { REMOVE_CATEGORY } from '../graphql/mutations';
 import { useTopics } from '../hooks/useTopics';
 import { ICategory, ITopic } from '../types';
-import {CategoryDrawer }from './CategoryDrawer';
+import { CategoryDrawer } from './CategoryDrawer';
 
 interface TopicListProps {
-  topics: ITopic[];
-  loading: boolean;
-
-  removeTopic: (topicId: string) => void;
-  onEditTopic: (topic: ITopic) => void;
-  onAddCategory?: (topicId: string) => void;
+  readonly topics: ITopic[];
+  readonly loading: boolean;
+  readonly removeTopic: (topicId: string) => void;
+  readonly onEditTopic: (topic: ITopic) => void;
+  readonly onAddCategory?: (topicId: string) => void;
 }
 
 export function TopicList(props: TopicListProps) {
@@ -66,6 +65,7 @@ export function TopicList(props: TopicListProps) {
         refetch();
       });
     } catch (error) {
+      console.log(error);
       toast({
         type: 'foreground',
         title: 'Failed to delete category. Please try again.',
@@ -105,12 +105,12 @@ export function TopicList(props: TopicListProps) {
   }
 
   // Collect all categories from all topics
-  const allCategories = topics.flatMap(topic => 
-    (topic.categories || []).map(category => ({
+  const allCategories = topics.flatMap((topic) =>
+    (topic.categories || []).map((category) => ({
       ...category,
       topicId: topic._id,
-      topicTitle: topic.title
-    }))
+      topicTitle: topic.title,
+    })),
   );
 
   const renderCategoryActions = (category: any) => (
@@ -149,13 +149,15 @@ export function TopicList(props: TopicListProps) {
       {/* Topics Section */}
       <Collapsible defaultOpen className="group/collapsible">
         <Sidebar.Group>
-          <Sidebar.GroupLabel 
+          <Sidebar.GroupLabel
             className="cursor-pointer flex items-center justify-between"
             onClick={() => setIsTopicsCollapsed(!isTopicsCollapsed)}
           >
             <span>Topics</span>
           </Sidebar.GroupLabel>
-          <Collapsible.Content className={!isTopicsCollapsed ? 'block' : 'hidden'}>
+          <Collapsible.Content
+            className={isTopicsCollapsed ? 'hidden' : 'block'}
+          >
             <Sidebar.GroupContent className="pt-2">
               <Sidebar.Menu>
                 {topics.map((topic) => {
@@ -178,13 +180,15 @@ export function TopicList(props: TopicListProps) {
       {/* Categories Section */}
       <Collapsible defaultOpen className="group/collapsible">
         <Sidebar.Group>
-          <Sidebar.GroupLabel 
+          <Sidebar.GroupLabel
             className="cursor-pointer flex items-center justify-between"
             onClick={() => setIsCategoriesCollapsed(!isCategoriesCollapsed)}
           >
             <span>Categories</span>
           </Sidebar.GroupLabel>
-          <Collapsible.Content className={!isCategoriesCollapsed ? 'block' : 'hidden'}>
+          <Collapsible.Content
+            className={isCategoriesCollapsed ? 'hidden' : 'block'}
+          >
             <Sidebar.GroupContent className="p-2">
               <Sidebar.Menu>
                 {allCategories.map((category) => {
@@ -193,23 +197,23 @@ export function TopicList(props: TopicListProps) {
                   return (
                     <Sidebar.MenuItem key={category._id}>
                       <Sidebar.MenuButton
-                      onClick={() => {
-                        setSearchParams((prev) => {
-                          const next = new URLSearchParams(prev);
-                          next.set('categoryId', category._id);
-                          return next;
-                        });
-                      }}
-                      className={cn(
-                        'flex items-center gap-2 flex-grow',
-                        isSubmenuActive && 'bg-primary/10 text-primary font-semibold',
-                      )}
-                    >
-                       <span className="truncate">{category.title}</span>
-                       {renderCategoryActions(category)}
-                     </Sidebar.MenuButton>
+                        onClick={() => {
+                          setSearchParams((prev) => {
+                            const next = new URLSearchParams(prev);
+                            next.set('categoryId', category._id);
+                            return next;
+                          });
+                        }}
+                        className={cn(
+                          'flex items-center gap-2 flex-grow',
+                          isSubmenuActive &&
+                            'bg-primary/10 text-primary font-semibold',
+                        )}
+                      >
+                        <span className="truncate">{category.title}</span>
+                        {renderCategoryActions(category)}
+                      </Sidebar.MenuButton>
                     </Sidebar.MenuItem>
-                    
                   );
                 })}
               </Sidebar.Menu>
@@ -219,9 +223,9 @@ export function TopicList(props: TopicListProps) {
       </Collapsible>
 
       {/* Category Drawer */}
-      <CategoryDrawer 
+      <CategoryDrawer
         refetch={refetch}
-        topicId={editingCategory?.topicId || ""}
+        topicId={editingCategory?.topicId || ''}
         parentCategoryId={parentCategoryId}
         category={editingCategory}
         isOpen={isCategoryDrawerOpen}
@@ -236,10 +240,10 @@ export function TopicList(props: TopicListProps) {
 }
 
 export function TopicItem(props: {
-  topic: ITopic;
-  removeTopic: (topicId: string) => void;
-  onEditTopic: (topic: ITopic) => void;
-  onAddCategory?: (topicId: string) => void;
+  readonly topic: ITopic;
+  readonly removeTopic: (topicId: string) => void;
+  readonly onEditTopic: (topic: ITopic) => void;
+  readonly onAddCategory?: (topicId: string) => void;
 }) {
   const [removeCategory] = useMutation(REMOVE_CATEGORY);
   const { refetch } = useTopics();
@@ -301,6 +305,7 @@ export function TopicItem(props: {
         refetch();
       });
     } catch (error) {
+      console.log(error);
       toast({
         type: 'foreground',
         title: 'Failed to delete category. Please try again.',
@@ -310,7 +315,7 @@ export function TopicItem(props: {
 
   const renderTopicActions = (topic: ITopic) => {
     const hasCategories = topic.categories && topic.categories.length > 0;
-    
+
     return (
       <DropdownMenu>
         <DropdownMenu.Trigger className="ml-2 p-2">
@@ -405,7 +410,7 @@ export function TopicItem(props: {
         </Sidebar.MenuItem>
       </Collapsible>
 
-      <CategoryDrawer 
+      <CategoryDrawer
         refetch={refetch}
         topicId={topic._id}
         parentCategoryId={parentCategoryId}

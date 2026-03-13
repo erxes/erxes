@@ -1,5 +1,4 @@
-import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
-import { redis } from 'erxes-api-shared/utils/redis';
+import { createMQWorkerWithListeners, redis } from 'erxes-api-shared/utils';
 import { handlePaymentCallback } from '../handlers/paymentCallback';
 
 export const initPaymentsWorker = () => {
