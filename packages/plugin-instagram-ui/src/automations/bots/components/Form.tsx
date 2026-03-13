@@ -32,7 +32,8 @@ import { DrawerDetail } from "@erxes/ui-automations/src/styles";
 const tags = [
   { label: "Confirmed Event Update", value: "CONFIRMED_EVENT_UPDATE" },
   { label: "Post-Purchase Update", value: "POST_PURCHASE_UPDATE" },
-  { label: "Account Update", value: "ACCOUNT_UPDATE" }
+  { label: "Account Update", value: "ACCOUNT_UPDATE" },
+  { label: "Human Agent", value: "HUMAN_AGENT" }
 ];
 
 type Props = {
