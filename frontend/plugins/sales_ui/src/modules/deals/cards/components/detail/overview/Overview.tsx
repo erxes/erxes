@@ -31,7 +31,7 @@ const Overview = ({ deal }: { deal: IDeal }) => {
         <MainOverview deal={deal} />
         <Checklists stageId={deal.stageId} dealId={deal._id} />
       </div>
-      <SalesNoteAndComment />
+      <SalesNoteAndComment dealId={deal._id} />
     </AttachmentProvider>
   );
 };
