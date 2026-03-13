@@ -522,7 +522,9 @@ export const generateAttributes = (value: string) => {
     return [];
   }
   const matches = value.match(/\{\{\s*([^}]+)\s*\}\}/g);
-  return matches ? matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, '')) : [];
+  return matches
+    ? matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ''))
+    : [];
 };
 
 // ------------------------------------------------------
@@ -532,12 +534,14 @@ function safeEval(expression: string, scope: Record<string, number>): number {
   // Validate that expression contains only allowed characters
   const allowedPattern = /^[0-9\s\+\-\*\/\(\)\.]+$/;
   if (!allowedPattern.test(expression)) {
-    throw new Error('Invalid expression: only numbers, operators (+, -, *, /), and parentheses allowed');
+    throw new Error(
+      'Invalid expression: only numbers, operators (+, -, *, /), and parentheses allowed',
+    );
   }
 
   // Create a function from the expression with scope variables injected
   const paramNames = Object.keys(scope);
-  const paramValues = paramNames.map(name => scope[name]);
+  const paramValues = paramNames.map((name) => scope[name]);
 
   // Use Function constructor – safer than eval because variables are explicitly passed
   const fn = new Function(...paramNames, `return (${expression});`);
@@ -585,7 +589,7 @@ export const handleScore = async (models: IModels, data) => {
       // Replace all occurrences
       placeholder = placeholder.replace(
         new RegExp(`\\{\\{\\s*${attribute}\\s*\\}\\}`, 'g'),
-        value
+        value,
       );
     }
   }
@@ -653,7 +657,6 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
     return 0;
   }
 };
-
 
 // Loyalty reward (automations)
 export const handleLoyaltyReward = async ({ subdomain }) => {
