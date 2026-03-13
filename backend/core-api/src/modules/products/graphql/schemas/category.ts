@@ -33,7 +33,7 @@ export const queries = `
   productCategories(${queryParams}): [ProductCategory]
   productCategoriesTotalCount(${queryParams}): Int
   productCategoryDetail(_id: String): ProductCategory
-
+  categoriesWithChilds(ids: [String!]!): [ProductCategory]
   cpProductCategories(${queryParams}): [ProductCategory]
 `;
 

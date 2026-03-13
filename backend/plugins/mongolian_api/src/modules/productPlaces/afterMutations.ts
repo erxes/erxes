@@ -1,7 +1,6 @@
-import {
-  isEnabled
-} from 'erxes-api-shared/utils';
-
+import crypto from 'crypto';
+import { isEnabled } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { handleSplit } from './handlers/handleSplit';
 import { handlePlace } from './handlers/handlePlace';
 import { handlePricing } from './handlers/handlePricing';
@@ -22,7 +21,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const deal = params.updatedDocument;
   const oldDeal = params.object;
 
-  if (!deal.stageId || deal.stageId === oldDeal.stageId) {
+  if (!deal.stageId || deal.stageId === oldDeal?.stageId) {
     return;
   }
 
@@ -39,7 +38,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       'dealsProductsDataPlaces',
       'dealsProductsDataPrint',
     ],
-    destinationStageId
+    destinationStageId,
   );
 
   if (!splitConfig && !placeConfig && !printConfig) {
@@ -53,7 +52,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       subdomain,
       deal,
       productsData,
-      splitConfig
+      splitConfig,
     );
   }
 
@@ -64,29 +63,48 @@ export const afterMutationHandlers = async (subdomain, params) => {
       subdomain,
       deal,
       productsData,
-      placeConfig
+      placeConfig,
+      user, // user is the user ID string
+      crypto.randomUUID(),
     );
 
     productsData = placeResult.productsData;
     productById = placeResult.productById;
 
     if ((await isEnabled('pricing')) && placeConfig.checkPricing) {
-      productsData = await handlePricing(
-        subdomain,
-        deal,
-        productsData
-      );
+      productsData = await handlePricing(subdomain, deal, productsData);
     }
   }
 
-  if (printConfig?.conditions?.length && productById) {
+  if (printConfig && !productById) {
+    const productIds = productsData.map((pd) => pd.productId).filter(Boolean);
+
+    if (productIds.length) {
+      try {
+        const products = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'products',
+          action: 'find',
+          method: 'query',
+          input: { _id: { $in: productIds } },
+        });
+
+        productById = Object.fromEntries(products.map((p) => [p._id, p]));
+      } catch (error) {}
+    } else {
+      productById = {};
+    }
+  }
+
+  if (printConfig && productById) {
     await handlePrint(
       subdomain,
       deal,
-      user,
+      user, // user ID string
       productsData,
       printConfig,
-      productById
+      productById,
     );
   }
 };
