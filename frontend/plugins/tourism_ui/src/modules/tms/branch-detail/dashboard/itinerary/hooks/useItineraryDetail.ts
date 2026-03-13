@@ -30,13 +30,14 @@ interface ItineraryDetailResponse {
   bmsItineraryDetail: IItineraryDetail;
 }
 
-export const useItineraryDetail = (id?: string) => {
+export const useItineraryDetail = (id?: string, enabled = true) => {
   const { data, loading, error, refetch } = useQuery<ItineraryDetailResponse>(
     GET_ITINERARY_DETAIL,
     {
       variables: { id },
-      skip: !id,
-    }
+      skip: !id || !enabled,
+      fetchPolicy: 'cache-and-network',
+    },
   );
 
   return {

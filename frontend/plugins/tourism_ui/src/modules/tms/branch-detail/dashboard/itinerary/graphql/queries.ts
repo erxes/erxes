@@ -33,6 +33,7 @@ export const GET_ITINERARIES = gql`
         gasCost
         personCost
         guideCostExtra
+        totalCost
         createdAt
         modifiedAt
       }

@@ -43,7 +43,10 @@ export const ItineraryEditSheet = ({
 
   const { toast } = useToast();
   const { editItinerary, loading: editLoading } = useEditItinerary();
-  const { itinerary, loading: detailLoading } = useItineraryDetail(itineraryId);
+  const { itinerary, loading: detailLoading } = useItineraryDetail(
+    itineraryId,
+    open,
+  );
 
   const { elements: elementsData = [] } = useElements({
     variables: { branchId, quick: false },
@@ -85,22 +88,19 @@ export const ItineraryEditSheet = ({
         images: day.images || [],
       }));
 
-      form.reset({
-        name: itinerary.name || '',
-        duration: itinerary.duration || 1,
-        color: itinerary.color || '#000000',
-        totalCost: itinerary.totalCost || 0,
-        groupDays: transformedGroupDays,
-        guideCost: itinerary.guideCost || 0,
-        driverCost: itinerary.driverCost || 0,
-        foodCost: itinerary.foodCost || 0,
-        gasCost: itinerary.gasCost || 0,
-        personCost: itinerary.personCost || {},
-        guideCostExtra: itinerary.guideCostExtra || 0,
-      });
+      form.setValue('name', itinerary.name || '');
+      form.setValue('duration', itinerary.duration || 1);
+      form.setValue('color', itinerary.color || '#000000');
+      form.setValue('totalCost', itinerary.totalCost || 0);
+      form.setValue('groupDays', transformedGroupDays);
+      form.setValue('guideCost', itinerary.guideCost || 0);
+      form.setValue('driverCost', itinerary.driverCost || 0);
+      form.setValue('foodCost', itinerary.foodCost || 0);
+      form.setValue('gasCost', itinerary.gasCost || 0);
+      form.setValue('personCost', itinerary.personCost || {});
+      form.setValue('guideCostExtra', itinerary.guideCostExtra || 0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itinerary, open]);
+  }, [itinerary, open, form]);
 
   const handleOpenChange = (value: boolean) => {
     if (!value) {
@@ -145,6 +145,7 @@ export const ItineraryEditSheet = ({
     const transformedGroupDays = values.groupDays.map((day, index) => ({
       day: index + 1,
       title: day.title,
+      content: day.description,
       elements: (day.elements || []).map((elementId, order) => ({
         elementId,
         orderOfDay: order + 1,
@@ -168,10 +169,21 @@ export const ItineraryEditSheet = ({
       return sum + dayCost;
     }, 0);
 
+    const normalizedPersonCost = Object.entries(values.personCost || {}).reduce<
+      Record<string, number>
+    >((acc, [key, value]) => {
+      if (typeof value === 'number' && !Number.isNaN(value)) {
+        acc[key] = value;
+      }
+
+      return acc;
+    }, {});
+
     try {
       await editItinerary({
         variables: {
           id: itineraryId,
+          branchId,
           name: values.name,
           duration: totalDays,
           color: values.color,
@@ -181,7 +193,7 @@ export const ItineraryEditSheet = ({
           driverCost: values.driverCost,
           foodCost: values.foodCost,
           gasCost: values.gasCost,
-          personCost: values.personCost,
+          personCost: normalizedPersonCost,
           guideCostExtra: values.guideCostExtra,
         },
       });
@@ -206,7 +218,7 @@ export const ItineraryEditSheet = ({
 
   const sheetWidth =
     currentStep === 'info'
-      ? 'w-[500px] sm:max-w-[500px]'
+      ? 'w-[600px] sm:max-w-[600px]'
       : 'w-[1200px] sm:max-w-[1200px]';
 
   return (
@@ -215,7 +227,7 @@ export const ItineraryEditSheet = ({
         className={`p-0 transition-all duration-300 ease-in-out ${sheetWidth}`}
       >
         {detailLoading ? (
-          <div className="flex items-center justify-center h-96">
+          <div className="flex h-full min-h-[400px] items-center justify-center">
             <Spinner />
           </div>
         ) : (
@@ -242,13 +254,21 @@ export const ItineraryEditSheet = ({
                       elements={elementsData}
                       amenities={amenitiesData}
                       branchId={branchId}
+                      isEditMode={true}
                     />
                   </Tabs.Content>
 
-                  <Tabs.Content value="info" className="p-3 overflow-y-auto">
+                  <Tabs.Content value="info" className="overflow-y-auto p-3">
                     <div className="space-y-4 w-full">
-                      <ItineraryNameField control={form.control} />
-                      <ItineraryColorField control={form.control} />
+                      <div className="grid grid-cols-10 gap-4 pb-4 border-b border-muted">
+                        <div className="col-span-2">
+                          <ItineraryColorField control={form.control} />
+                        </div>
+
+                        <div className="col-span-8">
+                          <ItineraryNameField control={form.control} />
+                        </div>
+                      </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <ItineraryGuideCostField control={form.control} />
@@ -273,7 +293,7 @@ export const ItineraryEditSheet = ({
 
               <Sheet.Footer className="bg-background">
                 {currentStep === 'build' ? (
-                  <>
+                  <div key="build-actions" className="flex gap-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -290,9 +310,9 @@ export const ItineraryEditSheet = ({
                     >
                       Next
                     </Button>
-                  </>
+                  </div>
                 ) : (
-                  <>
+                  <div key="info-actions" className="flex gap-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -308,7 +328,7 @@ export const ItineraryEditSheet = ({
                     <Button type="submit" disabled={editLoading}>
                       {editLoading ? 'Updating...' : 'Update'}
                     </Button>
-                  </>
+                  </div>
                 )}
               </Sheet.Footer>
             </form>

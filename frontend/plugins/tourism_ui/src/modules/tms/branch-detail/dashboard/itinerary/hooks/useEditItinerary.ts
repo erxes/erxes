@@ -16,7 +16,7 @@ export interface IEditItineraryVariables {
   groupDays?: Array<{
     day?: number;
     title?: string;
-    description?: string;
+    content?: string;
     elements?: Array<{ elementId?: string; orderOfDay?: number }>;
     elementsQuick?: Array<{ elementId?: string; orderOfDay?: number }>;
     images?: string[];
@@ -35,7 +35,7 @@ export const useEditItinerary = () => {
     EditItineraryResponse,
     IEditItineraryVariables
   >(EDIT_ITINERARY, {
-    refetchQueries: ['BmsItineraries', 'BmsItineraryDetail'],
+    refetchQueries: ['BmsItineraries'],
     awaitRefetchQueries: true,
   });
 
