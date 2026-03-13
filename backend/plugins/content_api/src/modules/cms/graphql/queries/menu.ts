@@ -80,7 +80,6 @@ class MenuQueryResolver extends BaseQueryResolver {
 
     return list;
   }
-
 }
 
 const queries: Record<string, Resolver> = {
@@ -95,7 +94,6 @@ const queries: Record<string, Resolver> = {
 
   cpMenus: (_parent: any, args: any, context: IContext) =>
     new MenuQueryResolver(context).cpMenus(_parent, args, context),
-
 };
 
 queries.cpMenus.wrapperConfig = { forClientPortal: true };

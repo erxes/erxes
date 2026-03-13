@@ -73,11 +73,7 @@ const mutations = {
     return page;
   },
 
-  async cmsPagesEdit(
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> {
+  async cmsPagesEdit(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
     const { _id, input } = args;
     const { translations, language, ...pageInput } = input;

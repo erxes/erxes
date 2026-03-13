@@ -1,4 +1,8 @@
-import { ICursorPaginateParams, IUserDocument, Resolver } from 'erxes-api-shared/core-types';
+import {
+  ICursorPaginateParams,
+  IUserDocument,
+  Resolver,
+} from 'erxes-api-shared/core-types';
 import { cursorPaginate, PERMISSION_ROLES } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -75,7 +79,7 @@ type FormsArgs = {
   sortDirection?: 1 | -1;
 } & ({ page: number; perPage: number } | ICursorPaginateParams);
 
-const formQueries : Record<string, Resolver> = {
+const formQueries: Record<string, Resolver> = {
   /**
    * Forms list
    */
@@ -183,7 +187,6 @@ const formQueries : Record<string, Resolver> = {
   async cpFormDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Forms.findOne({ _id });
   },
-
 
   // async formSubmissions(
   //   _root,

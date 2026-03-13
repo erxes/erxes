@@ -42,7 +42,12 @@ export const webPageMutations: Record<string, Resolver> = {
   ): Promise<any> {
     const { models, clientPortal } = context;
     const { input } = args;
-    const { translations, language, clientPortalId: _ignored, ...restInput } = input;
+    const {
+      translations,
+      language,
+      clientPortalId: _ignored,
+      ...restInput
+    } = input;
 
     if (!restInput.webId) throw new Error('webId is required');
 
@@ -85,7 +90,12 @@ export const webPageMutations: Record<string, Resolver> = {
   ): Promise<any> {
     const { models, clientPortal } = context;
     const { _id, input } = args;
-    const { translations, language, clientPortalId: _ignored, ...restInput } = input;
+    const {
+      translations,
+      language,
+      clientPortalId: _ignored,
+      ...restInput
+    } = input;
 
     const clientPortalId = clientPortal?._id;
 
@@ -100,8 +110,7 @@ export const webPageMutations: Record<string, Resolver> = {
         };
 
         // translatable fields: name → title, description → content
-        if (restInput.name !== undefined)
-          translationDoc.title = restInput.name;
+        if (restInput.name !== undefined) translationDoc.title = restInput.name;
         if (restInput.description !== undefined)
           translationDoc.content = restInput.description;
         if (restInput.customFieldsData !== undefined)
@@ -117,7 +126,12 @@ export const webPageMutations: Record<string, Resolver> = {
           clientPortalId,
         });
 
-        await saveWebPageTranslations(models, _id, translations || [], language);
+        await saveWebPageTranslations(
+          models,
+          _id,
+          translations || [],
+          language,
+        );
 
         return page;
       }
