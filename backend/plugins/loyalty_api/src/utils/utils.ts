@@ -22,7 +22,7 @@ async function coreQuery<T>(
   module: string,
   action: string,
   input: any,
-  defaultValue: T
+  defaultValue: T,
 ): Promise<T> {
   return sendTRPCMessage({
     subdomain,
@@ -38,11 +38,12 @@ async function coreQuery<T>(
 async function fetchChildItems(
   subdomain: string,
   type: 'categories' | 'tags',
-  ids: string[]
+  ids: string[],
 ): Promise<string[]> {
   const action = 'withChilds';
   const module = type;
-  const input = type === 'categories' ? { ids } : { query: { _id: { $in: ids } } };
+  const input =
+    type === 'categories' ? { ids } : { query: { _id: { $in: ids } } };
   const items = await coreQuery(subdomain, module, action, input, []);
   return Array.from(new Set((items || []).map((ch: any) => ch._id)));
 }
@@ -76,7 +77,9 @@ export const applyRestriction = async ({
 
   const [includedCategoryIds, excludedCategoryIds] = await Promise.all([
     categoryIds.length ? getChildCategories(subdomain, categoryIds) : [],
-    excludeCategoryIds.length ? getChildCategories(subdomain, excludeCategoryIds) : [],
+    excludeCategoryIds.length
+      ? getChildCategories(subdomain, excludeCategoryIds)
+      : [],
   ]);
 
   const [includedTagIds, excludedTagIds] = await Promise.all([
@@ -105,7 +108,13 @@ export const applyRestriction = async ({
     };
   }
 
-  const productDocs = await coreQuery(subdomain, 'products', 'find', { query }, []);
+  const productDocs = await coreQuery(
+    subdomain,
+    'products',
+    'find',
+    { query },
+    [],
+  );
   const productMap = new Map(products.map((p) => [p.productId, p]));
 
   const totalAmount = productDocs.reduce((sum, { _id }) => {
@@ -119,7 +128,11 @@ export const applyRestriction = async ({
 // ------------------------------------------------------
 // Voucher helpers
 // ------------------------------------------------------
-async function processVoucherBonus(voucher: any, productsIds: string[], result: any) {
+async function processVoucherBonus(
+  voucher: any,
+  productsIds: string[],
+  result: any,
+) {
   for (const productId of productsIds) {
     if (voucher.campaign.bonusProductId === productId) {
       result[productId].voucherCampaignId = voucher.campaignId;
@@ -138,7 +151,7 @@ async function processVoucherDiscount(
   voucher: any,
   subdomain: string,
   products: IProductD[],
-  result: any
+  result: any,
 ) {
   const { title, kind, value, restrictions } = voucher.campaign;
   const { productDocs, restrictedAmount } = await applyRestriction({
@@ -241,10 +254,14 @@ async function applyDiscountRule(
   result: any,
   type: 'voucher' | 'coupon',
   idField: string,
-  idValue: string
+  idValue: string,
 ) {
   const { title, kind, value, restrictions = {} } = ruleSource;
-  const { productDocs, restrictedAmount } = await applyRestriction({ subdomain, restrictions, products });
+  const { productDocs, restrictedAmount } = await applyRestriction({
+    subdomain,
+    restrictions,
+    products,
+  });
   for (const product of productDocs) {
     const { _id } = product;
     const item = products.find((p) => p.productId === _id) || {};
@@ -265,7 +282,6 @@ async function applyDiscountRule(
   }
 }
 
-
 // Main checkVouchersSale
 export const checkVouchersSale = async (
   models: IModels,
@@ -273,7 +289,7 @@ export const checkVouchersSale = async (
   ownerType: string,
   ownerId: string,
   products: IProductD[],
-  discountInfo?: Record<string, string>
+  discountInfo?: Record<string, string>,
 ) => {
   const result = {};
   const { couponCode, voucherId } = discountInfo || {};
@@ -300,7 +316,10 @@ export const checkVouchersSale = async (
     }
   }
 
-  const totalAmount = products.reduce((sum, product) => sum + product.quantity * product.unitPrice, 0);
+  const totalAmount = products.reduce(
+    (sum, product) => sum + product.quantity * product.unitPrice,
+    0,
+  );
 
   // Initialize result
   for (const product of products) {
@@ -316,11 +335,27 @@ export const checkVouchersSale = async (
     }
   }
 
-  await directVoucher({ result, ownerType, ownerId, models, subdomain, products });
+  await directVoucher({
+    result,
+    ownerType,
+    ownerId,
+    models,
+    subdomain,
+    products,
+  });
 
   if (voucherId) {
-    const voucherCampaign = await models.Vouchers.checkVoucher({ voucherId, ownerType, ownerId });
-    await models.Vouchers.checkVoucher({ voucherId, ownerType, ownerId, totalAmount });
+    const voucherCampaign = await models.Vouchers.checkVoucher({
+      voucherId,
+      ownerType,
+      ownerId,
+    });
+    await models.Vouchers.checkVoucher({
+      voucherId,
+      ownerType,
+      ownerId,
+      totalAmount,
+    });
     await applyDiscountRule(
       models,
       subdomain,
@@ -329,13 +364,20 @@ export const checkVouchersSale = async (
       result,
       'voucher',
       'voucherCampaignId',
-      voucherCampaign._id
+      voucherCampaign._id,
     );
   }
 
   if (couponCode) {
-    const couponCampaign = await models.Coupons.checkCoupon({ code: couponCode, ownerId });
-    await models.Coupons.checkCoupon({ code: couponCode, ownerId, totalAmount });
+    const couponCampaign = await models.Coupons.checkCoupon({
+      code: couponCode,
+      ownerId,
+    });
+    await models.Coupons.checkCoupon({
+      code: couponCode,
+      ownerId,
+      totalAmount,
+    });
     await applyDiscountRule(
       models,
       subdomain,
@@ -344,7 +386,7 @@ export const checkVouchersSale = async (
       result,
       'coupon',
       'couponCampaignId',
-      couponCampaign._id
+      couponCampaign._id,
     );
   }
 
@@ -369,7 +411,7 @@ export const confirmVoucherSale = async (
     targetid?: string;
     serviceName?: string;
     totalAmount?: string;
-  }
+  },
 ) => {
   const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
 
@@ -401,13 +443,20 @@ export const confirmVoucherSale = async (
     const rule = checkInfo[productId];
     if (!rule.voucherId || !rule.count) continue;
 
-    const voucher = await models.Vouchers.findOne({ _id: rule.voucherId }).lean();
+    const voucher = await models.Vouchers.findOne({
+      _id: rule.voucherId,
+    }).lean();
     if (!voucher) continue;
 
-    const campaign = await models.VoucherCampaigns.findOne({ _id: voucher.campaignId });
+    const campaign = await models.VoucherCampaigns.findOne({
+      _id: voucher.campaignId,
+    });
     if (!campaign) continue;
 
-    const oldBonusCount = (voucher.bonusInfo || []).reduce((sum, i) => sum + i.usedCount, 0);
+    const oldBonusCount = (voucher.bonusInfo || []).reduce(
+      (sum, i) => sum + i.usedCount,
+      0,
+    );
     const updateInfo: any = { $push: { bonusInfo: { usedCount: rule.count } } };
     if (campaign.bonusCount - oldBonusCount <= rule.count) {
       updateInfo.$set = { status: VOUCHER_STATUS.LOSS };
@@ -417,7 +466,11 @@ export const confirmVoucherSale = async (
 };
 
 // Segment check
-export const isInSegment = async (subdomain: string, segmentId: string, targetId: string) => {
+export const isInSegment = async (
+  subdomain: string,
+  segmentId: string,
+  targetId: string,
+) => {
   return sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -442,7 +495,9 @@ export const generateAttributes = (value: string) => {
   const MAX_LENGTH = 5000;
   if (!value || value.length > MAX_LENGTH) return [];
   const matches = value.match(/\{\{\s*([^}]+)\s*\}\}/g);
-  return matches ? matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, '')) : [];
+  return matches
+    ? matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ''))
+    : [];
 };
 
 // Safe arithmetic evaluator (no eval, no mathjs)
@@ -454,7 +509,7 @@ function safeEval(expression: string, scope: Record<string, number>): number {
     );
   }
   const paramNames = Object.keys(scope);
-  const paramValues = paramNames.map(name => scope[name]);
+  const paramValues = paramNames.map((name) => scope[name]);
   const fn = new Function(...paramNames, `return (${expression});`);
   try {
     const result = fn(...paramValues);
@@ -470,9 +525,12 @@ function safeEval(expression: string, scope: Record<string, number>): number {
 // Score handling
 export const handleScore = async (models: IModels, data) => {
   const { action, ownerId, ownerType, campaignId, target, description } = data;
-  const scoreCampaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
+  const scoreCampaign = await models.ScoreCampaigns.findOne({
+    _id: campaignId,
+  });
   if (!scoreCampaign) throw new Error('Not found');
-  if (scoreCampaign.ownerType !== ownerType) throw new Error('Mismatching owner type');
+  if (scoreCampaign.ownerType !== ownerType)
+    throw new Error('Mismatching owner type');
 
   const config = scoreCampaign[action as 'add' | 'subtract'];
   let placeholder = config.placeholder;
@@ -481,9 +539,13 @@ export const handleScore = async (models: IModels, data) => {
   for (const attr of attributes) {
     const val = target[attr];
     if (val === undefined) throw new Error(`Attribute "${attr}" not found`);
-    placeholder = placeholder.replace(new RegExp(`\\{\\{\\s*${attr}\\s*\\}\\}`, 'g'), val);
+    placeholder = placeholder.replace(
+      new RegExp(`\\{\\{\\s*${attr}\\s*\\}\\}`, 'g'),
+      val,
+    );
   }
-  if (placeholder.includes('{{')) throw new Error('Unresolved placeholders in expression');
+  if (placeholder.includes('{{'))
+    throw new Error('Unresolved placeholders in expression');
 
   const scope: Record<string, number> = {};
   for (const attr of attributes) {
@@ -494,7 +556,12 @@ export const handleScore = async (models: IModels, data) => {
 
   const scoreValue = safeEval(placeholder, scope);
   const scoreToChange = scoreValue / Number(config.currencyRatio);
-  await models.ScoreLogs.changeScore({ ownerId, ownerType, changeScore: scoreToChange, description });
+  await models.ScoreLogs.changeScore({
+    ownerId,
+    ownerType,
+    changeScore: scoreToChange,
+    description,
+  });
   return 'success';
 };
 
@@ -516,9 +583,12 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   }
 };
 
-
 // Loyalty reward (automations) – extracted common logic
-async function triggerLoyaltyReward(subdomain: string, collectionName: string, query: any) {
+async function triggerLoyaltyReward(
+  subdomain: string,
+  collectionName: string,
+  query: any,
+) {
   const targets = await coreQuery(subdomain, collectionName, 'find', query, []);
   if (targets.length === 0) return;
   await sendTRPCMessage({
@@ -557,7 +627,12 @@ export const doScoreCampaign = async (models: IModels, data) => {
   const { ownerType, ownerId, actionMethod, targetId } = data;
   try {
     await models.ScoreCampaigns.checkScoreAviableSubtract(data);
-    const scoreLog = await models.ScoreLogs.find({ ownerId, ownerType, targetId, action: actionMethod }).lean();
+    const scoreLog = await models.ScoreLogs.find({
+      ownerId,
+      ownerType,
+      targetId,
+      action: actionMethod,
+    }).lean();
     if (scoreLog.length) return;
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error) {
@@ -568,18 +643,30 @@ export const doScoreCampaign = async (models: IModels, data) => {
 
 export const refundLoyaltyScore = async (
   models: IModels,
-  { targetId, ownerType, ownerId, scoreCampaignIds, checkInId }
+  { targetId, ownerType, ownerId, scoreCampaignIds, checkInId },
 ) => {
   if (!scoreCampaignIds.length) return;
-  const scoreCampaigns = await models.ScoreCampaigns.find({ _id: { $in: scoreCampaignIds } }).lean();
+  const scoreCampaigns = await models.ScoreCampaigns.find({
+    _id: { $in: scoreCampaignIds },
+  }).lean();
   for (const scoreCampaign of scoreCampaigns) {
     const checkInIds =
-      scoreCampaign.additionalConfig?.cardBasedRule?.flatMap(({ refundStageIds }) => refundStageIds) || [];
+      scoreCampaign.additionalConfig?.cardBasedRule?.flatMap(
+        ({ refundStageIds }) => refundStageIds,
+      ) || [];
     if (checkInIds.includes(checkInId)) {
       try {
-        await models.ScoreCampaigns.refundLoyaltyScore(targetId, ownerType, ownerId);
+        await models.ScoreCampaigns.refundLoyaltyScore(
+          targetId,
+          ownerType,
+          ownerId,
+        );
       } catch (error) {
-        if (error.message === 'Cannot refund loyalty score cause already refunded loyalty score') return;
+        if (
+          error.message ===
+          'Cannot refund loyalty score cause already refunded loyalty score'
+        )
+          return;
       }
     }
   }
