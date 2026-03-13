@@ -37,10 +37,13 @@ const getTagList = async (args: any, context: IContext) => {
   }).lean();
 
   // ✅ Build a translation map for O(1) lookup
-  const translationMap = translations.reduce((acc, t) => {
-    acc[t.objectId.toString()] = t;
-    return acc;
-  }, {} as Record<string, any>);
+  const translationMap = translations.reduce(
+    (acc, t) => {
+      acc[t.objectId.toString()] = t;
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
 
   const tagsWithTranslations = list.map((tag) => {
     const translation = translationMap[tag._id.toString()];
