@@ -92,7 +92,7 @@ export const contentCmsTagQueries: Record<string, Resolver> = {
     }
 
     const translation = await models.Translations.findOne({
-      objectIdId: tag._id,
+      objectId: tag._id,
       language,
       type: 'tag',
     });
