@@ -54,7 +54,7 @@ class WebPageQueryResolver extends BaseQueryResolver {
     const { _id, slug, webId, language } = args;
 
     if (slug && !webId)
-        throw new Error('webId is required when querying by slug');
+      throw new Error('webId is required when querying by slug');
 
     const clientPortalId = clientPortal?._id;
 

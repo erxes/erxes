@@ -52,9 +52,9 @@ export const webPageMutations: Record<string, Resolver> = {
     if (!restInput.webId) throw new Error('webId is required');
 
     if (!clientPortal?._id) {
-        throw new Error('Client portal context is required');
-      }
-      const clientPortalId = clientPortal._id;
+      throw new Error('Client portal context is required');
+    }
+    const clientPortalId = clientPortal._id;
 
     // If name is empty, derive from default-language translation
     if (

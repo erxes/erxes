@@ -185,15 +185,15 @@ const formQueries: Record<string, Resolver> = {
   },
 
   async cpFormDetail(
-      _root,
-      { _id }: { _id: string },
-      { models, user }: IContext,
-    ) {
-      if (!user) {
-        throw new Error('Unauthorized');
-      }
-      const accessQuery = await generateFilterQuery({}, models, user);
-      return models.Forms.findOne({ _id, ...accessQuery });
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext,
+  ) {
+    if (!user) {
+      throw new Error('Unauthorized');
+    }
+    const accessQuery = await generateFilterQuery({}, models, user);
+    return models.Forms.findOne({ _id, ...accessQuery });
   },
 
   // async formSubmissions(
