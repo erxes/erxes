@@ -32,13 +32,13 @@ const getTagList = async (args: any, context: IContext) => {
   const tagIds = list.map((tag) => tag._id);
 
   const translations = await models.Translations.find({
-    postId: { $in: tagIds },
+    objectId: { $in: tagIds },
     language,
   }).lean();
 
   // ✅ Build a translation map for O(1) lookup
   const translationMap = translations.reduce((acc, t) => {
-    acc[t.postId.toString()] = t;
+    acc[t.objectId.toString()] = t;
     return acc;
   }, {} as Record<string, any>);
 
@@ -89,7 +89,7 @@ export const contentCmsTagQueries: Record<string, Resolver> = {
     }
 
     const translation = await models.Translations.findOne({
-      postId: tag._id,
+      objectIdId: tag._id,
       language,
       type: 'tag',
     });
