@@ -1,4 +1,8 @@
-import { getEnv, getSaasOrganizations, isEnabled } from 'erxes-api-shared/utils';
+import {
+  getEnv,
+  getSaasOrganizations,
+  isEnabled,
+} from 'erxes-api-shared/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils/trpc';
 import { IModels } from '~/connectionResolvers';
 import { collections } from '../constants';
@@ -185,7 +189,7 @@ export const directVoucher = async ({
               voucher.campaign.bonusCount -
               (voucher.bonusInfo || []).reduce(
                 (sum, i) => sum + i.usedCount,
-                0
+                0,
               );
             result[productId].type = voucherType;
             result[productId].discount = 100;
@@ -241,7 +245,7 @@ export const checkVouchersSale = async (
   ownerType: string,
   ownerId: string,
   products: IProductD[],
-  discountInfo?: Record<string, string>
+  discountInfo?: Record<string, string>,
 ) => {
   const result = {};
 
@@ -408,7 +412,7 @@ export const confirmVoucherSale = async (
     targetid?: string;
     serviceName?: string;
     totalAmount?: string;
-  }
+  },
 ) => {
   const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
 
@@ -469,7 +473,7 @@ export const confirmVoucherSale = async (
 
       const oldBonusCount = (voucher.bonusInfo || []).reduce(
         (sum, i) => sum + i.usedCount,
-        0
+        0,
       );
 
       const updateInfo: any = {
@@ -487,7 +491,7 @@ export const confirmVoucherSale = async (
 export const isInSegment = async (
   subdomain: string,
   segmentId: string,
-  targetId: string
+  targetId: string,
 ) => {
   const response = await sendTRPCMessage({
     subdomain,
@@ -687,7 +691,7 @@ export const doScoreCampaign = async (models: IModels, data) => {
 
 export const refundLoyaltyScore = async (
   models: IModels,
-  { targetId, ownerType, ownerId, scoreCampaignIds, checkInId }
+  { targetId, ownerType, ownerId, scoreCampaignIds, checkInId },
 ) => {
   if (!scoreCampaignIds.length) return;
 
@@ -701,7 +705,7 @@ export const refundLoyaltyScore = async (
 
     const checkInIds =
       additionalConfig?.cardBasedRule?.flatMap(
-        ({ refundStageIds }) => refundStageIds
+        ({ refundStageIds }) => refundStageIds,
       ) || [];
 
     if (checkInIds.includes(checkInId)) {
@@ -709,7 +713,7 @@ export const refundLoyaltyScore = async (
         await models.ScoreCampaigns.refundLoyaltyScore(
           targetId,
           ownerType,
-          ownerId
+          ownerId,
         );
       } catch (error) {
         if (
