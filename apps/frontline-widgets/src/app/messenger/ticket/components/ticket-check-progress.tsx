@@ -23,7 +23,6 @@ import {
   Textarea,
   cn,
   Card,
-  Tabs,
   Tooltip,
 } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
@@ -391,18 +390,20 @@ export const TicketStatusInlineValue = ({
     <StatusIconComponent
       {...props}
       color={status.color}
-      style={!hasName ? {
-        backgroundColor: `${status.color}25`,
-      } : undefined}
+      style={
+        hasName === false
+          ? {
+              backgroundColor: `${status.color}25`,
+            }
+          : undefined
+      }
       className={cn('size-6 flex-none rounded-sm p-1', colorClassName)}
     />
   );
 
   if (hasName) {
     return (
-      <div
-        className="flex items-center gap-2 rounded-sm shadow-xs w-min pe-2"
-      >
+      <div className="flex items-center gap-2 rounded-sm shadow-xs w-min pe-2">
         <Tooltip.Provider>
           <Tooltip>
             <Tooltip.Trigger>{iconElement}</Tooltip.Trigger>

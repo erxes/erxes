@@ -14,11 +14,11 @@ interface Tag {
 }
 
 interface SelectTicketTagProps {
-  value?: string[];
-  onValueChange?: (value: string[]) => void;
-  mode?: 'single' | 'multiple';
-  placeholder?: string;
-  parentId?: string;
+  readonly value?: string[];
+  readonly onValueChange?: (value: string[]) => void;
+  readonly mode?: 'single' | 'multiple';
+  readonly placeholder?: string;
+  readonly parentId?: string;
 }
 
 export function SelectTicketTag({

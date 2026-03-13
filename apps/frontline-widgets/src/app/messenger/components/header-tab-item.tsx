@@ -2,7 +2,19 @@ import { useMessenger } from '../hooks/useMessenger';
 import { IHeaderItem } from '../types';
 import { Button, Tooltip } from 'erxes-ui';
 
-export function HeaderTabItem({ Icon, value, disabled, title }: IHeaderItem) {
+interface HeaderTabItemProps {
+  readonly Icon: IHeaderItem['Icon'];
+  readonly value: IHeaderItem['value'];
+  readonly disabled: boolean;
+  readonly title: string;
+}
+
+export function HeaderTabItem({
+  Icon,
+  value,
+  disabled,
+  title,
+}: HeaderTabItemProps) {
   const { activeTab, switchToTab } = useMessenger();
 
   return (

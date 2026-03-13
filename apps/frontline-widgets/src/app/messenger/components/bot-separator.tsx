@@ -1,4 +1,8 @@
-export function BotSeparator({ content }: { content: string }) {
+interface BotSeparatorProps {
+  readonly content: string;
+}
+
+export function BotSeparator({ content }: BotSeparatorProps) {
   return (
     <div className="relative flex items-center justify-center my-3">
       <div className="relative bg-transparent px-3 py-1">

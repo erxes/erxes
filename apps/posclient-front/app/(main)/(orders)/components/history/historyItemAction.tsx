@@ -46,6 +46,7 @@ const HistoryItemAction = ({
           className="absolute h-1 w-1"
           style={{ top: 10000, left: 10000 }}
           ref={iframeRef}
+          title="ebarimt receipt"
         />
       )}
       <DropdownMenu modal={false}>
@@ -53,7 +54,7 @@ const HistoryItemAction = ({
           <Button
             variant="ghost"
             size="icon"
-            className={mode !== "mobile" ? "h-8 w-8 p-0" : ""}
+            className={mode === "mobile" ? "" : "h-8 w-8 p-0"}
           >
             {mode === "mobile" ? (
               <ChevronsRight

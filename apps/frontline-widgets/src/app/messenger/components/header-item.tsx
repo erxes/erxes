@@ -2,7 +2,14 @@ import { Badge, cn } from 'erxes-ui';
 import { useMessenger } from '../hooks/useMessenger';
 import { IHeaderItem } from '../types';
 
-export function HeaderItem({ title, Icon, value, disabled }: IHeaderItem) {
+interface HeaderItemProps {
+  readonly title: string;
+  readonly Icon: IHeaderItem['Icon'];
+  readonly value: IHeaderItem['value'];
+  readonly disabled: boolean;
+}
+
+export function HeaderItem({ title, Icon, value, disabled }: HeaderItemProps) {
   const { switchToTab } = useMessenger();
 
   return (

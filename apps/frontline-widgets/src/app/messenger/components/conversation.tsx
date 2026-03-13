@@ -67,13 +67,15 @@ export function EmptyChat() {
   );
 }
 
+interface ConversationMessageProps {
+  readonly conversationId: string;
+  readonly conversation?: IConversationMessage;
+}
+
 export function ConversationMessage({
   conversationId,
   conversation,
-}: {
-  conversationId: string;
-  conversation?: IConversationMessage;
-}) {
+}: ConversationMessageProps) {
   const setConversationId = useSetAtom(conversationIdAtom);
   const setActiveTab = useSetAtom(setActiveTabAtom);
 
@@ -196,6 +198,18 @@ export function ConversationMessage({
   return null;
 }
 
+interface OperatorMessageProps {
+  readonly content: string;
+  readonly src?: string;
+  readonly createdAt: Date;
+  readonly showAvatar?: boolean;
+  readonly isFirstMessage?: boolean;
+  readonly isLastMessage?: boolean;
+  readonly isMiddleMessage?: boolean;
+  readonly isSingleMessage?: boolean;
+  readonly attachments?: IAttachment[];
+}
+
 export function OperatorMessage({
   content,
   src,
@@ -206,17 +220,7 @@ export function OperatorMessage({
   isMiddleMessage,
   isSingleMessage,
   attachments,
-}: {
-  content: string;
-  src?: string;
-  createdAt: Date;
-  showAvatar?: boolean;
-  isFirstMessage?: boolean;
-  isLastMessage?: boolean;
-  isMiddleMessage?: boolean;
-  isSingleMessage?: boolean;
-  attachments?: IAttachment[];
-}) {
+}: OperatorMessageProps) {
   const isImageAttachment = (url: string) => {
     return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
   };
@@ -257,7 +261,7 @@ export function OperatorMessage({
                     attachments?.length && 'rounded-t-md rounded-bl-sm',
                   )}
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(content as string),
+                    __html: DOMPurify.sanitize(content),
                   }}
                 />
               )}
@@ -356,7 +360,7 @@ export const CustomerMessage = ({
                     attachments?.length ? 'rounded-t-md' : 'rounded-md',
                   )}
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(content as string),
+                    __html: DOMPurify.sanitize(content),
                   }}
                 />
               )}

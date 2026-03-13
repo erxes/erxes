@@ -73,7 +73,7 @@ const ReturnForm = ({
     const { cashAmount, ...rest } = data
     const paidAmounts = Object.keys(rest).map((key: string) => ({
       type: key,
-      amount: isNaN(Number(rest[key])) ? 0 : Number(rest[key]),
+      amount: Number.isNaN(Number(rest[key])) ? 0 : Number(rest[key]),
     }))
     orderReturn({
       variables: { _id, cashAmount: Number(cashAmount || 0), paidAmounts },

@@ -106,6 +106,7 @@ export function formatOnlineHours({
 
     return result;
   } catch (error) {
+    console.log(error);
     // Fallback to original format if parsing fails
     return `We're available between ${firstHour.from} and ${firstHour.to}${
       showTimezone && timezone ? ` (${formatTimeZoneLabel(timezone)})` : ''

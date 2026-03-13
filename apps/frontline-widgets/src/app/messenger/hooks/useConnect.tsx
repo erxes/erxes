@@ -26,11 +26,11 @@ import {
 } from '../types/connection';
 import { useSaveBrowserInfo } from './useSaveBrowserInfo';
 
-interface connectionProps {
+interface ConnectionProps {
   integrationId: string;
 }
 
-export const useConnect = ({ integrationId }: connectionProps) => {
+export const useConnect = ({ integrationId }: ConnectionProps) => {
   const setConnection = useSetAtom(connectionAtom);
   const setIntegrationId = useSetAtom(integrationIdAtom);
   const messengerData = useAtomValue(messengerDataAtom);

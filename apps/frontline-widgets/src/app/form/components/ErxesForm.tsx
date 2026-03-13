@@ -48,7 +48,7 @@ export const ErxesForm = ({
   });
 
   const handleSubmit = (values: any) => {
-    setFormValues((prev) => ({ ...(prev || {}), [step.order]: values }));
+    setFormValues((prev) => ({ ...prev, [step.order]: values }));
 
     isLastStep
       ? setShowConfirmation(true)

@@ -1,5 +1,4 @@
-import { cn } from 'erxes-ui';
-import { Badge } from 'erxes-ui';
+import { cn, Badge } from 'erxes-ui';
 
 export const ErxesSteps = ({
   step,

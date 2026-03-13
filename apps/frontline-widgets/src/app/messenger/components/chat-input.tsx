@@ -1,6 +1,6 @@
 import { FC, useId } from 'react';
 import { IconArrowUp } from '@tabler/icons-react';
-import { Button, Input, cn, toast } from 'erxes-ui';
+import { Button, Input, cn } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { InitialMessage } from '../constants';
 import { connectionAtom } from '../states';

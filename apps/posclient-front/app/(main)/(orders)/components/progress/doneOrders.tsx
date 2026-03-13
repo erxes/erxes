@@ -27,17 +27,15 @@ const DoneOrders = () => {
   if (loading) return <div className="flex-auto"></div>
 
   return (
-    <>
-      <HorizontalScrollMenu>
-        {[
-          ...fullOrders.map((order) => (
-            <ScrollMenuItem key={order._id} itemId={order._id}>
-              <DoneOrder {...order} />
-            </ScrollMenuItem>
-          )),
-        ]}
-      </HorizontalScrollMenu>
-    </>
+    <HorizontalScrollMenu>
+      {[
+        ...fullOrders.map((order) => (
+          <ScrollMenuItem key={order._id} itemId={order._id}>
+            <DoneOrder {...order} />
+          </ScrollMenuItem>
+        )),
+      ]}
+    </HorizontalScrollMenu>
   )
 }
 
