@@ -12,7 +12,6 @@ export interface IPage {
 
 export interface IPageDrawerProps {
   page?: IPage;
-  isOpen: boolean;
   onClose: () => void;
   clientPortalId: string;
 }

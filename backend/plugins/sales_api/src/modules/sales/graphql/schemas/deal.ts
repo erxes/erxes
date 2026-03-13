@@ -69,7 +69,6 @@ const queryParams = `
   resolvedDayBetween:[Int]
   relationType: String
   relationId: String
-  webId: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -132,8 +131,6 @@ export const types = `
     products: [Product]
     productsData: JSON
     paymentsData: JSON
-
-    webId: String
 
     cursor: String
   }

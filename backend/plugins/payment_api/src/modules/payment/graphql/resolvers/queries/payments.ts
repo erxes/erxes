@@ -8,12 +8,11 @@ interface IParam {
   searchValue?: string;
   kind?: string;
   status?: string;
-  webId?: string;
 }
 
 const generateFilterQuery = (params: IParam) => {
   const query: any = {};
-  const { searchValue, kind, status, webId } = params;
+  const { searchValue, kind, status } = params;
 
   if (kind) {
     query.kind = kind;
@@ -21,10 +20,6 @@ const generateFilterQuery = (params: IParam) => {
 
   if (status) {
     query.status = status;
-  }
-
-  if (webId) {
-    query.webId = webId;
   }
 
   if (searchValue) {
@@ -37,13 +32,29 @@ const generateFilterQuery = (params: IParam) => {
 
 const queries: Record<string, Resolver> = {
   async payments(_root, args, { models }: IContext) {
-    const filter = generateFilterQuery(args);
+    const filter: any = {};
+
+    if (args.status) {
+      filter.status = args.status;
+    }
+
+    if (args.kind) {
+      filter.kind = args.kind;
+    }
 
     return models.PaymentMethods.find(filter).sort({ type: 1 }).lean();
   },
 
   async cpPayments(_root, args, { models }: IContext) {
-    const filter = generateFilterQuery(args);
+    const filter: any = {};
+
+    if (args.status) {
+      filter.status = args.status;
+    }
+
+    if (args.kind) {
+      filter.kind = args.kind;
+    }
 
     return models.PaymentMethods.find(filter).sort({ type: 1 }).lean();
   },

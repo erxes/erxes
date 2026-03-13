@@ -30,6 +30,7 @@ export const loadTranslationClass = (models: IModels) => {
       return result!;
     }
 
+    // kept for backward compat — delegates to upsert
     public static async updateTranslation(
       doc: ITranslation,
     ): Promise<ITranslationDocument> {

@@ -28,7 +28,7 @@ export const PipelinePermissionsList = memo(() => {
   const { pipeline, loading: pipelineLoading } = useGetPipeline(pipelineId);
   const { statuses, loading: statusesLoading } =
     useGetTicketStatusesByPipeline();
-  const { updatePipeline, loading: updating } = useUpdatePipeline();
+  const { updatePipeline } = useUpdatePipeline();
   const { updateStatus } = useUpdateTicketStatus();
 
   const [visibleStatusCount, setVisibleStatusCount] = useState(5);
@@ -51,8 +51,13 @@ export const PipelinePermissionsList = memo(() => {
 
   const myTicketsOnly = form.watch('myTicketsOnly');
 
+  useEffect(() => {
+    console.log('Pipeline data:', pipeline);
+  }, [pipeline, myTicketsOnly]);
+
   const initialValuesRef = useRef<PermissionState | null>(null);
   const isUpdatingRef = useRef(false);
+  const prevVisibilityRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!pipeline) return;
@@ -83,6 +88,23 @@ export const PipelinePermissionsList = memo(() => {
   }, [pipeline, form]);
 
   const formValues = form.watch();
+
+  useEffect(() => {
+    if (!pipeline || isUpdatingRef.current || !initialValuesRef.current) return;
+
+    const currentVisibility = formValues.visibility;
+
+    if (
+      prevVisibilityRef.current !== null &&
+      prevVisibilityRef.current !== 'public' &&
+      currentVisibility === 'public'
+    ) {
+      form.setValue('memberIds', []);
+      form.setValue('selectedUsers', []);
+    }
+
+    prevVisibilityRef.current = currentVisibility;
+  }, [formValues.visibility, pipeline, form]);
 
   useEffect(() => {
     if (!pipeline || isUpdatingRef.current || !initialValuesRef.current) return;
