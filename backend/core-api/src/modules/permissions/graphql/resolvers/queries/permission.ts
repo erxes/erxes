@@ -82,8 +82,8 @@ export const permissionQueries = {
       return [{ plugin: "*", module: '*', actions: ['*'], scope: 'all' }];
     }
 
-    const groupIds = user.permissionGroupIds || [];
-    const permMap = new Map();
+    let groupIds = user.permissionGroupIds || [];
+    const customPermissions = user.customPermissions || [];
 
     const plugins = await getPlugins();
 
@@ -95,9 +95,25 @@ export const permissionQueries = {
       const permissions = plugin?.config?.meta?.permissions;
 
       if (!permissions?.defaultGroups) continue;
-      
+
       allDefaultGroups.push(...permissions.defaultGroups);
     }
+
+    if (groupIds.length === 0 && customPermissions.length === 0) {
+      const viewerGroupIds = allDefaultGroups
+        .filter((g) => g.id.endsWith(':viewer'))
+        .map((g) => g.id);
+
+      if (viewerGroupIds.length > 0) {
+        await models.Users.updateOne(
+          { _id: user._id },
+          { $set: { permissionGroupIds: viewerGroupIds } },
+        );
+        groupIds = viewerGroupIds;
+      }
+    }
+
+    const permMap = new Map();
 
     for (const groupId of groupIds) {
       if (groupId.includes(':')) {
@@ -109,7 +125,7 @@ export const permissionQueries = {
         }
       } else {
         const group = await models.PermissionGroups.findOne({ _id: groupId });
-      
+
         if (group) {
           for (const perm of group.permissions) {
             mergePerm(permMap, perm);
@@ -118,7 +134,7 @@ export const permissionQueries = {
       }
     }
 
-    for (const perm of user.customPermissions || []) {
+    for (const perm of customPermissions) {
       mergePerm(permMap, perm);
     }
 
