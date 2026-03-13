@@ -8,6 +8,7 @@ export const PAGE_LIST = gql`
     $limit: Int
     $cursor: String
     $direction: CURSOR_DIRECTION
+    $orderBy: JSON
   ) {
     cmsPageList(
       clientPortalId: $clientPortalId
@@ -16,6 +17,7 @@ export const PAGE_LIST = gql`
       limit: $limit
       cursor: $cursor
       direction: $direction
+      orderBy: $orderBy
     ) {
       totalCount
       pageInfo {
