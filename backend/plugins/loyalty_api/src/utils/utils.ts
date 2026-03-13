@@ -16,40 +16,44 @@ interface IProductD {
 
 const availableVoucherTypes = ['bonus', 'discount'];
 
-// ------------------------------------------------------
-// Core service helpers
-// ------------------------------------------------------
-
-export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendTRPCMessage({
+// Core service helpers (reduce duplication)
+async function coreQuery<T>(
+  subdomain: string,
+  module: string,
+  action: string,
+  input: any,
+  defaultValue: T
+): Promise<T> {
+  return sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
-    module: 'categories',
-    action: 'withChilds',
-    input: { ids: categoryIds },
-    defaultValue: [],
+    module,
+    action,
+    input,
+    defaultValue,
   });
+}
 
-  const catIds: string[] = (childs || []).map((ch) => ch._id) || [];
-  return Array.from(new Set(catIds));
-};
+async function fetchChildItems(
+  subdomain: string,
+  type: 'categories' | 'tags',
+  ids: string[]
+): Promise<string[]> {
+  const action = 'withChilds';
+  const module = type;
+  const input = type === 'categories' ? { ids } : { query: { _id: { $in: ids } } };
+  const items = await coreQuery(subdomain, module, action, input, []);
+  return Array.from(new Set((items || []).map((ch: any) => ch._id)));
+}
 
-export const getChildTags = async (subdomain: string, tagIds) => {
-  const childs = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'tags',
-    action: 'withChilds',
-    input: { query: { _id: { $in: tagIds } } },
-    defaultValue: [],
-  });
+export const getChildCategories = (subdomain: string, categoryIds: string[]) =>
+  fetchChildItems(subdomain, 'categories', categoryIds);
 
-  const allTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
-  return Array.from(new Set(allTagIds));
-};
+export const getChildTags = (subdomain: string, tagIds: string[]) =>
+  fetchChildItems(subdomain, 'tags', tagIds);
 
+// Restriction application
 export const applyRestriction = async ({
   subdomain,
   restrictions,
@@ -72,9 +76,7 @@ export const applyRestriction = async ({
 
   const [includedCategoryIds, excludedCategoryIds] = await Promise.all([
     categoryIds.length ? getChildCategories(subdomain, categoryIds) : [],
-    excludeCategoryIds.length
-      ? getChildCategories(subdomain, excludeCategoryIds)
-      : [],
+    excludeCategoryIds.length ? getChildCategories(subdomain, excludeCategoryIds) : [],
   ]);
 
   const [includedTagIds, excludedTagIds] = await Promise.all([
@@ -103,16 +105,7 @@ export const applyRestriction = async ({
     };
   }
 
-  const productDocs = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'products',
-    action: 'find',
-    input: { query },
-    defaultValue: [],
-  });
-
+  const productDocs = await coreQuery(subdomain, 'products', 'find', { query }, []);
   const productMap = new Map(products.map((p) => [p.productId, p]));
 
   const totalAmount = productDocs.reduce((sum, { _id }) => {
@@ -124,8 +117,55 @@ export const applyRestriction = async ({
 };
 
 // ------------------------------------------------------
-// Voucher & loyalty logic
+// Voucher helpers
 // ------------------------------------------------------
+async function processVoucherBonus(voucher: any, productsIds: string[], result: any) {
+  for (const productId of productsIds) {
+    if (voucher.campaign.bonusProductId === productId) {
+      result[productId].voucherCampaignId = voucher.campaignId;
+      result[productId].voucherId = voucher._id;
+      result[productId].potentialBonus +=
+        voucher.campaign.bonusCount -
+        (voucher.bonusInfo || []).reduce((sum, i) => sum + i.usedCount, 0);
+      result[productId].type = 'bonus';
+      result[productId].discount = 100;
+      result[productId].bonusName = voucher.campaign.title;
+    }
+  }
+}
+
+async function processVoucherDiscount(
+  voucher: any,
+  subdomain: string,
+  products: IProductD[],
+  result: any
+) {
+  const { title, kind, value, restrictions } = voucher.campaign;
+  const { productDocs, restrictedAmount } = await applyRestriction({
+    subdomain,
+    restrictions,
+    products,
+  });
+  for (const product of productDocs) {
+    const { _id } = product;
+    const item = products.find((p) => p.productId === _id) || {};
+    const discount = calculateDiscount({
+      kind,
+      value,
+      product: { ...item, discount: result[_id].discount || 0 },
+      totalAmount: restrictedAmount,
+    });
+    result[_id] = {
+      ...result[_id],
+      voucherCampaignId: voucher.campaignId,
+      voucherId: voucher._id,
+      discount,
+      voucherName: title,
+      type: 'discount',
+      sumDiscount: result[_id].sumDiscount + discount,
+    };
+  }
+}
 
 export const directVoucher = async ({
   result,
@@ -137,7 +177,6 @@ export const directVoucher = async ({
 }) => {
   const NOW = new Date();
   const productsIds = products.map((p) => p.productId);
-
   const activeCampaignIds = await models.Vouchers.find({
     ownerType,
     ownerId,
@@ -145,7 +184,7 @@ export const directVoucher = async ({
   }).distinct('campaignId');
 
   for (const voucherType of availableVoucherTypes) {
-    const campaign = await models.VoucherCampaigns.find({
+    const campaigns = await models.VoucherCampaigns.find({
       _id: { $in: activeCampaignIds },
       finishDateOfUse: { $gte: NOW },
       voucherType: { $in: [voucherType] },
@@ -157,7 +196,7 @@ export const directVoucher = async ({
           ownerType,
           ownerId,
           status: { $in: ['new'] },
-          campaignId: { $in: campaign.map((c) => c._id) },
+          campaignId: { $in: campaigns.map((c) => c._id) },
         },
       },
       {
@@ -183,76 +222,60 @@ export const directVoucher = async ({
       },
     ]);
 
-    if (voucherType === 'bonus') {
-      for (const voucher of vouchers) {
-        for (const productId of productsIds) {
-          if (voucher.campaign.bonusProductId === productId) {
-            result[productId].voucherCampaignId = voucher.campaignId;
-            result[productId].voucherId = voucher._id;
-            result[productId].potentialBonus +=
-              voucher.campaign.bonusCount -
-              (voucher.bonusInfo || []).reduce(
-                (sum, i) => sum + i.usedCount,
-                0,
-              );
-            result[productId].type = voucherType;
-            result[productId].discount = 100;
-            result[productId].bonusName = voucher.campaign.title;
-          }
-        }
-      }
-    }
-
-    if (voucherType === 'discount') {
-      for (const voucher of vouchers) {
-        const { title, kind, value, restrictions } = voucher.campaign;
-
-        const { productDocs, restrictedAmount } = await applyRestriction({
-          subdomain,
-          restrictions,
-          products,
-        });
-
-        for (const product of productDocs) {
-          const { _id } = product;
-
-          const item = products.find((p) => p.productId === _id) || {};
-
-          const discount = calculateDiscount({
-            kind,
-            value,
-            product: {
-              ...item,
-              discount: result[_id].discount || 0,
-            },
-            totalAmount: restrictedAmount,
-          });
-
-          result[_id] = {
-            ...result[_id],
-            voucherCampaignId: voucher.campaignId,
-            voucherId: voucher._id,
-            discount,
-            voucherName: title,
-            type: voucherType,
-            sumDiscount: result[_id].sumDiscount + discount,
-          };
-        }
+    for (const voucher of vouchers) {
+      if (voucherType === 'bonus') {
+        await processVoucherBonus(voucher, productsIds, result);
+      } else {
+        await processVoucherDiscount(voucher, subdomain, products, result);
       }
     }
   }
 };
 
+// Discount rule applier (used for both voucher and coupon)
+async function applyDiscountRule(
+  models: IModels,
+  subdomain: string,
+  ruleSource: { title: string; kind: string; value: number; restrictions: any },
+  products: IProductD[],
+  result: any,
+  type: 'voucher' | 'coupon',
+  idField: string,
+  idValue: string
+) {
+  const { title, kind, value, restrictions = {} } = ruleSource;
+  const { productDocs, restrictedAmount } = await applyRestriction({ subdomain, restrictions, products });
+  for (const product of productDocs) {
+    const { _id } = product;
+    const item = products.find((p) => p.productId === _id) || {};
+    const discount = calculateDiscount({
+      kind,
+      value,
+      product: { ...item, discount: result[_id].discount || 0 },
+      totalAmount: restrictedAmount,
+    });
+    result[_id] = {
+      ...result[_id],
+      [idField]: idValue,
+      discount,
+      voucherName: title, // kept for backward compatibility
+      type,
+      ...(type === 'voucher' ? { voucherId: idValue } : { coupon: idValue }),
+    };
+  }
+}
+
+
+// Main checkVouchersSale
 export const checkVouchersSale = async (
   models: IModels,
   subdomain: string,
   ownerType: string,
   ownerId: string,
   products: IProductD[],
-  discountInfo?: Record<string, string>,
+  discountInfo?: Record<string, string>
 ) => {
   const result = {};
-
   const { couponCode, voucherId } = discountInfo || {};
 
   if (!ownerId && !products) {
@@ -271,21 +294,18 @@ export const checkVouchersSale = async (
       },
       defaultValue: null,
     });
-
     if (customerRelatedClientPortalUser) {
       ownerId = customerRelatedClientPortalUser._id;
       ownerType = 'cpUser';
     }
   }
 
-  const totalAmount = products.reduce((sum, product) => {
-    return sum + product.quantity * product.unitPrice;
-  }, 0);
+  const totalAmount = products.reduce((sum, product) => sum + product.quantity * product.unitPrice, 0);
 
+  // Initialize result
   for (const product of products) {
-    const { productId } = product || {};
-
-    if (!Object.keys(result).includes(productId)) {
+    const { productId } = product;
+    if (!result[productId]) {
       result[productId] = {
         voucherCampaignId: '',
         voucherId: '',
@@ -296,109 +316,42 @@ export const checkVouchersSale = async (
     }
   }
 
-  await directVoucher({
-    result,
-    ownerType,
-    ownerId,
-    models,
-    subdomain,
-    products,
-  });
+  await directVoucher({ result, ownerType, ownerId, models, subdomain, products });
 
   if (voucherId) {
-    const voucherCampaign = await models.Vouchers.checkVoucher({
-      voucherId,
-      ownerType,
-      ownerId,
-    });
-
-    const { title, kind, value, restrictions = {} } = voucherCampaign;
-
-    const { productDocs, restrictedAmount } = await applyRestriction({
+    const voucherCampaign = await models.Vouchers.checkVoucher({ voucherId, ownerType, ownerId });
+    await models.Vouchers.checkVoucher({ voucherId, ownerType, ownerId, totalAmount });
+    await applyDiscountRule(
+      models,
       subdomain,
-      restrictions,
+      voucherCampaign,
       products,
-    });
-
-    await models.Vouchers.checkVoucher({
-      voucherId,
-      ownerType,
-      ownerId,
-      totalAmount,
-    });
-
-    for (const product of productDocs) {
-      const { _id } = product;
-
-      const item = products.find((p) => p.productId === _id) || {};
-
-      result[_id] = {
-        ...result[_id],
-        voucherCampaignId: voucherCampaign._id,
-        voucherId: voucherId,
-        discount: calculateDiscount({
-          kind,
-          value,
-          product: {
-            ...item,
-            discount: result[_id].discount || 0,
-          },
-          totalAmount: restrictedAmount,
-        }),
-        voucherName: title,
-        type: 'voucher',
-      };
-    }
+      result,
+      'voucher',
+      'voucherCampaignId',
+      voucherCampaign._id
+    );
   }
 
-  // coupon
   if (couponCode) {
-    const couponCampaign = await models.Coupons.checkCoupon({
-      code: couponCode,
-      ownerId,
-    });
-
-    const { title, kind, value, restrictions = {} } = couponCampaign;
-
-    const { productDocs, restrictedAmount } = await applyRestriction({
+    const couponCampaign = await models.Coupons.checkCoupon({ code: couponCode, ownerId });
+    await models.Coupons.checkCoupon({ code: couponCode, ownerId, totalAmount });
+    await applyDiscountRule(
+      models,
       subdomain,
-      restrictions,
+      couponCampaign,
       products,
-    });
-
-    await models.Coupons.checkCoupon({
-      code: couponCode,
-      ownerId,
-      totalAmount,
-    });
-
-    for (const product of productDocs) {
-      const { _id } = product;
-
-      const item = products.find((p) => p.productId === _id) || {};
-
-      result[_id] = {
-        ...result[_id],
-        couponCampaignId: couponCampaign._id,
-        coupon: couponCode,
-        discount: calculateDiscount({
-          kind,
-          value,
-          product: {
-            ...item,
-            discount: result[_id].discount || 0,
-          },
-          totalAmount: restrictedAmount,
-        }),
-        couponName: title,
-        type: 'coupon',
-      };
-    }
+      result,
+      'coupon',
+      'couponCampaignId',
+      couponCampaign._id
+    );
   }
 
   return result;
 };
 
+// Confirm voucher sale
 export const confirmVoucherSale = async (
   models: IModels,
   subdomain: string,
@@ -416,7 +369,7 @@ export const confirmVoucherSale = async (
     targetid?: string;
     serviceName?: string;
     totalAmount?: string;
-  },
+  }
 ) => {
   const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
 
@@ -427,12 +380,9 @@ export const confirmVoucherSale = async (
       method: 'query',
       module: 'clientPortalUsers',
       action: 'findOne',
-      input: {
-        erxesCustomerId: extraInfo.ownerId,
-      },
+      input: { erxesCustomerId: extraInfo.ownerId },
       defaultValue: null,
     });
-
     if (customerRelatedClientPortalUser) {
       usageInfo.ownerId = customerRelatedClientPortalUser._id;
       usageInfo.ownerType = 'cpUser';
@@ -440,64 +390,35 @@ export const confirmVoucherSale = async (
   }
 
   if (couponCode) {
-    await models.Coupons.redeemCoupon({
-      code: couponCode,
-      usageInfo,
-    });
+    await models.Coupons.redeemCoupon({ code: couponCode, usageInfo });
   }
 
   if (voucherId) {
-    await models.Vouchers.redeemVoucher({
-      voucherId,
-      usageInfo,
-    });
+    await models.Vouchers.redeemVoucher({ voucherId, usageInfo });
   }
 
   for (const productId of Object.keys(checkInfo)) {
     const rule = checkInfo[productId];
+    if (!rule.voucherId || !rule.count) continue;
 
-    if (!rule.voucherId) {
-      continue;
+    const voucher = await models.Vouchers.findOne({ _id: rule.voucherId }).lean();
+    if (!voucher) continue;
+
+    const campaign = await models.VoucherCampaigns.findOne({ _id: voucher.campaignId });
+    if (!campaign) continue;
+
+    const oldBonusCount = (voucher.bonusInfo || []).reduce((sum, i) => sum + i.usedCount, 0);
+    const updateInfo: any = { $push: { bonusInfo: { usedCount: rule.count } } };
+    if (campaign.bonusCount - oldBonusCount <= rule.count) {
+      updateInfo.$set = { status: VOUCHER_STATUS.LOSS };
     }
-
-    if (rule.count) {
-      const voucher = await models.Vouchers.findOne({
-        _id: rule.voucherId,
-      }).lean();
-      if (!voucher) {
-        continue;
-      }
-
-      const campaign = await models.VoucherCampaigns.findOne({
-        _id: voucher.campaignId,
-      });
-      if (!campaign) {
-        continue;
-      }
-
-      const oldBonusCount = (voucher.bonusInfo || []).reduce(
-        (sum, i) => sum + i.usedCount,
-        0,
-      );
-
-      const updateInfo: any = {
-        $push: { bonusInfo: { usedCount: rule.count } },
-      };
-      if (campaign.bonusCount - oldBonusCount <= rule.count) {
-        updateInfo.$set = { status: VOUCHER_STATUS.LOSS };
-      }
-
-      await models.Vouchers.updateOne({ _id: rule.voucherId }, updateInfo);
-    }
+    await models.Vouchers.updateOne({ _id: rule.voucherId }, updateInfo);
   }
 };
 
-export const isInSegment = async (
-  subdomain: string,
-  segmentId: string,
-  targetId: string,
-) => {
-  const response = await sendTRPCMessage({
+// Segment check
+export const isInSegment = async (subdomain: string, segmentId: string, targetId: string) => {
+  return sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
@@ -506,8 +427,6 @@ export const isInSegment = async (
     input: { segmentId, idToCheck: targetId },
     defaultValue: false,
   });
-
-  return response;
 };
 
 export interface AssignmentCheckResponse {
@@ -515,37 +434,28 @@ export interface AssignmentCheckResponse {
   isIn: boolean;
 }
 
+// Attribute extraction (safe regex, length limited)
 export const generateAttributes = (value: string) => {
-  // Safe regex – no catastrophic backtracking
+  // Security: regex /\{\{\s*([^}]+)\s*\}\}/g is safe.
+  // - Uses negated character class [^}]+ – no nested quantifiers.
+  // - Additional safeguard: input length limited to 5000 characters.
   const MAX_LENGTH = 5000;
-  if (!value || value.length > MAX_LENGTH) {
-    return [];
-  }
+  if (!value || value.length > MAX_LENGTH) return [];
   const matches = value.match(/\{\{\s*([^}]+)\s*\}\}/g);
-  return matches
-    ? matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ''))
-    : [];
+  return matches ? matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, '')) : [];
 };
 
-// ------------------------------------------------------
 // Safe arithmetic evaluator (no eval, no mathjs)
-// ------------------------------------------------------
 function safeEval(expression: string, scope: Record<string, number>): number {
-  // Validate that expression contains only allowed characters
   const allowedPattern = /^[0-9\s\+\-\*\/\(\)\.]+$/;
   if (!allowedPattern.test(expression)) {
     throw new Error(
       'Invalid expression: only numbers, operators (+, -, *, /), and parentheses allowed',
     );
   }
-
-  // Create a function from the expression with scope variables injected
   const paramNames = Object.keys(scope);
-  const paramValues = paramNames.map((name) => scope[name]);
-
-  // Use Function constructor – safer than eval because variables are explicitly passed
+  const paramValues = paramNames.map(name => scope[name]);
   const fn = new Function(...paramNames, `return (${expression});`);
-
   try {
     const result = fn(...paramValues);
     if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
@@ -557,48 +467,24 @@ function safeEval(expression: string, scope: Record<string, number>): number {
   }
 }
 
-// ------------------------------------------------------
 // Score handling
-// ------------------------------------------------------
 export const handleScore = async (models: IModels, data) => {
   const { action, ownerId, ownerType, campaignId, target, description } = data;
-
-  const scoreCampaign = await models.ScoreCampaigns.findOne({
-    _id: campaignId,
-  });
-
-  if (!scoreCampaign) {
-    throw new Error('Not found');
-  }
-
-  if (scoreCampaign.ownerType !== ownerType) {
-    throw new Error('Mismatching owner type');
-  }
+  const scoreCampaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
+  if (!scoreCampaign) throw new Error('Not found');
+  if (scoreCampaign.ownerType !== ownerType) throw new Error('Mismatching owner type');
 
   const config = scoreCampaign[action as 'add' | 'subtract'];
   let placeholder = config.placeholder;
-
   const attributes = generateAttributes(placeholder);
 
-  if (attributes.length) {
-    for (const attribute of attributes) {
-      const value = target[attribute];
-      if (value === undefined) {
-        throw new Error(`Attribute "${attribute}" not found in target`);
-      }
-      // Replace all occurrences
-      placeholder = placeholder.replace(
-        new RegExp(`\\{\\{\\s*${attribute}\\s*\\}\\}`, 'g'),
-        value,
-      );
-    }
+  for (const attr of attributes) {
+    const val = target[attr];
+    if (val === undefined) throw new Error(`Attribute "${attr}" not found`);
+    placeholder = placeholder.replace(new RegExp(`\\{\\{\\s*${attr}\\s*\\}\\}`, 'g'), val);
   }
+  if (placeholder.includes('{{')) throw new Error('Unresolved placeholders in expression');
 
-  if (placeholder.includes('{{')) {
-    throw new Error('Unresolved placeholders in expression');
-  }
-
-  // Build scope from attributes (all numeric values)
   const scope: Record<string, number> = {};
   for (const attr of attributes) {
     const num = parseFloat(target[attr]);
@@ -606,128 +492,62 @@ export const handleScore = async (models: IModels, data) => {
     scope[attr] = num;
   }
 
-  // Evaluate safely
   const scoreValue = safeEval(placeholder, scope);
   const scoreToChange = scoreValue / Number(config.currencyRatio);
-
-  await models.ScoreLogs.changeScore({
-    ownerId,
-    ownerType,
-    changeScore: scoreToChange,
-    description,
-  });
-
+  await models.ScoreLogs.changeScore({ ownerId, ownerType, changeScore: scoreToChange, description });
   return 'success';
 };
 
-// ------------------------------------------------------
 // Discount calculation
-// ------------------------------------------------------
 export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   try {
     if (kind === 'percent') {
-      if (product?.discount) {
-        return Math.min(product.discount + value, 100);
-      }
-
-      return Math.min(value, 100);
+      return Math.min((product?.discount || 0) + value, 100);
     }
-
-    if (!product || !totalAmount) {
-      return 0;
-    }
-
+    if (!product || !totalAmount) return 0;
     const productPrice = product.unitPrice * (product.quantity || 1);
-
-    if (productPrice <= 0) {
-      return 0;
-    }
-
+    if (productPrice <= 0) return 0;
     const productDiscount = (productPrice / totalAmount) * value;
-
     const discount = (productDiscount / productPrice) * 100;
-
-    if (product?.discount) {
-      return Math.min(discount + product.discount, 100);
-    }
-
-    return Math.min(discount, 100);
+    return Math.min((product?.discount || 0) + discount, 100);
   } catch (error) {
     console.error('Error calculating discount:', error.message);
     return 0;
   }
 };
 
-// Loyalty reward (automations)
+
+// Loyalty reward (automations) – extracted common logic
+async function triggerLoyaltyReward(subdomain: string, collectionName: string, query: any) {
+  const targets = await coreQuery(subdomain, collectionName, 'find', query, []);
+  if (targets.length === 0) return;
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'automations',
+    method: 'mutation',
+    module: 'automations',
+    action: 'trigger',
+    input: { type: 'loyalties:reward', targets },
+    defaultValue: [],
+  });
+}
+
 export const handleLoyaltyReward = async ({ subdomain }) => {
   if (!(await isEnabled('automations'))) return;
-
   const VERSION = getEnv({ name: 'VERSION' });
   const NOW = new Date();
   const NOW_MONTH = NOW.getMonth() + 1;
 
   for (const collectionName of Object.keys(collections)) {
     const query = collections[collectionName](NOW_MONTH) || {};
-
-    if (VERSION && VERSION === 'saas') {
+    if (VERSION === 'saas') {
       const orgs = await getSaasOrganizations();
-
       const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
-
       for (const org of enabledOrganizations) {
-        const targets =
-          (await sendTRPCMessage({
-            subdomain: org.subdomain,
-            pluginName: 'core',
-            method: 'query',
-            module: collectionName,
-            action: 'find',
-            input: query,
-            defaultValue: [],
-          })) || [];
-
-        if (targets.length === 0) return;
-
-        await sendTRPCMessage({
-          subdomain: org.subdomain,
-          pluginName: 'automations',
-          method: 'mutation',
-          module: 'automations',
-          action: 'trigger',
-          input: {
-            type: 'loyalties:reward',
-            targets,
-          },
-          defaultValue: [],
-        });
+        await triggerLoyaltyReward(org.subdomain, collectionName, query);
       }
-      continue;
     } else {
-      const targets =
-        (await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: collectionName,
-          action: 'find',
-          input: query,
-          defaultValue: [],
-        })) || [];
-
-      if (targets.length === 0) return;
-
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'automations',
-        method: 'mutation',
-        module: 'automations',
-        action: 'trigger',
-        input: {
-          type: 'loyalties:reward',
-          targets,
-        },
-        defaultValue: [],
-      });
+      await triggerLoyaltyReward(subdomain, collectionName, query);
     }
   }
 };
@@ -735,22 +555,10 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
 // Score campaign
 export const doScoreCampaign = async (models: IModels, data) => {
   const { ownerType, ownerId, actionMethod, targetId } = data;
-
   try {
     await models.ScoreCampaigns.checkScoreAviableSubtract(data);
-
-    const scoreLog =
-      (await models.ScoreLogs.find({
-        ownerId,
-        ownerType,
-        targetId,
-        action: actionMethod,
-      }).lean()) || [];
-
-    if (scoreLog.length) {
-      return;
-    }
-
+    const scoreLog = await models.ScoreLogs.find({ ownerId, ownerType, targetId, action: actionMethod }).lean();
+    if (scoreLog.length) return;
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error) {
     console.error(error);
@@ -760,37 +568,18 @@ export const doScoreCampaign = async (models: IModels, data) => {
 
 export const refundLoyaltyScore = async (
   models: IModels,
-  { targetId, ownerType, ownerId, scoreCampaignIds, checkInId },
+  { targetId, ownerType, ownerId, scoreCampaignIds, checkInId }
 ) => {
   if (!scoreCampaignIds.length) return;
-
-  const scoreCampaigns =
-    (await models.ScoreCampaigns.find({
-      _id: { $in: scoreCampaignIds },
-    }).lean()) || [];
-
+  const scoreCampaigns = await models.ScoreCampaigns.find({ _id: { $in: scoreCampaignIds } }).lean();
   for (const scoreCampaign of scoreCampaigns) {
-    const { additionalConfig } = scoreCampaign || {};
-
     const checkInIds =
-      additionalConfig?.cardBasedRule?.flatMap(
-        ({ refundStageIds }) => refundStageIds,
-      ) || [];
-
+      scoreCampaign.additionalConfig?.cardBasedRule?.flatMap(({ refundStageIds }) => refundStageIds) || [];
     if (checkInIds.includes(checkInId)) {
       try {
-        await models.ScoreCampaigns.refundLoyaltyScore(
-          targetId,
-          ownerType,
-          ownerId,
-        );
+        await models.ScoreCampaigns.refundLoyaltyScore(targetId, ownerType, ownerId);
       } catch (error) {
-        if (
-          error.message ===
-          'Cannot refund loyalty score cause already refunded loyalty score'
-        ) {
-          return;
-        }
+        if (error.message === 'Cannot refund loyalty score cause already refunded loyalty score') return;
       }
     }
   }
