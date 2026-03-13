@@ -1,6 +1,7 @@
 import { Document } from 'mongoose';
 import { ILocation } from '@/bms/@types/itinerary';
 import { IPageInfo } from 'erxes-api-shared/src/core-types';
+import { IAttachment } from 'erxes-api-shared/core-types';
 
 export interface IGuideItem {
   guideId: string;
@@ -24,6 +25,7 @@ export interface ITour {
   branchId: string;
   tagIds?: string[];
   tags?: string[];
+  categoryId?: string;
   categories?: string[];
   viewCount: number;
   advancePercent?: number;
@@ -50,6 +52,7 @@ export interface ITourDocument extends ITour, Document {
 export interface ITourCategory {
   name: string;
   parentId?: string;
+  attachment?: IAttachment;
 }
 
 export interface ITourCategoryDocument extends ITourCategory, Document {
@@ -59,6 +62,7 @@ export interface ITourCategoryDocument extends ITourCategory, Document {
 
 export interface TourFilterParams {
   categories?: string[];
+  categoryId?: string;
   name?: string;
   status?: string;
   innerDate?: Date;

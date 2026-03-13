@@ -8,6 +8,7 @@ export const tourCategorySchema = new Schema({
   _id: mongooseStringRandomId,
   name: { type: String, label: 'Name' },
   parentId: { type: String, label: 'parentId' },
+  attachment: { type: Object, optional: true, label: 'attachment' },
   createdAt: {
     type: Date,
     default: new Date(),
@@ -59,6 +60,7 @@ export const tourSchema = new Schema({
   cost: { type: Number, optional: true, label: 'cost' },
   categories: { type: [String], optional: true, label: 'categories' },
   tagIds: { type: [String], optional: true, label: 'tagIds' },
+  categoryId: { type: String, optional: true, label: 'categoryId' },
   viewCount: { type: Number, optional: true, label: 'viewCount' },
   advancePercent: {
     type: Number,
