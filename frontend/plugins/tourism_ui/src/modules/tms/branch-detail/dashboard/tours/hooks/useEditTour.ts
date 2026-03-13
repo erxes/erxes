@@ -8,7 +8,12 @@ import {
 
 export interface IEditTourVariables {
   id: string;
-  dateStatus: 'scheduled' | 'ongoing' | 'completed' | 'cancelled';
+  dateStatus:
+    | 'scheduled'
+    | 'unscheduled'
+    | 'running'
+    | 'completed'
+    | 'cancelled';
   name?: string;
   content?: string;
   itineraryId?: string;

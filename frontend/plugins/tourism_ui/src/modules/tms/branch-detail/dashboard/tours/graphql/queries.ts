@@ -35,6 +35,7 @@ export const GET_TOURS = gql`
         status
         date_status
         cost
+        modifiedAt
         createdAt
       }
       totalCount
@@ -72,6 +73,7 @@ export const GET_TOUR_GROUPS = gql`
           status
           date_status
           cost
+          modifiedAt
           createdAt
         }
       }

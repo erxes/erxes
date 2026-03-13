@@ -1,4 +1,4 @@
-import { IconShoppingCartX } from '@tabler/icons-react';
+import { IconMapRoute } from '@tabler/icons-react';
 import { RecordTable, Sheet } from 'erxes-ui';
 import { useState } from 'react';
 import { TourCreateSheet } from './TourCreateSheet';
@@ -76,17 +76,13 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
 
 function EmptyStateRow({ branchId }: { branchId: string }) {
   return (
-    <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
-      <IconShoppingCartX
-        size={64}
-        stroke={1.5}
-        className="text-muted-foreground"
-      />
+    <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
+      <IconMapRoute size={64} stroke={1.5} className="text-muted-foreground" />
       <h2 className="text-lg font-semibold text-muted-foreground">
         No tour yet
       </h2>
-      <p className="mb-4 text-md text-muted-foreground">
-        Get started by creating your first tour.
+      <p className="max-w-sm text-sm text-muted-foreground">
+        Create your first tour to get started.
       </p>
       <TourCreateSheet branchId={branchId} />
     </div>

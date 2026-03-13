@@ -10,6 +10,7 @@ export const GET_ITINERARIES = gql`
     $sortMode: String
     $aggregationPipeline: [JSON]
     $branchId: String
+    $name: String
   ) {
     bmsItineraries(
       limit: $limit
@@ -20,6 +21,7 @@ export const GET_ITINERARIES = gql`
       sortMode: $sortMode
       aggregationPipeline: $aggregationPipeline
       branchId: $branchId
+      name: $name
     ) {
       list {
         _id

@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router';
 
 const steps = [
   { value: 'tour', title: 'Tour' },
+  { value: 'category', title: 'Category' },
   { value: 'itinerary', title: 'Itinerary' },
   { value: 'elements', title: 'Elements' },
   { value: 'amenities', title: 'Amenities' },

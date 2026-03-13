@@ -3,6 +3,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo } from 'react';
+import { nanoid } from 'nanoid';
 
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
 import { useCreateTour } from '../hooks/useCreateTour';
@@ -62,6 +63,31 @@ const normalizePersonCost = (personCost?: TourCreateFormType['personCost']) => {
     },
     {},
   );
+};
+
+const sortDates = (dates: Date[]) =>
+  [...dates].sort((a, b) => a.getTime() - b.getTime());
+
+const calculateEndDate = (startDate: Date, duration?: number) => {
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + Number(duration || 0));
+
+  return endDate;
+};
+
+const isSameDay = (left: Date, right: Date) =>
+  left.getFullYear() === right.getFullYear() &&
+  left.getMonth() === right.getMonth() &&
+  left.getDate() === right.getDate();
+
+const getDateStatus = (
+  startDate?: Date,
+): 'scheduled' | 'unscheduled' | 'running' => {
+  if (!startDate) {
+    return 'unscheduled';
+  }
+
+  return isSameDay(startDate, new Date()) ? 'running' : 'scheduled';
 };
 
 export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
@@ -129,12 +155,21 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
   }, [selectedItinerary, form]);
 
   useEffect(() => {
-    if (!startDate || !duration || Array.isArray(startDate)) return;
+    if (!startDate || !duration) {
+      form.setValue('endDate', undefined);
+      return;
+    }
 
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + Number(duration));
+    const selectedStartDate = Array.isArray(startDate)
+      ? sortDates(startDate)[0]
+      : startDate;
 
-    form.setValue('endDate', endDate);
+    if (!selectedStartDate) {
+      form.setValue('endDate', undefined);
+      return;
+    }
+
+    form.setValue('endDate', calculateEndDate(selectedStartDate, duration));
   }, [startDate, duration, form]);
 
   const handleSubmit = async (values: TourCreateFormType) => {
@@ -149,20 +184,51 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
 
     try {
       const personCost = normalizePersonCost(values.personCost);
+      const { startDate: _startDate, ...restValues } = values;
+      const selectedDates = values.startDate
+        ? Array.isArray(values.startDate)
+          ? sortDates(values.startDate)
+          : [values.startDate]
+        : [];
+      const primaryStartDate = selectedDates[0];
 
-      await createTour({
-        variables: {
-          branchId,
-          ...values,
-          date_status: 'scheduled',
-          groupCode: 'default',
-          personCost,
-        },
-      });
+      const groupCode = selectedDates.length > 1 ? nanoid() : '';
+
+      if (selectedDates.length > 0) {
+        await Promise.all(
+          selectedDates.map((selectedDate) =>
+            createTour({
+              variables: {
+                branchId,
+                ...restValues,
+                startDate: selectedDate,
+                endDate: calculateEndDate(selectedDate, values.duration),
+                date_status: getDateStatus(selectedDate),
+                groupCode,
+                personCost,
+              },
+            }),
+          ),
+        );
+      } else {
+        await createTour({
+          variables: {
+            branchId,
+            ...restValues,
+            startDate: primaryStartDate,
+            date_status: getDateStatus(primaryStartDate),
+            groupCode: nanoid(),
+            personCost,
+          },
+        });
+      }
 
       toast({
         title: 'Success',
-        description: 'Tour created successfully',
+        description:
+          selectedDates.length > 1
+            ? `${selectedDates.length} tours created successfully`
+            : 'Tour created successfully',
       });
 
       form.reset();
@@ -191,8 +257,6 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
         <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
           <div className="flex flex-col gap-6">
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold">Basic Information</h3>
-
               <div className="grid grid-cols-2 gap-4">
                 <TourNameField control={form.control} />
                 <TourRefNumberField control={form.control} />
@@ -209,26 +273,22 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
               <TourDescriptionField control={form.control} />
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold">Tour Details</h3>
-
+            <div className="pt-4 space-y-4 border-t">
               <div className="grid grid-cols-3 gap-4">
-                <TourCostField control={form.control} />
                 <TourDurationField control={form.control} />
                 <TourGroupSizeField control={form.control} />
+                <TourCostField control={form.control} />
               </div>
-
-              <TourPersonCostField control={form.control} />
 
               <div className="grid grid-cols-2 gap-4">
                 <TourStartDateField control={form.control} />
                 <TourEndDateField control={form.control} />
               </div>
+
+              <TourPersonCostField control={form.control} />
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold">Payment Settings</h3>
-
+            <div className="pt-4 space-y-4 border-t">
               <TourAdvanceCheckField control={form.control} />
 
               <div className="grid grid-cols-2 gap-4">
@@ -237,16 +297,12 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold">Images</h3>
-
+            <div className="pt-4 space-y-4 border-t">
               <TourImageThumbnailField control={form.control} />
               <TourImagesField control={form.control} />
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold">Additional Information</h3>
-
+            <div className="pt-4 space-y-4 border-t">
               <Tabs defaultValue="info1" className="w-full">
                 <Tabs.List className="grid grid-cols-5 w-full">
                   <Tabs.Trigger value="info1">Included</Tabs.Trigger>

@@ -7,6 +7,8 @@ export { TourGroupList } from './_components/TourGroupList';
 export { TourCommandBar } from './_components/TourCommandBar';
 export { TourColumns } from './_components/TourColumns';
 export { GroupedTourColumns } from './_components/TourGroupColumns';
+export { TourCalendar } from './_components/TourCalendar';
+export { ToursView, ToursViewControl } from './_components/ToursView';
 
 // Hooks
 export { useTours } from './hooks/useTours';

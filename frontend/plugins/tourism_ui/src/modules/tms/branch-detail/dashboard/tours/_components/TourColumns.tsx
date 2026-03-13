@@ -1,6 +1,8 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
   IconCalendar,
+  IconCalendarDot,
+  IconCalendarPlus,
   IconHash,
   IconLabel,
   IconProgressCheck,
@@ -9,6 +11,7 @@ import {
   Badge,
   RecordTable,
   RecordTableInlineCell,
+  RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ITour } from '../types/tour';
@@ -37,8 +40,8 @@ export const TourColumns = (
     cell: ({ cell, row }: { cell: any; row: any }) => (
       <RecordTableInlineCell>
         <Badge
-          variant="ghost"
-          className="px-2 py-1 font-medium"
+          variant="secondary"
+          className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
           onClick={() => onEdit?.(row.original._id)}
         >
           <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
@@ -95,6 +98,40 @@ export const TourColumns = (
         <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
       </RecordTableInlineCell>
     ),
+    size: 140,
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarPlus} label="Created" />
+    ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      );
+    },
+    size: 140,
+  },
+  {
+    id: 'modifiedAt',
+    accessorKey: 'modifiedAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarDot} label="Modified" />
+    ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      );
+    },
     size: 140,
   },
 ];

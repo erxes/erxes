@@ -49,7 +49,7 @@ export const useCreateTour = () => {
     CreateTourResponse,
     ICreateTourVariables
   >(CREATE_TOUR, {
-    refetchQueries: ['BmsTours'],
+    refetchQueries: ['BmsTours', 'BmToursGroup'],
     awaitRefetchQueries: true,
   });
 

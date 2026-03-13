@@ -7,7 +7,12 @@ export interface ITourDetail {
   advancePercent?: number;
   content?: string;
   cost?: number;
-  date_status?: 'scheduled' | 'ongoing' | 'completed' | 'cancelled';
+  date_status?:
+    | 'scheduled'
+    | 'unscheduled'
+    | 'running'
+    | 'completed'
+    | 'cancelled';
   duration?: number;
   endDate?: string;
   groupSize?: number;

@@ -13,7 +13,9 @@ export const TourCreateFormSchema = z.object({
   content: z.string().max(500).optional(),
   itineraryId: z.string().min(1, 'Itinerary is required'),
 
-  startDate: z.coerce.date().optional(),
+  startDate: z
+    .union([z.coerce.date(), z.array(z.coerce.date()).max(5)])
+    .optional(),
   endDate: z.coerce.date().optional(),
 
   groupSize: z.coerce.number().optional(),
