@@ -16,6 +16,10 @@ interface IProductD {
 
 const availableVoucherTypes = ['bonus', 'discount'];
 
+// ------------------------------------------------------
+// Core service helpers
+// ------------------------------------------------------
+
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendTRPCMessage({
     subdomain,
@@ -120,7 +124,7 @@ export const applyRestriction = async ({
 };
 
 // ------------------------------------------------------
-// Voucher & loyalty logic (unchanged except external calls)
+// Voucher & loyalty logic
 // ------------------------------------------------------
 
 export const directVoucher = async ({
@@ -251,7 +255,7 @@ export const checkVouchersSale = async (
 
   const { couponCode, voucherId } = discountInfo || {};
 
-  if (!ownerId && !ownerId && !products) {
+  if (!ownerId && !products) {
     return 'No Data';
   }
 
@@ -511,11 +515,47 @@ export interface AssignmentCheckResponse {
   isIn: boolean;
 }
 
-export const generateAttributes = (value) => {
-  const matches = (value || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
-  return matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ''));
+export const generateAttributes = (value: string) => {
+  // Safe regex – no catastrophic backtracking
+  const MAX_LENGTH = 5000;
+  if (!value || value.length > MAX_LENGTH) {
+    return [];
+  }
+  const matches = value.match(/\{\{\s*([^}]+)\s*\}\}/g);
+  return matches ? matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, '')) : [];
 };
 
+// ------------------------------------------------------
+// Safe arithmetic evaluator (no eval, no mathjs)
+// ------------------------------------------------------
+function safeEval(expression: string, scope: Record<string, number>): number {
+  // Validate that expression contains only allowed characters
+  const allowedPattern = /^[0-9\s\+\-\*\/\(\)\.]+$/;
+  if (!allowedPattern.test(expression)) {
+    throw new Error('Invalid expression: only numbers, operators (+, -, *, /), and parentheses allowed');
+  }
+
+  // Create a function from the expression with scope variables injected
+  const paramNames = Object.keys(scope);
+  const paramValues = paramNames.map(name => scope[name]);
+
+  // Use Function constructor – safer than eval because variables are explicitly passed
+  const fn = new Function(...paramNames, `return (${expression});`);
+
+  try {
+    const result = fn(...paramValues);
+    if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
+      throw new Error('Invalid numeric result');
+    }
+    return result;
+  } catch (err) {
+    throw new Error(`Evaluation error: ${err.message}`);
+  }
+}
+
+// ------------------------------------------------------
+// Score handling
+// ------------------------------------------------------
 export const handleScore = async (models: IModels, data) => {
   const { action, ownerId, ownerType, campaignId, target, description } = data;
 
@@ -528,22 +568,43 @@ export const handleScore = async (models: IModels, data) => {
   }
 
   if (scoreCampaign.ownerType !== ownerType) {
-    throw new Error('Missmatching owner type');
+    throw new Error('Mismatching owner type');
   }
 
   const config = scoreCampaign[action as 'add' | 'subtract'];
+  let placeholder = config.placeholder;
 
-  const placeholer = config.placeholder;
-
-  const attributes = generateAttributes(config.placeholder);
+  const attributes = generateAttributes(placeholder);
 
   if (attributes.length) {
     for (const attribute of attributes) {
-      placeholer.replace(`{{ ${attribute} }}`, target[attribute]);
+      const value = target[attribute];
+      if (value === undefined) {
+        throw new Error(`Attribute "${attribute}" not found in target`);
+      }
+      // Replace all occurrences
+      placeholder = placeholder.replace(
+        new RegExp(`\\{\\{\\s*${attribute}\\s*\\}\\}`, 'g'),
+        value
+      );
     }
   }
 
-  const scoreToChange = eval(placeholer) / Number(config.currencyRatio);
+  if (placeholder.includes('{{')) {
+    throw new Error('Unresolved placeholders in expression');
+  }
+
+  // Build scope from attributes (all numeric values)
+  const scope: Record<string, number> = {};
+  for (const attr of attributes) {
+    const num = parseFloat(target[attr]);
+    if (isNaN(num)) throw new Error(`Attribute ${attr} is not a number`);
+    scope[attr] = num;
+  }
+
+  // Evaluate safely
+  const scoreValue = safeEval(placeholder, scope);
+  const scoreToChange = scoreValue / Number(config.currencyRatio);
 
   await models.ScoreLogs.changeScore({
     ownerId,
@@ -555,6 +616,9 @@ export const handleScore = async (models: IModels, data) => {
   return 'success';
 };
 
+// ------------------------------------------------------
+// Discount calculation
+// ------------------------------------------------------
 export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   try {
     if (kind === 'percent') {
@@ -590,11 +654,12 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   }
 };
 
+
+// Loyalty reward (automations)
 export const handleLoyaltyReward = async ({ subdomain }) => {
-  if (!isEnabled('automations')) return;
+  if (!(await isEnabled('automations'))) return;
 
   const VERSION = getEnv({ name: 'VERSION' });
-
   const NOW = new Date();
   const NOW_MONTH = NOW.getMonth() + 1;
 
@@ -664,6 +729,7 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
   }
 };
 
+// Score campaign
 export const doScoreCampaign = async (models: IModels, data) => {
   const { ownerType, ownerId, actionMethod, targetId } = data;
 
@@ -684,7 +750,7 @@ export const doScoreCampaign = async (models: IModels, data) => {
 
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error) {
-    console.error(error); // replaced debugError with console.error
+    console.error(error);
     throw new Error(error.message);
   }
 };
