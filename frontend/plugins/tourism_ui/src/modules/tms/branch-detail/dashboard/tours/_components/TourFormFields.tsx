@@ -222,6 +222,10 @@ const createPersonCostEntry = (
 const personCostToEntries = (
   value?: TourCreateFormType['personCost'],
 ): PersonCostEntry[] => {
+  if (!value || Array.isArray(value) || typeof value !== 'object') {
+    return [createPersonCostEntry()];
+  }
+
   const entries = Object.entries(value ?? {}).map(([range, price]) =>
     createPersonCostEntry(range, price as string | number),
   );
@@ -392,8 +396,10 @@ export const TourStartDateField = ({
             <DatePicker
               value={field.value}
               onChange={field.onChange}
-              defaultMonth={field.value as Date}
-              mode="single"
+              defaultMonth={
+                Array.isArray(field.value) ? field.value[0] : field.value
+              }
+              mode="multiple"
             />
           </Form.Control>
           <Form.Message className="text-destructive" />
@@ -687,7 +693,7 @@ export const TourImageThumbnailField = ({
                 size="sm"
                 type="button"
                 variant="secondary"
-                className="overflow-hidden relative w-full rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
+                className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
                 style={
                   typeof field.value === 'string' && field.value
                     ? {

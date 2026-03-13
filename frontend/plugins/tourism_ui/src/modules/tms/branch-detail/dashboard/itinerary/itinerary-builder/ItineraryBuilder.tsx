@@ -14,6 +14,7 @@ interface ItineraryBuilderProps {
   elements: IElement[];
   amenities: IAmenity[];
   branchId?: string;
+  isEditMode?: boolean;
 }
 
 export const ItineraryBuilder = ({
@@ -23,6 +24,7 @@ export const ItineraryBuilder = ({
   elements,
   amenities,
   branchId,
+  isEditMode = false,
 }: ItineraryBuilderProps) => {
   const {
     isDragging,
@@ -37,7 +39,7 @@ export const ItineraryBuilder = ({
   const groupDays = watch('groupDays');
 
   useEffect(() => {
-    if (!groupDays?.length) {
+    if (!groupDays?.length && !isEditMode) {
       setValue(
         'groupDays',
         [
@@ -59,7 +61,7 @@ export const ItineraryBuilder = ({
         { shouldDirty: false },
       );
     }
-  }, [groupDays, setValue]);
+  }, [groupDays, setValue, isEditMode]);
 
   const elementsMap = useMemo(() => {
     const map = new Map<string, IElement>();

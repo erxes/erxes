@@ -37,6 +37,7 @@ export const CREATE_ITINERARY = gql`
 export const EDIT_ITINERARY = gql`
   mutation BmsItineraryEdit(
     $id: String!
+    $branchId: String
     $name: String
     $duration: Int
     $totalCost: Float
@@ -51,6 +52,7 @@ export const EDIT_ITINERARY = gql`
   ) {
     bmsItineraryEdit(
       _id: $id
+      branchId: $branchId
       name: $name
       duration: $duration
       totalCost: $totalCost

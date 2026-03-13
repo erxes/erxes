@@ -26,15 +26,72 @@ function buildDateSelector(
   }
 }
 
+async function buildSubCategoryIds(
+  models: IContext['models'],
+  categories?: string[],
+) {
+  if (!categories?.length) {
+    return [];
+  }
+
+  let allSubcategories: string[] = [...categories];
+  let ids: string[] = [...categories];
+
+  while (ids.length > 0) {
+    const newIds = (
+      await models.BmsTourCategories.find({ parentId: { $in: ids } })
+    ).map((x) => x._id);
+
+    allSubcategories = [...newIds, ...allSubcategories];
+    ids = newIds;
+  }
+
+  return allSubcategories;
+}
+
+const applyCategoryFilters = (
+  selector: Record<string, any>,
+  tags?: string[],
+  categoryId?: string,
+) => {
+  const andConditions: any[] = [];
+
+  if (tags?.length) {
+    andConditions.push({
+      $or: [{ tagIds: { $in: tags } }, { categoryIds: { $in: tags } }],
+    });
+  }
+
+  if (categoryId) {
+    andConditions.push({
+      $or: [
+        { categoryId },
+        { tagIds: { $in: [categoryId] } },
+        { categoryIds: { $in: [categoryId] } },
+      ],
+    });
+  }
+
+  if (andConditions.length === 1) {
+    Object.assign(selector, andConditions[0]);
+  }
+
+  if (andConditions.length > 1) {
+    selector.$and = andConditions;
+  }
+};
+
 const tourQueries: Record<string, Resolver> = {
   async bmsTours(
     _root: any,
     {
       categories,
+      tags,
+      categoryId,
+      name,
       status,
       innerDate,
       branchId,
-      tags,
       startDate1,
       endDate1,
       startDate2,
@@ -46,8 +103,13 @@ const tourQueries: Record<string, Resolver> = {
   ): Promise<TourListResponse> {
     const selector: Record<string, any> = {};
 
-    if (categories?.length) {
-      selector.categories = { $in: categories };
+    const expandedCategoryIds = await buildSubCategoryIds(models, categories);
+
+    if (expandedCategoryIds.length) {
+      selector.categories = { $in: expandedCategoryIds };
+    }
+    if (name) {
+      selector.name = { $regex: name, $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -55,9 +117,7 @@ const tourQueries: Record<string, Resolver> = {
     if (branchId) {
       selector.branchId = branchId;
     }
-    if (tags?.length) {
-      selector.tags = { $in: tags };
-    }
+    applyCategoryFilters(selector, tags, categoryId);
     if (innerDate) {
       selector.startDate = { $lte: innerDate };
       selector.endDate = { $gte: innerDate };
@@ -78,14 +138,31 @@ const tourQueries: Record<string, Resolver> = {
     return { list, totalCount, pageInfo };
   },
 
+  async bmsToursTotalCount(
+    _root: any,
+    { branchId }: { branchId?: string },
+    { models }: IContext,
+  ): Promise<number> {
+    const selector: Record<string, any> = {};
+
+    if (branchId) {
+      selector.branchId = branchId;
+    }
+
+    return models.Tours.countDocuments(selector);
+  },
+
   async cpBmsTours(
     _root: any,
     {
       categories,
+      tags,
+      categoryId,
+      name,
       status,
       innerDate,
       branchId,
-      tags,
+      webId,
       startDate1,
       endDate1,
       startDate2,
@@ -97,8 +174,13 @@ const tourQueries: Record<string, Resolver> = {
   ): Promise<TourListResponse> {
     const selector: Record<string, any> = {};
 
-    if (categories?.length) {
-      selector.categories = { $in: categories };
+    const expandedCategoryIds = await buildSubCategoryIds(models, categories);
+
+    if (expandedCategoryIds.length) {
+      selector.categories = { $in: expandedCategoryIds };
+    }
+    if (name) {
+      selector.name = { $regex: name, $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -106,9 +188,10 @@ const tourQueries: Record<string, Resolver> = {
     if (branchId) {
       selector.branchId = branchId;
     }
-    if (tags?.length) {
-      selector.tags = { $in: tags };
+    if (webId) {
+      selector.webId = webId;
     }
+    applyCategoryFilters(selector, tags, categoryId);
     if (innerDate) {
       selector.startDate = { $lte: innerDate };
       selector.endDate = { $gte: innerDate };
@@ -127,6 +210,23 @@ const tourQueries: Record<string, Resolver> = {
     });
 
     return { list, totalCount, pageInfo };
+  },
+
+  async cpBmsToursTotalCount(
+    _root: any,
+    { branchId, webId }: { branchId?: string; webId?: string },
+    { models }: IContext,
+  ): Promise<number> {
+    const selector: Record<string, any> = {};
+
+    if (branchId) {
+      selector.branchId = branchId;
+    }
+    if (webId) {
+      selector.webId = webId;
+    }
+
+    return models.Tours.countDocuments(selector);
   },
 
   async bmsTourDetail(
@@ -135,6 +235,18 @@ const tourQueries: Record<string, Resolver> = {
     { models }: IContext,
   ): Promise<ITourDocument | null> {
     return models.Tours.findById(_id);
+  },
+
+  async bmsTourCategories(_root, { parentId }, { models }: IContext) {
+    const selector: any = {};
+
+    if (parentId) {
+      selector.parentId = parentId;
+    } else if (parentId === null) {
+      selector.parentId = null;
+    }
+
+    return models.BmsTourCategories.find(selector);
   },
 
   async cpBmsTourDetail(
@@ -149,10 +261,12 @@ const tourQueries: Record<string, Resolver> = {
     _root,
     {
       categories,
+      tags,
+      categoryId,
+      name,
       status,
       innerDate,
       branchId,
-      tags,
       startDate1,
       endDate1,
       startDate2,
@@ -165,8 +279,13 @@ const tourQueries: Record<string, Resolver> = {
   ) {
     const selector: any = {};
 
-    if (categories?.length) {
-      selector.categories = { $in: categories };
+    const expandedCategoryIds = await buildSubCategoryIds(models, categories);
+
+    if (expandedCategoryIds.length) {
+      selector.categories = { $in: expandedCategoryIds };
+    }
+    if (name) {
+      selector.name = { $regex: name, $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -174,9 +293,7 @@ const tourQueries: Record<string, Resolver> = {
     if (branchId) {
       selector.branchId = branchId;
     }
-    if (tags?.length) {
-      selector.tags = { $in: tags };
-    }
+    applyCategoryFilters(selector, tags, categoryId);
     if (innerDate) {
       const dateToCheck = innerDate;
       selector.startDate = { $lte: dateToCheck };
@@ -236,10 +353,13 @@ const tourQueries: Record<string, Resolver> = {
     _root,
     {
       categories,
+      tags,
+      categoryId,
+      name,
       status,
       innerDate,
       branchId,
-      tags,
+      webId,
       startDate1,
       endDate1,
       startDate2,
@@ -252,8 +372,13 @@ const tourQueries: Record<string, Resolver> = {
   ) {
     const selector: any = {};
 
-    if (categories?.length) {
-      selector.categories = { $in: categories };
+    const expandedCategoryIds = await buildSubCategoryIds(models, categories);
+
+    if (expandedCategoryIds.length) {
+      selector.categories = { $in: expandedCategoryIds };
+    }
+    if (name) {
+      selector.name = { $regex: name, $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -261,9 +386,10 @@ const tourQueries: Record<string, Resolver> = {
     if (branchId) {
       selector.branchId = branchId;
     }
-    if (tags?.length) {
-      selector.tags = { $in: tags };
+    if (webId) {
+      selector.webId = webId;
     }
+    applyCategoryFilters(selector, tags, categoryId);
     if (innerDate) {
       const dateToCheck = innerDate;
       selector.startDate = { $lte: dateToCheck };
@@ -349,6 +475,9 @@ const tourQueries: Record<string, Resolver> = {
 export default tourQueries;
 
 tourQueries.cpBmsTours.wrapperConfig = {
+  forClientPortal: true,
+};
+tourQueries.cpBmsToursTotalCount.wrapperConfig = {
   forClientPortal: true,
 };
 tourQueries.cpBmsTourDetail.wrapperConfig = {

@@ -5,6 +5,7 @@ import {
   IconLabel,
   IconPalette,
   IconCalendarDot,
+  IconCurrencyDollar,
 } from '@tabler/icons-react';
 import {
   RecordTable,
@@ -80,6 +81,19 @@ export const itineraryColumns = (
       );
     },
     size: 80,
+  },
+  {
+    id: 'totalCost',
+    accessorKey: 'totalCost',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Total cost" />
+    ),
+    cell: ({ cell }: { cell: any }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
+      </RecordTableInlineCell>
+    ),
+    size: 140,
   },
   {
     id: 'createdAt',

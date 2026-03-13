@@ -4,9 +4,10 @@ import { Control } from 'react-hook-form';
 import { DayForm } from './DayForm';
 import { IElement } from '../../../elements/types/element';
 import { IAmenity } from '../../../amenities/types/amenity';
+import { ItineraryCreateFormType } from '../../constants/formSchema';
 
 interface DayListProps {
-  control: Control;
+  control: Control<ItineraryCreateFormType>;
   days: number[];
   onAddDay: () => void;
   onRemoveDay: (index: number) => void;

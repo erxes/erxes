@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useErxesUpload } from 'erxes-ui';
 
 interface UseImageUploadProps {
@@ -15,7 +15,8 @@ export const useImageUpload = ({
   maxFileSize = 20 * 1024 * 1024,
 }: UseImageUploadProps) => {
   const urls = value ?? [];
-  const processedRef = useRef<string[]>([]);
+  const processedRef = useRef<Set<string>>(new Set());
+  const uploadedBatchRef = useRef<string | null>(null);
 
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['image/*'],
@@ -30,13 +31,15 @@ export const useImageUpload = ({
 
       if (!uploadedUrls.length) return;
 
-      const newUrls = uploadedUrls.filter(
-        (url) => !processedRef.current.includes(url),
+      const uniqueUploadedUrls = Array.from(new Set(uploadedUrls));
+
+      const newUrls = uniqueUploadedUrls.filter(
+        (url) => !existing.includes(url) && !processedRef.current.has(url),
       );
 
       if (!newUrls.length) return;
 
-      processedRef.current.push(...newUrls);
+      newUrls.forEach((url) => processedRef.current.add(url));
 
       const merged = [...existing, ...newUrls];
       const unique = Array.from(new Set(merged));
@@ -46,12 +49,36 @@ export const useImageUpload = ({
   });
 
   const { files, loading, onUpload } = uploadProps;
+  const fileBatchKey = useMemo(() => {
+    if (!files?.length) {
+      return '';
+    }
+
+    return files
+      .map((file) =>
+        [
+          file.name ?? '',
+          file.size ?? '',
+          file.type ?? '',
+          file.lastModified ?? '',
+        ].join(':'),
+      )
+      .join('|');
+  }, [files]);
 
   useEffect(() => {
-    if (!files?.length) return;
+    if (!files?.length) {
+      uploadedBatchRef.current = null;
+      return;
+    }
 
+    if (!fileBatchKey || uploadedBatchRef.current === fileBatchKey) {
+      return;
+    }
+
+    uploadedBatchRef.current = fileBatchKey;
     void onUpload();
-  }, [files, onUpload]);
+  }, [fileBatchKey, files, onUpload]);
 
   const handleRemove = (url: string) => {
     onChange(urls.filter((u) => u !== url));

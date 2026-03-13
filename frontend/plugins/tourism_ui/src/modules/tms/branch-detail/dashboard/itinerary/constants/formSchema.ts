@@ -1,7 +1,18 @@
 import { z } from 'zod';
 
+const OptionalNumberSchema = z.preprocess((value) => {
+  if (value === '' || value === null || typeof value === 'undefined') {
+    return undefined;
+  }
+
+  const parsed =
+    typeof value === 'number' ? value : Number(String(value).trim());
+
+  return Number.isNaN(parsed) ? undefined : parsed;
+}, z.number().optional());
+
 const DayItemSchema = z.object({
-  day: z.coerce.number().optional(),
+  day: OptionalNumberSchema,
   title: z.string().min(1, 'Day title is required'),
   description: z.string().optional(),
   elements: z.array(z.string()).optional(),
@@ -11,16 +22,16 @@ const DayItemSchema = z.object({
 
 export const ItineraryCreateFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  duration: z.coerce.number().optional(),
+  duration: OptionalNumberSchema,
   color: z.string().optional(),
   groupDays: z.array(DayItemSchema).optional(),
-  totalCost: z.coerce.number().optional(),
-  guideCost: z.coerce.number().optional(),
-  driverCost: z.coerce.number().optional(),
-  foodCost: z.coerce.number().optional(),
-  gasCost: z.coerce.number().optional(),
-  personCost: z.record(z.coerce.number()).optional(),
-  guideCostExtra: z.coerce.number().optional(),
+  totalCost: OptionalNumberSchema,
+  guideCost: OptionalNumberSchema,
+  driverCost: OptionalNumberSchema,
+  foodCost: OptionalNumberSchema,
+  gasCost: OptionalNumberSchema,
+  personCost: z.record(OptionalNumberSchema).optional(),
+  guideCostExtra: OptionalNumberSchema,
 });
 
 export type ItineraryCreateFormType = z.infer<typeof ItineraryCreateFormSchema>;

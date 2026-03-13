@@ -15,7 +15,7 @@ export interface ICreateItineraryVariables {
   groupDays?: Array<{
     day?: number;
     title?: string;
-    description?: string;
+    content?: string;
     elements?: Array<{ elementId?: string; orderOfDay?: number }>;
     elementsQuick?: Array<{ elementId?: string; orderOfDay?: number }>;
     images?: string[];

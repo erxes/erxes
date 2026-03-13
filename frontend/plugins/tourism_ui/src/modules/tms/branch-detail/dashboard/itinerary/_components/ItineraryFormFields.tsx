@@ -1,4 +1,4 @@
-import { Control, useWatch } from 'react-hook-form';
+import { Control } from 'react-hook-form';
 import { Form, Input, ColorPicker, Button } from 'erxes-ui';
 import { ItineraryCreateFormType } from '../constants/formSchema';
 import { IconMinus } from '@tabler/icons-react';
@@ -38,7 +38,9 @@ export const ItineraryColorField = ({
       name="color"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Color</Form.Label>
+          <Form.Label>
+            Color <span className="text-destructive">*</span>
+          </Form.Label>
           <Form.Control>
             <ColorPicker
               value={field.value || '#000000'}

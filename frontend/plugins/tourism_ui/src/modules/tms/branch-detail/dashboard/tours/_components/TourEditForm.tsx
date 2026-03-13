@@ -1,4 +1,4 @@
-import { Form, Sheet, Button, Tabs, useToast } from 'erxes-ui';
+import { Form, Sheet, Button, Tabs, useToast, Spinner } from 'erxes-ui';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
@@ -48,6 +48,34 @@ interface Itinerary {
   duration?: number;
 }
 
+const normalizeIncomingPersonCost = (
+  personCost: unknown,
+): Record<string, number> => {
+  if (
+    !personCost ||
+    Array.isArray(personCost) ||
+    typeof personCost !== 'object'
+  ) {
+    return {};
+  }
+
+  return Object.entries(personCost).reduce<Record<string, number>>(
+    (acc, [range, price]) => {
+      const normalizedRange = range.trim();
+      const normalizedPrice = Number(price);
+
+      if (!normalizedRange || Number.isNaN(normalizedPrice)) {
+        return acc;
+      }
+
+      acc[normalizedRange] = normalizedPrice;
+
+      return acc;
+    },
+    {},
+  );
+};
+
 const normalizePersonCost = (personCost?: TourCreateFormType['personCost']) => {
   return Object.entries(personCost ?? {}).reduce<Record<string, number>>(
     (acc, [range, price]) => {
@@ -64,6 +92,28 @@ const normalizePersonCost = (personCost?: TourCreateFormType['personCost']) => {
     },
     {},
   );
+};
+
+const isSameDay = (left: Date, right: Date) =>
+  left.getFullYear() === right.getFullYear() &&
+  left.getMonth() === right.getMonth() &&
+  left.getDate() === right.getDate();
+
+const getDateStatus = (
+  startDate?: Date,
+): 'scheduled' | 'unscheduled' | 'running' => {
+  if (!startDate) {
+    return 'unscheduled';
+  }
+
+  return isSameDay(startDate, new Date()) ? 'running' : 'scheduled';
+};
+
+const calculateEndDate = (startDate: Date, duration?: number) => {
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + Number(duration || 0));
+
+  return endDate;
 };
 
 export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
@@ -157,7 +207,7 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
       images: tour.images ?? [],
       imageThumbnail: tour.imageThumbnail ?? '',
       guides: [],
-      personCost: tour.personCost ?? {},
+      personCost: normalizeIncomingPersonCost(tour.personCost),
       startDate: tour.startDate ? new Date(tour.startDate) : undefined,
       endDate: tour.endDate ? new Date(tour.endDate) : undefined,
     });
@@ -191,11 +241,24 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
 
     try {
       const personCost = normalizePersonCost(values.personCost);
+      const {
+        startDate: _startDate,
+        endDate: _endDate,
+        ...restValues
+      } = values;
+      const normalizedStartDate = Array.isArray(values.startDate)
+        ? values.startDate[0]
+        : values.startDate;
 
       await editTour({
         id: tourId,
-        dateStatus: tourDetail?.date_status ?? 'scheduled',
-        ...values,
+        dateStatus: getDateStatus(normalizedStartDate),
+        ...restValues,
+        startDate: normalizedStartDate,
+        endDate:
+          normalizedStartDate && values.duration
+            ? calculateEndDate(normalizedStartDate, values.duration)
+            : undefined,
         personCost,
       });
 
@@ -230,14 +293,12 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
 
         <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4">
           {tourLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <p className="text-sm text-muted-foreground">Loading tour...</p>
+            <div className="flex h-full min-h-[400px] items-center justify-center">
+              <Spinner />
             </div>
           ) : (
             <div className="flex flex-col gap-6">
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold">Basic Information</h3>
-
                 <div className="grid grid-cols-2 gap-4">
                   <TourNameField control={form.control} />
                   <TourRefNumberField control={form.control} />
@@ -257,26 +318,22 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
                 />
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold">Tour Details</h3>
-
+              <div className="pt-4 space-y-4 border-t">
                 <div className="grid grid-cols-3 gap-4">
-                  <TourCostField control={form.control} />
                   <TourDurationField control={form.control} />
                   <TourGroupSizeField control={form.control} />
+                  <TourCostField control={form.control} />
                 </div>
-
-                <TourPersonCostField control={form.control} />
 
                 <div className="grid grid-cols-2 gap-4">
                   <TourStartDateField control={form.control} />
                   <TourEndDateField control={form.control} />
                 </div>
+
+                <TourPersonCostField control={form.control} />
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold">Payment Settings</h3>
-
+              <div className="pt-4 space-y-4 border-t">
                 <TourAdvanceCheckField control={form.control} />
 
                 <div className="grid grid-cols-2 gap-4">
@@ -285,18 +342,12 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold">Images</h3>
-
+              <div className="pt-4 space-y-4 border-t">
                 <TourImageThumbnailField control={form.control} />
                 <TourImagesField control={form.control} />
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold">
-                  Additional Information
-                </h3>
-
+              <div className="pt-4 space-y-4 border-t">
                 <Tabs defaultValue="info1" className="w-full">
                   <Tabs.List className="grid grid-cols-5 w-full">
                     <Tabs.Trigger value="info1">Included</Tabs.Trigger>

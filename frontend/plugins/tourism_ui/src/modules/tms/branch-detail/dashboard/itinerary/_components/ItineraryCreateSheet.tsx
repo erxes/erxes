@@ -128,6 +128,7 @@ export const ItineraryCreateSheet = ({
     const transformedGroupDays = values.groupDays.map((day, index) => ({
       day: index + 1,
       title: day.title,
+      content: day.description,
       elements: (day.elements || []).map((elementId, order) => ({
         elementId,
         orderOfDay: order + 1,
@@ -152,6 +153,16 @@ export const ItineraryCreateSheet = ({
       return sum + dayCost;
     }, 0);
 
+    const normalizedPersonCost: Record<string, number> = Object.fromEntries(
+      Object.entries(values.personCost || {}).filter(
+        (entry): entry is [string, number] => {
+          const value = entry[1];
+
+          return typeof value === 'number' && !Number.isNaN(value);
+        },
+      ),
+    );
+
     try {
       await createItinerary({
         variables: {
@@ -165,7 +176,7 @@ export const ItineraryCreateSheet = ({
           driverCost: values.driverCost,
           foodCost: values.foodCost,
           gasCost: values.gasCost,
-          personCost: values.personCost,
+          personCost: normalizedPersonCost,
           guideCostExtra: values.guideCostExtra,
         },
       });
@@ -191,7 +202,7 @@ export const ItineraryCreateSheet = ({
 
   const sheetWidth =
     currentStep === 'info'
-      ? 'w-[500px] sm:max-w-[500px]'
+      ? 'w-[600px] sm:max-w-[600px]'
       : 'w-[1200px] sm:max-w-[1200px]';
 
   return (
@@ -234,10 +245,17 @@ export const ItineraryCreateSheet = ({
                   />
                 </Tabs.Content>
 
-                <Tabs.Content value="info" className="p-3 overflow-y-auto">
+                <Tabs.Content value="info" className="overflow-y-auto p-3">
                   <div className="space-y-4 w-full">
-                    <ItineraryNameField control={form.control} />
-                    <ItineraryColorField control={form.control} />
+                    <div className="grid grid-cols-10 gap-4 pb-4 border-b border-muted">
+                      <div className="col-span-2">
+                        <ItineraryColorField control={form.control} />
+                      </div>
+
+                      <div className="col-span-8">
+                        <ItineraryNameField control={form.control} />
+                      </div>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <ItineraryGuideCostField control={form.control} />
@@ -262,7 +280,7 @@ export const ItineraryCreateSheet = ({
 
             <Sheet.Footer className="bg-background">
               {currentStep === 'build' ? (
-                <>
+                <div key="build-actions" className="flex gap-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -279,9 +297,9 @@ export const ItineraryCreateSheet = ({
                   >
                     Next
                   </Button>
-                </>
+                </div>
               ) : (
-                <>
+                <div key="info-actions" className="flex gap-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -297,7 +315,7 @@ export const ItineraryCreateSheet = ({
                   <Button type="submit" disabled={loading}>
                     {loading ? 'Creating...' : 'Create'}
                   </Button>
-                </>
+                </div>
               )}
             </Sheet.Footer>
           </form>
