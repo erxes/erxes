@@ -87,9 +87,9 @@ class PostQueryResolver extends BaseQueryResolver {
     args: any,
     context: IContext,
   ): Promise<any> {
-    const { postId, type = 'post' } = args;
+    const { objectId, type = 'post' } = args;
     const { models } = context;
-    return models.Translations.find({ postId, type });
+    return models.Translations.find({ objectId, type });
   }
 
   async cpPosts(_parent: any, args: any, context: IContext): Promise<any> {

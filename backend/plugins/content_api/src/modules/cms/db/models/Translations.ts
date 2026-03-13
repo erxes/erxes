@@ -19,10 +19,10 @@ export const loadTranslationClass = (models: IModels) => {
     public static async upsertTranslation(
       doc: ITranslation,
     ): Promise<ITranslationDocument> {
-      const { postId, language, type = 'post' } = doc;
+      const { objectId, language, type = 'post' } = doc;
 
       const result = await models.Translations.findOneAndUpdate(
-        { postId, language, type },
+        { objectId, language, type },
         { $set: { ...doc, type } },
         { upsert: true, new: true },
       );

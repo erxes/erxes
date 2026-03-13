@@ -27,12 +27,10 @@ export const types = `
         createdAt: Date
         updatedAt: Date
         pageItems: [PageItem]
-
         customFieldsData: JSON
-
         customFieldsMap: JSON
+        translations: [Translation]
     }
-
 
     type PageList {
         pages: [Page]
@@ -50,12 +48,11 @@ export const inputs = `
         objectType: String
         objectId: String
         config: JSON
-
-        
     }
 
     input PageInput {
         clientPortalId: String
+        language: String
         name: String
         description: String
         coverImage: String
@@ -73,8 +70,8 @@ export const queries = `
     cmsPage(_id: String, slug: String, language: String, clientPortalId: String): Page
     cmsPages(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [Page]
     cmsPageList(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): PageList
-    
-    cpPages(language: String, clientPortalId: String): [Page]
+
+    cpPages(language: String): [Page]
 `;
 
 export const mutations = `

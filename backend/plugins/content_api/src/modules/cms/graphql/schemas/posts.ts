@@ -77,7 +77,7 @@ export const types = `
   
       type Translation {
           _id: String!
-          postId: String
+          objectId: String
           language: String
           title: String
           content: String
@@ -120,7 +120,7 @@ export const inputs = `
       }
   
       input TranslationInput {
-          postId: String
+          objectId: String
           language: String!
           title: String
           content: String
@@ -161,7 +161,7 @@ export const queries = `
       cmsPost(_id: String, slug: String, language: String): Post
       cmsPosts(clientPortalId: String, ${commonPostQuerySelector}): [Post]
       cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList
-      cmsTranslations(postId: String, type: String): [Translation]
+      cmsTranslations(objectId: String, type: String): [Translation]
   
       cpPosts(language: String, webId: String, ${commonPostQuerySelector}): [Post]
       cpPostList(language: String, webId: String, ${commonPostQuerySelector}): PostList

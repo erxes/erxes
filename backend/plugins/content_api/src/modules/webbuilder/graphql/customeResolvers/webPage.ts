@@ -4,14 +4,8 @@ import { IWebPageDocument } from '@/webbuilder/@types/webPage';
 
 const WebPage = {
   async createdUser(page: any) {
-    if (!page.createdUserId) {
-      return null;
-    }
-
-    return {
-      __typename: 'User',
-      _id: page.createdUserId,
-    };
+    if (!page.createdUserId) return null;
+    return { __typename: 'User', _id: page.createdUserId };
   },
 
   async customFieldsMap(
@@ -24,6 +18,13 @@ const WebPage = {
     }).lean();
 
     return buildCustomFieldsMap(subdomain, fieldGroups, page.customFieldsData);
+  },
+
+  async translations(page: any, _params: any, { models }: IContext) {
+    return models.Translations.find({
+      objectId: page._id,
+      type: 'webPage',
+    }).lean();
   },
 };
 

@@ -83,7 +83,7 @@ export default {
 
   async translations(post: any, _params, { models }: IContext) {
     return models.Translations.find({
-      postId: post._id,
+      objectId: post._id,
       type: 'post',
     }).lean();
   },
