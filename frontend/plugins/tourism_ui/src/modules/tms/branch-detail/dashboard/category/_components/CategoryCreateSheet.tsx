@@ -9,7 +9,11 @@ import {
   CategoryCreateFormType,
 } from '../constants/formSchema';
 
-import { CategoryNameField, CategoryParentIdField } from './CategoryFormFields';
+import {
+  CategoryNameField,
+  CategoryParentIdField,
+  CategoryAttachmentField,
+} from './CategoryFormFields';
 import { useCreateCategory } from '../hooks/useCreateCategory';
 
 interface CategoryCreateSheetProps {
@@ -102,6 +106,7 @@ export const CategoryCreateSheet = ({
                 <div className="space-y-4">
                   <CategoryNameField control={form.control} />
                   <CategoryParentIdField control={form.control} />
+                  <CategoryAttachmentField control={form.control} />
                 </div>
               </div>
             </Sheet.Content>

@@ -7,9 +7,10 @@ import { BranchDetailView } from '@/tms/branch-detail/components/BranchDetailVie
 import { useBranchDetailPage } from '@/tms/branch-detail/hooks/useBranchDetailPage';
 
 import { TourCreateSheet } from '@/tms/branch-detail/dashboard/tours/_components/TourCreateSheet';
-import { ItineraryCreateSheet } from '@/tms/branch-detail/dashboard/itinerary/_components/ItineraryCreateSheet';
-import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements/_components/ElementCreateSheet';
-import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities/_components/AmenityCreateSheet';
+import { ItineraryCreateSheet } from '@/tms/branch-detail/dashboard/itinerary';
+import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements';
+import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities';
+import { CategoryCreateSheet } from '@/tms/branch-detail/dashboard/category';
 
 export const BranchDetailIndexPage = () => {
   const [searchParams] = useSearchParams();
@@ -31,6 +32,9 @@ export const BranchDetailIndexPage = () => {
     switch (activeTab) {
       case 'tour':
         return <TourCreateSheet branchId={branchId} />;
+
+      case 'category':
+        return <CategoryCreateSheet />;
 
       case 'itinerary':
         return <ItineraryCreateSheet branchId={branchId} />;

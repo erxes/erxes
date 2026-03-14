@@ -9,7 +9,11 @@ import {
   CategoryCreateFormType,
 } from '../constants/formSchema';
 
-import { CategoryNameField, CategoryParentIdField } from './CategoryFormFields';
+import {
+  CategoryNameField,
+  CategoryParentIdField,
+  CategoryAttachmentField,
+} from './CategoryFormFields';
 import { useEditCategory } from '../hooks/useEditCategory';
 import { ICategory } from '../types/category';
 
@@ -49,6 +53,7 @@ export const CategoryEditSheet = ({
     defaultValues: {
       name: category.name || '',
       parentId: category.parentId || '',
+      attachment: category.attachment,
     },
   });
 
@@ -56,6 +61,7 @@ export const CategoryEditSheet = ({
     form.reset({
       name: category.name || '',
       parentId: category.parentId || '',
+      attachment: category.attachment,
     });
   }, [category, form]);
 
@@ -114,6 +120,7 @@ export const CategoryEditSheet = ({
                 <div className="space-y-4">
                   <CategoryNameField control={form.control} />
                   <CategoryParentIdField control={form.control} />
+                  <CategoryAttachmentField control={form.control} />
                 </div>
               </div>
             </Sheet.Content>

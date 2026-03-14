@@ -1,17 +1,12 @@
 import { PageSubHeader } from 'erxes-ui';
-import {
-  CategoryRecordTable,
-  CategoryCreateSheet,
-  CategoryFilter,
-} from '../category';
+import { CategoryRecordTable, CategoryFilter } from '../category';
 
-export const CategoryPages = () => {
+export const CategoryPage = () => {
   return (
     <>
       <PageSubHeader>
         <div className="flex gap-4 justify-between items-center w-full">
           <CategoryFilter />
-          <CategoryCreateSheet />
         </div>
       </PageSubHeader>
       <div className="overflow-hidden flex-auto p-3">

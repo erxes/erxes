@@ -1,32 +1,51 @@
 import { ColumnDef } from '@tanstack/table-core';
-import { IconLabel, IconFolder } from '@tabler/icons-react';
+import { IconLabel, IconFolder, IconImageInPicture } from '@tabler/icons-react';
 import {
   RecordTable,
   RecordTableInlineCell,
-  TextOverflowTooltip,
-  Badge,
+  RecordTableTree,
+  Avatar,
 } from 'erxes-ui';
 import { ICategory } from '../types/category';
-import { CategoryEditSheet } from './CategoryEditSheet';
 
-export const categoryColumns: ColumnDef<ICategory>[] = [
-  RecordTable.checkboxColumn as ColumnDef<ICategory>,
+export const categoryColumns: (
+  categoryObject: Record<string, ICategory>,
+) => ColumnDef<ICategory & { hasChildren: boolean }>[] = (categoryObject) => [
+  RecordTable.checkboxColumn as ColumnDef<ICategory & { hasChildren: boolean }>,
+  {
+    id: 'attachment',
+    header: () => <RecordTable.InlineHead icon={IconImageInPicture} label="" />,
+    accessorKey: 'attachment',
+    cell: ({ cell, row }) => {
+      return (
+        <RecordTableInlineCell className="justify-center px-1">
+          <Avatar>
+            <Avatar.Image src={(cell.getValue() as any)?.url || ''} />
+            <Avatar.Fallback>
+              {row.original.name?.charAt(0) || '?'}
+            </Avatar.Fallback>
+          </Avatar>
+        </RecordTableInlineCell>
+      );
+    },
+    size: 32,
+  },
   {
     id: 'name',
-    accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
-    cell: ({ cell, row }: { cell: any; row: any }) => {
-      const category = row.original as ICategory;
+    accessorKey: 'name',
+    cell: ({ cell, row }) => {
+      const name = (cell.getValue() as string) || '';
+
       return (
         <RecordTableInlineCell>
-          <CategoryEditSheet category={category} showTrigger={false}>
-            <Badge
-              variant="secondary"
-              className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
-            >
-              <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
-            </Badge>
-          </CategoryEditSheet>
+          <RecordTableTree.Trigger
+            order={row.original.order || ''}
+            name={name}
+            hasChildren={row.original.hasChildren}
+          >
+            {cell.getValue() as string}
+          </RecordTableTree.Trigger>
         </RecordTableInlineCell>
       );
     },
@@ -34,17 +53,13 @@ export const categoryColumns: ColumnDef<ICategory>[] = [
   },
   {
     id: 'parentId',
+    header: () => <RecordTable.InlineHead icon={IconFolder} label="Parent" />,
     accessorKey: 'parentId',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFolder} label="Parent ID" />
-    ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
+      const parent = categoryObject[cell.getValue() as string];
       return (
-        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
-        </RecordTableInlineCell>
+        <RecordTableInlineCell>{parent?.name || '-'}</RecordTableInlineCell>
       );
     },
-    size: 200,
   },
 ];

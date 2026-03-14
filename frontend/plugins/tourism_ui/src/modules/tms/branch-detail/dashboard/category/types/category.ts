@@ -10,5 +10,6 @@ export interface ICategory {
   _id: string;
   name?: string;
   parentId?: string;
+  order?: string;
   attachment?: IAttachment;
 }

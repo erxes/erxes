@@ -6,6 +6,7 @@ export const GET_CATEGORIES = gql`
       _id
       name
       parentId
+      order
       attachment {
         url
         name
