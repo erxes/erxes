@@ -1,5 +1,6 @@
 import { AssigneeActivityRow } from './AssigneeActivityRow';
 import { PriorityChangedActivityRow } from './PriorityChangedActivityRow';
+import { internalNoteCustomActivity } from 'ui-modules';
 
 export const customActivitiesRows = [
   {
@@ -10,4 +11,5 @@ export const customActivitiesRows = [
     type: 'priorityChanged',
     render: PriorityChangedActivityRow,
   },
+  internalNoteCustomActivity,
 ];
