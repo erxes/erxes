@@ -41,7 +41,6 @@ export const pipelineQueries = {
       filterQuery.userId = filter.userId;
     }
 
-
     if (filter.applyVisibilityFilter) {
       filterQuery.$or = [
         { visibility: { $ne: 'private' } },
