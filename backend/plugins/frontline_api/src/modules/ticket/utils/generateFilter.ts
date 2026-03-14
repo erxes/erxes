@@ -66,10 +66,7 @@ export const generateFilter = async (
   }
 
   if (filter.myTicketsOnly) {
-    ownershipOrCondition = [
-      { assigneeId: user._id },
-      { createdBy: user._id },
-    ];
+    ownershipOrCondition = [{ assigneeId: user._id }, { createdBy: user._id }];
   }
 
   if (filter.name) {
