@@ -51,6 +51,19 @@ export const PipelinePermissionsList = memo(() => {
 
   const myTicketsOnly = form.watch('myTicketsOnly');
 
+  const prevMyTicketsOnlyRef = useRef<boolean | null>(null);
+
+  useEffect(() => {
+    if (
+      prevMyTicketsOnlyRef.current !== null &&
+      myTicketsOnly &&
+      !prevMyTicketsOnlyRef.current
+    ) {
+      form.setValue('selectedUsers', []);
+    }
+    prevMyTicketsOnlyRef.current = myTicketsOnly;
+  }, [myTicketsOnly, form]);
+
   const initialValuesRef = useRef<PermissionState | null>(null);
   const isUpdatingRef = useRef(false);
   const prevVisibilityRef = useRef<string | null>(null);
@@ -191,7 +204,7 @@ export const PipelinePermissionsList = memo(() => {
                     />
                   ))}
                 </div>
-                {myTicketsOnly && (
+                {!myTicketsOnly && (
                   <section className="p-6 bg-muted/20 space-y-4">
                     <h3 className="text-base font-semibold">User Access</h3>
 
