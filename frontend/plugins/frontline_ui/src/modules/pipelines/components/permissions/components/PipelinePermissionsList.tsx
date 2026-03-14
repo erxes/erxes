@@ -56,8 +56,8 @@ export const PipelinePermissionsList = memo(() => {
   useEffect(() => {
     if (
       prevMyTicketsOnlyRef.current !== null &&
-      myTicketsOnly &&
-      !prevMyTicketsOnlyRef.current
+      !myTicketsOnly &&
+      prevMyTicketsOnlyRef.current
     ) {
       form.setValue('selectedUsers', []);
     }
@@ -204,7 +204,7 @@ export const PipelinePermissionsList = memo(() => {
                     />
                   ))}
                 </div>
-                {!myTicketsOnly && (
+                {myTicketsOnly && (
                   <section className="p-6 bg-muted/20 space-y-4">
                     <h3 className="text-base font-semibold">User Access</h3>
 
