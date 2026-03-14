@@ -24,7 +24,9 @@ export const generateFilter = async (
     if (pipeline.visibility === 'private') {
       const isMember = (pipeline.memberIds || []).includes(user._id);
       if (!isMember) {
-        ownershipOrCondition = [{ assigneeId: user._id }];
+        throw new Error(
+          'Access denied: You do not have access to this private pipeline',
+        );
       }
     }
 
@@ -61,6 +63,13 @@ export const generateFilter = async (
         { createdBy: user._id },
       ];
     }
+  }
+
+  if (filter.myTicketsOnly) {
+    ownershipOrCondition = [
+      { assigneeId: user._id },
+      { createdBy: user._id },
+    ];
   }
 
   if (filter.name) {
