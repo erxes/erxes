@@ -41,8 +41,7 @@ export const pipelineQueries = {
       filterQuery.userId = filter.userId;
     }
 
-    // Inbox visibility gate: only applied when the caller explicitly requests it.
-    // Management/admin views omit this flag so they always see all pipelines.
+
     if (filter.applyVisibilityFilter) {
       filterQuery.$or = [
         { visibility: { $ne: 'private' } },
