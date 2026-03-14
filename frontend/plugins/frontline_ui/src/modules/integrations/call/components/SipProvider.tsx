@@ -642,8 +642,7 @@ const SipProvider = ({
               ...prev,
               callStatus: CallStatusEnum.ACTIVE,
             }));
-          } catch (error) {
-          }
+          } catch (error) {}
         });
 
         if (originator === 'remote' && autoAnswer) {

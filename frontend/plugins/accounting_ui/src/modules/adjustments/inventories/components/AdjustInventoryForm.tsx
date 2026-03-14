@@ -33,7 +33,11 @@ export const AddAdjustInventory = () => {
   );
 };
 
-const AddAdjustInventoryForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+const AddAdjustInventoryForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TAdjustInventoryForm>({
     resolver: zodResolver(adjustInventorySchema),
     defaultValues: {
@@ -49,11 +53,10 @@ const AddAdjustInventoryForm = ({ setOpen }: { setOpen: (open: boolean) => void 
         setOpen(false);
         form.reset();
       },
-    })
+    });
   };
 
-  const onError = (error: any) => {
-  };
+  const onError = (error: any) => {};
 
   return (
     <Form {...form}>
