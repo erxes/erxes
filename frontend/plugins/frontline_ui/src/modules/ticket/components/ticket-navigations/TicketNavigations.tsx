@@ -91,7 +91,9 @@ const Pipelines = () => {
     'pipelineId',
   );
   const { pipelines, loading } = useGetPipelines({
-    variables: { filter: { channelId: channelId || '', applyVisibilityFilter: true } },
+    variables: {
+      filter: { channelId: channelId || '', applyVisibilityFilter: true },
+    },
   });
   useEffect(() => {
     if (channelId && pipelines) {
