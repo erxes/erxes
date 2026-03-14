@@ -27,8 +27,6 @@ const mutations: Record<string, Resolver> = {
     const { models } = context;
     const { input } = args;
 
-    console.log('🌐 cmsEditTranslation mutation called with input:', input);
-
     return models.Translations.updateTranslation(input);
   },
 

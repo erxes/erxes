@@ -643,7 +643,6 @@ const SipProvider = ({
               callStatus: CallStatusEnum.ACTIVE,
             }));
           } catch (error) {
-            console.log(error);
           }
         });
 

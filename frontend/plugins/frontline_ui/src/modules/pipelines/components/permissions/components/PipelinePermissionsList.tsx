@@ -51,10 +51,6 @@ export const PipelinePermissionsList = memo(() => {
 
   const myTicketsOnly = form.watch('myTicketsOnly');
 
-  useEffect(() => {
-    console.log('Pipeline data:', pipeline);
-  }, [pipeline, myTicketsOnly]);
-
   const initialValuesRef = useRef<PermissionState | null>(null);
   const isUpdatingRef = useRef(false);
   const prevVisibilityRef = useRef<string | null>(null);

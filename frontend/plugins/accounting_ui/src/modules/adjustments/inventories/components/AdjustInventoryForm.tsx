@@ -53,7 +53,6 @@ const AddAdjustInventoryForm = ({ setOpen }: { setOpen: (open: boolean) => void 
   };
 
   const onError = (error: any) => {
-    console.log(error);
   };
 
   return (

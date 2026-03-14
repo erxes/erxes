@@ -169,7 +169,6 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
 export const wrapPublicResolver = (resolver: Resolver, wrapperConfig: any) => {
   return async (parent: any, args: any, context: any, info: any) => {
     const { cpUserRequired, forClientPortal } = wrapperConfig || {};
-    console.log(context.clientPortal, '*******');
     if (forClientPortal) {
       if (!context.clientPortal) {
         throw new Error('Client portal required');

@@ -65,7 +65,6 @@ export function TopicList(props: TopicListProps) {
         refetch();
       });
     } catch (error) {
-      console.log(error);
       toast({
         type: 'foreground',
         title: 'Failed to delete category. Please try again.',
@@ -305,7 +304,6 @@ export function TopicItem(props: {
         refetch();
       });
     } catch (error) {
-      console.log(error);
       toast({
         type: 'foreground',
         title: 'Failed to delete category. Please try again.',
