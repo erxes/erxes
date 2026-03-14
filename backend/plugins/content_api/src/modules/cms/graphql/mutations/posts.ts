@@ -72,13 +72,15 @@ export const postMutations: Record<string, Resolver> = {
     const { translations, language, ...postInput } = input;
 
     if (language && postInput.clientPortalId) {
-      const defaultLanguage = await getDefaultLanguage(
+      const rawDefault = await getDefaultLanguage(
         models,
         postInput.clientPortalId,
       );
 
-      if (defaultLanguage && language !== defaultLanguage) {
-        const translationDoc: any = { postId: _id, language, type: 'post' };
+      const defaultLanguage = rawDefault || 'en';
+
+      if (language !== defaultLanguage) {
+        const translationDoc: any = { objectId: _id, language, type: 'post' };
 
         if (postInput.title !== undefined)
           translationDoc.title = postInput.title;

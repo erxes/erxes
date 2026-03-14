@@ -15,7 +15,6 @@ export const permissionMutations = {
     },
     { models }: IContext,
   ) {
-    console.log('log');
     return models.PermissionGroups.create({
       name,
       description,

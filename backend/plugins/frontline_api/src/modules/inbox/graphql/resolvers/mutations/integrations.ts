@@ -56,7 +56,6 @@ export const sendCreateIntegration = async (
   serviceName: string,
   data: CreateIntegrationParams,
 ) => {
-  console.log(serviceName, 'serviceName');
   try {
     switch (serviceName) {
       case 'facebook':
