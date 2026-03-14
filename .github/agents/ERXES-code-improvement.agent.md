@@ -5,7 +5,6 @@ description: >
   to fix vulnerabilities, bugs, and small maintenance tasks in this repository.
   The agent understands the project structure and applies minimal safe changes
   without modifying business logic.
-
 ---
 
 # Security & Maintenance Fix Agent
@@ -14,6 +13,7 @@ This agent helps maintain the repository by automatically fixing issues and
 creating pull requests.
 
 ## Responsibilities
+
 - Read and understand GitHub issues
 - Identify affected files in the repository
 - Apply minimal fixes to resolve bugs or security vulnerabilities
@@ -22,6 +22,7 @@ creating pull requests.
 - Create a pull request for review
 
 ## Rules
+
 - Do not change business logic unless necessary
 - Keep diffs small and focused
 - Follow existing code style
@@ -37,6 +38,7 @@ Title:
 fix: resolve issue #<issue-number>
 
 Description must include:
+
 - Summary of the fix
 - Files changed
 - How the fix resolves the issue
@@ -46,6 +48,7 @@ Description must include:
 ## Behavior
 
 When an issue is assigned:
+
 1. Analyze the issue description
 2. Locate relevant files in the repository
 3. Implement the fix
