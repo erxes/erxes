@@ -45,6 +45,7 @@ export const types = `
     pipelineId:String
     userId: String
     name: String
+    applyVisibilityFilter: Boolean
     ${GQL_CURSOR_PARAM_DEFS}
   }
 `;

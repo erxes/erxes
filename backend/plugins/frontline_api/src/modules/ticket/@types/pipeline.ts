@@ -43,4 +43,5 @@ export interface TicketsPipelineFilter
   extends ICursorPaginateParams, IListParams, ITicketPipeline {
   userId?: string;
   createdAt?: Date;
+  applyVisibilityFilter?: boolean;
 }
