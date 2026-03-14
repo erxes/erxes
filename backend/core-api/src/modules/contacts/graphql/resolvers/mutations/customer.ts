@@ -35,7 +35,6 @@ export const customerMutations: Record<string, Resolver> = {
     { _id, ...doc }: { _id: string } & ICustomer,
     { models, processId }: IContext,
   ) {
-    console.log({ MutatioonContextProcessID: processId });
     const updated = await models.Customers.updateCustomer(_id, doc);
 
     return updated;
