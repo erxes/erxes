@@ -7,7 +7,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils/trpc';
 import { IModels } from '~/connectionResolvers';
 import { collections } from '../constants';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
-import { evaluate } from 'mathjs';  // Safe expression evaluator
+import { evaluate } from 'mathjs'; // Safe expression evaluator
 
 interface IProductD {
   productId: string;
