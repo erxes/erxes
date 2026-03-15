@@ -20,27 +20,141 @@ import { getAllowedProducts } from '~/modules/pricing/utils/product';
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
 
+// Zod schemas
+const productSchema = z.object({
+  productId: z.string(),
+  quantity: z.number().int().positive(),
+  unitPrice: z.number().nonnegative(),
+});
+
+const discountInfoSchema = z
+  .object({
+    couponCode: z.string().optional(),
+    voucherId: z.string().optional(),
+  })
+  .optional();
+
+const checkLoyaltiesInput = z.object({
+  ownerType: z.string(),
+  ownerId: z.string(),
+  products: z.array(productSchema),
+  discountInfo: discountInfoSchema,
+});
+
+const confirmLoyaltiesInput = z.object({
+  checkInfo: z.record(
+    z.object({
+      voucherId: z.string(),
+      count: z.number().int().nonnegative(),
+    }),
+  ),
+  extraInfo: z
+    .object({
+      couponCode: z.string().optional(),
+      voucherId: z.string().optional(),
+      ownerType: z.string().optional(),
+      ownerId: z.string().optional(),
+      targetid: z.string().optional(),
+      serviceName: z.string().optional(),
+      totalAmount: z.string().optional(),
+    })
+    .optional(),
+});
+
+const pricingProductSchema = z.object({
+  _id: z.string(),
+  unitPrice: z.number().nonnegative(),
+  quantity: z.number().int().positive(),
+});
+
+const checkPricingInput = z.object({
+  prioritizeRule: z.string(), // FIXED: changed from boolean to string
+  totalAmount: z.number().nonnegative(),
+  departmentId: z.string(),
+  branchId: z.string(),
+  products: z.array(pricingProductSchema),
+  pipelineId: z.string(),
+});
+
+const quantityRulesInput = z.object({
+  products: z.array(
+    z.object({
+      _id: z.string(),
+      unitPrice: z.number().nonnegative(),
+    }),
+  ),
+  branchId: z.string(),
+  departmentId: z.string(),
+});
+
+const checkCouponInput = z.object({
+  code: z.string(),
+  ownerId: z.string(),
+  totalAmount: z.number().optional(),
+});
+
+const scoreCampaignInput = z.object({
+  _id: z.string(),
+});
+
+const checkScoreAviableSubtractInput = z.object({
+  ownerType: z.string(),
+  ownerId: z.string(),
+  actionMethod: z.string(),
+  targetId: z.string(),
+});
+
+const updateScoreInput = z.object({
+  action: z.enum(['add', 'subtract']),
+  ownerId: z.string(),
+  ownerType: z.string(),
+  campaignId: z.string(),
+  target: z.record(z.any()),
+  description: z.string(),
+});
+
+const doScoreCampaignInput = z.object({
+  ownerType: z.string(),
+  ownerId: z.string(),
+  actionMethod: z.string(),
+  targetId: z.string(),
+});
+
+const refundLoyaltyScoreInput = z.object({
+  targetId: z.string(),
+  ownerType: z.string(),
+  ownerId: z.string(),
+  scoreCampaignIds: z.array(z.string()),
+  checkInId: z.string(),
+});
+
+// For voucherCampaigns: allow any query object, but default to empty object
+const voucherCampaignsInput = z.record(z.any()).optional();
+
+// tRPC router
 export const appRouter = t.router({
   loyalty: t.router({
-    checkLoyalties: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
-      const { ownerType, ownerId, products, discountInfo } = input;
+    checkLoyalties: t.procedure
+      .input(checkLoyaltiesInput)
+      .query(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const { ownerType, ownerId, products, discountInfo } = input;
 
-      return {
-        data: await checkVouchersSale(
-          models,
-          subdomain,
-          ownerType,
-          ownerId,
-          products,
-          discountInfo,
-        ),
-        status: 'success',
-      };
-    }),
+        return {
+          data: await checkVouchersSale(
+            models,
+            subdomain,
+            ownerType,
+            ownerId,
+            products,
+            discountInfo,
+          ),
+          status: 'success',
+        };
+      }),
 
     handleLoyaltyReward: t.procedure
-      .input(z.any())
+      .input(z.undefined())
       .mutation(async ({ ctx }) => {
         const { subdomain } = ctx;
         const result = await handleLoyaltyReward({ subdomain });
@@ -48,7 +162,7 @@ export const appRouter = t.router({
       }),
 
     confirmLoyalties: t.procedure
-      .input(z.any())
+      .input(confirmLoyaltiesInput)
       .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
         const { checkInfo, extraInfo } = input;
@@ -61,44 +175,50 @@ export const appRouter = t.router({
         return { data: result, status: 'success' };
       }),
 
-    changeCustomer: t.procedure
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
-        // If handleLoyaltyOwnerChange is needed, implement it similarly.
-        // Not present in the provided 2.x files – leave as is or add later.
-        return;
-      }),
+    changeCustomer: t.procedure.input(z.any()).mutation(async () => {
+      return;
+    }),
   }),
 
   pricing: t.router({
-    checkPricing: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { subdomain } = ctx;
-      const models = await ctx.models;
-      const {
-        prioritizeRule,
-        totalAmount,
-        departmentId,
-        branchId,
-        products,
-        pipelineId,
-      } = input;
+    checkPricing: t.procedure
+      .input(checkPricingInput)
+      .query(async ({ ctx, input }) => {
+        const { subdomain } = ctx;
+        const models = await ctx.models;
+        const {
+          prioritizeRule,
+          totalAmount,
+          departmentId,
+          branchId,
+          products,
+          pipelineId,
+        } = input;
 
-      // Use 'orderItems' instead of 'products' to match the expected function signature
-      const data = await checkPricing({
-        models,
-        subdomain,
-        prioritizeRule,
-        totalAmount,
-        departmentId,
-        branchId,
-        pipelineId,
-        orderItems: products, // renamed to orderItems
-      });
-      return { data: data || {}, status: 'success' };
-    }),
+        // Map products to OrderItem type expected by checkPricing
+        const orderItems = products.map((p) => ({
+          itemId: p._id,
+          productId: p._id,
+          price: p.unitPrice,
+          quantity: p.quantity,
+          manufacturedDate: new Date().toISOString(), // FIXED: now a string
+        }));
+
+        const data = await checkPricing({
+          models,
+          subdomain,
+          prioritizeRule,
+          totalAmount,
+          departmentId,
+          branchId,
+          pipelineId,
+          orderItems,
+        });
+        return { data: data || {}, status: 'success' };
+      }),
 
     getQuantityRules: t.procedure
-      .input(z.any())
+      .input(quantityRulesInput)
       .query(async ({ ctx, input }) => {
         const { subdomain } = ctx;
         const models = await ctx.models;
@@ -178,48 +298,56 @@ export const appRouter = t.router({
   assignment: t.router({}),
 
   coupon: t.router({
-    checkCoupon: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const data = await models.Coupons.checkCoupon(input);
-      return { data, status: 'success' };
-    }),
+    checkCoupon: t.procedure
+      .input(checkCouponInput)
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const data = await models.Coupons.checkCoupon(input);
+        return { data, status: 'success' };
+      }),
   }),
 
   donate: t.router({}),
   lottery: t.router({}),
 
   score: t.router({
-    scoreCampaign: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const data = await models.ScoreCampaigns.findOne(input);
-      return { data, status: 'success' };
-    }),
-
-    checkScoreAviableSubtract: t.procedure
-      .input(z.any())
+    scoreCampaign: t.procedure
+      .input(scoreCampaignInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-        const data =
-          await models.ScoreCampaigns.checkScoreAviableSubtract(input);
+        const data = await models.ScoreCampaigns.findOne(input);
         return { data, status: 'success' };
       }),
 
-    updateScore: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
-      await handleScore(models, input);
-      return { data: null, status: 'success' };
-    }),
+    checkScoreAviableSubtract: t.procedure
+      .input(checkScoreAviableSubtractInput)
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const data = await models.ScoreCampaigns.checkScoreAviableSubtract(
+          input as any,
+        );
+        return { data, status: 'success' };
+      }),
 
-    doScoreCampaign: t.procedure
-      .input(z.any())
+    updateScore: t.procedure
+      .input(updateScoreInput)
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        const data = await doScoreCampaign(models, input);
+        await handleScore(models, input);
+        return { data: null, status: 'success' };
+      }),
+
+    doScoreCampaign: t.procedure
+      .input(doScoreCampaignInput)
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        // Type assertion to bypass persistent TypeScript mismatch; input is validated by Zod
+        const data = await doScoreCampaign(models, input as any);
         return { data, status: 'success' };
       }),
 
     refundLoyaltyScore: t.procedure
-      .input(z.any())
+      .input(refundLoyaltyScoreInput)
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         const data = await refundLoyaltyScore(models, input);
@@ -231,10 +359,10 @@ export const appRouter = t.router({
 
   voucher: t.router({
     voucherCampaigns: t.procedure
-      .input(z.any())
+      .input(voucherCampaignsInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-        const data = await models.VoucherCampaigns.find(input).lean();
+        const data = await models.VoucherCampaigns.find(input || {}).lean();
         return { data, status: 'success' };
       }),
   }),

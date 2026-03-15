@@ -7,6 +7,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils/trpc';
 import { IModels } from '~/connectionResolvers';
 import { collections } from '../constants';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
+import { evaluate } from 'mathjs';  // Safe expression evaluator
 
 interface IProductD {
   productId: string;
@@ -500,19 +501,10 @@ export const generateAttributes = (value: string) => {
     : [];
 };
 
-// Safe arithmetic evaluator (no eval, no mathjs)
+// Safe arithmetic evaluator using mathjs (secure)
 function safeEval(expression: string, scope: Record<string, number>): number {
-  const allowedPattern = /^[0-9\s\+\-\*\/\(\)\.]+$/;
-  if (!allowedPattern.test(expression)) {
-    throw new Error(
-      'Invalid expression: only numbers, operators (+, -, *, /), and parentheses allowed',
-    );
-  }
-  const paramNames = Object.keys(scope);
-  const paramValues = paramNames.map((name) => scope[name]);
-  const fn = new Function(...paramNames, `return (${expression});`);
   try {
-    const result = fn(...paramValues);
+    const result = evaluate(expression, scope);
     if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
       throw new Error('Invalid numeric result');
     }
