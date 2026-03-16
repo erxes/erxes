@@ -46,11 +46,11 @@ export const loadPageClass = (models: IModels) => {
 
     public static updatePage = async (_id: string, doc: ICMSPage) => {
       const existing = await models.Pages.findOne({ _id });
-    
+
       if (!existing) {
         throw new Error('Page not found');
       }
-    
+
       if (doc.name && doc.name !== existing.name) {
         if (!doc.slug) {
           const baseSlug = slugify(doc.name, { lower: true });
@@ -71,11 +71,11 @@ export const loadPageClass = (models: IModels) => {
       } else {
         doc.slug = existing.slug;
       }
-    
+
       return models.Pages.findOneAndUpdate(
         { _id },
         { $set: doc },
-        { new: true }
+        { new: true },
       );
     };
 
