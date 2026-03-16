@@ -118,7 +118,9 @@ export const postMutations: Record<string, Resolver> = {
     const { models } = context;
     const { _id } = args;
 
-    await models.Translations.deleteMany({ $or: [{ objectId: _id }, { postId: _id }] });
+    await models.Translations.deleteMany({
+      $or: [{ objectId: _id }, { postId: _id }],
+    });
     return models.Posts.deleteOne({ _id });
   },
 
