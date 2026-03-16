@@ -7,7 +7,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils/trpc';
 import { IModels } from '~/connectionResolvers';
 import { collections } from '../constants';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
-import { evaluate } from 'mathjs';
+import { create, all } from 'mathjs';
 
 interface IProductD {
   productId: string;
@@ -550,9 +550,23 @@ export const generateAttributes = (value: string) => {
 };
 
 // Safe arithmetic evaluator using mathjs
+const math = create(all, {
+  number: 'number',
+  precision: 64,
+});
+
+const ALLOWED_FUNCTIONS = new Set([
+  'add', 'subtract', 'multiply', 'divide', 'pow', 'sqrt', 'abs', 'round', 'floor', 'ceil'
+]);
+
 function safeEval(expression: string, scope: Record<string, number>): number {
   try {
-    const result = evaluate(expression, scope);
+    // Whitelist allowed characters to prevent injection
+    if (!/^[\d\s+\-*/().,=<>!&|?:_\p{L}]+$/u.test(expression)) {
+      throw new Error('Invalid characters in expression');
+    }
+    
+    const result = math.evaluate(expression, scope);
     if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
       throw new Error('Invalid numeric result');
     }

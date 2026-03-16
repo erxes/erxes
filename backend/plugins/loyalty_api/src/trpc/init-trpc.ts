@@ -20,7 +20,9 @@ import { getAllowedProducts } from '~/modules/pricing/utils/product';
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
 
+
 // Zod schemas
+
 const productSchema = z.object({
   productId: z.string(),
   quantity: z.number().int().positive(),
@@ -68,7 +70,7 @@ const pricingProductSchema = z.object({
 });
 
 const checkPricingInput = z.object({
-  prioritizeRule: z.string(), // FIXED: changed from boolean to string
+  prioritizeRule: z.string(),
   totalAmount: z.number().nonnegative(),
   departmentId: z.string(),
   branchId: z.string(),
@@ -128,10 +130,20 @@ const refundLoyaltyScoreInput = z.object({
   checkInId: z.string(),
 });
 
-// For voucherCampaigns: allow any query object, but default to empty object
-const voucherCampaignsInput = z.record(z.any()).optional();
+// Secure input for voucher campaigns (only allow specific fields)
+const voucherCampaignsInput = z
+  .object({
+    _id: z.string().optional(),
+    status: z.string().optional(),
+    title: z.string().optional(),
+    voucherType: z.string().optional(),
+    // Add other allowed filter fields as needed
+  })
+  .optional();
 
+// ============================================================================
 // tRPC router
+// ============================================================================
 export const appRouter = t.router({
   loyalty: t.router({
     checkLoyalties: t.procedure
@@ -201,7 +213,7 @@ export const appRouter = t.router({
           productId: p._id,
           price: p.unitPrice,
           quantity: p.quantity,
-          manufacturedDate: new Date().toISOString(), // FIXED: now a string
+          manufacturedDate: new Date().toISOString(),
         }));
 
         const data = await checkPricing({
@@ -366,6 +378,8 @@ export const appRouter = t.router({
         return { data, status: 'success' };
       }),
   }),
+  // At the top of appRouter in init-trpc.ts:
+health: t.procedure.query(() => ({ status: 'ok' })),
 });
 
 export type AppRouter = typeof appRouter;
