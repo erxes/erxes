@@ -112,10 +112,11 @@ export const reportInboxQueries = {
       {
         $match: {
           customerId,
-          memberIds: { $ne: null },
+          memberIds: { $exists: true, $ne: [] },
           status: { $in: statuses },
         },
       },
+      { $unwind: '$memberIds' },
       {
         $group: {
           _id: { assigneeId: '$memberIds', status: '$status' },

@@ -167,6 +167,17 @@ export class PermissionValidator {
 
       const isStatusChanged = newStatusId && newStatusId !== statusId;
 
+      const status = await this.models.Status.getStatus(statusId);
+
+      if (
+        status?.canEditMemberIds?.length &&
+        !status.canEditMemberIds.includes(userId)
+      ) {
+        throw new PermissionError(
+          'You do not have permission to edit tickets in this status',
+        );
+      }
+
       if (isStatusChanged) {
         const newStatus = await this.models.Status.getStatus(newStatusId);
 
@@ -178,19 +189,6 @@ export class PermissionValidator {
             'You do not have permission to move tickets to this status',
           );
         }
-
-        return;
-      }
-
-      const status = await this.models.Status.getStatus(statusId);
-
-      if (
-        status?.canEditMemberIds?.length &&
-        !status.canEditMemberIds.includes(userId)
-      ) {
-        throw new PermissionError(
-          'You do not have permission to edit tickets in this status',
-        );
       }
     } catch (error) {
       if (error instanceof Error) {

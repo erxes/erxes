@@ -14,6 +14,7 @@ export interface IPos {
   adminIds?: string[];
   cashierIds?: string[];
   paymentIds?: string[];
+  serviceCharge?: number;
   paymentTypes?: any[];
   erxesAppToken: string;
   isOnline?: boolean;
