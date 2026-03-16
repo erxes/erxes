@@ -556,7 +556,16 @@ const math = create(all, {
 });
 
 const ALLOWED_FUNCTIONS = new Set([
-  'add', 'subtract', 'multiply', 'divide', 'pow', 'sqrt', 'abs', 'round', 'floor', 'ceil'
+  'add',
+  'subtract',
+  'multiply',
+  'divide',
+  'pow',
+  'sqrt',
+  'abs',
+  'round',
+  'floor',
+  'ceil',
 ]);
 
 function safeEval(expression: string, scope: Record<string, number>): number {
@@ -565,7 +574,7 @@ function safeEval(expression: string, scope: Record<string, number>): number {
     if (!/^[\d\s+\-*/().,=<>!&|?:_\p{L}]+$/u.test(expression)) {
       throw new Error('Invalid characters in expression');
     }
-    
+
     const result = math.evaluate(expression, scope);
     if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
       throw new Error('Invalid numeric result');

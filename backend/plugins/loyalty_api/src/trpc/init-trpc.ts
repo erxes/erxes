@@ -20,7 +20,6 @@ import { getAllowedProducts } from '~/modules/pricing/utils/product';
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
 
-
 // Zod schemas
 
 const productSchema = z.object({
@@ -379,7 +378,7 @@ export const appRouter = t.router({
       }),
   }),
   // At the top of appRouter in init-trpc.ts:
-health: t.procedure.query(() => ({ status: 'ok' })),
+  health: t.procedure.query(() => ({ status: 'ok' })),
 });
 
 export type AppRouter = typeof appRouter;
