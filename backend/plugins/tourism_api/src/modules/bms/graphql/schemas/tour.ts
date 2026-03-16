@@ -9,6 +9,8 @@ export const types = `
   type TourCategory {
     _id: String!
     name: String
+    code: String
+    order: String
     parentId: String
     attachment: Attachment
     tourCount: Int
@@ -167,9 +169,9 @@ export const mutations = `
   bmsTourRemove(ids: [String]): JSON
   bmsTourViewCount(_id: String): JSON
   bmsTourEdit(_id:String!, ${params}): Tour
-  bmsTourCategoryAdd(name:String,parentId:String,attachment:AttachmentInput):TourCategory
+  bmsTourCategoryAdd(name:String,code:String,parentId:String,attachment:AttachmentInput):TourCategory
   bmsTourCategoryRemove(_id: String, ids: [String]):JSON
-  bmsTourCategoryEdit(_id: String!, name:String,parentId:String,attachment:AttachmentInput): TourCategory
+  bmsTourCategoryEdit(_id: String!, name:String,code:String,parentId:String,attachment:AttachmentInput): TourCategory
   bmsOrderAdd(order:BmsOrderInput): BmsOrder
   bmsOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder
   bmsOrderRemove(ids:[String]): JSON

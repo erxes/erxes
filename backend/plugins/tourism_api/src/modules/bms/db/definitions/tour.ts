@@ -7,6 +7,8 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 export const tourCategorySchema = new Schema({
   _id: mongooseStringRandomId,
   name: { type: String, label: 'Name' },
+  code: { type: String, optional: true, label: 'code' },
+  order: { type: String, optional: true, label: 'order' },
   parentId: { type: String, label: 'parentId' },
   attachment: { type: Object, optional: true, label: 'attachment' },
   createdAt: {

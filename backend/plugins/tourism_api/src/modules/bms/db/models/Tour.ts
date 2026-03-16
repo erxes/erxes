@@ -86,6 +86,12 @@ export const loadTourCategoryClass = (models: IModels) => {
     }
 
     public static async createTourCategory(doc) {
+      const parentCategory = doc.parentId
+        ? await models.BmsTourCategories.findOne({ _id: doc.parentId }).lean()
+        : undefined;
+
+      doc.order = await this.generateOrder(parentCategory, doc);
+
       return models.BmsTourCategories.create({
         ...doc,
         createdAt: new Date(),
@@ -108,9 +114,40 @@ export const loadTourCategoryClass = (models: IModels) => {
       if (parentCategory && parentCategory.parentId === _id) {
         throw new Error('Cannot change category');
       }
+      const mergedDoc = {
+        ...existingCategory.toObject(),
+        ...doc,
+      };
+      const oldOrder = existingCategory.order;
+      doc.order = await this.generateOrder(parentCategory, mergedDoc);
       doc.modifiedAt = new Date();
 
       await models.BmsTourCategories.updateOne({ _id }, { $set: doc });
+
+      if (oldOrder && oldOrder !== doc.order) {
+        const escapeRegExp = (value: string) =>
+          value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        const childCategories = await models.BmsTourCategories.find({
+          $and: [
+            { order: { $regex: new RegExp(`^${escapeRegExp(oldOrder)}`) } },
+            { _id: { $ne: _id } },
+          ],
+        });
+
+        for (const childCategory of childCategories) {
+          if (!childCategory.order || !doc.order) {
+            continue;
+          }
+
+          const order = childCategory.order.replace(oldOrder, doc.order);
+
+          await models.BmsTourCategories.updateOne(
+            { _id: childCategory._id },
+            { $set: { order, modifiedAt: new Date() } },
+          );
+        }
+      }
 
       return models.BmsTourCategories.findOne({ _id });
     }
@@ -149,6 +186,16 @@ export const loadTourCategoryClass = (models: IModels) => {
       }
 
       return models.BmsTourCategories.deleteMany({ _id: { $in: uniqueIds } });
+    }
+
+    public static async generateOrder(parentCategory, doc) {
+      if (!doc?.code) {
+        return '';
+      }
+
+      return parentCategory?.order
+        ? `${parentCategory.order}${doc.code}/`
+        : `${doc.code}/`;
     }
   }
 

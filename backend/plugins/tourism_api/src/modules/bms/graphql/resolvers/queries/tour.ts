@@ -246,7 +246,7 @@ const tourQueries: Record<string, Resolver> = {
       selector.parentId = null;
     }
 
-    return models.BmsTourCategories.find(selector).sort({ createdAt: -1 });
+    return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });
   },
 
   async cpBmsTourDetail(

@@ -49,6 +49,8 @@ export interface ITourDocument extends ITour, Document {
 
 export interface ITourCategory {
   name: string;
+  code?: string;
+  order?: string;
   parentId?: string;
   attachment?: IAttachment;
   modifiedAt?: Date;
