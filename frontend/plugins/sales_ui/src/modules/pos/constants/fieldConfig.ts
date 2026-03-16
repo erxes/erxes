@@ -135,6 +135,12 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
     res: true,
   },
 
+  serviceCharge: {
+    ecom: true,
+    pos: false,
+    res: true,
+  },
+
   appToken: {
     ecom: true,
     pos: false,

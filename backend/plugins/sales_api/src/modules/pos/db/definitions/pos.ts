@@ -19,6 +19,7 @@ export const posSchema = schemaWrapper(
     cashierIds: { type: [String], label: 'Cashier ids' },
     isOnline: { type: Boolean, label: 'Is online pos' },
     paymentIds: { type: [String], label: 'Online Payments' },
+    serviceCharge: { type: Number, label: 'Service Charge' },
     paymentTypes: { type: [Object], label: 'Other Payments' },
     onServer: {
       type: Boolean,

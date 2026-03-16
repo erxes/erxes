@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import SlotActions from "./slotActions"
 
 export const slotVariants = cva(
-  "h-10 w-10 text-base font-bold px-0 relative ",
+  "h-12 w-12 text-base font-bold px-0 relative text-xs tracking-wide text-center",
   {
     variants: {
       status: {
@@ -44,10 +44,10 @@ const Slot = (
           <RadioGroupItem
             value={active ? "" : code}
             id={code}
-            className="peer sr-only"
+            className="sr-only peer"
           />
           <MotionLabel
-            className="absolute inset-0 border-primary rounded-md border-2"
+            className="absolute inset-0 rounded-md border-2 border-primary"
             animate={{
               opacity: active ? 1 : 0,
             }}
@@ -64,7 +64,7 @@ const Slot = (
               translateX: active ? 0 : -2,
             }}
           >
-            <Check className="h-3 w-3" strokeWidth={4} />
+            <Check className="w-3 h-3" strokeWidth={4} />
           </MotionLabel>
         </Button>
       </DropdownMenuTrigger>
