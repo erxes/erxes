@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import SlotActions from "./slotActions"
 
 export const slotVariants = cva(
-  "h-12 w-12 text-base font-bold px-0 relative text-xs tracking-wide text-center",
+  "h-12 w-12 font-bold px-0 relative text-xs tracking-wide text-center",
   {
     variants: {
       status: {

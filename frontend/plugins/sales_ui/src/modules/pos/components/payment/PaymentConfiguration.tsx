@@ -45,20 +45,19 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const value = e.target.value;
-
-    if (!value) {
+    if (value === '') {
       setServiceCharge(undefined);
       setHasChanges(true);
       return;
     }
-
     const num = Number(value);
 
     if (Number.isNaN(num)) return;
 
     const clamped = Math.min(100, Math.max(0, num));
+    const rounded = Math.round(clamped * 100) / 100;
 
-    setServiceCharge(clamped);
+    setServiceCharge(rounded);
     setHasChanges(true);
   };
 
