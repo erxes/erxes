@@ -30,8 +30,8 @@ import {
   usePipelineRemove,
   usePipelines,
 } from '@/deals/boards/hooks/usePipelines';
-
 import { IPipeline } from '@/deals/types/pipelines';
+import { PipelineCommandBar } from './PipelineCommandBar';
 import React from 'react';
 
 export const PipelineMoreColumnCell = ({
@@ -156,6 +156,9 @@ export const PipelineMoreColumnCell = ({
 export const pipelinesColumns: ColumnDef<
   IPipeline & { hasChildren: boolean; type?: string }
 >[] = [
+  RecordTable.checkboxColumn as ColumnDef<
+    IPipeline & { hasChildren: boolean; type?: string }
+  >,
   {
     id: 'more',
     cell: PipelineMoreColumnCell,
@@ -293,8 +296,9 @@ const PipelineRecordTable = () => {
         columns={pipelinesColumns}
         data={pipelines || []}
         className="m-3"
-        stickyColumns={['more', 'name']}
+        stickyColumns={['checkbox', 'more', 'name']}
       >
+        <PipelineCommandBar />
         <RecordTableTree id="pipelines-list" ordered>
           <RecordTable.Scroll>
             <RecordTable className="w-full">
