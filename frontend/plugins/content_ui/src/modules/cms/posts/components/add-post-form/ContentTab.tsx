@@ -103,7 +103,11 @@ export const ContentTab = ({
         )}
       />
 
-      <CategoryField form={form} categories={categories} websiteId={websiteId} />
+      <CategoryField
+        form={form}
+        categories={categories}
+        websiteId={websiteId}
+      />
       <TagField form={form} tags={tags} websiteId={websiteId} />
 
       <Form.Field
@@ -116,7 +120,10 @@ export const ContentTab = ({
               Turn this post into a featured post
             </Form.Description>
             <Form.Control>
-              <Switch checked={!!field.value} onCheckedChange={field.onChange} />
+              <Switch
+                checked={!!field.value}
+                onCheckedChange={field.onChange}
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>
