@@ -23,7 +23,7 @@ export interface IBmsTourCategoryModel extends Model<ITourCategoryDocument> {
     _id: string,
     doc: ITourCategory,
   ): Promise<ITourCategoryDocument>;
-  removeTourCategory(_id: string): Promise<any>;
+  removeTourCategory(ids: string[]): Promise<any>;
 }
 
 export const loadTourClass = (models: IModels) => {
@@ -86,37 +86,69 @@ export const loadTourCategoryClass = (models: IModels) => {
     }
 
     public static async createTourCategory(doc) {
-      return models.BmsTourCategories.create(doc);
+      return models.BmsTourCategories.create({
+        ...doc,
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+      });
     }
 
     public static async updateTourCategory(_id, doc) {
-      await models.BmsTourCategories.getTourCategory({ _id });
+      const existingCategory = await models.BmsTourCategories.getTourCategory({
+        _id,
+      });
 
-      const parentCategory = doc.parentId
-        ? await models.BmsTourCategories.findOne({ _id: doc.parentId }).lean()
+      const parentIdToUse =
+        doc.parentId !== undefined ? doc.parentId : existingCategory.parentId;
+
+      const parentCategory = parentIdToUse
+        ? await models.BmsTourCategories.findOne({ _id: parentIdToUse }).lean()
         : undefined;
 
       if (parentCategory && parentCategory.parentId === _id) {
         throw new Error('Cannot change category');
       }
+      doc.modifiedAt = new Date();
 
       await models.BmsTourCategories.updateOne({ _id }, { $set: doc });
 
       return models.BmsTourCategories.findOne({ _id });
     }
 
-    public static async removeTourCategory(_id) {
-      await models.BmsTourCategories.getTourCategory({ _id });
+    public static async removeTourCategory(ids) {
+      const uniqueIds = [...new Set((ids || []).filter(Boolean))];
 
-      let count = await models.Tours.countDocuments({ categories: _id });
+      if (!uniqueIds.length) {
+        throw new Error('Category ids are required');
+      }
 
-      count += await models.BmsTourCategories.countDocuments({ parentId: _id });
+      const existingCount = await models.BmsTourCategories.countDocuments({
+        _id: { $in: uniqueIds },
+      });
+
+      if (existingCount !== uniqueIds.length) {
+        throw new Error('Tour category not found');
+      }
+
+      let count = await models.Tours.countDocuments({
+        $or: [
+          { categories: { $in: uniqueIds } },
+          { categoryIds: { $in: uniqueIds } },
+          { tagIds: { $in: uniqueIds } },
+          { categoryId: { $in: uniqueIds } },
+        ],
+      });
+
+      count += await models.BmsTourCategories.countDocuments({
+        parentId: { $in: uniqueIds },
+        _id: { $nin: uniqueIds },
+      });
 
       if (count > 0) {
         throw new Error("Can't remove a category");
       }
 
-      return models.BmsTourCategories.deleteOne({ _id });
+      return models.BmsTourCategories.deleteMany({ _id: { $in: uniqueIds } });
     }
   }
 
