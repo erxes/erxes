@@ -18,7 +18,7 @@ const mutations: Record<string, Resolver> = {
       ...input,
     });
 
-    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+    return `${domain}/pl/payment/widget/invoice/${invoice._id}`;
   },
 
   async invoiceCreate(
