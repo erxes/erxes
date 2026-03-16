@@ -35,6 +35,8 @@ export function PageDrawer({
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
+    defaultLangData,
+    translations,
   } = useCmsTranslation({
     objectId: page?._id,
     type: 'page',
@@ -115,16 +117,79 @@ export function PageDrawer({
   };
 
   const onSubmit = (data: IPageFormData) => {
+    const isNonDefaultLang =
+      !!selectedLanguage &&
+      !!defaultLanguage &&
+      selectedLanguage !== defaultLanguage;
+
+    const currentName = data.name;
+    const currentDescription = data.description;
+    const isCreating = !isEditing;
+
+    // For EDIT: backend handles language routing — send current form values
+    //   as name/description (backend saves them as translation for non-default,
+    //   or as main doc for default). Backend strips translatable fields from
+    //   main doc update when language !== defaultLanguage.
+    //
+    // For CREATE: backend has no language routing — always saves name/description
+    //   to main doc. So we must swap to defaultLangData for main doc and send
+    //   non-default language data via translations array.
+
+    let mainName = currentName;
+    let mainDescription = currentDescription;
+
+    if (isCreating && isNonDefaultLang) {
+      if (defaultLangData) {
+        mainName = defaultLangData.title || '';
+        mainDescription = defaultLangData.content || '';
+      }
+    }
+
     const input: Record<string, any> = {
       clientPortalId: data.clientPortalId,
-      name: data.name,
+      name: mainName,
       slug: data.path,
-      description: data.description,
+      description: mainDescription,
       status: data.status || 'active',
     };
 
-    if (selectedLanguage && availableLanguages.length > 0) {
-      input.language = selectedLanguage;
+    if (selectedLanguage) {
+      // For create: send default language since main doc holds default lang data
+      input.language = isCreating && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+    }
+
+    // Build translations array
+    if (defaultLanguage) {
+      const translationEntries: any[] = [];
+
+      // Add all previously saved translations from language switching
+      for (const [lang, tData] of Object.entries(translations)) {
+        if (lang === defaultLanguage) continue;
+        // Skip current language — it will be added from current form data below
+        if (lang === selectedLanguage) continue;
+        if (tData.title || tData.content) {
+          translationEntries.push({
+            language: lang,
+            title: tData.title || '',
+            content: tData.content || '',
+            type: 'page',
+          });
+        }
+      }
+
+      // For create on non-default language: add current form data as translation
+      if (isCreating && isNonDefaultLang) {
+        translationEntries.push({
+          language: selectedLanguage,
+          title: currentName,
+          content: currentDescription,
+          type: 'page',
+        });
+      }
+
+      if (translationEntries.length > 0) {
+        input.translations = translationEntries;
+      }
     }
 
     if (isEditing && page?._id) {

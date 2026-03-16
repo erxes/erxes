@@ -29,11 +29,22 @@ export const useCmsTranslation = ({
   const [defaultLangData, setDefaultLangData] =
     useState<TranslationData | null>(null);
 
+  // Reset state when switching to a different object
+  useEffect(() => {
+    setTranslations({});
+    setDefaultLangData(null);
+    if (defaultLanguage) {
+      setSelectedLanguage(defaultLanguage);
+    } else {
+      setSelectedLanguage('');
+    }
+  }, [objectId]);
+
   // Fetch existing translations
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
     variables: { objectId, type },
     skip: !objectId,
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'network-only',
   });
 
   // Load fetched translations into state

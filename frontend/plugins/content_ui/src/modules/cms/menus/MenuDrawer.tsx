@@ -57,6 +57,8 @@ export function MenuDrawer({
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
+    defaultLangData,
+    translations,
   } = useCmsTranslation({
     objectId: menu?._id,
     type: 'menu',
@@ -158,9 +160,27 @@ export function MenuDrawer({
   const saving = adding || editing;
 
   const onSubmit = (data: MenuFormData) => {
+    const isNonDefaultLang =
+      !!selectedLanguage &&
+      !!defaultLanguage &&
+      selectedLanguage !== defaultLanguage;
+    const isCreating = !isEditing;
+
+    const currentLabel = data.label;
+
+    // For EDIT: backend uses label as translation title for non-default lang
+    // For CREATE: no language routing, so swap to defaultLangData for main doc
+    let mainLabel = currentLabel;
+
+    if (isCreating && isNonDefaultLang) {
+      if (defaultLangData) {
+        mainLabel = defaultLangData.title || '';
+      }
+    }
+
     const input: Record<string, any> = {
       clientPortalId: data.clientPortalId,
-      label: data.label,
+      label: mainLabel,
       url: data.url,
       kind: data.kind,
     };
@@ -170,7 +190,38 @@ export function MenuDrawer({
     }
 
     if (selectedLanguage) {
-      input.language = selectedLanguage;
+      // For create: send default language since main doc holds default lang data
+      input.language = isCreating && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+    }
+
+    // Build translations array
+    if (defaultLanguage) {
+      const translationEntries: any[] = [];
+
+      for (const [lang, tData] of Object.entries(translations)) {
+        if (lang === defaultLanguage) continue;
+        // Skip current language — it will be added from current form data below
+        if (lang === selectedLanguage) continue;
+        if (tData.title) {
+          translationEntries.push({
+            language: lang,
+            title: tData.title || '',
+            type: 'menu',
+          });
+        }
+      }
+
+      if (isCreating && isNonDefaultLang) {
+        translationEntries.push({
+          language: selectedLanguage,
+          title: currentLabel,
+          type: 'menu',
+        });
+      }
+
+      if (translationEntries.length > 0) {
+        input.translations = translationEntries;
+      }
     }
 
     if (isEditing) {
