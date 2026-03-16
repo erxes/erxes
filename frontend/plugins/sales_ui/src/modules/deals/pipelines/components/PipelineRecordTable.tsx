@@ -231,8 +231,8 @@ export const pipelinesColumns: ColumnDef<
         status === 'active'
           ? 'success'
           : status === 'archived'
-          ? 'warning'
-          : 'default';
+            ? 'warning'
+            : 'default';
 
       return (
         <RecordTableInlineCell>
