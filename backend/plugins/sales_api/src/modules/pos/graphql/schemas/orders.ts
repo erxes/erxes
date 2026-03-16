@@ -49,6 +49,21 @@ export const types = () => `
     lastName: String
   }
 
+  type Cover {
+    _id: String!
+    posToken: String
+    status: String
+    beginDate: Date
+    endDate: Date
+    description: String
+    userId: String
+    details: JSON
+    createdAt: Date
+    createdBy: String
+    modifiedAt: Date
+    modifiedBy: String
+  }
+
   type PosOrder {
     ${posOrderFields()}
   }
@@ -60,6 +75,7 @@ export const types = () => `
     deliveryInfo: JSON
     deal: JSON
     dealLink: String
+    covers: [Cover]
   }
 
   type PosOrderRecord {

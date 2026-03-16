@@ -129,6 +129,12 @@ const resolvers = {
     });
   },
 
+  covers: async (order: IPosOrderDocument, _args: any, { models }: IContext) => {
+    // Холбоосын талбар тодорхойгүй тул posToken-оор хайж байна
+    // Хэрэв cover-д orderId хадгалагддаг бол энэ логийг солих шаардлагатай
+    return await models.Covers.find({ posToken: order.posToken }).lean();
+  },
+
   async deal(order: IPosOrderDocument, _, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
