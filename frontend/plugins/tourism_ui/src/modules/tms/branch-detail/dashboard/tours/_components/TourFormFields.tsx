@@ -16,6 +16,7 @@ import { nanoid } from 'nanoid';
 import { useState, useEffect } from 'react';
 import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
 import { ImageUploadGrid } from '../../../components';
+import { SelectTourCategory } from './SelectTourCategory';
 
 export const TourNameField = ({
   control,
@@ -653,6 +654,32 @@ export const TourItineraryIdField = ({
               onValueChange={field.onChange}
               branchId={branchId}
               placeholder="Select itinerary"
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const TourCategoryField = ({
+  control,
+}: {
+  control: Control<TourCreateFormType>;
+}) => {
+  return (
+    <Form.Field
+      control={control}
+      name="categoryIds"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Categories</Form.Label>
+          <Form.Control>
+            <SelectTourCategory
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder="Select categories"
             />
           </Form.Control>
           <Form.Message className="text-destructive" />

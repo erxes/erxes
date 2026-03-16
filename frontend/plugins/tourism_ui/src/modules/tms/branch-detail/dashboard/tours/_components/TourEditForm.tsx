@@ -33,6 +33,7 @@ import {
   TourAdvancePercentField,
   TourJoinPercentField,
   TourItineraryIdField,
+  TourCategoryField,
   TourImageThumbnailField,
   TourImagesField,
 } from './TourFormFields';
@@ -136,6 +137,7 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
       status: 'draft',
       content: '',
       itineraryId: '',
+      categoryIds: [],
       cost: 0,
       duration: 0,
       groupSize: 0,
@@ -193,6 +195,7 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
       status: tour.status ?? 'draft',
       content: tour.content ?? '',
       itineraryId: tour.itineraryId ?? '',
+      categoryIds: tour.categoryIds ?? [],
       cost: tour.cost ?? 0,
       duration: tour.duration ?? 0,
       groupSize: tour.groupSize ?? 0,
@@ -311,6 +314,8 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
                     branchId={branchId}
                   />
                 </div>
+
+                <TourCategoryField control={form.control} />
 
                 <TourDescriptionField
                   key={`tour-content-${editorResetKey}`}

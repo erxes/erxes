@@ -33,6 +33,7 @@ import {
   TourAdvancePercentField,
   TourJoinPercentField,
   TourItineraryIdField,
+  TourCategoryField,
   TourImageThumbnailField,
   TourImagesField,
 } from './TourFormFields';
@@ -102,6 +103,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
       status: 'draft',
       content: '',
       itineraryId: '',
+      categoryIds: [],
       cost: 0,
       duration: 0,
       groupSize: 0,
@@ -269,6 +271,8 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
                   branchId={branchId}
                 />
               </div>
+
+              <TourCategoryField control={form.control} />
 
               <TourDescriptionField control={form.control} />
             </div>

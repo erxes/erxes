@@ -14,6 +14,7 @@ export interface ITourDetail {
     | 'completed'
     | 'cancelled';
   duration?: number;
+  categoryIds?: string[];
   endDate?: string;
   groupSize?: number;
   imageThumbnail?: string;

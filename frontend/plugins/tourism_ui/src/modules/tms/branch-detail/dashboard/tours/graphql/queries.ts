@@ -35,6 +35,7 @@ export const GET_TOURS = gql`
         status
         date_status
         cost
+        categoryIds
         modifiedAt
         createdAt
       }
@@ -87,6 +88,7 @@ export const GET_TOUR_DETAIL = gql`
       _id
       advanceCheck
       advancePercent
+      categoryIds
       content
       cost
       date_status
