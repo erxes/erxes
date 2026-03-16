@@ -155,7 +155,8 @@ export function PageDrawer({
 
     if (selectedLanguage) {
       // For create: send default language since main doc holds default lang data
-      input.language = isCreating && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+      input.language =
+        isCreating && isNonDefaultLang ? defaultLanguage : selectedLanguage;
     }
 
     // Build translations array
