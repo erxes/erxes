@@ -45,7 +45,8 @@ const tourMutations = {
     { models }: IContext,
   ) => {
     const removeIds = ids?.length ? ids : _id ? [_id] : [];
-    const removed = await models.BmsTourCategories.removeTourCategory(removeIds);
+    const removed =
+      await models.BmsTourCategories.removeTourCategory(removeIds);
 
     return removed;
   },
