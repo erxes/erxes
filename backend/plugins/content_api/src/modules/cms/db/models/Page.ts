@@ -45,32 +45,30 @@ export const loadPageClass = (models: IModels) => {
     };
 
     public static updatePage = async (_id: string, doc: ICMSPage) => {
-      if (doc.name) {
+      const existing = await models.Pages.findOne({ _id });
+    
+      if (!existing) {
+        throw new Error('Page not found');
+      }
+    
+      if (doc.name && doc.name !== existing.name) {
         const baseSlug = doc.slug || slugify(doc.name, { lower: true });
+    
         doc.slug = await generateUniqueSlug(
           models.Pages,
           doc.clientPortalId,
           'slug',
-          baseSlug,
+          baseSlug
         );
+      } else {
+        doc.slug = existing.slug;
       }
-
-      const existingPage = await models.Pages.countDocuments({
-        slug: doc.slug,
-        clientPortalId: doc.clientPortalId,
-        _id: { $ne: _id },
-      });
-
-      if (existingPage > 0) {
-        throw new Error('Page already exists');
-      }
-
-      const page = await models.Pages.findOneAndUpdate(
-        { _id: _id },
+    
+      return models.Pages.findOneAndUpdate(
+        { _id },
         { $set: doc },
-        { new: true },
+        { new: true }
       );
-      return page;
     };
 
     public static deletePage = async (_id: string) => {
