@@ -49,8 +49,8 @@ mutations.paymentTransactionsAdd.wrapperConfig = {
   skipPermission: true,
 };
 
-mutations.cpPaymentTransactionsAdd.wrapperConfig={
-  forClientPortal:true,
-}
+mutations.cpPaymentTransactionsAdd.wrapperConfig = {
+  forClientPortal: true,
+};
 
 export default mutations;

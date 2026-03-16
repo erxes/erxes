@@ -1,4 +1,8 @@
-import { IAttachment, IPdfAttachment, ICustomField } from "erxes-api-shared/core-types";
+import {
+  IAttachment,
+  IPdfAttachment,
+  ICustomField,
+} from 'erxes-api-shared/core-types';
 
 export interface IContentCMS {
   name: string;
@@ -57,7 +61,7 @@ export interface ICMSPageItem {
 export interface ICMSPage {
   clientPortalId: string;
   name: string;
-  parentId?:string;
+  parentId?: string;
   description?: string;
   content?: string;
   slug: string;

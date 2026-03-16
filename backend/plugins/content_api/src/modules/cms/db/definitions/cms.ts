@@ -3,7 +3,10 @@ import {
   ICMSPageDocument,
   IContentCMSDocument,
 } from '@/cms/@types/cms';
-import { attachmentSchema, customFieldSchema } from 'erxes-api-shared/core-modules';
+import {
+  attachmentSchema,
+  customFieldSchema,
+} from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import mongoose, { Schema } from 'mongoose';
 
@@ -41,7 +44,7 @@ export const cmsPageSchema = new mongoose.Schema<ICMSPageDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
-    parentId: {type: String},
+    parentId: { type: String },
     name: { type: String, required: true },
     description: { type: String },
     content: { type: String },
