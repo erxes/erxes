@@ -7,7 +7,19 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils/trpc';
 import { IModels } from '~/connectionResolvers';
 import { collections } from '../constants';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
-import { create, all } from 'mathjs';
+import {
+  create,
+  addDependencies,
+  subtractDependencies,
+  multiplyDependencies,
+  divideDependencies,
+  powDependencies,
+  sqrtDependencies,
+  absDependencies,
+  roundDependencies,
+  floorDependencies,
+  ceilDependencies,
+} from 'mathjs';
 
 interface IProductD {
   productId: string;
@@ -146,6 +158,26 @@ export const applyRestriction = async ({
   return { productDocs, restrictedAmount: totalAmount };
 };
 
+// Helper for processing a single product discount (reduces duplication)
+function processProductDiscount(
+  result: any,
+  product: any,
+  products: IProductD[],
+  kind: string,
+  value: number,
+  totalAmount: number,
+) {
+  const { _id } = product;
+  const item = products.find((p) => p.productId === _id) || {};
+  const discount = calculateDiscount({
+    kind,
+    value,
+    product: { ...item, discount: result[_id]?.discount || 0 },
+    totalAmount,
+  });
+  return { productId: _id, item, discount };
+}
+
 // Voucher helpers
 async function processVoucherBonus(
   voucher: any,
@@ -179,22 +211,22 @@ async function processVoucherDiscount(
     products,
   });
   for (const product of productDocs) {
-    const { _id } = product;
-    const item = products.find((p) => p.productId === _id) || {};
-    const discount = calculateDiscount({
+    const { productId, discount } = processProductDiscount(
+      result,
+      product,
+      products,
       kind,
       value,
-      product: { ...item, discount: result[_id].discount || 0 },
-      totalAmount: restrictedAmount,
-    });
-    result[_id] = {
-      ...result[_id],
+      restrictedAmount,
+    );
+    result[productId] = {
+      ...result[productId],
       voucherCampaignId: voucher.campaignId,
       voucherId: voucher._id,
       discount,
       voucherName: title,
       type: 'discount',
-      sumDiscount: result[_id].sumDiscount + discount,
+      sumDiscount: (result[productId]?.sumDiscount || 0) + discount,
     };
   }
 }
@@ -323,16 +355,16 @@ async function applyDiscountRule(
     products,
   });
   for (const product of productDocs) {
-    const { _id } = product;
-    const item = products.find((p) => p.productId === _id) || {};
-    const discount = calculateDiscount({
+    const { productId, discount } = processProductDiscount(
+      result,
+      product,
+      products,
       kind,
       value,
-      product: { ...item, discount: result[_id].discount || 0 },
-      totalAmount: restrictedAmount,
-    });
-    result[_id] = {
-      ...result[_id],
+      restrictedAmount,
+    );
+    result[productId] = {
+      ...result[productId],
       [idField]: idValue,
       discount,
       voucherName: title,
@@ -549,33 +581,30 @@ export const generateAttributes = (value: string) => {
   return attributes;
 };
 
-// Safe arithmetic evaluator using mathjs
-const math = create(all, {
-  number: 'number',
-  precision: 64,
-});
-
-const ALLOWED_FUNCTIONS = new Set([
-  'add',
-  'subtract',
-  'multiply',
-  'divide',
-  'pow',
-  'sqrt',
-  'abs',
-  'round',
-  'floor',
-  'ceil',
-]);
+// Safe arithmetic evaluator (secure math instance)
+const limitedMath = create(
+  {
+    add: addDependencies,
+    subtract: subtractDependencies,
+    multiply: multiplyDependencies,
+    divide: divideDependencies,
+    pow: powDependencies,
+    sqrt: sqrtDependencies,
+    abs: absDependencies,
+    round: roundDependencies,
+    floor: floorDependencies,
+    ceil: ceilDependencies,
+  },
+  {
+    number: 'number',
+    precision: 64,
+  }
+);
 
 function safeEval(expression: string, scope: Record<string, number>): number {
   try {
-    // Whitelist allowed characters to prevent injection
-    if (!/^[\d\s+\-*/().,=<>!&|?:_\p{L}]+$/u.test(expression)) {
-      throw new Error('Invalid characters in expression');
-    }
-
-    const result = math.evaluate(expression, scope);
+    const compiled = limitedMath.compile(expression);
+    const result = compiled.evaluate(scope);
     if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
       throw new Error('Invalid numeric result');
     }
