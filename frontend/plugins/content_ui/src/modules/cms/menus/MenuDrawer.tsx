@@ -3,7 +3,12 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Sheet, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CMS_MENU_ADD, CMS_MENU_EDIT, CMS_MENU_LIST, CONTENT_CMS_LIST } from '../graphql/queries';
+import {
+  CMS_MENU_ADD,
+  CMS_MENU_EDIT,
+  CMS_MENU_LIST,
+  CONTENT_CMS_LIST,
+} from '../graphql/queries';
 import { buildFlatTree, getDepthPrefix, RawMenuItem } from './menuUtils';
 import { useCmsTranslation } from '../shared/hooks/useCmsTranslation';
 import { LanguageSelector } from '../shared/LanguageSelector';
@@ -244,9 +249,7 @@ export function MenuDrawer({
       (data) => {
         form.setValue('label', data.title || '');
       },
-      menu
-        ? { title: menu.label || '' }
-        : undefined,
+      menu ? { title: menu.label || '' } : undefined,
     );
   };
 
