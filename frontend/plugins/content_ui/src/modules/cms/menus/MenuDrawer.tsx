@@ -1,10 +1,12 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
+import { Button, Form, Input, Select, Sheet, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CMS_MENU_ADD, CMS_MENU_EDIT, CMS_MENU_LIST } from '../graphql/queries';
+import { CMS_MENU_ADD, CMS_MENU_EDIT, CMS_MENU_LIST, CONTENT_CMS_LIST } from '../graphql/queries';
 import { buildFlatTree, getDepthPrefix, RawMenuItem } from './menuUtils';
+import { useCmsTranslation } from '../shared/hooks/useCmsTranslation';
+import { LanguageSelector } from '../shared/LanguageSelector';
 
 interface MenuDrawerProps {
   isOpen: boolean;
@@ -37,6 +39,30 @@ export function MenuDrawer({
 }: MenuDrawerProps) {
   const [hasPermissionError, setHasPermissionError] = useState(false);
   const isEditing = !!menu?._id;
+
+  // Fetch CMS config for languages
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+    skip: !clientPortalId,
+  });
+
+  const cmsConfig = cmsData?.contentCMSList?.find(
+    (cms: any) => cms.clientPortalId === clientPortalId,
+  );
+  const availableLanguages: string[] = cmsConfig?.languages || [];
+  const defaultLanguage: string = cmsConfig?.language || 'en';
+
+  const {
+    selectedLanguage,
+    isTranslationMode,
+    languageOptions,
+    handleLanguageChange,
+  } = useCmsTranslation({
+    objectId: menu?._id,
+    type: 'menu',
+    availableLanguages,
+    defaultLanguage,
+  });
 
   const form = useForm<MenuFormData>({
     defaultValues: {
@@ -143,11 +169,34 @@ export function MenuDrawer({
       input.parentId = data.parentId;
     }
 
+    if (selectedLanguage) {
+      input.language = selectedLanguage;
+    }
+
     if (isEditing) {
       editMenu({ variables: { _id: menu!._id, input } });
     } else {
       addMenu({ variables: { input } });
     }
+  };
+
+  /**
+   * Language switch handler for menus.
+   * Maps: label ↔ title in translations.
+   */
+  const onLanguageChange = (lang: string) => {
+    handleLanguageChange(
+      lang,
+      () => ({
+        title: form.getValues('label') || '',
+      }),
+      (data) => {
+        form.setValue('label', data.title || '');
+      },
+      menu
+        ? { title: menu.label || '' }
+        : undefined,
+    );
   };
 
   return (
@@ -180,12 +229,29 @@ export function MenuDrawer({
               </div>
             )}
 
+            {/* Language selector */}
+            {availableLanguages.length > 0 && (
+              <LanguageSelector
+                selectedLanguage={selectedLanguage}
+                languageOptions={languageOptions}
+                onLanguageChange={onLanguageChange}
+              />
+            )}
+
+            {/* Label - translatable (stored as title in translations) */}
             <Form.Field
               control={form.control}
               name="label"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Label</Form.Label>
+                  <Form.Label>
+                    Label
+                    {isTranslationMode && (
+                      <span className="ml-2 text-xs text-blue-600">
+                        ({selectedLanguage})
+                      </span>
+                    )}
+                  </Form.Label>
                   <Form.Control>
                     <Input {...field} placeholder="Enter label" required />
                   </Form.Control>
@@ -194,12 +260,20 @@ export function MenuDrawer({
               )}
             />
 
+            {/* URL - shared field */}
             <Form.Field
               control={form.control}
               name="url"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>URL</Form.Label>
+                  <Form.Label>
+                    URL
+                    {isTranslationMode && (
+                      <span className="ml-2 text-xs text-gray-500">
+                        (shared across languages)
+                      </span>
+                    )}
+                  </Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
@@ -212,12 +286,20 @@ export function MenuDrawer({
               )}
             />
 
+            {/* Kind - shared field */}
             <Form.Field
               control={form.control}
               name="kind"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Kind</Form.Label>
+                  <Form.Label>
+                    Kind
+                    {isTranslationMode && (
+                      <span className="ml-2 text-xs text-gray-500">
+                        (shared across languages)
+                      </span>
+                    )}
+                  </Form.Label>
                   <Form.Control>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
@@ -234,12 +316,20 @@ export function MenuDrawer({
               )}
             />
 
+            {/* Parent menu - shared field */}
             <Form.Field
               control={form.control}
               name="parentId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Parent Menu</Form.Label>
+                  <Form.Label>
+                    Parent Menu
+                    {isTranslationMode && (
+                      <span className="ml-2 text-xs text-gray-500">
+                        (shared across languages)
+                      </span>
+                    )}
+                  </Form.Label>
                   <Form.Control>
                     <Select
                       value={field.value || 'none'}

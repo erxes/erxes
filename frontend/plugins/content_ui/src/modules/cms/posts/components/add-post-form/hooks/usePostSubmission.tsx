@@ -5,6 +5,7 @@ import {
   normalizeAttachment,
 } from '../../../formHelpers';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRef, useEffect, useCallback } from 'react';
 
 interface InlineContent {
   text?: string;
@@ -56,9 +57,20 @@ interface PostFormData {
   customFieldsData?: CustomField[];
 }
 
+interface DefaultLangData {
+  title: string;
+  content: string;
+  description: string;
+  customFieldsData: any[];
+}
+
 interface UsePostSubmissionProps {
   websiteId: string;
   editingPost?: { _id?: string };
+  selectedLanguage?: string;
+  defaultLanguage?: string;
+  defaultLangData?: DefaultLangData | null;
+  translations?: Record<string, any>;
   onClose?: () => void;
 }
 
@@ -133,6 +145,10 @@ const redirectToPosts = (
 export const usePostSubmission = ({
   websiteId,
   editingPost,
+  selectedLanguage,
+  defaultLanguage,
+  defaultLangData,
+  translations,
   onClose,
 }: UsePostSubmissionProps) => {
   const navigate = useNavigate();
@@ -142,7 +158,36 @@ export const usePostSubmission = ({
     websiteId,
   });
 
-  const onSubmit = async (data: PostFormData) => {
+  // Keep refs so the stable onSubmit always reads the latest values
+  const selectedLanguageRef = useRef(selectedLanguage);
+  useEffect(() => {
+    selectedLanguageRef.current = selectedLanguage;
+  }, [selectedLanguage]);
+
+  const defaultLanguageRef = useRef(defaultLanguage);
+  useEffect(() => {
+    defaultLanguageRef.current = defaultLanguage;
+  }, [defaultLanguage]);
+
+  const defaultLangDataRef = useRef(defaultLangData);
+  useEffect(() => {
+    defaultLangDataRef.current = defaultLangData;
+  }, [defaultLangData]);
+
+  const translationsRef = useRef(translations);
+  useEffect(() => {
+    translationsRef.current = translations;
+  }, [translations]);
+
+  /**
+   * onSubmitRef holds the latest submit implementation. The returned onSubmit
+   * is a stable useCallback wrapper — safe to capture once in onFormReady.
+   */
+  const onSubmitRef = useRef<(data: PostFormData) => Promise<void>>(
+    async () => {},
+  );
+
+  onSubmitRef.current = async (data: PostFormData) => {
     if (!data.type) {
       toast({
         title: 'Validation Error',
@@ -178,11 +223,43 @@ export const usePostSubmission = ({
         item.value !== '' && item.value !== null && item.value !== undefined,
     );
 
-    const input = {
+    const currentLanguage = selectedLanguageRef.current;
+    const curDefaultLanguage = defaultLanguageRef.current;
+    const curDefaultLangData = defaultLangDataRef.current;
+    const curTranslations = translationsRef.current || {};
+    const isCreating = !editingPost?._id;
+    const isNonDefaultLang =
+      !!currentLanguage &&
+      !!curDefaultLanguage &&
+      currentLanguage !== curDefaultLanguage;
+
+    // For new posts created while on a non-default language:
+    // use defaultLangData for the main document, send current form data as translation
+    let mainTitle = computedTitle;
+    let mainContent = contentHtml;
+    let mainExcerpt =
+      data.description?.trim() === '' ? null : data.description?.trim();
+    let mainCustomFields = filteredCustomFields;
+
+    if (isCreating && isNonDefaultLang && curDefaultLangData) {
+      mainTitle =
+        curDefaultLangData.title?.trim() || computedTitle || 'Untitled';
+      const rawDefault = curDefaultLangData.content ?? '';
+      mainContent = rawDefault.trimStart().startsWith('[')
+        ? blocksToHtml(rawDefault)
+        : rawDefault;
+      mainExcerpt = curDefaultLangData.description?.trim() || null;
+      mainCustomFields = curDefaultLangData.customFieldsData?.filter(
+        (item: any) =>
+          item.value !== '' && item.value !== null && item.value !== undefined,
+      );
+    }
+
+    const input: Record<string, any> = {
       clientPortalId: websiteId,
-      title: computedTitle,
-      slug: editingPost?._id ? data.slug : generateSlug(computedTitle),
-      content: contentHtml,
+      title: mainTitle,
+      slug: editingPost?._id ? data.slug : generateSlug(mainTitle),
+      content: mainContent,
       type: data.type,
       status: data.status ?? 'draft',
       categoryIds: data.categoryIds,
@@ -192,8 +269,7 @@ export const usePostSubmission = ({
       autoArchiveDate: data.enableAutoArchive
         ? data.autoArchiveDate
         : undefined,
-      excerpt:
-        data.description?.trim() === '' ? null : data.description?.trim(),
+      excerpt: mainExcerpt,
       thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
       images: imagesPayload.length ? imagesPayload : undefined,
       video: videoPayload,
@@ -203,10 +279,61 @@ export const usePostSubmission = ({
       attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
       pdfAttachment: pdfPayload ? { pdf: pdfPayload } : undefined,
       customFieldsData:
-        filteredCustomFields && filteredCustomFields.length > 0
-          ? filteredCustomFields
+        mainCustomFields && mainCustomFields.length > 0
+          ? mainCustomFields
           : undefined,
     };
+
+    if (currentLanguage) {
+      input.language = currentLanguage;
+    }
+
+    // Build translations array for create — includes all non-default language data
+    if (isCreating && curDefaultLanguage) {
+      const translationEntries: any[] = [];
+
+      // Add all previously saved translations from language switching
+      for (const [lang, tData] of Object.entries(curTranslations)) {
+        if (lang === curDefaultLanguage) continue;
+        if (tData.title || tData.content || tData.excerpt) {
+          translationEntries.push({
+            language: lang,
+            title: tData.title || '',
+            content: tData.content || '',
+            excerpt: tData.excerpt || '',
+            customFieldsData: tData.customFieldsData,
+            type: 'post',
+          });
+        }
+      }
+
+      // Add current form data as translation if on non-default language
+      // (it hasn't been saved to translations state yet)
+      if (isNonDefaultLang) {
+        // Remove any existing entry for current language (will be replaced)
+        const idx = translationEntries.findIndex(
+          (t) => t.language === currentLanguage,
+        );
+        if (idx >= 0) translationEntries.splice(idx, 1);
+
+        translationEntries.push({
+          language: currentLanguage,
+          title: computedTitle,
+          content: contentHtml,
+          excerpt:
+            data.description?.trim() === '' ? '' : data.description?.trim(),
+          customFieldsData:
+            filteredCustomFields && filteredCustomFields.length > 0
+              ? filteredCustomFields
+              : undefined,
+          type: 'post',
+        });
+      }
+
+      if (translationEntries.length > 0) {
+        input.translations = translationEntries;
+      }
+    }
 
     try {
       if (editingPost?._id) {
@@ -234,6 +361,12 @@ export const usePostSubmission = ({
       });
     }
   };
+
+  // Stable wrapper — safe to capture in onFormReady
+  const onSubmit = useCallback(
+    async (data: PostFormData) => onSubmitRef.current(data),
+    [],
+  );
 
   return {
     onSubmit,

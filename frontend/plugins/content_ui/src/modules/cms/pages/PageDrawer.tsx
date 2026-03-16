@@ -2,9 +2,13 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useQuery } from '@apollo/client';
 import { useAddPage } from './hooks/useAddPage';
 import { useEditPage } from './hooks/useEditPage';
 import { IPageDrawerProps, IPageFormData } from './types/pageTypes';
+import { CONTENT_CMS_LIST } from '../graphql/queries';
+import { useCmsTranslation } from '../shared/hooks/useCmsTranslation';
+import { LanguageSelector } from '../shared/LanguageSelector';
 
 export function PageDrawer({
   page,
@@ -13,6 +17,30 @@ export function PageDrawer({
 }: IPageDrawerProps) {
   const isEditing = !!page;
   const [hasPermissionError, setHasPermissionError] = useState(false);
+
+  // Fetch CMS config for languages
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+    skip: !clientPortalId,
+  });
+
+  const cmsConfig = cmsData?.contentCMSList?.find(
+    (cms: any) => cms.clientPortalId === clientPortalId,
+  );
+  const availableLanguages: string[] = cmsConfig?.languages || [];
+  const defaultLanguage: string = cmsConfig?.language || 'en';
+
+  const {
+    selectedLanguage,
+    isTranslationMode,
+    languageOptions,
+    handleLanguageChange,
+  } = useCmsTranslation({
+    objectId: page?._id,
+    type: 'page',
+    availableLanguages,
+    defaultLanguage,
+  });
 
   const form = useForm<IPageFormData>({
     defaultValues: {
@@ -87,7 +115,7 @@ export function PageDrawer({
   };
 
   const onSubmit = (data: IPageFormData) => {
-    const input = {
+    const input: Record<string, any> = {
       clientPortalId: data.clientPortalId,
       name: data.name,
       slug: data.path,
@@ -95,11 +123,36 @@ export function PageDrawer({
       status: data.status || 'active',
     };
 
+    if (selectedLanguage && availableLanguages.length > 0) {
+      input.language = selectedLanguage;
+    }
+
     if (isEditing && page?._id) {
       editPage({ variables: { _id: page._id, input }, onCompleted, onError });
     } else {
       addPage({ variables: { input }, onCompleted, onError });
     }
+  };
+
+  /**
+   * Language switch handler for pages.
+   * Maps: name ↔ title, description ↔ content in translations.
+   */
+  const onLanguageChange = (lang: string) => {
+    handleLanguageChange(
+      lang,
+      () => ({
+        title: form.getValues('name') || '',
+        content: form.getValues('description') || '',
+      }),
+      (data) => {
+        form.setValue('name', data.title || '');
+        form.setValue('description', data.content || '');
+      },
+      page
+        ? { title: page.name || '', content: page.description || '' }
+        : undefined,
+    );
   };
 
   return (
@@ -120,12 +173,29 @@ export function PageDrawer({
           </div>
         )}
 
+        {/* Language selector */}
+        {availableLanguages.length > 0 && (
+          <LanguageSelector
+            selectedLanguage={selectedLanguage}
+            languageOptions={languageOptions}
+            onLanguageChange={onLanguageChange}
+          />
+        )}
+
+        {/* Name - translatable (stored as title in translations) */}
         <Form.Field
           control={form.control}
           name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Name</Form.Label>
+              <Form.Label>
+                Name
+                {isTranslationMode && (
+                  <span className="ml-2 text-xs text-blue-600">
+                    ({selectedLanguage})
+                  </span>
+                )}
+              </Form.Label>
               <Form.Control>
                 <Input {...field} placeholder="Enter name" required />
               </Form.Control>
@@ -134,12 +204,20 @@ export function PageDrawer({
           )}
         />
 
+        {/* Path - shared field */}
         <Form.Field
           control={form.control}
           name="path"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Path</Form.Label>
+              <Form.Label>
+                Path
+                {isTranslationMode && (
+                  <span className="ml-2 text-xs text-gray-500">
+                    (shared across languages)
+                  </span>
+                )}
+              </Form.Label>
               <Form.Control>
                 <Input {...field} placeholder="/about-us" required />
               </Form.Control>
@@ -148,12 +226,20 @@ export function PageDrawer({
           )}
         />
 
+        {/* Description - translatable (stored as content in translations) */}
         <Form.Field
           control={form.control}
           name="description"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Description</Form.Label>
+              <Form.Label>
+                Description
+                {isTranslationMode && (
+                  <span className="ml-2 text-xs text-blue-600">
+                    ({selectedLanguage})
+                  </span>
+                )}
+              </Form.Label>
               <Form.Control>
                 <Textarea {...field} placeholder="Enter description" rows={4} />
               </Form.Control>
@@ -162,12 +248,20 @@ export function PageDrawer({
           )}
         />
 
+        {/* Status - shared field */}
         <Form.Field
           control={form.control}
           name="status"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Status</Form.Label>
+              <Form.Label>
+                Status
+                {isTranslationMode && (
+                  <span className="ml-2 text-xs text-gray-500">
+                    (shared across languages)
+                  </span>
+                )}
+              </Form.Label>
               <Form.Control>
                 <Select
                   {...field}
