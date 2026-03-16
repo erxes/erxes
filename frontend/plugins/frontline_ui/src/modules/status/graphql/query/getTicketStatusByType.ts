@@ -15,3 +15,17 @@ export const GET_TICKET_STATUS_BY_TYPE = gql`
     }
   }
 `;
+
+export const GET_TICKET_STATUS_BY_ID = gql`
+  query GetTicketStatus($_id: String!) {
+    getTicketStatus(_id: $_id) {
+      _id
+      name
+      pipelineId
+      visibilityType
+      memberIds
+      canMoveMemberIds
+      canEditMemberIds
+    }
+  }
+`;
