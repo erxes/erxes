@@ -20,11 +20,11 @@ type SortableItemType = {
 };
 
 type Props<T extends SortableItemType> = {
-  items: T[];
-  onReorder: (items: T[]) => void;
-  renderItem: (item: T, index: number) => React.ReactNode;
-  className?: string;
-  itemKey?: keyof T;
+  readonly items: T[];
+  readonly onReorder: (items: T[]) => void;
+  readonly renderItem: (item: T, index: number) => React.ReactNode;
+  readonly className?: string;
+  readonly itemKey?: keyof T;
 };
 
 export default function SortableList<T extends SortableItemType>({
@@ -79,8 +79,8 @@ function SortableItem({
   id,
   children,
 }: {
-  id: string;
-  children: React.ReactNode;
+  readonly id: string;
+  readonly children: React.ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
