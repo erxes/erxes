@@ -77,8 +77,15 @@ NavigationMenuLinkItem.displayName = 'NavigationMenuLinkItem';
 export const SettingsNavigationMenuLinkItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
   React.ComponentProps<typeof NavigationMenuLinkItem>
->(({ pathPrefix, ...props }, ref) => {
+>(({ pathPrefix, module, ...props }, ref) => {
   const settingsPathPrefix = `settings/${pathPrefix}`;
+
+  const { can } = usePermissionContext();
+
+  if (module && !can(module)) {
+    return null;
+  }
+
   return (
     <NavigationMenuLinkItem
       {...props}

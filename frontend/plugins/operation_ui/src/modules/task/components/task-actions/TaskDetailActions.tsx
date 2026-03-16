@@ -1,4 +1,4 @@
-import { Button, Command, Popover, toast } from 'erxes-ui';
+import { Button, Can, Command, Popover, toast, usePermissions } from 'erxes-ui';
 import { useState } from 'react';
 import {
   TasksSetDueDateCommandBarItem,
@@ -52,47 +52,51 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
             <Command.Input></Command.Input>
             <Command.List className="p-0">
               <Command.Group className="p-1">
-                <TasksSetDueDateTrigger setCurrentContent={setCurrentContent} />
-                <TasksMoveToTeamTrigger setCurrentContent={setCurrentContent} />
+                <Can action="taskUpdate">
+                  <TasksSetDueDateTrigger setCurrentContent={setCurrentContent} />
+                  <TasksMoveToTeamTrigger setCurrentContent={setCurrentContent} />
+                </Can>
                 <MakeACopyTrigger taskId={taskId} setOpen={setOpen} />
                 <CopyTaskTrigger setCurrentContent={setCurrentContent} />
               </Command.Group>
-              <Command.Separator />
-              <Command.Group>
-                <Command.Item
-                  className="text-destructive"
-                  onSelect={async () => {
-                    await removeTask(taskId, {
-                      onCompleted: () => {
-                        setOpen(false);
-                        setActiveTask(null);
-                        if (teamId) {
-                          navigate(`/operation/team/${teamId}/tasks`);
-                        } else {
-                          navigate(`/operation/tasks`);
-                        }
-                        toast({
-                          title: 'Success',
-                          description: `Deleted ${task?.name}`,
-                          variant: 'success',
-                        });
-                      },
-                      onError: () => {
-                        toast({
-                          title: 'Error',
-                          description: `Failed to delete ${task?.name}`,
-                          variant: 'destructive',
-                        });
-                      },
-                    });
-                  }}
-                >
-                  <div className="flex gap-2 items-center">
-                    <IconTrash className="size-4" />
-                    Delete
-                  </div>
-                </Command.Item>
-              </Command.Group>
+              <Can action="taskRemove">
+                <Command.Separator />
+                <Command.Group>
+                  <Command.Item
+                    className="text-destructive"
+                    onSelect={async () => {
+                      await removeTask(taskId, {
+                        onCompleted: () => {
+                          setOpen(false);
+                          setActiveTask(null);
+                          if (teamId) {
+                            navigate(`/operation/team/${teamId}/tasks`);
+                          } else {
+                            navigate(`/operation/tasks`);
+                          }
+                          toast({
+                            title: 'Success',
+                            description: `Deleted ${task?.name}`,
+                            variant: 'success',
+                          });
+                        },
+                        onError: () => {
+                          toast({
+                            title: 'Error',
+                            description: `Failed to delete ${task?.name}`,
+                            variant: 'destructive',
+                          });
+                        },
+                      });
+                    }}
+                  >
+                    <div className="flex gap-2 items-center">
+                      <IconTrash className="size-4" />
+                      Delete
+                    </div>
+                  </Command.Item>
+                </Command.Group>
+              </Can>
             </Command.List>
           </Command>
         )}

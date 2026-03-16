@@ -2,6 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { ProjectHotKeyScope } from '@/project/constants/ProjectHotKeyScope';
 import {
   Button,
+  Can,
   Kbd,
   Sheet,
   usePreviousHotkeyScope,
@@ -29,23 +30,25 @@ export const AddProjectSheet = () => {
   useScopedHotkeys(`esc`, () => onClose(), ProjectHotKeyScope.ProjectAddSheet);
 
   return (
-    <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Add project
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View
-        className="sm:max-w-3xl w-full p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <AddProjectForm onClose={onClose} />
-      </Sheet.View>
-    </Sheet>
+    <Can action="projectCreate">
+      <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus />
+            Add project
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+        <Sheet.View
+          className="sm:max-w-3xl w-full p-0"
+          onEscapeKeyDown={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <AddProjectForm onClose={onClose} />
+        </Sheet.View>
+      </Sheet>
+    </Can>
   );
 };
 
