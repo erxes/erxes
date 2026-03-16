@@ -598,7 +598,7 @@ const limitedMath = create(
   {
     number: 'number',
     precision: 64,
-  }
+  },
 );
 
 function safeEval(expression: string, scope: Record<string, number>): number {
