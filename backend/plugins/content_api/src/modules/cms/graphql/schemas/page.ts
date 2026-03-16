@@ -31,7 +31,7 @@ export const types = `
         customFieldsData: JSON
         customFieldsMap: JSON
         thumbnail: Attachment
-        images: [Attachment]
+        pageImages: [Attachment]
         video: Attachment
         audio: Attachment
         documents: [Attachment]
@@ -71,7 +71,7 @@ export const inputs = `
         slug: String
         content: String
         thumbnail: AttachmentInput
-        images: [AttachmentInput]
+        pageImages: [AttachmentInput]
         video: AttachmentInput
         audio: AttachmentInput
         documents: [AttachmentInput]
