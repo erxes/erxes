@@ -1,5 +1,8 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
-import { GET_TICKET_STATUS_BY_TYPE } from '@/status/graphql/query/getTicketStatusByType';
+import {
+  GET_TICKET_STATUS_BY_TYPE,
+  GET_TICKET_STATUS_BY_ID,
+} from '@/status/graphql/query/getTicketStatusByType';
 import { ITicketStatus, ITicketStatusChoice } from '@/status/types';
 import { useParams } from 'react-router';
 import {
@@ -55,6 +58,22 @@ export const useGetTicketStatusesByPipeline = (options?: QueryHookOptions) => {
   const statuses = data?.getTicketStatusesChoicesPipeline;
 
   return { statuses: statuses || [], loading, error };
+};
+
+interface IUseGetTicketStatusByIdResponse {
+  getTicketStatus: ITicketStatus;
+}
+
+export const useGetTicketStatusById = (_id?: string) => {
+  const { data, loading, error } = useQuery<IUseGetTicketStatusByIdResponse>(
+    GET_TICKET_STATUS_BY_ID,
+    {
+      variables: { _id },
+      skip: !_id,
+    },
+  );
+
+  return { status: data?.getTicketStatus, loading, error };
 };
 
 export const useGetAccessibleTicketStatuses = (options?: QueryHookOptions) => {

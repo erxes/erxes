@@ -143,7 +143,6 @@ export function ArticleList({
             </div>
           );
         } catch (error) {
-          console.log(error);
           return <div className="opacity-80 ml-2">Invalid date</div>;
         }
       },

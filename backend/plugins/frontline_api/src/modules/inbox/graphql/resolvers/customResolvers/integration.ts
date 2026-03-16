@@ -117,8 +117,6 @@ export default {
     _args,
     { subdomain }: IContext,
   ) {
-    console.log(integration, 'integration');
-    console.log(_args, '_args');
     const inboxId: string = integration._id;
 
     const serviceName = integration.kind.includes('facebook')

@@ -37,8 +37,6 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
 
   const { eventType, mail } = parsedMessage;
 
-  console.log('parsedMessage', parsedMessage);
-
   if (!mail) {
     return;
   }
@@ -98,18 +96,12 @@ export const engageTracker = async (req: Request, res: Response) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    console.log('handleMessage');
-
     // Handle case where req.body is populated (typically for SaaS SES events)
     if (req.body && Object.keys(req.body).length) {
       const { message: messageString } = req.body;
 
-      console.log('req.body', req.body);
-
       if (messageString) {
         const message = JSON.parse(messageString);
-
-        console.log('message', message);
 
         await handleMessage(models, subdomain, message);
 
@@ -129,12 +121,8 @@ export const engageTracker = async (req: Request, res: Response) => {
     });
 
     req.on('end', async () => {
-      console.log('chunks', chunks);
-
       try {
         const message = JSON.parse(chunks.join(''));
-
-        console.log(`Receiving on tracker: ${JSON.stringify(message)}`);
 
         const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
