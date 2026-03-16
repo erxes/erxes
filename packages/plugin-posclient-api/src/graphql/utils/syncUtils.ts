@@ -1,28 +1,28 @@
-import { IModels } from '../../connectionResolver';
-import { IPosUserDocument } from '../../models/definitions/posUsers';
-import { IConfig, IConfigDocument } from '../../models/definitions/configs';
-import { getService } from '@erxes/api-utils/src/serviceDiscovery';
+import { IModels } from "../../connectionResolver";
+import { IPosUserDocument } from "../../models/definitions/posUsers";
+import { IConfig, IConfigDocument } from "../../models/definitions/configs";
+import { getService } from "@erxes/api-utils/src/serviceDiscovery";
 import {
   PRODUCT_CATEGORY_STATUSES,
-  PRODUCT_STATUSES
-} from '../../models/definitions/constants';
+  PRODUCT_STATUSES,
+} from "../../models/definitions/constants";
 
 export const getServerAddress = async (
   subdomain: string,
-  serviceName?: string
+  serviceName?: string,
 ) => {
   const { SERVER_DOMAIN } = process.env;
   if (SERVER_DOMAIN) {
     return `${SERVER_DOMAIN.replace(
-      '<subdomain>',
-      subdomain
-    )}/pl:${serviceName || 'pos'}`;
+      "<subdomain>",
+      subdomain,
+    )}/pl:${serviceName || "pos"}`;
   }
 
-  const posService = await getService(serviceName || 'pos');
+  const posService = await getService(serviceName || "pos");
 
   if (!posService.address) {
-    return `http://localhost:4000/pl:${serviceName || 'pos'}`;
+    return `http://localhost:4000/pl:${serviceName || "pos"}`;
   }
 
   return posService.address;
@@ -32,7 +32,7 @@ export const importUsers = async (
   models: IModels,
   users: IPosUserDocument[],
   token: string,
-  isAdmin: boolean = false
+  isAdmin: boolean = false,
 ) => {
   for (const user of users) {
     await models.PosUsers.createOrUpdateUser(
@@ -43,9 +43,9 @@ export const importUsers = async (
         password: user.password,
         isOwner: user.isOwner || isAdmin,
         isActive: user.isActive,
-        details: user.details
+        details: user.details,
       },
-      token
+      token,
     );
   }
 };
@@ -53,32 +53,34 @@ export const importUsers = async (
 export const importSlots = async (
   models: IModels,
   slots: any[],
-  token: string
+  token: string,
 ) => {
   const pos = await models.Configs.getConfig({ token });
   await models.PosSlots.deleteMany({ posId: pos.posId });
-  await models.PosSlots.insertMany(slots.map(s => ({ ...s, posToken: token })));
+  await models.PosSlots.insertMany(
+    slots.map((s) => ({ ...s, posToken: token })),
+  );
 };
 
 export const preImportProducts = async (
   models: IModels,
   token: string,
-  groups: any
+  groups: any,
 ) => {
   let importProductIds: string[] = [];
   const importProductCatIds: string[] = [];
   const oldAllProducts = await models.Products.find(
     { tokens: { $in: [token] } },
-    { _id: 1, tokens: 1 }
+    { _id: 1, tokens: 1 },
   ).lean();
 
-  const oldProductIds = (oldAllProducts || []).map(p => p._id);
+  const oldProductIds = (oldAllProducts || []).map((p) => p._id);
   const oldAllProductCats = await models.ProductCategories.find(
     { tokens: { $in: [token] } },
-    { _id: 1, tokens: 1 }
+    { _id: 1, tokens: 1 },
   ).lean();
 
-  const oldCategoryIds = (oldAllProductCats || []).map(p => p._id);
+  const oldCategoryIds = (oldAllProductCats || []).map((p) => p._id);
 
   for (const group of groups) {
     const categories = group.categories || [];
@@ -86,48 +88,48 @@ export const preImportProducts = async (
     for (const category of categories) {
       importProductCatIds.push(category._id);
       importProductIds = importProductIds.concat(
-        (category.products || []).map(p => p._id)
+        (category.products || []).map((p) => p._id),
       );
     }
   } // end group loop
 
   const removeProductIds = oldProductIds.filter(
-    id => !importProductIds.includes(id)
+    (id) => !importProductIds.includes(id),
   );
 
   await models.Products.updateMany(
     { _id: { $in: removeProductIds } },
-    { $pull: { tokens: { $in: [token] } } }
+    { $pull: { tokens: { $in: [token] } } },
   );
 
   const removeCategoryIds =
-    oldCategoryIds.filter(id => !importProductCatIds.includes(id)) || [];
+    oldCategoryIds.filter((id) => !importProductCatIds.includes(id)) || [];
 
   await models.ProductCategories.updateMany(
     { _id: { $in: removeCategoryIds } },
-    { $pull: { tokens: { $in: [token] } } }
+    { $pull: { tokens: { $in: [token] } } },
   );
 
   const deleteProductIds = await models.Products.find(
     { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
-    { _id: 1 }
+    { _id: 1 },
   ).lean();
   await models.Products.removeProducts(
-    (deleteProductIds || []).map(d => d._id)
+    (deleteProductIds || []).map((d) => d._id),
   );
 
   const deleteCategoryIds = await models.ProductCategories.find(
     { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
-    { _id: 1 }
+    { _id: 1 },
   ).lean();
 
-  for (const catId of (deleteCategoryIds || []).map(d => d._id) || []) {
+  for (const catId of (deleteCategoryIds || []).map((d) => d._id) || []) {
     try {
       await models.ProductCategories.removeProductCategory(catId);
     } catch (_e) {
       await models.ProductCategories.updateOne(
         { _id: catId },
-        { $set: { status: PRODUCT_CATEGORY_STATUSES.DISABLED } }
+        { $set: { status: PRODUCT_CATEGORY_STATUSES.DISABLED } },
       );
     }
   }
@@ -137,12 +139,12 @@ export const importProducts = async (
   subdomain,
   models: IModels,
   token: string,
-  groups: any = []
+  groups: any = [],
 ) => {
-  const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
+  const FILE_PATH = `${await getServerAddress(subdomain, "core")}/read-file`;
 
-  const attachmentUrlChanger = attachment => {
-    return attachment && attachment.url && !attachment.url.includes('http')
+  const attachmentUrlChanger = (attachment) => {
+    return attachment && attachment.url && !attachment.url.includes("http")
       ? { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` }
       : attachment;
   };
@@ -156,9 +158,9 @@ export const importProducts = async (
           { _id: category._id },
           {
             $set: { ...category, products: undefined },
-            $addToSet: { tokens: token }
+            $addToSet: { tokens: token },
           },
-          { upsert: true }
+          { upsert: true },
         );
       }
 
@@ -179,20 +181,19 @@ export const importProducts = async (
                 ...product,
                 [`prices.${token}`]: product.unitPrice,
                 [`taxRules.${token}`]: product.taxRule || null,
-                uom: product.uom || 'ш',
+                uom: product.uom || "ш",
                 attachment: attachmentUrlChanger(product.attachment),
-                attachmentMore: (product.attachmentMore || []).map(a =>
-                  attachmentUrlChanger(a)
+                attachmentMore: (product.attachmentMore || []).map((a) =>
+                  attachmentUrlChanger(a),
                 ),
                 [`isCheckRems.${token}`]: product.isCheckRem,
                 sameDefault: product.sameDefault || null,
                 sameMasks: product.sameMasks || null,
               },
               $addToSet: { tokens: token },
-
             },
-            upsert: true
-          }
+            upsert: true,
+          },
         });
       }
 
@@ -207,53 +208,53 @@ export const importProducts = async (
 export const extractConfig = async (subdomain, doc) => {
   const {
     uiOptions = {
-      favIcon: '',
-      logo: '',
-      bgImage: '',
-      receiptIcon: '',
-      kioskHeaderImage: '',
-      mobileAppImage: '',
-      qrCodeImage: ''
-    }
+      favIcon: "",
+      logo: "",
+      bgImage: "",
+      receiptIcon: "",
+      kioskHeaderImage: "",
+      mobileAppImage: "",
+      qrCodeImage: "",
+    },
   } = doc;
 
-  const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
+  const FILE_PATH = `${await getServerAddress(subdomain, "core")}/read-file`;
 
   try {
     uiOptions.favIcon =
-      uiOptions.favIcon && uiOptions.favIcon.indexOf('http') === -1
+      uiOptions.favIcon && uiOptions.favIcon.indexOf("http") === -1
         ? `${FILE_PATH}?key=${uiOptions.favIcon}`
         : uiOptions.favIcon;
 
     uiOptions.logo =
-      uiOptions.logo && uiOptions.logo.indexOf('http') === -1
+      uiOptions.logo && uiOptions.logo.indexOf("http") === -1
         ? `${FILE_PATH}?key=${uiOptions.logo}`
         : uiOptions.logo;
 
     uiOptions.bgImage =
-      uiOptions.bgImage && uiOptions.bgImage.indexOf('http') === -1
+      uiOptions.bgImage && uiOptions.bgImage.indexOf("http") === -1
         ? `${FILE_PATH}?key=${uiOptions.bgImage}`
         : uiOptions.bgImage;
 
     uiOptions.receiptIcon =
-      uiOptions.receiptIcon && uiOptions.receiptIcon.indexOf('http') === -1
+      uiOptions.receiptIcon && uiOptions.receiptIcon.indexOf("http") === -1
         ? `${FILE_PATH}?key=${uiOptions.receiptIcon}`
         : uiOptions.receiptIcon;
 
     uiOptions.kioskHeaderImage =
       uiOptions.kioskHeaderImage &&
-        uiOptions.kioskHeaderImage.indexOf('http') === -1
+      uiOptions.kioskHeaderImage.indexOf("http") === -1
         ? `${FILE_PATH}?key=${uiOptions.kioskHeaderImage}`
         : uiOptions.kioskHeaderImage;
 
     uiOptions.mobileAppImage =
       uiOptions.mobileAppImage &&
-        uiOptions.mobileAppImage.indexOf('http') === -1
+      uiOptions.mobileAppImage.indexOf("http") === -1
         ? `${FILE_PATH}?key=${uiOptions.mobileAppImage}`
         : uiOptions.mobileAppImage;
 
     uiOptions.qrCodeImage =
-      uiOptions.qrCodeImage && uiOptions.qrCodeImage.indexOf('http') === -1
+      uiOptions.qrCodeImage && uiOptions.qrCodeImage.indexOf("http") === -1
         ? `${FILE_PATH}?key=${uiOptions.qrCodeImage}`
         : uiOptions.qrCodeImage;
   } catch (e) {
@@ -263,6 +264,7 @@ export const extractConfig = async (subdomain, doc) => {
   return {
     name: doc.name,
     description: doc.description,
+    serviceCharge: doc.serviceCharge,
     pdomain: doc.pdomain,
     productDetails: doc.productDetails,
     adminIds: doc.adminIds,
@@ -297,7 +299,7 @@ export const extractConfig = async (subdomain, doc) => {
     isCheckRemainder: doc.isCheckRemainder,
     checkExcludeCategoryIds: doc.checkExcludeCategoryIds,
     saveRemainder: doc.saveRemainder,
-    banFractions: doc.banFractions
+    banFractions: doc.banFractions,
   };
 };
 
@@ -305,17 +307,17 @@ export const validateConfig = (config: IConfig) => {
   const { adminIds = [], cashierIds = [], name } = config;
 
   if (!name) {
-    throw new Error('POS name missing');
+    throw new Error("POS name missing");
   }
 
   if (adminIds.length + cashierIds.length === 0) {
-    throw new Error('Admin & cashier user list empty');
+    throw new Error("Admin & cashier user list empty");
   }
 };
 
 // receive product data through message broker
 export const receiveProduct = async (models: IModels, data) => {
-  const { token, action = '', object = {}, updatedDocument } = data;
+  const { token, action = "", object = {}, updatedDocument } = data;
 
   await models.Configs.getConfig({ token });
 
@@ -326,18 +328,18 @@ export const receiveProduct = async (models: IModels, data) => {
     tokens = product.tokens;
   }
 
-  if (action === 'create' || action === 'update') {
+  if (action === "create" || action === "update") {
     if (!tokens.includes(token)) {
       tokens.push(token);
     }
-    const info = action === 'update' ? updatedDocument : object;
+    const info = action === "update" ? updatedDocument : object;
     if (info.attachment && info.attachment.url) {
       const FILE_PATH = `${await getServerAddress(
-        'localhost',
-        'core'
+        "localhost",
+        "core",
       )}/read-file`;
       info.attachment.url =
-        info.attachment.url.indexOf('http') === -1
+        info.attachment.url.indexOf("http") === -1
           ? `${FILE_PATH}?key=${info.attachment.url}`
           : info.attachment.url;
     }
@@ -353,11 +355,11 @@ export const receiveProduct = async (models: IModels, data) => {
         sameDefault: info.sameDefault || null,
         sameMasks: info.sameMasks || null,
       },
-      { upsert: true }
+      { upsert: true },
     );
   }
 
-  if (action === 'delete') {
+  if (action === "delete") {
     if (!product || product.status === PRODUCT_STATUSES.DELETED) {
       return;
     }
@@ -367,7 +369,7 @@ export const receiveProduct = async (models: IModels, data) => {
 };
 
 export const receiveProductCategory = async (models: IModels, data) => {
-  const { token, action = '', object = {}, updatedDocument = {} } = data;
+  const { token, action = "", object = {}, updatedDocument = {} } = data;
 
   await models.Configs.getConfig({ token });
 
@@ -378,19 +380,19 @@ export const receiveProductCategory = async (models: IModels, data) => {
     tokens = category.tokens;
   }
 
-  if (action === 'create' || action === 'update') {
+  if (action === "create" || action === "update") {
     if (!tokens.includes(token)) {
       tokens.push(token);
     }
-    const info = action === 'update' ? updatedDocument : object;
+    const info = action === "update" ? updatedDocument : object;
     return await models.ProductCategories.updateOne(
       { _id: object._id },
       { ...info, tokens },
-      { upsert: true }
+      { upsert: true },
     );
   }
 
-  if (action === 'delete') {
+  if (action === "delete") {
     if (!category || category.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
       return;
     }
@@ -400,14 +402,14 @@ export const receiveProductCategory = async (models: IModels, data) => {
 };
 
 export const receiveUser = async (models: IModels, data) => {
-  const { action = '', object = {}, updatedDocument = {}, token } = data;
+  const { action = "", object = {}, updatedDocument = {}, token } = data;
   const userId =
-    updatedDocument && updatedDocument._id ? updatedDocument._id : '';
+    updatedDocument && updatedDocument._id ? updatedDocument._id : "";
 
   // user create logic will be implemented in pos config changes
   const user = await models.PosUsers.findOne({ _id: userId });
 
-  if (action === 'update' && user) {
+  if (action === "update" && user) {
     const tokens = user.tokens;
 
     if (!tokens.includes(token)) {
@@ -424,16 +426,16 @@ export const receiveUser = async (models: IModels, data) => {
           email: updatedDocument.email,
           isActive: updatedDocument.isActive,
           details: updatedDocument.details,
-          tokens
-        }
-      }
+          tokens,
+        },
+      },
     );
   }
 
-  if (action === 'delete' && object._id) {
+  if (action === "delete" && object._id) {
     return models.PosUsers.updateOne(
       { _id: object._id },
-      { $set: { isActive: false } }
+      { $set: { isActive: false } },
     );
   }
 };
@@ -441,12 +443,12 @@ export const receiveUser = async (models: IModels, data) => {
 export const receivePosConfig = async (
   subdomain: string,
   models: IModels,
-  data
+  data,
 ) => {
   const { token, pos = {}, adminUsers = [], cashiers = [] } = data;
 
   let config: IConfigDocument | null = await models.Configs.findOne({
-    token
+    token,
   }).lean();
 
   const adminIds = pos.adminIds || [];
@@ -456,7 +458,7 @@ export const receivePosConfig = async (
     const { SKIP_REDIS } = process.env;
 
     if (SKIP_REDIS) {
-      throw new Error('token not found');
+      throw new Error("token not found");
     }
 
     config = await models.Configs.createConfig(token, pos.name);
@@ -465,13 +467,13 @@ export const receivePosConfig = async (
   await models.Configs.updateConfig(config._id, {
     ...config,
     ...(await extractConfig(subdomain, pos)),
-    token
+    token,
   });
 
   // set not found users inactive
   await models.PosUsers.updateMany(
     { _id: { $nin: [...adminIds, ...cashierIds] }, tokens: { $in: [token] } },
-    { $pull: { tokens: { $in: [token] } } }
+    { $pull: { tokens: { $in: [token] } } },
   );
 
   await importUsers(models, adminUsers, token, true);
