@@ -1,12 +1,12 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { IPos, IPosSlot } from '../../../models/definitions/pos';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { IPos, IPosSlot } from "../../../models/definitions/pos";
 import {
   syncPosToClient,
   syncProductGroupsToClient,
   syncRemovePosToClient,
-  syncSlotsToClient
-} from './utils';
+  syncSlotsToClient,
+} from "./utils";
 
 interface IPOSEdit extends IPos {
   _id: string;
@@ -16,11 +16,14 @@ const mutations = {
   posAdd: async (
     _root,
     params: IPos,
-    { models, user, subdomain }: IContext
+    { models, user, subdomain }: IContext,
   ) => {
     const { ALL_AUTO_INIT } = process.env;
-    if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+    if ([true, "true", "True", "1"].includes(ALL_AUTO_INIT || "")) {
       params.onServer = true;
+    }
+    if (params.serviceCharge >= 100) {
+      throw new Error("Service charge must be less than 100");
     }
     const pos = await models.Pos.posAdd(user, params);
 
@@ -34,12 +37,12 @@ const mutations = {
   posEdit: async (
     _root,
     { _id, ...doc }: IPOSEdit,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     await models.Pos.getPos({ _id });
 
     const { ALL_AUTO_INIT } = process.env;
-    if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+    if ([true, "true", "True", "1"].includes(ALL_AUTO_INIT || "")) {
       doc.onServer = true;
     }
 
@@ -53,7 +56,7 @@ const mutations = {
   posRemove: async (
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const pos = await models.Pos.getPos({ _id });
     await syncRemovePosToClient(subdomain, pos);
@@ -63,7 +66,7 @@ const mutations = {
   productGroupsBulkInsert: async (
     _root,
     { posId, groups }: { posId: string; groups: any[] },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const pos = await models.Pos.getPos({ _id: posId });
 
@@ -71,7 +74,7 @@ const mutations = {
     const groupsToAdd = [] as any;
     const groupsToUpdate = [] as any;
     for (const group of groups) {
-      if (group._id.includes('temporaryId')) {
+      if (group._id.includes("temporaryId")) {
         delete group._id;
         groupsToAdd.push({ ...group, posId });
       } else {
@@ -79,8 +82,8 @@ const mutations = {
         await models.ProductGroups.groupsEdit(group._id, group);
       }
     }
-    const groupsToRemove = dbGroups.filter(el => {
-      const index = groupsToUpdate.findIndex(g => g._id === el._id);
+    const groupsToRemove = dbGroups.filter((el) => {
+      const index = groupsToUpdate.findIndex((g) => g._id === el._id);
       if (index === -1) {
         return el._id;
       }
@@ -100,19 +103,19 @@ const mutations = {
   posSlotBulkUpdate: async (
     _root,
     { posId, slots }: { posId: string; slots: IPosSlot[] },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const pos = await models.Pos.getPos({ _id: posId });
 
     const oldPosSlots = await models.PosSlots.find({ posId });
 
-    const slotIds = slots.map(s => s._id);
-    const toDeleteSlots = oldPosSlots.filter(s => !slotIds.includes(s._id));
+    const slotIds = slots.map((s) => s._id);
+    const toDeleteSlots = oldPosSlots.filter((s) => !slotIds.includes(s._id));
     await models.PosSlots.deleteMany({
-      _id: { $in: toDeleteSlots.map(s => s._id) }
+      _id: { $in: toDeleteSlots.map((s) => s._id) },
     });
 
-    const updateSlots = slots.filter(s => s._id);
+    const updateSlots = slots.filter((s) => s._id);
     const bulkOps: {
       updateOne: {
         filter: { _id: string };
@@ -124,10 +127,10 @@ const mutations = {
     for (const slot of updateSlots) {
       bulkOps.push({
         updateOne: {
-          filter: { _id: slot._id || '' },
+          filter: { _id: slot._id || "" },
           update: { $set: { ...slot } },
-          upsert: true
-        }
+          upsert: true,
+        },
       });
     }
 
@@ -135,18 +138,18 @@ const mutations = {
       await models.PosSlots.bulkWrite(bulkOps);
     }
 
-    await models.PosSlots.insertMany(slots.filter(s => !s._id));
+    await models.PosSlots.insertMany(slots.filter((s) => !s._id));
 
     const updatedSlots = await models.PosSlots.find({ posId });
 
     await syncSlotsToClient(subdomain, pos, updatedSlots);
 
     return updatedSlots;
-  }
+  },
 };
 
-checkPermission(mutations, 'posAdd', 'managePos');
-checkPermission(mutations, 'posEdit', 'managePos');
-checkPermission(mutations, 'posRemove', 'managePos');
+checkPermission(mutations, "posAdd", "managePos");
+checkPermission(mutations, "posEdit", "managePos");
+checkPermission(mutations, "posRemove", "managePos");
 
 export default mutations;

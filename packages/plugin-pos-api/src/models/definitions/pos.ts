@@ -1,5 +1,5 @@
-import { Document, Schema } from 'mongoose';
-import { field, schemaHooksWrapper } from './utils';
+import { Document, Schema } from "mongoose";
+import { field, schemaHooksWrapper } from "./utils";
 
 export interface IPos {
   name: string;
@@ -43,6 +43,7 @@ export interface IPos {
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;
   banFractions: boolean;
+  serviceCharge: number;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -77,133 +78,134 @@ export interface IPosSlotDocument extends IPosSlot, Document {
 export const posSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Name' }),
-    description: field({ type: String, label: 'Description', optional: true }),
+    name: field({ type: String, label: "Name" }),
+    description: field({ type: String, label: "Description", optional: true }),
     orderPassword: field({
       type: String,
-      label: 'OrderPassword',
+      label: "OrderPassword",
       optional: true,
     }),
-    pdomain: field({ type: String, optional: true, label: 'Domain' }),
-    userId: field({ type: String, optional: true, label: 'Created by' }),
-    createdAt: field({ type: Date, label: 'Created at' }),
-    productDetails: field({ type: [String], label: 'Product fields' }),
-    adminIds: field({ type: [String], label: 'Admin user ids' }),
-    cashierIds: field({ type: [String], label: 'Cashier ids' }),
-    isOnline: field({ type: Boolean, label: 'Is online pos' }),
-    paymentIds: field({ type: [String], label: 'Online Payments' }),
-    paymentTypes: field({ type: [Object], label: 'Other Payments' }),
+    pdomain: field({ type: String, optional: true, label: "Domain" }),
+    userId: field({ type: String, optional: true, label: "Created by" }),
+    createdAt: field({ type: Date, label: "Created at" }),
+    productDetails: field({ type: [String], label: "Product fields" }),
+    adminIds: field({ type: [String], label: "Admin user ids" }),
+    cashierIds: field({ type: [String], label: "Cashier ids" }),
+    isOnline: field({ type: Boolean, label: "Is online pos" }),
+    paymentIds: field({ type: [String], label: "Online Payments" }),
+    paymentTypes: field({ type: [Object], label: "Other Payments" }),
     onServer: field({
       type: Boolean,
       optional: true,
-      label: 'On cloud server',
+      label: "On cloud server",
     }),
-    branchId: field({ type: String, optional: true, label: 'Branch' }),
-    departmentId: field({ type: String, optional: true, label: 'Branch' }),
+    branchId: field({ type: String, optional: true, label: "Branch" }),
+    departmentId: field({ type: String, optional: true, label: "Branch" }),
     allowBranchIds: field({
       type: [String],
       optional: true,
-      label: 'Allow branches',
+      label: "Allow branches",
     }),
-    beginNumber: field({ type: String, optional: true, label: 'Begin number' }),
+    beginNumber: field({ type: String, optional: true, label: "Begin number" }),
     maxSkipNumber: field({
       type: Number,
       optional: true,
-      label: 'Skip number',
+      label: "Skip number",
     }),
-    waitingScreen: field({ type: Object, label: 'Waiting screen config' }),
-    kioskMachine: field({ type: Object, label: 'Kiosk config' }),
-    kitchenScreen: field({ type: Object, label: 'Kitchen screen config' }),
-    uiOptions: field({ type: Object, label: 'UI Options' }),
-    token: field({ type: String, label: 'Pos token' }),
-    erxesAppToken: field({ type: String, label: 'Erxes App token' }),
+    waitingScreen: field({ type: Object, label: "Waiting screen config" }),
+    kioskMachine: field({ type: Object, label: "Kiosk config" }),
+    kitchenScreen: field({ type: Object, label: "Kitchen screen config" }),
+    uiOptions: field({ type: Object, label: "UI Options" }),
+    token: field({ type: String, label: "Pos token" }),
+    erxesAppToken: field({ type: String, label: "Erxes App token" }),
+    serviceCharge: field({ type: Number, label: "Service charge" }),
     ebarimtConfig: field({
       type: Object,
       optional: true,
-      label: 'Ebarimt Config',
+      label: "Ebarimt Config",
     }),
-    erkhetConfig: field({ type: Object, label: 'Erkhet Config' }),
-    syncInfos: field({ type: Object, label: 'sync info' }),
+    erkhetConfig: field({ type: Object, label: "Erkhet Config" }),
+    syncInfos: field({ type: Object, label: "sync info" }),
     catProdMappings: field({
       type: [Object],
-      label: 'Category product mappings',
+      label: "Category product mappings",
       optional: true,
     }),
     initialCategoryIds: field({
       type: [String],
-      label: 'Pos initial categories',
+      label: "Pos initial categories",
     }),
     kioskExcludeCategoryIds: field({
       type: [String],
-      label: 'Kiosk exclude categories',
+      label: "Kiosk exclude categories",
     }),
     kioskExcludeProductIds: field({
       type: [String],
-      label: 'Kiosk exclude products',
+      label: "Kiosk exclude products",
     }),
-    deliveryConfig: field({ type: Object, label: 'Delivery Config' }),
-    cardsConfig: field({ type: Object, label: 'Cards Config' }),
+    deliveryConfig: field({ type: Object, label: "Delivery Config" }),
+    cardsConfig: field({ type: Object, label: "Cards Config" }),
     checkRemainder: field({ type: Boolean, optional: true }),
     permissionConfig: field({
       type: Object,
       optional: true,
-      label: 'Permission',
+      label: "Permission",
     }),
-    allowTypes: field({ type: [String], label: 'Allow Types' }),
-    isCheckRemainder: field({ type: Boolean, label: 'is Check Remainder' }),
+    allowTypes: field({ type: [String], label: "Allow Types" }),
+    isCheckRemainder: field({ type: Boolean, label: "is Check Remainder" }),
     checkExcludeCategoryIds: field({
       type: [String],
-      label: 'Check Exclude Categories',
+      label: "Check Exclude Categories",
     }),
-    saveRemainder: field({ type: Boolean, label: 'Save Remainder' }),
-    banFractions: field({ type: Boolean, label: 'has Float count' }),
-    status: field({ type: String, label: 'Status', optional: true }),
+    saveRemainder: field({ type: Boolean, label: "Save Remainder" }),
+    banFractions: field({ type: Boolean, label: "has Float count" }),
+    status: field({ type: String, label: "Status", optional: true }),
   }),
-  'erxes_pos'
+  "erxes_pos",
 );
 
 export const productGroupSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Name' }),
-    description: field({ type: String, label: 'Description', optional: true }),
-    posId: field({ type: String, label: 'Pos id' }),
+    name: field({ type: String, label: "Name" }),
+    description: field({ type: String, label: "Description", optional: true }),
+    posId: field({ type: String, label: "Pos id" }),
     categoryIds: field({
       type: [String],
       optional: true,
-      label: 'Category ids',
+      label: "Category ids",
     }),
 
     excludedCategoryIds: field({
       type: [String],
       optional: true,
-      label: 'Exclude Category ids',
+      label: "Exclude Category ids",
     }),
 
     excludedProductIds: field({
       type: [String],
       optional: true,
-      label: 'Exclude Product ids',
+      label: "Exclude Product ids",
     }),
   }),
-  'erxes_productGroup'
+  "erxes_productGroup",
 );
 
 export const posSlotSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Name' }),
-    code: field({ type: String, label: 'Code' }),
-    posId: field({ type: String, label: 'Pos' }),
-    option: field({ type: Object, label: 'Option' }),
+    name: field({ type: String, label: "Name" }),
+    code: field({ type: String, label: "Code" }),
+    posId: field({ type: String, label: "Pos" }),
+    option: field({ type: Object, label: "Option" }),
   }),
-  'erxes_pos_slot'
+  "erxes_pos_slot",
 );
 
 export const posCoverKindValueSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    code: field({ type: String, label: 'Code' }),
+    code: field({ type: String, label: "Code" }),
   }),
-  'erxes_pos_slot'
+  "erxes_pos_slot",
 );

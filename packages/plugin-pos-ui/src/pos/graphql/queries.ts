@@ -19,7 +19,7 @@ export const posCommonFields = `
       fullName
     }
   }
-
+  serviceCharge
   isOnline
   onServer
   branchId

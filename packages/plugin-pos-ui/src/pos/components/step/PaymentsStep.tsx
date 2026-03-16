@@ -55,9 +55,24 @@ const PaymentsStep = (props: Props) => {
   };
 
   const onChangeInput = (e) => {
+    const inputElement = e.currentTarget as HTMLInputElement;
+    const value = inputElement.value;
+
+    if (e.target.id === "serviceCharge") {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue) && numValue > 100) {
+        return;
+      }
+      onChangeFunction("pos", {
+        ...pos,
+        [e.target.id]: numValue || 0,
+      });
+      return;
+    }
+
     onChangeFunction("pos", {
       ...pos,
-      [e.target.id]: (e.currentTarget as HTMLInputElement).value,
+      [e.target.id]: value,
     });
   };
 
@@ -103,7 +118,7 @@ const PaymentsStep = (props: Props) => {
     const editPayment = (name, value) => {
       let paymentTypes = [...(pos.paymentTypes || [])];
       paymentTypes = (paymentTypes || []).map((p) =>
-        p._id === paymentType._id ? { ...p, [name]: value } : p
+        p._id === paymentType._id ? { ...p, [name]: value } : p,
       );
       onChange("pos", { ...pos, paymentTypes });
     };
@@ -168,7 +183,7 @@ const PaymentsStep = (props: Props) => {
                 name="icon"
                 components={{ Option, SingleValue }}
                 value={iconOptions.find(
-                  (o) => o.value === (paymentType.icon || "")
+                  (o) => o.value === (paymentType.icon || ""),
                 )}
                 onChange={onChangeSelect}
                 options={iconOptions}
@@ -244,6 +259,18 @@ const PaymentsStep = (props: Props) => {
                     onChange={onChangeInput}
                   />
                 </FormGroup>
+
+                <FormGroup>
+                  <ControlLabel>Service Charge:</ControlLabel>
+                  <FormControl
+                    id="serviceCharge"
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={pos.serviceCharge || ""}
+                    onChange={onChangeInput}
+                  />
+                </FormGroup>
               </Block>
             </>
           )}
@@ -256,10 +283,10 @@ const PaymentsStep = (props: Props) => {
             </Description>
             <Description>
               Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
-              Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true",
-              Хэрэв хуваах боломжгүй бол: "notSplit: true"
-              Урьдчилж төлсөн төлбөрөөр (Татвар тооцсон) бол: "preTax: true"
-              Хэрэв тухайн төлбөр дээр бэлдэц нэхэмжлэх хэвлэх бол: "printInvoice: true"
+              Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
+              хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн төлбөрөөр
+              (Татвар тооцсон) бол: "preTax: true" Хэрэв тухайн төлбөр дээр
+              бэлдэц нэхэмжлэх хэвлэх бол: "printInvoice: true"
             </Description>
 
             <FormGroup>
