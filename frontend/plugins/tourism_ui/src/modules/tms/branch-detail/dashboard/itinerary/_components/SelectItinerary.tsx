@@ -1,10 +1,5 @@
 import { IconCheck } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Popover,
-  cn,
-} from 'erxes-ui';
+import { Combobox, Command, Popover, cn } from 'erxes-ui';
 
 import { IItinerary } from '../types/itinerary';
 import { useItineraries } from '../hooks/useItineraries';

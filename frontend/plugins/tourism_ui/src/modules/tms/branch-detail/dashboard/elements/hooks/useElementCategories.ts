@@ -10,7 +10,7 @@ export const useElementCategories = () => {
 
   const categories = useMemo(
     () => data?.bmsElementCategories || [],
-    [data?.bmsElementCategories]
+    [data?.bmsElementCategories],
   );
 
   const getCategoryNameById = (id: string): string => {

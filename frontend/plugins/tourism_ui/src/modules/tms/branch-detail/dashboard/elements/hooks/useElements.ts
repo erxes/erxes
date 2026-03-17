@@ -55,11 +55,7 @@ export const useElements = (
     variables,
   });
 
-  const {
-    list: elements,
-    totalCount,
-    pageInfo,
-  } = data?.bmsElements || {};
+  const { list: elements, totalCount, pageInfo } = data?.bmsElements || {};
 
   const handleFetchMore = ({
     direction,
