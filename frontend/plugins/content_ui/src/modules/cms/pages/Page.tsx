@@ -39,34 +39,34 @@ export function Page() {
       <PagesHeader>{headerActions}</PagesHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
-        <div className="flex overflow-auto flex-col flex-auto w-full">
-          <div className="flex-auto">
-            <div className="flex flex-col">
-              <div className="flex pt-2 pl-4 justify-between items-center mb-2">
-                <div className="text-sm text-gray-600">
-                  Found {totalCount} pages
-                </div>
-              </div>
-              {!loading && (!pages || pages.length === 0) ? (
-                <div className="rounded-lg overflow-hidden">
-                  <EmptyState
-                    icon={IconArticle}
-                    title="No pages yet"
-                    description="Get started by creating your first page."
-                    actionLabel="Add page"
-                    onAction={() =>
-                      navigate(`/content/cms/${websiteId}/pages/detail`)
-                    }
-                  />
-                </div>
-              ) : (
+        <div className="flex flex-col w-full overflow-hidden flex-auto">
+          <div className="flex pt-2 pl-4 justify-between items-center mb-2">
+            <div className="text-sm text-gray-600">
+              Found {totalCount} pages
+            </div>
+          </div>
+          {!loading && (!pages || pages.length === 0) ? (
+            <div className="rounded-lg overflow-hidden">
+              <EmptyState
+                icon={IconArticle}
+                title="No pages yet"
+                description="Get started by creating your first page."
+                actionLabel="Add page"
+                onAction={() =>
+                  navigate(`/content/cms/${websiteId}/pages/detail`)
+                }
+              />
+            </div>
+          ) : (
+            <div className="overflow-hidden flex-auto p-3">
+              <div className="h-full">
                 <PagesRecordTable
                   clientPortalId={websiteId || ''}
                   onEditPage={handleEditPage}
                 />
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </PageContainer>
