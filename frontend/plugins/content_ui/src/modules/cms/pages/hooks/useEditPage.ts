@@ -7,7 +7,7 @@ export const useEditPage = () => {
   const editPage = ({ variables, ...options }: any) => {
     return editPageMutation({
       variables,
-      refetchQueries: ['PageList'],
+      refetchQueries: ['PageList', 'PageDetail', 'cmsTranslations'],
       ...options,
     });
   };

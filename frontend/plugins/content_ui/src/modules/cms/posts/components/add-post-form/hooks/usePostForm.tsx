@@ -40,7 +40,7 @@ export const usePostForm = (editingPost?: any) => {
   const [defaultLangData, setDefaultLangData] = useState<{
     title: string;
     content: string;
-    description: string;
+    excerpt: string;
     customFieldsData: any[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
@@ -93,7 +93,7 @@ export const usePostForm = (editingPost?: any) => {
   const fullPost = (fullPostData?.cmsPost as any) || editingPost;
 
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
-    variables: { postId: editingPost?._id },
+    variables: { objectId: editingPost?._id, type: 'post' },
     skip: !editingPost?._id,
     fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: false,
