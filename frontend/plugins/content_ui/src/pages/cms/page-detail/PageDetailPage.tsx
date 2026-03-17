@@ -12,7 +12,6 @@ export const PagesDetailPage = ({
   pageId?: string;
 }) => {
   const isEditing = Boolean(pageId);
-
   const { page, loading } = usePageDetail(pageId ?? '');
   const navigate = useNavigate();
   const { websiteId } = useParams();
