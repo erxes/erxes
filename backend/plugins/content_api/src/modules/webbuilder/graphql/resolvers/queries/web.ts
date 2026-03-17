@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 import {
   getDomains,
-  getDeploymentEvents,
+  getDeployment,
 } from '~/modules/webbuilder/utils/utils';
 
 export const webQueries: Record<string, Resolver> = {
@@ -36,9 +36,41 @@ export const webQueries: Record<string, Resolver> = {
   ) {
     const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
-    if (!web.lastDeploymentId)
-      throw new Error('No deployment found for this web');
-    return getDeploymentEvents(web.lastDeploymentId);
+
+    if (!web.lastDeploymentId) {
+      return {
+        status: 'not_deployed',
+        domain: null,
+        webname: web.name,
+        errorReason: 'No deployment found for this web',
+      };
+    }
+
+    const deployment = await getDeployment(web.lastDeploymentId);
+
+    const status: string =
+      deployment?.readyState ||
+      deployment?.status ||
+      (deployment?.error ? 'error' : 'unknown');
+
+    const errorReason: string | null =
+      deployment?.error?.message ||
+      deployment?.errorMessage ||
+      deployment?.aliasError?.message ||
+      null;
+
+    const domain: string | null =
+      web.domain ||
+      web.lastDeploymentUrl ||
+      deployment?.url ||
+      null;
+
+    return {
+      status,
+      domain: status === 'READY' ? domain : null,
+      webname: web.name,
+      errorReason: status === 'READY' ? null : errorReason,
+    };
   },
 };
 

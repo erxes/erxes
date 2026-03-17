@@ -387,6 +387,14 @@ export const addDomain = async (projectId: string, domain: string) => {
   return response.json();
 };
 
+export const getDeployment = async (id: string) => {
+  const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
+  const response = await fetch(`https://api.vercel.com/v13/deployments/${id}`, {
+    headers: { Authorization: `Bearer ${VERCEL_TOKEN}` },
+  });
+  return response.json();
+};
+
 export const getDeploymentEvents = async (id: string) => {
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
   const response = await fetch(
