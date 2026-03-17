@@ -16,6 +16,7 @@ export const types = `
         _id: String!
         clientPortalId: String!
         name: String
+        parentId: String
         description: String
         coverImage: String
         type: String
@@ -29,6 +30,14 @@ export const types = `
         pageItems: [PageItem]
         customFieldsData: JSON
         customFieldsMap: JSON
+        thumbnail: Attachment
+        pageImages: [Attachment]
+        video: Attachment
+        audio: Attachment
+        documents: [Attachment]
+        attachments: [Attachment]
+        pdfAttachment: PdfAttachment
+        videoUrl: String
         translations: [Translation]
     }
 
@@ -54,12 +63,21 @@ export const inputs = `
         clientPortalId: String
         language: String
         name: String
+        parentId: String
         description: String
         coverImage: String
         status: String
         type: String
         slug: String
         content: String
+        thumbnail: AttachmentInput
+        pageImages: [AttachmentInput]
+        video: AttachmentInput
+        audio: AttachmentInput
+        documents: [AttachmentInput]
+        attachments: [AttachmentInput]
+        pdfAttachment: PdfAttachmentInput
+        videoUrl: String
         pageItems: [PageItemInput]
         customFieldsData: JSON
         translations: [TranslationInput]

@@ -17,6 +17,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
 }) => {
   const [paymentIds, setPaymentIds] = useState<string[]>([]);
   const [erxesAppToken, setErxesAppToken] = useState('');
+  const [serviceCharge, setServiceCharge] = useState<number | undefined>();
   const [hasChanges, setHasChanges] = useState(false);
 
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
@@ -25,18 +26,38 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
   const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (!posDetail || initializedRef.current) {
-      return;
-    }
+    if (!posDetail || initializedRef.current) return;
 
-    setPaymentIds(posDetail.paymentIds || []);
-    setErxesAppToken(posDetail.erxesAppToken || '');
+    setPaymentIds(posDetail.paymentIds ?? []);
+    setErxesAppToken(posDetail.erxesAppToken ?? '');
+    setServiceCharge(posDetail.serviceCharge ?? undefined);
+
     setHasChanges(false);
     initializedRef.current = true;
   }, [posDetail]);
 
   const handlePaymentChange = (value: string[] | string | null) => {
-    setPaymentIds(Array.isArray(value) ? value : value && [value] || []);
+    setPaymentIds(Array.isArray(value) ? value : value ? [value] : []);
+    setHasChanges(true);
+  };
+
+  const handleServiceChargeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const value = e.target.value;
+    if (value === '') {
+      setServiceCharge(undefined);
+      setHasChanges(true);
+      return;
+    }
+    const num = Number(value);
+
+    if (Number.isNaN(num)) return;
+
+    const clamped = Math.min(100, Math.max(0, num));
+    const rounded = Math.round(clamped * 100) / 100;
+
+    setServiceCharge(rounded);
     setHasChanges(true);
   };
 
@@ -56,6 +77,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
           _id: posId,
           paymentIds,
           erxesAppToken,
+          serviceCharge,
         },
       });
 
@@ -63,6 +85,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
         title: 'Success',
         description: 'Payment configuration saved successfully',
       });
+
       setHasChanges(false);
     } catch {
       toast({
@@ -111,20 +134,46 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
         </div>
       )}
 
-      {isFieldVisible('appToken', posType) && (
-        <div className="space-y-2">
-          <Label>ERXES APP TOKEN:</Label>
-          <Input
-            type="text"
-            value={erxesAppToken}
-            onChange={(e) => {
-              setErxesAppToken(e.target.value);
-              setHasChanges(true);
-            }}
-            placeholder="Enter Erxes app token"
-          />
-        </div>
-      )}
+      <div className="flex gap-4 w-full">
+        {isFieldVisible('appToken', posType) && (
+          <div className="flex-1 space-y-2">
+            <Label>ERXES APP TOKEN:</Label>
+            <Input
+              type="text"
+              value={erxesAppToken}
+              onChange={(e) => {
+                setErxesAppToken(e.target.value);
+                setHasChanges(true);
+              }}
+              placeholder="Enter Erxes app token"
+            />
+          </div>
+        )}
+
+        {isFieldVisible('serviceCharge', posType) && (
+          <div className="flex-1 space-y-2">
+            <Label htmlFor="serviceCharge">Service Charge (%)</Label>
+
+            <div className="relative">
+              <Input
+                id="serviceCharge"
+                type="number"
+                min={0}
+                max={100}
+                step={0.01}
+                value={serviceCharge ?? ''}
+                className="pr-8 w-full"
+                placeholder="0 - 100"
+                onChange={handleServiceChargeChange}
+              />
+
+              <span className="absolute right-3 top-1/2 text-sm -translate-y-1/2 text-muted-foreground">
+                %
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
 
       {hasChanges && (
         <div className="flex justify-end pt-4 border-t">

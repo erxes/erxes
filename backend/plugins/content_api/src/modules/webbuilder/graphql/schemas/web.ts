@@ -11,7 +11,8 @@ export const types = `
 
   type WebDeploymentResult {
     status: String!
-    domain: String
+    deploymentUrl: String
+    domains: [String]
     webname: String!
     errorReason: String
   }

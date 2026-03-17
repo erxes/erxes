@@ -104,6 +104,7 @@ export async function registerUser(
   }
 
   const { ...documentParams } = params;
+
   const document = {
     ...documentParams,
     isEmailVerified: false,
