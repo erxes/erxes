@@ -1,5 +1,6 @@
-import { IContext } from "~/connectionResolvers";
-import { IAccountCategory } from "@/accounting/@types/accountCategory";
+import { checkPermission } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
+import { IAccountCategory } from '@/accounting/@types/accountCategory';
 
 const accountCategoriessMutations = {
   /**
@@ -47,15 +48,27 @@ const accountCategoriessMutations = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    await models.AccountCategories.getAccountCategory({ _id, });
+    await models.AccountCategories.getAccountCategory({ _id });
     const removed = await models.AccountCategories.removeAccountCategory(_id);
 
     return removed;
   },
 };
 
-// checkPermission(accountCategoriessMutations, 'accountCategoriesAdd', 'manageAccounts');
-// checkPermission(accountCategoriessMutations, 'accountCategoriesEdit', 'manageAccounts');
-// checkPermission(accountCategoriessMutations, 'accountCategoriesRemove', 'manageAccounts');
+checkPermission(
+  accountCategoriessMutations,
+  'accountCategoriesAdd',
+  'manageAccounts',
+);
+checkPermission(
+  accountCategoriessMutations,
+  'accountCategoriesEdit',
+  'manageAccounts',
+);
+checkPermission(
+  accountCategoriessMutations,
+  'accountCategoriesRemove',
+  'manageAccounts',
+);
 
 export default accountCategoriessMutations;

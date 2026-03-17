@@ -2,6 +2,114 @@ import dayjs from 'dayjs';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
+/**
+ * Safely evaluate a simple arithmetic expression without using eval().
+ * Supports: numbers (including decimals/negatives), +, -, *, /, parentheses.
+ * Throws on any non-arithmetic content to prevent code injection.
+ */
+export function safeEvaluateArithmetic(expression: string): number {
+  if (!expression || typeof expression !== 'string') {
+    return 0;
+  }
+
+  const sanitized = expression.replace(/\s+/g, '');
+
+  // Only allow digits, decimal points, +, -, *, /, (, )
+  if (!/^[0-9+\-*/().]+$/.test(sanitized)) {
+    throw new Error(
+      `Invalid arithmetic expression: contains disallowed characters`,
+    );
+  }
+
+  // Check for balanced parentheses
+  let depth = 0;
+  for (const ch of sanitized) {
+    if (ch === '(') depth++;
+    if (ch === ')') depth--;
+    if (depth < 0)
+      throw new Error('Invalid arithmetic expression: unbalanced parentheses');
+  }
+  if (depth !== 0)
+    throw new Error('Invalid arithmetic expression: unbalanced parentheses');
+
+  // Recursive descent parser
+  let pos = 0;
+
+  function parseExpression(): number {
+    let result = parseTerm();
+    while (
+      pos < sanitized.length &&
+      (sanitized[pos] === '+' || sanitized[pos] === '-')
+    ) {
+      const op = sanitized[pos++];
+      const right = parseTerm();
+      result = op === '+' ? result + right : result - right;
+    }
+    return result;
+  }
+
+  function parseTerm(): number {
+    let result = parseFactor();
+    while (
+      pos < sanitized.length &&
+      (sanitized[pos] === '*' || sanitized[pos] === '/')
+    ) {
+      const op = sanitized[pos++];
+      const right = parseFactor();
+      if (op === '/') {
+        if (right === 0) throw new Error('Division by zero');
+        result = result / right;
+      } else {
+        result = result * right;
+      }
+    }
+    return result;
+  }
+
+  function parseFactor(): number {
+    if (sanitized[pos] === '(') {
+      pos++; // skip '('
+      const result = parseExpression();
+      pos++; // skip ')'
+      return result;
+    }
+
+    // Handle unary minus
+    if (sanitized[pos] === '-') {
+      pos++;
+      return -parseFactor();
+    }
+
+    // Handle unary plus
+    if (sanitized[pos] === '+') {
+      pos++;
+      return parseFactor();
+    }
+
+    // Parse number
+    const start = pos;
+    while (
+      pos < sanitized.length &&
+      ((sanitized[pos] >= '0' && sanitized[pos] <= '9') ||
+        sanitized[pos] === '.')
+    ) {
+      pos++;
+    }
+    if (start === pos) {
+      throw new Error('Invalid arithmetic expression: unexpected character');
+    }
+    return parseFloat(sanitized.slice(start, pos));
+  }
+
+  const result = parseExpression();
+  if (pos !== sanitized.length) {
+    throw new Error(
+      'Invalid arithmetic expression: unexpected trailing content',
+    );
+  }
+  return isNaN(result) ? 0 : result;
+}
+
 export const resolvePlaceholderValue = (target: any, attribute: string) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 

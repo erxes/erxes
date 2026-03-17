@@ -216,7 +216,8 @@ export const authMutations = {
     );
 
     // will use subdomain when workos callback data arrives
-    await redis.set('subdomain', subdomain);
+    // Use a token-specific key to avoid race conditions with concurrent requests
+    await redis.set(`ml_subdomain:${token}`, subdomain, 'EX', 86400);
 
     const session = await workosClient.passwordless.createSession({
       email,
