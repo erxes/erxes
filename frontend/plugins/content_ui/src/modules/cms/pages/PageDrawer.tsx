@@ -2,20 +2,114 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useQuery } from '@apollo/client';
+import { ApolloError, useQuery } from '@apollo/client';
 import { useAddPage } from './hooks/useAddPage';
 import { useEditPage } from './hooks/useEditPage';
 import { IPageDrawerProps, IPageFormData } from './types/pageTypes';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
-import { useCmsTranslation } from '../shared/hooks/useCmsTranslation';
+import {
+  useCmsTranslation,
+  TranslationData,
+} from '../shared/hooks/useCmsTranslation';
 import { LanguageSelector } from '../shared/LanguageSelector';
+
+interface CmsConfig {
+  clientPortalId: string;
+  languages?: string[];
+  language?: string;
+}
+
+interface GraphQLErrorEntry {
+  message: string;
+  extensions?: { code?: string };
+}
+
+interface PageTranslationInput {
+  language: string;
+  title: string;
+  content: string;
+  type: string;
+}
+
+interface PageInput {
+  clientPortalId: string;
+  name: string;
+  slug: string;
+  description: string | undefined;
+  status: string;
+  language?: string;
+  translations?: PageTranslationInput[];
+}
+
+function resolveMainFields(
+  currentName: string,
+  currentDescription: string | undefined,
+  isCreating: boolean,
+  isNonDefaultLang: boolean,
+  defaultLangData: TranslationData | null,
+): { name: string; description: string | undefined } | null {
+  if (isCreating && isNonDefaultLang) {
+    if (!defaultLangData) {
+      return null;
+    }
+    return {
+      name: defaultLangData.title || '',
+      description: defaultLangData.content || '',
+    };
+  }
+  return { name: currentName, description: currentDescription };
+}
+
+function resolveLanguage(
+  selectedLanguage: string,
+  defaultLanguage: string,
+  isCreating: boolean,
+  isNonDefaultLang: boolean,
+): string {
+  return isCreating && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+}
+
+function buildPageTranslations(
+  translations: Record<string, TranslationData>,
+  defaultLanguage: string,
+  selectedLanguage: string,
+  currentName: string,
+  currentDescription: string | undefined,
+  isCreating: boolean,
+  isNonDefaultLang: boolean,
+): PageTranslationInput[] {
+  const entries: PageTranslationInput[] = [];
+
+  for (const [lang, tData] of Object.entries(translations)) {
+    if (lang === defaultLanguage || lang === selectedLanguage) continue;
+    if (tData.title || tData.content) {
+      entries.push({
+        language: lang,
+        title: tData.title || '',
+        content: tData.content || '',
+        type: 'page',
+      });
+    }
+  }
+
+  if (isCreating && isNonDefaultLang) {
+    entries.push({
+      language: selectedLanguage,
+      title: currentName,
+      content: currentDescription || '',
+      type: 'page',
+    });
+  }
+
+  return entries;
+}
 
 export function PageDrawer({
   page,
   onClose,
   clientPortalId,
 }: IPageDrawerProps) {
-  const isEditing = !!page;
+  const isEditing = Boolean(page);
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
   // Fetch CMS config for languages
@@ -25,7 +119,7 @@ export function PageDrawer({
   });
 
   const cmsConfig = cmsData?.contentCMSList?.find(
-    (cms: any) => cms.clientPortalId === clientPortalId,
+    (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
   const defaultLanguage: string = cmsConfig?.language || 'en';
@@ -42,6 +136,7 @@ export function PageDrawer({
     type: 'page',
     availableLanguages,
     defaultLanguage,
+    resetKey: clientPortalId,
   });
 
   const form = useForm<IPageFormData>({
@@ -90,9 +185,9 @@ export function PageDrawer({
     });
   };
 
-  const onError = (error: any) => {
+  const onError = (error: ApolloError) => {
     const permissionError = error.graphQLErrors?.some(
-      (e: any) =>
+      (e: GraphQLErrorEntry) =>
         e.message === 'Permission required' ||
         e.extensions?.code === 'INTERNAL_SERVER_ERROR',
     );
@@ -118,75 +213,59 @@ export function PageDrawer({
 
   const onSubmit = (data: IPageFormData) => {
     const isNonDefaultLang =
-      !!selectedLanguage &&
-      !!defaultLanguage &&
+      Boolean(selectedLanguage) &&
+      Boolean(defaultLanguage) &&
       selectedLanguage !== defaultLanguage;
-
+    const isCreating = !isEditing;
     const currentName = data.name;
     const currentDescription = data.description;
-    const isCreating = !isEditing;
 
-    // For EDIT: backend handles language routing — send current form values
-    //   as name/description (backend saves them as translation for non-default,
-    //   or as main doc for default). Backend strips translatable fields from
-    //   main doc update when language !== defaultLanguage.
-    //
-    // For CREATE: backend has no language routing — always saves name/description
-    //   to main doc. So we must swap to defaultLangData for main doc and send
-    //   non-default language data via translations array.
+    const main = resolveMainFields(
+      currentName,
+      currentDescription,
+      isCreating,
+      isNonDefaultLang,
+      defaultLangData,
+    );
 
-    let mainName = currentName;
-    let mainDescription = currentDescription;
-
-    if (isCreating && isNonDefaultLang) {
-      if (defaultLangData) {
-        mainName = defaultLangData.title || '';
-        mainDescription = defaultLangData.content || '';
-      }
+    if (!main) {
+      toast({
+        title: 'Validation Error',
+        description:
+          'Please fill in the default language fields before creating a page in another language.',
+        variant: 'destructive',
+        duration: 5000,
+      });
+      return;
     }
 
-    const input: Record<string, any> = {
+    const input: PageInput = {
       clientPortalId: data.clientPortalId,
-      name: mainName,
+      name: main.name,
       slug: data.path,
-      description: mainDescription,
+      description: main.description,
       status: data.status || 'active',
     };
 
     if (selectedLanguage) {
-      // For create: send default language since main doc holds default lang data
-      input.language =
-        isCreating && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+      input.language = resolveLanguage(
+        selectedLanguage,
+        defaultLanguage,
+        isCreating,
+        isNonDefaultLang,
+      );
     }
 
-    // Build translations array
     if (defaultLanguage) {
-      const translationEntries: any[] = [];
-
-      // Add all previously saved translations from language switching
-      for (const [lang, tData] of Object.entries(translations)) {
-        if (lang === defaultLanguage) continue;
-        // Skip current language — it will be added from current form data below
-        if (lang === selectedLanguage) continue;
-        if (tData.title || tData.content) {
-          translationEntries.push({
-            language: lang,
-            title: tData.title || '',
-            content: tData.content || '',
-            type: 'page',
-          });
-        }
-      }
-
-      // For create on non-default language: add current form data as translation
-      if (isCreating && isNonDefaultLang) {
-        translationEntries.push({
-          language: selectedLanguage,
-          title: currentName,
-          content: currentDescription,
-          type: 'page',
-        });
-      }
+      const translationEntries = buildPageTranslations(
+        translations,
+        defaultLanguage,
+        selectedLanguage,
+        currentName,
+        currentDescription,
+        isCreating,
+        isNonDefaultLang,
+      );
 
       if (translationEntries.length > 0) {
         input.translations = translationEntries;

@@ -119,7 +119,7 @@ export const AddPostForm = ({
       setDefaultLangData({
         title: form.getValues('title') || '',
         content: form.getValues('content') || '',
-        description: form.getValues('description') || '',
+        excerpt: form.getValues('description') || '',
         customFieldsData: form.getValues('customFieldsData') || [],
       });
     } else {

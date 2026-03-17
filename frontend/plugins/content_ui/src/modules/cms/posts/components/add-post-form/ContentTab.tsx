@@ -48,7 +48,7 @@ export const ContentTab = ({
   handleLanguageChange,
 }: ContentTabProps) => {
   const isTranslationMode =
-    !!selectedLanguage && selectedLanguage !== defaultLanguage;
+    Boolean(selectedLanguage) && selectedLanguage !== defaultLanguage;
 
   return (
     <>
@@ -140,7 +140,7 @@ export const ContentTab = ({
             </Form.Description>
             <Form.Control>
               <Switch
-                checked={!!field.value}
+                checked={Boolean(field.value)}
                 onCheckedChange={field.onChange}
               />
             </Form.Control>

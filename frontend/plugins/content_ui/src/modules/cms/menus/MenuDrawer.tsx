@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Sheet, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
@@ -10,8 +10,38 @@ import {
   CONTENT_CMS_LIST,
 } from '../graphql/queries';
 import { buildFlatTree, getDepthPrefix, RawMenuItem } from './menuUtils';
-import { useCmsTranslation } from '../shared/hooks/useCmsTranslation';
+import {
+  useCmsTranslation,
+  TranslationData,
+} from '../shared/hooks/useCmsTranslation';
 import { LanguageSelector } from '../shared/LanguageSelector';
+
+interface CmsConfig {
+  clientPortalId: string;
+  languages?: string[];
+  language?: string;
+}
+
+interface GraphQLErrorEntry {
+  message: string;
+  extensions?: { code?: string };
+}
+
+interface TranslationInput {
+  language: string;
+  title: string;
+  type: string;
+}
+
+interface MenuInput {
+  clientPortalId: string;
+  label: string;
+  url: string;
+  kind: string;
+  parentId?: string;
+  language?: string;
+  translations?: TranslationInput[];
+}
 
 interface MenuDrawerProps {
   isOpen: boolean;
@@ -35,6 +65,55 @@ interface MenuFormData {
   parentId: string;
 }
 
+function resolveMainLabel(
+  currentLabel: string,
+  isCreating: boolean,
+  isNonDefaultLang: boolean,
+  defaultLangData: TranslationData | null,
+): string {
+  if (isCreating && isNonDefaultLang) {
+    return defaultLangData?.title || '';
+  }
+  return currentLabel;
+}
+
+function resolveLanguage(
+  selectedLanguage: string,
+  defaultLanguage: string,
+  isCreating: boolean,
+  isNonDefaultLang: boolean,
+): string {
+  return isCreating && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+}
+
+function buildMenuTranslations(
+  translations: Record<string, TranslationData>,
+  defaultLanguage: string,
+  selectedLanguage: string,
+  currentLabel: string,
+  isCreating: boolean,
+  isNonDefaultLang: boolean,
+): TranslationInput[] {
+  const entries: TranslationInput[] = [];
+
+  for (const [lang, tData] of Object.entries(translations)) {
+    if (lang === defaultLanguage || lang === selectedLanguage) continue;
+    if (tData.title) {
+      entries.push({ language: lang, title: tData.title || '', type: 'menu' });
+    }
+  }
+
+  if (isCreating && isNonDefaultLang) {
+    entries.push({
+      language: selectedLanguage,
+      title: currentLabel,
+      type: 'menu',
+    });
+  }
+
+  return entries;
+}
+
 export function MenuDrawer({
   isOpen,
   onClose,
@@ -43,7 +122,7 @@ export function MenuDrawer({
   menu,
 }: MenuDrawerProps) {
   const [hasPermissionError, setHasPermissionError] = useState(false);
-  const isEditing = !!menu?._id;
+  const isEditing = Boolean(menu?._id);
 
   // Fetch CMS config for languages
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
@@ -52,7 +131,7 @@ export function MenuDrawer({
   });
 
   const cmsConfig = cmsData?.contentCMSList?.find(
-    (cms: any) => cms.clientPortalId === clientPortalId,
+    (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
   const defaultLanguage: string = cmsConfig?.language || 'en';
@@ -69,6 +148,7 @@ export function MenuDrawer({
     type: 'menu',
     availableLanguages,
     defaultLanguage,
+    resetKey: isOpen,
   });
 
   const form = useForm<MenuFormData>({
@@ -109,9 +189,9 @@ export function MenuDrawer({
     label: getDepthPrefix(item.depth) + item.label,
   }));
 
-  function handleError(error: any) {
+  function handleError(error: ApolloError) {
     const permissionError = error.graphQLErrors?.some(
-      (e: any) =>
+      (e: GraphQLErrorEntry) =>
         e.message === 'Permission required' ||
         e.extensions?.code === 'INTERNAL_SERVER_ERROR',
     );
@@ -166,26 +246,20 @@ export function MenuDrawer({
 
   const onSubmit = (data: MenuFormData) => {
     const isNonDefaultLang =
-      !!selectedLanguage &&
-      !!defaultLanguage &&
+      Boolean(selectedLanguage) &&
+      Boolean(defaultLanguage) &&
       selectedLanguage !== defaultLanguage;
     const isCreating = !isEditing;
-
     const currentLabel = data.label;
 
-    // For EDIT: backend uses label as translation title for non-default lang
-    // For CREATE: no language routing, so swap to defaultLangData for main doc
-    let mainLabel = currentLabel;
-
-    if (isCreating && isNonDefaultLang) {
-      if (defaultLangData) {
-        mainLabel = defaultLangData.title || '';
-      }
-    }
-
-    const input: Record<string, any> = {
+    const input: MenuInput = {
       clientPortalId: data.clientPortalId,
-      label: mainLabel,
+      label: resolveMainLabel(
+        currentLabel,
+        isCreating,
+        isNonDefaultLang,
+        defaultLangData,
+      ),
       url: data.url,
       kind: data.kind,
     };
@@ -195,35 +269,23 @@ export function MenuDrawer({
     }
 
     if (selectedLanguage) {
-      // For create: send default language since main doc holds default lang data
-      input.language =
-        isCreating && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+      input.language = resolveLanguage(
+        selectedLanguage,
+        defaultLanguage,
+        isCreating,
+        isNonDefaultLang,
+      );
     }
 
-    // Build translations array
     if (defaultLanguage) {
-      const translationEntries: any[] = [];
-
-      for (const [lang, tData] of Object.entries(translations)) {
-        if (lang === defaultLanguage) continue;
-        // Skip current language — it will be added from current form data below
-        if (lang === selectedLanguage) continue;
-        if (tData.title) {
-          translationEntries.push({
-            language: lang,
-            title: tData.title || '',
-            type: 'menu',
-          });
-        }
-      }
-
-      if (isCreating && isNonDefaultLang) {
-        translationEntries.push({
-          language: selectedLanguage,
-          title: currentLabel,
-          type: 'menu',
-        });
-      }
+      const translationEntries = buildMenuTranslations(
+        translations,
+        defaultLanguage,
+        selectedLanguage,
+        currentLabel,
+        isCreating,
+        isNonDefaultLang,
+      );
 
       if (translationEntries.length > 0) {
         input.translations = translationEntries;

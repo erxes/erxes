@@ -40,7 +40,7 @@ export const usePostForm = (editingPost?: any) => {
   const [defaultLangData, setDefaultLangData] = useState<{
     title: string;
     content: string;
-    description: string;
+    excerpt: string;
     customFieldsData: any[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
