@@ -214,8 +214,8 @@ export const TourFilter = () => {
     selectedCategoryNames.length > 0
       ? selectedCategoryNames.join(', ')
       : selectedCategoryIds.length > 0
-      ? `${selectedCategoryIds.length} selected`
-      : undefined;
+        ? `${selectedCategoryIds.length} selected`
+        : undefined;
 
   return (
     <Filter id="tours-filter" sessionKey={TOURS_CURSOR_SESSION_KEY}>

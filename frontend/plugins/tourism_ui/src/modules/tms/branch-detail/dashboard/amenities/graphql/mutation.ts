@@ -25,12 +25,7 @@ export const EDIT_AMENITY = gql`
     $icon: String
     $quick: Boolean
   ) {
-    bmsElementEdit(
-      _id: $id
-      name: $name
-      icon: $icon
-      quick: $quick
-    ) {
+    bmsElementEdit(_id: $id, name: $name, icon: $icon, quick: $quick) {
       _id
     }
   }
