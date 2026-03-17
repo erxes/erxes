@@ -183,9 +183,7 @@ export function AddProductForm({
   const [internalShowMoreInfo, setInternalShowMoreInfo] = useState(false);
   const [selectedTab] = useQueryState<string>('tab');
   const showMoreInfo =
-    controlledShowMoreInfo === undefined
-      ? internalShowMoreInfo
-      : controlledShowMoreInfo;
+    controlledShowMoreInfo ?? internalShowMoreInfo
   const setShowMoreInfo = (value: boolean) => {
     if (controlledShowMoreInfo ?? undefined) {
       setInternalShowMoreInfo(value);
