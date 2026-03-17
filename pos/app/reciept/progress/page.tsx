@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { queries } from "@/modules/orders/graphql"
 import { queries as productQueries } from "@/modules/products/graphql"
@@ -17,6 +17,7 @@ import { useAtomValue } from "jotai"
 import type { OrderItem } from "@/types/order.types"
 import { ICategory, IProduct } from "@/types/product.types"
 import { ORDER_ITEM_STATUSES } from "@/lib/constants"
+import { formatNum } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 
 const filterProductsNeedProcess = (
@@ -27,7 +28,7 @@ const filterProductsNeedProcess = (
     .filter((product: IProduct) =>
       categoryOrders?.length > 0
         ? categoryOrders.some((order) =>
-            product?.category?.order?.includes(order)
+            product?.category?.order?.startsWith(order)
           )
         : true
     )
@@ -48,6 +49,7 @@ const Progress = () => {
   const [currentGroupIndex, setCurrentGroupIndex] = useState<number | null>(
     null
   )
+  const hasPrintedRef = useRef(false)
 
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
@@ -101,19 +103,17 @@ const Progress = () => {
     onCompleted({ orderDetail }) {
       const hasFilters = categoryOrders.some((group) => group.length > 0)
 
-      if (forCustomer) return window.print()
-      if (!onlyNewItems && !hasFilters) return window.print()
+      const baseItems = orderDetail.items || []
 
-      const newItems =
-        orderDetail.items?.filter(
-          (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
-        ) || []
+      const newItems = baseItems.filter(
+        (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
+      )
 
-      if (onlyNewItems && !newItems.length) {
+      if (!forCustomer && onlyNewItems && !newItems.length) {
         return handleAfterPrint()
       }
 
-      const itemsToProcess = onlyNewItems ? newItems : orderDetail.items || []
+      const itemsToProcess = !forCustomer && onlyNewItems ? newItems : baseItems
 
       if (hasFilters) {
         return getCategoryOrders({
@@ -149,19 +149,29 @@ const Progress = () => {
 
   const { number, modifiedAt, items, description } = data?.orderDetail || {}
 
+  const totalAmount = useMemo(() => {
+    return (items || []).reduce(
+      (sum: number, item: OrderItem) =>
+        sum + (item.unitPrice || 0) * (item.count || 0),
+      0
+    )
+  }, [items])
+
   const handleAfterPrint = useCallback(() => {
     window.parent.postMessage({ message: "close" }, "*")
   }, [])
 
   useEffect(() => {
+    hasPrintedRef.current = false
+  }, [slug])
+
+  useEffect(() => {
     if (itemsToPrint.length === 0) return
+    if (hasPrintedRef.current) return
 
-    if (forCustomer) {
-      setTimeout(() => window.print(), 100)
-      return
-    }
+    hasPrintedRef.current = true
 
-    if (printSeparately && itemsToPrint.length > 1) {
+    if (printSeparately && !forCustomer && itemsToPrint.length > 1) {
       let index = 0
 
       const printNext = () => {
@@ -187,29 +197,29 @@ const Progress = () => {
     }
 
     setTimeout(() => window.print(), 100)
-  }, [itemsToPrint, printSeparately, forCustomer])
+  }, [itemsToPrint, printSeparately, forCustomer, handleAfterPrint])
 
-  const printItems = useMemo(() => {
-    if (forCustomer) return items
+  const printItems = useMemo((): OrderItem[][] => {
+    if (forCustomer) return [items || []]
 
     const hasFilters = categoryOrders.some((g) => g.length > 0)
 
     if (hasFilters) return itemsToPrint
 
     if (onlyNewItems) {
-      return (
-        items?.filter(
+      return [
+        (items || []).filter(
           (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
-        ) || []
-      )
+        ),
+      ]
     }
 
-    return items || []
+    return [items || []]
   }, [forCustomer, onlyNewItems, categoryOrders, itemsToPrint, items])
 
   if (loading || ordersQuery.loading) return <div />
 
-  const groups = printItems as OrderItem[][]
+  const groups = printItems
 
   const renderGroups =
     printSeparately && currentGroupIndex !== null
@@ -258,6 +268,13 @@ const Progress = () => {
               </span>
             </div>
           ))}
+
+          {forCustomer && (
+            <div className="flex justify-between items-center pt-1 mt-2 font-semibold border-t">
+              <span>Нийт</span>
+              <span>{formatNum(totalAmount)}</span>
+            </div>
+          )}
         </div>
       ))}
     </div>
