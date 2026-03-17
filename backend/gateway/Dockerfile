@@ -32,8 +32,8 @@ FROM --platform=linux/amd64 node:22-bookworm AS gateway
 
 WORKDIR /app
 
-# Install required packages
-RUN apt-get update && apt-get install -y curl ca-certificates
+# Install required packages and apply security updates
+RUN apt-get update && apt-get upgrade -y && apt-get install -y curl ca-certificates
 
 # Copy built app from build stage
 COPY --chown=1000:1000 --from=build /app /app
