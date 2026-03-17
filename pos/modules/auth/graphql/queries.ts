@@ -58,6 +58,8 @@ const currentConfig = gql`
         hasSumQty
       }
       saveRemainder
+      serviceCharge
+      serviceChargeApplicableProductId
     }
   }
 `

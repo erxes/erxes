@@ -41,6 +41,7 @@ type State = {
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;
   banFractions: boolean;
+  serviceChargeApplicableProductId: string;
 };
 
 const ConfigStep = (props: Props) => {
@@ -57,6 +58,8 @@ const ConfigStep = (props: Props) => {
     checkExcludeCategoryIds: (pos && pos.checkExcludeCategoryIds) || [],
     saveRemainder: (pos && pos.saveRemainder) || false,
     banFractions: (pos && pos.banFractions) || false,
+    serviceChargeApplicableProductId:
+      (pos && pos.serviceChargeApplicableProductId) || "",
   });
 
   const onSubmitGroup = (group: IProductGroup) => {
@@ -75,7 +78,7 @@ const ConfigStep = (props: Props) => {
 
   const renderGroupFormTrigger = (
     trigger: React.ReactNode,
-    group?: IProductGroup
+    group?: IProductGroup,
   ) => {
     const content = (props) => (
       <GroupForm {...props} group={group} onSubmit={onSubmitGroup} />
@@ -190,6 +193,21 @@ const ConfigStep = (props: Props) => {
     setState((prevState) => ({ ...prevState, [name]: value }));
 
     onChange("pos", { ...pos, [name]: value });
+  };
+
+  const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+
+    if (rawValue === "") {
+      onChange("pos", { ...pos, serviceCharge: undefined });
+      return;
+    }
+
+    const value = Number(rawValue);
+
+    if (isNaN(value)) return;
+
+    onChange("pos", { ...pos, serviceCharge: value });
   };
 
   const groupTrigger = (
@@ -328,6 +346,37 @@ const ConfigStep = (props: Props) => {
                 onChange={(e) => {
                   onChangeValue("banFractions", (e.target as any).checked);
                 }}
+              />
+            </FormGroup>
+          </Block>
+
+          <Block>
+            <h4>{__("Service Charge")}</h4>
+            <FormGroup>
+              <ControlLabel>Service Charge (%)</ControlLabel>
+              <FormControl
+                id="serviceCharge"
+                type="number"
+                min={0}
+                max={100}
+                value={pos.serviceCharge || ""}
+                onChange={onChangeInput}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Applicable Products</ControlLabel>
+              <SelectProducts
+                label={"Choose products for service charge"}
+                name="serviceChargeApplicableProductId"
+                initialValue={state.serviceChargeApplicableProductId || ""}
+                onSelect={(productId) =>
+                  onChangeValue(
+                    "serviceChargeApplicableProductId",
+                    productId || "",
+                  )
+                }
+                multi={false}
               />
             </FormGroup>
           </Block>

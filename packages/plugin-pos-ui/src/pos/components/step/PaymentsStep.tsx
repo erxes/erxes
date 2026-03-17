@@ -55,24 +55,9 @@ const PaymentsStep = (props: Props) => {
   };
 
   const onChangeInput = (e) => {
-    const inputElement = e.currentTarget as HTMLInputElement;
-    const value = inputElement.value;
-
-    if (e.target.id === "serviceCharge") {
-      const numValue = parseFloat(value);
-      if (!isNaN(numValue) && numValue > 100) {
-        return;
-      }
-      onChangeFunction("pos", {
-        ...pos,
-        [e.target.id]: numValue || 0,
-      });
-      return;
-    }
-
     onChangeFunction("pos", {
       ...pos,
-      [e.target.id]: value,
+      [e.target.id]: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
@@ -256,18 +241,6 @@ const PaymentsStep = (props: Props) => {
                     id="erxesAppToken"
                     type="text"
                     value={pos.erxesAppToken || ""}
-                    onChange={onChangeInput}
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <ControlLabel>Service Charge:</ControlLabel>
-                  <FormControl
-                    id="serviceCharge"
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={pos.serviceCharge || ""}
                     onChange={onChangeInput}
                   />
                 </FormGroup>

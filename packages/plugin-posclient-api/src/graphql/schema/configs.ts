@@ -88,6 +88,7 @@ export const types = `
     saveRemainder: Boolean
     banFractions: Boolean
     serviceCharge: Float
+    serviceChargeApplicableProductId: String
   }
 `;
 

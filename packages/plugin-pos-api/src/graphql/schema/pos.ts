@@ -51,6 +51,7 @@ const posCommonFields = `
   saveRemainder: Boolean
   banFractions: Boolean
   serviceCharge: Float
+  serviceChargeApplicableProductId: String
 `;
 
 const catProd = `

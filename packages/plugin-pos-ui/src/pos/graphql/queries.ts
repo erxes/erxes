@@ -56,6 +56,7 @@ export const posCommonFields = `
 
   branchTitle
   departmentTitle
+  serviceChargeApplicableProductId
 `;
 
 const commonParamDefs = `

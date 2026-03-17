@@ -1,46 +1,46 @@
-import { fixNum, getPureDate } from '@erxes/api-utils/src';
-import { debugError } from '@erxes/api-utils/src/debuggers';
-import * as moment from 'moment';
-import { nanoid } from 'nanoid';
-import { IModels } from '../../connectionResolver';
-import { sendCoreMessage, sendLoyaltiesMessage } from '../../messageBroker';
+import { fixNum, getPureDate } from "@erxes/api-utils/src";
+import { debugError } from "@erxes/api-utils/src/debuggers";
+import * as moment from "moment";
+import { nanoid } from "nanoid";
+import { IModels } from "../../connectionResolver";
+import { sendCoreMessage, sendLoyaltiesMessage } from "../../messageBroker";
 import {
   IConfig,
   IConfigDocument,
   IEbarimtConfig,
-} from '../../models/definitions/configs';
+} from "../../models/definitions/configs";
 import {
   BILL_TYPES,
   ORDER_ITEM_STATUSES,
   ORDER_TYPES,
   PRODUCT_TYPES,
   SUBSCRIPTION_INFO_STATUS,
-} from '../../models/definitions/constants';
-import { IOrderItemDocument } from '../../models/definitions/orderItems';
+} from "../../models/definitions/constants";
+import { IOrderItemDocument } from "../../models/definitions/orderItems";
 import {
   IOrder,
   IOrderDocument,
   IPaidAmount,
-} from '../../models/definitions/orders';
-import { IPosUserDocument } from '../../models/definitions/posUsers';
-import { IProductDocument } from '../../models/definitions/products';
-import { getCompanyInfo } from '../../models/PutData';
-import { IPayment } from '../resolvers/mutations/orders';
-import { IOrderInput, IOrderItemInput } from '../types';
-import { checkDirectDiscount } from './directDiscount';
-import { checkLoyalties } from './loyalties';
-import { checkPricing } from './pricing';
-import { checkRemainders } from './products';
+} from "../../models/definitions/orders";
+import { IPosUserDocument } from "../../models/definitions/posUsers";
+import { IProductDocument } from "../../models/definitions/products";
+import { getCompanyInfo } from "../../models/PutData";
+import { IPayment } from "../resolvers/mutations/orders";
+import { IOrderInput, IOrderItemInput } from "../types";
+import { checkDirectDiscount } from "./directDiscount";
+import { checkLoyalties } from "./loyalties";
+import { checkPricing } from "./pricing";
+import { checkRemainders } from "./products";
 
 export const generateOrderNumber = async (
   models: IModels,
   config: IConfig,
 ): Promise<string> => {
-  const todayStr = moment().format('YYYYMMDD').toString();
+  const todayStr = moment().format("YYYYMMDD").toString();
 
-  let beginNumber = '';
-  let regexSuffix = '[0-9]*$';
-  let suffix = '0001';
+  let beginNumber = "";
+  let regexSuffix = "[0-9]*$";
+  let suffix = "0001";
   let latestOrder;
 
   if (config?.beginNumber) {
@@ -60,7 +60,7 @@ export const generateOrderNumber = async (
     {
       $project: {
         number: 1,
-        number_len: { $strLenCP: '$number' },
+        number_len: { $strLenCP: "$number" },
       },
     },
     { $sort: { number_len: -1, number: -1 } },
@@ -72,9 +72,9 @@ export const generateOrderNumber = async (
   }
 
   if (latestOrder && latestOrder._id) {
-    const parts = latestOrder.number.split('_');
+    const parts = latestOrder.number.split("_");
 
-    const suffixParts = parts[1].split('.');
+    const suffixParts = parts[1].split(".");
     const latestSuffix =
       (suffixParts.length === 2 && suffixParts[1]) || suffixParts[0];
 
@@ -86,7 +86,7 @@ export const generateOrderNumber = async (
         Math.round(Math.random() * (config.maxSkipNumber - 1) + 1)) ||
       1;
 
-    suffix = String(latestNum + addend).padStart(4, '0');
+    suffix = String(latestNum + addend).padStart(4, "0");
     number = `${todayStr}_${beginNumber}${suffix}`;
   }
 
@@ -128,12 +128,12 @@ export const validateOrder = async (
   const { items = [] } = doc;
 
   if (!items.filter((i) => !i.isPackage).length) {
-    throw new Error('Products missing in order. Please add products');
+    throw new Error("Products missing in order. Please add products");
   }
 
   if (!(await validDueDate(doc, order))) {
     throw new Error(
-      'The due date of the pre-order must be recorded in the future',
+      "The due date of the pre-order must be recorded in the future",
     );
   }
 
@@ -145,7 +145,7 @@ export const validateOrder = async (
   for (const item of items) {
     // will throw error if product is not found
     if (!productIds.includes(item.productId)) {
-      throw new Error('Products missing in order');
+      throw new Error("Products missing in order");
     }
   }
 
@@ -154,7 +154,7 @@ export const validateOrder = async (
     !doc?.customerId
   ) {
     throw new Error(
-      'Please ensure that the customer information is included in the order, as there are subscription-based products within it.',
+      "Please ensure that the customer information is included in the order, as there are subscription-based products within it.",
     );
   }
 
@@ -164,7 +164,7 @@ export const validateOrder = async (
     config.departmentId
   ) {
     const checkProducts = products.filter(
-      (p) => (p.isCheckRems || {})[config.token || ''] || false,
+      (p) => (p.isCheckRems || {})[config.token || ""] || false,
     );
 
     if (checkProducts.length) {
@@ -205,7 +205,7 @@ export const validateOrder = async (
       }
 
       if (errors.length) {
-        throw new Error(errors.join(', '));
+        throw new Error(errors.join(", "));
       }
     }
   }
@@ -213,7 +213,7 @@ export const validateOrder = async (
 
 export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
   if (order.paidDate) {
-    throw new Error('Order has already been paid');
+    throw new Error("Order has already been paid");
   }
   const {
     cashAmount: paidCash = 0,
@@ -273,7 +273,7 @@ export const updateOrderItems = async (
       manufacturedDate: item.manufacturedDate,
       description: item.description,
       attachment: item.attachment,
-      byDevice: item.byDevice
+      byDevice: item.byDevice,
     };
 
     if (itemIds.includes(item._id)) {
@@ -300,7 +300,11 @@ export const getTotalAmount = (items: IOrderItemInput[] = []): number => {
 const calcPreTaxPercentage = (paymentTypes, order) => {
   let itemAmountPrePercent = 0;
   const preTaxPaymentTypes: string[] = (paymentTypes || [])
-    .filter((p) => (p.config || '').includes('preTax: true') || (p.config || '').includes('"preTax": true'))
+    .filter(
+      (p) =>
+        (p.config || "").includes("preTax: true") ||
+        (p.config || "").includes('"preTax": true'),
+    )
     .map((p) => p.type);
 
   if (preTaxPaymentTypes.length && order.paidAmounts?.length) {
@@ -333,10 +337,10 @@ export const prepareEbarimtData = async (
   registerNumber?: string,
 ) => {
   const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
-  let type: string = billType === '3' ? 'B2B_RECEIPT' : 'B2C_RECEIPT';
-  let customerTin = '';
-  let customerCode = '';
-  let customerName = '';
+  let type: string = billType === "3" ? "B2B_RECEIPT" : "B2C_RECEIPT";
+  let customerTin = "";
+  let customerCode = "";
+  let customerName = "";
 
   if (registerNumber) {
     const resp = await getCompanyInfo({
@@ -344,8 +348,8 @@ export const prepareEbarimtData = async (
       no: registerNumber,
     });
 
-    if (resp.status === 'checked' && resp.tin) {
-      type = 'B2B_RECEIPT';
+    if (resp.status === "checked" && resp.tin) {
+      type = "B2B_RECEIPT";
       customerTin = resp.tin;
       customerCode = registerNumber;
       customerName = resp.result?.data?.name;
@@ -368,9 +372,9 @@ export const prepareEbarimtData = async (
   }
 
   return {
-    contentType: 'pos',
+    contentType: "pos",
     contentId: order._id,
-    number: order.number ?? '',
+    number: order.number ?? "",
 
     date: new Date(),
     type,
@@ -489,7 +493,7 @@ export const prepareOrderDoc = async (
   ) {
     subscriptionUoms = await sendCoreMessage({
       subdomain,
-      action: 'uoms.find',
+      action: "uoms.find",
       data: { isForSubscription: true },
       isRPC: true,
       defaultValue: [],
@@ -502,8 +506,8 @@ export const prepareOrderDoc = async (
     const fixedUnitPrice = Number(
       Number(
         ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-        item.unitPrice ||
-        0,
+          item.unitPrice ||
+          0,
       ).toFixed(2),
     );
 
@@ -526,7 +530,7 @@ export const prepareOrderDoc = async (
       if (subscriptionConfig?.subsRenewable) {
         const prevSubscription = await models.Orders.findOne({
           customerId: doc?.customerId,
-          'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
+          "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE,
           paidDate: { $exists: true },
         })
           .sort({ createdAt: -1 })
@@ -549,7 +553,7 @@ export const prepareOrderDoc = async (
           }
         }
       }
-      const period = (subscriptionConfig?.period || '').replace('ly', '');
+      const period = (subscriptionConfig?.period || "").replace("ly", "");
 
       item.closeDate = new Date(
         moment(startDate)
@@ -595,16 +599,16 @@ export const prepareOrderDoc = async (
 
     for (const item of hasTakeItems) {
       const product = productsOfId[item.productId];
-      const category = categoriesOfId[product.categoryId || ''];
+      const category = categoriesOfId[product.categoryId || ""];
 
       if (!category) {
         continue;
       }
 
-      const perOrders = category.order.split('/');
+      const perOrders = category.order.split("/");
       const matchOrders: string[] = [];
       for (let i = perOrders.length - 1; i > 0; i--) {
-        matchOrders.push(`${perOrders.slice(0, i).join('/')}/`);
+        matchOrders.push(`${perOrders.slice(0, i).join("/")}/`);
       }
 
       const matchMap = getMatchMaps(matchOrders, lastCatProdMaps, product);
@@ -658,7 +662,7 @@ export const prepareOrderDoc = async (
 
     if (deliveryProd) {
       const deliveryUnitPrice =
-        (deliveryProd.prices || {})[config.token || ''] || 0;
+        (deliveryProd.prices || {})[config.token || ""] || 0;
       items.push({
         _id: Math.random().toString(),
         productId: deliveryProd._id,
@@ -671,17 +675,37 @@ export const prepareOrderDoc = async (
     }
   }
 
-  return await checkPrices(
+  const result = await checkPrices(
     subdomain,
     { ...doc, items, subscriptionInfo },
     config,
     posUser,
   );
+
+  if (!config.serviceCharge || !config.serviceChargeApplicableProductId) {
+    return result;
+  }
+
+  const serviceChargeAmount = doc.totalAmount * (config.serviceCharge / 100);
+
+  return {
+    ...result,
+    totalAmount: result.totalAmount + serviceChargeAmount,
+    items: [
+      ...result.items,
+      {
+        productId: config.serviceChargeApplicableProductId,
+        count: 1,
+        unitPrice: serviceChargeAmount,
+        isPackage: true,
+      },
+    ],
+  };
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {
   if (order.paidDate) {
-    throw new Error('Order is already paid');
+    throw new Error("Order is already paid");
   }
 };
 
@@ -694,18 +718,18 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
     (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
   if (amount < 0 && paidAmount < order.totalAmount) {
-    throw new Error('Amount less 0');
+    throw new Error("Amount less 0");
   }
 
   if (amount > 0 && paidAmount > order.totalAmount) {
-    throw new Error('Amount exceeds total amount');
+    throw new Error("Amount exceeds total amount");
   }
 
   if (
     paidAmount <= order.totalAmount &&
     paidAmount + amount > order.totalAmount
   ) {
-    throw new Error('Amount exceeds total amount');
+    throw new Error("Amount exceeds total amount");
   }
 };
 
@@ -750,9 +774,9 @@ export const checkScoreAviableSubtractScoreCampaign = async (
 
       await sendLoyaltiesMessage({
         subdomain,
-        action: 'checkScoreAviableSubtract',
+        action: "checkScoreAviableSubtract",
         data: {
-          ownerType: order.customerType || 'customer',
+          ownerType: order.customerType || "customer",
           ownerId: order.customerId,
           campaignId: scoreCampaignId,
           target: { ...order, paidAmounts },
@@ -760,7 +784,7 @@ export const checkScoreAviableSubtractScoreCampaign = async (
         isRPC: true,
         defaultValue: false,
       }).catch((error) => {
-        if (error.message === 'There has no enough score to subtract') {
+        if (error.message === "There has no enough score to subtract") {
           throw new Error(
             `There has no enough score to subtract using ${title}`,
           );
@@ -771,11 +795,16 @@ export const checkScoreAviableSubtractScoreCampaign = async (
   }
 };
 
-export const checkCouponCode = async ({ order, subdomain }: { order: IOrderDocument, subdomain: string }) => {
+export const checkCouponCode = async ({
+  order,
+  subdomain,
+}: {
+  order: IOrderDocument;
+  subdomain: string;
+}) => {
+  const { extraInfo, customerId } = order || {};
 
-  const { extraInfo, customerId } = order || {}
-
-  const { couponCode, rawTotalAmount } = extraInfo || {}
+  const { couponCode, rawTotalAmount } = extraInfo || {};
 
   if (!couponCode) {
     return;
@@ -784,20 +813,19 @@ export const checkCouponCode = async ({ order, subdomain }: { order: IOrderDocum
   try {
     await sendLoyaltiesMessage({
       subdomain: subdomain,
-      action: 'checkCoupon',
+      action: "checkCoupon",
       data: {
         ownerId: customerId,
         code: couponCode,
-        totalAmount: rawTotalAmount
+        totalAmount: rawTotalAmount,
       },
       isRPC: true,
-      defaultValue: false
-    })
+      defaultValue: false,
+    });
   } catch (error) {
     throw new Error(error.message);
   }
-
-}
+};
 
 export const reverseItemStatus = async (
   models: IModels,
@@ -846,43 +874,46 @@ export const fakePutData = async (
   }
 
   return {
-    id: 'tempBill',
+    id: "tempBill",
     number: order.number,
-    contentType: 'pos',
+    contentType: "pos",
     contentId: order._id,
     posToken: config.token,
     totalAmount: order.totalAmount,
     totalVAT: 0,
     totalCityTax: 0,
-    type: '9',
-    status: 'SUCCESS',
-    qrData: '',
-    lottery: '',
-    date: moment(order.paidDate).format('yyyy-MM-dd hh:mm:ss'),
+    type: "9",
+    status: "SUCCESS",
+    qrData: "",
+    lottery: "",
+    date: moment(order.paidDate).format("yyyy-MM-dd hh:mm:ss"),
 
     cashAmount: order.cashAmount ?? 0,
     nonCashAmount: order.totalAmount - (order.cashAmount ?? 0),
-    registerNo: '',
-    customerNo: '',
-    customerName: '',
+    registerNo: "",
+    customerNo: "",
+    customerName: "",
 
     receipts: [
       {
-        _id: '',
-        id: '',
+        _id: "",
+        id: "",
         totalAmount: order.totalAmount,
         totalVAT: 0,
         totalCityTax: 0,
-        taxType: 'NOT_SEND',
+        taxType: "NOT_SEND",
         items: items.map((item) => ({
           _id: item._id,
           id: item.id,
           name:
             productById[item.productId].shortName ||
             productById[item.productId].name,
-          measureUnit: productById[item.productId].uom || 'ш',
+          measureUnit: productById[item.productId].uom || "ш",
           qty: item.count,
-          unitPrice: fixNum((((item.unitPrice ?? 0) * item.count) + (item.discountAmount ?? 0)) / (item.count || 1)),
+          unitPrice: fixNum(
+            ((item.unitPrice ?? 0) * item.count + (item.discountAmount ?? 0)) /
+              (item.count || 1),
+          ),
           totalAmount: (item.unitPrice ?? 0) * item.count,
           totalVAT: 0,
           totalCityTax: 0,

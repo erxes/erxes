@@ -87,6 +87,7 @@ export interface IConfig {
   saveRemainder?: boolean;
   banFractions: boolean;
   serviceCharge?: number;
+  serviceChargeApplicableProductId?: string;
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -162,6 +163,11 @@ export const configSchema = new Schema({
     label: " OrderPassword",
   }),
   serviceCharge: field({ type: Number, optional: true }),
+  serviceChargeApplicableProductId: field({
+    type: String,
+    optional: true,
+    label: "Service charge applicable product id",
+  }),
   pdomain: field({ type: String, optional: true, label: "Domain" }),
   userId: field({ type: String, optional: true, label: "Created by" }),
   createdAt: getDateFieldDefinition("Created at"),

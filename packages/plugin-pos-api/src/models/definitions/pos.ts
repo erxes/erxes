@@ -44,6 +44,7 @@ export interface IPos {
   saveRemainder: boolean;
   banFractions: boolean;
   serviceCharge: number;
+  serviceChargeApplicableProductId?: string;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -119,6 +120,11 @@ export const posSchema = schemaHooksWrapper(
     token: field({ type: String, label: "Pos token" }),
     erxesAppToken: field({ type: String, label: "Erxes App token" }),
     serviceCharge: field({ type: Number, label: "Service charge" }),
+    serviceChargeApplicableProductId: field({
+      type: String,
+      label: "Service charge applicable product id",
+      optional: true,
+    }),
     ebarimtConfig: field({
       type: Object,
       optional: true,

@@ -128,6 +128,8 @@ const Pos = (props: Props) => {
       pdomain: state.pos.pdomain,
       erxesAppToken: state.pos.erxesAppToken,
       serviceCharge: state.pos.serviceCharge,
+      serviceChargeApplicableProductId:
+        state.pos.serviceChargeApplicableProductId,
       productDetails: state.pos.productDetails || [],
       groups: state.groups,
       adminIds: state.pos.adminIds,

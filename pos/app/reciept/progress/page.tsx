@@ -4,14 +4,18 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { queries } from "@/modules/orders/graphql"
 import { queries as productQueries } from "@/modules/products/graphql"
-import { categoriesToPrintAtom, printOnlyNewItemsAtom } from "@/store"
+import {
+  categoriesToPrintAtom,
+  printOnlyNewItemsAtom,
+  printSeparatelyAtom,
+} from "@/store"
 import { configAtom } from "@/store/config.store"
 import { useLazyQuery, useQuery } from "@apollo/client"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 
 import type { OrderItem } from "@/types/order.types"
-import { IProduct } from "@/types/product.types"
+import { ICategory, IProduct } from "@/types/product.types"
 import { ORDER_ITEM_STATUSES } from "@/lib/constants"
 import { Separator } from "@/components/ui/separator"
 
@@ -23,8 +27,8 @@ const filterProductsNeedProcess = (
     .filter((product: IProduct) =>
       categoryOrders?.length > 0
         ? categoryOrders.some((order) =>
-          product?.category?.order?.includes(order)
-        )
+            product?.category?.order?.includes(order)
+          )
         : true
     )
     .map((product: IProduct) => product._id)
@@ -34,10 +38,16 @@ const Progress = () => {
   const slug = searchParams.get("id")
   const id = slug?.split("?")[0]
   const forCustomer = slug?.split("?")[1] === "customer"
+
   const onlyNewItems = useAtomValue(printOnlyNewItemsAtom)
   const categoryOrders = useAtomValue(categoriesToPrintAtom)
-  const [itemsToPrint, setItemsToPrint] = useState<OrderItem[][]>([])
+  const printSeparately = useAtomValue(printSeparatelyAtom)
   const { name } = useAtomValue(configAtom) || {}
+
+  const [itemsToPrint, setItemsToPrint] = useState<OrderItem[][]>([])
+  const [currentGroupIndex, setCurrentGroupIndex] = useState<number | null>(
+    null
+  )
 
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
@@ -46,20 +56,20 @@ const Progress = () => {
         const allFilteredItems: OrderItem[][] = []
 
         for (const filterGroup of categoryOrders) {
-          if (filterGroup.length === 0) {
-            continue
-          }
+          if (filterGroup.length === 0) continue
 
           const productsNeedProcess = filterProductsNeedProcess(
             poscProducts,
             filterGroup
           )
+
           const baseItems = items || []
           const filteredByStatus = onlyNewItems
             ? baseItems.filter(
-              (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
-            )
+                (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
+              )
             : baseItems
+
           const checkedItems = filteredByStatus.filter((item: OrderItem) =>
             productsNeedProcess.includes(item.productId)
           )
@@ -69,12 +79,14 @@ const Progress = () => {
           }
         }
 
-
         if (allFilteredItems.length === 0) {
           const baseItems = items || []
           const itemsToProcess = onlyNewItems
-            ? baseItems.filter((item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE)
+            ? baseItems.filter(
+                (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
+              )
             : baseItems
+
           setItemsToPrint([itemsToProcess])
         } else {
           setItemsToPrint(allFilteredItems)
@@ -88,22 +100,21 @@ const Progress = () => {
     fetchPolicy: "network-only",
     onCompleted({ orderDetail }) {
       const hasFilters = categoryOrders.some((group) => group.length > 0)
-      if (forCustomer) {
-        return window.print()
-      }
-      if (!onlyNewItems && !hasFilters) {
-        return window.print()
-      }
+
+      if (forCustomer) return window.print()
+      if (!onlyNewItems && !hasFilters) return window.print()
 
       const newItems =
         orderDetail.items?.filter(
           (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
         ) || []
+
       if (onlyNewItems && !newItems.length) {
         return handleAfterPrint()
       }
 
       const itemsToProcess = onlyNewItems ? newItems : orderDetail.items || []
+
       if (hasFilters) {
         return getCategoryOrders({
           variables: {
@@ -116,47 +127,75 @@ const Progress = () => {
     },
   })
 
+  const { data: categoryData } = useQuery(productQueries.productCategories)
+
+  const categories = categoryData?.poscProductCategories || []
+
+  const findCategoryName = (order: string) => {
+    const matched = categories
+      .filter((cat: ICategory) => order.startsWith(cat.order))
+      .sort((a: ICategory, b: ICategory) => b.order.length - a.order.length)
+
+    return matched[0]?.name || ""
+  }
+  const groupTitles = useMemo(() => {
+    return categoryOrders.map((group) =>
+      group
+        .map((g) => findCategoryName(g))
+        .filter(Boolean)
+        .join(", ")
+    )
+  }, [categoryOrders, categories])
+
   const { number, modifiedAt, items, description } = data?.orderDetail || {}
 
   const handleAfterPrint = useCallback(() => {
-    const data = { message: "close" }
-    window.parent.postMessage(data, "*")
+    window.parent.postMessage({ message: "close" }, "*")
   }, [])
 
   useEffect(() => {
-    window.addEventListener("afterprint", handleAfterPrint)
-    return () => {
-      window.removeEventListener("afterprint", handleAfterPrint)
-    }
-  }, [handleAfterPrint])
+    if (itemsToPrint.length === 0) return
 
-  useEffect(() => {
-    if (itemsToPrint.length > 0) {
-      setTimeout(() => {
-        window.print()
-      }, 100)
+    if (forCustomer) {
+      setTimeout(() => window.print(), 100)
+      return
     }
-  }, [itemsToPrint])
 
-  useEffect(() => {
-    if (data?.orderDetail && !loading && !ordersQuery.loading) {
-      const hasFilters = categoryOrders.some((group) => group.length > 0)
-      if (!forCustomer && !hasFilters && !onlyNewItems && itemsToPrint.length === 0) {
+    if (printSeparately && itemsToPrint.length > 1) {
+      let index = 0
+
+      const printNext = () => {
+        if (index >= itemsToPrint.length) {
+          handleAfterPrint()
+          return
+        }
+
+        setCurrentGroupIndex(index)
+
         setTimeout(() => {
           window.print()
-        }, 200)
+          index++
+
+          setTimeout(() => {
+            printNext()
+          }, 1000)
+        }, 100)
       }
+
+      printNext()
+      return
     }
-  }, [data, loading, ordersQuery.loading, categoryOrders, forCustomer, onlyNewItems, itemsToPrint.length])
+
+    setTimeout(() => window.print(), 100)
+  }, [itemsToPrint, printSeparately, forCustomer])
 
   const printItems = useMemo(() => {
-    if (forCustomer) {
-      return items
-    }
-    const hasFilters = categoryOrders.some((group) => group.length > 0)
-    if (hasFilters) {
-      return itemsToPrint
-    }
+    if (forCustomer) return items
+
+    const hasFilters = categoryOrders.some((g) => g.length > 0)
+
+    if (hasFilters) return itemsToPrint
+
     if (onlyNewItems) {
       return (
         items?.filter(
@@ -164,91 +203,53 @@ const Progress = () => {
         ) || []
       )
     }
+
     return items || []
   }, [forCustomer, onlyNewItems, categoryOrders, itemsToPrint, items])
 
   if (loading || ordersQuery.loading) return <div />
 
+  const groups = printItems as OrderItem[][]
+
+  const renderGroups =
+    printSeparately && currentGroupIndex !== null
+      ? [{ items: groups[currentGroupIndex], index: currentGroupIndex }]
+      : groups.map((g, i) => ({ items: g, index: i }))
+
   return (
     <div className="space-y-1 text-[12px]">
-      <div className="flex items-center justify-between font-semibold text-xs">
-        <span>{name}</span>
-        <span>#{(number || "").split("_")[1]}</span>
-      </div>
-      <div>
-        Огноо:{" "}
-        <span className="font-semibold">
-          {modifiedAt && format(new Date(modifiedAt), "yyyy.MM.dd HH:mm:ss")}
-        </span>
-      </div>
-      <div>
-        <div className="flex items-center font-semibold">
-          <span className="flex-auto">Бараа</span>
-          <span>Т/Ш</span>
-          {forCustomer && <span className="w-1/4 text-right">Үнэ</span>}
-        </div>
-        <Separator />
+      {renderGroups.map(({ items: groupItems, index }, i) => (
+        <div key={i}>
+          {i > 0 && <div className="my-3 border-t border-dashed" />}
 
-        {(() => {
-          if (forCustomer) {
-            return (printItems as OrderItem[]).map((item: OrderItem) => (
-              <div className="flex items-center" key={item._id}>
-                <span className="flex-auto">{item.productName}</span>
-                <span>
-                  x{item.count}{" "}
-                  {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
-                </span>
-                <span className="ml-1 w-1/4 text-right">
-                  {(item.unitPrice * item.count).toLocaleString()}
-                </span>
-              </div>
-            ))
-          }
-
-          const hasMultipleGroups =
-            Array.isArray(printItems) &&
-            printItems.length > 0 &&
-            Array.isArray(printItems[0])
-
-          if (hasMultipleGroups) {
-            return (printItems as OrderItem[][]).map(
-              (groupItems: OrderItem[], groupIndex: number) => (
-                <div key={`filter-group-${groupIndex}`}>
-                  {groupIndex > 0 && (
-                    <>
-                      <div className="my-3 border-t border-dashed" />
-                      <div className="flex items-center justify-between font-semibold text-xs">
-                        <span>{name}</span>
-                        <span>#{(number || "").split("_")[1]}</span>
-                      </div>
-                      <div>
-                        Огноо:{" "}
-                        <span className="font-semibold">
-                          {modifiedAt && format(new Date(modifiedAt), "yyyy.MM.dd HH:mm:ss")}
-                        </span>
-                      </div>
-                      <div className="flex items-center font-semibold">
-                        <span className="flex-auto">Бараа</span>
-                        <span>Т/Ш</span>
-                        {forCustomer && <span className="w-1/4 text-right">Үнэ</span>}
-                      </div>
-                    </>
-                  )}
-                  {groupItems.map((item: OrderItem) => (
-                    <div className="flex items-center" key={item._id}>
-                      <span className="flex-auto">{item.productName}</span>
-                      <span>
-                        x{item.count}{" "}
-                        {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
-                      </span>
-                    </div>
-                  ))}
+          <div className="flex justify-between items-center text-xs font-semibold">
+            <div>
+              <div>{name}</div>
+              {!forCustomer && groupTitles[index] && (
+                <div className="text-[10px] text-muted-foreground">
+                  {groupTitles[index]}
                 </div>
-              )
-            )
-          }
+              )}
+            </div>
+            <span>#{(number || "").split("_")[1]}</span>
+          </div>
 
-          return (printItems as OrderItem[]).map((item: OrderItem) => (
+          <div>
+            Огноо:{" "}
+            <span className="font-semibold">
+              {modifiedAt &&
+                format(new Date(modifiedAt), "yyyy.MM.dd HH:mm:ss")}
+            </span>
+          </div>
+
+          <div className="flex items-center font-semibold">
+            <span className="flex-auto">Бараа</span>
+            <span>Т/Ш</span>
+          </div>
+
+          <Separator />
+
+          {groupItems.map((item) => (
             <div className="flex items-center" key={item._id}>
               <span className="flex-auto">{item.productName}</span>
               <span>
@@ -256,32 +257,9 @@ const Progress = () => {
                 {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
               </span>
             </div>
-          ))
-        })()}
-      </div>
-      {!!description && (
-        <div>
-          <div className="font-semibold">Хүргэлтын мэдээлэл:</div>
-          <div>{description}</div>
+          ))}
         </div>
-      )}
-      {forCustomer && (
-        <>
-          <Separator />
-          <div className="text-right">
-            <span>Нийт: </span>
-            <span className="font-semibold">
-              {(items || [])
-                .reduce(
-                  (acc: number, item: OrderItem) =>
-                    acc + item.unitPrice * item.count,
-                  0
-                )
-                .toLocaleString()}
-            </span>
-          </div>
-        </>
-      )}
+      ))}
     </div>
   )
 }

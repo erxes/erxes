@@ -76,6 +76,7 @@ export type IPos = {
   saveRemainder: boolean;
   banFractions: boolean;
   serviceCharge?: number;
+  serviceChargeApplicableProductId?: string;
   branchTitle?: string;
   departmentTitle?: string;
 };
