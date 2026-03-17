@@ -27,8 +27,17 @@ const rateParams = `
 `;
 
 export const queries = `
-  exchangeRatesMain(page: Int, perPage: Int, searchValue: String): ExchangeRatesListResponse
-  exchangeGetRate(date: Date, currency: String, mainCurrency: String): ExchangeRate
+  exchangeRatesMain(
+    page: Int
+    perPage: Int
+    searchValue: String
+  ): ExchangeRatesListResponse
+
+  exchangeGetRate(
+    date: Date
+    currency: String
+    mainCurrency: String
+  ): ExchangeRate
 `;
 
 export const mutations = `
