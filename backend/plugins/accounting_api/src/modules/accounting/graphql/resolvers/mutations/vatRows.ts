@@ -1,19 +1,14 @@
 import { checkPermission } from 'erxes-api-shared/core-modules';
-import { IContext } from "~/connectionResolvers";
-import { IVatRow } from "@/accounting/@types/vatRow";
+import { IContext } from '~/connectionResolvers';
+import { IVatRow } from '@/accounting/@types/vatRow';
 
 const vatRowsMutations = {
   /**
    * Creates a new account category
    * @param {Object} doc Account category document
    */
-  async vatRowsAdd(
-    _root,
-    doc: IVatRow,
-    { models }: IContext,
-  ) {
-    const vatRow =
-      await models.VatRows.createVatRow(doc);
+  async vatRowsAdd(_root, doc: IVatRow, { models }: IContext) {
+    const vatRow = await models.VatRows.createVatRow(doc);
 
     return vatRow;
   },
@@ -31,10 +26,7 @@ const vatRowsMutations = {
     await models.VatRows.getVatRow({
       _id,
     });
-    const updated = await models.VatRows.updateVatRow(
-      _id,
-      doc,
-    );
+    const updated = await models.VatRows.updateVatRow(_id, doc);
 
     return updated;
   },
@@ -49,7 +41,7 @@ const vatRowsMutations = {
     { models }: IContext,
   ) {
     await models.VatRows.find({
-      _id: { $in: vatRowIds }
+      _id: { $in: vatRowIds },
     }).lean();
     const removed = await models.VatRows.removeVatRows(vatRowIds);
 

@@ -196,7 +196,9 @@ export const dealMutations = {
     const customerIds = await getCustomerIds(subdomain, _id);
 
     await createRelations(subdomain, {
-      dealId: clone._id, companyIds, customerIds
+      dealId: clone._id,
+      companyIds,
+      customerIds,
     });
 
     await copyChecklists(models, {
@@ -243,7 +245,7 @@ export const dealMutations = {
           oldDeal: { ...item, status: SALES_STATUSES.ARCHIVED },
         },
       });
-    })
+    });
 
     return 'ok';
   },
@@ -294,7 +296,7 @@ export const dealMutations = {
     // undefenid or null then true
     const tickUsed = !(stage.defaultTick === false);
     const addDocs = (docs || []).map(
-      (doc) => ({ ...doc, tickUsed } as IProductData),
+      (doc) => ({ ...doc, tickUsed }) as IProductData,
     );
     const productsData: IProductData[] = (deal.productsData || []).concat(
       addDocs,
@@ -367,8 +369,8 @@ export const dealMutations = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
-      data._id === dataId ? { ...doc } : data,
+    const productsData: IProductData[] = (deal.productsData || []).map(
+      (data) => (data._id === dataId ? { ...doc } : data),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])

@@ -33,11 +33,13 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
 
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false,
-  crossOriginResourcePolicy: false,
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false,
+  }),
+);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));

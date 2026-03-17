@@ -75,11 +75,13 @@ serverAdapter.setBasePath('/bullmq-board');
 
 const app = express();
 
-app.use(helmet({
-  contentSecurityPolicy: false, // CSP disabled to allow Module Federation dynamic imports
-  crossOriginEmbedderPolicy: false,
-  crossOriginResourcePolicy: false,
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // CSP disabled to allow Module Federation dynamic imports
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false,
+  }),
+);
 
 app.use(cookieParser());
 

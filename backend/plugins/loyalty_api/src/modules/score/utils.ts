@@ -26,16 +26,21 @@ export function safeEvaluateArithmetic(expression: string): number {
   for (const ch of sanitized) {
     if (ch === '(') depth++;
     if (ch === ')') depth--;
-    if (depth < 0) throw new Error('Invalid arithmetic expression: unbalanced parentheses');
+    if (depth < 0)
+      throw new Error('Invalid arithmetic expression: unbalanced parentheses');
   }
-  if (depth !== 0) throw new Error('Invalid arithmetic expression: unbalanced parentheses');
+  if (depth !== 0)
+    throw new Error('Invalid arithmetic expression: unbalanced parentheses');
 
   // Recursive descent parser
   let pos = 0;
 
   function parseExpression(): number {
     let result = parseTerm();
-    while (pos < sanitized.length && (sanitized[pos] === '+' || sanitized[pos] === '-')) {
+    while (
+      pos < sanitized.length &&
+      (sanitized[pos] === '+' || sanitized[pos] === '-')
+    ) {
       const op = sanitized[pos++];
       const right = parseTerm();
       result = op === '+' ? result + right : result - right;
@@ -45,7 +50,10 @@ export function safeEvaluateArithmetic(expression: string): number {
 
   function parseTerm(): number {
     let result = parseFactor();
-    while (pos < sanitized.length && (sanitized[pos] === '*' || sanitized[pos] === '/')) {
+    while (
+      pos < sanitized.length &&
+      (sanitized[pos] === '*' || sanitized[pos] === '/')
+    ) {
       const op = sanitized[pos++];
       const right = parseFactor();
       if (op === '/') {
@@ -80,7 +88,11 @@ export function safeEvaluateArithmetic(expression: string): number {
 
     // Parse number
     const start = pos;
-    while (pos < sanitized.length && (sanitized[pos] >= '0' && sanitized[pos] <= '9' || sanitized[pos] === '.')) {
+    while (
+      pos < sanitized.length &&
+      ((sanitized[pos] >= '0' && sanitized[pos] <= '9') ||
+        sanitized[pos] === '.')
+    ) {
       pos++;
     }
     if (start === pos) {
@@ -91,7 +103,9 @@ export function safeEvaluateArithmetic(expression: string): number {
 
   const result = parseExpression();
   if (pos !== sanitized.length) {
-    throw new Error('Invalid arithmetic expression: unexpected trailing content');
+    throw new Error(
+      'Invalid arithmetic expression: unexpected trailing content',
+    );
   }
   return isNaN(result) ? 0 : result;
 }
