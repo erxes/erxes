@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@apollo/federation-internals': '>=2.10.5'
+
 importers:
   .:
     dependencies:
@@ -1199,12 +1202,12 @@ packages:
       subscriptions-transport-ws:
         optional: true
 
-  '@apollo/federation-internals@2.10.0':
+  '@apollo/federation-internals@2.13.2':
     resolution:
       {
-        integrity: sha512-IneWuwDc9ozKLcEsKw7YEkhzo7VAa54RjKwAVEqPFHPVqUjIYUKX99gSWAp9ZQeI8DGrz2a8uKEDlKGOHh3UaA==,
+        integrity: sha512-m9waen8iZhrzn23qkemlytqBCPoKU6AMv5k3eFYnu6yzoJ5/ONh6SMGE7CvrWsECcpnOLYOinxD19igEHm6Azw==,
       }
-    engines: { node: '>=14.15.0' }
+    engines: { node: '>=18' }
     peerDependencies:
       graphql: ^16.5.0
 
@@ -27241,7 +27244,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@apollo/federation-internals@2.10.0(graphql@16.10.0)':
+  '@apollo/federation-internals@2.13.2(graphql@16.10.0)':
     dependencies:
       '@types/uuid': 9.0.8
       chalk: 4.1.2
@@ -27316,7 +27319,7 @@ snapshots:
   '@apollo/subgraph@2.10.0(graphql@16.10.0)':
     dependencies:
       '@apollo/cache-control-types': 1.0.3(graphql@16.10.0)
-      '@apollo/federation-internals': 2.10.0(graphql@16.10.0)
+      '@apollo/federation-internals': 2.13.2(graphql@16.10.0)
       graphql: 16.10.0
 
   '@apollo/usage-reporting-protobuf@4.1.1':
