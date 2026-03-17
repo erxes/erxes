@@ -6,26 +6,26 @@ import { IInvoice } from '~/modules/payment/@types/invoices';
 
 const mutations: Record<string, Resolver> = {
   async generateInvoiceUrl(
-  _root,
-  { input }: { input: IInvoice },
-  { models }: IContext,
-) {
-  const domain = getEnv({ name: 'DOMAIN' })
-    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-    : 'http://localhost:3001';
+    _root,
+    { input }: { input: IInvoice },
+    { models }: IContext,
+  ) {
+    const domain = getEnv({ name: 'DOMAIN' })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      : 'http://localhost:3001';
 
-  const invoice = await models.Invoices.createInvoice({
-    ...input,
-  });
+    const invoice = await models.Invoices.createInvoice({
+      ...input,
+    });
 
-  const payment = await models.PaymentMethods.findOne({
-    _id: input.paymentIds, 
-  });
+    const payment = await models.PaymentMethods.findOne({
+      _id: input.paymentIds,
+    });
 
-  const kind = payment?.kind || 'unknown';
+    const kind = payment?.kind || 'unknown';
 
-  return `${domain}/pl:payment/widget/invoice/${invoice._id}?kind=${kind}`;
-},
+    return `${domain}/pl:payment/widget/invoice/${invoice._id}?kind=${kind}`;
+  },
 
   async invoiceCreate(
     _root,
