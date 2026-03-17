@@ -1,9 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
-import {
-  getDomains,
-  getDeployment,
-} from '~/modules/webbuilder/utils/utils';
+import { getDomains, getDeployment } from '~/modules/webbuilder/utils/utils';
 
 export const webQueries: Record<string, Resolver> = {
   async getWebList(_root, _args, { models }: IContext) {
@@ -60,10 +57,7 @@ export const webQueries: Record<string, Resolver> = {
       null;
 
     const domain: string | null =
-      web.domain ||
-      web.lastDeploymentUrl ||
-      deployment?.url ||
-      null;
+      web.domain || web.lastDeploymentUrl || deployment?.url || null;
 
     return {
       status,
