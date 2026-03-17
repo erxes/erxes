@@ -132,7 +132,8 @@ const userRegisterParams = `
   firstName: String,
   lastName: String,
   userType: CPUserType,
-  code: String
+  code: String,
+  propertiesData: JSON
 `;
 
 const userEditParams = `
