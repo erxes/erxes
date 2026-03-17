@@ -338,10 +338,13 @@ router.post(
             progress: 100,
           });
 
-          setTimeout(() => {
-            uploadStore.delete(uploadId);
-            chunkStore.delete(uploadId);
-          }, 5 * 60 * 1000);
+          setTimeout(
+            () => {
+              uploadStore.delete(uploadId);
+              chunkStore.delete(uploadId);
+            },
+            5 * 60 * 1000,
+          );
 
           // Cleanup
           try {
