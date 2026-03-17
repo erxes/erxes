@@ -79,7 +79,8 @@ const SelectProductProvider = ({
 };
 
 const SelectProductContent = () => {
-  const { productIds, products, defaultSearchValue } = useSelectProductContext();
+  const { productIds, products, defaultSearchValue } =
+    useSelectProductContext();
   const [search, setSearch] = useState(defaultSearchValue ?? '');
   const [debouncedSearch] = useDebounce(search, 500);
   const {
@@ -183,7 +184,16 @@ const SelectProductRoot = React.forwardRef<
     }
 >(
   (
-    { onValueChange, className, mode, value, placeholder, scope, defaultSearchValue, ...props },
+    {
+      onValueChange,
+      className,
+      mode,
+      value,
+      placeholder,
+      scope,
+      defaultSearchValue,
+      ...props
+    },
     ref,
   ) => {
     const [open, setOpen] = useState(false);
