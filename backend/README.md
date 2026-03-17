@@ -158,7 +158,7 @@ pnpm install
 2. Set up environment variables:
 
 ```bash
-cp .env.sample .env
+cp .env.example .env
 ```
 
 3. Start development servers:

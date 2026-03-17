@@ -1,4 +1,9 @@
 import * as path from 'path';
+import * as net from 'net';
+import * as dns from 'dns';
+import { promisify } from 'util';
+
+const dnsLookup = promisify(dns.lookup);
 
 const Segmenter = (Intl as any).Segmenter;
 const segmenter = new Segmenter(undefined, { granularity: 'grapheme' });
@@ -70,4 +75,79 @@ export const sanitizeKey = (key: string): string => {
   }
 
   return normalizedKey;
+};
+
+/**
+ * Checks if an IP address belongs to a private/reserved range.
+ * Used to prevent SSRF attacks by blocking requests to internal networks.
+ */
+export const isPrivateIP = (ip: string): boolean => {
+  // IPv4 private ranges
+  if (net.isIPv4(ip)) {
+    const parts = ip.split('.').map(Number);
+    // 10.0.0.0/8
+    if (parts[0] === 10) return true;
+    // 172.16.0.0/12
+    if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
+    // 192.168.0.0/16
+    if (parts[0] === 192 && parts[1] === 168) return true;
+    // 127.0.0.0/8 (loopback)
+    if (parts[0] === 127) return true;
+    // 169.254.0.0/16 (link-local / cloud metadata)
+    if (parts[0] === 169 && parts[1] === 254) return true;
+    // 0.0.0.0
+    if (parts[0] === 0) return true;
+  }
+
+  // IPv6 private ranges
+  if (net.isIPv6(ip)) {
+    const normalized = ip.toLowerCase();
+    // ::1 (loopback)
+    if (normalized === '::1') return true;
+    // fe80::/10 (link-local)
+    if (normalized.startsWith('fe80:')) return true;
+    // fc00::/7 (unique local address)
+    if (normalized.startsWith('fc') || normalized.startsWith('fd')) return true;
+    // ::ffff:127.0.0.1 (IPv4-mapped)
+    if (normalized.startsWith('::ffff:')) {
+      const v4 = normalized.slice(7);
+      return isPrivateIP(v4);
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Validates that a URL does not point to a private/internal network address.
+ * Resolves the hostname via DNS to catch DNS rebinding attempts.
+ * Throws an error if the URL targets a private IP.
+ */
+export const validateUrlNotPrivate = async (url: URL): Promise<void> => {
+  const hostname = url.hostname;
+
+  // Direct IP check
+  if (net.isIP(hostname)) {
+    if (isPrivateIP(hostname)) {
+      throw new Error(
+        'SSRF protection: requests to private/internal IP addresses are not allowed',
+      );
+    }
+    return;
+  }
+
+  // DNS resolution check
+  try {
+    const { address } = await dnsLookup(hostname);
+    if (isPrivateIP(address)) {
+      throw new Error(
+        'SSRF protection: hostname resolves to a private/internal IP address',
+      );
+    }
+  } catch (e) {
+    if ((e as Error).message.startsWith('SSRF protection')) {
+      throw e;
+    }
+    // DNS lookup failure - allow the request to proceed (will fail naturally)
+  }
 };

@@ -1,3 +1,5 @@
+import { validateUrlNotPrivate } from 'erxes-api-shared/utils';
+
 export const outgoingWebhookDoFetch = async ({
   currentUrl,
   method,
@@ -17,6 +19,9 @@ export const outgoingWebhookDoFetch = async ({
   agent: any;
   controller: AbortController;
 }): Promise<Response> => {
+  // SSRF protection: validate the initial URL does not target private networks
+  await validateUrlNotPrivate(currentUrl);
+
   const res = await fetch(currentUrl.toString(), {
     method,
     headers: headersObj,
@@ -41,6 +46,10 @@ export const outgoingWebhookDoFetch = async ({
     const loc = response.headers.get('location');
     if (!loc) break;
     currentUrl = new URL(loc, currentUrl);
+
+    // SSRF protection: validate redirect target does not point to private networks
+    await validateUrlNotPrivate(currentUrl);
+
     response = await fetch(currentUrl.toString(), {
       method,
       headers: headersObj,

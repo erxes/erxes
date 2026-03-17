@@ -37,6 +37,17 @@ const router: Router = Router();
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
+/** Safely remove a temporary file, ignoring errors if file is already gone. */
+const cleanupTempFile = (filepath: string) => {
+  try {
+    if (filepath && fs.existsSync(filepath)) {
+      fs.unlinkSync(filepath);
+    }
+  } catch {
+    // Ignore cleanup errors – file may already be removed
+  }
+};
+
 interface ReadFileQuery {
   key?: string;
   inline?: string;
@@ -74,13 +85,16 @@ router.get(
       if (inline && inline === 'true') {
         const extension = sanitizedKey.split('.').pop();
 
-        res.setHeader('Content-disposition', 'inline; filename="' + key + '"');
+        res.setHeader(
+          'Content-disposition',
+          'inline; filename="' + sanitizedKey + '"',
+        );
         res.setHeader('Content-type', `application/${extension}`);
 
         return res.send(response);
       }
 
-      res.attachment(name || key);
+      res.attachment(name ? sanitizeFilename(name) : sanitizedKey);
 
       return res.send(response);
     } catch (e) {
@@ -99,8 +113,8 @@ router.post('/upload-file', async (req: Request, res: Response) => {
   const subdomain = getSubdomain(req);
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
-  const maxHeight = Number(req.query.maxHeight);
-  const maxWidth = Number(req.query.maxWidth);
+  const maxHeight = Math.max(0, parseInt(String(req.query.maxHeight), 10) || 0);
+  const maxWidth = Math.max(0, parseInt(String(req.query.maxWidth), 10) || 0);
 
   const form = new formidable.IncomingForm({
     uploadDir: os.tmpdir(),
@@ -125,6 +139,7 @@ router.post('/upload-file', async (req: Request, res: Response) => {
     const mimetype = file?.mimetype;
 
     if (!mimetype) {
+      cleanupTempFile(file.filepath);
       return res
         .status(400)
         .send('One or more files have unrecognized MIME type');
@@ -138,6 +153,10 @@ router.post('/upload-file', async (req: Request, res: Response) => {
 
     const status = await checkFile(models, processedFile, req.headers.source);
     if (status !== 'ok') {
+      cleanupTempFile(file.filepath);
+      if (processedFile !== file) {
+        cleanupTempFile(processedFile.filepath);
+      }
       return res.status(400).send(status);
     }
 
@@ -152,6 +171,12 @@ router.post('/upload-file', async (req: Request, res: Response) => {
       res.send(result);
     } catch (e) {
       return res.status(500).send(filterXSS(e.message));
+    } finally {
+      // Clean up temporary files after upload completes or fails
+      cleanupTempFile(file.filepath);
+      if (processedFile !== file) {
+        cleanupTempFile(processedFile.filepath);
+      }
     }
   });
 });
