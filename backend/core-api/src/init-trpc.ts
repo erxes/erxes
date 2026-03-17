@@ -1,7 +1,7 @@
 import { initTRPC } from '@trpc/server';
 
 import { ITRPCContext } from 'erxes-api-shared/utils';
-
+import { z } from 'zod';
 import { conformityTrpcRouter } from '~/modules/conformities/trpc/conformity';
 import { contactTrpcRouter } from '~/modules/contacts/trpc';
 import { exchangeRateTrpcRouter } from '~/modules/exchangeRates/trpc/exchangeRate';
@@ -28,6 +28,16 @@ export type CoreTRPCContext = ITRPCContext<{
 
 const t = initTRPC.context<CoreTRPCContext>().create({});
 
+const categoriesNamedRouter = t.router({
+  categories: t.router({
+    withChilds: t.procedure
+      .input(z.object({ ids: z.array(z.string()) }))
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        return await models.ProductCategories.getChildCategories(input.ids);
+      }),
+  }),
+});
 export const appRouter = t.mergeRouters(
   configTrpcRouter,
   formsTrpcRouter,
@@ -45,6 +55,7 @@ export const appRouter = t.mergeRouters(
   notificationTrpcRouter,
   importExportTrpcRouter,
   logsTrpcRouter,
+  categoriesNamedRouter,
   clientPortalNotificationTrpcRouter,
 );
 
