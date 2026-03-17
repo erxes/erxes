@@ -1,4 +1,8 @@
-import { IAttachment, IBrowserInfo, Resolver } from 'erxes-api-shared/core-types';
+import {
+  IAttachment,
+  IBrowserInfo,
+  Resolver,
+} from 'erxes-api-shared/core-types';
 import {
   getEnv,
   graphqlPubsub,
@@ -25,7 +29,7 @@ import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
 
 export const pConversationClientMessageInserted = async (
   subdomain,
-  message: { _id: string;[other: string]: any },
+  message: { _id: string; [other: string]: any },
 ) => {
   const models = await generateModels(subdomain);
 
@@ -306,28 +310,28 @@ export const widgetMutations: Record<string, Resolver> = {
       };
       customer = customer
         ? await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'customers',
-          action: 'updateMessengerCustomer',
-          input: {
-            _id: customer._id,
-            doc,
-            customData,
-          },
-        })
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'customers',
+            action: 'updateMessengerCustomer',
+            input: {
+              _id: customer._id,
+              doc,
+              customData,
+            },
+          })
         : await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'customers',
-          action: 'createMessengerCustomer',
-          input: {
-            doc,
-            customData,
-          },
-        });
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'customers',
+            action: 'createMessengerCustomer',
+            input: {
+              doc,
+              customData,
+            },
+          });
     }
 
     // get or create company
@@ -676,11 +680,11 @@ export const widgetMutations: Record<string, Resolver> = {
           responses.length !== 0
             ? responses
             : [
-              {
-                type: 'text',
-                text: AUTO_BOT_MESSAGES.NO_RESPONSE,
-              },
-            ];
+                {
+                  type: 'text',
+                  text: AUTO_BOT_MESSAGES.NO_RESPONSE,
+                },
+              ];
 
         const botMessage = await models.ConversationMessages.createMessage({
           conversationId: conversation._id,
@@ -935,7 +939,7 @@ export const widgetMutations: Record<string, Resolver> = {
           VERIFY_EMAIL_TRANSLATIONS[languageCode] ||
           VERIFY_EMAIL_TRANSLATIONS.en;
 
-        finalContent += `\n<p><a href="${emailValidationUrl}" target="_blank">${text}</a></p>`;
+        finalContent += `\n<p><a href="${emailValidationUrl}" target="_blank" rel="noopener noreferrer">${text}</a></p>`;
 
         await sendTRPCMessage({
           subdomain,
