@@ -8,7 +8,13 @@ import {
   SelectTree,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import React, { createContext, useCallback, useContext, useState, useMemo } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  useMemo,
+} from 'react';
 import { useDebounce } from 'use-debounce';
 import { useQuery } from '@apollo/client';
 import { PAGE_LIST } from '../../graphql/queries/pagesListQueries';
