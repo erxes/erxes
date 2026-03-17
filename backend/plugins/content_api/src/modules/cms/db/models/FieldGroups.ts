@@ -69,7 +69,9 @@ export interface ICustomFieldGroupModel extends Model<ICustomFieldGroupDocument>
 
 export const loadCustomFieldGroupClass = (models: IModels) => {
   class CustomFieldGroups {
-    public static readonly createFieldGroup = async (data: ICustomFieldGroup) => {
+    public static readonly createFieldGroup = async (
+      data: ICustomFieldGroup,
+    ) => {
       if (data.code) {
         const uniqueCode = await generateUniqueSlug(
           models.CustomFieldGroups,

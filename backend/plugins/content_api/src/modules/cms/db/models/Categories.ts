@@ -31,7 +31,10 @@ export const loadCategoryClass = (models: IModels) => {
       return category;
     };
 
-    public static readonly updateCategory = async (id: string, data: IPostCategory) => {
+    public static readonly updateCategory = async (
+      id: string,
+      data: IPostCategory,
+    ) => {
       if (data.name) {
         const baseSlug = slugify(data.name, { lower: true });
         data.slug = await generateUniqueSlug(

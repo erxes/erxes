@@ -50,7 +50,10 @@ export const loadMenuItemClass = (models: IModels) => {
       return models.MenuItems.create(doc);
     };
 
-    public static readonly updateMenuItem = async (_id: string, doc: ICMSMenu) => {
+    public static readonly updateMenuItem = async (
+      _id: string,
+      doc: ICMSMenu,
+    ) => {
       const existingMenuItem = await models.MenuItems.findOne({ _id });
       if (!doc.url && doc.label && existingMenuItem?.url) {
         const baseSlug = slugify(doc.label, { lower: true });
