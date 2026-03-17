@@ -103,7 +103,7 @@ const PaymentsStep = (props: Props) => {
     const editPayment = (name, value) => {
       let paymentTypes = [...(pos.paymentTypes || [])];
       paymentTypes = (paymentTypes || []).map((p) =>
-        p._id === paymentType._id ? { ...p, [name]: value } : p
+        p._id === paymentType._id ? { ...p, [name]: value } : p,
       );
       onChange("pos", { ...pos, paymentTypes });
     };
@@ -168,7 +168,7 @@ const PaymentsStep = (props: Props) => {
                 name="icon"
                 components={{ Option, SingleValue }}
                 value={iconOptions.find(
-                  (o) => o.value === (paymentType.icon || "")
+                  (o) => o.value === (paymentType.icon || ""),
                 )}
                 onChange={onChangeSelect}
                 options={iconOptions}
@@ -256,10 +256,10 @@ const PaymentsStep = (props: Props) => {
             </Description>
             <Description>
               Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
-              Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true",
-              Хэрэв хуваах боломжгүй бол: "notSplit: true"
-              Урьдчилж төлсөн төлбөрөөр (Татвар тооцсон) бол: "preTax: true"
-              Хэрэв тухайн төлбөр дээр бэлдэц нэхэмжлэх хэвлэх бол: "printInvoice: true"
+              Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
+              хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн төлбөрөөр
+              (Татвар тооцсон) бол: "preTax: true" Хэрэв тухайн төлбөр дээр
+              бэлдэц нэхэмжлэх хэвлэх бол: "printInvoice: true"
             </Description>
 
             <FormGroup>

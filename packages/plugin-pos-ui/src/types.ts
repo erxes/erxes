@@ -1,6 +1,6 @@
-import { IProductCategory, IProduct } from '@erxes/ui-products/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
+import { IProductCategory, IProduct } from "@erxes/ui-products/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { IBrand } from "@erxes/ui/src/brands/types";
 
 export type IConfigsMap = { [key: string]: any };
 
@@ -75,7 +75,8 @@ export type IPos = {
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;
   banFractions: boolean;
-
+  serviceCharge?: number;
+  serviceChargeApplicableProductId?: string;
   branchTitle?: string;
   departmentTitle?: string;
 };

@@ -32,6 +32,8 @@ export interface IConfig {
   paymentTypes?: IPaymentType[]
   paymentIds?: string[]
   allowTypes: IOrderType[]
+  serviceCharge?: number
+  serviceChargeApplicableProductId?: string
   orderPassword?: string
   banFractions?: boolean
   permissionConfig?: {

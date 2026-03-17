@@ -1,7 +1,7 @@
 import {
   attachmentType,
   attachmentInput,
-} from '@erxes/api-utils/src/commonTypeDefs';
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 const groupCommonFields = `
   posId: String
@@ -50,6 +50,8 @@ const posCommonFields = `
   checkExcludeCategoryIds: [String]
   saveRemainder: Boolean
   banFractions: Boolean
+  serviceCharge: Float
+  serviceChargeApplicableProductId: String
 `;
 
 const catProd = `

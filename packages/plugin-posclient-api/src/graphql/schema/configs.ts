@@ -87,6 +87,8 @@ export const types = `
     checkExcludeCategoryIds: [String]
     saveRemainder: Boolean
     banFractions: Boolean
+    serviceCharge: Float
+    serviceChargeApplicableProductId: String
   }
 `;
 
