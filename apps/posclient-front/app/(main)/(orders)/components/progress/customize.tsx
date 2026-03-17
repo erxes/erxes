@@ -57,7 +57,7 @@ const Customize = () => {
             <Tabs
               className="w-full"
               value={columnNumber.toString()}
-              onValueChange={(val) => setColumnNumber(parseInt(val))}
+              onValueChange={(val) => setColumnNumber(Number.parseInt(val))}
             >
               <TabsList className="w-full">
                 <TabsTrigger value="1" className="flex-auto">

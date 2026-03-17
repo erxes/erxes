@@ -38,7 +38,8 @@ export const getVisitorId = async () => {
 
 export const getErxesSettings = () => {
   return (
-    (window as unknown as Window & { erxesSettings: any }).erxesSettings || {}
+    (globalThis as unknown as Window & { erxesSettings: any }).erxesSettings ||
+    {}
   );
 };
 
@@ -84,8 +85,8 @@ export const requestBrowserInfo = ({
       countryCode: '',
       city: '',
       country: '',
-      url: window.location.href,
-      hostname: window.location.hostname,
+      url: globalThis.location.href,
+      hostname: globalThis.location.hostname,
       language: navigator.language,
       userAgent: navigator.userAgent,
     });

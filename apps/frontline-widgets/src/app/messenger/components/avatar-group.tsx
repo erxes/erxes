@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
 
 interface AvatarGroupProps {
-  children: ReactNode;
-  max?: number;
-  size?: 'xs' | 'sm' | 'md' | 'lg';
-  className?: string;
+  readonly children: ReactNode;
+  readonly max?: number;
+  readonly size?: 'xs' | 'sm' | 'md' | 'lg';
+  readonly className?: string;
 }
 
 const sizeMap = {

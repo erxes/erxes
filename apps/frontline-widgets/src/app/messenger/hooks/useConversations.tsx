@@ -2,7 +2,7 @@ import { connectionAtom, integrationIdAtom } from '../states';
 import { GET_WIDGETS_CONVERSATIONS } from '../graphql/queries';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
-import { useMemo, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { IConversationMessage } from '../types';
 import { getLocalStorageItem } from '@libs/utils';
 import { ConversationMessageInserted } from '../graphql/subscriptions';

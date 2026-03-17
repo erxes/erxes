@@ -18,15 +18,15 @@
       var o = (a) => {
           try {
             s(n.next(a));
-          } catch (m) {
-            r(m);
+          } catch (error_) {
+            r(error_);
           }
         },
         i = (a) => {
           try {
             s(n.throw(a));
-          } catch (m) {
-            r(m);
+          } catch (error_) {
+            r(error_);
           }
         },
         s = (a) => (a.done ? d(a.value) : Promise.resolve(a.value).then(o, i));
@@ -287,15 +287,15 @@
         : '';
     },
     p = (e, t) => {
-      let n = window.Erxes || {};
-      ((n[e] = t), (window.Erxes = n));
+      let n = globalThis.Erxes || {};
+      ((n[e] = t), (globalThis.Erxes = n));
     },
     M = () =>
       l(void 0, null, function* () {
-        if (window.location.hostname === 'localhost')
+        if (globalThis.location.hostname === 'localhost')
           return {
-            url: window.location.pathname,
-            hostname: window.location.href,
+            url: globalThis.location.pathname,
+            hostname: globalThis.location.href,
             language: navigator.language,
             userAgent: navigator.userAgent,
             countryCode: 'MN',
@@ -303,7 +303,8 @@
         let e;
         try {
           e = yield (yield fetch('https://geo.erxes.io')).json();
-        } catch (t) {
+        } catch (error_) {
+          console.log(error_);
           e = {
             city: '',
             remoteAddress: '',
@@ -318,8 +319,8 @@
           countryCode: e.countryCode,
           city: e.city,
           country: e.countryName,
-          url: window.location.pathname,
-          hostname: window.location.origin,
+          url: globalThis.location.pathname,
+          hostname: globalThis.location.origin,
           language: navigator.language,
           userAgent: navigator.userAgent,
         };
@@ -410,7 +411,7 @@
   p('sendExtraFormContent', (e, t) => {
     w(e, { action: 'extraFormContent', html: t });
   });
-  var k = window.erxesSettings.forms || [],
+  let k = globalThis.erxesSettings.forms || [],
     f = {},
     v = (e) => JSON.stringify({ form_id: e.form_id, channel_id: e.channel_id }),
     R = (e) =>
@@ -435,8 +436,8 @@
       ) {
         let E = `[data-erxes-modal="${o.form_id}"]`,
           h = document.querySelectorAll(E);
-        for (let g = 0; g < h.length; g++)
-          h[g].addEventListener('click', () => {
+        for (let value of h)
+          value.addEventListener('click', () => {
             s == null ||
               s.contentWindow.postMessage(
                 { fromPublisher: !0, action: 'showPopup', formId: o.form_id },
