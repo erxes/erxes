@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 import {
   getDomains,
+  getDeployment,
   getDeploymentEvents,
 } from '~/modules/webbuilder/utils/utils';
 
@@ -34,11 +35,94 @@ export const webQueries: Record<string, Resolver> = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
+    const toFriendlyError = (message?: string | null) => {
+      if (!message) {
+        return 'Deployment failed. Please try again later.';
+      }
+
+      let result = String(message);
+      result = result.replace(/https?:\/\/\S+/g, '').trim();
+      result = result
+        .replace(/[\r\n\t]+/g, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+      result = result.replace(
+        /(token|authorization|bearer)\s*[:=]\s*\S+/gi,
+        '$1: [redacted]',
+      );
+
+      if (result.length > 180) {
+        result = result.slice(0, 177).trimEnd() + '...';
+      }
+
+      return result || 'Deployment failed. Please try again later.';
+    };
+
     const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
-    if (!web.lastDeploymentId)
-      throw new Error('No deployment found for this web');
-    return getDeploymentEvents(web.lastDeploymentId);
+
+    if (!web.lastDeploymentId) {
+      return {
+        status: 'not_deployed',
+        domain: null,
+        webname: web.name,
+        errorReason: 'No deployment found for this web',
+      };
+    }
+
+    const deployment = await getDeployment(web.lastDeploymentId);
+
+    const status: string =
+      deployment?.readyState ||
+      deployment?.status ||
+      (deployment?.error ? 'error' : 'unknown');
+
+    let rawErrorReason: string | null =
+      deployment?.error?.message ||
+      deployment?.errorMessage ||
+      deployment?.aliasError?.message ||
+      null;
+
+    if (status !== 'READY' && !rawErrorReason) {
+      try {
+        const events = await getDeploymentEvents(web.lastDeploymentId);
+        const items = Array.isArray(events) ? events : events?.events;
+
+        if (Array.isArray(items)) {
+          const lastWithMessage = [...items]
+            .reverse()
+            .find(
+              (e: any) =>
+                e?.payload?.text ||
+                e?.text ||
+                e?.payload?.message ||
+                e?.message,
+            );
+
+          rawErrorReason =
+            lastWithMessage?.payload?.text ||
+            lastWithMessage?.text ||
+            lastWithMessage?.payload?.message ||
+            lastWithMessage?.message ||
+            null;
+        }
+      } catch (e) {
+        // ignore event lookup failures
+      }
+    }
+
+    const errorReason: string | null =
+      status === 'READY' ? null : toFriendlyError(rawErrorReason);
+
+    const domain: string | null =
+      web.domain || web.lastDeploymentUrl || deployment?.url || null;
+
+    return {
+      status,
+      domain: status === 'READY' ? domain : null,
+      webname: web.name,
+      errorReason,
+    };
   },
 };
 
