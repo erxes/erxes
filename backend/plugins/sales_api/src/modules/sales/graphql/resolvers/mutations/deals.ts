@@ -118,6 +118,9 @@ export const dealMutations = {
     }
 
     // Check that the user is the creator or an assigned member
+    if (!user || !user._id) {
+      throw new Error('Authentication required');
+    }
     const isAssigned = (item.assignedUserIds || []).includes(user._id);
     const isCreator = item.userId === user._id;
     if (!isAssigned && !isCreator) {
