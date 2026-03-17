@@ -37,7 +37,14 @@ const queries: Record<string, Resolver> = {
     context: IContext,
   ): Promise<any> => {
     const { models } = context;
-    const { clientPortalId, searchValue, pageId, categoryId, postType, postId } = args;
+    const {
+      clientPortalId,
+      searchValue,
+      pageId,
+      categoryId,
+      postType,
+      postId,
+    } = args;
 
     const query: any = {
       clientPortalId,
