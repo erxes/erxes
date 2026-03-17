@@ -53,9 +53,7 @@ export const useCmsTranslation = ({
 
   // Ref to the caller's setFormData so the hydration effect can push
   // late-arriving data into the form.
-  const setFormDataRef = useRef<((data: TranslationData) => void) | null>(
-    null,
-  );
+  const setFormDataRef = useRef<((data: TranslationData) => void) | null>(null);
 
   // Reset state when switching to a different object or starting a new session
   useEffect(() => {
@@ -122,7 +120,8 @@ export const useCmsTranslation = ({
         value: lang,
         label: lang.toUpperCase(),
         isDefault: lang === defaultLanguage,
-        hasTranslation: lang !== defaultLanguage && hasNonEmptyValue(translations[lang]),
+        hasTranslation:
+          lang !== defaultLanguage && hasNonEmptyValue(translations[lang]),
       })),
     [availableLanguages, defaultLanguage, translations],
   );

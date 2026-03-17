@@ -194,8 +194,7 @@ const resolveMainFields = (
 ): MainFields => {
   if (isCreating && isNonDefaultLang && curDefaultLangData) {
     return {
-      title:
-        curDefaultLangData.title?.trim() || computedTitle || 'Untitled',
+      title: curDefaultLangData.title?.trim() || computedTitle || 'Untitled',
       content: normalizeContent(curDefaultLangData.content ?? ''),
       excerpt: curDefaultLangData.excerpt?.trim() || null,
       customFields: filterCustomFields(curDefaultLangData.customFieldsData),
@@ -205,8 +204,7 @@ const resolveMainFields = (
   return {
     title: computedTitle,
     content: contentHtml,
-    excerpt:
-      data.description?.trim() === '' ? null : data.description?.trim(),
+    excerpt: data.description?.trim() === '' ? null : data.description?.trim(),
     customFields: filterCustomFields(data.customFieldsData),
   };
 };
@@ -237,9 +235,7 @@ const buildPostInput = (
     tagIds: data.tagIds,
     featured: data.featured,
     scheduledDate: data.scheduledDate ?? undefined,
-    autoArchiveDate: data.enableAutoArchive
-      ? data.autoArchiveDate
-      : undefined,
+    autoArchiveDate: data.enableAutoArchive ? data.autoArchiveDate : undefined,
     excerpt: main.excerpt,
     thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
     images: imagesPayload.length ? imagesPayload : undefined,
@@ -288,8 +284,7 @@ const buildTranslations = (
       language: currentLanguage,
       title: computedTitle,
       content: contentHtml,
-      excerpt:
-        data.description?.trim() === '' ? '' : data.description?.trim(),
+      excerpt: data.description?.trim() === '' ? '' : data.description?.trim(),
       customFieldsData: filterCustomFields(data.customFieldsData),
       type: 'post',
     });
