@@ -26,6 +26,7 @@ export interface ICustomFieldGroup {
   customPostTypeIds?: string[];
   enabledPageIds?: string[];
   enabledCategoryIds?: string[];
+  enabledPostIds?: string[];
   type?: string;
   fields?: any[];
 }

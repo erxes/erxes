@@ -61,10 +61,26 @@ export const webQueries: Record<string, Resolver> = {
     const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
 
+    let domains: string[] | null = null;
+    if (web.projectId) {
+      try {
+        const domainRes = await getDomains(web.projectId);
+        const items = Array.isArray(domainRes) ? domainRes : domainRes?.domains;
+        if (Array.isArray(items)) {
+          domains = items
+            .map((d: any) => d?.name)
+            .filter((name: any) => typeof name === 'string' && name.length > 0);
+        }
+      } catch (e) {
+        domains = null;
+      }
+    }
+
     if (!web.lastDeploymentId) {
       return {
         status: 'not_deployed',
-        domain: null,
+        deploymentUrl: null,
+        domains,
         webname: web.name,
         errorReason: 'No deployment found for this web',
       };
@@ -114,12 +130,12 @@ export const webQueries: Record<string, Resolver> = {
     const errorReason: string | null =
       status === 'READY' ? null : toFriendlyError(rawErrorReason);
 
-    const domain: string | null =
-      web.domain || web.lastDeploymentUrl || deployment?.url || null;
+    const deploymentUrl: string | null = deployment?.url || null;
 
     return {
       status,
-      domain: status === 'READY' ? domain : null,
+      deploymentUrl,
+      domains,
       webname: web.name,
       errorReason,
     };
