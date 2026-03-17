@@ -14,8 +14,16 @@ export const useCategories = (
     CategoriesQueryVariables
   >,
 ) => {
+  const variables = options?.variables;
+  const normalizedVariables =
+    variables &&
+    (variables.parentId === null || variables.parentId === ''
+      ? { ...variables, parentId: undefined }
+      : variables);
+
   const { data, loading, refetch } = useQuery(GET_CATEGORIES, {
     ...options,
+    variables: normalizedVariables,
   });
 
   const categories = data?.bmsTourCategories || [];

@@ -67,10 +67,8 @@ export const TourRefNumberField = ({
 };
 
 const TOUR_STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
   { value: 'draft', label: 'Draft' },
-  { value: 'archived', label: 'Archived' },
+  { value: 'published', label: 'Published' },
 ];
 
 export const TourStatusField = ({

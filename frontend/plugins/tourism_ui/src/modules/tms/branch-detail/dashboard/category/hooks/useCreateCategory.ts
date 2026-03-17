@@ -10,6 +10,7 @@ interface CreateCategoryResponse {
 
 export interface ICreateCategoryVariables {
   name?: string;
+  code?: string;
   parentId?: string;
   attachment?: IAttachment;
 }

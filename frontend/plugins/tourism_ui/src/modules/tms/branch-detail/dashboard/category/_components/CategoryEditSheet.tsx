@@ -13,6 +13,7 @@ import {
   CategoryNameField,
   CategoryParentIdField,
   CategoryAttachmentField,
+  CategoryCodeField,
 } from './CategoryFormFields';
 import { useEditCategory } from '../hooks/useEditCategory';
 import { ICategory } from '../types/category';
@@ -47,21 +48,24 @@ export const CategoryEditSheet = ({
 
   const { editCategory, loading } = useEditCategory();
   const { toast } = useToast();
+  const normalizedAttachment = category.attachment ?? undefined;
 
   const form = useForm<CategoryCreateFormType>({
     resolver: zodResolver(CategoryCreateFormSchema),
     defaultValues: {
       name: category.name || '',
+      code: category.code || '',
       parentId: category.parentId || '',
-      attachment: category.attachment,
+      attachment: normalizedAttachment,
     },
   });
 
   useEffect(() => {
     form.reset({
       name: category.name || '',
+      code: category.code || '',
       parentId: category.parentId || '',
-      attachment: category.attachment,
+      attachment: category.attachment ?? undefined,
     });
   }, [category, form]);
 
@@ -71,6 +75,7 @@ export const CategoryEditSheet = ({
         variables: {
           id: category._id,
           name: values.name,
+          code: values.code,
           ...(values.parentId &&
             values.parentId.trim() !== '' && { parentId: values.parentId }),
           ...(values.attachment && { attachment: values.attachment }),
@@ -119,6 +124,7 @@ export const CategoryEditSheet = ({
               <div className="flex flex-col gap-6">
                 <div className="space-y-4">
                   <CategoryNameField control={form.control} />
+                  <CategoryCodeField control={form.control} />
                   <CategoryParentIdField control={form.control} />
                   <CategoryAttachmentField control={form.control} />
                 </div>

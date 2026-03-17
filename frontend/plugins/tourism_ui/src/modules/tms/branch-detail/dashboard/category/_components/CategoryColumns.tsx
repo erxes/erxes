@@ -1,12 +1,22 @@
 import { ColumnDef } from '@tanstack/table-core';
-import { IconLabel, IconFolder, IconImageInPicture } from '@tabler/icons-react';
+import {
+  IconLabel,
+  IconFolder,
+  IconImageInPicture,
+  IconCalendarPlus,
+  IconCalendarDot,
+} from '@tabler/icons-react';
 import {
   RecordTable,
   RecordTableInlineCell,
   RecordTableTree,
   Avatar,
+  Badge,
+  TextOverflowTooltip,
+  RelativeDateDisplay,
 } from 'erxes-ui';
 import { ICategory } from '../types/category';
+import { CategoryEditSheet } from './CategoryEditSheet';
 
 export const categoryColumns: (
   categoryObject: Record<string, ICategory>,
@@ -44,12 +54,34 @@ export const categoryColumns: (
             name={name}
             hasChildren={row.original.hasChildren}
           >
-            {cell.getValue() as string}
+            <CategoryEditSheet category={row.original} showTrigger={false}>
+              <Badge
+                variant="secondary"
+                className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+              >
+                <TextOverflowTooltip
+                  value={(cell.getValue() as string) || '-'}
+                />
+              </Badge>
+            </CategoryEditSheet>
           </RecordTableTree.Trigger>
         </RecordTableInlineCell>
       );
     },
     size: 300,
+  },
+  {
+    id: 'code',
+    header: () => <RecordTable.InlineHead icon={IconLabel} label="Code" />,
+    accessorKey: 'code',
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 180,
   },
   {
     id: 'parentId',
@@ -58,8 +90,45 @@ export const categoryColumns: (
     cell: ({ cell }) => {
       const parent = categoryObject[cell.getValue() as string];
       return (
-        <RecordTableInlineCell>{parent?.name || '-'}</RecordTableInlineCell>
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={parent?.name || '-'} />
+        </RecordTableInlineCell>
       );
     },
+    size: 180,
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarPlus} label="Created" />
+    ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      );
+    },
+    size: 180,
+  },
+  {
+    id: 'modifiedAt',
+    accessorKey: 'modifiedAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarDot} label="Modified" />
+    ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      );
+    },
+    size: 180,
   },
 ];

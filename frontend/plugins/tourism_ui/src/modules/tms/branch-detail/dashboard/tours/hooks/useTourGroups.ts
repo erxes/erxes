@@ -12,6 +12,7 @@ type TourGroupsQueryVariables = {
     | 'scheduled'
     | 'cancelled'
     | 'unscheduled';
+  categoryIds?: string[];
 };
 
 export const useTourGroups = (
@@ -25,7 +26,7 @@ export const useTourGroups = (
     TourGroupsQueryVariables
   >,
 ) => {
-  const [{ status, date_status }] = useMultiQueryState<{
+  const [{ status, date_status, categoryIds }] = useMultiQueryState<{
     status: string;
     date_status:
       | 'running'
@@ -33,12 +34,16 @@ export const useTourGroups = (
       | 'scheduled'
       | 'cancelled'
       | 'unscheduled';
-  }>(['status', 'date_status']);
+    categoryIds: string;
+  }>(['status', 'date_status', 'categoryIds']);
 
   const variables: TourGroupsQueryVariables = {
     ...(options?.variables || {}),
     status: status || undefined,
     date_status: date_status || undefined,
+    categoryIds: categoryIds
+      ? categoryIds.split(',').filter(Boolean)
+      : undefined,
   };
 
   const { data, loading, error, refetch } = useQuery(GET_TOUR_GROUPS, {

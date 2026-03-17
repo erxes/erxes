@@ -5,8 +5,11 @@ export const GET_CATEGORIES = gql`
     bmsTourCategories(parentId: $parentId) {
       _id
       name
+      code
       parentId
       order
+      createdAt
+      modifiedAt
       attachment {
         url
         name

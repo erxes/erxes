@@ -23,6 +23,7 @@ type ToursQueryVariables = {
     | 'scheduled'
     | 'cancelled'
     | 'unscheduled';
+  categoryIds?: string[];
   limit?: number;
   cursor?: string;
   direction?: EnumCursorDirection;
@@ -41,7 +42,7 @@ export const useTours = (
     ToursQueryVariables
   >,
 ) => {
-  const [{ status, date_status }] = useMultiQueryState<{
+  const [{ status, date_status, categoryIds }] = useMultiQueryState<{
     status: string;
     date_status:
       | 'running'
@@ -49,7 +50,8 @@ export const useTours = (
       | 'scheduled'
       | 'cancelled'
       | 'unscheduled';
-  }>(['status', 'date_status']);
+    categoryIds: string;
+  }>(['status', 'date_status', 'categoryIds']);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: TOURS_CURSOR_SESSION_KEY,
@@ -60,6 +62,9 @@ export const useTours = (
     ...(options?.variables || {}),
     status: status || undefined,
     date_status: date_status || undefined,
+    categoryIds: categoryIds
+      ? categoryIds.split(',').filter(Boolean)
+      : undefined,
     cursor,
     limit: TOURS_PER_PAGE,
   };

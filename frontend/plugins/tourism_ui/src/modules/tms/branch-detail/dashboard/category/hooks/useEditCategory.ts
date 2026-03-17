@@ -11,6 +11,7 @@ interface EditCategoryResponse {
 export interface IEditCategoryVariables {
   id: string;
   name?: string;
+  code?: string;
   parentId?: string;
   attachment?: IAttachment;
 }

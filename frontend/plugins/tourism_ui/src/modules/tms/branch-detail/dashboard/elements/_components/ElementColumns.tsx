@@ -90,27 +90,14 @@ export const elementColumns = (
         }
 
         const categoryNames = getCategoryNamesByIds(categoryIds);
-        const displayCategories = categoryNames.slice(0, 2);
-        const remainingCount = categoryNames.length - 2;
+        const displayValue =
+          categoryNames.length > 0
+            ? categoryNames.join(', ')
+            : `${categoryIds.length} selected`;
 
         return (
           <RecordTableInlineCell>
-            <div className="flex gap-1 items-center">
-              {displayCategories.map((name, idx) => (
-                <Badge
-                  key={idx}
-                  variant="secondary"
-                  className="h-5 px-1.5 text-xs truncate max-w-[80px]"
-                >
-                  {name}
-                </Badge>
-              ))}
-              {remainingCount > 0 && (
-                <Badge variant="secondary" className="h-5 px-1.5 text-xs">
-                  +{remainingCount}
-                </Badge>
-              )}
-            </div>
+            <TextOverflowTooltip value={displayValue || '-'} />
           </RecordTableInlineCell>
         );
       },

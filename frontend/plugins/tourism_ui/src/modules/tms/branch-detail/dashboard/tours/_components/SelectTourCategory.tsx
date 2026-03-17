@@ -1,8 +1,7 @@
 import { IconCheck } from '@tabler/icons-react';
 import { Button, Popover, Command } from 'erxes-ui';
-import { useQuery } from '@apollo/client';
-import { GET_CATEGORIES } from '../../category/graphql/queries';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
+import { useCategories } from '../../category/hooks/useCategories';
 
 interface ITourCategory {
   _id: string;
@@ -31,14 +30,7 @@ export const SelectTourCategory = ({
 }: SelectTourCategoryProps) => {
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useQuery(GET_CATEGORIES, {
-    variables: { parentId: null },
-  });
-
-  const categories: ITourCategory[] = useMemo(
-    () => data?.bmsTourCategories || [],
-    [data?.bmsTourCategories],
-  );
+  const { categories, loading } = useCategories();
 
   const handleToggle = (categoryId: string) => {
     const newValue = value.includes(categoryId)
@@ -54,7 +46,7 @@ export const SelectTourCategory = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between w-full h-9 font-normal"
+          className="justify-between w-full h-8 font-normal"
           type="button"
         >
           <span className="truncate">
@@ -68,7 +60,7 @@ export const SelectTourCategory = ({
       </Popover.Trigger>
       <Popover.Content className="w-[400px] p-0" align="start">
         <Command className="rounded-lg border shadow-md">
-          <Command.Input placeholder="Search categories..." className="h-9" />
+          <Command.Input placeholder="Search categories..." className="h-8" />
           <Command.Empty className="py-6 text-sm text-center">
             No categories found.
           </Command.Empty>
@@ -78,7 +70,7 @@ export const SelectTourCategory = ({
                 Loading...
               </Command.Item>
             ) : (
-              categories.map((category) => {
+              (categories as ITourCategory[]).map((category) => {
                 const isSelected = value.includes(category._id);
 
                 return (

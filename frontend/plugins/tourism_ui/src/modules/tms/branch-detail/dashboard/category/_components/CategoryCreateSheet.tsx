@@ -13,6 +13,7 @@ import {
   CategoryNameField,
   CategoryParentIdField,
   CategoryAttachmentField,
+  CategoryCodeField,
 } from './CategoryFormFields';
 import { useCreateCategory } from '../hooks/useCreateCategory';
 
@@ -47,6 +48,7 @@ export const CategoryCreateSheet = ({
     resolver: zodResolver(CategoryCreateFormSchema),
     defaultValues: {
       name: '',
+      code: '',
       parentId: '',
     },
   });
@@ -56,6 +58,7 @@ export const CategoryCreateSheet = ({
       await createCategory({
         variables: {
           name: values.name,
+          code: values.code,
           ...(values.parentId &&
             values.parentId.trim() !== '' && { parentId: values.parentId }),
           ...(values.attachment && { attachment: values.attachment }),
@@ -105,6 +108,7 @@ export const CategoryCreateSheet = ({
               <div className="flex flex-col gap-6">
                 <div className="space-y-4">
                   <CategoryNameField control={form.control} />
+                  <CategoryCodeField control={form.control} />
                   <CategoryParentIdField control={form.control} />
                   <CategoryAttachmentField control={form.control} />
                 </div>

@@ -9,6 +9,7 @@ export interface IAttachment {
 export interface ICategory {
   _id: string;
   name?: string;
+  code?: string;
   parentId?: string;
   order?: string;
   attachment?: IAttachment;

@@ -12,6 +12,7 @@ export const GET_TOURS = gql`
     $orderBy: JSON
     $sortMode: String
     $aggregationPipeline: [JSON]
+    $categoryIds: [String]
   ) {
     bmsTours(
       branchId: $branchId
@@ -24,6 +25,7 @@ export const GET_TOURS = gql`
       orderBy: $orderBy
       sortMode: $sortMode
       aggregationPipeline: $aggregationPipeline
+      categoryIds: $categoryIds
     ) {
       list {
         _id
@@ -38,6 +40,7 @@ export const GET_TOURS = gql`
         categoryIds
         modifiedAt
         createdAt
+        categoryIds
       }
       totalCount
       pageInfo {
@@ -55,11 +58,13 @@ export const GET_TOUR_GROUPS = gql`
     $branchId: String
     $status: String
     $date_status: DATE_STATUS
+    $categoryIds: [String]
   ) {
     bmToursGroup(
       branchId: $branchId
       status: $status
       date_status: $date_status
+      categoryIds: $categoryIds
     ) {
       total
       list {
@@ -76,6 +81,7 @@ export const GET_TOUR_GROUPS = gql`
           cost
           modifiedAt
           createdAt
+          categoryIds
         }
       }
     }
@@ -109,6 +115,7 @@ export const GET_TOUR_DETAIL = gql`
       refNumber
       startDate
       status
+      categoryIds
     }
   }
 `;

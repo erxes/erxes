@@ -8,15 +8,16 @@ import {
 import {
   IconCalendarEvent,
   IconCheck,
+  IconListTree,
   IconProgressCheck,
 } from '@tabler/icons-react';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
+import { useCategories } from '../../category/hooks/useCategories';
+import { ICategory } from '../../category';
 
 const STATUS_OPTIONS = [
   { value: 'draft', label: 'Draft' },
-  { value: 'active', label: 'Active' },
-  { value: 'archived', label: 'Archived' },
-  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'published', label: 'Published' },
 ];
 
 const DATE_STATUS_OPTIONS = [
@@ -45,6 +46,15 @@ function SelectDateStatusFilterItem() {
   );
 }
 
+function SelectCategoryFilterItem() {
+  return (
+    <Filter.Item value="categoryIds">
+      <IconListTree />
+      Category
+    </Filter.Item>
+  );
+}
+
 function SelectStatusFilterView() {
   const [status, setStatus] = useQueryState<string | undefined>('status');
 
@@ -63,6 +73,53 @@ function SelectStatusFilterView() {
               {status === item.value && <IconCheck />}
             </Command.Item>
           ))}
+        </Command.List>
+      </Command>
+    </Filter.View>
+  );
+}
+
+function SelectCategoryFilterView() {
+  const [categoryIds, setCategoryIds] = useQueryState<string | undefined>(
+    'categoryIds',
+  );
+
+  const { categories, loading } = useCategories();
+
+  const value = categoryIds ? categoryIds.split(',').filter(Boolean) : [];
+
+  const handleToggle = (categoryId: string) => {
+    const next = value.includes(categoryId)
+      ? value.filter((id) => id !== categoryId)
+      : [...value, categoryId];
+
+    setCategoryIds(next.length ? next.join(',') : null);
+  };
+
+  return (
+    <Filter.View filterKey="categoryIds">
+      <Command>
+        <Command.Input placeholder="Search categories..." />
+        <Command.List>
+          <Command.Empty>No categories found.</Command.Empty>
+          {loading ? (
+            <Command.Item disabled>Loading...</Command.Item>
+          ) : (
+            categories.map((category: ICategory) => {
+              const isSelected = value.includes(category._id);
+
+              return (
+                <Command.Item
+                  key={category._id}
+                  value={`${category.name ?? ''} ${category._id}`}
+                  onSelect={() => handleToggle(category._id)}
+                >
+                  {category.name}
+                  {isSelected && <IconCheck />}
+                </Command.Item>
+              );
+            })
+          )}
         </Command.List>
       </Command>
     </Filter.View>
@@ -109,11 +166,13 @@ const TourFilterPopover = () => {
                 <Command.Separator className="my-1" />
                 <SelectStatusFilterItem />
                 <SelectDateStatusFilterItem />
+                <SelectCategoryFilterItem />
               </Command.List>
             </Command>
           </Filter.View>
           <SelectStatusFilterView />
           <SelectDateStatusFilterView />
+          <SelectCategoryFilterView />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -130,7 +189,10 @@ export const TourFilter = () => {
     searchValue: string;
     status: string;
     date_status: string;
-  }>(['searchValue', 'status', 'date_status']);
+    categoryIds: string;
+  }>(['searchValue', 'status', 'date_status', 'categoryIds']);
+
+  const { categories } = useCategories();
 
   const selectedStatusLabel = STATUS_OPTIONS.find(
     (item) => item.value === queries?.status,
@@ -139,6 +201,21 @@ export const TourFilter = () => {
   const selectedDateStatusLabel = DATE_STATUS_OPTIONS.find(
     (item) => item.value === queries?.date_status,
   )?.label;
+
+  const selectedCategoryIds = queries?.categoryIds
+    ? queries.categoryIds.split(',').filter(Boolean)
+    : [];
+
+  const selectedCategoryNames = selectedCategoryIds
+    .map((id) => categories.find((c: ICategory) => c._id === id)?.name)
+    .filter(Boolean) as string[];
+
+  const selectedCategoryLabel =
+    selectedCategoryNames.length > 0
+      ? selectedCategoryNames.join(', ')
+      : selectedCategoryIds.length > 0
+      ? `${selectedCategoryIds.length} selected`
+      : undefined;
 
   return (
     <Filter id="tours-filter" sessionKey={TOURS_CURSOR_SESSION_KEY}>
@@ -163,6 +240,16 @@ export const TourFilter = () => {
           </Filter.BarName>
           <Filter.BarButton filterKey="date_status">
             {selectedDateStatusLabel || 'Select date status'}
+          </Filter.BarButton>
+        </Filter.BarItem>
+
+        <Filter.BarItem queryKey="categoryIds">
+          <Filter.BarName>
+            <IconListTree />
+            Category
+          </Filter.BarName>
+          <Filter.BarButton filterKey="categoryIds">
+            {selectedCategoryLabel || 'Select category'}
           </Filter.BarButton>
         </Filter.BarItem>
       </Filter.Bar>

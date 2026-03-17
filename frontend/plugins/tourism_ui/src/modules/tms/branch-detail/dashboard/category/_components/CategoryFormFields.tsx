@@ -32,6 +32,30 @@ export const CategoryNameField = ({
   );
 };
 
+export const CategoryCodeField = ({
+  control,
+}: {
+  control: Control<CategoryCreateFormType>;
+}) => {
+  return (
+    <Form.Field
+      control={control}
+      name="code"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>
+            Code <span className="text-destructive">*</span>
+          </Form.Label>
+          <Form.Control>
+            <Input placeholder="e.g., ADV, CUL" {...field} />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 export const CategoryParentIdField = ({
   control,
 }: {

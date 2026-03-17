@@ -83,7 +83,7 @@ export const SelectElementCategories = ({
                       variant="outline"
                       role="combobox"
                       aria-expanded={open}
-                      className="justify-between w-full h-9 font-normal"
+                      className="justify-between w-full h-8 font-normal"
                       type="button"
                     >
                       <span className="truncate">
@@ -99,7 +99,7 @@ export const SelectElementCategories = ({
                     <Command className="rounded-lg border shadow-md">
                       <Command.Input
                         placeholder="Search categories..."
-                        className="h-9"
+                        className="h-8"
                       />
                       <Command.Empty className="py-6 text-sm text-center">
                         No categories found.
