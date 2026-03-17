@@ -3,7 +3,7 @@ import {
   getSaasOrganizations,
   isEnabled,
 } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils/trpc';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { collections } from '../constants';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
