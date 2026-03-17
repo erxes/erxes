@@ -194,14 +194,9 @@ export const deploy = async (
       console.log(`patched next.js from ${nextVersion} to 15.3.8`);
     }
 
-    // Delete lockfiles so yarn regenerates with patched versions
-    const yarnLockPath = path.join(tmpDir, 'yarn.lock');
+    // Delete package-lock.json only — keep yarn.lock so yarn resolves
+    // only the patched package instead of re-fetching everything from scratch
     const packageLockPath = path.join(tmpDir, 'package-lock.json');
-
-    if (fs.existsSync(yarnLockPath)) {
-      fs.unlinkSync(yarnLockPath);
-      console.log('deleted yarn.lock');
-    }
     if (fs.existsSync(packageLockPath)) {
       fs.unlinkSync(packageLockPath);
       console.log('deleted package-lock.json');
