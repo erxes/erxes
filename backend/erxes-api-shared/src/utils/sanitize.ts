@@ -97,6 +97,8 @@ export const isPrivateIP = (ip: string): boolean => {
     if (parts[0] === 169 && parts[1] === 254) return true;
     // 0.0.0.0
     if (parts[0] === 0) return true;
+    // 255.255.255.255 (broadcast)
+    if (parts[0] === 255 && parts[1] === 255 && parts[2] === 255 && parts[3] === 255) return true;
   }
 
   // IPv6 private ranges
