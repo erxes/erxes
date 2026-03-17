@@ -111,8 +111,7 @@ export const useCategories = (options?: QueryHookOptions) => {
         if (!fetchMoreResult) return prev;
 
         const isForward = direction === EnumCursorDirection.FORWARD;
-        const fetchPageInfo =
-          fetchMoreResult.cmsCategories?.pageInfo || {};
+        const fetchPageInfo = fetchMoreResult.cmsCategories?.pageInfo || {};
         const prevPageInfo = prev.cmsCategories?.pageInfo || {};
         const fetchList = fetchMoreResult.cmsCategories?.list || [];
         const prevList = prev.cmsCategories?.list || [];

@@ -111,8 +111,7 @@ export const usePages = (options?: QueryHookOptions) => {
         if (!fetchMoreResult) return prev;
 
         const isForward = direction === EnumCursorDirection.FORWARD;
-        const fetchPageInfo =
-          fetchMoreResult.cmsPageList?.pageInfo || {};
+        const fetchPageInfo = fetchMoreResult.cmsPageList?.pageInfo || {};
         const prevPageInfo = prev.cmsPageList?.pageInfo || {};
         const fetchPages = fetchMoreResult.cmsPageList?.pages || [];
         const prevPages = prev.cmsPageList?.pages || [];
