@@ -1,18 +1,37 @@
 import { Form, Select, Textarea, Switch } from 'erxes-ui';
+import { UseFormReturn } from 'react-hook-form';
 import { CategoryField } from './CategoryField';
 import { TagField } from './TagField';
 import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
 
+interface SelectOption {
+  label: string;
+  value: string;
+}
+
+interface CustomType {
+  _id: string;
+  label: string;
+  code: string;
+}
+
+interface LanguageOption {
+  value: string;
+  label: string;
+  isDefault: boolean;
+  hasTranslation: boolean;
+}
+
 interface ContentTabProps {
-  form: any;
-  categories: any[];
-  tags: any[];
-  customTypes: any[];
+  form: UseFormReturn;
+  categories: SelectOption[];
+  tags: SelectOption[];
+  customTypes: CustomType[];
   websiteId: string;
   availableLanguages: string[];
   defaultLanguage: string;
   selectedLanguage: string;
-  languageOptions: any[];
+  languageOptions: LanguageOption[];
   handleLanguageChange: (lang: string) => void;
 }
 
@@ -61,7 +80,7 @@ export const ContentTab = ({
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Item value="post">post</Select.Item>
-                  {customTypes.map((type: any) => (
+                  {customTypes.map((type) => (
                     <Select.Item key={type._id} value={type._id}>
                       {type.label}
                     </Select.Item>

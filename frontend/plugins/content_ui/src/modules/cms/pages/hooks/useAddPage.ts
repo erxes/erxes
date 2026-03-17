@@ -7,7 +7,7 @@ export const useAddPage = () => {
   const addPage = ({ variables, ...options }: any) => {
     return addPageMutation({
       variables,
-      refetchQueries: ['PageList', 'PageDetail', 'cmsTranslations'],
+      refetchQueries: ['PageList'],
       ...options,
     });
   };

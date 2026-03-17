@@ -57,11 +57,23 @@ interface PostFormData {
   customFieldsData?: CustomField[];
 }
 
+interface TranslationEntry {
+  title?: string;
+  content?: string;
+  excerpt?: string;
+  customFieldsData?: CustomField[];
+}
+
+interface TranslationInput extends TranslationEntry {
+  language: string;
+  type: string;
+}
+
 interface DefaultLangData {
   title: string;
   content: string;
   description: string;
-  customFieldsData: any[];
+  customFieldsData: CustomField[];
 }
 
 interface UsePostSubmissionProps {
@@ -70,7 +82,7 @@ interface UsePostSubmissionProps {
   selectedLanguage?: string;
   defaultLanguage?: string;
   defaultLangData?: DefaultLangData | null;
-  translations?: Record<string, any>;
+  translations?: Record<string, TranslationEntry>;
   onClose?: () => void;
 }
 
@@ -250,12 +262,12 @@ export const usePostSubmission = ({
         : rawDefault;
       mainExcerpt = curDefaultLangData.description?.trim() || null;
       mainCustomFields = curDefaultLangData.customFieldsData?.filter(
-        (item: any) =>
+        (item) =>
           item.value !== '' && item.value !== null && item.value !== undefined,
       );
     }
 
-    const input: Record<string, any> = {
+    const input: Record<string, unknown> = {
       clientPortalId: websiteId,
       title: mainTitle,
       slug: editingPost?._id ? data.slug : generateSlug(mainTitle),
@@ -290,16 +302,25 @@ export const usePostSubmission = ({
 
     // Build translations array for create — includes all non-default language data
     if (isCreating && curDefaultLanguage) {
-      const translationEntries: any[] = [];
+      const translationEntries: TranslationInput[] = [];
 
       // Add all previously saved translations from language switching
       for (const [lang, tData] of Object.entries(curTranslations)) {
         if (lang === curDefaultLanguage) continue;
-        if (tData.title || tData.content || tData.excerpt) {
+        const hasData =
+          tData.title ||
+          tData.content ||
+          tData.excerpt ||
+          (tData.customFieldsData && tData.customFieldsData.length > 0);
+        if (hasData) {
+          const rawContent = tData.content || '';
+          const normalizedContent = rawContent.trimStart().startsWith('[')
+            ? blocksToHtml(rawContent)
+            : rawContent;
           translationEntries.push({
             language: lang,
             title: tData.title || '',
-            content: tData.content || '',
+            content: normalizedContent,
             excerpt: tData.excerpt || '',
             customFieldsData: tData.customFieldsData,
             type: 'post',
