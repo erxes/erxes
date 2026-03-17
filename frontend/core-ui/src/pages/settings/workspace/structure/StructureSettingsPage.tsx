@@ -61,10 +61,6 @@ export function StructureSettingsPage() {
             <Route path="departments" element={<DepartmentsSettings />} />
             <Route path="units" element={<UnitsSettings />} />
             <Route path="positions" element={<PositionsSettings />} />
-            <Route
-              path="permissions"
-              element={<Permissions.View module="structures" />}
-            />
           </Routes>
         </Suspense>
       </div>

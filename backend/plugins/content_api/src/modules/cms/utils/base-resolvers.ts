@@ -375,6 +375,7 @@ export const FIELD_MAPPINGS = {
   PAGE: {
     name: 'title',
     description: 'content',
+    customFieldsData: 'customFieldsData',
   },
   MENU: {
     label: 'title',
