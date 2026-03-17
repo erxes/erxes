@@ -7,10 +7,7 @@ import {
   ITourCategoryDocument,
   ITourDocument,
 } from '@/bms/@types/tour';
-import {
-  tourCategorySchema,
-  tourSchema,
-} from '@/bms/db/definitions/tour';
+import { tourCategorySchema, tourSchema } from '@/bms/db/definitions/tour';
 
 export interface ITourModel extends Model<ITourDocument> {
   createTour(doc: ITour, user: any): Promise<ITourDocument>;
@@ -26,7 +23,7 @@ export interface IBmsTourCategoryModel extends Model<ITourCategoryDocument> {
     _id: string,
     doc: ITourCategory,
   ): Promise<ITourCategoryDocument>;
-  removeTourCategory(_id: string): Promise<any>;
+  removeTourCategory(ids: string[]): Promise<any>;
 }
 
 export const loadTourClass = (models: IModels) => {
@@ -89,37 +86,116 @@ export const loadTourCategoryClass = (models: IModels) => {
     }
 
     public static async createTourCategory(doc) {
-      return models.BmsTourCategories.create(doc);
+      const parentCategory = doc.parentId
+        ? await models.BmsTourCategories.findOne({ _id: doc.parentId }).lean()
+        : undefined;
+
+      doc.order = await this.generateOrder(parentCategory, doc);
+
+      return models.BmsTourCategories.create({
+        ...doc,
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+      });
     }
 
     public static async updateTourCategory(_id, doc) {
-      await models.BmsTourCategories.getTourCategory({ _id });
+      const existingCategory = await models.BmsTourCategories.getTourCategory({
+        _id,
+      });
 
-      const parentCategory = doc.parentId
-        ? await models.BmsTourCategories.findOne({ _id: doc.parentId }).lean()
+      const parentIdToUse =
+        doc.parentId !== undefined ? doc.parentId : existingCategory.parentId;
+
+      const parentCategory = parentIdToUse
+        ? await models.BmsTourCategories.findOne({ _id: parentIdToUse }).lean()
         : undefined;
 
       if (parentCategory && parentCategory.parentId === _id) {
         throw new Error('Cannot change category');
       }
+      const mergedDoc = {
+        ...existingCategory.toObject(),
+        ...doc,
+      };
+      const oldOrder = existingCategory.order;
+      doc.order = await this.generateOrder(parentCategory, mergedDoc);
+      doc.modifiedAt = new Date();
 
       await models.BmsTourCategories.updateOne({ _id }, { $set: doc });
+
+      if (oldOrder && oldOrder !== doc.order) {
+        const escapeRegExp = (value: string) =>
+          value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        const childCategories = await models.BmsTourCategories.find({
+          $and: [
+            { order: { $regex: new RegExp(`^${escapeRegExp(oldOrder)}`) } },
+            { _id: { $ne: _id } },
+          ],
+        });
+
+        for (const childCategory of childCategories) {
+          if (!childCategory.order || !doc.order) {
+            continue;
+          }
+
+          const order = childCategory.order.replace(oldOrder, doc.order);
+
+          await models.BmsTourCategories.updateOne(
+            { _id: childCategory._id },
+            { $set: { order, modifiedAt: new Date() } },
+          );
+        }
+      }
 
       return models.BmsTourCategories.findOne({ _id });
     }
 
-    public static async removeTourCategory(_id) {
-      await models.BmsTourCategories.getTourCategory({ _id });
+    public static async removeTourCategory(ids) {
+      const uniqueIds = [...new Set((ids || []).filter(Boolean))];
 
-      let count = await models.Tours.countDocuments({ categories: _id });
+      if (!uniqueIds.length) {
+        throw new Error('Category ids are required');
+      }
 
-      count += await models.BmsTourCategories.countDocuments({ parentId: _id });
+      const existingCount = await models.BmsTourCategories.countDocuments({
+        _id: { $in: uniqueIds },
+      });
+
+      if (existingCount !== uniqueIds.length) {
+        throw new Error('Tour category not found');
+      }
+
+      let count = await models.Tours.countDocuments({
+        $or: [
+          { categories: { $in: uniqueIds } },
+          { categoryIds: { $in: uniqueIds } },
+          { tagIds: { $in: uniqueIds } },
+          { categoryId: { $in: uniqueIds } },
+        ],
+      });
+
+      count += await models.BmsTourCategories.countDocuments({
+        parentId: { $in: uniqueIds },
+        _id: { $nin: uniqueIds },
+      });
 
       if (count > 0) {
         throw new Error("Can't remove a category");
       }
 
-      return models.BmsTourCategories.deleteOne({ _id });
+      return models.BmsTourCategories.deleteMany({ _id: { $in: uniqueIds } });
+    }
+
+    public static async generateOrder(parentCategory, doc) {
+      if (!doc?.code) {
+        return '';
+      }
+
+      return parentCategory?.order
+        ? `${parentCategory.order}${doc.code}/`
+        : `${doc.code}/`;
     }
   }
 
