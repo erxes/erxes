@@ -9,7 +9,7 @@ import { IconPlus } from '@tabler/icons-react';
 function normalizeUomCode(name: string): string {
   const normalized = name.trim().toUpperCase();
   const replaced = (normalized as any).replaceAll?.(/\s+/g, '_');
-  return replaced ?? normalized.replace(/\s+/g, '_');
+  return replaced ?? normalized.replaceAll(/\s+/g, '_');
 }
 
 interface SelectUOMWithNameProps {
