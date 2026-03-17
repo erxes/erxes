@@ -42,8 +42,14 @@ export const webQueries: Record<string, Resolver> = {
 
       let result = String(message);
       result = result.replace(/https?:\/\/\S+/g, '').trim();
-      result = result.replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
-      result = result.replace(/(token|authorization|bearer)\s*[:=]\s*\S+/gi, '$1: [redacted]');
+      result = result
+        .replace(/[\r\n\t]+/g, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+      result = result.replace(
+        /(token|authorization|bearer)\s*[:=]\s*\S+/gi,
+        '$1: [redacted]',
+      );
 
       if (result.length > 180) {
         result = result.slice(0, 177).trimEnd() + '...';
@@ -85,7 +91,13 @@ export const webQueries: Record<string, Resolver> = {
         if (Array.isArray(items)) {
           const lastWithMessage = [...items]
             .reverse()
-            .find((e: any) => e?.payload?.text || e?.text || e?.payload?.message || e?.message);
+            .find(
+              (e: any) =>
+                e?.payload?.text ||
+                e?.text ||
+                e?.payload?.message ||
+                e?.message,
+            );
 
           rawErrorReason =
             lastWithMessage?.payload?.text ||
