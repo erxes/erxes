@@ -3,6 +3,7 @@ export interface IPage {
   name: string;
   slug: string;
   description?: string;
+  content?: string;
   status?: string;
   createdAt: string;
   updatedAt: string;
