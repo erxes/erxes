@@ -5,12 +5,69 @@ export const PAGE_DETAIL = gql`
     cmsPage(_id: $id) {
       _id
       name
+      parentId
       description
       slug
+      content
+      coverImage
+      status
       clientPortalId
       createdAt
-      status
       customFieldsData
+      thumbnail {
+        url
+        name
+        type
+        __typename
+      }
+      pageImages {
+        url
+        name
+        type
+        size
+        duration
+      }
+      video {
+        url
+        name
+        type
+        __typename
+      }
+      audio {
+        url
+        name
+        type
+        __typename
+      }
+      documents {
+        url
+        name
+        type
+        __typename
+      }
+      attachments {
+        url
+        name
+        type
+        __typename
+      }
+      pdfAttachment {
+        pdf {
+          url
+          name
+          type
+          size
+          duration
+        }
+        pages {
+          url
+          name
+          type
+          size
+          duration
+        }
+      }
+      videoUrl
       createdUser {
         _id
         email

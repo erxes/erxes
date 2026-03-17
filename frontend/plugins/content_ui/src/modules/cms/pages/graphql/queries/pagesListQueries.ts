@@ -27,6 +27,7 @@ export const PAGE_LIST = gql`
       pages {
         _id
         name
+        parentId
         description
         slug
         clientPortalId
