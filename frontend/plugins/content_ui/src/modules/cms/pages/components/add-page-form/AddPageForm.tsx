@@ -43,8 +43,7 @@ export const AddPageForm = ({
     getCustomFieldValue,
   } = usePageForm(currentEditingPage);
 
-  const { availableLanguages, defaultLanguage } =
-    usePageData(websiteId);
+  const { availableLanguages, defaultLanguage } = usePageData(websiteId);
 
   const languageOptions = useMemo(
     () =>

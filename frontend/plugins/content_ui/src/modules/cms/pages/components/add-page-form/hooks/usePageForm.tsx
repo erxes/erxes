@@ -109,12 +109,12 @@ export const usePageForm = (editingPage?: any) => {
         status: fullPage.status || 'active',
         parentId: fullPage.parentId || '',
         thumbnail: fullPage.thumbnail || null,
-        gallery: (fullPage.pageImages || []).map((i: any) => i.url).filter(Boolean),
-        video:
-          (fullPage.video && fullPage.video.url) || fullPage.video || null,
+        gallery: (fullPage.pageImages || [])
+          .map((i: any) => i.url)
+          .filter(Boolean),
+        video: (fullPage.video && fullPage.video.url) || fullPage.video || null,
         videoUrl: fullPage.videoUrl || '',
-        audio:
-          (fullPage.audio && fullPage.audio.url) || fullPage.audio || null,
+        audio: (fullPage.audio && fullPage.audio.url) || fullPage.audio || null,
         documents: (fullPage.documents || [])
           .map((d: any) => d.url)
           .filter(Boolean),
