@@ -7,6 +7,7 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
+import { initPaymentsWorker } from './workers/payments';
 
 startPlugin({
   name: 'payment',
@@ -69,5 +70,7 @@ startPlugin({
     app.get('/widget/*', (req, res) => {
       res.sendFile(path.join(__dirname, '/public/widget/index.html'));
     });
+
+    initPaymentsWorker();
   },
 });

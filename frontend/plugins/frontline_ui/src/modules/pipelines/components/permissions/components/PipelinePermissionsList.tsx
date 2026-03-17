@@ -51,9 +51,18 @@ export const PipelinePermissionsList = memo(() => {
 
   const myTicketsOnly = form.watch('myTicketsOnly');
 
+  const prevMyTicketsOnlyRef = useRef<boolean | null>(null);
+
   useEffect(() => {
-    console.log('Pipeline data:', pipeline);
-  }, [pipeline, myTicketsOnly]);
+    if (
+      prevMyTicketsOnlyRef.current !== null &&
+      !myTicketsOnly &&
+      prevMyTicketsOnlyRef.current
+    ) {
+      form.setValue('selectedUsers', []);
+    }
+    prevMyTicketsOnlyRef.current = myTicketsOnly;
+  }, [myTicketsOnly, form]);
 
   const initialValuesRef = useRef<PermissionState | null>(null);
   const isUpdatingRef = useRef(false);

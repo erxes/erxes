@@ -1,18 +1,15 @@
-import { IContext } from "~/connectionResolvers";
-import { IExchangeRate } from "../../@types/exchangeRate";
+import { IContext } from '~/connectionResolvers';
+import { IExchangeRate } from '../../@types/exchangeRate';
 
 export const exchangeRateMutations = {
   /**
    * Creates a new exchange rate
    * @param {Object} doc ExchangeRate document
    */
-  async exchangeRateAdd(
-    _root,
-    doc: IExchangeRate,
-    { models }: IContext
-  ) {
+  async exchangeRateAdd(_root, doc: IExchangeRate, { models }: IContext) {
     return await models.ExchangeRates.createExchangeRate({
-      ...doc, createdAt: new Date()
+      ...doc,
+      createdAt: new Date(),
     });
   },
 
@@ -24,7 +21,7 @@ export const exchangeRateMutations = {
   async exchangeRateEdit(
     _root,
     { _id, ...doc }: IExchangeRate & { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return await models.ExchangeRates.updateExchangeRate(_id, {
       ...doc,
@@ -39,7 +36,7 @@ export const exchangeRateMutations = {
   async exchangeRatesRemove(
     _root,
     { rateIds }: { rateIds: string[] },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return await models.ExchangeRates.removeExchangeRates(rateIds);
   },

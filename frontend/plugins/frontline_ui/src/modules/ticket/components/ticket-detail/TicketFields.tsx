@@ -27,6 +27,9 @@ import { TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
+import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
+import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
 import { AttachmentProvider } from '../attachments/AttachmentContext';
 import { IAttachment } from '@/ticket/types/attachments';
 import AttachmentUploader from '../attachments/AttachmentUploader';
@@ -113,6 +116,21 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     initialContent: descriptionContent,
     placeholder: 'Description...',
   });
+  const { pipeline } = useGetPipeline(pipelineId);
+  const { status: currentStatus } = useGetTicketStatusById(statusId);
+  const { canEditTicket, canMoveTicket } = useTicketPermissions({
+    pipeline,
+    status: currentStatus
+      ? {
+          value: currentStatus._id,
+          memberIds: currentStatus.memberIds,
+          canMoveMemberIds: currentStatus.canMoveMemberIds,
+          canEditMemberIds: currentStatus.canEditMemberIds,
+          visibilityType: currentStatus.visibilityType,
+        }
+      : undefined,
+  });
+
   const { updateTicket } = useUpdateTicket();
   const { removeTicket } = useTicketRemove();
   const [name, setName] = useState(_name);
@@ -256,6 +274,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           placeholder="Ticket Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          disabled={!canEditTicket}
         />{' '}
         <TagsSelect.Provider
           value={tagIds || []}
@@ -295,28 +314,33 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               value={statusId}
               id={ticketId}
               pipelineId={pipelineId}
+              disabled={!canMoveTicket}
             />
             <SelectPriorityTicket
               id={ticketId}
               value={priority}
               variant="detail"
+              disabled={!canEditTicket}
             />
             <SelectAssigneeTicket
               variant="detail"
               value={assigneeId}
               id={ticketId}
+              disabled={!canEditTicket}
             />
             <SelectDateTicket
               value={startDate ? new Date(startDate) : undefined}
               id={ticketId}
               type="startDate"
               variant="detail"
+              disabled={!canEditTicket}
             />
             <SelectDateTicket
               value={targetDate ? new Date(targetDate) : undefined}
               id={ticketId}
               type="targetDate"
               variant="detail"
+              disabled={!canEditTicket}
             />
             <DropdownMenu>
               <DropdownMenu.Trigger asChild>
@@ -354,8 +378,8 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         <div className="min-h-56 overflow-y-auto">
           <BlockEditor
             editor={editor}
-            onChange={handleDescriptionChange}
-            className="min-h-full read-only"
+            onChange={canEditTicket ? handleDescriptionChange : undefined}
+            className={`min-h-full read-only${!canEditTicket ? ' pointer-events-none opacity-60' : ''}`}
           />
         </div>
         <ActivityList contentId={ticketId} contentDetail={ticket} />

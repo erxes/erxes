@@ -1,4 +1,4 @@
-import { IContext } from "~/connectionResolvers";
+import { IContext } from '~/connectionResolvers';
 import { defaultPaginate } from 'erxes-api-shared/utils';
 
 interface IQueryParams {
@@ -7,7 +7,7 @@ interface IQueryParams {
 
 const generateFilter = async (
   commonQuerySelector: any,
-  params: IQueryParams
+  params: IQueryParams,
 ) => {
   const { searchValue } = params;
   const filter: any = commonQuerySelector;
@@ -31,7 +31,7 @@ export const exchangeRateQueries = {
   exchangeRatesMain: async (
     _root,
     params,
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector }: IContext,
   ) => {
     const filter = await generateFilter(commonQuerySelector, params);
 
@@ -41,17 +41,24 @@ export const exchangeRateQueries = {
         {
           page: params.page,
           perPage: params.perPage,
-        }
+        },
       ),
       totalCount: await models.ExchangeRates.find(filter).countDocuments(),
     };
   },
 
-  async exchangeGetRate(_root, args: { currency: string, date: Date, mainCurrency?: string }, { models }: IContext) {
+  async exchangeGetRate(
+    _root,
+    args: { currency: string; date: Date; mainCurrency?: string },
+    { models }: IContext,
+  ) {
     const { date, currency, mainCurrency } = args;
-    return await models.ExchangeRates.getActiveRate({ date, rateCurrency: currency, mainCurrency });
-  }
+    return await models.ExchangeRates.getActiveRate({
+      date,
+      rateCurrency: currency,
+      mainCurrency,
+    });
+  },
 };
 
 // checkPermission(exchangeRateQueries, 'exchangeRatesMain', 'showExchangeRates');
-

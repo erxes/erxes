@@ -38,6 +38,8 @@ export const useCategoriesVariables = (
   return {
     limit: CATEGORIES_PER_PAGE,
     cursor,
+    sortField: 'createdAt',
+    sortDirection: '-1',
     searchValue: searchValue || undefined,
     status: status && status !== 'all' ? status : undefined,
     dateFilters: {
@@ -98,7 +100,6 @@ export const useCategories = (options?: QueryHookOptions) => {
 
     fetchMore({
       variables: {
-        ...variables,
         cursor:
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
@@ -108,14 +109,33 @@ export const useCategories = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
+
+        const isForward = direction === EnumCursorDirection.FORWARD;
+        const fetchPageInfo = fetchMoreResult.cmsCategories?.pageInfo || {};
+        const prevPageInfo = prev.cmsCategories?.pageInfo || {};
+        const fetchList = fetchMoreResult.cmsCategories?.list || [];
+        const prevList = prev.cmsCategories?.list || [];
+
         return Object.assign({}, prev, {
           cmsCategories: {
-            list: [
-              ...(prev.cmsCategories?.list || []),
-              ...fetchMoreResult.cmsCategories.list,
-            ],
-            totalCount: fetchMoreResult.cmsCategories.totalCount,
-            pageInfo: fetchMoreResult.cmsCategories.pageInfo,
+            ...fetchMoreResult.cmsCategories,
+            list: isForward
+              ? [...prevList, ...fetchList]
+              : [...fetchList, ...prevList],
+            pageInfo: {
+              endCursor: isForward
+                ? fetchPageInfo.endCursor
+                : prevPageInfo.endCursor,
+              hasNextPage: isForward
+                ? fetchPageInfo.hasNextPage
+                : prevPageInfo.hasNextPage,
+              hasPreviousPage: isForward
+                ? prevPageInfo.hasPreviousPage
+                : fetchPageInfo.hasPreviousPage,
+              startCursor: isForward
+                ? prevPageInfo.startCursor
+                : fetchPageInfo.startCursor,
+            },
           },
         });
       },
