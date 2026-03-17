@@ -17,7 +17,6 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ITour } from '../types/tour';
-import { useCategories } from '../../category/hooks/useCategories';
 import { ICategory } from '../../category';
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -34,10 +33,9 @@ const formatDate = (value?: string) => {
 };
 
 export const TourColumns = (
+  categories: ICategory[],
   onEdit?: (tourId: string) => void,
 ): ColumnDef<ITour>[] => {
-  const { categories } = useCategories();
-
   return [
     RecordTable.checkboxColumn as ColumnDef<ITour>,
     {

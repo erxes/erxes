@@ -1,10 +1,5 @@
 import { IconCheck } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Popover,
-  cn,
-} from 'erxes-ui';
+import { Combobox, Command, Popover, cn } from 'erxes-ui';
 
 import { IItinerary } from '../types/itinerary';
 import { useItineraries } from '../hooks/useItineraries';
@@ -56,11 +51,11 @@ export const SelectItinerary = ({
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
         {selectedItinerary ? (
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center">
             <span>{selectedItinerary.name}</span>
             {selectedItinerary.duration && (
               <span className="text-xs text-muted-foreground">
-                ({selectedItinerary.duration}d)
+                ({selectedItinerary.duration} days)
               </span>
             )}
           </div>
@@ -69,7 +64,7 @@ export const SelectItinerary = ({
         )}
       </Combobox.Trigger>
 
-      <Combobox.Content className="w-full p-0">
+      <Combobox.Content className="p-0 w-full">
         <Command shouldFilter={false}>
           <Command.Input
             value={search}

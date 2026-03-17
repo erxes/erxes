@@ -221,15 +221,15 @@ const createPersonCostEntry = (
 const personCostToEntries = (
   value?: TourCreateFormType['personCost'],
 ): PersonCostEntry[] => {
-  if (!value || Array.isArray(value) || typeof value !== 'object') {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return [createPersonCostEntry()];
   }
 
-  const entries = Object.entries(value ?? {}).map(([range, price]) =>
+  const entries = Object.entries(value).map(([range, price]) =>
     createPersonCostEntry(range, price as string | number),
   );
 
-  return entries.length ? entries : [createPersonCostEntry()];
+  return entries.length > 0 ? entries : [createPersonCostEntry()];
 };
 
 const personCostEntriesToRecord = (entries: PersonCostEntry[]) =>

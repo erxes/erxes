@@ -186,40 +186,55 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
 
     try {
       const personCost = normalizePersonCost(values.personCost);
-      const { startDate: _startDate, ...restValues } = values;
+
+      const {
+        startDate: _startDate,
+        endDate: _endDate,
+        ...restValues
+      } = values;
+
       const selectedDates = values.startDate
         ? Array.isArray(values.startDate)
           ? sortDates(values.startDate)
           : [values.startDate]
         : [];
+
       const primaryStartDate = selectedDates[0];
 
-      const groupCode = selectedDates.length > 1 ? nanoid() : '';
+      const groupCode = selectedDates.length > 1 ? nanoid() : nanoid();
 
       if (selectedDates.length > 0) {
-        await Promise.all(
-          selectedDates.map((selectedDate) =>
-            createTour({
-              variables: {
-                branchId,
-                ...restValues,
-                startDate: selectedDate,
-                endDate: calculateEndDate(selectedDate, values.duration),
-                date_status: getDateStatus(selectedDate),
-                groupCode,
-                personCost,
-              },
-            }),
-          ),
-        );
+        for (const selectedDate of selectedDates) {
+          const computedEndDate = calculateEndDate(
+            selectedDate,
+            values.duration,
+          );
+
+          await createTour({
+            variables: {
+              branchId,
+              ...restValues,
+              startDate: selectedDate,
+              endDate: computedEndDate,
+              date_status: getDateStatus(selectedDate),
+              groupCode,
+              personCost,
+            },
+          });
+        }
       } else {
+        const computedEndDate = primaryStartDate
+          ? calculateEndDate(primaryStartDate, values.duration)
+          : undefined;
+
         await createTour({
           variables: {
             branchId,
             ...restValues,
             startDate: primaryStartDate,
+            endDate: computedEndDate,
             date_status: getDateStatus(primaryStartDate),
-            groupCode: nanoid(),
+            groupCode,
             personCost,
           },
         });

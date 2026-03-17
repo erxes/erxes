@@ -397,9 +397,7 @@
   min-width: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
-  word-break: break-word;
 }
-
 .bn-editor .bn-container .bn-suggestion-menu-item:hover {
   background-color: var(--primary);
 }

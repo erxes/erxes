@@ -2,18 +2,16 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
-  isUndefinedOrNull,
   mergeCursorData,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { GET_ELEMENTS } from '../graphql/queries';
-import { ELEMENTS_CURSOR_SESSION_KEY } from '../constants/elementCursorSessionKey';
-import { IElement } from '../types/element';
+import { GET_ELEMENTS } from '@/tms/branch-detail/dashboard/elements/graphql/queries';
+import { ELEMENTS_CURSOR_SESSION_KEY } from '@/tms/branch-detail/dashboard/elements/constants/elementCursorSessionKey';
+import { IElement } from '@/tms/branch-detail/dashboard/elements/types/element';
 
 const ELEMENTS_PER_PAGE = 30;
-
-type ElementsQueryVariables = {
+interface ElementsQueryVariables {
   branchId?: string;
   categories?: string[];
   name?: string;
@@ -24,7 +22,7 @@ type ElementsQueryVariables = {
   orderBy?: Record<string, number>;
   cursorMode?: string;
   sortMode?: string;
-};
+}
 
 export const useElements = (
   options?: QueryHookOptions<
@@ -51,14 +49,14 @@ export const useElements = (
 
   const { data, loading, fetchMore } = useQuery(GET_ELEMENTS, {
     ...options,
-    skip: options?.skip || isUndefinedOrNull(variables.cursor),
+    skip: options?.skip,
     variables,
   });
 
   const {
-    list: elements,
-    totalCount,
-    pageInfo,
+    list: elements = [],
+    totalCount = 0,
+    pageInfo = {},
   } = data?.bmsElements || {};
 
   const handleFetchMore = ({
