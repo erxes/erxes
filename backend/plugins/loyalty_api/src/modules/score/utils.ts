@@ -51,7 +51,9 @@ export const safeEvaluateArithmetic = (expr: string): number => {
     while (pos < trimmed.length && /[0-9.]/.test(trimmed[pos])) {
       if (trimmed[pos] === '.') {
         if (hasDecimal) {
-          throw new Error(`Invalid number with multiple decimal points at position ${start}`);
+          throw new Error(
+            `Invalid number with multiple decimal points at position ${start}`,
+          );
         }
         hasDecimal = true;
       } else {
