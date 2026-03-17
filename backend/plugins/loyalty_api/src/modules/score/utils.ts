@@ -46,10 +46,20 @@ export const safeEvaluateArithmetic = (expr: string): number => {
   const parseNumber = (): number => {
     skipWhitespace();
     const start = pos;
+    let hasDecimal = false;
+    let hasDigit = false;
     while (pos < trimmed.length && /[0-9.]/.test(trimmed[pos])) {
+      if (trimmed[pos] === '.') {
+        if (hasDecimal) {
+          throw new Error(`Invalid number with multiple decimal points at position ${start}`);
+        }
+        hasDecimal = true;
+      } else {
+        hasDigit = true;
+      }
       pos++;
     }
-    if (pos === start) {
+    if (pos === start || !hasDigit) {
       throw new Error(`Expected number at position ${pos}`);
     }
     const num = Number(trimmed.slice(start, pos));
