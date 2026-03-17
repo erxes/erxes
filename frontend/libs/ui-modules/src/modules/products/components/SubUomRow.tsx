@@ -82,7 +82,7 @@ export function SubUomRow({
           value={
             typeof subUom.ratio === 'string'
               ? subUom.ratio
-              : subUom.ratio?.toString() ?? ''
+              : (subUom.ratio?.toString() ?? '')
           }
           onChange={(e) => {
             const rawValue = e.target.value;

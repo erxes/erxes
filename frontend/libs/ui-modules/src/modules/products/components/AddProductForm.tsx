@@ -28,7 +28,7 @@ import {
   useErxesUpload,
   useRemoveFile,
   useQueryState,
-  Spinner
+  Spinner,
 } from 'erxes-ui';
 import { SelectUOMWithName } from './SelectUOMWithName';
 import { SubUomRow, type SubUomItem } from './SubUomRow';
@@ -116,10 +116,13 @@ export function AddProductForm({
       ) {
         const customFieldsObj = Object.entries(value)
           .filter(([_, val]) => val !== undefined && val !== null && val !== '')
-          .reduce((acc, [fieldId, val]) => {
-            acc[fieldId] = val;
-            return acc;
-          }, {} as Record<string, unknown>);
+          .reduce(
+            (acc, [fieldId, val]) => {
+              acc[fieldId] = val;
+              return acc;
+            },
+            {} as Record<string, unknown>,
+          );
         if (Object.keys(customFieldsObj).length > 0) {
           cleanData['propertiesData'] = customFieldsObj;
         }
@@ -341,7 +344,11 @@ type BarcodeItem = {
   image?: AttachmentItem;
 };
 
-function BarcodeManager({ form }: { readonly form: UseFormReturn<IProductFormValues> }) {
+function BarcodeManager({
+  form,
+}: {
+  readonly form: UseFormReturn<IProductFormValues>;
+}) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
 
   const [code, setCode] = useState('');
@@ -546,7 +553,11 @@ function BarcodeManager({ form }: { readonly form: UseFormReturn<IProductFormVal
   );
 }
 
-function SubUomManager({ form }: { readonly form: UseFormReturn<IProductFormValues> }) {
+function SubUomManager({
+  form,
+}: {
+  readonly form: UseFormReturn<IProductFormValues>;
+}) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
 
   return (
