@@ -1,5 +1,5 @@
 import { Button, Form, Spinner } from 'erxes-ui';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { PageFormData } from './hooks/usePageForm';
 
 interface AddPageHeaderActionsProps {
@@ -15,11 +15,6 @@ export const AddPageHeaderActions = ({
   creating,
   saving,
 }: AddPageHeaderActionsProps) => {
-  const status = useWatch({
-    control: form.control,
-    name: 'status',
-  });
-
   return (
     <div className="flex items-center gap-2">
       <Form {...form}>

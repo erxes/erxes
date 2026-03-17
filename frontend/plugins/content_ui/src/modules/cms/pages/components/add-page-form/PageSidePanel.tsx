@@ -45,7 +45,7 @@ export const PageSidePanel = ({
           </Tabs.List>
         </Tabs>
       </div>
-      <form className="p-4 space-y-4">
+      <div className="p-4 space-y-4">
         {activeTab === 'content' && (
           <PageContentTab
             form={form}
@@ -59,7 +59,7 @@ export const PageSidePanel = ({
           />
         )}
         {activeTab === 'media' && <MediaSection form={form} />}
-      </form>
+      </div>
     </div>
   );
 };

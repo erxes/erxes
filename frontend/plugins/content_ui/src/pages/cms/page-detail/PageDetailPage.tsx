@@ -5,6 +5,15 @@ import { AddPageHeaderActions } from '~/modules/cms/pages/components/add-page-fo
 import { useState, useCallback } from 'react';
 import { usePageDetail } from '~/modules/cms/pages/hooks/usePageDetail';
 import { useNavigate, useParams } from 'react-router-dom';
+import { UseFormReturn } from 'react-hook-form';
+import { PageFormData } from '~/modules/cms/pages/components/add-page-form/hooks/usePageForm';
+
+interface IFormState {
+  form: UseFormReturn<PageFormData>;
+  onSubmit: (data?: PageFormData) => Promise<void>;
+  creating: boolean;
+  saving: boolean;
+}
 
 export const PagesDetailPage = ({
   clientPortalId,
@@ -13,18 +22,18 @@ export const PagesDetailPage = ({
   clientPortalId: string;
   pageId?: string;
 }) => {
-  const [formState, setFormState] = useState<any>(null);
+  const [formState, setFormState] = useState<IFormState | null>(null);
   const { page, loading } = usePageDetail(pageId ?? '');
   const navigate = useNavigate();
   const { websiteId } = useParams();
 
-  const handleFormReady = useCallback((state: any) => {
+  const handleFormReady = useCallback((state: IFormState) => {
     setFormState(state);
   }, []);
 
   const handleClose = useCallback(() => {
-    navigate(`/content/cms/${websiteId}/pages`);
-  }, [navigate, websiteId]);
+    navigate(`/content/cms/${clientPortalId}/pages`);
+  }, [navigate, clientPortalId]);
 
   return (
     <PageContainer key={pageId}>

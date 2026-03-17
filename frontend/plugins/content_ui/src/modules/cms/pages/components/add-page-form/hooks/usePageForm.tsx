@@ -1,12 +1,57 @@
 import { useForm } from 'react-hook-form';
-import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@apollo/client';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { PAGE_DETAIL } from '../../../graphql/queries/pageDetailQuery';
 import {
   CMS_TRANSLATIONS,
   CMS_EDIT_TRANSLATION,
 } from '~/modules/cms/graphql/queries';
-import { useMutation } from '@apollo/client';
+
+interface IAttachment {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+  duration?: number;
+}
+
+interface ICustomFieldData {
+  field: string;
+  value: unknown;
+}
+
+interface ITranslation {
+  language: string;
+  title?: string;
+  content?: string;
+  excerpt?: string;
+  customFieldsData?: ICustomFieldData[];
+}
+
+interface ITranslationData {
+  title: string;
+  content: string;
+  excerpt: string;
+  customFieldsData: ICustomFieldData[];
+}
+
+interface IPageDetail {
+  _id: string;
+  name?: string;
+  slug?: string;
+  description?: string;
+  content?: string;
+  status?: string;
+  parentId?: string;
+  thumbnail?: IAttachment | null;
+  pageImages?: IAttachment[];
+  video?: IAttachment | null;
+  videoUrl?: string;
+  audio?: IAttachment | null;
+  documents?: IAttachment[];
+  attachments?: IAttachment[];
+  customFieldsData?: ICustomFieldData[];
+}
 
 export interface PageFormData {
   name: string;
@@ -15,7 +60,7 @@ export interface PageFormData {
   content?: string;
   status?: string;
   parentId?: string;
-  thumbnail?: any | null;
+  thumbnail?: IAttachment | null;
   gallery?: string[];
   video?: string | null;
   videoUrl?: string;
@@ -23,18 +68,23 @@ export interface PageFormData {
   documents?: string[];
   attachments?: string[];
   pdf?: string | null;
-  customFieldsData?: { field: string; value: any }[];
+  customFieldsData?: ICustomFieldData[];
 }
 
-export const usePageForm = (editingPage?: any) => {
+interface IDefaultLangData {
+  name: string;
+  content: string;
+  description: string;
+  customFieldsData: ICustomFieldData[];
+}
+
+export const usePageForm = (editingPage?: IPageDetail) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
-  const [translations, setTranslations] = useState<Record<string, any>>({});
-  const [defaultLangData, setDefaultLangData] = useState<{
-    name: string;
-    content: string;
-    description: string;
-    customFieldsData: any[];
-  } | null>(null);
+  const [translations, setTranslations] = useState<
+    Record<string, ITranslationData>
+  >({});
+  const [defaultLangData, setDefaultLangData] =
+    useState<IDefaultLangData | null>(null);
 
   const form = useForm<PageFormData>({
     defaultValues: {
@@ -63,19 +113,25 @@ export const usePageForm = (editingPage?: any) => {
   const generateSlug = (text: string) =>
     text
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+      .replaceAll(/[^a-z0-9]+/g, '-')
+      .replaceAll(/(^-|-$)/g, '');
 
-  const { data: fullPageData } = useQuery(PAGE_DETAIL, {
-    variables: { id: editingPage?._id },
-    skip: !editingPage?._id,
-    fetchPolicy: 'cache-first',
-    notifyOnNetworkStatusChange: false,
-  });
+  const { data: fullPageData } = useQuery<{ cmsPage: IPageDetail }>(
+    PAGE_DETAIL,
+    {
+      variables: { id: editingPage?._id },
+      skip: !editingPage?._id,
+      fetchPolicy: 'cache-first',
+      notifyOnNetworkStatusChange: false,
+    },
+  );
 
-  const fullPage = (fullPageData?.cmsPage as any) || editingPage;
+  const fullPage: IPageDetail | undefined =
+    fullPageData?.cmsPage || editingPage;
 
-  const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
+  const { data: translationsData } = useQuery<{
+    cmsTranslations: ITranslation[];
+  }>(CMS_TRANSLATIONS, {
     variables: { postId: editingPage?._id },
     skip: !editingPage?._id,
     fetchPolicy: 'cache-first',
@@ -86,8 +142,8 @@ export const usePageForm = (editingPage?: any) => {
 
   useEffect(() => {
     if (translationsData?.cmsTranslations) {
-      const translationsMap: Record<string, any> = {};
-      translationsData.cmsTranslations.forEach((t: any) => {
+      const translationsMap: Record<string, ITranslationData> = {};
+      translationsData.cmsTranslations.forEach((t) => {
         translationsMap[t.language] = {
           title: t.title || '',
           content: t.content || '',
@@ -109,17 +165,13 @@ export const usePageForm = (editingPage?: any) => {
         status: fullPage.status || 'active',
         parentId: fullPage.parentId || '',
         thumbnail: fullPage.thumbnail || null,
-        gallery: (fullPage.pageImages || []).map((i: any) => i.url).filter(Boolean),
-        video:
-          (fullPage.video && fullPage.video.url) || fullPage.video || null,
+        gallery: (fullPage.pageImages || []).map((i) => i.url).filter(Boolean),
+        video: (fullPage.video && fullPage.video.url) || null,
         videoUrl: fullPage.videoUrl || '',
-        audio:
-          (fullPage.audio && fullPage.audio.url) || fullPage.audio || null,
-        documents: (fullPage.documents || [])
-          .map((d: any) => d.url)
-          .filter(Boolean),
+        audio: (fullPage.audio && fullPage.audio.url) || null,
+        documents: (fullPage.documents || []).map((d) => d.url).filter(Boolean),
         attachments: (fullPage.attachments || [])
-          .map((a: any) => a.url)
+          .map((a) => a.url)
           .filter(Boolean),
         customFieldsData: fullPage.customFieldsData || [],
       });
@@ -132,13 +184,13 @@ export const usePageForm = (editingPage?: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fullPage]);
 
-  const updateCustomFieldValue = (fieldId: string, value: any) => {
+  const updateCustomFieldValue = (fieldId: string, value: unknown) => {
     const currentData = form.getValues('customFieldsData') || [];
     const existingIndex = currentData.findIndex(
       (item) => item.field === fieldId,
     );
 
-    let updated;
+    let updated: ICustomFieldData[];
     if (existingIndex >= 0) {
       updated = [...currentData];
       updated[existingIndex] = { field: fieldId, value };
@@ -153,7 +205,7 @@ export const usePageForm = (editingPage?: any) => {
     });
   };
 
-  const getCustomFieldValue = (fieldId: string) => {
+  const getCustomFieldValue = (fieldId: string): unknown => {
     const currentData = form.watch('customFieldsData') || [];
     const item = currentData.find((item) => item.field === fieldId);
     return item?.value ?? '';

@@ -8,13 +8,61 @@ import {
   normalizeAttachment,
 } from '~/modules/cms/posts/formHelpers';
 
+interface IEditingPage {
+  _id: string;
+}
+
 interface UsePageSubmissionProps {
   websiteId: string;
-  editingPage?: any;
+  editingPage?: IEditingPage;
   onClose?: () => void;
 }
 
-const applyInlineStyles = (i: any): string => {
+interface IInlineContent {
+  text?: string;
+  styles?: {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strike?: boolean;
+    code?: boolean;
+  };
+}
+
+interface IBlock {
+  type?: string;
+  content?: IInlineContent[];
+  props?: { level?: number };
+}
+
+interface IAttachmentInput {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+  duration?: number;
+}
+
+interface IPageInput {
+  clientPortalId: string;
+  name: string;
+  slug: string;
+  description?: string;
+  content: string;
+  status: string;
+  parentId?: string;
+  thumbnail?: IAttachmentInput;
+  pageImages?: IAttachmentInput[];
+  video?: IAttachmentInput;
+  videoUrl?: string;
+  audio?: IAttachmentInput;
+  documents?: IAttachmentInput[];
+  attachments?: IAttachmentInput[];
+  pdfAttachment?: { pdf: IAttachmentInput };
+  customFieldsData?: { field: string; value: unknown }[];
+}
+
+const applyInlineStyles = (i: IInlineContent): string => {
   let text = i.text || '';
   if (i.styles?.bold) text = `<strong>${text}</strong>`;
   if (i.styles?.italic) text = `<em>${text}</em>`;
@@ -24,7 +72,7 @@ const applyInlineStyles = (i: any): string => {
   return text;
 };
 
-const blockToHtml = (block: any): string => {
+const blockToHtml = (block: IBlock): string => {
   const html = (block.content || []).map(applyInlineStyles).join('');
   if (block.type === 'heading') {
     const level = block.props?.level || 1;
@@ -36,9 +84,9 @@ const blockToHtml = (block: any): string => {
 
 const blocksToHtml = (raw: string): string => {
   try {
-    const blocks = JSON.parse(raw);
+    const blocks: unknown = JSON.parse(raw);
     if (!Array.isArray(blocks)) return raw;
-    return blocks.map(blockToHtml).join('');
+    return (blocks as IBlock[]).map(blockToHtml).join('');
   } catch {
     return raw;
   }
@@ -47,8 +95,8 @@ const blocksToHtml = (raw: string): string => {
 const generateSlug = (name: string): string => {
   const baseSlug = name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replaceAll(/[^a-z0-9]+/g, '-')
+    .replaceAll(/^-|-$/g, '');
   const timestamp = Date.now().toString(36).slice(-6);
   return `${baseSlug || 'page'}-${timestamp}`;
 };
@@ -90,7 +138,7 @@ export const usePageSubmission = ({
 
     const pdfPayload = normalizeAttachment(data.pdf || undefined);
 
-    const input: any = {
+    const input: IPageInput = {
       clientPortalId: websiteId,
       name: data.name,
       slug: editingPage?._id ? data.slug : generateSlug(data.name),
@@ -124,10 +172,12 @@ export const usePageSubmission = ({
       } else {
         navigate(`/content/cms/${websiteId}/pages`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to save page';
       toast({
         title: 'Error',
-        description: error?.message || 'Failed to save page',
+        description: message,
         variant: 'destructive',
       });
     }

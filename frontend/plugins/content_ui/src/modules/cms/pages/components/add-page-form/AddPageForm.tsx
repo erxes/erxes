@@ -25,8 +25,10 @@ export const AddPageForm = ({
   onClose,
   onFormReady,
 }: AddPageFormProps) => {
-  const location = useLocation() as any;
-  const currentEditingPage = editingPage || (location?.state?.page as any);
+  const location = useLocation() as {
+    state?: { page?: Record<string, unknown> };
+  };
+  const currentEditingPage = editingPage || location?.state?.page;
 
   const {
     form,
@@ -39,12 +41,9 @@ export const AddPageForm = ({
     handleEditorChange,
     generateSlug,
     fullPage,
-    updateCustomFieldValue,
-    getCustomFieldValue,
   } = usePageForm(currentEditingPage);
 
-  const { availableLanguages, defaultLanguage } =
-    usePageData(websiteId);
+  const { availableLanguages, defaultLanguage } = usePageData(websiteId);
 
   const languageOptions = useMemo(
     () =>
@@ -91,10 +90,10 @@ export const AddPageForm = ({
       setTranslations((prev) => ({
         ...prev,
         [selectedLanguage]: {
-          title: form.getValues('name'),
-          content: form.getValues('content'),
-          excerpt: form.getValues('description'),
-          customFieldsData: form.getValues('customFieldsData'),
+          title: form.getValues('name') || '',
+          content: form.getValues('content') || '',
+          excerpt: form.getValues('description') || '',
+          customFieldsData: form.getValues('customFieldsData') || [],
         },
       }));
     }

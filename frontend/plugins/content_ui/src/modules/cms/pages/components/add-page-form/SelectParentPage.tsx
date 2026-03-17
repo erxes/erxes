@@ -1,4 +1,3 @@
-import { IconFile } from '@tabler/icons-react';
 import {
   Badge,
   cn,
@@ -9,7 +8,7 @@ import {
   SelectTree,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, { createContext, useCallback, useContext, useState, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useQuery } from '@apollo/client';
 import { PAGE_LIST } from '../../graphql/queries/pagesListQueries';
@@ -131,20 +130,26 @@ const SelectParentPageProvider = ({
 }) => {
   const [selectedPage, setSelectedPage] = useState<IPageItem | null>(null);
 
-  const handleSelect = (page: IPageItem | null) => {
-    setSelectedPage(page);
-    onValueChange?.(page?._id || '');
-  };
+  const handleSelect = useCallback(
+    (page: IPageItem | null) => {
+      setSelectedPage(page);
+      onValueChange?.(page?._id || '');
+    },
+    [onValueChange],
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      selectedPage,
+      value,
+      onSelect: handleSelect,
+      currentPageId,
+    }),
+    [selectedPage, value, handleSelect, currentPageId],
+  );
 
   return (
-    <SelectParentPageContext.Provider
-      value={{
-        selectedPage,
-        value,
-        onSelect: handleSelect,
-        currentPageId,
-      }}
-    >
+    <SelectParentPageContext.Provider value={contextValue}>
       {children}
     </SelectParentPageContext.Provider>
   );
