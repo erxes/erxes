@@ -36,8 +36,8 @@ export const FacebookPostSelector = ({
             {isOpen
               ? 'Hide posts'
               : selectedPostId
-              ? 'Change selected post'
-              : 'Select post'}
+                ? 'Change selected post'
+                : 'Select post'}
           </Button>
         </div>
       </Collapsible.Trigger>
