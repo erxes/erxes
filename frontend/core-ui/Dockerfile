@@ -19,6 +19,9 @@ RUN pnpm nx build core-ui --configuration=production --verbose
 # Final stage
 FROM nginx:alpine
 
+# Upgrade system packages to address security vulnerabilities
+RUN apk upgrade --no-cache
+
 # Copy jo from builder
 COPY --from=jo-builder /usr/local/bin/jo /usr/local/bin/jo
 

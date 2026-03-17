@@ -1,7 +1,7 @@
 # Base image
 FROM node:22-alpine AS base
 WORKDIR /app
-RUN npm install -g pnpm
+RUN apk upgrade --no-cache && npm install -g pnpm
 
 # Dependencies (production only)
 FROM base AS deps
