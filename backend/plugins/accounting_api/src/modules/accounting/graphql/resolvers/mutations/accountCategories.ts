@@ -1,3 +1,4 @@
+import { checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from "~/connectionResolvers";
 import { IAccountCategory } from "@/accounting/@types/accountCategory";
 
@@ -54,8 +55,8 @@ const accountCategoriessMutations = {
   },
 };
 
-// checkPermission(accountCategoriessMutations, 'accountCategoriesAdd', 'manageAccounts');
-// checkPermission(accountCategoriessMutations, 'accountCategoriesEdit', 'manageAccounts');
-// checkPermission(accountCategoriessMutations, 'accountCategoriesRemove', 'manageAccounts');
+checkPermission(accountCategoriessMutations, 'accountCategoriesAdd', 'manageAccounts');
+checkPermission(accountCategoriessMutations, 'accountCategoriesEdit', 'manageAccounts');
+checkPermission(accountCategoriessMutations, 'accountCategoriesRemove', 'manageAccounts');
 
 export default accountCategoriessMutations;

@@ -105,16 +105,18 @@ export const magiclinkCallback = async (
   }
 
   try {
-    // this was set in loginWithMagicLink mutation
-    const subdomain = (await redis.get('subdomain')) || '';
-
-    await redis.set('subdomain', '');
-
-    const models = await generateModels(subdomain);
     const stateStr = typeof state === 'string' ? state : '';
     if (!stateStr) {
       return res.redirect('/login');
     }
+
+    // Retrieve subdomain using the token-specific key to avoid race conditions
+    const subdomain = (await redis.get(`ml_subdomain:${stateStr}`)) || '';
+
+    // Clean up the token-specific key
+    await redis.del(`ml_subdomain:${stateStr}`);
+
+    const models = await generateModels(subdomain);
     const { user }: any = jwt.verify(stateStr, models.Users.getSecret());
 
     await setCookie(res, user, subdomain, stateStr);

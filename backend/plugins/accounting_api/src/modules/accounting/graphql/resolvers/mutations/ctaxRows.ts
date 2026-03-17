@@ -1,3 +1,4 @@
+import { checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from "~/connectionResolvers";
 import { ICtaxRow } from "@/accounting/@types/ctaxRow";
 
@@ -55,8 +56,8 @@ const ctaxRowsMutations = {
   },
 };
 
-// checkPermission(ctaxRowsMutations, 'ctaxRowsAdd', 'manageCtaxRows');
-// checkPermission(ctaxRowsMutations, 'ctaxRowsEdit', 'manageCtaxRows');
-// checkPermission(ctaxRowsMutations, 'ctaxRowsRemove', 'manageCtaxRows');
+checkPermission(ctaxRowsMutations, 'ctaxRowsAdd', 'manageCtaxRows');
+checkPermission(ctaxRowsMutations, 'ctaxRowsEdit', 'manageCtaxRows');
+checkPermission(ctaxRowsMutations, 'ctaxRowsRemove', 'manageCtaxRows');
 
 export default ctaxRowsMutations;

@@ -2,6 +2,8 @@ import { useSendEmailActionResult } from '@/automations/components/builder/nodes
 import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { IconEye } from '@tabler/icons-react';
 import { Badge, Button, Dialog, Popover, Tooltip } from 'erxes-ui';
+import DOMPurify from 'dompurify';
+import { useMemo } from 'react';
 
 export const AutomationSendEmailActionResult = ({
   result,
@@ -10,6 +12,11 @@ export const AutomationSendEmailActionResult = ({
 }) => {
   const { getLabelColor, getLabelText } = useSendEmailActionResult();
   const { fromEmail = '', title, response, customHtml } = result;
+
+  const sanitizedHtml = useMemo(
+    () => DOMPurify.sanitize(customHtml || ''),
+    [customHtml],
+  );
 
   return (
     <div className="flex flex-row gap-2 items-center justify-between w-full">
@@ -66,7 +73,7 @@ export const AutomationSendEmailActionResult = ({
                   </Button>
                 </Dialog.Trigger>
                 <Dialog.Content>
-                  <div dangerouslySetInnerHTML={{ __html: customHtml || '' }} />
+                  <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
                 </Dialog.Content>
               </Dialog>
             }

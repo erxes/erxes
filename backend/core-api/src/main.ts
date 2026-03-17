@@ -10,6 +10,7 @@ import {
   leaveErxesGateway,
 } from 'erxes-api-shared/utils';
 import express from 'express';
+import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import * as http from 'http';
 import * as path from 'path';
@@ -31,6 +32,12 @@ const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
+
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: false,
+}));
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));

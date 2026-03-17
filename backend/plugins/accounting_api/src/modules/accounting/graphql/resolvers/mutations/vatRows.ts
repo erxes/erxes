@@ -1,3 +1,4 @@
+import { checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from "~/connectionResolvers";
 import { IVatRow } from "@/accounting/@types/vatRow";
 
@@ -56,8 +57,8 @@ const vatRowsMutations = {
   },
 };
 
-// checkPermission(vatRowsMutations, 'vatRowsAdd', 'manageVatRows');
-// checkPermission(vatRowsMutations, 'vatRowsEdit', 'manageVatRows');
-// checkPermission(vatRowsMutations, 'vatRowsRemove', 'manageVatRows');
+checkPermission(vatRowsMutations, 'vatRowsAdd', 'manageVatRows');
+checkPermission(vatRowsMutations, 'vatRowsEdit', 'manageVatRows');
+checkPermission(vatRowsMutations, 'vatRowsRemove', 'manageVatRows');
 
 export default vatRowsMutations;

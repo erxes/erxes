@@ -1,3 +1,4 @@
+import { checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from "~/connectionResolvers";
 
 const configMutations = {
@@ -31,6 +32,6 @@ const configMutations = {
 
 };
 
-// checkPermission(configMutations, 'accountingsConfigsUpdate', 'manageAccounts');
+checkPermission(configMutations, 'accountingsConfigsUpdate', 'manageAccounts');
 
 export default configMutations;

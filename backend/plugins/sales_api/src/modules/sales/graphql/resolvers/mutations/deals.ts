@@ -109,12 +109,19 @@ export const dealMutations = {
   async dealsRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
     const item = await models.Deals.findOne({ _id });
 
     if (!item) {
       throw new Error('Deal not found');
+    }
+
+    // Check that the user is the creator or an assigned member
+    const isAssigned = (item.assignedUserIds || []).includes(user._id);
+    const isCreator = item.userId === user._id;
+    if (!isAssigned && !isCreator) {
+      throw new Error('Permission denied: you are not assigned to this deal');
     }
 
     const removed = await models.Deals.removeDeals([item._id]);
