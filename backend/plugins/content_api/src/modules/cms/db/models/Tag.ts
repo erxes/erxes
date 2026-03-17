@@ -16,7 +16,7 @@ export interface IPostTagModel extends Model<IPostTagDocument> {
 
 export const loadPostTagClass = (models: IModels) => {
   class PostTags {
-    public static createTag = async (data: IPostTag) => {
+    public static readonly createTag = async (data: IPostTag) => {
       const baseSlug = data.slug || slugify(data.name, { lower: true });
 
       // Generate unique slug
@@ -48,7 +48,7 @@ export const loadPostTagClass = (models: IModels) => {
       }
     };
 
-    public static updateTag = async (id: string, data: IPostTag) => {
+    public static readonly updateTag = async (id: string, data: IPostTag) => {
       if (data.name) {
         const baseSlug = slugify(data.name, { lower: true });
         // Generate unique slug excluding current document
@@ -68,11 +68,11 @@ export const loadPostTagClass = (models: IModels) => {
       return tag;
     };
 
-    public static deleteTag = async (id: string) => {
+    public static readonly deleteTag = async (id: string) => {
       return models.PostTags.findOneAndDelete({ _id: id });
     };
 
-    public static getPostTags = async (query: any) => {
+    public static readonly getPostTags = async (query: any) => {
       const categories = await models.PostTags.find(query)
         .sort({ name: 1 })
         .lean();

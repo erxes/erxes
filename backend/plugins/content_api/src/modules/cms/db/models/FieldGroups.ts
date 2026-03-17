@@ -69,7 +69,7 @@ export interface ICustomFieldGroupModel extends Model<ICustomFieldGroupDocument>
 
 export const loadCustomFieldGroupClass = (models: IModels) => {
   class CustomFieldGroups {
-    public static createFieldGroup = async (data: ICustomFieldGroup) => {
+    public static readonly createFieldGroup = async (data: ICustomFieldGroup) => {
       if (data.code) {
         const uniqueCode = await generateUniqueSlug(
           models.CustomFieldGroups,
@@ -89,7 +89,7 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
       return await models.CustomFieldGroups.create(data);
     };
 
-    public static updateFieldGroup = async (
+    public static readonly updateFieldGroup = async (
       id: string,
       data: ICustomFieldGroup,
     ) => {
@@ -127,11 +127,11 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
         { new: true },
       );
     };
-    public static deleteFieldGroup = async (id: string) => {
+    public static readonly deleteFieldGroup = async (id: string) => {
       return await models.CustomFieldGroups.findOneAndDelete({ _id: id });
     };
 
-    public static getCustomFieldGroups = async (query: any) => {
+    public static readonly getCustomFieldGroups = async (query: any) => {
       return await models.CustomFieldGroups.find(query)
         .sort({ name: 1 })
         .lean();

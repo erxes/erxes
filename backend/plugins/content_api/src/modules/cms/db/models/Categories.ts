@@ -19,7 +19,7 @@ export interface ICategoryModel extends Model<IPostCategoryDocument> {
 
 export const loadCategoryClass = (models: IModels) => {
   class Categories {
-    public static createCategory = async (data: IPostCategory) => {
+    public static readonly createCategory = async (data: IPostCategory) => {
       const baseSlug = slugify(data.name, { lower: true });
       data.slug = await generateUniqueSlug(
         models.Categories,
@@ -31,7 +31,7 @@ export const loadCategoryClass = (models: IModels) => {
       return category;
     };
 
-    public static updateCategory = async (id: string, data: IPostCategory) => {
+    public static readonly updateCategory = async (id: string, data: IPostCategory) => {
       if (data.name) {
         const baseSlug = slugify(data.name, { lower: true });
         data.slug = await generateUniqueSlug(
@@ -50,12 +50,12 @@ export const loadCategoryClass = (models: IModels) => {
       return category;
     };
 
-    public static deleteCategory = async (id: string) => {
+    public static readonly deleteCategory = async (id: string) => {
       const category = await models.Categories.findOneAndDelete({ _id: id });
       return category;
     };
 
-    public static getCategories = async (query: any) => {
+    public static readonly getCategories = async (query: any) => {
       const categories = await models.Categories.find(query)
         .sort({ name: 1 })
         .lean();
@@ -63,7 +63,7 @@ export const loadCategoryClass = (models: IModels) => {
       return categories;
     };
 
-    public static toggleStatus = async (id: string) => {
+    public static readonly toggleStatus = async (id: string) => {
       const category = await models.Categories.findOne({ _id: id }).lean();
       if (!category) {
         throw new Error('Category not found');

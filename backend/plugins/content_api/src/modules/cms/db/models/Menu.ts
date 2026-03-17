@@ -15,13 +15,13 @@ export interface ICMSMenuItemModel extends Model<ICMSMenuDocument> {
 
 export const loadMenuItemClass = (models: IModels) => {
   class MenuItems {
-    public static getMenuItems = async (query: any) => {
+    public static readonly getMenuItems = async (query: any) => {
       const pages = await models.MenuItems.find(query).sort({ name: 1 }).lean();
 
       return pages;
     };
 
-    public static createMenuItem = async (doc: ICMSMenu) => {
+    public static readonly createMenuItem = async (doc: ICMSMenu) => {
       if (!doc.url && doc.label) {
         const baseSlug = slugify(doc.label, { lower: true });
         doc.url = await generateUniqueSlug(
@@ -50,7 +50,7 @@ export const loadMenuItemClass = (models: IModels) => {
       return models.MenuItems.create(doc);
     };
 
-    public static updateMenuItem = async (_id: string, doc: ICMSMenu) => {
+    public static readonly updateMenuItem = async (_id: string, doc: ICMSMenu) => {
       const existingMenuItem = await models.MenuItems.findOne({ _id });
       if (!doc.url && doc.label && existingMenuItem?.url) {
         const baseSlug = slugify(doc.label, { lower: true });
@@ -70,7 +70,7 @@ export const loadMenuItemClass = (models: IModels) => {
       return menu;
     };
 
-    public static deleteMenuItem = async (_id: string) => {
+    public static readonly deleteMenuItem = async (_id: string) => {
       const page = await models.MenuItems.findOneAndDelete({ _id: _id });
       return page;
     };
