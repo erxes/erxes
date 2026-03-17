@@ -184,7 +184,7 @@ export function AddProductForm({
       ? internalShowMoreInfo
       : controlledShowMoreInfo;
   const setShowMoreInfo = (value: boolean) => {
-    if (controlledShowMoreInfo === undefined) {
+    if (controlledShowMoreInfo ?? undefined) {
       setInternalShowMoreInfo(value);
     }
     onShowMoreInfoChange?.(value);
