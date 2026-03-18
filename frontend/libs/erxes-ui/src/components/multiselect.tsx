@@ -165,7 +165,6 @@ const CommandEmpty = forwardRef<
     <div
       ref={forwardedRef}
       className={cn('px-2 py-4 text-center text-sm', className)}
-      cmdk-empty=""
       role="presentation"
       {...props}
     />
@@ -361,7 +360,7 @@ export const MultipleSelector = React.forwardRef<
       if (!creatable) return undefined;
       if (
         isOptionsExist(options, [{ value: inputValue, label: inputValue }]) ||
-        selected.find((s) => s.value === inputValue)
+        selected.some((s) => s.value === inputValue)
       ) {
         return undefined;
       }
@@ -450,9 +449,9 @@ export const MultipleSelector = React.forwardRef<
           commandProps?.className,
         )}
         shouldFilter={
-          commandProps?.shouldFilter !== undefined
-            ? commandProps.shouldFilter
-            : !onSearch
+          commandProps?.shouldFilter === undefined
+            ? !onSearch
+            : commandProps.shouldFilter
         } // When onSearch is provided, we don&lsquo;t want to filter the options. You can still override it.
         filter={commandFilter()}
       >

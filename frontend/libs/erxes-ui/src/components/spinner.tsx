@@ -33,8 +33,8 @@ const loaderVariants = cva('relative', {
 interface SpinnerContentProps
   extends VariantProps<typeof spinnerVariants>,
     VariantProps<typeof loaderVariants> {
-  className?: string;
-  containerClassName?: string;
+  readonly className?: string;
+  readonly containerClassName?: string;
 }
 
 export function Spinner({
