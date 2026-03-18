@@ -7,7 +7,11 @@ import { Intro } from './messenger/components/intro';
 import { useConnect } from './messenger/hooks/useConnect';
 import { Skeleton, REACT_APP_API_URL } from 'erxes-ui';
 import { ConversationDetails } from './messenger/components/conversation-details';
-import { connectionAtom, messengerDataAtom, unreadNotificationCountAtom } from './messenger/states';
+import {
+  connectionAtom,
+  messengerDataAtom,
+  unreadNotificationCountAtom,
+} from './messenger/states';
 import { useAtomValue } from 'jotai';
 import { Ticket } from './messenger/ticket/components/ticket';
 import { useWidgetNotifications } from './messenger/hooks/useWidgetNotifications';

@@ -112,21 +112,24 @@ const getParentAudioCtx = (): AudioContext | null => {
 const playParentSound = () => {
   const ctx = getParentAudioCtx();
   if (!ctx) return;
-  ctx.resume().then(() => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.3);
-  }).catch((_err) => {
-    // AudioContext still locked — no prior user gesture in this frame
-  });
+  ctx
+    .resume()
+    .then(() => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.3);
+    })
+    .catch((_err) => {
+      // AudioContext still locked — no prior user gesture in this frame
+    });
 };
 
 const renderBadge = (count: number) => {
@@ -347,8 +350,14 @@ window.addEventListener('message', async (event) => {
   //   listenForCommonRequests(event, messengerIframe);
 
   if (data.fromErxes && data.source === 'fromMessenger') {
-    if (message === 'playSound') { playParentSound(); return; }
-    if (message === 'unreadCount') { updateLauncherBadge(data.count ?? 0); return; }
+    if (message === 'playSound') {
+      playParentSound();
+      return;
+    }
+    if (message === 'unreadCount') {
+      updateLauncherBadge(data.count ?? 0);
+      return;
+    }
 
     const launcher = launcherIframeDocument?.querySelector('.erxes-launcher');
 

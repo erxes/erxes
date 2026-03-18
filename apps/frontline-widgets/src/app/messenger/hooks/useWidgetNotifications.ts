@@ -1,7 +1,12 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
-import { connectionAtom, integrationIdAtom, notificationsAtom, unreadNotificationCountAtom } from '../states';
+import {
+  connectionAtom,
+  integrationIdAtom,
+  notificationsAtom,
+  unreadNotificationCountAtom,
+} from '../states';
 import { useNotificationSound } from '@libs/useNotificationSound';
 import { useWebNotification } from '@libs/useWebNotification';
 import {
@@ -61,7 +66,10 @@ export const useWidgetNotifications = () => {
           conversationId: conv._id,
           message: msg,
           isRead: msg.isCustomerRead ?? false,
-          agentName: msg.user?.details?.fullName || msg.user?.details?.shortName || 'Support',
+          agentName:
+            msg.user?.details?.fullName ||
+            msg.user?.details?.shortName ||
+            'Support',
           agentAvatar: msg.user?.details?.avatar,
         });
       });
@@ -121,7 +129,10 @@ export const useWidgetNotifications = () => {
           const effectiveCustomerId =
             connection.widgetsMessengerConnect?.customerId ||
             getLocalStorageItem('customerId');
-          if (!newMessage.customerId || newMessage.customerId !== effectiveCustomerId) {
+          if (
+            !newMessage.customerId ||
+            newMessage.customerId !== effectiveCustomerId
+          ) {
             playNotificationSound();
             const senderName =
               newMessage.user?.details?.fullName ||
@@ -142,7 +153,14 @@ export const useWidgetNotifications = () => {
     );
 
     return () => unsubscribes.forEach((unsub) => unsub());
-  }, [data?.widgetsConversations, subscribeToMore, refetch, connection.widgetsMessengerConnect?.customerId, playNotificationSound, webNotify]);
+  }, [
+    data?.widgetsConversations,
+    subscribeToMore,
+    refetch,
+    connection.widgetsMessengerConnect?.customerId,
+    playNotificationSound,
+    webNotify,
+  ]);
 
   const [markRead, { loading: markingRead }] = useMutation(
     MARK_NOTIFICATIONS_READ,
