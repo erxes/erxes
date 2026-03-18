@@ -68,6 +68,15 @@ export const firstOrderColumns: ColumnDef<IOrder>[] = [
         </RelativeDateDisplay>
       );
     },
+    sortingFn: (rowA, rowB) => {
+      const dateA = rowA.original.paidDate
+        ? new Date(rowA.original.paidDate)
+        : new Date(0);
+      const dateB = rowB.original.paidDate
+        ? new Date(rowB.original.paidDate)
+        : new Date(0);
+      return dateA.getTime() - dateB.getTime();
+    },
   },
   {
     id: 'cashAmount',

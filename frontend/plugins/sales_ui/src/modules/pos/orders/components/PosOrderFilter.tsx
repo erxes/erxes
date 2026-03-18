@@ -9,7 +9,9 @@ import {
   IconX,
   IconBuilding,
 } from '@tabler/icons-react';
-import { SelectCustomer, SelectMember, SelectCompany } from 'ui-modules';
+import { SelectUsers } from './selects/SelectPosUsers';
+import { SelectCompanies } from './selects/SelectCompanies';
+import { SelectCustomers } from './selects/SelectCustomers';
 
 import {
   useMultiQueryState,
@@ -82,7 +84,7 @@ export const PosOrderFilterPopover = () => {
                 </Filter.Item>
                 <Filter.Item value="user">
                   <IconUser />
-                  Assign to
+                  Users
                 </Filter.Item>
                 <Filter.Item value="types">
                   <IconTag />
@@ -109,7 +111,7 @@ export const PosOrderFilterPopover = () => {
             </Command>
           </Filter.View>
           <Filter.View filterKey="customer">
-            <SelectCustomer.Provider
+            <SelectCustomers.Provider
               mode="single"
               value={customer || ''}
               onValueChange={(value) => {
@@ -117,11 +119,11 @@ export const PosOrderFilterPopover = () => {
                 resetFilterState();
               }}
             >
-              <SelectCustomer.Content />
-            </SelectCustomer.Provider>
+              <SelectCustomers.Content />
+            </SelectCustomers.Provider>
           </Filter.View>
           <Filter.View filterKey="company">
-            <SelectCompany.Provider
+            <SelectCompanies.Provider
               mode="single"
               value={company || ''}
               onValueChange={(value) => {
@@ -129,12 +131,12 @@ export const PosOrderFilterPopover = () => {
                 resetFilterState();
               }}
             >
-              <SelectCompany.Content />
-            </SelectCompany.Provider>
+              <SelectCompanies.Content />
+            </SelectCompanies.Provider>
           </Filter.View>
 
           <Filter.View filterKey="user">
-            <SelectMember.Provider
+            <SelectUsers.Provider
               mode="single"
               value={user || ''}
               onValueChange={(value) => {
@@ -142,8 +144,8 @@ export const PosOrderFilterPopover = () => {
                 resetFilterState();
               }}
             >
-              <SelectMember.Content />
-            </SelectMember.Provider>
+              <SelectUsers.Content />
+            </SelectUsers.Provider>
           </Filter.View>
 
           <Filter.View filterKey="types">
@@ -203,7 +205,7 @@ export const PosOrderFilter = () => {
             <IconUser />
             Customer
           </Filter.BarName>
-          <SelectCustomer.Provider
+          <SelectCustomers.Provider
             mode="single"
             value={customer || ''}
             onValueChange={(value) => {
@@ -214,21 +216,21 @@ export const PosOrderFilter = () => {
             <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Filter.BarButton filterKey={'customer'}>
-                  <SelectCustomer.Value />
+                  <SelectCustomers.Value />
                 </Filter.BarButton>
               </Popover.Trigger>
               <Combobox.Content>
-                <SelectCustomer.Content />
+                <SelectCustomers.Content />
               </Combobox.Content>
             </Popover>
-          </SelectCustomer.Provider>
+          </SelectCustomers.Provider>
         </Filter.BarItem>
         <Filter.BarItem queryKey="company">
           <Filter.BarName>
             <IconBuilding />
             Company
           </Filter.BarName>
-          <SelectCompany.Provider
+          <SelectCompanies.Provider
             mode="single"
             value={company || ''}
             onValueChange={(value) => {
@@ -239,21 +241,21 @@ export const PosOrderFilter = () => {
             <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Filter.BarButton filterKey="company">
-                  <SelectCompany.Value />
+                  <SelectCompanies.Value />
                 </Filter.BarButton>
               </Popover.Trigger>
               <Combobox.Content>
-                <SelectCompany.Content />
+                <SelectCompanies.Content />
               </Combobox.Content>
             </Popover>
-          </SelectCompany.Provider>
+          </SelectCompanies.Provider>
         </Filter.BarItem>
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            Assign To
+            Users
           </Filter.BarName>
-          <SelectMember.Provider
+          <SelectUsers.Provider
             mode="single"
             value={user || ''}
             onValueChange={(value) => {
@@ -264,14 +266,14 @@ export const PosOrderFilter = () => {
             <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Filter.BarButton filterKey="user">
-                  <SelectMember.Value />
+                  <SelectUsers.Value />
                 </Filter.BarButton>
               </Popover.Trigger>
               <Combobox.Content>
-                <SelectMember.Content />
+                <SelectUsers.Content />
               </Combobox.Content>
             </Popover>
-          </SelectMember.Provider>
+          </SelectUsers.Provider>
         </Filter.BarItem>
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>

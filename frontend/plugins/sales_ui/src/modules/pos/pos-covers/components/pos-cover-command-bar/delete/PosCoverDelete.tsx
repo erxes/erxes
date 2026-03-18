@@ -18,6 +18,14 @@ export const PosCoverDelete = ({ productIds }: { productIds: string[] }) => {
           } selected pos cover${productIds.length === 1 ? '' : 's'}?`,
         }).then(() => {
           removePosCover(productIds, {
+            onCompleted: () => {
+              toast({
+                title: 'Success',
+                description: `${productIds.length} pos cover${
+                  productIds.length === 1 ? '' : 's'
+                } deleted successfully.`,
+              });
+            },
             onError: (e: ApolloError) => {
               toast({
                 title: 'Error',

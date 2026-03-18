@@ -3,9 +3,9 @@ import { usePosByItemsList } from '@/pos/pos-by-items/hooks/UsePosByItemsList';
 import { PosByItemsColumns } from '@/pos/pos-by-items/components/PosByItemsColumn';
 import { IconShoppingCartX } from '@tabler/icons-react';
 
-export const PosByItemsRecordTable = ({ posId }: { posId?: string }) => {
+export const PosByItemsRecordTable = () => {
   const { posByItemsList, handleFetchMore, loading, pageInfo } =
-    usePosByItemsList({ posId });
+    usePosByItemsList();
 
   return (
     <RecordTable.Provider

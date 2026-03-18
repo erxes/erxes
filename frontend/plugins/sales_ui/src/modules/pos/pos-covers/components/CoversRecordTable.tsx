@@ -13,6 +13,7 @@ export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
   const { coversList, handleFetchMore, loading, pageInfo } = useCoversList({
     posId,
   });
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { sessionKey } = useIsPosCoverLeadSessionKey();
 
   return (
@@ -23,8 +24,8 @@ export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
       stickyColumns={['more', 'checkbox', 'pos']}
     >
       <RecordTable.CursorProvider
-        hasPreviousPage={pageInfo?.hasPreviousPage}
-        hasNextPage={pageInfo?.hasNextPage}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
         dataLength={coversList?.length}
         sessionKey={sessionKey}
       >
@@ -34,8 +35,11 @@ export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
+            {loading ? (
+              <RecordTable.RowSkeleton rows={32} />
+            ) : (
+              <RecordTable.RowList />
+            )}
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />

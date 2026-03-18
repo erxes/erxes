@@ -1,5 +1,5 @@
 import { IconClock, IconCalendar, IconUser } from '@tabler/icons-react';
-import { SelectMember } from 'ui-modules';
+import { SelectUsers } from './selects/SelectPosUsers';
 import {
   useMultiQueryState,
   Combobox,
@@ -39,7 +39,7 @@ export const PosCoverFilterPopover = () => {
               <Command.List className="p-1">
                 <Filter.Item value="user">
                   <IconUser />
-                  Assign to
+                  Users
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
@@ -49,7 +49,7 @@ export const PosCoverFilterPopover = () => {
             </Command>
           </Filter.View>
           <Filter.View filterKey="user">
-            <SelectMember.Provider
+            <SelectUsers.Provider
               mode="single"
               value={user || ''}
               onValueChange={(value) => {
@@ -57,8 +57,8 @@ export const PosCoverFilterPopover = () => {
                 resetFilterState();
               }}
             >
-              <SelectMember.Content />
-            </SelectMember.Provider>
+              <SelectUsers.Content />
+            </SelectUsers.Provider>
           </Filter.View>
           <Filter.View filterKey="dateRange">
             <Filter.DateView filterKey="dateRange" />
@@ -92,9 +92,9 @@ export const PosCoverFilter = () => {
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            Assign To
+            Users
           </Filter.BarName>
-          <SelectMember.Provider
+          <SelectUsers.Provider
             mode="single"
             value={user || ''}
             onValueChange={(value) => {
@@ -105,14 +105,14 @@ export const PosCoverFilter = () => {
             <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Filter.BarButton filterKey="user">
-                  <SelectMember.Value />
+                  <SelectUsers.Value />
                 </Filter.BarButton>
               </Popover.Trigger>
               <Combobox.Content>
-                <SelectMember.Content />
+                <SelectUsers.Content />
               </Combobox.Content>
             </Popover>
-          </SelectMember.Provider>
+          </SelectUsers.Provider>
         </Filter.BarItem>
         <PosCoverTotalCount />
       </Filter.Bar>

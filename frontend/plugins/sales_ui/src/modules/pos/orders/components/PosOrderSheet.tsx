@@ -9,7 +9,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import React from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
 import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
 import { usePosOrderChangePayments } from '../detail/hooks/usePosOrderChangePayments';
@@ -17,8 +17,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { PosOrderForm } from '../detail/PosOrderForm';
 import { ColumnDef } from '@tanstack/table-core';
 import { IconTag, IconShoppingCart } from '@tabler/icons-react';
-import { TPosOrder, TPosOrderFormData } from '../types/posOrderType';
-import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
+import { TPosOrderFormData } from '../types/posOrderType';
 
 const itemColumns: ColumnDef<any>[] = [
   {
@@ -27,57 +26,52 @@ const itemColumns: ColumnDef<any>[] = [
     header: () => (
       <RecordTable.InlineHead icon={IconShoppingCart} label="Product" />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={(cell.getValue() as string) || 'Unknown Product'}
-          />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip
+          value={(cell.getValue() as string) || 'Unknown Product'}
+        />
+      </RecordTableInlineCell>
+    ),
     size: 200,
   },
   {
     id: 'count',
     accessorKey: 'count',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Count" />,
-    cell: ({ cell }) => {
-      const value = cell.getValue() as number;
-      return (
-        <RecordTableInlineCell className="text-center">
-          <TextOverflowTooltip value={value?.toString() || '0'} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="text-center">
+        <TextOverflowTooltip
+          value={(cell.getValue() as number)?.toString() || '0'}
+        />
+      </RecordTableInlineCell>
+    ),
     size: 80,
   },
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Unit Price" />,
-    cell: ({ cell }) => {
-      const value = cell.getValue() as number;
-      return (
-        <RecordTableInlineCell className="text-right">
-          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="text-right">
+        <TextOverflowTooltip
+          value={(cell.getValue() as number)?.toLocaleString() || '0'}
+        />
+      </RecordTableInlineCell>
+    ),
     size: 100,
   },
   {
     id: 'amount',
     accessorKey: 'amount',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Amount" />,
-    cell: ({ cell }) => {
-      const value = cell.getValue() as number;
-      return (
-        <RecordTableInlineCell className="text-right font-medium">
-          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="text-right font-medium">
+        <TextOverflowTooltip
+          value={(cell.getValue() as number)?.toLocaleString() || '0'}
+        />
+      </RecordTableInlineCell>
+    ),
     size: 100,
   },
 ];
@@ -107,84 +101,113 @@ export const PosOrderSheet = () => {
   );
 
   const { toast } = useToast();
-
-  const { posOrder, loading } = usePosOrderQuery(posOrderId || undefined);
-  const { posId } = useParams();
-
-  const shouldFetchSummary = Boolean(posId && posId.trim() !== '');
-  const { posOrdersSummary } = usePosOrdersSummary({
-    posId: shouldFetchSummary ? posId : undefined,
-  });
+  const { posOrder, loading, refetch } = usePosOrderQuery(
+    posOrderId || undefined,
+  );
   const { posOrderChangePayments, loading: mutationLoading } =
     usePosOrderChangePayments();
 
-  const combinedSummary = React.useMemo(() => {
-    const summary = { ...(posOrdersSummary || {}) };
-
-    if (posOrder && typeof posOrder === 'object') {
-      try {
-        (Object.keys(posOrder) as Array<keyof TPosOrder | string>).forEach(
-          (key) => {
-            if (
-              key !== '_id' &&
-              key !== '__typename' &&
-              typeof posOrder[key as keyof TPosOrder] === 'number'
-            ) {
-              summary[key as keyof TPosOrder] =
-                posOrder[key as keyof TPosOrder];
-            }
-          },
-        );
-      } catch (error) {
-        console.error('Error processing posOrder for summary:', error);
-      }
-    }
-
-    if (posOrder?.paidAmounts && Array.isArray(posOrder.paidAmounts)) {
-      posOrder.paidAmounts.forEach((paidAmount: any) => {
-        if (paidAmount.type && typeof paidAmount.amount === 'number') {
-          summary[paidAmount.type] = paidAmount.amount;
-        }
-      });
-    }
-
-    return summary;
-  }, [posOrdersSummary, posOrder]);
-
-  const { methods } = usePosOrderForm(posOrder?.paidAmounts, combinedSummary);
+  const paidAmountsSummary = React.useMemo(() => {
+    if (!posOrder?.paidAmounts || !Array.isArray(posOrder.paidAmounts))
+      return {};
+    return posOrder.paidAmounts.reduce(
+      (acc: Record<string, number>, item: any) => {
+        if (item?.type) acc[item.type] = item.amount ?? 0;
+        return acc;
+      },
+      {},
+    );
+  }, [posOrder?.paidAmounts]);
+  const { methods } = usePosOrderForm(
+    posOrder?.paidAmounts,
+    paidAmountsSummary,
+  );
 
   const submitHandler: SubmitHandler<TPosOrderFormData> = React.useCallback(
     async (data) => {
       if (!posOrderId) return;
 
       try {
+        if (
+          posOrder?.status === 'returned' ||
+          posOrder?.status === 'completed'
+        ) {
+          toast({
+            title: 'Cannot modify payment',
+            description: 'This order has been returned and cannot be modified.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        const validPaymentTypes = new Set(Object.keys(paidAmountsSummary));
+        const paidAmounts = Object.entries(data)
+          .filter(
+            ([key, value]) =>
+              validPaymentTypes.has(key) &&
+              value !== undefined &&
+              value !== null,
+          )
+          .map(([type, amount]) => ({ type, amount: Number(amount) || 0 }));
+
+        const expectedTotal = posOrder?.totalAmount ?? 0;
+        const sum = paidAmounts.reduce((acc, p) => acc + p.amount, 0);
+
+        if (expectedTotal > 0 && sum !== expectedTotal) {
+          toast({
+            title: 'Amount mismatch',
+            description: `Sum of payments (${sum.toLocaleString()}) must equal total amount (${expectedTotal.toLocaleString()}).`,
+            variant: 'destructive',
+          });
+          return;
+        }
+
         await posOrderChangePayments({
-          variables: {
-            id: posOrderId,
-          },
+          variables: { id: posOrderId, paidAmounts },
         });
+
+        await refetch();
+
         toast({ title: 'Order updated successfully', variant: 'success' });
-        methods.reset();
         updatePosOrderId('');
       } catch (error) {
+        let errorMessage = 'Unknown error';
+        if (error instanceof Error) {
+          if (error.message.includes('Already returned')) {
+            errorMessage =
+              'This order has been returned and payment changes are not allowed.';
+          } else if (error.message.includes('not balanced')) {
+            errorMessage = `Payments must sum to the total amount (${
+              posOrder?.totalAmount?.toLocaleString() || 0
+            }).`;
+          } else {
+            errorMessage = error.message;
+          }
+        }
         toast({
           title: 'Failed to update order',
           variant: 'destructive',
-          description: error instanceof Error ? error.message : 'Unknown error',
+          description: errorMessage,
         });
       }
     },
-    [posOrderId, posOrderChangePayments, toast, methods, updatePosOrderId],
+    [
+      posOrderId,
+      posOrder?.status,
+      posOrder?.totalAmount,
+      posOrderChangePayments,
+      refetch,
+      toast,
+      updatePosOrderId,
+      paidAmountsSummary,
+    ],
   );
 
   return (
     <Sheet
       open={!!posOrderId}
       onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          methods.reset();
-          updatePosOrderId('');
-        }
+        if (!isOpen) updatePosOrderId('');
       }}
     >
       <Sheet.View className="p-0 sm:max-w-4xl">
@@ -251,7 +274,7 @@ export const PosOrderSheet = () => {
                   )}
                   <PosOrderForm
                     control={methods.control}
-                    summary={posOrdersSummary}
+                    summary={paidAmountsSummary}
                   />
                 </div>
               )}

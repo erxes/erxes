@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-export const POS_COVER_DETAIL_QUERY = gql`
-  query PosCoverDetail($id: String!) {
-    posCoverDetail(_id: $id) {
+export const POS_COVER_EDIT_MUTATION = gql`
+  mutation PosCoversEdit($id: String!, $note: String) {
+    posCoversEdit(_id: $id, note: $note) {
       _id
       posToken
       beginDate

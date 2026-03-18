@@ -1,4 +1,4 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import { MutationHookOptions, useMutation, ApolloError } from '@apollo/client';
 import { DELETE_POS_COVER_MUTATION } from '../graphql/mutations/posCoverMutation';
 import { posCovers } from '../graphql/queries/queries';
 
@@ -14,23 +14,14 @@ const updateCacheAfterRemove = (cache: any, posCoverIds: string[]) => {
     const data = cache.readQuery(queryOptions);
     if (!data?.posCovers) return;
 
-    const updatedList = data.posCovers.list.filter(
+    const updatedList = data.posCovers.filter(
       (posCover: any) => !posCoverIds.includes(posCover._id),
-    );
-
-    const updatedTotalCount = Math.max(
-      0,
-      data.posCovers.totalCount - posCoverIds.length,
     );
 
     cache.writeQuery({
       ...queryOptions,
       data: {
-        posCovers: {
-          ...data.posCovers,
-          list: updatedList,
-          totalCount: updatedTotalCount,
-        },
+        posCovers: updatedList,
       },
     });
   } catch (e) {
@@ -41,15 +32,31 @@ const updateCacheAfterRemove = (cache: any, posCoverIds: string[]) => {
 export const useRemovePosCover = () => {
   const [_removePosCover, { loading }] = useMutation(DELETE_POS_COVER_MUTATION);
 
-  const removePosCover = (
+  const removePosCover = async (
     posCoverIds: string[],
     options?: MutationHookOptions,
   ) => {
-    _removePosCover({
-      ...options,
-      variables: { id: posCoverIds[0], ...options?.variables },
-      update: (cache) => updateCacheAfterRemove(cache, posCoverIds),
-    });
+    try {
+      for (let i = 0; i < posCoverIds.length; i++) {
+        const id = posCoverIds[i];
+        const isLast = i === posCoverIds.length - 1;
+
+        await _removePosCover({
+          variables: { id },
+          update: isLast
+            ? (cache) => updateCacheAfterRemove(cache, posCoverIds)
+            : undefined,
+        });
+      }
+
+      if (options?.onCompleted) {
+        options.onCompleted(undefined, undefined);
+      }
+    } catch (error) {
+      if (options?.onError) {
+        options.onError(error as ApolloError);
+      }
+    }
   };
 
   return { removePosCover, loading };

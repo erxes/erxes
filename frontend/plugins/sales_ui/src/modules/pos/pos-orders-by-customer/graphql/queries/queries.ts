@@ -47,6 +47,51 @@ export const POS_ORDERS_BY_CUSTOMER = gql`
         branch
         department
         subBranch
+        user {
+          _id
+          createdAt
+          username
+          email
+          isActive
+
+          links
+          status
+          chatStatus
+          emailSignatures
+          getNotificationByEmail
+
+          onboardedPlugins
+          groupIds
+          permissionGroupIds
+
+          isSubscribed
+          isShowNotification
+          propertiesData
+          isOwner
+          configs
+          configsConstants
+
+          departmentIds
+          brandIds
+
+          branchIds
+
+          positionIds
+
+          score
+          leaderBoardPosition
+          employeeId
+          isOnboarded
+          cursor
+        }
+        customer {
+          _id
+          code
+          primaryPhone
+          firstName
+          primaryEmail
+          lastName
+        }
         syncedErkhet
         description
         isPre
@@ -59,6 +104,3 @@ export const POS_ORDERS_BY_CUSTOMER = gql`
     }
   }
 `;
-export default {
-  POS_ORDERS_BY_CUSTOMER,
-};

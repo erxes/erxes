@@ -3,7 +3,7 @@ import { POS_ORDER_DETAIL_QUERY } from '../graphql/queries/posOrderDetailQuery';
 import { TPosOrder } from '../../types/posOrderType';
 
 export const usePosOrderQuery = (id?: string) => {
-  const { data, loading, error } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     posOrderDetail: TPosOrder;
   }>(POS_ORDER_DETAIL_QUERY, {
     variables: { id },
@@ -15,5 +15,6 @@ export const usePosOrderQuery = (id?: string) => {
     posOrder: data?.posOrderDetail,
     loading,
     error,
+    refetch,
   };
 };
