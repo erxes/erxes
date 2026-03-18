@@ -15,11 +15,11 @@ export interface IOTATourModel extends Model<IOTATourDocument> {
 
 export const loadOTATourClass = (models: IModels) => {
   class OTATours {
-    public static createTour = async (data: IOTATour) => {
+    public static readonly createTour = async (data: IOTATour) => {
       return models.OTATours.create(data);
     };
 
-    public static updateTour = async (_id: string, data: Partial<IOTATour>) => {
+    public static readonly updateTour = async (_id: string, data: Partial<IOTATour>) => {
       return models.OTATours.findOneAndUpdate(
         { _id },
         { $set: data },
@@ -27,7 +27,7 @@ export const loadOTATourClass = (models: IModels) => {
       );
     };
 
-    public static deleteTour = async (_id: string) => {
+    public static readonly deleteTour = async (_id: string) => {
       return models.OTATours.findOneAndDelete({ _id });
     };
   }

@@ -14,11 +14,11 @@ export interface IHotelModel extends Model<IOTAHotelDocument> {
 
 export const loadHotelClass = (models: IModels) => {
   class Hotels {
-    public static createHotel = async (data: IOTAHotel) => {
+    public static readonly createHotel = async (data: IOTAHotel) => {
       return models.Hotels.create(data);
     };
 
-    public static updateHotel = async (_id: string, data: IOTAHotel) => {
+    public static readonly updateHotel = async (_id: string, data: IOTAHotel) => {
       const hotel = await models.Hotels.findOneAndUpdate(
         { _id },
         { $set: data },
@@ -26,22 +26,22 @@ export const loadHotelClass = (models: IModels) => {
       return hotel;
     };
 
-    public static deleteHotel = async (_id: string) => {
+    public static readonly deleteHotel = async (_id: string) => {
       const hotel = await models.Hotels.findOneAndDelete({ _id });
       return hotel;
     };
 
-    public static getHotels = async (query: any) => {
+    public static readonly getHotels = async (query: any) => {
       return models.Hotels.find(query).lean();
     };
 
-    public static togglePublish = async (_id: string) => {
+    public static readonly togglePublish = async (_id: string) => {
       const hotel = await models.Hotels.findOne({ _id }).lean();
       if (!hotel) {
         throw new Error('Hotel not found');
       }
 
-      hotel.isPublished = hotel.isPublished ? false : true;
+      hotel.isPublished = !hotel.isPublished;
       const updatedHotel = await models.Hotels.findOneAndUpdate(
         { _id },
         { $set: hotel },
