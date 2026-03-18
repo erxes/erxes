@@ -59,7 +59,9 @@ export const MessageInput = ({
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
   const { upload, isLoading } = useUpload();
-  const [sendAdminTypingInfo] = useMutation(CONVERSATIONS_ADMIN_SEND_TYPING_INFO);
+  const [sendAdminTypingInfo] = useMutation(
+    CONVERSATIONS_ADMIN_SEND_TYPING_INFO,
+  );
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -216,12 +218,12 @@ export const MessageInput = ({
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       sendAdminTypingInfo({
         variables: { conversationId, text: 'typing' },
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
       }).catch(() => {});
       typingTimeoutRef.current = setTimeout(() => {
         sendAdminTypingInfo({
           variables: { conversationId, text: '' },
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
         }).catch(() => {});
       }, 3000);
     }

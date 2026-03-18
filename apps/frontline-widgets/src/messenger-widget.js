@@ -178,19 +178,22 @@
   var _playParentSound = () => {
     var ctx = _getParentAudioCtx();
     if (!ctx) return;
-    ctx.resume().then(() => {
-      var osc = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.3);
-    }).catch(() => {});
+    ctx
+      .resume()
+      .then(() => {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.3);
+      })
+      .catch(() => {});
   };
   var _updateLauncherBadge = (count) => {
     // Badge lives in the parent document so it is never clipped by the
@@ -235,16 +238,16 @@
   s.allow = 'camera *; microphone *; clipboard-read; clipboard-write';
   var i;
   function P() {
-    A && document.getElementsByTagName('head')[0].removeChild(A),
+    (A && document.getElementsByTagName('head')[0].removeChild(A),
       (l = document.createElement('meta')),
       (l.name = 'viewport'),
       (l.content =
         'initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width'),
-      document.getElementsByTagName('head')[0].appendChild(l);
+      document.getElementsByTagName('head')[0].appendChild(l));
   }
   function T() {
-    l && document.getElementsByTagName('head')[0].removeChild(l),
-      A && document.getElementsByTagName('head')[0].appendChild(A);
+    (l && document.getElementsByTagName('head')[0].removeChild(l),
+      A && document.getElementsByTagName('head')[0].appendChild(A));
   }
   var C = (t) => {
       if ((t.type === 'keyup' && t.key === 'Enter') || t.type === 'click') {
@@ -265,12 +268,12 @@
           i)
         ) {
           let e = i.createElement('div');
-          e.setAttribute('role', 'button'),
+          (e.setAttribute('role', 'button'),
             e.setAttribute('class', 'erxes-launcher'),
             e.setAttribute('tabindex', '0'),
             i.body.appendChild(e),
             e.addEventListener('click', C),
-            e.addEventListener('keyup', C);
+            e.addEventListener('keyup', C));
         }
       }),
     b = document.createElement('div');
@@ -291,12 +294,12 @@
           return;
         }
         let t = s.contentWindow;
-        (s.style.display = 'block'), V(t), F(t), (a.style.opacity = '1');
+        ((s.style.display = 'block'), V(t), F(t), (a.style.opacity = '1'));
       }),
     S = () => localStorage.getItem('erxes') || '{}',
     I = (t, e) => {
       let n = window.Erxes || {};
-      (n[t] = e), (window.Erxes = n);
+      ((n[t] = e), (window.Erxes = n));
     },
     V = (t) => {
       I('showMessenger', () => {
@@ -335,7 +338,7 @@
             return console.error('Messenger: launcher element is not defined');
           let { color: p, logo: g } = d,
             r = g;
-          (x = !!r),
+          ((x = !!r),
             (u = x ? `url(${v}/read-file?key=${encodeURIComponent(r)})` : u),
             (o.style.cssText = `
       width: 48px;
@@ -363,7 +366,7 @@
       background-image: ${u};
       background-size: ${x ? 'cover' : '18px'};
       background-position: center;
-    `);
+    `));
         }
       });
   window.addEventListener('message', O);
@@ -372,12 +375,18 @@
       let { data: e } = t,
         { isVisible: n, message: m, isSmallContainer: d } = e || {};
       if (e.fromErxes && e.source === 'fromMessenger') {
-        if (m === 'playSound') { _playParentSound(); return; }
-        if (m === 'unreadCount') { _updateLauncherBadge(e.unreadCount || 0); return; }
+        if (m === 'playSound') {
+          _playParentSound();
+          return;
+        }
+        if (m === 'unreadCount') {
+          _updateLauncherBadge(e.unreadCount || 0);
+          return;
+        }
         let o = i == null ? void 0 : i.querySelector('.erxes-launcher');
         if (!o)
           return console.error('Messenger: launcher element is not defined');
-        y && document.body.classList.toggle('widget-mobile', n),
+        (y && document.body.classList.toggle('widget-mobile', n),
           m === 'messenger' &&
             (y && n ? P() : T(),
             n
@@ -390,7 +399,7 @@
                 (o.style.backgroundImage = u),
                 (o.style.backgroundSize = x ? 'cover' : '18px'),
                 (o.innerHTML = ''))),
-          w.classList.toggle('small', d);
+          w.classList.toggle('small', d));
       }
     }),
   );

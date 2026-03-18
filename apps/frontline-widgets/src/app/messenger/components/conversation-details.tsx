@@ -74,13 +74,14 @@ export const ConversationDetails = () => {
     botShowInitialMessage,
     messages: messagesConfig,
   } = messengerData || {};
-  const { conversationDetail, loading, isBotTyping, isAgentTyping } = useConversationDetail({
-    variables: {
-      _id: conversationId,
-      integrationId: messengerConnectData?.integrationId ?? '',
-    },
-    skip: !conversationId || !messengerConnectData?.integrationId,
-  });
+  const { conversationDetail, loading, isBotTyping, isAgentTyping } =
+    useConversationDetail({
+      variables: {
+        _id: conversationId,
+        integrationId: messengerConnectData?.integrationId ?? '',
+      },
+      skip: !conversationId || !messengerConnectData?.integrationId,
+    });
   const { messages } = conversationDetail || {};
 
   const messagesByDate = useMemo(() => {

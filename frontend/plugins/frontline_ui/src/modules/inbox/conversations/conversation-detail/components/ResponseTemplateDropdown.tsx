@@ -36,7 +36,9 @@ const TemplateItem = ({
     tabIndex={0}
     aria-selected={isSelected}
     onClick={() => onSelect(suggestion.content, suggestion._id)}
-    onKeyDown={(e) => e.key === 'Enter' && onSelect(suggestion.content, suggestion._id)}
+    onKeyDown={(e) =>
+      e.key === 'Enter' && onSelect(suggestion.content, suggestion._id)
+    }
     className={`
       px-4 py-3 cursor-pointer
       transition-all duration-150

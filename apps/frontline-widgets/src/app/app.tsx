@@ -23,7 +23,10 @@ export function App() {
 
   // Keep subscriptions alive at the app level so badge/sound fire regardless
   // of which tab is active or whether the messenger panel is visible.
-  useConversations({ setupSubscriptions: true, fetchPolicy: 'cache-and-network' });
+  useConversations({
+    setupSubscriptions: true,
+    fetchPolicy: 'cache-and-network',
+  });
 
   // Manages unread count and keeps the parent launcher badge in sync.
   // `isVisible` / `toggleMessenger` replace the previous local isMessengerVisible state.

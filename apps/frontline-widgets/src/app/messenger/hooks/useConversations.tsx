@@ -1,4 +1,8 @@
-import { connectionAtom, integrationIdAtom, lastUnreadMessageAtom } from '../states';
+import {
+  connectionAtom,
+  integrationIdAtom,
+  lastUnreadMessageAtom,
+} from '../states';
 import { GET_WIDGETS_CONVERSATIONS } from '../graphql/queries';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useAtomValue, useSetAtom } from 'jotai';

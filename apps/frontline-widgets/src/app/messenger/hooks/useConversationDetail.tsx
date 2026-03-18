@@ -37,7 +37,9 @@ export const useConversationDetail = (
   const setLastUnreadMessage = useSetAtom(lastUnreadMessageAtom);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [isAgentTyping, setIsAgentTyping] = useState(false);
-  const agentTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const agentTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const { data, loading, refetch, subscribeToMore } = useQuery<IQueryResponse>(
     GET_CONVERSATION_DETAIL,

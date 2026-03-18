@@ -3,7 +3,10 @@ import {
   IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
 import { IConversationDocument } from '@/inbox/@types/conversations';
-import { AUTO_BOT_MESSAGES, CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  AUTO_BOT_MESSAGES,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';

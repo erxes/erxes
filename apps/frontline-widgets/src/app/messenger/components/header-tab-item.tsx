@@ -23,7 +23,6 @@ export function HeaderTabItem({ Icon, value, disabled, title }: IHeaderItem) {
           >
             <Icon size={16} />
           </Button>
-
         </Tooltip.Trigger>
         <Tooltip.Content side="left">{title}</Tooltip.Content>
       </Tooltip>

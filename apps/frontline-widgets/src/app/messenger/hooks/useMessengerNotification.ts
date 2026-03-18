@@ -51,21 +51,24 @@ window.addEventListener('keydown', unlockAudio, true);
 const playNotificationSound = () => {
   const ctx = getAudioCtx();
   if (!ctx) return;
-  ctx.resume().then(() => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.3);
-  }).catch(() => {
-    // context still locked — no prior user gesture in this iframe
-  });
+  ctx
+    .resume()
+    .then(() => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.3);
+    })
+    .catch(() => {
+      // context still locked — no prior user gesture in this iframe
+    });
 };
 
 /**
@@ -121,5 +124,11 @@ export const useMessengerNotification = (): IMessengerNotification => {
   const closeMessenger = () => setIsVisible(false);
   const toggleMessenger = () => setIsVisible((prev) => !prev);
 
-  return { unreadCount, isVisible, openMessenger, closeMessenger, toggleMessenger };
+  return {
+    unreadCount,
+    isVisible,
+    openMessenger,
+    closeMessenger,
+    toggleMessenger,
+  };
 };

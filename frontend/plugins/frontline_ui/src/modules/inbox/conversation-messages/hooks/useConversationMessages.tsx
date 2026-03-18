@@ -17,7 +17,9 @@ export const useConversationMessages = (
 ) => {
   const apolloClient = useApolloClient();
   const [isCustomerTyping, setIsCustomerTyping] = useState(false);
-  const customerTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const customerTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const { data, loading, fetchMore, subscribeToMore, client } = useQuery<{
     conversationMessages: IMessage[];
