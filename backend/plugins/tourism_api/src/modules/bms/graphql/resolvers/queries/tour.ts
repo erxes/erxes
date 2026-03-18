@@ -26,6 +26,9 @@ function buildDateSelector(
   }
 }
 
+const escapeRegExp = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 async function buildSubCategoryIds(
   models: IContext['models'],
   categoryIds?: string[],
@@ -36,11 +39,25 @@ async function buildSubCategoryIds(
 
   let allSubcategories: string[] = [...categoryIds];
   let ids: string[] = [...categoryIds];
+  const visited = new Set<string>(categoryIds);
 
   while (ids.length > 0) {
-    const newIds = (
-      await models.BmsTourCategories.find({ parentId: { $in: ids } })
-    ).map((x) => x._id);
+    const children = await models.BmsTourCategories.find(
+      { parentId: { $in: ids } },
+      { _id: 1 },
+    );
+
+    const newIds = children
+      .map((x) => String(x._id))
+      .filter((id) => !visited.has(id));
+
+    if (!newIds.length) {
+      break;
+    }
+
+    for (const id of newIds) {
+      visited.add(id);
+    }
 
     allSubcategories = [...newIds, ...allSubcategories];
     ids = newIds;
@@ -104,7 +121,7 @@ const tourQueries: Record<string, Resolver> = {
       selectedCategoryIds,
     );
     if (name) {
-      selector.name = { $regex: name, $options: 'i' };
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -136,7 +153,7 @@ const tourQueries: Record<string, Resolver> = {
     return { list, totalCount, pageInfo };
   },
 
-  async bmsToursTotalCount(
+  bmsToursTotalCount(
     _root: any,
     { branchId }: { branchId?: string },
     { models }: IContext,
@@ -177,7 +194,7 @@ const tourQueries: Record<string, Resolver> = {
       selectedCategoryIds,
     );
     if (name) {
-      selector.name = { $regex: name, $options: 'i' };
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -212,7 +229,7 @@ const tourQueries: Record<string, Resolver> = {
     return { list, totalCount, pageInfo };
   },
 
-  async cpBmsToursTotalCount(
+  cpBmsToursTotalCount(
     _root: any,
     { branchId, webId }: { branchId?: string; webId?: string },
     { models }: IContext,
@@ -229,7 +246,7 @@ const tourQueries: Record<string, Resolver> = {
     return models.Tours.countDocuments(selector);
   },
 
-  async bmsTourDetail(
+  bmsTourDetail(
     _root: any,
     { _id }: { _id: string },
     { models }: IContext,
@@ -237,7 +254,7 @@ const tourQueries: Record<string, Resolver> = {
     return models.Tours.findById(_id);
   },
 
-  async bmsTourCategories(_root, { parentId }, { models }: IContext) {
+  bmsTourCategories(_root, { parentId }, { models }: IContext) {
     const selector: any = {};
 
     if (parentId) {
@@ -249,7 +266,7 @@ const tourQueries: Record<string, Resolver> = {
     return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });
   },
 
-  async cpBmsTourDetail(
+  cpBmsTourDetail(
     _root: any,
     { _id }: { _id: string },
     { models }: IContext,
@@ -284,7 +301,7 @@ const tourQueries: Record<string, Resolver> = {
       selectedCategoryIds,
     );
     if (name) {
-      selector.name = { $regex: name, $options: 'i' };
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -379,7 +396,7 @@ const tourQueries: Record<string, Resolver> = {
       selectedCategoryIds,
     );
     if (name) {
-      selector.name = { $regex: name, $options: 'i' };
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -450,8 +467,6 @@ const tourQueries: Record<string, Resolver> = {
   },
 
   async bmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
-    const selector: any = {};
-
     const list = await models.Tours.find({
       groupCode: groupCode,
       status: status,
@@ -465,8 +480,6 @@ const tourQueries: Record<string, Resolver> = {
     { groupCode, status },
     { models }: IContext,
   ) {
-    const selector: any = {};
-
     const list = await models.Tours.find({
       groupCode: groupCode,
       status: status,

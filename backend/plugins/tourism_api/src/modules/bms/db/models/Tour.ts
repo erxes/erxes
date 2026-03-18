@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 
 import { IModels } from '~/connectionResolvers';
 import {
@@ -17,13 +17,17 @@ export interface ITourModel extends Model<ITourDocument> {
 }
 
 export interface IBmsTourCategoryModel extends Model<ITourCategoryDocument> {
-  getTourCategory(selector: any): Promise<ITourCategoryDocument>;
+  getTourCategory(
+    selector: FilterQuery<ITourCategoryDocument>,
+  ): Promise<ITourCategoryDocument>;
   createTourCategory(doc: ITourCategory): Promise<ITourCategoryDocument>;
   updateTourCategory(
     _id: string,
     doc: ITourCategory,
   ): Promise<ITourCategoryDocument>;
-  removeTourCategory(ids: string[]): Promise<any>;
+  removeTourCategory(
+    ids: string[],
+  ): Promise<{ acknowledged?: boolean; deletedCount?: number }>;
 }
 
 export const loadTourClass = (models: IModels) => {
@@ -75,7 +79,9 @@ export const loadTourClass = (models: IModels) => {
 
 export const loadTourCategoryClass = (models: IModels) => {
   class TourCategory {
-    public static async getTourCategory(selector: any) {
+    public static async getTourCategory(
+      selector: FilterQuery<ITourCategoryDocument>,
+    ) {
       const category = await models.BmsTourCategories.findOne(selector);
 
       if (!category) {
@@ -90,7 +96,11 @@ export const loadTourCategoryClass = (models: IModels) => {
         ? await models.BmsTourCategories.findOne({ _id: doc.parentId }).lean()
         : undefined;
 
-      doc.order = await this.generateOrder(parentCategory, doc);
+      if (doc.parentId && !parentCategory) {
+        throw new Error('Parent category not found');
+      }
+
+      doc.order = this.generateOrder(parentCategory, doc);
 
       return models.BmsTourCategories.create({
         ...doc,
@@ -111,15 +121,46 @@ export const loadTourCategoryClass = (models: IModels) => {
         ? await models.BmsTourCategories.findOne({ _id: parentIdToUse }).lean()
         : undefined;
 
-      if (parentCategory && parentCategory.parentId === _id) {
-        throw new Error('Cannot change category');
+      if (parentIdToUse && !parentCategory) {
+        throw new Error('Parent category not found');
+      }
+
+      if (parentIdToUse) {
+        let currentCategory = parentCategory;
+        const visited = new Set<string>();
+
+        while (currentCategory) {
+          const currentId = String(currentCategory._id);
+
+          if (visited.has(currentId)) {
+            throw new Error(
+              'Circular reference detected in category hierarchy',
+            );
+          }
+
+          if (currentId === _id) {
+            throw new Error(
+              'Cannot set parent: would create circular reference',
+            );
+          }
+
+          visited.add(currentId);
+
+          if (!currentCategory.parentId) {
+            break;
+          }
+
+          currentCategory = await models.BmsTourCategories.findOne({
+            _id: currentCategory.parentId,
+          }).lean();
+        }
       }
       const mergedDoc = {
         ...existingCategory.toObject(),
         ...doc,
       };
       const oldOrder = existingCategory.order;
-      doc.order = await this.generateOrder(parentCategory, mergedDoc);
+      doc.order = this.generateOrder(parentCategory, mergedDoc);
       doc.modifiedAt = new Date();
 
       await models.BmsTourCategories.updateOne({ _id }, { $set: doc });
@@ -171,7 +212,6 @@ export const loadTourCategoryClass = (models: IModels) => {
         $or: [
           { categories: { $in: uniqueIds } },
           { categoryIds: { $in: uniqueIds } },
-          { tagIds: { $in: uniqueIds } },
           { categoryId: { $in: uniqueIds } },
         ],
       });
@@ -188,7 +228,7 @@ export const loadTourCategoryClass = (models: IModels) => {
       return models.BmsTourCategories.deleteMany({ _id: { $in: uniqueIds } });
     }
 
-    public static async generateOrder(parentCategory, doc) {
+    public static generateOrder(parentCategory, doc) {
       if (!doc?.code) {
         return '';
       }
