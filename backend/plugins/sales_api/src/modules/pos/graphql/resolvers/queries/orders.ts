@@ -683,139 +683,139 @@ const queries = {
   },
 
   posProducts: async (_root, params, { models, user, subdomain }: IContext) => {
-  const orderQuery = await generateFilterPosQuery(models, params, user._id);
+    const orderQuery = await generateFilterPosQuery(models, params, user._id);
 
-  const page = Math.max(1, Number(params.page) || 1);
-  const limit = Math.max(1, Number(params.perPage) || 20);
-  const skip = (page - 1) * limit;
+    const page = Math.max(1, Number(params.page) || 1);
+    const limit = Math.max(1, Number(params.perPage) || 20);
+    const skip = (page - 1) * limit;
 
-  const productQuery: any = {};
+    const productQuery: any = {};
 
-  // ✅ Category filter
-  if (params.categoryId) {
-    const category = await sendTRPCMessage({
-      subdomain,
-      method: 'query',
-      pluginName: 'core',
-      module: 'productCategories',
-      action: 'findOne',
-      input: {
-        _id: params.categoryId,
-        status: { $in: [null, 'active'] },
-      },
-      defaultValue: {},
-    });
-
-    const productCategories = await sendTRPCMessage({
-      subdomain,
-      method: 'query',
-      pluginName: 'core',
-      module: 'productCategories',
-      action: 'find',
-      input: {
-        regData: category.order,
-      },
-      defaultValue: [],
-    });
-
-    productQuery.categoryId = {
-      $in: productCategories.map((p) => p._id),
-    };
-  }
-
-  // ✅ Search filter
-  if (params.searchValue) {
-    productQuery.$or = [
-      {
-        name: {
-          $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
+    // ✅ Category filter
+    if (params.categoryId) {
+      const category = await sendTRPCMessage({
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'productCategories',
+        action: 'findOne',
+        input: {
+          _id: params.categoryId,
+          status: { $in: [null, 'active'] },
         },
-      },
-      {
-        code: {
-          $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
+        defaultValue: {},
+      });
+
+      const productCategories = await sendTRPCMessage({
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'productCategories',
+        action: 'find',
+        input: {
+          regData: category.order,
         },
-      },
-    ];
-  }
+        defaultValue: [],
+      });
 
-  // ❗ STEP 1: get ALL matching products (no pagination yet)
-  const allProducts = await sendTRPCMessage({
-    subdomain,
-    method: 'query',
-    pluginName: 'core',
-    module: 'products',
-    action: 'find',
-    input: {
-      query: productQuery,
-      sort: {},
-    },
-  });
-
-  const productIds = allProducts.map((p) => p._id);
-
-  // ❗ STEP 2: aggregate ALL stats first
-  const items = await models.PosOrders.aggregate([
-    { $match: orderQuery },
-    { $unwind: '$items' },
-    { $match: { 'items.productId': { $in: productIds } } },
-    {
-      $project: {
-        productId: '$items.productId',
-        count: '$items.count',
-        date: '$paidDate',
-        amount: { $multiply: ['$items.unitPrice', '$items.count'] },
-      },
-    },
-    {
-      $group: {
-        _id: { productId: '$productId', hour: { $hour: '$date' } },
-        count: { $sum: '$count' },
-        amount: { $sum: '$amount' },
-      },
-    },
-  ]);
-
-  const diffZone = Number(process.env.TIMEZONE || 0);
-
-  // ❗ STEP 3: build enriched products
-  const enrichedProducts = allProducts.map((product) => {
-    const productItems =
-      items.filter((i) => i._id.productId === product._id) || [];
-
-    const counts: any = {};
-    let totalCount = 0;
-    let totalAmount = 0;
-
-    for (const item of productItems) {
-      const hour = Number(item._id.hour) + diffZone;
-      counts[hour] = item.count;
-      totalCount += item.count;
-      totalAmount += item.amount;
+      productQuery.categoryId = {
+        $in: productCategories.map((p) => p._id),
+      };
     }
 
+    // ✅ Search filter
+    if (params.searchValue) {
+      productQuery.$or = [
+        {
+          name: {
+            $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
+          },
+        },
+        {
+          code: {
+            $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
+          },
+        },
+      ];
+    }
+
+    // ❗ STEP 1: get ALL matching products (no pagination yet)
+    const allProducts = await sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      input: {
+        query: productQuery,
+        sort: {},
+      },
+    });
+
+    const productIds = allProducts.map((p) => p._id);
+
+    // ❗ STEP 2: aggregate ALL stats first
+    const items = await models.PosOrders.aggregate([
+      { $match: orderQuery },
+      { $unwind: '$items' },
+      { $match: { 'items.productId': { $in: productIds } } },
+      {
+        $project: {
+          productId: '$items.productId',
+          count: '$items.count',
+          date: '$paidDate',
+          amount: { $multiply: ['$items.unitPrice', '$items.count'] },
+        },
+      },
+      {
+        $group: {
+          _id: { productId: '$productId', hour: { $hour: '$date' } },
+          count: { $sum: '$count' },
+          amount: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    const diffZone = Number(process.env.TIMEZONE || 0);
+
+    // ❗ STEP 3: build enriched products
+    const enrichedProducts = allProducts.map((product) => {
+      const productItems =
+        items.filter((i) => i._id.productId === product._id) || [];
+
+      const counts: any = {};
+      let totalCount = 0;
+      let totalAmount = 0;
+
+      for (const item of productItems) {
+        const hour = Number(item._id.hour) + diffZone;
+        counts[hour] = item.count;
+        totalCount += item.count;
+        totalAmount += item.amount;
+      }
+
+      return {
+        ...product,
+        counts,
+        count: totalCount,
+        amount: totalAmount,
+      };
+    });
+
+    // ❗ STEP 4: filter BEFORE pagination (IMPORTANT FIX)
+    const filteredProducts = enrichedProducts.filter(
+      (p) => !(p.status === 'deleted' && !p.count && !p.amount),
+    );
+
+    const totalCount = filteredProducts.length;
+
+    // ❗ STEP 5: apply pagination LAST (correct place)
+    const paginatedProducts = filteredProducts.slice(skip, skip + limit);
+
     return {
-      ...product,
-      counts,
-      count: totalCount,
-      amount: totalAmount,
+      totalCount,
+      products: paginatedProducts,
     };
-  });
-
-  // ❗ STEP 4: filter BEFORE pagination (IMPORTANT FIX)
-  const filteredProducts = enrichedProducts.filter(
-    (p) => !(p.status === 'deleted' && !p.count && !p.amount),
-  );
-
-  const totalCount = filteredProducts.length;
-
-  // ❗ STEP 5: apply pagination LAST (correct place)
-  const paginatedProducts = filteredProducts.slice(skip, skip + limit);
-
-  return {
-    totalCount,
-    products: paginatedProducts,
-  };
   },
 
   posOrderRecords: async (
