@@ -62,9 +62,7 @@ const mutations: Record<string, Resolver> = {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
       if (invoice.contentType) {
-        const [, moduleName, collectionType] = splitType(
-          invoice.contentType,
-        );
+        const [, moduleName, collectionType] = splitType(invoice.contentType);
 
         sendWorkerMessage({
           subdomain,
@@ -101,10 +99,7 @@ const mutations: Record<string, Resolver> = {
             status: 'paid',
           }),
         }).catch((err) => {
-          console.error(
-            `[invoicesCheck] Callback failed for ${_id}:`,
-            err,
-          );
+          console.error(`[invoicesCheck] Callback failed for ${_id}:`, err);
         });
       }
     }
