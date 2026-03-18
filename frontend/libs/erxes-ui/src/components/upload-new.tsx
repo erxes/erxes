@@ -63,7 +63,9 @@ export const formatBytes = (
     size === undefined
       ? Math.floor(Math.log(bytes) / Math.log(k))
       : sizes.indexOf(size);
-  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  return (
+    Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  );
 };
 
 type DropzoneContextType = Omit<
