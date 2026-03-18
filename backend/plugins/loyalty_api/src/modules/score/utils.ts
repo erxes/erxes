@@ -2,6 +2,140 @@ import dayjs from 'dayjs';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
+/**
+ * Safely evaluates a simple arithmetic expression string.
+ * Supports: numbers (integers and decimals), +, -, *, /, and parentheses.
+ * Rejects any input containing characters outside this set to prevent
+ * code injection (replaces unsafe eval()).
+ */
+export const safeEvaluateArithmetic = (expr: string): number => {
+  if (typeof expr !== 'string') {
+    return 0;
+  }
+
+  const trimmed = expr.trim();
+  if (!trimmed) {
+    return 0;
+  }
+
+  // Only allow digits, decimal points, arithmetic operators, parentheses, and whitespace
+  if (/[^0-9+\-*/().\s]/.test(trimmed)) {
+    throw new Error('Invalid characters in arithmetic expression');
+  }
+
+  let pos = 0;
+
+  const peek = (): string => trimmed[pos] || '';
+  const consume = (ch?: string): void => {
+    if (ch && trimmed[pos] !== ch) {
+      throw new Error(`Expected '${ch}' at position ${pos}`);
+    }
+    pos++;
+  };
+  const skipWhitespace = (): void => {
+    while (pos < trimmed.length && trimmed[pos] === ' ') {
+      pos++;
+    }
+  };
+
+  // Grammar:
+  //   expression = term (('+' | '-') term)*
+  //   term       = factor (('*' | '/') factor)*
+  //   factor     = ['+' | '-'] ( '(' expression ')' | number )
+
+  const parseNumber = (): number => {
+    skipWhitespace();
+    const start = pos;
+    let hasDecimal = false;
+    let hasDigit = false;
+    while (pos < trimmed.length && /[0-9.]/.test(trimmed[pos])) {
+      if (trimmed[pos] === '.') {
+        if (hasDecimal) {
+          throw new Error(
+            `Invalid number with multiple decimal points at position ${start}`,
+          );
+        }
+        hasDecimal = true;
+      } else {
+        hasDigit = true;
+      }
+      pos++;
+    }
+    if (pos === start || !hasDigit) {
+      throw new Error(`Expected number at position ${pos}`);
+    }
+    const num = Number(trimmed.slice(start, pos));
+    if (isNaN(num)) {
+      throw new Error(`Invalid number at position ${start}`);
+    }
+    return num;
+  };
+
+  const parseFactor = (): number => {
+    skipWhitespace();
+    // Handle unary + / -
+    if (peek() === '+') {
+      consume('+');
+      return parseFactor();
+    }
+    if (peek() === '-') {
+      consume('-');
+      return -parseFactor();
+    }
+    // Handle parenthesised sub-expression
+    if (peek() === '(') {
+      consume('(');
+      const result = parseExpression();
+      skipWhitespace();
+      consume(')');
+      return result;
+    }
+    return parseNumber();
+  };
+
+  const parseTerm = (): number => {
+    let left = parseFactor();
+    skipWhitespace();
+    while (peek() === '*' || peek() === '/') {
+      const op = peek();
+      consume(op);
+      const right = parseFactor();
+      if (op === '*') {
+        left *= right;
+      } else {
+        if (right === 0) {
+          throw new Error('Division by zero');
+        }
+        left /= right;
+      }
+      skipWhitespace();
+    }
+    return left;
+  };
+
+  const parseExpression = (): number => {
+    let left = parseTerm();
+    skipWhitespace();
+    while (peek() === '+' || peek() === '-') {
+      const op = peek();
+      consume(op);
+      const right = parseTerm();
+      left = op === '+' ? left + right : left - right;
+      skipWhitespace();
+    }
+    return left;
+  };
+
+  const result = parseExpression();
+  skipWhitespace();
+
+  if (pos !== trimmed.length) {
+    throw new Error(`Unexpected character at position ${pos}`);
+  }
+
+  return result;
+};
+
 export const resolvePlaceholderValue = (target: any, attribute: string) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 
