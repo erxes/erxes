@@ -101,7 +101,7 @@ export const usePosByItemsVariables = (
     createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
     ...otherOptions,
   };
-}
+};
 
 export const usePosByItemsList = (
   options: UsePosByItemsListOptions = {},

@@ -27,10 +27,13 @@ const buildDefaultValues = (
 
   return {
     ...(summary || {}),
-    ...normalized.reduce((acc, { type, amount }) => {
-      acc[type] = amount;
-      return acc;
-    }, {} as Record<string, number>),
+    ...normalized.reduce(
+      (acc, { type, amount }) => {
+        acc[type] = amount;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
   };
 };
 

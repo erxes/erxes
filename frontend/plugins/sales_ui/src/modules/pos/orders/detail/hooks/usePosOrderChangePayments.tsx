@@ -3,7 +3,9 @@ import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { POS_ORDER_CHANGE_PAYMENTS } from '../graphql/mutations/posOrderChangePayments';
 
 export const usePosOrderChangePayments = (
-  options?: MutationFunctionOptions<{ posOrderChangePayments: { _id: string } }>,
+  options?: MutationFunctionOptions<{
+    posOrderChangePayments: { _id: string };
+  }>,
 ) => {
   const { toast } = useToast();
   const [posOrderChangePayments, { loading, error }] = useMutation(
