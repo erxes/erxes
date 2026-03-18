@@ -154,7 +154,7 @@ const DropzoneContent = ({ className }: { className?: string }) => {
     <div className={cn('flex flex-col', className)}>
       {files.map((file, idx) => {
         const fileError = errors.find((e) => e.name === file.name);
-        const isSuccessfullyUploaded = !!successes.some((e) => e === file.name);
+        const isSuccessfullyUploaded = successes.includes(file.name);
 
         return (
           <div
