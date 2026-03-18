@@ -35,7 +35,7 @@ export const CategoriesRecordTable = ({
     <RecordTable.Provider
       columns={columns}
       data={categories || []}
-      className="m-3"
+      className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTable.CursorProvider

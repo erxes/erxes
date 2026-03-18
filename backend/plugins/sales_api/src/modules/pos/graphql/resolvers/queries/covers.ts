@@ -1,6 +1,6 @@
-import { getPureDate } from "erxes-api-shared/utils";
-import { IContext } from "~/connectionResolvers";
-import { paginate } from "./orders";
+import { getPureDate } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
+import { paginate } from './orders';
 
 const generateFilterQuery = async (models, params) => {
   const query: any = {};

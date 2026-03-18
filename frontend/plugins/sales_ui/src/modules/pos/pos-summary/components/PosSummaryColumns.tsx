@@ -13,11 +13,7 @@ import {
 } from 'erxes-ui';
 
 import { IPosSummary } from '@/pos/pos-summary/types/posSummary';
-import { PosSummaryMoreColumn } from '@/pos/pos-summary/components/PosSummaryMoreColumn';
-
 export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
-  PosSummaryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IPosSummary>,
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
@@ -87,6 +83,21 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
     header: () => (
       <RecordTable.InlineHead icon={IconChartBar} label="Invoice" />
     ),
+    cell: ({ cell }) => {
+      const value = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={typeof value === 'number' ? value.toLocaleString() : '0'}
+          />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'amounts.qpayAmount',
+    accessorKey: 'amounts.qpayAmount',
+    header: () => <RecordTable.InlineHead icon={IconChartBar} label="Qpay" />,
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
       return (

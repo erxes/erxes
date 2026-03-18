@@ -29,7 +29,6 @@ export const PostsNavigation = () => {
   }, [pathname]);
 
   const currentPage = useMemo(() => {
-    console.log('ppp', pathname);
     if (pathname.includes('/pages')) {
       return {
         path: `${basePath}/pages`,

@@ -100,7 +100,6 @@ export const usePages = (options?: QueryHookOptions) => {
 
     fetchMore({
       variables: {
-        ...variables,
         cursor:
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
@@ -110,14 +109,33 @@ export const usePages = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
+
+        const isForward = direction === EnumCursorDirection.FORWARD;
+        const fetchPageInfo = fetchMoreResult.cmsPageList?.pageInfo || {};
+        const prevPageInfo = prev.cmsPageList?.pageInfo || {};
+        const fetchPages = fetchMoreResult.cmsPageList?.pages || [];
+        const prevPages = prev.cmsPageList?.pages || [];
+
         return Object.assign({}, prev, {
           cmsPageList: {
-            pages: [
-              ...(prev.cmsPageList?.pages || []),
-              ...fetchMoreResult.cmsPageList.pages,
-            ],
-            totalCount: fetchMoreResult.cmsPageList.totalCount,
-            pageInfo: fetchMoreResult.cmsPageList.pageInfo,
+            ...fetchMoreResult.cmsPageList,
+            pages: isForward
+              ? [...prevPages, ...fetchPages]
+              : [...fetchPages, ...prevPages],
+            pageInfo: {
+              endCursor: isForward
+                ? fetchPageInfo.endCursor
+                : prevPageInfo.endCursor,
+              hasNextPage: isForward
+                ? fetchPageInfo.hasNextPage
+                : prevPageInfo.hasNextPage,
+              hasPreviousPage: isForward
+                ? prevPageInfo.hasPreviousPage
+                : fetchPageInfo.hasPreviousPage,
+              startCursor: isForward
+                ? prevPageInfo.startCursor
+                : fetchPageInfo.startCursor,
+            },
           },
         });
       },

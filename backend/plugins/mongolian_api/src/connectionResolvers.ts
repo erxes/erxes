@@ -21,8 +21,16 @@ import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
 import { IConfigDocument } from './modules/configs/@types/configs';
-import { IConfigModel, loadConfigClass } from './modules/configs/db/models/Configs';
+import {
+  IConfigModel,
+  loadConfigClass,
+} from './modules/configs/db/models/Configs';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { IExchangeRateDocument } from '@/exchangeRates/@types/exchangeRate';
+import {
+  IExchangeRateModel,
+  loadExchangeRateClass,
+} from '@/exchangeRates/db/models/ExchangeRates';
 
 export interface IModels {
   Configs: IConfigModel;
@@ -30,10 +38,12 @@ export interface IModels {
   ProductRules: IProductRuleModel;
   ProductGroups: IProductGroupModel;
   SyncLogs: ISyncLogModel;
+  ExchangeRates: IExchangeRateModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  commonQuerySelector: any;
 }
 
 export const loadClasses = (
@@ -52,7 +62,8 @@ export const loadClasses = (
     loadConfigClass(
       models,
       subdomain,
-      eventDispatcher('mongolian', 'configs', 'mongolian_configs'),),
+      eventDispatcher('mongolian', 'configs', 'mongolian_configs'),
+    ),
   );
 
   models.PutResponses = db.model<IEbarimtDocument, IPutResponseModel>(
@@ -73,6 +84,11 @@ export const loadClasses = (
   models.SyncLogs = db.model<ISyncLogDocument, ISyncLogModel>(
     'syncerkhet_synclogs',
     loadSyncLogClass(models),
+  );
+
+  models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
+    'exchange_rates',
+    loadExchangeRateClass(models, subdomain),
   );
 
   return models;

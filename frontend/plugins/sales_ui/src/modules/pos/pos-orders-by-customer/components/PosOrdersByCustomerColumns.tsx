@@ -80,16 +80,4 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
       );
     },
   },
-  {
-    id: 'customerType',
-    accessorKey: 'customerType',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Type" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
 ];
