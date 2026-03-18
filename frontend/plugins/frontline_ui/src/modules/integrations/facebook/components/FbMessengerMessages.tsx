@@ -1,11 +1,9 @@
-import { cn, IAttachment, readImage } from 'erxes-ui';
+import { cn, IAttachment, readImage, RelativeDateDisplay, Button } from 'erxes-ui';
 import { useFbMessengerMessageContext } from '../contexts/FbMessengerMessageContext';
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
-import { RelativeDateDisplay } from 'erxes-ui';
-import { Button } from 'erxes-ui';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 
 export const FbMessengerMessage = () => {
@@ -23,7 +21,9 @@ export const FbMessengerMessage = () => {
   return (
     <MessageWrapper>
       <div className={cn('max-w-[428px]')} key={_id}>
-        {content !== HAS_ATTACHMENT ? (
+        {content === HAS_ATTACHMENT ? (
+          <div className={cn(separatePrevious ? 'mt-2' : 'mt-8')} />
+        ) : (
           <Button
             variant="secondary"
             className={cn(
@@ -46,8 +46,6 @@ export const FbMessengerMessage = () => {
               )}
             </div>
           </Button>
-        ) : (
-          <div className={cn(separatePrevious ? 'mt-2' : 'mt-8')} />
         )}
         <Attachments attachments={attachments} />
       </div>

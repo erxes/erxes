@@ -4,19 +4,18 @@ import {
   FacebookIntegrationFormSteps,
   FacebookIntegrationFormLayout,
 } from './FacebookIntegrationForm';
-import { useSetAtom } from 'jotai';
+import { useSetAtom, useAtomValue } from 'jotai';
 import {
   activeFacebookFormStepAtom,
   resetFacebookAddStateAtom,
   selectedFacebookPageAtom,
+  selectedFacebookAccountAtom,
 } from '../states/facebookStates';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
-import { useAtomValue } from 'jotai';
-import { selectedFacebookAccountAtom } from '../states/facebookStates';
 import { IntegrationType } from '@/types/Integration';
 import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
 import { useParams } from 'react-router';

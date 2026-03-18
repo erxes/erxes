@@ -1,4 +1,4 @@
-import { Button, Popover, ScrollArea, Skeleton } from 'erxes-ui';
+import { Button, Popover, Skeleton } from 'erxes-ui';
 import { useFacebookPost } from '../hooks/useFacebookPost';
 import DOMPurify from 'dompurify';
 import { IconBrowserShare, IconExternalLink } from '@tabler/icons-react';
