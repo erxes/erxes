@@ -13,7 +13,6 @@ import {
   RelativeDateDisplay,
   Badge,
 } from 'erxes-ui';
-
 import { IOrder } from '@/pos/types/order';
 import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
 import { ClickableBillNumber } from './ClickableBillNumber';
