@@ -36,8 +36,6 @@ export const useCoverMoreColumnCell = ({
   const handleDelete = () => {
     if (!_id) return;
 
- 
-
     confirm({
       message: 'Are you sure you want to delete this pos cover?',
     }).then(() => {

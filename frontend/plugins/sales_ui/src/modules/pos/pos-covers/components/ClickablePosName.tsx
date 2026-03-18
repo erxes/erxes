@@ -6,10 +6,7 @@ interface ClickablePosNameProps {
   row: any;
 }
 
-export const ClickablePosName = ({
-  value,
-  row,
-}: ClickablePosNameProps) => {
+export const ClickablePosName = ({ value, row }: ClickablePosNameProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleClick = () => {
