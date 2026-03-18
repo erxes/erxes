@@ -1,5 +1,4 @@
 (() => {
-
   const E = `#erxes-messenger-container {
   position: fixed;
   bottom: 0;
@@ -268,28 +267,28 @@
   };
 
   const O = async (t) => {
-      const { data: e } = t;
-      if (e.fromErxes && e.message === 'connected' && e.apiUrl) {
-        v = e.apiUrl;
+    const { data: e } = t;
+    if (e.fromErxes && e.message === 'connected' && e.apiUrl) {
+      v = e.apiUrl;
+    }
+    if (e.fromErxes && e.connectionInfo) {
+      const { connectionInfo: n } = e;
+      const { widgetsMessengerConnect: m } = n || {};
+      const { uiOptions: d } = m || {};
+      if (!d) {
+        console.error('Messenger: uiOptions is not defined');
+        return;
       }
-      if (e.fromErxes && e.connectionInfo) {
-        const { connectionInfo: n } = e;
-        const { widgetsMessengerConnect: m } = n || {};
-        const { uiOptions: d } = m || {};
-        if (!d) {
-          console.error('Messenger: uiOptions is not defined');
-          return;
-        }
-        const o = i == null ? void 0 : i.querySelector('.erxes-launcher');
-        if (!o) {
-          console.error('Messenger: launcher element is not defined');
-          return;
-        }
-        const { color: p, logo: g } = d;
-        const r = g;
-        x = !!r;
-        u = x ? `url(${v}/read-file?key=${encodeURIComponent(r)})` : u;
-        o.style.cssText = `
+      const o = i == null ? void 0 : i.querySelector('.erxes-launcher');
+      if (!o) {
+        console.error('Messenger: launcher element is not defined');
+        return;
+      }
+      const { color: p, logo: g } = d;
+      const r = g;
+      x = !!r;
+      u = x ? `url(${v}/read-file?key=${encodeURIComponent(r)})` : u;
+      o.style.cssText = `
       width: 48px;
       height: 48px;
       font-smoothing: antialiased;
@@ -316,7 +315,7 @@
       background-size: ${x ? 'cover' : '18px'};
       background-position: center;
     `;
-      }
+    }
   };
 
   window.addEventListener('message', O);

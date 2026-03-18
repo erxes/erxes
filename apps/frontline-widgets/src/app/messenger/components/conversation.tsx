@@ -119,10 +119,15 @@ export function ConversationMessage({
         <div className="flex flex-col gap-0.5 overflow-x-hidden flex-1 min-w-0">
           <span
             className="truncate line-clamp-1 text-sm text-muted-foreground"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content || '') }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(content || ''),
+            }}
           />
           <span className="text-xs text-muted-foreground/70">
-            you · {formatDateISOStringToRelativeDate(lastMessage?.createdAt as unknown as string)}
+            you ·{' '}
+            {formatDateISOStringToRelativeDate(
+              lastMessage?.createdAt as unknown as string,
+            )}
           </span>
         </div>
       </div>
@@ -142,7 +147,9 @@ export function ConversationMessage({
         onClick={handleClick}
       >
         <div className="relative shrink-0">
-          <Avatar className={cn('size-10 bg-background', !isUnread && 'grayscale')}>
+          <Avatar
+            className={cn('size-10 bg-background', !isUnread && 'grayscale')}
+          >
             <Avatar.Image
               src={readImage(user?.details?.avatar) || 'assets/user.webp'}
               className="shrink-0 object-cover"
@@ -159,16 +166,41 @@ export function ConversationMessage({
 
         <div className="flex flex-col gap-0.5 overflow-x-hidden flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <span className={cn('text-xs truncate', isUnread ? 'font-bold text-foreground' : 'font-medium text-muted-foreground')}>
-              {user?.details?.fullName || user?.details?.firstName || 'Operator'}
+            <span
+              className={cn(
+                'text-xs truncate',
+                isUnread
+                  ? 'font-bold text-foreground'
+                  : 'font-medium text-muted-foreground',
+              )}
+            >
+              {user?.details?.fullName ||
+                user?.details?.firstName ||
+                'Operator'}
             </span>
-            <span className={cn('text-[10px] shrink-0', isUnread ? 'text-primary font-semibold' : 'text-muted-foreground/60')}>
-              {formatDateISOStringToRelativeDate(lastMessage?.createdAt as unknown as string)}
+            <span
+              className={cn(
+                'text-[10px] shrink-0',
+                isUnread
+                  ? 'text-primary font-semibold'
+                  : 'text-muted-foreground/60',
+              )}
+            >
+              {formatDateISOStringToRelativeDate(
+                lastMessage?.createdAt as unknown as string,
+              )}
             </span>
           </div>
           <span
-            className={cn('truncate line-clamp-1 text-sm', isUnread ? 'font-semibold text-foreground/90' : 'font-normal text-muted-foreground/70')}
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content || '') }}
+            className={cn(
+              'truncate line-clamp-1 text-sm',
+              isUnread
+                ? 'font-semibold text-foreground/90'
+                : 'font-normal text-muted-foreground/70',
+            )}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(content || ''),
+            }}
           />
         </div>
 

@@ -4,7 +4,6 @@ const isSupported = () =>
   typeof window !== 'undefined' && 'Notification' in window;
 
 export const useWebNotification = () => {
-
   useEffect(() => {
     if (isSupported() && Notification.permission === 'default') {
       Notification.requestPermission();
@@ -12,7 +11,10 @@ export const useWebNotification = () => {
   }, []);
 
   const notify = useCallback(
-    (title: string, options?: { body?: string; icon?: string; onClick?: () => void }) => {
+    (
+      title: string,
+      options?: { body?: string; icon?: string; onClick?: () => void },
+    ) => {
       if (!isSupported() || Notification.permission !== 'granted') return;
 
       const n = new Notification(title, {

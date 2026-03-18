@@ -1,5 +1,10 @@
 import { Avatar, Button } from 'erxes-ui';
-import { IconBellOff, IconCheck, IconChecks, IconVolume } from '@tabler/icons-react';
+import {
+  IconBellOff,
+  IconCheck,
+  IconChecks,
+  IconVolume,
+} from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { notificationsAtom, setConversationIdAtom } from '../states';
@@ -14,7 +19,9 @@ export const NotificationsPanel = () => {
   const setConversationId = useSetAtom(setConversationIdAtom);
   const { play: playSound } = useNotificationSound();
 
-  const [markRead, { loading: markingRead }] = useMutation(MARK_NOTIFICATIONS_READ);
+  const [markRead, { loading: markingRead }] = useMutation(
+    MARK_NOTIFICATIONS_READ,
+  );
   const markConversationRead = (conversationId: string) =>
     markRead({ variables: { conversationId } });
 
@@ -101,14 +108,33 @@ export const NotificationsPanel = () => {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-0.5">
-                  <span className={['text-xs truncate', item.isRead ? 'font-medium' : 'font-bold text-foreground'].join(' ')}>
+                  <span
+                    className={[
+                      'text-xs truncate',
+                      item.isRead ? 'font-medium' : 'font-bold text-foreground',
+                    ].join(' ')}
+                  >
                     {item.agentName}
                   </span>
-                  <span className={['text-[10px] shrink-0', item.isRead ? 'text-muted-foreground' : 'text-primary font-semibold'].join(' ')}>
+                  <span
+                    className={[
+                      'text-[10px] shrink-0',
+                      item.isRead
+                        ? 'text-muted-foreground'
+                        : 'text-primary font-semibold',
+                    ].join(' ')}
+                  >
                     {formatMessageDate(item.message.createdAt)}
                   </span>
                 </div>
-                <p className={['text-xs line-clamp-2 leading-relaxed', item.isRead ? 'text-muted-foreground/70' : 'text-foreground/80'].join(' ')}>
+                <p
+                  className={[
+                    'text-xs line-clamp-2 leading-relaxed',
+                    item.isRead
+                      ? 'text-muted-foreground/70'
+                      : 'text-foreground/80',
+                  ].join(' ')}
+                >
                   {item.message.content}
                 </p>
               </div>
