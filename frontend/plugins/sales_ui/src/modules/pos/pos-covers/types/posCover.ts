@@ -26,13 +26,13 @@ export interface ICovers {
   details?: Array<{
     _id: string;
     paidType: string;
-    paidSummary: {
+    paidSummary: Array<{
       _id: string;
       kind: string;
       kindOfVal: string;
       value: string;
       amount: number;
-    };
+    }>;
     paidDetail: string;
   }>;
 }

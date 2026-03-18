@@ -15,12 +15,19 @@ import {
 } from 'erxes-ui';
 
 import { IOrder } from '@/pos/types/order';
+import { IUser } from 'ui-modules/modules';
 import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
 import { ClickableBillNumber } from './ClickableBillNumber';
 
-export const generateOtherPaymentColumns = (
-  summary: any,
-): ColumnDef<unknown>[] => {
+interface PaymentSummary {
+  [key: string]: number | string;
+}
+
+interface PaymentRow {
+  original: IOrder & PaymentSummary;
+}
+
+export const generateOtherPaymentColumns = (summary: PaymentSummary) => {
   const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
     .filter((a) => !['_id'].includes(a))
     .sort();
@@ -28,7 +35,7 @@ export const generateOtherPaymentColumns = (
   return otherPayTitles.map((title: string, index) => ({
     id: `${title}_${index}`,
     header: () => <RecordTable.InlineHead icon={IconClock} label={title} />,
-    cell: ({ row }: any) => {
+    cell: ({ row }: { row: PaymentRow }) => {
       const order = row.original;
       const value = order[title] || 0;
 
@@ -172,7 +179,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
     accessorKey: 'user',
     header: () => <RecordTable.InlineHead icon={IconUser} label="User" />,
     cell: ({ cell }) => {
-      const user = cell.getValue() as any;
+      const user = cell.getValue() as IUser;
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={user?.username || ''} />
