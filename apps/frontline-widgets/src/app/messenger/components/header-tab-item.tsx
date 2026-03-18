@@ -1,11 +1,12 @@
 import { useMessenger } from '../hooks/useMessenger';
 import { IHeaderItem } from '../types';
 import { Button, Tooltip } from 'erxes-ui';
+import { NotificationBadge } from './NotificationBadge';
 
 export function HeaderTabItem({ Icon, value, disabled, title }: IHeaderItem) {
   const { activeTab, switchToTab } = useMessenger();
 
-  return (
+  const button = (
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger asChild>
@@ -22,9 +23,16 @@ export function HeaderTabItem({ Icon, value, disabled, title }: IHeaderItem) {
           >
             <Icon size={16} />
           </Button>
+
         </Tooltip.Trigger>
         <Tooltip.Content side="left">{title}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );
+
+  if (value === 'chat') {
+    return <NotificationBadge>{button}</NotificationBadge>;
+  }
+
+  return button;
 }

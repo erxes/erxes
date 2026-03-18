@@ -1,6 +1,11 @@
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { RequestBrowserInfoParams } from '../app/messenger/types';
 
+const IMAGE_EXTENSIONS_RE = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+
+export const isImageAttachment = (url: string): boolean =>
+  IMAGE_EXTENSIONS_RE.test(url);
+
 export const postMessage = (source: string, message: string, postData = {}) => {
   window.parent.postMessage(
     {

@@ -24,6 +24,8 @@ const getMessage = (contentType: string, notificationType: string) => {
       return 'You have been assigned to ticket';
     case 'ticketStatus':
       return 'Ticket status updated';
+    case 'conversationAddMessage':
+      return 'You have a new message in the conversation';
     case 'inboxAssignee':
       return 'You have been assigned to conversation';
     case 'internalNote':
@@ -58,7 +60,7 @@ export const createNotifications = async ({
   userIds: string[];
   action: string;
 }) => {
-  sendNotification(subdomain, {
+  await sendNotification(subdomain, {
     title: getTitle(contentType),
     message: getMessage(contentType, notificationType),
     type: 'info',

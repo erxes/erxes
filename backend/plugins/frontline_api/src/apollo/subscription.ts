@@ -8,6 +8,7 @@ export default {
 			conversationClientMessageInserted(userId: String!): ConversationMessage
 			conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
 			conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
+			conversationAdminTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
 			conversationExternalIntegrationMessageInserted: JSON
 			conversationBotTypingStatus(_id: String!): JSON
       waitingCallReceived(extension: String): String
@@ -227,6 +228,16 @@ export default {
             return true;
           },
         ),
+      },
+
+      /*
+       * Widget is listening for this subscription to show admin typing status
+       */
+      conversationAdminTypingStatusChanged: {
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(
+            `conversationAdminTypingStatusChanged:${_id}`,
+          ),
       },
 
       /*

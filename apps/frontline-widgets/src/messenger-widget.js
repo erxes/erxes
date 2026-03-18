@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use strict';
 (() => {
   var h = (t, e, n) =>
@@ -164,6 +165,56 @@
   </svg>`,
     w = document.createElement('div');
   w.id = B;
+  var _pAudioCtx = null;
+  var _getParentAudioCtx = () => {
+    if (_pAudioCtx) return _pAudioCtx;
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      _pAudioCtx = new Ctx();
+    } catch (e) {}
+    return _pAudioCtx;
+  };
+  var _playParentSound = () => {
+    var ctx = _getParentAudioCtx();
+    if (!ctx) return;
+    ctx.resume().then(() => {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.3);
+    }).catch(() => {});
+  };
+  var _updateLauncherBadge = (count) => {
+    // Badge lives in the parent document so it is never clipped by the
+    // circular iframe mask (overflow:hidden + border-radius:50%).
+    // The launcher button is at right:12px / bottom:12px / 48×48px, so
+    // we centre the badge on its top-right corner: right:3px, bottom:51px.
+    var badge = document.getElementById('erxes-unread-badge');
+    if (count > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.id = 'erxes-unread-badge';
+        badge.style.cssText =
+          'position:fixed;bottom:51px;right:3px;min-width:18px;height:18px;' +
+          'background:#ef4444;color:#fff;font-size:10px;font-weight:700;' +
+          'border-radius:9px;display:flex;align-items:center;justify-content:center;' +
+          'padding:0 4px;box-sizing:border-box;pointer-events:none;line-height:1;' +
+          'font-family:sans-serif;z-index:2147483649;';
+        document.body.appendChild(badge);
+      }
+      badge.textContent = count > 99 ? '99+' : String(count);
+    } else if (badge) {
+      badge.remove();
+    }
+  };
   var c = document.createElement('div');
   c.className = 'erxes-messenger-frame';
   var s = document.createElement('iframe');
@@ -196,7 +247,11 @@
       A && document.getElementsByTagName('head')[0].appendChild(A);
   }
   var C = (t) => {
-      ((t.type === 'keyup' && t.key === 'Enter') || t.type === 'click') && R();
+      if ((t.type === 'keyup' && t.key === 'Enter') || t.type === 'click') {
+        var _ctx = _getParentAudioCtx();
+        _ctx && _ctx.resume();
+        R();
+      }
     },
     z = () =>
       h(void 0, null, function* () {
@@ -317,6 +372,8 @@
       let { data: e } = t,
         { isVisible: n, message: m, isSmallContainer: d } = e || {};
       if (e.fromErxes && e.source === 'fromMessenger') {
+        if (m === 'playSound') { _playParentSound(); return; }
+        if (m === 'unreadCount') { _updateLauncherBadge(e.unreadCount || 0); return; }
         let o = i == null ? void 0 : i.querySelector('.erxes-launcher');
         if (!o)
           return console.error('Messenger: launcher element is not defined');

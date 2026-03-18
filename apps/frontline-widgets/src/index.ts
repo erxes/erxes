@@ -86,11 +86,79 @@ function revertViewPort() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Parent-frame audio — unlocked on launcher click so AudioContext is ready
+// when a playSound message arrives outside a user gesture.
+// ---------------------------------------------------------------------------
+
+let _parentAudioCtx: AudioContext | null = null;
+
+const getParentAudioCtx = (): AudioContext | null => {
+  if (_parentAudioCtx) return _parentAudioCtx;
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AudioCtx) return null;
+    _parentAudioCtx = new AudioCtx();
+  } catch {
+    // not supported
+  }
+  return _parentAudioCtx;
+};
+
+const playParentSound = () => {
+  const ctx = getParentAudioCtx();
+  if (!ctx) return;
+  ctx.resume().then(() => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.3);
+  }).catch((_err) => {
+    // AudioContext still locked — no prior user gesture in this frame
+  });
+};
+
+const updateLauncherBadge = (count: number) => {
+  // The launcher iframe has overflow:hidden + border-radius:50%, so the badge
+  // must live in the parent document, absolutely positioned over the launcher.
+  // erxesWidgetContainer is position:fixed; bottom:0; right:0.
+  // Launcher iframe: right:12px; bottom:12px; 48×48px.
+  // Badge center target (top-right corner of launcher): bottom≈53px; right≈5px.
+  let badge = erxesWidgetContainer.querySelector<HTMLSpanElement>('#erxes-unread-badge');
+  if (count > 0) {
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.id = 'erxes-unread-badge';
+      badge.style.cssText =
+        'position:absolute;bottom:53px;right:5px;min-width:18px;height:18px;' +
+        'background:#ef4444;color:#fff;font-size:10px;font-weight:700;' +
+        'border-radius:9px;display:flex;align-items:center;justify-content:center;' +
+        'padding:0 4px;box-sizing:border-box;pointer-events:none;line-height:1;' +
+        'font-family:sans-serif;z-index:2147483650;';
+      erxesWidgetContainer.appendChild(badge);
+    }
+    badge.textContent = count > 99 ? '99+' : String(count);
+  } else if (badge) {
+    badge.remove();
+  }
+};
+
 const handleLauncherEvent = (event: MouseEvent | KeyboardEvent) => {
   if (
     (event.type === 'keyup' && (event as KeyboardEvent).key === 'Enter') ||
     event.type === 'click'
   ) {
+    getParentAudioCtx()?.resume();
     postMessageToContentWindow();
   }
 };
@@ -275,6 +343,9 @@ window.addEventListener('message', async (event) => {
   //   listenForCommonRequests(event, messengerIframe);
 
   if (data.fromErxes && data.source === 'fromMessenger') {
+    if (message === 'playSound') { playParentSound(); return; }
+    if (message === 'unreadCount') { updateLauncherBadge(data.unreadCount ?? 0); return; }
+
     const launcher = launcherIframeDocument?.querySelector('.erxes-launcher');
 
     if (!launcher) {

@@ -58,6 +58,14 @@ const conversationClientTypingStatusChanged = `
   }
 `;
 
+export const CONVERSATION_CLIENT_TYPING_STATUS_CHANGED = gql`
+  subscription conversationClientTypingStatusChanged($_id: String!) {
+    conversationClientTypingStatusChanged(_id: $_id) {
+      text
+    }
+  }
+`;
+
 export const CONVERSATION_EXTERNAL_INTEGRATION_MESSAGE_INSERTED = gql`
   subscription conversationExternalIntegrationMessageInserted {
     conversationExternalIntegrationMessageInserted

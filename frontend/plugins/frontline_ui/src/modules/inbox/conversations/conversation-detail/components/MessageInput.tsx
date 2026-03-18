@@ -13,6 +13,8 @@ import {
   useScopedHotkeys,
   useUpload,
 } from 'erxes-ui';
+import { useMutation } from '@apollo/client';
+import { CONVERSATIONS_ADMIN_SEND_TYPING_INFO } from '../graphql/mutations/sendAdminTypingInfo';
 import {
   IconArrowUp,
   IconCommand,
@@ -26,7 +28,7 @@ import {
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { AssignMemberInEditor } from 'ui-modules';
 import { Block } from '@blocknote/core';
@@ -57,6 +59,8 @@ export const MessageInput = ({
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
   const { upload, isLoading } = useUpload();
+  const [sendAdminTypingInfo] = useMutation(CONVERSATIONS_ADMIN_SEND_TYPING_INFO);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
@@ -207,6 +211,20 @@ export const MessageInput = ({
     const blocks = await editor?.document;
     blocks?.pop();
     setContent(blocks as Block[]);
+
+    if (conversationId) {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      sendAdminTypingInfo({
+        variables: { conversationId, text: 'typing' },
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      }).catch(() => {});
+      typingTimeoutRef.current = setTimeout(() => {
+        sendAdminTypingInfo({
+          variables: { conversationId, text: '' },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        }).catch(() => {});
+      }, 3000);
+    }
 
     const html = await editor?.blocksToHTMLLossy(blocks);
     const plain = html?.replace(/<[^>]+>/g, '')?.trim() || '';

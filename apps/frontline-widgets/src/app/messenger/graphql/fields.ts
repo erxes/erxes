@@ -40,6 +40,8 @@ const messageFields = `
   _id
   conversationId
   customerId
+  userId
+  isCustomerRead
   user {
     _id
     details {

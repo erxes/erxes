@@ -74,7 +74,7 @@ export const ConversationDetails = () => {
     botShowInitialMessage,
     messages: messagesConfig,
   } = messengerData || {};
-  const { conversationDetail, loading, isBotTyping } = useConversationDetail({
+  const { conversationDetail, loading, isBotTyping, isAgentTyping } = useConversationDetail({
     variables: {
       _id: conversationId,
       integrationId: messengerConnectData?.integrationId ?? '',
@@ -167,7 +167,7 @@ export const ConversationDetails = () => {
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto scroll-smooth scroll-p-0 scroll-m-0 scroll-pt-16 flex flex-col-reverse p-4 space-y-2"
       >
-        {isBotTyping && <TypingStatus />}
+        {(isBotTyping || isAgentTyping) && <TypingStatus />}
 
         {sortedDateKeys.map((dateKey, index) => {
           const messagesForDate = messagesByDate[dateKey];

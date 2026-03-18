@@ -46,7 +46,7 @@ export const dispatchConversationToService = async (
         break;
 
       default:
-        throw new Error(`Unsupported service: ${serviceName}`);
+        break;
     }
   } catch (e) {
     throw new Error(
@@ -132,56 +132,52 @@ export const sendNotifications = async ({
   user,
   conversations,
   type,
-  mobile,
-  messageContent,
+  subdomain,
 }: {
   user: IUserDocument;
   conversations: IConversationDocument[];
   type: string;
-  mobile?: boolean;
-  messageContent?: string;
+  subdomain: string;
 }) => {
   for (const conversation of conversations) {
-    if (!conversation || !conversation._id) {
-      throw new Error('Error: Conversation or Conversation ID is undefined');
-    }
+    if (!conversation?._id || !user?._id) continue;
 
-    if (!user || !user._id) {
-      throw new Error('Error: User or User ID is undefined');
-    }
+    const receivers = conversationNotifReceivers(conversation, user._id);
+    if (!receivers.length) continue;
 
-    const doc = {
-      createdUser: user,
-      link: `/inbox/index?_id=${conversation._id}`,
-      title: 'Conversation updated',
-      content: messageContent
-        ? messageContent
-        : conversation.content || 'Conversation updated',
-      notifType: type,
-      receivers: conversationNotifReceivers(conversation, user._id),
-      action: 'updated conversation',
-      contentType: 'conversation',
-      contentTypeId: conversation._id,
-    };
+    let action = 'updated conversation';
+    let notificationType = type;
+
     switch (type) {
       case 'conversationAddMessage':
-        doc.action = `sent you a message`;
-        doc.receivers = conversationNotifReceivers(conversation, user._id);
+        action = 'sent you a message';
         break;
       case 'conversationAssigneeChange':
-        doc.action = 'has assigned you to conversation ';
+        action = 'has assigned you to conversation';
         break;
       case 'unassign':
-        doc.notifType = 'conversationAssigneeChange';
-        doc.action = 'has removed you from conversation';
+        notificationType = 'conversationAssigneeChange';
+        action = 'has removed you from conversation';
         break;
       case 'conversationStateChange':
-        doc.action = `changed conversation status to ${(
-          conversation.status || ''
-        ).toUpperCase()}`;
+        action = `changed conversation status to ${(conversation.status || '').toUpperCase()}`;
         break;
       default:
         break;
+    }
+
+    try {
+      await createNotifications({
+        contentType: 'inbox',
+        contentTypeId: conversation._id,
+        fromUserId: user._id,
+        subdomain,
+        notificationType,
+        userIds: receivers,
+        action,
+      });
+    } catch (e) {
+      console.error('sendNotifications: createNotifications failed', e);
     }
   }
 };
@@ -221,41 +217,37 @@ export const conversationMutations = {
         user,
         conversations: [conversation],
         type: 'conversationAddMessage',
-        mobile: true,
-        messageContent: content,
+        subdomain,
       });
 
       const { kind } = integration;
-      const customer = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'customers',
-        action: 'findOne',
-        input: { query: { _id: conversation.customerId } },
-      });
 
-      if (!customer) {
-        throw new Error('Customer not found for the conversation');
-      }
-
-      const email = customer.primaryEmail;
-
-      // Send auto-reply email for lead forms
-      if (!internal && kind === 'lead' && email) {
-        await sendTRPCMessage({
+      // Send auto-reply email for lead forms only
+      if (!internal && kind === 'lead') {
+        const customer = await sendTRPCMessage({
           subdomain,
-
           pluginName: 'core',
-          method: 'mutation',
-          module: 'core',
-          action: 'sendEmail',
-          input: {
-            toEmails: [email],
-            title: 'Reply',
-            template: { data: content },
-          },
+          method: 'query',
+          module: 'customers',
+          action: 'findOne',
+          input: { query: { _id: conversation.customerId } },
         });
+
+        const email = customer?.primaryEmail;
+        if (email) {
+          await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'core',
+            action: 'sendEmail',
+            input: {
+              toEmails: [email],
+              title: 'Reply',
+              template: { data: content },
+            },
+          });
+        }
       }
 
       if (doc.mentionedUserIds && doc.mentionedUserIds.length > 0) {
@@ -377,6 +369,7 @@ export const conversationMutations = {
       user,
       conversations,
       type: 'conversationAssigneeChange',
+      subdomain,
     });
 
     if (assignedUserId && assignedUserId !== user?._id) {
@@ -411,6 +404,7 @@ export const conversationMutations = {
       user,
       conversations: oldConversations,
       type: 'unassign',
+      subdomain,
     });
 
     publishConversationsChanged(subdomain, _ids, 'assigneeChanged');
@@ -438,6 +432,7 @@ export const conversationMutations = {
       user,
       conversations: updatedConversations,
       type: 'conversationStateChange',
+      subdomain,
     });
 
     return updatedConversations;
@@ -530,5 +525,19 @@ export const conversationMutations = {
   ) {
     await models.Conversations.updateConversation(_id, { customFieldsData });
     return models.Conversations.getConversation(_id);
+  },
+
+  async conversationsAdminSendTypingInfo(
+    _root,
+    args: { conversationId: string; text?: string },
+  ) {
+    graphqlPubsub.publish(
+      `conversationAdminTypingStatusChanged:${args.conversationId}`,
+      {
+        conversationAdminTypingStatusChanged: args,
+      },
+    );
+
+    return 'ok';
   },
 };

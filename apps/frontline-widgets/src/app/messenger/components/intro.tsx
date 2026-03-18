@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Skeleton } from 'erxes-ui';
 import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import { ConversationMessage, EmptyChat } from './conversation';
@@ -11,7 +10,9 @@ import { NotifyCustomerForm } from './notify-customer-form';
 
 export const Intro = () => {
   const { loading: loadingSupporters } = useGetMessengerSupporters();
-  const { conversations, loading: loadingConversations } = useConversations();
+  const { conversations, loading: loadingConversations } = useConversations({
+    fetchPolicy: 'cache-and-network',
+  });
   const { hasEmailOrPhone } = useCustomerData();
   const [connection] = useAtom(connectionAtom);
   const { widgetsMessengerConnect } = connection || {};

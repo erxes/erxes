@@ -1,4 +1,5 @@
 import { MessageItem } from './MessageItem';
+import { TypingStatus } from './TypingStatus';
 import { IMessage } from '@/inbox/types/Conversation';
 import { useConversationMessages } from '@/inbox/conversation-messages/hooks/useConversationMessages';
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
@@ -9,7 +10,7 @@ export const ConversationMessages = ({
 }: {
   conversationId: string;
 }) => {
-  const { messages, loading, handleFetchMore, totalCount } =
+  const { messages, loading, handleFetchMore, totalCount, isCustomerTyping } =
     useConversationMessages({
       variables: {
         conversationId,
@@ -38,6 +39,7 @@ export const ConversationMessages = ({
           <MessageItem />
         </ConversationMessageContext.Provider>
       ))}
+      {isCustomerTyping && <TypingStatus />}
     </InboxMessagesContainer>
   );
 };

@@ -249,4 +249,5 @@ export const mutations = `
   conversationsResolve(ids: [String!]!): Int
   conversationConvertToCard(${convertParams}): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
+  conversationsAdminSendTypingInfo(conversationId: String!, text: String): String
 `;

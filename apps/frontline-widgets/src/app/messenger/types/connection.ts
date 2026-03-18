@@ -122,24 +122,8 @@ export interface ITicketConfig {
   parentId?: string;
 }
 
-export interface IMessengerData {
-  integrationId: string;
-  email?: string;
-  phone?: string;
-  code?: string;
-  data?: any;
-  companyData?: any;
-}
-
-export interface ICustomerData {
-  _id: string;
-  firstName?: string;
-  lastName?: string;
-  phones?: string[];
-  emails?: string[];
-}
-
-export interface IMessengerData {
+/** Settings passed from the host page via postMessage (erxesSettings.messenger). */
+export interface IWidgetSettings {
   integrationId: string;
   email?: string;
   phone?: string;

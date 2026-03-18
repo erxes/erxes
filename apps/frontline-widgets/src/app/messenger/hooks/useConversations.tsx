@@ -1,8 +1,8 @@
-import { connectionAtom, integrationIdAtom } from '../states';
+import { connectionAtom, integrationIdAtom, lastUnreadMessageAtom } from '../states';
 import { GET_WIDGETS_CONVERSATIONS } from '../graphql/queries';
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useAtomValue } from 'jotai';
-import { useMemo, useEffect, useRef } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useRef } from 'react';
 import { IConversationMessage } from '../types';
 import { getLocalStorageItem } from '@libs/utils';
 import { ConversationMessageInserted } from '../graphql/subscriptions';
@@ -15,23 +15,30 @@ interface ISubscriptionData {
   conversationMessageInserted: IConversationMessage['messages'][0];
 }
 
-export const useConversations = (
-  options?: QueryHookOptions<IQueryResponse>,
-) => {
+interface IUseConversationsOptions extends QueryHookOptions<IQueryResponse> {
+  /** When true, sets up GraphQL subscriptions and tracks new messages for notifications.
+   *  Should only be true at the app root level so subscriptions stay alive regardless of
+   *  which tab is active or whether the messenger is visible. */
+  setupSubscriptions?: boolean;
+}
+
+export const useConversations = (options?: IUseConversationsOptions) => {
+  const { setupSubscriptions = false, ...queryOptions } = options || {};
   const integrationId = useAtomValue(integrationIdAtom);
   const connection = useAtomValue(connectionAtom);
+  const setLastUnreadMessage = useSetAtom(lastUnreadMessageAtom);
   const cachedCustomerId = getLocalStorageItem('customerId');
   const { customerId, visitorId } = connection.widgetsMessengerConnect || {};
   const { data, loading, error, subscribeToMore } = useQuery<IQueryResponse>(
     GET_WIDGETS_CONVERSATIONS,
     {
-      ...options,
+      ...queryOptions,
       variables: {
         integrationId,
         customerId: customerId || cachedCustomerId || undefined,
         visitorId: visitorId || undefined,
       },
-      fetchPolicy: 'network-only',
+      fetchPolicy: queryOptions.fetchPolicy ?? 'network-only',
       skip: !integrationId,
     },
   );
@@ -39,6 +46,7 @@ export const useConversations = (
   const unsubscribeRefs = useRef<Array<() => void>>([]);
 
   useEffect(() => {
+    if (!setupSubscriptions) return;
     if (!data?.widgetsConversations || !subscribeToMore) return;
 
     const conversations = data.widgetsConversations;
@@ -70,6 +78,13 @@ export const useConversations = (
 
           if (messageExists) return prev;
 
+          // Count incoming agent/bot messages for the unread badge.
+          // The subscription fragment returns `user { _id }` (nested), not a
+          // flat `userId`, so we check user?._id rather than userId.
+          if (newMessage.user?._id || newMessage.fromBot) {
+            setLastUnreadMessage(newMessage);
+          }
+
           const updatedConversations = [...prev.widgetsConversations];
           updatedConversations[conversationIndex] = {
             ...conversation,
@@ -91,7 +106,12 @@ export const useConversations = (
     return () => {
       unsubscribes.forEach((unsubscribe) => unsubscribe());
     };
-  }, [data?.widgetsConversations, subscribeToMore]);
+  }, [
+    setupSubscriptions,
+    data?.widgetsConversations,
+    subscribeToMore,
+    setLastUnreadMessage,
+  ]);
 
   return {
     conversations: data?.widgetsConversations || [],

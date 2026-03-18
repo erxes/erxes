@@ -51,6 +51,12 @@ export const HEADER_ITEMS: IHeaderItem[] = [
   },
 ];
 
+/** How long to wait after the user stops typing before sending a stop-typing event. */
+export const TYPING_STOP_TIMEOUT_MS = 3_000;
+
+/** How long after the last agent-typing event before clearing the typing indicator. */
+export const AGENT_TYPING_CLEAR_TIMEOUT_MS = 4_000;
+
 export const EXCLUDED_TICKET_FORM_FIELDS = [
   'pipelineId',
   'channelId',

@@ -126,10 +126,17 @@ const EDIT_CUSTOMER = gql`
   }
 `;
 
+const WIDGETS_SEND_TYPING_INFO = gql`
+  mutation widgetsSendTypingInfo($conversationId: String!, $text: String) {
+    widgetsSendTypingInfo(conversationId: $conversationId, text: $text)
+  }
+`;
+
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
   READ_CONVERSATION_MESSAGES_MUTATION,
   SAVE_BROWSER_INFO,
   connect,
   EDIT_CUSTOMER,
+  WIDGETS_SEND_TYPING_INFO,
 };

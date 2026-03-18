@@ -14,7 +14,7 @@ interface ResponseTemplateDropdownProps {
   suggestions: TemplateSuggestion[];
   selectedIndex: number;
   availableChannels?: IChannel[];
-  onSelect: (content: string) => void;
+  onSelect: (content: string, templateId: string) => void;
 }
 
 const TemplateItem = ({
@@ -28,15 +28,15 @@ const TemplateItem = ({
   index: number;
   isSelected: boolean;
   channelName?: string;
-  onSelect: (content: string) => void;
+  onSelect: (content: string, templateId: string) => void;
 }) => (
   <div
     key={suggestion._id}
     role="option"
     tabIndex={0}
     aria-selected={isSelected}
-    onClick={() => onSelect(suggestion.content)}
-    onKeyDown={(e) => e.key === 'Enter' && onSelect(suggestion.content)}
+    onClick={() => onSelect(suggestion.content, suggestion._id)}
+    onKeyDown={(e) => e.key === 'Enter' && onSelect(suggestion.content, suggestion._id)}
     className={`
       px-4 py-3 cursor-pointer
       transition-all duration-150

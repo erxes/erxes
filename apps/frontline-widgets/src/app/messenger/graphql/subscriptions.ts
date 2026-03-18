@@ -15,4 +15,16 @@ const conversationBotTypingStatus = `
   }
 `;
 
-export { ConversationMessageInserted, conversationBotTypingStatus };
+const conversationAdminTypingStatusChanged = `
+  subscription conversationAdminTypingStatusChanged($_id: String!) {
+    conversationAdminTypingStatusChanged(_id: $_id) {
+      text
+    }
+  }
+`;
+
+export {
+  ConversationMessageInserted,
+  conversationBotTypingStatus,
+  conversationAdminTypingStatusChanged,
+};

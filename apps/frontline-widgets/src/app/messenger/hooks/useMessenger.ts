@@ -1,24 +1,18 @@
-import { useAtom } from 'jotai';
-import {
-  messengerTabAtom,
-  setActiveTabAtom,
-  resetTabAtom,
-  conversationIdAtom,
-} from '../states';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { messengerTabAtom, conversationIdAtom } from '../states';
 import { TabType } from '../types';
 
 export function useMessenger() {
-  const [activeTab] = useAtom(messengerTabAtom);
-  const [, setActiveTab] = useAtom(setActiveTabAtom);
-  const [, resetTab] = useAtom(resetTabAtom);
-  const [, setConversationId] = useAtom(conversationIdAtom);
+  const activeTab = useAtomValue(messengerTabAtom);
+  const setMessengerTab = useSetAtom(messengerTabAtom);
+  const setConversationId = useSetAtom(conversationIdAtom);
 
   const switchToTab = (tab: TabType) => {
-    setActiveTab(tab);
+    setMessengerTab(tab);
   };
 
   const goBack = () => {
-    resetTab();
+    setMessengerTab('default');
     setConversationId(null);
   };
 

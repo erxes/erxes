@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { postMessage } from '../lib/utils';
 import { Header } from './messenger/components';
@@ -9,16 +9,26 @@ import { Skeleton, REACT_APP_API_URL } from 'erxes-ui';
 import { ConversationDetails } from './messenger/components/conversation-details';
 import { connectionAtom, messengerDataAtom } from './messenger/states';
 import { Ticket } from './messenger/ticket/components/ticket';
+import { useMessengerNotification } from './messenger/hooks/useMessengerNotification';
+import { useConversations } from './messenger/hooks/useConversations';
 
 export function App() {
-  const [isMessengerVisible, setIsMessengerVisible] = useState(false);
-  const [isSmallContainer] = useState(false);
+  const isSmallContainer = false;
   const { activeTab } = useMessenger();
   const [connection] = useAtom(connectionAtom);
   const [messengerData, setMessengerData] = useAtom(messengerDataAtom);
   const { loading: connecting } = useConnect({
     integrationId: messengerData?.integrationId ?? '',
   });
+
+  // Keep subscriptions alive at the app level so badge/sound fire regardless
+  // of which tab is active or whether the messenger panel is visible.
+  useConversations({ setupSubscriptions: true, fetchPolicy: 'cache-and-network' });
+
+  // Manages unread count and keeps the parent launcher badge in sync.
+  // `isVisible` / `toggleMessenger` replace the previous local isMessengerVisible state.
+  const { isVisible: isMessengerVisible, toggleMessenger } =
+    useMessengerNotification();
 
   useEffect(() => {
     if (!connecting && connection.widgetsMessengerConnect?.uiOptions) {
@@ -41,7 +51,7 @@ export function App() {
         isVisible: !isMessengerVisible,
         isSmallContainer,
       });
-      setIsMessengerVisible(!isMessengerVisible);
+      toggleMessenger();
     };
 
     const handleMessage = (event: MessageEvent) => {
@@ -61,7 +71,7 @@ export function App() {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [isMessengerVisible, isSmallContainer]);
+  }, [isMessengerVisible, isSmallContainer, toggleMessenger, setMessengerData]);
 
   const renderContent = () => {
     switch (activeTab) {

@@ -53,7 +53,7 @@ export function useHeader() {
     });
 
     setHeaderItems(items);
-  }, [hasTicketConfig, showVideoCallRequest]);
+  }, [hasTicketConfig, showVideoCallRequest, setHeaderItems]);
 
   return {
     activeTab,

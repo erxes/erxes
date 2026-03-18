@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { isImageAttachment } from '@libs/utils';
 import { useMemo } from 'react';
 import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import {
@@ -19,7 +20,7 @@ import {
 import {
   connectionAtom,
   conversationIdAtom,
-  setActiveTabAtom,
+  messengerTabAtom,
 } from '../states';
 import { IAttachment, IConversationMessage, ISupporter } from '../types';
 import { AvatarGroup } from './avatar-group';
@@ -75,7 +76,7 @@ export function ConversationMessage({
   conversation?: IConversationMessage;
 }) {
   const setConversationId = useSetAtom(conversationIdAtom);
-  const setActiveTab = useSetAtom(setActiveTabAtom);
+  const setActiveTab = useSetAtom(messengerTabAtom);
 
   const { readConversation } = useReadConversation();
   const { messages, content } = conversation || {};
@@ -217,10 +218,6 @@ export function OperatorMessage({
   isSingleMessage?: boolean;
   attachments?: IAttachment[];
 }) {
-  const isImageAttachment = (url: string) => {
-    return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
-  };
-
   return (
     <Tooltip.Provider>
       <Tooltip>
@@ -336,10 +333,6 @@ export const CustomerMessage = ({
   createdAt: Date;
   attachments?: IAttachment[];
 }) => {
-  const isImageAttachment = (url: string) => {
-    return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
-  };
-
   return (
     <Tooltip.Provider>
       <Tooltip delayDuration={100}>

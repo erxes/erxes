@@ -33,8 +33,7 @@ const GET_CONVERSATION_DETAIL = gql`
         user {
           _id
           details {
-            avatar
-            fullName
+            ${userDetailFields}
           }
         }
         content
@@ -48,15 +47,13 @@ const GET_CONVERSATION_DETAIL = gql`
       supporters {
         _id
         details {
-          avatar
-          fullName
+          ${userDetailFields}
         }
       }
       participatedUsers {
         _id
         details {
-          avatar
-          fullName
+          ${userDetailFields}
           shortName
         }
         links

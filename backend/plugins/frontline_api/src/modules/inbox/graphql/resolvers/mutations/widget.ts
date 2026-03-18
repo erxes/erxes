@@ -1,4 +1,5 @@
 import { IAttachment, IBrowserInfo, Resolver } from 'erxes-api-shared/core-types';
+import { createNotifications } from '~/utils/notifications';
 import {
   getEnv,
   graphqlPubsub,
@@ -86,6 +87,28 @@ export const pConversationClientMessageInserted = async (
         integration,
       },
     );
+  }
+
+  // Persistent in-app notification for channel members (bell badge).
+  // Excludes the message sender so agents don't notify themselves.
+  const notifyUserIds = channelMemberIds.filter(
+    (id) => id && id !== message.userId,
+  );
+
+  if (notifyUserIds.length > 0 && conversation?._id) {
+    try {
+      await createNotifications({
+        contentType: 'inbox',
+        contentTypeId: String(conversation._id),
+        fromUserId: message.userId || '',
+        subdomain,
+        notificationType: 'conversationAddMessage',
+        userIds: notifyUserIds,
+        action: 'sent you a message',
+      });
+    } catch (e) {
+      console.error('pConversationClientMessageInserted: notification failed', e);
+    }
   }
 };
 
@@ -638,9 +661,6 @@ export const widgetMutations: Record<string, Resolver> = {
     });
 
     await pConversationClientMessageInserted(subdomain, msg);
-    graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
-      conversationMessageInserted: msg,
-    });
 
     if (
       HAS_BOTENDPOINT_URL &&

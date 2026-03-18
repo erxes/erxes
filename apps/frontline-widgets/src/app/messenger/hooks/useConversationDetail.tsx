@@ -5,12 +5,16 @@ import {
   useApolloClient,
 } from '@apollo/client';
 import { GET_CONVERSATION_DETAIL } from '../graphql/queries';
+import { AGENT_TYPING_CLEAR_TIMEOUT_MS } from '../constants';
 import {
   ConversationMessageInserted,
   conversationBotTypingStatus,
+  conversationAdminTypingStatusChanged,
 } from '../graphql/subscriptions';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSetAtom } from 'jotai';
 import { IConversation } from '../types';
+import { lastUnreadMessageAtom } from '../states';
 
 interface IQueryResponse {
   widgetsConversationDetail: IConversation;
@@ -30,7 +34,10 @@ export const useConversationDetail = (
   options?: QueryHookOptions<IQueryResponse>,
 ) => {
   const client = useApolloClient();
+  const setLastUnreadMessage = useSetAtom(lastUnreadMessageAtom);
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const [isAgentTyping, setIsAgentTyping] = useState(false);
+  const agentTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data, loading, refetch, subscribeToMore } = useQuery<IQueryResponse>(
     GET_CONVERSATION_DETAIL,
@@ -64,6 +71,13 @@ export const useConversationDetail = (
 
         if (messageExists) return prev;
 
+        // Notify the badge/sound pipeline for agent and bot messages.
+        // useMessengerNotification deduplicates by _id so double-firing
+        // with useConversations is safe.
+        if (newMessage.user?._id || newMessage.fromBot) {
+          setLastUnreadMessage(newMessage);
+        }
+
         return {
           widgetsConversationDetail: {
             ...prev.widgetsConversationDetail,
@@ -76,7 +90,7 @@ export const useConversationDetail = (
     return () => {
       unsubscribe();
     };
-  }, [options?.variables?._id, subscribeToMore]);
+  }, [options?.variables?._id, subscribeToMore, setLastUnreadMessage]);
 
   // Listen for bot message typing
   useEffect(() => {
@@ -106,10 +120,45 @@ export const useConversationDetail = (
     };
   }, [options?.variables?._id, client]);
 
+  // Listen for admin (agent) typing status
+  useEffect(() => {
+    if (!options?.variables?._id) return;
+
+    const sub = client
+      .subscribe<{ conversationAdminTypingStatusChanged: { text?: string } }>({
+        query: gql(conversationAdminTypingStatusChanged),
+        variables: { _id: options.variables._id },
+        fetchPolicy: 'network-only',
+      })
+      .subscribe({
+        next({ data }) {
+          const text = data?.conversationAdminTypingStatusChanged?.text ?? '';
+          const typing = text.length > 0;
+          setIsAgentTyping(typing);
+
+          if (typing) {
+            if (agentTypingTimeoutRef.current)
+              clearTimeout(agentTypingTimeoutRef.current);
+            agentTypingTimeoutRef.current = setTimeout(
+              () => setIsAgentTyping(false),
+              AGENT_TYPING_CLEAR_TIMEOUT_MS,
+            );
+          }
+        },
+      });
+
+    return () => {
+      sub.unsubscribe();
+      if (agentTypingTimeoutRef.current)
+        clearTimeout(agentTypingTimeoutRef.current);
+    };
+  }, [options?.variables?._id, client]);
+
   return {
     conversationDetail: data?.widgetsConversationDetail,
     loading,
     handleRefetch,
     isBotTyping,
+    isAgentTyping,
   };
 };

@@ -5,6 +5,10 @@ module.exports = [
   ...baseConfig,
   ...nx.configs['flat/react'],
   {
+    // Minified bundle files — skip all linting
+    ignores: ['src/messengerBundle.js', 'src/messenger-widget.js', 'src/formBundle.js'],
+  },
+  {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     // Override or add rules here
     rules: {},

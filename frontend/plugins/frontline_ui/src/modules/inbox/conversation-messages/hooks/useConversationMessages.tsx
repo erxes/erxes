@@ -1,9 +1,12 @@
 import { QueryHookOptions } from '@apollo/client';
 
-import { useQuery } from '@apollo/client';
+import { useQuery, useApolloClient } from '@apollo/client';
 import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
-import { useEffect } from 'react';
-import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
+import { useEffect, useRef, useState } from 'react';
+import {
+  CONVERSATION_MESSAGE_INSERTED,
+  CONVERSATION_CLIENT_TYPING_STATUS_CHANGED,
+} from '../../conversations/graphql/subscriptions/inboxSubscriptions';
 import { IMessage } from '../../types/Conversation';
 
 export const useConversationMessages = (
@@ -12,6 +15,10 @@ export const useConversationMessages = (
     conversationMessagesTotalCount: number;
   }>,
 ) => {
+  const apolloClient = useApolloClient();
+  const [isCustomerTyping, setIsCustomerTyping] = useState(false);
+  const customerTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const { data, loading, fetchMore, subscribeToMore, client } = useQuery<{
     conversationMessages: IMessage[];
     conversationMessagesTotalCount: number;
@@ -99,10 +106,46 @@ export const useConversationMessages = (
     return unsubscribe;
   }, [options.variables?.conversationId]);
 
+  useEffect(() => {
+    const conversationId = options.variables?.conversationId;
+    if (!conversationId) return;
+
+    const sub = apolloClient
+      .subscribe<{ conversationClientTypingStatusChanged: { text?: string } }>({
+        query: CONVERSATION_CLIENT_TYPING_STATUS_CHANGED,
+        variables: { _id: conversationId },
+        fetchPolicy: 'network-only',
+      })
+      .subscribe({
+        next({ data: subData }) {
+          const text =
+            subData?.conversationClientTypingStatusChanged?.text ?? '';
+          const typing = text.length > 0;
+          setIsCustomerTyping(typing);
+
+          if (typing) {
+            if (customerTypingTimeoutRef.current)
+              clearTimeout(customerTypingTimeoutRef.current);
+            customerTypingTimeoutRef.current = setTimeout(
+              () => setIsCustomerTyping(false),
+              4000,
+            );
+          }
+        },
+      });
+
+    return () => {
+      sub.unsubscribe();
+      if (customerTypingTimeoutRef.current)
+        clearTimeout(customerTypingTimeoutRef.current);
+    };
+  }, [options.variables?.conversationId, apolloClient]);
+
   return {
     messages: conversationMessages,
     totalCount: conversationMessagesTotalCount,
     loading,
     handleFetchMore,
+    isCustomerTyping,
   };
 };
