@@ -92,12 +92,12 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         },
         content: line
           ? [
-            {
-              type: 'text',
-              text: line,
-              styles: {},
-            },
-          ]
+              {
+                type: 'text',
+                text: line,
+                styles: {},
+              },
+            ]
           : [],
         children: [],
       })) as Block[];
@@ -183,8 +183,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       onCompleted: () => {
         toast({
           title: 'Success',
-          description: `Ticket ${newState === 'archived' ? 'archived' : 'restored'
-            } successfully`,
+          description: `Ticket ${
+            newState === 'archived' ? 'archived' : 'restored'
+          } successfully`,
         });
       },
       onError: (error) => {
