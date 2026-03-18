@@ -1,4 +1,10 @@
-import { cn, IAttachment, readImage, RelativeDateDisplay, Button } from 'erxes-ui';
+import {
+  cn,
+  IAttachment,
+  readImage,
+  RelativeDateDisplay,
+  Button,
+} from 'erxes-ui';
 import { useFbMessengerMessageContext } from '../contexts/FbMessengerMessageContext';
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
