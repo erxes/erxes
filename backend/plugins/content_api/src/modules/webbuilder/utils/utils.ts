@@ -183,7 +183,7 @@ export const deploy = async (
     await git.clone(TEMPLATE_REPO, tmpDir);
     console.log('Cloned template repository');
 
-    // changing next.js version to 15.3.6 bcs of vercel auto detection issue with affected versions
+    // changing next.js version to 15.3.8 bcs of vercel auto detection issue with affected versions
     const packageJsonPath = path.join(tmpDir, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
@@ -194,18 +194,14 @@ export const deploy = async (
       console.log(`patched next.js from ${nextVersion} to 15.3.8`);
     }
 
-    // Delete lockfiles so yarn regenerates with patched versions
-    const yarnLockPath = path.join(tmpDir, 'yarn.lock');
+    // Delete package-lock.json only — keep yarn.lock so yarn resolves
+    // only the patched package instead of re-fetching everything from scratch
     const packageLockPath = path.join(tmpDir, 'package-lock.json');
-
-    if (fs.existsSync(yarnLockPath)) {
-      fs.unlinkSync(yarnLockPath);
-      console.log('deleted yarn.lock');
-    }
     if (fs.existsSync(packageLockPath)) {
       fs.unlinkSync(packageLockPath);
       console.log('deleted package-lock.json');
     }
+
     // Build env object
     const env: Record<string, string> = {
       ERXES_API_URL: `${domain}/graphql`,
@@ -292,10 +288,16 @@ export const deploy = async (
     });
     console.log('total files to upload:', files.length);
 
-    // Deploy to Vercel
+    const projectId = `erxes-${web._id}`
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]/g, '-');
+
     const projectName = `${web.name}`
       .toLowerCase()
       .replace(/[^a-z0-9._-]/g, '-');
+
+    console.log('vercel projectId (stable):', projectId);
+    console.log('vercel projectName (display):', projectName);
     console.log('calling vercel api...');
 
     const response = await fetch(
@@ -307,10 +309,10 @@ export const deploy = async (
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: projectName,
+          name: projectName,  
+          project: projectId,  
           files,
           target: 'production',
-          project: projectName,
           projectSettings: {
             installCommand: 'yarn install',
             buildCommand: 'next build',
@@ -337,8 +339,6 @@ export const deploy = async (
     tmp.setGracefulCleanup();
   }
 };
-
-// ---- Vercel utility functions ----
 
 export const getDomains = async (projectId: string) => {
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
