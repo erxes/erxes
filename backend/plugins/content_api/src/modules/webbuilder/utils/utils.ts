@@ -309,8 +309,8 @@ export const deploy = async (
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: projectName,  
-          project: projectId,  
+          name: projectName,
+          project: projectId,
           files,
           target: 'production',
           projectSettings: {
