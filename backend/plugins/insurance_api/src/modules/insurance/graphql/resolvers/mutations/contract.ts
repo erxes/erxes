@@ -13,7 +13,7 @@ const generateContractNumber = async (models: any): Promise<string> => {
 
   let sequence = 1;
   if (lastContract?.contractNumber) {
-    const lastSequence = parseInt(lastContract.contractNumber.slice(-4));
+    const lastSequence = Number.parseInt(lastContract.contractNumber.slice(-4));
     sequence = lastSequence + 1;
   }
 
@@ -67,46 +67,46 @@ export const contractMutations = {
         // Get customer data
         const customer = await models.Customer.findById(customerId);
 
-        // Replace template variables with actual data
+        // replace template variables with actual data
         pdfContent = pdfContent
-          .replace(/{{contractNumber}}/g, contractNumber)
-          .replace(
+          .replaceAll(/{{contractNumber}}/g, contractNumber)
+          .replaceAll(
             /{{customerName}}/g,
             customer ? `${customer.lastName} ${customer.firstName}` : '',
           )
-          .replace(
+          .replaceAll(
             /{{registrationNumber}}/g,
             customer?.registrationNumber || '',
           )
-          .replace(/{{email}}/g, customer?.email || '')
-          .replace(/{{phone}}/g, customer?.phone || '')
-          .replace(
+          .replaceAll(/{{email}}/g, customer?.email || '')
+          .replaceAll(/{{phone}}/g, customer?.phone || '')
+          .replaceAll(
             /{{chargedAmount}}/g,
             (chargedAmount || calculatedAmount).toLocaleString(),
           )
-          .replace(
+          .replaceAll(
             /{{startDate}}/g,
             new Date(startDate).toLocaleDateString('mn-MN'),
           )
-          .replace(
+          .replaceAll(
             /{{endDate}}/g,
             new Date(endDate).toLocaleDateString('mn-MN'),
           )
-          .replace(/{{productName}}/g, product.name || '')
-          .replace(/{{plateNumber}}/g, insuredObject?.['Улсын дугаар'] || '')
-          .replace(/{{chassisNumber}}/g, insuredObject?.['Арлын дугаар'] || '')
-          .replace(
+          .replaceAll(/{{productName}}/g, product.name || '')
+          .replaceAll(/{{plateNumber}}/g, insuredObject?.['Улсын дугаар'] || '')
+          .replaceAll(/{{chassisNumber}}/g, insuredObject?.['Арлын дугаар'] || '')
+          .replaceAll(
             /{{vehicleMake}}/g,
             insuredObject?.['Тээврийн хэрэгслийн марк'] || '',
           )
-          .replace(/{{manufacturer}}/g, insuredObject?.['Үйлдвэрлэгч'] || '')
-          .replace(/{{color}}/g, insuredObject?.['Өнгө'] || '')
-          .replace(
+          .replaceAll(/{{manufacturer}}/g, insuredObject?.['Үйлдвэрлэгч'] || '')
+          .replaceAll(/{{color}}/g, insuredObject?.['Өнгө'] || '')
+          .replaceAll(
             /{{manufactureYear}}/g,
             insuredObject?.['Үйлдвэрлэсэн он'] || '',
           )
-          .replace(/{{importYear}}/g, insuredObject?.['Орж ирсэн он'] || '')
-          .replace(
+          .replaceAll(/{{importYear}}/g, insuredObject?.['Орж ирсэн он'] || '')
+          .replaceAll(
             /{{assessedValue}}/g,
             insuredObject?.['Даатгалын үнэлгээ (₮)'] || '',
           );
