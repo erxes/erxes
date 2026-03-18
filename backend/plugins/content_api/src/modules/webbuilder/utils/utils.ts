@@ -194,14 +194,9 @@ export const deploy = async (
       console.log(`patched next.js from ${nextVersion} to 15.3.8`);
     }
 
-    // Delete lockfiles so yarn regenerates with patched versions
-    const yarnLockPath = path.join(tmpDir, 'yarn.lock');
+    // Delete package-lock.json only — keep yarn.lock so yarn resolves
+    // only the patched package instead of re-fetching everything from scratch
     const packageLockPath = path.join(tmpDir, 'package-lock.json');
-
-    if (fs.existsSync(yarnLockPath)) {
-      fs.unlinkSync(yarnLockPath);
-      console.log('deleted yarn.lock');
-    }
     if (fs.existsSync(packageLockPath)) {
       fs.unlinkSync(packageLockPath);
       console.log('deleted package-lock.json');
@@ -384,6 +379,14 @@ export const addDomain = async (projectId: string, domain: string) => {
       body: JSON.stringify({ name: domain }),
     },
   );
+  return response.json();
+};
+
+export const getDeployment = async (id: string) => {
+  const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
+  const response = await fetch(`https://api.vercel.com/v13/deployments/${id}`, {
+    headers: { Authorization: `Bearer ${VERCEL_TOKEN}` },
+  });
   return response.json();
 };
 
