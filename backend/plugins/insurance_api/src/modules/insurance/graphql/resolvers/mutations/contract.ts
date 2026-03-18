@@ -94,7 +94,10 @@ export const contractMutations = {
           )
           .replaceAll(/{{productName}}/g, product.name || '')
           .replaceAll(/{{plateNumber}}/g, insuredObject?.['Улсын дугаар'] || '')
-          .replaceAll(/{{chassisNumber}}/g, insuredObject?.['Арлын дугаар'] || '')
+          .replaceAll(
+            /{{chassisNumber}}/g,
+            insuredObject?.['Арлын дугаар'] || '',
+          )
           .replaceAll(
             /{{vehicleMake}}/g,
             insuredObject?.['Тээврийн хэрэгслийн марк'] || '',
