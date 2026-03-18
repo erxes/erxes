@@ -1,5 +1,5 @@
 import { TablerIcon } from '@tabler/icons-react';
-export type TabType = 'ticket' | 'chat' | 'faq' | 'call' | 'bug' | 'default';
+export type TabType = 'ticket' | 'chat' | 'faq' | 'call' | 'bug' | 'notifications' | 'default';
 
 export type HeaderContentType = 'hero-intro' | 'header-tabs';
 

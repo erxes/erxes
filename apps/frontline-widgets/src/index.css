@@ -15,21 +15,19 @@
   overflow: hidden;
 }
 
+/* Launcher iframe — extra space so the badge can overflow the button edge */
 .erxes-launcher {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  right: 8px;
+  bottom: 8px;
   border: none;
   z-index: 2147483649;
-  overflow: hidden;
-  height: 48px;
-  width: 48px;
+  overflow: visible;
+  height: 72px;
+  width: 72px;
   opacity: 0;
-  transition: box-shadow 0.3s ease-in-out, opacity 0.3s;
-  border-radius: 50%;
-  /* filter: drop-shadow(rgba(9, 14, 21, 0.1) 0px 3px 6px)
-    drop-shadow(rgba(9, 14, 21, 0.1) 0px 1px 12px); */
-  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.06), 0 2px 32px 0 rgba(0, 0, 0, 0.16);
+  transition: opacity 0.3s ease;
+  background: transparent;
 }
 
 .erxes-messenger-hidden {

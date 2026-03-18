@@ -51,27 +51,20 @@
 
     <!-- Load the compiled widget script -->
     <script src="./messengerBundle.js"></script>
-    <script>
-      window.erxesSettings = {
-        messenger: {
-          integrationId: '9S6seo9wawN6cou8v',
-        },
-        forms: [
-          {
-            form_id: 'SbPw2l',
-            channel_id: 'JCwNcKRss4W94g8F5FKpw',
-          },
-        ],
-      };
+<script>
+  window.erxesSettings = {
+    messenger: {
+      integrationId: "l1LLS8hQgm7elf3YDVZID",
+    },
+  };
 
-      (function () {
-        var script = document.createElement('script');
-        script.src = 'http://localhost:4200/formBundle.js';
-        script.async = true;
-
-        var entry = document.getElementsByTagName('script')[0];
-        entry.parentNode.insertBefore(script, entry);
-      })();
-    </script>
+  (function () {
+    const script = document.createElement("script");
+    script.src = "http://localhost:4000/messengerBundle.js";
+    script.async = true;
+    const entry = document.getElementsByTagName("script")[0];
+    entry.parentNode.insertBefore(script, entry);
+  })();
+</script>
   </body>
 </html>

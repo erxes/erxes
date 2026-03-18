@@ -7,8 +7,10 @@ import { Intro } from './messenger/components/intro';
 import { useConnect } from './messenger/hooks/useConnect';
 import { Skeleton, REACT_APP_API_URL } from 'erxes-ui';
 import { ConversationDetails } from './messenger/components/conversation-details';
-import { connectionAtom, messengerDataAtom } from './messenger/states';
+import { connectionAtom, messengerDataAtom, unreadNotificationCountAtom } from './messenger/states';
+import { useAtomValue } from 'jotai';
 import { Ticket } from './messenger/ticket/components/ticket';
+import { useWidgetNotifications } from './messenger/hooks/useWidgetNotifications';
 
 export function App() {
   const [isMessengerVisible, setIsMessengerVisible] = useState(false);
@@ -16,6 +18,10 @@ export function App() {
   const { activeTab } = useMessenger();
   const [connection] = useAtom(connectionAtom);
   const [messengerData, setMessengerData] = useAtom(messengerDataAtom);
+  const unreadCount = useAtomValue(unreadNotificationCountAtom);
+  // Always-on subscription: sound + web notifications work on every tab
+  useWidgetNotifications();
+
   const { loading: connecting } = useConnect({
     integrationId: messengerData?.integrationId ?? '',
   });
@@ -33,6 +39,10 @@ export function App() {
       );
     }
   }, [connecting, connection]);
+
+  useEffect(() => {
+    postMessage('fromMessenger', 'unreadCount', { count: unreadCount });
+  }, [unreadCount]);
 
   useEffect(() => {
     const toggle = () => {
@@ -69,6 +79,7 @@ export function App() {
         return <ConversationDetails />;
       case 'ticket':
         return <Ticket />;
+
       default:
         return <Intro />;
     }
