@@ -19,7 +19,9 @@ export interface ITourCategoryModel extends Model<IOTATourCategoryDocument> {
 
 export const loadTourCategoryClass = (models: IModels) => {
   class TourCategories {
-    public static readonly createTourCategory = async (data: IOTATourCategory) => {
+    public static readonly createTourCategory = async (
+      data: IOTATourCategory,
+    ) => {
       return models.TourCategories.create(data);
     };
 

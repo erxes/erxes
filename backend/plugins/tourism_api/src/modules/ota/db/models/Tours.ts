@@ -19,7 +19,10 @@ export const loadOTATourClass = (models: IModels) => {
       return models.OTATours.create(data);
     };
 
-    public static readonly updateTour = async (_id: string, data: Partial<IOTATour>) => {
+    public static readonly updateTour = async (
+      _id: string,
+      data: Partial<IOTATour>,
+    ) => {
       return models.OTATours.findOneAndUpdate(
         { _id },
         { $set: data },

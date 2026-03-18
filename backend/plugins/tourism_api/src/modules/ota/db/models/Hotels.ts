@@ -18,7 +18,10 @@ export const loadHotelClass = (models: IModels) => {
       return models.Hotels.create(data);
     };
 
-    public static readonly updateHotel = async (_id: string, data: IOTAHotel) => {
+    public static readonly updateHotel = async (
+      _id: string,
+      data: IOTAHotel,
+    ) => {
       const hotel = await models.Hotels.findOneAndUpdate(
         { _id },
         { $set: data },

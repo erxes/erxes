@@ -7,8 +7,7 @@ import {
 } from '@/ota/@types/tourAvailabilities';
 import { otaTourAvailabilitySchema } from '@/ota/db/definitions/tourAvailabilities';
 
-export interface ITourAvailabilityModel
-  extends Model<IOTATourAvailabilityDocument> {
+export interface ITourAvailabilityModel extends Model<IOTATourAvailabilityDocument> {
   createTourAvailability: (
     data: IOTATourAvailability,
   ) => Promise<IOTATourAvailabilityDocument>;

@@ -15,7 +15,9 @@ export interface ITourBookingModel extends Model<IOTATourBookingDocument> {
 
 export const loadTourBookingClass = (models: IModels) => {
   class TourBookings {
-    public static readonly createTourBooking = async (data: IOTATourBooking) => {
+    public static readonly createTourBooking = async (
+      data: IOTATourBooking,
+    ) => {
       return models.TourBookings.create(data);
     };
 
