@@ -69,45 +69,45 @@ export const contractMutations = {
 
         // replace template variables with actual data
         pdfContent = pdfContent
-          .replaceAll(/{{contractNumber}}/g, contractNumber)
+          .replaceAll('{{contractNumber}}', contractNumber)
           .replaceAll(
-            /{{customerName}}/g,
+            '{{customerName}}',
             customer ? `${customer.lastName} ${customer.firstName}` : '',
           )
           .replaceAll(
-            /{{registrationNumber}}/g,
+            '{{registrationNumber}}',
             customer?.registrationNumber || '',
           )
-          .replaceAll(/{{email}}/g, customer?.email || '')
-          .replaceAll(/{{phone}}/g, customer?.phone || '')
+          .replaceAll('{{email}}', customer?.email || '')
+          .replaceAll('{{phone}}', customer?.phone || '')
           .replaceAll(
-            /{{chargedAmount}}/g,
+            '{{chargedAmount}}',
             (chargedAmount || calculatedAmount).toLocaleString(),
           )
           .replaceAll(
-            /{{startDate}}/g,
+            '{{startDate}}',
             new Date(startDate).toLocaleDateString('mn-MN'),
           )
           .replaceAll(
-            /{{endDate}}/g,
+            '{{endDate}}',
             new Date(endDate).toLocaleDateString('mn-MN'),
           )
-          .replaceAll(/{{productName}}/g, product.name || '')
-          .replaceAll(/{{plateNumber}}/g, insuredObject?.['Улсын дугаар'] || '')
-          .replaceAll(/{{chassisNumber}}/g, insuredObject?.['Арлын дугаар'] || '')
+          .replaceAll('{{productName}}', product.name || '')
+          .replaceAll('{{plateNumber}}', insuredObject?.['Улсын дугаар'] || '')
+          .replaceAll('{{chassisNumber}}', insuredObject?.['Арлын дугаар'] || '')
           .replaceAll(
-            /{{vehicleMake}}/g,
+            '{{vehicleMake}}',
             insuredObject?.['Тээврийн хэрэгслийн марк'] || '',
           )
-          .replaceAll(/{{manufacturer}}/g, insuredObject?.['Үйлдвэрлэгч'] || '')
-          .replaceAll(/{{color}}/g, insuredObject?.['Өнгө'] || '')
+          .replaceAll('{{manufacturer}}', insuredObject?.['Үйлдвэрлэгч'] || '')
+          .replaceAll('{{color}}', insuredObject?.['Өнгө'] || '')
           .replaceAll(
-            /{{manufactureYear}}/g,
+            '{{manufactureYear}}',
             insuredObject?.['Үйлдвэрлэсэн он'] || '',
           )
-          .replaceAll(/{{importYear}}/g, insuredObject?.['Орж ирсэн он'] || '')
+          .replaceAll('{{importYear}}', insuredObject?.['Орж ирсэн он'] || '')
           .replaceAll(
-            /{{assessedValue}}/g,
+            '{{assessedValue}}',
             insuredObject?.['Даатгалын үнэлгээ (₮)'] || '',
           );
       }
