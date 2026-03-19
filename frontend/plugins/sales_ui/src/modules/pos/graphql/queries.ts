@@ -11,6 +11,7 @@ export const posCommonFields = `
   token
   erxesAppToken
   serviceCharge
+  serviceChargeApplicableProductId
   adminIds
   cashierIds
   paymentIds
@@ -185,6 +186,19 @@ const fieldsCombinedByContentType = gql`
   }
 `;
 
+const ProductCategories = gql`
+  query ProductCategories {
+    productCategories {
+      _id
+      parentId
+      code
+      name
+      order
+      productCount
+    }
+  }
+`;
+
 export default {
   posList,
   productGroups,
@@ -196,4 +210,5 @@ export default {
   getPayments,
   ebarimtProductRules,
   fieldsCombinedByContentType,
+  ProductCategories,
 };

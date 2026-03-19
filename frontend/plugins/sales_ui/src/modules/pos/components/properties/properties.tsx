@@ -38,7 +38,8 @@ const MoreOptionsButton = ({ showMore, onToggle }: MoreOptionsButtonProps) => (
   <Button
     type="button"
     variant="outline"
-    className="flex gap-1 items-center text-sm"
+    size="sm"
+    className="flex gap-1 items-center text-muted-foreground"
     onClick={onToggle}
   >
     {showMore ? (
@@ -244,10 +245,12 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
                 </>
               )}
 
-              <MoreOptionsButton
-                showMore={showMoreFields}
-                onToggle={toggleMoreFields}
-              />
+              <div className="flex justify-center">
+                <MoreOptionsButton
+                  showMore={showMoreFields}
+                  onToggle={toggleMoreFields}
+                />
+              </div>
 
               {isPosType && showMoreFields && (
                 <div className="grid grid-cols-2 gap-4">
