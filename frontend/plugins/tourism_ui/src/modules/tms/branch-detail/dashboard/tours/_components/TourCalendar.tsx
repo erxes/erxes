@@ -33,9 +33,6 @@ const MONTH_LABELS = Array.from({ length: 12 }).map((_, index) =>
   ),
 );
 
-const normalizeDate = (date: Date) =>
-  Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-
 function clampToMinYear(date: Date, minYear: number) {
   if (date.getFullYear() < minYear) {
     return new Date(minYear, 0, 1);
@@ -181,30 +178,32 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
     confirm({
       message: `Are you sure you want to delete ${tourName || 'this tour'}?`,
       options: confirmOptions,
-    }).then(() => {
-      setDeletingTourId(tourId);
-      removeTours({
-        variables: {
-          ids: [tourId],
-        },
-        onError: (error: ApolloError) => {
-          setDeletingTourId(null);
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
-        onCompleted: () => {
-          setDeletingTourId(null);
-          toast({
-            title: 'Success',
-            description: 'Tour deleted successfully',
-            variant: 'success',
-          });
-        },
-      });
-    });
+    })
+      .then(() => {
+        setDeletingTourId(tourId);
+        removeTours({
+          variables: {
+            ids: [tourId],
+          },
+          onError: (error: ApolloError) => {
+            setDeletingTourId(null);
+            toast({
+              title: 'Error',
+              description: error.message,
+              variant: 'destructive',
+            });
+          },
+          onCompleted: () => {
+            setDeletingTourId(null);
+            toast({
+              title: 'Success',
+              description: 'Tour deleted successfully',
+              variant: 'success',
+            });
+          },
+        });
+      })
+      .catch(() => null);
   };
 
   return (

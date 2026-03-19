@@ -23,10 +23,9 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
     setEditTourId(tourId);
   };
 
-  const handleCloseEdit = () => {
-    setEditTourId(null);
+  const handleCloseEdit = (open: boolean) => {
+    if (!open) setEditTourId(null);
   };
-
   if (!loading && (totalCount ?? 0) === 0) {
     return <EmptyStateRow branchId={branchId} />;
   }
@@ -68,7 +67,7 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
             <TourEditForm
               tourId={editTourId}
               branchId={branchId}
-              onSuccess={handleCloseEdit}
+              onSuccess={() => handleCloseEdit(false)}
             />
           )}
         </Sheet.View>
