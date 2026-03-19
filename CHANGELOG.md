@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.17.37](https://github.com/erxes/erxes/compare/2.17.36...2.17.37) (2026-03-17)
+
+### Features
+
+* add product category dimension to deal reports ([a42e66e](https://github.com/erxes/erxes/commit/a42e66eef2d57812bf63bd8cbfa4d5843ac049a6))
+* insight add Call-Pro chart  ([6299f6f](https://github.com/erxes/erxes/commit/6299f6fc85a5f54598a847f6a5c2a06444ed8fb0))
+* **pos 2.0:** add service charge on pos and separate print progress ([#7168](https://github.com/erxes/erxes/issues/7168)) ([a25fb9b](https://github.com/erxes/erxes/commit/a25fb9bb92a45acb6e6adfe9f651cbcf4a0fc262))
+
+### Bug Fixes
+
+* facebook-messenger add HUMAN_AGENT tag support for replies outside 24-hour window"  ([9e6aa8a](https://github.com/erxes/erxes/commit/9e6aa8a895dd118e4df1dcc222f908bc3d05a7c9))
+
 ## [2.17.36](https://github.com/erxes/erxes/compare/2.17.35...2.17.36) (2026-03-04)
 
 ### Features
