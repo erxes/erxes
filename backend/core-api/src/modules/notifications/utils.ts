@@ -60,8 +60,6 @@ export const sendOnboardNotification = async (
   );
 };
 
-
-
 export const initFirebase = async (
   models: IModels,
   customConfig?: string,

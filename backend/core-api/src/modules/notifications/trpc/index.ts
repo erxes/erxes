@@ -90,67 +90,73 @@ export const notificationTrpcRouter = t.router({
 
       return models.NotificationSettings.find({ userId: { $in: userIds } });
     }),
-    sendMobileNotification: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { receivers, deviceTokens, title, body, data } = input;
+    sendMobileNotification: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { receivers, deviceTokens, title, body, data } = input;
 
-      if (!admin.apps.length) {
-        await initFirebase(models);
-      }
-
-      const additionalConfigs = await models.Configs.findOne({
-        code: 'GOOGLE_APP_ADDITIONAL_CREDS_JSON',
-      });
-
-      if (admin.apps.length === 1 && additionalConfigs) {
-        for (const [index, item] of (additionalConfigs?.value || []).entries()) {
-          await initFirebase(models, item, `app${index + 1}`);
+        if (!admin.apps.length) {
+          await initFirebase(models);
         }
-      }
 
-      const tokens: string[] = [];
+        const additionalConfigs = await models.Configs.findOne({
+          code: 'GOOGLE_APP_ADDITIONAL_CREDS_JSON',
+        });
 
-      if (receivers?.length) {
-        const xs = await models.Users.find({
-          _id: { $in: receivers },
-          role: { $ne: USER_ROLES.SYSTEM },
-        }).distinct('deviceTokens');
-
-        for (const x of xs) {
-          if (x) tokens.push(x);
+        if (admin.apps.length === 1 && additionalConfigs) {
+          for (const [index, item] of (
+            additionalConfigs?.value || []
+          ).entries()) {
+            await initFirebase(models, item, `app${index + 1}`);
+          }
         }
-      }
 
-      if (deviceTokens?.length) {
-        tokens.push(...deviceTokens);
-      }
+        const tokens: string[] = [];
 
-      if (tokens.length > 0) {
-        for (const app of admin.apps) {
-          if (app) {
-            const transporter = app.messaging();
+        if (receivers?.length) {
+          const xs = await models.Users.find({
+            _id: { $in: receivers },
+            role: { $ne: USER_ROLES.SYSTEM },
+          }).distinct('deviceTokens');
 
-            for (const token of tokens) {
-              await transporter
-                .send({
-                  token,
-                  notification: { title, body },
-                  data: data || {},
-                })
-                .catch(async (e: Error) => {
-                  console.error(`Error occurred during firebase send: ${e.message}`);
+          for (const x of xs) {
+            if (x) tokens.push(x);
+          }
+        }
 
-                  if (!e.message.includes('SenderId mismatch')) {
-                    await models.Users.updateOne(
-                      { deviceTokens: token },
-                      { $pull: { deviceTokens: token } },
+        if (deviceTokens?.length) {
+          tokens.push(...deviceTokens);
+        }
+
+        if (tokens.length > 0) {
+          for (const app of admin.apps) {
+            if (app) {
+              const transporter = app.messaging();
+
+              for (const token of tokens) {
+                await transporter
+                  .send({
+                    token,
+                    notification: { title, body },
+                    data: data || {},
+                  })
+                  .catch(async (e: Error) => {
+                    console.error(
+                      `Error occurred during firebase send: ${e.message}`,
                     );
-                  }
-                });
+
+                    if (!e.message.includes('SenderId mismatch')) {
+                      await models.Users.updateOne(
+                        { deviceTokens: token },
+                        { $pull: { deviceTokens: token } },
+                      );
+                    }
+                  });
+              }
             }
           }
         }
-      }
-    }),
+      }),
   }),
 });
