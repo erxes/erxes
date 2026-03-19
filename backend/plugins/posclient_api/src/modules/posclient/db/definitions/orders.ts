@@ -212,6 +212,11 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Is Pre-Order',
       optional: true,
     }),
+    clientPortalId: field({
+      type: String,
+      optional: true,
+      label: 'Client Portal ID',
+    }),
     origin: field({
       type: String,
       label: 'Origin of the order',

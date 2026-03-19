@@ -26,6 +26,7 @@ export const invoiceSchema = schemaWrapper(
     apiResponse: { type: Schema.Types.Mixed },
     callback: { type: String },
     warningText: { type: String },
+    clientPortalId: { type: String },
   }),
 );
 

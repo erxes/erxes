@@ -1,6 +1,5 @@
 import { Document } from 'mongoose';
 
-
 export interface IInvoice {
   invoiceNumber: string;
   amount: number;
@@ -20,6 +19,7 @@ export interface IInvoice {
   callback?: string;
   warningText?: string;
   data?: any;
+  clientPortalId?: string;
 }
 export interface IInvoiceDocument extends IInvoice, Document {
   _id: string;

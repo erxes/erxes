@@ -474,7 +474,7 @@ const orderMutations: Record<string, Resolver> = {
   async cpOrdersAdd(
     _root,
     doc: IOrderInput,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain, clientPortal }: IContext,
   ) {
     if (doc.origin === 'qrMenu' && doc.isSingle === false && doc.slotCode) {
       if (doc.deviceId) {
@@ -534,20 +534,31 @@ const orderMutations: Record<string, Resolver> = {
         }
 
         return ordersEdit(
-          { ...doc, ...slotInSameOrder, items },
+          {
+            ...doc,
+            ...slotInSameOrder,
+            items,
+            clientPortalId: clientPortal?.id,
+          },
           { posUser, config, models, subdomain },
         );
       }
     }
-    return ordersAdd(doc, { posUser, config, models, subdomain });
+    return ordersAdd(
+      { ...doc, clientPortalId: clientPortal?.id },
+      { posUser, config, models, subdomain },
+    );
   },
 
   async cpOrdersEdit(
     _root,
     doc: IOrderEditParams,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain, clientPortal }: IContext,
   ) {
-    return ordersEdit(doc, { posUser, config, models, subdomain });
+    return ordersEdit(
+      { ...doc, clientPortalId: clientPortal?.id },
+      { posUser, config, models, subdomain },
+    );
   },
 
   async ordersEdit(
@@ -639,7 +650,7 @@ const orderMutations: Record<string, Resolver> = {
   async cpOrderChangeSaleStatus(
     _root,
     { _id, saleStatus }: { _id: string; saleStatus: string },
-    { models }: IContext,
+    { models, clientPortal }: IContext,
   ) {
     const oldOrder = await models.Orders.getOrder(_id);
 
@@ -647,6 +658,7 @@ const orderMutations: Record<string, Resolver> = {
       ...oldOrder,
       saleStatus,
       modifiedAt: new Date(),
+      clientPortalId: clientPortal?.id,
     });
 
     return await models.Orders.getOrder(_id);
@@ -952,7 +964,7 @@ const orderMutations: Record<string, Resolver> = {
     return models.Orders.deleteOne({ _id });
   },
 
-  async cpOrdersCancel(_root, { _id }, { models }: IContext) {
+  async cpOrdersCancel(_root, { _id }, { models, clientPortal }: IContext) {
     const order = await models.Orders.getOrder(_id);
 
     checkOrderStatus(order);
@@ -976,6 +988,9 @@ const orderMutations: Record<string, Resolver> = {
     if (order.synced === true) {
       throw new Error('Order is already synced to erxes');
     }
+
+    // Update order with clientPortalId before deletion for audit trail
+    await models.Orders.updateOrder(_id, { clientPortalId: clientPortal?.id });
 
     await models.OrderItems.deleteMany({ orderId: _id });
 
