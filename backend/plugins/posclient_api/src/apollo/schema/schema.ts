@@ -65,7 +65,6 @@ export const queries = `
 
 export const mutations = `
     ${PosUserMutations}
-
     ${OrderMutations}
     ${ConfigMutations}
     ${BridgesMutations}

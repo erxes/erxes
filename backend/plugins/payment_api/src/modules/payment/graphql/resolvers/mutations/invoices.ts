@@ -38,11 +38,16 @@ const mutations: Record<string, Resolver> = {
   async cpInvoiceCreate(
     _root,
     { input }: { input: IInvoice },
-    { models, subdomain }: IContext,
+    { models, subdomain, clientPortal }: IContext,
   ) {
+    if (!clientPortal?.id) {
+      throw new Error('Client portal context is required for cpInvoiceCreate');
+    }
+
     const invoice = await models.Invoices.createInvoice(
       {
         ...input,
+        clientPortalId: clientPortal.id,
       },
       subdomain,
     );

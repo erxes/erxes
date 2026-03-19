@@ -31,6 +31,7 @@ export const types = `
     
     data: JSON
     warningText: String
+    clientPortalId: String
 
     transactions: [PaymentTransaction]
   }
@@ -58,6 +59,7 @@ export const inputs = `
     warningText: String
     callback: String
     currency: String
+    clientPortalId: String
   }
 `;
 

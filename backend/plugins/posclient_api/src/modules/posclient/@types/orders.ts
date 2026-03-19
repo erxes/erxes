@@ -50,6 +50,7 @@ export interface IOrder {
   deliveryInfo?: any;
   description?: string;
   isPre?: boolean;
+  clientPortalId?: string;
 
   //posSlot
   slotCode?: string;

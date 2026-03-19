@@ -156,7 +156,7 @@ const orderQueries: Record<string, Resolver> = {
   async cpCurrentOrder(
     _root,
     params: ISearchParams,
-    { models, config }: IContext,
+    { models, config, clientPortal }: IContext,
   ) {
     return filterOrders(params, models, config);
   },
@@ -168,7 +168,7 @@ const orderQueries: Record<string, Resolver> = {
   async cpFullOrders(
     _root,
     params: ISearchParams,
-    { models, config }: IContext,
+    { models, config, clientPortal }: IContext,
   ) {
     return filterOrders(params, models, config);
   },
@@ -247,7 +247,7 @@ const orderQueries: Record<string, Resolver> = {
   async cpOrderDetail(
     _root,
     { _id, customerId }: { _id: string; customerId?: string },
-    { posUser, models, config }: IContext,
+    { posUser, models, config, clientPortal }: IContext,
   ) {
     const tokenFilter = {
       $or: [{ posToken: config.token }, { subToken: config.token }],
@@ -278,7 +278,7 @@ const orderQueries: Record<string, Resolver> = {
       sortField,
       sortDirection,
     }: ISearchParams,
-    { models }: IContext,
+    { models, clientPortal }: IContext,
   ) {
     const filter: any = {};
 
@@ -319,7 +319,7 @@ const orderQueries: Record<string, Resolver> = {
     return resp.result?.data;
   },
 
-  async cpOrdersCheckCompany(_root, { registerNumber }, { config }: IContext) {
+  async cpOrdersCheckCompany(_root, { registerNumber }, { config, clientPortal }: IContext) {
     const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
 
     if (!checkTaxpayerUrl) {
@@ -346,7 +346,7 @@ const orderQueries: Record<string, Resolver> = {
       ISearchParams,
       'customerId' | 'page' | 'perPage' | 'sortField' | 'sortDirection'
     >,
-    { models, config }: IContext,
+    { models, config, clientPortal }: IContext,
   ) {
     const sort: { [key: string]: any } = {};
     if (sortField) {
@@ -374,7 +374,7 @@ const orderQueries: Record<string, Resolver> = {
   async cpGetLastProductView(
     _root,
     { customerId }: { customerId?: string },
-    { models, config }: IContext,
+    { models, config, clientPortal }: IContext,
   ) {
     const tokenFilter = {
       $or: [{ posToken: config.token }, { subToken: config.token }],
@@ -394,7 +394,7 @@ const orderQueries: Record<string, Resolver> = {
     return await models.OrderItems.find({ orderId: order._id }).lean();
   },
 
-  async cpAddresses(_root, { orderId }, { subdomain }: IContext) {
+  async cpAddresses(_root, { orderId }, { subdomain, clientPortal }: IContext) {
     const info = await sendTRPCMessage({
       subdomain,
 
