@@ -1,5 +1,5 @@
 import { Sidebar } from 'erxes-ui';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router-dom';
 
 const steps = [
   { value: 'tour', title: 'Tour' },

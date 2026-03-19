@@ -1,7 +1,7 @@
 import { IconArrowLeft, IconBox } from '@tabler/icons-react';
 import { useBranchDetailPage } from '@/tms/branch-detail/hooks/useBranchDetailPage';
 import { Button, Spinner } from 'erxes-ui';
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { MainContent, BranchSideBar } from '@/tms/branch-detail/components';
 

@@ -34,7 +34,7 @@ const MONTH_LABELS = Array.from({ length: 12 }).map((_, index) =>
 );
 
 const normalizeDate = (date: Date) =>
-  new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 
 function clampToMinYear(date: Date, minYear: number) {
   if (date.getFullYear() < minYear) {
@@ -72,9 +72,26 @@ function createMonthDays(base: Date): CalendarDay[] {
 function isDateInRange(date: Date, start?: string, end?: string) {
   if (!start) return false;
 
-  const startTime = normalizeDate(new Date(start));
-  const endTime = end ? normalizeDate(new Date(end)) : startTime;
-  const current = normalizeDate(date);
+  const startDate = new Date(start);
+  const endDate = end ? new Date(end) : startDate;
+
+  const startTime = Date.UTC(
+    startDate.getUTCFullYear(),
+    startDate.getUTCMonth(),
+    startDate.getUTCDate(),
+  );
+
+  const endTime = Date.UTC(
+    endDate.getUTCFullYear(),
+    endDate.getUTCMonth(),
+    endDate.getUTCDate(),
+  );
+
+  const current = Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  );
 
   return current >= startTime && current <= endTime;
 }

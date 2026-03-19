@@ -7,6 +7,7 @@ import { TourColumns } from './TourColumns';
 import { useTours } from '../hooks/useTours';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { TourCommandBar } from './TourCommandBar';
+import { useCategories } from '../../category/hooks/useCategories';
 
 export const TourRecordTable = ({ branchId }: { branchId: string }) => {
   const [editTourId, setEditTourId] = useState<string | null>(null);
@@ -15,6 +16,8 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
     variables: { branchId },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  const { categories } = useCategories();
 
   const handleEdit = (tourId: string) => {
     setEditTourId(tourId);
@@ -31,7 +34,7 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
   return (
     <>
       <RecordTable.Provider
-        columns={TourColumns(handleEdit)}
+        columns={TourColumns(categories || [], handleEdit)}
         data={tours || []}
         className="h-full"
         stickyColumns={['checkbox', 'name']}
