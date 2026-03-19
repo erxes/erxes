@@ -51,7 +51,7 @@ const columns: (
   MemberMoreColumn,
   {
     ...RecordTable.checkboxColumn,
-    size: 20,
+    size: 5,
   } as ColumnDef<{ order: string; hasChildren: boolean } & IChannelMember>,
 
   {
