@@ -10,6 +10,7 @@ export interface ICategory {
   _id: string;
   name?: string;
   code?: string;
+  tourCount?: number;
   parentId?: string;
   order?: string;
   attachment?: IAttachment;

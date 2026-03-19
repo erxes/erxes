@@ -98,6 +98,21 @@ export const categoryColumns: (
     size: 180,
   },
   {
+    id: 'tourCount',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label="Tour count" />
+    ),
+    accessorKey: 'tourCount',
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 180,
+  },
+  {
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (

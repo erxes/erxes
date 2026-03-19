@@ -8,6 +8,7 @@ export const GET_CATEGORIES = gql`
       code
       parentId
       order
+      tourCount
       createdAt
       modifiedAt
       attachment {
