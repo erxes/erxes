@@ -43,6 +43,8 @@ export interface IConfig {
   branchId: string
   departmentId: string
   saveRemainder: boolean
+  serviceCharge: number
+  serviceChargeApplicableProductId: string
 }
 
 export interface IEbarimtConfig {
