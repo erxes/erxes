@@ -13,7 +13,6 @@ export const exchangeRateMutations = {
   ) {
     await checkPermission('exchangeRatesManage');
 
-  async exchangeRateAdd(_root, doc: IExchangeRate, { models }: IContext) {
     return await models.ExchangeRates.createExchangeRate({
       ...doc,
       createdAt: new Date(),
