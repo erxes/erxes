@@ -42,7 +42,7 @@ export class BaseQueryResolver {
   protected buildTranslationMap(translations: any[]): Record<string, any> {
     return translations.reduce(
       (acc, translation) => {
-        acc[translation.postId.toString()] = translation;
+        acc[translation.objectId.toString()] = translation;
         return acc;
       },
       {} as Record<string, any>,
@@ -115,7 +115,7 @@ export class BaseQueryResolver {
     type = 'post',
   ): Promise<any[]> {
     return this.models.Translations.find({
-      postId: { $in: itemIds },
+      objectId: { $in: itemIds },
       language,
       type,
     }).lean();
@@ -127,7 +127,7 @@ export class BaseQueryResolver {
     type = 'post',
   ): Promise<any> {
     return this.models.Translations.findOne({
-      postId: itemId,
+      objectId: itemId,
       language,
       type,
     }).lean();
@@ -258,6 +258,11 @@ export class BaseQueryResolver {
     return translatedList;
   }
 
+  /**
+   * Fetch a single item and overlay its translation.
+   * clientPortalId is taken from args when present (cms admin),
+   * falling back to context.clientPortal._id (client portal).
+   */
   protected async getItemWithTranslation<T>(
     model: any,
     query: any,
@@ -370,6 +375,7 @@ export const FIELD_MAPPINGS = {
   PAGE: {
     name: 'title',
     description: 'content',
+    customFieldsData: 'customFieldsData',
   },
   MENU: {
     label: 'title',

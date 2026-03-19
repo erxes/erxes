@@ -28,7 +28,7 @@ export const removeLastTrailingSlash = (text: string) => {
  * @returns the modified string with extra spaces removed
  */
 export const removeExtraSpaces = (text: string) => {
-  return text.replace(/\s+/g, ' ').trim();
+  return text.replaceAll(/\s+/g, ' ').trim();
 };
 
 /**
@@ -64,7 +64,7 @@ export const splitStr = async (
 ): Promise<string[]> => {
   const cleanStr = await stripAnsi(str);
 
-  const regex = new RegExp(`.{1,${size}}(\\s|$)`, 'g');
+  const regex = new RegExp(String.raw`.{1,${size}}(\s|$)`, 'g');
 
   return cleanStr.match(regex) || [];
 };

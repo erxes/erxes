@@ -72,25 +72,25 @@ export function Categories() {
       <CategoriesHeader>{headerActions}</CategoriesHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
-          <div className="flex-auto">
-            <div className="flex flex-col">
-              <div className="flex pt-2 pl-4 justify-between items-center mb-2">
-                <div className="text-sm text-gray-600">
-                  Found {totalCount} categories
-                </div>
-              </div>
-              {!loading && (!categories || categories.length === 0) ? (
-                <div className="rounded-lg overflow-hidden">
-                  <EmptyState
-                    icon={IconArticle}
-                    title="No categories yet"
-                    description="Get started by creating your first page."
-                    actionLabel="Add Category"
-                    onAction={() => setDrawerOpen(true)}
-                  />
-                </div>
-              ) : (
+        <div className="flex flex-col w-full overflow-hidden flex-auto">
+          <div className="flex pt-2 pl-4 justify-between items-center mb-2">
+            <div className="text-sm text-gray-600">
+              Found {totalCount} categories
+            </div>
+          </div>
+          {!loading && (!categories || categories.length === 0) ? (
+            <div className="rounded-lg overflow-hidden">
+              <EmptyState
+                icon={IconArticle}
+                title="No categories yet"
+                description="Get started by creating your first page."
+                actionLabel="Add Category"
+                onAction={() => setDrawerOpen(true)}
+              />
+            </div>
+          ) : (
+            <div className="overflow-hidden flex-auto p-3">
+              <div className="h-full">
                 <CategoriesRecordTable
                   key={refetchTrigger}
                   clientPortalId={websiteId || ''}
@@ -98,9 +98,9 @@ export function Categories() {
                   onRemove={handleRemoveCategory}
                   onBulkDelete={handleBulkDelete}
                 />
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

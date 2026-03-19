@@ -21,7 +21,7 @@ export const pipelineQueries = {
   getTicketPipelines: async (
     _parent: undefined,
     { filter }: { filter: TicketsPipelineFilter },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     const filterQuery: FilterQuery<ITicketPipelineDocument> = {};
 
@@ -39,6 +39,14 @@ export const pipelineQueries = {
 
     if (filter.userId) {
       filterQuery.userId = filter.userId;
+    }
+
+    if (filter.applyVisibilityFilter) {
+      filterQuery.$or = [
+        { visibility: { $ne: 'private' } },
+        { userId: user._id },
+        { memberIds: user._id },
+      ];
     }
 
     return await cursorPaginate<ITicketPipelineDocument>({

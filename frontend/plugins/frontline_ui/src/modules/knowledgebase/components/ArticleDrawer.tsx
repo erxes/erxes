@@ -17,7 +17,6 @@ import { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { REACTIONS } from '../constants';
 import { ADD_ARTICLE, EDIT_ARTICLE } from '../graphql/mutations';
-import { ARTICLES } from '../graphql/queries';
 import { useArticles } from '../hooks/useArticles';
 import type {
   ArticleFormData,
@@ -26,12 +25,12 @@ import type {
 } from '../types';
 
 interface ArticleDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  article?: IKnowledgeBaseArticle;
-  categoryId: string;
-  onSaved?: () => void;
-  refetch?: () => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly article?: IKnowledgeBaseArticle;
+  readonly categoryId: string;
+  readonly onSaved?: () => void;
+  readonly refetch?: () => void;
 }
 
 const toArticleInput = (data: ArticleFormData): ArticleInput => {

@@ -11,7 +11,7 @@ const getDefaultLanguage = async (
 
 const saveTranslations = async (
   models: IContext['models'],
-  postId: string,
+  objectId: string,
   translations: any[],
 ) => {
   if (!Array.isArray(translations) || translations.length === 0) return;
@@ -20,7 +20,7 @@ const saveTranslations = async (
     translations.map((t) =>
       models.Translations.upsertTranslation({
         ...t,
-        postId,
+        objectId,
         type: t.type || 'post',
       }),
     ),
@@ -72,13 +72,15 @@ export const postMutations: Record<string, Resolver> = {
     const { translations, language, ...postInput } = input;
 
     if (language && postInput.clientPortalId) {
-      const defaultLanguage = await getDefaultLanguage(
+      const rawDefault = await getDefaultLanguage(
         models,
         postInput.clientPortalId,
       );
 
-      if (defaultLanguage && language !== defaultLanguage) {
-        const translationDoc: any = { postId: _id, language, type: 'post' };
+      const defaultLanguage = rawDefault || 'en';
+
+      if (language !== defaultLanguage) {
+        const translationDoc: any = { objectId: _id, language, type: 'post' };
 
         if (postInput.title !== undefined)
           translationDoc.title = postInput.title;
@@ -116,7 +118,9 @@ export const postMutations: Record<string, Resolver> = {
     const { models } = context;
     const { _id } = args;
 
-    await models.Translations.deleteMany({ postId: _id });
+    await models.Translations.deleteMany({
+      $or: [{ objectId: _id }, { postId: _id }],
+    });
     return models.Posts.deleteOne({ _id });
   },
 
@@ -124,7 +128,9 @@ export const postMutations: Record<string, Resolver> = {
     const { models } = context;
     const { _ids } = args;
 
-    await models.Translations.deleteMany({ postId: { $in: _ids } });
+    await models.Translations.deleteMany({
+      $or: [{ objectId: { $in: _ids } }, { postId: { $in: _ids } }],
+    });
     const result = await models.Posts.deleteMany({ _id: { $in: _ids } });
     return { deletedCount: result.deletedCount };
   },
@@ -157,7 +163,8 @@ export const postMutations: Record<string, Resolver> = {
     const model = modelMap[type];
     if (!model) throw new Error(`Invalid type: ${type}`);
 
-    const object = await model.findOne({ _id: input.postId });
+    const targetId = input.objectId || input.postId;
+    const object = await model.findOne({ _id: targetId });
     if (!object) throw new Error('Object not found');
 
     return models.Translations.upsertTranslation(input);

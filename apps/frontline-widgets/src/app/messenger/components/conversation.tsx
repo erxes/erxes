@@ -101,28 +101,30 @@ export function ConversationMessage({
     [messages],
   );
 
+  const isUnread = !!(unreadCount && unreadCount > 0 && !isCustomerRead);
+
   if (customerId || fromBot) {
     return (
       <div
         role="tabpanel"
         id={lastMessage?._id}
         tabIndex={0}
-        className="flex items-center gap-3 cursor-pointer p-3 hover:bg-primary/5 rounded-md transition-all duration-300"
+        className="flex items-center gap-3 cursor-pointer p-3 rounded-md transition-all duration-200 hover:bg-accent/40 opacity-60 hover:opacity-80"
         onClick={handleClick}
       >
-        <Avatar className="size-10">
-          <Avatar.Image className="shrink-0 object-cover" alt={'you'} />
-          <Avatar.Fallback className="bg-background">{'C'}</Avatar.Fallback>
+        <Avatar className="size-10 grayscale">
+          <Avatar.Image className="shrink-0 object-cover" alt="you" />
+          <Avatar.Fallback className="bg-background">C</Avatar.Fallback>
         </Avatar>
-        <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground overflow-x-hidden">
+        <div className="flex flex-col gap-0.5 overflow-x-hidden flex-1 min-w-0">
           <span
-            className={cn('truncate line-clamp-1 w-auto')}
+            className="truncate line-clamp-1 text-sm text-muted-foreground"
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(content || ''),
             }}
           />
-          <span className="text-sm text-muted-foreground">
-            {'you'} ·{' '}
+          <span className="text-xs text-muted-foreground/70">
+            you ·{' '}
             {formatDateISOStringToRelativeDate(
               lastMessage?.createdAt as unknown as string,
             )}
@@ -137,59 +139,76 @@ export function ConversationMessage({
         id={lastMessage?._id}
         tabIndex={0}
         className={cn(
-          { 'bg-accent': !isCustomerRead },
-          'flex items-center gap-3 cursor-pointer p-3 hover:bg-accent rounded-md transition-all duration-300',
+          'flex items-center gap-3 cursor-pointer p-3 rounded-md transition-all duration-200',
+          isUnread
+            ? 'bg-primary/8 border-l-2 border-primary hover:bg-primary/12'
+            : 'opacity-55 hover:opacity-75 hover:bg-accent/30',
         )}
         onClick={handleClick}
       >
-        <Avatar className="size-10 bg-background">
-          <Avatar.Image
-            src={readImage(user?.details?.avatar) || 'assets/user.webp'}
-            className="shrink-0 object-cover"
-            alt={user?.details?.fullName}
-          />
-          <Avatar.Fallback>
-            {user?.details?.fullName?.charAt(0) || 'C'}
-          </Avatar.Fallback>
-        </Avatar>
-        <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground overflow-x-hidden">
-          {(unreadCount && unreadCount > 0 && (
-            <span className="text-sm text-accent-foreground font-bold">
-              {unreadCount > 1 ? (
-                `${unreadCount} new messages`
-              ) : (
-                <span
-                  className="text-sm text-accent-foreground font-bold"
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(content || ''),
-                  }}
-                />
-              )}
-            </span>
-          )) || (
+        <div className="relative shrink-0">
+          <Avatar
+            className={cn('size-10 bg-background', !isUnread && 'grayscale')}
+          >
+            <Avatar.Image
+              src={readImage(user?.details?.avatar) || 'assets/user.webp'}
+              className="shrink-0 object-cover"
+              alt={user?.details?.fullName}
+            />
+            <Avatar.Fallback>
+              {user?.details?.fullName?.charAt(0) || 'C'}
+            </Avatar.Fallback>
+          </Avatar>
+          {isUnread && (
+            <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-primary border-2 border-background" />
+          )}
+        </div>
+
+        <div className="flex flex-col gap-0.5 overflow-x-hidden flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
             <span
               className={cn(
-                'truncate line-clamp-1 w-auto',
-                !isCustomerRead && 'text-accent-foreground font-bold',
+                'text-xs truncate',
+                isUnread
+                  ? 'font-bold text-foreground'
+                  : 'font-medium text-muted-foreground',
               )}
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(content || ''),
-              }}
-            />
-          )}
+            >
+              {user?.details?.fullName ||
+                user?.details?.firstName ||
+                'Operator'}
+            </span>
+            <span
+              className={cn(
+                'text-[10px] shrink-0',
+                isUnread
+                  ? 'text-primary font-semibold'
+                  : 'text-muted-foreground/60',
+              )}
+            >
+              {formatDateISOStringToRelativeDate(
+                lastMessage?.createdAt as unknown as string,
+              )}
+            </span>
+          </div>
           <span
             className={cn(
-              { 'font-bold': !isCustomerRead },
-              'text-sm text-muted-foreground',
+              'truncate line-clamp-1 text-sm',
+              isUnread
+                ? 'font-semibold text-foreground/90'
+                : 'font-normal text-muted-foreground/70',
             )}
-          >
-            {user?.details?.fullName || user?.details?.firstName || 'operator'}{' '}
-            ·{' '}
-            {formatDateISOStringToRelativeDate(
-              lastMessage?.createdAt as unknown as string,
-            )}
-          </span>
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(content || ''),
+            }}
+          />
         </div>
+
+        {isUnread && unreadCount && (
+          <span className="shrink-0 min-w-[20px] h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1.5">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
       </div>
     );
   }

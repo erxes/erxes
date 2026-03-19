@@ -38,11 +38,10 @@ export const customerMutations: Record<string, Resolver> = {
   async customersEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & ICustomer,
-    { models, processId, checkPermission }: IContext,
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('contactsUpdate');
 
-    console.log({ MutatioonContextProcessID: processId });
     const updated = await models.Customers.updateCustomer(_id, doc);
 
     return updated;

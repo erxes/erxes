@@ -1,23 +1,39 @@
 import { RecordTable } from 'erxes-ui';
-import { orderColumns } from '@/pos/orders/components/OrderColumns';
+import {
+  firstOrderColumns,
+  secondOrderColumns,
+  generateOtherPaymentColumns,
+} from '@/pos/orders/components/OrderColumns';
 import { useOrdersList } from '@/pos/orders/hooks/UseOrderList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
+import { Spinner } from 'erxes-ui';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { ordersList, handleFetchMore, loading, pageInfo } = useOrdersList({
     posId,
   });
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { posOrdersSummary } = usePosOrdersSummary({ posId });
+
+  const allColumns = [
+    ...firstOrderColumns,
+    ...generateOtherPaymentColumns(posOrdersSummary),
+    ...secondOrderColumns,
+  ];
+
+  if (loading) return <Spinner />;
 
   return (
     <RecordTable.Provider
-      columns={orderColumns}
-      data={ordersList}
+      columns={allColumns}
+      data={ordersList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'number']}
     >
       <RecordTable.CursorProvider
-        hasPreviousPage={pageInfo?.hasPreviousPage}
-        hasNextPage={pageInfo?.hasNextPage}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
         dataLength={ordersList?.length}
         sessionKey="orders_cursor"
       >
@@ -27,8 +43,11 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
+            {loading ? (
+              <RecordTable.RowSkeleton rows={32} />
+            ) : (
+              <RecordTable.RowList />
+            )}
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />

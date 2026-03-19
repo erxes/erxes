@@ -138,6 +138,7 @@ export interface IPos {
   pdomain?: string;
   beginNumber?: string;
   paymentIds?: string[];
+  serviceCharge?: number;
   paymentTypes?: Array<{
     _id?: string;
     type: string;
