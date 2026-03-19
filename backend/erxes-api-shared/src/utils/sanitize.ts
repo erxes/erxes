@@ -30,10 +30,10 @@ export const sanitizeFilename = (input: string) => {
   }
 
   let sanitized = input
-    .replace(illegalRe, '')
-    .replace(controlRe, '')
-    .replace(reservedRe, '')
-    .replace(windowsReservedRe, '');
+    .replaceAll(illegalRe, '')
+    .replaceAll(controlRe, '')
+    .replaceAll(reservedRe, '')
+    .replaceAll(windowsReservedRe, '');
 
   sanitized = removeTrailingSpacesAndDots(sanitized);
 
