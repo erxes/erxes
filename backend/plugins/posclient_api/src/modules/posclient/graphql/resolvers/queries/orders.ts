@@ -319,7 +319,11 @@ const orderQueries: Record<string, Resolver> = {
     return resp.result?.data;
   },
 
-  async cpOrdersCheckCompany(_root, { registerNumber }, { config, clientPortal }: IContext) {
+  async cpOrdersCheckCompany(
+    _root,
+    { registerNumber },
+    { config, clientPortal }: IContext,
+  ) {
     const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
 
     if (!checkTaxpayerUrl) {

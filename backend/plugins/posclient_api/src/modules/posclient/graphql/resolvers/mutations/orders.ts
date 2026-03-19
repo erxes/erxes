@@ -534,12 +534,20 @@ const orderMutations: Record<string, Resolver> = {
         }
 
         return ordersEdit(
-          { ...doc, ...slotInSameOrder, items, clientPortalId: clientPortal?.id },
+          {
+            ...doc,
+            ...slotInSameOrder,
+            items,
+            clientPortalId: clientPortal?.id,
+          },
           { posUser, config, models, subdomain },
         );
       }
     }
-    return ordersAdd({ ...doc, clientPortalId: clientPortal?.id }, { posUser, config, models, subdomain });
+    return ordersAdd(
+      { ...doc, clientPortalId: clientPortal?.id },
+      { posUser, config, models, subdomain },
+    );
   },
 
   async cpOrdersEdit(
@@ -547,7 +555,10 @@ const orderMutations: Record<string, Resolver> = {
     doc: IOrderEditParams,
     { posUser, config, models, subdomain, clientPortal }: IContext,
   ) {
-    return ordersEdit({ ...doc, clientPortalId: clientPortal?.id }, { posUser, config, models, subdomain });
+    return ordersEdit(
+      { ...doc, clientPortalId: clientPortal?.id },
+      { posUser, config, models, subdomain },
+    );
   },
 
   async ordersEdit(
