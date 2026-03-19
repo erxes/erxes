@@ -60,9 +60,8 @@ const safeArithmeticEval = (expr: string): number => {
 
 const processDatePlaceholders = (value: string): string => {
   // Handle dynamic dates: {{ now+Xd }}
-  let processed = value.replaceAll(
-    String.raw`{{ now\+(\d+)d }}`,
-    (_, days) => moment().add(Number(days), 'days').toISOString(),
+  let processed = value.replaceAll(String.raw`{{ now\+(\d+)d }}`, (_, days) =>
+    moment().add(Number(days), 'days').toISOString(),
   );
 
   // Handle static date placeholders
