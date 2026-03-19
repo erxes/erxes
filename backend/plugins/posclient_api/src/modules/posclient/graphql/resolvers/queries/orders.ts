@@ -127,7 +127,12 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
   return { $and: [{ ...mustFilter }, { ...filter }] };
 };
 
-const filterOrders = (params: ISearchParams, models, config, extra?: { clientPortalId?: string }) => {
+const filterOrders = (
+  params: ISearchParams,
+  models,
+  config,
+  extra?: { clientPortalId?: string },
+) => {
   const filter = generateFilter(config, params);
   const { sortField, sortDirection, page, perPage } = params;
   const sort: { [key: string]: any } = {};
@@ -145,12 +150,10 @@ const filterOrders = (params: ISearchParams, models, config, extra?: { clientPor
     }),
   };
 
-  return paginate(
-    models.Orders.find(query)
-      .sort(sort)
-      .lean(),
-    { page, perPage },
-  );
+  return paginate(models.Orders.find(query).sort(sort).lean(), {
+    page,
+    perPage,
+  });
 };
 
 const orderQueries: Record<string, Resolver> = {
@@ -166,7 +169,7 @@ const orderQueries: Record<string, Resolver> = {
     if (!clientPortal?.id) {
       throw new Error('Client portal context is required for cpCurrentOrder');
     }
-  
+
     return filterOrders(params, models, config, {
       clientPortalId: clientPortal.id,
     });
@@ -319,7 +322,6 @@ const orderQueries: Record<string, Resolver> = {
       sort.createdAt = 1;
     }
 
-
     return paginate(
       models.OrderItems.find({
         ...filter,
@@ -439,7 +441,11 @@ const orderQueries: Record<string, Resolver> = {
     return await models.OrderItems.find({ orderId: order._id }).lean();
   },
 
-  async cpAddresses(_root, { orderId }, { subdomain, clientPortal, models }: IContext) {
+  async cpAddresses(
+    _root,
+    { orderId },
+    { subdomain, clientPortal, models }: IContext,
+  ) {
     if (!clientPortal?.id) {
       throw new Error('Client portal context is required for cpAddresses');
     }
