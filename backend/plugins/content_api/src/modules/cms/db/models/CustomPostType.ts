@@ -29,7 +29,7 @@ export const loadCustomPostTypeClass = (models: IModels) => {
         throw new Error('Custom post type code already exists');
       }
 
-      if (!/^[a-zA-Z0-9_]+$/.test(code)) {
+      if (!/^\w+$/.test(code)) {
         throw new Error('Custom post type code has invalid characters');
       }
 
