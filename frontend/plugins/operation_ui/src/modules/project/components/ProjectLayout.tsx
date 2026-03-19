@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { ProjectDetailBreadCrumb } from '@/project/components/breadcumb/ProjectDetailBreadCrumb';
 import { PageHeader } from 'ui-modules';
-import { Breadcrumb, Separator } from 'erxes-ui';
+import { Breadcrumb, Can, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 
 import { ProjectBreadCrumb } from '@/project/components/breadcumb/ProjectBreadCrumb';
@@ -38,7 +38,9 @@ export const ProjectLayout = () => {
           </Breadcrumb>
         </PageHeader.Start>
         <PageHeader.End>
-          <AddTaskSheet />
+          <Can action="taskCreate">
+            <AddTaskSheet />
+          </Can>
         </PageHeader.End>
       </PageHeader>
       <div className="flex overflow-hidden w-full h-full">

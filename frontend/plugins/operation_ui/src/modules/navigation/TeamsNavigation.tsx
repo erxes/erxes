@@ -4,6 +4,7 @@ import { currentUserState } from 'ui-modules';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
+  Can,
   Collapsible,
   DropdownMenu,
   IconComponent,
@@ -129,13 +130,15 @@ export function TeamsNavigation() {
   });
 
   return (
-    <NavigationMenuGroup name="Your Teams">
-      {loading ? (
-        <LoadingSkeleton />
-      ) : (
-        teams?.map((team) => <TeamItem key={team._id} team={team} />)
-      )}
-    </NavigationMenuGroup>
+    <Can action="teamRead">
+      <NavigationMenuGroup name="Your Teams">
+        {loading ? (
+          <LoadingSkeleton />
+        ) : (
+          teams?.map((team) => <TeamItem key={team._id} team={team} />)
+        )}
+      </NavigationMenuGroup>
+    </Can>
   );
 }
 

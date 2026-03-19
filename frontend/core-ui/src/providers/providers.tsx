@@ -19,7 +19,7 @@ export const Providers = () => {
       <OrganizationProviderEffect />
       <UserProviderEffect />
       <PluginConfigsProvidersEffect />
-      <IconsProvider>
+        <IconsProvider>
         <RelationWidgetProvider
           RelationWidget={WidgetsComponent}
           relationWidgetsModules={useRelationWidgetsModules()}
@@ -28,7 +28,7 @@ export const Providers = () => {
             <Outlet />
           </Suspense>
         </RelationWidgetProvider>
-      </IconsProvider>
+        </IconsProvider>
     </ApolloProvider>
   );
 };

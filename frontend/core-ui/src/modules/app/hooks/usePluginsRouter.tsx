@@ -14,7 +14,7 @@ const PluginRouteGuard = ({
   pluginName: string;
   children: React.ReactNode;
 }) => {
-  const { can, permissions } = useCurrentUserPermissions();
+  const { can, permissions, loading } = useCurrentUserPermissions();
 
   const { pathname } = useLocation();
 
@@ -26,6 +26,11 @@ const PluginRouteGuard = ({
     }
     return modules;
   }, [permissions]);
+
+  // Wait for permissions to load before checking access
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const prefix = `/${pluginName}/`;
 
@@ -51,10 +56,12 @@ export const getPluginsRoutes = () => {
       key={module.name}
       path={`/${module.path}/*`}
       element={
-        <RenderPluginsComponent
-          pluginName={`${module.name}_ui`}
-          remoteModuleName={module.name}
-        />
+        <PluginRouteGuard pluginName={module.path}>
+          <RenderPluginsComponent
+            pluginName={`${module.name}_ui`}
+            remoteModuleName={module.name}
+          />
+        </PluginRouteGuard>
       }
     />
   ));

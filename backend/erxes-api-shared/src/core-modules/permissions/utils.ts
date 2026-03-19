@@ -1,5 +1,11 @@
 import { IUserDocument, Resolver } from '../../core-types';
-import { getEnv, getPlugins, getPlugin, sendTRPCMessage } from '../../utils';
+import {
+  getEnv,
+  getPlugins,
+  getPlugin,
+  sendTRPCMessage,
+  redis,
+} from '../../utils';
 import { getUserActionsMap } from './user-actions-map';
 
 export const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
@@ -141,18 +147,18 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
   };
 };
 
-export const canGroup = async (
+export const getGroupActionsMap = async (
   subdomain: string,
-  action: string,
-  user?: IUserDocument,
-): Promise<boolean> => {
-  if (!user || !user._id) return false;
+  user: IUserDocument,
+): Promise<Record<string, boolean>> => {
+  const cacheKey = `user_actions_${user._id}`;
 
-  if (user.isOwner) return true;
+  const cached = await redis.get(cacheKey);
 
+  if (cached) return JSON.parse(cached);
+
+  const actionsMap: Record<string, boolean> = {};
   const groupIds = user.permissionGroupIds || [];
-
-  if (groupIds.length === 0) return false;
 
   const defaultGroupIds = groupIds.filter((id) => id.includes(':'));
 
@@ -169,7 +175,9 @@ export const canGroup = async (
         if (!defaultGroupIds.includes(group.id)) continue;
 
         for (const permission of group.permissions) {
-          if (permission.actions.includes(action)) return true;
+          for (const act of permission.actions || []) {
+            actionsMap[act] = true;
+          }
         }
       }
     }
@@ -192,16 +200,69 @@ export const canGroup = async (
 
     for (const group of groups) {
       for (const permission of group.permissions || []) {
-        if (permission.actions.includes(action)) return true;
+        for (const act of permission.actions || []) {
+          actionsMap[act] = true;
+        }
       }
     }
   }
 
   for (const permission of user.customPermissions || []) {
-    if (permission.actions.includes(action)) return true;
+    for (const act of permission.actions || []) {
+      actionsMap[act] = true;
+    }
   }
 
-  return false;
+  await redis.set(cacheKey, JSON.stringify(actionsMap));
+
+  return actionsMap;
+};
+
+export const clearGroupActionsCache = async ({
+  subdomain,
+  userId,
+  groupId,
+}: {
+  subdomain?: string;
+  userId?: string;
+  groupId?: string;
+}) => {
+  if (userId) {
+    await redis.del(`user_actions_${userId}`);
+  }
+
+  if (groupId && subdomain) {
+    const users = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'find',
+      input: {
+        query: { permissionGroupIds: groupId },
+        fields: { _id: 1 },
+      },
+      defaultValue: [],
+    });
+
+    for (const u of users) {
+      await redis.del(`user_actions_${u._id}`);
+    }
+  }
+};
+
+export const canGroup = async (
+  subdomain: string,
+  action: string,
+  user?: IUserDocument,
+): Promise<boolean> => {
+  if (!user || !user._id) return false;
+
+  if (user.isOwner) return true;
+
+  const actionsMap = await getGroupActionsMap(subdomain, user);
+
+  return actionsMap[action] === true;
 };
 
 export const checkPermissionGroup = (
