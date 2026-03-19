@@ -76,7 +76,9 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ posId }) => {
   const handleServiceChargeApplicableProductChange = (
     value: string | string[],
   ) => {
-    const nextValue = Array.isArray(value) ? value.at(0) ?? '' : value ?? '';
+    const nextValue = Array.isArray(value)
+      ? (value.at(0) ?? '')
+      : (value ?? '');
 
     setServiceChargeApplicableProductId(nextValue);
   };
