@@ -256,7 +256,7 @@ const Progress = () => {
           </div>
 
           {slotCode && (
-            <div className="flex justify-between">
+            <div className="flex justify-between font-semibold">
               <span>Ширээ:</span>
               <span>{slotCode}</span>
             </div>
