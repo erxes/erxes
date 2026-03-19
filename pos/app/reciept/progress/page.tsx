@@ -15,24 +15,23 @@ import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 
 import type { OrderItem } from "@/types/order.types"
-import { ICategory, IProduct } from "@/types/product.types"
+import { ICategory } from "@/types/product.types"
 import { ORDER_ITEM_STATUSES } from "@/lib/constants"
 import { formatNum } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 
-const filterProductsNeedProcess = (
-  products: IProduct[],
-  categoryOrders: string[]
-) =>
-  (products || [])
-    .filter((product: IProduct) =>
-      categoryOrders?.length > 0
-        ? categoryOrders.some((order) =>
-            product?.category?.order?.startsWith(order)
-          )
-        : true
-    )
-    .map((product: IProduct) => product._id)
+type CategoryOrdersByProductQueryResult = {
+  poscProducts?: Array<{
+    _id: string
+    category?: {
+      order?: string | null
+    } | null
+  } | null> | null
+}
+
+type CategoryOrdersByProductQueryVariables = {
+  ids?: string[]
+}
 
 const Progress = () => {
   const searchParams = useSearchParams()
@@ -49,60 +48,51 @@ const Progress = () => {
   const [currentGroupIndex, setCurrentGroupIndex] = useState<number | null>(
     null
   )
+  const [isCategoryLoaded, setIsCategoryLoaded] = useState(false)
+
   const hasPrintedRef = useRef(false)
-  const shouldCloseAfterPrintRef = useRef(false)
+  const latestItemsRef = useRef<OrderItem[]>([])
 
-  const [getCategoryOrders, ordersQuery] = useLazyQuery(
-    productQueries.getCategoryOrders,
-    {
-      onCompleted({ poscProducts }) {
-        const allFilteredItems: OrderItem[][] = []
+  const [getCategoryOrders, ordersQuery] = useLazyQuery<
+    CategoryOrdersByProductQueryResult,
+    CategoryOrdersByProductQueryVariables
+  >(productQueries.getCategoryOrders, {
+    onCompleted({ poscProducts }) {
+      const baseItems = latestItemsRef.current || []
 
-        for (const filterGroup of categoryOrders) {
-          if (filterGroup.length === 0) continue
+      const filteredByStatus = onlyNewItems
+        ? baseItems.filter((item) => item.status !== ORDER_ITEM_STATUSES.DONE)
+        : baseItems
 
-          const productsNeedProcess = filterProductsNeedProcess(
-            poscProducts,
-            filterGroup
-          )
+      const productMap = new Map(
+        (poscProducts || []).filter(Boolean).map((p) => [p!._id, p!] as const)
+      )
 
-          const baseItems = items || []
-          const filteredByStatus = onlyNewItems
-            ? baseItems.filter(
-                (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
-              )
-            : baseItems
+      const allFilteredItems: OrderItem[][] = []
 
-          const checkedItems = filteredByStatus.filter((item: OrderItem) =>
-            productsNeedProcess.includes(item.productId)
-          )
+      for (const filterGroup of categoryOrders) {
+        const checkedItems = filteredByStatus.filter((item) => {
+          const product = productMap.get(item.productId)
+          const order = product?.category?.order || ""
 
-          if (checkedItems.length > 0) {
-            allFilteredItems.push(checkedItems)
-          }
-        }
+          return filterGroup.some((o) => order.startsWith(o))
+        })
 
-        if (allFilteredItems.length === 0) {
-          const baseItems = items || []
-          const itemsToProcess = onlyNewItems
-            ? baseItems.filter(
-                (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
-              )
-            : baseItems
+        allFilteredItems.push(checkedItems)
+      }
 
-          setItemsToPrint([itemsToProcess])
-        } else {
-          setItemsToPrint(allFilteredItems)
-        }
-      },
-    }
-  )
+      setItemsToPrint(allFilteredItems)
+      setIsCategoryLoaded(true)
+    },
+  })
 
   const { loading, data } = useQuery(queries.progressDetail, {
     variables: { id },
     fetchPolicy: "network-only",
     onCompleted({ orderDetail }) {
-      const hasFilters = categoryOrders.some((group) => group.length > 0)
+      setIsCategoryLoaded(false)
+
+      const hasFilters = categoryOrders.some((g) => g.length > 0)
 
       const baseItems = orderDetail.items || []
 
@@ -110,11 +100,9 @@ const Progress = () => {
         (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
       )
 
-      if (!forCustomer && onlyNewItems && !newItems.length) {
-        return handleAfterPrint()
-      }
-
       const itemsToProcess = !forCustomer && onlyNewItems ? newItems : baseItems
+
+      latestItemsRef.current = itemsToProcess
 
       if (hasFilters) {
         return getCategoryOrders({
@@ -125,11 +113,11 @@ const Progress = () => {
       }
 
       setItemsToPrint([itemsToProcess])
+      setIsCategoryLoaded(true)
     },
   })
 
   const { data: categoryData } = useQuery(productQueries.productCategories)
-
   const categories = categoryData?.poscProductCategories || []
 
   const findCategoryName = (order: string) => {
@@ -139,6 +127,7 @@ const Progress = () => {
 
     return matched[0]?.name || ""
   }
+
   const groupTitles = useMemo(() => {
     return categoryOrders.map((group) =>
       group
@@ -148,7 +137,7 @@ const Progress = () => {
     )
   }, [categoryOrders, categories])
 
-  const { number, modifiedAt, items, description } = data?.orderDetail || {}
+  const { number, modifiedAt, items, slotCode } = data?.orderDetail || {}
 
   const totalAmount = useMemo(() => {
     return (items || []).reduce(
@@ -163,39 +152,49 @@ const Progress = () => {
   }, [])
 
   useEffect(() => {
-    const onAfterPrint = () => {
-      if (shouldCloseAfterPrintRef.current) {
-        shouldCloseAfterPrintRef.current = false
+    if (loading) return
+
+    const hasFilters = categoryOrders.some((g) => g.length > 0)
+    if (hasFilters && !isCategoryLoaded) return
+
+    if (!forCustomer && onlyNewItems) {
+      const hasItems = itemsToPrint.some((g) => g.length > 0)
+
+      if (!hasItems) {
         handleAfterPrint()
+        return
       }
     }
 
-    window.addEventListener("afterprint", onAfterPrint)
+    if (forCustomer) {
+      if (!items || items.length === 0) return
 
-    return () => {
-      window.removeEventListener("afterprint", onAfterPrint)
+      if (hasPrintedRef.current) return
+      hasPrintedRef.current = true
+
+      setTimeout(() => window.print(), 100)
+      return
     }
-  }, [handleAfterPrint])
 
-  useEffect(() => {
-    hasPrintedRef.current = false
-    shouldCloseAfterPrintRef.current = false
-  }, [slug])
+    if (!itemsToPrint.length) return
 
-  useEffect(() => {
-    if (itemsToPrint.length === 0) return
+    const hasAnyItems = itemsToPrint.some((g) => g.length > 0)
+    if (!hasAnyItems) return
+
     if (hasPrintedRef.current) return
-
     hasPrintedRef.current = true
 
-    if (printSeparately && !forCustomer && itemsToPrint.length > 1) {
-      shouldCloseAfterPrintRef.current = false
+    if (printSeparately && itemsToPrint.length > 1) {
       let index = 0
-
-      const printNext = () => {
+      const printNext: () => void = () => {
         if (index >= itemsToPrint.length) {
           handleAfterPrint()
           return
+        }
+
+        if (itemsToPrint[index].length === 0) {
+          index++
+          return printNext()
         }
 
         setCurrentGroupIndex(index)
@@ -203,10 +202,7 @@ const Progress = () => {
         setTimeout(() => {
           window.print()
           index++
-
-          setTimeout(() => {
-            printNext()
-          }, 1000)
+          setTimeout(printNext, 800)
         }, 100)
       }
 
@@ -214,82 +210,77 @@ const Progress = () => {
       return
     }
 
-    shouldCloseAfterPrintRef.current = true
     setTimeout(() => window.print(), 100)
-  }, [itemsToPrint, printSeparately, forCustomer, handleAfterPrint])
+  }, [
+    itemsToPrint,
+    isCategoryLoaded,
+    printSeparately,
+    forCustomer,
+    items,
+    loading,
+    categoryOrders,
+  ])
 
-  const printItems = useMemo((): OrderItem[][] => {
-    if (forCustomer) return [items || []]
+  if (loading) return <div />
 
-    const hasFilters = categoryOrders.some((g) => g.length > 0)
-
-    if (hasFilters) return itemsToPrint
-
-    if (onlyNewItems) {
-      return [
-        (items || []).filter(
-          (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
-        ),
+  const renderGroups = forCustomer
+    ? [{ items: items || [], title: "" }]
+    : printSeparately && currentGroupIndex !== null
+    ? [
+        {
+          items: itemsToPrint[currentGroupIndex] || [],
+          title: groupTitles[currentGroupIndex],
+        },
       ]
-    }
-
-    return [items || []]
-  }, [forCustomer, onlyNewItems, categoryOrders, itemsToPrint, items])
-
-  if (loading || ordersQuery.loading) return <div />
-
-  const groups = printItems
-
-  const renderGroups =
-    printSeparately && currentGroupIndex !== null
-      ? [{ items: groups[currentGroupIndex], index: currentGroupIndex }]
-      : groups.map((g, i) => ({ items: g, index: i }))
+    : itemsToPrint
+        .map((g, i) => ({
+          items: g,
+          title: groupTitles[i],
+        }))
+        .filter((g) => g.items.length > 0)
 
   return (
     <div className="space-y-1 text-[12px]">
-      {renderGroups.map(({ items: groupItems, index }, i) => (
+      {renderGroups.map(({ items: groupItems, title }, i) => (
         <div key={i}>
           {i > 0 && <div className="my-3 border-t border-dashed" />}
 
-          <div className="flex justify-between items-center text-xs font-semibold">
+          <div className="flex justify-between text-xs font-semibold">
             <div>
               <div>{name}</div>
-              {!forCustomer && groupTitles[index] && (
-                <div className="text-[10px] text-muted-foreground">
-                  {groupTitles[index]}
-                </div>
+              {!forCustomer && title && (
+                <div className="text-[10px] text-muted-foreground">{title}</div>
               )}
             </div>
             <span>#{(number || "").split("_")[1]}</span>
           </div>
 
-          <div>
-            Огноо:{" "}
-            <span className="font-semibold">
+          <div className="flex justify-between">
+            <span>Огноо:</span>
+            <span>
               {modifiedAt &&
                 format(new Date(modifiedAt), "yyyy.MM.dd HH:mm:ss")}
             </span>
           </div>
 
-          <div className="flex items-center font-semibold">
-            <span className="flex-auto">Бараа</span>
-            <span>Т/Ш</span>
-          </div>
+          {slotCode && (
+            <div className="flex justify-between font-semibold">
+              <span>Ширээ:</span>
+              <span>{slotCode}</span>
+            </div>
+          )}
 
           <Separator />
 
-          {groupItems.map((item) => (
-            <div className="flex items-center" key={item._id}>
-              <span className="flex-auto">{item.productName}</span>
-              <span>
-                x{item.count}{" "}
-                {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
-              </span>
+          {groupItems.map((item: OrderItem) => (
+            <div key={item._id} className="flex justify-between">
+              <span>{item.productName}</span>
+              <span>x{item.count}</span>
             </div>
           ))}
 
           {forCustomer && (
-            <div className="flex justify-between items-center pt-1 mt-2 font-semibold border-t">
+            <div className="flex justify-between pt-1 mt-2 font-semibold border-t">
               <span>Нийт</span>
               <span>{formatNum(totalAmount)}</span>
             </div>
