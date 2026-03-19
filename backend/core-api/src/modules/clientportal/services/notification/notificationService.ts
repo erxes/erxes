@@ -34,7 +34,7 @@ interface CreateNotificationInput extends BaseNotificationData {
   result?: { ios?: boolean; android?: boolean; web?: boolean };
 }
 
-interface SendNotificationInput extends BaseNotificationData {}
+type SendNotificationInput = BaseNotificationData;
 
 interface CallProConfig {
   phone?: string;
