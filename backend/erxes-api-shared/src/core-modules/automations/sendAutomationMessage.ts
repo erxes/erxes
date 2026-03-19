@@ -1,5 +1,16 @@
 import { sendWorkerQueue } from '../../utils/mq-worker';
 import type { DefaultJobOptions } from 'bullmq';
+import { createTRPCUntypedClient, httpBatchLink } from '@trpc/client';
+import {
+  encodeTRPCContextHeader,
+  trpcContextHeaderName,
+} from '../../utils/trpc';
+import { redis } from '../../utils/redis';
+
+type TSendAutomationTriggerProps = {
+  transport?: 'bullmq' | 'trpc';
+  jobOptions?: DefaultJobOptions;
+};
 
 export const sendAutomationTrigger = async (
   subdomain: string,
@@ -18,8 +29,41 @@ export const sendAutomationTrigger = async (
     };
     recordType?: 'new' | 'existing';
   },
-  jobOptions?: DefaultJobOptions,
+  { transport = 'bullmq', jobOptions }: TSendAutomationTriggerProps = {},
 ) => {
+  if (transport === 'trpc') {
+    const address = await redis.get('erxes-service-automations');
+    const trpcUrl = address ? `${address}/trpc` : null;
+
+    if (!trpcUrl) {
+      throw new Error(
+        'Missing trpcUrl for sendAutomationTrigger. Provide props.trpcUrl or ensure service discovery has erxes-service-automations set.',
+      );
+    }
+
+    const contextHeader = encodeTRPCContextHeader(subdomain, 'mutation', {});
+
+    const client = createTRPCUntypedClient({
+      links: [
+        httpBatchLink({
+          url: trpcUrl,
+          headers: () => ({
+            [trpcContextHeaderName]: contextHeader,
+          }),
+        }),
+      ],
+    });
+
+    const result = await client.mutation('automations.trigger', {
+      type,
+      targets,
+      repeatOptions,
+      recordType,
+    });
+
+    return (result as any)?.id || null;
+  }
+
   const queue = sendWorkerQueue('automations', 'trigger');
   const job = await queue.add(
     'trigger',
