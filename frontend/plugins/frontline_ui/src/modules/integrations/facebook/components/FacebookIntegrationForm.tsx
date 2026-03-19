@@ -2,7 +2,7 @@ import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
 import { FacebookGetAccounts } from './FacebookGetAccounts';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 import {
   activeFacebookFormStepAtom,
   facebookFormSheetAtom,
@@ -10,7 +10,6 @@ import {
 } from '../states/facebookStates';
 import { FacebookGetPages } from './FacebookGetPages';
 import { FacebookIntegrationSetup } from './FacebookIntegrationSetup';
-import { useAtom } from 'jotai';
 import {
   FbIntegrationProvider,
   useFbIntegrationContext,

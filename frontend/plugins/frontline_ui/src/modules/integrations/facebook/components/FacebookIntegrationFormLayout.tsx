@@ -2,15 +2,14 @@ import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
 import { FacebookGetAccounts } from './FacebookGetAccounts';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 import {
   activeFacebookFormStepAtom,
   resetFacebookAddStateAtom,
+  facebookFormSheetAtom,
 } from '../states/facebookStates';
 import { FacebookGetPages } from './FacebookGetPages';
 import { FacebookIntegrationSetup } from './FacebookIntegrationSetup';
-import { useAtom } from 'jotai';
-import { facebookFormSheetAtom } from '../states/facebookStates';
 
 export const FacebookIntegrationFormSheet = () => {
   const [facebookFormSheet, setFacebookFormSheet] = useAtom(
