@@ -69,6 +69,7 @@ export default {
       $or: [
         { customPostTypeIds: post.type },
         { enabledCategoryIds: { $in: post.categoryIds || [] } },
+        { enabledPostIds: { $in: [post._id] } },
       ],
     };
 

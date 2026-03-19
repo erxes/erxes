@@ -5,6 +5,7 @@ import {
   IconPhone,
   IconBug,
   IconMessage,
+  IconBell,
 } from '@tabler/icons-react';
 
 export enum WelcomeMessage {

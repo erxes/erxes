@@ -10,13 +10,15 @@ class PageQueryResolver extends BaseQueryResolver {
 
     if (!clientPortalId) throw new Error('clientPortalId is required');
 
+    const orderBy = args.orderBy || { createdAt: -1 };
+
     const queryBuilder = getQueryBuilder('page', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
     const { list } = await this.getListWithTranslations(
       models.Pages,
       query,
-      { ...args, clientPortalId, language },
+      { ...args, clientPortalId, language, orderBy },
       FIELD_MAPPINGS.PAGE,
       'page',
     );
@@ -30,13 +32,15 @@ class PageQueryResolver extends BaseQueryResolver {
 
     if (!clientPortalId) throw new Error('clientPortalId is required');
 
+    const orderBy = args.orderBy || { createdAt: -1 };
+
     const queryBuilder = getQueryBuilder('page', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Pages,
       query,
-      { ...args, clientPortalId, language },
+      { ...args, clientPortalId, language, orderBy },
       FIELD_MAPPINGS.PAGE,
       'page',
     );

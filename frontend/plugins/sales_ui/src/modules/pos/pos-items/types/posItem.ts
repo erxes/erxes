@@ -1,10 +1,18 @@
-import { IUser } from '@/pos/types/pos';
-
 export interface IFields {
   odooId?: string;
   odooModel?: string;
   odooSyncDate?: string;
   odooLastError?: string;
+}
+
+export interface IBranch {
+  order: string;
+  title: string;
+}
+
+export interface IDepartment {
+  order: string;
+  title: string;
 }
 
 export interface IPosItem extends IFields {
@@ -17,7 +25,10 @@ export interface IPosItem extends IFields {
   departmentTitle: string;
   createdAt: string;
   createdBy: string;
-  user: IUser;
+  user: {
+    _id: string;
+    email: string;
+  };
   code?: string;
   barcode?: string;
   categoryName?: string;
@@ -29,22 +40,39 @@ export interface IPosItem extends IFields {
   amount?: number;
   paymentType?: string;
   customerType?: string;
-  customer?: string;
+  customer?: {
+    _id: string;
+    primaryEmail: string;
+  };
   companyRD?: string;
   factor?: number;
   billType?: string;
   type?: string;
   cashier?: string;
   pos?: string;
-  branch?: string;
-  department?: string;
+  posName?: string;
+  number?: string;
+  branch?: IBranch;
+  department?: IDepartment;
   createdDate?: string;
   createdTime?: string;
-  number?: string;
   actions?: string;
   posId?: string;
   branchId?: string;
   departmentId?: string;
+  items?: Array<{
+    productCode?: string;
+    productCategoryCode?: string;
+    productCategoryName?: string;
+    productName?: string;
+    count?: number;
+    unitPrice?: number;
+    discountAmount?: number;
+    barcodes?: string[];
+  }>;
+  paidAmounts?: Array<{
+    amount?: number;
+  }>;
 }
 
 export interface ISyncResult {
