@@ -5,8 +5,8 @@ import { IContext } from '~/connectionResolvers';
 const generateCode = (name: string): string => {
   const cleaned = name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
+    .replaceAll(/[^a-z0-9]+/g, '_')
+    .replaceAll(/^_+|_+$/g, '');
 
   if (!cleaned || cleaned.length === 0) {
     return `type_${Date.now()}_${randomBytes(6).toString('hex')}`;
