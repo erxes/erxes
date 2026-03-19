@@ -21,8 +21,8 @@ const removeTrailingSpacesAndDots = (str: string): string => {
 const illegalRe = /[/?<>\\:*|"]/g;
 // eslint-disable-next-line no-control-regex
 const controlRe = /[\x00-\x1f\x80-\x9f]/g;
-const reservedRe = /^\.+$/;
-const windowsReservedRe = /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i;
+const reservedRe = /^\.+$/g;
+const windowsReservedRe = /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/gi;
 
 export const sanitizeFilename = (input: string) => {
   if (typeof input !== 'string') {
