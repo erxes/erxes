@@ -9,12 +9,12 @@ import {
 import { useCompaniesEdit } from 'ui-modules/modules/contacts/hooks';
 
 interface CompanyPhonesProps {
-  _id: string;
-  primaryPhone: string;
-  phones: string[];
-  phoneValidationStatus?: ValidationStatus;
-  scope?: string;
-  Trigger: React.ComponentType<{ children: React.ReactNode }>;
+  readonly _id: string;
+  readonly primaryPhone: string;
+  readonly phones: string[];
+  readonly phoneValidationStatus?: ValidationStatus;
+  readonly scope?: string;
+  readonly Trigger: React.ComponentType<{ children: React.ReactNode }>;
 }
 
 export function CompanyPhones({

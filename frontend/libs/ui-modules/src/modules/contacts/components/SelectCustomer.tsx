@@ -143,7 +143,7 @@ const SelectCustomerContent = () => {
           customersData
             ?.filter(
               (customer) =>
-                !customerIds.find((customerId) => customerId === customer._id),
+                !customerIds.some((customerId) => customerId === customer._id),
             )
             .map((customer) => (
               <SelectCustomerCommandItem
