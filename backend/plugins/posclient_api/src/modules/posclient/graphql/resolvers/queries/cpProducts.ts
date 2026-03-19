@@ -185,7 +185,7 @@ const generateFilter = async (
       searchValue.includes('*')
     ) {
       const codeRegex = new RegExp(
-        `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+        `^${searchValue.replaceAll('*', '.').replaceAll('_', '.')}$`,
         'igu',
       );
       codeFilter = { code: { $in: [codeRegex] } };
@@ -235,7 +235,12 @@ const generateFilter = async (
   if (categoryMeta) {
     let categoryFilter: any[] = [];
 
-    if (!Number.isNaN(Number(categoryMeta))) {
+    if (Number.isNaN(Number(categoryMeta))) {
+      categoryFilter = [
+        { $project: { _id: 1, meta: 1 } },
+        { $match: { meta: { $eq: categoryMeta } } },
+      ];
+    } else {
       categoryFilter = [
         {
           $project: {
@@ -247,11 +252,6 @@ const generateFilter = async (
           },
         },
         { $match: { intMeta: { $lte: Number(categoryMeta) } } },
-      ];
-    } else {
-      categoryFilter = [
-        { $project: { _id: 1, meta: 1 } },
-        { $match: { meta: { $eq: categoryMeta } } },
       ];
     }
 
@@ -339,10 +339,10 @@ const generateFilterCat = async ({
   }
 
   if (meta) {
-    if (!Number.isNaN(meta)) {
-      filter.meta = { $lte: Number(meta) };
-    } else {
+    if (Number.isNaN(meta)) {
       filter.meta = meta;
+    } else {
+      filter.meta = { $lte: Number(meta) };
     }
   }
 
@@ -445,9 +445,9 @@ const cpProductQueries: Record<string, Resolver> = {
         return ['*', '.', '_'].includes(str)
           ? new RegExp(
               `^${str
-                .replace(/\./g, '\\.')
-                .replace(/\*/g, '.')
-                .replace(/_/g, '.')}.*`,
+                .replaceAll('.', String.raw`\.`)
+                .replaceAll('*', '.')
+                .replaceAll('_', '.')}.*`,
               'igu',
             )
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
@@ -468,7 +468,7 @@ const cpProductQueries: Record<string, Resolver> = {
 
         if (filterFieldDef.includes('customFieldsData.')) {
           if (
-            !(product.customFieldsData || []).find(
+            !(product.customFieldsData || []).some(
               (cfd) =>
                 cfd.field === filterFieldDef.replace('customFieldsData.', '') &&
                 cfd.stringValue?.match(regexer),

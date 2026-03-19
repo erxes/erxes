@@ -177,7 +177,6 @@ const bridgesQueries = {
         lastName: customer.lastName,
       }));
     }
-    return;
   },
 
   async poscCustomerDetail(
@@ -285,7 +284,6 @@ const bridgesQueries = {
         lastName: customer.lastName,
       };
     }
-    return;
   },
 };
 
