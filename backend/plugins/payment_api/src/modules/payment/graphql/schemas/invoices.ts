@@ -69,6 +69,7 @@ export const mutations = `
   invoicesRemove(_ids: [String]!): String
 
   cpInvoiceCreate(input: InvoiceInput!): Invoice
+  cpInvoicesCheck(_id:String!): String
 `;
 
 const cursorParams = `

@@ -72,10 +72,9 @@ export const AddPostForm = ({
     editingPost: currentEditingPost,
     selectedLanguage,
     defaultLanguage,
-    translations,
     defaultLangData,
+    translations,
     onClose,
-    currentPath: location.pathname,
   });
 
   const formInitializedRef = useRef(false);
@@ -120,7 +119,7 @@ export const AddPostForm = ({
       setDefaultLangData({
         title: form.getValues('title') || '',
         content: form.getValues('content') || '',
-        description: form.getValues('description') || '',
+        excerpt: form.getValues('description') || '',
         customFieldsData: form.getValues('customFieldsData') || [],
       });
     } else {
