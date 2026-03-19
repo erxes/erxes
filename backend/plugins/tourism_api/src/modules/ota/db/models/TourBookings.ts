@@ -15,11 +15,13 @@ export interface ITourBookingModel extends Model<IOTATourBookingDocument> {
 
 export const loadTourBookingClass = (models: IModels) => {
   class TourBookings {
-    public static createTourBooking = async (data: IOTATourBooking) => {
+    public static readonly createTourBooking = async (
+      data: IOTATourBooking,
+    ) => {
       return models.TourBookings.create(data);
     };
 
-    public static cancelTourBooking = async (_id: string) => {
+    public static readonly cancelTourBooking = async (_id: string) => {
       return models.TourBookings.findOneAndDelete({ _id });
     };
   }
