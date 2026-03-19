@@ -1,6 +1,9 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
+const escapeRegExp = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const itineraryQueries = {
   async bmsItineraries(
     _root,
@@ -12,7 +15,7 @@ const itineraryQueries = {
       selector.branchId = branchId;
     }
     if (name) {
-      selector.name = { $regex: name, $options: 'i' };
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     }
 
     const { list, totalCount, pageInfo } = await cursorPaginate({

@@ -62,7 +62,7 @@ const item = {
       },
     });
 
-    return touritem?.guides.map((x) => {
+    return (touritem?.guides || []).map((x) => {
       const userOne = users.find((d) => d._id == x.guideId);
       return {
         guideId: x.guideId,

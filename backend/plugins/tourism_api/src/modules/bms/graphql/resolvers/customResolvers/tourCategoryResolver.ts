@@ -46,7 +46,6 @@ const tourCategory = {
       $or: [
         { categories: { $in: categoryIds } },
         { categoryIds: { $in: categoryIds } },
-        { tagIds: { $in: categoryIds } },
         { categoryId: { $in: categoryIds } },
       ],
     });
