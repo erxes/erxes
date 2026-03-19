@@ -20,6 +20,7 @@ export const types = `
           createdAt
           updatedAt
           scheduledDate
+          publishedDate
       }
   
       union Author = User
