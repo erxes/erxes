@@ -307,9 +307,11 @@ const orderQueries: Record<string, Resolver> = {
     { models, clientPortal, config }: IContext,
   ) {
     if (!clientPortal?.id) {
-      throw new Error('Client portal context is required for cpOrderItemDetail');
+      throw new Error(
+        'Client portal context is required for cpOrderItemDetail',
+      );
     }
-  
+
     const tokenFilter = {
       $or: [{ posToken: config.token }, { subToken: config.token }],
     };
@@ -317,14 +319,16 @@ const orderQueries: Record<string, Resolver> = {
     const orders = await models.Orders.find({
       ...tokenFilter,
       clientPortalId: clientPortal.id,
-    }).select('_id').lean();
-  
-    const orderIds = orders.map(o => o._id);
-  
+    })
+      .select('_id')
+      .lean();
+
+    const orderIds = orders.map((o) => o._id);
+
     const filter: any = {
-      orderId: { $in: orderIds }, 
+      orderId: { $in: orderIds },
     };
-  
+
     if (searchValue) {
       filter.number = { $regex: new RegExp(escapeRegExp(searchValue), 'i') };
     }
@@ -359,7 +363,9 @@ const orderQueries: Record<string, Resolver> = {
     { config, clientPortal }: IContext,
   ) {
     if (!clientPortal?.id) {
-      throw new Error('Client portal context is required for cpOrdersCheckCompany');
+      throw new Error(
+        'Client portal context is required for cpOrdersCheckCompany',
+      );
     }
 
     const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
@@ -423,7 +429,9 @@ const orderQueries: Record<string, Resolver> = {
     { models, config, clientPortal }: IContext,
   ) {
     if (!clientPortal?.id) {
-      throw new Error('Client portal context is required for cpGetLastProductView');
+      throw new Error(
+        'Client portal context is required for cpGetLastProductView',
+      );
     }
 
     const tokenFilter = {
