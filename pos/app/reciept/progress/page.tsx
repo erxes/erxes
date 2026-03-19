@@ -50,6 +50,7 @@ const Progress = () => {
     null
   )
   const hasPrintedRef = useRef(false)
+  const shouldCloseAfterPrintRef = useRef(false)
 
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
@@ -162,7 +163,23 @@ const Progress = () => {
   }, [])
 
   useEffect(() => {
+    const onAfterPrint = () => {
+      if (shouldCloseAfterPrintRef.current) {
+        shouldCloseAfterPrintRef.current = false
+        handleAfterPrint()
+      }
+    }
+
+    window.addEventListener("afterprint", onAfterPrint)
+
+    return () => {
+      window.removeEventListener("afterprint", onAfterPrint)
+    }
+  }, [handleAfterPrint])
+
+  useEffect(() => {
     hasPrintedRef.current = false
+    shouldCloseAfterPrintRef.current = false
   }, [slug])
 
   useEffect(() => {
@@ -172,6 +189,7 @@ const Progress = () => {
     hasPrintedRef.current = true
 
     if (printSeparately && !forCustomer && itemsToPrint.length > 1) {
+      shouldCloseAfterPrintRef.current = false
       let index = 0
 
       const printNext = () => {
@@ -196,6 +214,7 @@ const Progress = () => {
       return
     }
 
+    shouldCloseAfterPrintRef.current = true
     setTimeout(() => window.print(), 100)
   }, [itemsToPrint, printSeparately, forCustomer, handleAfterPrint])
 
