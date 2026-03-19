@@ -10,7 +10,7 @@ import {
 } from './types';
 
 export const splitType = (type: string) => {
-  return type.replace(/\./g, ':').split(':');
+  return type.replaceAll('.', ':').split(':');
 };
 
 const safeArithmeticEval = (expr: string): number => {
@@ -32,7 +32,7 @@ const safeArithmeticEval = (expr: string): number => {
       pos++;
       return parseNumber();
     }
-    return parseFloat(tokens[pos++]) || 0;
+    return Number.parseFloat(tokens[pos++]) || 0;
   };
 
   const parseMulDiv = (): number => {
@@ -60,7 +60,7 @@ const safeArithmeticEval = (expr: string): number => {
 
 const processDatePlaceholders = (value: string): string => {
   // Handle dynamic dates: {{ now+Xd }}
-  let processed = value.replace(/{{ now\+(\d+)d }}/g, (_, days) =>
+  let processed = value.replaceAll('{{ now+(\\d+)d }}', (_, days) =>
     moment().add(Number(days), 'days').toISOString(),
   );
 
@@ -86,7 +86,7 @@ const processComplexField = async (
   subdomain: string,
   props: any,
 ): Promise<string> => {
-  const regex = new RegExp(`{{ ${complexFieldKey}\\.([\\w\\d]+) }}`);
+  const regex = new RegExp(String.raw`{{ ${complexFieldKey}\.([\w\d]+) }}`);
   const match = regex.exec(value);
   if (!match) return value;
 
@@ -112,7 +112,7 @@ const processComplexField = async (
 };
 
 const cleanValue = (value: string): string =>
-  value.replace(/\[\[ /g, '').replace(/ \]\]/g, '');
+  value.replaceAll('[[]', '').replaceAll('[]]', '');
 
 const processBracketPlaceholders = async (
   value: string,
@@ -131,9 +131,9 @@ const processBracketPlaceholders = async (
     // Check if content matches collection pattern with complex field:
     // <collectionName>.<objectId>.<complexFieldKey>.<fieldId>
     const complexFieldPattern = new RegExp(
-      `^(user|tag|product|company|customer)\\.([\\w\\d]+)\\.(${complexFieldKeys.join(
+      String.raw`^(user|tag|product|company|customer)\.([\w\d]+)\.(${complexFieldKeys.join(
         '|',
-      )})\\.([\\w\\d]+)$`,
+      )})\.([\w\d]+)$`,
     );
     const complexFieldMatch = content.match(complexFieldPattern);
 
