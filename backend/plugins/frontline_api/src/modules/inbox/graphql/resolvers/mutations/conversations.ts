@@ -3,7 +3,10 @@ import {
   IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
 import { IConversationDocument } from '@/inbox/@types/conversations';
-import { AUTO_BOT_MESSAGES, CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  AUTO_BOT_MESSAGES,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -11,7 +14,7 @@ import * as _ from 'underscore';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
-import * as strip from "strip";
+import * as strip from 'strip';
 
 interface DispatchConversationData {
   action: string;
@@ -131,7 +134,7 @@ export const publishMessage = async (
 };
 
 export const sendNotifications = async (
-   subdomain: string,
+  subdomain: string,
   {
     user,
     conversations,
@@ -144,7 +147,7 @@ export const sendNotifications = async (
     type: string;
     mobile?: boolean;
     messageContent?: string;
-  }
+  },
 ) => {
   for (const conversation of conversations) {
     if (!conversation || !conversation._id) {
@@ -189,8 +192,8 @@ export const sendNotifications = async (
         break;
     }
 
-    if(mobile){
-      try{
+    if (mobile) {
+      try {
         await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
@@ -203,17 +206,17 @@ export const sendNotifications = async (
             receivers: conversationNotifReceivers(
               conversation,
               user._id,
-              false
+              false,
             ),
             customerId: conversation.customerId,
             conversationId: conversation._id,
             data: {
-              type: "messenger",
+              type: 'messenger',
               id: conversation._id,
             },
           },
         });
-      }catch(e){
+      } catch (e) {
         debugError(`Failed to send mobile notification: ${e.message}`);
       }
     }
