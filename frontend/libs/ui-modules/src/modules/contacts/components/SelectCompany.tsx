@@ -73,14 +73,14 @@ const SelectCompanyProvider = ({
     const newSelectedCompanyIds = isSingleMode
       ? [company._id]
       : isSelected
-      ? multipleValue.filter((t) => t !== company._id)
-      : [...multipleValue, company._id];
+        ? multipleValue.filter((t) => t !== company._id)
+        : [...multipleValue, company._id];
 
     const newSelectedCompanies = isSingleMode
       ? [company]
       : isSelected
-      ? companies.filter((t) => t._id !== company._id)
-      : [...companies, company];
+        ? companies.filter((t) => t._id !== company._id)
+        : [...companies, company];
 
     setCompanies(newSelectedCompanies);
     onValueChange?.(isSingleMode ? company._id : newSelectedCompanyIds);
