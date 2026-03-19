@@ -139,7 +139,10 @@ export interface IPos {
   beginNumber?: string;
   paymentIds?: string[];
   serviceCharge?: number;
+<<<<<<< HEAD
   serviceChargeApplicableProductId?: string;
+=======
+>>>>>>> f6cb251a3ec58bb2cbca6277c8969328e3e438a2
   paymentTypes?: Array<{
     _id?: string;
     type: string;

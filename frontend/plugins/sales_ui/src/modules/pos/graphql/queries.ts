@@ -11,7 +11,10 @@ export const posCommonFields = `
   token
   erxesAppToken
   serviceCharge
+<<<<<<< HEAD
   serviceChargeApplicableProductId
+=======
+>>>>>>> f6cb251a3ec58bb2cbca6277c8969328e3e438a2
   adminIds
   cashierIds
   paymentIds

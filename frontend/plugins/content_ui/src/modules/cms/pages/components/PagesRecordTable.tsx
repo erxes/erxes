@@ -26,7 +26,7 @@ export const PagesRecordTable = ({
     <RecordTable.Provider
       columns={columns}
       data={pages || []}
-      className="m-3"
+      className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTable.CursorProvider

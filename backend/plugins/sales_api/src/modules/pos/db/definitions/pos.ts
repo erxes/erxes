@@ -26,11 +26,14 @@ export const posSchema = schemaWrapper(
       max: 100,
       optional: true,
     },
+<<<<<<< HEAD
     serviceChargeApplicableProductId: {
       type: String,
       optional: true,
       label: 'Service Charge Applicable Product',
     },
+=======
+>>>>>>> f6cb251a3ec58bb2cbca6277c8969328e3e438a2
     paymentTypes: { type: [Object], label: 'Other Payments' },
     onServer: {
       type: Boolean,

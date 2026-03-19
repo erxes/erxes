@@ -1,0 +1,81 @@
+import { gql } from '@apollo/client';
+
+export const POS_ORDER_RETURN_BILL_MUTATION = gql`
+  mutation PosOrderReturnBill($id: String!) {
+    posOrderReturnBill(_id: $id) {
+      _id
+      createdAt
+      status
+      paidDate
+      dueDate
+      number
+      customerId
+      customerType
+      cashAmount
+      mobileAmount
+      paidAmounts
+      totalAmount
+      finalAmount
+      shouldPrintEbarimt
+      printedEbarimt
+      billType
+      billId
+      registerNumber
+      oldBillId
+      type
+      userId
+      items
+      posToken
+      posName
+      branchId
+      departmentId
+      subBranchId
+      branch
+      department
+      subBranch
+      user {
+        _id
+        createdAt
+        username
+        email
+        isActive
+        links
+        status
+        chatStatus
+        emailSignatures
+        getNotificationByEmail
+        onboardedPlugins
+        groupIds
+        permissionGroupIds
+        isSubscribed
+        isShowNotification
+        propertiesData
+        isOwner
+        configs
+        departmentIds
+        brandIds
+        branchIds
+        positionIds
+        score
+        leaderBoardPosition
+        employeeId
+        isOnboarded
+        cursor
+      }
+      customer {
+        _id
+        code
+        primaryPhone
+        firstName
+        primaryEmail
+        lastName
+      }
+      syncedErkhet
+      description
+      isPre
+      origin
+      convertDealId
+      returnInfo
+    }
+  }
+`;
