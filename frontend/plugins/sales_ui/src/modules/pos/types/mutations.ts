@@ -45,6 +45,7 @@ export interface PosData {
   token?: string;
   erxesAppToken?: string;
   serviceCharge?: number;
+  serviceChargeApplicableProductId?: string;
   adminIds?: string[];
   cashierIds?: string[];
   paymentIds?: string[];

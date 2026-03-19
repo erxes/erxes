@@ -192,6 +192,18 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
     res: true,
   },
 
+  serviceCharge: {
+    ecom: false,
+    pos: true,
+    res: true,
+  },
+
+  serviceChargeApplicableProduct: {
+    ecom: true,
+    pos: true,
+    res: true,
+  },
+
   // Appearance category fields
 
   logosFavicon: {
