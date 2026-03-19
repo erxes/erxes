@@ -50,7 +50,10 @@ const Progress = () => {
     null
   )
   const hasPrintedRef = useRef(false)
+<<<<<<< HEAD
   const shouldCloseAfterPrintRef = useRef(false)
+=======
+>>>>>>> 9505b46c50264127faa5c2c852f4c5f1e197ebe2
 
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
@@ -163,6 +166,7 @@ const Progress = () => {
   }, [])
 
   useEffect(() => {
+<<<<<<< HEAD
     const onAfterPrint = () => {
       if (shouldCloseAfterPrintRef.current) {
         shouldCloseAfterPrintRef.current = false
@@ -200,6 +204,28 @@ const Progress = () => {
 
         setCurrentGroupIndex(index)
 
+=======
+    hasPrintedRef.current = false
+  }, [slug])
+
+  useEffect(() => {
+    if (itemsToPrint.length === 0) return
+    if (hasPrintedRef.current) return
+
+    hasPrintedRef.current = true
+
+    if (printSeparately && !forCustomer && itemsToPrint.length > 1) {
+      let index = 0
+
+      const printNext = () => {
+        if (index >= itemsToPrint.length) {
+          handleAfterPrint()
+          return
+        }
+
+        setCurrentGroupIndex(index)
+
+>>>>>>> 9505b46c50264127faa5c2c852f4c5f1e197ebe2
         setTimeout(() => {
           window.print()
           index++
@@ -214,7 +240,10 @@ const Progress = () => {
       return
     }
 
+<<<<<<< HEAD
     shouldCloseAfterPrintRef.current = true
+=======
+>>>>>>> 9505b46c50264127faa5c2c852f4c5f1e197ebe2
     setTimeout(() => window.print(), 100)
   }, [itemsToPrint, printSeparately, forCustomer, handleAfterPrint])
 
