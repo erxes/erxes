@@ -1,6 +1,6 @@
 import { AppPath } from '@/types/paths/AppPath';
 import { IconChevronLeft } from '@tabler/icons-react';
-import { NavigationMenuLinkItem, Sidebar, usePermissionContext } from 'erxes-ui';
+import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,13 +15,12 @@ export function SettingsSidebar() {
 
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
-  const { can } = usePermissionContext();
 
   const CORE_MODULES = GET_CORE_MODULES(t, version);
   const sidebar = useMemo(() => GET_SETTINGS_PATH_DATA(version, t), [t]);
 
   const pluginsWithSettingsNavigations = Object.values(pluginsMetaData)
-    .filter((plugin) => plugin.settingsNavigation && can(plugin.name))
+    .filter((plugin) => plugin.settingsNavigation)
     .map((plugin) => ({
       Navigation: plugin.settingsNavigation,
       name: plugin.name,

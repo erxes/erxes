@@ -87,7 +87,7 @@ export const useCreateAppRouter = () => {
 
               <Route
                 path={AppPath.ContactsCatchAll}
-                element={ <ContactsRoutes /> }
+                element={<ContactsRoutes />}
               />
 
               <Route

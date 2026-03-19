@@ -11,7 +11,6 @@ export const OperationSettingsNavigation = () => {
             pathPrefix={OperationPaths.Operation}
             path={OperationPaths.TeamList}
             name="Teams"
-            module="team"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

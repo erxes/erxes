@@ -56,7 +56,6 @@ export const GET_CORE_MODULES = (
           icon: IconSpiral,
         },
       ],
-      module: 'contacts',
     },
     {
       name: t('segments'),

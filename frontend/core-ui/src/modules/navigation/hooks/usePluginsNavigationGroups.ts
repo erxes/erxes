@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAtom } from 'jotai';
-import { pluginsConfigState, useCurrentUserPermissions } from 'ui-modules';
+import { pluginsConfigState } from 'ui-modules';
 import { useVersion } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
@@ -43,7 +43,6 @@ type NavigationGroups = Record<string, NavigationGroupResult>;
 
 export const usePluginsNavigationGroups = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
-  const { can } = useCurrentUserPermissions();
 
   const navigationGroups = useMemo(() => {
     if (!pluginsMetaData) {
@@ -53,11 +52,6 @@ export const usePluginsNavigationGroups = () => {
     return Object.values(pluginsMetaData).reduce<NavigationGroups>(
       (acc, plugin) => {
         if (!plugin?.modules?.length) return acc;
-
-        const hasAccess = plugin.modules.some(
-          (m) => can(m.name) || can(plugin.name),
-        );
-        if (!hasAccess) return acc;
 
         const groupName = plugin.navigationGroup?.name || plugin.name;
 
@@ -87,7 +81,7 @@ export const usePluginsNavigationGroups = () => {
       },
       {},
     );
-  }, [pluginsMetaData, can]);
+  }, [pluginsMetaData]);
 
   return navigationGroups;
 };

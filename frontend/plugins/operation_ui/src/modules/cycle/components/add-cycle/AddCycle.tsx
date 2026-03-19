@@ -2,7 +2,6 @@ import { IconPlus } from '@tabler/icons-react';
 import { CycleHotKeyScope } from '@/cycle/CycleHotkeyScope';
 import {
   Button,
-  Can,
   Kbd,
   Sheet,
   usePreviousHotkeyScope,
@@ -30,25 +29,23 @@ export const AddCycleSheet = () => {
   useScopedHotkeys(`esc`, () => onClose(), CycleHotKeyScope.CycleAddSheet);
 
   return (
-    <Can action="cycleCreate">
-      <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus />
-            Add cycle
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
-        <Sheet.View
-          className="sm:max-w-3xl w-full p-0"
-          onEscapeKeyDown={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <AddCycleForm onClose={onClose} />
-        </Sheet.View>
-      </Sheet>
-    </Can>
+    <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          Add cycle
+          <Kbd>C</Kbd>
+        </Button>
+      </Sheet.Trigger>
+      <Sheet.View
+        className="sm:max-w-3xl w-full p-0"
+        onEscapeKeyDown={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <AddCycleForm onClose={onClose} />
+      </Sheet.View>
+    </Sheet>
   );
 };
 

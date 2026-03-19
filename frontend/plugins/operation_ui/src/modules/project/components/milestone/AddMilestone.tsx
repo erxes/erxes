@@ -1,6 +1,5 @@
 import { useCreateMilestone } from '@/project/hooks/useCreateMilestone';
 import { IconPlus } from '@tabler/icons-react';
-import { Can } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { MilestoneFields } from './MilestoneFields';
 
@@ -45,14 +44,12 @@ export const AddMilestone = ({
   );
 
   return (
-    <Can action="milestoneCreate">
-      <MilestoneFields
-        isActive={isActive}
-        triggerContent={triggerContent}
-        onSubmit={onSubmit}
-        onClick={handleClick}
-        setActiveMilestone={setActiveMilestone}
-      />
-    </Can>
+    <MilestoneFields
+      isActive={isActive}
+      triggerContent={triggerContent}
+      onSubmit={onSubmit}
+      onClick={handleClick}
+      setActiveMilestone={setActiveMilestone}
+    />
   );
 };

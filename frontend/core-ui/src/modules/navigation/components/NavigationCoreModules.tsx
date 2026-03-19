@@ -21,7 +21,6 @@ export const NavigationCoreModules = () => {
           name={item.name}
           icon={item.icon}
           path={item.path}
-          module={item.module}
         />
       ))}
     </NavigationMenuGroup>

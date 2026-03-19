@@ -4,7 +4,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { IconCaretRightFilled } from '@tabler/icons-react';
 import { cn } from 'erxes-ui/lib';
 import { forwardRef } from 'react';
-import { usePermissionContext } from '../contexts/PermissionContext';
 
 export const NavigationMenuLinkItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
@@ -14,7 +13,6 @@ export const NavigationMenuLinkItem = forwardRef<
     path: string;
     pathPrefix?: string;
     isActive?: boolean;
-    module?: string;
   }
 >(
   (
@@ -26,18 +24,11 @@ export const NavigationMenuLinkItem = forwardRef<
       children,
       className,
       isActive: isActiveProp,
-      module,
       ...props
     },
     ref,
   ) => {
     const { pathname } = useLocation();
-    const { can } = usePermissionContext();
-
-    if (module && !can(module)) {
-      return null;
-    }
-
     const normalizedPathPrefix = pathPrefix
       ? `${pathPrefix.replace(/\/$/, '')}/`
       : '';
@@ -77,15 +68,8 @@ NavigationMenuLinkItem.displayName = 'NavigationMenuLinkItem';
 export const SettingsNavigationMenuLinkItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
   React.ComponentProps<typeof NavigationMenuLinkItem>
->(({ pathPrefix, module, ...props }, ref) => {
+>(({ pathPrefix, ...props }, ref) => {
   const settingsPathPrefix = `settings/${pathPrefix}`;
-
-  const { can } = usePermissionContext();
-
-  if (module && !can(module)) {
-    return null;
-  }
-
   return (
     <NavigationMenuLinkItem
       {...props}

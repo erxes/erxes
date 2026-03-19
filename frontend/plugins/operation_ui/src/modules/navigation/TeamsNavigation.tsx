@@ -4,7 +4,6 @@ import { currentUserState } from 'ui-modules';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
-  Can,
   Collapsible,
   DropdownMenu,
   IconComponent,
@@ -86,7 +85,6 @@ function TeamItem({ team }: TeamItemProps) {
                   path={`${team._id}/triage`}
                   className="pl-6 font-medium"
                   icon={IconCaretLeftRight}
-                  module="triage"
                 />
               )}
               <NavigationMenuLinkItem
@@ -95,7 +93,6 @@ function TeamItem({ team }: TeamItemProps) {
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`${team._id}/projects`}
-                module="project"
               />
               <NavigationMenuLinkItem
                 name="Tasks"
@@ -103,7 +100,6 @@ function TeamItem({ team }: TeamItemProps) {
                 path={`${team._id}/tasks`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
-                module="task"
               />
               {team.cycleEnabled && (
                 <NavigationMenuLinkItem
@@ -112,7 +108,6 @@ function TeamItem({ team }: TeamItemProps) {
                   path={`${team._id}/cycles`}
                   className="pl-6 font-medium"
                   icon={IconRestore}
-                  module="cycle"
                 />
               )}
             </Sidebar.Menu>
@@ -130,15 +125,13 @@ export function TeamsNavigation() {
   });
 
   return (
-    <Can action="teamRead">
-      <NavigationMenuGroup name="Your Teams">
-        {loading ? (
-          <LoadingSkeleton />
-        ) : (
-          teams?.map((team) => <TeamItem key={team._id} team={team} />)
-        )}
-      </NavigationMenuGroup>
-    </Can>
+    <NavigationMenuGroup name="Your Teams">
+      {loading ? (
+        <LoadingSkeleton />
+      ) : (
+        teams?.map((team) => <TeamItem key={team._id} team={team} />)
+      )}
+    </NavigationMenuGroup>
   );
 }
 
