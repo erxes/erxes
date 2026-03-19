@@ -1,6 +1,8 @@
 import { sendNotification } from 'erxes-api-shared/core-modules';
 import { getAvailablePlugins } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { getConfig } from '@/organization/settings/utils/configs';
+import * as admin from 'firebase-admin';
 
 export const sendOnboardNotification = async (
   subdomain: string,
@@ -56,4 +58,48 @@ export const sendOnboardNotification = async (
     { _id: user._id },
     { $set: { onboardedPlugins: [...onboarded] } },
   );
+};
+
+
+
+export const initFirebase = async (
+  models: IModels,
+  customConfig?: string,
+  customName?: string,
+): Promise<void> => {
+  let codeString = 'value';
+
+  // get google application credentials JSON
+  if (customConfig) {
+    codeString = customConfig;
+  } else {
+    const GOOGLE_APPLICATION_CREDENTIALS_JSON = await getConfig(
+      'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+      '',
+      models,
+    );
+    if (!GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+      throw new Error(
+        'Cannot find google application credentials JSON configuration',
+      );
+    }
+    codeString = GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  }
+
+  if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
+    const serviceAccount = JSON.parse(codeString);
+
+    if (serviceAccount.private_key) {
+      try {
+        admin.initializeApp(
+          {
+            credential: admin.credential.cert(serviceAccount),
+          },
+          customName || '[DEFAULT]',
+        );
+      } catch (e) {
+        console.error(`initFireBase error: ${e.message}`);
+      }
+    }
+  }
 };
