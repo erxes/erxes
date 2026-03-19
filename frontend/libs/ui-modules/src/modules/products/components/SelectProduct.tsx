@@ -282,7 +282,7 @@ export const SelectProductFilterView = ({
         mode={mode}
         value={product || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
-          setProduct(value as string[] | string);
+          setProduct(value);
           resetFilterState();
           onValueChange?.(value);
         }}
@@ -326,7 +326,7 @@ export const SelectProductFilterBar = ({
         value={product || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
           if (value && value.length > 0) {
-            setProduct(value as string[] | string);
+            setProduct(value);
           } else {
             setProduct(null);
           }
