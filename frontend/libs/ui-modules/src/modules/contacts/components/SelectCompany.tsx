@@ -143,7 +143,7 @@ const SelectCompanyContent = () => {
           companiesData
             ?.filter(
               (company) =>
-                !companyIds.some((companyId) => companyId === company._id),
+                !companyIds.includes(company._id),
             )
             .map((company) => (
               <SelectCompanyCommandItem key={company._id} company={company} />
