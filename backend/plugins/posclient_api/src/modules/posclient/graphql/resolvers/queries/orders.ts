@@ -303,6 +303,9 @@ const orderQueries: Record<string, Resolver> = {
     }: ISearchParams,
     { models, clientPortal }: IContext,
   ) {
+    if (!clientPortal?.id) {
+      throw new Error('Client portal context is required for cpCurrentOrder');
+    }
     const filter: any = {};
 
     if (searchValue) {
@@ -315,6 +318,7 @@ const orderQueries: Record<string, Resolver> = {
     } else {
       sort.createdAt = 1;
     }
+
 
     return paginate(
       models.OrderItems.find({
@@ -348,6 +352,10 @@ const orderQueries: Record<string, Resolver> = {
     { registerNumber },
     { config, clientPortal }: IContext,
   ) {
+    if (!clientPortal?.id) {
+      throw new Error('Client portal context is required for cpCurrentOrder');
+    }
+
     const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
 
     if (!checkTaxpayerUrl) {
@@ -376,6 +384,9 @@ const orderQueries: Record<string, Resolver> = {
     >,
     { models, config, clientPortal }: IContext,
   ) {
+    if (!clientPortal?.id) {
+      throw new Error('Client portal context is required for cpInvoices');
+    }
     const sort: { [key: string]: any } = {};
     if (sortField) {
       sort[sortField] = sortDirection;
@@ -405,6 +416,10 @@ const orderQueries: Record<string, Resolver> = {
     { customerId }: { customerId?: string },
     { models, config, clientPortal }: IContext,
   ) {
+    if (!clientPortal?.id) {
+      throw new Error('Client portal context is required for cpCurrentOrder');
+    }
+
     const tokenFilter = {
       $or: [{ posToken: config.token }, { subToken: config.token }],
     };
@@ -424,7 +439,21 @@ const orderQueries: Record<string, Resolver> = {
     return await models.OrderItems.find({ orderId: order._id }).lean();
   },
 
-  async cpAddresses(_root, { orderId }, { subdomain, clientPortal }: IContext) {
+  async cpAddresses(_root, { orderId }, { subdomain, clientPortal, models }: IContext) {
+    if (!clientPortal?.id) {
+      throw new Error('Client portal context is required for cpAddresses');
+    }
+
+    // Validate that the order belongs to the authenticated client portal
+    const order = await models.Orders.findOne({
+      _id: orderId,
+      clientPortalId: clientPortal.id,
+    }).lean();
+
+    if (!order) {
+      throw new Error('Order not found or access denied');
+    }
+
     const info = await sendTRPCMessage({
       subdomain,
 
