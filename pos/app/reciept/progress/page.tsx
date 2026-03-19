@@ -157,6 +157,15 @@ const Progress = () => {
     const hasFilters = categoryOrders.some((g) => g.length > 0)
     if (hasFilters && !isCategoryLoaded) return
 
+    if (!forCustomer && onlyNewItems) {
+      const hasItems = itemsToPrint.some((g) => g.length > 0)
+
+      if (!hasItems) {
+        handleAfterPrint()
+        return
+      }
+    }
+
     if (forCustomer) {
       if (!items || items.length === 0) return
 
@@ -177,8 +186,7 @@ const Progress = () => {
 
     if (printSeparately && itemsToPrint.length > 1) {
       let index = 0
-
-      const printNext = () => {
+      const printNext: () => void = () => {
         if (index >= itemsToPrint.length) {
           handleAfterPrint()
           return
