@@ -6,7 +6,7 @@ import { CoreTRPCContext } from '~/init-trpc';
 import { PRIORITY_ORDER } from '~/modules/notifications/constants';
 import { sendEmail } from '~/utils/email';
 import { initFirebase } from '~/modules/notifications/utils';
-import { USER_ROLES } from 'erxes-api-shared/utils/constants';
+import { USER_ROLES } from 'erxes-api-shared/utils';
 import * as admin from 'firebase-admin';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
