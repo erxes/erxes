@@ -676,12 +676,31 @@ export const prepareOrderDoc = async (
     }
   }
 
-  return await checkPrices(
+  const result = await checkPrices(
     subdomain,
     { ...doc, items, subscriptionInfo },
     config,
     posUser,
   );
+
+  if (!config.serviceCharge || !config.serviceChargeApplicableProductId) {
+    return result;
+  }
+
+  const serviceChargeAmount = doc.totalAmount * (config.serviceCharge / 100);
+  return {
+    ...result,
+    totalAmount: result.totalAmount + serviceChargeAmount,
+    items: [
+      ...result.items,
+      {
+        productId: config.serviceChargeApplicableProductId,
+        count: 1,
+        unitPrice: serviceChargeAmount,
+        isPackage: true,
+      },
+    ],
+  };
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {

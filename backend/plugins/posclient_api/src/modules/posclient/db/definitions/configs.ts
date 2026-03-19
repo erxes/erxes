@@ -116,6 +116,16 @@ export const configSchema = new Schema({
   saveRemainder: field({ type: Boolean, optional: true }),
   banFractions: field({ type: Boolean, optional: true }),
   status: field({ type: String, optional: true }),
+  serviceCharge: field({
+    type: Number,
+    optional: true,
+    label: 'Service charge',
+  }),
+  serviceChargeApplicableProductId: field({
+    type: String,
+    optional: true,
+    label: 'Service charge applicable product id',
+  }),
 });
 
 // Mongoose schemas ===========

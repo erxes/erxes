@@ -84,6 +84,8 @@ export interface IConfig {
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;
   banFractions: boolean;
+  serviceCharge: number;
+  serviceChargeApplicableProductId: string;
 }
 
 export interface IConfigDocument extends Document, IConfig {
