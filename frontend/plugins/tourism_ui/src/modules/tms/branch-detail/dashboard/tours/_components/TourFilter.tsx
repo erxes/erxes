@@ -14,6 +14,7 @@ import {
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { useCategories } from '../../category/hooks/useCategories';
 import { ICategory } from '../../category';
+import { TourTotalCount } from './TourTotalCount';
 
 const STATUS_OPTIONS = [
   { value: 'draft', label: 'Draft' },
@@ -214,8 +215,8 @@ export const TourFilter = () => {
     selectedCategoryNames.length > 0
       ? selectedCategoryNames.join(', ')
       : selectedCategoryIds.length > 0
-        ? `${selectedCategoryIds.length} selected`
-        : undefined;
+      ? `${selectedCategoryIds.length} selected`
+      : undefined;
 
   return (
     <Filter id="tours-filter" sessionKey={TOURS_CURSOR_SESSION_KEY}>
@@ -252,6 +253,8 @@ export const TourFilter = () => {
             {selectedCategoryLabel || 'Select category'}
           </Filter.BarButton>
         </Filter.BarItem>
+
+        <TourTotalCount />
       </Filter.Bar>
     </Filter>
   );

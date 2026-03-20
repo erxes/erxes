@@ -578,14 +578,15 @@ export const TourAdvanceCheckField = ({
           <Form.Control>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
           </Form.Control>
-          <Form.Label className="mt-0!">Advance Check</Form.Label>
+
+          <Form.Label className="cursor-pointer">Advance Check</Form.Label>
+
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
     />
   );
 };
-
 export const TourAdvancePercentField = ({
   control,
 }: {
@@ -806,3 +807,5 @@ export const TourImagesField = ({
     />
   );
 };
+
+export { TourDateSchedulingField } from './TourDateSchedulingField';

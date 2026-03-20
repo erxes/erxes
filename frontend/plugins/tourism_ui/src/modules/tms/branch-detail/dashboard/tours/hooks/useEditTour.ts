@@ -17,8 +17,11 @@ export interface IEditTourVariables {
   name?: string;
   content?: string;
   itineraryId?: string;
+  dateType?: 'fixed' | 'flexible';
   startDate?: Date;
   endDate?: Date;
+  availableFrom?: Date;
+  availableTo?: Date;
   groupSize?: number;
   duration?: number;
   advancePercent?: number;
@@ -39,6 +42,7 @@ export interface IEditTourVariables {
   personCost?: Record<string, any>;
   images?: string[];
   imageThumbnail?: string;
+  categoryIds?: string[];
 }
 
 interface IEditTourResponse {

@@ -8,9 +8,12 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { useEffect } from 'react';
 import { GET_TOURS } from '../graphql/queries';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { ITour } from '../types/tour';
+import { tourTotalCountAtom } from '../states/tourCounts';
 
 const TOURS_PER_PAGE = 30;
 
@@ -42,6 +45,8 @@ export const useTours = (
     ToursQueryVariables
   >,
 ) => {
+  const setTourTotalCount = useSetAtom(tourTotalCountAtom);
+
   const [{ status, date_status, categoryIds }] = useMultiQueryState<{
     status: string;
     date_status:
@@ -76,6 +81,10 @@ export const useTours = (
   });
 
   const { list: tours, totalCount, pageInfo } = data?.bmsTours || {};
+
+  useEffect(() => {
+    setTourTotalCount(totalCount ?? null);
+  }, [totalCount, setTourTotalCount]);
 
   const handleFetchMore = ({
     direction,
