@@ -1,10 +1,3 @@
-import {
-  CLOSE_DATE_TYPES,
-  PRIORITIES,
-  SALES_STATUSES,
-} from '~/modules/sales/constants';
-import { IPipelineLabelDocument, IStageDocument } from '~/modules/sales/@types';
-
 import { IContext } from '~/connectionResolvers';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
