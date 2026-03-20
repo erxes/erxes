@@ -32,8 +32,11 @@ export const GET_TOURS = gql`
         name
         refNumber
         groupCode
+        dateType
         startDate
         endDate
+        availableFrom
+        availableTo
         status
         date_status
         cost
@@ -74,8 +77,11 @@ export const GET_TOUR_GROUPS = gql`
           name
           refNumber
           groupCode
+          dateType
           startDate
           endDate
+          availableFrom
+          availableTo
           status
           date_status
           cost
@@ -98,8 +104,11 @@ export const GET_TOUR_DETAIL = gql`
       content
       cost
       date_status
+      dateType
       duration
       endDate
+      availableFrom
+      availableTo
       groupSize
       imageThumbnail
       images
