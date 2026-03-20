@@ -45,14 +45,12 @@ export const generateFacebookFields = async (
 
   fields = [
     ...fields,
-    ...[
-      {
-        _id: Math.random(),
-        name: 'content',
-        label: 'Content',
-        type: 'String',
-      },
-    ],
+    {
+      _id: Math.random(),
+      name: 'content',
+      label: 'Content',
+      type: 'String',
+    },
   ];
 
   fields = await generateFieldBotOptions(models, fields);

@@ -9,7 +9,7 @@ interface Props {
   clientPortal: IClientPortal;
 }
 
-export function ClientPortalDetailGoogle({ clientPortal }: Props) {
+export function ClientPortalDetailGoogle({ clientPortal }: Readonly<Props>) {
   const form = useForm<
     ReturnType<(typeof CLIENTPORTAL_GOOGLE_SCHEMA)['parse']>
   >({

@@ -49,8 +49,10 @@ export const getPostDetails = async (
   try {
     pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
+    const message = e instanceof Error ? e.message : String(e);
+
+    debugError(`Error occurred while getting page access token: ${message}`);
+    throw new Error(message);
   }
 
   try {
@@ -110,7 +112,7 @@ export const createAWS = async (subdomain: string) => {
 
 // Define a simple in-memory cache (outside the function scope)
 
-type UploadConfig = { AWS_BUCKET?: string;[k: string]: any } | null;
+type UploadConfig = { AWS_BUCKET?: string; [k: string]: any } | null;
 let cachedUploadConfig: UploadConfig = null;
 let fetchUploadConfigPromise: Promise<UploadConfig | null> | null = null;
 let lastFetchTime = 0;
@@ -121,8 +123,9 @@ export const uploadMedia = async (
   url: string,
   video: boolean,
 ) => {
-  const mediaFile = `uploads/${randomAlphanumeric(16)}.${video ? 'mp4' : 'jpg'
-    }`;
+  const mediaFile = `uploads/${randomAlphanumeric(16)}.${
+    video ? 'mp4' : 'jpg'
+  }`;
 
   // 1. Ensure we have cachedUploadConfig (with promise-based concurrency control)
   if (!cachedUploadConfig) {
@@ -159,6 +162,7 @@ export const uploadMedia = async (
       try {
         await fetchUploadConfigPromise;
       } catch (err) {
+        debugError(`Failed to fetch upload config: ${err?.message ?? err}`);
         return null;
       }
     }
@@ -255,7 +259,7 @@ export const getPageList = async (
     pages.push({
       id: page.id,
       name: page.name,
-      isUsed: integration ? true : false,
+      isUsed: !!integration,
     });
   }
 
@@ -325,7 +329,7 @@ export const getPostLink = async (
     pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
+    throw new Error(e.message);
   }
 
   try {
@@ -447,7 +451,8 @@ export const sendReply = async (
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to facebook ${e.message
+      `Error ocurred while trying to send post request to facebook ${
+        e.message
       } data: ${JSON.stringify(data)}`,
     );
 
@@ -547,7 +552,7 @@ export const checkFacebookPages = async (models: IModels, pages: any) => {
       pageId: page.id,
     });
 
-    page.isUsed = integration ? true : false;
+    page.isUsed = !!integration;
   }
 
   return pages;
@@ -565,7 +570,7 @@ export const getFacebookUserProfilePic = async (
     pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
+    throw new Error(e.message);
   }
 
   try {

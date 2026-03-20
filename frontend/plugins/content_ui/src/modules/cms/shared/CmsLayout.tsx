@@ -35,7 +35,7 @@ export function CmsLayout({
   showSidebar = true,
   breadcrumbItems,
   headerActions,
-}: CmsLayoutProps) {
+}: Readonly<CmsLayoutProps>) {
   const { websiteId } = useParams();
   const location = useLocation();
 

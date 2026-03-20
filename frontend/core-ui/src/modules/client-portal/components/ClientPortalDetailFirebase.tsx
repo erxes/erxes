@@ -10,7 +10,7 @@ interface Props {
   clientPortal?: IClientPortal | null;
 }
 
-export function ClientPortalDetailFirebase({ clientPortal }: Props) {
+export function ClientPortalDetailFirebase({ clientPortal }: Readonly<Props>) {
   const form = useForm<z.infer<typeof CLIENTPORTAL_FIREBASE_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_FIREBASE_SCHEMA),
     defaultValues: {

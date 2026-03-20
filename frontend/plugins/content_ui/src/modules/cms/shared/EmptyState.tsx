@@ -9,7 +9,7 @@ export function EmptyState({
   onAction,
   className,
   children,
-}: {
+}: Readonly<{
   icon?: React.ElementType;
   title: string;
   description?: string;
@@ -17,7 +17,7 @@ export function EmptyState({
   onAction?: () => void;
   className?: string;
   children?: React.ReactNode;
-}) {
+}>) {
   return (
     <div className={cn('h-full w-full  px-8 flex justify-center', className)}>
       <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">

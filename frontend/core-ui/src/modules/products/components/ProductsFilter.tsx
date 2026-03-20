@@ -16,7 +16,7 @@ import { IconFolders, IconCheck } from '@tabler/icons-react';
 import { useState, useEffect, useCallback } from 'react';
 
 interface SelectCategoriesBadgeProps {
-  category?: IProductCategory;
+  category?: Readonly<IProductCategory>;
 }
 
 function SelectCategoriesBadge(props: SelectCategoriesBadgeProps) {
@@ -32,8 +32,8 @@ function SelectCategoriesBadge(props: SelectCategoriesBadgeProps) {
 }
 
 interface SelectCategoriesFilterItemProps {
-  value: string;
-  label: string;
+  readonly value: string;
+  readonly label: string;
 }
 
 function SelectCategoriesFilterItem(props: SelectCategoriesFilterItemProps) {
@@ -47,9 +47,9 @@ function SelectCategoriesFilterItem(props: SelectCategoriesFilterItemProps) {
 }
 
 interface SelectCategoryProps {
-  category: IProductCategory;
-  selectedCategory?: IProductCategory;
-  onSelect: (categoryId: string) => void;
+  readonly category: IProductCategory;
+  readonly selectedCategory?: IProductCategory;
+  readonly onSelect: (categoryId: string) => void;
 }
 
 const CategoryOptionItem = ({
@@ -86,9 +86,9 @@ function SelectCategoriesFilterViewItem(props: SelectCategoryProps) {
 const CategoryItemContent = SelectCategoriesFilterViewItem;
 
 interface SelectCategoriesFilterBarContentProps {
-  productCategories?: IProductCategory[];
-  selectedCategory?: IProductCategory;
-  onSelect: (categoryId: string) => void;
+  readonly productCategories?: IProductCategory[];
+  readonly selectedCategory?: IProductCategory;
+  readonly onSelect: (categoryId: string) => void;
 }
 
 function SelectCategoriesFilterBarContent(
@@ -115,8 +115,8 @@ function SelectCategoriesFilterBarContent(
 }
 
 interface SelectCategoriesFilterBarProps {
-  filterKey: string;
-  label: string;
+  readonly filterKey: string;
+  readonly label: string;
 }
 
 function SelectCategoriesFilterBar(
@@ -181,7 +181,7 @@ function SelectCategoriesFilterBar(
 }
 
 interface SelectCategoriesFilterViewProps {
-  filterKey: string;
+  readonly filterKey: string;
 }
 
 function SelectCategoriesFilterView(
@@ -236,7 +236,7 @@ function SelectCategoriesFilterView(
         <Command.List>
           {isLoading ? (
             <Combobox.Empty loading={isLoading} />
-          ) : !productCategories?.length ? (
+          ) : productCategories?.length === 0 ? (
             <Command.Empty>
               <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
                 No categories found

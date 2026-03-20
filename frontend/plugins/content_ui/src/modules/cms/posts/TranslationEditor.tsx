@@ -20,19 +20,19 @@ import { formatInitialContent } from './formHelpers';
 import { Block } from '@blocknote/core';
 
 interface Translation {
-  _id?: string;
-  postId: string;
-  language: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  customFieldsData?: any;
+  readonly _id?: string;
+  readonly postId: string;
+  readonly language: string;
+  readonly title: string;
+  readonly content: string;
+  readonly excerpt: string;
+  readonly customFieldsData?: any;
 }
 
 interface TranslationEditorProps {
-  postId: string;
-  languages: string[];
-  defaultLanguage?: string;
+  readonly postId: string;
+  readonly languages: string[];
+  readonly defaultLanguage?: string;
 }
 
 export function TranslationEditor({
@@ -127,7 +127,7 @@ export function TranslationEditor({
                 const text = block.content
                   .map((i: any) => i.text || '')
                   .join('');
-                const level = (block.props as any)?.level || 1;
+                const level = block.props?.level || 1;
                 return text ? `<h${level}>${text}</h${level}>` : '';
               }
               return '';

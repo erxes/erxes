@@ -48,9 +48,11 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
         backgroundColor: 'default',
         textAlignment: 'left',
       };
-      if (tag.match(/^h[1-6]$/)) {
+      const headingRegex = /^h([1-6])$/;
+      const match = headingRegex.exec(tag);
+      if (match) {
         blockType = 'heading';
-        props.level = Number.parseInt(tag.charAt(1));
+        props.level = Number.parseInt(match[1]);
       }
       blocks.push({
         id: crypto.randomUUID(),
