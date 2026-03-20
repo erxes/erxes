@@ -4,8 +4,8 @@ import { CMS_TAGS_ADD } from '../../../../tags/graphql/mutations';
 const toSlug = (name: string) =>
   name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replaceAll(/[^a-z0-9]+/g, '-')
+    .replaceAll(/^-|-$/g, '');
 
 export const useInlineTag = (websiteId: string) => {
   const [addTagMutation] = useMutation(CMS_TAGS_ADD);
