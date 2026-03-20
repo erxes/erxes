@@ -260,10 +260,10 @@ export function PostDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : hasPermissionError
-                  ? 'Permission Required'
-                  : isEditing
-                  ? 'Save Changes'
-                  : 'Create Post'}
+                    ? 'Permission Required'
+                    : isEditing
+                      ? 'Save Changes'
+                      : 'Create Post'}
               </Button>
             </div>
           </form>
