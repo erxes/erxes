@@ -27,9 +27,9 @@ export const configReplacer = (config) => {
 
   // replace type of date
   return config
-    .replace(/\{year}/g, now.getFullYear().toString())
-    .replace(/\{month}/g, `0${(now.getMonth() + 1).toString()}`.slice(-2))
-    .replace(/\{day}/g, `0${now.getDate().toString()}`.slice(-2));
+    .replaceAll('{year}', now.getFullYear().toString())
+    .replaceAll('{month}', `0${(now.getMonth() + 1).toString()}`.slice(-2))
+    .replaceAll('{day}', `0${now.getDate().toString()}`.slice(-2));
 };
 
 // board item number calculator
@@ -99,14 +99,14 @@ export const boardNumberGenerator = async (
 
       number =
         replacedConfig +
-        (await numberCalculator(parseInt(size, 10), lastGeneratedNumber));
+        (await numberCalculator(Number.parseInt(size, 10), lastGeneratedNumber));
 
       return number;
     }
   }
 
   number =
-    replacedConfig + (await numberCalculator(parseInt(size, 10), '', skip));
+    replacedConfig + (await numberCalculator(Number.parseInt(size, 10), '', skip));
 
   return number;
 };
@@ -546,7 +546,7 @@ export const getItemList = async (
 
         if (item.customProperties && fieldData) {
           item.customProperties.push({
-            name: `${field.name} - ${fieldData}`,
+            name: `${field.name} - ${JSON.stringify(fieldData)}`,
           });
         }
       };
@@ -697,15 +697,13 @@ export const checkNumberConfig = async (
   }
 
   const replaced = await configReplacer(numberConfig);
-  const re = /[0-9]$/;
+  const re = /\d$/;
 
   if (re.test(replaced)) {
     throw new Error(
       `Please make sure that the number configuration itself doesn't end with any number.`,
     );
   }
-
-  return;
 };
 
 export const bulkUpdateOrders = async ({
@@ -1053,12 +1051,8 @@ export const notifiedUserIds = async (
 
   userIds = userIds.concat(item.watchedUserIds || []);
 
-  if (!stage) {
-    stage = await models.Stages.getStage(item.stageId);
-  }
-  if (!pipeline) {
-    pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-  }
+  stage ??= await models.Stages.getStage(item.stageId);
+  pipeline ??= await models.Pipelines.getPipeline(stage.pipelineId);
 
   userIds = userIds.concat(pipeline.watchedUserIds || []);
 
@@ -1103,7 +1097,7 @@ export const sendNotifications = async (
   const receivers = (
     await notifiedUserIds(models, item, stage, pipeline)
   ).filter((id) => {
-    return usersToExclude.indexOf(id) < 0;
+    return !usersToExclude.includes(id);
   });
 
   const notificationDoc = {
@@ -1111,7 +1105,7 @@ export const sendNotifications = async (
     title,
     contentType: 'sales:deal',
     contentTypeId: item._id,
-    action: action ? action : `has updated deal`,
+    action: action ?? 'has updated deal',
     message: content,
     link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
   };
