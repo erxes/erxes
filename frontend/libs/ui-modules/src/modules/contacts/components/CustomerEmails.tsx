@@ -9,11 +9,11 @@ import {
 import { useCustomerEdit } from 'ui-modules/modules/contacts/hooks';
 
 interface CustomerEmailsProps {
-  primaryEmail: string;
-  _id: string;
-  emailValidationStatus?: `${ValidationStatus}`;
-  emails: string[];
-  scope?: string;
+  readonly primaryEmail: string;
+  readonly _id: string;
+  readonly emailValidationStatus?: `${ValidationStatus}`;
+  readonly emails: string[];
+  readonly scope?: string;
   Trigger: React.ComponentType<{ children: React.ReactNode }>;
 }
 
