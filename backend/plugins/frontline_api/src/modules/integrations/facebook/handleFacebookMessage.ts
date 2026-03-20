@@ -57,7 +57,7 @@ export const handleFacebookMessage = async (
 
     // Strip HTML tags from content and decode &amp;
     let strippedContent = stripHtml(content).result.trim();
-    strippedContent = strippedContent.replace(/&amp;/g, '&');
+    strippedContent = strippedContent.replaceAll('&amp;', '&');
 
     // Create a reply record in DB
     await models.FacebookCommentConversationReply.create({
@@ -167,7 +167,7 @@ export const handleFacebookMessage = async (
       let output = html;
       do {
         prev = output;
-        output = output.replace(/<\/p>/gi, '\n').replace(/<[^>]+>/g, '');
+        output = output.replaceAll(/<\/p>/gi, '\n').replaceAll(/<[^>]+>/g, '');
       } while (output !== prev);
 
       return output.trim();
