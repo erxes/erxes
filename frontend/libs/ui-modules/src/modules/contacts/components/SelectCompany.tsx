@@ -141,10 +141,7 @@ const SelectCompanyContent = () => {
         <Combobox.Empty loading={loading} error={error} />
         {!loading &&
           companiesData
-            ?.filter(
-              (company) =>
-                !companyIds.includes(company._id),
-            )
+            ?.filter((company) => !companyIds.includes(company._id))
             .map((company) => (
               <SelectCompanyCommandItem key={company._id} company={company} />
             ))}

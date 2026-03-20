@@ -57,7 +57,9 @@ export const loadVatRowClass = (models: IModels, subdomain: string) => {
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
 
-      const usedVatRowIds = await models.Transactions.find({ vatRowId: { $in: _ids } }).distinct('vatRowId')
+      const usedVatRowIds = await models.Transactions.find({
+        vatRowId: { $in: _ids },
+      }).distinct('vatRowId');
 
       for (const id of _ids) {
         if (usedVatRowIds.includes(id)) {
