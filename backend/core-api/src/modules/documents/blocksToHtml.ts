@@ -54,11 +54,11 @@ const getColor = (
 
 const escapeHtml = (text: string): string => {
   return text
-    .replaceAll(/&/g, '&amp;')
-    .replaceAll(/</g, '&lt;')
-    .replaceAll(/>/g, '&gt;')
-    .replaceAll(/"/g, '&quot;')
-    .replaceAll(/'/g, '&#039;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 };
 
 const stylesToCss = (styles?: Record<string, any>, config?: Config): string => {
@@ -129,7 +129,7 @@ const renderInlineContent = (content: any[], config?: Config): string => {
         )}" style="${linkStyles}">${children}</a>`;
       }
 
-      const escapedText = escapeHtml(text || '').replaceAll(/\n/g, '<br />');
+      const escapedText = escapeHtml(text || '').replaceAll('\n', '<br />');
       const cssStyle = stylesToCss(styles, config);
 
       if (cssStyle) {
@@ -253,8 +253,8 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
 
       let html = `<div style="margin: 16px 0;">
         <img src="${escapeHtml(url || '')}" alt="${escapeHtml(
-          name || '',
-        )}" width="${width}" style="${imgStyle}" />`;
+        name || '',
+      )}" width="${width}" style="${imgStyle}" />`;
 
       if (caption) {
         html += `<div style="margin-top: 8px; font-size: 14px; color: #666; font-style: italic;">${escapeHtml(
