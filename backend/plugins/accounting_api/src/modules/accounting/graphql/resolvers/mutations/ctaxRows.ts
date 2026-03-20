@@ -55,8 +55,4 @@ const ctaxRowsMutations = {
   },
 };
 
-// checkPermission(ctaxRowsMutations, 'ctaxRowsAdd', 'manageCtaxRows');
-// checkPermission(ctaxRowsMutations, 'ctaxRowsEdit', 'manageCtaxRows');
-// checkPermission(ctaxRowsMutations, 'ctaxRowsRemove', 'manageCtaxRows');
-
 export default ctaxRowsMutations;

@@ -57,7 +57,4 @@ const coverQueries = {
   },
 };
 
-// checkPermission(coverQueries, 'posCovers', 'showCovers');
-// checkPermission(coverQueries, 'posCoversCount', 'showCovers');
-
 export default coverQueries;

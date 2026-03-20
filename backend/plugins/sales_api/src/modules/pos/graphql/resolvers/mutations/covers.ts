@@ -40,6 +40,4 @@ const coverMutations = {
   },
 };
 
-// checkPermission(coverMutations, 'posCoversEdit', 'ManageCovers');
-// checkPermission(coverMutations, 'posCoversRemove', 'ManageCovers');
 export default coverMutations;

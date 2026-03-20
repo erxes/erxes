@@ -1,7 +1,6 @@
 import {
   AUTOMATION_STATUSES,
   IAutomation,
-  requireLogin,
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
@@ -201,10 +200,3 @@ export const automationMutations = {
     return { success: true };
   },
 };
-
-requireLogin(automationMutations, 'automationsAdd');
-requireLogin(automationMutations, 'automationsEdit');
-requireLogin(automationMutations, 'automationsRemove');
-requireLogin(automationMutations, 'automationEmailTemplatesAdd');
-requireLogin(automationMutations, 'automationEmailTemplatesEdit');
-requireLogin(automationMutations, 'automationEmailTemplatesRemove');

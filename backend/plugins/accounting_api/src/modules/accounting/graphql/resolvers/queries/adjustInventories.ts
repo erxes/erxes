@@ -130,7 +130,4 @@ const adjustInventoryQueries = {
 
 };
 
-// requireLogin(adjustInventoryQueries, 'accountsCount');
-// checkPermission(adjustInventoryQueries, 'accounts', 'showAccounts', []);
-
 export default adjustInventoryQueries;

@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
@@ -17,4 +16,3 @@ export const activityQueries = {
   },
 };
 
-requireLogin(activityQueries, 'getTicketActivities');

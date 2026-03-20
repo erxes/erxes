@@ -1,5 +1,4 @@
 import { ITicketUpdate } from '~/modules/ticket/@types/ticket';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
@@ -96,6 +95,3 @@ export const ticketMutations = {
   },
 };
 
-requireLogin(ticketMutations, 'createTicket');
-requireLogin(ticketMutations, 'updateTicket');
-requireLogin(ticketMutations, 'removeTicket');

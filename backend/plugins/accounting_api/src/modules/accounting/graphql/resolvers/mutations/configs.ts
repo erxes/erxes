@@ -31,6 +31,4 @@ const configMutations = {
 
 };
 
-// checkPermission(configMutations, 'accountingsConfigsUpdate', 'manageAccounts');
-
 export default configMutations;

@@ -12,10 +12,6 @@ import {
   getItemList,
 } from '~/modules/sales/utils';
 import {
-  checkPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
-import {
   getNextMonth,
   getToday,
   regexSearchText,
@@ -1003,9 +999,6 @@ export const dealQueries: Record<string, Resolver> = {
 
   //   async checkDiscount() {}
 };
-
-// moduleRequireLogin(dealQueries);
-// checkPermission(dealQueries, 'deals', 'showDeals');
 
 dealQueries.cpDeals.wrapperConfig = {
   forClientPortal: true,

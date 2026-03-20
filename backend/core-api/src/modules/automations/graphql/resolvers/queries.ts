@@ -6,7 +6,6 @@ import {
   AutomationConstants,
   IAutomationDocument,
   IAutomationExecutionDocument,
-  requireLogin,
 } from 'erxes-api-shared/core-modules';
 import { IAutomationEmailTemplateDocument, ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import {
@@ -453,9 +452,3 @@ export const automationQueries = {
     return models.AutomationEmailTemplates.getEmailTemplate(_id);
   },
 };
-
-requireLogin(automationQueries, 'automationsMain');
-requireLogin(automationQueries, 'automationNotes');
-requireLogin(automationQueries, 'automationDetail');
-requireLogin(automationQueries, 'automationEmailTemplates');
-requireLogin(automationQueries, 'automationEmailTemplateDetail');

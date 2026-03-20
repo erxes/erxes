@@ -61,6 +61,4 @@ const ctaxRowQueries = {
   },
 };
 
-// checkPermission(ctaxRowQueries, 'ctaxRows', 'showCtaxRows', []);
-
 export default ctaxRowQueries;

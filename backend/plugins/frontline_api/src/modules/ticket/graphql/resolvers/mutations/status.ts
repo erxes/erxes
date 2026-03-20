@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { IStatusEditInput } from '@/ticket/@types/status';
 import { checkPipeline } from '~/modules/ticket/utils/ticket';
@@ -89,6 +88,3 @@ export const statusMutations = {
   },
 };
 
-requireLogin(statusMutations, 'addTicketStatus');
-requireLogin(statusMutations, 'updateTicketStatus');
-requireLogin(statusMutations, 'deleteTicketStatus');

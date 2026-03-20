@@ -56,8 +56,4 @@ const vatRowsMutations = {
   },
 };
 
-// checkPermission(vatRowsMutations, 'vatRowsAdd', 'manageVatRows');
-// checkPermission(vatRowsMutations, 'vatRowsEdit', 'manageVatRows');
-// checkPermission(vatRowsMutations, 'vatRowsRemove', 'manageVatRows');
-
 export default vatRowsMutations;

@@ -61,6 +61,4 @@ const vatRowQueries = {
   },
 };
 
-// checkPermission(vatRowQueries, 'vatRows', 'showVatRows', []);
-
 export default vatRowQueries;

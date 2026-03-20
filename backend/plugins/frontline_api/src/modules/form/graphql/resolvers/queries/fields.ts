@@ -233,4 +233,3 @@ export const fieldQueries = {
   //   },
 };
 
-//checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);

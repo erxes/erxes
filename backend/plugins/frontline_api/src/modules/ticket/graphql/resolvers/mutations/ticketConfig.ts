@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { ITicketSaveConfigArgs } from '~/modules/ticket/@types/ticketConfig';
 
@@ -49,5 +48,3 @@ export const ticketConfigMutations = {
   },
 };
 
-requireLogin(ticketConfigMutations, 'ticketSaveConfig');
-requireLogin(ticketConfigMutations, 'ticketRemoveConfig');

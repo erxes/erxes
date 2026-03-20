@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const noteQueries = {
@@ -11,4 +10,3 @@ export const noteQueries = {
   },
 };
 
-requireLogin(noteQueries, 'ticketGetNote');

@@ -54,8 +54,4 @@ const accountCategoriessMutations = {
   },
 };
 
-// checkPermission(accountCategoriessMutations, 'accountCategoriesAdd', 'manageAccounts');
-// checkPermission(accountCategoriessMutations, 'accountCategoriesEdit', 'manageAccounts');
-// checkPermission(accountCategoriessMutations, 'accountCategoriesRemove', 'manageAccounts');
-
 export default accountCategoriessMutations;

@@ -1,5 +1,4 @@
 
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { Resolver, } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
@@ -114,8 +113,6 @@ const queries: Record<string, Resolver> = {
   },
 };
 
-requireLogin(queries, 'invoices');
-checkPermission(queries, 'invoices', 'showInvoices', []);
 queries.invoiceDetail.wrapperConfig = {
   skipPermission: true
 }

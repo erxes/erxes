@@ -239,7 +239,4 @@ const accountQueries = {
   },
 };
 
-// requireLogin(accountQueries, 'accountsCount');
-// checkPermission(accountQueries, 'accounts', 'showAccounts', []);
-
 export default accountQueries;

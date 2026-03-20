@@ -90,6 +90,4 @@ const accountCategoryQueries = {
   },
 };
 
-// checkPermission(accountCategoryQueries, 'accountCategories', 'showAccounts', []);
-
 export default accountCategoryQueries;

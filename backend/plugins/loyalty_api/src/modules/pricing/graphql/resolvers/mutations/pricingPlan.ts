@@ -3,10 +3,6 @@ import type {
   IPricingPlan,
   IPricingPlanDocument,
 } from '../../../@types/pricingPlan';
-import {
-  moduleRequireLogin,
-  moduleCheckPermission,
-} from 'erxes-api-shared/core-modules';
 
 export const pricingPlanMutations = {
   pricingPlanAdd: async (
@@ -38,8 +34,3 @@ export const pricingPlanMutations = {
   },
 };
 
-/**
- * 🔑 Apply auth & permissions AFTER defining resolvers
- */
-moduleRequireLogin(pricingPlanMutations);
-moduleCheckPermission(pricingPlanMutations, 'managePricing');

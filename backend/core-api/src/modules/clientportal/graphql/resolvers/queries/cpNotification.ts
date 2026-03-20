@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate } from 'erxes-api-shared/utils';
@@ -118,8 +117,3 @@ cpNotificationQueries.clientPortalUnreadNotificationCount.wrapperConfig = {
   forClientPortal: true,
 };
 
-checkPermission(
-  cpNotificationQueries,
-  'getClientPortalNotificationsByCpUserId',
-  'showClientPortalUsers',
-);

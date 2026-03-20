@@ -220,10 +220,3 @@ markResolvers(formMutations, {
     skipPermission: true,
   },
 });
-// checkPermission(formMutations, 'formsAdd', 'manageForms');
-// checkPermission(formMutations, 'formsEdit', 'manageForms');
-// checkPermission(formMutations, 'formsRemove', 'manageForms');
-// checkPermission(formMutations, 'formsDuplicate', 'manageForms');
-// checkPermission(formMutations, 'formSubmissionsSave', 'manageForms');
-// checkPermission(formMutations, 'formSubmissionsEdit', 'manageForms');
-// checkPermission(formMutations, 'formSubmissionsRemove', 'manageForms');

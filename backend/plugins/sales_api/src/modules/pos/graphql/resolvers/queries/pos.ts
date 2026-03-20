@@ -56,8 +56,4 @@ const queries = {
   }
 };
 
-// checkPermission(queries, 'posList', 'showPos');
-// checkPermission(queries, 'posDetail', 'showPos');
-// checkPermission(queries, 'productGroups', 'managePos');
-
 export default queries;

@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { notificationService } from '@/clientportal/services';
@@ -119,8 +118,3 @@ cpNotificationMutations.clientPortalMarkAllNotificationsAsRead.wrapperConfig = {
   forClientPortal: true,
 };
 
-checkPermission(
-  cpNotificationMutations,
-  'clientPortalSendNotification',
-  'manageClientPortalUsers',
-);

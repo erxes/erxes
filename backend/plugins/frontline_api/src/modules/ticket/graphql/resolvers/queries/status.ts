@@ -1,6 +1,5 @@
 import { IStatusFilter, IStatusDocument } from '@/ticket/@types/status';
 import { TICKET_STATUS_TYPES } from '@/ticket/constants/types';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 
@@ -93,7 +92,3 @@ export const statusQueries = {
   },
 };
 
-requireLogin(statusQueries, 'getTicketStatus');
-requireLogin(statusQueries, 'getTicketStatusesChoicesPipeline');
-requireLogin(statusQueries, 'getAccessibleTicketStatuses');
-requireLogin(statusQueries, 'getTicketStatusesByType');

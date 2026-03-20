@@ -63,9 +63,4 @@ const accountsMutations = {
   },
 };
 
-// checkPermission(accountsMutations, 'accountsAdd', 'manageAccounts');
-// checkPermission(accountsMutations, 'accountsEdit', 'manageAccounts');
-// checkPermission(accountsMutations, 'accountsRemove', 'removeAccounts');
-// checkPermission(accountsMutations, 'accountsMerge', 'accountsMerge');
-
 export default accountsMutations;

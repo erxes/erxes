@@ -33,6 +33,4 @@ const configQueries = {
   },
 };
 
-// moduleRequireLogin(configQueries);
-
 export default configQueries;

@@ -1,5 +1,4 @@
 import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext, IModels } from '~/connectionResolvers';
 import { SortOrder } from 'mongoose';
 
@@ -347,17 +346,11 @@ export class BaseMutationResolver {
   }
 
   protected applyPermissions(
-    mutations: any,
-    permission: string,
-    requireLoginFields: string[] = [],
+    _mutations: any,
+    _permission: string,
+    _requireLoginFields: string[] = [],
   ): void {
-    requireLoginFields.forEach((field) => {
-      requireLogin(mutations, field);
-    });
-
-    Object.keys(mutations).forEach((field) => {
-      checkPermission(mutations, field, permission, []);
-    });
+    // Old permission wrapping removed — permissions are now handled at a higher level
   }
 }
 
