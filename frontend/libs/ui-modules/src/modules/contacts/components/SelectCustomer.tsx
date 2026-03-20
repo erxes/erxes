@@ -141,10 +141,7 @@ const SelectCustomerContent = () => {
         <Combobox.Empty loading={loading} error={error} />
         {!loading &&
           customersData
-            ?.filter(
-              (customer) =>
-                !customerIds.includes(customer._id),
-            )
+            ?.filter((customer) => !customerIds.includes(customer._id))
             .map((customer) => (
               <SelectCustomerCommandItem
                 key={customer._id}
