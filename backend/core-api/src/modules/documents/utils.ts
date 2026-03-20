@@ -19,9 +19,7 @@ export const prepareContent = ({
   }
 
   if (copies > 1) {
-    const copiedContents = Array(copies - 1)
-      .fill(htmlContents)
-      .flat();
+    const copiedContents = new Array(copies - 1).fill(htmlContents).flat();
 
     htmlContents = [...htmlContents, ...copiedContents];
   }

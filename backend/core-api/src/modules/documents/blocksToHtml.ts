@@ -54,11 +54,11 @@ const getColor = (
 
 const escapeHtml = (text: string): string => {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 };
 
 const stylesToCss = (styles?: Record<string, any>, config?: Config): string => {
@@ -84,11 +84,13 @@ const stylesToCss = (styles?: Record<string, any>, config?: Config): string => {
         cssProps.push('text-decoration: line-through');
         break;
       case 'code':
-        cssProps.push('font-family: Courier, monospace');
-        cssProps.push('background-color: #f4f4f4');
-        cssProps.push('padding: 2px 4px');
-        cssProps.push('border-radius: 3px');
-        cssProps.push('font-size: 90%');
+        cssProps.push(
+          'font-family: Courier, monospace',
+          'background-color: #f4f4f4',
+          'padding: 2px 4px',
+          'border-radius: 3px',
+          'font-size: 90%',
+        );
         break;
       case 'textColor':
         if (value !== 'default') {
@@ -127,7 +129,7 @@ const renderInlineContent = (content: any[], config?: Config): string => {
         )}" style="${linkStyles}">${children}</a>`;
       }
 
-      const escapedText = escapeHtml(text || '').replace(/\n/g, '<br />');
+      const escapedText = escapeHtml(text || '').replaceAll('\n', '<br />');
       const cssStyle = stylesToCss(styles, config);
 
       if (cssStyle) {
@@ -251,8 +253,8 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
 
       let html = `<div style="margin: 16px 0;">
         <img src="${escapeHtml(url || '')}" alt="${escapeHtml(
-        name || '',
-      )}" width="${width}" style="${imgStyle}" />`;
+          name || '',
+        )}" width="${width}" style="${imgStyle}" />`;
 
       if (caption) {
         html += `<div style="margin-top: 8px; font-size: 14px; color: #666; font-style: italic;">${escapeHtml(
