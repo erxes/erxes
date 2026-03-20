@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useMutation } from '@apollo/client';
-import { MultipleSelector } from 'erxes-ui';
-import { toast } from 'erxes-ui';
+import { MultipleSelector, toast } from 'erxes-ui';
 import { CMS_POSTS_EDIT } from '../graphql/queries';
 import { useTags } from '../hooks/useTags';
 
 type InlineTagsEditorProps = {
-  postId: string;
-  websiteId?: string;
-  initialTags: any[];
+  readonly postId: string;
+  readonly websiteId?: string;
+  readonly initialTags: any[];
 };
 
 export function InlineTagsEditor({

@@ -2,7 +2,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
 
 type DateCellProps = {
-  date: string;
+  readonly date: string;
 };
 
 export function DateCell({ date }: DateCellProps) {

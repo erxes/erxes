@@ -7,20 +7,20 @@ import { POSTS_ADD } from '../graphql/queries';
 import { POSTS_LIST } from './graphql/queries/postsListQueries';
 
 interface Post {
-  _id: string;
-  title: string;
-  content: string;
-  status: string;
-  type: string;
-  clientPortalId: string;
-  createdAt: string;
+  readonly _id: string;
+  readonly title: string;
+  readonly content: string;
+  readonly status: string;
+  readonly type: string;
+  readonly clientPortalId: string;
+  readonly createdAt: string;
 }
 
 interface PostDrawerProps {
-  post?: Post;
-  isOpen: boolean;
-  onClose: () => void;
-  clientPortalId: string;
+  readonly post?: Post;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly clientPortalId: string;
 }
 
 interface PostFormData {
@@ -260,10 +260,10 @@ export function PostDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : hasPermissionError
-                    ? 'Permission Required'
-                    : isEditing
-                      ? 'Save Changes'
-                      : 'Create Post'}
+                  ? 'Permission Required'
+                  : isEditing
+                  ? 'Save Changes'
+                  : 'Create Post'}
               </Button>
             </div>
           </form>
