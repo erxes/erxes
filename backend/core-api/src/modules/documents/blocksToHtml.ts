@@ -54,11 +54,11 @@ const getColor = (
 
 const escapeHtml = (text: string): string => {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replaceAll(/&/g, '&amp;')
+    .replaceAll(/</g, '&lt;')
+    .replaceAll(/>/g, '&gt;')
+    .replaceAll(/"/g, '&quot;')
+    .replaceAll(/'/g, '&#039;');
 };
 
 const stylesToCss = (styles?: Record<string, any>, config?: Config): string => {
@@ -84,11 +84,13 @@ const stylesToCss = (styles?: Record<string, any>, config?: Config): string => {
         cssProps.push('text-decoration: line-through');
         break;
       case 'code':
-        cssProps.push('font-family: Courier, monospace');
-        cssProps.push('background-color: #f4f4f4');
-        cssProps.push('padding: 2px 4px');
-        cssProps.push('border-radius: 3px');
-        cssProps.push('font-size: 90%');
+        cssProps.push(
+          'font-family: Courier, monospace',
+          'background-color: #f4f4f4',
+          'padding: 2px 4px',
+          'border-radius: 3px',
+          'font-size: 90%',
+        );
         break;
       case 'textColor':
         if (value !== 'default') {
