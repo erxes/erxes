@@ -53,7 +53,7 @@ export const brandMutations = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Re-throw with original message if it's already an Error
       if (error instanceof Error) {
         throw error;

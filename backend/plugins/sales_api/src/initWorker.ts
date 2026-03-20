@@ -30,12 +30,16 @@ export const sendPosclientHealthCheck = async ({
 interface SendPosclientMessageArgs {
   action: string;
   pos: IPosDocument;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   subdomain: string;
   isRPC?: boolean;
   isMQ?: boolean;
 }
 
+/**
+ * Sends a message to posclient service, with optional health-check validation
+ * for RPC flows when POS is not running on server mode.
+ */
 export const sendPosclientMessage = async (args: SendPosclientMessageArgs) => {
   const { action, pos, data, subdomain, isRPC } = args;
   let lastAction = action;

@@ -38,7 +38,7 @@ export const TagsListRowForm = () => {
         name: value.trim(),
         colorCode: DEFAULT_COLOR,
         ...addingTag,
-        type: type,
+        type,
       },
     });
     goBackToPreviousHotkeyScope();

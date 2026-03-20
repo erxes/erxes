@@ -23,10 +23,13 @@ export const salesItemsCountByAssignedUser = async (
   { pipelineId, stackBy }: { pipelineId: string; stackBy: string },
   { models, subdomain }: IContext,
 ) => {
+  type GroupItem = { _id?: string; name: string; color?: string; value?: string };
+  type DealLike = { assignedUserIds?: string[] };
+
   const { Stages, PipelineLabels } = models;
 
-  let groups: Array<{ _id?: string; name: string; color?: string; value?: string }>;
-  let detailFilter: (item: any) => any;
+  let groups: GroupItem[];
+  let detailFilter: (item: unknown) => Record<string, unknown>;
 
   const stages = await Stages.find({ pipelineId });
 
@@ -36,7 +39,7 @@ export const salesItemsCountByAssignedUser = async (
 
   const stageIds = stages.map((stage) => stage._id);
 
-  const filter: any = {
+  const filter: Record<string, unknown> = {
     stageId: { $in: stageIds },
     status: SALES_STATUSES.ACTIVE,
   };
@@ -47,8 +50,8 @@ export const salesItemsCountByAssignedUser = async (
 
       filter.priority = { $in: PRIORITIES.ALL.map((p) => p.name) };
 
-      detailFilter = ({ name }: { name: string }) => ({
-        priority: name,
+      detailFilter = (item) => ({
+        priority: (item as { name: string }).name,
         stageId: { $in: stageIds },
       });
 
@@ -65,8 +68,8 @@ export const salesItemsCountByAssignedUser = async (
 
       filter.labelIds = { $in: labels.map((g) => g._id) };
 
-      detailFilter = (label: IPipelineLabelDocument) => ({
-        labelIds: { $in: [label._id] },
+      detailFilter = (item) => ({
+        labelIds: { $in: [(item as IPipelineLabelDocument)._id] },
         stageId: { $in: stageIds },
       });
 
@@ -76,8 +79,8 @@ export const salesItemsCountByAssignedUser = async (
     case 'dueDate': {
       groups = CLOSE_DATE_TYPES.ALL;
 
-      detailFilter = ({ value }: { value: string }) => ({
-        closeDate: getCloseDateByType(value),
+      detailFilter = (item) => ({
+        closeDate: getCloseDateByType((item as { value: string }).value),
         stageId: { $in: stageIds },
       });
 
@@ -91,7 +94,7 @@ export const salesItemsCountByAssignedUser = async (
         name: stage.name,
       }));
 
-      detailFilter = (stage: IStageDocument) => ({ stageId: stage._id });
+      detailFilter = (item) => ({ stageId: (item as IStageDocument)._id });
     }
   }
 
@@ -118,15 +121,15 @@ export const salesItemsCountByAssignedUser = async (
     defaultValue: [],
   });
 
-  const usersWithInfo: Array<{ name: string; [key: string]: any }> = [];
-  const countsByGroup: Record<string, any[]> = {};
+  const usersWithInfo: Array<{ name: string } & Record<string, number>> = [];
+  const countsByGroup: Record<string, DealLike[]> = {};
 
   for (const groupItem of groups) {
-    const countsByGroupItem = await models.Deals.find({
+    const countsByGroupItem = (await models.Deals.find({
       'assignedUserIds.0': { $exists: true },
       status: SALES_STATUSES.ACTIVE,
       ...detailFilter(groupItem),
-    });
+    })) as DealLike[];
 
     countsByGroup[groupItem.name || ''] = countsByGroupItem;
   }
