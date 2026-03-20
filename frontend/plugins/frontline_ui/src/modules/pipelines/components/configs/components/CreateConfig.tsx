@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { Button, Form, Sheet, Spinner, toast, useConfirm } from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, toast } from 'erxes-ui';
 import { usePipelineConfigForm } from '../hooks/usePipelineConfigForm';
 import { useSaveTicketsConfig } from '../hooks/useSaveTicketsConfig';
 import { type SubmitHandler } from 'react-hook-form';

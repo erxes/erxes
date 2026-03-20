@@ -1,7 +1,13 @@
 import { Cell } from '@tanstack/react-table';
-import { RecordTable, useConfirm, useToast } from 'erxes-ui';
+import {
+  RecordTable,
+  useConfirm,
+  useToast,
+  Popover,
+  Command,
+  Combobox,
+} from 'erxes-ui';
 import { IClientPortal } from '@/client-portal/types/clientPortal';
-import { Popover, Command, Combobox } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import {

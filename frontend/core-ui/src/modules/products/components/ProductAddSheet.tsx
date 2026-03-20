@@ -73,10 +73,10 @@ export const ProductAddSheet = () => {
             <AddProductForm
               embed
               onOpenChange={(isOpen) => {
-                if (!isOpen) {
-                  onClose();
-                } else {
+                if (isOpen) {
                   setOpen(true);
+                } else {
+                  onClose();
                 }
               }}
               showMoreInfo={showMoreInfo}

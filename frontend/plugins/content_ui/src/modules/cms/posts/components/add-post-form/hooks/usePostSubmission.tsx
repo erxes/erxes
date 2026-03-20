@@ -137,7 +137,7 @@ const blocksToHtml = (raw: string): string => {
 };
 
 const extractText = (html: string): string => {
-  return html.replace(/<[^>]*>/g, '').trim();
+  return html.replaceAll(/<[^>]*>/g, '').trim();
 };
 
 const computeTitle = (data: PostFormData, contentHtml: string): string => {
@@ -152,8 +152,8 @@ const computeTitle = (data: PostFormData, contentHtml: string): string => {
 const generateSlug = (title: string): string => {
   const baseSlug = title
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replaceAll(/[^a-z0-9]+/g, '-')
+    .replaceAll(/^-+|-+$/g, '');
 
   const timestamp = Date.now().toString(36).slice(-6);
 
