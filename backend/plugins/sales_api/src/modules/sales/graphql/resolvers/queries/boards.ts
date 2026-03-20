@@ -7,7 +7,6 @@ import { IPipelineLabelDocument, IStageDocument } from '~/modules/sales/@types';
 
 import { IContext } from '~/connectionResolvers';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { getCloseDateByType } from '~/modules/sales/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { salesItemsCountByAssignedUser as salesItemsCountResolver } from './salesItemsCount';
 
