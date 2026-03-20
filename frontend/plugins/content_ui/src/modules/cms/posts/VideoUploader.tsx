@@ -35,11 +35,9 @@ export const VideoUploader = ({ value, onChange }: VideoUploaderProps) => {
       {value && (
         <div className="relative">
           <div className="relative border rounded overflow-hidden bg-black">
-            <video
-              src={value}
-              controls
-              className="w-full h-64 object-contain"
-            />
+            <video src={value} controls className="w-full h-64 object-contain">
+              <track kind="captions" src="" label="English captions" />
+            </video>
             <Button
               variant="ghost"
               size="icon"

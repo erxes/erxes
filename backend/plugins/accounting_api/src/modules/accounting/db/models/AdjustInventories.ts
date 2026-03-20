@@ -141,7 +141,6 @@ export const loadAdjustInvDetailsClass = (models: IModels, subdomain: string) =>
       if (hasResp) {
         return newDetail;
       }
-      return;
     }
 
     public static async increaseAdjustInvDetail({
@@ -149,9 +148,13 @@ export const loadAdjustInvDetailsClass = (models: IModels, subdomain: string) =>
     }: IAdjustInvDetailParamsId & {
       count: number, amount: number, adjustDetail?: IAdjustInvDetailDocument, multiplier?: number, hasResp?: boolean
     }) {
-      if (!adjustDetail) {
-        adjustDetail = await models.AdjustInvDetails.getAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, })
-      }
+      adjustDetail ??= await models.AdjustInvDetails.getAdjustInvDetail({
+        adjustId,
+        productId,
+        accountId,
+        branchId,
+        departmentId,
+      });
 
       if (!multiplier) {
         multiplier = 1;
