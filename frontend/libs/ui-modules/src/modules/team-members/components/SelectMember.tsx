@@ -141,7 +141,8 @@ const SelectMemberCommandItem = ({ user }: { user: IUser }) => {
 
 const SelectMemberNoAssigneeItem = () => {
   const { onSelect, memberIds } = useSelectMemberContext();
-  const isNoAssigneeSelected = memberIds?.length === 1 && memberIds[0] === 'no-assignee';
+  const isNoAssigneeSelected =
+    memberIds?.length === 1 && memberIds[0] === 'no-assignee';
   return (
     <Command.Item value="no-assignee" onSelect={() => onSelect(null)}>
       <MembersInline
@@ -310,11 +311,11 @@ export const SelectMemberFilterBar = ({
 export const SelectMemberInlineCell = React.forwardRef<
   React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
   Omit<React.ComponentProps<typeof SelectMemberProvider>, 'children'> &
-  React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-    scope?: string;
-    placeholder?: string;
-    size?: AvatarProps['size'];
-  }
+    React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
+      scope?: string;
+      placeholder?: string;
+      size?: AvatarProps['size'];
+    }
 >(
   (
     {
@@ -420,7 +421,7 @@ export const SelectMemberDetail = ({
               <SelectMemberValue size={size} />
             </Button>
           ) : (
-             <Combobox.TriggerBase className="font-medium">
+            <Combobox.TriggerBase className="font-medium">
               Add Owner <IconPlus />
             </Combobox.TriggerBase>
           )}
@@ -494,7 +495,10 @@ export const SelectMemberCustomDetail = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.TriggerBase asChild>
-          <Button variant="ghost" className={cn("h-7 w-auto inline-flex", className)}>
+          <Button
+            variant="ghost"
+            className={cn('h-7 w-auto inline-flex', className)}
+          >
             <SelectMemberValue size={size} />
           </Button>
         </Combobox.TriggerBase>
