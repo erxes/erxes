@@ -6,6 +6,8 @@ import { NotificationItem } from '@/notification/components/NotificationItem';
 import { useNotifications } from '@/notification/hooks/useNotifications';
 import { hiddenNotificationIdsState } from '../states/notificationState';
 import { useAtomValue } from 'jotai';
+import { usePermissionCheck } from 'ui-modules';
+import { useMemo } from 'react';
 
 export const Notifications = () => {
   return (
@@ -18,6 +20,7 @@ export const Notifications = () => {
 
 const NotificationList = () => {
   const hiddenNotificationIds = useAtomValue(hiddenNotificationIdsState);
+  const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
 
   const { notifications, loading, handleFetchMore, totalCount } =
     useNotifications();
@@ -29,7 +32,21 @@ const NotificationList = () => {
     },
   });
 
-  if (!loading && notifications.length === 0) {
+  const filteredNotifications = useMemo(() => {
+    return notifications.filter((notification) => {
+      if (hiddenNotificationIds.includes(notification._id)) return false;
+
+      if (!isLoaded || isWildcard) return true;
+
+      const [plugin, moduleName] = (notification.contentType || '').split(':');
+      if (!plugin || plugin === 'core') return true;
+      if (!moduleName) return true;
+
+      return hasModulePermission(moduleName);
+    });
+  }, [notifications, hiddenNotificationIds, isLoaded, isWildcard, hasModulePermission]);
+
+  if (!loading && filteredNotifications.length === 0) {
     return (
       <div className="h-full w-full flex flex-col gap-4 justify-center items-center text-accent-foreground">
         <div className="border border-dashed p-6 bg-sidebar rounded-xl">
@@ -41,10 +58,6 @@ const NotificationList = () => {
       </div>
     );
   }
-
-  const filteredNotifications = notifications.filter(
-    (notification) => !hiddenNotificationIds.includes(notification._id),
-  );
 
   return (
     <ScrollArea.Root className="w-full h-full overflow-hidden relative bg-sidebar">
