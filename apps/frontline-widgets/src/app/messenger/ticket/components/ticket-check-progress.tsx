@@ -391,9 +391,9 @@ export const TicketStatusInlineValue = ({
     <StatusIconComponent
       {...props}
       color={status.color}
-      style={{
+      style={!hasName ? {
         backgroundColor: `${status.color}25`,
-      }}
+      } : undefined}
       className={cn('size-6 flex-none rounded-sm p-1', colorClassName)}
     />
   );
@@ -401,26 +401,29 @@ export const TicketStatusInlineValue = ({
   if (hasName) {
     return (
       <div
-        style={{ backgroundColor: `${status.color}25` }}
         className="flex items-center gap-2 rounded-sm shadow-xs w-min pe-2"
       >
-        <Tooltip>
-          <Tooltip.Trigger>{iconElement}</Tooltip.Trigger>
-          <Tooltip.Content>
-            <p className="capitalize">{status.name}</p>
-          </Tooltip.Content>
-        </Tooltip>
+        <Tooltip.Provider>
+          <Tooltip>
+            <Tooltip.Trigger>{iconElement}</Tooltip.Trigger>
+            <Tooltip.Content>
+              <p className="capitalize">{status.name}</p>
+            </Tooltip.Content>
+          </Tooltip>
+        </Tooltip.Provider>
         <p className="font-medium text-sm capitalize">{status.name}</p>
       </div>
     );
   }
 
   return (
-    <Tooltip>
-      <Tooltip.Trigger>{iconElement}</Tooltip.Trigger>
-      <Tooltip.Content>
-        <p className="capitalize">{status.name}</p>
-      </Tooltip.Content>
-    </Tooltip>
+    <Tooltip.Provider>
+      <Tooltip>
+        <Tooltip.Trigger>{iconElement}</Tooltip.Trigger>
+        <Tooltip.Content>
+          <p className="capitalize">{status.name}</p>
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
   );
 };

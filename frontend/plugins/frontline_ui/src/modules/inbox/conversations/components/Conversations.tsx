@@ -20,7 +20,7 @@ import {
 import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
 import { ConversationItem } from './ConversationItem';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
 import { conversationsContainerScrollState } from '@/inbox/conversations/states/conversationsContainerScrollState';
@@ -65,7 +65,7 @@ export const Conversations = () => {
     }
   }, [refetchNewMessages]);
 
-  const { channelId, integrationType, unassigned, status, created } =
+  const { channelId, integrationType, unassigned, status, created, brandId } =
     useNonNullMultiQueryState<{
       channelId: string;
       integrationType: string;
@@ -73,6 +73,7 @@ export const Conversations = () => {
       status: string;
       conversationId: string;
       created: string;
+      brandId: string;
     }>([
       'channelId',
       'integrationType',
@@ -80,6 +81,7 @@ export const Conversations = () => {
       'status',
       'conversationId',
       'created',
+      'brandId',
     ]);
 
   const parsedDate = parseDateRangeFromString(created || '');
@@ -94,18 +96,18 @@ export const Conversations = () => {
         status: status || '',
         startDate: parsedDate?.from,
         endDate: parsedDate?.to,
+        brandId,
         cursorMode: EnumCursorMode.INCLUSIVE,
       },
     });
 
+  const conversationListContextValue = useMemo(
+    () => ({ conversations, loading, totalCount }),
+    [conversations, loading, totalCount],
+  );
+
   return (
-    <ConversationListContext.Provider
-      value={{
-        conversations,
-        loading,
-        totalCount,
-      }}
-    >
+    <ConversationListContext.Provider value={conversationListContextValue}>
       <div className="flex flex-col h-full overflow-hidden w-full">
         <Filter id="conversations">
           <ConversationsHeader>
@@ -117,7 +119,7 @@ export const Conversations = () => {
           {conversations?.map((conversation: IConversation) => (
             <ConversationContext.Provider
               key={conversation._id}
-              value={conversation}
+              value={{ ...conversation, tagIds: conversation.tagIds ?? [] }}
             >
               <ConversationItem
                 onConversationSelect={() => {

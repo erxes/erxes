@@ -82,12 +82,6 @@ import {
 } from '@/products/graphql/schemas';
 
 import {
-  mutations as ExchangeRateMutations,
-  queries as ExchangeRateQueries,
-  types as ExchangeRateTypes,
-} from '~/modules/exchangeRates/graphql/schemas';
-
-import {
   mutations as SegmentMutations,
   queries as SegmentQueries,
   types as SegmentTypes,
@@ -192,6 +186,18 @@ import {
   types as BroadcastTypes,
 } from '@/broadcast/graphql/schemas';
 
+import {
+  types as bundleTypes,
+  queries as bundleQueries,
+  mutations as bundleMutations,
+} from '@/bundle/graphql/schemas';
+
+import {
+  types as templateTypes,
+  queries as templateQueries,
+  mutations as templateMutations,
+} from '@/template/graphql/schemas';
+
 export const types = `
     enum CacheControlScope {
       PUBLIC
@@ -224,7 +230,6 @@ export const types = `
     ${ConformityTypes}
     ${RelationTypes}
     ${FavoritesTypes}
-    ${ExchangeRateTypes}
     ${PermissionTypes}
     ${DocumentTypes}
     ${AutomationsTypes}
@@ -239,6 +244,8 @@ export const types = `
     ${CommentTypes}
     ${CPNotificationTypes}
     ${BroadcastTypes}
+    ${bundleTypes}
+    ${templateTypes}
   `;
 
 export const queries = `
@@ -260,7 +267,6 @@ export const queries = `
     ${SegmentQueries}
     ${RelationQueries}
     ${FavoritesQueries}
-    ${ExchangeRateQueries}
     ${PermissionQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
@@ -275,6 +281,8 @@ export const queries = `
     ${CommentQueries}
     ${CPNotificationQueries}
     ${BroadcastQueries}
+    ${bundleQueries}
+    ${templateQueries}
   `;
 
 export const mutations = `
@@ -296,7 +304,6 @@ export const mutations = `
     ${ConformityMutations}
     ${RelationMutations}
     ${FavoritesMutations}
-    ${ExchangeRateMutations}
     ${PermissionMutations}
     ${DocumentMutations}
     ${AutomationsMutations}
@@ -310,6 +317,8 @@ export const mutations = `
     ${CommentMutations}
     ${CPNotificationMutations}
     ${BroadcastMutations}
+    ${bundleMutations}
+    ${templateMutations}
   `;
 
 export default { types, queries, mutations };

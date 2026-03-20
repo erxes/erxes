@@ -5,6 +5,7 @@ import {
   TourFilterParams,
   TourListResponse,
 } from '@/bms/@types/tour';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 function buildDateSelector(
   selector: Record<string, any>,
@@ -25,15 +26,84 @@ function buildDateSelector(
   }
 }
 
-const tourQueries = {
+const escapeRegExp = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+async function buildSubCategoryIds(
+  models: IContext['models'],
+  categoryIds?: string[],
+) {
+  if (!categoryIds?.length) {
+    return [];
+  }
+
+  let allSubcategories: string[] = [...categoryIds];
+  let ids: string[] = [...categoryIds];
+  const visited = new Set<string>(categoryIds);
+
+  while (ids.length > 0) {
+    const children = await models.BmsTourCategories.find(
+      { parentId: { $in: ids } },
+      { _id: 1 },
+    );
+
+    const newIds = children
+      .map((x) => String(x._id))
+      .filter((id) => !visited.has(id));
+
+    if (!newIds.length) {
+      break;
+    }
+
+    for (const id of newIds) {
+      visited.add(id);
+    }
+
+    allSubcategories = [...newIds, ...allSubcategories];
+    ids = newIds;
+  }
+
+  return allSubcategories;
+}
+
+const applyCategoryFilters = (
+  selector: Record<string, any>,
+  categoryIds?: string[],
+) => {
+  if (!categoryIds?.length) {
+    return;
+  }
+
+  selector.$or = [
+    { categoryIds: { $in: categoryIds } },
+    // Backward compatibility with old fields
+    { categories: { $in: categoryIds } },
+    { tagIds: { $in: categoryIds } },
+    { categoryId: { $in: categoryIds } },
+  ];
+};
+
+const mergeCategoryFilterIds = ({
+  categoryIds,
+  tags,
+}: {
+  categoryIds?: string[];
+  tags?: string[];
+}) => {
+  const merged = [...(categoryIds || []), ...(tags || [])].filter(Boolean);
+  return merged.length ? [...new Set(merged)] : undefined;
+};
+
+const tourQueries: Record<string, Resolver> = {
   async bmsTours(
     _root: any,
     {
-      categories,
+      categoryIds,
+      tags,
+      name,
       status,
       innerDate,
       branchId,
-      tags,
       startDate1,
       endDate1,
       startDate2,
@@ -45,8 +115,13 @@ const tourQueries = {
   ): Promise<TourListResponse> {
     const selector: Record<string, any> = {};
 
-    if (categories?.length) {
-      selector.categories = { $in: categories };
+    const selectedCategoryIds = mergeCategoryFilterIds({ categoryIds, tags });
+    const expandedCategoryIds = await buildSubCategoryIds(
+      models,
+      selectedCategoryIds,
+    );
+    if (name) {
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -54,9 +129,10 @@ const tourQueries = {
     if (branchId) {
       selector.branchId = branchId;
     }
-    if (tags?.length) {
-      selector.tags = { $in: tags };
-    }
+    applyCategoryFilters(
+      selector,
+      expandedCategoryIds.length ? expandedCategoryIds : undefined,
+    );
     if (innerDate) {
       selector.startDate = { $lte: innerDate };
       selector.endDate = { $gte: innerDate };
@@ -77,21 +153,136 @@ const tourQueries = {
     return { list, totalCount, pageInfo };
   },
 
-  async bmsTourDetail(
+  bmsToursTotalCount(
+    _root: any,
+    { branchId }: { branchId?: string },
+    { models }: IContext,
+  ): Promise<number> {
+    const selector: Record<string, any> = {};
+
+    if (branchId) {
+      selector.branchId = branchId;
+    }
+
+    return models.Tours.countDocuments(selector);
+  },
+
+  async cpBmsTours(
+    _root: any,
+    {
+      categoryIds,
+      tags,
+      name,
+      status,
+      innerDate,
+      branchId,
+      webId,
+      startDate1,
+      endDate1,
+      startDate2,
+      endDate2,
+      date_status,
+      ...params
+    }: TourFilterParams,
+    { models }: IContext,
+  ): Promise<TourListResponse> {
+    const selector: Record<string, any> = {};
+
+    const selectedCategoryIds = mergeCategoryFilterIds({ categoryIds, tags });
+    const expandedCategoryIds = await buildSubCategoryIds(
+      models,
+      selectedCategoryIds,
+    );
+    if (name) {
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    }
+    if (status) {
+      selector.status = status;
+    }
+    if (branchId) {
+      selector.branchId = branchId;
+    }
+    if (webId) {
+      selector.webId = webId;
+    }
+    applyCategoryFilters(
+      selector,
+      expandedCategoryIds.length ? expandedCategoryIds : undefined,
+    );
+    if (innerDate) {
+      selector.startDate = { $lte: innerDate };
+      selector.endDate = { $gte: innerDate };
+    }
+    if (date_status) {
+      selector.date_status = date_status;
+    }
+
+    buildDateSelector(selector, 'startDate', startDate1, startDate2);
+    buildDateSelector(selector, 'endDate', endDate1, endDate2);
+
+    const { list, totalCount, pageInfo } = await cursorPaginate({
+      model: models.Tours,
+      params,
+      query: selector,
+    });
+
+    return { list, totalCount, pageInfo };
+  },
+
+  cpBmsToursTotalCount(
+    _root: any,
+    { branchId, webId }: { branchId?: string; webId?: string },
+    { models }: IContext,
+  ): Promise<number> {
+    const selector: Record<string, any> = {};
+
+    if (branchId) {
+      selector.branchId = branchId;
+    }
+    if (webId) {
+      selector.webId = webId;
+    }
+
+    return models.Tours.countDocuments(selector);
+  },
+
+  bmsTourDetail(
     _root: any,
     { _id }: { _id: string },
     { models }: IContext,
   ): Promise<ITourDocument | null> {
     return models.Tours.findById(_id);
   },
+
+  bmsTourCategories(_root, { parentId }, { models }: IContext) {
+    const selector: any = {};
+
+    if (parentId) {
+      selector.parentId = parentId;
+    } else if (parentId === null) {
+      selector.parentId = null;
+    }
+
+    return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });
+  },
+
+  cpBmsTourDetail(
+    _root: any,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ): Promise<ITourDocument | null> {
+    return models.Tours.findById(_id);
+  },
+
   async bmToursGroup(
     _root,
     {
-      categories,
+      categoryIds,
+      tags,
+      name,
       status,
       innerDate,
       branchId,
-      tags,
       startDate1,
       endDate1,
       startDate2,
@@ -104,8 +295,13 @@ const tourQueries = {
   ) {
     const selector: any = {};
 
-    if (categories?.length) {
-      selector.categories = { $in: categories };
+    const selectedCategoryIds = mergeCategoryFilterIds({ categoryIds, tags });
+    const expandedCategoryIds = await buildSubCategoryIds(
+      models,
+      selectedCategoryIds,
+    );
+    if (name) {
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     }
     if (status) {
       selector.status = status;
@@ -113,9 +309,10 @@ const tourQueries = {
     if (branchId) {
       selector.branchId = branchId;
     }
-    if (tags?.length) {
-      selector.tags = { $in: tags };
-    }
+    applyCategoryFilters(
+      selector,
+      expandedCategoryIds.length ? expandedCategoryIds : undefined,
+    );
     if (innerDate) {
       const dateToCheck = innerDate;
       selector.startDate = { $lte: dateToCheck };
@@ -170,9 +367,119 @@ const tourQueries = {
       total,
     };
   },
-  async bmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
+
+  async cpBmToursGroup(
+    _root,
+    {
+      categoryIds,
+      tags,
+      name,
+      status,
+      innerDate,
+      branchId,
+      webId,
+      startDate1,
+      endDate1,
+      startDate2,
+      endDate2,
+      groupCode,
+      date_status,
+      ...params
+    },
+    { models }: IContext,
+  ) {
     const selector: any = {};
 
+    const selectedCategoryIds = mergeCategoryFilterIds({ categoryIds, tags });
+    const expandedCategoryIds = await buildSubCategoryIds(
+      models,
+      selectedCategoryIds,
+    );
+    if (name) {
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    }
+    if (status) {
+      selector.status = status;
+    }
+    if (branchId) {
+      selector.branchId = branchId;
+    }
+    if (webId) {
+      selector.webId = webId;
+    }
+    applyCategoryFilters(
+      selector,
+      expandedCategoryIds.length ? expandedCategoryIds : undefined,
+    );
+    if (innerDate) {
+      const dateToCheck = innerDate;
+      selector.startDate = { $lte: dateToCheck };
+      selector.endDate = { $gte: dateToCheck };
+    }
+
+    if (startDate2) {
+      if (!selector.startDate) selector.startDate = {};
+      selector.startDate['$lte'] = startDate2;
+    }
+    if (startDate1) {
+      if (!selector.startDate) selector.startDate = {};
+      selector.startDate['$gte'] = startDate1;
+    }
+
+    if (endDate2) {
+      if (!selector.endDate) selector.endDate = {};
+      selector.endDate['$lte'] = endDate2;
+    }
+    if (endDate1) {
+      if (!selector.endDate) selector.endDate = {};
+      selector.endDate['$gte'] = endDate1;
+    }
+    if (groupCode) {
+      selector.groupCode = groupCode;
+    }
+    if (date_status) {
+      selector.date_status = date_status;
+    }
+
+    const total = await models.Tours.find({
+      ...selector,
+      groupCode: { $nin: [null, ''] },
+    }).countDocuments();
+
+    const group = await models.Tours.aggregate([
+      {
+        $match: {
+          ...selector,
+          groupCode: { $nin: [null, ''] }, // Exclude null and empty strings
+        },
+      },
+      {
+        $group: {
+          _id: '$groupCode', // group by category
+          items: { $push: '$$ROOT' }, // push full documents into an array
+        },
+      },
+    ]);
+    return {
+      list: [...group],
+      total,
+    };
+  },
+
+  async bmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
+    const list = await models.Tours.find({
+      groupCode: groupCode,
+      status: status,
+    });
+
+    return { _id: groupCode, items: list };
+  },
+
+  async cpBmToursGroupDetail(
+    _root,
+    { groupCode, status },
+    { models }: IContext,
+  ) {
     const list = await models.Tours.find({
       groupCode: groupCode,
       status: status,
@@ -183,3 +490,19 @@ const tourQueries = {
 };
 
 export default tourQueries;
+
+tourQueries.cpBmsTours.wrapperConfig = {
+  forClientPortal: true,
+};
+tourQueries.cpBmsToursTotalCount.wrapperConfig = {
+  forClientPortal: true,
+};
+tourQueries.cpBmsTourDetail.wrapperConfig = {
+  forClientPortal: true,
+};
+tourQueries.cpBmToursGroup.wrapperConfig = {
+  forClientPortal: true,
+};
+tourQueries.cpBmToursGroupDetail.wrapperConfig = {
+  forClientPortal: true,
+};

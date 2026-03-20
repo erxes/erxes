@@ -8,6 +8,7 @@ import {
   IWidgetUiOptions,
 } from '../types/connection';
 import { IHeaderItem, IMessage } from '../types';
+import type { INotificationItem } from '../hooks/useWidgetNotifications';
 import { HEADER_ITEMS } from '../constants';
 import { ITicketCheckProgress } from '../ticket/types';
 
@@ -30,8 +31,8 @@ export const connectionAtom = atom<IConnectionInfo>({
 
 export const uiOptionsAtom = atom<IWidgetUiOptions>({
   primary: {
-    DEFAULT: '#000',
-    foreground: '#fff',
+    DEFAULT: '#000000',
+    foreground: '#ffffff',
   },
   logo: '',
 });
@@ -73,3 +74,7 @@ export const toastUserAtom = atom<boolean>(false);
 export const ticketProgressAtom = atom<ITicketCheckProgress | null>(null);
 
 export const userTicketCreatedNumberAtom = atom<string | null>(null);
+
+export const unreadNotificationCountAtom = atom<number>(0);
+
+export const notificationsAtom = atom<INotificationItem[]>([]);

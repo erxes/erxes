@@ -32,6 +32,11 @@ export const types = `
     pdfAttachment: PdfAttachment
 
     cursor: String
+    remainders: JSON
+    discounts: JSON
+
+    remainder: JSON
+    discount: JSON
   }
 
   type ProductSimilarityGroup {
@@ -73,12 +78,22 @@ const queryParams = `
   image: String,
   brand: String,
 
-  ${GQL_CURSOR_PARAM_DEFS}
+  branchId: String,
+  departmentId: String,
+  minRemainder: Float,
+  maxRemainder: Float,
+  minPrice: Float,
+  maxPrice: Float,
+  minDiscountValue: Float,
+  maxDiscountValue: Float,
+  minDiscountPercent: Float,
+  maxDiscountPercent: Float,
 `;
 
 export const queries = `
   productsMain(
     ${queryParams}
+    ${GQL_CURSOR_PARAM_DEFS}
     sortField: String,
     sortDirection: Int,
   ): ProductsListResponse
@@ -93,6 +108,14 @@ export const queries = `
   productDetail(_id: String): Product
   productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
   productCountByTags: JSON
+
+  cpProducts(
+    ${queryParams}
+    page: Int,
+    perPage: Int,
+    sortField: String,
+    sortDirection: Int,
+  ): [Product]
 `;
 
 export const mutationParams = `

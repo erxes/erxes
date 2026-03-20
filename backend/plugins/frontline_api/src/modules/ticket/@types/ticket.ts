@@ -1,4 +1,8 @@
-import { IListParams } from 'erxes-api-shared/core-types';
+import {
+  IListParams,
+  IPropertyField,
+  IAttachment,
+} from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
 export interface ITicket {
@@ -21,7 +25,10 @@ export interface ITicket {
   statusType?: number;
   number?: string;
   subscribedUserIds?: string[];
+  state?: string;
   isSubscribed?: boolean;
+  propertiesData?: IPropertyField;
+  attachments?: IAttachment[];
 }
 
 export interface ITicketUpdate extends ITicket {

@@ -5,7 +5,13 @@ export const brandMutations = {
   /**
    * Create new brand
    */
-  async brandsAdd(_root: undefined, doc: IBrand, { user, models }: IContext) {
+  async brandsAdd(
+    _root: undefined,
+    doc: IBrand,
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('brandsCreate');
+
     return await models.Brands.createBrand({ userId: user._id, ...doc });
   },
 
@@ -15,8 +21,10 @@ export const brandMutations = {
   async brandsEdit(
     _root: undefined,
     { _id, ...fields }: { _id: string } & IBrand,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('brandsUpdate');
+
     return await models.Brands.updateBrand(_id, fields);
   },
 
@@ -27,7 +35,7 @@ export const brandMutations = {
   async brandsRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
     // Validate that brands exist before attempting deletion
     const brands = await models.Brands.find({ _id: { $in: _ids } });
@@ -37,6 +45,7 @@ export const brandMutations = {
 
     // Attempt to remove brands
     try {
+      await checkPermission('brandsDelete');
       const result = await models.Brands.removeBrands(_ids);
       
       if (result.deletedCount === 0) {

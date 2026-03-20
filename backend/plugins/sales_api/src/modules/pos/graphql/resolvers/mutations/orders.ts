@@ -98,6 +98,4 @@ const orderMutations = {
   },
 };
 
-// checkPermission(orderMutations, 'posOrderReturnBill', 'manageOrders');
-// checkPermission(orderMutations, 'posOrderChangePayments', 'manageOrders');
 export default orderMutations;

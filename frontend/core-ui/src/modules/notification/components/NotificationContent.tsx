@@ -4,6 +4,8 @@ import { useNotification } from '@/notification/hooks/useNotification';
 import { ScrollArea, Spinner } from 'erxes-ui';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
 import { INotification } from '@/notification/types/notifications';
+import { usePermissionCheck } from 'ui-modules';
+import { NoAccessPage } from '~/pages/no-access/NoAccessPage';
 
 export const NotificationContent = () => {
   const { notification, loading } = useNotification();
@@ -17,7 +19,10 @@ export const NotificationContent = () => {
   }
 
   return (
-    <ScrollArea className="overflow-hidden h-full" viewportClassName='[&>div]:lg:min-h-dvh'>
+    <ScrollArea
+      className="overflow-hidden h-full"
+      viewportClassName="[&>div]:lg:min-h-dvh"
+    >
       <NotificationContentWrapper
         key={notification._id}
         notification={notification}
@@ -31,23 +36,40 @@ const NotificationContentWrapper = ({
 }: {
   notification: INotification;
 }) => {
-  const [pluginName = 'core', collectionType = ''] = (
-    notification?.contentType ?? ''
-  )
-    .replace(':', '.')
-    .split('.', 2);
+  const contentType = notification?.contentType ?? '';
+  const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
 
-  if (pluginName === 'core') {
+  const normalized = contentType.replace(':', '.');
+  const parts = normalized.split('.');
+  const plugin = parts[0] || 'core';
+  const moduleName = parts[1] || '';
+
+  if (plugin === 'core') {
+    const key = parts[parts.length - 1] || '';
+
     const CoreNotificationComponent =
-      CoreNotificationContent[
-        collectionType as keyof typeof CoreNotificationContent
-      ] ?? (() => <></>);
+      CoreNotificationContent[key as keyof typeof CoreNotificationContent] ??
+      (() => <></>);
+
     return <CoreNotificationComponent {...notification} />;
+  }
+
+  if (
+    isLoaded &&
+    !isWildcard &&
+    moduleName &&
+    !hasModulePermission(moduleName)
+  ) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <NoAccessPage />
+      </div>
+    );
   }
 
   return (
     <RenderPluginsComponent
-      pluginName={`${pluginName}_ui`}
+      pluginName={`${plugin}_ui`}
       remoteModuleName="notificationWidget"
       props={notification}
     />

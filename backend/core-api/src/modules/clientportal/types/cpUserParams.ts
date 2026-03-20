@@ -1,3 +1,5 @@
+import { IPropertyField } from "erxes-api-shared/core-types";
+
 export type SocialAuthProvider = 'GOOGLE' | 'APPLE' | 'FACEBOOK';
 
 export interface RegisterParams {
@@ -8,9 +10,12 @@ export interface RegisterParams {
   lastName?: string;
   password?: string;
   userType?: string;
+  propertiesData?: IPropertyField;
 }
 
 export interface EditUserParams {
+  email?: string;
+  phone?: string;
   firstName?: string;
   lastName?: string;
   avatar?: string;
@@ -21,7 +26,7 @@ export interface EditUserParams {
 
 export interface VerifyParams {
   userId: string;
-  code: number;
+  code: string;
   email: string;
   phone: string;
 }
@@ -49,7 +54,7 @@ export interface RequestOTPParams {
 
 export interface LoginOTPParams {
   identifier: string;
-  otp: number;
+  otp: string;
 }
 
 export interface SocialAuthParams {
@@ -98,10 +103,26 @@ export interface CpUsersEditParams {
   username?: string;
   companyName?: string;
   companyRegistrationNumber?: string;
-   erxesCustomerId?: string;
+  erxesCustomerId?: string;
 }
 
 export interface CpUsersSetPasswordParams {
   _id: string;
   newPassword: string;
+}
+
+export interface RequestChangeEmailParams {
+  newEmail: string;
+}
+
+export interface ConfirmChangeEmailParams {
+  code: string;
+}
+
+export interface RequestChangePhoneParams {
+  newPhone: string;
+}
+
+export interface ConfirmChangePhoneParams {
+  code: string;
 }

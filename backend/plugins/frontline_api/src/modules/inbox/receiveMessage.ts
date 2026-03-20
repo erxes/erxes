@@ -4,7 +4,7 @@ import {
   RPError,
   RPResult,
   RPSuccess,
-  sendTRPCMessage
+  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
@@ -103,13 +103,17 @@ export const receiveInboxMessage = async (
       conversationId,
       content,
       owner,
+      userId,
       updatedAt,
       integrationId,
       customerId,
     } = doc;
     let user;
 
-    if (owner) {
+    // If a direct userId is provided, use it; otherwise look up by operatorPhone
+    let assignedUserId: string | null = userId || null;
+
+    if (!assignedUserId && owner) {
       user = await sendTRPCMessage({
         subdomain,
 
@@ -123,9 +127,8 @@ export const receiveInboxMessage = async (
           },
         },
       });
+      assignedUserId = user ? user._id : null;
     }
-
-    let assignedUserId = user ? user._id : null;
 
     if (conversationId) {
       if (!assignedUserId) {

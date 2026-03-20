@@ -21,19 +21,19 @@ const removeTrailingSpacesAndDots = (str: string): string => {
 const illegalRe = /[/?<>\\:*|"]/g;
 // eslint-disable-next-line no-control-regex
 const controlRe = /[\x00-\x1f\x80-\x9f]/g;
-const reservedRe = /^\.+$/;
-const windowsReservedRe = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
+const reservedRe = /^\.+$/g;
+const windowsReservedRe = /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/gi;
 
 export const sanitizeFilename = (input: string) => {
   if (typeof input !== 'string') {
-    throw new Error('Input must be string');
+    throw new TypeError('Input must be string');
   }
 
   let sanitized = input
-    .replace(illegalRe, '')
-    .replace(controlRe, '')
-    .replace(reservedRe, '')
-    .replace(windowsReservedRe, '');
+    .replaceAll(illegalRe, '')
+    .replaceAll(controlRe, '')
+    .replaceAll(reservedRe, '')
+    .replaceAll(windowsReservedRe, '');
 
   sanitized = removeTrailingSpacesAndDots(sanitized);
 

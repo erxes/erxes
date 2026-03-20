@@ -10,6 +10,7 @@ import { IOrignalCallCdr } from '@/integrations/call/@types/cdrs';
 import { ICallCustomer } from '@/integrations/call/@types/customers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -225,15 +226,17 @@ export const getOrCreateCdr = async (
         );
       }
 
+      const cdrMessage = {
+        ...createdCdr?.toObject(),
+        conversationId: createdCdr.conversationId,
+      };
+
       await graphqlPubsub.publish(
         `conversationMessageInserted:${createdCdr.conversationId}`,
-        {
-          conversationMessageInserted: {
-            ...createdCdr?.toObject(),
-            conversationId: createdCdr.conversationId,
-          },
-        },
+        { conversationMessageInserted: cdrMessage },
       );
+
+      await pConversationClientMessageInserted(subdomain, cdrMessage);
 
       await saveRecordUrl(createdCdr, models, inboxId, subdomain);
     } catch (error) {

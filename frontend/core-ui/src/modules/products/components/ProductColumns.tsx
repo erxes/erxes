@@ -15,10 +15,12 @@ import {
 } from 'erxes-ui';
 import { IProduct, TagsSelect } from 'ui-modules';
 import { ProductNameCell } from './ProductNameCell';
+import { productMoreColumn } from './ProductMoreCell';
 
 export const productColumns: (
   t: (key: string) => string,
 ) => ColumnDef<IProduct>[] = (t) => [
+  productMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IProduct>,
   {
     id: 'code',
@@ -97,9 +99,9 @@ export const productColumns: (
     size: 150,
   },
   {
-    id: 'oum',
-    accessorKey: 'oum',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('oum')} />,
+    id: 'uom',
+    accessorKey: 'uom',
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('uom')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>

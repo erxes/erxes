@@ -38,8 +38,8 @@ export const CMS_MENU_ADD = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
+      # contentType
+      # contentTypeID
       kind
       icon
       url
@@ -56,8 +56,8 @@ export const CMS_MENU_EDIT = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
+      # contentType
+      # contentTypeID
       kind
       icon
       url
@@ -741,8 +741,6 @@ export const CMS_MENU_LIST = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
       kind
       icon
       url
@@ -889,15 +887,16 @@ export const CMS_CUSTOM_POST_TYPE_REMOVE = gql`
 `;
 
 export const CMS_TRANSLATIONS = gql`
-  query cmsTranslations($postId: String!) {
-    cmsTranslations(postId: $postId) {
+  query cmsTranslations($objectId: String, $type: String) {
+    cmsTranslations(objectId: $objectId, type: $type) {
       _id
-      postId
+      objectId
       language
       title
       content
       excerpt
       customFieldsData
+      type
     }
   }
 `;
@@ -906,12 +905,13 @@ export const CMS_ADD_TRANSLATION = gql`
   mutation cmsAddTranslation($input: TranslationInput!) {
     cmsAddTranslation(input: $input) {
       _id
-      postId
+      objectId
       language
       title
       content
       excerpt
       customFieldsData
+      type
     }
   }
 `;
@@ -920,12 +920,13 @@ export const CMS_EDIT_TRANSLATION = gql`
   mutation cmsEditTranslation($input: TranslationInput!) {
     cmsEditTranslation(input: $input) {
       _id
-      postId
+      objectId
       language
       title
       content
       excerpt
       customFieldsData
+      type
     }
   }
 `;

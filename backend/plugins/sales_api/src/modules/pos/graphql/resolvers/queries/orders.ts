@@ -974,14 +974,4 @@ const queries = {
   },
 };
 
-// checkPermission(queries, "posOrders", "showOrders");
-// checkPermission(queries, "posOrdersTotalCount", "showOrders");
-// checkPermission(queries, "posOrderDetail", "showOrders");
-// checkPermission(queries, "posOrdersSummary", "showOrders");
-// checkPermission(queries, "posOrdersGroupSummary", "showOrders");
-// checkPermission(queries, "posProducts", "showOrders");
-// checkPermission(queries, "posOrderRecords", "showOrders");
-// checkPermission(queries, "posOrderRecordsCount", "showOrders");
-// checkPermission(queries, 'posOrderCustomers', 'showOrders');
-
 export default queries;

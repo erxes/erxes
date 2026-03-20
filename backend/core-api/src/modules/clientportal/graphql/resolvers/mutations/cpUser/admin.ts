@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 
@@ -25,7 +24,7 @@ export const adminMutations: Record<string, Resolver> = {
         password: params.password,
         firstName: params.firstName,
         lastName: params.lastName,
-        type: params.userType as 'customer' | 'company' | undefined,
+        userType: params.userType as 'customer' | 'company' | undefined,
       },
       models,
     );
@@ -67,12 +66,3 @@ export const adminMutations: Record<string, Resolver> = {
     return getCPUserByIdOrThrow(_id, models);
   },
 };
-
-checkPermission(adminMutations, 'cpUsersAdd', 'manageClientPortalUsers');
-checkPermission(adminMutations, 'cpUsersEdit', 'manageClientPortalUsers');
-checkPermission(adminMutations, 'cpUsersRemove', 'manageClientPortalUsers');
-checkPermission(
-  adminMutations,
-  'cpUsersSetPassword',
-  'manageClientPortalUsers',
-);

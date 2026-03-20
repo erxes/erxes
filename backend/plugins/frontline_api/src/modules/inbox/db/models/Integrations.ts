@@ -18,6 +18,7 @@ export interface IMessengerIntegration {
   integrationId: string;
   languageCode: string;
   channelId: string;
+  brandId: string;
 }
 
 export interface IExternalIntegrationParams {
@@ -41,7 +42,10 @@ const getHourAndMinute = (timeString: string) => {
   const normalized = timeString.toLowerCase().trim();
   const colon = normalized.indexOf(':');
   let hour = Number.parseInt(normalized.substring(0, colon), 10);
-  const minute = Number.parseInt(normalized.substring(colon + 1, colon + 3), 10);
+  const minute = Number.parseInt(
+    normalized.substring(colon + 1, colon + 3),
+    10,
+  );
 
   const isPM = normalized.includes('pm');
   const isAM = normalized.includes('am');
@@ -160,7 +164,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
 export const loadClass = (models: IModels, subdomain: string) => {
   class Integration {
     /**
-     * Retreives integration
+     * Retrieves integration
      */
     public static async getIntegration(doc: any) {
       const integration = await models.Integrations.findOne(doc);
@@ -380,7 +384,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
       userId: string,
     ): Promise<IIntegrationDocument> {
       return models.Integrations.createIntegration(
-        { ...doc, channelId: doc.channelId || '' },
+        {
+          ...doc,
+          channelId: doc.channelId || '',
+          brandId: doc.brandId || '',
+        },
         userId,
       );
     }

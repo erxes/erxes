@@ -4,6 +4,25 @@ import { TOUR_STATUS_TYPES } from '@/bms/constants';
 import { getEnum } from '@/bms/utils';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
+export const tourCategorySchema = new Schema({
+  _id: mongooseStringRandomId,
+  name: { type: String, label: 'Name' },
+  code: { type: String, optional: true, label: 'code' },
+  order: { type: String, optional: true, label: 'order', index: true },
+  parentId: { type: String, label: 'parentId', index: true },
+  attachment: { type: Object, optional: true, label: 'attachment' },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    label: 'Created at',
+  },
+  modifiedAt: {
+    type: Date,
+    default: Date.now,
+    label: 'Modified at',
+  },
+});
+
 export const guideItemSchema = new Schema(
   {
     guideId: { type: String, optional: true },
@@ -11,6 +30,7 @@ export const guideItemSchema = new Schema(
   },
   { _id: false },
 );
+
 export const tourSchema = new Schema({
   _id: mongooseStringRandomId,
 
@@ -45,6 +65,7 @@ export const tourSchema = new Schema({
     selectOptions: getEnum(TOUR_STATUS_TYPES),
   },
   cost: { type: Number, optional: true, label: 'cost' },
+  categoryIds: { type: [String], optional: true, label: 'categoryIds' },
   tagIds: { type: [String], optional: true, label: 'tagIds' },
   viewCount: { type: Number, optional: true, label: 'viewCount' },
   advancePercent: {
@@ -62,6 +83,11 @@ export const tourSchema = new Schema({
     optional: true,
     label: 'advanceCheck',
   },
+  personCost: {
+    type: Object,
+    optional: true,
+    label: 'personCost',
+  },
 
   branchId: { type: String, optional: true, label: 'branchId' },
 
@@ -76,3 +102,8 @@ export const tourSchema = new Schema({
   images: { type: [String], optional: true, label: 'images' },
   imageThumbnail: { type: String, optional: true, label: 'images' },
 });
+
+tourSchema.index({ categoryIds: 1 });
+tourSchema.index({ categories: 1 });
+tourSchema.index({ tagIds: 1 });
+tourSchema.index({ categoryId: 1 });

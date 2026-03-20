@@ -1,5 +1,6 @@
 export const types = `
   input PermissionInput {
+    plugin: String!
     module: String!
     actions: [String]!
     scope: String!
@@ -36,6 +37,7 @@ export const types = `
   }
 
   type PermissionGroupPermission {
+    plugin: String!
     module: String!
     actions: [String]!
     scope: String!
@@ -59,12 +61,14 @@ export const types = `
   }
 
   type UserPermission {
+    plugin: String
     module: String!
     actions: [String]!
     scope: String!
   }
 
   type CustomPermission {
+    plugin: String!
     module: String!
     actions: [String]!
     scope: String!

@@ -15,6 +15,9 @@ export const UPDATE_TICKET_MUTATION = gql`
     $startDate: Date
     $targetDate: Date
     $isSubscribed: Boolean
+    $propertiesData: JSON
+    $state: String
+    $attachments: [AttachmentInput]
   ) {
     updateTicket(
       _id: $_id
@@ -30,6 +33,9 @@ export const UPDATE_TICKET_MUTATION = gql`
       startDate: $startDate
       targetDate: $targetDate
       isSubscribed: $isSubscribed
+      propertiesData: $propertiesData
+      state: $state
+      attachments: $attachments
     ) {
       _id
     }

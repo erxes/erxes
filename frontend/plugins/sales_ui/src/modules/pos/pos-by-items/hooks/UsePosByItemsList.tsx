@@ -40,6 +40,7 @@ export const usePosByItemsVariables = (
     {
       searchValue,
       customer,
+      category,
       company,
       user,
       pos,
@@ -52,6 +53,7 @@ export const usePosByItemsVariables = (
   ] = useMultiQueryState<{
     searchValue: string;
     customer: string;
+    category: string;
     company: string;
     user: string;
     pos: string;
@@ -63,6 +65,7 @@ export const usePosByItemsVariables = (
   }>([
     'searchValue',
     'customer',
+    'category',
     'company',
     'user',
     'pos',
@@ -77,7 +80,8 @@ export const usePosByItemsVariables = (
 
   return {
     perPage: POS_PER_PAGE,
-    ...(posId && { posId }),
+    page: 1,
+    posId: posId !== undefined ? posId : pos || undefined,
     search: (() => {
       const searchParts = [];
       if (searchValue) searchParts.push(searchValue);
@@ -86,7 +90,7 @@ export const usePosByItemsVariables = (
     })(),
     customerId: customerIdValue,
     userId: user || undefined,
-    posId: pos || undefined,
+    categoryId: category && category !== 'all' ? category : undefined,
     types: types && types !== 'all' ? [types] : undefined,
     statuses: status && status !== 'all' ? [status] : undefined,
     excludeStatuses:
@@ -110,12 +114,12 @@ export const usePosByItemsList = (
 
   const posByItemsList = useMemo<IProduct[]>(
     () => data?.posProducts?.products || [],
-    [data?.posProducts?.products],
+    [data?.posProducts],
   );
 
   const totalCount = useMemo(
     () => data?.posProducts?.totalCount || 0,
-    [data?.posProducts?.totalCount],
+    [data?.posProducts],
   );
 
   const handleFetchMore = useCallback(() => {

@@ -13,9 +13,11 @@ export const cpTicketMutations: Record<string, Resolver> = {
     params: ITicketUpdate,
     { models, subdomain, cpUser, clientPortal }: IContext,
   ) => {
+    const userId = cpUser.erxesCustomerId || cpUser._id || clientPortal._id;
+
     const ticket = await models.Ticket.addTicket(
       params,
-      `cp:${clientPortal._id}`,
+      `cp:${userId}`,
       subdomain,
     );
 
@@ -53,11 +55,24 @@ export const cpTicketMutations: Record<string, Resolver> = {
 
     return ticket;
   },
+
+  cpUpdateTicket: async (
+    _parent: undefined,
+    params: ITicketUpdate,
+    { models, cpUser, clientPortal, subdomain }: IContext,
+  ) => {
+    const userId = cpUser.erxesCustomerId || cpUser._id || clientPortal._id;
+
+    return await models.Ticket.updateTicket({
+      doc: params,
+      userId: `cp:${userId}`,
+      subdomain,
+    });
+  },
 };
 
 markResolvers(cpTicketMutations, {
   wrapperConfig: {
     forClientPortal: true,
-    cpUserRequired: true,
   },
 });

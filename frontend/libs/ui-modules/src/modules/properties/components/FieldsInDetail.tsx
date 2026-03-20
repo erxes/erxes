@@ -179,7 +179,7 @@ export const MultipleFieldsInGroup = ({
       <Collapsible.Trigger asChild>
         <Button
           variant="secondary"
-          className="justify-start w-full flex items-center gap-2 px-0 pl-3"
+          className="flex gap-2 justify-start items-center px-0 pl-3 w-full"
         >
           <Collapsible.TriggerIcon />
           <span className="flex-1 text-left">{group.name}</span>

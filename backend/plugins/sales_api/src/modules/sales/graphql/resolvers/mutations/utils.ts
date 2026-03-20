@@ -1,4 +1,4 @@
-import { can } from 'erxes-api-shared/core-modules';
+import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -156,7 +156,7 @@ export const editDeal = async ({
   if (
     doc.status === 'archived' &&
     oldDeal.status === 'active' &&
-    !(await can(subdomain, 'dealsArchive', user))
+    !(await canGroup(subdomain, 'dealsArchive', user))
   ) {
     throw new Error('Permission denied');
   }

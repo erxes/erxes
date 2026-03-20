@@ -47,6 +47,19 @@ import {
   types as pageTypes,
 } from '@/cms/graphql/schemas/page';
 
+import {
+  inputs as webInputs,
+  mutations as webMutations,
+  queries as webQueries,
+  types as webTypes,
+} from '@/webbuilder/graphql/schemas/web';
+import {
+  inputs as webPageInputs,
+  mutations as webPageMutations,
+  queries as webPageQueries,
+  types as webPageTypes,
+} from '@/webbuilder/graphql/schemas/webPage';
+
 export const types = `
 
   enum CacheControlScope {
@@ -69,6 +82,10 @@ export const types = `
     _id: String @external
   }
 
+    ${webTypes}
+    ${webInputs}
+    ${webPageTypes}
+    ${webPageInputs}
     ${cmsTypes}
     ${cmsInputs}
     ${postTypes}
@@ -86,6 +103,8 @@ export const types = `
 `;
 
 export const queries = `
+    ${webQueries}
+    ${webPageQueries}
     ${cmsQueries}
     ${postQueries}
     ${customPostTypeQueries}
@@ -96,6 +115,8 @@ export const queries = `
   `;
 
 export const mutations = `
+    ${webMutations}
+    ${webPageMutations}
     ${cmsMutations}
     ${postMutations}
     ${customPostTypeMutations}
