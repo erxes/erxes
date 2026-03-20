@@ -74,4 +74,3 @@ export const pipelineMutations = {
     return deletedPipeline;
   },
 };
-

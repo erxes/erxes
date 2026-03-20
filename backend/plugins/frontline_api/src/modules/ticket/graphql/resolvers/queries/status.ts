@@ -91,4 +91,3 @@ export const statusQueries = {
     return await models.Status.getStatuses(pipelineId, type);
   },
 };
-

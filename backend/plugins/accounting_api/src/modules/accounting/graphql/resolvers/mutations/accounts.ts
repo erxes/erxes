@@ -1,16 +1,12 @@
-import { IContext } from "~/connectionResolvers";
-import { IAccount } from "@/accounting/@types/account";
+import { IContext } from '~/connectionResolvers';
+import { IAccount } from '@/accounting/@types/account';
 
 const accountsMutations = {
   /**
    * Creates a new account
    * @param {Object} doc Account document
    */
-  async accountsAdd(
-    _root,
-    doc: IAccount,
-    { models }: IContext,
-  ) {
+  async accountsAdd(_root, doc: IAccount, { models }: IContext) {
     const account = await models.Accounts.createAccount(doc);
     return account;
   },

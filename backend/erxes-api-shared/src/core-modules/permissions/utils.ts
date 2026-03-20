@@ -1,10 +1,5 @@
 import { IUserDocument, Resolver } from '../../core-types';
-import {
-  getPlugins,
-  getPlugin,
-  sendTRPCMessage,
-  redis,
-} from '../../utils';
+import { getPlugins, getPlugin, sendTRPCMessage, redis } from '../../utils';
 
 export const checkLogin = (user?: IUserDocument) => {
   if (!user || !user._id) {

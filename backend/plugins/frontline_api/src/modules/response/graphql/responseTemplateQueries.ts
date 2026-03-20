@@ -69,4 +69,3 @@ export const responseTemplateQueries = {
     return models.ResponseTemplates.find(filterQuery).countDocuments();
   },
 };
-

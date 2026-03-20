@@ -1,5 +1,4 @@
-
-import { Resolver, } from 'erxes-api-shared/core-types';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
@@ -45,19 +44,14 @@ const generateFilterQuery = (params: IParam) => {
 };
 
 const queries: Record<string, Resolver> = {
-  async invoices(
-    _root,
-    params: any,
-    { models }: IContext
-  ) {
+  async invoices(_root, params: any, { models }: IContext) {
     const query = generateFilterQuery(params);
 
-    const { list, pageInfo, totalCount } =
-      await cursorPaginate({
-        model: models.Invoices,
-        params,
-        query,
-      });
+    const { list, pageInfo, totalCount } = await cursorPaginate({
+      model: models.Invoices,
+      params,
+      query,
+    });
 
     return { list, pageInfo, totalCount };
   },
@@ -107,14 +101,14 @@ const queries: Record<string, Resolver> = {
   async invoiceDetailByContent(
     _root,
     { contentType, contentTypeId },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Invoices.find({ contentType, contentTypeId }).lean();
   },
 };
 
 queries.invoiceDetail.wrapperConfig = {
-  skipPermission: true
-}
+  skipPermission: true,
+};
 
 export default queries;

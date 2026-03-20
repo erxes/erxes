@@ -1,5 +1,5 @@
-import { IContext } from "~/connectionResolvers";
-import { IAccountCategory } from "@/accounting/@types/accountCategory";
+import { IContext } from '~/connectionResolvers';
+import { IAccountCategory } from '@/accounting/@types/accountCategory';
 
 const accountCategoriessMutations = {
   /**
@@ -47,7 +47,7 @@ const accountCategoriessMutations = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    await models.AccountCategories.getAccountCategory({ _id, });
+    await models.AccountCategories.getAccountCategory({ _id });
     const removed = await models.AccountCategories.removeAccountCategory(_id);
 
     return removed;

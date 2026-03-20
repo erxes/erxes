@@ -4,18 +4,18 @@ import { defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
 interface IQueryParams {
-  startDate: Date
-  endDate: Date
-  description: string
-  status: string
-  error: string
-  warning: string
-  startBeginDate: Date
-  endBeginDate: Date
-  startSuccessDate: Date
-  endSuccessDate: Date
-  startCheckedAt: Date
-  endCheckedAt: Date
+  startDate: Date;
+  endDate: Date;
+  description: string;
+  status: string;
+  error: string;
+  warning: string;
+  startBeginDate: Date;
+  endBeginDate: Date;
+  startSuccessDate: Date;
+  endSuccessDate: Date;
+  startCheckedAt: Date;
+  endCheckedAt: Date;
   page?: number;
   perPage?: number;
   sortField?: string;
@@ -33,7 +33,7 @@ interface IDetailsQueryParams {
 export const generateFilter = async (
   models: IModels,
   params: IQueryParams,
-  user: IUserDocument
+  user: IUserDocument,
 ) => {
   const {
     startDate,
@@ -69,11 +69,7 @@ const adjustInventoryQueries = {
     params: IQueryParams,
     { models, user }: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      params,
-      user,
-    );
+    const filter = await generateFilter(models, params, user);
 
     const { sortField, sortDirection, page, perPage } = params;
 
@@ -87,7 +83,7 @@ const adjustInventoryQueries = {
     return await defaultPaginate(
       models.AdjustInventories.find(filter).sort(sort).lean(),
       pagintationArgs,
-    )
+    );
   },
 
   async adjustInventoriesCount(
@@ -95,20 +91,24 @@ const adjustInventoryQueries = {
     params: IQueryParams,
     { models, user }: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      params,
-      user,
-    );
+    const filter = await generateFilter(models, params, user);
 
     return models.AdjustInventories.find(filter).countDocuments();
   },
 
-  async adjustInventoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async adjustInventoryDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
     return await models.AdjustInventories.findOne({ _id }).lean();
   },
 
-  async adjustInventoryDetails(_root, params: IDetailsQueryParams, { models }: IContext) {
+  async adjustInventoryDetails(
+    _root,
+    params: IDetailsQueryParams,
+    { models }: IContext,
+  ) {
     const { _id, sortField, sortDirection, page, perPage } = params;
 
     const pagintationArgs = { page, perPage };
@@ -121,13 +121,18 @@ const adjustInventoryQueries = {
     return await defaultPaginate(
       models.AdjustInvDetails.find({ adjustId: _id }).sort(sort),
       pagintationArgs,
-    )
+    );
   },
 
-  async adjustInventoryDetailsCount(_root, { _id }: { _id: string }, { models }: IContext) {
-    return await models.AdjustInvDetails.find({ adjustId: _id }).countDocuments();
-  }
-
+  async adjustInventoryDetailsCount(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return await models.AdjustInvDetails.find({
+      adjustId: _id,
+    }).countDocuments();
+  },
 };
 
 export default adjustInventoryQueries;

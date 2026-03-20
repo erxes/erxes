@@ -116,4 +116,3 @@ cpNotificationQueries.clientPortalNotificationDetail.wrapperConfig = {
 cpNotificationQueries.clientPortalUnreadNotificationCount.wrapperConfig = {
   forClientPortal: true,
 };
-

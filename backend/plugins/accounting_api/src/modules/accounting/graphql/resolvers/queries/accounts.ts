@@ -1,6 +1,13 @@
 import { ACCOUNT_STATUSES } from '@/accounting/@types/constants';
-import { ICursorPaginateParams, IUserDocument } from 'erxes-api-shared/core-types';
-import { cursorPaginate, defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import {
+  ICursorPaginateParams,
+  IUserDocument,
+} from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  defaultPaginate,
+  escapeRegExp,
+} from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
 interface IQueryParams {
@@ -29,7 +36,7 @@ interface IQueryParams {
 export const generateFilter = async (
   models: IModels,
   params: IQueryParams,
-  user: IUserDocument
+  user: IUserDocument,
 ) => {
   const {
     categoryId,
@@ -90,18 +97,19 @@ export const generateFilter = async (
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
 
     let codeFilter = { code: { $in: [regex] } };
-    if (searchValue.includes('.') || searchValue.includes('_') || searchValue.includes('*')) {
+    if (
+      searchValue.includes('.') ||
+      searchValue.includes('_') ||
+      searchValue.includes('*')
+    ) {
       const codeRegex = new RegExp(
         `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
         'igu',
       );
-      codeFilter = { code: { $in: [codeRegex] }, };
+      codeFilter = { code: { $in: [codeRegex] } };
     }
 
-    filter.$or = [
-      codeFilter,
-      { name: { $in: [regex] } },
-    ];
+    filter.$or = [codeFilter, { name: { $in: [regex] } }];
   }
 
   if (code) {
@@ -120,7 +128,7 @@ export const generateFilter = async (
   }
 
   if (journals?.length) {
-    filter.journal = { $in: journals }
+    filter.journal = { $in: journals };
   }
 
   if (journal) {
@@ -140,11 +148,11 @@ export const generateFilter = async (
   }
 
   if (isTemp !== undefined) {
-    filter.isTemp = isTemp
+    filter.isTemp = isTemp;
   }
 
   if (isOutBalance !== undefined) {
-    filter.isOutBalance = isOutBalance
+    filter.isOutBalance = isOutBalance;
   }
 
   if (user?.isOwner) {
@@ -174,10 +182,14 @@ const accountQueries = {
   /**
    * Accounts list
    */
-  async accountsMain(_root, params: IQueryParams & ICursorPaginateParams, { models, user, commonQuerySelector }: IContext) {
+  async accountsMain(
+    _root,
+    params: IQueryParams & ICursorPaginateParams,
+    { models, user, commonQuerySelector }: IContext,
+  ) {
     const filter = await generateFilter(models, params, user);
 
-    params.orderBy ??= { code: 1 }
+    params.orderBy ??= { code: 1 };
 
     return await cursorPaginate({
       model: models.Accounts,
@@ -186,16 +198,8 @@ const accountQueries = {
     });
   },
 
-  async accounts(
-    _root,
-    params: IQueryParams,
-    { models, user }: IContext,
-  ) {
-    const filter = await generateFilter(
-      models,
-      params,
-      user,
-    );
+  async accounts(_root, params: IQueryParams, { models, user }: IContext) {
+    const filter = await generateFilter(models, params, user);
 
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
 
@@ -217,19 +221,11 @@ const accountQueries = {
     return await defaultPaginate(
       models.Accounts.find(filter).sort(sort).lean(),
       pagintationArgs,
-    )
+    );
   },
 
-  async accountsCount(
-    _root,
-    params: IQueryParams,
-    { models, user }: IContext,
-  ) {
-    const filter = await generateFilter(
-      models,
-      params,
-      user,
-    );
+  async accountsCount(_root, params: IQueryParams, { models, user }: IContext) {
+    const filter = await generateFilter(models, params, user);
 
     return models.Accounts.find(filter).countDocuments();
   },

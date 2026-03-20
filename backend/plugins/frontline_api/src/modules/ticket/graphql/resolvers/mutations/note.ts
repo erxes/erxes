@@ -36,4 +36,3 @@ export const noteMutations = {
     return models.Note.removeNote({ _id, userId: user._id });
   },
 };
-

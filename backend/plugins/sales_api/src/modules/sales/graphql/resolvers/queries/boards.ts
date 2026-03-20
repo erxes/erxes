@@ -191,9 +191,8 @@ export const boardQueries = {
       }
     }
 
-    const assignedUserIds = await models.Deals.find(filter).distinct(
-      'assignedUserIds',
-    );
+    const assignedUserIds =
+      await models.Deals.find(filter).distinct('assignedUserIds');
 
     if (assignedUserIds.length === 0) {
       return {};
@@ -496,4 +495,3 @@ export const boardQueries = {
     return intervals;
   },
 };
-

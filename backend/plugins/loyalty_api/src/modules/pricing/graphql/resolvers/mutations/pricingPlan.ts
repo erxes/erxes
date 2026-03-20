@@ -18,11 +18,7 @@ export const pricingPlanMutations = {
     { doc }: { doc: IPricingPlanDocument },
     { models, user }: IContext,
   ) => {
-    return models.PricingPlans.updatePlan(
-      doc._id,
-      doc,
-      user._id,
-    );
+    return models.PricingPlans.updatePlan(doc._id, doc, user._id);
   },
 
   pricingPlanRemove: async (
@@ -33,4 +29,3 @@ export const pricingPlanMutations = {
     return models.PricingPlans.removePlan(id);
   },
 };
-

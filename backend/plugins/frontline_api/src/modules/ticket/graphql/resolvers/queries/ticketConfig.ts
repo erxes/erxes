@@ -23,4 +23,3 @@ export const ticketConfigQueries = {
     return models.TicketConfig.findOne({ pipelineId });
   },
 };
-

@@ -1,6 +1,6 @@
-import { getBranchesUtil } from "@/pos/utils";
-import { paginate } from "erxes-api-shared/utils";
-import { IContext } from "~/connectionResolvers";
+import { getBranchesUtil } from '@/pos/utils';
+import { paginate } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
 const generateFilterQuery = async ({ isOnline }) => {
   const query: any = { status: { $ne: 'deleted' } };
@@ -15,7 +15,7 @@ const queries = {
   async posEnv() {
     const { ALL_AUTO_INIT } = process.env;
     return {
-      ALL_AUTO_INIT: [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')
+      ALL_AUTO_INIT: [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || ''),
     };
   },
 
@@ -34,7 +34,7 @@ const queries = {
   async ecommerceGetBranches(
     _root,
     { posToken },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     return await getBranchesUtil(subdomain, models, posToken);
   },
@@ -42,18 +42,14 @@ const queries = {
   async productGroups(
     _root,
     { posId }: { posId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return await models.ProductGroups.groups(posId);
   },
 
-  async posSlots(
-    _root,
-    { posId }: { posId: string },
-    { models }: IContext
-  ) {
+  async posSlots(_root, { posId }: { posId: string }, { models }: IContext) {
     return await models.PosSlots.find({ posId }).lean();
-  }
+  },
 };
 
 export default queries;

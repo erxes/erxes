@@ -99,8 +99,8 @@ export const formMutations = {
       const newStatus = status
         ? status
         : form.status === 'active'
-        ? 'archived'
-        : 'active';
+          ? 'archived'
+          : 'active';
 
       _forms.push({
         updateOne: {

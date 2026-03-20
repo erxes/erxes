@@ -87,4 +87,3 @@ export const statusMutations = {
     return deleted;
   },
 };
-

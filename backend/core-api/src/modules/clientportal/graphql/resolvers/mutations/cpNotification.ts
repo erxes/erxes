@@ -117,4 +117,3 @@ cpNotificationMutations.clientPortalMarkNotificationAsRead.wrapperConfig = {
 cpNotificationMutations.clientPortalMarkAllNotificationsAsRead.wrapperConfig = {
   forClientPortal: true,
 };
-

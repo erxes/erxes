@@ -26,4 +26,3 @@ export const checklistQueries = {
     return models.Checklists.findOne({ _id }).sort({ order: 1 });
   },
 };
-

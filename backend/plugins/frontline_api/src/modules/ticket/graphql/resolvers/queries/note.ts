@@ -9,4 +9,3 @@ export const noteQueries = {
     return models.Note.findOne({ _id });
   },
 };
-

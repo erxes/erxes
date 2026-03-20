@@ -127,4 +127,3 @@ export const checklistMutations = {
     return models.ChecklistItems.updateItemOrder(_id, destinationIndex);
   },
 };
-

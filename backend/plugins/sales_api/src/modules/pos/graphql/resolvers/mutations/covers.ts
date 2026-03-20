@@ -1,4 +1,4 @@
-import { IContext } from "~/connectionResolvers";
+import { IContext } from '~/connectionResolvers';
 
 const coverMutations = {
   async posCoversEdit(
@@ -8,10 +8,13 @@ const coverMutations = {
   ) {
     const cover = await models.Covers.getCover(doc._id);
 
-    return await models.Covers.updateCover(doc._id, __({
-      ...cover,
-      note: doc.note,
-    }));
+    return await models.Covers.updateCover(
+      doc._id,
+      __({
+        ...cover,
+        note: doc.note,
+      }),
+    );
   },
 
   async posCoversRemove(
