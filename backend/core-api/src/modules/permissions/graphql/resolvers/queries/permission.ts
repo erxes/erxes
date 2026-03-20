@@ -79,7 +79,7 @@ export const permissionQueries = {
     if (!user) throw new Error('Login required');
 
     if (user.isOwner) {
-      return [{ plugin: "*", module: '*', actions: ['*'], scope: 'all' }];
+      return [{ plugin: '*', module: '*', actions: ['*'], scope: 'all' }];
     }
 
     let groupIds = user.permissionGroupIds || [];

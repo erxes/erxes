@@ -213,9 +213,8 @@ export const taskQueries = {
           projectFilter._id = { $in: projectIds };
         }
 
-        const matchingProjects = await models.Project.find(
-          projectFilter,
-        ).distinct('_id');
+        const matchingProjects =
+          await models.Project.find(projectFilter).distinct('_id');
 
         if (matchingProjects.length === 0) {
           return { list: [], totalCount: 0, pageInfo: null };

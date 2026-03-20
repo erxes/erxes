@@ -5,7 +5,8 @@ import { usePermissionCheck } from 'ui-modules';
 export const MainNavigation = () => {
   const { isLoaded, hasModulePermission, isWildcard } = usePermissionCheck();
 
-  const showProjects = !isLoaded || isWildcard || hasModulePermission('project');
+  const showProjects =
+    !isLoaded || isWildcard || hasModulePermission('project');
   const showTasks = !isLoaded || isWildcard || hasModulePermission('task');
 
   return (

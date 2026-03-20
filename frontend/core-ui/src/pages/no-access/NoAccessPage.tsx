@@ -1,7 +1,6 @@
 import { IconLock } from '@tabler/icons-react';
 
 export const NoAccessPage = () => {
-
   return (
     <div className="flex flex-col items-center justify-center h-full">
       <div className="flex flex-col items-center gap-4 text-center max-w-md">

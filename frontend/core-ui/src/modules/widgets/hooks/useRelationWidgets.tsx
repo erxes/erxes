@@ -1,5 +1,9 @@
 import { useAtom } from 'jotai';
-import { pluginsConfigState, IRelationModules, usePermissionCheck } from 'ui-modules';
+import {
+  pluginsConfigState,
+  IRelationModules,
+  usePermissionCheck,
+} from 'ui-modules';
 import { Icon } from '@tabler/icons-react';
 import { CORE_RELATIONS } from '../constants/core-relations';
 

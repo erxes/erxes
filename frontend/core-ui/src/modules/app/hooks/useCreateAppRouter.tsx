@@ -114,10 +114,7 @@ export const useCreateAppRouter = () => {
               />
 
               {isOS && (
-                <Route
-                  path={AppPath.LogsCatchAll}
-                  element={<LogRoutes />}
-                />
+                <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
               )}
 
               {isOS && (

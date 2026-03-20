@@ -61,7 +61,7 @@ export interface ICustomField {
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;
-  locationValue?: ILocationOption
+  locationValue?: ILocationOption;
   extraValue?: string;
 }
 

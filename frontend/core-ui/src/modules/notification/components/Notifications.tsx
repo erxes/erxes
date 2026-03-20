@@ -44,7 +44,13 @@ const NotificationList = () => {
 
       return hasModulePermission(moduleName);
     });
-  }, [notifications, hiddenNotificationIds, isLoaded, isWildcard, hasModulePermission]);
+  }, [
+    notifications,
+    hiddenNotificationIds,
+    isLoaded,
+    isWildcard,
+    hasModulePermission,
+  ]);
 
   if (!loading && filteredNotifications.length === 0) {
     return (

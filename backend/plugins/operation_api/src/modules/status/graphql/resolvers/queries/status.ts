@@ -26,14 +26,12 @@ export const statusQueries = {
       ),
     );
 
-    return statuses
-      .flat()
-      .map(({ name, _id, color, type }) => ({
-        label: name,
-        value: _id,
-        color,
-        type,
-      }));
+    return statuses.flat().map(({ name, _id, color, type }) => ({
+      label: name,
+      value: _id,
+      color,
+      type,
+    }));
   },
 
   getStatusesByType: async (

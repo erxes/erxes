@@ -61,4 +61,3 @@ export const segmentMutations = {
     return await models.Segments.removeSegment(_id);
   },
 };
-

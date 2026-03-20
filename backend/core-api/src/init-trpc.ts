@@ -43,7 +43,7 @@ export const appRouter = t.mergeRouters(
   importExportTrpcRouter,
   logsTrpcRouter,
   clientPortalNotificationTrpcRouter,
-  permissionTrpcRouter
+  permissionTrpcRouter,
 );
 
 export type AppRouter = typeof appRouter;

@@ -293,4 +293,3 @@ export const customerMutations: Record<string, Resolver> = {
 customerMutations.cpCustomersAdd.wrapperConfig = {
   forClientPortal: true,
 };
-

@@ -15,7 +15,7 @@ export const useFloatingWidgets = () => {
     if (!plugin.hasFloatingWidget) return false;
 
     if (!isLoaded || isWildcard) return true;
-    
+
     return hasPluginPermission(plugin.name);
   });
 };

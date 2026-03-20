@@ -16,9 +16,7 @@ export const usePermissionCheck = () => {
   const isWildcard = useMemo(() => {
     if (isOwner) return true;
     if (!permissions) return false;
-    return permissions.some(
-      (p) => p.module === '*' && p.actions.includes('*'),
-    );
+    return permissions.some((p) => p.module === '*' && p.actions.includes('*'));
   }, [permissions, isOwner]);
 
   const hasPluginPermission = useMemo(() => {

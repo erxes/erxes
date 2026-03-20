@@ -19,7 +19,10 @@ export const NotificationContent = () => {
   }
 
   return (
-    <ScrollArea className="overflow-hidden h-full" viewportClassName='[&>div]:lg:min-h-dvh'>
+    <ScrollArea
+      className="overflow-hidden h-full"
+      viewportClassName="[&>div]:lg:min-h-dvh"
+    >
       <NotificationContentWrapper
         key={notification._id}
         notification={notification}
@@ -28,7 +31,11 @@ export const NotificationContent = () => {
   );
 };
 
-const NotificationContentWrapper = ({ notification }: { notification: INotification }) => {
+const NotificationContentWrapper = ({
+  notification,
+}: {
+  notification: INotification;
+}) => {
   const contentType = notification?.contentType ?? '';
   const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
 
@@ -47,8 +54,17 @@ const NotificationContentWrapper = ({ notification }: { notification: INotificat
     return <CoreNotificationComponent {...notification} />;
   }
 
-  if (isLoaded && !isWildcard && moduleName && !hasModulePermission(moduleName)) {
-    return <div className='min-h-screen flex items-center justify-center'><NoAccessPage /></div>;
+  if (
+    isLoaded &&
+    !isWildcard &&
+    moduleName &&
+    !hasModulePermission(moduleName)
+  ) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <NoAccessPage />
+      </div>
+    );
   }
 
   return (
@@ -59,4 +75,3 @@ const NotificationContentWrapper = ({ notification }: { notification: INotificat
     />
   );
 };
-
