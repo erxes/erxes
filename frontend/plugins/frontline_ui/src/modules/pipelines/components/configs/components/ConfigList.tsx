@@ -8,7 +8,7 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { useAtom } from 'jotai';
 import { configCreateModalAtom } from '../states';

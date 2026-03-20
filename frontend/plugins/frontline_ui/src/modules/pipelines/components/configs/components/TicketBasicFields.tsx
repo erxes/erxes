@@ -1,6 +1,6 @@
 import { TPipelineConfig } from '@/pipelines/types';
-import { Path, useFieldArray, UseFormReturn, useWatch } from 'react-hook-form';
-import { Card, cn, Form, InfoCard, Input, Label, Switch } from 'erxes-ui';
+import { Path, UseFormReturn, useWatch } from 'react-hook-form';
+import { Card, Form, InfoCard, Input, Label, Switch } from 'erxes-ui';
 import { TICKET_FORM_FIELDS } from '../constant';
 import { AnimatePresence } from 'framer-motion';
 import {
@@ -160,8 +160,8 @@ export const TicketBasicFields = ({ form }: Props) => {
 };
 
 interface SortableFieldCardProps {
-  ticketField: { key: string; label: string; path: string };
-  control: any;
+  readonly ticketField: { key: string; label: string; path: string };
+  readonly control: any;
 }
 
 function SortableFieldCard({ ticketField, control }: SortableFieldCardProps) {

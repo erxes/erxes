@@ -1,12 +1,4 @@
-import {
-  Combobox,
-  Form,
-  Input,
-  Popover,
-  PopoverScoped,
-  Separator,
-} from 'erxes-ui';
-
+import { Combobox, Form, Input, PopoverScoped, Separator } from 'erxes-ui';
 import { TPipelineConfig } from '@/pipelines/types';
 import { UseFormReturn } from 'react-hook-form';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
