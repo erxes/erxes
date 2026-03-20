@@ -129,7 +129,7 @@ const renderInlineContent = (content: any[], config?: Config): string => {
         )}" style="${linkStyles}">${children}</a>`;
       }
 
-      const escapedText = escapeHtml(text || '').replace(/\n/g, '<br />');
+      const escapedText = escapeHtml(text || '').replaceAll(/\n/g, '<br />');
       const cssStyle = stylesToCss(styles, config);
 
       if (cssStyle) {
