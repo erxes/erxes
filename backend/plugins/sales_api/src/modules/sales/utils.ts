@@ -27,9 +27,9 @@ export const configReplacer = (config) => {
 
   // replace type of date
   return config
-    .replace(/\{year}/g, now.getFullYear().toString())
-    .replace(/\{month}/g, `0${(now.getMonth() + 1).toString()}`.slice(-2))
-    .replace(/\{day}/g, `0${now.getDate().toString()}`.slice(-2));
+    .replaceAll('{year}', now.getFullYear().toString())
+    .replaceAll('{month}', `0${(now.getMonth() + 1).toString()}`.slice(-2))
+    .replaceAll('{day}', `0${now.getDate().toString()}`.slice(-2));
 };
 
 // board item number calculator
@@ -99,14 +99,18 @@ export const boardNumberGenerator = async (
 
       number =
         replacedConfig +
-        (await numberCalculator(parseInt(size, 10), lastGeneratedNumber));
+        (await numberCalculator(
+          Number.parseInt(size, 10),
+          lastGeneratedNumber,
+        ));
 
       return number;
     }
   }
 
   number =
-    replacedConfig + (await numberCalculator(parseInt(size, 10), '', skip));
+    replacedConfig +
+    (await numberCalculator(Number.parseInt(size, 10), '', skip));
 
   return number;
 };
@@ -236,8 +240,8 @@ export const destroyBoardItemRelations = async (
     pluginName: 'core',
     module: 'activityLog',
     action: 'deleteActivityLog',
-    input: { targetIds: dealIds }
-  })
+    input: { targetIds: dealIds },
+  });
 
   await models.Checklists.removeChecklists(dealIds);
 
@@ -249,7 +253,7 @@ export const destroyBoardItemRelations = async (
     action: 'cleanRelation',
     input: {
       contentType: 'sales:deal',
-      contentIds: dealIds
+      contentIds: dealIds,
     },
   });
 
@@ -511,7 +515,7 @@ export const getItemList = async (
 ) => {
   const { orderBy } = args;
   if (!orderBy || !Object.keys(orderBy)) {
-    args.orderBy = { order: 1 }
+    args.orderBy = { order: 1 };
   }
 
   const { list, pageInfo, totalCount } = await cursorPaginate<IDealDocument>({
@@ -530,7 +534,7 @@ export const getItemList = async (
     action: 'find',
     input: {
       query: {
-        "configs.showInCard": true,
+        'configs.showInCard': true,
         contentType: `sales:deal`,
       },
     },
@@ -546,10 +550,10 @@ export const getItemList = async (
 
         if (item.customProperties && fieldData) {
           item.customProperties.push({
-            name: `${field.name} - ${fieldData}`,
+            name: `${field.name} - ${JSON.stringify(fieldData)}`,
           });
         }
-      };
+      }
     }
 
     updatedList.push({
@@ -583,7 +587,7 @@ const compareDepartmentIds = (
 
 export const generateProducts = async (
   subdomain: string,
-  productsData?: any[]
+  productsData?: any[],
 ) => {
   const products: any = [];
 
@@ -592,24 +596,24 @@ export const generateProducts = async (
   }
 
   const productIds = productsData
-    .filter(pd => pd.productId)
-    .map(pd => pd.productId);
+    .filter((pd) => pd.productId)
+    .map((pd) => pd.productId);
 
   const allProducts = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
     module: 'products',
-    action: "find",
+    action: 'find',
     input: { query: { _id: { $in: productIds } }, limit: productsData.length },
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const data of productsData || []) {
     if (!data.productId) {
       continue;
     }
-    const product = allProducts.find(p => p._id === data.productId);
+    const product = allProducts.find((p) => p._id === data.productId);
 
     if (!product) {
       continue;
@@ -626,22 +630,22 @@ export const generateProducts = async (
       pluginName: 'core',
       method: 'query',
       module: 'fields',
-      action: "find",
+      action: 'find',
       input: {
         query: {
-          _id: { $in: fieldIds }
-        }
+          _id: { $in: fieldIds },
+        },
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const fieldId of fieldIds || []) {
-      const field = fields.find(f => f._id === fieldId);
+      const field = fields.find((f) => f._id === fieldId);
 
       if (field) {
         properties[fieldId] = {
           text: field.text,
-          data: propertiesData[fieldId]
+          data: propertiesData[fieldId],
         };
       }
     }
@@ -649,8 +653,8 @@ export const generateProducts = async (
     product.propertiesData = properties;
 
     products.push({
-      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
-      product
+      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+      product,
     });
   }
 
@@ -697,15 +701,13 @@ export const checkNumberConfig = async (
   }
 
   const replaced = await configReplacer(numberConfig);
-  const re = /[0-9]$/;
+  const re = /\d$/;
 
   if (re.test(replaced)) {
     throw new Error(
       `Please make sure that the number configuration itself doesn't end with any number.`,
     );
   }
-
-  return;
 };
 
 export const bulkUpdateOrders = async ({
@@ -921,29 +923,39 @@ export const getCustomerIds = async (
 
 export const createRelations = async (
   subdomain: string,
-  { dealId, companyIds, customerIds }: { dealId: string, companyIds?: string[], customerIds?: string[] },
+  {
+    dealId,
+    companyIds,
+    customerIds,
+  }: { dealId: string; companyIds?: string[]; customerIds?: string[] },
 ) => {
-  const companyEntities = companyIds?.map(companyId => ({
-    entities: [{
-      "contentType": "sales:deal",
-      "contentId": dealId
-    },
-    {
-      "contentType": "core:company",
-      "contentId": companyId
-    }]
-  })) ?? [];
+  const companyEntities =
+    companyIds?.map((companyId) => ({
+      entities: [
+        {
+          contentType: 'sales:deal',
+          contentId: dealId,
+        },
+        {
+          contentType: 'core:company',
+          contentId: companyId,
+        },
+      ],
+    })) ?? [];
 
-  const customerEntities = customerIds?.map(customerId => ({
-    entities: [{
-      "contentType": "sales:deal",
-      "contentId": dealId
-    },
-    {
-      "contentType": "core:customer",
-      "contentId": customerId
-    }]
-  })) ?? [];
+  const customerEntities =
+    customerIds?.map((customerId) => ({
+      entities: [
+        {
+          contentType: 'sales:deal',
+          contentId: dealId,
+        },
+        {
+          contentType: 'core:customer',
+          contentId: customerId,
+        },
+      ],
+    })) ?? [];
 
   if (!(companyEntities.length + customerEntities.length)) {
     return;
@@ -956,10 +968,7 @@ export const createRelations = async (
     module: 'relation',
     action: 'createMultipleRelations',
     input: {
-      relations: [
-        ...companyEntities,
-        ...customerEntities
-      ]
+      relations: [...companyEntities, ...customerEntities],
     },
   });
 };
@@ -1053,12 +1062,8 @@ export const notifiedUserIds = async (
 
   userIds = userIds.concat(item.watchedUserIds || []);
 
-  if (!stage) {
-    stage = await models.Stages.getStage(item.stageId);
-  }
-  if (!pipeline) {
-    pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-  }
+  stage ??= await models.Stages.getStage(item.stageId);
+  pipeline ??= await models.Pipelines.getPipeline(stage.pipelineId);
 
   userIds = userIds.concat(pipeline.watchedUserIds || []);
 
@@ -1103,7 +1108,7 @@ export const sendNotifications = async (
   const receivers = (
     await notifiedUserIds(models, item, stage, pipeline)
   ).filter((id) => {
-    return usersToExclude.indexOf(id) < 0;
+    return !usersToExclude.includes(id);
   });
 
   const notificationDoc = {
@@ -1111,7 +1116,7 @@ export const sendNotifications = async (
     title,
     contentType: 'sales:deal',
     contentTypeId: item._id,
-    action: action ? action : `has updated deal`,
+    action: action ?? 'has updated deal',
     message: content,
     link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
   };
