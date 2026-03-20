@@ -9,11 +9,11 @@ import {
 import { useCustomerEdit } from 'ui-modules/modules/contacts/hooks';
 
 interface CustomerPhonesProps {
-  _id: string;
-  primaryPhone: string;
-  phones: string[];
-  phoneValidationStatus?: `${ValidationStatus}`;
-  scope?: string;
+  readonly _id: string;
+  readonly primaryPhone: string;
+  readonly phones: string[];
+  readonly phoneValidationStatus?: `${ValidationStatus}`;
+  readonly scope?: string;
   Trigger: React.ComponentType<{ children: React.ReactNode }>;
 }
 

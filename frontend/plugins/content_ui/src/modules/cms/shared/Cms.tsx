@@ -1,6 +1,5 @@
-import { Button, ToggleGroup } from 'erxes-ui';
+import { Button, ToggleGroup, Spinner } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
-import { Spinner } from 'erxes-ui';
 import {
   IconLayoutGrid,
   IconList,

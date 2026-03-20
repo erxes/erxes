@@ -9,9 +9,7 @@ import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 
 export function ClientPortalDetailManual({
   clientPortal,
-}: {
-  clientPortal: IClientPortal;
-}) {
+}: Readonly<{ clientPortal: IClientPortal }>) {
   const isActive = clientPortal.enableManualVerification ?? false;
   const form = useForm<z.infer<typeof CLIENTPORTAL_MANUAL_VERIFICATION_SCHEMA>>(
     {
