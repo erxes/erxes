@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IPermissionInput } from 'erxes-api-shared/core-types';
+import { clearGroupActionsCache } from 'erxes-api-shared/core-modules';
 
 export const permissionMutations = {
   async permissionGroupAdd(
@@ -13,8 +14,10 @@ export const permissionMutations = {
       description?: string;
       permissions: IPermissionInput[];
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     return models.PermissionGroups.create({
       name,
       description,
@@ -36,8 +39,10 @@ export const permissionMutations = {
       description?: string;
       permissions?: IPermissionInput[];
     },
-    { models }: IContext,
+    { models, checkPermission, subdomain }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const group = await models.PermissionGroups.findOne({ _id });
     if (!group) throw new Error('Permission group not found');
 
@@ -48,6 +53,8 @@ export const permissionMutations = {
 
     await models.PermissionGroups.updateOne({ _id }, { $set: update });
 
+    await clearGroupActionsCache({ subdomain, groupId: _id });
+
     return models.PermissionGroups.findOne({ _id });
   },
 
@@ -55,10 +62,14 @@ export const permissionMutations = {
   async permissionGroupRemove(
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission, subdomain }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const group = await models.PermissionGroups.findOne({ _id });
     if (!group) throw new Error('Permission group not found');
+
+    await clearGroupActionsCache({ subdomain, groupId: _id });
 
     // Remove from all users
     await models.Users.updateMany(
@@ -75,8 +86,10 @@ export const permissionMutations = {
   async userUpdatePermissionGroups(
     _root: any,
     { userId, groupIds }: { userId: string; groupIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
@@ -85,6 +98,8 @@ export const permissionMutations = {
       { $set: { permissionGroupIds: groupIds } },
     );
 
+    await clearGroupActionsCache({ userId });
+
     return models.Users.findOne({ _id: userId });
   },
 
@@ -92,8 +107,10 @@ export const permissionMutations = {
   async userAddCustomPermission(
     _root: any,
     { userId, permission }: { userId: string; permission: IPermissionInput },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
@@ -109,6 +126,8 @@ export const permissionMutations = {
       { $push: { customPermissions: permission } },
     );
 
+    await clearGroupActionsCache({ userId });
+
     return models.Users.findOne({ _id: userId });
   },
 
@@ -116,8 +135,10 @@ export const permissionMutations = {
   async userRemoveCustomPermission(
     _root: any,
     { userId, module }: { userId: string; module: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('permissionsManage');
+
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
@@ -125,6 +146,8 @@ export const permissionMutations = {
       { _id: userId },
       { $pull: { customPermissions: { module } } },
     );
+
+    await clearGroupActionsCache({ userId });
 
     return models.Users.findOne({ _id: userId });
   },
