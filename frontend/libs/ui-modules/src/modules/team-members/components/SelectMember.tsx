@@ -190,9 +190,7 @@ const SelectMemberContent = () => {
 
         {!loading &&
           [currentUser, ...users]
-            .filter(
-              (user) => !memberIds.some((memberId) => memberId === user._id),
-            )
+            .filter((user) => !memberIds.includes(user._id))
             .map((user) => (
               <SelectMemberCommandItem key={user._id} user={user} />
             ))}
