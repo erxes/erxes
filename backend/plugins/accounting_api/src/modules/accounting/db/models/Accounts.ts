@@ -18,7 +18,11 @@ export interface IAccountModel extends Model<IAccountDocument> {
   ): Promise<IAccountDocument>;
 }
 
-export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEventLog }: EventDispatcherReturn) => {
+export const loadAccountClass = (
+  models: IModels,
+  _subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Account {
     /**
      *
@@ -51,9 +55,9 @@ export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEv
      */
     public static async createAccount(doc: IAccount) {
       doc.code = doc.code
-        .replace(/\*/g, '')
-        .replace(/_/g, '')
-        .replace(/ /g, '');
+        .replaceAll('*', '')
+        .replaceAll('_', '')
+        .replaceAll(' ', '');
       await this.checkCodeDuplication(doc.code);
 
       const category = await models.AccountCategories.getAccountCategory({
@@ -61,9 +65,11 @@ export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEv
       });
 
       if (doc.parentId) {
-        const parentAccount = await models.Accounts.getAccount({ _id: doc.parentId })
+        const parentAccount = await models.Accounts.getAccount({
+          _id: doc.parentId,
+        });
 
-        const re = new RegExp(`^${parentAccount.code}.*`)
+        const re = new RegExp(`^${parentAccount.code}.*`);
         if (!re.test(doc.code)) {
           throw new Error('Code is not validate of parent account');
         }
@@ -77,12 +83,15 @@ export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEv
       if (!(await checkCodeMask(category, doc.code))) {
         throw new Error('Code is not validate of category mask');
       }
-      const account = await models.Accounts.create({ ...doc, createdAt: new Date() });
+      const account = await models.Accounts.create({
+        ...doc,
+        createdAt: new Date(),
+      });
 
       sendDbEventLog({
         action: 'create',
         docId: account._id,
-        currentDocument: account.toObject()
+        currentDocument: account.toObject(),
       });
 
       return account;
@@ -95,9 +104,9 @@ export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEv
       const account = await models.Accounts.getAccount({ _id });
 
       doc.code = doc.code
-        .replace(/\*/g, '')
-        .replace(/_/g, '')
-        .replace(/ /g, '');
+        .replaceAll('*', '')
+        .replaceAll('_', '')
+        .replaceAll(' ', '');
 
       if (account.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
@@ -130,13 +139,15 @@ export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEv
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
 
-      const usedAccountIds = await models.Transactions.find({ 'details.accountId': { $in: _ids } }).distinct('details.accountId')
+      const usedAccountIds = await models.Transactions.find({
+        'details.accountId': { $in: _ids },
+      }).distinct('details.accountId');
 
       for (const id of _ids) {
-        if (!usedAccountIds.includes(id)) {
-          unUsedIds.push(id);
-        } else {
+        if (usedAccountIds.includes(id)) {
           usedIds.push(id);
+        } else {
+          unUsedIds.push(id);
         }
       }
 
@@ -198,7 +209,10 @@ export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEv
         await models.Accounts.findByIdAndUpdate(accountingId, {
           $set: {
             status: ACCOUNT_STATUSES.DELETED,
-            code: dayjs(new Date).format('"yyyy-MM-dd HH:mm').toString().concat('^', accountingObj.code),
+            code: dayjs(new Date())
+              .format('"yyyy-MM-dd HH:mm')
+              .toString()
+              .concat('^', accountingObj.code),
           },
         });
       }
@@ -221,4 +235,3 @@ export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEv
 
   return accountSchema;
 };
-

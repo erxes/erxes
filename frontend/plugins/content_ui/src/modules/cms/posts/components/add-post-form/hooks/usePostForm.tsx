@@ -80,8 +80,8 @@ export const usePostForm = (editingPost?: any) => {
   const generateSlug = (text: string) =>
     text
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+      .replaceAll(/[^a-z0-9]+/g, '-')
+      .replaceAll(/(^-|-$)/g, '');
 
   const { data: fullPostData } = useQuery(CMS_POST, {
     variables: { id: editingPost?._id },
