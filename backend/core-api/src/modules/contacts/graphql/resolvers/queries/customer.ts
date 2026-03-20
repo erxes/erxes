@@ -1,8 +1,4 @@
 import {
-  checkPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
-import {
   ICustomerDocument,
   ICustomerQueryFilterParams,
   Resolver,
@@ -122,9 +118,6 @@ export const customerQueries: Record<string, Resolver> = {
     return counts;
   },
 };
-
-moduleRequireLogin(customerQueries);
-checkPermission(customerQueries, 'customers', 'showCustomers');
 
 customerQueries.cpCustomers.wrapperConfig = {
   forClientPortal: true,

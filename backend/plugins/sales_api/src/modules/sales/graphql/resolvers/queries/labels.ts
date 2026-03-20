@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { moduleRequireLogin } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 
 export const pipelineLabelQueries: Record<string, Resolver> = {
@@ -49,8 +48,6 @@ export const pipelineLabelQueries: Record<string, Resolver> = {
     return models.PipelineLabels.findOne({ _id });
   },
 };
-
-// moduleRequireLogin(pipelineLabelQueries);
 
 pipelineLabelQueries.cpSalesPipelineLabels.wrapperConfig = {
   forClientPortal: true,

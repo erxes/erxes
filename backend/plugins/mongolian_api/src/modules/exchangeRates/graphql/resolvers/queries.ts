@@ -60,5 +60,3 @@ export const exchangeRateQueries = {
     });
   },
 };
-
-// checkPermission(exchangeRateQueries, 'exchangeRatesMain', 'showExchangeRates');

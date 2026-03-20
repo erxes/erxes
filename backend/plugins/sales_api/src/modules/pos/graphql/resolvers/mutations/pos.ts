@@ -143,8 +143,4 @@ const posMutations = {
   },
 };
 
-// checkPermission(posMutations, 'posAdd', 'managePos');
-// checkPermission(posMutations, 'posEdit', 'managePos');
-// checkPermission(posMutations, 'posRemove', 'managePos');
-
 export default posMutations;

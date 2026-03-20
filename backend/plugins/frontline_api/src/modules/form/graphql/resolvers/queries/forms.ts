@@ -388,8 +388,6 @@ const formQueries: Record<string, Resolver> = {
   // },
 };
 
-// checkPermission(formQueries, 'forms', 'showForms', []);
-
 export default formQueries;
 
 formQueries.cpForms.wrapperConfig = {

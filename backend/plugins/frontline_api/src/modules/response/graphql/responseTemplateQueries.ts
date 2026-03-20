@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import {
@@ -70,7 +69,3 @@ export const responseTemplateQueries = {
     return models.ResponseTemplates.find(filterQuery).countDocuments();
   },
 };
-
-requireLogin(responseTemplateQueries, 'responseTemplates');
-requireLogin(responseTemplateQueries, 'responseTemplate');
-requireLogin(responseTemplateQueries, 'responseTemplatesTotalCount');
