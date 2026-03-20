@@ -66,7 +66,7 @@ export const TagsListRowForm = () => {
           xmlns="http://www.w3.org/2000/svg"
         >
           <path d="M0 0h1v1c0 2.5 2.212 3.546 2.212 3.546L9.737 8.06c.568.306.094 1.186-.474.88l-6.48-3.488S0 4 0 1V0Z"/>
-        </svg>>
+        </svg>
       </div>
       <TagsListCell className="w-full md:max-w-[30%] gap-2">
         <TagsListColorField
