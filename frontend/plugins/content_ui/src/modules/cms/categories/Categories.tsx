@@ -7,13 +7,10 @@ import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useRemoveCategories } from './hooks/useRemoveCategories';
 import { ICategory } from './types';
 import { CmsSidebar } from '../shared/CmsSidebar';
-import { PageContainer } from 'erxes-ui';
+import { PageContainer, Button, Kbd } from 'erxes-ui';
 import { EmptyState } from '../shared/EmptyState';
-import { IconArticle } from '@tabler/icons-react';
+import { IconArticle, IconPlus } from '@tabler/icons-react';
 import { useCategories } from './hooks/useCategories';
-import { Button } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { Kbd } from 'erxes-ui';
 
 export function Categories() {
   const { websiteId } = useParams();

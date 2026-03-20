@@ -10,11 +10,11 @@ import {
 import { ICategory, PostCategoryInput } from './types';
 
 interface CmsCategoryDrawerProps {
-  category?: Partial<ICategory>;
-  isOpen: boolean;
-  onClose: () => void;
-  clientPortalId: string;
-  onRefetch?: () => void;
+  readonly category?: Partial<ICategory>;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly clientPortalId: string;
+  readonly onRefetch?: () => void;
 }
 
 interface CategoryFormData {
@@ -294,8 +294,8 @@ export function CmsCategoryDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create Category'}
+                  ? 'Save Changes'
+                  : 'Create Category'}
               </Button>
             </div>
           </form>

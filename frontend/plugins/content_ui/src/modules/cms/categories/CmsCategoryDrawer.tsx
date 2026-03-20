@@ -20,11 +20,11 @@ interface Category {
 }
 
 interface CmsCategoryDrawerProps {
-  category?: Partial<Category>;
-  isOpen: boolean;
-  onClose: () => void;
-  clientPortalId: string;
-  onRefetch?: () => void;
+  readonly category?: Partial<Category>;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly clientPortalId: string;
+  readonly onRefetch?: () => void;
 }
 
 interface CategoryFormData {
@@ -51,10 +51,10 @@ export function CmsCategoryDrawer({
     return name
       .toLowerCase()
       .trim()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+      .replaceAll(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+      .replaceAll(/\s+/g, '-') // Replace spaces with hyphens
+      .replaceAll(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replaceAll(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
   };
 
   const form = useForm<CategoryFormData>({
@@ -339,8 +339,8 @@ export function CmsCategoryDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create Category'}
+                  ? 'Save Changes'
+                  : 'Create Category'}
               </Button>
             </div>
           </form>
