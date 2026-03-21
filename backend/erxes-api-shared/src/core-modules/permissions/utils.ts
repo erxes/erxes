@@ -34,9 +34,13 @@ const applyDefaultGroupActions = async (
 ) => {
   const plugins = await getPlugins();
 
+  console.log('plugins', plugins)
+
   for (const pluginName of plugins) {
     const plugin = await getPlugin(pluginName);
     const defaultGroups = plugin?.config?.meta?.permissions?.defaultGroups;
+
+    console.log('defaultGroups', defaultGroups)
 
     if (!defaultGroups) continue;
 
@@ -86,19 +90,30 @@ export const getGroupActionsMap = async (
   const defaultGroupIds = groupIds.filter((id) => id.includes(':'));
   const customGroupIds = groupIds.filter((id) => !id.includes(':'));
 
+  console.log('defaultGroupIds', defaultGroupIds)
+  console.log('customGroupIds', customGroupIds)
+
+  console.log('actionsMap 1', actionsMap)
+
   if (defaultGroupIds.length) {
     await applyDefaultGroupActions(actionsMap, defaultGroupIds);
+
+    console.log('actionsMap 2', actionsMap)
   }
 
   if (customGroupIds.length) {
     await applyCustomGroupActions(actionsMap, subdomain, customGroupIds);
+
+    console.log('actionsMap 3', actionsMap)
   }
+
+  console.log('actionsMap 4', actionsMap)
 
   applyPermissions(actionsMap, user.customPermissions || []);
 
   // await redis.set(cacheKey, JSON.stringify(actionsMap));
 
-  console.log('actionsMap', actionsMap)
+  console.log('actionsMap 5', actionsMap)
 
   return actionsMap;
 };
