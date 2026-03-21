@@ -197,13 +197,9 @@ export const checkPermissionGroup = (
   return async (action: string, ownerId?: string) => {
     checkLogin(user);
 
-    const scope = await getActionScope(subdomain, action, user);
+    const allowed = await canGroup(subdomain, action, user);
 
-    if (!scope) {
-      throw new Error('Permission required');
-    }
-
-    if (scope === 'own' && ownerId && user?._id !== ownerId) {
+    if (!allowed) {
       throw new Error('Permission required');
     }
   };
