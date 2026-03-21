@@ -5,8 +5,8 @@ import { CMS_CATEGORIES_ADD } from '../../../../categories/graphql/mutations/cat
 const toSlug = (name: string) =>
   name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replaceAll(/[^a-z0-9]+/g, '-')
+    .replaceAll(/^-|-$/g, '');
 
 export const useInlineCategory = (websiteId: string) => {
   const [addCategoryMutation] = useMutation(CMS_CATEGORIES_ADD);

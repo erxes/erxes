@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Popover } from 'erxes-ui/components/popover';
 import { Popover as PopoverPrimitive } from 'radix-ui';
-import { Button } from 'erxes-ui';
-import { Command } from 'erxes-ui';
+import { Button, Command } from 'erxes-ui';
 import { Icon123 } from '@tabler/icons-react';
 
 interface IconPickerProps {
@@ -10,7 +9,7 @@ interface IconPickerProps {
   onChange: (icon: string) => void;
 }
 
-export function IconPicker({ value, onChange }: IconPickerProps) {
+export function IconPicker({ value, onChange }: Readonly<IconPickerProps>) {
   const [open, setOpen] = useState(false);
 
   return (

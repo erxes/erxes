@@ -57,13 +57,15 @@ export const loadCtaxRowClass = (models: IModels, subdomain: string) => {
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
 
-      const usedCtaxRowIds = await models.Transactions.find({ ctaxRowId: { $in: _ids } }).distinct('ctaxRowId')
+      const usedCtaxRowIds = await models.Transactions.find({
+        ctaxRowId: { $in: _ids },
+      }).distinct('ctaxRowId');
 
       for (const id of _ids) {
-        if (!usedCtaxRowIds.includes(id)) {
-          unUsedIds.push(id);
-        } else {
+        if (usedCtaxRowIds.includes(id)) {
           usedIds.push(id);
+        } else {
+          unUsedIds.push(id);
         }
       }
 
@@ -100,4 +102,3 @@ export const loadCtaxRowClass = (models: IModels, subdomain: string) => {
 
   return ctaxRowSchema;
 };
-

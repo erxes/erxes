@@ -4,9 +4,7 @@ import { IconCopy } from '@tabler/icons-react';
 
 export function ClientPortalDetailToken({
   clientPortal = {},
-}: {
-  clientPortal?: IClientPortal;
-}) {
+}: Readonly<{ clientPortal?: IClientPortal }>) {
   const handleCopy = () => {
     navigator.clipboard.writeText(clientPortal?.token ?? '');
     toast({

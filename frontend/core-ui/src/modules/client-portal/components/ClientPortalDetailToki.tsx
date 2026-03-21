@@ -9,7 +9,7 @@ interface Props {
   clientPortal: IClientPortal;
 }
 
-export function ClientPortalDetailToki({ clientPortal }: Props) {
+export function ClientPortalDetailToki({ clientPortal }: Readonly<Props>) {
   const form = useForm<ReturnType<(typeof CLIENTPORTAL_TOKI_SCHEMA)['parse']>>({
     resolver: zodResolver(CLIENTPORTAL_TOKI_SCHEMA),
     defaultValues: {

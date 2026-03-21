@@ -10,7 +10,9 @@ interface Props {
   clientPortal?: IClientPortal | null;
 }
 
-export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
+export function ClientPortalDetailSMSProviders({
+  clientPortal,
+}: Readonly<Props>) {
   const [activeTab, setActiveTab] = useState<'callPro' | 'twilio'>('callPro');
 
   const smsProvidersConfig = clientPortal?.smsProvidersConfig;
