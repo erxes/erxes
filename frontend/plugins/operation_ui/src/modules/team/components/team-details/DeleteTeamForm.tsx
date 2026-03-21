@@ -1,4 +1,3 @@
-import { useGetTeam } from '@/team/hooks/useGetTeam';
 import { useRemoveTeam } from '@/team/hooks/useRemoveTeam';
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { useNavigate, useParams } from 'react-router';

@@ -49,7 +49,9 @@ export const AudioUploader = ({ value, onChange }: AudioUploaderProps) => {
                 <IconX size={16} />
               </Button>
             </div>
-            <audio src={value} controls className="w-full" />
+            <audio src={value} controls className="w-full">
+              <track kind="captions" src="" label="English captions" />
+            </audio>
           </div>
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded">

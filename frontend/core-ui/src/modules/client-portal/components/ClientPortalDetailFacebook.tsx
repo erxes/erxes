@@ -9,7 +9,7 @@ interface Props {
   clientPortal: IClientPortal;
 }
 
-export function ClientPortalDetailFacebook({ clientPortal }: Props) {
+export function ClientPortalDetailFacebook({ clientPortal }: Readonly<Props>) {
   const form = useForm<
     ReturnType<(typeof CLIENTPORTAL_FACEBOOK_SCHEMA)['parse']>
   >({

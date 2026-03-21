@@ -1,12 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { Popover, Combobox, Command } from 'erxes-ui';
-import { RecordTable } from 'erxes-ui';
+import { Popover, Combobox, Command, RecordTable } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 
 type PostActionsProps = {
-  post: any;
-  onDelete: () => void;
+  readonly post: any;
+  readonly onDelete: () => void;
 };
 
 export function PostActions({ post, onDelete }: PostActionsProps) {

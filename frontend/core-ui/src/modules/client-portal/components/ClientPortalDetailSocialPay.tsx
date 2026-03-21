@@ -6,10 +6,10 @@ import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 
 interface Props {
-  clientPortal: IClientPortal;
+  readonly clientPortal: IClientPortal;
 }
 
-export function ClientPortalDetailSocialPay({ clientPortal }: Props) {
+export function ClientPortalDetailSocialPay({ clientPortal }: Readonly<Props>) {
   const form = useForm<
     ReturnType<(typeof CLIENTPORTAL_SOCIALPAY_SCHEMA)['parse']>
   >({

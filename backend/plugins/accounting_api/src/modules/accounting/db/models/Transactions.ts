@@ -189,19 +189,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
             delete doc._id;
           }
 
-          if (!parentId) {
-            const firstTrs = await commonSave(subdomain, models, {
-              ...doc,
-              ptrId,
-            });
-            parentId = firstTrs.mainTr.parentId;
-            transactions.push(firstTrs.mainTr);
-            if (firstTrs.otherTrs?.length) {
-              for (const otherTr of firstTrs.otherTrs) {
-                transactions.push(otherTr);
-              }
-            }
-          } else {
+          if (parentId) {
             const trs = await commonSave(subdomain, models, {
               ...doc,
               ptrId,
@@ -210,6 +198,18 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
             transactions.push(trs.mainTr);
             if (trs.otherTrs?.length) {
               for (const otherTr of trs.otherTrs) {
+                transactions.push(otherTr);
+              }
+            }
+          } else {
+            const firstTrs = await commonSave(subdomain, models, {
+              ...doc,
+              ptrId,
+            });
+            parentId = firstTrs.mainTr.parentId;
+            transactions.push(firstTrs.mainTr);
+            if (firstTrs.otherTrs?.length) {
+              for (const otherTr of firstTrs.otherTrs) {
                 transactions.push(otherTr);
               }
             }
