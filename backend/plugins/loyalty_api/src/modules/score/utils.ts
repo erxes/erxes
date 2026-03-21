@@ -2,6 +2,114 @@ import dayjs from 'dayjs';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
+/**
+ * Safely evaluate a math expression string using recursive descent parsing.
+ * Only supports: numbers (int/float), +, -, *, /, parentheses.
+ * No eval/Function — purely structural parsing, no code execution.
+ */
+export const safeEvalMath = (expr: string): number => {
+  const input = (expr || '').trim();
+  if (!input) return 0;
+
+  let pos = 0;
+
+  /** look at the current character without moving forward */
+  function peek() { return input[pos]; }
+
+  /** grab the current character and step to the next one */
+  function advance() { return input[pos++]; }
+
+  /** jump past any spaces */
+  function skipWhitespace() { while (pos < input.length && input[pos] === ' ') pos++; }
+
+  /** read a number like 42, 3.14, or -5 from the input */
+  function parseNumber(): number {
+    skipWhitespace();
+    let numStr = '';
+
+    if (peek() === '-' || peek() === '+') numStr += advance();
+
+    if (peek() !== '(' && peek() !== undefined && !/[\d.]/.test(peek())) {
+      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+    }
+
+    while (pos < input.length && /[\d.]/.test(peek())) {
+      numStr += advance();
+    }
+
+    if (!numStr || numStr === '-' || numStr === '+') {
+      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+    }
+
+    const num = Number(numStr);
+    if (!isFinite(num)) {
+      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+    }
+    return num;
+  }
+
+  /** handle + and - (runs last because they have the lowest priority) */
+  function parseAddSub(): number {
+    let left = parseMulDiv();
+
+    while (true) {
+      skipWhitespace();
+      const op = peek();
+      if (op !== '+' && op !== '-') break;
+      advance();
+      const right = parseMulDiv();
+      left = op === '+' ? left + right : left - right;
+    }
+
+    return left;
+  }
+
+  /** handle * and / (runs before + and - because they bind tighter) */
+  function parseMulDiv(): number {
+    let left = parsePrimary();
+
+    while (true) {
+      skipWhitespace();
+      const op = peek();
+      if (op !== '*' && op !== '/') break;
+      advance();
+      const right = parsePrimary();
+      left = op === '*' ? left * right : left / right;
+    }
+
+    return left;
+  }
+
+  /** handle a number or a parenthesized group like (2 + 3) */
+  function parsePrimary(): number {
+    skipWhitespace();
+
+    if (peek() === '(') {
+      advance();
+      const val = parseAddSub();
+      skipWhitespace();
+      if (peek() !== ')') {
+        throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+      }
+      advance();
+      return val;
+    }
+
+    return parseNumber();
+  }
+
+  const result = parseAddSub();
+  skipWhitespace();
+
+  if (pos < input.length) {
+    throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+  }
+
+  if (!isFinite(result)) return 0;
+
+  return result;
+};
+
 export const resolvePlaceholderValue = (target: any, attribute: string) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 
