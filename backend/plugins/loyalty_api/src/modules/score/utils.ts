@@ -13,13 +13,11 @@ export const safeEvalMath = (expr: string): number => {
 
   let pos = 0;
 
-  const peek = () => input[pos];
-  const advance = () => input[pos++];
-  const skipWhitespace = () => {
-    while (pos < input.length && input[pos] === ' ') pos++;
-  };
+  function peek() { return input[pos]; }
+  function advance() { return input[pos++]; }
+  function skipWhitespace() { while (pos < input.length && input[pos] === ' ') pos++; }
 
-  const parseNumber = (): number => {
+  function parseNumber(): number {
     skipWhitespace();
     let numStr = '';
 
@@ -42,41 +40,9 @@ export const safeEvalMath = (expr: string): number => {
       throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
     }
     return num;
-  };
+  }
 
-  const parsePrimary = (): number => {
-    skipWhitespace();
-
-    if (peek() === '(') {
-      advance(); // skip (
-      const val = parseAddSub();
-      skipWhitespace();
-      if (peek() !== ')') {
-        throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
-      }
-      advance(); // skip )
-      return val;
-    }
-
-    return parseNumber();
-  };
-
-  const parseMulDiv = (): number => {
-    let left = parsePrimary();
-
-    while (true) {
-      skipWhitespace();
-      const op = peek();
-      if (op !== '*' && op !== '/') break;
-      advance();
-      const right = parsePrimary();
-      left = op === '*' ? left * right : left / right;
-    }
-
-    return left;
-  };
-
-  const parseAddSub = (): number => {
+  function parseAddSub(): number {
     let left = parseMulDiv();
 
     while (true) {
@@ -89,7 +55,39 @@ export const safeEvalMath = (expr: string): number => {
     }
 
     return left;
-  };
+  }
+
+  function parseMulDiv(): number {
+    let left = parsePrimary();
+
+    while (true) {
+      skipWhitespace();
+      const op = peek();
+      if (op !== '*' && op !== '/') break;
+      advance();
+      const right = parsePrimary();
+      left = op === '*' ? left * right : left / right;
+    }
+
+    return left;
+  }
+
+  function parsePrimary(): number {
+    skipWhitespace();
+
+    if (peek() === '(') {
+      advance();
+      const val = parseAddSub();
+      skipWhitespace();
+      if (peek() !== ')') {
+        throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+      }
+      advance();
+      return val;
+    }
+
+    return parseNumber();
+  }
 
   const result = parseAddSub();
   skipWhitespace();
