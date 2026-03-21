@@ -83,11 +83,11 @@ export const getGroupActionsMap = async (
   subdomain: string,
   user: IUserDocument,
 ): Promise<Record<string, string>> => {
-  const cacheKey = `user_actions_${user._id}`;
+  // const cacheKey = `user_actions_${user._id}`;
 
-  const cached = await redis.get(cacheKey);
+  // const cached = await redis.get(cacheKey);
 
-  if (cached) return JSON.parse(cached);
+  // if (cached) return JSON.parse(cached);
 
   const actionsMap: Record<string, string> = {};
   let groupIds = user.permissionGroupIds || [];
@@ -123,7 +123,7 @@ export const getGroupActionsMap = async (
 
   applyPermissions(actionsMap, customPermissions);
 
-  await redis.set(cacheKey, JSON.stringify(actionsMap));
+  // await redis.set(cacheKey, JSON.stringify(actionsMap));
 
   return actionsMap;
 };
