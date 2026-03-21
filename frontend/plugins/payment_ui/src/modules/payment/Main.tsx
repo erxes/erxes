@@ -21,7 +21,10 @@ const PaymentMain = () => {
         <Route path="/" element={<IndexPage />} />
 
         {/* PUBLIC WIDGET ROUTE */}
-        <Route path="/pl:payment/widget/invoice/:id" element={<PaymentWidget />} />
+        <Route
+          path="/pl:payment/widget/invoice/:id"
+          element={<PaymentWidget />}
+        />
       </Routes>
     </Suspense>
   );

@@ -6,7 +6,6 @@ import { ApolloLink, split } from '@apollo/client/link/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { API_URL } from '../config';
 
-
 const wsUri = API_URL.replace(/^http/, 'ws');
 
 const httpLink = createHttpLink({

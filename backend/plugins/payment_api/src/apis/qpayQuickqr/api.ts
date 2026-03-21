@@ -246,11 +246,11 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async createInvoice(invoice: ITransactionDocument) {
-     const iban = this.config.ibanNumber;
+    const iban = this.config.ibanNumber;
 
-     if (iban && !validateIban(iban)) {
-       throw new Error(`Invalid IBAN provided: ${iban}`);
-     }
+    if (iban && !validateIban(iban)) {
+      throw new Error(`Invalid IBAN provided: ${iban}`);
+    }
 
     const res = await this.makeRequest<IInvoiceResponse>({
       method: 'POST',

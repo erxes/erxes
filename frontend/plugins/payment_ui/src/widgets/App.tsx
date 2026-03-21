@@ -20,7 +20,7 @@ const App = () => {
     transaction: {} as any,
 
     kind,
-    paymentId, 
+    paymentId,
     apiResponse: {
       clientSecret: 'test_secret',
     },

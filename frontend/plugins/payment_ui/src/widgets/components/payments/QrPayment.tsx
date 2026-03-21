@@ -31,7 +31,7 @@ const QrPayment = () => {
       <div
         className={cn(
           `relative aspect-square mx-auto max-w-80`,
-          isMobile ? 'max-w-full' : 'max-w-80'
+          isMobile ? 'max-w-full' : 'max-w-80',
         )}
       >
         <div className="border rounded-xl absolute inset-0" />

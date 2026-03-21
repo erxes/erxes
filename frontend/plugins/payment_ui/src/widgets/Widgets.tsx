@@ -90,7 +90,6 @@ const Widgets = () => {
         qrData: response.qrData,
         urls: response.urls || [],
       });
-
     } catch (err) {
       console.error('❌ ERROR:', err);
     }

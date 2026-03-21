@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 type Props = {
   kind: string;
   name: string;
-  iconUrl   : string;
+  iconUrl: string;
   onClick?: () => void;
 };
 

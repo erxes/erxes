@@ -8,7 +8,7 @@ import {
   INVOICE,
   INVOICE_SUBSCRIPTION,
   PAYMENTS_QRY,
-  TRANSACTION_SUBSCRIPTION
+  TRANSACTION_SUBSCRIPTION,
 } from '../lib/graphql';
 import React from 'react';
 
@@ -86,8 +86,8 @@ const InvoiceDetail = () => {
           paymentId,
           details,
           amount: invoiceDetail.amount,
-        }
-      }
+        },
+      },
     }).then(() => {
       invoiceDetailQuery.refetch();
     });

@@ -1,4 +1,4 @@
-import { usePayment } from "../../hooks/use-payment";
+import { usePayment } from '../../hooks/use-payment';
 
 const Minupay = () => {
   const { transaction, apiResponse } = usePayment();
@@ -8,12 +8,10 @@ const Minupay = () => {
 
   return (
     <div className="aspect-square">
-
       <iframe
         src={apiResponse}
         className="w-full h-full border-none rounded-lg mb-2"
       />
- 
     </div>
   );
 };

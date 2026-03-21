@@ -6,7 +6,7 @@ export default defineConfig({
   base: '/pl:payment/widget/',
   server: {
     port: 5173,
-    hmr: true
+    hmr: true,
   },
   plugins: [react()],
   root: __dirname, // This is /app/backend/plugins/payment_api/src/widget

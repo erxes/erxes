@@ -4,7 +4,6 @@ import { LoaderIcon } from '../Loader';
 import { usePayment } from '../../hooks/use-payment';
 import Phone from '../Phone';
 
-
 const PhonePayment = () => {
   const [phone, setPhone] = React.useState('');
 
@@ -13,14 +12,14 @@ const PhonePayment = () => {
     requestNewTransaction,
     paymentId,
     transactionLoading,
-    apiResponse
+    apiResponse,
   } = usePayment();
 
   if (kind !== 'storepay') return null;
 
   return (
     <form
-      onSubmit={e => {
+      onSubmit={(e) => {
         e.preventDefault();
         requestNewTransaction(paymentId, { phone });
       }}
@@ -33,14 +32,14 @@ const PhonePayment = () => {
           <Phone id={'phone'} handleOutputString={setPhone} />
         </div>
       </div>
-  
-        {apiResponse?.message || apiResponse?.error || (
-          <p className="text-sm text-neutral-500">
-            Та Storepay-д бүртгэлтэй утасны дугаараа оруулан хүсэлт илгээн
-            үүссэн нэхэмжлэхийн дагуу худалдан авалтаа баталгаажуулснаар бараа
-            бүтээгдэхүүн, үйлчилгээгээ авах боломжтой.
-          </p>
-        )}
+
+      {apiResponse?.message || apiResponse?.error || (
+        <p className="text-sm text-neutral-500">
+          Та Storepay-д бүртгэлтэй утасны дугаараа оруулан хүсэлт илгээн үүссэн
+          нэхэмжлэхийн дагуу худалдан авалтаа баталгаажуулснаар бараа
+          бүтээгдэхүүн, үйлчилгээгээ авах боломжтой.
+        </p>
+      )}
 
       <div className="sticky -bottom-4 bg-white -mx-4 px-4 pb-4 mt-4 -mb-4">
         <Button className="w-full mb-2" disabled={transactionLoading}>

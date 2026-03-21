@@ -29,12 +29,11 @@ const config: ModuleFederationConfig = {
   },
 
   remotes: process.env.ENABLED_PLUGINS_UI
-  ? process.env.ENABLED_PLUGINS_UI
-      .split(',')
-      .map((plugin) => plugin.trim())
-      .filter(Boolean)
-      .map((plugin) => `${plugin}_ui`)
-  : [],
+    ? process.env.ENABLED_PLUGINS_UI.split(',')
+        .map((plugin) => plugin.trim())
+        .filter(Boolean)
+        .map((plugin) => `${plugin}_ui`)
+    : [],
 };
 
 /**

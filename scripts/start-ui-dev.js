@@ -8,8 +8,7 @@ const ENABLED_PLUGINS_UI = process.env.ENABLED_PLUGINS_UI || '';
 let devRemotesArg = '';
 
 try {
-  const remotes = ENABLED_PLUGINS_UI
-    .split(',')
+  const remotes = ENABLED_PLUGINS_UI.split(',')
     .map((plugin) => plugin.trim())
     .filter(Boolean) // remove empty values
     .map((plugin) => `${plugin}_ui`);

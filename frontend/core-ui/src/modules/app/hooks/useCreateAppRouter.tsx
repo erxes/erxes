@@ -72,10 +72,10 @@ export const useCreateAppRouter = () => {
             path={AppPath.ConfirmInvitation}
             element={<UserConfirmInvitationPage />}
           />
-            <Route
-    path="/pl:payment/widget/invoice/:id"
-    element={<PaymentWidget />}
-  />
+          <Route
+            path="/pl:payment/widget/invoice/:id"
+            element={<PaymentWidget />}
+          />
           <Route element={<UserProvider />}>
             <Route
               element={

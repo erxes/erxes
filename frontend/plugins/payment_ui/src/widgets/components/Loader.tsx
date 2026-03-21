@@ -19,7 +19,7 @@ export const LoaderIcon = ({ className }: { className: string }) => (
 
 const Loader = ({
   children,
-  className
+  className,
 }: React.PropsWithChildren<{ className?: string }>) => (
   <div
     className={

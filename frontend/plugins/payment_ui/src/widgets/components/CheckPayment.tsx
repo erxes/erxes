@@ -2,10 +2,13 @@ import { usePayment } from '../hooks/use-payment';
 import { LoaderIcon } from './Loader';
 import { Button } from './ui/button';
 
-
 const CheckPayment = () => {
-  const { transaction, invoiceDetail,checkInvoiceHandler, checkInvoiceLoading } =
-    usePayment();
+  const {
+    transaction,
+    invoiceDetail,
+    checkInvoiceHandler,
+    checkInvoiceLoading,
+  } = usePayment();
 
   if (!transaction) return null;
 

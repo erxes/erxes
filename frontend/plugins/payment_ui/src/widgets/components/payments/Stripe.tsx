@@ -10,13 +10,11 @@ import { loadStripe } from '@stripe/stripe-js';
 import { usePayment } from '../../hooks/use-payment';
 import { Button } from '../ui/button';
 
-
 const QUERY = gql`
   query Query($id: String!) {
     paymentsGetStripeKey(_id: $id)
   }
 `;
-
 
 // Create a separate component for the payment form that will be rendered inside <Elements>
 const CheckoutForm = () => {
@@ -26,21 +24,21 @@ const CheckoutForm = () => {
   const elements = useElements();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  if (!stripe || !elements) return;
+    if (!stripe || !elements) return;
 
-  const cardElement = elements.getElement(CardElement);
-  if (!cardElement) return;
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) return;
 
-  const { error } = await stripe.confirmCardPayment(clientSecret, {
-    payment_method: { card: cardElement },
-  });
+    const { error } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: { card: cardElement },
+    });
 
-  if (error) {
-    console.error('Payment error:', error);
-  }
-};
+    if (error) {
+      console.error('Payment error:', error);
+    }
+  };
 
   return (
     <>
@@ -65,8 +63,8 @@ const CheckoutForm = () => {
         />
 
         <Button
-          className='w-full mb-2'
-          type='submit'
+          className="w-full mb-2"
+          type="submit"
           style={{ marginTop: '50px' }}
         >
           Pay
@@ -78,7 +76,7 @@ const CheckoutForm = () => {
 
 const StripePayment = () => {
   const { paymentId } = usePayment();
-console.log('🔥 paymentId:', paymentId);
+  console.log('🔥 paymentId:', paymentId);
   // Initialize the stripePromise using the publishable key
   const { data, loading } = useQuery(QUERY, {
     variables: { id: paymentId },
@@ -97,7 +95,7 @@ console.log('🔥 paymentId:', paymentId);
   const stripePromise = loadStripe(publishableKey);
 
   return (
-    <div className='h-auto'>
+    <div className="h-auto">
       <Elements stripe={stripePromise}>
         <CheckoutForm />
       </Elements>
