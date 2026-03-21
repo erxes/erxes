@@ -13,10 +13,16 @@ export const safeEvalMath = (expr: string): number => {
 
   let pos = 0;
 
+  /** look at the current character without moving forward */
   function peek() { return input[pos]; }
+
+  /** grab the current character and step to the next one */
   function advance() { return input[pos++]; }
+
+  /** jump past any spaces */
   function skipWhitespace() { while (pos < input.length && input[pos] === ' ') pos++; }
 
+  /** read a number like 42, 3.14, or -5 from the input */
   function parseNumber(): number {
     skipWhitespace();
     let numStr = '';
@@ -42,6 +48,7 @@ export const safeEvalMath = (expr: string): number => {
     return num;
   }
 
+  /** handle + and - (runs last because they have the lowest priority) */
   function parseAddSub(): number {
     let left = parseMulDiv();
 
@@ -57,6 +64,7 @@ export const safeEvalMath = (expr: string): number => {
     return left;
   }
 
+  /** handle * and / (runs before + and - because they bind tighter) */
   function parseMulDiv(): number {
     let left = parsePrimary();
 
@@ -72,6 +80,7 @@ export const safeEvalMath = (expr: string): number => {
     return left;
   }
 
+  /** handle a number or a parenthesized group like (2 + 3) */
   function parsePrimary(): number {
     skipWhitespace();
 
