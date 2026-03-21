@@ -17,19 +17,28 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
   };
 };
 
+const SCOPE_PRIORITY: Record<string, number> = { own: 1, group: 2, all: 3 };
+
 const applyPermissions = (
-  actionsMap: Record<string, boolean>,
-  permissions: { actions?: string[] }[],
+  actionsMap: Record<string, string>,
+  permissions: { actions?: string[]; scope?: string }[],
 ) => {
   for (const permission of permissions) {
+    const scope = permission.scope || 'all';
     for (const act of permission.actions || []) {
-      actionsMap[act] = true;
+      const existing = actionsMap[act];
+      if (
+        !existing ||
+        (SCOPE_PRIORITY[scope] || 0) > (SCOPE_PRIORITY[existing] || 0)
+      ) {
+        actionsMap[act] = scope;
+      }
     }
   }
 };
 
 const applyDefaultGroupActions = async (
-  actionsMap: Record<string, boolean>,
+  actionsMap: Record<string, string>,
   defaultGroupIds: string[],
 ) => {
   const plugins = await getPlugins();
@@ -49,7 +58,7 @@ const applyDefaultGroupActions = async (
 };
 
 const applyCustomGroupActions = async (
-  actionsMap: Record<string, boolean>,
+  actionsMap: Record<string, string>,
   subdomain: string,
   customGroupIds: string[],
 ) => {
@@ -73,15 +82,33 @@ const applyCustomGroupActions = async (
 export const getGroupActionsMap = async (
   subdomain: string,
   user: IUserDocument,
-): Promise<Record<string, boolean>> => {
+): Promise<Record<string, string>> => {
   const cacheKey = `user_actions_${user._id}`;
 
   const cached = await redis.get(cacheKey);
 
   if (cached) return JSON.parse(cached);
 
-  const actionsMap: Record<string, boolean> = {};
-  const groupIds = user.permissionGroupIds || [];
+  const actionsMap: Record<string, string> = {};
+  let groupIds = user.permissionGroupIds || [];
+  const customPermissions = user.customPermissions || [];
+
+  if (groupIds.length === 0 && customPermissions.length === 0) {
+    const plugins = await getPlugins();
+
+    for (const pluginName of plugins) {
+      const plugin = await getPlugin(pluginName);
+      const defaultGroups = plugin?.config?.meta?.permissions?.defaultGroups;
+
+      if (!defaultGroups) continue;
+
+      for (const group of defaultGroups) {
+        if (group.id.endsWith(':viewer')) {
+          groupIds = [...groupIds, group.id];
+        }
+      }
+    }
+  }
 
   const defaultGroupIds = groupIds.filter((id) => id.includes(':'));
   const customGroupIds = groupIds.filter((id) => !id.includes(':'));
@@ -94,7 +121,7 @@ export const getGroupActionsMap = async (
     await applyCustomGroupActions(actionsMap, subdomain, customGroupIds);
   }
 
-  applyPermissions(actionsMap, user.customPermissions || []);
+  applyPermissions(actionsMap, customPermissions);
 
   await redis.set(cacheKey, JSON.stringify(actionsMap));
 
@@ -145,19 +172,38 @@ export const canGroup = async (
 
   const actionsMap = await getGroupActionsMap(subdomain, user);
 
-  return actionsMap[action] === true;
+  return !!actionsMap[action];
+};
+
+export const getActionScope = async (
+  subdomain: string,
+  action: string,
+  user?: IUserDocument,
+): Promise<string | null> => {
+
+  if (!user || !user._id) return null;
+
+  if (user.isOwner) return 'all';
+
+  const actionsMap = await getGroupActionsMap(subdomain, user);
+
+  return actionsMap[action] || null;
 };
 
 export const checkPermissionGroup = (
   subdomain: string,
   user?: IUserDocument,
 ) => {
-  return async (action: string) => {
+  return async (action: string, ownerId?: string) => {
     checkLogin(user);
 
-    const allowed = await canGroup(subdomain, action, user);
+    const scope = await getActionScope(subdomain, action, user);
 
-    if (!allowed) {
+    if (!scope) {
+      throw new Error('Permission required');
+    }
+
+    if (scope === 'own' && ownerId && user?._id !== ownerId) {
       throw new Error('Permission required');
     }
   };

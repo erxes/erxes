@@ -107,9 +107,9 @@ export const userMutations: Record<string, Resolver> = {
     args: IUsersEdit,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('teamMembersUpdate');
-
     const { _id, ...doc } = args;
+
+    await checkPermission('teamMembersUpdate', _id);
 
     let updatedDoc = doc;
 

@@ -104,7 +104,7 @@ export interface IMainContext {
   models?: any;
   __: <T extends object>(doc: T) => T & { processId: string };
   processId: string;
-  checkPermission: (action: string) => Promise<void>;
+  checkPermission: (action: string, ownerId?: string) => Promise<void>;
 }
 
 export interface IOrderInput {
