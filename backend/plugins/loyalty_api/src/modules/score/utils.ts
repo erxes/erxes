@@ -2,6 +2,23 @@ import dayjs from 'dayjs';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
+/**
+ * Safely evaluate a math expression string.
+ * Only allows numbers, arithmetic operators (+, -, *, /), parentheses, and whitespace.
+ * Throws on any other input to prevent code injection.
+ */
+export const safeEvalMath = (expr: string): number => {
+  const sanitized = (expr || '').trim();
+
+  if (!sanitized) return 0;
+
+  if (!/^[\d\s+\-*/().]+$/.test(sanitized)) {
+    throw new Error(`Invalid math expression: ${sanitized.slice(0, 50)}`);
+  }
+
+  return Function(`"use strict"; return (${sanitized});`)();
+};
+
 export const resolvePlaceholderValue = (target: any, attribute: string) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 
