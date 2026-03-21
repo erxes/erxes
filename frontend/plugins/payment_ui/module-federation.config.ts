@@ -10,10 +10,13 @@ const coreLibraries = new Set([
   'jotai',
   'ui-modules',
   'react-i18next',
+  '@stripe/react-stripe-js',
+  '@stripe/stripe-js',
 ]);
 
 const config: ModuleFederationConfig = {
   name: 'payment_ui',
+
   exposes: {
     './config': './src/config.tsx',
     './paymentSettings': './src/modules/payment/Settings.tsx',
@@ -21,11 +24,22 @@ const config: ModuleFederationConfig = {
   },
 
   shared: (libraryName, defaultConfig) => {
+    // 🔥 make core libs singleton
     if (coreLibraries.has(libraryName)) {
-      return defaultConfig;
+      return {
+        ...defaultConfig,
+        singleton: true,
+        requiredVersion: false,
+      };
     }
 
-    // Returning false means the library is not shared.
+    // 🔥 CRITICAL FIX: share your context file
+    if (libraryName === './src/widgets/hooks/use-payment') {
+      return {
+        singleton: true,
+      };
+    }
+
     return false;
   },
 };

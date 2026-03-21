@@ -117,8 +117,8 @@ const queries: Record<string, Resolver> = {
 
   async qpayGetDistricts(_root, args) {
     const api = new QPayQuickQrAPI({
-      username: process.env.QUICK_QR_USERNAME || '',
-      password: process.env.QUICK_QR_PASSWORD || '',
+      username: 'ERXES_MONGOLIA',
+      password: 'mkVeYADo',
     });
 
     return api.getDistricts(args.cityCode);

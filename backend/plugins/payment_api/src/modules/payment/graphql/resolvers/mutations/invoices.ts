@@ -14,12 +14,10 @@ const mutations: Record<string, Resolver> = {
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:3001';
 
-    // Validate input
     if (!input.paymentIds?.length) {
       throw new Error('paymentIds is required');
     }
 
-    // Create invoice
     const invoice = await models.Invoices.createInvoice({
       ...input,
     });
@@ -31,8 +29,8 @@ const mutations: Record<string, Resolver> = {
 
     const kind = payment?.kind || 'unknown';
 
-    // Return correct URL (NO pl:)
-    return `${domain}/payment/widget/invoice/${invoice._id}?kind=${kind}`;
+    //
+    return `/pl:payment/widget/invoice/${invoice._id}?kind=${kind}&paymentId=${input.paymentIds[0]}`;
   },
 
   async invoiceCreate(

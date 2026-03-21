@@ -25,7 +25,7 @@ const PaymentSettings = () => {
         <Route index element={<Navigate to="methods" replace />} />
         <Route path="methods" element={<PaymentSettingsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
-        <Route path="/widget/invoice/:id" element={<PaymentWidget />} />
+       <Route path="widget/invoice/:id" element={<PaymentWidget />} />
       </Routes>
     </Suspense>
   );

@@ -1,4 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
+import type React from 'react';
 import {
   CardElement,
   Elements,
@@ -16,6 +17,7 @@ const QUERY = gql`
   }
 `;
 
+
 // Create a separate component for the payment form that will be rendered inside <Elements>
 const CheckoutForm = () => {
   const { apiResponse } = usePayment();
@@ -23,34 +25,22 @@ const CheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
 
-    // Check if stripe or elements are null
-    if (!stripe || !elements) {
-      console.error('Stripe or elements is not loaded');
-      return;
-    }
+  if (!stripe || !elements) return;
 
-    // Get the card element from elements
-    const cardElement = elements.getElement(CardElement);
+  const cardElement = elements.getElement(CardElement);
+  if (!cardElement) return;
 
-    if (!cardElement) {
-      console.error('Card element not found');
-      return;
-    }
+  const { error } = await stripe.confirmCardPayment(clientSecret, {
+    payment_method: { card: cardElement },
+  });
 
-    // Confirm the card payment with Stripe
-    const { error } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: cardElement,
-      },
-    });
-
-    if (error) {
-      console.error('Payment error:', error);
-    }
-  };
+  if (error) {
+    console.error('Payment error:', error);
+  }
+};
 
   return (
     <>
@@ -88,6 +78,7 @@ const CheckoutForm = () => {
 
 const StripePayment = () => {
   const { paymentId } = usePayment();
+console.log('🔥 paymentId:', paymentId);
   // Initialize the stripePromise using the publishable key
   const { data, loading } = useQuery(QUERY, {
     variables: { id: paymentId },
