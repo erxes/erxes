@@ -12,7 +12,6 @@ import {
   generateAmounts,
   generateProducts,
 } from '~/modules/sales/utils';
-import { createEventDispatcher } from 'erxes-api-shared/core-modules';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -263,15 +262,8 @@ export const dealTrpcRouter = t.router({
     createCommentActivityLog: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { subdomain } = ctx;
-        const {
-          dealId,
-          commentId,
-          createdBy,
-          processId,
-          userId,
-          commentContent,
-        } = input;
+        const { eventHandlers } = ctx;
+        const { dealId, commentId, createdBy, userId, commentContent } = input;
 
         if (!dealId || !commentId || !createdBy) {
           return {
@@ -280,41 +272,34 @@ export const dealTrpcRouter = t.router({
               'Missing required parameters: dealId, commentId, createdBy',
           };
         }
-
         try {
-          const dispatcher = createEventDispatcher({
-            subdomain,
-            pluginName: 'sales',
-            moduleName: 'sales',
-            collectionName: 'deals',
-            getContext: () => ({
-              subdomain,
-              processId: processId || '',
-              userId: userId || createdBy || '',
-            }),
-          });
+          const salesEventHandlers = eventHandlers('sales');
+          const { createActivityLog } = salesEventHandlers('sales', 'deals');
 
-          dispatcher.createActivityLog({
-            activityType: 'comment',
-            target: {
-              _id: dealId,
-              moduleName: 'sales',
-              collectionName: 'deals',
+          createActivityLog(
+            {
+              activityType: 'comment',
+              target: {
+                _id: dealId,
+                moduleName: 'sales',
+                collectionName: 'deals',
+              },
+              action: {
+                type: 'comment',
+                description: `Comment added from client portal ${commentContent}`,
+              },
+              changes: {
+                commentId,
+                commentedAt: new Date(),
+              },
+              metadata: {
+                dealId,
+                commentId,
+                createdBy,
+              },
             },
-            action: {
-              type: 'comment',
-              description: `Comment added from client portal ${commentContent}`,
-            },
-            changes: {
-              commentId,
-              commentedAt: new Date(),
-            },
-            metadata: {
-              dealId,
-              commentId,
-              createdBy,
-            },
-          });
+            userId || createdBy || '',
+          );
 
           return {
             status: 'success',

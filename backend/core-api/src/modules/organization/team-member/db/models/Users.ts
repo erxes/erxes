@@ -128,8 +128,16 @@ export interface IUserModel extends Model<IUserDocument> {
 export const loadUserClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  // { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  coreEventHandlers: (
+    moduleName: string,
+    collectionName: string,
+  ) => EventDispatcherReturn,
 ) => {
+  const { sendDbEventLog, createActivityLog } = coreEventHandlers(
+    'organization',
+    'users',
+  );
   class User {
     public static async getUser(_id: string) {
       const user = await models.Users.findOne({ _id });
@@ -449,7 +457,12 @@ export const loadUserClass = (
           prevDocument: user.toObject(),
         });
 
-        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+        await generateUserActivityLogs(
+          user,
+          updatedUser,
+          models,
+          createActivityLog,
+        );
       }
       return updatedUser;
     }
@@ -505,7 +518,7 @@ export const loadUserClass = (
             currentDocument: updatedUser.toObject(),
             prevDocument: user.toObject(),
           });
-          generateUserActivityLogs(
+          await generateUserActivityLogs(
             user,
             updatedUser,
             models,
@@ -524,7 +537,7 @@ export const loadUserClass = (
             currentDocument: updatedUser.toObject(),
             prevDocument: user.toObject(),
           });
-          generateUserActivityLogs(
+          await generateUserActivityLogs(
             user,
             updatedUser,
             models,
@@ -962,7 +975,12 @@ export const loadUserClass = (
           currentDocument: updatedUser.toObject(),
           prevDocument: user.toObject(),
         });
-        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+        await generateUserActivityLogs(
+          user,
+          updatedUser,
+          models,
+          createActivityLog,
+        );
       }
       return updatedUser;
     }

@@ -1,3 +1,4 @@
+import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
 import {
   createTRPCUntypedClient,
   httpBatchLink,
@@ -26,9 +27,15 @@ type CommonTRPCContext = {
   cpUserId?: string;
 };
 
-export type TRPCContext = {
+export type ScopedEventHandlers = ReturnType<typeof createScopedEventHandlers>;
+
+type RequestTRPCContext = {
   subdomain: string;
 } & CommonTRPCContext;
+
+export type TRPCContext = RequestTRPCContext & {
+  eventHandlers: ScopedEventHandlers;
+};
 
 export interface InterMessage {
   subdomain: string;
@@ -68,7 +75,7 @@ export function encodeTRPCContextHeader(
 function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
   subdomain: string;
   method: 'query' | 'mutation';
-  context: TRPCContext;
+  context: CommonTRPCContext;
 } | null {
   const contextHeader = headers[trpcContextHeaderName];
   if (!contextHeader) {
@@ -176,17 +183,29 @@ export const createTRPCContext =
 
     const processInfo = generateRequestProcess();
 
-    const context: { subdomain: string } & TRPCContext = {
+    const context: RequestTRPCContext = {
       ...processInfo,
       ...reqContext,
       subdomain,
     };
 
+    const eventHandlers = createScopedEventHandlers(subdomain, {
+      subdomain,
+      processId: context.processId || '',
+      userId: context.userId || '',
+    });
+
     if (trpcContext) {
-      return await trpcContext(subdomain, context);
+      return await trpcContext(subdomain, {
+        ...context,
+        eventHandlers,
+      });
     }
 
-    return context as TContext & { subdomain: string } & TRPCContext;
+    return {
+      ...(context as TContext & RequestTRPCContext),
+      eventHandlers,
+    };
   };
 
 export type ITRPCContext<TExtraContext = object> = Awaited<

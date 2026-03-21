@@ -1,9 +1,8 @@
 import {
   ActivityLogInput,
-  ActivityRule,
-  assignmentRule,
-  buildActivities,
-  fieldChangeRule,
+  activityBuilder,
+  Config,
+  Resolver,
 } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
@@ -27,18 +26,276 @@ const USER_ACTIVITY_FIELDS = [
   { field: 'details.operatorPhone', label: 'Operator Phone' },
   { field: 'details.position', label: 'Position' },
   { field: 'details.shortName', label: 'Short Name' },
-];
+] as const;
 
 const getFieldLabel = (field: string) => {
-  const match = USER_ACTIVITY_FIELDS.find((f) => f.field === field);
+  if (field.startsWith('links.')) {
+    const [, key] = field.split('.');
+    return `${key} link`;
+  }
 
-  const { label = 'unknown' } = match || {};
-  return label;
+  const match = USER_ACTIVITY_FIELDS.find((item) => item.field === field);
+  return match?.label || field;
 };
 
-/**
- * Generate activity logs for all changed activity fields
- */
+const buildTarget = (user: IUserDocument | { _id: string }) => ({
+  _id: user._id,
+});
+
+const buildUserFieldChangedActivity = (params: {
+  user: IUserDocument;
+  field: string;
+  prev: unknown;
+  current: unknown;
+}): ActivityLogInput => {
+  const { user, field, prev, current } = params;
+  const fieldLabel = getFieldLabel(field);
+
+  return {
+    activityType: 'user.field_changed',
+    target: buildTarget(user),
+    action: {
+      type: 'user.field_changed',
+      description: `${fieldLabel} changed`,
+    },
+    changes: {
+      prev: { [field]: prev },
+      current: { [field]: current },
+    },
+    metadata: {
+      field,
+      fieldLabel,
+    },
+  };
+};
+
+const buildUserActivatedActivity = (user: IUserDocument): ActivityLogInput => ({
+  activityType: 'user.activated',
+  target: buildTarget(user),
+  action: {
+    type: 'user.activated',
+    description: 'User activated',
+  },
+  changes: {
+    prev: { isActive: false },
+    current: { isActive: true },
+  },
+});
+
+const buildUserDeactivatedActivity = (
+  user: IUserDocument,
+): ActivityLogInput => ({
+  activityType: 'user.deactivated',
+  target: buildTarget(user),
+  action: {
+    type: 'user.deactivated',
+    description: 'User deactivated',
+  },
+  changes: {
+    prev: { isActive: true },
+    current: { isActive: false },
+  },
+});
+
+const buildUserRoleChangedActivity = (params: {
+  user: IUserDocument;
+  prevRole: unknown;
+  currentRole: unknown;
+}): ActivityLogInput => {
+  const { user, prevRole, currentRole } = params;
+
+  return {
+    activityType: 'user.role_changed',
+    target: buildTarget(user),
+    action: {
+      type: 'user.role_changed',
+      description: 'User role changed',
+    },
+    changes: {
+      prev: { role: prevRole },
+      current: { role: currentRole },
+    },
+  };
+};
+
+const buildUserAssignmentActivities = (params: {
+  user: IUserDocument;
+  field: 'branchIds' | 'departmentIds' | 'positionIds';
+  added: string[];
+  removed: string[];
+  addedLabels: string[];
+  removedLabels: string[];
+}): ActivityLogInput[] => {
+  const { user, field, added, removed, addedLabels, removedLabels } = params;
+  const entityLabel = field.replace(/Ids$/, '');
+  const activities: ActivityLogInput[] = [];
+
+  if (added.length) {
+    activities.push({
+      activityType: `user.${entityLabel}_assigned`,
+      target: buildTarget(user),
+      action: {
+        type: `user.${entityLabel}_assigned`,
+        description: `${entityLabel} assigned`,
+      },
+      changes: {
+        added: {
+          ids: added,
+          labels: addedLabels,
+        },
+      },
+      metadata: { field },
+    });
+  }
+
+  if (removed.length) {
+    activities.push({
+      activityType: `user.${entityLabel}_unassigned`,
+      target: buildTarget(user),
+      action: {
+        type: `user.${entityLabel}_unassigned`,
+        description: `${entityLabel} unassigned`,
+      },
+      changes: {
+        removed: {
+          ids: removed,
+          labels: removedLabels,
+        },
+      },
+      metadata: { field },
+    });
+  }
+
+  return activities;
+};
+
+type UserActivityContext = {
+  user: IUserDocument;
+  models: IModels;
+};
+
+const userActivityHandlers: Record<string, Resolver<ActivityLogInput>> = {
+  $default: ({ field, prev, current }, ctx: UserActivityContext) => {
+    if (field == null) {
+      return [];
+    }
+
+    return [
+      buildUserFieldChangedActivity({
+        user: ctx.user,
+        field,
+        prev,
+        current,
+      }),
+    ];
+  },
+
+  isActive: ({ current }, ctx: UserActivityContext) =>
+    current
+      ? [buildUserActivatedActivity(ctx.user)]
+      : [buildUserDeactivatedActivity(ctx.user)],
+
+  role: ({ prev, current }, ctx: UserActivityContext) => [
+    buildUserRoleChangedActivity({
+      user: ctx.user,
+      prevRole: prev,
+      currentRole: current,
+    }),
+  ],
+
+  branchIds: async ({ added = [], removed = [] }, ctx: UserActivityContext) => {
+    const [addedLabels, removedLabels] = await Promise.all([
+      added.length
+        ? ctx.models.Branches.find({ _id: { $in: added } }, { title: 1 }).lean()
+        : Promise.resolve([]),
+      removed.length
+        ? ctx.models.Branches.find(
+            { _id: { $in: removed } },
+            { title: 1 },
+          ).lean()
+        : Promise.resolve([]),
+    ]);
+
+    return buildUserAssignmentActivities({
+      user: ctx.user,
+      field: 'branchIds',
+      added,
+      removed,
+      addedLabels: addedLabels.map((branch: any) => branch.title),
+      removedLabels: removedLabels.map((branch: any) => branch.title),
+    });
+  },
+
+  departmentIds: async (
+    { added = [], removed = [] },
+    ctx: UserActivityContext,
+  ) => {
+    const [addedLabels, removedLabels] = await Promise.all([
+      added.length
+        ? ctx.models.Departments.find(
+            { _id: { $in: added } },
+            { title: 1 },
+          ).lean()
+        : Promise.resolve([]),
+      removed.length
+        ? ctx.models.Departments.find(
+            { _id: { $in: removed } },
+            { title: 1 },
+          ).lean()
+        : Promise.resolve([]),
+    ]);
+
+    return buildUserAssignmentActivities({
+      user: ctx.user,
+      field: 'departmentIds',
+      added,
+      removed,
+      addedLabels: addedLabels.map((department: any) => department.title),
+      removedLabels: removedLabels.map((department: any) => department.title),
+    });
+  },
+
+  positionIds: async (
+    { added = [], removed = [] },
+    ctx: UserActivityContext,
+  ) => {
+    const [addedLabels, removedLabels] = await Promise.all([
+      added.length
+        ? ctx.models.Positions.find(
+            { _id: { $in: added } },
+            { title: 1 },
+          ).lean()
+        : Promise.resolve([]),
+      removed.length
+        ? ctx.models.Positions.find(
+            { _id: { $in: removed } },
+            { title: 1 },
+          ).lean()
+        : Promise.resolve([]),
+    ]);
+
+    return buildUserAssignmentActivities({
+      user: ctx.user,
+      field: 'positionIds',
+      added,
+      removed,
+      addedLabels: addedLabels.map((position: any) => position.title),
+      removedLabels: removedLabels.map((position: any) => position.title),
+    });
+  },
+};
+
+const USER_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
+  assignmentFields: ['branchIds', 'departmentIds', 'positionIds'],
+  commonFields: [
+    ...USER_ACTIVITY_FIELDS.map(({ field }) => field),
+    'isActive',
+    'role',
+    'links.*',
+  ],
+  resolvers: userActivityHandlers,
+};
+
 export async function generateUserActivityLogs(
   prevDocument: IUserDocument,
   currentDocument: IUserDocument,
@@ -47,63 +304,22 @@ export async function generateUserActivityLogs(
     activities: ActivityLogInput | ActivityLogInput[],
   ) => void,
 ): Promise<void> {
-  const activityRegistry: ActivityRule[] = [
-    fieldChangeRule(
-      USER_ACTIVITY_FIELDS.map(({ field }) => field),
-      'updated',
-      getFieldLabel,
-    ),
-    fieldChangeRule(['isActive'], 'set', (_, current) =>
-      current ? 'Active' : 'Inactive',
-    ),
-    fieldChangeRule(['links.*'], 'set', (field) => {
-      const [, key] = field.split('.');
-      return `${key} link`;
-    }),
-    assignmentRule('branchIds', async (ids: string[]) => {
-      const branches = await models.Branches.find(
-        { _id: { $in: ids } },
-        { title: 1 },
-      ).lean();
-      return branches.map((branch) => branch.title);
-    }),
-    assignmentRule('departmentIds', async (ids: string[]) => {
-      const departments = await models.Departments.find(
-        { _id: { $in: ids } },
-        { title: 1 },
-      ).lean();
-      return departments.map((department) => department.title);
-    }),
-    assignmentRule('positionIds', async (ids: string[]) => {
-      const positions = await models.Positions.find(
-        { _id: { $in: ids } },
-        { title: 1 },
-      ).lean();
-      return positions.map((position) => position.title);
-    }),
-  ];
-
-  const activities = await buildActivities(
+  const activities = await activityBuilder(
     prevDocument,
     currentDocument,
-    activityRegistry,
+    USER_ACTIVITY_CONFIG,
+    {
+      user: currentDocument,
+      models,
+    },
   );
+  console.log({ activities });
 
-  if (activities.length > 0) {
-    createActivityLog(
-      activities.map((activity) => ({
-        ...activity,
-        changes: activity.changes || {},
-        target: {
-          _id: currentDocument._id,
-        },
-      })),
-    );
+  if (activities.length) {
+    createActivityLog(activities);
   }
 }
-/**
- * Generate activity log for user login
- */
+
 export function generateLoginActivityLog(
   user: IUserDocument,
   metadata?: {
@@ -117,29 +333,22 @@ export function generateLoginActivityLog(
     loginTime: new Date(),
     method: metadata?.method || 'email/password',
   };
+
   return {
-    activityType: 'login',
-    target: {
-      _id: user._id,
-    },
+    activityType: 'user.logged_in',
+    target: buildTarget(user),
     action: {
-      type: 'login',
+      type: 'user.logged_in',
       description: 'User logged in',
     },
-    changes: changes,
+    changes,
     metadata: {
       ...metadata,
       ...changes,
     },
-    pluginName: 'core',
-    moduleName: 'organization',
-    collectionName: 'users',
   };
 }
 
-/**
- * Generate activity log for user logout
- */
 export function generateLogoutActivityLog(
   user: IUserDocument,
   metadata?: {
@@ -147,42 +356,34 @@ export function generateLogoutActivityLog(
     userAgent?: string;
   },
 ) {
+  const logoutTime = new Date();
+
   return {
-    activityType: 'logout',
-    target: {
-      _id: user._id,
-    },
+    activityType: 'user.logged_out',
+    target: buildTarget(user),
     action: {
-      type: 'logout',
+      type: 'user.logged_out',
       description: 'User logged out',
     },
     changes: {
-      logoutTime: new Date(),
+      logoutTime,
     },
     metadata: {
-      logoutTime: new Date(),
+      logoutTime,
       ipAddress: metadata?.ipAddress,
       userAgent: metadata?.userAgent,
     },
-    pluginName: 'core',
-    moduleName: 'organization',
-    collectionName: 'users',
   };
 }
 
 export const generateUserInvitationActivityLog = (user: IUserDocument) => ({
-  activityType: 'invite',
-  target: {
-    _id: user._id,
-  },
+  activityType: 'user.invited',
+  target: buildTarget(user),
   action: {
-    type: 'invite',
+    type: 'user.invited',
     description: 'User invited',
   },
   changes: {
     email: user.email,
   },
-  pluginName: 'core',
-  moduleName: 'organization',
-  collectionName: 'users',
 });

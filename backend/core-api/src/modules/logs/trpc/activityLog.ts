@@ -63,10 +63,12 @@ export const activityLogRouter = t.router({
         } of activities) {
           const targetId = target?._id;
           const targetType = `${pluginName}:${moduleName}.${collectionName}`;
+          if (!targetId) {
+            throw new Error('Target ID is required');
+          }
 
-          const activityLog = await models.ActivityLogs.create({
+          await models.ActivityLogs.createActivityLog(subdomain, {
             activityType,
-            targetId,
             targetType,
             target,
             context,
@@ -76,16 +78,6 @@ export const activityLogRouter = t.router({
             actorType: user?.role || 'user',
             actor: user,
           });
-
-          // Publish subscription for activity log insertion
-          if (targetId) {
-            graphqlPubsub.publish(
-              `activityLogInserted:${subdomain}:${targetId}`,
-              {
-                activityLogInserted: activityLog.toObject(),
-              },
-            );
-          }
         }
 
         return 'success';
@@ -96,7 +88,7 @@ export const activityLogRouter = t.router({
         const { models } = ctx;
         const { targetIds } = input;
         await models.ActivityLogs.deleteMany({ targetId: { $in: targetIds } });
-        return 'success'
-      })
+        return 'success';
+      }),
   }),
 });

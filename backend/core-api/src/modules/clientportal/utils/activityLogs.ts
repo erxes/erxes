@@ -186,9 +186,8 @@ export async function createCPUserActivityLog(
 
   const actor = sanitizeCPUserForActor(cpUser);
 
-  const activityLog = await models.ActivityLogs.create({
+  await models.ActivityLogs.createActivityLog(subdomain, {
     activityType,
-    targetId,
     targetType: CP_USER_ACTIVITY_TARGET_TYPE,
     target: { _id: targetId },
     action,
@@ -196,9 +195,5 @@ export async function createCPUserActivityLog(
     metadata: metadata || {},
     actorType: 'cpUser',
     actor,
-  });
-
-  graphqlPubsub.publish(`activityLogInserted:${subdomain}:${targetId}`, {
-    activityLogInserted: activityLog.toObject(),
   });
 }

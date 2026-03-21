@@ -23,9 +23,7 @@ export const customerMutations: Record<string, Resolver> = {
     doc: ICustomer,
     { models }: IContext,
   ) {
-    const customer = await models.Customers.createCustomer(doc);
-
-    return customer;
+    return await models.Customers.createCustomer(doc);
   },
   /**
    * Updates a customer
@@ -33,11 +31,9 @@ export const customerMutations: Record<string, Resolver> = {
   async customersEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & ICustomer,
-    { models, processId }: IContext,
+    { models }: IContext,
   ) {
-    const updated = await models.Customers.updateCustomer(_id, doc);
-
-    return updated;
+    return await models.Customers.updateCustomer(_id, doc);
   },
 
   /**
@@ -53,17 +49,6 @@ export const customerMutations: Record<string, Resolver> = {
     });
 
     await models.Customers.removeCustomers(customerIds);
-
-    // await sendTRPCMessage({subdomain,
-
-    //   pluginName: 'frontline',
-    //   method: 'mutation',
-    //   module: 'integraions',
-    //   action: 'notification',
-    //   input: { type: 'removeCustomers', customerIds },
-    // });
-
-    // const services: string[] = await getPlugins();
 
     let relatedIntegrationIds: string[] = [];
     let mergedIds: string[] = [];
@@ -81,33 +66,6 @@ export const customerMutations: Record<string, Resolver> = {
 
     relatedIntegrationIds = [...new Set(relatedIntegrationIds)];
     mergedIds = [...new Set(mergedIds)];
-
-    // const integrations = await sendTRPCMessage({subdomain,
-
-    //   pluginName: 'frontline',
-    //   method: 'mutation',
-    //   module: 'integrations',
-    //   action: 'find',
-    //   input: { query: { _id: { $in: relatedIntegrationIds } } },
-    //   defaultValue: [],
-    // });
-
-    // // find related integration of the customer & delete where it's linked
-    // for (const integration of integrations) {
-    //   const kind: string = (integration.kind || '').split('-')[0];
-
-    //   await sendTRPCMessage({subdomain,
-
-    //     pluginName: 'frontline',
-    //     method: 'mutation',
-    //     module: services.includes(kind) ? kind : 'integrations',
-    //     action: 'notification',
-    //     input: {
-    //       type: 'removeCustomers',
-    //       customerIds: [...customerIds, ...mergedIds],
-    //     },
-    //   });
-    // }
 
     return customerIds;
   },

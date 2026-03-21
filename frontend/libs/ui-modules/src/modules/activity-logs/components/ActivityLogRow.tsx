@@ -76,7 +76,6 @@ export function ActivityLogRow({
         </span>
         {activity.context?.text || activity.contextType ? (
           <span className="text-muted-foreground">
-            {' '}
             {activity.context?.text || activity.contextType}
           </span>
         ) : null}

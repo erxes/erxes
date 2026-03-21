@@ -7,6 +7,7 @@ import {
   extractUserFromHeader,
 } from '../headers';
 import { generateRequestProcess, getSubdomain } from '../utils';
+import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
 
 export const generateApolloContext =
   <TContext>(
@@ -47,6 +48,11 @@ export const generateApolloContext =
         secure: req.secure,
         cookies: req.cookies,
       },
+      eventHandlers: createScopedEventHandlers(subdomain, {
+        subdomain,
+        processId: processInfo.processId || '',
+        userId: user?._id || '',
+      }),
     };
 
     if (apolloServerContext) {
