@@ -3,20 +3,104 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 /**
- * Safely evaluate a math expression string.
- * Only allows numbers, arithmetic operators (+, -, *, /), parentheses, and whitespace.
- * Throws on any other input to prevent code injection.
+ * Safely evaluate a math expression string using recursive descent parsing.
+ * Only supports: numbers (int/float), +, -, *, /, parentheses.
+ * No eval/Function — purely structural parsing, no code execution.
  */
 export const safeEvalMath = (expr: string): number => {
-  const sanitized = (expr || '').trim();
+  const input = (expr || '').trim();
+  if (!input) return 0;
 
-  if (!sanitized) return 0;
+  let pos = 0;
 
-  if (!/^[\d\s+\-*/().]+$/.test(sanitized)) {
-    throw new Error(`Invalid math expression: ${sanitized.slice(0, 50)}`);
+  const peek = () => input[pos];
+  const advance = () => input[pos++];
+  const skipWhitespace = () => {
+    while (pos < input.length && input[pos] === ' ') pos++;
+  };
+
+  const parseNumber = (): number => {
+    skipWhitespace();
+    let numStr = '';
+
+    if (peek() === '-' || peek() === '+') numStr += advance();
+
+    if (peek() !== '(' && peek() !== undefined && !/[\d.]/.test(peek())) {
+      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+    }
+
+    while (pos < input.length && /[\d.]/.test(peek())) {
+      numStr += advance();
+    }
+
+    if (!numStr || numStr === '-' || numStr === '+') {
+      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+    }
+
+    const num = Number(numStr);
+    if (!isFinite(num)) {
+      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+    }
+    return num;
+  };
+
+  const parsePrimary = (): number => {
+    skipWhitespace();
+
+    if (peek() === '(') {
+      advance(); // skip (
+      const val = parseAddSub();
+      skipWhitespace();
+      if (peek() !== ')') {
+        throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+      }
+      advance(); // skip )
+      return val;
+    }
+
+    return parseNumber();
+  };
+
+  const parseMulDiv = (): number => {
+    let left = parsePrimary();
+
+    while (true) {
+      skipWhitespace();
+      const op = peek();
+      if (op !== '*' && op !== '/') break;
+      advance();
+      const right = parsePrimary();
+      left = op === '*' ? left * right : left / right;
+    }
+
+    return left;
+  };
+
+  const parseAddSub = (): number => {
+    let left = parseMulDiv();
+
+    while (true) {
+      skipWhitespace();
+      const op = peek();
+      if (op !== '+' && op !== '-') break;
+      advance();
+      const right = parseMulDiv();
+      left = op === '+' ? left + right : left - right;
+    }
+
+    return left;
+  };
+
+  const result = parseAddSub();
+  skipWhitespace();
+
+  if (pos < input.length) {
+    throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
   }
 
-  return Function(`"use strict"; return (${sanitized});`)();
+  if (!isFinite(result)) return 0;
+
+  return result;
 };
 
 export const resolvePlaceholderValue = (target: any, attribute: string) => {
