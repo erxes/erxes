@@ -38,10 +38,15 @@ export const usePluginsModules = () => {
   return modules;
 };
 
+interface SubGroupEntry {
+  exposeName: string;
+  pluginName: string;
+}
+
 interface NavigationGroupResult {
   icon?: React.ElementType;
-  contents: any[];
-  subGroups: any[];
+  contents: Array<() => React.ReactNode>;
+  subGroups: SubGroupEntry[];
   name: string;
 }
 
@@ -76,9 +81,12 @@ export const usePluginsNavigationGroups = () => {
           ? [...existingGroup.contents, newContent]
           : existingGroup.contents;
 
-        const newSubGroup = plugin.navigationGroup?.subGroup;
-        const updatedSubGroups = newSubGroup
-          ? [...existingGroup.subGroups, newSubGroup]
+        const subGroupExpose = plugin.navigationGroup?.subGroup;
+        const updatedSubGroups = subGroupExpose
+          ? [
+              ...existingGroup.subGroups,
+              { exposeName: subGroupExpose, pluginName: plugin.name },
+            ]
           : existingGroup.subGroups;
 
         acc[groupName] = {

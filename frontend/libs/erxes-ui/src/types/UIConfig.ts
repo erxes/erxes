@@ -8,7 +8,7 @@ export type IUIConfig = {
     name: string;
     icon: React.ElementType;
     content: () => React.ReactNode;
-    subGroup?: () => React.ReactNode;
+    subGroup?: string;
   };
 
   widgets?: {

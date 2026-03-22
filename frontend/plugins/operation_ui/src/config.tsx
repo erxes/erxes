@@ -9,12 +9,6 @@ const MainNavigation = lazy(() =>
   })),
 );
 
-const TeamsNavigation = lazy(() =>
-  import('./modules/navigation/TeamsNavigation').then((mod) => ({
-    default: mod.TeamsNavigation,
-  })),
-);
-
 const OperationSettingsNavigation = lazy(() =>
   import('@/OperationSettingsNavigation').then((mod) => ({
     default: mod.OperationSettingsNavigation,
@@ -38,11 +32,7 @@ export const CONFIG: IUIConfig = {
         <MainNavigation />
       </Suspense>
     ),
-    subGroup: () => (
-      <Suspense fallback={<div />}>
-        <TeamsNavigation />
-      </Suspense>
-    ),
+    subGroup: 'subNavigation',
   },
   modules: [
     {

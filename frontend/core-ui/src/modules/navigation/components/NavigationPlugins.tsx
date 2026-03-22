@@ -1,8 +1,69 @@
+import { Suspense, useEffect, useState } from 'react';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { activePluginState, NavigationMenuGroup, Sidebar } from 'erxes-ui';
+import { ErrorBoundary } from 'react-error-boundary';
+import { loadRemote } from '@module-federation/enhanced/runtime';
 import { usePluginsNavigationGroups } from '../hooks/usePluginsNavigationGroups';
 import { useAtom } from 'jotai';
 
+/** Loads a remote Module Federation component by path. */
+function useRemoteComponent(remotePath: string) {
+  const [Component, setComponent] =
+    useState<React.ComponentType | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    loadRemote<{ default: React.ComponentType }>(remotePath, {
+      from: 'runtime',
+    })
+      .then((mod) => {
+        if (!cancelled && mod?.default) {
+          setComponent(() => mod.default);
+        }
+      })
+      .catch(() => {
+        /* sub-navigation is non-critical */
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [remotePath]);
+
+  return Component;
+}
+
+/** Renders a sub-navigation component loaded from a remote plugin via loadRemote. */
+function RemoteSubNavigation({
+  pluginName,
+  exposeName,
+}: {
+  pluginName: string;
+  exposeName: string;
+}) {
+  const Component = useRemoteComponent(`${pluginName}_ui/${exposeName}`);
+
+  if (!Component) return null;
+
+  return (
+    <Suspense fallback={null}>
+      <Component />
+    </Suspense>
+  );
+}
+
+/** Logs remote component render errors in development. */
+function handleRemoteError(error: Error) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(
+      '[NavigationPlugins] Remote component failed to render:',
+      error.message,
+    );
+  }
+}
+
+/** Back button shown when a plugin navigation group is expanded. */
 export const NavigationPluginExitButton = () => {
   const [activePlugin, setActivePlugin] = useAtom(activePluginState);
 
@@ -27,6 +88,7 @@ export const NavigationPluginExitButton = () => {
   );
 };
 
+/** Renders plugin navigation groups in the sidebar with remote sub-navigation. */
 export const NavigationPlugins = () => {
   const navigationGroups = usePluginsNavigationGroups();
   const [activePlugin, setActivePlugin] = useAtom(activePluginState);
@@ -48,11 +110,26 @@ export const NavigationPlugins = () => {
           separate
         >
           {navigationGroups[activePlugin].contents.map((Content, index) => (
-            <Content key={index} />
+            <ErrorBoundary
+              key={index}
+              fallbackRender={() => null}
+              onError={handleRemoteError}
+            >
+              <Content />
+            </ErrorBoundary>
           ))}
         </NavigationMenuGroup>
-        {subGroups.map((SubGroup, index) => (
-          <SubGroup key={index} />
+        {subGroups.map(({ exposeName, pluginName }) => (
+          <ErrorBoundary
+            key={`${pluginName}-${exposeName}`}
+            fallbackRender={() => null}
+            onError={handleRemoteError}
+          >
+            <RemoteSubNavigation
+              pluginName={pluginName}
+              exposeName={exposeName}
+            />
+          </ErrorBoundary>
         ))}
       </>
     );
