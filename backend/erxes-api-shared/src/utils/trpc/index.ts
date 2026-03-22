@@ -8,6 +8,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import { IncomingHttpHeaders } from 'http';
 import { getPlugin, isEnabled } from '../service-discovery';
 import { generateRequestProcess, getEnv } from '../utils';
+import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
 
 export type MessageProps = {
   subdomain: string;
@@ -188,6 +189,12 @@ export const createTRPCContext =
       ...reqContext,
       subdomain,
     };
+
+    setEventHandlerRuntimeContext(subdomain, {
+      subdomain,
+      processId: context.processId || '',
+      userId: context.userId || '',
+    });
 
     const eventHandlers = createScopedEventHandlers(subdomain, {
       subdomain,

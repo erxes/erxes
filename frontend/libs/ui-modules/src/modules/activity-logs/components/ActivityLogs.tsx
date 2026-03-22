@@ -8,7 +8,8 @@ import { ActivityLogProvider } from '../context/ActivityLogProvider';
 import { ActivityLogLoading } from './ActivityLogLoading';
 import { ActivityLogList } from './ActivityLogList';
 import { ActivityLogCustomActivity } from '../types';
-import { ActivityLogActorName, ActivityLogRow } from './ActivityLogRow';
+import { ActivityLogRow } from './ActivityLogRow';
+import { ActivityLogActorName } from './ActivityLogActor';
 
 function hasActivityLogHeader(children: React.ReactNode): boolean {
   let found = false;

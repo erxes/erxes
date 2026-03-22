@@ -27,6 +27,9 @@ const getProductFieldLabel = (field: string) => {
   return label;
 };
 
+const getProductDisplayText = (doc: Partial<IProductDocument>) =>
+  doc.name || doc.shortName || doc.code || (doc._id ? `Product ${doc._id}` : 'this product');
+
 /**
  * Generate activity logs for product changes
  */
@@ -66,6 +69,9 @@ export async function generateProductActivityLogs(
         changes: activity.changes || {},
         target: {
           _id: currentDocument._id,
+          moduleName: 'products',
+          collectionName: 'products',
+          text: getProductDisplayText(currentDocument),
         },
         pluginName: 'core',
         moduleName: 'products',

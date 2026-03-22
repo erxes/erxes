@@ -1,62 +1,17 @@
 import React from 'react';
-import { IconQuestionMark } from '@tabler/icons-react';
-import { Avatar, RelativeDateDisplay, Tooltip } from 'erxes-ui';
+import { RelativeDateDisplay } from 'erxes-ui';
 import { TActivityLog } from '../types';
 import { useActivityLog } from '../context/ActivityLogProvider';
-import { Link } from 'react-router-dom';
+import {
+  ActivityLogActorAvatar,
+  ActivityLogActorName,
+} from './ActivityLogActor';
+import { DefaultActivitySentence } from './DefaultActivitySentence';
 
 interface ActivityLogRowProps {
   activity: TActivityLog;
   isLast?: boolean;
 }
-
-export const ActivityLogActorName = ({ activity }: ActivityLogRowProps) => {
-  const actorName = getActorName(activity);
-
-  const isSystem = activity.actorType === 'system' || !activity.actor;
-
-  return (
-    <p className="text-sm font-medium text-foreground">
-      {isSystem ? 'System' : actorName}
-    </p>
-  );
-};
-
-const ActivityLogActorAvatar = ({ activity }: ActivityLogRowProps) => {
-  const isSystem = activity.actorType === 'system' || !activity.actor;
-  const actorName = getActorName(activity);
-
-  if (isSystem) {
-    return (
-      <div className="size-6 rounded-full bg-muted flex items-center justify-center border border-background">
-        <IconQuestionMark className="size-4 text-muted-foreground" />
-      </div>
-    );
-  }
-
-  return (
-    <Tooltip>
-      <Tooltip.Trigger asChild>
-        <Link to={`/settings/team-member?user_id=${activity.actor?._id}`}>
-          <Avatar size="lg">
-            {activity.actor?.details?.avatar ? (
-              <Avatar.Image
-                src={activity.actor.details.avatar}
-                alt={actorName}
-              />
-            ) : null}
-            <Avatar.Fallback className="text-xs">
-              {getActorInitial(actorName)}
-            </Avatar.Fallback>
-          </Avatar>
-        </Link>
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        <p>{actorName}</p>
-      </Tooltip.Content>
-    </Tooltip>
-  );
-};
 
 export function ActivityLogRow({
   activity,
@@ -69,16 +24,8 @@ export function ActivityLogRow({
 
   const defaultBody = (
     <div className="flex flex-col gap-1">
-      <p className="text-sm text-foreground flex flex-row gap-1">
-        <ActivityLogActorName activity={activity} />
-        <span className="text-muted-foreground">
-          {activity.action?.description || activity.action?.action}
-        </span>
-        {activity.context?.text || activity.contextType ? (
-          <span className="text-muted-foreground">
-            {activity.context?.text || activity.contextType}
-          </span>
-        ) : null}
+      <p className="text-sm text-foreground flex flex-row gap-1 flex-wrap">
+        <DefaultActivitySentence activity={activity} />
       </p>
     </div>
   );
@@ -108,20 +55,4 @@ export function ActivityLogRow({
       </div>
     </div>
   );
-}
-
-function getActorName(activity: TActivityLog): string {
-  const actor = activity.actor;
-
-  if (!actor) {
-    return 'Unknown user';
-  }
-
-  return (
-    actor.details?.fullName || actor.username || actor.email || 'Unknown user'
-  );
-}
-
-function getActorInitial(name: string) {
-  return name?.[0]?.toUpperCase() || '?';
 }

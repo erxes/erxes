@@ -14,6 +14,11 @@ interface ActivityLogPayload {
     type: string;
     description: string;
   };
+  context?: {
+    text?: string;
+    data?: any;
+  };
+  metadata?: Record<string, any>;
   changes: {
     prev?: any;
     current?: any;
@@ -32,6 +37,12 @@ export function normalizeDiffs(
 
   const isPlainObject = (val: any): val is Record<string, any> =>
     val !== null && typeof val === 'object' && !Array.isArray(val);
+
+  const isEmptyLikeScalar = (val: any) =>
+    val === undefined || val === null || val === '';
+
+  const isEquivalentEmptyValue = (prev: any, curr: any) =>
+    isEmptyLikeScalar(prev) && isEmptyLikeScalar(curr);
 
   function walk(prev: any, curr: any, path: string[]): void {
     // Same reference → skip
@@ -78,6 +89,10 @@ export function normalizeDiffs(
     }
 
     // Primitive / terminal value
+    if (isEquivalentEmptyValue(prev, curr)) {
+      return;
+    }
+
     let kind: NormalizedChange['kind'] = 'update';
 
     if (prev === undefined && curr !== undefined) {
@@ -143,7 +158,35 @@ export const fieldChangeRule = (
     const valueLabel = getValueLabel
       ? await getValueLabel(current)
       : current || 'unknown';
-    const description = `${actionLabel} ${fieldLabel} to ${valueLabel}`;
+    const normalizedFieldLabel = String(fieldLabel || field).toLowerCase();
+    const formatDescriptionValue = (value: any) => {
+      if (value === null || value === undefined || value === '') {
+        return 'empty';
+      }
+
+      if (typeof value === 'boolean') {
+        return value ? 'yes' : 'no';
+      }
+
+      if (Array.isArray(value)) {
+        return value.length ? value.join(', ') : 'empty';
+      }
+
+      if (typeof value === 'object') {
+        return JSON.stringify(value);
+      }
+
+      return String(value);
+    };
+
+    const previousValueLabel = formatDescriptionValue(prev);
+    const currentValueLabel = formatDescriptionValue(current);
+    const description =
+      actionLabel === 'set'
+        ? `set ${normalizedFieldLabel} to ${currentValueLabel}`
+        : actionLabel === 'unset'
+          ? `cleared ${normalizedFieldLabel}`
+          : `changed ${normalizedFieldLabel} from ${previousValueLabel} to ${currentValueLabel}`;
 
     return [
       {
@@ -152,9 +195,20 @@ export const fieldChangeRule = (
           type: actionLabel,
           description,
         },
+        metadata: {
+          field,
+          fieldLabel,
+          valueLabel,
+          previousValueLabel,
+          currentValueLabel,
+        },
         changes: {
-          prev,
-          current,
+          prev: {
+            [field]: prev,
+          },
+          current: {
+            [field]: current,
+          },
         },
       },
     ];
@@ -184,11 +238,22 @@ export const assignmentRule = (
 
     if (added.length) {
       const contextNames = await getContextNames(added);
+      const labels = Array.isArray(contextNames)
+        ? contextNames
+        : [contextNames].filter(Boolean);
       payloads.push({
         activityType: 'assignment',
         action: {
           type: addedAction,
-          description: `${addedAction} to ${contextNames}`,
+          description: `${addedAction} ${field.replace(/Ids$/, '').toLowerCase()}`,
+        },
+        context: {
+          text: labels.join(', '),
+          data: labels,
+        },
+        metadata: {
+          field,
+          entityLabel: field.replace(/Ids$/, '').toLowerCase(),
         },
         changes: { added },
       });
@@ -196,12 +261,23 @@ export const assignmentRule = (
 
     if (removed.length) {
       const contextNames = await getContextNames(removed);
+      const labels = Array.isArray(contextNames)
+        ? contextNames
+        : [contextNames].filter(Boolean);
 
       payloads.push({
         activityType: 'assignment',
         action: {
           type: removedAction,
-          description: `${removedAction} from ${contextNames}`,
+          description: `${removedAction} ${field.replace(/Ids$/, '').toLowerCase()}`,
+        },
+        context: {
+          text: labels.join(', '),
+          data: labels,
+        },
+        metadata: {
+          field,
+          entityLabel: field.replace(/Ids$/, '').toLowerCase(),
         },
         changes: { removed },
       });
@@ -306,12 +382,21 @@ export async function buildBulkActivities(
         const actionType = getActionType
           ? await getActionType(field, 'added')
           : addedAction;
+        let contextText = '';
+        let contextData: string[] = [];
 
         let description = `${actionType}`;
         if (getContextNames) {
           const contextNames = await getContextNames(added);
+          const labels = Array.isArray(contextNames)
+            ? contextNames
+            : [contextNames].filter(Boolean);
 
-          description = `${actionType} to ${contextNames}`;
+          contextText = labels.join(', ');
+          contextData = labels;
+          description = contextText
+            ? `${actionType} to ${contextText}`
+            : `${actionType}`;
         }
 
         activities.push({
@@ -319,6 +404,14 @@ export async function buildBulkActivities(
           action: {
             type: actionType,
             description,
+          },
+          context: {
+            text: contextText,
+            data: contextData,
+          },
+          metadata: {
+            field,
+            entityLabel: field.replace(/Ids$/, '').toLowerCase(),
           },
           changes: { added },
           target: {
@@ -334,12 +427,21 @@ export async function buildBulkActivities(
         const actionType = getActionType
           ? await getActionType(field, 'removed')
           : removedAction;
+        let contextText = '';
+        let contextData: string[] = [];
 
         let description = `${actionType}`;
         if (getContextNames) {
           const contextNames = await getContextNames(removed);
+          const labels = Array.isArray(contextNames)
+            ? contextNames
+            : [contextNames].filter(Boolean);
 
-          description = `${actionType} from ${contextNames}`;
+          contextText = labels.join(', ');
+          contextData = labels;
+          description = contextText
+            ? `${actionType} from ${contextText}`
+            : `${actionType}`;
         }
 
         activities.push({
@@ -347,6 +449,14 @@ export async function buildBulkActivities(
           action: {
             type: actionType,
             description,
+          },
+          context: {
+            text: contextText,
+            data: contextData,
+          },
+          metadata: {
+            field,
+            entityLabel: field.replace(/Ids$/, '').toLowerCase(),
           },
           changes: { removed },
           target: {

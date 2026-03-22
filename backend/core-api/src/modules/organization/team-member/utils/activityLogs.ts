@@ -38,8 +38,22 @@ const getFieldLabel = (field: string) => {
   return match?.label || field;
 };
 
+const getUserDisplayText = (
+  user: Partial<IUserDocument> & { _id?: string },
+): string => {
+  return (
+    user.details?.fullName ||
+    user.username ||
+    user.email ||
+    (user._id ? `User ${user._id}` : 'this member')
+  );
+};
+
 const buildTarget = (user: IUserDocument | { _id: string }) => ({
   _id: user._id,
+  moduleName: 'organization',
+  collectionName: 'users',
+  text: getUserDisplayText(user),
 });
 
 const buildUserFieldChangedActivity = (params: {
@@ -56,7 +70,7 @@ const buildUserFieldChangedActivity = (params: {
     target: buildTarget(user),
     action: {
       type: 'user.field_changed',
-      description: `${fieldLabel} changed`,
+      description: `changed ${fieldLabel.toLowerCase()}`,
     },
     changes: {
       prev: { [field]: prev },
@@ -74,7 +88,7 @@ const buildUserActivatedActivity = (user: IUserDocument): ActivityLogInput => ({
   target: buildTarget(user),
   action: {
     type: 'user.activated',
-    description: 'User activated',
+    description: 'activated this member',
   },
   changes: {
     prev: { isActive: false },
@@ -89,7 +103,7 @@ const buildUserDeactivatedActivity = (
   target: buildTarget(user),
   action: {
     type: 'user.deactivated',
-    description: 'User deactivated',
+    description: 'deactivated this member',
   },
   changes: {
     prev: { isActive: true },
@@ -109,7 +123,7 @@ const buildUserRoleChangedActivity = (params: {
     target: buildTarget(user),
     action: {
       type: 'user.role_changed',
-      description: 'User role changed',
+      description: 'changed role',
     },
     changes: {
       prev: { role: prevRole },
@@ -128,15 +142,21 @@ const buildUserAssignmentActivities = (params: {
 }): ActivityLogInput[] => {
   const { user, field, added, removed, addedLabels, removedLabels } = params;
   const entityLabel = field.replace(/Ids$/, '');
+  const readableEntityLabel = entityLabel.toLowerCase();
   const activities: ActivityLogInput[] = [];
 
   if (added.length) {
     activities.push({
       activityType: `user.${entityLabel}_assigned`,
       target: buildTarget(user),
+      context: {
+        moduleName: 'organization',
+        collectionName: `${entityLabel}s`,
+        text: addedLabels.join(', '),
+      },
       action: {
         type: `user.${entityLabel}_assigned`,
-        description: `${entityLabel} assigned`,
+        description: `assigned ${readableEntityLabel}`,
       },
       changes: {
         added: {
@@ -144,7 +164,10 @@ const buildUserAssignmentActivities = (params: {
           labels: addedLabels,
         },
       },
-      metadata: { field },
+      metadata: {
+        field,
+        entityLabel: readableEntityLabel,
+      },
     });
   }
 
@@ -152,9 +175,14 @@ const buildUserAssignmentActivities = (params: {
     activities.push({
       activityType: `user.${entityLabel}_unassigned`,
       target: buildTarget(user),
+      context: {
+        moduleName: 'organization',
+        collectionName: `${entityLabel}s`,
+        text: removedLabels.join(', '),
+      },
       action: {
         type: `user.${entityLabel}_unassigned`,
-        description: `${entityLabel} unassigned`,
+        description: `removed ${readableEntityLabel}`,
       },
       changes: {
         removed: {
@@ -162,7 +190,10 @@ const buildUserAssignmentActivities = (params: {
           labels: removedLabels,
         },
       },
-      metadata: { field },
+      metadata: {
+        field,
+        entityLabel: readableEntityLabel,
+      },
     });
   }
 
@@ -339,7 +370,7 @@ export function generateLoginActivityLog(
     target: buildTarget(user),
     action: {
       type: 'user.logged_in',
-      description: 'User logged in',
+      description: 'signed in',
     },
     changes,
     metadata: {
@@ -363,7 +394,7 @@ export function generateLogoutActivityLog(
     target: buildTarget(user),
     action: {
       type: 'user.logged_out',
-      description: 'User logged out',
+      description: 'signed out',
     },
     changes: {
       logoutTime,
@@ -381,7 +412,10 @@ export const generateUserInvitationActivityLog = (user: IUserDocument) => ({
   target: buildTarget(user),
   action: {
     type: 'user.invited',
-    description: 'User invited',
+    description: 'invited a member',
+  },
+  metadata: {
+    invitedEmail: user.email,
   },
   changes: {
     email: user.email,

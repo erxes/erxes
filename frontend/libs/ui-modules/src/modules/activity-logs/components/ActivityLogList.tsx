@@ -5,13 +5,7 @@ import { useActivityLog } from '../context/ActivityLogProvider';
 import { ActivityLogLoading } from './ActivityLogLoading';
 import { ActivityLogRow } from './ActivityLogRow';
 
-interface ActivityLogListProps {
-  emptyMessage?: string;
-}
-
-export const ActivityLogList = ({
-  emptyMessage = 'No activity logs found',
-}: ActivityLogListProps) => {
+export const ActivityLogList = () => {
   const { activityLogs, loading, handleFetchMore, hasNextPage } =
     useActivityLog();
 

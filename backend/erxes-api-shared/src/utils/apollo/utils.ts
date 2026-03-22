@@ -8,6 +8,7 @@ import {
 } from '../headers';
 import { generateRequestProcess, getSubdomain } from '../utils';
 import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
+import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
 
 export const generateApolloContext =
   <TContext>(
@@ -35,6 +36,12 @@ export const generateApolloContext =
     const processInfo = generateRequestProcess();
 
     const __ = (doc: any) => ({ ...processInfo, ...doc });
+    setEventHandlerRuntimeContext(subdomain, {
+      subdomain,
+      processId: processInfo.processId || '',
+      userId: user?._id || '',
+    });
+
     const context = {
       user,
       cpUser,

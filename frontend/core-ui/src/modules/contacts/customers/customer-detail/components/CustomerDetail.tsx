@@ -21,6 +21,7 @@ import { useCustomerCustomFieldEdit } from '../../hooks/useEditCustomerCustomFie
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { ContactSidebar } from '@/contacts/components/ContactSidebar';
 import { useIsCustomerLeadSessionKey } from '../../hooks/useCustomerLeadSessionKey';
+import { customerCustomActivities } from './CustomerActivityRows';
 
 export const CustomerDetail = () => {
   const { t } = useTranslation('contact');
@@ -63,7 +64,10 @@ export const CustomerDetail = () => {
                     <div className="flex flex-col mb-12">
                       <ActivityLogs
                         targetId={customerDetail?._id || ''}
-                        customActivities={[internalNoteCustomActivity]}
+                        customActivities={[
+                          internalNoteCustomActivity,
+                          ...customerCustomActivities,
+                        ]}
                       />
                       <AddInternalNote
                         contentTypeId={customerDetail._id}
