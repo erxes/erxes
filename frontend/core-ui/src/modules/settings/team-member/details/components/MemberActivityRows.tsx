@@ -1,5 +1,9 @@
 import { ReactNode } from 'react';
-import { ActivityLogs, ActivityLogCustomActivity, TActivityLog } from 'ui-modules';
+import {
+  ActivityLogs,
+  ActivityLogCustomActivity,
+  TActivityLog,
+} from 'ui-modules';
 
 const formatPrimitive = (value: unknown): string => {
   if (value === null || value === undefined || value === '') {
@@ -29,7 +33,10 @@ const formatPrimitive = (value: unknown): string => {
   return String(value);
 };
 
-const getFieldValue = (record: Record<string, unknown> | undefined, field?: string) => {
+const getFieldValue = (
+  record: Record<string, unknown> | undefined,
+  field?: string,
+) => {
   if (!record || !field) {
     return undefined;
   }
@@ -53,7 +60,9 @@ const UserFieldChangedRow = ({ activity }: { activity: TActivityLog }) => {
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">changed</span>
-      <span className="font-medium">{(fieldLabel || 'field').toLowerCase()}</span>
+      <span className="font-medium">
+        {(fieldLabel || 'field').toLowerCase()}
+      </span>
       <span className="text-muted-foreground">from</span>
       <span className="font-medium">{formatPrimitive(previousValue)}</span>
       <span className="text-muted-foreground">to</span>
@@ -70,7 +79,9 @@ const UserInvitedRow = ({ activity }: { activity: TActivityLog }) => {
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">invited</span>
-      <span className="font-medium">{targetText || invitedEmail || 'a member'}</span>
+      <span className="font-medium">
+        {targetText || invitedEmail || 'a member'}
+      </span>
     </Sentence>
   );
 };
@@ -115,7 +126,8 @@ const UserAssignmentRow = ({
   activity: TActivityLog;
   mode: 'assigned' | 'removed';
 }) => {
-  const entityLabel = (activity.metadata?.entityLabel as string | undefined) || 'item';
+  const entityLabel =
+    (activity.metadata?.entityLabel as string | undefined) || 'item';
   const labels =
     (mode === 'assigned'
       ? activity.changes?.added?.labels
@@ -160,11 +172,15 @@ export const memberCustomActivities: ActivityLogCustomActivity[] = [
   },
   {
     type: 'user.logged_in',
-    render: (activity) => <UserStatusRow activity={activity} verb="signed in" />,
+    render: (activity) => (
+      <UserStatusRow activity={activity} verb="signed in" />
+    ),
   },
   {
     type: 'user.logged_out',
-    render: (activity) => <UserStatusRow activity={activity} verb="signed out" />,
+    render: (activity) => (
+      <UserStatusRow activity={activity} verb="signed out" />
+    ),
   },
   {
     type: 'user.branch_assigned',

@@ -63,7 +63,9 @@ const getCustomerDisplayText = (doc: Partial<ICustomerDocument>) =>
   doc.primaryPhone ||
   (doc._id ? `Customer ${doc._id}` : 'this customer');
 
-const buildCustomerTarget = (customer: ICustomerDocument | { _id: string }) => ({
+const buildCustomerTarget = (
+  customer: ICustomerDocument | { _id: string },
+) => ({
   _id: customer._id,
   moduleName: 'contacts',
   collectionName: 'customers',
@@ -215,10 +217,13 @@ const customerActivityHandlers: Record<string, Resolver<ActivityLogInput>> = {
   ownerId: async ({ field, prev, current }, ctx: CustomerActivityContext) => {
     const ids = [prev, current].filter(Boolean);
     const users = ids.length
-      ? await ctx.models.Users.find({ _id: { $in: ids } }, {
-          email: 1,
-          'details.fullName': 1,
-        }).lean()
+      ? await ctx.models.Users.find(
+          { _id: { $in: ids } },
+          {
+            email: 1,
+            'details.fullName': 1,
+          },
+        ).lean()
       : [];
 
     const labelById = new Map(
@@ -235,7 +240,9 @@ const customerActivityHandlers: Record<string, Resolver<ActivityLogInput>> = {
         prev,
         current,
         fieldLabel: 'Owner',
-        previousValueLabel: prev ? labelById.get(String(prev)) || 'unknown' : 'empty',
+        previousValueLabel: prev
+          ? labelById.get(String(prev)) || 'unknown'
+          : 'empty',
         currentValueLabel: current
           ? labelById.get(String(current)) || 'unknown'
           : 'empty',
@@ -243,7 +250,10 @@ const customerActivityHandlers: Record<string, Resolver<ActivityLogInput>> = {
     ];
   },
 
-  tagIds: async ({ added = [], removed = [] }, ctx: CustomerActivityContext) => {
+  tagIds: async (
+    { added = [], removed = [] },
+    ctx: CustomerActivityContext,
+  ) => {
     const [addedTags, removedTags] = await Promise.all([
       added.length
         ? ctx.models.Tags.find({ _id: { $in: added } }, { name: 1 }).lean()

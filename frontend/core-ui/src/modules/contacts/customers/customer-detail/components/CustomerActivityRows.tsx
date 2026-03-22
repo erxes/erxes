@@ -1,6 +1,10 @@
 import { ReactNode } from 'react';
 import { Badge } from 'erxes-ui';
-import { ActivityLogCustomActivity, ActivityLogs, TActivityLog } from 'ui-modules';
+import {
+  ActivityLogCustomActivity,
+  ActivityLogs,
+  TActivityLog,
+} from 'ui-modules';
 
 const formatPrimitive = (value: unknown): string => {
   if (value === null || value === undefined || value === '') {

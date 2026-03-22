@@ -28,7 +28,10 @@ const getProductFieldLabel = (field: string) => {
 };
 
 const getProductDisplayText = (doc: Partial<IProductDocument>) =>
-  doc.name || doc.shortName || doc.code || (doc._id ? `Product ${doc._id}` : 'this product');
+  doc.name ||
+  doc.shortName ||
+  doc.code ||
+  (doc._id ? `Product ${doc._id}` : 'this product');
 
 /**
  * Generate activity logs for product changes
