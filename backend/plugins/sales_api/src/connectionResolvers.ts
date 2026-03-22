@@ -1,8 +1,6 @@
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
-import {
-  ScopedEventHandlers,
-} from 'erxes-api-shared/core-modules';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import mongoose from 'mongoose';
 
 import {
@@ -114,11 +112,7 @@ export const loadClasses = (
   // Board model with event dispatcher
   models.Boards = db.model<IBoardDocument, IBoardModel>(
     'sales_boards',
-    loadBoardClass(
-      models,
-      subdomain,
-      salesEventHandlers('sales', 'boards'),
-    ),
+    loadBoardClass(models, subdomain, salesEventHandlers('sales', 'boards')),
   );
 
   // Pipeline model with event dispatcher
@@ -134,21 +128,13 @@ export const loadClasses = (
   // Stage model with event dispatcher
   models.Stages = db.model<IStageDocument, IStageModel>(
     'sales_stages',
-    loadStageClass(
-      models,
-      subdomain,
-      salesEventHandlers('sales', 'stages'),
-    ),
+    loadStageClass(models, subdomain, salesEventHandlers('sales', 'stages')),
   );
 
   // Deal model with event dispatcher
   models.Deals = db.model<IDealDocument, IDealModel>(
     'deals',
-    loadDealClass(
-      models,
-      subdomain,
-      salesEventHandlers('sales', 'deals'),
-    ),
+    loadDealClass(models, subdomain, salesEventHandlers('sales', 'deals')),
   );
 
   // Checklist model with event dispatcher
