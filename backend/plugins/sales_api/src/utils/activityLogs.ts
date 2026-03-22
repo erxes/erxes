@@ -47,12 +47,27 @@ const DEAL_ACTIVITY_FIELDS = [
   { field: 'stageId', label: 'Stage' },
   { field: 'status', label: 'Status' },
   { field: 'priority', label: 'Priority' },
-  { field: 'description', label: 'Description' },
-  { field: 'startDate', label: 'Start Date' },
-  { field: 'closeDate', label: 'Close Date' },
   { field: 'number', label: 'Deal Number' },
   { field: 'score', label: 'Score' },
 ];
+
+const DEAL_DATE_FIELDS = [
+  { field: 'startDate', label: 'Start Date' },
+  { field: 'closeDate', label: 'Close Date' },
+];
+
+function formatActivityDate(value: any): string {
+  if (!value) return 'empty';
+  try {
+    return new Date(value).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return String(value);
+  }
+}
 
 // Checklist activity fields
 const CHECKLIST_ACTIVITY_FIELDS = [
@@ -279,6 +294,25 @@ export async function generateDealActivityLogs(
       (field) => getFieldLabel(field, DEAL_ACTIVITY_FIELDS),
     ),
     fieldChangeRule(
+      DEAL_DATE_FIELDS.map(({ field }) => field),
+      'changed',
+      (field) => getFieldLabel(field, DEAL_DATE_FIELDS),
+      (value) => formatActivityDate(value),
+    ),
+    {
+      match: ({ field }) => field === 'description',
+      build: async ({ prev, current }) => [
+        {
+          activityType: 'description_change',
+          action: {
+            type: 'updated',
+            description: 'updated Description',
+          },
+          changes: { prev, current },
+        },
+      ],
+    },
+    fieldChangeRule(
       ['stageId'],
       'moved',
       async (field: string, { current, prev }: { current: any; prev: any }) => {
@@ -298,8 +332,8 @@ export async function generateDealActivityLogs(
         { _id: { $in: ids } },
         { name: 1, colorCode: 1 },
       ).lean();
-      return labels.map((label) => `${label.name} (${label.colorCode})`);
-    }),
+      return labels.map((label) => label.name);
+    }, { added: 'assigned label', removed: 'unassigned label' }),
     assignmentRule('productsData', async (products: any[]) => {
       return (
         products?.map(
@@ -321,7 +355,7 @@ export async function generateDealActivityLogs(
         defaultValue: [],
       });
       return tags.map((tag: any) => tag.name);
-    }),
+    }, { added: 'assigned tag', removed: 'unassigned tag' }),
     assignmentRule('branchIds', async (branchIds: string[]) => {
       const branches = await sendTRPCMessage({
         subdomain,
@@ -335,7 +369,7 @@ export async function generateDealActivityLogs(
         defaultValue: [],
       });
       return branches.map((branch: any) => branch.title);
-    }),
+    }, { added: 'assigned branch', removed: 'unassigned branch' }),
     assignmentRule('departmentIds', async (departmentIds: string[]) => {
       const departments = await sendTRPCMessage({
         subdomain,
@@ -349,7 +383,7 @@ export async function generateDealActivityLogs(
         defaultValue: [],
       });
       return departments.map((department: any) => department.title);
-    }),
+    }, { added: 'assigned department', removed: 'unassigned department' }),
   ];
   const activities = await buildActivities(
     prevDocument,
