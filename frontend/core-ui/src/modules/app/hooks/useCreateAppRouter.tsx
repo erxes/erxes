@@ -48,11 +48,17 @@ const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
 
   return <>{children}</>;
 };
-const PaymentWidget = lazy(() =>
-  import('payment_ui/widgets').then((module) => ({
-    default: module.default,
-  })),
-);
+let PaymentWidget: any = () => <div />;
+
+if (process.env.ENABLED_PLUGINS_UI?.includes('payment')) {
+  PaymentWidget = lazy(() =>
+    new Function('return import("payment_ui/widgets")')().then(
+      (module: any) => ({
+        default: module.default,
+      })
+    )
+  );
+}
 
 export const useCreateAppRouter = () => {
   const isOS = useVersion();

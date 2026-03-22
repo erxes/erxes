@@ -1,5 +1,5 @@
 {
-  "name": "widget",
+  "name": "payment_widget",
   "private": true,
   "version": "0.0.0",
   "type": "module",
