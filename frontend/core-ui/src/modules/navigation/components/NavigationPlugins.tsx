@@ -109,15 +109,17 @@ export const NavigationPlugins = () => {
           }
           separate
         >
-          {navigationGroups[activePlugin].contents.map((Content, index) => (
-            <ErrorBoundary
-              key={index}
-              fallbackRender={() => null}
-              onError={handleRemoteError}
-            >
-              <Content />
-            </ErrorBoundary>
-          ))}
+          {navigationGroups[activePlugin].contents.map(
+            ({ render: Content, pluginName }) => (
+              <ErrorBoundary
+                key={pluginName}
+                fallbackRender={() => null}
+                onError={handleRemoteError}
+              >
+                <Content />
+              </ErrorBoundary>
+            ),
+          )}
         </NavigationMenuGroup>
         {subGroups.map(({ exposeName, pluginName }) => (
           <ErrorBoundary
