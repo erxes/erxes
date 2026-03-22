@@ -12,13 +12,25 @@ const mutations: Record<string, Resolver> = {
   ) {
     const domain = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:5173';
+      : 'http://localhost:3001';
+
+    if (!input.paymentIds?.length) {
+      throw new Error('paymentIds is required');
+    }
 
     const invoice = await models.Invoices.createInvoice({
       ...input,
     });
 
-    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+    // Get payment method (use first ID)
+    const payment = await models.PaymentMethods.findOne({
+      _id: input.paymentIds[0],
+    });
+
+    const kind = payment?.kind || 'unknown';
+
+    //
+    return `/pl:payment/widget/invoice/${invoice._id}?kind=${kind}&paymentId=${input.paymentIds[0]}`;
   },
 
   async invoiceCreate(
@@ -26,13 +38,7 @@ const mutations: Record<string, Resolver> = {
     { input }: { input: IInvoice },
     { models, subdomain }: IContext,
   ) {
-    const invoice = await models.Invoices.createInvoice(
-      {
-        ...input,
-      },
-      subdomain,
-    );
-    return invoice;
+    return models.Invoices.createInvoice({ ...input }, subdomain);
   },
 
   async cpInvoiceCreate(
@@ -40,13 +46,7 @@ const mutations: Record<string, Resolver> = {
     { input }: { input: IInvoice },
     { models, subdomain }: IContext,
   ) {
-    const invoice = await models.Invoices.createInvoice(
-      {
-        ...input,
-      },
-      subdomain,
-    );
-    return invoice;
+    return models.Invoices.createInvoice({ ...input }, subdomain);
   },
 
   async invoicesCheck(
@@ -60,11 +60,8 @@ const mutations: Record<string, Resolver> = {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
       if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
-        );
+        const [, moduleName, collectionType] = splitType(invoice.contentType);
 
-        // Fire worker message – do not await
         sendWorkerMessage({
           subdomain,
           pluginName: 'payment',
@@ -78,54 +75,35 @@ const mutations: Record<string, Resolver> = {
             apiResponse: 'success',
           },
           defaultValue: null,
-          timeout: 30000, // keep increased timeout
+          timeout: 30000,
           options: {
-            //  added this to enable retries
             attempts: 3,
             backoff: { type: 'exponential', delay: 2000 },
           },
-        })
-          .then(() => {})
-          .catch((err) => {
-            process.stderr.write(
-              `[invoicesCheck] Worker message failed for invoice ${_id}: ${err.stack}\n`,
-            );
-          });
+        }).catch((err) => {
+          process.stderr.write(
+            `[invoicesCheck] Worker failed for ${_id}: ${err.stack}\n`,
+          );
+        });
       }
 
       if (invoice.callback) {
-        // Fire callback – do not await
         fetch(invoice.callback, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             _id: invoice._id,
             amount: invoice.amount,
             status: 'paid',
           }),
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error(`HTTP ${res.status} – ${res.statusText}`);
-            }
-            console.log(
-              `[invoicesCheck] Callback succeeded for invoice ${_id}`,
-            );
-          })
-          .catch((err) => {
-            console.error(
-              `[invoicesCheck] Callback failed for invoice ${_id}:`,
-              err,
-            );
-          });
+        }).catch((err) => {
+          console.error(`[invoicesCheck] Callback failed for ${_id}:`, err);
+        });
       }
     }
 
     return status;
   },
-  // --- END OF UPDATED MUTATION ---
 
   async cpInvoicesCheck(
     _root,
@@ -219,7 +197,8 @@ const mutations: Record<string, Resolver> = {
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:5173';
+      : 'http://localhost:3001';
+
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     return models.Invoices.updateInvoice(_id, {
@@ -231,12 +210,15 @@ const mutations: Record<string, Resolver> = {
 
 export default mutations;
 
+// Wrapper configs
 mutations.generateInvoiceUrl.wrapperConfig = {
   skipPermission: true,
 };
+
 mutations.invoiceCreate.wrapperConfig = {
   skipPermission: true,
 };
+
 mutations.invoicesCheck.wrapperConfig = {
   skipPermission: true,
 };

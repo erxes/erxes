@@ -49,6 +49,17 @@ const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
 
   return <>{children}</>;
 };
+let PaymentWidget: any = () => <div />;
+
+if (process.env.ENABLED_PLUGINS_UI?.includes('payment')) {
+  PaymentWidget = lazy(() =>
+    new Function('return import("payment_ui/widgets")')().then(
+      (module: any) => ({
+        default: module.default,
+      }),
+    ),
+  );
+}
 
 export const useCreateAppRouter = () => {
   const isOS = useVersion();
@@ -67,6 +78,10 @@ export const useCreateAppRouter = () => {
           <Route
             path={AppPath.ConfirmInvitation}
             element={<UserConfirmInvitationPage />}
+          />
+          <Route
+            path="/pl:payment/widget/invoice/:id"
+            element={<PaymentWidget />}
           />
           <Route element={<UserProvider />}>
             <Route

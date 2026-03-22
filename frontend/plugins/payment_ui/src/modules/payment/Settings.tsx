@@ -12,6 +12,11 @@ export const InvoicesPage = lazy(() =>
     default: module.InvoicesPage,
   })),
 );
+export const PaymentWidget = lazy(() =>
+  import('../../widgets/Widgets').then((module) => ({
+    default: module.default,
+  })),
+);
 
 const PaymentSettings = () => {
   return (
@@ -20,6 +25,7 @@ const PaymentSettings = () => {
         <Route index element={<Navigate to="methods" replace />} />
         <Route path="methods" element={<PaymentSettingsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
+        <Route path="widget/invoice/:id" element={<PaymentWidget />} />
       </Routes>
     </Suspense>
   );
