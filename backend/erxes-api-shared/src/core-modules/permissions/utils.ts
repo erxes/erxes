@@ -34,13 +34,9 @@ const applyDefaultGroupActions = async (
 ) => {
   const plugins = await getActivePlugins();
 
-  console.log('plugins', plugins)
-
   for (const pluginName of plugins) {
     const plugin = await getPlugin(pluginName);
     const defaultGroups = plugin?.config?.meta?.permissions?.defaultGroups;
-
-    console.log('defaultGroups', defaultGroups)
 
     if (!defaultGroups) continue;
 
@@ -78,11 +74,11 @@ export const getGroupActionsMap = async (
   subdomain: string,
   user: IUserDocument,
 ): Promise<Record<string, boolean>> => {
-  // const cacheKey = `user_actions_${user._id}`;
+  const cacheKey = `user_actions_${user._id}`;
 
-  // const cached = await redis.get(cacheKey);
+  const cached = await redis.get(cacheKey);
 
-  // if (cached) return JSON.parse(cached);
+  if (cached) return JSON.parse(cached);
 
   const actionsMap: Record<string, boolean> = {};
   const groupIds = user.permissionGroupIds || [];
@@ -90,30 +86,17 @@ export const getGroupActionsMap = async (
   const defaultGroupIds = groupIds.filter((id) => id.includes(':'));
   const customGroupIds = groupIds.filter((id) => !id.includes(':'));
 
-  console.log('defaultGroupIds', defaultGroupIds)
-  console.log('customGroupIds', customGroupIds)
-
-  console.log('actionsMap 1', actionsMap)
-
   if (defaultGroupIds.length) {
     await applyDefaultGroupActions(actionsMap, defaultGroupIds);
-
-    console.log('actionsMap 2', actionsMap)
   }
 
   if (customGroupIds.length) {
     await applyCustomGroupActions(actionsMap, subdomain, customGroupIds);
-
-    console.log('actionsMap 3', actionsMap)
   }
-
-  console.log('actionsMap 4', actionsMap)
 
   applyPermissions(actionsMap, user.customPermissions || []);
 
-  // await redis.set(cacheKey, JSON.stringify(actionsMap));
-
-  console.log('actionsMap 5', actionsMap)
+  await redis.set(cacheKey, JSON.stringify(actionsMap));
 
   return actionsMap;
 };
@@ -175,8 +158,6 @@ export const checkPermissionGroup = (
     checkLogin(user);
 
     const allowed = await canGroup(subdomain, action, user);
-
-    console.log('allowed', allowed);
 
     if (!allowed) {
       throw new Error('Permission required');
