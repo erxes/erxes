@@ -55,8 +55,8 @@ if (process.env.ENABLED_PLUGINS_UI?.includes('payment')) {
     new Function('return import("payment_ui/widgets")')().then(
       (module: any) => ({
         default: module.default,
-      })
-    )
+      }),
+    ),
   );
 }
 
