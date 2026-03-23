@@ -83,7 +83,7 @@ const CategoryOptionItem = ({
   );
 };
 
-function SelectCategoriesFilterViewItem(props: SelectCategoryProps) {
+function SelectCategoriesFilterViewItem(props: Readonly<SelectCategoryProps>) {
   return <CategoryOptionItem {...props} />;
 }
 

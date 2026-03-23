@@ -1,12 +1,12 @@
 import { OperationVariables, useMutation } from '@apollo/client';
-import { SAFE_REMAINDER_ADD } from '../graphql/safeRemainderAdd';
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { RE_CALC_REMAINDERS } from '../graphql';
 
 export const useReCalcRemainders = (options?: OperationVariables) => {
   const navigate = useNavigate();
   const [_addSafeRemainder, { loading }] = useMutation(
-    SAFE_REMAINDER_ADD,
+    RE_CALC_REMAINDERS,
     options,
   );
 
