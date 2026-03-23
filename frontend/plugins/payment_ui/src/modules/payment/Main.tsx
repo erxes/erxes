@@ -7,14 +7,27 @@ const IndexPage = lazy(() =>
   })),
 );
 
-const paymentMain = () => {
+const PaymentWidget = lazy(() =>
+  import('../../widgets/Widgets').then((module) => ({
+    default: module.default,
+  })),
+);
+
+const PaymentMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/" element={<IndexPage />} />       
+        {/* Admin page */}
+        <Route path="/" element={<IndexPage />} />
+
+        {/* PUBLIC WIDGET ROUTE */}
+        <Route
+          path="/pl:payment/widget/invoice/:id"
+          element={<PaymentWidget />}
+        />
       </Routes>
     </Suspense>
   );
 };
 
-export default paymentMain;
+export default PaymentMain;
