@@ -379,40 +379,24 @@ export const dealMutations = {
         deal.productsData,
       );
 
-    await models.Deals.updateOne(
-      { _id: dealId },
-      {
-        $set: {
-          productsData,
-          assignedUserIds,
-          ...(await getTotalAmounts(productsData)),
+    const updatedItem =
+      (await models.Deals.findOneAndUpdate(
+        { _id: dealId },
+        {
+          $set: {
+            productsData,
+            assignedUserIds,
+            ...(await getTotalAmounts(productsData)),
+          },
         },
-      },
-    );
+        { new: true },
+      )) || ({} as any);
 
-    // const stage = await models.Stages.getStage(deal.stageId);
-    // const updatedItem =
-    //   (await models.Deals.findOne({ _id: dealId })) || ({} as any);
-
-    // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-    //   salesPipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     processId,
-    //     action: 'itemUpdate',
-    //     data: {
-    //       item: {
-    //         ...updatedItem,
-    //         ...(await itemResolver(
-    //           models,
-    //           subdomain,
-    //           user,
-    //           'deal',
-    //           updatedItem,
-    //         )),
-    //       },
-    //     },
-    //   },
-    // });
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: updatedItem,
+      oldDeal: deal,
+    });
 
     graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
       salesProductsDataChanged: {
@@ -460,39 +444,23 @@ export const dealMutations = {
       (data) => !data._id || !dataIds.includes(data._id),
     );
 
-    await models.Deals.updateOne(
-      { _id: dealId },
-      {
-        $set: {
-          productsData,
-          ...(await getTotalAmounts(productsData)),
+    const updatedItem =
+      (await models.Deals.findOneAndUpdate(
+        { _id: dealId },
+        {
+          $set: {
+            productsData,
+            ...(await getTotalAmounts(productsData)),
+          },
         },
-      },
-    );
+        { new: true },
+      )) || ({} as any);
 
-    // const stage = await models.Stages.getStage(deal.stageId);
-    // const updatedItem =
-    //   (await models.Deals.findOne({ _id: dealId })) || ({} as any);
-
-    // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-    //   salesPipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     processId,
-    //     action: 'itemUpdate',
-    //     data: {
-    //       item: {
-    //         ...updatedItem,
-    //         ...(await itemResolver(
-    //           models,
-    //           subdomain,
-    //           user,
-    //           'deal',
-    //           updatedItem,
-    //         )),
-    //       },
-    //     },
-    //   },
-    // });
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: updatedItem,
+      oldDeal: deal,
+    });
 
     graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
       salesProductsDataChanged: {

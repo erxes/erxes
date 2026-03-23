@@ -138,7 +138,7 @@ const resolvers = {
       subdomain,
 
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'findOne',
       input: { _id: order.convertDealId },
     });
@@ -153,7 +153,7 @@ const resolvers = {
       subdomain,
 
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'getLink',
       input: { _id: order.convertDealId, type: 'deal' },
     });

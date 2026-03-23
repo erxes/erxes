@@ -79,7 +79,7 @@ const checkSyncedMutations = {
     const deals = await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'find',
       input: { _id: { $in: dealIds } },
       method: 'query',

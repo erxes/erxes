@@ -38,7 +38,10 @@ export const posTrpcRouter = t.router({
           { upsert: true },
         );
 
-        return await models.Covers.findOne({ _id: cover._id });
+        return {
+          status: 'success',
+          data: await models.Covers.findOne({ _id: cover._id }),
+        };
       }),
     ecommerceGetBranches: t.procedure
       .input(z.any())
@@ -46,7 +49,10 @@ export const posTrpcRouter = t.router({
         const { query } = input;
         const { subdomain, models } = ctx;
         const { posToken } = query;
-        return await getBranchesUtil(subdomain, models, posToken);
+        return {
+          status: 'success',
+          data: await getBranchesUtil(subdomain, models, posToken),
+        };
       }),
     ordersDeliveryInfo: t.procedure
       .input(z.any())

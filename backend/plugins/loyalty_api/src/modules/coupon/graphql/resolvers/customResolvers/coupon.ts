@@ -5,7 +5,7 @@ import { getLoyaltyOwner } from '~/utils';
 
 const TARGET_ACTIONS = {
   pos: { module: 'orders', action: 'find', field: 'number' },
-  sales: { module: 'deals', action: 'find', field: 'name' },
+  sales: { module: 'deal', action: 'find', field: 'name' },
 };
 
 export const fetchTarget = async ({

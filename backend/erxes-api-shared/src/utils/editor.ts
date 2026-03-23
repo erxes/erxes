@@ -197,7 +197,7 @@ export class EditorAttributeUtil {
       subdomain: this.subdomain,
       pluginName: 'sales',
       method: 'query',
-      module: 'deals',
+      module: 'deal',
       action: 'generateAmounts',
       input: productsData,
     });
@@ -212,7 +212,7 @@ export class EditorAttributeUtil {
       subdomain: this.subdomain,
       pluginName: 'sales',
       method: 'query',
-      module: 'deals',
+      module: 'deal',
       action: 'generateProducts',
       input: productsData,
     });

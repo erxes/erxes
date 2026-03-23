@@ -271,8 +271,9 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat
-          }`,
+        id: `${marker.longitude || marker.lng}_${
+          marker.latitude || marker.lat
+        }`,
         location: {
           type: 'Point',
           coordinates: [
@@ -321,8 +322,9 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description: `<p>${doneOrder.description || ''}</p> <p>${description || ''
-      }</p>`,
+    description: `<p>${doneOrder.description || ''}</p> <p>${
+      description || ''
+    }</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
@@ -354,7 +356,10 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     //   "stringValue": "106.93628311157227,47.920138551642026"
     // }
 
-    const field = deliveryConfig.mapCustomField.replace('customFieldsData.', '')
+    const field = deliveryConfig.mapCustomField.replace(
+      'customFieldsData.',
+      '',
+    );
 
     dealsData.propertiesData = {
       [field]: {
@@ -363,8 +368,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
           marker.longitude || marker.lng,
           marker.latitude || marker.lat,
         ],
-      }
-    }
+      },
+    };
   }
 
   if ((doneOrder.deliveryInfo || {}).dealId) {
@@ -373,7 +378,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'updateOne',
       input: {
         selector: { _id: doneOrder.deliveryInfo.dealId },
@@ -386,15 +391,12 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
-      action: 'salesPipelinesChanged',
+      module: 'deal',
+      action: 'subscriptionWrapper',
       input: {
+        action: 'update',
+        deal,
         pipelineId: deliveryConfig.pipelineId,
-        action: 'itemUpdate',
-        data: {
-          item: deal,
-          destinationStageId: deliveryConfig.stageId,
-        },
       },
     });
   } else {
@@ -403,7 +405,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'create',
       input: {
         ...dealsData,
@@ -422,13 +424,16 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         module: 'relation',
         action: 'createRelation',
         input: {
-          entities: [{
-            contentType: 'sales:deal',
-            contentId: deal._id,
-          }, {
-            contentType: `core:${doneOrder.customerType || 'customer'}`,
-            contentId: doneOrder.customerId,
-          }]
+          entities: [
+            {
+              contentType: 'sales:deal',
+              contentId: deal._id,
+            },
+            {
+              contentType: `core:${doneOrder.customerType || 'customer'}`,
+              contentId: doneOrder.customerId,
+            },
+          ],
         },
       });
     }
@@ -438,15 +443,12 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
-      action: 'salesPipelinesChanged',
+      module: 'deal',
+      action: 'subscriptionWrapper',
       input: {
+        action: 'create',
+        deal,
         pipelineId: deliveryConfig.pipelineId,
-        action: 'itemAdd',
-        data: {
-          item: deal,
-          destinationStageId: deliveryConfig.stageId,
-        },
       },
     });
 
@@ -571,7 +573,7 @@ const createDealPerOrder = async ({
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'create',
       input: {
         name: `Cards: ${newOrder.number}`,
@@ -600,13 +602,16 @@ const createDealPerOrder = async ({
         module: 'relation',
         action: 'createRelation',
         input: {
-          entities: [{
-            contentType: 'sales:deal',
-            contentId: cardDeal._id,
-          }, {
-            contentType: `core:${newOrder.customerType || 'customer'}`,
-            contentId: newOrder.customerId,
-          }]
+          entities: [
+            {
+              contentType: 'sales:deal',
+              contentId: cardDeal._id,
+            },
+            {
+              contentType: `core:${newOrder.customerType || 'customer'}`,
+              contentId: newOrder.customerId,
+            },
+          ],
         },
       });
     }
@@ -615,15 +620,12 @@ const createDealPerOrder = async ({
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
-      action: 'salesPipelinesChanged',
+      module: 'deal',
+      action: 'subscriptionWrapper',
       input: {
+        action: 'create',
+        deal: cardDeal,
         pipelineId: currentCardsConfig.pipelineId,
-        action: 'itemAdd',
-        data: {
-          item: cardDeal,
-          destinationStageId: currentCardsConfig.stageId,
-        },
       },
     });
 

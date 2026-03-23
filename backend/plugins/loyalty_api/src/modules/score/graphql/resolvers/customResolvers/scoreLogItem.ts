@@ -12,7 +12,7 @@ const TARGET_ACTIONS: Record<
     fields: ['items', 'number', 'totalAmount'],
   },
   sales: {
-    module: 'deals',
+    module: 'deal',
     action: 'findOne',
     fields: ['productsData', 'number'],
   },
