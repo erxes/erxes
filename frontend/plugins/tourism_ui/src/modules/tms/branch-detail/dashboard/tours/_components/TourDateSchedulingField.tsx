@@ -83,8 +83,8 @@ export const TourDateSchedulingField = ({
                           Array.isArray(field.value)
                             ? field.value
                             : field.value instanceof Date
-                            ? [field.value]
-                            : undefined
+                              ? [field.value]
+                              : undefined
                         }
                         onChange={field.onChange}
                         required={false}
@@ -92,8 +92,8 @@ export const TourDateSchedulingField = ({
                           Array.isArray(field.value)
                             ? field.value[0]
                             : field.value instanceof Date
-                            ? field.value
-                            : undefined
+                              ? field.value
+                              : undefined
                         }
                         mode="multiple"
                       />
