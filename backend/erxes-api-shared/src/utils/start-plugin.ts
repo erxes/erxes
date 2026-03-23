@@ -12,6 +12,7 @@ import express, {
   Application,
   Router,
 } from 'express';
+import helmet from 'helmet';
 import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
@@ -98,6 +99,15 @@ export async function startPlugin(
 
   const app = express();
   app.disable('x-powered-by');
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'none'"],
+        },
+      },
+    }),
+  );
   app.use(cors(configs.corsOptions || {}));
   app.use(
     express.json({

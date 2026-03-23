@@ -11,6 +11,7 @@ import {
 } from 'erxes-api-shared/utils';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import * as http from 'http';
 import * as path from 'path';
 import { appRouter } from '~/init-trpc';
@@ -32,7 +33,15 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
 
-// don't move it above telnyx controllers
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+      },
+    },
+  }),
+);
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 app.use(
