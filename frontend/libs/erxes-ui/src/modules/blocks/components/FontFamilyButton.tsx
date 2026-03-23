@@ -34,12 +34,16 @@ export const FontFamilyButton = () => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
   const [currentFont, setCurrentFont] = useState('');
+  const [isFileBlock, setIsFileBlock] = useState(false);
 
   useEditorContentOrSelectionChange(() => {
     if (!editor) return;
     try {
       const styles = editor.getActiveStyles() as any;
       setCurrentFont(styles?.fontFamily || '');
+      const block = editor.getTextCursorPosition()?.block;
+      const blockSpec = block ? (editor.schema.blockSpecs as any)[block.type] : null;
+      setIsFileBlock(!!blockSpec?.config?.isFileBlock);
     } catch {
       // ignore
     }
@@ -60,7 +64,7 @@ export const FontFamilyButton = () => {
     }
   };
 
-  if (!Components) {
+  if (!Components || isFileBlock) {
     return null;
   }
 

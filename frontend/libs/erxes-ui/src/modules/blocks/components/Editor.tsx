@@ -12,12 +12,14 @@ export const Editor = ({
   scope,
   className,
   isHTML = false,
+  uploadFile,
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
   const skipNextOnChangeRef = useRef(false);
   const parsedInitialContent = parseBlocks(initialContent ?? '');
   const editor = useBlockEditor({
     initialContent: parsedInitialContent || undefined,
+    uploadFile,
   });
 
   useEffect(() => {

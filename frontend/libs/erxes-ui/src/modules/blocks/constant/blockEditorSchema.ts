@@ -6,6 +6,7 @@ import {
   createStyleSpec,
 } from '@blocknote/core';
 import { Attribute, Mention } from '../components/BlockEditor';
+import { customImageBlock } from '../components/CustomImageBlock';
 
 export const fontFamily = createStyleSpec(
   {
@@ -26,6 +27,7 @@ export const fontFamily = createStyleSpec(
 export const BLOCK_SCHEMA = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    image: customImageBlock,
   },
   inlineContentSpecs: {
     ...defaultInlineContentSpecs,

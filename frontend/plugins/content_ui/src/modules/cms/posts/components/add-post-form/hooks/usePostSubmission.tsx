@@ -129,6 +129,18 @@ const blocksToHtml = (raw: string): string => {
           return `<pre><code>${html}</code></pre>`;
         }
 
+        if (block.type === 'image') {
+          const url = (block as any).props?.url;
+          if (!url) return '';
+          const caption = (block as any).props?.caption || '';
+          const img = `<img src="${url}"${
+            caption ? ` alt="${caption}"` : ''
+          } />`;
+          return caption
+            ? `<figure>${img}<figcaption>${caption}</figcaption></figure>`
+            : img;
+        }
+
         return `<p>${html}</p>`;
       })
       .join('');

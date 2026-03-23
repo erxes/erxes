@@ -40,6 +40,49 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
   } else {
     children.forEach((el) => {
       const tag = el.tagName.toLowerCase();
+
+      if (tag === 'img') {
+        const url = (el as HTMLImageElement).src;
+        if (!url) return;
+        blocks.push({
+          id: crypto.randomUUID(),
+          type: 'image',
+          props: {
+            backgroundColor: 'default',
+            textAlignment: 'left',
+            url,
+            name: '',
+            caption: '',
+            showPreview: true,
+          },
+          content: [],
+          children: [],
+        } as any);
+        return;
+      }
+
+      if (tag === 'figure') {
+        const img = el.querySelector('img');
+        if (!img) return;
+        const caption =
+          el.querySelector('figcaption')?.textContent || '';
+        blocks.push({
+          id: crypto.randomUUID(),
+          type: 'image',
+          props: {
+            backgroundColor: 'default',
+            textAlignment: 'left',
+            url: img.src,
+            name: '',
+            caption,
+            showPreview: true,
+          },
+          content: [],
+          children: [],
+        } as any);
+        return;
+      }
+
       const textContent = el.textContent || '';
       if (!textContent.trim()) return;
       let blockType: any = 'paragraph';

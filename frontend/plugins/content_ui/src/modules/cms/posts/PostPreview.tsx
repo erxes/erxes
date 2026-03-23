@@ -1,4 +1,6 @@
 import { Form, Editor } from 'erxes-ui';
+import { REACT_APP_API_URL } from 'erxes-ui/utils';
+import { readImage } from 'erxes-ui/utils/core';
 
 interface PostPreviewProps {
   content: string;
@@ -43,6 +45,16 @@ export const PostPreview = ({
                     form.getValues('content') || '',
                   )}
                   onChange={handleEditorChange}
+                  uploadFile={async (file) => {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const response = await fetch(
+                      `${REACT_APP_API_URL}/upload-file?kind=main`,
+                      { method: 'post', body: formData, credentials: 'include' },
+                    );
+                    const key = await response.text();
+                    return readImage(key);
+                  }}
                 />
               </Form.Control>
               <Form.Message />
