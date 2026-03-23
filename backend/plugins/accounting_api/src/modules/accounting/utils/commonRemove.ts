@@ -50,7 +50,7 @@ async function handleInvIncome(
     method: 'mutation',
     pluginName: 'core',
     module: 'products',
-    action: 'increaseRemainders',
+    action: 'increaseInventories',
     input: {
       branchId: tr?.branchId,
       departmentId: tr?.departmentId,

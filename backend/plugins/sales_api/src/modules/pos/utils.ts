@@ -691,119 +691,6 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
   }
 };
 
-const syncInventoriesRem = async ({
-  subdomain,
-  newOrder,
-  oldBranchId,
-  pos,
-}) => {
-  if (!(pos.checkRemainder && newOrder.departmentId)) {
-    return;
-  }
-
-  let multiplier = 1;
-  if (newOrder.status === 'return') {
-    multiplier = -1;
-  }
-
-  if (newOrder.isPre) {
-    if (!newOrder.paidDate) {
-      if (
-        newOrder.branchId &&
-        (!oldBranchId || oldBranchId !== newOrder.branchId)
-      ) {
-        await sendTRPCMessage({
-          subdomain,
-
-          method: 'mutation',
-          pluginName: 'accounting',
-          module: 'remainders',
-          action: 'updateMany',
-          input: {
-            branchId: newOrder.branchId,
-            departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map((item) => ({
-              productId: item.productId,
-              uom: item.uom,
-              diffSoonOut: item.count * multiplier,
-            })),
-          },
-        });
-      }
-
-      if (oldBranchId && oldBranchId !== newOrder.branchId) {
-        await sendTRPCMessage({
-          subdomain,
-
-          method: 'mutation',
-          pluginName: 'accounting',
-          module: 'remainders',
-          action: 'updateMany',
-          input: {
-            branchId: oldBranchId,
-            departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map((item) => ({
-              productId: item.productId,
-              uom: item.uom,
-              diffSoonOut: -1 * item.count * multiplier,
-            })),
-          },
-        });
-      }
-
-      return;
-    }
-  }
-  // ene doorhuudiig bas paidDate shalgah tuhai bodoh
-  // jich bas jururiin salbariin zb bodoh, neg salbar deer l zaragdaj baiga avch salbar deer zuvhun tur hadgalah
-  // ene ni techstore bas adil baina
-
-  if (
-    newOrder.branchId &&
-    (!oldBranchId || oldBranchId !== newOrder.branchId)
-  ) {
-    await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'accounting',
-      module: 'remainders',
-      action: 'updateMany',
-      input: {
-        branchId: newOrder.branchId,
-        departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map((item) => ({
-          productId: item.productId,
-          uom: item.uom,
-          diffCount: -1 * item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? -1 * item.count * multiplier : 0,
-        })),
-      },
-    });
-  }
-
-  if (oldBranchId && oldBranchId !== newOrder.branchId) {
-    await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'accounting',
-      module: 'remainders',
-      action: 'updateMany',
-      input: {
-        branchId: oldBranchId,
-        departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map((item) => ({
-          productId: item.productId,
-          uom: item.uom,
-          diffCount: item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? item.count * multiplier : 0,
-        })),
-      },
-    });
-  }
-};
-
 export const syncOrderFromClient = async ({
   subdomain,
   models,
@@ -955,11 +842,11 @@ export const syncOrderFromClient = async ({
       console.log(subdomain, e.message);
     }
 
-    try {
-      await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
-    } catch (e) {
-      console.log(subdomain, e.message);
-    }
+    // try {
+    //   await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+    // } catch (e) {
+    //   console.log(subdomain, e.message);
+    // }
   }
 
   const syncedResponseIds = (

@@ -17,6 +17,17 @@ const productsMain = gql`
     $segmentData: String
     $sortField: String
     $sortDirection: Int
+
+    $branchId: String
+    $departmentId: String
+    $minRemainder: Float
+    $maxRemainder: Float
+    $minPrice: Float
+    $maxPrice: Float
+    $minDiscountValue: Float
+    $maxDiscountValue: Float
+    $minDiscountPercent: Float
+    $maxDiscountPercent: Float
      ${GQL_CURSOR_PARAM_DEFS}
   ) {
     productsMain(
@@ -30,19 +41,25 @@ const productsMain = gql`
       segmentData: $segmentData
       sortField: $sortField
       sortDirection: $sortDirection
+
+      branchId: $branchId
+      departmentId: $departmentId
+      minRemainder: $minRemainder
+      maxRemainder: $maxRemainder
+      minPrice: $minPrice
+      maxPrice: $maxPrice
+      minDiscountValue: $minDiscountValue
+      maxDiscountValue: $maxDiscountValue
+      minDiscountPercent: $minDiscountPercent
+      maxDiscountPercent: $maxDiscountPercent
+    
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
         _id
-        attachment {
-          url
-        }
         categoryId
         code
         createdAt
-        propertiesData
-        description
-        tagIds
         category {
           _id
           name
@@ -52,10 +69,9 @@ const productsMain = gql`
         uom
         unitPrice
         type
-        vendor {
-          _id
-          primaryName
-        }
+
+        inventories
+        remainder
       }
       ${GQL_PAGE_INFO}
     }
