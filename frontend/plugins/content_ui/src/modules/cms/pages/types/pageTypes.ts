@@ -11,7 +11,6 @@ export interface IPage {
   name: string;
   slug: string;
   description?: string;
-  excerpt?: string;
   parentId?: string;
   status?: string;
   createdAt: string;
@@ -37,7 +36,6 @@ export interface IPageFormData {
   name: string;
   path: string;
   description?: string;
-  excerpt?: string;
   parentId?: string;
   status: string;
   clientPortalId: string;

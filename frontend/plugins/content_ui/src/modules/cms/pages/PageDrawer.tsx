@@ -39,11 +39,11 @@ interface BlockContent {
 
 const escapeHtml = (str: string): string =>
   str
-    .replaceAll(/&/g, '&amp;')
-    .replaceAll(/</g, '&lt;')
-    .replaceAll(/>/g, '&gt;')
-    .replaceAll(/"/g, '&quot;')
-    .replaceAll(/'/g, '&#39;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 
 const blocksToHtml = (raw: string): string => {
   try {
@@ -99,7 +99,6 @@ interface PageTranslationInput {
   language: string;
   title: string;
   content: string;
-  excerpt?: string;
   type: string;
 }
 
@@ -158,7 +157,6 @@ function buildPageTranslations(
   selectedLanguage: string,
   currentName: string,
   currentDescription: string | undefined,
-  currentExcerpt: string | undefined,
   isCreating: boolean,
   isNonDefaultLang: boolean,
 ): PageTranslationInput[] {
@@ -166,12 +164,11 @@ function buildPageTranslations(
 
   for (const [lang, tData] of Object.entries(translations)) {
     if (lang === defaultLanguage || lang === selectedLanguage) continue;
-    if (tData.title || tData.content || tData.excerpt) {
+    if (tData.title || tData.content) {
       entries.push({
         language: lang,
         title: tData.title || '',
         content: normalizeContent(tData.content || ''),
-        excerpt: tData.excerpt || '',
         type: 'page',
       });
     }
@@ -182,7 +179,6 @@ function buildPageTranslations(
       language: selectedLanguage,
       title: currentName,
       content: normalizeContent(currentDescription || ''),
-      excerpt: currentExcerpt || '',
       type: 'page',
     });
   }
@@ -238,7 +234,6 @@ export function PageDrawer({
       name: '',
       path: '',
       description: '',
-      excerpt: '',
       parentId: '',
       status: 'active',
       clientPortalId,
@@ -267,7 +262,6 @@ export function PageDrawer({
         name: page.name || '',
         path: page.slug || '',
         description: page.description || '',
-        excerpt: page.excerpt || '',
         parentId: page.parentId || '',
         status: page.status || 'active',
         clientPortalId,
@@ -284,7 +278,6 @@ export function PageDrawer({
         name: '',
         path: '',
         description: '',
-        excerpt: '',
         parentId: '',
         status: 'active',
         clientPortalId,
@@ -373,7 +366,6 @@ export function PageDrawer({
     const isCreating = !isEditing;
     const currentName = data.name;
     const currentDescription = data.description;
-    const currentExcerpt = data.excerpt;
 
     const main = resolveMainFields(
       currentName,
@@ -434,7 +426,6 @@ export function PageDrawer({
         curSelectedLanguage,
         currentName,
         currentDescription,
-        currentExcerpt,
         isCreating,
         isNonDefaultLang,
       );
@@ -465,12 +456,10 @@ export function PageDrawer({
       () => ({
         title: form.getValues('name') || '',
         content: form.getValues('description') || '',
-        excerpt: form.getValues('excerpt') || '',
       }),
       (data) => {
         form.setValue('name', data.title || '');
         form.setValue('description', data.content || '');
-        form.setValue('excerpt', data.excerpt || '');
         requestAnimationFrame(() => {
           isSwitchingLanguageRef.current = false;
         });
@@ -479,7 +468,6 @@ export function PageDrawer({
         ? {
             title: page.name || '',
             content: page.description || '',
-            excerpt: page.excerpt || '',
           }
         : undefined,
     );

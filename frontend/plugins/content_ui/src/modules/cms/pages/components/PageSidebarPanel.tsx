@@ -33,12 +33,14 @@ const SidebarTabs = ({
 }) => (
   <Tabs value={activeTab} onValueChange={onTabChange}>
     <Tabs.List className="border-none">
-      <Tabs.Trigger value="content" className="w-full">
-        Content
-      </Tabs.Trigger>
-      <Tabs.Trigger value="media" className="w-full">
-        Media
-      </Tabs.Trigger>
+      <div className="flex justify-evenly items-center gap-4">
+        <Tabs.Trigger value="content" className="w-full">
+          Content
+        </Tabs.Trigger>
+        <Tabs.Trigger value="media" className="w-full">
+          Media
+        </Tabs.Trigger>
+      </div>
     </Tabs.List>
   </Tabs>
 );

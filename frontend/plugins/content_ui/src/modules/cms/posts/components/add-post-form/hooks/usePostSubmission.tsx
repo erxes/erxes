@@ -94,6 +94,14 @@ interface MainFields {
   customFields: CustomField[] | undefined;
 }
 
+const escapeHtml = (str: string): string =>
+  str
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
 const blocksToHtml = (raw: string): string => {
   try {
     const blocks = JSON.parse(raw) as BlockContent[];
@@ -108,7 +116,7 @@ const blocksToHtml = (raw: string): string => {
 
         const html = inlines
           .map((inline) => {
-            let text = inline.text ?? '';
+            let text = escapeHtml(inline.text ?? '');
 
             if (inline.styles?.bold) text = `<strong>${text}</strong>`;
             if (inline.styles?.italic) text = `<em>${text}</em>`;
