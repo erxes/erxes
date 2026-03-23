@@ -46,14 +46,14 @@ export const SelectPositionsProvider = ({
     const newSelectedPositionIds = isSingleMode
       ? [position._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== position._id)
-      : [...multipleValue, position._id];
+        ? multipleValue.filter((p) => p !== position._id)
+        : [...multipleValue, position._id];
 
     const newSelectedPositions = isSingleMode
       ? [position]
       : isSelected
-      ? selectedPositions.filter((p) => p._id !== position._id)
-      : [...selectedPositions, position];
+        ? selectedPositions.filter((p) => p._id !== position._id)
+        : [...selectedPositions, position];
 
     setSelectedPositions(newSelectedPositions);
     onValueChange?.(isSingleMode ? position._id : newSelectedPositionIds);
