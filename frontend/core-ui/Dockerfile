@@ -1,6 +1,6 @@
 # Build jo from source
-FROM alpine:3.11 AS jo-builder
-RUN apk add --no-cache alpine-sdk && \
+FROM alpine:3.20 AS jo-builder
+RUN apk update && apk upgrade --no-cache && apk add --no-cache alpine-sdk && \
     cd /tmp && curl -s -LO https://github.com/jpmens/jo/releases/download/1.3/jo-1.3.tar.gz && \
     tar xzf jo-1.3.tar.gz && \
     cd jo-1.3 && \
@@ -22,8 +22,8 @@ FROM nginx:alpine
 # Copy jo from builder
 COPY --from=jo-builder /usr/local/bin/jo /usr/local/bin/jo
 
-# Install bash
-RUN apk add --no-cache bash
+# Apply security updates and install bash
+RUN apk update && apk upgrade --no-cache && apk add --no-cache bash
 
 # Copy application files
 COPY --from=build /app/dist/frontend/core-ui /usr/share/nginx/html

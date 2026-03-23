@@ -32,8 +32,9 @@ FROM --platform=linux/amd64 node:22-bookworm AS gateway
 
 WORKDIR /app
 
-# Install required packages
-RUN apt-get update && apt-get install -y curl ca-certificates
+# Install required packages and apply security updates
+RUN apt-get update && apt-get upgrade -y && apt-get install -y curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy built app from build stage
 COPY --chown=1000:1000 --from=build /app /app
@@ -47,6 +48,7 @@ ENV PATH="$PNPM_HOME:$PATH"
 
 # Install Rover CLI for composing supergraph
 RUN apt-get update -y \
+    && apt-get upgrade -y \
     && apt-get install -y curl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && pnpm add -g @apollo/rover@0.22.0 \
