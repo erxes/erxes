@@ -24,7 +24,7 @@ import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
 import { syncRemainders } from '~/modules/posclient/utils/products';
 import { Resolver } from 'erxes-api-shared/core-types';
 
-const configMutations : Record<string, Resolver> = {
+const configMutations: Record<string, Resolver> = {
   posConfigsFetch: async (
     _root,
     { token },
@@ -181,7 +181,6 @@ const configMutations : Record<string, Resolver> = {
     }
     return 'success';
   },
-
 
   async syncOrders(_root, _param, { models, subdomain, config }: IContext) {
     const unSyncedPutResponses: IEbarimtDocument[] =
@@ -356,7 +355,6 @@ const configMutations : Record<string, Resolver> = {
 
 export default configMutations;
 
-
-configMutations.cpSyncConfig.wrapperConfig={
-  forClientPortal:true
-}
+configMutations.cpSyncConfig.wrapperConfig = {
+  forClientPortal: true,
+};
