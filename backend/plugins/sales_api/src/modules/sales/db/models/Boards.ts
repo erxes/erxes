@@ -3,8 +3,8 @@ import { IModels } from '~/connectionResolvers';
 import { IBoard, IBoardDocument } from '../../@types';
 import { boardSchema } from '../definitions/boards';
 import { removePipelineStagesWithItems } from '~/modules/sales/graphql/resolvers/utils';
+import { generateBoardActivityLogs } from '~/modules/sales/meta/activity-log';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { generateBoardActivityLogs } from '~/utils/activityLogs';
 
 export interface IBoardModel extends Model<IBoardDocument> {
   getBoard(_id: string): Promise<IBoardDocument>;

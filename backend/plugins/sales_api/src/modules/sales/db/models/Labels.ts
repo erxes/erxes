@@ -6,9 +6,9 @@ import {
   IPipelineLabel,
   IPipelineLabelDocument,
 } from '../../@types';
+import { generatePipelineLabelActivityLogs } from '~/modules/sales/meta/activity-log';
 import { pipelineLabelSchema } from '../definitions/labels';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { generatePipelineLabelActivityLogs } from '~/utils/activityLogs';
 
 interface IFilter extends IPipelineLabel {
   _id?: any;

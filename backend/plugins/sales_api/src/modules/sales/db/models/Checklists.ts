@@ -11,15 +11,15 @@ import {
   checklistItemSchema,
   checklistSchema,
 } from '../definitions/checklists';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
   generateChecklistActivityLogs,
   generateChecklistCreatedActivityLog,
-  generateChecklistRemovedActivityLog,
   generateChecklistItemActivityLogs,
   generateChecklistItemCreatedActivityLog,
   generateChecklistItemRemovedActivityLog,
-} from '~/utils/activityLogs';
+  generateChecklistRemovedActivityLog,
+} from '~/modules/sales/meta/activity-log';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
   getChecklist(_id: string): Promise<IChecklistDocument>;

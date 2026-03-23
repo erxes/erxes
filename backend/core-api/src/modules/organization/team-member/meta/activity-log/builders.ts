@@ -1,10 +1,6 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { buildTarget, getFieldLabel } from './utils';
-import {
-  activityBuilder,
-  ActivityLogInput,
-} from 'erxes-api-shared/core-modules';
-import { IModels } from '~/connectionResolvers';
+import { ActivityLogInput } from 'erxes-api-shared/core-modules';
 
 export const buildUserFieldChangedActivity = (params: {
   user: IUserDocument;
@@ -13,6 +9,13 @@ export const buildUserFieldChangedActivity = (params: {
   current: unknown;
 }): ActivityLogInput => {
   const { user, field, prev, current } = params;
+
+  if (!user) {
+    throw new Error(
+      'User is required for building user field changed activity',
+    );
+  }
+
   const fieldLabel = getFieldLabel(field);
 
   return {
@@ -20,7 +23,7 @@ export const buildUserFieldChangedActivity = (params: {
     target: buildTarget(user),
     action: {
       type: 'user.field_changed',
-      description: `${fieldLabel} changed`,
+      description: `changed ${fieldLabel.toLowerCase()}`,
     },
     changes: {
       prev: { [field]: prev },
@@ -40,7 +43,7 @@ export const buildUserActivatedActivity = (
   target: buildTarget(user),
   action: {
     type: 'user.activated',
-    description: 'User activated',
+    description: 'activated this member',
   },
   changes: {
     prev: { isActive: false },
@@ -55,7 +58,7 @@ export const buildUserDeactivatedActivity = (
   target: buildTarget(user),
   action: {
     type: 'user.deactivated',
-    description: 'User deactivated',
+    description: 'deactivated this member',
   },
   changes: {
     prev: { isActive: true },
@@ -75,64 +78,13 @@ export const buildUserRoleChangedActivity = (params: {
     target: buildTarget(user),
     action: {
       type: 'user.role_changed',
-      description: 'User role changed',
+      description: 'changed role',
     },
     changes: {
       prev: { role: prevRole },
       current: { role: currentRole },
     },
   };
-};
-
-export const buildUserAssignmentActivities = (params: {
-  user: IUserDocument;
-  field: 'branchIds' | 'departmentIds' | 'positionIds';
-  added: string[];
-  removed: string[];
-  addedLabels: string[];
-  removedLabels: string[];
-}): ActivityLogInput[] => {
-  const { user, field, added, removed, addedLabels, removedLabels } = params;
-  const entityLabel = field.replace(/Ids$/, '');
-  const activities: ActivityLogInput[] = [];
-
-  if (added.length) {
-    activities.push({
-      activityType: `user.${entityLabel}_assigned`,
-      target: buildTarget(user),
-      action: {
-        type: `user.${entityLabel}_assigned`,
-        description: `${entityLabel} assigned`,
-      },
-      changes: {
-        added: {
-          ids: added,
-          labels: addedLabels,
-        },
-      },
-      metadata: { field },
-    });
-  }
-
-  if (removed.length) {
-    activities.push({
-      activityType: `user.${entityLabel}_unassigned`,
-      target: buildTarget(user),
-      action: {
-        type: `user.${entityLabel}_unassigned`,
-        description: `${entityLabel} unassigned`,
-      },
-      changes: {
-        removed: {
-          ids: removed,
-          labels: removedLabels,
-        },
-      },
-      metadata: { field },
-    });
-  }
-
-  return activities;
 };
 
 export function generateLoginActivityLog(
@@ -154,7 +106,7 @@ export function generateLoginActivityLog(
     target: buildTarget(user),
     action: {
       type: 'user.logged_in',
-      description: 'User logged in',
+      description: 'signed in',
     },
     changes,
     metadata: {
@@ -178,7 +130,7 @@ export function generateLogoutActivityLog(
     target: buildTarget(user),
     action: {
       type: 'user.logged_out',
-      description: 'User logged out',
+      description: 'signed out',
     },
     changes: {
       logoutTime,
@@ -196,7 +148,10 @@ export const generateUserInvitationActivityLog = (user: IUserDocument) => ({
   target: buildTarget(user),
   action: {
     type: 'user.invited',
-    description: 'User invited',
+    description: 'invited a member',
+  },
+  metadata: {
+    invitedEmail: user.email,
   },
   changes: {
     email: user.email,

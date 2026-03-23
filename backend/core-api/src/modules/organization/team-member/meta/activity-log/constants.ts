@@ -17,4 +17,5 @@ export const USER_ACTIVITY_FIELDS = [
   { field: 'details.operatorPhone', label: 'Operator Phone' },
   { field: 'details.position', label: 'Position' },
   { field: 'details.shortName', label: 'Short Name' },
+  { field: 'details.middleName', label: 'Middle Name' },
 ] as const;

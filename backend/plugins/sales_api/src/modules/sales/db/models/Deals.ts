@@ -9,11 +9,11 @@ import {
   watchItem,
 } from '../../utils';
 import { dealSchema } from '../definitions/deals';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
-  generateDealActivityLogs,
+  generateDealUpdateActivityLogs,
   generateDealCreatedActivityLog,
-} from '~/utils/activityLogs';
+} from '~/modules/sales/meta/activity-log';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
@@ -50,7 +50,7 @@ export const loadDealClass = (
 
       // Calculate totals
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter(pd => pd);
+        doc.productsData = doc.productsData.filter((pd) => pd);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
@@ -70,23 +70,18 @@ export const loadDealClass = (
 
     public static async updateDeal(_id: string, doc: IDeal) {
       const prevDeal = await models.Deals.getDeal(_id);
-      const prevDealObj = prevDeal.toObject()
+      const prevDealObj = prevDeal.toObject();
 
       // Fill searchText for indexing
       const searchText = fillSearchTextItem(doc, prevDeal);
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter(
-          pd => pd && pd.productId,
-        );
+        doc.productsData = doc.productsData.filter((pd) => pd && pd.productId);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
 
-      await models.Deals.updateOne(
-        { _id },
-        { $set: { ...doc, searchText } },
-      );
+      await models.Deals.updateOne({ _id }, { $set: { ...doc, searchText } });
 
       const updatedDeal = await models.Deals.getDeal(_id);
       const updatedDealObj = updatedDeal.toObject();
@@ -99,7 +94,7 @@ export const loadDealClass = (
       });
 
       const context = getContext();
-      await generateDealActivityLogs(
+      await generateDealUpdateActivityLogs(
         prevDealObj,
         updatedDealObj,
         models,

@@ -9,9 +9,9 @@ import {
   createOrUpdatePipelineStages,
   removePipelineStagesWithItems,
 } from '~/modules/sales/graphql/resolvers/utils';
+import { generatePipelineActivityLogs } from '~/modules/sales/meta/activity-log';
 import { generateLastNum, watchItem } from '~/modules/sales/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { generatePipelineActivityLogs } from '~/utils/activityLogs';
 
 export interface IPipelineModel extends Model<IPipelineDocument> {
   getPipeline(_id: string): Promise<IPipelineDocument>;

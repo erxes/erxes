@@ -1,4 +1,3 @@
-import React from 'react';
 import { IconQuestionMark } from '@tabler/icons-react';
 import { Avatar, Tooltip } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -17,9 +16,9 @@ export const ActivityLogActorName = ({ activity }: ActivityLogActorProps) => {
   const isSystem = activity.actorType === 'system' || !activity.actor;
 
   return (
-    <p className="text-sm font-medium text-foreground">
+    <span className="text-sm font-medium text-foreground">
       {isSystem ? 'System' : actorName}
-    </p>
+    </span>
   );
 };
 

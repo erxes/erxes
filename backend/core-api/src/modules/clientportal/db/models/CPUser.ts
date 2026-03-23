@@ -21,9 +21,9 @@ import { ValidationError } from '@/clientportal/services/errorHandler';
 import { cpUserService } from '@/clientportal/services';
 import {
   generateCPUserCreatedActivityLog,
-  generateCPUserActivityLogs,
+  generateCPUserUpdateActivityLogs,
   generateCPUserRemovedActivityLog,
-} from '@/clientportal/utils/activityLogs';
+} from '@/clientportal/meta/activity-log';
 
 export interface ICPUserModel extends Model<ICPUserDocument> {
   generatePassword(password: string): Promise<string>;
@@ -38,17 +38,21 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     params: ICPUserRegisterParams,
     models: IModels,
   ): Promise<ICPUserDocument>;
-  updateUser(userId: string, params: {
-    email?: string;
-    phone?: string;
-    firstName?: string;
-    lastName?: string;
-    avatar?: string;
-    username?: string;
-    companyName?: string;
-    companyRegistrationNumber?: string;
-    erxesCustomerId?: string;
-  }, models: IModels): Promise<ICPUserDocument>;
+  updateUser(
+    userId: string,
+    params: {
+      email?: string;
+      phone?: string;
+      firstName?: string;
+      lastName?: string;
+      avatar?: string;
+      username?: string;
+      companyName?: string;
+      companyRegistrationNumber?: string;
+      erxesCustomerId?: string;
+    },
+    models: IModels,
+  ): Promise<ICPUserDocument>;
   removeUser(userId: string, models: IModels): Promise<void>;
 }
 
@@ -150,17 +154,21 @@ export const loadCPUserClass = (
       }
     }
 
-    public static async updateUser(userId: string, params: {
-      email?: string;
-      phone?: string;
-      firstName?: string;
-      lastName?: string;
-      avatar?: string;
-      username?: string;
-      companyName?: string;
-      companyRegistrationNumber?: string;
-      erxesCustomerId?: string;
-    }, models: IModels): Promise<ICPUserDocument> {
+    public static async updateUser(
+      userId: string,
+      params: {
+        email?: string;
+        phone?: string;
+        firstName?: string;
+        lastName?: string;
+        avatar?: string;
+        username?: string;
+        companyName?: string;
+        companyRegistrationNumber?: string;
+        erxesCustomerId?: string;
+      },
+      models: IModels,
+    ): Promise<ICPUserDocument> {
       const prevUser = await models.CPUser.findOne({ _id: userId }).lean();
       const updatedUser = await cpUserService.updateUser(
         userId,
@@ -168,7 +176,7 @@ export const loadCPUserClass = (
         models,
       );
       try {
-        await generateCPUserActivityLogs(
+        await generateCPUserUpdateActivityLogs(
           prevUser || updatedUser,
           updatedUser,
           models,

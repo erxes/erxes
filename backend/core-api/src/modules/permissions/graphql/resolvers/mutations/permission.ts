@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IPermissionInput } from 'erxes-api-shared/core-types';
+import { generateUserUpdateActivityLogs } from '~/modules/organization/team-member/meta/activity-log';
 
 export const permissionMutations = {
   async permissionGroupAdd(
@@ -80,10 +81,7 @@ export const permissionMutations = {
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
-    await models.Users.updateOne(
-      { _id: userId },
-      { $set: { permissionGroupIds: groupIds } },
-    );
+    await models.Users.updateUser(userId, { permissionGroupIds: groupIds });
 
     return models.Users.findOne({ _id: userId });
   },
@@ -92,11 +90,15 @@ export const permissionMutations = {
   async userAddCustomPermission(
     _root: any,
     { userId, permission }: { userId: string; permission: IPermissionInput },
-    { models }: IContext,
+    { subdomain, models, eventHandlers }: IContext,
   ) {
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
+    const { sendDbEventLog, createActivityLog } = eventHandlers('core')(
+      'organization',
+      'users',
+    );
     // Remove existing permission for same module (replace)
     await models.Users.updateOne(
       { _id: userId },
@@ -104,28 +106,61 @@ export const permissionMutations = {
     );
 
     // Add new permission
-    await models.Users.updateOne(
-      { _id: userId },
-      { $push: { customPermissions: permission } },
-    );
+    const updatedUser = await models.Users.findOne({ _id: userId });
+    if (updatedUser) {
+      sendDbEventLog({
+        action: 'update',
+        docId: updatedUser._id,
+        currentDocument: updatedUser.toObject(),
+        prevDocument: user.toObject(),
+      });
 
-    return models.Users.findOne({ _id: userId });
+      // Generate activity logs for changed activity fields
+      generateUserUpdateActivityLogs(
+        { models, subdomain },
+        user,
+        updatedUser,
+        createActivityLog,
+      );
+    }
+    return updatedUser;
   },
 
   // Remove custom permission from user
   async userRemoveCustomPermission(
     _root: any,
     { userId, module }: { userId: string; module: string },
-    { models }: IContext,
+    { models, subdomain, eventHandlers }: IContext,
   ) {
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
-
+    const { sendDbEventLog, createActivityLog } = eventHandlers('core')(
+      'organization',
+      'users',
+    );
     await models.Users.updateOne(
       { _id: userId },
       { $pull: { customPermissions: { module } } },
     );
 
-    return models.Users.findOne({ _id: userId });
+    const updatedUser = await models.Users.findOne({ _id: userId });
+
+    if (updatedUser) {
+      sendDbEventLog({
+        action: 'update',
+        docId: updatedUser._id,
+        currentDocument: updatedUser.toObject(),
+        prevDocument: user.toObject(),
+      });
+
+      // Generate activity logs for changed activity fields
+      generateUserUpdateActivityLogs(
+        { models, subdomain },
+        user,
+        updatedUser,
+        createActivityLog,
+      );
+    }
+    return updatedUser;
   },
 };

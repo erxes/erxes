@@ -1,5 +1,9 @@
 import { ReactNode } from 'react';
-import { ActivityLogs, ActivityLogCustomActivity, TActivityLog } from 'ui-modules';
+import {
+  ActivityLogCustomActivity,
+  ActivityLogs,
+  TActivityLog,
+} from 'ui-modules';
 
 const formatPrimitive = (value: unknown): string => {
   if (value === null || value === undefined || value === '') {
@@ -29,7 +33,10 @@ const formatPrimitive = (value: unknown): string => {
   return String(value);
 };
 
-const getFieldValue = (record: Record<string, unknown> | undefined, field?: string) => {
+const getFieldValue = (
+  record: Record<string, unknown> | undefined,
+  field?: string,
+) => {
   if (!record || !field) {
     return undefined;
   }
@@ -53,7 +60,9 @@ const UserFieldChangedRow = ({ activity }: { activity: TActivityLog }) => {
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">changed</span>
-      <span className="font-medium">{(fieldLabel || 'field').toLowerCase()}</span>
+      <span className="font-medium">
+        {(fieldLabel || 'field').toLowerCase()}
+      </span>
       <span className="text-muted-foreground">from</span>
       <span className="font-medium">{formatPrimitive(previousValue)}</span>
       <span className="text-muted-foreground">to</span>
@@ -70,7 +79,9 @@ const UserInvitedRow = ({ activity }: { activity: TActivityLog }) => {
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">invited</span>
-      <span className="font-medium">{targetText || invitedEmail || 'a member'}</span>
+      <span className="font-medium">
+        {targetText || invitedEmail || 'a member'}
+      </span>
     </Sentence>
   );
 };
@@ -108,36 +119,7 @@ const UserStatusRow = ({
   );
 };
 
-const UserAssignmentRow = ({
-  activity,
-  mode,
-}: {
-  activity: TActivityLog;
-  mode: 'assigned' | 'removed';
-}) => {
-  const entityLabel = (activity.metadata?.entityLabel as string | undefined) || 'item';
-  const labels =
-    (mode === 'assigned'
-      ? activity.changes?.added?.labels
-      : activity.changes?.removed?.labels) || [];
-
-  return (
-    <Sentence>
-      <ActivityLogs.ActorName activity={activity} />
-      <span className="text-muted-foreground">
-        {mode === 'assigned' ? 'assigned' : 'removed'}
-      </span>
-      <span className="font-medium">{entityLabel}</span>
-      <span className="font-medium">{formatPrimitive(labels)}</span>
-    </Sentence>
-  );
-};
-
 export const memberCustomActivities: ActivityLogCustomActivity[] = [
-  {
-    type: 'user.field_changed',
-    render: (activity) => <UserFieldChangedRow activity={activity} />,
-  },
   {
     type: 'user.invited',
     render: (activity) => <UserInvitedRow activity={activity} />,
@@ -160,46 +142,14 @@ export const memberCustomActivities: ActivityLogCustomActivity[] = [
   },
   {
     type: 'user.logged_in',
-    render: (activity) => <UserStatusRow activity={activity} verb="signed in" />,
+    render: (activity) => (
+      <UserStatusRow activity={activity} verb="signed in" />
+    ),
   },
   {
     type: 'user.logged_out',
-    render: (activity) => <UserStatusRow activity={activity} verb="signed out" />,
-  },
-  {
-    type: 'user.branch_assigned',
     render: (activity) => (
-      <UserAssignmentRow activity={activity} mode="assigned" />
-    ),
-  },
-  {
-    type: 'user.branch_unassigned',
-    render: (activity) => (
-      <UserAssignmentRow activity={activity} mode="removed" />
-    ),
-  },
-  {
-    type: 'user.department_assigned',
-    render: (activity) => (
-      <UserAssignmentRow activity={activity} mode="assigned" />
-    ),
-  },
-  {
-    type: 'user.department_unassigned',
-    render: (activity) => (
-      <UserAssignmentRow activity={activity} mode="removed" />
-    ),
-  },
-  {
-    type: 'user.position_assigned',
-    render: (activity) => (
-      <UserAssignmentRow activity={activity} mode="assigned" />
-    ),
-  },
-  {
-    type: 'user.position_unassigned',
-    render: (activity) => (
-      <UserAssignmentRow activity={activity} mode="removed" />
+      <UserStatusRow activity={activity} verb="signed out" />
     ),
   },
 ];

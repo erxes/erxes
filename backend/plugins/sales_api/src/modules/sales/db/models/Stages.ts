@@ -4,9 +4,9 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IStage, IStageDocument } from '../../@types';
 import { removeStageItems } from '~/modules/sales/graphql/resolvers/utils';
+import { generateStageActivityLogs } from '~/modules/sales/meta/activity-log';
 import { stageSchema } from '../definitions/stages';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { generateStageActivityLogs } from '~/utils/activityLogs';
 
 export interface IStageModel extends Model<IStageDocument> {
   getStage(_id: string): Promise<IStageDocument>;

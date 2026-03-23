@@ -15,10 +15,10 @@ import {
   ActivityLogs,
   AddInternalNote,
   FieldsInDetail,
-  internalNoteCustomActivity,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
+import { companyCustomActivities } from './CompanyActivityRows';
 
 export const CompanyDetail = () => {
   const [open, setOpen] = useQueryState<string>('companyId');
@@ -53,7 +53,8 @@ export const CompanyDetail = () => {
                     <div className="flex flex-col mb-12">
                       <ActivityLogs
                         targetId={companyDetail._id}
-                        customActivities={[internalNoteCustomActivity]}
+                        customActivities={companyCustomActivities}
+                        limit={10}
                       />
                       <AddInternalNote
                         contentTypeId={companyDetail._id}
@@ -69,6 +70,20 @@ export const CompanyDetail = () => {
                     mutateHook={useCompanyCustomFieldEdit}
                     id={companyDetail?._id || ''}
                   />
+                </Tabs.Content>
+                <Tabs.Content value="activity">
+                  <div className="flex flex-col mb-12">
+                    {!!companyDetail?._id && (
+                      <AddInternalNote
+                        contentTypeId={companyDetail._id}
+                        contentType="core:company"
+                      />
+                    )}
+                    <ActivityLogs
+                      targetId={companyDetail?._id || ''}
+                      customActivities={companyCustomActivities}
+                    />
+                  </div>
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

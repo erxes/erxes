@@ -10,6 +10,7 @@ import { ActivityLogList } from './ActivityLogList';
 import { ActivityLogCustomActivity } from '../types';
 import { ActivityLogRow } from './ActivityLogRow';
 import { ActivityLogActorName } from './ActivityLogActor';
+import { internalNoteCustomActivity } from '../../internal-notes/components/InternalNoteActivityRow';
 
 function hasActivityLogHeader(children: React.ReactNode): boolean {
   let found = false;
@@ -82,6 +83,7 @@ const ActivityLogsRoot = ({
       handleFetchMore={handleFetchMore}
       hasNextPage={hasNextPage}
       totalCount={totalCount}
+      limit={limit}
     >
       {children}
     </ActivityLogProvider>
@@ -116,6 +118,7 @@ type LegacyProps = {
   action?: string;
   limit?: number;
   customActivities?: ActivityLogCustomActivity[];
+  showInternalNotes?: boolean;
   emptyMessage?: string;
   options?: QueryHookOptions<ActivityLogsQueryData>;
 };
@@ -126,15 +129,20 @@ const ActivityLogsLegacy = ({
   action,
   limit,
   customActivities,
+  showInternalNotes = true,
   emptyMessage,
   options,
 }: LegacyProps) => {
+  const mergedActivities = showInternalNotes
+    ? [internalNoteCustomActivity, ...(customActivities || [])]
+    : customActivities;
+
   return (
     <ActivityLogsRoot
       targetId={targetId}
       action={action}
       limit={limit}
-      customActivities={customActivities}
+      customActivities={mergedActivities}
       options={options}
     >
       <ActivityLogsWrapper>

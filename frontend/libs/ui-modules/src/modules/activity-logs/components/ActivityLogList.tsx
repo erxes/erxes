@@ -5,14 +5,20 @@ import { useActivityLog } from '../context/ActivityLogProvider';
 import { ActivityLogLoading } from './ActivityLogLoading';
 import { ActivityLogRow } from './ActivityLogRow';
 
-export const ActivityLogList = () => {
-  const { activityLogs, loading, handleFetchMore, hasNextPage } =
+export const ActivityLogList = ({
+  emptyMessage,
+}: {
+  emptyMessage?: string;
+}) => {
+  const { activityLogs, loading, handleFetchMore, hasNextPage, limit } =
     useActivityLog();
+
+  const reachedLimit = limit !== undefined && activityLogs.length >= limit;
 
   const { ref: fetchMoreRef } = useInView({
     threshold: 0.1,
     onChange: (inView) => {
-      if (inView && hasNextPage && handleFetchMore && !loading) {
+      if (inView && hasNextPage && handleFetchMore && !loading && !reachedLimit) {
         handleFetchMore({ direction: EnumCursorDirection.FORWARD });
       }
     },
@@ -29,7 +35,7 @@ export const ActivityLogList = () => {
           <Empty.Media variant="icon">
             <IconActivity />
           </Empty.Media>
-          <Empty.Title>No activity logs found</Empty.Title>
+          <Empty.Title>{emptyMessage || 'No activity logs found'}</Empty.Title>
           <Empty.Description>
             There seems to be no activity logs for this item.
           </Empty.Description>
@@ -47,7 +53,7 @@ export const ActivityLogList = () => {
           isLast={index === activityLogs.length - 1}
         />
       ))}
-      {hasNextPage && !loading && (
+      {hasNextPage && !loading && !reachedLimit && (
         <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
           {[...Array(4)].map((_, index) => (
             <div key={index} className="flex gap-2 items-center">

@@ -33,10 +33,16 @@ export function normalizeDiffs(
 ): NormalizedChange[] {
   const changes: NormalizedChange[] = [];
 
-  const visited = new WeakSet<object>();
+  const visitedPairs = new WeakMap<object, WeakSet<object>>();
 
-  const isPlainObject = (val: any): val is Record<string, any> =>
-    val !== null && typeof val === 'object' && !Array.isArray(val);
+  const isPlainObject = (val: any): val is Record<string, any> => {
+    if (val === null || typeof val !== 'object' || Array.isArray(val)) {
+      return false;
+    }
+
+    const proto = Object.getPrototypeOf(val);
+    return proto === Object.prototype || proto === null;
+  };
 
   const isEmptyLikeScalar = (val: any) =>
     val === undefined || val === null || val === '';
@@ -44,30 +50,73 @@ export function normalizeDiffs(
   const isEquivalentEmptyValue = (prev: any, curr: any) =>
     isEmptyLikeScalar(prev) && isEmptyLikeScalar(curr);
 
+  const isDate = (val: any): val is Date => val instanceof Date;
+
+  const markVisitedPair = (prev: any, curr: any) => {
+    if (
+      prev === null ||
+      curr === null ||
+      typeof prev !== 'object' ||
+      typeof curr !== 'object'
+    ) {
+      return false;
+    }
+
+    let seen = visitedPairs.get(prev);
+    if (!seen) {
+      seen = new WeakSet<object>();
+      visitedPairs.set(prev, seen);
+    }
+
+    if (seen.has(curr)) {
+      return true;
+    }
+
+    seen.add(curr);
+    return false;
+  };
+
+  const areArraysShallowEqual = (prevArr: any[], currArr: any[]) => {
+    if (prevArr.length !== currArr.length) {
+      return false;
+    }
+
+    for (let i = 0; i < prevArr.length; i++) {
+      const a = prevArr[i];
+      const b = currArr[i];
+
+      if (Object.is(a, b)) {
+        continue;
+      }
+
+      if (isDate(a) && isDate(b) && a.getTime() === b.getTime()) {
+        continue;
+      }
+
+      return false;
+    }
+
+    return true;
+  };
+
   function walk(prev: any, curr: any, path: string[]): void {
-    // Same reference → skip
-    if (prev === curr) return;
-
-    // Cycle protection
-    if (isPlainObject(prev)) {
-      if (visited.has(prev)) return;
-      visited.add(prev);
-    }
-    if (isPlainObject(curr)) {
-      if (visited.has(curr)) return;
-      visited.add(curr);
+    if (Object.is(prev, curr)) {
+      return;
     }
 
-    // Arrays → atomic diff with deep equality check
+    if (isEquivalentEmptyValue(prev, curr)) {
+      return;
+    }
+
+    if (markVisitedPair(prev, curr)) {
+      return;
+    }
+
     if (Array.isArray(prev) || Array.isArray(curr)) {
       const prevArr = Array.isArray(prev) ? prev : [];
       const currArr = Array.isArray(curr) ? curr : [];
 
-      const sameLength = prevArr.length === currArr.length;
-      const sameItems =
-        sameLength && prevArr.every((v, i) => Object.is(v, currArr[i]));
-
-      if (!sameItems) {
+      if (!areArraysShallowEqual(prevArr, currArr)) {
         changes.push({
           field: path.join('.'),
           prev,
@@ -75,21 +124,41 @@ export function normalizeDiffs(
           kind: 'array',
         });
       }
+
       return;
     }
 
-    // Both plain objects → recurse
+    if (isDate(prev) || isDate(curr)) {
+      const prevTime = isDate(prev) ? prev.getTime() : prev;
+      const currTime = isDate(curr) ? curr.getTime() : curr;
+
+      if (!Object.is(prevTime, currTime)) {
+        let kind: NormalizedChange['kind'] = 'update';
+
+        if (prev === undefined && curr !== undefined) {
+          kind = 'set';
+        } else if (prev !== undefined && curr === undefined) {
+          kind = 'unset';
+        }
+
+        changes.push({
+          field: path.join('.'),
+          prev,
+          current: curr,
+          kind,
+        });
+      }
+
+      return;
+    }
+
     if (isPlainObject(prev) && isPlainObject(curr)) {
       const keys = new Set([...Object.keys(prev), ...Object.keys(curr)]);
 
       for (const key of keys) {
         walk(prev[key], curr[key], [...path, key]);
       }
-      return;
-    }
 
-    // Primitive / terminal value
-    if (isEquivalentEmptyValue(prev, curr)) {
       return;
     }
 
@@ -185,12 +254,12 @@ export const fieldChangeRule = (
       actionLabel === 'set'
         ? `set ${normalizedFieldLabel} to ${currentValueLabel}`
         : actionLabel === 'unset'
-          ? `cleared ${normalizedFieldLabel}`
-          : `changed ${normalizedFieldLabel} from ${previousValueLabel} to ${currentValueLabel}`;
+        ? `cleared ${normalizedFieldLabel}`
+        : `changed ${normalizedFieldLabel} from ${previousValueLabel} to ${currentValueLabel}`;
 
     return [
       {
-        activityType: 'field_change',
+        activityType: 'field_changed',
         action: {
           type: actionLabel,
           description,
@@ -245,7 +314,9 @@ export const assignmentRule = (
         activityType: 'assignment',
         action: {
           type: addedAction,
-          description: `${addedAction} ${field.replace(/Ids$/, '').toLowerCase()}`,
+          description: `${addedAction} ${field
+            .replace(/Ids$/, '')
+            .toLowerCase()}`,
         },
         context: {
           text: labels.join(', '),
@@ -269,7 +340,9 @@ export const assignmentRule = (
         activityType: 'assignment',
         action: {
           type: removedAction,
-          description: `${removedAction} ${field.replace(/Ids$/, '').toLowerCase()}`,
+          description: `${removedAction} ${field
+            .replace(/Ids$/, '')
+            .toLowerCase()}`,
         },
         context: {
           text: labels.join(', '),
@@ -348,7 +421,7 @@ export async function buildBulkActivities(
 
   const {
     array: arrayActivityType = 'assignment',
-    fieldChange: fieldChangeActivityType = 'field_change',
+    fieldChange: fieldChangeActivityType = 'field_changed',
   } = activityTypeMap;
 
   const {

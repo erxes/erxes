@@ -22,4 +22,5 @@ export type Config<TResult = any> = {
   assignmentFields?: string[];
   commonFields: string[];
   resolvers: Record<string, Resolver<TResult>>;
+  buildTarget?: (document: any, ctx: any) => any;
 };

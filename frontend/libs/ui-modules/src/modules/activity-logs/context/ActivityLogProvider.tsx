@@ -11,6 +11,7 @@ interface ActivityLogContextType {
   handleFetchMore?: (params: { direction: EnumCursorDirection }) => void;
   hasNextPage?: boolean;
   totalCount?: number;
+  limit?: number;
 }
 
 interface ActivityLogProviderProps {
@@ -23,6 +24,7 @@ interface ActivityLogProviderProps {
   handleFetchMore?: (params: { direction: EnumCursorDirection }) => void;
   hasNextPage?: boolean;
   totalCount?: number;
+  limit?: number;
 }
 
 const ActivityLogContext = createContext<ActivityLogContextType | null>(null);
@@ -37,6 +39,7 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
   handleFetchMore,
   hasNextPage,
   totalCount,
+  limit,
 }) => {
   return (
     <ActivityLogContext.Provider
@@ -49,6 +52,7 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
         handleFetchMore,
         hasNextPage,
         totalCount,
+        limit,
       }}
     >
       {children}
