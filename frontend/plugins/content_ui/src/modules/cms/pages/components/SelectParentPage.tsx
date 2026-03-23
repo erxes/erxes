@@ -143,13 +143,13 @@ const SelectParentPageProvider = ({
   currentPageId?: string;
   initialPage?: IPageItem | null;
 }) => {
-  const [selectedPage, setSelectedPage] = useState<IPageItem | null>(null);
+  const [selectedPage, setSelectedPage] = useState<IPageItem | null>(
+    initialPage || null,
+  );
 
   useEffect(() => {
-    if (initialPage && !selectedPage) {
-      setSelectedPage(initialPage);
-    }
-  }, [initialPage, selectedPage]);
+    setSelectedPage(initialPage || null);
+  }, [initialPage]);
 
   const handleSelect = useCallback(
     (page: IPageItem | null) => {

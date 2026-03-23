@@ -32,7 +32,7 @@ export const PageHeaderActions = ({
                     onClick={() => field.onChange('active')}
                     className="h-8"
                   >
-                    Active
+                    Publish
                   </Button>
                   <Button
                     type="button"
@@ -41,7 +41,7 @@ export const PageHeaderActions = ({
                     onClick={() => field.onChange('inactive')}
                     className="h-8"
                   >
-                    Inactive
+                    Draft
                   </Button>
                 </div>
               </Form.Control>
