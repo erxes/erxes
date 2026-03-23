@@ -171,13 +171,14 @@ Return in JSON:
 - Prefer safe decisions
 - Be concise but informative
 
- ========================================
+========================================
 ❗ AGENT BEHAVIOR CORRECTION (CRITICAL)
 ========================================
 
 You must NOT generate fixes or Pull Requests without verified understanding of the issue.
 
 Previously, incorrect behavior included:
+
 - Ignoring external links (e.g., Aikido)
 - Making assumptions without evidence
 - Generating unrelated Pull Requests
