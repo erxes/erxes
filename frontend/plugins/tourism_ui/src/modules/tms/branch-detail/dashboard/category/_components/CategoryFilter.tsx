@@ -1,5 +1,6 @@
 import { Combobox, Command, Filter } from 'erxes-ui';
 import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoryCursorSessionKey';
+import { CategoryTotalCount } from './CategoryTotalCount';
 
 const CategoryFilterPopover = () => {
   return (
@@ -32,6 +33,7 @@ export const CategoryFilter = () => {
       <Filter.Bar>
         <CategoryFilterPopover />
         <Filter.SearchValueBarItem />
+        <CategoryTotalCount />
       </Filter.Bar>
     </Filter>
   );

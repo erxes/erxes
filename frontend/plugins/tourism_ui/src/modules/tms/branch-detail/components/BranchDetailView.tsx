@@ -49,7 +49,7 @@ export const BranchDetailView = () => {
   }
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full min-h-0">
       <BranchSideBar activeTab={activeTab} />
       <MainContent activeStep={activeTab} branch={selectedBranch} />
     </div>

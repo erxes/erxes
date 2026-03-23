@@ -10,8 +10,11 @@ export const CREATE_TOUR = gql`
     $groupCode: String
     $content: String
     $itineraryId: String
+    $dateType: DATE_TYPE
     $startDate: Date
     $endDate: Date
+    $availableFrom: Date
+    $availableTo: Date
     $groupSize: Int
     $duration: Int
     $cost: Float
@@ -38,8 +41,11 @@ export const CREATE_TOUR = gql`
       groupCode: $groupCode
       content: $content
       itineraryId: $itineraryId
+      dateType: $dateType
       startDate: $startDate
       endDate: $endDate
+      availableFrom: $availableFrom
+      availableTo: $availableTo
       groupSize: $groupSize
       duration: $duration
       cost: $cost
@@ -69,8 +75,11 @@ export const EDIT_TOUR = gql`
     $name: String
     $content: String
     $itineraryId: String
+    $dateType: DATE_TYPE
     $startDate: Date
     $endDate: Date
+    $availableFrom: Date
+    $availableTo: Date
     $groupSize: Int
     $duration: Int
     $advancePercent: Float
@@ -96,8 +105,11 @@ export const EDIT_TOUR = gql`
       name: $name
       content: $content
       itineraryId: $itineraryId
+      dateType: $dateType
       startDate: $startDate
       endDate: $endDate
+      availableFrom: $availableFrom
+      availableTo: $availableTo
       groupSize: $groupSize
       duration: $duration
       advancePercent: $advancePercent

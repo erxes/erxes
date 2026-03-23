@@ -22,8 +22,6 @@ import {
   TourPersonCostField,
   TourDurationField,
   TourGroupSizeField,
-  TourStartDateField,
-  TourEndDateField,
   TourInfo1Field,
   TourInfo2Field,
   TourInfo3Field,
@@ -36,6 +34,7 @@ import {
   TourCategoryField,
   TourImageThumbnailField,
   TourImagesField,
+  TourDateSchedulingField,
 } from './TourFormFields';
 
 interface Props {
@@ -211,8 +210,13 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
       imageThumbnail: tour.imageThumbnail ?? '',
       guides: [],
       personCost: normalizeIncomingPersonCost(tour.personCost),
+      isFlexibleDate: tour.dateType === 'flexible',
       startDate: tour.startDate ? new Date(tour.startDate) : undefined,
       endDate: tour.endDate ? new Date(tour.endDate) : undefined,
+      availableFrom: tour.availableFrom
+        ? new Date(tour.availableFrom)
+        : undefined,
+      availableTo: tour.availableTo ? new Date(tour.availableTo) : undefined,
     });
     setEditorResetKey((prev) => prev + 1);
   }, [tourDetail, form]);
@@ -257,6 +261,7 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
         id: tourId,
         dateStatus: getDateStatus(normalizedStartDate),
         ...restValues,
+        dateType: values.isFlexibleDate ? 'flexible' : 'fixed',
         startDate: normalizedStartDate,
         endDate:
           normalizedStartDate && values.duration
@@ -330,10 +335,7 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
                   <TourCostField control={form.control} />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <TourStartDateField control={form.control} />
-                  <TourEndDateField control={form.control} />
-                </div>
+                <TourDateSchedulingField control={form.control} />
 
                 <TourPersonCostField control={form.control} />
               </div>

@@ -45,9 +45,27 @@ export const loadTourClass = (models: IModels) => {
     /**
      * Create a tour
      */
-    public static async createTour(doc, user) {
+    public static async createTour(doc) {
+      const dateType = doc.dateType || 'fixed';
+
+      if (dateType === 'fixed') {
+        if (!doc.startDate) {
+          throw new Error('Start date is required for fixed schedule tours');
+        }
+      } else if (dateType === 'flexible') {
+        if (!doc.availableFrom || !doc.availableTo) {
+          throw new Error(
+            'Available date range (from and to) is required for flexible schedule tours',
+          );
+        }
+        if (new Date(doc.availableFrom) >= new Date(doc.availableTo)) {
+          throw new Error('Available "from" date must be before "to" date');
+        }
+      }
+
       const element = await models.Tours.create({
         ...doc,
+        dateType,
         createdAt: new Date(),
         modifiedAt: new Date(),
       });
@@ -58,6 +76,33 @@ export const loadTourClass = (models: IModels) => {
      * Update tour
      */
     public static async updateTour(_id, doc) {
+      if (doc.dateType) {
+        if (doc.dateType === 'fixed') {
+          if (doc.startDate === undefined) {
+            const existingTour = await models.Tours.findOne({ _id });
+            if (!existingTour?.startDate) {
+              throw new Error(
+                'Start date is required for fixed schedule tours',
+              );
+            }
+          }
+        } else if (doc.dateType === 'flexible') {
+          const existingTour = await models.Tours.findOne({ _id });
+          const finalAvailableFrom =
+            doc.availableFrom ?? existingTour?.availableFrom;
+          const finalAvailableTo = doc.availableTo ?? existingTour?.availableTo;
+
+          if (!finalAvailableFrom || !finalAvailableTo) {
+            throw new Error(
+              'Available date range (from and to) is required for flexible schedule tours',
+            );
+          }
+          if (new Date(finalAvailableFrom) >= new Date(finalAvailableTo)) {
+            throw new Error('Available "from" date must be before "to" date');
+          }
+        }
+      }
+
       await models.Tours.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date() } },
