@@ -19,6 +19,7 @@ const TOURS_PER_PAGE = 30;
 
 type ToursQueryVariables = {
   branchId?: string;
+  name?: string;
   status?: string;
   date_status?:
     | 'running'
@@ -47,16 +48,18 @@ export const useTours = (
 ) => {
   const setTourTotalCount = useSetAtom(tourTotalCountAtom);
 
-  const [{ status, date_status, categoryIds }] = useMultiQueryState<{
-    status: string;
-    date_status:
-      | 'running'
-      | 'completed'
-      | 'scheduled'
-      | 'cancelled'
-      | 'unscheduled';
-    categoryIds: string;
-  }>(['status', 'date_status', 'categoryIds']);
+  const [{ searchValue, status, date_status, categoryIds }] =
+    useMultiQueryState<{
+      searchValue: string;
+      status: string;
+      date_status:
+        | 'running'
+        | 'completed'
+        | 'scheduled'
+        | 'cancelled'
+        | 'unscheduled';
+      categoryIds: string;
+    }>(['searchValue', 'status', 'date_status', 'categoryIds']);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: TOURS_CURSOR_SESSION_KEY,
@@ -65,6 +68,7 @@ export const useTours = (
   const variables: ToursQueryVariables = {
     orderBy: { createdAt: -1 },
     ...(options?.variables || {}),
+    name: searchValue || undefined,
     status: status || undefined,
     date_status: date_status || undefined,
     categoryIds: categoryIds

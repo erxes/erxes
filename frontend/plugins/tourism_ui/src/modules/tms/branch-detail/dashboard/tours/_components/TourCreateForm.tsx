@@ -192,15 +192,19 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
         ...restValues
       } = values;
 
-      const selectedDates = values.startDate
+      const normalizedStartDates = values.startDate
         ? Array.isArray(values.startDate)
           ? sortDates(values.startDate)
           : [values.startDate]
         : [];
 
+      const selectedDates = values.isGroupTour
+        ? normalizedStartDates
+        : normalizedStartDates.slice(0, 1);
+
       const primaryStartDate = selectedDates[0];
 
-      const groupCode = selectedDates.length > 1 ? nanoid() : nanoid();
+      const groupCode = nanoid(8);
 
       if (selectedDates.length > 0) {
         for (const selectedDate of selectedDates) {

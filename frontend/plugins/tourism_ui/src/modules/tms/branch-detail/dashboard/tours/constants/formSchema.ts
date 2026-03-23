@@ -16,6 +16,7 @@ export const TourCreateFormSchema = z
     categoryIds: z.array(z.string()).optional(),
 
     isFlexibleDate: z.boolean().default(false),
+    isGroupTour: z.boolean().default(false),
     startDate: z
       .union([z.coerce.date(), z.array(z.coerce.date()).max(5)])
       .optional(),

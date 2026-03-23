@@ -1,7 +1,6 @@
 import { Control, useWatch } from 'react-hook-form';
 import { Form, DatePicker, Switch, Label, cn } from 'erxes-ui';
 import { TourCreateFormType } from '../constants/formSchema';
-
 export const TourDateSchedulingField = ({
   control,
 }: {
@@ -12,12 +11,12 @@ export const TourDateSchedulingField = ({
     name: 'isFlexibleDate',
     defaultValue: false,
   });
-
-  const availableFrom = useWatch({
+  const isGroupTour = useWatch({
     control,
-    name: 'availableFrom',
+    name: 'isGroupTour',
+    defaultValue: false,
   });
-
+  const availableFrom = useWatch({ control, name: 'availableFrom' });
   return (
     <div className="space-y-6">
       <Form.Field
@@ -41,51 +40,100 @@ export const TourDateSchedulingField = ({
           </Form.Item>
         )}
       />
-
       {!isFlexibleDate ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-4">
           <Form.Field
             control={control}
-            name="startDate"
+            name="isGroupTour"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  Start Date <span className="text-destructive">*</span>
-                </Form.Label>
+              <Form.Item className="flex gap-3 items-center space-y-0">
                 <Form.Control>
-                  <DatePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    defaultMonth={
-                      Array.isArray(field.value) ? field.value[0] : field.value
-                    }
-                    mode="multiple"
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Message className="text-destructive" />
+                <div className="space-y-1">
+                  <Form.Label className="cursor-pointer">
+                    Group tour (multiple start dates)
+                  </Form.Label>
+                  <Form.Description className="text-xs">
+                    {field.value
+                      ? 'Create one tour per selected start date'
+                      : 'Create a single tour date'}
+                  </Form.Description>
+                </div>
               </Form.Item>
             )}
           />
-
-          <Form.Field
-            control={control}
-            name="endDate"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>End Date (Auto-calculated)</Form.Label>
-                <Form.Control>
-                  <DatePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    defaultMonth={field.value}
-                    mode="single"
-                    disabled
-                  />
-                </Form.Control>
-                <Form.Message className="text-destructive" />
-              </Form.Item>
-            )}
-          />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Form.Field
+              control={control}
+              name="startDate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>
+                    Start Date{isGroupTour ? 's' : ''}{' '}
+                    <span className="text-destructive">*</span>
+                  </Form.Label>
+                  <Form.Control>
+                    {isGroupTour ? (
+                      <DatePicker
+                        value={
+                          Array.isArray(field.value)
+                            ? field.value
+                            : field.value instanceof Date
+                            ? [field.value]
+                            : undefined
+                        }
+                        onChange={field.onChange}
+                        required={false}
+                        defaultMonth={
+                          Array.isArray(field.value)
+                            ? field.value[0]
+                            : field.value instanceof Date
+                            ? field.value
+                            : undefined
+                        }
+                        mode="multiple"
+                      />
+                    ) : (
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        defaultMonth={
+                          field.value instanceof Date ? field.value : undefined
+                        }
+                        mode="single"
+                      />
+                    )}
+                  </Form.Control>
+                  <Form.Message className="text-destructive" />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={control}
+              name="endDate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>End Date (Auto-calculated)</Form.Label>
+                  <Form.Control>
+                    <DatePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      defaultMonth={
+                        field.value instanceof Date ? field.value : undefined
+                      }
+                      mode="single"
+                      disabled
+                    />
+                  </Form.Control>
+                  <Form.Message className="text-destructive" />
+                </Form.Item>
+              )}
+            />
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -96,7 +144,6 @@ export const TourDateSchedulingField = ({
               period
             </p>
           </div>
-
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Form.Field
               control={control}
@@ -110,7 +157,9 @@ export const TourDateSchedulingField = ({
                     <DatePicker
                       value={field.value}
                       onChange={field.onChange}
-                      defaultMonth={field.value}
+                      defaultMonth={
+                        field.value instanceof Date ? field.value : undefined
+                      }
                       mode="single"
                     />
                   </Form.Control>
@@ -118,7 +167,6 @@ export const TourDateSchedulingField = ({
                 </Form.Item>
               )}
             />
-
             <Form.Field
               control={control}
               name="availableTo"
@@ -131,9 +179,20 @@ export const TourDateSchedulingField = ({
                     <DatePicker
                       value={field.value}
                       onChange={field.onChange}
-                      defaultMonth={field.value || availableFrom}
+                      defaultMonth={
+                        (field.value instanceof Date
+                          ? field.value
+                          : undefined) ||
+                        (availableFrom instanceof Date
+                          ? availableFrom
+                          : undefined)
+                      }
                       mode="single"
-                      fromDate={availableFrom}
+                      fromDate={
+                        availableFrom instanceof Date
+                          ? availableFrom
+                          : undefined
+                      }
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />

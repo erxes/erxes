@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export const GET_TOURS = gql`
   query BmsTours(
     $branchId: String
+    $name: String
     $status: String
     $date_status: DATE_STATUS
     $limit: Int
@@ -16,6 +17,7 @@ export const GET_TOURS = gql`
   ) {
     bmsTours(
       branchId: $branchId
+      name: $name
       status: $status
       date_status: $date_status
       limit: $limit

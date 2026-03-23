@@ -9,6 +9,9 @@ import {
 import { GET_ELEMENTS } from '@/tms/branch-detail/dashboard/elements/graphql/queries';
 import { ELEMENTS_CURSOR_SESSION_KEY } from '@/tms/branch-detail/dashboard/elements/constants/elementCursorSessionKey';
 import { IElement } from '@/tms/branch-detail/dashboard/elements/types/element';
+import { useEffect } from 'react';
+import { elementsTotalCountAtom } from '../states/elementsCounts';
+import { useSetAtom } from 'jotai';
 
 const ELEMENTS_PER_PAGE = 30;
 interface ElementsQueryVariables {
@@ -58,6 +61,12 @@ export const useElements = (
     totalCount = 0,
     pageInfo = {},
   } = data?.bmsElements || {};
+
+  const setElementsTotalCount = useSetAtom(elementsTotalCountAtom);
+
+  useEffect(() => {
+    setElementsTotalCount(totalCount);
+  }, [totalCount, setElementsTotalCount]);
 
   const handleFetchMore = ({
     direction,
