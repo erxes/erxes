@@ -97,8 +97,8 @@ export async function verifyFacebookToken(
       throw new Error('Invalid Facebook token');
     }
 
-    if (verifyData.data.app_id !== appId) {
-      throw new Error('Token app_id does not match');
+    if (String(verifyData.data.app_id) !== String(appId)) {
+      throw new Error('Facebook token was issued for a different application');
     }
 
     const profileUrl = `https://graph.facebook.com/me?fields=id,email,first_name,last_name,name,picture&access_token=${accessToken}`;
