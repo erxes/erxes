@@ -24,6 +24,7 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3301;
 const serviceName = 'logs-service';
 
 const app = express();
+app.disable('x-powered-by');
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));

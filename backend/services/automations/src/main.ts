@@ -26,6 +26,7 @@ const port = PORT ? Number(PORT) : 3302;
 const serviceName = 'automations-service';
 
 const app = express();
+app.disable('x-powered-by');
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));

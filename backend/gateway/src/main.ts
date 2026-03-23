@@ -73,6 +73,7 @@ createBullBoard({
 serverAdapter.setBasePath('/bullmq-board');
 
 const app = express();
+app.disable('x-powered-by');
 
 app.use(cookieParser());
 

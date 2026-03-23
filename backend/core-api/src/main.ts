@@ -31,6 +31,7 @@ const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
+app.disable('x-powered-by');
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
