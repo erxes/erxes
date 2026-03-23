@@ -1,33 +1,25 @@
 import { AccountingDialog } from '@/layout/components/Dialog';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  DatePicker,
-  Dialog,
-  Form,
-  Spinner,
-  Textarea,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, Dialog, Form, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useSafeRemainderAdd } from '../hooks/useSafeRemainderAdd';
-import { TSafeRemainderForm } from '../types/safeRemainderForm';
-import { safeRemainderSchema } from '../types/safeRemainderSchema';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
+import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
+import { TReCalcRemainderForm } from '../types/reCalcRemainderForm';
+import { reCalcRemainderSchema } from '../types/reCalcRemainderSchema';
 
-export const AddSafeRemainder = () => {
+export const ReCalcRemainderForm = () => {
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Safe Remainder
+          ReCalc Remainder
         </Button>
       </Dialog.Trigger>
-      <AccountingDialog title="Add Account" description="Add a new account">
+      <AccountingDialog title="ReCalc Form" description="Add a new account">
         <AddSafeRemainderForm setOpen={setOpen} />
       </AccountingDialog>
     </Dialog>
@@ -39,15 +31,12 @@ const AddSafeRemainderForm = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
-  const form = useForm<TSafeRemainderForm>({
-    resolver: zodResolver(safeRemainderSchema),
-    defaultValues: {
-      date: new Date(),
-    },
+  const form = useForm<TReCalcRemainderForm>({
+    resolver: zodResolver(reCalcRemainderSchema),
+    defaultValues: {},
   });
-  const { addSafeRemainder, loading } = useSafeRemainderAdd();
-  const [id] = useQueryState<string>('id');
-  const onSubmit = (data: TSafeRemainderForm) => {
+  const { addSafeRemainder, loading } = useReCalcRemainders();
+  const onSubmit = (data: TReCalcRemainderForm) => {
     addSafeRemainder({
       variables: { ...data },
       onCompleted: () => {
@@ -67,39 +56,7 @@ const AddSafeRemainderForm = ({
         className="p-6 flex-auto overflow-auto"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
-        <h3 className="text-lg font-bold">
-          {id ? `Edit` : `Create`} Adjust Inventory
-        </h3>
-        <Form.Field
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Date</Form.Label>
-              <Form.Control>
-                <DatePicker
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="h-8 flex w-full"
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>Description</Form.Label>
-              <Form.Control>
-                <Textarea placeholder="Enter description" {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        <h3 className="text-lg font-bold">ReCalc Live remainder</h3>
         <Form.Field
           control={form.control}
           name="branchId"

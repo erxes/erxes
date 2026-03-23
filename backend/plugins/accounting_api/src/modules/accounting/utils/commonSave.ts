@@ -4,9 +4,12 @@ import CurrencyTr from './currencyTr';
 import TaxTrs from './taxTrs';
 import { InvIncomeExpenseTrs } from './invIncome';
 import InvSaleOutCostTrs from './invSale';
-import { createOrUpdateTr } from './utils';
+import {
+  createOrUpdateTr,
+  syncInProductsInventory,
+  syncOutProductsInventory,
+} from './utils';
 import InvMoveInTrs from './invMove';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const commonSave = async (
   subdomain: string,
@@ -111,69 +114,7 @@ async function handleInvIncome(
 
   const transaction = await createOrUpdateTr(models, doc, oldTr);
 
-  const countByProductId: { [productId: string]: number } = {};
-  transaction?.details.forEach((det) => {
-    countByProductId[det.productId ?? ''] = det.count ?? 0;
-  });
-
-  if (
-    !oldTr?._id ||
-    (transaction.branchId === oldTr?.branchId &&
-      transaction.departmentId === oldTr?.departmentId)
-  ) {
-    oldTr?.details.forEach((det) => {
-      countByProductId[det.productId ?? ''] =
-        (countByProductId[det.productId ?? ''] ?? 0) - 1 * (det.count ?? 0);
-    });
-
-    sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'increaseRemainders',
-      input: {
-        branchId: transaction.branchId,
-        departmentId: transaction.departmentId,
-        productsInfo: Object.keys(countByProductId).map((productId) => ({
-          productId,
-          diffCount: countByProductId[productId],
-        })),
-      },
-    });
-  } else {
-    sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'increaseRemainders',
-      input: {
-        branchId: oldTr?.branchId,
-        departmentId: oldTr?.departmentId,
-        productsInfo: oldTr?.details?.map((det) => ({
-          productId: det.productId,
-          diffCount: -1 * (det.count ?? 0),
-        })),
-      },
-    });
-
-    sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'increaseRemainders',
-      input: {
-        branchId: transaction.branchId,
-        departmentId: transaction.departmentId,
-        productsInfo: Object.keys(countByProductId).map((productId) => ({
-          productId,
-          diffCount: countByProductId[productId],
-        })),
-      },
-    });
-  }
+  await syncInProductsInventory(subdomain, transaction, oldTr);
 
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
@@ -185,11 +126,14 @@ async function handleInvIncome(
 
 async function handleInvOut(
   models: IModels,
-  _subdomain: string,
+  subdomain: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
   const mainTr = await createOrUpdateTr(models, doc, oldTr);
+
+  await syncOutProductsInventory(subdomain, mainTr, oldTr);
+
   return { mainTr, otherTrs: [] };
 }
 
