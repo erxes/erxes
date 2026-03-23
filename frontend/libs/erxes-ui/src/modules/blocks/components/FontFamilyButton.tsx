@@ -42,7 +42,9 @@ export const FontFamilyButton = () => {
       const styles = editor.getActiveStyles() as any;
       setCurrentFont(styles?.fontFamily || '');
       const block = editor.getTextCursorPosition()?.block;
-      const blockSpec = block ? (editor.schema.blockSpecs as any)[block.type] : null;
+      const blockSpec = block
+        ? (editor.schema.blockSpecs as any)[block.type]
+        : null;
       setIsFileBlock(!!blockSpec?.config?.isFileBlock);
     } catch {
       // ignore

@@ -50,7 +50,11 @@ export const PostPreview = ({
                     formData.append('file', file);
                     const response = await fetch(
                       `${REACT_APP_API_URL}/upload-file?kind=main`,
-                      { method: 'post', body: formData, credentials: 'include' },
+                      {
+                        method: 'post',
+                        body: formData,
+                        credentials: 'include',
+                      },
                     );
                     const key = await response.text();
                     return readImage(key);

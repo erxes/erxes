@@ -64,8 +64,7 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
       if (tag === 'figure') {
         const img = el.querySelector('img');
         if (!img) return;
-        const caption =
-          el.querySelector('figcaption')?.textContent || '';
+        const caption = el.querySelector('figcaption')?.textContent || '';
         blocks.push({
           id: crypto.randomUUID(),
           type: 'image',

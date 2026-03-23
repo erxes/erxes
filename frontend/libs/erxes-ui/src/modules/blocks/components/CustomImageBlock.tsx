@@ -11,7 +11,10 @@ import { FC } from 'react';
 import { Spinner } from 'erxes-ui/components';
 
 const CustomImagePreview: FC<
-  Omit<ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>, 'contentRef'>
+  Omit<
+    ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>,
+    'contentRef'
+  >
 > = ({ block }) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url);
 
