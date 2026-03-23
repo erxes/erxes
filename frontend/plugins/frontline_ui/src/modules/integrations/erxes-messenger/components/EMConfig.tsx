@@ -19,13 +19,12 @@ import {
 } from '@/integrations/erxes-messenger/components/EMLayout';
 import { SelectMember, SelectBrand } from 'ui-modules';
 import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
-import { erxesMessengerSetupConfigAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import { erxesMessengerSetupConfigAtom, erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 import { useCreateMessenger } from '@/integrations/erxes-messenger/hooks/useCreateMessenger';
 import { useEditMessenger } from '@/integrations/erxes-messenger/hooks/useEditMessenger';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
-import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { useParams } from 'react-router';
 import { SelectTicketConfig } from '@/pipelines/components/configs/components/SelectTicketConfig';
 
