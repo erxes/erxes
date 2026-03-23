@@ -40,7 +40,9 @@ interface SelectCategoriesFilterItemProps {
   label: string;
 }
 
-function SelectCategoriesFilterItem(props: Readonly<SelectCategoriesFilterItemProps>) {
+function SelectCategoriesFilterItem(
+  props: Readonly<SelectCategoriesFilterItemProps>,
+) {
   const { value, label } = props;
   return (
     <Filter.Item value={value}>

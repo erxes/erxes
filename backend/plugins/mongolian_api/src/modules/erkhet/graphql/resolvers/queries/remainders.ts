@@ -230,6 +230,6 @@ const getCustomerInfo = async (
   });
 
   return { customerCode: customer?.code };
-}
+};
 
 export default erkhetQueries;

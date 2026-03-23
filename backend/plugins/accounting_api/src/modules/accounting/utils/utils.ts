@@ -115,7 +115,7 @@ export const syncInProductsInventory = async (
 export const syncOutProductsInventory = async (
   subdomain: string,
   transaction: ITransactionDocument,
-  oldTr: ITransactionDocument
+  oldTr: ITransactionDocument,
 ) => {
   const countByProductId: { [productId: string]: number } = {};
   transaction?.details.forEach((det) => {
