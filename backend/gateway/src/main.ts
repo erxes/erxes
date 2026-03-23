@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import * as http from 'http';
 import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
@@ -73,6 +74,13 @@ createBullBoard({
 serverAdapter.setBasePath('/bullmq-board');
 
 const app = express();
+
+app.use(
+  helmet({
+    frameguard: { action: 'sameorigin' },
+    contentSecurityPolicy: false,
+  }),
+);
 
 app.use(cookieParser());
 

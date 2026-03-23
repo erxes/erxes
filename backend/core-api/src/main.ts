@@ -2,6 +2,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
+import helmet from 'helmet';
 import {
   closeMongooose,
   createTRPCContext,
@@ -31,6 +32,13 @@ const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
+
+app.use(
+  helmet({
+    frameguard: { action: 'sameorigin' },
+    contentSecurityPolicy: false,
+  }),
+);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));

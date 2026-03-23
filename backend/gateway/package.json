@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "erxes-api-shared": "workspace:^"
+    "erxes-api-shared": "workspace:^",
+    "helmet": "^8.1.0"
   },
   "devDependencies": {}
 }
