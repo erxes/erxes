@@ -8,12 +8,12 @@ export const useRemoveTag = () => {
 
   const removeTag = async (tagIds: string[]) => {
     try {
-      const response = await removeTagMutation({
-        variables: {
-          tagIds,
-        },
-      });
-      return response.data;
+      const results = await Promise.all(
+        tagIds.map((_id) =>
+          removeTagMutation({ variables: { _id } }),
+        ),
+      );
+      return results.map((r) => r.data);
     } catch (e: any) {
       console.error(e.message);
       throw e;

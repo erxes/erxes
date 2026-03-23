@@ -20,8 +20,17 @@ export interface IPageFormData {
   name: string;
   path: string;
   description?: string;
+  excerpt?: string;
+  parentId?: string;
   status: string;
   clientPortalId: string;
+  thumbnail?: any | null;
+  gallery?: string[];
+  video?: string | null;
+  videoUrl?: string;
+  audio?: string | null;
+  documents?: string[];
+  attachments?: string[];
 }
 
 export interface IPagesRecordTableProps {

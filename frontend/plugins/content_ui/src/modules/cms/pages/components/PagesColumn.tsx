@@ -7,12 +7,18 @@ import {
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { pageMoreColumn } from './PagesMoreColumn';
-import { IconUser, IconArticle, IconCalendar } from '@tabler/icons-react';
+import {
+  IconUser,
+  IconArticle,
+  IconCalendar,
+  IconSitemap,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 
 export const usePagesColumns = (
   onEditPage?: (page: any) => void,
   onRefetch?: () => void,
+  pages?: any[],
 ): ColumnDef<any>[] => {
   const navigate = useNavigate();
 
@@ -43,7 +49,28 @@ export const usePagesColumns = (
           </RecordTableInlineCell>
         );
       },
-      size: 400,
+      size: 200,
+    },
+    {
+      id: 'parentPage',
+      header: () => (
+        <RecordTable.InlineHead icon={IconSitemap} label="Parent Page" />
+      ),
+      accessorKey: 'parentId',
+      cell: ({ row }) => {
+        const page = row.original;
+        if (!page.parentId) {
+          return (
+            <RecordTableInlineCell className="text-muted-foreground"></RecordTableInlineCell>
+          );
+        }
+        const parent = pages?.find((p: any) => p._id === page.parentId);
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={parent?.name || page.parentId} />
+          </RecordTableInlineCell>
+        );
+      },
     },
     {
       id: 'slug',

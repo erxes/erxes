@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Button, PageContainer, Kbd } from 'erxes-ui';
 import { IconMenu, IconPlus } from '@tabler/icons-react';
 import { CmsSidebar } from '../shared/CmsSidebar';
+import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
 import { EmptyState } from '../shared/EmptyState';
 import { MenuDrawer } from './MenuDrawer';
 import { MenusHeader } from './components/MenusHeader';
@@ -48,7 +49,10 @@ export function Menus() {
 
   return (
     <PageContainer>
-      <MenusHeader>{headerActions}</MenusHeader>
+      <MenusHeader>
+        <HeaderLanguageTabs />
+        {headerActions}
+      </MenusHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
         <div className="flex overflow-hidden flex-col flex-auto w-full">
