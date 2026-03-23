@@ -3,6 +3,9 @@ FROM --platform=linux/amd64 node:22-bookworm AS build
 
 WORKDIR /app
 
+# Upgrade imagemagick to patched version to address CVE vulnerabilities
+RUN apt-get update && apt-get install -y --only-upgrade imagemagick && rm -rf /var/lib/apt/lists/*
+
 # Copy root files
 COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./tsconfig.base.json ./nx.json /app/
 
@@ -32,8 +35,11 @@ FROM --platform=linux/amd64 node:22-bookworm AS gateway
 
 WORKDIR /app
 
-# Install required packages
-RUN apt-get update && apt-get install -y curl ca-certificates
+# Install required packages and upgrade imagemagick to patched version to address CVE vulnerabilities
+RUN apt-get update \
+    && apt-get install -y curl ca-certificates \
+    && apt-get install -y --only-upgrade imagemagick \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy built app from build stage
 COPY --chown=1000:1000 --from=build /app /app
