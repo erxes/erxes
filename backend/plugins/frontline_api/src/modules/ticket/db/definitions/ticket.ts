@@ -7,7 +7,7 @@ export const ticketSchema = new Schema(
     _id: mongooseStringRandomId,
     name: { type: String },
     channelId: { type: String },
-    stageId: {type:String},
+    stageId: { type: String },
     pipelineId: {
       type: String,
       label: 'pipelineId',
