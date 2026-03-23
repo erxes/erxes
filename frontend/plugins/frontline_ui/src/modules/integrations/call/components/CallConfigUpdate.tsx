@@ -7,8 +7,8 @@ import {
   Skeleton,
   Spinner,
   toast,
+  Button,
 } from 'erxes-ui';
-import { Button } from 'erxes-ui';
 import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
 import { INTEGRATIONS } from '@/integrations/constants/integrations';
 import { IntegrationType } from '@/types/Integration';
