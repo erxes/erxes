@@ -1,7 +1,7 @@
 import { Breadcrumb, PageSubHeader } from 'erxes-ui';
 import { useParams, useLocation } from 'react-router-dom';
 
-import { PageHeader } from 'ui-modules';
+import { PageHeader, Can } from 'ui-modules';
 import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
 import { Separator } from 'erxes-ui';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
@@ -36,7 +36,9 @@ export const TasksPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
-        <AddTaskSheet />
+        <Can action="taskCreate">
+          <AddTaskSheet />
+        </Can>
       </PageHeader>
       <div className="flex overflow-hidden w-full h-full">
         <div className="flex flex-col overflow-hidden w-full h-full">

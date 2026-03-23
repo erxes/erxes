@@ -13,8 +13,10 @@ export const internalNoteMutations = {
   async internalNotesAdd(
     _root: undefined,
     args: IInternalNote,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('internalNotesManage');
+
     const { contentType, contentTypeId, mentionedUserIds = [] } = args;
 
     const [pluginName, moduleName] = contentType.split(':');
@@ -143,8 +145,10 @@ export const internalNoteMutations = {
   async internalNotesEdit(
     _root,
     { _id, ...doc }: IInternalNote & { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('internalNotesManage');
+
     graphqlPubsub.publish('activityLogsChanged', {});
 
     return models.InternalNotes.updateInternalNote(_id, doc);
@@ -156,8 +160,10 @@ export const internalNoteMutations = {
   async internalNotesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('internalNotesManage');
+
     graphqlPubsub.publish('activityLogsChanged', {});
 
     return models.InternalNotes.removeInternalNote(_id);

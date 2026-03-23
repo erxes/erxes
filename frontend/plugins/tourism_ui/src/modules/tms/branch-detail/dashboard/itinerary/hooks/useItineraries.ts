@@ -10,6 +10,9 @@ import {
 import { GET_ITINERARIES } from '../graphql/queries';
 import { ITINERARIES_CURSOR_SESSION_KEY } from '../constants/itineraryCursorSessionKey';
 import { IItinerary } from '../types/itinerary';
+import { useEffect } from 'react';
+import { useSetAtom } from 'jotai';
+import { itineraryTotalCountAtom } from '../states/itineraryCounts';
 
 const ITINERARIES_PER_PAGE = 30;
 
@@ -59,6 +62,12 @@ export const useItineraries = (
     totalCount,
     pageInfo,
   } = data?.bmsItineraries || {};
+
+  const setItineraryTotalCount = useSetAtom(itineraryTotalCountAtom);
+
+  useEffect(() => {
+    setItineraryTotalCount(totalCount);
+  }, [totalCount, setItineraryTotalCount]);
 
   const handleFetchMore = ({
     direction,

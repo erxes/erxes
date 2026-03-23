@@ -5,9 +5,8 @@ import { PageSubHeader, ToggleGroup, useQueryState } from 'erxes-ui';
 export const TourPage = ({ branch }: { branch: IBranch }) => {
   const [view] = useQueryState<string | undefined>('view');
   const [isGroup, setIsGroup] = useQueryState<boolean>('isGroup');
-
   return (
-    <>
+    <div className="flex flex-col h-full">
       <PageSubHeader>
         <TourFilter />
         <div className="flex gap-2 items-center ml-auto">
@@ -29,11 +28,11 @@ export const TourPage = ({ branch }: { branch: IBranch }) => {
           <ToursViewControl />
         </div>
       </PageSubHeader>
-      <div className="overflow-hidden flex-auto p-3">
-        <div className="h-full">
+      <div className="overflow-hidden flex-auto p-3 min-h-0">
+        <div className="flex flex-col h-full min-h-0">
           <ToursView branchId={branch._id} />
         </div>
       </div>
-    </>
+    </div>
   );
 };

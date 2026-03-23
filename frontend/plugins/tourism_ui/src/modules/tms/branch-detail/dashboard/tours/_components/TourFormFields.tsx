@@ -7,7 +7,6 @@ import {
   Editor,
   Upload,
   readImage,
-  DatePicker,
   Button,
 } from 'erxes-ui';
 import { TourCreateFormType } from '../constants/formSchema';
@@ -379,63 +378,6 @@ export const TourPersonCostField = ({
   );
 };
 
-export const TourStartDateField = ({
-  control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
-  return (
-    <Form.Field
-      control={control}
-      name="startDate"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>Start Date</Form.Label>
-          <Form.Control>
-            <DatePicker
-              value={field.value}
-              onChange={field.onChange}
-              defaultMonth={
-                Array.isArray(field.value) ? field.value[0] : field.value
-              }
-              mode="multiple"
-            />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
-export const TourEndDateField = ({
-  control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
-  return (
-    <Form.Field
-      control={control}
-      name="endDate"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>End Date (Auto-calculated)</Form.Label>
-          <Form.Control>
-            <DatePicker
-              value={field.value}
-              onChange={field.onChange}
-              defaultMonth={field.value}
-              mode="single"
-              disabled
-            />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
 export const TourInfo1Field = ({
   control,
 }: {
@@ -578,14 +520,15 @@ export const TourAdvanceCheckField = ({
           <Form.Control>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
           </Form.Control>
-          <Form.Label className="mt-0!">Advance Check</Form.Label>
+
+          <Form.Label className="cursor-pointer">Advance Check</Form.Label>
+
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
     />
   );
 };
-
 export const TourAdvancePercentField = ({
   control,
 }: {
@@ -806,3 +749,5 @@ export const TourImagesField = ({
     />
   );
 };
+
+export { TourDateSchedulingField } from './TourDateSchedulingField';

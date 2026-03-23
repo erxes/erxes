@@ -22,8 +22,9 @@ import {
 } from '~/modules/posclient/utils/syncUtils';
 import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
 import { syncRemainders } from '~/modules/posclient/utils/products';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-const configMutations = {
+const configMutations: Record<string, Resolver> = {
   posConfigsFetch: async (
     _root,
     { token },
@@ -76,6 +77,59 @@ const configMutations = {
   },
 
   async syncConfig(_root, { type }, { models, subdomain, config }: IContext) {
+    const address = await getServerAddress(subdomain);
+
+    const { token } = config;
+    const response = await fetch(`${address}/pos-sync-config`, {
+      headers: {
+        'POS-TOKEN': config.token || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, type }),
+      timeout: 300000,
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    const responseData = await response.json();
+
+    const {
+      pos = {},
+      adminUsers = [],
+      cashiers = [],
+      productGroups = [],
+      slots = [],
+    } = responseData;
+
+    switch (type) {
+      case 'config':
+        await models.Configs.updateConfig(config._id, {
+          ...(await extractConfig(subdomain, pos)),
+          token: config.token,
+        });
+        await importUsers(models, cashiers, config.token);
+        await importUsers(models, adminUsers, config.token, true);
+        break;
+      case 'products':
+        await preImportProducts(models, token, productGroups);
+        await importProducts(subdomain, models, token, productGroups);
+        break;
+      case 'slots':
+        await importSlots(models, slots, token);
+        break;
+      case 'productsConfigs':
+        await models.ProductsConfigs.createOrUpdateConfig({
+          code: 'similarityGroup',
+          value: responseData,
+        });
+        break;
+    }
+    return 'success';
+  },
+
+  async cpSyncConfig(_root, { type }, { models, subdomain, config }: IContext) {
     const address = await getServerAddress(subdomain);
 
     const { token } = config;
@@ -300,3 +354,7 @@ const configMutations = {
 };
 
 export default configMutations;
+
+configMutations.cpSyncConfig.wrapperConfig = {
+  forClientPortal: true,
+};

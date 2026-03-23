@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -129,9 +128,5 @@ const mutations = {
     return models.Pages.deletePage(_id);
   },
 };
-
-requireLogin(mutations, 'cmsPagesAdd');
-requireLogin(mutations, 'cmsPagesEdit');
-requireLogin(mutations, 'cmsPagesRemove');
 
 export default mutations;

@@ -261,15 +261,15 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
           </div>
         </div>
       ) : (
-        <ScrollArea className="bg-background" type="hover">
+        <ScrollArea className="h-full bg-background" type="hover">
           <div className="min-w-max bg-background">
             <div
-              className="grid text-xs border-b bg-background text-muted-foreground"
+              className="grid sticky top-0 z-30 text-xs border-b bg-background text-muted-foreground"
               style={{
                 gridTemplateColumns: `220px repeat(${days.length}, 80px)`,
               }}
             >
-              <div className="sticky left-0 z-20 px-3 py-2 font-medium border-r bg-background text-foreground">
+              <div className="sticky left-0 z-40 px-3 py-2 font-medium border-r bg-background text-foreground">
                 Tours
               </div>
 
@@ -311,7 +311,6 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
                   No tours to display
                 </div>
               )}
-
               {visibleRows.map((tour: ITour) => (
                 <div
                   key={tour._id}
@@ -320,8 +319,10 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
                     gridTemplateColumns: `220px repeat(${days.length}, 80px)`,
                   }}
                 >
-                  <div className="flex sticky left-0 z-10 gap-2 justify-between items-center px-3 py-2 text-sm border-r group bg-background hover:bg-muted/40">
-                    <span className="truncate">{tour.name || '-'}</span>
+                  <div className="flex isolate sticky left-0 z-20 gap-2 justify-between items-center px-3 py-2 text-sm border-r bg-background hover:bg-muted/40">
+                    <span className="px-1 truncate rounded hover:bg-muted/40">
+                      {tour.name || '-'}
+                    </span>
                     <TourCalendarRowActions
                       deleting={deletingTourId === tour._id}
                       onEdit={() => handleEdit(tour._id)}

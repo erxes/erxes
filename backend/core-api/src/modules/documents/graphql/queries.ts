@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import {
   cursorPaginate,
   getPlugin,
@@ -168,5 +167,3 @@ export const documentQueries = {
     });
   },
 };
-
-checkPermission(documentQueries, 'documents', 'showDocuments');

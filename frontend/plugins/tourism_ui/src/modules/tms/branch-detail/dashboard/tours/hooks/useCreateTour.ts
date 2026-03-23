@@ -25,8 +25,11 @@ export interface ICreateTourVariables {
   status?: string;
   groupCode?: string;
   itineraryId?: string;
+  dateType?: 'fixed' | 'flexible';
   startDate?: Date;
   endDate?: Date;
+  availableFrom?: Date;
+  availableTo?: Date;
   groupSize?: number;
   duration?: number;
   cost?: number;
@@ -42,6 +45,7 @@ export interface ICreateTourVariables {
   advanceCheck?: boolean;
   joinPercent?: number;
   personCost?: Record<string, any>;
+  categoryIds?: string[];
 }
 
 export const useCreateTour = () => {

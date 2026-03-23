@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -76,13 +75,5 @@ const safeRemainderQueries = {
     return await models.SafeRemainders.getRemainder(_id);
   },
 };
-
-checkPermission(safeRemainderQueries, 'safeRemainders', 'manageRemainders', []);
-checkPermission(
-  safeRemainderQueries,
-  'safeRemainderDetail',
-  'manageRemainders',
-  [],
-);
 
 export default safeRemainderQueries;

@@ -86,7 +86,7 @@ export const usePostsVariables = (
     dateFrom = parseDateRangeFromString(updated)?.from;
     dateTo = parseDateRangeFromString(updated)?.to;
   } else if (publishedDate) {
-    dateField = 'scheduledDate';
+    dateField = 'publishedDate';
     dateFrom = parseDateRangeFromString(publishedDate)?.from;
     dateTo = parseDateRangeFromString(publishedDate)?.to;
   }
