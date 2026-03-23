@@ -224,7 +224,9 @@ export const SourceBarChart = memo(function SourceBarChart({
       .filter((item) => item != null)
       .map((item) => {
         const count =
-          typeof item.count === 'number' && !Number.isNaN(item.count) ? item.count : 0;
+          typeof item.count === 'number' && !Number.isNaN(item.count)
+            ? item.count
+            : 0;
         const source = String(item.name || item._id || 'Unknown').trim();
 
         return {
