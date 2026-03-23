@@ -9,9 +9,7 @@ export const useRemoveTag = () => {
   const removeTag = async (tagIds: string[]) => {
     try {
       const results = await Promise.all(
-        tagIds.map((_id) =>
-          removeTagMutation({ variables: { _id } }),
-        ),
+        tagIds.map((_id) => removeTagMutation({ variables: { _id } })),
       );
       return results.map((r) => r.data);
     } catch (e: any) {
