@@ -18,7 +18,13 @@ export const ActivityLogList = ({
   const { ref: fetchMoreRef } = useInView({
     threshold: 0.1,
     onChange: (inView) => {
-      if (inView && hasNextPage && handleFetchMore && !loading && !reachedLimit) {
+      if (
+        inView &&
+        hasNextPage &&
+        handleFetchMore &&
+        !loading &&
+        !reachedLimit
+      ) {
         handleFetchMore({ direction: EnumCursorDirection.FORWARD });
       }
     },

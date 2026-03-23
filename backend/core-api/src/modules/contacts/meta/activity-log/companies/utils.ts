@@ -17,7 +17,9 @@ export const getCompanyDisplayText = (doc: Partial<ICompanyDocument>) =>
   doc.primaryPhone ||
   (doc._id ? `Company ${doc._id}` : 'this company');
 
-export const buildCompanyTarget = (company: ICompanyDocument | { _id: string }) => ({
+export const buildCompanyTarget = (
+  company: ICompanyDocument | { _id: string },
+) => ({
   _id: company._id,
   moduleName: 'contacts',
   collectionName: 'companies',

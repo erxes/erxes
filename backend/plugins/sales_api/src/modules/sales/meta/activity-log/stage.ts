@@ -34,7 +34,9 @@ export async function generateStageActivityLogs(
       'updated',
       (field) => getFieldLabel(field, STAGE_ACTIVITY_FIELDS),
     ),
-    assignmentRule('memberIds', async (ids: string[]) => fetchUsersByIds(subdomain, ids)),
+    assignmentRule('memberIds', async (ids: string[]) =>
+      fetchUsersByIds(subdomain, ids),
+    ),
   ];
 
   const activities = await buildActivities(

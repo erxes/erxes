@@ -12,7 +12,9 @@ export const getProductDisplayText = (doc: Partial<IProductDocument>) =>
   doc.code ||
   (doc._id ? `Product ${doc._id}` : 'this product');
 
-export const buildProductTarget = (product: IProductDocument | { _id: string }) => ({
+export const buildProductTarget = (
+  product: IProductDocument | { _id: string },
+) => ({
   _id: product._id,
   moduleName: 'products',
   collectionName: 'products',

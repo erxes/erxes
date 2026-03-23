@@ -1,6 +1,10 @@
 import { ReactNode } from 'react';
 import { Badge } from 'erxes-ui';
-import { ActivityLogCustomActivity, ActivityLogs, TActivityLog } from 'ui-modules';
+import {
+  ActivityLogCustomActivity,
+  ActivityLogs,
+  TActivityLog,
+} from 'ui-modules';
 import { DescriptionChangedActivityRow } from './overview/activity/DescriptionChangedActivityRow';
 
 const Sentence = ({ children }: { children: ReactNode }) => (
@@ -58,19 +62,20 @@ const DealAssignmentRow = ({ activity }: { activity: TActivityLog }) => {
   const labels: string[] = isAdded
     ? activity.changes?.added?.labels || []
     : activity.changes?.removed?.labels || [];
-  const verb = activity.action?.description || (isAdded ? 'assigned' : 'removed');
+  const verb =
+    activity.action?.description || (isAdded ? 'assigned' : 'removed');
 
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">{verb}</span>
-      {labels.length ? (
-        labels.map((label: string) => (
-          <Badge key={label} variant="secondary" className="font-medium">
-            {label}
-          </Badge>
-        ))
-      ) : null}
+      {labels.length
+        ? labels.map((label: string) => (
+            <Badge key={label} variant="secondary" className="font-medium">
+              {label}
+            </Badge>
+          ))
+        : null}
     </Sentence>
   );
 };
@@ -102,7 +107,9 @@ export const dealCustomActivities: ActivityLogCustomActivity[] = [
   },
   ...DEAL_ASSIGNMENT_TYPES.map((type) => ({
     type,
-    render: (activity: TActivityLog) => <DealAssignmentRow activity={activity} />,
+    render: (activity: TActivityLog) => (
+      <DealAssignmentRow activity={activity} />
+    ),
   })),
   {
     type: 'description_change',

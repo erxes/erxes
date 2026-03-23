@@ -11,7 +11,11 @@ import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 export interface IStageModel extends Model<IStageDocument> {
   getStage(_id: string): Promise<IStageDocument>;
   createStage(doc: IStage, userId?: string): Promise<IStageDocument>;
-  updateStage(_id: string, doc: IStage, userId?: string): Promise<IStageDocument>;
+  updateStage(
+    _id: string,
+    doc: IStage,
+    userId?: string,
+  ): Promise<IStageDocument>;
   removeStage(_id: string): Promise<IStageDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IStageDocument[]>;
   checkCodeDuplication(code: string, _id?: string): Promise<void>;
@@ -54,7 +58,11 @@ export const loadStageClass = (
 
       createActivityLog?.({
         activityType: 'create',
-        target: { _id: stage._id, moduleName: 'sales', collectionName: 'stages' },
+        target: {
+          _id: stage._id,
+          moduleName: 'sales',
+          collectionName: 'stages',
+        },
         action: { type: 'create', description: 'Stage created' },
         changes: {
           name: stage.name,
@@ -101,13 +109,13 @@ export const loadStageClass = (
 
     public static async updateOrder(orders: IOrderInput[]) {
       const stagesBefore = await models.Stages.find({
-        _id: { $in: orders.map(o => o._id) },
+        _id: { $in: orders.map((o) => o._id) },
       }).lean();
 
       const result = await updateOrder(models.Stages, orders);
 
       for (const order of orders) {
-        const prev = stagesBefore.find(s => s._id.toString() === order._id);
+        const prev = stagesBefore.find((s) => s._id.toString() === order._id);
         if (prev && prev.order !== order.order) {
           sendDbEventLog?.({
             action: 'update',
@@ -116,7 +124,11 @@ export const loadStageClass = (
 
           createActivityLog?.({
             activityType: 'reorder',
-            target: { _id: order._id, moduleName: 'sales', collectionName: 'stages' },
+            target: {
+              _id: order._id,
+              moduleName: 'sales',
+              collectionName: 'stages',
+            },
             action: { type: 'reorder', description: 'Stage order changed' },
             changes: {
               order: { from: prev.order, to: order.order },
@@ -140,7 +152,11 @@ export const loadStageClass = (
 
       createActivityLog?.({
         activityType: 'delete',
-        target: { _id: stage._id, moduleName: 'sales', collectionName: 'stages' },
+        target: {
+          _id: stage._id,
+          moduleName: 'sales',
+          collectionName: 'stages',
+        },
         action: { type: 'delete', description: 'Stage deleted' },
         changes: {
           name: stage.name,

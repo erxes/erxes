@@ -48,10 +48,17 @@ export function formatActivityValue(value: unknown): string {
   }
 
   // Format ISO date strings to human-readable
-  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+  if (
+    typeof value === 'string' &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)
+  ) {
     const d = new Date(value);
     if (!isNaN(d.getTime())) {
-      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
     }
   }
 

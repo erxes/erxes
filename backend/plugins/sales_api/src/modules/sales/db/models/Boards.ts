@@ -9,7 +9,11 @@ import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 export interface IBoardModel extends Model<IBoardDocument> {
   getBoard(_id: string): Promise<IBoardDocument>;
   createBoard(doc: IBoard, userId?: string): Promise<IBoardDocument>;
-  updateBoard(_id: string, doc: IBoard, userId?: string): Promise<IBoardDocument>;
+  updateBoard(
+    _id: string,
+    doc: IBoard,
+    userId?: string,
+  ): Promise<IBoardDocument>;
   removeBoard(_id: string): Promise<object>;
   updateTimeTracking(
     _id: string,

@@ -88,7 +88,6 @@ export const SalesItemDetail = () => {
                         targetId={deal?._id || ''}
                         customActivities={dealCustomActivities}
                       />
-                      
                     </div>
                   </Tabs.Content>
                   <Tabs.Content value="products" className="p-6">
