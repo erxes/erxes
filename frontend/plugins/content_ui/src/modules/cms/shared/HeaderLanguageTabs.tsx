@@ -29,7 +29,13 @@ export const HeaderLanguageTabs = () => {
     ) {
       setSelectedLanguage(defaultLanguage);
     }
-  }, [websiteId, availableLanguages, selectedLanguage, defaultLanguage, setSelectedLanguage]);
+  }, [
+    websiteId,
+    availableLanguages,
+    selectedLanguage,
+    defaultLanguage,
+    setSelectedLanguage,
+  ]);
 
   if (availableLanguages.length <= 1) return null;
 
