@@ -9,6 +9,8 @@ export default {
     salesDealChanged(_id: String!): DealSubscription
     salesDealListChanged(pipelineId: String!, userId: String, filter: IDealFilter): DealSubscription
     salesProductsDataChanged(_id: String!): DealProductsDataChangeResponse
+    salesChecklistsChanged(contentType: String!, contentTypeId: String!): SalesChecklist
+    salesChecklistDetailChanged(_id: String!): SalesChecklist
 
   `,
   // salesDealActivityChanged(contentId: String!): SalesActivitySubscription
@@ -78,6 +80,18 @@ export default {
         resolve: (payload) => payload.salesProductsDataChanged,
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`salesProductsDataChanged:${_id}`),
+      },
+      salesChecklistsChanged: {
+        resolve: (payload) => payload.salesChecklistsChanged,
+        subscribe: (_, { contentType, contentTypeId }) =>
+          graphqlPubsub.asyncIterator(
+            `salesChecklistsChanged:${contentType}:${contentTypeId}`,
+          ),
+      },
+      salesChecklistDetailChanged: {
+        resolve: (payload) => payload.salesChecklistDetailChanged,
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`salesChecklistDetailChanged:${_id}`),
       },
     };
   },
