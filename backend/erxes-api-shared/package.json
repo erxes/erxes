@@ -55,7 +55,8 @@
     "aws-sdk": "^2.1692.0",
     "exceljs": "^4.4.0",
     "file-type": "^20.5.0",
-    "form-data": "^4.0.2"
+    "form-data": "^4.0.2",
+    "helmet": "^8.1.0"
   },
   "preconstruct": {
     "tsconfig": "tsconfig.lib.json",

@@ -2,6 +2,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
+import helmet from 'helmet';
 import {
   closeMongooose,
   createTRPCContext,
@@ -42,6 +43,18 @@ app.use(
 );
 
 app.use(cookieParser());
+
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 
 const corsOptions = {
   credentials: true,

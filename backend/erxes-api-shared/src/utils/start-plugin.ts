@@ -6,6 +6,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
+import helmet from 'helmet';
 import express, {
   Request as ApiRequest,
   Response as ApiResponse,
@@ -98,6 +99,17 @@ export async function startPlugin(
 
   const app = express();
   app.disable('x-powered-by');
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+    }),
+  );
   app.use(cors(configs.corsOptions || {}));
   app.use(
     express.json({

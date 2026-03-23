@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import * as http from 'http';
 import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
@@ -75,6 +76,18 @@ serverAdapter.setBasePath('/bullmq-board');
 const app = express();
 
 app.use(cookieParser());
+
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 
 app.use(async (req, res, next) => {
   const appToken = req.headers['x-app-api-token'] as string;
