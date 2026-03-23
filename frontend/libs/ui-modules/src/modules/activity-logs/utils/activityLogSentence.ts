@@ -8,7 +8,9 @@ export function formatActivityValue(value: unknown): string {
   }
 
   if (Array.isArray(value)) {
-    return value.length ? value.map((item) => formatActivityValue(item)).join(', ') : 'empty';
+    return value.length
+      ? value.map((item) => formatActivityValue(item)).join(', ')
+      : 'empty';
   }
 
   if (typeof value === 'object') {
@@ -37,7 +39,9 @@ export function formatActivityValue(value: unknown): string {
     }
 
     if (primitiveValues.length > 1) {
-      return primitiveValues.map((item) => formatActivityValue(item)).join(', ');
+      return primitiveValues
+        .map((item) => formatActivityValue(item))
+        .join(', ');
     }
 
     return JSON.stringify(value);

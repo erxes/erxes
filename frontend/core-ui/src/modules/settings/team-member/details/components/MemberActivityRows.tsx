@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import {
-  ActivityLogCustomActivity,
   ActivityLogs,
+  ActivityLogCustomActivity,
   TActivityLog,
 } from 'ui-modules';
 
