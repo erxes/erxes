@@ -61,7 +61,6 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         description,
         productCategoryId,
         attachment,
-        filterField,
         items,
       } = params;
 
@@ -81,7 +80,6 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       });
 
       let productFilter: any = {};
-      const attachDatas: any = {};
 
       if (items?.length) {
         const codes: string[] = items.map((i) => i.code);

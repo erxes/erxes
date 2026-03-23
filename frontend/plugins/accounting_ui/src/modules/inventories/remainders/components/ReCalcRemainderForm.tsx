@@ -6,14 +6,13 @@ import {
   Dialog,
   Form,
   Spinner,
-  useQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-// import { useSafeRemainderAdd } from '../hooks/useSafeRemainderAdd';
+import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
+import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
 import { TReCalcRemainderForm } from '../types/reCalcRemainderForm';
 import { reCalcRemainderSchema } from '../types/reCalcRemainderSchema';
-import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
 
 export const ReCalcRemainderForm = () => {
   const [open, setOpen] = useState(false);
@@ -43,7 +42,7 @@ const AddSafeRemainderForm = ({
       
     },
   });
-  const { addSafeRemainder, loading } = useSafeRemainderAdd();
+  const { addSafeRemainder, loading } = useReCalcRemainders();
   const onSubmit = (data: TReCalcRemainderForm) => {
     addSafeRemainder({
       variables: { ...data },

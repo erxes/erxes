@@ -36,7 +36,9 @@ export const getSingleJournalByAccount = (accJournal?: string, accKind?: string)
   }
 }
 
-export const syncInProductsInventory = async (subdomain: string, transaction: ITransactionDocument, oldTr?: ITransactionDocument) => {
+export const syncInProductsInventory = async (
+  subdomain: string, transaction: ITransactionDocument, oldTr?: ITransactionDocument
+) => {
   const countByProductId: { [productId: string]: number } = {};
   transaction?.details.forEach((det) => {
     countByProductId[det.productId ?? ''] = det.count ?? 0;
@@ -102,7 +104,9 @@ export const syncInProductsInventory = async (subdomain: string, transaction: IT
   }
 }
 
-export const syncOutProductsInventory = async (subdomain, transaction, oldTr) => {
+export const syncOutProductsInventory = async (
+  subdomain: string, transaction: ITransactionDocument, oldTr: ITransactionDocument
+) => {
   const countByProductId: { [productId: string]: number } = {};
   transaction?.details.forEach((det) => {
     countByProductId[det.productId ?? ''] = det.count ?? 0;

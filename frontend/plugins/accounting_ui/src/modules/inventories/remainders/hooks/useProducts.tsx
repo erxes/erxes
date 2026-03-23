@@ -14,7 +14,6 @@ import { IProduct } from 'ui-modules';
 import { productTotalCountAtom } from '../states/productCounts';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
 import { productsQueries } from '../graphql/ProductsQueries';
-import { number } from 'zod';
 
 export const PRODUCTS_PER_PAGE = 30;
 

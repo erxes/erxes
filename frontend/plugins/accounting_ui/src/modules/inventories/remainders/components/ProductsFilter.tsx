@@ -19,7 +19,7 @@ interface SelectCategoriesBadgeProps {
   category?: IProductCategory;
 }
 
-function SelectCategoriesBadge(props: SelectCategoriesBadgeProps) {
+function SelectCategoriesBadge(props: Readonly<SelectCategoriesBadgeProps>) {
   const { category } = props;
   if (!category) return null;
   const { code, name } = category;
@@ -36,7 +36,7 @@ interface SelectCategoriesFilterItemProps {
   label: string;
 }
 
-function SelectCategoriesFilterItem(props: SelectCategoriesFilterItemProps) {
+function SelectCategoriesFilterItem(props: Readonly<SelectCategoriesFilterItemProps>) {
   const { value, label } = props;
   return (
     <Filter.Item value={value}>
@@ -92,7 +92,7 @@ interface SelectCategoriesFilterBarContentProps {
 }
 
 function SelectCategoriesFilterBarContent(
-  props: SelectCategoriesFilterBarContentProps,
+  props: Readonly<SelectCategoriesFilterBarContentProps>,
 ): JSX.Element {
   const { productCategories, selectedCategory, onSelect } = props;
   return (
@@ -120,7 +120,7 @@ interface SelectCategoriesFilterBarProps {
 }
 
 function SelectCategoriesFilterBar(
-  props: SelectCategoriesFilterBarProps,
+  props: Readonly<SelectCategoriesFilterBarProps>,
 ): JSX.Element | null {
   const { filterKey, label } = props;
   const [query, setQuery] = useQueryState<string[]>(filterKey);
@@ -185,7 +185,7 @@ interface SelectCategoriesFilterViewProps {
 }
 
 function SelectCategoriesFilterView(
-  props: SelectCategoriesFilterViewProps,
+  props: Readonly<SelectCategoriesFilterViewProps>,
 ): JSX.Element {
   const { filterKey } = props;
   const [query, setQuery] = useQueryState<string[] | undefined>(filterKey);

@@ -200,7 +200,7 @@ const getCustomerInfo = async (subdomain: string, contentType: string, contentId
       defaultValue: {},
     });
 
-    return { customerCode: company && company.code };
+    return { customerCode: company?.code };
   }
   if (contentType === 'user') {
     const user = await sendTRPCMessage({
@@ -213,7 +213,7 @@ const getCustomerInfo = async (subdomain: string, contentType: string, contentId
       defaultValue: {},
     });
 
-    return { workerEmail: user && user.email };
+    return { workerEmail: user?.email };
   }
 
   const customer = await sendTRPCMessage({
@@ -226,7 +226,7 @@ const getCustomerInfo = async (subdomain: string, contentType: string, contentId
     defaultValue: {},
   });
 
-  return { customerCode: customer && customer.code };
+  return { customerCode: customer?.code };
 }
 
 export default erkhetQueries;
