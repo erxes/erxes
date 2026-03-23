@@ -86,14 +86,28 @@ export async function verifyFacebookToken(
   try {
     const verifyUrl = `https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${appId}|${appSecret}`;
     const verifyResponse = await fetch(verifyUrl);
+
+    if (!verifyResponse.ok) {
+      throw new Error(`Facebook API returned ${verifyResponse.status}`);
+    }
+
     const verifyData = await verifyResponse.json();
 
     if (!verifyData.data || !verifyData.data.is_valid) {
       throw new Error('Invalid Facebook token');
     }
 
+    if (verifyData.data.app_id !== appId) {
+      throw new Error('Token app_id does not match');
+    }
+
     const profileUrl = `https://graph.facebook.com/me?fields=id,email,first_name,last_name,name,picture&access_token=${accessToken}`;
     const profileResponse = await fetch(profileUrl);
+
+    if (!profileResponse.ok) {
+      throw new Error(`Facebook API returned ${profileResponse.status}`);
+    }
+
     const profile = await profileResponse.json();
 
     if (profile.error) {
