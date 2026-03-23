@@ -92,6 +92,15 @@ const OrderCancel = ({
 
   const focus = () => setTimeout(() => setFocus(), 30)
 
+  const combinedRefetchQueries = Array.from(
+    new Set([
+      ...(refetchQueries ?? ["OrdersHistory"]),
+      "PoscSlots",
+      "ActiveOrders",
+      "OrdersTotalCount",
+    ])
+  )
+
   const [orderCancel, { loading }] = useMutation(mutations.ordersCancel, {
     variables: {
       _id,
@@ -107,7 +116,7 @@ const OrderCancel = ({
       changeOpen(null)
       focus()
     },
-    refetchQueries: refetchQueries || ["OrdersHistory"],
+    refetchQueries: combinedRefetchQueries,
   })
 
   const handleSubmit = (e: FormEvent) => {
