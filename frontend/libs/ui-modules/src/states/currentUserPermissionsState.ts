@@ -5,4 +5,6 @@ export const currentUserPermissionsState = atom<
   ICurrentUserPermission[] | null
 >(null);
 
+export const pluginsWithPermissionsState = atom<string[]>([]);
+
 export const isPermissionsLoadedState = atom<boolean>(false);

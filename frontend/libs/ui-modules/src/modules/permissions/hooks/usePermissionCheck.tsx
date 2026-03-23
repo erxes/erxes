@@ -2,12 +2,14 @@ import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import {
   currentUserPermissionsState,
+  pluginsWithPermissionsState,
   isPermissionsLoadedState,
 } from 'ui-modules/states/currentUserPermissionsState';
 import { currentUserState } from 'ui-modules/states/currentUserState';
 
 export const usePermissionCheck = () => {
   const permissions = useAtomValue(currentUserPermissionsState);
+  const pluginsWithPermissions = useAtomValue(pluginsWithPermissionsState);
   const isLoaded = useAtomValue(isPermissionsLoadedState);
   const currentUser = useAtomValue(currentUserState);
 
@@ -22,12 +24,13 @@ export const usePermissionCheck = () => {
   const hasPluginPermission = useMemo(() => {
     return (pluginName: string) => {
       if (isWildcard) return true;
+      if (!pluginsWithPermissions.includes(pluginName)) return true;
       if (!permissions) return false;
       return permissions.some(
         (p) => p.plugin === pluginName && p.actions.length > 0,
       );
     };
-  }, [permissions, isWildcard]);
+  }, [permissions, pluginsWithPermissions, isWildcard]);
 
   const hasModulePermission = useMemo(() => {
     return (moduleName: string) => {

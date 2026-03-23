@@ -139,8 +139,6 @@ export const canGroup = async (
   action: string,
   user?: IUserDocument,
 ): Promise<boolean> => {
-  console.log('user', user);
-
   if (!user || !user._id) return false;
 
   if (user.isOwner) return true;
