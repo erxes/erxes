@@ -179,7 +179,7 @@ export const SelectBranchesItem = ({
   branch: IBranch & { hasChildren: boolean };
 }) => {
   const { onSelect, branchIds } = useSelectBranchesContext();
-  const isSelected = branchIds?.some((b) => b === branch._id);
+  const isSelected = branchIds?.includes(branch._id);
   return (
     <SelectTree.Item
       key={branch._id}

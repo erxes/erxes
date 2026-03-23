@@ -187,7 +187,7 @@ export const SelectDepartmentsItem = ({
   department: IDepartment & { hasChildren: boolean };
 }) => {
   const { onSelect, departmentIds } = useSelectDepartmentsContext();
-  const isSelected = departmentIds?.some((d) => d === department._id);
+  const isSelected = departmentIds?.includes(department._id);
   return (
     <SelectTree.Item
       key={department._id}

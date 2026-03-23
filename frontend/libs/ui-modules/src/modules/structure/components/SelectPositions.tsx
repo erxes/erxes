@@ -183,7 +183,7 @@ export const SelectPositionsItem = ({
   position: IPosition & { hasChildren: boolean };
 }) => {
   const { onSelect, positionIds } = useSelectPositionsContext();
-  const isSelected = positionIds?.some((p) => p === position._id);
+  const isSelected = positionIds?.includes(position._id);
   return (
     <SelectTree.Item
       key={position._id}
