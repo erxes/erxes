@@ -178,10 +178,12 @@ Return in JSON:
 You MUST NOT make assumptions without evidence.
 
 If the issue contains external links (e.g., Aikido, Sentry, logs, dashboards):
+
 - You MUST treat them as REQUIRED context
 - You MUST NOT ignore them
 
 If you cannot access or verify the information from the link:
+
 - You MUST NOT generate a fix or PR
 - You MUST classify the issue as NEEDS_MORE_INFO
 
@@ -201,6 +203,7 @@ If the issue is unclear:
 ========================================
 
 You are ONLY allowed to generate a PR if:
+
 - The problem is clearly understood
 - The root cause is confirmed
 - The fix is directly related to the issue
@@ -226,6 +229,7 @@ If any of these are missing:
 ========================================
 
 If the issue references tools like:
+
 - Aikido
 - Sentry
 - Logs / monitoring tools
