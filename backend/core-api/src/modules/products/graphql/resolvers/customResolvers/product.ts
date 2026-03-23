@@ -32,13 +32,18 @@ export default {
     return models.Companies.findOne({ _id: product.vendorId });
   },
 
-  remainder: async (product: IProductDocument, args: any, _c: IContext, info: any) => {
-    const branchId = args.branchId || info?.variableValues?.branchId;
-    const departmentId = args.departmentId || info?.variableValues?.departmentId;
+  remainder: async (
+    product: IProductDocument,
+    _args: undefined,
+    _c: IContext,
+    info: any,
+  ) => {
+    const { branchId, departmentId } = info?.variableValues || {};
 
     if (branchId && departmentId) {
-      const { remainder, cost, soonIn, soonOut } = product?.inventories?.[branchId]?.[departmentId] || {};
-      return { remainder, cost, soonIn, soonOut }
+      const { remainder, cost, soonIn, soonOut } =
+        product?.inventories?.[branchId]?.[departmentId] || {};
+      return { remainder, cost, soonIn, soonOut };
     }
 
     const result = { remainder: 0, cost: 0, soonIn: 0, soonOut: 0 };

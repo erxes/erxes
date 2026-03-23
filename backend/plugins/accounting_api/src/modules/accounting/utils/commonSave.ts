@@ -4,7 +4,11 @@ import CurrencyTr from './currencyTr';
 import TaxTrs from './taxTrs';
 import { InvIncomeExpenseTrs } from './invIncome';
 import InvSaleOutCostTrs from './invSale';
-import { createOrUpdateTr, syncInProductsInventory, syncOutProductsInventory } from './utils';
+import {
+  createOrUpdateTr,
+  syncInProductsInventory,
+  syncOutProductsInventory,
+} from './utils';
 import InvMoveInTrs from './invMove';
 
 export const commonSave = async (
@@ -110,7 +114,7 @@ async function handleInvIncome(
 
   const transaction = await createOrUpdateTr(models, doc, oldTr);
 
-  await syncInProductsInventory(subdomain, transaction, oldTr)
+  await syncInProductsInventory(subdomain, transaction, oldTr);
 
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
@@ -128,7 +132,7 @@ async function handleInvOut(
 ) {
   const mainTr = await createOrUpdateTr(models, doc, oldTr);
 
-  await syncOutProductsInventory(subdomain, mainTr, oldTr)
+  await syncOutProductsInventory(subdomain, mainTr, oldTr);
 
   return { mainTr, otherTrs: [] };
 }

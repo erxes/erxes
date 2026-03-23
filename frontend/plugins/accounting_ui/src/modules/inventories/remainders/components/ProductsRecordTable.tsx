@@ -5,8 +5,7 @@ import { useProducts } from '../hooks/useProducts';
 import { productColumns } from './ProductColumns';
 
 export const ProductsRecordTable = () => {
-  const { productsMain, handleFetchMore, loading, pageInfo } =
-    useProducts();
+  const { productsMain, handleFetchMore, loading, pageInfo } = useProducts();
   const { t } = useTranslation('product');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};

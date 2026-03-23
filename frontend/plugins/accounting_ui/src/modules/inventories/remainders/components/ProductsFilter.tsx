@@ -7,7 +7,11 @@ import {
   useQueryState,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { IProductCategory, SelectBranches, SelectDepartments } from 'ui-modules';
+import {
+  IProductCategory,
+  SelectBranches,
+  SelectDepartments,
+} from 'ui-modules';
 import { IconFolders, IconCheck } from '@tabler/icons-react';
 import { useState, useEffect, useCallback } from 'react';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
@@ -269,8 +273,16 @@ export const ProductsFilter = () => {
         </Filter.Dialog>
         <Filter.SearchValueBarItem />
         <SelectCategoriesFilterBar filterKey="categoryIds" label="Category" />
-        <SelectBranches.FilterBar mode='single' filterKey='branchId' label='Branch' />
-        <SelectDepartments.FilterBar mode='single' filterKey='departmentId' label='Department' />
+        <SelectBranches.FilterBar
+          mode="single"
+          filterKey="branchId"
+          label="Branch"
+        />
+        <SelectDepartments.FilterBar
+          mode="single"
+          filterKey="departmentId"
+          label="Department"
+        />
         <ProductsTotalCount />
       </Filter.Bar>
     </Filter>
@@ -291,14 +303,17 @@ export const ProductsFilterPopover = () => {
                 value="categoryIds"
                 label="Category"
               />
-              <SelectBranches.FilterItem value='branchId' label='Branch' />
-              <SelectDepartments.FilterItem value='departmentId' label='Department' />
+              <SelectBranches.FilterItem value="branchId" label="Branch" />
+              <SelectDepartments.FilterItem
+                value="departmentId"
+                label="Department"
+              />
             </Command.List>
           </Command>
         </Filter.View>
         <SelectCategoriesFilterView filterKey="categoryIds" />
-        <SelectBranches.FilterView mode='single' filterKey='branchId' />
-        <SelectDepartments.FilterView mode='single' filterKey='departmentId' />
+        <SelectBranches.FilterView mode="single" filterKey="branchId" />
+        <SelectDepartments.FilterView mode="single" filterKey="departmentId" />
       </Combobox.Content>
     </Filter.Popover>
   );

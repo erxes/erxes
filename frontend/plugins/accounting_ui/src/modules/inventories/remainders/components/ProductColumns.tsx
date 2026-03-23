@@ -2,7 +2,7 @@ import {
   IconCategory,
   IconCurrencyDollar,
   IconHash,
-  IconLabel
+  IconLabel,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -111,15 +111,18 @@ export const productColumns: (
   {
     id: 'remainder',
     accessorKey: 'remainder',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('remainder')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('remainder')} />
+    ),
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.row.original?.remainder?.remainder} />
+          <TextOverflowTooltip
+            value={cell.row.original?.remainder?.remainder}
+          />
         </RecordTableInlineCell>
       );
     },
     size: 150,
   },
-  
 ];

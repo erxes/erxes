@@ -120,12 +120,12 @@ export const useProductsVariables = (
 
   const parsedSortDirection =
     sortDirection !== undefined &&
-      sortDirection !== null &&
-      sortDirection !== ''
+    sortDirection !== null &&
+    sortDirection !== ''
       ? Number(sortDirection)
       : undefined;
 
-  console.log(minRemainder, 'rrrrrrrr')
+  console.log(minRemainder, 'rrrrrrrr');
   return {
     ...variables, // allow caller overrides first (cursor, etc.)
 
@@ -144,14 +144,38 @@ export const useProductsVariables = (
 
     branchId: branchId || undefined,
     departmentId: departmentId || undefined,
-    minRemainder: minRemainder !== undefined && minRemainder !== null ? Number(minRemainder) : undefined,
-    maxRemainder: maxRemainder !== undefined && maxRemainder !== null ? Number(maxRemainder) : undefined,
-    minPrice: minPrice !== undefined && minPrice !== null ? Number(minPrice) : undefined,
-    maxPrice: maxPrice !== undefined && maxPrice !== null ? Number(maxPrice) : undefined,
-    minDiscountValue: minDiscountValue !== undefined && minDiscountValue !== null ? Number(minDiscountValue) : undefined,
-    maxDiscountValue: maxDiscountValue !== undefined && maxDiscountValue !== null ? Number(maxDiscountValue) : undefined,
-    minDiscountPercent: minDiscountPercent !== undefined && minDiscountPercent !== null ? Number(minDiscountPercent) : undefined,
-    maxDiscountPercent: maxDiscountPercent !== undefined && maxDiscountPercent !== null ? Number(maxDiscountPercent) : undefined,
+    minRemainder:
+      minRemainder !== undefined && minRemainder !== null
+        ? Number(minRemainder)
+        : undefined,
+    maxRemainder:
+      maxRemainder !== undefined && maxRemainder !== null
+        ? Number(maxRemainder)
+        : undefined,
+    minPrice:
+      minPrice !== undefined && minPrice !== null
+        ? Number(minPrice)
+        : undefined,
+    maxPrice:
+      maxPrice !== undefined && maxPrice !== null
+        ? Number(maxPrice)
+        : undefined,
+    minDiscountValue:
+      minDiscountValue !== undefined && minDiscountValue !== null
+        ? Number(minDiscountValue)
+        : undefined,
+    maxDiscountValue:
+      maxDiscountValue !== undefined && maxDiscountValue !== null
+        ? Number(maxDiscountValue)
+        : undefined,
+    minDiscountPercent:
+      minDiscountPercent !== undefined && minDiscountPercent !== null
+        ? Number(minDiscountPercent)
+        : undefined,
+    maxDiscountPercent:
+      maxDiscountPercent !== undefined && maxDiscountPercent !== null
+        ? Number(maxDiscountPercent)
+        : undefined,
 
     segment: segment || undefined,
     segmentData: segmentData || undefined,

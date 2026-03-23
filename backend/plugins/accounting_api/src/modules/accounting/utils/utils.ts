@@ -1,4 +1,8 @@
-import { ACCOUNT_JOURNALS, JOURNALS, ACCOUNT_KINDS } from '@/accounting/@types/constants';
+import {
+  ACCOUNT_JOURNALS,
+  JOURNALS,
+  ACCOUNT_KINDS,
+} from '@/accounting/@types/constants';
 import { IModels } from '~/connectionResolvers';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -6,17 +10,19 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 export const createOrUpdateTr = async (
   models: IModels,
   doc: ITransaction,
-  oldTr?: ITransactionDocument
+  oldTr?: ITransactionDocument,
 ): Promise<ITransactionDocument> => {
   if (oldTr?._id) {
     return await models.Transactions.updateTransaction(oldTr._id, { ...doc });
   }
 
   return await models.Transactions.createTransaction({ ...doc });
-}
+};
 
-export const getSingleJournalByAccount = (accJournal?: string, accKind?: string) => {
-
+export const getSingleJournalByAccount = (
+  accJournal?: string,
+  accKind?: string,
+) => {
   switch (accJournal) {
     case ACCOUNT_JOURNALS.BANK:
       return JOURNALS.BANK;
@@ -34,10 +40,12 @@ export const getSingleJournalByAccount = (accJournal?: string, accKind?: string)
     default:
       return JOURNALS.MAIN;
   }
-}
+};
 
 export const syncInProductsInventory = async (
-  subdomain: string, transaction: ITransactionDocument, oldTr?: ITransactionDocument
+  subdomain: string,
+  transaction: ITransactionDocument,
+  oldTr?: ITransactionDocument,
 ) => {
   const countByProductId: { [productId: string]: number } = {};
   transaction?.details.forEach((det) => {
@@ -102,10 +110,12 @@ export const syncInProductsInventory = async (
       },
     });
   }
-}
+};
 
 export const syncOutProductsInventory = async (
-  subdomain: string, transaction: ITransactionDocument, oldTr: ITransactionDocument
+  subdomain: string,
+  transaction: ITransactionDocument,
+  oldTr: ITransactionDocument
 ) => {
   const countByProductId: { [productId: string]: number } = {};
   transaction?.details.forEach((det) => {
@@ -170,4 +180,4 @@ export const syncOutProductsInventory = async (
       },
     });
   }
-}
+};

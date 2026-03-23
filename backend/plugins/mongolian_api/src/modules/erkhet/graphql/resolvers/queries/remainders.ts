@@ -65,16 +65,16 @@ const erkhetQueries = {
 
       const response = await fetch(
         configs.getRemainderApiUrl +
-        '?' +
-        new URLSearchParams({
-          kind: 'remainder',
-          api_key: configs.apiKey,
-          api_secret: configs.apiSecret,
-          check_relate: codes.length < 4 ? '1' : '',
-          accounts: remConfig.account,
-          locations: remConfig.location,
-          inventories: codes.join(','),
-        }),
+          '?' +
+          new URLSearchParams({
+            kind: 'remainder',
+            api_key: configs.apiKey,
+            api_secret: configs.apiSecret,
+            check_relate: codes.length < 4 ? '1' : '',
+            accounts: remConfig.account,
+            locations: remConfig.location,
+            inventories: codes.join(','),
+          }),
         {
           timeout: 9000,
         },
@@ -164,7 +164,7 @@ const erkhetQueries = {
         endDate:
           (endDate && getPureDate(endDate).toISOString().slice(0, 10)) || '',
         isMore: (isMore && 'True') || '',
-        ...(await getCustomerInfo(subdomain, contentType, contentId))
+        ...(await getCustomerInfo(subdomain, contentType, contentId)),
       };
 
       if (!sendParams.customerCode && !sendParams.workerEmail) {
@@ -187,9 +187,12 @@ const erkhetQueries = {
   },
 };
 
-const getCustomerInfo = async (subdomain: string, contentType: string, contentId: string) => {
+const getCustomerInfo = async (
+  subdomain: string,
+  contentType: string,
+  contentId: string,
+) => {
   if (contentType === 'company') {
-
     const company = await sendTRPCMessage({
       subdomain,
       method: 'query',
