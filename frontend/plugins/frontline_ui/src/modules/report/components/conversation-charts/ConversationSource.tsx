@@ -61,7 +61,7 @@ export const ConversationSource = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationSourceProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const id = title.toLowerCase().replaceAll(' ', '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
   const [sourceFilter, setSourceFilter] = useAtom(
@@ -87,7 +87,7 @@ export const ConversationSource = ({
         ...filters,
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        source: sourceFilter === 'all' ? undefined : sourceFilter,
         callStatus:
           sourceFilter === 'calls' && callStatusFilter !== 'all'
             ? callStatusFilter
@@ -224,7 +224,7 @@ export const SourceBarChart = memo(function SourceBarChart({
       .filter((item) => item != null)
       .map((item) => {
         const count =
-          typeof item.count === 'number' && !isNaN(item.count) ? item.count : 0;
+          typeof item.count === 'number' && !Number.isNaN(item.count) ? item.count : 0;
         const source = String(item.name || item._id || 'Unknown').trim();
 
         return {
