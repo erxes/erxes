@@ -266,7 +266,9 @@ export function PageDrawer({
         videoUrl: p.videoUrl || '',
         audio: (p.audio && p.audio.url) || p.audio || null,
         documents: (p.documents || []).map((d: any) => d.url).filter(Boolean),
-        attachments: (p.attachments || []).map((a: any) => a.url).filter(Boolean),
+        attachments: (p.attachments || [])
+          .map((a: any) => a.url)
+          .filter(Boolean),
       });
     } else {
       form.reset({
@@ -386,7 +388,9 @@ export function PageDrawer({
 
     const imagesPayload = makeAttachmentArrayFromUrls(data.gallery ?? []);
     const documentsPayload = makeAttachmentArrayFromUrls(data.documents ?? []);
-    const attachmentsPayload = makeAttachmentArrayFromUrls(data.attachments ?? []);
+    const attachmentsPayload = makeAttachmentArrayFromUrls(
+      data.attachments ?? [],
+    );
     const videoPayload = normalizeAttachment(data.video ?? undefined);
     const audioPayload = normalizeAttachment(data.audio ?? undefined);
 
@@ -402,8 +406,12 @@ export function PageDrawer({
       video: videoPayload as any,
       videoUrl: data.videoUrl,
       audio: audioPayload as any,
-      documents: documentsPayload.length ? (documentsPayload as any) : undefined,
-      attachments: attachmentsPayload.length ? (attachmentsPayload as any) : undefined,
+      documents: documentsPayload.length
+        ? (documentsPayload as any)
+        : undefined,
+      attachments: attachmentsPayload.length
+        ? (attachmentsPayload as any)
+        : undefined,
     };
 
     if (curSelectedLanguage) {
