@@ -1,13 +1,7 @@
 import { AccountingDialog } from '@/layout/components/Dialog';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  Dialog,
-  Form,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, Dialog, Form, Spinner, useQueryState } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 // import { useSafeRemainderAdd } from '../hooks/useSafeRemainderAdd';
@@ -39,9 +33,7 @@ const AddSafeRemainderForm = ({
 }) => {
   const form = useForm<TReCalcRemainderForm>({
     resolver: zodResolver(reCalcRemainderSchema),
-    defaultValues: {
-      
-    },
+    defaultValues: {},
   });
   const { addSafeRemainder, loading } = useSafeRemainderAdd();
   const onSubmit = (data: TReCalcRemainderForm) => {
@@ -64,9 +56,7 @@ const AddSafeRemainderForm = ({
         className="p-6 flex-auto overflow-auto"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
-        <h3 className="text-lg font-bold">
-          ReCalc Live remainder
-        </h3>
+        <h3 className="text-lg font-bold">ReCalc Live remainder</h3>
         <Form.Field
           control={form.control}
           name="branchId"

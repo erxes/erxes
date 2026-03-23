@@ -1,7 +1,8 @@
 // scripts/start-dev.js
 require('dotenv').config();
 
-const { ENABLED_PLUGINS, ENABLED_SERVICES, ENABLED_PLUGINS_ONLY_API } = process.env;
+const { ENABLED_PLUGINS, ENABLED_SERVICES, ENABLED_PLUGINS_ONLY_API } =
+  process.env;
 const { execSync } = require('child_process');
 
 let plugins = '';

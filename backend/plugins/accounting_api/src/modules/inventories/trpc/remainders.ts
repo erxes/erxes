@@ -3,5 +3,4 @@ import { AccountingTRPCContext } from '~/init-trpc';
 
 const t = initTRPC.context<AccountingTRPCContext>().create();
 
-export const remainderTrpcRouter = t.router({
-});
+export const remainderTrpcRouter = t.router({});

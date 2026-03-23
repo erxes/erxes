@@ -99,7 +99,9 @@ export const updateLiveRemainders = async ({
 
   // Get product ids
   const allProductIds = products.map((item: any) => item._id);
-  const inventoryByProductId: { [productId: string]: { remainder: number, cost: number } } = {};
+  const inventoryByProductId: {
+    [productId: string]: { remainder: number; cost: number };
+  } = {};
   const invAccountIds = (
     await models.Accounts.find({
       journal: { $in: ACCOUNT_JOURNALS.INVENTORY },
@@ -129,10 +131,13 @@ export const updateLiveRemainders = async ({
 
     for (const lastDet of lastConfigedDetails) {
       if (!inventoryByProductId[lastDet.productId]) {
-        inventoryByProductId[lastDet.productId] = { remainder: 0, cost: 0 }
+        inventoryByProductId[lastDet.productId] = { remainder: 0, cost: 0 };
       }
-      inventoryByProductId[lastDet.productId]['remainder'] = (inventoryByProductId[lastDet.productId]?.['remainder'] ?? 0) + lastDet.remainder;
-      inventoryByProductId[lastDet.productId]['cost'] = (inventoryByProductId[lastDet.productId]?.['cost'] ?? 0) + lastDet.cost;
+      inventoryByProductId[lastDet.productId]['remainder'] =
+        (inventoryByProductId[lastDet.productId]?.['remainder'] ?? 0) +
+        lastDet.remainder;
+      inventoryByProductId[lastDet.productId]['cost'] =
+        (inventoryByProductId[lastDet.productId]?.['cost'] ?? 0) + lastDet.cost;
     }
   }
 
@@ -150,10 +155,13 @@ export const updateLiveRemainders = async ({
     const multiplier = side === TR_SIDES.CREDIT ? -1 : 1;
 
     if (!inventoryByProductId[productId]) {
-      inventoryByProductId[productId] = { remainder: 0, cost: 0 }
+      inventoryByProductId[productId] = { remainder: 0, cost: 0 };
     }
-    inventoryByProductId[productId]['remainder'] = (inventoryByProductId[productId]?.['remainder'] ?? 0) + multiplier * count;
-    inventoryByProductId[productId]['cost'] = (inventoryByProductId[productId]?.['cost'] ?? 0) + multiplier * amount;
+    inventoryByProductId[productId]['remainder'] =
+      (inventoryByProductId[productId]?.['remainder'] ?? 0) +
+      multiplier * count;
+    inventoryByProductId[productId]['cost'] =
+      (inventoryByProductId[productId]?.['cost'] ?? 0) + multiplier * amount;
   }
 
   const resultRemainder: any[] = [];
@@ -172,10 +180,14 @@ export const updateLiveRemainders = async ({
     const productId = product._id;
     const productRemainder =
       product.inventories?.[branchId]?.[departmentId]?.remainder ?? 0;
-    const productCost = product.inventories?.[branchId]?.[departmentId]?.cost ?? 0;
+    const productCost =
+      product.inventories?.[branchId]?.[departmentId]?.cost ?? 0;
     const newInfo = inventoryByProductId[productId];
 
-    if (productRemainder === newInfo.remainder && productCost === newInfo.cost) {
+    if (
+      productRemainder === newInfo.remainder &&
+      productCost === newInfo.cost
+    ) {
       continue;
     }
 
@@ -190,7 +202,7 @@ export const updateLiveRemainders = async ({
       departmentId,
       productId,
       count: newInfo.remainder,
-      cost: newInfo.cost
+      cost: newInfo.cost,
     });
 
     if (counter > 100) {

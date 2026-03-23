@@ -160,21 +160,21 @@ export const productsTrpcRouter = t.router({
               updateSet[`inventories.${branchId}.${departmentId}.remainder`] =
                 info.remainder;
             } else {
-              unSet[`inventories.${branchId}.${departmentId}.remainder`] = 0
+              unSet[`inventories.${branchId}.${departmentId}.remainder`] = 0;
             }
 
             if (info.cost) {
               updateSet[`inventories.${branchId}.${departmentId}.cost`] =
-                info.cost
+                info.cost;
             } else {
-              unSet[`inventories.${branchId}.${departmentId}.cost`] = 0
+              unSet[`inventories.${branchId}.${departmentId}.cost`] = 0;
             }
 
             if (info.soonIn) {
               updateSet[`inventories.${branchId}.${departmentId}.soonIn`] =
                 info.soonIn;
             } else {
-              unSet[`inventories.${branchId}.${departmentId}.soonIn`] = 0
+              unSet[`inventories.${branchId}.${departmentId}.soonIn`] = 0;
             }
 
             if (info.soonOut) {
