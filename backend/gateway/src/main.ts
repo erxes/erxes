@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import * as http from 'http';
 import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
@@ -18,6 +19,7 @@ import {
   applyProxiesCoreless,
   applyProxyToCore,
   proxyReq,
+  addSecurityHeaders,
 } from '~/proxy/middleware';
 
 import { getPlugin, getPlugins, getSubdomain, isDev, redis, setActivePlugins } from 'erxes-api-shared/utils';
@@ -75,6 +77,15 @@ serverAdapter.setBasePath('/bullmq-board');
 const app = express();
 
 app.use(cookieParser());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+      },
+    },
+  }),
+);
 
 app.use(async (req, res, next) => {
   const appToken = req.headers['x-app-api-token'] as string;
@@ -166,17 +177,17 @@ app.use('/pl:serviceName', async (req, res) => {
     const targetUrl = service.address;
 
     if (targetUrl) {
-      // Proxy the request to the target service using the custom headers
       return createProxyMiddleware({
         target: targetUrl,
-        changeOrigin: true, // Change the origin header to the target URL's origin
+        changeOrigin: true,
         on: {
           proxyReq,
+          proxyRes: addSecurityHeaders,
         },
         pathRewrite: {
-          [`^/pl:${serviceName}`]: '/', // Rewriting the path if needed
+          [`^/pl:${serviceName}`]: '/',
         },
-      })(req, res); // Forward the request to the target service
+      })(req, res);
     } else {
       // Service not found, return 404
       res.status(404).send('Service not found');

@@ -37,6 +37,7 @@
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "helmet": "^8.1.0",
     "graphql": "^16.9.0",
     "graphql-redis-subscriptions": "^2.7.0",
     "graphql-subscriptions": "^3.0.0",
