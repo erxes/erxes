@@ -127,5 +127,5 @@ export const makeAttachmentArrayFromUrls = (urls?: (string | null)[]) => {
   return (urls || [])
     .filter(Boolean)
     .map((u) => makeAttachmentFromUrl(u as string))
-    .filter(Boolean);
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
 };
