@@ -22,6 +22,12 @@ import { PAGE_LIST } from '../graphql/queries/pagesListQueries';
 
 // --- Types ---
 
+interface IRawPage {
+  _id: string;
+  name?: string;
+  parentId?: string;
+}
+
 interface IPageItem {
   _id: string;
   name: string;
@@ -54,12 +60,12 @@ const useSelectParentPageContext = () => {
 
 // --- Utilities ---
 
-const buildTree = (rawPages: any[]): IPageItem[] => {
-  const childrenMap = new Map<string, any[]>();
-  const roots: any[] = [];
+const buildTree = (rawPages: IRawPage[]): IPageItem[] => {
+  const childrenMap = new Map<string, IRawPage[]>();
+  const roots: IRawPage[] = [];
 
-  rawPages.forEach((p: any) => {
-    if (p.parentId && rawPages.some((r: any) => r._id === p.parentId)) {
+  rawPages.forEach((p) => {
+    if (p.parentId && rawPages.some((r) => r._id === p.parentId)) {
       const siblings = childrenMap.get(p.parentId) || [];
       siblings.push(p);
       childrenMap.set(p.parentId, siblings);
@@ -69,12 +75,12 @@ const buildTree = (rawPages: any[]): IPageItem[] => {
   });
 
   const childSet = new Set(
-    rawPages.filter((p: any) => p.parentId).map((p: any) => p.parentId),
+    rawPages.filter((p) => p.parentId).map((p) => p.parentId),
   );
 
   const result: IPageItem[] = [];
 
-  const walk = (items: any[], parentOrder: string) => {
+  const walk = (items: IRawPage[], parentOrder: string) => {
     items.forEach((item, index) => {
       const order = parentOrder
         ? `${parentOrder}/${String(index + 1).padStart(4, '0')}`
@@ -113,11 +119,11 @@ const useParentPages = (websiteId: string, search?: string) => {
   });
 
   const pages: IPageItem[] = useMemo(() => {
-    const rawPages = data?.cmsPageList?.pages || [];
+    const rawPages: IRawPage[] = data?.cmsPageList?.pages || [];
     return buildTree(rawPages);
   }, [data]);
 
-  const totalCount = data?.cmsPageList?.totalCount || 0;
+  const totalCount: number = data?.cmsPageList?.totalCount || 0;
 
   return { pages, loading, error, totalCount };
 };
@@ -143,7 +149,7 @@ const SelectParentPageProvider = ({
     if (initialPage && !selectedPage) {
       setSelectedPage(initialPage);
     }
-  }, [initialPage]);
+  }, [initialPage, selectedPage]);
 
   const handleSelect = useCallback(
     (page: IPageItem | null) => {
@@ -202,10 +208,40 @@ const SelectParentPageItem = ({ page }: { page: IPageItem }) => {
 
 // --- Command ---
 
+const NoneOption = () => {
+  const { onSelect, value } = useSelectParentPageContext();
+  return (
+    <Command.Item
+      onSelect={() => onSelect(null)}
+      className={cn(
+        'py-0 items-center flex-1 overflow-hidden justify-start',
+        !value && 'text-primary',
+      )}
+    >
+      <span className="font-medium">None</span>
+      <Combobox.Check checked={!value} />
+    </Command.Item>
+  );
+};
+
+const PageTreeList = ({
+  pages,
+  search,
+}: {
+  pages: IPageItem[];
+  search: string;
+}) => (
+  <SelectTree.Provider id="select-parent-page" ordered={!search}>
+    <NoneOption />
+    {pages.map((page) => (
+      <SelectParentPageItem key={page._id} page={page} />
+    ))}
+  </SelectTree.Provider>
+);
+
 const SelectParentPageCommand = ({ websiteId }: { websiteId: string }) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { onSelect, value } = useSelectParentPageContext();
 
   const { pages, loading, error } = useParentPages(websiteId, debouncedSearch);
 
@@ -219,21 +255,7 @@ const SelectParentPageCommand = ({ websiteId }: { websiteId: string }) => {
       />
       <Command.List>
         <Combobox.Empty loading={loading} error={error} />
-        <SelectTree.Provider id="select-parent-page" ordered={!search}>
-          <Command.Item
-            onSelect={() => onSelect(null)}
-            className={cn(
-              'py-0 items-center flex-1 overflow-hidden justify-start',
-              !value && 'text-primary',
-            )}
-          >
-            <span className="font-medium">None</span>
-            <Combobox.Check checked={!value} />
-          </Command.Item>
-          {pages.map((page) => (
-            <SelectParentPageItem key={page._id} page={page} />
-          ))}
-        </SelectTree.Provider>
+        <PageTreeList pages={pages} search={search} />
       </Command.List>
     </Command>
   );
@@ -269,6 +291,31 @@ const SelectParentPageValue = ({ pages }: { pages?: IPageItem[] }) => {
 
 // --- FormItem ---
 
+const FormItemPopover = ({
+  pages,
+  websiteId,
+  className,
+  open,
+  onOpenChange,
+}: {
+  pages: IPageItem[];
+  websiteId: string;
+  className?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => (
+  <Popover open={open} onOpenChange={onOpenChange}>
+    <Form.Control>
+      <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+        <SelectParentPageValue pages={pages} />
+      </Combobox.Trigger>
+    </Form.Control>
+    <Combobox.Content>
+      <SelectParentPageContent websiteId={websiteId} />
+    </Combobox.Content>
+  </Popover>
+);
+
 const SelectParentPageFormItem = ({
   onValueChange,
   value,
@@ -300,16 +347,13 @@ const SelectParentPageFormItem = ({
       currentPageId={currentPageId}
       initialPage={initialPage}
     >
-      <Popover open={open} onOpenChange={setOpen}>
-        <Form.Control>
-          <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
-            <SelectParentPageValue pages={pages} />
-          </Combobox.Trigger>
-        </Form.Control>
-        <Combobox.Content>
-          <SelectParentPageContent websiteId={websiteId} />
-        </Combobox.Content>
-      </Popover>
+      <FormItemPopover
+        pages={pages}
+        websiteId={websiteId}
+        className={className}
+        open={open}
+        onOpenChange={setOpen}
+      />
     </SelectParentPageProvider>
   );
 };

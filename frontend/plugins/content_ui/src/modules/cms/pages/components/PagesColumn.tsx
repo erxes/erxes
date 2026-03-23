@@ -14,17 +14,18 @@ import {
   IconSitemap,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { IPage } from '../types/pageTypes';
 
 export const usePagesColumns = (
-  onEditPage?: (page: any) => void,
+  onEditPage?: (page: IPage) => void,
   onRefetch?: () => void,
-  pages?: any[],
-): ColumnDef<any>[] => {
+  pages?: IPage[],
+): ColumnDef<IPage>[] => {
   const navigate = useNavigate();
 
   return [
-    pageMoreColumn(onEditPage, undefined, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    pageMoreColumn(onEditPage, undefined, onRefetch) as ColumnDef<IPage>,
+    RecordTable.checkboxColumn as ColumnDef<IPage>,
     {
       id: 'name',
       header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
@@ -64,7 +65,7 @@ export const usePagesColumns = (
             <RecordTableInlineCell className="text-muted-foreground"></RecordTableInlineCell>
           );
         }
-        const parent = pages?.find((p: any) => p._id === page.parentId);
+        const parent = pages?.find((p) => p._id === page.parentId);
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip value={parent?.name || page.parentId} />

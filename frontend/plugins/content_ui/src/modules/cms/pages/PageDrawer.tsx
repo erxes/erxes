@@ -1,7 +1,7 @@
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Form, ScrollArea, toast } from 'erxes-ui';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
 import { useAddPage } from './hooks/useAddPage';
 import { useEditPage } from './hooks/useEditPage';
@@ -37,6 +37,14 @@ interface BlockContent {
   };
 }
 
+const escapeHtml = (str: string): string =>
+  str
+    .replaceAll(/&/g, '&amp;')
+    .replaceAll(/</g, '&lt;')
+    .replaceAll(/>/g, '&gt;')
+    .replaceAll(/"/g, '&quot;')
+    .replaceAll(/'/g, '&#39;');
+
 const blocksToHtml = (raw: string): string => {
   try {
     const blocks = JSON.parse(raw) as BlockContent[];
@@ -47,7 +55,7 @@ const blocksToHtml = (raw: string): string => {
         const inlines = block.content ?? [];
         const html = inlines
           .map((inline) => {
-            let text = inline.text ?? '';
+            let text = escapeHtml(inline.text ?? '');
             if (inline.styles?.bold) text = `<strong>${text}</strong>`;
             if (inline.styles?.italic) text = `<em>${text}</em>`;
             if (inline.styles?.underline) text = `<u>${text}</u>`;
@@ -184,9 +192,9 @@ function buildPageTranslations(
 
 interface PageFormProps extends IPageDrawerProps {
   onFormReady?: (formState: {
-    form: any;
-    onSubmit: (data?: any) => void;
-    saving: boolean;
+    form: UseFormReturn<IPageFormData>;
+    onSubmit: (data: IPageFormData) => void;
+    getSaving: () => boolean;
   }) => void;
 }
 
@@ -199,7 +207,6 @@ export function PageDrawer({
   const isEditing = Boolean(page);
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
-  // Fetch CMS config for languages
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
@@ -249,24 +256,28 @@ export function PageDrawer({
   const { addPage, loading: savingAdd } = useAddPage();
   const saving = savingEdit || savingAdd;
 
+  const savingRef = useRef(saving);
+  useEffect(() => {
+    savingRef.current = saving;
+  }, [saving]);
+
   useEffect(() => {
     if (isEditing && page) {
-      const p = page as any;
       form.reset({
         name: page.name || '',
         path: page.slug || '',
         description: page.description || '',
-        excerpt: p.excerpt || '',
-        parentId: p.parentId || '',
+        excerpt: page.excerpt || '',
+        parentId: page.parentId || '',
         status: page.status || 'active',
         clientPortalId,
-        thumbnail: p.thumbnail || null,
-        gallery: (p.pageImages || []).map((i: any) => i.url).filter(Boolean),
-        video: (p.video && p.video.url) || p.video || null,
-        videoUrl: p.videoUrl || '',
-        audio: (p.audio && p.audio.url) || p.audio || null,
-        documents: (p.documents || []).map((d: any) => d.url).filter(Boolean),
-        attachments: (p.attachments || []).map((a: any) => a.url).filter(Boolean),
+        thumbnail: page.thumbnail || null,
+        gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
+        video: page.video?.url || null,
+        videoUrl: page.videoUrl || '',
+        audio: page.audio?.url || null,
+        documents: (page.documents || []).map((d) => d.url).filter(Boolean),
+        attachments: (page.attachments || []).map((a) => a.url).filter(Boolean),
       });
     } else {
       form.reset({
@@ -327,7 +338,6 @@ export function PageDrawer({
     }
   };
 
-  // Keep refs so the stable onSubmit always reads the latest values
   const selectedLanguageRef = useRef(selectedLanguage);
   useEffect(() => {
     selectedLanguageRef.current = selectedLanguage;
@@ -348,7 +358,7 @@ export function PageDrawer({
     translationsRef.current = translations;
   }, [translations]);
 
-  const onSubmitRef = useRef<(data: IPageFormData) => void>(() => {});
+  const onSubmitRef = useRef<(data: IPageFormData) => void>(() => undefined);
 
   onSubmitRef.current = (data: IPageFormData) => {
     const curSelectedLanguage = selectedLanguageRef.current;
@@ -386,7 +396,9 @@ export function PageDrawer({
 
     const imagesPayload = makeAttachmentArrayFromUrls(data.gallery ?? []);
     const documentsPayload = makeAttachmentArrayFromUrls(data.documents ?? []);
-    const attachmentsPayload = makeAttachmentArrayFromUrls(data.attachments ?? []);
+    const attachmentsPayload = makeAttachmentArrayFromUrls(
+      data.attachments ?? [],
+    );
     const videoPayload = normalizeAttachment(data.video ?? undefined);
     const audioPayload = normalizeAttachment(data.audio ?? undefined);
 
@@ -397,13 +409,13 @@ export function PageDrawer({
       description: main.description,
       parentId: data.parentId || undefined,
       status: data.status || 'active',
-      thumbnail: normalizeAttachment(data.thumbnail ?? undefined) as any,
-      pageImages: imagesPayload.length ? (imagesPayload as any) : undefined,
-      video: videoPayload as any,
+      thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
+      pageImages: imagesPayload.length ? imagesPayload : undefined,
+      video: videoPayload,
       videoUrl: data.videoUrl,
-      audio: audioPayload as any,
-      documents: documentsPayload.length ? (documentsPayload as any) : undefined,
-      attachments: attachmentsPayload.length ? (attachmentsPayload as any) : undefined,
+      audio: audioPayload,
+      documents: documentsPayload.length ? documentsPayload : undefined,
+      attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
     };
 
     if (curSelectedLanguage) {
@@ -439,16 +451,11 @@ export function PageDrawer({
     }
   };
 
-  // Stable wrapper — safe to capture in onFormReady
   const onSubmit = useCallback(
     (data: IPageFormData) => onSubmitRef.current(data),
     [],
   );
 
-  /**
-   * Language switch handler for pages.
-   * Maps: name ↔ title, description ↔ content in translations.
-   */
   const isSwitchingLanguageRef = useRef(false);
 
   const onLanguageChange = (lang: string) => {
@@ -464,7 +471,6 @@ export function PageDrawer({
         form.setValue('name', data.title || '');
         form.setValue('description', data.content || '');
         form.setValue('excerpt', data.excerpt || '');
-        // Allow editor onChange after the new editor has mounted
         requestAnimationFrame(() => {
           isSwitchingLanguageRef.current = false;
         });
@@ -473,7 +479,7 @@ export function PageDrawer({
         ? {
             title: page.name || '',
             content: page.description || '',
-            excerpt: (page as any).excerpt || '',
+            excerpt: page.excerpt || '',
           }
         : undefined,
     );
@@ -489,12 +495,14 @@ export function PageDrawer({
 
   const formInitializedRef = useRef(false);
 
+  const getSaving = useCallback(() => savingRef.current, []);
+
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
-      onFormReady({ form, onSubmit, saving });
+      onFormReady({ form, onSubmit, getSaving });
       formInitializedRef.current = true;
     }
-  }, [form, onSubmit, saving, onFormReady]);
+  }, [form, onSubmit, getSaving, onFormReady]);
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
@@ -530,7 +538,6 @@ export function PageDrawer({
               websiteId={clientPortalId}
               currentPageId={page?._id}
               availableLanguages={availableLanguages}
-              defaultLanguage={defaultLanguage}
               selectedLanguage={selectedLanguage}
               languageOptions={languageOptions}
               handleLanguageChange={onLanguageChange}

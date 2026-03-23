@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Button } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
@@ -14,11 +15,21 @@ export const HeaderLanguageTabs = () => {
   });
 
   const cmsConfig = data?.contentCMSList?.find(
-    (cms: any) => cms.clientPortalId === websiteId,
+    (cms: { clientPortalId?: string }) => cms.clientPortalId === websiteId,
   );
 
   const availableLanguages: string[] = cmsConfig?.languages || [];
   const defaultLanguage: string = cmsConfig?.language || 'en';
+
+  useEffect(() => {
+    if (
+      selectedLanguage &&
+      availableLanguages.length > 0 &&
+      !availableLanguages.includes(selectedLanguage)
+    ) {
+      setSelectedLanguage(defaultLanguage);
+    }
+  }, [websiteId, availableLanguages, selectedLanguage, defaultLanguage, setSelectedLanguage]);
 
   if (availableLanguages.length <= 1) return null;
 

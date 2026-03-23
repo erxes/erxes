@@ -1,21 +1,19 @@
 import { Button, Form, Spinner } from 'erxes-ui';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
+import { IPageFormData } from '../types/pageTypes';
 
 interface PageHeaderActionsProps {
-  form: UseFormReturn<any>;
-  onSubmit: () => void;
-  saving: boolean;
+  form: UseFormReturn<IPageFormData>;
+  onSubmit: (data: IPageFormData) => void;
+  getSaving: () => boolean;
 }
 
 export const PageHeaderActions = ({
   form,
   onSubmit,
-  saving,
+  getSaving,
 }: PageHeaderActionsProps) => {
-  const status = useWatch({
-    control: form.control,
-    name: 'status',
-  });
+  const saving = getSaving();
 
   return (
     <div className="flex items-center gap-2">
