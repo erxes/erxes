@@ -1,5 +1,5 @@
 # Base image
-FROM node:22-alpine AS base
+FROM node:22-alpine3.22 AS base
 WORKDIR /app
 RUN apk add --no-cache git ca-certificates curl
 RUN npm install -g pnpm

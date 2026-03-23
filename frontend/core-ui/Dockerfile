@@ -1,5 +1,5 @@
 # Build jo from source
-FROM alpine:3.11 AS jo-builder
+FROM alpine:3.22 AS jo-builder
 RUN apk add --no-cache alpine-sdk && \
     cd /tmp && curl -s -LO https://github.com/jpmens/jo/releases/download/1.3/jo-1.3.tar.gz && \
     tar xzf jo-1.3.tar.gz && \
@@ -9,7 +9,7 @@ RUN apk add --no-cache alpine-sdk && \
     make install
 
 # Build the application
-FROM node:22-alpine AS build
+FROM node:22-alpine3.22 AS build
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm install
@@ -17,7 +17,7 @@ COPY . .
 RUN pnpm nx build core-ui --configuration=production --verbose
 
 # Final stage
-FROM nginx:alpine
+FROM nginx:alpine3.22
 
 # Copy jo from builder
 COPY --from=jo-builder /usr/local/bin/jo /usr/local/bin/jo
