@@ -19,7 +19,10 @@ import {
 } from '@/integrations/erxes-messenger/components/EMLayout';
 import { SelectMember, SelectBrand } from 'ui-modules';
 import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
-import { erxesMessengerSetupConfigAtom, erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import {
+  erxesMessengerSetupConfigAtom,
+  erxesMessengerSetupEditSheetOpenAtom,
+} from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 import { useCreateMessenger } from '@/integrations/erxes-messenger/hooks/useCreateMessenger';
 import { useEditMessenger } from '@/integrations/erxes-messenger/hooks/useEditMessenger';
