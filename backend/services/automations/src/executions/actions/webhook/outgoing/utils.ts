@@ -1,11 +1,9 @@
 import { OutgoingAuthConfig, OutgoingHeaderItem, OutgoingRetryOptions, TOutgoinWebhookActionConfig } from '@/types';
-import * as https from 'https';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import jwt from 'jsonwebtoken';
 
 export const generateFetchAgent = (
   options: TOutgoinWebhookActionConfig['options'],
-  ignoreSSL: boolean,
 ) => {
   const { proxy } = options || {};
   let agent: any | undefined;
@@ -21,8 +19,6 @@ export const generateFetchAgent = (
     } catch {
       // Fallback: ignore proxy if module is unavailable
     }
-  } else if (ignoreSSL) {
-    agent = new https.Agent({ rejectUnauthorized: false });
   }
 
   return agent;

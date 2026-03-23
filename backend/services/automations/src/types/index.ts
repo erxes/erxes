@@ -29,7 +29,6 @@ interface OutgoingProxyOptions {
 
 interface OutgoingOptions {
   timeout?: number;
-  ignoreSSL?: boolean;
   followRedirect?: boolean;
   maxRedirects?: number;
   retry?: OutgoingRetryOptions;
