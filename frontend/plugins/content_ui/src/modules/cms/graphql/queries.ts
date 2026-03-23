@@ -308,6 +308,7 @@ export const CMS_POSTS_EDIT = gql`
       tagIds
       featured
       featuredDate
+      publishedDate
       scheduledDate
       autoArchiveDate
       reactions
@@ -397,6 +398,7 @@ export const CMS_POST = gql`
       authorId
       featured
       featuredDate
+      publishedDate
       scheduledDate
       autoArchiveDate
       reactions

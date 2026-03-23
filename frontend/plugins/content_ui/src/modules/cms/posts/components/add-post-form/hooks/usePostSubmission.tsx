@@ -51,6 +51,7 @@ interface PostFormData {
   documents?: string[];
   attachments?: string[];
   pdf?: string | null;
+  publishDate?: Date | null;
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
@@ -234,6 +235,7 @@ const buildPostInput = (
     categoryIds: data.categoryIds,
     tagIds: data.tagIds,
     featured: data.featured,
+    publishedDate: data.publishDate ?? undefined,
     scheduledDate: data.scheduledDate ?? undefined,
     autoArchiveDate: data.enableAutoArchive ? data.autoArchiveDate : undefined,
     excerpt: main.excerpt,

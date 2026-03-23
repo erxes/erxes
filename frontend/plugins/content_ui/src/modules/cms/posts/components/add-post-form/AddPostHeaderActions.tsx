@@ -145,7 +145,12 @@ export const AddPostHeaderActions = ({
                         field.value === 'published' ? 'default' : 'ghost'
                       }
                       size="sm"
-                      onClick={() => field.onChange('published')}
+                      onClick={() => {
+                        field.onChange('published');
+                        if (!form.getValues('publishDate')) {
+                          form.setValue('publishDate', new Date());
+                        }
+                      }}
                       className="h-8"
                     >
                       Publish

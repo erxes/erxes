@@ -67,6 +67,11 @@ export const types = `
     scope: String!
   }
 
+  type CurrentUserPermissionsResult {
+    permissions: [UserPermission]!
+    pluginsWithPermissions: [String]!
+  }
+
   type CustomPermission {
     plugin: String!
     module: String!
@@ -81,7 +86,7 @@ export const queries = `
   permissionDefaultGroups: [DefaultPermissionGroup]
   permissionGroups: [PermissionGroup]
   permissionGroupDetail(id: String!): PermissionGroup
-  currentUserPermissions: [UserPermission]
+  currentUserPermissions: CurrentUserPermissionsResult
 `;
 
 export const mutations = `

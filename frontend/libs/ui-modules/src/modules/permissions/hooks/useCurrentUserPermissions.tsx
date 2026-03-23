@@ -8,12 +8,18 @@ export interface ICurrentUserPermission {
   scope: string;
 }
 
+export interface ICurrentUserPermissionsResult {
+  permissions: ICurrentUserPermission[];
+  pluginsWithPermissions: string[];
+}
+
 export const useCurrentUserPermissions = () => {
   const { data, error, loading } = useQuery<{
-    currentUserPermissions: ICurrentUserPermission[];
+    currentUserPermissions: ICurrentUserPermissionsResult;
   }>(CURRENT_USER_PERMISSIONS);
   return {
-    currentUserPermissions: data?.currentUserPermissions ?? [],
+    currentUserPermissions: data?.currentUserPermissions?.permissions ?? [],
+    pluginsWithPermissions: data?.currentUserPermissions?.pluginsWithPermissions ?? [],
     error,
     loading,
   };

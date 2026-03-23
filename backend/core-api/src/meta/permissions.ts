@@ -305,7 +305,13 @@ export const permissions: IPermissionConfig = {
       scopeField: null,
       ownerFields: [],
 
-      scopes: [{ name: 'all', description: 'All records' }],
+      scopes: [
+        {
+          name: 'own',
+          description: 'Own record only',
+        },
+        { name: 'all', description: 'All records' },
+      ],
 
       actions: [
         {
@@ -696,6 +702,12 @@ export const permissions: IPermissionConfig = {
       permissions: [
         {
           plugin: 'core',
+          module: 'teamMembers',
+          actions: ['teamMembersUpdate'],
+          scope: 'own',
+        },
+        {
+          plugin: 'core',
           module: 'contacts',
           actions: ['contactsCreate', 'contactsUpdate'],
           scope: 'own',
@@ -723,13 +735,19 @@ export const permissions: IPermissionConfig = {
     {
       id: 'core:viewer',
       name: 'Core Viewer',
-      description: 'Read-only access to all Core modules',
+      description: 'Read-only access to all Core modules, with own-data mutations',
       permissions: [
         {
           plugin: 'core',
           module: 'contacts',
           actions: ['contactsRead'],
           scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'contacts',
+          actions: ['contactsCreate', 'contactsUpdate'],
+          scope: 'own',
         },
         {
           plugin: 'core',
@@ -763,6 +781,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'documents',
+          actions: ['manageDocuments', 'removeDocuments'],
+          scope: 'own',
+        },
+        {
+          plugin: 'core',
           module: 'brands',
           actions: ['brandsRead'],
           scope: 'all',
@@ -781,9 +805,21 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'teamMembers',
+          actions: ['teamMembersUpdate'],
+          scope: 'own',
+        },
+        {
+          plugin: 'core',
           module: 'broadcast',
           actions: ['broadcastRead'],
           scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'broadcast',
+          actions: ['broadcastCreate', 'broadcastUpdate'],
+          scope: 'own',
         },
         {
           plugin: 'core',
@@ -823,9 +859,15 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'automations',
+          actions: ['automationsCreate', 'automationsUpdate'],
+          scope: 'own',
+        },
+        {
+          plugin: 'core',
           module: 'internalNotes',
           actions: ['internalNotesManage'],
-          scope: 'all',
+          scope: 'own',
         },
       ],
     },
