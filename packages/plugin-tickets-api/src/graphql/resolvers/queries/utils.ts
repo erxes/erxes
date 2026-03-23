@@ -492,7 +492,6 @@ export const generateCommonFilters = async (
         },
         isRPC: true,
       })) || [];
-
     const supervisorDepartmentIds = tmp?.map((x) => x._id) || [];
     const pipelineDepartmentIds = pipeline.departmentIds || [];
 
@@ -590,15 +589,27 @@ export const generateCommonFilters = async (
       orConditions.push({ branchIds: { $in: user.branchIds } });
     }
 
-    if (pipeline.isCheckDepartment === true && user?.departmentIds?.length) {
-      orConditions.push({ departmentIds: { $in: user.departmentIds } });
+    if (pipeline.isCheckDepartment === true) {
+      // Keep department-based visibility: ticket tagged with user's department is visible.
+      if (user?.departmentIds?.length) {
+        orConditions.push({ departmentIds: { $in: user.departmentIds } });
+      }
+      // Expand to branch-level visibility: ticket tagged with user's branch is also visible.
+      if (user?.branchIds?.length) {
+        orConditions.push({ branchIds: { $in: user.branchIds } });
+      }
     }
 
     if (
       (pipeline.isCheckBranch === true && user?.branchIds?.length) ||
-      (pipeline.isCheckDepartment === true && user?.departmentIds?.length)
+      (pipeline.isCheckDepartment === true &&
+        (user?.departmentIds?.length || user?.branchIds?.length))
     ) {
-      filter.$or = orConditions;
+      if (filter.$or) {
+        filter.$or = [...filter.$or, ...orConditions];
+      } else {
+        filter.$or = orConditions;
+      }
     }
   }
 
