@@ -31,7 +31,7 @@ export const PosItemsForm = ({
       new Set([...standardPaymentTypes, ...summaryKeys, ...paidKeys]),
     )
       .filter((key) => key !== '_id')
-      .sort();
+      .sort((a, b) => a.localeCompare(b));
   }, [summary, paidAmounts]);
 
   return (
