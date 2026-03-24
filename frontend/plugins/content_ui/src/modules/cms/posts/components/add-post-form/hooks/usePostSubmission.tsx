@@ -23,6 +23,8 @@ interface BlockContent {
   content?: InlineContent[];
   props?: {
     level?: number;
+    url?: string;
+    caption?: string;
   };
 }
 
@@ -135,6 +137,18 @@ const blocksToHtml = (raw: string): string => {
 
         if (block.type === 'codeBlock') {
           return `<pre><code>${html}</code></pre>`;
+        }
+
+        if (block.type === 'image') {
+          const url = block.props?.url;
+          if (!url) return '';
+          const caption = block.props?.caption || '';
+          const img = `<img src="${url}"${
+            caption ? ` alt="${caption}"` : ''
+          } />`;
+          return caption
+            ? `<figure>${img}<figcaption>${caption}</figcaption></figure>`
+            : img;
         }
 
         return `<p>${html}</p>`;
