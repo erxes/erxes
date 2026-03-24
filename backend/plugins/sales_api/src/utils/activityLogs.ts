@@ -98,7 +98,7 @@ const extractBlocknoteText = (jsonString: string): string => {
 
     const result = text.trim();
     return result ? `"${result}"` : '(empty)';
-  } catch (e) {
+  } catch {
     return String(jsonString);
   }
 };
