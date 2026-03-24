@@ -10,12 +10,7 @@ import { Button, Combobox, Form, Label, Switch, useToast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import {
-  Can,
-  TagsSelect,
-  useCompaniesEdit,
-  usePermissionCheck,
-} from 'ui-modules';
+import { TagsSelect, useCompaniesEdit } from 'ui-modules';
 
 export const CompanyDetailFields = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
@@ -38,10 +33,8 @@ export const CompanyDetailFields = () => {
     primaryName,
   } = companyDetail;
   const { companiesEdit } = useCompaniesEdit();
-  const { isLoaded, hasActionPermission } = usePermissionCheck();
   const { toast } = useToast();
   const { t } = useTranslation('contact');
-  const canUpdate = isLoaded && hasActionPermission('contactsUpdate');
 
   const industryValue = industry
     ? industry.map((i: string) => ({ label: i, value: i }))
@@ -94,37 +87,25 @@ export const CompanyDetailFields = () => {
       <CompanyDetailSelectTag tagIds={tagIds} companyId={_id} />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-8">
-          <fieldset
-            disabled={!canUpdate}
-            className="space-y-4 disabled:opacity-100 [&_button:disabled]:opacity-100 [&_input:disabled]:opacity-100 [&_textarea:disabled]:opacity-100"
-          >
-            <CompanyAddGeneralInformationFields form={form} />
+          <CompanyAddGeneralInformationFields form={form} />
 
-            <DataListItem label={t('subscribed') || 'Subscribed'}>
-              <Can
-                action="contactsUpdate"
-                fallback={<Switch checked={isSubscribed === 'Yes'} disabled />}
-              >
-                <Switch
-                  checked={isSubscribed === 'Yes'}
-                  onCheckedChange={(checked) => {
-                    companiesEdit({
-                      variables: {
-                        _id,
-                        isSubscribed: checked ? 'Yes' : 'No',
-                      },
-                    });
-                  }}
-                />
-              </Can>
-            </DataListItem>
-          </fieldset>
+          <DataListItem label={t('subscribed') || 'Subscribed'}>
+            <Switch
+              checked={isSubscribed === 'Yes'}
+              onCheckedChange={(checked) => {
+                companiesEdit({
+                  variables: {
+                    _id,
+                    isSubscribed: checked ? 'Yes' : 'No',
+                  },
+                });
+              }}
+            />
+          </DataListItem>
 
-          <Can action="contactsUpdate">
-            <div className="flex justify-end">
-              <Button type="submit">{t('save', 'Save')}</Button>
-            </div>
-          </Can>
+          <div className="flex justify-end">
+            <Button type="submit">{t('save', 'Save')}</Button>
+          </div>
         </form>
       </Form>
     </div>

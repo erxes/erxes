@@ -4,6 +4,7 @@ import {
   IconBuildingFactory,
   IconChartBar,
   IconClock,
+  IconCreditCard,
   IconLabelFilled,
   IconMail,
   IconMapPin,
@@ -17,8 +18,6 @@ import {
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   Avatar,
-  EmailDisplay,
-  PhoneDisplay,
   readImage,
   RecordTable,
   RecordTableInlineCell,
@@ -31,7 +30,6 @@ import {
   CompanyEmails,
   CompanyName,
   CompanyPhones,
-  Can,
   SelectMember,
   TagsSelect,
   useCompaniesEdit,
@@ -81,38 +79,22 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
         );
         const [, setCompanyDetail] = useQueryState('companyId');
         return (
-          <Can
-            action="contactsUpdate"
-            fallback={
-              <RecordTableInlineCell>
-                <RecordTableInlineCell.Anchor
-                  onClick={() => {
-                    setRenderingCompanyDetail(true);
-                    setCompanyDetail(cell.row.original._id);
-                  }}
-                >
-                  {primaryName}
-                </RecordTableInlineCell.Anchor>
-              </RecordTableInlineCell>
-            }
+          <CompanyName
+            primaryName={primaryName}
+            _id={_id}
+            scope={clsx(ContactsHotKeyScope.CompaniesPage, _id, 'Name')}
           >
-            <CompanyName
-              primaryName={primaryName}
-              _id={_id}
-              scope={clsx(ContactsHotKeyScope.CompaniesPage, _id, 'Name')}
-            >
-              <RecordTableInlineCell.Trigger>
-                <RecordTableInlineCell.Anchor
-                  onClick={() => {
-                    setRenderingCompanyDetail(true);
-                    setCompanyDetail(cell.row.original._id);
-                  }}
-                >
-                  {primaryName}
-                </RecordTableInlineCell.Anchor>
-              </RecordTableInlineCell.Trigger>
-            </CompanyName>
-          </Can>
+            <RecordTableInlineCell.Trigger>
+              <RecordTableInlineCell.Anchor
+                onClick={() => {
+                  setRenderingCompanyDetail(true);
+                  setCompanyDetail(cell.row.original._id);
+                }}
+              >
+                {primaryName}
+              </RecordTableInlineCell.Anchor>
+            </RecordTableInlineCell.Trigger>
+          </CompanyName>
         );
       },
       size: 250,
@@ -128,27 +110,14 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
           cell.row.original;
 
         return (
-          <Can
-            action="contactsUpdate"
-            fallback={
-              <RecordTableInlineCell>
-                <EmailDisplay
-                  primaryEmail={primaryEmail || ''}
-                  emails={emails || []}
-                  emailValidationStatus={emailValidationStatus}
-                />
-              </RecordTableInlineCell>
-            }
-          >
-            <CompanyEmails
-              primaryEmail={primaryEmail || ''}
-              _id={_id}
-              scope={ContactsHotKeyScope.CompaniesPage + '.' + _id + '.Emails'}
-              emailValidationStatus={emailValidationStatus}
-              emails={emails || []}
-              Trigger={RecordTableInlineCell.Trigger}
-            />
-          </Can>
+          <CompanyEmails
+            primaryEmail={primaryEmail || ''}
+            _id={_id}
+            scope={ContactsHotKeyScope.CompaniesPage + '.' + _id + '.Emails'}
+            emailValidationStatus={emailValidationStatus}
+            emails={emails || []}
+            Trigger={RecordTableInlineCell.Trigger}
+          />
         );
       },
     },
@@ -163,27 +132,14 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
           cell.row.original;
 
         return (
-          <Can
-            action="contactsUpdate"
-            fallback={
-              <RecordTableInlineCell>
-                <PhoneDisplay
-                  primaryPhone={primaryPhone || ''}
-                  phones={phones || []}
-                  phoneValidationStatus={phoneValidationStatus}
-                />
-              </RecordTableInlineCell>
-            }
-          >
-            <CompanyPhones
-              _id={_id}
-              primaryPhone={primaryPhone || ''}
-              phones={phones || []}
-              phoneValidationStatus={phoneValidationStatus}
-              scope={ContactsHotKeyScope.CompaniesPage + '.' + _id + '.Phones'}
-              Trigger={RecordTableInlineCell.Trigger}
-            />
-          </Can>
+          <CompanyPhones
+            _id={_id}
+            primaryPhone={primaryPhone || ''}
+            phones={phones || []}
+            phoneValidationStatus={phoneValidationStatus}
+            scope={ContactsHotKeyScope.CompaniesPage + '.' + _id + '.Phones'}
+            Trigger={RecordTableInlineCell.Trigger}
+          />
         );
       },
     },
@@ -196,36 +152,22 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       cell: ({ cell }) => {
         const { companiesEdit } = useCompaniesEdit();
         return (
-          <Can
-            action="contactsUpdate"
-            fallback={
-              <SelectMember.Provider
-                mode="single"
-                value={cell.getValue() as string}
-              >
-                <RecordTableInlineCell className="text-xs">
-                  <SelectMember.Value size="lg" />
-                </RecordTableInlineCell>
-              </SelectMember.Provider>
+          <SelectMember.InlineCell
+            scope={clsx(
+              ContactsHotKeyScope.CompaniesPage,
+              cell.row.original._id,
+              'Owner',
+            )}
+            value={cell.getValue() as string}
+            onValueChange={(value) =>
+              companiesEdit({
+                variables: {
+                  _id: cell.row.original._id,
+                  ownerId: value as string,
+                },
+              })
             }
-          >
-            <SelectMember.InlineCell
-              scope={clsx(
-                ContactsHotKeyScope.CompaniesPage,
-                cell.row.original._id,
-                'Owner',
-              )}
-              value={cell.getValue() as string}
-              onValueChange={(value) =>
-                companiesEdit({
-                  variables: {
-                    _id: cell.row.original._id,
-                    ownerId: value as string,
-                  },
-                })
-              }
-            />
-          </Can>
+          />
         );
       },
       size: 200,

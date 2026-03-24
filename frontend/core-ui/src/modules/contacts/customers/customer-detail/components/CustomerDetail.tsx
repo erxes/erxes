@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
   AddInternalNote,
-  Can,
   FieldsInDetail,
   internalNoteCustomActivity,
   RelationWidgetSideTabs,
@@ -22,11 +21,6 @@ import { useCustomerCustomFieldEdit } from '../../hooks/useEditCustomerCustomFie
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { ContactSidebar } from '@/contacts/components/ContactSidebar';
 import { useIsCustomerLeadSessionKey } from '../../hooks/useCustomerLeadSessionKey';
-
-const readOnlyPropertiesMutateHook = () => ({
-  mutate: () => null,
-  loading: false,
-});
 
 export const CustomerDetail = () => {
   const { t } = useTranslation('contact');
@@ -71,36 +65,20 @@ export const CustomerDetail = () => {
                         targetId={customerDetail?._id || ''}
                         customActivities={[internalNoteCustomActivity]}
                       />
-                      <Can action="internalNotesManage">
-                        <AddInternalNote
-                          contentTypeId={customerDetail._id}
-                          contentType="core:customer"
-                        />
-                      </Can>
+                      <AddInternalNote
+                        contentTypeId={customerDetail._id}
+                        contentType="core:customer"
+                      />
                     </div>
                   )}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
-                  <Can
-                    action="contactsUpdate"
-                    fallback={
-                      <div aria-disabled="true" className="pointer-events-none">
-                        <FieldsInDetail
-                          fieldContentType="core:customer"
-                          propertiesData={customerDetail?.propertiesData || {}}
-                          mutateHook={readOnlyPropertiesMutateHook}
-                          id={customerDetail?._id || ''}
-                        />
-                      </div>
-                    }
-                  >
-                    <FieldsInDetail
-                      fieldContentType="core:customer"
-                      propertiesData={customerDetail?.propertiesData || {}}
-                      mutateHook={useCustomerCustomFieldEdit}
-                      id={customerDetail?._id || ''}
-                    />
-                  </Can>
+                  <FieldsInDetail
+                    fieldContentType="core:customer"
+                    propertiesData={customerDetail?.propertiesData || {}}
+                    mutateHook={useCustomerCustomFieldEdit}
+                    id={customerDetail?._id || ''}
+                  />
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

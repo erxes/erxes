@@ -1,7 +1,7 @@
 import { Avatar, Button, FullNameValue, Popover, readImage } from 'erxes-ui';
 import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustomerDetailWithQuery';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
-import { Can, CustomerName } from 'ui-modules';
+import { CustomerName } from 'ui-modules';
 
 export const CustomerDetailGeneral = () => {
   const { customerDetail } = useCustomerDetailWithQuery();
@@ -14,10 +14,6 @@ export const CustomerDetailGeneral = () => {
     primaryPhone,
     avatar,
   } = customerDetail || {};
-  const fullName =
-    `${firstName || ''}${firstName ? ' ' : ''}${middleName || ''}${
-      middleName ? ' ' : ''
-    }${lastName || ''}`.trim() || 'Unknown';
 
   return (
     <div className="py-5 px-8 flex flex-col gap-6">
@@ -29,50 +25,22 @@ export const CustomerDetailGeneral = () => {
           </Avatar.Fallback>
         </Avatar>
         <div className="flex flex-col items-start">
-          <Can
-            action="contactsUpdate"
-            fallback={
-              <div className="px-3 py-2 text-base font-semibold">
-                {fullName}
-              </div>
-            }
+          <CustomerName
+            _id={_id}
+            firstName={firstName}
+            lastName={`${middleName || ''}${middleName ? ' ' : ''}${
+              lastName || ''
+            }`}
+            scope={ContactsHotKeyScope.CustomerEditSheet + '.' + _id + '.Name'}
           >
-            <CustomerName
-              _id={_id}
-              firstName={firstName}
-              lastName={`${middleName || ''}${middleName ? ' ' : ''}${
-                lastName || ''
-              }`}
-              scope={
-                ContactsHotKeyScope.CustomerEditSheet + '.' + _id + '.Name'
-              }
-            >
-              <Popover.Trigger asChild>
-                <Button variant="ghost" className="text-base font-semibold">
-                  <FullNameValue />
-                </Button>
-              </Popover.Trigger>
-            </CustomerName>
-          </Can>
+            <Popover.Trigger asChild>
+              <Button variant="ghost" className="text-base font-semibold">
+                <FullNameValue />
+              </Button>
+            </Popover.Trigger>
+          </CustomerName>
         </div>
       </div>
-      {/* <fieldset className="space-y-2">
-        <Label asChild>
-          <legend>{t('works-at')}</legend>
-        </Label>
-        <SelectCompany.Detail
-          value={customerDetail?.companies?.map((c) => c._id) || []}
-          onValueChange={(value) => {
-            customerEdit({
-              variables: {
-                _id: _id,
-                companyIds: value,
-              },
-            });
-          }}
-          mode="multiple"
-        />
-      </fieldset> */}
     </div>
   );
 };
