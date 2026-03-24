@@ -164,7 +164,9 @@ export const makeAttachmentFromUrl = (url?: string | null) => {
   return { url, name };
 };
 
-export const normalizeAttachment = (value: AttachmentInput | string | null | undefined) => {
+export const normalizeAttachment = (
+  value: AttachmentInput | string | null | undefined,
+) => {
   if (!value) return undefined;
   if (typeof value === 'string') {
     return makeAttachmentFromUrl(value);
