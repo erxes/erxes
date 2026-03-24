@@ -24,7 +24,7 @@ export const CMS_TAGS_EDIT = gql`
 `;
 
 export const CMS_TAGS_REMOVE = gql`
-  mutation CmsTagsRemove($id: String!) {
-    cmsTagsRemove(_id: $id)
+  mutation CmsTagsRemove($_id: String!) {
+    cmsTagsRemove(_id: $_id)
   }
 `;

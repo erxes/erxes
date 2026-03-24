@@ -8,9 +8,9 @@ class WebPageQueryResolver extends BaseQueryResolver {
     const { webId, searchValue, language } = args;
 
     if (!webId) throw new Error('webId is required');
-
+    const orderBy = args.orderBy || { createdAt: -1 };
     const clientPortalId = clientPortal?._id;
-
+    
     const query: any = { webId };
     if (clientPortalId) query.clientPortalId = clientPortalId;
     if (searchValue) query.name = { $regex: searchValue, $options: 'i' };
@@ -18,7 +18,7 @@ class WebPageQueryResolver extends BaseQueryResolver {
     const { list } = await this.getListWithTranslations(
       models.WebPages,
       query,
-      { ...args, clientPortalId, language },
+      { ...args, clientPortalId, language, orderBy },
       FIELD_MAPPINGS.PAGE,
       'webPage',
     );
@@ -31,6 +31,7 @@ class WebPageQueryResolver extends BaseQueryResolver {
     const { webId, searchValue, language } = args;
 
     if (!webId) throw new Error('webId is required');
+    const orderBy = args.orderBy || { createdAt: -1 };
 
     const clientPortalId = clientPortal?._id;
 
@@ -41,7 +42,7 @@ class WebPageQueryResolver extends BaseQueryResolver {
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.WebPages,
       query,
-      { ...args, clientPortalId, language },
+      { ...args, clientPortalId, language, orderBy },
       FIELD_MAPPINGS.PAGE,
       'webPage',
     );

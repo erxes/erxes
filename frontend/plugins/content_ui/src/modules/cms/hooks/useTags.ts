@@ -1,5 +1,7 @@
 import { useQuery } from '@apollo/client';
+import { useAtomValue } from 'jotai';
 import { CMS_TAGS } from '../graphql/queries';
+import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
 
 export interface CmsTag {
   _id: string;
@@ -40,6 +42,8 @@ export function useTags({
   sortMode,
   sortDirection,
 }: UseTagsProps): UseTagsResult {
+  const language = useAtomValue(cmsLanguageAtom);
+
   const { data, loading, error, refetch } = useQuery(CMS_TAGS, {
     variables: {
       clientPortalId,
@@ -52,10 +56,10 @@ export function useTags({
       sortField,
       sortMode,
       sortDirection,
+      language,
     },
     errorPolicy: 'all',
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
+    fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
   });
 

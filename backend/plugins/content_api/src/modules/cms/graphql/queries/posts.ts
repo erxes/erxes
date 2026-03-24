@@ -59,7 +59,11 @@ class PostQueryResolver extends BaseQueryResolver {
 
     const { dateField, dateFrom, dateTo } = args;
     if (dateField && (dateFrom || dateTo)) {
-      if (['createdAt', 'updatedAt', 'scheduledDate'].includes(dateField)) {
+      if (
+        ['createdAt', 'updatedAt', 'scheduledDate', 'publishedDate'].includes(
+          dateField,
+        )
+      ) {
         const existing =
           query[dateField] && typeof query[dateField] === 'object'
             ? query[dateField]

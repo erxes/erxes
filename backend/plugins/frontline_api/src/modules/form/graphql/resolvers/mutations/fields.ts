@@ -236,25 +236,3 @@ export const fieldMutations = {
 //     skipPermission: true,
 //   },
 // });
-
-// checkPermission(fieldMutations, "fieldsAdd", "manageForms");
-// checkPermission(fieldMutations, "fieldsBulkAction", "manageForms");
-// checkPermission(fieldMutations, "fieldsEdit", "manageForms");
-// checkPermission(fieldMutations, "fieldsRemove", "manageForms");
-// checkPermission(fieldMutations, "fieldsUpdateOrder", "manageForms");
-// checkPermission(fieldMutations, "fieldsUpdateVisible", "manageForms");
-// checkPermission(fieldMutations, "fieldsUpdateSystemFields", "manageForms");
-
-// checkPermission(fieldsGroupsMutations, "fieldsGroupsAdd", "manageForms");
-// checkPermission(fieldsGroupsMutations, "fieldsGroupsEdit", "manageForms");
-// checkPermission(fieldsGroupsMutations, "fieldsGroupsRemove", "manageForms");
-// checkPermission(
-//   fieldsGroupsMutations,
-//   "fieldsGroupsUpdateVisible",
-//   "manageForms",
-// );
-// checkPermission(
-//   fieldsGroupsMutations,
-//   "fieldsGroupsUpdateOrder",
-//   "manageForms",
-// );

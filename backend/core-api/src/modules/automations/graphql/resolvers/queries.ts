@@ -6,9 +6,11 @@ import {
   AutomationConstants,
   IAutomationDocument,
   IAutomationExecutionDocument,
-  requireLogin,
 } from 'erxes-api-shared/core-modules';
-import { IAutomationEmailTemplateDocument, ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import {
+  IAutomationEmailTemplateDocument,
+  ICursorPaginateParams,
+} from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
   getEnv,
@@ -345,9 +347,8 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution = await models.AutomationExecutions.findById(
-      executionId,
-    ).lean();
+    const execution =
+      await models.AutomationExecutions.findById(executionId).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }
@@ -379,7 +380,7 @@ export const automationQueries = {
     return await models.AiAgents.findOne({});
   },
 
-  async getTrainingStatus(_root, { agentId }, { }: IContext) {
+  async getTrainingStatus(_root, { agentId }, {}: IContext) {
     const agent = await this.models.AiAgents.findById(agentId);
     if (!agent) {
       throw new Error('AI Agent not found');
@@ -453,9 +454,3 @@ export const automationQueries = {
     return models.AutomationEmailTemplates.getEmailTemplate(_id);
   },
 };
-
-requireLogin(automationQueries, 'automationsMain');
-requireLogin(automationQueries, 'automationNotes');
-requireLogin(automationQueries, 'automationDetail');
-requireLogin(automationQueries, 'automationEmailTemplates');
-requireLogin(automationQueries, 'automationEmailTemplateDetail');

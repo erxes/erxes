@@ -88,5 +88,14 @@ module.exports = composePlugins(withNx(), withReact(), (config: any) => {
     config.module.rules.push(cssRule);
   }
 
+  // Handle audio files as asset resources
+  config.module.rules.push({
+    test: /\.(mp3|wav|ogg)$/,
+    type: 'asset/resource',
+    generator: {
+      filename: 'assets/[name][ext]',
+    },
+  });
+
   return config;
 });

@@ -10,8 +10,9 @@ import {
 import { POSTS_LIST } from '../graphql/queries/postsListQueries';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
 import { Posts } from '../types/postsType';
-import { useSetAtom } from 'jotai';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { postsTotalCountAtom } from '../states/postsCounts';
+import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
 import { useEffect } from 'react';
 
 export const POSTS_PER_PAGE = 30;
@@ -25,6 +26,8 @@ export const usePostsVariables = (
     };
   }>['variables'],
 ) => {
+  const language = useAtomValue(cmsLanguageAtom);
+
   const [
     {
       tags,
@@ -86,7 +89,7 @@ export const usePostsVariables = (
     dateFrom = parseDateRangeFromString(updated)?.from;
     dateTo = parseDateRangeFromString(updated)?.to;
   } else if (publishedDate) {
-    dateField = 'scheduledDate';
+    dateField = 'publishedDate';
     dateFrom = parseDateRangeFromString(publishedDate)?.from;
     dateTo = parseDateRangeFromString(publishedDate)?.to;
   }
@@ -104,6 +107,7 @@ export const usePostsVariables = (
     dateField: dateField || undefined,
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,
+    language,
     ...variables,
   };
 };
@@ -121,6 +125,7 @@ export const usePosts = (options?: QueryHookOptions) => {
     ...options,
     skip: options?.skip,
     variables,
+    fetchPolicy: 'network-only',
   });
 
   const { posts = [], totalCount = 0, pageInfo } = data?.cmsPostList || {};

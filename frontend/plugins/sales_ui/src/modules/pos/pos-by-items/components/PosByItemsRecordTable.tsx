@@ -3,22 +3,22 @@ import { usePosByItemsList } from '@/pos/pos-by-items/hooks/UsePosByItemsList';
 import { PosByItemsColumns } from '@/pos/pos-by-items/components/PosByItemsColumn';
 import { IconShoppingCartX } from '@tabler/icons-react';
 
-export const PosByItemsRecordTable = ({ posId }: { posId?: string }) => {
+export const PosByItemsRecordTable = () => {
   const { posByItemsList, handleFetchMore, loading, pageInfo } =
-    usePosByItemsList({ posId });
+    usePosByItemsList();
 
   return (
     <RecordTable.Provider
       columns={PosByItemsColumns}
       data={posByItemsList}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'code', 'name']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={pageInfo?.hasPreviousPage}
         hasNextPage={pageInfo?.hasNextPage}
         dataLength={posByItemsList?.length}
-        sessionKey="posByItems_cursor"
+        sessionKey="pos_by_items_cursor"
       >
         <RecordTable>
           <RecordTable.Header />

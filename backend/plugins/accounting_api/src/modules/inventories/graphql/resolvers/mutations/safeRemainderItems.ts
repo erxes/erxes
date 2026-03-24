@@ -1,4 +1,3 @@
-import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { SAFE_REMAINDER_ITEM_STATUSES } from '~/modules/inventories/@types/constants';
 
@@ -30,7 +29,5 @@ const safeRemainderItemMutations = {
     return models.SafeRemainderItems.removeItems(ids);
   },
 };
-
-moduleCheckPermission(safeRemainderItemMutations, 'manageRemainders');
 
 export default safeRemainderItemMutations;

@@ -2,7 +2,8 @@ import { Form, Label, Button } from 'erxes-ui';
 import { useState, useEffect, useCallback, type MutableRefObject } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { PosFormData } from '@/pos/components/pos-create/PosCreate';
-import { SelectBranches, SelectCategory, SelectProduct } from 'ui-modules';
+import { SelectBranches, SelectProduct } from 'ui-modules';
+import { SelectCategory } from '@/pos/hooks/SelectCategory';
 import { SelectPayment } from '@/pos/components/payment/SelectPayment';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
@@ -24,17 +25,22 @@ export const EcommerceFields = ({
 
   const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
 
-  const handleCategorySelect = useCallback((categoryId: string) => {
-    setCategoryIds([categoryId]);
+  const handleCategorySelect = useCallback((value: string | string[]) => {
+    setCategoryIds(Array.isArray(value) ? value : value ? [value] : []);
   }, []);
 
-  const handleExcludeCategorySelect = useCallback((categoryId: string) => {
-    setExcludedCategoryIds([categoryId]);
-  }, []);
+  const handleExcludeCategorySelect = useCallback(
+    (value: string | string[]) => {
+      setExcludedCategoryIds(
+        Array.isArray(value) ? value : value ? [value] : [],
+      );
+    },
+    [],
+  );
 
   const handleExcludeProductsChange = useCallback(
     (value: string | string[]) => {
-      setExcludedProductIds(value as string[]);
+      setExcludedProductIds(Array.isArray(value) ? value : [value]);
     },
     [],
   );
@@ -51,6 +57,7 @@ export const EcommerceFields = ({
         excludedCategoryIds,
         excludedProductIds,
       };
+
       productGroupsRef.current = [group];
     } else {
       productGroupsRef.current = [];
@@ -95,13 +102,12 @@ export const EcommerceFields = ({
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-sm font-medium">PRODUCT CATEGORY</Label>
+          <Label className="text-sm font-medium">PRODUCT CATEGORIES</Label>
           <SelectCategory
-            selected={categoryIds[0] ?? ''}
-            onSelect={
-              handleCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                ((categoryId: string) => void)
-            }
+            mode="multiple"
+            value={categoryIds}
+            onValueChange={handleCategorySelect}
+            placeholder="Select product categories"
           />
         </div>
 
@@ -124,14 +130,13 @@ export const EcommerceFields = ({
           <>
             <div className="space-y-2">
               <Label className="text-sm font-medium">
-                EXCLUDE PRODUCT CATEGORY
+                EXCLUDE PRODUCT CATEGORIES
               </Label>
               <SelectCategory
-                selected={excludedCategoryIds[0] ?? ''}
-                onSelect={
-                  handleExcludeCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                    ((categoryId: string) => void)
-                }
+                mode="multiple"
+                value={excludedCategoryIds}
+                onValueChange={handleExcludeCategorySelect}
+                placeholder="Select product categories to exclude"
               />
             </div>
 

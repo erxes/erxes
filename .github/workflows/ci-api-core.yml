@@ -15,6 +15,9 @@ on:
       - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-core.yml'
 
+env:
+  NX_DAEMON: false
+
 jobs:
   core-api-ci:
     runs-on: ubuntu-latest
@@ -25,13 +28,15 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Set environment variables
         run: |
@@ -44,7 +49,6 @@ jobs:
       - name: Build core-api
         run: pnpm nx build core-api
 
-      # Buildx setup
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 

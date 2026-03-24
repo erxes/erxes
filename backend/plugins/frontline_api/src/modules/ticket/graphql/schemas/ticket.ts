@@ -92,6 +92,7 @@ const createTicketParams = `
   channelId: String!
   pipelineId:String!
   statusId: String!
+  stageId: String
   priority: Int
   labelIds: [String]
   tagIds: [String]

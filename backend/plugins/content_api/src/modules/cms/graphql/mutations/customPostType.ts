@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 const systemTypes = ['page', 'post', 'category'];
 
@@ -55,12 +54,5 @@ const mutations = {
     return models.CustomPostTypes.removeCustomPostType(_id);
   },
 };
-
-requireLogin(mutations, 'cmsCustomFieldGroupsAdd');
-requireLogin(mutations, 'cmsCustomFieldGroupsEdit');
-requireLogin(mutations, 'cmsCustomFieldGroupsRemove');
-requireLogin(mutations, 'cmsCustomPostTypesAdd');
-requireLogin(mutations, 'cmsCustomPostTypesEdit');
-requireLogin(mutations, 'cmsCustomPostTypesRemove');
 
 export default mutations;

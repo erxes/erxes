@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
@@ -91,9 +90,6 @@ export const cpUserQueries: Record<string, Resolver> = {
     return models.CPUser.findOne({ _id }).lean();
   },
 };
-
-checkPermission(cpUserQueries, 'getClientPortalUsers', 'showClientPortalUsers');
-checkPermission(cpUserQueries, 'getClientPortalUser', 'showClientPortalUsers');
 
 cpUserQueries.clientPortalCurrentUser.wrapperConfig = {
   forClientPortal: true,
