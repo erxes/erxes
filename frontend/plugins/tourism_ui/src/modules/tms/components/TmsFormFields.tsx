@@ -1,7 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Control, useFieldArray } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Control,
+  useFieldArray,
+  useWatch,
+  useController,
+} from 'react-hook-form';
 import {
   Button,
   Form,
@@ -10,8 +15,12 @@ import {
   ColorPicker,
   Spinner,
   readImage,
+  Combobox,
+  Command,
+  Popover,
 } from 'erxes-ui';
 import { TmsFormType } from '@/tms/constants/formSchema';
+import { LANGUAGES } from '@/tms/constants/languages';
 import { IconUpload, IconPlus, IconTrash } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
 import { SelectPayment } from '@/pms/components/payment/SelectPayment';
@@ -42,6 +51,106 @@ export const TourName = ({ control }: { control: Control<TmsFormType> }) => {
         </Form.Item>
       )}
     />
+  );
+};
+
+export const MainLanguageSelect = ({
+  control,
+}: {
+  control: Control<TmsFormType>;
+}) => {
+  const { field: mainLanguageField } = useController({
+    control,
+    name: 'mainLanguage',
+  });
+  const languages = useWatch({ control, name: 'language' });
+  const mainLanguage = useWatch({ control, name: 'mainLanguage' });
+  const options = useMemo(
+    () =>
+      Array.isArray(languages)
+        ? languages.filter((item): item is string => typeof item === 'string')
+        : [],
+    [languages],
+  );
+
+  useEffect(() => {
+    if (!options.length) {
+      if (mainLanguage) {
+        mainLanguageField.onChange('');
+      }
+      return;
+    }
+
+    if (!mainLanguage || !options.includes(mainLanguage)) {
+      mainLanguageField.onChange(options[0]);
+    }
+  }, [mainLanguage, options, mainLanguageField]);
+
+  return (
+    <Form.Field
+      control={control}
+      name="mainLanguage"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Main language</Form.Label>
+          <Form.Control>
+            <MainLanguageSelectFormItem
+              value={field.value}
+              options={options}
+              onValueChange={field.onChange}
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+const MainLanguageSelectFormItem = ({
+  value,
+  onValueChange,
+  options,
+}: {
+  value?: string;
+  onValueChange: (value: string) => void;
+  options: string[];
+}) => {
+  const [open, setOpen] = useState(false);
+  const selected = LANGUAGES.find((language) => language.value === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Combobox.Trigger className="w-full shadow-xs">
+        <Combobox.Value
+          placeholder="Select main language"
+          value={selected?.label}
+        />
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <Command>
+          <Command.Input placeholder="Search languages..." />
+          <Command.List className="max-h-[300px] overflow-y-auto">
+            <Command.Empty>No language found</Command.Empty>
+            {LANGUAGES.filter((language) =>
+              options.includes(language.value),
+            ).map((language) => (
+              <Command.Item
+                key={language.value}
+                value={`${language.value}|${language.label}`}
+                onSelect={() => {
+                  onValueChange(language.value);
+                  setOpen(false);
+                }}
+              >
+                {language.label}
+                <Combobox.Check checked={value === language.value} />
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -265,6 +374,87 @@ export const Manager = ({ control }: { control: Control<TmsFormType> }) => {
                 onValueChange={field.onChange}
               />
             </div>
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+const LanguageSelectFormItem = ({
+  value = [],
+  onValueChange,
+}: {
+  value?: string[];
+  onValueChange: (value: string[]) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const selectedLabels = value
+    .map((code) => LANGUAGES.find((language) => language.value === code)?.label)
+    .filter(Boolean);
+
+  const toggleLanguage = (code: string) => {
+    const nextValue = value.includes(code)
+      ? value.filter((item) => item !== code)
+      : [...value, code];
+
+    onValueChange(nextValue);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Combobox.Trigger className="w-full shadow-xs">
+        <Combobox.Value
+          placeholder="Select languages"
+          value={selectedLabels.length ? selectedLabels.join(', ') : undefined}
+        />
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <Command>
+          <Command.Input placeholder="Search languages..." />
+          <Command.List className="max-h-[300px] overflow-y-auto">
+            <Command.Empty>No language found</Command.Empty>
+            {LANGUAGES.map((language) => (
+              <Command.Item
+                key={language.value}
+                value={`${language.value}|${language.label}`}
+                onSelect={() => toggleLanguage(language.value)}
+              >
+                {language.label}
+                <Combobox.Check checked={value.includes(language.value)} />
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+export const LanguegeSelect = ({
+  control,
+}: {
+  control: Control<TmsFormType>;
+}) => {
+  return (
+    <Form.Field
+      control={control}
+      name="language"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Language</Form.Label>
+          <Form.Control>
+            <LanguageSelectFormItem
+              value={
+                Array.isArray(field.value)
+                  ? field.value.filter(
+                      (item): item is string => typeof item === 'string',
+                    )
+                  : []
+              }
+              onValueChange={field.onChange}
+            />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>

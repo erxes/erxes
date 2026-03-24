@@ -13,6 +13,8 @@ import {
   Payments,
   Token,
   OtherPayments,
+  LanguegeSelect,
+  MainLanguageSelect,
 } from '@/tms/components/TmsFormFields';
 import { Button } from 'erxes-ui';
 import { useEffect, useState } from 'react';
@@ -59,6 +61,11 @@ export const TmsInformationFields = ({
         payment: Array.isArray(value.payment)
           ? value.payment.filter((id): id is string => !!id)
           : [],
+        language: Array.isArray(value.language)
+          ? value.language.filter((code): code is string => !!code)
+          : [],
+        mainLanguage:
+          typeof value.mainLanguage === 'string' ? value.mainLanguage : '',
         token: value.token || '',
         otherPayments: Array.isArray(value.otherPayments)
           ? value.otherPayments.filter(
@@ -78,10 +85,10 @@ export const TmsInformationFields = ({
 
   const renderStepContent = () => {
     return (
-      <div className="relative w-full min-h-[300px]">
+      <div className="w-full">
         {/* Step 1 */}
         <div
-          className={`absolute inset-0 w-full transition-all duration-300 ease-in-out ${
+          className={`w-full transition-all duration-300 ease-in-out ${
             currentStep === 1 ? 'opacity-100 block' : 'opacity-0 hidden'
           }`}
         >
@@ -90,12 +97,14 @@ export const TmsInformationFields = ({
             <SelectColor control={form.control} />
             <LogoField control={form.control} />
             <FavIconField control={form.control} />
+            <LanguegeSelect control={form.control} />
+            <MainLanguageSelect control={form.control} />
           </div>
         </div>
 
         {/* Step 2 */}
         <div
-          className={`absolute inset-0 w-full transition-all duration-300 ease-in-out ${
+          className={`w-full transition-all duration-300 ease-in-out ${
             currentStep === 2 ? 'opacity-100 block' : 'opacity-0 hidden'
           }`}
         >
@@ -107,7 +116,7 @@ export const TmsInformationFields = ({
 
         {/* Step 3 */}
         <div
-          className={`absolute inset-0 w-full transition-all duration-300 ease-in-out ${
+          className={`w-full transition-all duration-300 ease-in-out ${
             currentStep === 3 ? 'opacity-100 block' : 'opacity-0 hidden'
           }`}
         >
@@ -152,7 +161,7 @@ export const TmsInformationFields = ({
   }
 
   return (
-    <div className="flex flex-col mx-auto w-full max-w-3xl h-full border-r bg-background">
+    <div className="flex flex-col mx-auto w-full h-full border-r bg-background">
       <div className="flex flex-col gap-3 justify-center items-start self-stretch p-5 border-b shrink-0">
         <div className="flex gap-2 items-center">
           <div className="flex h-5 px-2 justify-center items-center gap-1 rounded-[21px] bg-[rgba(79,70,229,0.10)] transition-all duration-300">
@@ -164,8 +173,8 @@ export const TmsInformationFields = ({
             {currentStep === 1
               ? 'General information'
               : currentStep === 2
-                ? 'Permission'
-                : 'Payments'}
+              ? 'Permission'
+              : 'Payments'}
           </p>
         </div>
         <div className="flex gap-2 items-center self-stretch">
@@ -176,8 +185,8 @@ export const TmsInformationFields = ({
                 step === currentStep
                   ? 'bg-primary w-24'
                   : step < currentStep
-                    ? 'bg-primary/50 w-16'
-                    : 'bg-muted w-16'
+                  ? 'bg-primary/50 w-16'
+                  : 'bg-muted w-16'
               }`}
             />
           ))}
@@ -186,12 +195,12 @@ export const TmsInformationFields = ({
           {currentStep === 1
             ? 'Set up your TMS information'
             : currentStep === 2
-              ? 'Setup your permission'
-              : 'Setup your payments'}
+            ? 'Setup your permission'
+            : 'Setup your payments'}
         </p>
       </div>
-      <div className="relative flex-1">
-        <div className="overflow-y-auto overflow-x-hidden px-4 py-2 h-full max-h-screen">
+      <div className="overflow-hidden relative flex-1 min-h-0">
+        <div className="overflow-y-auto overflow-x-hidden px-4 py-2 h-full">
           {renderStepContent()}
         </div>
       </div>
