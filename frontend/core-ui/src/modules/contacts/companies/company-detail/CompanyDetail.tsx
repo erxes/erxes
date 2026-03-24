@@ -14,11 +14,17 @@ import { ContactSidebar } from '@/contacts/components/ContactSidebar';
 import {
   ActivityLogs,
   AddInternalNote,
+  Can,
   FieldsInDetail,
   internalNoteCustomActivity,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
+
+const readOnlyPropertiesMutateHook = () => ({
+  mutate: () => null,
+  loading: false,
+});
 
 export const CompanyDetail = () => {
   const [open, setOpen] = useQueryState<string>('companyId');
@@ -55,20 +61,36 @@ export const CompanyDetail = () => {
                         targetId={companyDetail._id}
                         customActivities={[internalNoteCustomActivity]}
                       />
-                      <AddInternalNote
-                        contentTypeId={companyDetail._id}
-                        contentType="core:company"
-                      />
+                      <Can action="internalNotesManage">
+                        <AddInternalNote
+                          contentTypeId={companyDetail._id}
+                          contentType="core:company"
+                        />
+                      </Can>
                     </div>
                   )}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
-                  <FieldsInDetail
-                    fieldContentType="core:company"
-                    propertiesData={companyDetail?.propertiesData || {}}
-                    mutateHook={useCompanyCustomFieldEdit}
-                    id={companyDetail?._id || ''}
-                  />
+                  <Can
+                    action="contactsUpdate"
+                    fallback={
+                      <div aria-disabled="true" className="pointer-events-none">
+                        <FieldsInDetail
+                          fieldContentType="core:company"
+                          propertiesData={companyDetail?.propertiesData || {}}
+                          mutateHook={readOnlyPropertiesMutateHook}
+                          id={companyDetail?._id || ''}
+                        />
+                      </div>
+                    }
+                  >
+                    <FieldsInDetail
+                      fieldContentType="core:company"
+                      propertiesData={companyDetail?.propertiesData || {}}
+                      mutateHook={useCompanyCustomFieldEdit}
+                      id={companyDetail?._id || ''}
+                    />
+                  </Can>
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

@@ -8,14 +8,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useCustomerEdit } from 'ui-modules';
+import { Can, useCustomerEdit, usePermissionCheck } from 'ui-modules';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
 
 export const CustomerDetailFields = () => {
   const { customerDetail } = useCustomerDetailWithQuery();
   const { customerEdit } = useCustomerEdit();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
   const { t } = useTranslation('contact');
   const { toast } = useToast();
+  const canUpdate = isLoaded && hasActionPermission('contactsUpdate');
 
   if (!customerDetail) return null;
 
@@ -65,7 +67,16 @@ export const CustomerDetailFields = () => {
   });
 
   const onSubmit = (data: CustomerFormType) => {
-    const { emailValidationStatus, phoneValidationStatus, sex, avatar, ...rest } = data;
+    const {
+      emailValidationStatus,
+      phoneValidationStatus,
+      sex,
+      avatar,
+      ...rest
+    } = data;
+
+    void emailValidationStatus;
+    void phoneValidationStatus;
 
     customerEdit({
       variables: {
@@ -92,10 +103,17 @@ export const CustomerDetailFields = () => {
       <CustomerDetailSelectTag tagIds={tagIds || []} customerId={_id} />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-8">
-          <CustomerAddGeneralInformationFields form={form} />
-          <div className="flex justify-end">
-            <Button type="submit">{t('save', 'Save')}</Button>
-          </div>
+          <fieldset
+            disabled={!canUpdate}
+            className="disabled:opacity-100 [&_button:disabled]:opacity-100 [&_input:disabled]:opacity-100 [&_textarea:disabled]:opacity-100"
+          >
+            <CustomerAddGeneralInformationFields form={form} />
+          </fieldset>
+          <Can action="contactsUpdate">
+            <div className="flex justify-end">
+              <Button type="submit">{t('save', 'Save')}</Button>
+            </div>
+          </Can>
         </form>
       </Form>
     </div>

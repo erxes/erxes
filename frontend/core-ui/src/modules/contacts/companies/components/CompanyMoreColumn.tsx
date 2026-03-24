@@ -5,6 +5,7 @@ import { Popover, Command, Combobox } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
 import { TCompany } from '@/contacts/types/companyType';
 import { useSearchParams } from 'react-router-dom';
+import { Can } from 'ui-modules';
 
 export const CompanyMoreColumnCell = ({
   cell,
@@ -21,20 +22,22 @@ export const CompanyMoreColumnCell = ({
   };
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={() => setOpen(_id)}>
-              <IconEdit /> Edit
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+    <Can action="contactsUpdate">
+      <Popover>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+        <Combobox.Content>
+          <Command shouldFilter={false}>
+            <Command.List>
+              <Command.Item value="edit" onSelect={() => setOpen(_id)}>
+                <IconEdit /> Edit
+              </Command.Item>
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+    </Can>
   );
 };
 

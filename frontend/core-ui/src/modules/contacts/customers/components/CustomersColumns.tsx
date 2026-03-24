@@ -13,6 +13,8 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Avatar,
+  EmailDisplay,
+  PhoneDisplay,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -26,11 +28,13 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import {
+  Can,
   CustomerEmails,
   CustomerName,
   CustomerOwner,
   CustomerPhones,
   ICustomer,
+  SelectMember,
   TagsSelect,
   useCustomerEdit,
 } from 'ui-modules';
@@ -90,25 +94,43 @@ export const createCustomersColumns = (
       } = cell.row.original;
 
       return (
-        <CustomerName
-          _id={_id}
-          firstName={firstName}
-          lastName={`${middleName || ''}${middleName ? ' ' : ''}${
-            lastName || ''
-          }`}
-          scope={clsx(ContactsHotKeyScope.CustomersPage, _id, 'Name')}
+        <Can
+          action="contactsUpdate"
+          fallback={
+            <RecordTableInlineCell>
+              <RecordTableInlineCell.Anchor
+                onClick={() => {
+                  setDetailOpen(_id);
+                  setRenderingCustomerDetail(false);
+                }}
+              >
+                {`${firstName || ''}${firstName ? ' ' : ''}${
+                  middleName || ''
+                }${middleName ? ' ' : ''}${lastName || ''}`.trim() || 'Unknown'}
+              </RecordTableInlineCell.Anchor>
+            </RecordTableInlineCell>
+          }
         >
-          <RecordTableInlineCell.Trigger>
-            <RecordTableInlineCell.Anchor
-              onClick={() => {
-                setDetailOpen(_id);
-                setRenderingCustomerDetail(false);
-              }}
-            >
-              <FullNameValue />
-            </RecordTableInlineCell.Anchor>
-          </RecordTableInlineCell.Trigger>
-        </CustomerName>
+          <CustomerName
+            _id={_id}
+            firstName={firstName}
+            lastName={`${middleName || ''}${middleName ? ' ' : ''}${
+              lastName || ''
+            }`}
+            scope={clsx(ContactsHotKeyScope.CustomersPage, _id, 'Name')}
+          >
+            <RecordTableInlineCell.Trigger>
+              <RecordTableInlineCell.Anchor
+                onClick={() => {
+                  setDetailOpen(_id);
+                  setRenderingCustomerDetail(false);
+                }}
+              >
+                <FullNameValue />
+              </RecordTableInlineCell.Anchor>
+            </RecordTableInlineCell.Trigger>
+          </CustomerName>
+        </Can>
       );
     },
     size: 240,
@@ -123,14 +145,27 @@ export const createCustomersColumns = (
       const { primaryEmail, _id, emailValidationStatus, emails } =
         cell.row.original;
       return (
-        <CustomerEmails
-          primaryEmail={primaryEmail || ''}
-          _id={_id}
-          emailValidationStatus={emailValidationStatus}
-          emails={emails || []}
-          scope={ContactsHotKeyScope.CustomersTableInlinePopover}
-          Trigger={RecordTableInlineCell.Trigger}
-        />
+        <Can
+          action="contactsUpdate"
+          fallback={
+            <RecordTableInlineCell>
+              <EmailDisplay
+                primaryEmail={primaryEmail || ''}
+                emails={emails || []}
+                emailValidationStatus={emailValidationStatus}
+              />
+            </RecordTableInlineCell>
+          }
+        >
+          <CustomerEmails
+            primaryEmail={primaryEmail || ''}
+            _id={_id}
+            emailValidationStatus={emailValidationStatus}
+            emails={emails || []}
+            scope={ContactsHotKeyScope.CustomersTableInlinePopover}
+            Trigger={RecordTableInlineCell.Trigger}
+          />
+        </Can>
       );
     },
     size: 250,
@@ -146,14 +181,27 @@ export const createCustomersColumns = (
         cell.row.original;
 
       return (
-        <CustomerPhones
-          _id={_id}
-          primaryPhone={primaryPhone || ''}
-          phones={phones || []}
-          phoneValidationStatus={phoneValidationStatus}
-          scope={ContactsHotKeyScope.CustomersTableInlinePopover}
-          Trigger={RecordTableInlineCell.Trigger}
-        />
+        <Can
+          action="contactsUpdate"
+          fallback={
+            <RecordTableInlineCell>
+              <PhoneDisplay
+                primaryPhone={primaryPhone || ''}
+                phones={phones || []}
+                phoneValidationStatus={phoneValidationStatus}
+              />
+            </RecordTableInlineCell>
+          }
+        >
+          <CustomerPhones
+            _id={_id}
+            primaryPhone={primaryPhone || ''}
+            phones={phones || []}
+            phoneValidationStatus={phoneValidationStatus}
+            scope={ContactsHotKeyScope.CustomersTableInlinePopover}
+            Trigger={RecordTableInlineCell.Trigger}
+          />
+        </Can>
       );
     },
     size: 250,
@@ -202,28 +250,37 @@ export const createCustomersColumns = (
       const [open, setOpen] = useState(false);
       const { _id } = cell.row.original;
       return (
-        <PopoverScoped
-          scope={ContactsHotKeyScope.CustomersTableInlinePopover}
-          open={open}
-          onOpenChange={setOpen}
+        <Can
+          action="contactsUpdate"
+          fallback={
+            <RecordTableInlineCell>
+              <SexDisplay value={cell.getValue() as SexCode} />
+            </RecordTableInlineCell>
+          }
         >
-          <RecordTableInlineCell.Trigger>
-            <SexDisplay value={cell.getValue() as SexCode} />
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <SexField
-              value={cell.getValue() as SexCode}
-              onValueChange={(value) => {
-                if (value !== (cell.getValue() as SexCode)) {
-                  customerEdit({
-                    variables: { _id, sex: value },
-                  });
-                }
-                setOpen(false);
-              }}
-            />
-          </RecordTableInlineCell.Content>
-        </PopoverScoped>
+          <PopoverScoped
+            scope={ContactsHotKeyScope.CustomersTableInlinePopover}
+            open={open}
+            onOpenChange={setOpen}
+          >
+            <RecordTableInlineCell.Trigger>
+              <SexDisplay value={cell.getValue() as SexCode} />
+            </RecordTableInlineCell.Trigger>
+            <RecordTableInlineCell.Content>
+              <SexField
+                value={cell.getValue() as SexCode}
+                onValueChange={(value) => {
+                  if (value !== (cell.getValue() as SexCode)) {
+                    customerEdit({
+                      variables: { _id, sex: value },
+                    });
+                  }
+                  setOpen(false);
+                }}
+              />
+            </RecordTableInlineCell.Content>
+          </PopoverScoped>
+        </Can>
       );
     },
   },
@@ -235,11 +292,25 @@ export const createCustomersColumns = (
     ),
     cell: ({ cell }) => {
       return (
-        <CustomerOwner
-          _id={cell.row.original._id}
-          ownerId={cell.row.original.ownerId || ''}
-          inTable
-        />
+        <Can
+          action="contactsUpdate"
+          fallback={
+            <SelectMember.Provider
+              mode="single"
+              value={cell.row.original.ownerId || ''}
+            >
+              <RecordTableInlineCell className="text-xs">
+                <SelectMember.Value size="lg" />
+              </RecordTableInlineCell>
+            </SelectMember.Provider>
+          }
+        >
+          <CustomerOwner
+            _id={cell.row.original._id}
+            ownerId={cell.row.original.ownerId || ''}
+            inTable
+          />
+        </Can>
       );
     },
     size: 250,

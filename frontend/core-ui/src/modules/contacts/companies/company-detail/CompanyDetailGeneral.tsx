@@ -1,12 +1,11 @@
 import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
 import { Avatar, readImage } from 'erxes-ui';
-import { CompanyName, useCompaniesEdit } from 'ui-modules';
+import { Can, CompanyName } from 'ui-modules';
 
 export const CompanyDetailGeneral = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
   const { _id, primaryName, primaryEmail, primaryPhone, avatar } =
     companyDetail || {};
-  const { companiesEdit } = useCompaniesEdit();
 
   return (
     <div className="py-5 px-8 flex flex-col gap-6">
@@ -18,7 +17,16 @@ export const CompanyDetailGeneral = () => {
           </Avatar.Fallback>
         </Avatar>
         <div className="flex flex-col items-start">
-          <CompanyName primaryName={primaryName} _id={_id} />
+          <Can
+            action="contactsUpdate"
+            fallback={
+              <div className="px-3 py-2 text-base font-medium">
+                {primaryName || 'Unknown'}
+              </div>
+            }
+          >
+            <CompanyName primaryName={primaryName} _id={_id} />
+          </Can>
         </div>
       </div>
     </div>

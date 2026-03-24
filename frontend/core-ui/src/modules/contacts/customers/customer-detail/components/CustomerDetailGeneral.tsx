@@ -1,13 +1,9 @@
 import { Avatar, Button, FullNameValue, Popover, readImage } from 'erxes-ui';
 import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustomerDetailWithQuery';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
-import { CustomerName, useCustomerEdit } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
+import { Can, CustomerName } from 'ui-modules';
 
 export const CustomerDetailGeneral = () => {
-  const { t } = useTranslation('contact', {
-    keyPrefix: 'customer.detail',
-  });
   const { customerDetail } = useCustomerDetailWithQuery();
   const {
     _id,
@@ -18,7 +14,11 @@ export const CustomerDetailGeneral = () => {
     primaryPhone,
     avatar,
   } = customerDetail || {};
-  // const { customerEdit } = useCustomerEdit();
+  const fullName =
+    `${firstName || ''}${firstName ? ' ' : ''}${middleName || ''}${
+      middleName ? ' ' : ''
+    }${lastName || ''}`.trim() || 'Unknown';
+
   return (
     <div className="py-5 px-8 flex flex-col gap-6">
       <div className="flex gap-2 items-center flex-col lg:flex-row ">
@@ -29,20 +29,25 @@ export const CustomerDetailGeneral = () => {
           </Avatar.Fallback>
         </Avatar>
         <div className="flex flex-col items-start">
-          <CustomerName
-            _id={_id}
-            firstName={firstName}
-            lastName={`${middleName || ''}${middleName ? ' ' : ''}${
-              lastName || ''
-            }`}
-            scope={ContactsHotKeyScope.CustomerEditSheet + '.' + _id + '.Name'}
+          <Can
+            action="contactsUpdate"
+            fallback={<div className="px-3 py-2 text-base font-semibold">{fullName}</div>}
           >
-            <Popover.Trigger asChild>
-              <Button variant="ghost" className="text-base font-semibold">
-                <FullNameValue />
-              </Button>
-            </Popover.Trigger>
-          </CustomerName>
+            <CustomerName
+              _id={_id}
+              firstName={firstName}
+              lastName={`${middleName || ''}${middleName ? ' ' : ''}${
+                lastName || ''
+              }`}
+              scope={ContactsHotKeyScope.CustomerEditSheet + '.' + _id + '.Name'}
+            >
+              <Popover.Trigger asChild>
+                <Button variant="ghost" className="text-base font-semibold">
+                  <FullNameValue />
+                </Button>
+              </Popover.Trigger>
+            </CustomerName>
+          </Can>
         </div>
       </div>
       {/* <fieldset className="space-y-2">

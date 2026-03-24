@@ -3,7 +3,7 @@ import { CustomersMerge } from '@/contacts/customers/components/customers-comman
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
-import { Export, ICustomer, TagsSelect } from 'ui-modules';
+import { Can, Export, ICustomer, TagsSelect } from 'ui-modules';
 
 export const CustomersCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -68,19 +68,27 @@ export const CustomersCommandBar = () => {
           buttonVariant="secondary"
           ids={customerIds}
         />
-        <Separator.Inline />
-        <CustomersMerge
-          customers={table
-            .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original)}
-          disabled={table.getFilteredSelectedRowModel().rows.length != 2}
-          rows={table.getFilteredSelectedRowModel().rows}
-        />
-        <Separator.Inline />
-        <CustomersDelete
-          customerIds={customerIds}
-          rows={table.getFilteredSelectedRowModel().rows}
-        />
+        <Can action="contactsMerge">
+          <>
+            <Separator.Inline />
+            <CustomersMerge
+              customers={table
+                .getFilteredSelectedRowModel()
+                .rows.map((row) => row.original)}
+              disabled={table.getFilteredSelectedRowModel().rows.length != 2}
+              rows={table.getFilteredSelectedRowModel().rows}
+            />
+          </>
+        </Can>
+        <Can action="contactsDelete">
+          <>
+            <Separator.Inline />
+            <CustomersDelete
+              customerIds={customerIds}
+              rows={table.getFilteredSelectedRowModel().rows}
+            />
+          </>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );
