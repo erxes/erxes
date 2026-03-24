@@ -7,18 +7,25 @@ import {
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { pageMoreColumn } from './PagesMoreColumn';
-import { IconUser, IconArticle, IconCalendar } from '@tabler/icons-react';
+import {
+  IconUser,
+  IconArticle,
+  IconCalendar,
+  IconSitemap,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { IPage } from '../types/pageTypes';
 
 export const usePagesColumns = (
-  onEditPage?: (page: any) => void,
+  onEditPage?: (page: IPage) => void,
   onRefetch?: () => void,
-): ColumnDef<any>[] => {
+  pages?: IPage[],
+): ColumnDef<IPage>[] => {
   const navigate = useNavigate();
 
   return [
-    pageMoreColumn(onEditPage, undefined, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    pageMoreColumn(onEditPage, undefined, onRefetch) as ColumnDef<IPage>,
+    RecordTable.checkboxColumn as ColumnDef<IPage>,
     {
       id: 'name',
       header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
@@ -43,7 +50,28 @@ export const usePagesColumns = (
           </RecordTableInlineCell>
         );
       },
-      size: 400,
+      size: 200,
+    },
+    {
+      id: 'parentPage',
+      header: () => (
+        <RecordTable.InlineHead icon={IconSitemap} label="Parent Page" />
+      ),
+      accessorKey: 'parentId',
+      cell: ({ row }) => {
+        const page = row.original;
+        if (!page.parentId) {
+          return (
+            <RecordTableInlineCell className="text-muted-foreground"></RecordTableInlineCell>
+          );
+        }
+        const parent = pages?.find((p) => p._id === page.parentId);
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={parent?.name || page.parentId} />
+          </RecordTableInlineCell>
+        );
+      },
     },
     {
       id: 'slug',
