@@ -1,4 +1,5 @@
 import {
+  Button,
   Empty,
   FocusSheet,
   ScrollArea,
@@ -20,7 +21,6 @@ import { useCustomerCustomFieldEdit } from '../../hooks/useEditCustomerCustomFie
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { ContactSidebar } from '@/contacts/components/ContactSidebar';
 import { useIsCustomerLeadSessionKey } from '../../hooks/useCustomerLeadSessionKey';
-import { customerCustomActivities } from './CustomerActivityRows';
 
 export const CustomerDetail = () => {
   const { t } = useTranslation('contact');
@@ -68,9 +68,15 @@ export const CustomerDetail = () => {
                       />
                       <ActivityLogs
                         targetId={customerDetail?._id || ''}
-                        customActivities={customerCustomActivities}
                         limit={10}
+                        variant="forward"
                       />
+                      <Button
+                        variant="link"
+                        onClick={() => setSelectedTab('activity')}
+                      >
+                        {t('view all activity')}
+                      </Button>
                     </div>
                   )}
                 </Tabs.Content>
@@ -82,19 +88,25 @@ export const CustomerDetail = () => {
                     id={customerDetail?._id || ''}
                   />
                 </Tabs.Content>
-                <Tabs.Content value="activity">
-                  <div className="flex flex-col mb-12">
-                    {!!customerDetail?._id && (
+                <Tabs.Content
+                  value="activity"
+                  className="h-full flex flex-1 min-h-0 flex-col"
+                >
+                  <div className="flex-1 min-h-0 overflow-y-auto">
+                    <ActivityLogs
+                      targetId={customerDetail?._id || ''}
+                      variant="backward"
+                    />
+                  </div>
+
+                  {!!customerDetail?._id && (
+                    <div className="shrink-0 px-6 pb-6 pt-4">
                       <AddInternalNote
                         contentTypeId={customerDetail._id}
                         contentType="core:customer"
                       />
-                    )}
-                    <ActivityLogs
-                      targetId={customerDetail?._id || ''}
-                      customActivities={customerCustomActivities}
-                    />
-                  </div>
+                    </div>
+                  )}
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

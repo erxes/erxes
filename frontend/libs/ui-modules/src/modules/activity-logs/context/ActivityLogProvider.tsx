@@ -6,10 +6,12 @@ interface ActivityLogContextType {
   targetId: string;
   activityLogs: TActivityLog[];
   loading: boolean;
+  variant?: 'forward' | 'backward';
   error?: any;
   customActivities?: ActivityLogCustomActivity[];
   handleFetchMore?: (params: { direction: EnumCursorDirection }) => void;
   hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
   totalCount?: number;
   limit?: number;
 }
@@ -19,10 +21,12 @@ interface ActivityLogProviderProps {
   targetId: string;
   activityLogs: TActivityLog[];
   loading: boolean;
+  variant?: 'forward' | 'backward';
   error?: any;
   customActivities?: ActivityLogCustomActivity[];
   handleFetchMore?: (params: { direction: EnumCursorDirection }) => void;
   hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
   totalCount?: number;
   limit?: number;
 }
@@ -34,10 +38,12 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
   targetId,
   activityLogs,
   loading,
+  variant = 'forward',
   error,
   customActivities,
   handleFetchMore,
   hasNextPage,
+  hasPreviousPage,
   totalCount,
   limit,
 }) => {
@@ -47,10 +53,12 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
         targetId,
         activityLogs,
         loading,
+        variant,
         error,
         customActivities,
         handleFetchMore,
         hasNextPage,
+        hasPreviousPage,
         totalCount,
         limit,
       }}

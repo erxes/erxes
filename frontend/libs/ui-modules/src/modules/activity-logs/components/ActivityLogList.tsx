@@ -10,16 +10,30 @@ export const ActivityLogList = ({
 }: {
   emptyMessage?: string;
 }) => {
-  const { activityLogs, loading, handleFetchMore, hasNextPage, limit } =
-    useActivityLog();
+  const {
+    activityLogs,
+    loading,
+    handleFetchMore,
+    hasNextPage,
+    hasPreviousPage,
+    limit,
+    variant = 'forward',
+  } = useActivityLog();
 
   const reachedLimit = limit !== undefined && activityLogs.length >= limit;
+  const canFetchMore =
+    variant === 'backward' ? hasPreviousPage : hasNextPage;
 
   const { ref: fetchMoreRef } = useInView({
     threshold: 0.1,
     onChange: (inView) => {
-      if (inView && hasNextPage && handleFetchMore && !loading && !reachedLimit) {
-        handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+      if (inView && canFetchMore && handleFetchMore && !loading && !reachedLimit) {
+        handleFetchMore({
+          direction:
+            variant === 'backward'
+              ? EnumCursorDirection.BACKWARD
+              : EnumCursorDirection.FORWARD,
+        });
       }
     },
   });
@@ -46,6 +60,17 @@ export const ActivityLogList = ({
 
   return (
     <div className="w-full flex flex-col">
+      {variant === 'backward' && canFetchMore && !loading && !reachedLimit && (
+        <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="flex gap-2 items-center">
+              <Skeleton className="size-6 rounded-full" />
+              <Skeleton className="w-1/2 h-3" />
+              <Skeleton className="w-20 ml-auto h-3" />
+            </div>
+          ))}
+        </div>
+      )}
       {activityLogs.map((activity, index) => (
         <ActivityLogRow
           key={activity._id}
@@ -53,7 +78,7 @@ export const ActivityLogList = ({
           isLast={index === activityLogs.length - 1}
         />
       ))}
-      {hasNextPage && !loading && !reachedLimit && (
+      {variant === 'forward' && canFetchMore && !loading && !reachedLimit && (
         <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
           {[...Array(4)].map((_, index) => (
             <div key={index} className="flex gap-2 items-center">

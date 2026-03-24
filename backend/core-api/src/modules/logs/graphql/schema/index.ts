@@ -66,6 +66,7 @@ const activityLogQueryParams = `
     targetType: String
     targetId: String!
     action: String
+    variant: String
 `;
 
 export const queries = `
