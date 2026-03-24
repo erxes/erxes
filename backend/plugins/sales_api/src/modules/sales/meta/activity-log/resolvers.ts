@@ -8,7 +8,7 @@ import {
   buildDealFieldChangedActivity,
   buildDealStageMovedActivity,
 } from './builders';
-import { ITag } from 'erxes-api-shared/core-types/modules/tags/tag';
+import { ITag } from 'erxes-api-shared/core-types';
 
 type DealActivityContext = {
   deal: any;
