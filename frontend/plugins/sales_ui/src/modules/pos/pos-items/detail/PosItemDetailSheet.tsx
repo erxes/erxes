@@ -1,23 +1,23 @@
 import { IconChessKnight } from '@tabler/icons-react';
 import {
-  Button,
   Sheet,
-  Form,
-  useToast,
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
+  Form,
+  Button,
+  useToast,
 } from 'erxes-ui';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
-import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
-import { usePosOrderChangePayments } from '../detail/hooks/usePosOrderChangePayments';
-import { SubmitHandler } from 'react-hook-form';
-import { PosOrderForm } from '../detail/PosOrderForm';
+import { usePosItemDetail } from './hooks/usePosItemDetail';
+import { usePosItemForm } from './hooks/usePosItemForm';
 import { ColumnDef } from '@tanstack/table-core';
 import { IconTag, IconShoppingCart } from '@tabler/icons-react';
-import { TPosOrderFormData } from '../types/posOrderType';
+import { PosItemsForm } from './PosItemsForm';
+import { usePosItemChangePayments } from './hooks/usePosItemsChangePayments';
+import { SubmitHandler } from 'react-hook-form';
+import { TPosItemFormData } from '../types/posItemType';
 
 const itemColumns: ColumnDef<any>[] = [
   {
@@ -28,9 +28,7 @@ const itemColumns: ColumnDef<any>[] = [
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={(cell.getValue() as string) || 'Unknown Product'}
-        />
+        <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
       </RecordTableInlineCell>
     ),
     size: 200,
@@ -63,47 +61,40 @@ const itemColumns: ColumnDef<any>[] = [
   },
   {
     id: 'amount',
-    accessorFn: (row) => {
-      const directAmount = row?.amount;
-      if (typeof directAmount === 'number') return directAmount;
-
-      const count =
-        typeof row?.count === 'number' ? row.count : Number(row?.count) || 0;
-      const unitPrice =
-        typeof row?.unitPrice === 'number'
-          ? row.unitPrice
-          : Number(row?.unitPrice) || 0;
-
-      return count * unitPrice;
-    },
+    accessorKey: 'amount',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Amount" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="text-right font-medium">
-        <TextOverflowTooltip
-          value={(cell.getValue() as number)?.toLocaleString() || '0'}
-        />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ row }) => {
+      const count = row.original.count || 0;
+      const unitPrice = row.original.unitPrice || 0;
+      const discountAmount = row.original.discountAmount || 0;
+      const amount = count * unitPrice - discountAmount;
+      return (
+        <RecordTableInlineCell className="text-right font-medium">
+          <TextOverflowTooltip value={amount?.toLocaleString() || '0'} />
+        </RecordTableInlineCell>
+      );
+    },
     size: 100,
   },
 ];
 
-export const PosOrderSheet = () => {
-  const [posOrderId, setPosOrderId] = React.useState<string>('');
+export const PosItemDetailSheet = () => {
+  const [posItemId, setPosItemId] = React.useState<string>('');
   const [searchParams, setSearchParams] = useSearchParams();
+  const { toast } = useToast();
 
   React.useEffect(() => {
-    const orderId = searchParams.get('pos_order_id');
-    if (orderId !== posOrderId) {
-      setPosOrderId(orderId || '');
+    const itemId = searchParams.get('pos_order_id');
+    if (itemId !== posItemId) {
+      setPosItemId(itemId || '');
     }
-  }, [searchParams, posOrderId]);
+  }, [searchParams, posItemId]);
 
-  const updatePosOrderId = React.useCallback(
-    (orderId: string) => {
-      setPosOrderId(orderId);
-      if (orderId) {
-        searchParams.set('pos_order_id', orderId);
+  const updatePosItemId = React.useCallback(
+    (itemId: string) => {
+      setPosItemId(itemId);
+      if (itemId) {
+        searchParams.set('pos_order_id', itemId);
       } else {
         searchParams.delete('pos_order_id');
       }
@@ -111,51 +102,41 @@ export const PosOrderSheet = () => {
     },
     [searchParams, setSearchParams],
   );
-
-  const { toast } = useToast();
-  const { posOrder, loading, refetch } = usePosOrderQuery(
-    posOrderId || undefined,
-  );
-  const { posOrderChangePayments, loading: mutationLoading } =
-    usePosOrderChangePayments();
+  const { posItem, loading, refetch } = usePosItemDetail();
+  const { posItemChangePayments, loading: mutationLoading } =
+    usePosItemChangePayments();
 
   const paidAmountsSummary = React.useMemo(() => {
-    if (!posOrder?.paidAmounts || !Array.isArray(posOrder.paidAmounts))
-      return {};
-
-    return posOrder.paidAmounts.reduce(
+    if (!posItem?.paidAmounts || !Array.isArray(posItem.paidAmounts)) return {};
+    return posItem.paidAmounts.reduce(
       (acc: Record<string, number>, item: any) => {
-        if (item?.type) {
-          acc[item.type] = Number(item.amount) || 0;
-        }
+        if (item?.type) acc[item.type] = item.amount ?? 0;
         return acc;
       },
       {},
     );
-  }, [posOrder?.paidAmounts]);
+  }, [posItem?.paidAmounts]);
 
-  const paymentSummary = React.useMemo(() => {
-    return {
-      cashAmount: Number(posOrder?.cashAmount) || 0,
-      mobileAmount: Number(posOrder?.mobileAmount) || 0,
+  const paymentSummary = React.useMemo(
+    () => ({
+      cashAmount: paidAmountsSummary.cashAmount ?? 0,
+      mobileAmount: paidAmountsSummary.mobileAmount ?? 0,
       ...paidAmountsSummary,
-    };
-  }, [posOrder?.cashAmount, posOrder?.mobileAmount, paidAmountsSummary]);
+    }),
+    [paidAmountsSummary],
+  );
 
-  const { methods } = usePosOrderForm(posOrder?.paidAmounts, paymentSummary);
+  const { methods } = usePosItemForm(posItem?.paidAmounts, paymentSummary);
 
-  const submitHandler: SubmitHandler<TPosOrderFormData> = React.useCallback(
+  const submitHandler: SubmitHandler<TPosItemFormData> = React.useCallback(
     async (data) => {
-      if (!posOrderId) return;
+      if (!posItemId) return;
 
       try {
-        if (
-          posOrder?.status === 'returned' ||
-          posOrder?.status === 'completed'
-        ) {
+        if (posItem?.status === 'returned' || posItem?.status === 'completed') {
           toast({
             title: 'Cannot modify payment',
-            description: 'This order has been returned and cannot be modified.',
+            description: 'This item has been returned and cannot be modified.',
             variant: 'destructive',
           });
           return;
@@ -166,15 +147,20 @@ export const PosOrderSheet = () => {
 
         const paidAmounts = Object.entries(data)
           .filter(([key]) => !['cashAmount', 'mobileAmount'].includes(key))
-          .map(([type, amount]) => ({
-            type,
-            amount: Number(amount) || 0,
-          }));
-        const expectedTotal = posOrder?.totalAmount ?? 0;
+          .map(([type, amount]) => {
+            const numericAmount = Number(amount) || 0;
+            const isDirty = methods.getFieldState(type).isDirty;
+
+            return { type, amount: numericAmount, isDirty };
+          })
+          .filter(({ amount, isDirty }) => isDirty || amount !== 0)
+          .map(({ type, amount }) => ({ type, amount }));
+
+        const expectedTotal = posItem?.totalAmount ?? 0;
         const sum =
-          Number(cashAmount || 0) +
-          Number(mobileAmount || 0) +
-          paidAmounts.reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
+          cashAmount +
+          mobileAmount +
+          paidAmounts.reduce((acc, p) => acc + p.amount, 0);
 
         if (expectedTotal > 0 && sum !== expectedTotal) {
           toast({
@@ -185,51 +171,52 @@ export const PosOrderSheet = () => {
           return;
         }
 
-        await posOrderChangePayments({
-          variables: { id: posOrderId, cashAmount, mobileAmount, paidAmounts },
+        await posItemChangePayments({
+          variables: { id: posItemId, cashAmount, mobileAmount, paidAmounts },
         });
 
         await refetch();
 
-        toast({ title: 'Order updated successfully', variant: 'success' });
-        updatePosOrderId('');
+        toast({ title: 'Item updated successfully', variant: 'success' });
+        updatePosItemId('');
       } catch (error) {
         let errorMessage = 'Unknown error';
         if (error instanceof Error) {
           if (error.message.includes('Already returned')) {
             errorMessage =
-              'This order has been returned and payment changes are not allowed.';
+              'This item has been returned and payment changes are not allowed.';
           } else if (error.message.includes('not balanced')) {
             errorMessage = `Payments must sum to the total amount (${
-              posOrder?.totalAmount?.toLocaleString() || 0
+              posItem?.totalAmount?.toLocaleString() || 0
             }).`;
           } else {
             errorMessage = error.message;
           }
         }
         toast({
-          title: 'Failed to update order',
+          title: 'Failed to update item',
           variant: 'destructive',
           description: errorMessage,
         });
       }
     },
     [
-      posOrderId,
-      posOrder?.status,
-      posOrder?.totalAmount,
-      posOrderChangePayments,
+      posItemId,
+      posItem?.status,
+      posItem?.totalAmount,
+      posItemChangePayments,
       refetch,
       toast,
-      updatePosOrderId,
+      updatePosItemId,
+      methods,
     ],
   );
 
   return (
     <Sheet
-      open={!!posOrderId}
+      open={!!posItemId}
       onOpenChange={(isOpen) => {
-        if (!isOpen) updatePosOrderId('');
+        if (!isOpen) updatePosItemId('');
       }}
     >
       <Sheet.View className="p-0 sm:max-w-4xl">
@@ -240,18 +227,18 @@ export const PosOrderSheet = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>Order detail</Sheet.Title>
+              <Sheet.Title>POS Item detail</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4 overflow-auto">
-              {posOrder && (
+              {posItem && (
                 <div className="flex flex-col gap-4 w-full my-4">
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
                       Customer:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.customer?.primaryEmail || '-'}
+                      {posItem.customer?.primaryEmail || '-'}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -259,7 +246,7 @@ export const PosOrderSheet = () => {
                       Bill Number:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.number}
+                      {posItem.number}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -267,7 +254,7 @@ export const PosOrderSheet = () => {
                       Date:
                     </span>
                     <span className="text-base font-medium">
-                      {new Date(posOrder.createdAt).toLocaleDateString()}
+                      {new Date(posItem.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -275,7 +262,7 @@ export const PosOrderSheet = () => {
                       Erkhet Info:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.syncErkhetInfo}
+                      {posItem.syncErkhetInfo || '-'}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -283,7 +270,7 @@ export const PosOrderSheet = () => {
                       Bill Id:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.billId}
+                      {posItem.billId || '-'}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -291,18 +278,26 @@ export const PosOrderSheet = () => {
                       Ebarimt Date:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.putResponses?.[0]?.createdAt
+                      {posItem.putResponses?.[0]?.createdAt
                         ? new Date(
-                            posOrder.putResponses[0].createdAt,
+                            posItem.putResponses[0].createdAt,
                           ).toLocaleDateString()
                         : '-'}
                     </span>
                   </div>
-                  {posOrder && posOrder.items && posOrder.items.length > 0 && (
+                  <div className="flex justify-between w-full gap-1">
+                    <span className="text-base font-medium text-muted-foreground">
+                      Deal
+                    </span>
+                    <span className="text-base font-medium">
+                      {posItem.deal?.searchText || '-'}
+                    </span>
+                  </div>
+                  {posItem.items && posItem.items.length > 0 && (
                     <div className="rounded-md overflow-hidden">
                       <RecordTable.Provider
                         columns={itemColumns}
-                        data={posOrder.items}
+                        data={posItem.items}
                         className="w-full"
                       >
                         <RecordTable>
@@ -319,14 +314,18 @@ export const PosOrderSheet = () => {
                       Total Amount:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.totalAmount ? posOrder.totalAmount : '0'}
+                      {posItem.totalAmount ? posItem.totalAmount : '0'}
                     </span>
                   </div>
-                  <PosOrderForm
+                  <PosItemsForm
                     control={methods.control}
                     summary={paymentSummary}
-                    paidAmounts={posOrder?.paidAmounts}
-                    posName={posOrder?.posName}
+                    paidAmounts={
+                      posItem?.paidAmounts?.filter(
+                        (p): p is { type: string; amount: number } =>
+                          p.type !== undefined && p.amount !== undefined,
+                      ) || []
+                    }
                   />
                 </div>
               )}
