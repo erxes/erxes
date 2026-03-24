@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════
 FROM --platform=linux/amd64 node:22-bookworm-slim AS builder
 WORKDIR /app
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY backend/gateway/package.json backend/gateway/
@@ -29,7 +29,7 @@ FROM --platform=linux/amd64 node:22-bookworm-slim AS deployer
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 # Minimal root — prevents installing frontend/build-tool deps
 COPY pnpm-workspace.yaml pnpm-lock.yaml ./
@@ -66,7 +66,7 @@ RUN mkdir -p /app/backend/gateway/dist/src/apollo-router/temp \
 # Create isolated deployment:
 # /app/release/ = dist/ + node_modules/ (only ~25 prod deps, erxes-api-shared bundled in)
 # The Apollo Router binary in dist/src/apollo-router/temp/ is included automatically
-RUN pnpm --filter=./backend/gateway deploy --prod /app/release
+RUN pnpm --filter=./backend/gateway deploy --prod --legacy /app/release
 
 # ═══════════════════════════════════════════════════════════
 # Stage 3: Minimal runtime

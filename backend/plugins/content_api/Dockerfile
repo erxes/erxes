@@ -21,7 +21,7 @@ COPY backend/erxes-api-shared/utils backend/erxes-api-shared/utils
 COPY backend/erxes-api-shared/core-types backend/erxes-api-shared/core-types
 COPY backend/erxes-api-shared/core-modules backend/erxes-api-shared/core-modules
 # Creates /app/release with: dist/ + node_modules/ (prod deps only, erxes-api-shared bundled in)
-RUN pnpm --filter=./backend/plugins/content_api deploy --prod /app/release
+RUN pnpm --filter=./backend/plugins/content_api deploy --prod --legacy /app/release
 
 # Stage 3: minimal runtime — no pnpm, no source files, no unused deps
 FROM node:22-alpine3.22

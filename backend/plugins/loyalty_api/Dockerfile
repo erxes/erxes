@@ -1,7 +1,7 @@
 # Stage 1: install only this plugin's production deps
 FROM node:22-alpine3.22 AS installer
 WORKDIR /app
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 COPY pnpm-workspace.yaml pnpm-lock.yaml ./
 # Minimal root — prevents installing frontend/build-tool deps (React, Nx, Webpack, etc.)

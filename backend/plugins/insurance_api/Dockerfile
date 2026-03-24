@@ -4,7 +4,7 @@ FROM node:22-alpine3.22 AS installer
 WORKDIR /app
 # Chromium dependencies required by puppeteer on Alpine
 RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 COPY pnpm-workspace.yaml pnpm-lock.yaml ./
 # Minimal root — prevents installing frontend/build-tool deps (React, Nx, Webpack, etc.)
