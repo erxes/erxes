@@ -69,7 +69,9 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
       <Sheet open={!!editTourId} onOpenChange={handleCloseEdit}>
         <Sheet.View
           className={`p-0 transition-all duration-200 ${
-            sideTab ? 'w-[1220px] sm:max-w-[1220px]' : 'w-[900px] sm:max-w-[900px]'
+            sideTab
+              ? 'w-[1220px] sm:max-w-[1220px]'
+              : 'w-[900px] sm:max-w-[900px]'
           }`}
         >
           {editTourId && (

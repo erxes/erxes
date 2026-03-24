@@ -120,7 +120,13 @@ const calculateEndDate = (startDate: Date, duration?: number) => {
   return endDate;
 };
 
-export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp, onSideTabChange }: Props) => {
+export const TourEditForm = ({
+  tourId,
+  branchId,
+  onSuccess,
+  sideTab: sideTabProp,
+  onSideTabChange,
+}: Props) => {
   const { toast } = useToast();
   const { editTour, loading: editLoading } = useEditTour();
   const [editorResetKey, setEditorResetKey] = useState(0);
