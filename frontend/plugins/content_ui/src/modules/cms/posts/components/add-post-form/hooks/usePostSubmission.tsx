@@ -23,6 +23,8 @@ interface BlockContent {
   content?: InlineContent[];
   props?: {
     level?: number;
+    url?: string;
+    caption?: string;
   };
 }
 
@@ -130,9 +132,9 @@ const blocksToHtml = (raw: string): string => {
         }
 
         if (block.type === 'image') {
-          const url = (block as any).props?.url;
+          const url = block.props?.url;
           if (!url) return '';
-          const caption = (block as any).props?.caption || '';
+          const caption = block.props?.caption || '';
           const img = `<img src="${url}"${
             caption ? ` alt="${caption}"` : ''
           } />`;

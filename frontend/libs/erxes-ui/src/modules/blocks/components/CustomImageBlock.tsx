@@ -1,4 +1,8 @@
-import { imageBlockConfig } from '@blocknote/core';
+import {
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  imageBlockConfig,
+} from '@blocknote/core';
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
@@ -10,9 +14,15 @@ import { IconPhoto } from '@tabler/icons-react';
 import { FC } from 'react';
 import { Spinner } from 'erxes-ui/components';
 
-const CustomImagePreview: FC<
-  Omit<ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>, 'contentRef'>
-> = ({ block }) => {
+type ImageRenderProps = ReactCustomBlockRenderProps<
+  typeof imageBlockConfig,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>;
+
+const CustomImagePreview: FC<Omit<ImageRenderProps, 'contentRef'>> = ({
+  block,
+}) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url);
 
   if (loadingState === 'loading') {
@@ -36,9 +46,7 @@ const CustomImagePreview: FC<
   );
 };
 
-const CustomImageBlockContent: FC<
-  ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>
-> = (props) => {
+const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
 
   if (loading) {

@@ -1,27 +1,59 @@
-import { Block } from '@blocknote/core';
+interface ManualInlineContent {
+  type: string;
+  text: string;
+  styles: Record<string, boolean>;
+}
 
-export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
+interface ManualBlockProps {
+  textColor?: string;
+  backgroundColor: string;
+  textAlignment: string;
+  url?: string;
+  name?: string;
+  caption?: string;
+  showPreview?: boolean;
+  level?: number;
+}
+
+interface ManualBlock {
+  id: string;
+  type: string;
+  props: ManualBlockProps;
+  content: ManualInlineContent[];
+  children: ManualBlock[];
+}
+
+interface AttachmentInput {
+  url?: string;
+  name?: string;
+  type?: string;
+  size?: number;
+  duration?: number;
+}
+
+const emptyParagraph = (): ManualBlock => ({
+  id: crypto.randomUUID(),
+  type: 'paragraph',
+  props: {
+    textColor: 'default',
+    backgroundColor: 'default',
+    textAlignment: 'left',
+  },
+  content: [],
+  children: [],
+});
+
+export const convertHTMLToBlocks = (htmlContent: string): ManualBlock[] => {
   if (!htmlContent || htmlContent.trim() === '') {
-    return [
-      {
-        id: crypto.randomUUID(),
-        type: 'paragraph',
-        props: {
-          textColor: 'default',
-          backgroundColor: 'default',
-          textAlignment: 'left',
-        },
-        content: [],
-        children: [],
-      } as any,
-    ];
+    return [emptyParagraph()];
   }
-  const parser = new DOMParser();
 
+  const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, 'text/html');
   const container = doc.body;
-  const blocks: Block[] = [] as any;
+  const blocks: ManualBlock[] = [];
   const children = Array.from(container.children);
+
   if (children.length === 0) {
     const textContent = container.textContent || container.innerText || '';
     if (textContent.trim()) {
@@ -32,10 +64,10 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
           textColor: 'default',
           backgroundColor: 'default',
           textAlignment: 'left',
-        } as any,
-        content: [{ type: 'text', text: textContent, styles: {} } as any],
+        },
+        content: [{ type: 'text', text: textContent, styles: {} }],
         children: [],
-      } as any);
+      });
     }
   } else {
     children.forEach((el) => {
@@ -57,15 +89,14 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
           },
           content: [],
           children: [],
-        } as any);
+        });
         return;
       }
 
       if (tag === 'figure') {
         const img = el.querySelector('img');
         if (!img) return;
-        const caption =
-          el.querySelector('figcaption')?.textContent || '';
+        const caption = el.querySelector('figcaption')?.textContent || '';
         blocks.push({
           id: crypto.randomUUID(),
           type: 'image',
@@ -79,46 +110,34 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
           },
           content: [],
           children: [],
-        } as any);
+        });
         return;
       }
 
       const textContent = el.textContent || '';
       if (!textContent.trim()) return;
-      let blockType: any = 'paragraph';
-      const props: any = {
+
+      const blockType = tag.match(/^h[1-6]$/) ? 'heading' : 'paragraph';
+      const props: ManualBlockProps = {
         textColor: 'default',
         backgroundColor: 'default',
         textAlignment: 'left',
       };
-      if (tag.match(/^h[1-6]$/)) {
-        blockType = 'heading';
+      if (blockType === 'heading') {
         props.level = Number.parseInt(tag.charAt(1));
       }
+
       blocks.push({
         id: crypto.randomUUID(),
         type: blockType,
         props,
         content: [{ type: 'text', text: textContent, styles: {} }],
         children: [],
-      } as any);
+      });
     });
   }
-  return blocks.length > 0
-    ? (blocks as any)
-    : ([
-        {
-          id: crypto.randomUUID(),
-          type: 'paragraph',
-          props: {
-            textColor: 'default',
-            backgroundColor: 'default',
-            textAlignment: 'left',
-          },
-          content: [],
-          children: [],
-        },
-      ] as any);
+
+  return blocks.length > 0 ? blocks : [emptyParagraph()];
 };
 
 export const formatInitialContent = (content?: string): string | undefined => {
@@ -145,17 +164,16 @@ export const makeAttachmentFromUrl = (url?: string | null) => {
   return { url, name };
 };
 
-export const normalizeAttachment = (value: any) => {
+export const normalizeAttachment = (value: AttachmentInput | string | null | undefined) => {
   if (!value) return undefined;
   if (typeof value === 'string') {
     return makeAttachmentFromUrl(value);
   }
 
-  const url = value.url as string | undefined;
+  const url = value.url;
   if (!url) return undefined;
 
-  const name =
-    (value.name as string | undefined) || url.split('/').pop() || 'file';
+  const name = value.name || url.split('/').pop() || 'file';
 
   return {
     url,
