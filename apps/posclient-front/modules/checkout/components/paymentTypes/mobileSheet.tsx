@@ -17,6 +17,7 @@ import { onError } from "@/components/ui/use-toast"
 
 const MobileSheet = () => {
   const [loading, setLoading] = useState(true)
+  const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null)
 
   const config = useAtomValue(configAtom)
   const amount = useAtomValue(currentAmountAtom)
@@ -36,6 +37,7 @@ const MobileSheet = () => {
     },
   })
 
+  // 🔥 generate invoice + set iframe URL
   useEffect(() => {
     const run = async () => {
       try {
@@ -51,7 +53,7 @@ const MobileSheet = () => {
               customerType: customerType || "customer",
               description:
                 orderNumber + "-" + config?.name + "-" + activeOrderId,
-              paymentIds: config?.paymentIds, // ⚠️ must include "_"
+              paymentIds: config?.paymentIds,
               data: {
                 posToken: config?.token,
               },
@@ -69,8 +71,9 @@ const MobileSheet = () => {
           return
         }
 
-        // 🔥 REDIRECT (MAIN FIX)
-        window.location.href = `http://localhost:4200${url}`
+        // ✅ IMPORTANT: use iframe instead of redirect
+        setInvoiceUrl(`http://localhost:4200${url}`)
+        setLoading(false)
       } catch (err) {
         console.error("❌ Error generating invoice:", err)
         setLoading(false)
@@ -80,7 +83,32 @@ const MobileSheet = () => {
     run()
   }, [])
 
-  return <Loader />
+  //  listen for postMessage from widget
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      console.log("📩 RECEIVED:", event.data)
+
+      if (event.data?.message === "paymentSuccessful") {
+        alert("✅ Payment success (POS)")
+      }
+    }
+
+    window.addEventListener("message", handler)
+
+    return () => window.removeEventListener("message", handler)
+  }, [])
+
+  // UI states
+  if (loading) return <Loader />
+
+  if (!invoiceUrl) return <div>Failed to load payment</div>
+
+  return (
+    <iframe
+      src={invoiceUrl}
+      className="w-full h-full border-0"
+    />
+  )
 }
 
 export default MobileSheet
