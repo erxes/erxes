@@ -80,7 +80,7 @@ const extractBlocknoteText = (jsonString: string): string => {
   try {
     const blocks = JSON.parse(jsonString);
     if (!Array.isArray(blocks)) return String(jsonString);
-    
+
     let text = '';
     const extract = (contentArray: any[]) => {
       for (const c of contentArray) {
@@ -89,13 +89,13 @@ const extractBlocknoteText = (jsonString: string): string => {
         }
       }
     };
-    
+
     for (const block of blocks) {
       if (block.content && Array.isArray(block.content)) {
         extract(block.content);
       }
     }
-    
+
     const result = text.trim();
     return result ? `"${result}"` : '(empty)';
   } catch (e) {
@@ -309,7 +309,7 @@ export async function generateDealActivityLogs(
       ['description'],
       'updated',
       () => 'Description',
-      (val) => extractBlocknoteText(val)
+      (val) => extractBlocknoteText(val),
     ),
     fieldChangeRule(
       ['stageId'],
@@ -319,8 +319,9 @@ export async function generateDealActivityLogs(
           models.Stages.findOne({ _id: current }, { name: 1 }),
           models.Stages.findOne({ _id: prev }, { name: 1 }),
         ]);
-        return `From "${prevStage?.name || prev}" to "${currentStage?.name || current
-          }"`;
+        return `From "${prevStage?.name || prev}" to "${
+          currentStage?.name || current
+        }"`;
       },
     ),
     assignmentRule('assignedUserIds', async (ids: string[]) => {

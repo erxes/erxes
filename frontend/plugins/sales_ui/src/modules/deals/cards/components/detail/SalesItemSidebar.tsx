@@ -11,12 +11,16 @@ export const SalesItemSidebar = () => {
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
             {['overview', 'properties', 'activityLogs'].map((tab) => {
-              const label = tab === 'activityLogs' ? 'Activity Logs' : tab.charAt(0).toUpperCase() + tab.slice(1);
+              const label =
+                tab === 'activityLogs'
+                  ? 'Activity Logs'
+                  : tab.charAt(0).toUpperCase() + tab.slice(1);
               return (
                 <Sidebar.MenuItem key={tab}>
                   <Sidebar.MenuButton
                     isActive={
-                      selectedTab === tab || (tab === 'overview' && !selectedTab)
+                      selectedTab === tab ||
+                      (tab === 'overview' && !selectedTab)
                     }
                     onClick={() => setSelectedTab(tab)}
                   >
