@@ -73,7 +73,7 @@ interface TranslationInput extends TranslationEntry {
 interface DefaultLangData {
   title: string;
   content: string;
-  excerpt: string;
+  description: string;
   customFieldsData: CustomField[];
 }
 
@@ -96,11 +96,11 @@ interface MainFields {
 
 const escapeHtml = (str: string): string =>
   str
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 const blocksToHtml = (raw: string): string => {
   try {
@@ -205,7 +205,7 @@ const resolveMainFields = (
     return {
       title: curDefaultLangData.title?.trim() || computedTitle || 'Untitled',
       content: normalizeContent(curDefaultLangData.content ?? ''),
-      excerpt: curDefaultLangData.excerpt?.trim() || null,
+      excerpt: curDefaultLangData.description?.trim() || null,
       customFields: filterCustomFields(curDefaultLangData.customFieldsData),
     };
   }

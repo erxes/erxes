@@ -1,11 +1,13 @@
 import { Form, ScrollArea } from 'erxes-ui';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useEffect, useRef, useMemo } from 'react';
+import { useAtom } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
 import { usePostSubmission } from './hooks/usePostSubmission';
 import { PostEditorColumn } from './PostEditorColumn';
 import { PostSidebarPanel } from './PostSidebarPanel';
+import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 
 interface AddPostFormProps {
   websiteId: string;
@@ -77,6 +79,8 @@ export const AddPostForm = ({
     onClose,
   });
 
+  const [globalLanguage, setGlobalLanguage] = useAtom(cmsLanguageAtom);
+
   const formInitializedRef = useRef(false);
 
   useEffect(() => {
@@ -119,7 +123,7 @@ export const AddPostForm = ({
       setDefaultLangData({
         title: form.getValues('title') || '',
         content: form.getValues('content') || '',
-        excerpt: form.getValues('description') || '',
+        description: form.getValues('description') || '',
         customFieldsData: form.getValues('customFieldsData') || [],
       });
     } else {
@@ -128,7 +132,7 @@ export const AddPostForm = ({
         [selectedLanguage]: {
           title: form.getValues('title'),
           content: form.getValues('content'),
-          excerpt: form.getValues('description'),
+          description: form.getValues('description'),
           customFieldsData: form.getValues('customFieldsData'),
         },
       }));
@@ -149,12 +153,47 @@ export const AddPostForm = ({
       const translation = translations[lang];
       form.setValue('title', translation?.title || '');
       form.setValue('content', translation?.content || '');
-      form.setValue('description', translation?.excerpt || '');
+      form.setValue('description', translation?.description || '');
       form.setValue('customFieldsData', translation?.customFieldsData || []);
     }
 
     setSelectedLanguage(lang);
+    setGlobalLanguage(lang);
   };
+
+  // Sync: when header language tabs change the global atom, trigger local switch
+  const handleLanguageChangeRef = useRef(handleLanguageChange);
+  handleLanguageChangeRef.current = handleLanguageChange;
+
+  useEffect(() => {
+    if (
+      globalLanguage &&
+      selectedLanguage &&
+      globalLanguage !== selectedLanguage &&
+      availableLanguages.includes(globalLanguage)
+    ) {
+      handleLanguageChangeRef.current(globalLanguage);
+    }
+  }, [globalLanguage, selectedLanguage, availableLanguages]);
+
+  // Late hydration: when translations or fullPost load while on a non-default
+  // language, push translation data into the form (or clear it if none exists).
+  // This guards against form.reset() in usePostForm overwriting with default
+  // language data after fullPost loads.
+  useEffect(() => {
+    if (
+      selectedLanguage &&
+      defaultLanguage &&
+      selectedLanguage !== defaultLanguage
+    ) {
+      const translation = translations[selectedLanguage];
+      form.setValue('title', translation?.title || '');
+      form.setValue('content', translation?.content || '');
+      form.setValue('description', translation?.description || '');
+      form.setValue('customFieldsData', translation?.customFieldsData || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [translations, fullPost]);
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">

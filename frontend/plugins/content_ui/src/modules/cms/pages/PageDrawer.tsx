@@ -3,6 +3,7 @@ import { Form, ScrollArea, toast } from 'erxes-ui';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
+import { useAtom } from 'jotai';
 import { useAddPage } from './hooks/useAddPage';
 import { useEditPage } from './hooks/useEditPage';
 import { IPageDrawerProps, IPageFormData } from './types/pageTypes';
@@ -17,6 +18,7 @@ import {
   normalizeAttachment,
   makeAttachmentArrayFromUrls,
 } from '../posts/formHelpers';
+import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
 
 interface InlineContent {
   text?: string;
@@ -39,11 +41,11 @@ interface BlockContent {
 
 const escapeHtml = (str: string): string =>
   str
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 const blocksToHtml = (raw: string): string => {
   try {
@@ -228,6 +230,8 @@ export function PageDrawer({
     defaultLanguage,
     resetKey: clientPortalId,
   });
+
+  const [globalLanguage, setGlobalLanguage] = useAtom(cmsLanguageAtom);
 
   const form = useForm<IPageFormData>({
     defaultValues: {
@@ -471,7 +475,39 @@ export function PageDrawer({
           }
         : undefined,
     );
+    setGlobalLanguage(lang);
   };
+
+  // Sync: when header language tabs change the global atom, trigger local switch
+  const onLanguageChangeRef = useRef(onLanguageChange);
+  onLanguageChangeRef.current = onLanguageChange;
+
+  useEffect(() => {
+    if (
+      globalLanguage &&
+      selectedLanguage &&
+      globalLanguage !== selectedLanguage &&
+      availableLanguages.includes(globalLanguage)
+    ) {
+      onLanguageChangeRef.current(globalLanguage);
+    }
+  }, [globalLanguage, selectedLanguage, availableLanguages]);
+
+  // Late hydration: when page data loads (form.reset) while on a non-default
+  // language, re-apply translation data or clear form to prevent showing
+  // the default language content.
+  useEffect(() => {
+    if (
+      selectedLanguage &&
+      defaultLanguage &&
+      selectedLanguage !== defaultLanguage
+    ) {
+      const translation = translations[selectedLanguage];
+      form.setValue('name', translation?.title || '');
+      form.setValue('description', translation?.content || '');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleEditorChange = useCallback(
     (content: string) => {

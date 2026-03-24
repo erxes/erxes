@@ -6,6 +6,7 @@ import { useState, useCallback } from 'react';
 import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Spinner } from 'erxes-ui';
+import { HeaderLanguageTabs } from '~/modules/cms/shared/HeaderLanguageTabs';
 
 export const PostsDetailPage = ({
   clientPortalId,
@@ -30,6 +31,7 @@ export const PostsDetailPage = ({
   return (
     <PageContainer key={postId}>
       <PostsHeader>
+        <HeaderLanguageTabs />
         {formState && (
           <AddPostHeaderActions
             form={formState.form}

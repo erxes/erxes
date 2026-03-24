@@ -41,7 +41,7 @@ export const usePostForm = (editingPost?: any) => {
   const [defaultLangData, setDefaultLangData] = useState<{
     title: string;
     content: string;
-    excerpt: string;
+    description: string;
     customFieldsData: any[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
@@ -110,7 +110,7 @@ export const usePostForm = (editingPost?: any) => {
         translationsMap[t.language] = {
           title: t.title || '',
           content: t.content || '',
-          excerpt: t.excerpt || '',
+          description: t.excerpt || t.description || '',
           customFieldsData: t.customFieldsData || [],
         };
       });

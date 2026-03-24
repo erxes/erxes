@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { IPageFormData } from '~/modules/cms/pages/types/pageTypes';
+import { HeaderLanguageTabs } from '~/modules/cms/shared/HeaderLanguageTabs';
 
 interface FormState {
   form: UseFormReturn<IPageFormData>;
@@ -38,6 +39,7 @@ export const PagesDetailPage = ({
   return (
     <PageContainer key={pageId}>
       <PagesHeader>
+        <HeaderLanguageTabs />
         {formState && (
           <PageHeaderActions
             form={formState.form}

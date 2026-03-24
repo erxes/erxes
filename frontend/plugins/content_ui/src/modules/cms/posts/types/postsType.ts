@@ -39,5 +39,6 @@ export interface Posts {
     };
   };
   customFieldsData?: any;
+  translations?: { language: string }[];
   __typename: string;
 }

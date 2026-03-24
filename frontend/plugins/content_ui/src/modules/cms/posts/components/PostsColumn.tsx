@@ -16,15 +16,29 @@ import {
   IconFolder,
   IconHash,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { useQuery } from '@apollo/client';
 import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
+import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
+import { CONTENT_CMS_LIST } from '../../graphql/queries';
 
 export const usePostsColumns = (
   onEditPost?: (post: any) => void,
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
   const navigate = useNavigate();
+  const { websiteId } = useParams();
+  const selectedLanguage = useAtomValue(cmsLanguageAtom);
+
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+  });
+  const cmsConfig = cmsData?.contentCMSList?.find(
+    (cms: any) => cms.clientPortalId === websiteId,
+  );
+  const defaultLanguage: string = cmsConfig?.language || 'en';
 
   return [
     postMoreColumn(onEditPost, undefined, onRefetch),
@@ -37,6 +51,12 @@ export const usePostsColumns = (
       accessorKey: 'title',
       cell: ({ cell, row }) => {
         const post = row.original;
+        const translatedLangs =
+          post.translations?.map((t: any) => t.language) || [];
+        const missingTranslation =
+          selectedLanguage &&
+          selectedLanguage !== defaultLanguage &&
+          !translatedLangs.includes(selectedLanguage);
         return (
           <RecordTableInlineCell>
             <div
@@ -46,9 +66,9 @@ export const usePostsColumns = (
                   `/content/cms/${post.clientPortalId}/posts/detail/${post._id}`,
                 );
               }}
-              className="cursor-pointer "
+              className="cursor-pointer"
             >
-              <Badge variant="secondary">
+              <Badge variant="secondary" className={missingTranslation ? 'text-red-500' : ''}>
                 <TextOverflowTooltip value={post.title || post.name} />
               </Badge>
             </div>

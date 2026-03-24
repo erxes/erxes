@@ -121,6 +121,9 @@ export const POSTS_LIST = gql`
           createdAt
           updatedAt
         }
+        translations {
+          language
+        }
       }
       totalCount
     }

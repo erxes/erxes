@@ -23,6 +23,7 @@ export interface IPage {
   audio?: IAttachment | null;
   documents?: IAttachment[];
   attachments?: IAttachment[];
+  translations?: { language: string }[];
   __typename?: string;
 }
 

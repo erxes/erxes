@@ -13,8 +13,12 @@ import {
   IconCalendar,
   IconSitemap,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { useQuery } from '@apollo/client';
 import { IPage } from '../types/pageTypes';
+import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
+import { CONTENT_CMS_LIST } from '../../graphql/queries';
 
 export const usePagesColumns = (
   onEditPage?: (page: IPage) => void,
@@ -22,6 +26,16 @@ export const usePagesColumns = (
   pages?: IPage[],
 ): ColumnDef<IPage>[] => {
   const navigate = useNavigate();
+  const { websiteId } = useParams();
+  const selectedLanguage = useAtomValue(cmsLanguageAtom);
+
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+  });
+  const cmsConfig = cmsData?.contentCMSList?.find(
+    (cms: any) => cms.clientPortalId === websiteId,
+  );
+  const defaultLanguage: string = cmsConfig?.language || 'en';
 
   return [
     pageMoreColumn(onEditPage, undefined, onRefetch) as ColumnDef<IPage>,
@@ -32,6 +46,12 @@ export const usePagesColumns = (
       accessorKey: 'name',
       cell: ({ row }) => {
         const page = row.original;
+        const translatedLangs =
+          page.translations?.map((t) => t.language) || [];
+        const missingTranslation =
+          selectedLanguage &&
+          selectedLanguage !== defaultLanguage &&
+          !translatedLangs.includes(selectedLanguage);
         return (
           <RecordTableInlineCell>
             <div
@@ -43,7 +63,7 @@ export const usePagesColumns = (
               }}
               className="cursor-pointer"
             >
-              <Badge variant="secondary">
+              <Badge variant="secondary" className={missingTranslation ? 'text-red-500' : ''}>
                 <TextOverflowTooltip value={page.name} />
               </Badge>
             </div>
