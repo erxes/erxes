@@ -20,11 +20,6 @@ import {
   ICustomerModel,
   loadCustomerClass,
 } from '@/contacts/db/models/Customers';
-import { IExchangeRateDocument } from '@/exchangeRates/@types/exchangeRate';
-import {
-  IExchangeRateModel,
-  loadExchangeRateClass,
-} from '@/exchangeRates/db/models/ExchangeRates';
 import {
   IInternalNoteModel,
   loadInternalNoteClass,
@@ -237,6 +232,19 @@ import {
   IPermissionGroupModel,
   loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
+import {
+  ITemplateCategoryModal,
+  loadTemplateCategoryClass,
+} from '@/template/db/models/Category';
+import {
+  ITemplateModal,
+  loadTemplateClass,
+} from '@/template/db/models/Template';
+import {
+  ITemplateCategoryDocument,
+  ITemplateDocument,
+} from '@/template/@types';
+
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -264,7 +272,6 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
-  ExchangeRates: IExchangeRateModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
@@ -294,6 +301,9 @@ export interface IModels {
   PermissionGroups: IPermissionGroupModel;
 
   NotificationSettings: Model<NotificationSettings>;
+
+  Template: ITemplateModal;
+  TemplateCategory: ITemplateCategoryModal;
 }
 
 export interface IContext extends IMainContext {
@@ -454,8 +464,12 @@ export const loadClasses = (
     ),
   );
   models.Apps = db.model<IAppDocument, IAppModel>(
-    'apps',
-    loadAppClass(subdomain, models, eventDispatcher('core', 'apps', 'apps')),
+    'app_tokens',
+    loadAppClass(
+      models,
+      eventDispatcher('core', 'app_tokens', 'app_tokens'),
+      subdomain,
+    ),
   );
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
@@ -487,11 +501,6 @@ export const loadClasses = (
   models.Favorites = db.model<IFavoritesDocument, IFavoritesModel>(
     'favorites',
     loadFavoritesClass(models),
-  );
-
-  models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
-    'exchange_rates',
-    loadExchangeRateClass(models, subdomain),
   );
 
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
@@ -543,6 +552,7 @@ export const loadClasses = (
     IActivityLogDocument,
     Model<IActivityLogDocument>
   >('activity_logs', activityLogsSchema);
+
   models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(
     'broadcast_engage_messages',
     loadEngageMessageClass(models, subdomain),
@@ -637,6 +647,16 @@ export const loadClasses = (
     IPermissionGroupDocument,
     IPermissionGroupModel
   >('permission_groups', loadPermissionGroupClass(models));
+
+  models.Template = db.model<ITemplateDocument, ITemplateModal>(
+    'templates',
+    loadTemplateClass(models, subdomain),
+  );
+
+  models.TemplateCategory = db.model<
+    ITemplateCategoryDocument,
+    ITemplateCategoryModal
+  >('template_categories', loadTemplateCategoryClass(models));
 
   return models;
 };

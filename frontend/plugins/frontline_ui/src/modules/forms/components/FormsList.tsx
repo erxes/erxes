@@ -96,7 +96,7 @@ export const FormsMoreColumnCell = ({
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
-  const { _id, status, channelId } = cell.row.original;
+  const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
@@ -107,7 +107,7 @@ export const FormsMoreColumnCell = ({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content side="bottom" align="start">
         <FormInstallScript
-          formId={_id}
+          formId={code}
           channelId={channelId}
           inActionBar={true}
         />

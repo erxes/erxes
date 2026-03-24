@@ -1,8 +1,6 @@
 import { Document } from 'mongoose';
 
 export interface ISafeRemainderItem {
-  branchId: string;
-  departmentId: string;
   remainderId: string;
   productId: string;
 
@@ -10,6 +8,14 @@ export interface ISafeRemainderItem {
   count: number;
   status: string;
   order: number;
+
+  description: string;
+
+  trInfo: {
+    unitCost?: number;
+    isSale?: boolean;
+    salePrice?: number;
+  };
 }
 
 export interface ISafeRemainderItemDocument

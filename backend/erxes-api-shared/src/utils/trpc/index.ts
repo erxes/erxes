@@ -151,7 +151,6 @@ export const sendTRPCMessage = async ({
     const result = await client[method](`${module}.${action}`, input, options);
     return result || defaultValue;
   } catch (e) {
-    console.log(e, 'e');
     return defaultValue;
   }
 };

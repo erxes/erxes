@@ -17,8 +17,10 @@ export const engageMutations = {
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastCreate');
+
     const { isLive, isDraft, fromUserId } = doc || {};
 
     if (!fromUserId) {
@@ -45,8 +47,10 @@ export const engageMutations = {
   async engageMessageEdit(
     _root,
     { _id, ...doc }: { _id: string } & IEngageMessage,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastUpdate');
+
     await checkCampaignDoc(models, doc);
 
     const engageMessage = await models.EngageMessages.getEngageMessage(_id);
@@ -66,8 +70,10 @@ export const engageMutations = {
   async engageMessageRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastDelete');
+
     return models.EngageMessages.removeEngageMessage(_ids);
   },
 
@@ -77,8 +83,10 @@ export const engageMutations = {
   async engageMessageSetLive(
     _root: undefined,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastUpdate');
+
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
     if (campaign.isLive) {
@@ -100,8 +108,10 @@ export const engageMutations = {
   async engageMessageSetPause(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastUpdate');
+
     return await models.EngageMessages.engageMessageSetPause(_id);
   },
 
@@ -111,8 +121,10 @@ export const engageMutations = {
   async engageMessageSetLiveManual(
     _root: undefined,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastUpdate');
+
     const draftCampaign = await models.EngageMessages.getEngageMessage(_id);
 
     await checkCampaignDoc(models, draftCampaign);
@@ -124,7 +136,13 @@ export const engageMutations = {
     return live;
   },
 
-  async engagesUpdateConfigs(_root, { configsMap }, { models }: IContext) {
+  async engagesUpdateConfigs(
+    _root,
+    { configsMap },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('broadcastConfigsManage');
+
     await updateConfigs(models, configsMap);
 
     return { status: 'ok' };
@@ -217,8 +235,10 @@ export const engageMutations = {
   async engageMessageCopy(
     _root: undefined,
     { _id }: { _id },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastCreate');
+
     const sourceCampaign = await models.EngageMessages.getEngageMessage(_id);
 
     const doc = {

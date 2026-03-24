@@ -1,4 +1,8 @@
-import { authCookieOptions, escapeRegExp } from 'erxes-api-shared/utils';
+import {
+  authCookieOptions,
+  escapeRegExp,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 
 // import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 // import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
@@ -18,8 +22,9 @@ import {
 } from '~/modules/posclient/utils/syncUtils';
 import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
 import { syncRemainders } from '~/modules/posclient/utils/products';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-const configMutations = {
+const configMutations: Record<string, Resolver> = {
   posConfigsFetch: async (
     _root,
     { token },
@@ -124,6 +129,59 @@ const configMutations = {
     return 'success';
   },
 
+  async cpSyncConfig(_root, { type }, { models, subdomain, config }: IContext) {
+    const address = await getServerAddress(subdomain);
+
+    const { token } = config;
+    const response = await fetch(`${address}/pos-sync-config`, {
+      headers: {
+        'POS-TOKEN': config.token || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, type }),
+      timeout: 300000,
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    const responseData = await response.json();
+
+    const {
+      pos = {},
+      adminUsers = [],
+      cashiers = [],
+      productGroups = [],
+      slots = [],
+    } = responseData;
+
+    switch (type) {
+      case 'config':
+        await models.Configs.updateConfig(config._id, {
+          ...(await extractConfig(subdomain, pos)),
+          token: config.token,
+        });
+        await importUsers(models, cashiers, config.token);
+        await importUsers(models, adminUsers, config.token, true);
+        break;
+      case 'products':
+        await preImportProducts(models, token, productGroups);
+        await importProducts(subdomain, models, token, productGroups);
+        break;
+      case 'slots':
+        await importSlots(models, slots, token);
+        break;
+      case 'productsConfigs':
+        await models.ProductsConfigs.createOrUpdateConfig({
+          code: 'similarityGroup',
+          value: responseData,
+        });
+        break;
+    }
+    return 'success';
+  },
+
   async syncOrders(_root, _param, { models, subdomain, config }: IContext) {
     const unSyncedPutResponses: IEbarimtDocument[] =
       await models.PutResponses.find({ synced: { $ne: true } })
@@ -147,7 +205,7 @@ const configMutations = {
       ],
     };
 
-    let sumCount = await models.Orders.find({
+    const sumCount = await models.Orders.find({
       ...orderFilter,
     }).countDocuments();
     const orders = await models.Orders.find({ ...orderFilter })
@@ -181,11 +239,17 @@ const configMutations = {
     }
 
     if (data.length) {
-      // await sendPosMessage({
-      //   subdomain,
-      //   action: 'createOrUpdateOrdersMany',
-      //   data: { posToken: config.token, syncOrders: data },
-      // });
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'sales',
+        module: 'pos',
+        action: 'createOrUpdateOrdersMany',
+        input: {
+          posToken: config.token,
+          syncOrders: data,
+        },
+      });
     }
 
     return {
@@ -290,3 +354,7 @@ const configMutations = {
 };
 
 export default configMutations;
+
+configMutations.cpSyncConfig.wrapperConfig = {
+  forClientPortal: true,
+};

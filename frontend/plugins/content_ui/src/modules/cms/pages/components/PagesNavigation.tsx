@@ -29,30 +29,37 @@ export const PagesNavigation = () => {
   }, [pathname]);
 
   const currentPage = useMemo(() => {
-    const lastSegment = pathname.split('/').pop() || '';
+    const pathSegments = pathname.split('/');
+    const lastSegment = pathSegments[pathSegments.length - 1] || '';
 
-    if (lastSegment === 'posts' || pathname.endsWith('/posts')) {
+    // Check if we're on a detail page
+    const isDetailPage = pathSegments.includes('detail');
+    const parentSection = isDetailPage
+      ? pathSegments[pathSegments.indexOf('detail') - 1]
+      : lastSegment;
+
+    if (parentSection === 'posts' || pathname.endsWith('/posts')) {
       return {
         path: `${basePath}/posts`,
         label: 'Posts',
         icon: IconCategory,
       };
     }
-    if (lastSegment === 'pages' || pathname.endsWith('/pages')) {
+    if (parentSection === 'pages' || pathname.endsWith('/pages')) {
       return {
         path: `${basePath}/pages`,
         label: 'Pages',
         icon: IconRulerMeasure,
       };
     }
-    if (lastSegment === 'categories' || pathname.endsWith('/categories')) {
+    if (parentSection === 'categories' || pathname.endsWith('/categories')) {
       return {
         path: `${basePath}/categories`,
         label: 'Categories',
         icon: IconRulerMeasure,
       };
     }
-    if (lastSegment === 'tags' || pathname.endsWith('/tags')) {
+    if (parentSection === 'tags' || pathname.endsWith('/tags')) {
       return {
         path: `${basePath}/tags`,
         label: 'Tags',
@@ -60,7 +67,7 @@ export const PagesNavigation = () => {
       };
     }
     if (
-      lastSegment === 'custom-fields' ||
+      parentSection === 'custom-fields' ||
       pathname.endsWith('/custom-fields')
     ) {
       return {
@@ -69,7 +76,10 @@ export const PagesNavigation = () => {
         icon: IconRulerMeasure,
       };
     }
-    if (lastSegment === 'custom-types' || pathname.endsWith('/custom-types')) {
+    if (
+      parentSection === 'custom-types' ||
+      pathname.endsWith('/custom-types')
+    ) {
       return {
         path: `${basePath}/custom-types`,
         label: 'Custom Post Types',

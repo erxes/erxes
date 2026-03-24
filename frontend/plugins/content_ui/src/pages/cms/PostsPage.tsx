@@ -5,29 +5,24 @@ import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
 import { useNavigate, useParams } from 'react-router';
 import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
+import { HeaderLanguageTabs } from '~/modules/cms/shared/HeaderLanguageTabs';
 import { Posts } from '~/modules/cms/posts/types/postsType';
 
-/**
- * Props for the PostsIndexPageContent component
- */
-interface PostsIndexPageContentProps {
+interface PostsPageContentProps {
   clientPortalId: string;
   handleEditPost: (post: Posts) => void;
 }
 
-/**
- * Content component for the posts index page
- * Contains the filter and posts table
- */
-const PostsIndexPageContent = ({
+const PostsPageContent = ({
   clientPortalId,
   handleEditPost,
-}: PostsIndexPageContentProps) => {
+}: PostsPageContentProps) => {
   return (
     <>
       <PageSubHeader>
         <PostsFilter clientPortalId={clientPortalId} />
       </PageSubHeader>
+
       <div className="overflow-hidden flex-auto p-3">
         <div className="h-full">
           <PostsRecordTable
@@ -55,12 +50,15 @@ export const PostsIndexPage = ({
   return (
     <PageContainer>
       <PostsHeader>
+        <HeaderLanguageTabs />
         <PostsAdd clientPortalId={clientPortalId} />
       </PostsHeader>
+
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
+
         <div className="flex flex-col w-full overflow-hidden flex-auto">
-          <PostsIndexPageContent
+          <PostsPageContent
             clientPortalId={clientPortalId}
             handleEditPost={handleEditPost}
           />

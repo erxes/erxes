@@ -6,7 +6,8 @@
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
     "dev:apis": "dotenv -e .env -- node scripts/start-api-dev.js",
     "dev:uis": "dotenv -e .env -- node scripts/start-ui-dev.js",
-    "create-plugin": "node scripts/create-plugin.js"
+    "create-plugin": "node scripts/create-plugin.js",
+    "release": "release-it"
   },
   "engines": {
     "pnpm": ">=8",
@@ -248,7 +249,9 @@
     "type-fest": "^4.30.0",
     "typescript": "5.7.3",
     "typescript-eslint": "^8.0.0",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "release-it": "^17.0.0",
+    "@release-it/conventional-changelog": "^8.0.0"
   },
   "packageManager": "pnpm@9.12.3"
 }

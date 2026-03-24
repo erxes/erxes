@@ -138,7 +138,7 @@ export async function startPlugin(
       type LowercaseMethod = (typeof METHODS)[Method];
 
       // Ensure `method` is one of the keys
-      const METHOD = METHODS[method as Method] as LowercaseMethod;
+      const METHOD = METHODS[method] as LowercaseMethod;
 
       (app as Record<LowercaseMethod, Application[LowercaseMethod]>)[METHOD](
         path,

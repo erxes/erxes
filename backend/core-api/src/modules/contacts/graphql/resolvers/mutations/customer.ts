@@ -1,28 +1,47 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
-import { ICustomer, ICustomerDocument } from 'erxes-api-shared/core-types';
+import {
+  ICustomer,
+  ICustomerDocument,
+  Resolver,
+} from 'erxes-api-shared/core-types';
 import { getEnv } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { COC_LIFECYCLE_STATE_TYPES } from '~/modules/contacts/constants';
 
-export const customerMutations = {
+export const customerMutations: Record<string, Resolver> = {
   /**
    * Create new customer also adds Customer registration log
    */
-  async customersAdd(_parent: undefined, doc: ICustomer, { models }: IContext) {
+  async customersAdd(
+    _parent: undefined,
+    doc: ICustomer,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('contactsCreate');
+
     const customer = await models.Customers.createCustomer(doc);
 
     return customer;
   },
 
+  async cpCustomersAdd(
+    _parent: undefined,
+    doc: ICustomer,
+    { models }: IContext,
+  ) {
+    const customer = await models.Customers.createCustomer(doc);
+
+    return customer;
+  },
   /**
    * Updates a customer
    */
   async customersEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & ICustomer,
-    { models, processId }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    console.log({ MutatioonContextProcessID: processId });
+    await checkPermission('contactsUpdate');
+
     const updated = await models.Customers.updateCustomer(_id, doc);
 
     return updated;
@@ -34,8 +53,10 @@ export const customerMutations = {
   async customersRemove(
     _parent: undefined,
     { customerIds }: { customerIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsDelete');
+
     const customers: ICustomerDocument[] = await models.Customers.find({
       _id: { $in: customerIds },
     });
@@ -106,8 +127,10 @@ export const customerMutations = {
   async customersChangeState(
     _parent: undefined,
     args: { _id: string; value: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsUpdate');
+
     return models.Customers.changeState(args._id, args.value);
   },
 
@@ -120,16 +143,20 @@ export const customerMutations = {
       customerIds,
       customerFields,
     }: { customerIds: string[]; customerFields: ICustomer },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsMerge');
+
     return models.Customers.mergeCustomers(customerIds, customerFields, user);
   },
 
   async customersVerify(
     _parent: undefined,
     { verificationType }: { verificationType: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsUpdate');
+
     const EMAIL_VERIFIER_ENDPOINT = getEnv({
       name: 'EMAIL_VERIFIER_ENDPOINT',
       defaultValue: 'http://localhost:4100',
@@ -225,8 +252,10 @@ export const customerMutations = {
   async customersChangeVerificationStatus(
     _parent: undefined,
     args: { customerIds: string[]; type: string; status: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsUpdate');
+
     return models.Customers.updateVerificationStatus(
       args.customerIds,
       args.type,
@@ -243,8 +272,10 @@ export const customerMutations = {
       _ids: string[];
       value: string;
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsUpdate');
+
     if (!_ids || _ids.length < 1) {
       throw new Error('Customer ids can not be empty');
     }
@@ -259,13 +290,6 @@ export const customerMutations = {
   },
 };
 
-checkPermission(customerMutations, 'customersAdd', 'customersAdd');
-checkPermission(customerMutations, 'customersEdit', 'customersEdit');
-checkPermission(customerMutations, 'customersEditByField', 'customersEdit');
-checkPermission(customerMutations, 'customersMerge', 'customersMerge');
-checkPermission(customerMutations, 'customersRemove', 'customersRemove');
-checkPermission(
-  customerMutations,
-  'customersChangeState',
-  'customersChangeState',
-);
+customerMutations.cpCustomersAdd.wrapperConfig = {
+  forClientPortal: true,
+};

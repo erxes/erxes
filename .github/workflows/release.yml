@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  tag-backend-images:
+    name: Tag backend Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Tag all backend images with release version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          for IMAGE in \
+            erxes/erxes-next-core-api \
+            erxes/erxes-next-gateway \
+            erxes/erxes-next-sales_api \
+            erxes/erxes-next-frontline_api \
+            erxes/erxes-next-accounting_api \
+            erxes/erxes-next-content_api \
+            erxes/erxes-next-operation_api \
+            erxes/erxes-next-payment_api \
+            erxes/erxes-next-tourism_api \
+            erxes/erxes-next-loyalty_api \
+            erxes/erxes-next-mongolian_api \
+            erxes/erxes-next-posclient_api \
+            erxes/erxes-next-insurance_api \
+            erxes/erxes-next-logs \
+            erxes/erxes-next-automations; do
+            echo "Tagging $IMAGE:latest → $IMAGE:$VERSION"
+            docker buildx imagetools create \
+              -t "$IMAGE:$VERSION" \
+              "$IMAGE:latest"
+          done
+
+  copy-frontend-assets:
+    name: Copy frontend assets to versioned R2 folder
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      R2_ENDPOINT: https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com
+    steps:
+      - name: Copy /latest/ → /version/ in Cloudflare R2
+        run: |
+          VERSION="${{ github.ref_name }}"
+          echo "Copying s3://erxes-next/latest/ → s3://erxes-next/$VERSION/"
+          aws s3 cp s3://erxes-next/latest/ s3://erxes-next/$VERSION/ \
+            --recursive \
+            --endpoint-url $R2_ENDPOINT

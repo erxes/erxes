@@ -72,7 +72,6 @@ export const imapGetStatus = withErrorHandling(
 );
 export const imapListen = withErrorHandling(
   async ({ subdomain, data }): Promise<void> => {
-    console.log('imapListen', data);
     const { _id } = data;
     const models = await generateModels(subdomain);
     const integration = await models.ImapIntegrations.findById(_id);

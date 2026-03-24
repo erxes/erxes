@@ -1,9 +1,14 @@
-import React, { lazy, Suspense } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 const Tms = lazy(() =>
   import('~/pages/tms/IndexPage').then((module) => ({
     default: module.IndexPage,
+  })),
+);
+const TmsBranchDetail = lazy(() =>
+  import('~/pages/tms/BranchDetailIndexPage').then((module) => ({
+    default: module.BranchDetailIndexPage,
   })),
 );
 const TmsPreview = lazy(() =>
@@ -22,12 +27,13 @@ const App = () => {
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="/" element={<Navigate to="tms" replace />} />
-        <Route path="/tms" element={<Tms />} />
-        <Route path="/tms/PreviewPage" element={<TmsPreview />} />
-        <Route path="/pms" element={<Pms />} />
+        <Route path="tms" element={<Tms />} />
+        <Route path="tms/branches/:branchId" element={<TmsBranchDetail />} />
+        <Route path="tms/PreviewPage" element={<TmsPreview />} />
+        <Route path="pms" element={<Pms />} />
       </Routes>
     </Suspense>
-  )
-}
+  );
+};
 
-export default App
+export default App;

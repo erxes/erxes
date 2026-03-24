@@ -350,7 +350,7 @@ const productQueries = {
       page: params?.page ?? 1,
     };
 
-    let filter = await generateFilter(subdomain, models, config, params);
+    const filter = await generateFilter(subdomain, models, config, params);
 
     let sortParams: any = { code: 1 };
 
@@ -719,22 +719,20 @@ const productQueries = {
     { models, subdomain, config }: IContext,
   ) {
     const product = await models.Products.getProduct({ _id: productId });
-    const d = {};
-    // const d = await sendPricingMessage({
-    //   subdomain,
-    //   action: 'getQuantityRules',
-    //   data: {
-    //     departmentId: config.departmentId,
-    //     branchId: config.branchId,
-    //     products: [
-    //       { ...product, unitPrice: (product.prices || {})[config.token] },
-    //     ],
-    //   },
-    //   isRPC: true,
-    //   defaultValue: {},
-    // });
+    const response = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'pricing',
+      action: 'getQuantityRules',
+      input: {
+        departmentId: config.departmentId,
+        branchId: config.branchId,
+        products: [{ ...product, unitPrice: product.prices?.[config.token] }],
+      },
+      defaultValue: {},
+    });
 
-    return JSON.stringify(d);
+    return JSON.stringify(response ?? {});
   },
 };
 markResolvers(productQueries, {

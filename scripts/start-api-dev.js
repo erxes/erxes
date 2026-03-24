@@ -1,7 +1,8 @@
 // scripts/start-dev.js
 require('dotenv').config();
 
-const { ENABLED_PLUGINS, ENABLED_SERVICES, ENABLED_PLUGINS_ONLY_API } = process.env;
+const { ENABLED_PLUGINS, ENABLED_SERVICES, ENABLED_PLUGINS_ONLY_API } =
+  process.env;
 const { execSync } = require('child_process');
 
 let plugins = '';
@@ -27,7 +28,7 @@ if (ENABLED_PLUGINS_ONLY_API) {
       .map((plugin) => `${plugin}_api`)
       .join(' ');
 
-    plugins = `${plugins} ${apiPlugins}`
+    plugins = `${plugins} ${apiPlugins}`;
 
     projectsCount += apiPlugins.split(' ').length;
   } catch (error) {
@@ -51,6 +52,9 @@ if (ENABLED_SERVICES) {
 
 const totalProjects = `${plugins} ${services}`;
 
-const command = `npx nx run-many -t serve -p core-api ${totalProjects} gateway --verbose --parallel=${projectsCount}`;
+const command = `npx nx run-many -t serve -p core-api ${totalProjects} gateway --verbose --output-style=stream --parallel=${Math.min(
+  8,
+  projectsCount,
+)}`;
 console.log(`Running: ${command}`);
 execSync(command, { stdio: 'inherit' });

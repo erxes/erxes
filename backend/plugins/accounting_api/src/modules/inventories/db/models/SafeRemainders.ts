@@ -7,6 +7,7 @@ import {
 import {
   ISafeRemainderDocument,
   ISafeRemainder,
+  ISafeRemEditFields,
 } from '../../@types/safeRemainders';
 import { safeRemainderSchema } from '../definitions/safeRemainders';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -16,6 +17,11 @@ export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
   createRemainder(
     subdomain: string,
     params: ISafeRemainder,
+    userId: string,
+  ): Promise<ISafeRemainderDocument>;
+  updateRemainder(
+    subdomain: string,
+    params: ISafeRemEditFields & { _id: string },
     userId: string,
   ): Promise<ISafeRemainderDocument>;
   removeRemainder(_id: string): void;
@@ -55,7 +61,6 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         description,
         productCategoryId,
         attachment,
-        filterField,
         items,
       } = params;
 
@@ -75,8 +80,6 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       });
 
       let productFilter: any = {};
-      const attachDatas: any = {};
-      let attachFieldId = '';
 
       if (items?.length) {
         const codes: string[] = items.map((i) => i.code);
@@ -98,48 +101,21 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         action: 'find',
         input: {
           ...productFilter,
+          fields: { _id: 1, [`inventories.${branchId}.${departmentId}`]: 1 },
           sort: { code: 1 },
         },
         defaultValue: [],
       });
-
-      // Create remainder items for every product
-      const productIds = products.map((item: any) => item._id);
-
-      const liveRemainders = await models.Remainders.find({
-        departmentId,
-        branchId,
-        productId: { $in: productIds },
-      }).lean();
-
-      const liveRemByProductId = {};
-      for (const rem of liveRemainders) {
-        liveRemByProductId[rem.productId] = rem;
-      }
 
       const bulkOps: any[] = [];
       let order = 0;
 
       for (const product of products) {
         order++;
-        const live = liveRemByProductId[product._id] || {};
-        let count = live.count || 0;
-        if (attachment?.url) {
-          const datasKey = String(
-            attachFieldId
-              ? product.customFieldsData.find(
-                  (cfd) => cfd.field === attachFieldId,
-                )?.value
-              : product[filterField],
-          );
-          const { lastCount, changeCount } = attachDatas[datasKey];
-
-          if (changeCount) {
-            count = count + changeCount;
-          } else {
-            count = lastCount;
-          }
-        }
+        console.log(product);
+        const preCount =
+          product.inventories?.[branchId]?.[departmentId]?.remainder ?? 0;
+        let count = preCount;
 
         if (items?.length) {
           count = items.find((i) => i.code === product.code)?.remainder || 0;
@@ -150,7 +126,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
           branchId: safeRemainder.branchId,
           departmentId: safeRemainder.departmentId,
           productId: product._id,
-          preCount: live.count || 0,
+          preCount: preCount ?? 0,
           count,
           status: SAFE_REMAINDER_ITEM_STATUSES.NEW,
           uom: product.uom,
@@ -163,6 +139,38 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       await models.SafeRemainderItems.insertMany(bulkOps);
 
       return safeRemainder;
+    }
+
+    /**
+     * update some fields safe remainder
+     * @param _id Safe remainder ID
+     * @returns updated response
+     */
+    public static async updateRemainder({
+      _id,
+      description,
+      incomeRule,
+      outRule,
+      saleRule,
+    }: ISafeRemEditFields & { _id: string }) {
+      const safeRemainder = await models.SafeRemainders.getRemainder(_id);
+
+      if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+        throw new Error('Can`t edit: cause published');
+      }
+
+      await models.SafeRemainders.updateOne(
+        { _id },
+        {
+          $set: {
+            description,
+            incomeRule: { ...safeRemainder.incomeRule, ...incomeRule },
+            outRule: { ...safeRemainder.outRule, ...outRule },
+            saleRule: { ...safeRemainder.saleRule, ...saleRule },
+          },
+        },
+      );
+      return await models.SafeRemainders.getRemainder(_id);
     }
 
     /**

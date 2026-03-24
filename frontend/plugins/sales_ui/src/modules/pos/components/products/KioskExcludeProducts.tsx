@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Label, toast } from 'erxes-ui';
-import { SelectCategory, SelectProduct } from 'ui-modules';
+import { SelectProduct } from 'ui-modules';
+import { SelectCategory } from '@/pos/hooks/SelectCategory';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
@@ -27,18 +28,13 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
     }
   }, [posDetail]);
 
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryIds((prev) => {
-      if (prev.includes(categoryId)) {
-        return prev.filter((id) => id !== categoryId);
-      }
-      return [...prev, categoryId];
-    });
+  const handleCategorySelect = (value: string | string[]) => {
+    setSelectedCategoryIds(Array.isArray(value) ? value : value ? [value] : []);
     setHasChanges(true);
   };
 
-  const handleProductSelect = (productId: string | string[]) => {
-    const ids = Array.isArray(productId) ? productId : [productId];
+  const handleProductSelect = (value: string | string[]) => {
+    const ids = Array.isArray(value) ? value : [value];
     setSelectedProductIds(ids);
     setHasChanges(true);
   };
@@ -99,10 +95,12 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Category</Label>
+        <Label>Categories</Label>
         <SelectCategory
-          selected={selectedCategoryIds[0] || ''}
-          onSelect={handleCategorySelect as any}
+          mode="multiple"
+          value={selectedCategoryIds}
+          onValueChange={handleCategorySelect}
+          placeholder="Select categories to exclude"
         />
       </div>
 

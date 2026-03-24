@@ -1,4 +1,3 @@
-import { moduleRequireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import {
   IChecklist,
@@ -128,5 +127,3 @@ export const checklistMutations = {
     return models.ChecklistItems.updateItemOrder(_id, destinationIndex);
   },
 };
-
-moduleRequireLogin(checklistMutations);

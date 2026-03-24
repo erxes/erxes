@@ -19,6 +19,7 @@ import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { OrganizationProvider } from '@/organization/providers/OrganizationProvider';
 import { useAtomValue } from 'jotai';
@@ -28,6 +29,7 @@ import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 import { Providers } from '~/providers';
 import { ImportExportRoutes } from '../components/ImportExportRoutes';
+import { TemplateRoutes } from '../components/TemplateRoutes';
 
 const UserConfirmInvitationPage = lazy(
   () => import('~/pages/auth/UserConfirmInvitationPage'),
@@ -86,17 +88,29 @@ export const useCreateAppRouter = () => {
 
               <Route
                 path={AppPath.ContactsCatchAll}
-                element={<ContactsRoutes />}
+                element={
+                  <PermissionRouteGuard module="contacts">
+                    <ContactsRoutes />
+                  </PermissionRouteGuard>
+                }
               />
 
               <Route
                 path={AppPath.SegmentsCatchAll}
-                element={<SegmentRoutes />}
+                element={
+                  <PermissionRouteGuard module="segments">
+                    <SegmentRoutes />
+                  </PermissionRouteGuard>
+                }
               />
 
               <Route
                 path={AppPath.AutomationsCatchAll}
-                element={<AutomationRoutes />}
+                element={
+                  <PermissionRouteGuard module="automations">
+                    <AutomationRoutes />
+                  </PermissionRouteGuard>
+                }
               />
 
               {isOS && (
@@ -106,14 +120,50 @@ export const useCreateAppRouter = () => {
               {isOS && (
                 <Route
                   path={AppPath.DocumentsCatchAll}
-                  element={<DocumentsRoutes />}
+                  element={
+                    <PermissionRouteGuard module="documents">
+                      <DocumentsRoutes />
+                    </PermissionRouteGuard>
+                  }
                 />
               )}
 
               {isOS && (
                 <Route
                   path={AppPath.BroadcastsCatchAll}
-                  element={<BroadcastRoutes />}
+                  element={
+                    <PermissionRouteGuard module="broadcast">
+                      <BroadcastRoutes />
+                    </PermissionRouteGuard>
+                  }
+                />
+              )}
+
+              {isOS && (
+                <Route
+                  path={AppPath.TemplatesCatchAll}
+                  element={<TemplateRoutes />}
+                />
+              )}
+
+              <Route
+                path={AppPath.ImportExportCatchAll}
+                element={<ImportExportRoutes />}
+              />
+
+              <Route
+                path={AppPath.BroadcastsCatchAll}
+                element={
+                  <PermissionRouteGuard module="broadcasts">
+                    <BroadcastRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
+
+              {isOS && (
+                <Route
+                  path={AppPath.TemplatesCatchAll}
+                  element={<TemplateRoutes />}
                 />
               )}
 

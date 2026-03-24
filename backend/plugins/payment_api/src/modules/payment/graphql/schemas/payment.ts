@@ -46,10 +46,13 @@ export const queries = `
   qpayGetDistricts(cityCode: String!): JSON
 
   paymentsGetStripeKey(_id: String!): String
+
+
+  cpPayments(status: String, kind: String): [Payment]
 `;
 
 export const mutations = `
   paymentAdd(input: PaymentInput!): Payment
   paymentEdit(_id: String!, input: PaymentInput!): Payment
-  paymentRemove(_ids: [String!]!): String
+  paymentRemove(_id: String!): String
 `;

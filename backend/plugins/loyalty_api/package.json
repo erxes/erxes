@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "erxes-api-shared": "workspace:^"
-  },
-  "devDependencies": {}
+    "erxes-api-shared": "workspace:^",
+    "mathjs": "^15.1.1"
+  }
 }
