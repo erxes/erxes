@@ -51,9 +51,7 @@ export const CustomFieldsSection = ({
                 <CustomFieldInput
                   field={field}
                   value={getCustomFieldValue(field._id)}
-                  onChange={(value) =>
-                    updateCustomFieldValue(field._id, value)
-                  }
+                  onChange={(value) => updateCustomFieldValue(field._id, value)}
                 />
               </div>
             ))}

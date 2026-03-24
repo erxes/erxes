@@ -154,7 +154,9 @@ export const CustomFieldInput = ({
             }
             hidePlaceholderWhenSelected
             emptyIndicator="No options"
-            onChange={(opts: { value: string }[]) => onChange(opts.map((o) => o.value))}
+            onChange={(opts: { value: string }[]) =>
+              onChange(opts.map((o) => o.value))
+            }
           />
         );
       }
