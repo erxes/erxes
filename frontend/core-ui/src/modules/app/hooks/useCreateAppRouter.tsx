@@ -128,6 +128,29 @@ export const useCreateAppRouter = () => {
                 />
               )}
 
+              {isOS && (
+                <Route
+                  path={AppPath.BroadcastsCatchAll}
+                  element={
+                    <PermissionRouteGuard module="broadcast">
+                      <BroadcastRoutes />
+                    </PermissionRouteGuard>
+                  }
+                />
+              )}
+
+              {isOS && (
+                <Route
+                  path={AppPath.TemplatesCatchAll}
+                  element={<TemplateRoutes />}
+                />
+              )}
+
+              <Route
+                path={AppPath.ImportExportCatchAll}
+                element={<ImportExportRoutes />}
+              />
+
               <Route
                 path={AppPath.BroadcastsCatchAll}
                 element={

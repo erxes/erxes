@@ -86,7 +86,6 @@ export const GET_CORE_MODULES = (
         icon: IconFile,
         path: 'documents',
       },
-
       {
         name: t('templates'),
         icon: IconBrandDatabricks,
