@@ -3,6 +3,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo, useState } from 'react';
+import { TourSideTab } from './TourOrdersSidePanel';
 
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
 import { useEditTour } from '../hooks/useEditTour';
@@ -36,11 +37,14 @@ import {
   TourImagesField,
   TourDateSchedulingField,
 } from './TourFormFields';
+import { TourOrdersSidePanel } from './TourOrdersSidePanel';
 
 interface Props {
   tourId: string;
   branchId?: string;
   onSuccess?: () => void;
+  sideTab?: TourSideTab | null;
+  onSideTabChange?: (tab: TourSideTab | null) => void;
 }
 
 interface Itinerary {
@@ -116,10 +120,14 @@ const calculateEndDate = (startDate: Date, duration?: number) => {
   return endDate;
 };
 
-export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
+export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp, onSideTabChange }: Props) => {
   const { toast } = useToast();
   const { editTour, loading: editLoading } = useEditTour();
   const [editorResetKey, setEditorResetKey] = useState(0);
+  const [sideTabLocal, setSideTabLocal] = useState<TourSideTab | null>(null);
+
+  const sideTab = sideTabProp !== undefined ? sideTabProp : sideTabLocal;
+  const setSideTab = onSideTabChange ?? setSideTabLocal;
 
   const { tourDetail, loading: tourLoading } = useTourDetail({
     variables: { id: tourId },
@@ -299,109 +307,116 @@ export const TourEditForm = ({ tourId, branchId, onSuccess }: Props) => {
           <Sheet.Close />
         </Sheet.Header>
 
-        <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4">
+        <Sheet.Content className="flex-1 overflow-hidden p-0">
           {tourLoading ? (
             <div className="flex h-full min-h-[400px] items-center justify-center">
               <Spinner />
             </div>
           ) : (
-            <div className="flex flex-col gap-6">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <TourNameField control={form.control} />
-                  <TourRefNumberField control={form.control} />
-                </div>
+            <div className="flex h-full">
+              <div className="flex flex-col flex-1 gap-6 py-4 px-6 overflow-y-auto">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <TourNameField control={form.control} />
+                    <TourRefNumberField control={form.control} />
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <TourStatusField control={form.control} />
-                  <TourItineraryIdField
+                  <div className="grid grid-cols-2 gap-4">
+                    <TourStatusField control={form.control} />
+                    <TourItineraryIdField
+                      control={form.control}
+                      branchId={branchId}
+                    />
+                  </div>
+
+                  <TourCategoryField control={form.control} />
+
+                  <TourDescriptionField
+                    key={`tour-content-${editorResetKey}`}
                     control={form.control}
-                    branchId={branchId}
                   />
                 </div>
 
-                <TourCategoryField control={form.control} />
+                <div className="pt-4 space-y-4 border-t">
+                  <div className="grid grid-cols-3 gap-4">
+                    <TourDurationField control={form.control} />
+                    <TourGroupSizeField control={form.control} />
+                    <TourCostField control={form.control} />
+                  </div>
 
-                <TourDescriptionField
-                  key={`tour-content-${editorResetKey}`}
-                  control={form.control}
-                />
-              </div>
+                  <TourDateSchedulingField control={form.control} />
 
-              <div className="pt-4 space-y-4 border-t">
-                <div className="grid grid-cols-3 gap-4">
-                  <TourDurationField control={form.control} />
-                  <TourGroupSizeField control={form.control} />
-                  <TourCostField control={form.control} />
+                  <TourPersonCostField control={form.control} />
                 </div>
 
-                <TourDateSchedulingField control={form.control} />
+                <div className="pt-4 space-y-4 border-t">
+                  <TourAdvanceCheckField control={form.control} />
 
-                <TourPersonCostField control={form.control} />
-              </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <TourAdvancePercentField control={form.control} />
+                    <TourJoinPercentField control={form.control} />
+                  </div>
+                </div>
 
-              <div className="pt-4 space-y-4 border-t">
-                <TourAdvanceCheckField control={form.control} />
+                <div className="pt-4 space-y-4 border-t">
+                  <TourImageThumbnailField control={form.control} />
+                  <TourImagesField control={form.control} />
+                </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <TourAdvancePercentField control={form.control} />
-                  <TourJoinPercentField control={form.control} />
+                <div className="pt-4 space-y-4 border-t">
+                  <Tabs defaultValue="info1" className="w-full">
+                    <Tabs.List className="grid grid-cols-5 w-full">
+                      <Tabs.Trigger value="info1">Included</Tabs.Trigger>
+                      <Tabs.Trigger value="info2">Not Included</Tabs.Trigger>
+                      <Tabs.Trigger value="info3">Highlights</Tabs.Trigger>
+                      <Tabs.Trigger value="info4">
+                        Additional Information
+                      </Tabs.Trigger>
+                      <Tabs.Trigger value="info5">Notes</Tabs.Trigger>
+                    </Tabs.List>
+
+                    <Tabs.Content value="info1" className="pt-4">
+                      <TourInfo1Field
+                        key={`tour-info1-${editorResetKey}`}
+                        control={form.control}
+                      />
+                    </Tabs.Content>
+
+                    <Tabs.Content value="info2" className="pt-4">
+                      <TourInfo2Field
+                        key={`tour-info2-${editorResetKey}`}
+                        control={form.control}
+                      />
+                    </Tabs.Content>
+
+                    <Tabs.Content value="info3" className="pt-4">
+                      <TourInfo3Field
+                        key={`tour-info3-${editorResetKey}`}
+                        control={form.control}
+                      />
+                    </Tabs.Content>
+
+                    <Tabs.Content value="info4" className="pt-4">
+                      <TourInfo4Field
+                        key={`tour-info4-${editorResetKey}`}
+                        control={form.control}
+                      />
+                    </Tabs.Content>
+
+                    <Tabs.Content value="info5" className="pt-4">
+                      <TourInfo5Field
+                        key={`tour-info5-${editorResetKey}`}
+                        control={form.control}
+                      />
+                    </Tabs.Content>
+                  </Tabs>
                 </div>
               </div>
-
-              <div className="pt-4 space-y-4 border-t">
-                <TourImageThumbnailField control={form.control} />
-                <TourImagesField control={form.control} />
-              </div>
-
-              <div className="pt-4 space-y-4 border-t">
-                <Tabs defaultValue="info1" className="w-full">
-                  <Tabs.List className="grid grid-cols-5 w-full">
-                    <Tabs.Trigger value="info1">Included</Tabs.Trigger>
-                    <Tabs.Trigger value="info2">Not Included</Tabs.Trigger>
-                    <Tabs.Trigger value="info3">Highlights</Tabs.Trigger>
-                    <Tabs.Trigger value="info4">
-                      Additional Information
-                    </Tabs.Trigger>
-                    <Tabs.Trigger value="info5">Notes</Tabs.Trigger>
-                  </Tabs.List>
-
-                  <Tabs.Content value="info1" className="pt-4">
-                    <TourInfo1Field
-                      key={`tour-info1-${editorResetKey}`}
-                      control={form.control}
-                    />
-                  </Tabs.Content>
-
-                  <Tabs.Content value="info2" className="pt-4">
-                    <TourInfo2Field
-                      key={`tour-info2-${editorResetKey}`}
-                      control={form.control}
-                    />
-                  </Tabs.Content>
-
-                  <Tabs.Content value="info3" className="pt-4">
-                    <TourInfo3Field
-                      key={`tour-info3-${editorResetKey}`}
-                      control={form.control}
-                    />
-                  </Tabs.Content>
-
-                  <Tabs.Content value="info4" className="pt-4">
-                    <TourInfo4Field
-                      key={`tour-info4-${editorResetKey}`}
-                      control={form.control}
-                    />
-                  </Tabs.Content>
-
-                  <Tabs.Content value="info5" className="pt-4">
-                    <TourInfo5Field
-                      key={`tour-info5-${editorResetKey}`}
-                      control={form.control}
-                    />
-                  </Tabs.Content>
-                </Tabs>
-              </div>
+              <TourOrdersSidePanel
+                tourId={tourId}
+                activeTab={sideTab}
+                onTabChange={setSideTab}
+              />
             </div>
           )}
         </Sheet.Content>

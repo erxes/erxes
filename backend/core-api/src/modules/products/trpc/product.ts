@@ -130,7 +130,7 @@ export const productsTrpcRouter = t.router({
       return models.Products.find(query).countDocuments();
     }),
 
-    setRemainders: t.procedure
+    setInventories: t.procedure
       .input(
         z.object({
           branchId: z.string(),
@@ -140,6 +140,7 @@ export const productsTrpcRouter = t.router({
               productId: z.string(),
               uom: z.string().optional(),
               remainder: z.number().optional(),
+              cost: z.number().optional(),
               soonIn: z.number().optional(),
               soonOut: z.number().optional(),
             }),
@@ -152,25 +153,41 @@ export const productsTrpcRouter = t.router({
 
         await models.Products.bulkWrite(
           productsInfo.map((info) => {
-            const updateSet = {
-              [`remainders.${branchId}.${departmentId}.remainder`]:
-                info.remainder ?? 0,
-            };
+            const updateSet = {};
+            const unSet: any = {};
 
-            if (info.soonIn !== undefined) {
-              updateSet[`remainders.${branchId}.${departmentId}.soonIn`] =
-                info.soonIn;
+            if (info.remainder) {
+              updateSet[`inventories.${branchId}.${departmentId}.remainder`] =
+                info.remainder;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.remainder`] = 0;
             }
 
-            if (info.soonOut !== undefined) {
-              updateSet[`remainders.${branchId}.${departmentId}.soonOut`] =
+            if (info.cost) {
+              updateSet[`inventories.${branchId}.${departmentId}.cost`] =
+                info.cost;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.cost`] = 0;
+            }
+
+            if (info.soonIn) {
+              updateSet[`inventories.${branchId}.${departmentId}.soonIn`] =
+                info.soonIn;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.soonIn`] = 0;
+            }
+
+            if (info.soonOut) {
+              updateSet[`inventories.${branchId}.${departmentId}.soonOut`] =
                 info.soonOut;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.soonOut`] = 0;
             }
 
             return {
               updateOne: {
                 filter: { _id: info.productId },
-                update: { $set: { updateSet } },
+                update: { $set: { ...updateSet }, $unset: { ...unSet } },
                 upsert: true,
               },
             };
@@ -178,7 +195,7 @@ export const productsTrpcRouter = t.router({
         );
       }),
 
-    increaseRemainders: t.procedure
+    increaseInventories: t.procedure
       .input(
         z.object({
           branchId: z.string(),
@@ -188,6 +205,7 @@ export const productsTrpcRouter = t.router({
               productId: z.string(),
               uom: z.string().optional(),
               diffCount: z.number().optional(),
+              diffCost: z.number().optional(),
               diffSoonIn: z.number().optional(),
               diffSoonOut: z.number().optional(),
             }),
@@ -204,11 +222,13 @@ export const productsTrpcRouter = t.router({
               filter: { _id: info.productId },
               update: {
                 $inc: {
-                  [`remainders.${branchId}.${departmentId}.remainder`]:
+                  [`inventories.${branchId}.${departmentId}.remainder`]:
                     info.diffCount ?? 0,
-                  [`remainders.${branchId}.${departmentId}.soonIn`]:
+                  [`inventories.${branchId}.${departmentId}.cost`]:
+                    info.diffCost ?? 0,
+                  [`inventories.${branchId}.${departmentId}.soonIn`]:
                     info.diffSoonIn ?? 0,
-                  [`remainders.${branchId}.${departmentId}.soonOut`]:
+                  [`inventories.${branchId}.${departmentId}.soonOut`]:
                     info.diffSoonOut ?? 0,
                 },
               },

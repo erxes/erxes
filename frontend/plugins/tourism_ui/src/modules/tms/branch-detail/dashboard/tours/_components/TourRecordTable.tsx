@@ -8,9 +8,11 @@ import { useTours } from '../hooks/useTours';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { TourCommandBar } from './TourCommandBar';
 import { useCategories } from '../../category/hooks/useCategories';
+import type { TourSideTab } from './TourOrdersSidePanel';
 
 export const TourRecordTable = ({ branchId }: { branchId: string }) => {
   const [editTourId, setEditTourId] = useState<string | null>(null);
+  const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
 
   const { tours, handleFetchMore, loading, pageInfo, totalCount } = useTours({
     variables: { branchId },
@@ -24,7 +26,10 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
   };
 
   const handleCloseEdit = (open: boolean) => {
-    if (!open) setEditTourId(null);
+    if (!open) {
+      setEditTourId(null);
+      setSideTab(null);
+    }
   };
   if (!loading && (totalCount ?? 0) === 0) {
     return <EmptyStateRow branchId={branchId} />;
@@ -62,12 +67,18 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
       </RecordTable.Provider>
 
       <Sheet open={!!editTourId} onOpenChange={handleCloseEdit}>
-        <Sheet.View className="w-[800px] sm:max-w-[800px] p-0">
+        <Sheet.View
+          className={`p-0 transition-all duration-200 ${
+            sideTab ? 'w-[1220px] sm:max-w-[1220px]' : 'w-[900px] sm:max-w-[900px]'
+          }`}
+        >
           {editTourId && (
             <TourEditForm
               tourId={editTourId}
               branchId={branchId}
               onSuccess={() => handleCloseEdit(false)}
+              sideTab={sideTab}
+              onSideTabChange={setSideTab}
             />
           )}
         </Sheet.View>

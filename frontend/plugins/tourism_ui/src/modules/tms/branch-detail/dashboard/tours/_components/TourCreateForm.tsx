@@ -65,6 +65,8 @@ const normalizePersonCost = (personCost?: TourCreateFormType['personCost']) => {
   );
 };
 
+const hideFields = false;
+
 const sortDates = (dates: Date[]) =>
   [...dates].sort((a, b) => a.getTime() - b.getTime());
 
@@ -309,14 +311,16 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
               <TourPersonCostField control={form.control} />
             </div>
 
-            <div className="pt-4 space-y-4 border-t">
-              <TourAdvanceCheckField control={form.control} />
+            {hideFields && (
+              <div className="pt-4 space-y-4 border-t">
+                <TourAdvanceCheckField control={form.control} />
 
-              <div className="grid grid-cols-2 gap-4">
-                <TourAdvancePercentField control={form.control} />
-                <TourJoinPercentField control={form.control} />
+                <div className="grid grid-cols-2 gap-4">
+                  <TourAdvancePercentField control={form.control} />
+                  <TourJoinPercentField control={form.control} />
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="pt-4 space-y-4 border-t">
               <TourImageThumbnailField control={form.control} />

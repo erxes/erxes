@@ -139,3 +139,23 @@ export const REMOVE_TOUR = gql`
     bmsTourRemove(ids: $ids)
   }
 `;
+
+export const EDIT_TOUR_ORDER = gql`
+  mutation BmsOrderEdit($id: String!, $order: BmsOrderInput) {
+    bmsOrderEdit(_id: $id, order: $order) {
+      _id
+      branchId
+      customerId
+      tourId
+      amount
+      status
+      note
+      numberOfPeople
+      type
+      additionalCustomers
+      isChild
+      parent
+      createdAt
+    }
+  }
+`;
