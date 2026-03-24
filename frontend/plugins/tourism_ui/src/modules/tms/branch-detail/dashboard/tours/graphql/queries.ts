@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export const GET_TOURS = gql`
   query BmsTours(
     $branchId: String
+    $name: String
     $status: String
     $date_status: DATE_STATUS
     $limit: Int
@@ -16,6 +17,7 @@ export const GET_TOURS = gql`
   ) {
     bmsTours(
       branchId: $branchId
+      name: $name
       status: $status
       date_status: $date_status
       limit: $limit
@@ -32,8 +34,11 @@ export const GET_TOURS = gql`
         name
         refNumber
         groupCode
+        dateType
         startDate
         endDate
+        availableFrom
+        availableTo
         status
         date_status
         cost
@@ -74,8 +79,11 @@ export const GET_TOUR_GROUPS = gql`
           name
           refNumber
           groupCode
+          dateType
           startDate
           endDate
+          availableFrom
+          availableTo
           status
           date_status
           cost
@@ -98,8 +106,11 @@ export const GET_TOUR_DETAIL = gql`
       content
       cost
       date_status
+      dateType
       duration
       endDate
+      availableFrom
+      availableTo
       groupSize
       imageThumbnail
       images

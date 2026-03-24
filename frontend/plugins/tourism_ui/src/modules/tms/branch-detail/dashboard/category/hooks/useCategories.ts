@@ -1,6 +1,9 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_CATEGORIES } from '../graphql/queries';
 import { ICategory } from '../types/category';
+import { useEffect } from 'react';
+import { useSetAtom } from 'jotai';
+import { categoryTotalCountAtom } from '../states/categoryCounts';
 
 type CategoriesQueryVariables = {
   parentId?: string;
@@ -27,6 +30,14 @@ export const useCategories = (
   });
 
   const categories = data?.bmsTourCategories || [];
+
+  const setTotalCount = useSetAtom(categoryTotalCountAtom);
+
+  useEffect(() => {
+    if (data?.bmsTourCategories) {
+      setTotalCount(data.bmsTourCategories.length);
+    }
+  }, [data, setTotalCount]);
 
   return {
     loading,

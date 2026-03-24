@@ -24,6 +24,10 @@ export const types = `
     cancelled
     unscheduled
   }
+  enum DATE_TYPE {
+    fixed
+    flexible
+  }
   type Tour {
     _id: String!
     branchId: String
@@ -36,8 +40,11 @@ export const types = `
     guides: [GuideItem]
     itineraryId: String
     itinerary: Itinerary
+    dateType: DATE_TYPE
     startDate: Date
     endDate: Date
+    availableFrom: Date
+    availableTo: Date
     groupSize: Int
     status: String
     date_status: DATE_STATUS
@@ -137,8 +144,11 @@ const params = `
   groupCode: String,
   content: String,
   itineraryId:String,
+  dateType: DATE_TYPE,
   startDate: Date,
   endDate: Date,
+  availableFrom: Date,
+  availableTo: Date,
   groupSize: Int,
   duration: Int,
   advancePercent: Float,

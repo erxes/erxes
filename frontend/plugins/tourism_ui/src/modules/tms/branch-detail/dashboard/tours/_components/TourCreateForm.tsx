@@ -22,8 +22,6 @@ import {
   TourPersonCostField,
   TourDurationField,
   TourGroupSizeField,
-  TourStartDateField,
-  TourEndDateField,
   TourInfo1Field,
   TourInfo2Field,
   TourInfo3Field,
@@ -36,6 +34,7 @@ import {
   TourCategoryField,
   TourImageThumbnailField,
   TourImagesField,
+  TourDateSchedulingField,
 } from './TourFormFields';
 
 interface Props {
@@ -193,15 +192,19 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
         ...restValues
       } = values;
 
-      const selectedDates = values.startDate
+      const normalizedStartDates = values.startDate
         ? Array.isArray(values.startDate)
           ? sortDates(values.startDate)
           : [values.startDate]
         : [];
 
+      const selectedDates = values.isGroupTour
+        ? normalizedStartDates
+        : normalizedStartDates.slice(0, 1);
+
       const primaryStartDate = selectedDates[0];
 
-      const groupCode = selectedDates.length > 1 ? nanoid() : nanoid();
+      const groupCode = nanoid(8);
 
       if (selectedDates.length > 0) {
         for (const selectedDate of selectedDates) {
@@ -214,6 +217,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
             variables: {
               branchId,
               ...restValues,
+              dateType: values.isFlexibleDate ? 'flexible' : 'fixed',
               startDate: selectedDate,
               endDate: computedEndDate,
               date_status: getDateStatus(selectedDate),
@@ -231,6 +235,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
           variables: {
             branchId,
             ...restValues,
+            dateType: values.isFlexibleDate ? 'flexible' : 'fixed',
             startDate: primaryStartDate,
             endDate: computedEndDate,
             date_status: getDateStatus(primaryStartDate),
@@ -299,10 +304,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
                 <TourCostField control={form.control} />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <TourStartDateField control={form.control} />
-                <TourEndDateField control={form.control} />
-              </div>
+              <TourDateSchedulingField control={form.control} />
 
               <TourPersonCostField control={form.control} />
             </div>

@@ -125,19 +125,31 @@ export const GroupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
     id: 'date',
     accessorKey: 'dateRangeLabel',
     header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
-    cell: ({ row }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={
-            row.original.isGroup
-              ? row.original.dateRangeLabel || '-'
-              : `${formatDate(row.original.startDate)} - ${formatDate(
-                  row.original.endDate,
-                )}`
-          }
-        />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ row }) => {
+      if (row.original.isGroup) {
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={row.original.dateRangeLabel || '-'} />
+          </RecordTableInlineCell>
+        );
+      }
+
+      const tour = row.original;
+      const startDateValue =
+        tour.dateType === 'flexible' ? tour.availableFrom : tour.startDate;
+      const endDateValue =
+        tour.dateType === 'flexible' ? tour.availableTo : tour.endDate;
+
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={`${formatDate(startDateValue)} - ${formatDate(
+              endDateValue,
+            )}`}
+          />
+        </RecordTableInlineCell>
+      );
+    },
     size: 200,
   },
   {

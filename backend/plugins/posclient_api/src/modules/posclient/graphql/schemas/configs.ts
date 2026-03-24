@@ -97,6 +97,8 @@ export const mutations = `
   deleteOrders: JSON
   posChooseConfig(token: String!): String
   refetchRemainder(categoryId: String, searchValue: String): String
+
+  cpSyncConfig(type: String!): JSON
 `;
 
 export const queries = `

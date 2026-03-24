@@ -4,46 +4,15 @@ interface ManualInlineContent {
   styles: Record<string, boolean>;
 }
 
-interface ManualBlockProps {
-  textColor?: string;
-  backgroundColor: string;
-  textAlignment: string;
-  url?: string;
-  name?: string;
-  caption?: string;
-  showPreview?: boolean;
-  level?: number;
-}
+const escapeHtml = (str: string): string =>
+  str
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 
-interface ManualBlock {
-  id: string;
-  type: string;
-  props: ManualBlockProps;
-  content: ManualInlineContent[];
-  children: ManualBlock[];
-}
-
-interface AttachmentInput {
-  url?: string;
-  name?: string;
-  type?: string;
-  size?: number;
-  duration?: number;
-}
-
-const emptyParagraph = (): ManualBlock => ({
-  id: crypto.randomUUID(),
-  type: 'paragraph',
-  props: {
-    textColor: 'default',
-    backgroundColor: 'default',
-    textAlignment: 'left',
-  },
-  content: [],
-  children: [],
-});
-
-export const convertHTMLToBlocks = (htmlContent: string): ManualBlock[] => {
+export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
   if (!htmlContent || htmlContent.trim() === '') {
     return [emptyParagraph()];
   }
@@ -154,7 +123,7 @@ export const formatInitialContent = (content?: string): string | undefined => {
     const blocks = convertHTMLToBlocks(content);
     return JSON.stringify(blocks);
   }
-  const blocks = convertHTMLToBlocks(`<p>${content}</p>`);
+  const blocks = convertHTMLToBlocks(`<p>${escapeHtml(content)}</p>`);
   return JSON.stringify(blocks);
 };
 
@@ -190,5 +159,5 @@ export const makeAttachmentArrayFromUrls = (urls?: (string | null)[]) => {
   return (urls || [])
     .filter(Boolean)
     .map((u) => makeAttachmentFromUrl(u as string))
-    .filter(Boolean);
+    .filter(Boolean) as { url: string; name: string }[];
 };

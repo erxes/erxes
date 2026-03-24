@@ -8,6 +8,8 @@ export interface IGuideItem {
   type: string;
 }
 
+export type DateType = 'fixed' | 'flexible';
+
 export interface ITour {
   name: string;
   groupCode: string;
@@ -15,8 +17,11 @@ export interface ITour {
   content: string;
   duration: string;
   location: ILocation[];
+  dateType?: DateType;
   startDate: Date;
   endDate: Date;
+  availableFrom?: Date;
+  availableTo?: Date;
   groupSize: number;
   guides: IGuideItem[];
   status: string;

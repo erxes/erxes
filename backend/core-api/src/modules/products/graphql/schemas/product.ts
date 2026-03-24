@@ -32,7 +32,7 @@ export const types = `
     pdfAttachment: PdfAttachment
 
     cursor: String
-    remainders: JSON
+    inventories: JSON
     discounts: JSON
 
     remainder: JSON
