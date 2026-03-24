@@ -73,7 +73,7 @@ export interface IModels {
   Transactions: ITransactionModel;
   AccountCategories: IAccountCategoryModel;
   Configs: IConfigModel;
-  // VatRows: IVatRowModel;
+  VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
   Permissions: IPermissionModel;
   AdjustInventories: IAdjustInventoriesModel;
@@ -152,10 +152,10 @@ export const loadClasses = (
     loadTransactionClass(models, subdomain),
   );
 
-  // models.VatRows = db.model<IVatRowDocument, IVatRowModel>(
-  //   'vat_rows',
-  //   loadVatRowClass(models, subdomain),
-  // );
+  models.VatRows = db.model<IVatRowDocument, IVatRowModel>(
+    'vat_rows',
+    loadVatRowClass(models, subdomain),
+  );
   models.CtaxRows = db.model<ICtaxRowDocument, ICtaxRowModel>(
     'ctax_rows',
     loadCtaxRowClass(models, subdomain),
@@ -165,6 +165,7 @@ export const loadClasses = (
     IAdjustClosingDocument,
     IAdjustClosingEntryModel
   >('adjust_closing_entries', loadAdjustClosingEntryClass(models, subdomain));
+
   models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
     'inventories_reserverems',
     loadReserveRemClass(models, subdomain),
