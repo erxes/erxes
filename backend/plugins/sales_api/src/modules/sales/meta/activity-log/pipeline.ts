@@ -42,7 +42,9 @@ export async function generatePipelineActivityLogs(
       (field: string, { current }: { current: any; prev: any }) =>
         current === 'archived' ? 'Archived' : 'Active',
     ),
-    assignmentRule('memberIds', async (ids: string[]) => fetchUsersByIds(subdomain, ids)),
+    assignmentRule('memberIds', async (ids: string[]) =>
+      fetchUsersByIds(subdomain, ids),
+    ),
     assignmentRule('watchedUserIds', async (ids: string[]) =>
       fetchUsersByIds(subdomain, ids),
     ),

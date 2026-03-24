@@ -1,9 +1,6 @@
 import { ActivityLogInput } from 'erxes-api-shared/core-modules';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
-import type {
-  CPUserLoginActivityPayload,
-  CPUserLoginMethod,
-} from './types';
+import type { CPUserLoginActivityPayload, CPUserLoginMethod } from './types';
 
 export function generateCPUserCreatedActivityLog(
   user: ICPUserDocument | { _id: string },

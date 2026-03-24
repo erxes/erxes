@@ -107,8 +107,8 @@ async function buildPropertiesDataActivities(
             kind === 'set'
               ? `set ${fieldDef.name}`
               : kind === 'unset'
-              ? `cleared ${fieldDef.name}`
-              : `changed ${fieldDef.name}`,
+                ? `cleared ${fieldDef.name}`
+                : `changed ${fieldDef.name}`,
         },
         changes: {
           fieldId,

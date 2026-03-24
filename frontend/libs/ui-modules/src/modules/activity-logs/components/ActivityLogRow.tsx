@@ -25,9 +25,7 @@ export function ActivityLogRow({
       </div>
 
       <div className="flex min-w-0 flex-1 items-start gap-3 pt-0.5">
-        <div className="min-w-0 flex-1">
-          {activityLogRowContent}
-        </div>
+        <div className="min-w-0 flex-1">{activityLogRowContent}</div>
         <div className="shrink-0 pt-0.5 text-right">
           <RelativeDateDisplay value={activity.createdAt as string} asChild>
             <p className="text-xs leading-6 text-muted-foreground">

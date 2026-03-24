@@ -85,7 +85,10 @@ export const customerActivityResolvers: Record<
     ];
   },
 
-  tagIds: async ({ added = [], removed = [] }, ctx: CustomerActivityContext) => {
+  tagIds: async (
+    { added = [], removed = [] },
+    ctx: CustomerActivityContext,
+  ) => {
     const [addedTags, removedTags] = await Promise.all([
       added.length
         ? ctx.models.Tags.find({ _id: { $in: added } }, { name: 1 }).lean()

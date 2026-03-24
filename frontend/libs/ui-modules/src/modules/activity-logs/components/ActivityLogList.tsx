@@ -21,13 +21,18 @@ export const ActivityLogList = ({
   } = useActivityLog();
 
   const reachedLimit = limit !== undefined && activityLogs.length >= limit;
-  const canFetchMore =
-    variant === 'backward' ? hasPreviousPage : hasNextPage;
+  const canFetchMore = variant === 'backward' ? hasPreviousPage : hasNextPage;
 
   const { ref: fetchMoreRef } = useInView({
     threshold: 0.1,
     onChange: (inView) => {
-      if (inView && canFetchMore && handleFetchMore && !loading && !reachedLimit) {
+      if (
+        inView &&
+        canFetchMore &&
+        handleFetchMore &&
+        !loading &&
+        !reachedLimit
+      ) {
         handleFetchMore({
           direction:
             variant === 'backward'

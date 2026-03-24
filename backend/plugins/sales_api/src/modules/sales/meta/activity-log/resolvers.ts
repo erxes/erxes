@@ -59,16 +59,24 @@ export const dealActivityResolvers: Record<
     ];
   },
 
-  assignedUserIds: async ({ added = [], removed = [] }, ctx: DealActivityContext) =>
-    buildDealAssigneeActivities({ deal: ctx.deal, added, removed }),
+  assignedUserIds: async (
+    { added = [], removed = [] },
+    ctx: DealActivityContext,
+  ) => buildDealAssigneeActivities({ deal: ctx.deal, added, removed }),
 
   labelIds: async ({ added = [], removed = [] }, ctx: DealActivityContext) => {
     const [addedLabels, removedLabels] = await Promise.all([
       added.length
-        ? ctx.models.PipelineLabels.find({ _id: { $in: added } }, { name: 1 }).lean()
+        ? ctx.models.PipelineLabels.find(
+            { _id: { $in: added } },
+            { name: 1 },
+          ).lean()
         : Promise.resolve([]),
       removed.length
-        ? ctx.models.PipelineLabels.find({ _id: { $in: removed } }, { name: 1 }).lean()
+        ? ctx.models.PipelineLabels.find(
+            { _id: { $in: removed } },
+            { name: 1 },
+          ).lean()
         : Promise.resolve([]),
     ]);
 
@@ -204,7 +212,9 @@ export const dealActivityResolvers: Record<
       added,
       removed,
       addedLabels: addedDepartments.map((department: any) => department.title),
-      removedLabels: removedDepartments.map((department: any) => department.title),
+      removedLabels: removedDepartments.map(
+        (department: any) => department.title,
+      ),
       entityLabel: 'department',
     });
   },
