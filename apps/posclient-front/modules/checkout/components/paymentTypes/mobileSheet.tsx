@@ -103,12 +103,7 @@ const MobileSheet = () => {
 
   if (!invoiceUrl) return <div>Failed to load payment</div>
 
-  return (
-    <iframe
-      src={invoiceUrl}
-      className="w-full h-full border-0"
-    />
-  )
+  return <iframe src={invoiceUrl} className="w-full h-full border-0" />
 }
 
 export default MobileSheet
