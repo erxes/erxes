@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useBlockEditor } from '../hooks/useBlockEditor';
 import { BlockEditor } from './BlockEditor';
 import { Block } from '@blocknote/core';
@@ -16,6 +16,13 @@ export const Editor = ({
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
   const skipNextOnChangeRef = useRef(false);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
   const parsedInitialContent = parseBlocks(initialContent ?? '');
   const editor = useBlockEditor({
     initialContent: parsedInitialContent || undefined,
@@ -25,6 +32,12 @@ export const Editor = ({
   useEffect(() => {
     async function loadInitialHTML(initialHTML?: string) {
       if (!initialHTML) return;
+      // Support legacy JSON content stored before isHTML mode was used
+      const parsed = parseBlocks(initialHTML);
+      if (parsed) {
+        editor.replaceBlocks(editor.document, parsed);
+        return;
+      }
       const blocks = await editor.tryParseHTMLToBlocks(initialHTML);
       editor.replaceBlocks(editor.document, blocks);
     }
@@ -80,20 +93,25 @@ export const Editor = ({
     };
   }, [editor, initialContent, isHTML]);
 
-  const handleChange = async () => {
+  const handleChange = useCallback(() => {
     if (skipNextOnChangeRef.current) {
       skipNextOnChangeRef.current = false;
       return;
     }
 
-    const content = await editor?.document;
-    if (isHTML) {
-      const htmlContent = await editor?.blocksToHTMLLossy(content as Block[]);
-      onChange(htmlContent);
-    } else {
-      onChange(JSON.stringify(content));
-    }
-  };
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+
+    debounceTimerRef.current = setTimeout(async () => {
+      const content = editor?.document;
+      if (!content) return;
+      if (isHTML) {
+        const htmlContent = await editor.blocksToHTMLLossy(content as Block[]);
+        onChange(htmlContent);
+      } else {
+        onChange(JSON.stringify(content));
+      }
+    }, 300);
+  }, [editor, isHTML, onChange]);
 
   return (
     <BlockEditor
