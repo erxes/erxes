@@ -425,6 +425,35 @@ export const SelectDepartmentsCommandbarItem = ({
   );
 };
 
+export const SelectDepartmentsComboboxItem = ({
+  onValueChange,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectDepartmentsProvider>, 'children'> & {
+  className?: string;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  return (
+    <SelectDepartmentsProvider
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <SelectDepartmentsValue />
+        </Combobox.Trigger>
+
+        <Combobox.Content>
+          <SelectDepartmentsContent />
+        </Combobox.Content>
+      </Popover>
+    </SelectDepartmentsProvider>
+  );
+};
+
 export const SelectDepartmentsFormItem = ({
   onValueChange,
   className,
@@ -556,6 +585,7 @@ export const SelectDepartments = Object.assign(SelectDepartmentsProvider, {
   Value: SelectDepartmentsValue,
   List: DepartmentsList,
   InlineCell: SelectDepartmentsInlineCell,
+  ComboboxItem: SelectDepartmentsComboboxItem,
   FormItem: SelectDepartmentsFormItem,
   FilterItem: SelectDepartmentsFilterItem,
   FilterView: SelectDepartmentsFilterView,
