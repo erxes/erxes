@@ -25,19 +25,16 @@ const MobileSheet = () => {
   const customerType = useAtomValue(customerTypeAtom)
   const orderNumber = useAtomValue(orderNumberAtom)
 
-  const [generateInvoiceUrl] = useMutation(
-    mutations.generateInvoiceUrl,
-    {
-      context: {
-        headers: { "erxes-app-token": config?.erxesAppToken },
-      },
-      client: clientMain,
-      onError(error) {
-        onError(error.message)
-        setLoading(false)
-      },
-    }
-  )
+  const [generateInvoiceUrl] = useMutation(mutations.generateInvoiceUrl, {
+    context: {
+      headers: { "erxes-app-token": config?.erxesAppToken },
+    },
+    client: clientMain,
+    onError(error) {
+      onError(error.message)
+      setLoading(false)
+    },
+  })
 
   useEffect(() => {
     const run = async () => {

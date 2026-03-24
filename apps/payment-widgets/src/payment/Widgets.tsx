@@ -109,10 +109,7 @@ const Widgets = () => {
 
       setApiResponse({
         qrData:
-          response.qrData ||
-          response.qr ||
-          response.qr_code ||
-          response.qrcode,
+          response.qrData || response.qr || response.qr_code || response.qrcode,
         urls: response.urls || [],
       });
     } catch (err) {

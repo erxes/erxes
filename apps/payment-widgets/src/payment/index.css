@@ -143,7 +143,6 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-
   *,
   ::after,
   ::before,
@@ -154,7 +153,6 @@
 }
 
 @utility hide-scroll {
-
   /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     display: none;
@@ -168,7 +166,6 @@
 }
 
 @utility styled-scroll {
-
   /* Custom scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     width: 1px;
@@ -186,7 +183,7 @@
 }
 
 @utility block-child {
-  &>* {
+  & > * {
     @apply block !;
   }
 }

@@ -36,7 +36,7 @@ const mount = (options: InitOptions) => {
   window.history.replaceState(
     {},
     '',
-    `/pl:payment/widget/invoice/${invoiceId}?${url.searchParams.toString()}`
+    `/pl:payment/widget/invoice/${invoiceId}?${url.searchParams.toString()}`,
   );
 
   const root = createRoot(container);
@@ -44,7 +44,7 @@ const mount = (options: InitOptions) => {
   root.render(
     <ApolloProvider client={client}>
       <App />
-    </ApolloProvider>
+    </ApolloProvider>,
   );
 };
 
