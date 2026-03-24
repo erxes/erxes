@@ -43,6 +43,7 @@ export const webSchema = new mongoose.Schema<IWebDocument>(
     ],
     // deployment state
     projectId: { type: String },
+    vercelProjectId:{type: String},
     lastDeploymentId: { type: String },
     lastDeploymentUrl: { type: String },
   },

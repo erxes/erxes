@@ -120,23 +120,25 @@ const allFilePaths = (dirPath: string, arrayOfFiles: string[] = []) => {
   return arrayOfFiles;
 };
 
+/**
+ * Sanitize a string into a valid Vercel project name / domain slug.
+ * Vercel rules: lowercase, alphanumeric + hyphens only, no leading/trailing hyphens.
+ */
+const toSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
 export const deploy = async (
   subdomain: string,
   web: IWebDocument,
   models: IModels,
 ) => {
-  console.log(
-    'GITHUB_TOKEN:',
-    getEnv({ name: 'GITHUB_TOKEN' }) ? 'set' : 'missing',
-  );
-  console.log(
-    'VERCEL_TOKEN:',
-    getEnv({ name: 'VERCEL_TOKEN' }) ? 'set' : 'missing',
-  );
-  console.log(
-    'VERCEL_TEAM_ID:',
-    getEnv({ name: 'VERCEL_TEAM_ID' }) ? 'set' : 'missing',
-  );
+  console.log('GITHUB_TOKEN:', getEnv({ name: 'GITHUB_TOKEN' }) ? 'set' : 'missing');
+  console.log('VERCEL_TOKEN:', getEnv({ name: 'VERCEL_TOKEN' }) ? 'set' : 'missing');
+  console.log('VERCEL_TEAM_ID:', getEnv({ name: 'VERCEL_TEAM_ID' }) ? 'set' : 'missing');
   console.log('DOMAIN:', getEnv({ name: 'DOMAIN' }));
   console.log('web.templateId:', web.templateId);
   console.log('web.erxesAppToken:', web.erxesAppToken ? 'set' : 'missing');
@@ -178,15 +180,50 @@ export const deploy = async (
   const TEMPLATE_REPO = `https://oauth2:${GITHUB_TOKEN}@github.com/erxes-web-templates/${web.templateId}.git`;
   const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
 
+  // ─── Identifiers ─────────────────────────────────────────────────────────────
+  //
+  //  projectName   — derived from web.name. Used as the Vercel project name on
+  //                  FIRST deployment. Vercel uses this as the display name AND
+  //                  the basis for the auto-assigned *.vercel.app domain slug
+  //                  (e.g. "My Site" → my-site.vercel.app).
+  //
+  //  web.vercelProjectId — Vercel's own internal project ID returned from the
+  //                  first deployment response (result.projectId). Saved back to
+  //                  the web document after first deploy. On all subsequent
+  //                  re-deploys we pass this as `project` so Vercel routes to
+  //                  the exact same project regardless of any web.name changes.
+  //
+  //  WHY this approach:
+  //    Vercel's deployment API behaviour:
+  //      • When `project` is provided → Vercel uses it as the lookup key and
+  //        ignores `name` entirely. If the project doesn't exist yet, Vercel
+  //        creates it using `project` as the name — which produces a webId-based
+  //        domain (the bug we had before).
+  //      • When `project` is omitted → Vercel looks up (or creates) the project
+  //        by `name`, so the domain is correctly name-based on first creation.
+  //
+  const projectName = toSlug(web.name);
+  const domainAlias = `${projectName}.vercel.app`;
+
+  // vercelProjectId is Vercel's own ID saved after first deployment.
+  // Cast because the field may not be in the TypeScript type yet.
+  const existingVercelProjectId = (web as any).vercelProjectId as string | undefined;
+
+  console.log('vercel projectName   (web.name slug):', projectName);
+  console.log('vercel domainAlias:', domainAlias);
+  console.log(
+    'vercel existingVercelProjectId:',
+    existingVercelProjectId || '(none — first deploy)',
+  );
+
   try {
     const git = simpleGit();
     await git.clone(TEMPLATE_REPO, tmpDir);
     console.log('Cloned template repository');
 
-    // changing next.js version to 15.3.8 bcs of vercel auto detection issue with affected versions
+    // Patch next.js to 15.3.8 due to vercel auto-detection issue
     const packageJsonPath = path.join(tmpDir, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
     const nextVersion = packageJson.dependencies?.['next'];
     if (nextVersion) {
       packageJson.dependencies['next'] = '15.3.8';
@@ -194,8 +231,8 @@ export const deploy = async (
       console.log(`patched next.js from ${nextVersion} to 15.3.8`);
     }
 
-    // Delete package-lock.json only — keep yarn.lock so yarn resolves
-    // only the patched package instead of re-fetching everything from scratch
+    // Delete package-lock.json — keep yarn.lock so yarn resolves only the
+    // patched package instead of re-fetching everything from scratch
     const packageLockPath = path.join(tmpDir, 'package-lock.json');
     if (fs.existsSync(packageLockPath)) {
       fs.unlinkSync(packageLockPath);
@@ -219,7 +256,7 @@ export const deploy = async (
       env[ev.key] = ev.value;
     }
 
-    // Write next.config.ts with eslint and typescript errors ignored
+    // Write next.config.ts
     const configPath = path.join(tmpDir, 'next.config.ts');
     const projectConfig = `export default {
       env: ${JSON.stringify(env, null, 2)},
@@ -279,53 +316,41 @@ export const deploy = async (
       const isBinary = binaryExts.test(path.extname(filePath));
       const fileData = fs.readFileSync(filePath);
       return isBinary
-        ? {
-            file: relPath,
-            data: fileData.toString('base64'),
-            encoding: 'base64',
-          }
+        ? { file: relPath, data: fileData.toString('base64'), encoding: 'base64' }
         : { file: relPath, data: fileData.toString('utf8') };
     });
     console.log('total files to upload:', files.length);
 
-    // ─── Stable, unique project ID derived from webId ────────────────────────
-    // This never changes for a given web, so Vercel always routes to the same
-    // project regardless of renames.
-    const projectId = `erxes-${web._id}`
-      .toLowerCase()
-      .replace(/[^a-z0-9._-]/g, '-');
+    // ─── Build deployment body ────────────────────────────────────────────────
+    //
+    //  FIRST DEPLOY  (web.vercelProjectId not yet saved):
+    //    • Omit `project` entirely — Vercel creates a new project using `name`
+    //      as both display name and domain slug → "my-site.vercel.app" ✓
+    //
+    //  RE-DEPLOY  (web.vercelProjectId already saved from first deploy):
+    //    • Pass `project: existingVercelProjectId` — Vercel routes directly to
+    //      the existing project regardless of any web.name changes. No duplicate
+    //      project is ever created. ✓
+    //
+    const deploymentBody: Record<string, any> = {
+      name: projectName,
+      files,
+      target: 'production',
+      projectSettings: {
+        installCommand: 'yarn install',
+        buildCommand: 'next build',
+        framework: 'nextjs',
+      },
+    };
 
-    // Human-readable display name derived from web.name.
-    const projectName = `${web.name}`
-      .toLowerCase()
-      .replace(/[^a-z0-9._-]/g, '-');
+    if (existingVercelProjectId) {
+      deploymentBody.project = existingVercelProjectId;
+      console.log(`Re-deploying into existing Vercel project: ${existingVercelProjectId}`);
+    } else {
+      console.log(`First deploy — creating new Vercel project as "${projectName}"`);
+    }
 
-    // Domain alias derived from web.name (used as Vercel alias / subdomain).
-    const webDomain = `${web.name}`
-      .toLowerCase()
-      .replace(/[^a-z0-9-]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-
-    console.log('vercel projectId (stable):', projectId);
-    console.log('vercel projectName (display):', projectName);
-    console.log('vercel webDomain (alias):', webDomain);
-
-    // ─── Check whether the Vercel project already exists ─────────────────────
-    // GET /v9/projects/:id returns 200 if found, 404 if not.
-    const projectCheckRes = await fetch(
-      `https://api.vercel.com/v9/projects/${projectId}`,
-      { headers: { Authorization: `Bearer ${VERCEL_TOKEN}` } },
-    );
-    const projectExists = projectCheckRes.status === 200;
-    console.log(
-      projectExists
-        ? 'Vercel project exists — redeploying (update)'
-        : 'Vercel project not found — creating new deployment',
-    );
-
-    console.log('calling vercel api...');
-
+    console.log('calling vercel deploy api...');
     const response = await fetch(
       'https://api.vercel.com/v13/deployments?forceNew=0&skipAutoDetectionConfirmation=0',
       {
@@ -334,21 +359,7 @@ export const deploy = async (
           Authorization: `Bearer ${VERCEL_TOKEN}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          // When the project already exists the `name` field must match the
-          // stored project name (which we set to projectId on first creation)
-          // so Vercel routes the deployment into it.
-          // When it doesn't exist, Vercel creates a new project using `name`.
-          name: projectExists ? projectId : projectName,
-          project: projectId,
-          files,
-          target: 'production',
-          projectSettings: {
-            installCommand: 'yarn install',
-            buildCommand: 'next build',
-            framework: 'nextjs',
-          },
-        }),
+        body: JSON.stringify(deploymentBody),
       },
     );
 
@@ -362,13 +373,26 @@ export const deploy = async (
       );
     }
 
-    // ─── Assign domain alias based on web.name ────────────────────────────────
-    // e.g. web.name "My Cool Site" → "my-cool-site.vercel.app"
-    const domainAlias = `${webDomain}.vercel.app`;
-    console.log('assigning domain alias:', domainAlias);
+    // ─── Save Vercel's project ID back to the web document ───────────────────
+    // result.projectId is Vercel's stable internal ID for this project.
+    // We persist it so all future re-deploys route to the same project.
+    if (result.projectId && !existingVercelProjectId) {
+      console.log('saving vercelProjectId to web document:', result.projectId);
+      await (models as any).Web.updateOne(
+        { _id: web._id },
+        { $set: { vercelProjectId: result.projectId } },
+      );
+    }
+
+    // ─── Ensure domain alias is assigned ─────────────────────────────────────
+    // On first deploy Vercel auto-assigns the domain from `name`, but we POST
+    // it explicitly every time — safe (idempotent) and guarantees the alias
+    // stays present even if it was manually removed.
+    const vercelProjectId = result.projectId || existingVercelProjectId;
+    console.log('assigning domain alias:', domainAlias, 'to project:', vercelProjectId);
 
     const domainRes = await fetch(
-      `https://api.vercel.com/v10/projects/${projectId}/domains`,
+      `https://api.vercel.com/v10/projects/${vercelProjectId}/domains`,
       {
         method: 'POST',
         headers: {
@@ -381,7 +405,7 @@ export const deploy = async (
 
     const domainResult = await domainRes.json();
     if (!domainRes.ok) {
-      // Non-fatal: log but don't abort — the deployment itself succeeded.
+      // Non-fatal — deployment succeeded, alias may already be assigned
       console.warn(
         'Domain assignment warning:',
         domainResult.error?.message || JSON.stringify(domainResult),
