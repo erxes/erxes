@@ -1,4 +1,4 @@
-import { cursorPaginate } from 'erxes-api-shared/src/utils';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const orderQueries = {

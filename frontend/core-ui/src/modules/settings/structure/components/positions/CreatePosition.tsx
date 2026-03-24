@@ -56,7 +56,11 @@ export const CreatePosition = () => {
       handleAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Position created successfully',
+          });
           methods.reset();
           setOpen(false);
         },

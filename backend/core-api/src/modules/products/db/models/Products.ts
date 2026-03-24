@@ -1,10 +1,11 @@
 import {
-  ICustomField,
   IProduct,
   IProductDocument,
+  IPropertyField,
 } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import { nanoid } from 'nanoid';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 import { PRODUCT_STATUSES } from '@/products/constants';
 import { productSchema } from '@/products/db/definitions/products';
@@ -14,6 +15,7 @@ import {
   initCustomField,
 } from '@/products/utils';
 import { IModels } from '~/connectionResolvers';
+import { generateProductActivityLogs } from '../../utils/activityLogs';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -27,7 +29,11 @@ export interface IProductModel extends Model<IProductDocument> {
   duplicateProduct(_id: string): Promise<IProductDocument>;
 }
 
-export const loadProductClass = (models: IModels) => {
+export const loadProductClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Product {
     /**
      * Get Product
@@ -86,15 +92,35 @@ export const loadProductClass = (models: IModels) => {
 
       doc.uom = await models.Uoms.checkUOM(doc);
 
-      doc.customFieldsData = await initCustomField(
+      doc.propertiesData = await initCustomField(
         models,
         category,
         doc.code,
-        [],
-        doc.customFieldsData,
+        {},
+        doc.propertiesData,
       );
 
-      return models.Products.create({ ...doc, createdAt: new Date() });
+      const product = await models.Products.create({
+        ...doc,
+        createdAt: new Date(),
+      });
+      sendDbEventLog({
+        action: 'create',
+        docId: product._id,
+        currentDocument: product.toObject(),
+      });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: product._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Product created',
+        },
+        changes: {},
+      });
+      return product;
     }
 
     /**
@@ -121,12 +147,12 @@ export const loadProductClass = (models: IModels) => {
         }
       }
 
-      doc.customFieldsData = await initCustomField(
+      doc.propertiesData = await initCustomField(
         models,
         category,
         doc.code || product.code,
-        product.customFieldsData,
-        doc.customFieldsData,
+        product.propertiesData,
+        doc.propertiesData,
       );
 
       doc.sameMasks = await checkSameMaskConfig(models, {
@@ -136,7 +162,22 @@ export const loadProductClass = (models: IModels) => {
 
       await models.Products.updateOne({ _id }, { $set: doc });
 
-      return await models.Products.findOne({ _id }).lean();
+      const updatedProduct = await models.Products.findOne({ _id }).lean();
+      if (updatedProduct) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedProduct._id,
+          currentDocument: updatedProduct,
+          prevDocument: product,
+        });
+        generateProductActivityLogs(
+          product,
+          updatedProduct,
+          models,
+          createActivityLog,
+        );
+      }
+      return updatedProduct;
     }
 
     /**
@@ -166,15 +207,31 @@ export const loadProductClass = (models: IModels) => {
       }
 
       if (usedIds.length > 0) {
+        const toUpdate = await models.Products.find({ _id: { $in: usedIds } });
         await models.Products.updateMany(
           { _id: { $in: usedIds } },
           { $set: { status: PRODUCT_STATUSES.DELETED } },
         );
+        const updated = await models.Products.find({ _id: { $in: usedIds } });
+        sendDbEventLog({
+          action: 'updateMany',
+          docIds: updated.map((d) => d._id),
+          updateDescription: { status: PRODUCT_STATUSES.DELETED },
+        });
         response = 'updated';
       }
 
       if (unUsedIds.length > 0) {
+        const toDelete = await models.Products.find({
+          _id: { $in: unUsedIds },
+        });
         await models.Products.deleteMany({ _id: { $in: unUsedIds } });
+        if (toDelete.length > 0) {
+          sendDbEventLog({
+            action: 'deleteMany',
+            docIds: toDelete.map((d) => d._id),
+          });
+        }
       }
 
       return response;
@@ -197,7 +254,7 @@ export const loadProductClass = (models: IModels) => {
         }
       }
 
-      let customFieldsData: ICustomField[] = [];
+      let propertiesData: IPropertyField = {};
       let tagIds: string[] = [];
       let barcodes: string[] = [];
       const name: string = productFields.name || '';
@@ -216,10 +273,11 @@ export const loadProductClass = (models: IModels) => {
         const productBarcodes = productObj.barcodes || [];
 
         // merge custom fields data
-        customFieldsData = [
-          ...customFieldsData,
-          ...(productObj.customFieldsData || []),
-        ];
+        // property note: prepare mergeProperties method
+        propertiesData = {
+          ...propertiesData,
+          ...(productObj.propertiesData || {}),
+        };
 
         // Merging products tagIds
         tagIds = tagIds.concat(productTags);
@@ -227,12 +285,22 @@ export const loadProductClass = (models: IModels) => {
         // Merging products barcodes
         barcodes = barcodes.concat(productBarcodes);
 
+        const oldProduct = await models.Products.findById(productId);
         await models.Products.findByIdAndUpdate(productId, {
           $set: {
             status: PRODUCT_STATUSES.DELETED,
             code: Math.random().toString().concat('^', productObj.code),
           },
         });
+        const updatedProduct = await models.Products.findById(productId);
+        if (updatedProduct && oldProduct) {
+          sendDbEventLog({
+            action: 'update',
+            docId: updatedProduct._id,
+            currentDocument: updatedProduct.toObject(),
+            prevDocument: oldProduct.toObject(),
+          });
+        }
       }
 
       // Removing Duplicates
@@ -244,7 +312,7 @@ export const loadProductClass = (models: IModels) => {
       // Creating product with properties
       const product = await models.Products.createProduct({
         ...productFields,
-        customFieldsData,
+        propertiesData,
         tagIds,
         barcodes,
         barcodeDescription,
@@ -257,6 +325,7 @@ export const loadProductClass = (models: IModels) => {
         categoryId,
         vendorId,
       });
+      // Note: createProduct already logs the create event
 
       return product;
     }

@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { branchSchema } from '@/bms/db/definitions/branch';
 import { random } from 'erxes-api-shared/utils';
+
 export interface IBranchModel extends Model<IBranchDocument> {
   getList(query: any): Promise<IBranchDocument[]>;
   get(query: any): Promise<IBranchDocument>;
@@ -27,6 +28,9 @@ export const loadBranchClass = (models: IModels) => {
     }
 
     public static async add(user, doc: IBranch) {
+      if (!user) {
+        throw new Error('User not found');
+      }
       try {
         return models.Branches.create({
           ...doc,

@@ -1,27 +1,54 @@
-import { IconMessage2 } from '@tabler/icons-react';
-import { Button, Popover, hexToHsl } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import {
+  Button,
+  ErxesLogoIcon,
+  Popover,
+  hexToOklch,
+  readImage,
+  useQueryState,
+} from 'erxes-ui';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { erxesMessengerSetupAppearanceAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMPreviewMessages } from '@/integrations/erxes-messenger/components/EMPreviewMessages';
-import { useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMPreviewIntro } from '@/integrations/erxes-messenger/components/EMPreviewIntro';
+import { useEMIntegrationDetail } from '@/integrations/erxes-messenger/hooks/useEMIntegrationDetail';
+import { erxesMessengerSetSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupSetAtom';
 
 export const ErxesMessengerPreview = () => {
   const appearance = useAtomValue(erxesMessengerSetupAppearanceAtom);
-  const erxesMessengerSetupStep = useAtomValue(erxesMessengerSetupStepAtom);
+  const [erxesMessengerSetupStep, setErxesMessengerSetupStep] = useAtom(
+    erxesMessengerSetupStepAtom,
+  );
+  const setSetup = useSetAtom(erxesMessengerSetSetupAtom);
+
+  const [integrationId] = useQueryState<string>('integrationId');
+
+  const { integrationDetail } = useEMIntegrationDetail({
+    id: integrationId || '',
+  });
+
+  useEffect(() => {
+    if (integrationId && integrationDetail) {
+      setSetup(integrationDetail);
+      setErxesMessengerSetupStep(2);
+    }
+  }, [integrationDetail, integrationId]);
 
   useLayoutEffect(() => {
-    if (hexToHsl(appearance?.color)) {
+    if (
+      appearance?.primary?.DEFAULT &&
+      hexToOklch(appearance?.primary?.DEFAULT)
+    ) {
       document.documentElement.style.setProperty(
         '--primary',
-        hexToHsl(appearance?.color) || '',
+        hexToOklch(appearance?.primary?.DEFAULT) || '',
       );
     }
   }, [appearance]);
 
   return (
-    <div className="bg-sidebar h-dvh flex items-end justify-end p-5">
+    <div className="bg-accent h-dvh flex items-end justify-end p-5">
       <div>
         <Popover defaultOpen>
           <Popover.Trigger asChild>
@@ -30,21 +57,25 @@ export const ErxesMessengerPreview = () => {
               variant="secondary"
               className="size-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/80 [&>svg]:size-5 shadow-md"
             >
-              <IconMessage2 />
+              {appearance?.logo ? (
+                <img src={readImage(appearance?.logo)} alt="em-logo" />
+              ) : (
+                <ErxesLogoIcon />
+              )}
             </Button>
           </Popover.Trigger>
           <Popover.Content
             align="end"
             sideOffset={16}
-            className="sm:max-w-md w-[calc(100vw-theme(spacing.8))] p-0 max-h-[32rem] h-dvh flex flex-col overflow-hidden shadow-xl rounded-lg"
+            className="sm:max-w-md w-[calc(100vw-(--spacing(8)))] p-0 max-h-128 h-dvh flex flex-col overflow-hidden shadow-xl rounded-xl bg-accent"
             onOpenAutoFocus={(e) => {
               e.preventDefault();
             }}
           >
-            {[1, 3, 5, 6].includes(erxesMessengerSetupStep) && (
+            {[1, 3, 6].includes(erxesMessengerSetupStep) && (
               <EMPreviewMessages />
             )}
-            {[2, 4].includes(erxesMessengerSetupStep) && <EMPreviewIntro />}
+            {[2, 4, 5].includes(erxesMessengerSetupStep) && <EMPreviewIntro />}
           </Popover.Content>
         </Popover>
       </div>

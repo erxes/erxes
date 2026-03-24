@@ -1,15 +1,16 @@
 import { AccountsTable } from '@/settings/account/components/AccountsTable';
 import { EditAccount } from '@/settings/account/components/EditAccount';
-import { AccountsFilterBar } from '@/settings/account/components/AccountsFilterBar';
+import { AccountsFilter } from '@/settings/account/components/AccountsFilter';
+import { PageContainer, PageSubHeader } from 'erxes-ui';
 
 export const AccountPage = () => {
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <AccountsFilterBar />
-      <div className="flex-auto p-3 overflow-hidden flex">
-        <AccountsTable />
-      </div>
+    <PageContainer>
+      <PageSubHeader>
+        <AccountsFilter />
+      </PageSubHeader>
+      <AccountsTable />
       <EditAccount />
-    </div>
+    </PageContainer>
   );
 };

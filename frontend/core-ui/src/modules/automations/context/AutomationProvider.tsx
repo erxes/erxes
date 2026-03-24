@@ -24,6 +24,7 @@ import {
 } from 'react';
 import {
   IAutomationsActionConfigConstants,
+  IAutomationsActionFolkConfig,
   IAutomationsTriggerConfigConstants,
 } from 'ui-modules';
 
@@ -46,12 +47,16 @@ interface AutomationContextType {
   setQueryParams: (values: QueryValues<AutomationQueryParams>) => void;
   triggersConst: IAutomationsTriggerConfigConstants[];
   actionsConst: IAutomationsActionConfigConstants[];
+  propertyTypesConst: any[];
+  actionFolks: Record<string, IAutomationsActionFolkConfig[]>;
   loading: boolean;
   error: any;
   refetch: () => void;
   clear: () => void;
   reactFlowInstance: ReactFlowInstance<Node<NodeData>, Edge<EdgeProps>> | null;
   setReactFlowInstance: OnInit<Node<NodeData>, Edge<EdgeProps>>;
+  actionConstMap: Map<string, IAutomationsActionConfigConstants>;
+  triggerConstMap: Map<string, IAutomationsTriggerConfigConstants>;
 }
 
 const AutomationContext = createContext<AutomationContextType | null>(null);
@@ -76,6 +81,7 @@ export const AutomationProvider = ({
   const [cached, setCached] = useState<{
     triggersConst: any[];
     actionsConst: any[];
+    propertyTypesConst: any[];
   } | null>(null);
 
   const { data, loading, error, refetch } = useQuery<ConstantsQueryResponse>(
@@ -91,12 +97,28 @@ export const AutomationProvider = ({
     cached?.triggersConst || data?.automationConstants?.triggersConst || [];
   const actionsConst =
     cached?.actionsConst || data?.automationConstants?.actionsConst || [];
+  const propertyTypesConst =
+    cached?.propertyTypesConst ||
+    data?.automationConstants?.propertyTypesConst ||
+    [];
+
+  const actionFolks = Object.fromEntries(
+    (actionsConst || []).map((a: any) => [a.type, a.folks || []]),
+  );
+
+  const actionConstMap = new Map<string, IAutomationsActionConfigConstants>(
+    actionsConst.map((a) => [a.type, a]),
+  );
+  const triggerConstMap = new Map<string, IAutomationsTriggerConfigConstants>(
+    triggersConst.map((t) => [t.type, t]),
+  );
 
   useEffect(() => {
     if (data?.automationConstants && !cached) {
       setCached({
         triggersConst: data.automationConstants.triggersConst || [],
         actionsConst: data.automationConstants.actionsConst || [],
+        propertyTypesConst: data.automationConstants.propertyTypesConst || [],
       });
     }
   }, [data, cached]);
@@ -112,12 +134,16 @@ export const AutomationProvider = ({
         setQueryParams,
         triggersConst,
         actionsConst,
+        propertyTypesConst,
+        actionFolks,
         loading: !cached && loading,
         error,
         refetch,
         clear,
         reactFlowInstance,
         setReactFlowInstance,
+        actionConstMap,
+        triggerConstMap,
       }}
     >
       {children}

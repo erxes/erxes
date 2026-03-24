@@ -20,7 +20,8 @@
     "@types/ioredis": "^5.0.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "glob": "^11.0.1",
-    "tsx": "^4.19.3"
+    "tsx": "^4.19.3",
+    "@types/lodash": "^4.17.21"
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",
@@ -32,6 +33,7 @@
     "bullmq": "^5.40.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dataloader": "^2.2.3",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -46,7 +48,14 @@
     "tslib": "^2.3.0",
     "zod": "3.23.8",
     "express-rate-limit": "^6.11.0",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "lodash": "^4.17.21",
+    "@azure/storage-blob": "^12.29.1",
+    "@google-cloud/storage": "^7.17.3",
+    "aws-sdk": "^2.1692.0",
+    "exceljs": "^4.4.0",
+    "file-type": "^20.5.0",
+    "form-data": "^4.0.2"
   },
   "preconstruct": {
     "tsconfig": "tsconfig.lib.json",

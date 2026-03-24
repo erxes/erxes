@@ -1,7 +1,6 @@
+import mongoose from 'mongoose';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
-import mongoose from 'mongoose';
-
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
@@ -139,20 +138,61 @@ import {
 } from '@/ticket/db/models/Pipeline';
 import { IStatusModel, loadStatusClass } from '@/ticket/db/models/Status';
 import { ITicketModel, loadTicketClass } from '@/ticket/db/models/Ticket';
-import { ITicketDocument } from './modules/ticket/@types/ticket';
-import { ITicketPipelineDocument } from './modules/ticket/@types/pipeline';
-import { IStatusDocument } from './modules/ticket/@types/status';
+import { ITicketDocument } from '@/ticket/@types/ticket';
+import { ITicketPipelineDocument } from '@/ticket/@types/pipeline';
+import { IStatusDocument } from '@/ticket/@types/status';
 
 import {
   IMessengerAppModel,
   loadClass as loadMessengerAppClass,
-} from './modules/inbox/db/models/MessengerApps';
+} from '@/inbox/db/models/MessengerApps';
 import {
   IConfigModel,
   loadConfigClass,
   IConfigDocument,
-} from './modules/inbox/@types/configs';
-import { IMessengerAppDocument } from './modules/inbox/db/definitions/messengerApps';
+} from '@/inbox/@types/configs';
+import { IMessengerAppDocument } from '@/inbox/db/definitions/messengerApps';
+import { IActivityModel, loadActivityClass } from '@/ticket/db/models/Activity';
+import { IActivityDocument } from '@/ticket/@types/activity';
+
+import { INoteModel, loadNoteClass } from '@/ticket/db/models/Note';
+import { INoteDocument } from '@/ticket/@types/note';
+import { ITicketConfigDocument } from './modules/ticket/@types/ticketConfig';
+import {
+  ITicketConfigModel,
+  loadTicketConfigClass,
+} from './modules/ticket/db/models/TicketConfig';
+
+import {
+  IResponseTemplateModel,
+  loadClass as loadResponseTemplateClass,
+} from '@/response/db/models/responseTemplates';
+import { IResponseTemplateDocument } from '@/response/@types/responseTemplates';
+import { IFieldDocument } from '@/form/db/definitions/fields';
+import { IFormDocument } from '@/form/db/definitions/forms';
+import { IFieldModel, loadFieldClass } from './modules/form/db/models/Fields';
+import { IFormSubmissionDocument } from './modules/form/db/definitions/forms';
+import {
+  IFormModel,
+  IFormSubmissionModel,
+  loadFormClass,
+  loadFormSubmissionClass,
+} from './modules/form/db/models/Forms';
+
+import { IArticleDocument } from '@/knowledgebase/@types/article';
+import { ICategoryDocument } from '@/knowledgebase/@types/category';
+import { ITopicDocument } from '@/knowledgebase/@types/topic';
+
+import {
+  IArticleModel,
+  loadArticleClass,
+} from '@/knowledgebase/db/models/Article';
+import {
+  ICategoryModel,
+  loadCategoryClass,
+} from '@/knowledgebase/db/models/Category';
+import { ITopicModel, loadTopicClass } from '@/knowledgebase/db/models/Topic';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -193,9 +233,24 @@ export interface IModels {
   Pipeline: ITicketPipelineModel;
   Status: IStatusModel;
   Ticket: ITicketModel;
+  Activity: IActivityModel;
+  Note: INoteModel;
+  TicketConfig: ITicketConfigModel;
 
   MessengerApps: IMessengerAppModel;
   Configs: IConfigModel;
+
+  //response templates
+  ResponseTemplates: IResponseTemplateModel;
+
+  Fields: IFieldModel;
+  Forms: IFormModel;
+  FormSubmissions: IFormSubmissionModel;
+
+  //knowledgebase
+  Article: IArticleModel;
+  Category: ICategoryModel;
+  Topic: ITopicModel;
 }
 
 export interface IContext extends IMainContext {
@@ -210,6 +265,12 @@ export const loadClasses = (
 ): IModels => {
   const models = {} as IModels;
 
+  //response templates
+  models.ResponseTemplates = db.model<
+    IResponseTemplateDocument,
+    IResponseTemplateModel
+  >('response_templates', loadResponseTemplateClass(models));
+
   //ticket
   models.Pipeline = db.model<ITicketPipelineDocument, ITicketPipelineModel>(
     'frontline_tickets_pipeline',
@@ -223,6 +284,18 @@ export const loadClasses = (
   models.Ticket = db.model<ITicketDocument, ITicketModel>(
     'frontline_tickets',
     loadTicketClass(models),
+  );
+  models.Activity = db.model<IActivityDocument, IActivityModel>(
+    'frontline_ticket_activities',
+    loadActivityClass(models),
+  );
+  models.Note = db.model<INoteDocument, INoteModel>(
+    'frontline_tickets_notes',
+    loadNoteClass(models),
+  );
+  models.TicketConfig = db.model<ITicketConfigDocument, ITicketConfigModel>(
+    'frontline_ticket_configs',
+    loadTicketConfigClass(models),
   );
   //inbox models
   models.Channels = db.model<IChannelDocument, IChannelModel>(
@@ -355,6 +428,34 @@ export const loadClasses = (
     'configs',
     loadConfigClass(models),
   );
+  models.Fields = db.model<IFieldDocument, IFieldModel>(
+    'frontline_form_fields',
+    loadFieldClass(models, subdomain),
+  );
+  models.Forms = db.model<IFormDocument, IFormModel>(
+    'frontline_forms',
+    loadFormClass(models),
+  );
+  models.FormSubmissions = db.model<
+    IFormSubmissionDocument,
+    IFormSubmissionModel
+  >('frontline_form_submissions', loadFormSubmissionClass(models));
+
+  models.Article = db.model<IArticleDocument, IArticleModel>(
+    'knowledgebase_articles',
+    loadArticleClass(models),
+  );
+
+  models.Category = db.model<ICategoryDocument, ICategoryModel>(
+    'knowledgebase_categories',
+    loadCategoryClass(models),
+  );
+
+  models.Topic = db.model<ITopicDocument, ITopicModel>(
+    'knowledgebase_topics',
+    loadTopicClass(models),
+  );
+
   return models;
 };
 

@@ -2,6 +2,7 @@ import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconShieldCog } from '@tabler/icons-react';
+import { CreateApp } from './CreateApp';
 
 export function AppsHeader() {
   return (
@@ -11,7 +12,7 @@ export function AppsHeader() {
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
-                <Link to="/settings/apps">
+                <Link to="/settings/app-tokens">
                   <IconShieldCog />
                   Apps
                 </Link>
@@ -21,8 +22,7 @@ export function AppsHeader() {
         </Breadcrumb>
       </PageHeaderStart>
       <PageHeaderEnd>
-        <></>
-        {/* You can add any additional components or buttons here */}
+        <CreateApp />
       </PageHeaderEnd>
     </PageHeader>
   );

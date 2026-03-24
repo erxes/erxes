@@ -46,13 +46,19 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   if (pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet) {
     const configs = await getConfig(subdomain, 'ERKHET', {});
 
-    data.pos.erkhetConfig = {
-      ...pos.erkhetConfig,
-      getRemainderApiUrl: configs.getRemainderApiUrl,
-      apiKey: configs.apiKey,
-      apiSecret: configs.apiSecret,
-      apiToken: configs.apiToken,
-    };
+    // Added null check for configs
+    if (configs) {
+      data.pos.erkhetConfig = {
+        ...pos.erkhetConfig,
+        getRemainderApiUrl: configs.getRemainderApiUrl || '',
+        apiKey: configs.apiKey || '',
+        apiSecret: configs.apiSecret || '',
+        apiToken: configs.apiToken || '',
+      };
+    } else {
+      // If no configs found, keep the existing erkhetConfig
+      data.pos.erkhetConfig = pos.erkhetConfig;
+    }
   }
 
   return data;

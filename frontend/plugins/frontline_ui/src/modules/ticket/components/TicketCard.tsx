@@ -1,7 +1,7 @@
 import { BoardCardProps, Separator } from 'erxes-ui';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
-import { Button } from 'erxes-ui';
+import { Button, TextOverflowTooltip } from 'erxes-ui';
 import { useAtomValue, useSetAtom, atom } from 'jotai';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
@@ -49,7 +49,10 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
       <Separator />
       <div className="p-3 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <h5 className="font-semibold">{name}</h5>
+          <TextOverflowTooltip
+            className="font-semibold max-w-52"
+            value={name}
+          />
           <div className="text-accent-foreground uppercase">
             Ticket #{number}
           </div>
@@ -68,11 +71,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
             id={_id}
             pipelineId={pipelineId}
           />
-          <SelectPriorityTicket
-            id={_id}
-            value={priority}
-            variant="card"
-          />
+          <SelectPriorityTicket id={_id} value={priority} variant="card" />
         </div>
       </div>
       <Separator />

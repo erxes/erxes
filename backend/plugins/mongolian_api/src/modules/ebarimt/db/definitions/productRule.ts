@@ -29,7 +29,12 @@ export const productRuleSchema = new Schema({
   excludeTagIds: { type: [String], optional: true, label: 'excludeTag' },
 
   // rules
-  kind: { type: String, label: 'kind' }, // vat, ctax
+  kind: {
+  type: String,
+  enum: ['vat', 'ctax'],
+  required: true,
+  label: 'kind',
+  },
   taxType: { type: String, label: 'taxType', optional: true },
   taxCode: { type: String, label: 'taxCode', optional: true },
   taxPercent: { type: Number, label: 'Percent', optional: true },

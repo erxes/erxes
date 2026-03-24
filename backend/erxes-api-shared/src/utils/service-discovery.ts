@@ -12,7 +12,6 @@ interface PluginConfig {
   name: string;
   port: number;
   hasSubscriptions?: boolean;
-  importExportTypes?: any;
   meta?: any;
 }
 
@@ -24,13 +23,36 @@ export const getPlugins = async (): Promise<string[]> => {
   const enabledServices: any[] =
     process.env.ENABLED_PLUGINS?.split(',').map((plugin) => `${plugin}`) || [];
 
-  return ['core', ...enabledServices];
+  const enabledApiPlugins: any[] =
+    process.env.ENABLED_PLUGINS_ONLY_API?.split(',').map(
+      (plugin) => `${plugin}`,
+    ) || [];
+
+  return ['core', ...enabledServices, ...enabledApiPlugins];
+};
+
+const ACTIVE_PLUGINS_KEY = 'erxes-active-plugins';
+
+export const setActivePlugins = async (plugins: string[]): Promise<void> => {
+  await redis.set(ACTIVE_PLUGINS_KEY, JSON.stringify(plugins));
+};
+
+export const getActivePlugins = async (): Promise<string[]> => {
+  const data = await redis.get(ACTIVE_PLUGINS_KEY);
+
+  if (!data) {
+    return ['core'];
+  }
+
+  return JSON.parse(data);
 };
 
 export const getAvailablePlugins = async (
   subdomain: string,
 ): Promise<string[]> => {
   const ENABLED_PLUGINS = getEnv({ name: 'ENABLED_PLUGINS' });
+  const ENABLED_API_PLUGINS = getEnv({ name: 'ENABLED_PLUGINS_ONLY_API' });
+
   const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
 
   if (VERSION && VERSION === 'saas') {
@@ -50,6 +72,8 @@ export const getAvailablePlugins = async (
         const pluginName = key.split(':')[0];
 
         const enabledPluginsArray = ENABLED_PLUGINS.split(',');
+        enabledPluginsArray.push(...ENABLED_API_PLUGINS.split(','));
+
         if (enabledPluginsArray.includes(pluginName)) {
           plugins.push(pluginName);
         }
@@ -89,7 +113,6 @@ export const joinErxesGateway = async ({
   name,
   port,
   hasSubscriptions = false,
-  importExportTypes,
   meta,
 }: PluginConfig) => {
   await redis.set(
@@ -98,7 +121,6 @@ export const joinErxesGateway = async ({
     JSON.stringify({
       dbConnectionString: MONGO_URL,
       hasSubscriptions,
-      importExportTypes,
       meta,
     }),
   );
@@ -159,7 +181,7 @@ export const initializePluginConfig = async <TConfig extends object>(
     JSON.stringify({
       ...configJSON,
       meta: {
-        ...(configJSON?.meta || {}),
+        ...configJSON?.meta,
         [propertyName]: getNonFunctionProps<TConfig>(config),
       },
     }),

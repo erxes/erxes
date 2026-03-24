@@ -10,31 +10,19 @@ export interface IManagePropertyField extends Partial<UIModuleField> {
   };
 }
 
-export interface IManageOperator {
+export type TAutomationManagePropertyOperator = {
   value: string;
   label: string;
   noInput?: boolean;
-}
+};
 
-export interface IManagePropertyRule {
+export type TAutomationManagePropertyRule = {
   field: string;
   operator: string;
   value?: any;
-}
+};
 
-export interface IConfig {
+export type TAutomationManagePropertyConfig = {
   module?: string;
-  rules: IManagePropertyRule[];
-}
-
-export type IManagePropertyFieldName = `actions.${number}.config`;
-
-export interface RuleProps {
-  rule: IManagePropertyRule;
-  propertyType: string;
-  selectedField?: IManagePropertyField;
-  remove: () => void;
-  handleChange: (name: string, value: any) => void;
-  groups: Record<string, IManagePropertyField[]>;
-  operatorOptions: IManageOperator[];
-}
+  rules: TAutomationManagePropertyRule[];
+};

@@ -16,10 +16,21 @@ export const GET_TICKET = gql`
       targetDate
       createdAt
       updatedAt
+      createdBy
       channelId
       statusChangedDate
       number
       pipelineId
+      isSubscribed
+      state
+      propertiesData
+      attachments {
+        name
+        url
+        size
+        type
+        duration
+      }
     }
   }
 `;

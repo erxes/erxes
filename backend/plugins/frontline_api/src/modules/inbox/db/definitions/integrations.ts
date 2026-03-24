@@ -233,6 +233,26 @@ export const leadDataSchema = new Schema(
       optional: true,
       label: 'Verify email',
     },
+    appearance: {
+      type: String,
+      optional: true,
+      label: 'Appearance',
+    },
+    thanksImage: {
+      type: String,
+      optional: true,
+      label: 'Thanks image',
+    },
+    primaryColor: {
+      type: String,
+      optional: true,
+      label: 'Primary color',
+    },
+    steps: {
+      type: Object,
+      optional: true,
+      label: 'Steps',
+    },
   },
   { _id: false },
 );
@@ -248,9 +268,6 @@ const colorDefinitionSchema = new Schema(
 // subdocument schema for messenger UiOptions
 const uiOptionsSchema = new Schema(
   {
-    color: { type: String },
-    textColor: { type: String },
-    wallpaper: { type: String },
     logo: { type: String },
     primary: { type: colorDefinitionSchema },
   },
@@ -272,6 +289,7 @@ export const integrationSchema = schemaWrapper(
     _id: { type: String, label: '_id' },
     createdUserId: { type: String, label: 'Created by' },
     channelId: { type: String, label: 'Channel id' },
+    brandId: { type: String, label: 'Brand id' },
     kind: {
       type: String,
       label: 'Kind',
@@ -299,5 +317,6 @@ export const integrationSchema = schemaWrapper(
     formData: { type: leadDataSchema },
     messengerData: { type: messengerDataSchema },
     uiOptions: { type: uiOptionsSchema },
+    ticketConfigId: { type: String },
   }),
 );

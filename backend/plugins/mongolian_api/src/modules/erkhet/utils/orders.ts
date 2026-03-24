@@ -1,4 +1,4 @@
-import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { calcProductsTaxRule } from './productsByTaxType';
 import { getConfig, getPureDate } from './utils';

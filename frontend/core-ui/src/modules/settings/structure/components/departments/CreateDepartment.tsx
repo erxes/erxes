@@ -56,7 +56,11 @@ export const CreateDepartment = () => {
       handleAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Department created successfully',
+          });
           methods.reset();
           setOpen(false);
         },

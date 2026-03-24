@@ -3,7 +3,7 @@ import {
   IBrowserInfo,
   ICustomer,
   ICustomerDocument,
-  ICustomField,
+  IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { validSearchText } from 'erxes-api-shared/utils';
@@ -16,6 +16,9 @@ import {
   IUpdateMessengerCustomerParams,
   IVisitorContactInfoParams,
 } from '../../@types/customer';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
+import { generateCustomerActivityLogs } from '../../utils/activityLogs';
 
 interface ICustomerFieldsInput {
   primaryEmail?: string;
@@ -78,9 +81,23 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
     type: string,
     status: string,
   ): Promise<ICustomerDocument[]>;
+
+  updateSubscriptionStatus({
+    _id,
+    customerIds,
+    status,
+  }: {
+    _id?: string;
+    customerIds?: string[];
+    status?: string;
+  }): Promise<ICustomerDocument[]>;
 }
 
-export const loadCustomerClass = (models: IModels) => {
+export const loadCustomerClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Customer {
     public static getCustomerName(customer: ICustomer) {
       if (customer.firstName || customer.lastName) {
@@ -151,9 +168,9 @@ export const loadCustomerClass = (models: IModels) => {
         doc.phones = [doc.primaryPhone];
       }
 
-      if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        doc.propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
       }
 
@@ -162,11 +179,30 @@ export const loadCustomerClass = (models: IModels) => {
       }
 
       const pssDoc = models.Customers.calcPSS(doc);
-
-      const customer = await models.Customers.create({
+      const newDoc = {
         ...doc,
         ...pssDoc,
+      };
+
+      const customer = await models.Customers.create(newDoc);
+
+      sendDbEventLog({
+        action: 'create',
+        docId: customer._id,
+        currentDocument: customer.toObject(),
       });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: customer._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Customer created',
+        },
+        changes: {},
+      });
+
       return models.Customers.getCustomer(customer._id);
     }
 
@@ -182,12 +218,12 @@ export const loadCustomerClass = (models: IModels) => {
 
       const oldCustomer = await models.Customers.getCustomer(_id);
 
-      if (doc.customFieldsData) {
-        // clean custom field values
-
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        const propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
+
+        doc.propertiesData = propertiesData;
       }
 
       const pssDoc = models.Customers.calcPSS({
@@ -195,18 +231,44 @@ export const loadCustomerClass = (models: IModels) => {
         ...doc,
       });
 
-      return await models.Customers.findOneAndUpdate(
+      const modifiedDoc = { ...doc, ...pssDoc };
+
+      const updatedCustomer = await models.Customers.findOneAndUpdate(
         { _id },
-        { $set: { ...doc, ...pssDoc } },
+        { $set: modifiedDoc },
         { new: true },
       );
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updatedCustomer.toObject(),
+          prevDocument: oldCustomer,
+        });
+        generateCustomerActivityLogs(
+          oldCustomer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
+
+      return updatedCustomer;
     }
 
     /**
      * Remove customers
      */
     public static async removeCustomers(customerIds: string[]) {
-      return models.Customers.deleteMany({ _id: { $in: customerIds } });
+      const response = await models.Customers.deleteMany({
+        _id: { $in: customerIds },
+      });
+
+      sendDbEventLog({
+        action: 'deleteMany',
+        docIds: customerIds,
+      });
+      return response;
     }
 
     /**
@@ -223,7 +285,7 @@ export const loadCustomerClass = (models: IModels) => {
 
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
-      let customFieldsData: ICustomField[] = [];
+      let propertiesData: IPropertyField = {};
       let state: any = '';
 
       let emails: string[] = [];
@@ -244,11 +306,11 @@ export const loadCustomerClass = (models: IModels) => {
       for (const customer of customers) {
         customerFields.integrationId = customer.integrationId;
 
-        // merge custom fields data
-        customFieldsData = [
-          ...customFieldsData,
-          ...(customer.customFieldsData || []),
-        ];
+        // property note: prepare mergeProperties method
+        propertiesData = {
+          ...propertiesData,
+          ...(customer.propertiesData || {}),
+        };
 
         // Merging scopeBrandIds
         scopeBrandIds = [...scopeBrandIds, ...(customer.scopeBrandIds || [])];
@@ -283,7 +345,7 @@ export const loadCustomerClass = (models: IModels) => {
         {
           ...customerFields,
           scopeBrandIds,
-          customFieldsData,
+          propertiesData,
           tagIds,
           mergedIds: customerIds,
           emails,
@@ -298,18 +360,6 @@ export const loadCustomerClass = (models: IModels) => {
         newTypeId: customer._id,
         oldTypeIds: customerIds,
       });
-
-      //  await sendTRPCMessage({subdomain,
-
-      //     pluginName: 'frontline',
-      //     method: 'mutation',
-      //     module: 'inbox',
-      //     action: 'changeCustomer',
-      //     input: {
-      //       customerId: customer._id,
-      //       customerIds,
-      //     },
-      //   });
 
       return customer;
     }
@@ -413,18 +463,14 @@ export const loadCustomerClass = (models: IModels) => {
       doc,
       customData,
     }: ICreateMessengerCustomerParams) {
-      this.fixListFields(doc, customData);
+      doc = this.fixListFields(doc, customData);
 
-      const { customFieldsData, trackedData } =
-        await models.Fields.generateCustomFieldsData(
-          customData,
-          'core:customer',
-        );
+      const { propertiesData } = await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       return this.createCustomer({
         ...doc,
-        trackedData,
-        customFieldsData,
+        // trackedData: [], trackData note: trackedData is not used for now
+        propertiesData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1,
@@ -441,13 +487,9 @@ export const loadCustomerClass = (models: IModels) => {
     }: IUpdateMessengerCustomerParams) {
       const customer = await models.Customers.getCustomer(_id);
 
-      this.fixListFields(doc, customData, customer);
+      doc = this.fixListFields(doc, customData, customer);
 
-      const { customFieldsData, trackedData } =
-        await models.Fields.generateCustomFieldsData(
-          customData,
-          'core:customer',
-        );
+      const { propertiesData } = await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       const modifier: any = {
         ...doc,
@@ -455,14 +497,17 @@ export const loadCustomerClass = (models: IModels) => {
         updatedAt: new Date(),
       };
 
-      if (trackedData && trackedData.length > 0) {
-        modifier.trackedData = trackedData;
+      // trackData note: trackedData is not used for now
+      // if (trackedData && trackedData.length > 0) {
+      //   modifier.trackedData = trackedData;
+      // }
+
+      if (Object.keys(propertiesData)?.length > 0) {
+        // if use Customers.updateCustomer method then just pass propertiesData no spread neede
+        modifier.propertiesData = propertiesData;
       }
 
-      if (customFieldsData && customFieldsData.length > 0) {
-        modifier.customFieldsData = customFieldsData;
-      }
-
+      
       await models.Customers.updateOne({ _id }, { $set: modifier });
 
       const updateCustomer = await models.Customers.getCustomer(_id);
@@ -470,6 +515,19 @@ export const loadCustomerClass = (models: IModels) => {
       const pssDoc = models.Customers.calcPSS(updateCustomer);
 
       await models.Customers.updateOne({ _id }, { $set: pssDoc });
+
+      sendDbEventLog({
+        action: 'update',
+        docId: _id,
+        currentDocument: { ...pssDoc, ...modifier },
+        prevDocument: customer,
+      });
+      generateCustomerActivityLogs(
+        customer,
+        updateCustomer,
+        models,
+        createActivityLog,
+      );
 
       return models.Customers.findOne({ _id });
     }
@@ -540,7 +598,22 @@ export const loadCustomerClass = (models: IModels) => {
 
       await models.Customers.updateOne({ _id: customerId }, { $set: pssDoc });
 
-      return models.Customers.getCustomer(customerId);
+      const updatedCustomer = await models.Customers.getCustomer(customerId);
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: customerId,
+          currentDocument: updatedCustomer,
+          prevDocument: customer,
+        });
+        generateCustomerActivityLogs(
+          customer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
+      return updatedCustomer;
     }
 
     public static async updateVerificationStatus(
@@ -557,8 +630,15 @@ export const loadCustomerClass = (models: IModels) => {
         { _id: { $in: customerIds } },
         { $set: set },
       );
-
-      return models.Customers.find({ _id: { $in: customerIds } });
+      const updatedCustomers = await models.Customers.find({
+        _id: { $in: customerIds },
+      });
+      sendDbEventLog({
+        action: 'updateMany',
+        docIds: customerIds,
+        updateDescription: set,
+      });
+      return updatedCustomers;
     }
 
     /*
@@ -597,28 +677,92 @@ export const loadCustomerClass = (models: IModels) => {
      * Change state
      */
     public static async changeState(_id: string, value: string) {
-      await models.Customers.findByIdAndUpdate(
+      const customer = await models.Customers.getCustomer(_id);
+
+      const updatedCustomer = await models.Customers.findByIdAndUpdate(
         { _id },
         {
           $set: { state: value },
         },
       );
 
-      return models.Customers.findOne({ _id });
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updatedCustomer.toObject(),
+          prevDocument: customer.toObject(),
+        });
+        generateCustomerActivityLogs(
+          customer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
+
+      return updatedCustomer;
     }
 
     /*
      * Update customer's location info
      */
     public static async updateLocation(_id: string, browserInfo: IBrowserInfo) {
-      await models.Customers.findByIdAndUpdate(
+      const customer = await models.Customers.getCustomer(_id);
+
+      const updatedCustomer = await models.Customers.findByIdAndUpdate(
         { _id },
         {
           $set: { location: browserInfo },
         },
       );
 
-      return models.Customers.findOne({ _id });
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updatedCustomer.toObject(),
+          prevDocument: customer,
+        });
+        generateCustomerActivityLogs(
+          customer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
+
+      return updatedCustomer;
+    }
+
+    /*
+     * Update customer's subscription status
+     */
+    public static async updateSubscriptionStatus({
+      _id,
+      customerIds,
+      status,
+    }: {
+      _id?: string;
+      customerIds?: string[];
+      status?: string;
+    }) {
+      const update: any = { isSubscribed: 'No' };
+
+      if (status === AWS_EMAIL_STATUSES.BOUNCE) {
+        update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
+      }
+
+      if (_id && status) {
+        return models.Customers.updateOne({ _id }, { $set: update });
+      }
+
+      if (customerIds?.length && !status) {
+        return models.Customers.updateMany(
+          { _id: { $in: customerIds } },
+          { $set: update },
+        );
+      }
     }
 
     public static fixListFields(

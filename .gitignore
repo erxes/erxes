@@ -45,7 +45,15 @@ Thumbs.db
 
 .nx/cache
 .nx/workspace-data
+.nx
 .env
+
+# Agent skills and configuration
+.agents
+.claude
 
 storybook-static
 backend/plugins/payment_api/src/public/widget/
+
+# Redis dump file
+dump.rdb

@@ -1,21 +1,24 @@
 import { Breadcrumb, PageSubHeader } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
-import { PageHeader } from 'ui-modules';
+import { PageHeader, Can } from 'ui-modules';
 import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
 import { Separator } from 'erxes-ui';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { TasksFilter } from '@/task/components/TasksFilter';
 import { TasksView, TasksViewControl } from '@/task/components/TasksView';
+import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
+  const { pathname } = useLocation();
 
-  // Determine base path
   const basePath = teamId
     ? `/operation/team/${teamId}/tasks`
     : `/operation/tasks`;
+
+  const isCreatedView = pathname === '/operation/tasks/created';
 
   return (
     <>
@@ -33,13 +36,20 @@ export const TasksPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
-        <AddTaskSheet />
+        <Can action="taskCreate">
+          <AddTaskSheet />
+        </Can>
       </PageHeader>
-      <PageSubHeader>
-        <TasksFilter />
-        <TasksViewControl />
-      </PageSubHeader>
-      <TasksView />
+      <div className="flex overflow-hidden w-full h-full">
+        <div className="flex flex-col overflow-hidden w-full h-full">
+          <PageSubHeader>
+            <TasksFilter />
+            <TasksViewControl />
+          </PageSubHeader>
+          <TasksView isCreatedView={isCreatedView} />
+        </div>
+        {<TasksSideWidget />}
+      </div>
     </>
   );
 };

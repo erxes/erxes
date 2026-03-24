@@ -37,7 +37,7 @@
       "executor": "@nx/rspack:module-federation-dev-server",
       "options": {
         "buildTarget": "accounting_ui:build:development",
-        "port": 3004
+        "port": 3008
       },
       "configurations": {
         "development": {},

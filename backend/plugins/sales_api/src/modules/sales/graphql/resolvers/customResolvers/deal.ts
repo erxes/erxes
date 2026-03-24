@@ -2,60 +2,19 @@ import { IContext } from '~/connectionResolvers';
 import { IDealDocument } from '~/modules/sales/@types';
 import { generateAmounts } from '~/modules/sales/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ICompany, ICustomer } from 'erxes-api-shared/core-types';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Deals.findOne({ _id });
   },
 
-  async customers(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-
-      pluginName: 'core',
-      module: 'conformity',
-      action: 'savedConformity',
-      input: {
-        mainType: 'deal',
-        mainTypeId: deal._id,
-        relTypes: ['customer'],
-      },
-      defaultValue: [],
-    });
-
-    if (!customerIds.length) {
-      return [];
-    }
-
-    return customerIds.map((customerId) => ({
-      __typename: 'Customer',
-      _id: customerId,
-    }));
+  async customers(deal: IDealDocument & { customers: ICustomer[] }, _args: undefined, { loaders }: IContext) {
+    return await loaders.deal.customersByDealId.load(deal._id);
   },
 
-  async companies(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-
-      pluginName: 'core',
-      module: 'conformity',
-      action: 'savedConformity',
-      input: {
-        mainType: 'deal',
-        mainTypeId: deal._id,
-        relTypes: ['company'],
-      },
-      defaultValue: [],
-    });
-
-    if (!customerIds.length) {
-      return [];
-    }
-
-    return customerIds.map((customerId) => ({
-      __typename: 'Customer',
-      _id: customerId,
-    }));
+  async companies(deal: IDealDocument & { companies: ICompany[] }, _args: undefined, { loaders }: IContext) {
+    return await loaders.deal.companiesByDealId.load(deal._id);
   },
 
   async branches(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
@@ -90,40 +49,6 @@ export default {
       _id: assignedUserId,
     }));
   },
-
-  async customPropertiesData(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
-    const customFieldsData = (deal?.customFieldsData as any[]) || [];
-
-    const fieldIds = customFieldsData.map((customField) => customField.field);
-
-    if (!fieldIds?.length) {
-      return customFieldsData;
-    }
-
-    const fields = await sendTRPCMessage({
-      subdomain,
-
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'find',
-      input: {
-        query: {
-          _id: { $in: fieldIds },
-        },
-      },
-      defaultValue: [],
-    });
-
-    for (const customFieldData of customFieldsData) {
-      const field = fields.find((field) => field._id === customFieldData.field);
-      if (field) {
-        customFieldData.type = field.type;
-      }
-    }
-
-    return customFieldsData;
-  },
   createdUserId(deal: IDealDocument) {
     return deal?.userId ? deal.userId : null;
   },
@@ -133,88 +58,6 @@ export default {
       .filter((_id) => !!_id)
       .map((_id) => ({ __typename: 'Tag', _id }));
   },
-
-  // async products(deal: IDealDocument) {
-  //   const { productsData } = deal || {};
-
-  //   const products: any = [];
-
-  //   if (!productsData || !productsData.length) {
-  //     return products;
-  //   }
-
-  //   const productIds = productsData
-  //     .filter((pd) => pd.productId)
-  //     .map((pd) => pd.productId);
-
-  //   const allProducts = await sendTRPCMessage({subdomain,
-
-  //     pluginName: 'core',
-  //     method: 'query',
-  //     module: 'products',
-  //     action: 'find',
-  //     input: {
-  //       query: {
-  //         _id: { $in: productIds },
-  //       },
-  //       limit: productsData.length,
-  //     },
-  //   });
-
-  //   for (const data of productsData || []) {
-  //     if (!data.productId) {
-  //       continue;
-  //     }
-  //     const product = allProducts.find((p) => p._id === data.productId);
-
-  //     if (!product) {
-  //       continue;
-  //     }
-
-  //     const { customFieldsData } = product;
-
-  //     const customFields: any[] = [];
-
-  //     const fieldIds: string[] = [];
-  //     for (const customFieldData of customFieldsData || []) {
-  //       fieldIds.push(customFieldData.field);
-  //     }
-
-  //     const fields = await sendTRPCMessage({subdomain,
-
-  //       pluginName: 'core',
-  //       method: 'query',
-  //       module: 'fields',
-  //       action: 'find',
-  //       input: {
-  //         query: {
-  //           _id: { $in: fieldIds },
-  //         },
-  //       },
-  //       defaultValue: [],
-  //     });
-
-  //     for (const customFieldData of customFieldsData || []) {
-  //       const field = fields.find((f) => f._id === customFieldData.field);
-
-  //       if (field) {
-  //         customFields[customFieldData.field] = {
-  //           text: field.text,
-  //           data: customFieldData.value,
-  //         };
-  //       }
-  //     }
-
-  //     product.customFieldsData = customFields;
-
-  //     products.push({
-  //       ...data,
-  //       product,
-  //     });
-  //   }
-
-  //   return products;
-  // },
 
   async products(deal: IDealDocument) {
     if (!deal.productsData) {
@@ -235,18 +78,13 @@ export default {
     return generateAmounts(deal.productsData || []);
   },
 
-  async pipeline(deal: IDealDocument, _args: undefined, { models }: IContext) {
-    const stage = await models.Stages.getStage(deal.stageId);
-
-    return models.Pipelines.findOne({ _id: stage.pipelineId }).lean();
+  async pipeline(deal: IDealDocument, _args: undefined, { loaders }: IContext) {
+    return await loaders.deal.pipelineByDealId.load(deal.stageId);
   },
 
-  async boardId(deal: IDealDocument, _args: undefined, { models }: IContext) {
-    const stage = await models.Stages.getStage(deal.stageId);
-    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-    const board = await models.Boards.getBoard(pipeline.boardId);
-
-    return board._id;
+  async boardId(deal: IDealDocument, _args: undefined, { loaders }: IContext) {
+    const pipeline = await loaders.deal.pipelineByDealId.load(deal.stageId);
+    return pipeline.boardId;
   },
 
   async stage(deal: IDealDocument, _args: undefined, { models }: IContext) {

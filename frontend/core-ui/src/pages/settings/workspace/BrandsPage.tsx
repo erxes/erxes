@@ -7,7 +7,7 @@ export function BrandsPage() {
   return (
     <PageContainer>
       <BrandsView />
-      {!!brandId && <BrandsEdit />} 
+      {!!brandId && <BrandsEdit />}
     </PageContainer>
   );
 }

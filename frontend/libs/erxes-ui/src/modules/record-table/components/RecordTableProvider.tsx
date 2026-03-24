@@ -86,6 +86,7 @@ export const RecordTableProvider = forwardRef<
       onSortingChange: setSorting,
       onColumnFiltersChange: setColumnFilters,
       onRowSelectionChange: setRowSelection,
+      getRowId: (row) => row._id,
       ...tableOptions,
     });
 

@@ -4,10 +4,10 @@ import { GET_DOCUMENTS } from '../graphql/queries';
 import { DocumentFilterState } from '../types';
 
 export const useDocuments = () => {
-  const [{ createdAt, assignedTo, contentType, searchValue }] =
+  const [{ createdAt, createdBy, contentType, searchValue }] =
     useMultiQueryState<DocumentFilterState>([
       'createdAt',
-      'assignedTo',
+      'createdBy',
       'contentType',
       'searchValue',
     ]);
@@ -24,8 +24,8 @@ export const useDocuments = () => {
     variables['searchValue'] = searchValue;
   }
 
-  if (assignedTo) {
-    variables['userIds'] = assignedTo;
+  if (createdBy) {
+    variables['userIds'] = createdBy;
   }
 
   if (createdAt) {

@@ -10,6 +10,12 @@ export interface IConfigDocument extends IConfig, Document {
   _id: string;
 }
 
+export interface ISESConfig {
+  accessKeyId: string;
+  region: string;
+  secretAccessKey: string;
+}
+
 // Mongoose schemas ===========
 
 export const configSchema = schemaWrapper(

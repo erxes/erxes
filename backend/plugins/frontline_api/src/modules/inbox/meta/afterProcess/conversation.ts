@@ -14,7 +14,7 @@ export const conversationAfterProcessWorkers = {
       contentTypes: ['frontline:inbox.conversation'],
     },
   ] as IAfterProcessRule[],
-  onDocumentUpdated: async (
+  afterDocumentUpdated: async (
     subdomain: string,
     models: IModels,
     data: {

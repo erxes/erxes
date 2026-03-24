@@ -28,10 +28,12 @@ export const inputs = `
     amount: Float!
     details: JSON
   }
-`
+`;
 
 export const mutations = `
   paymentTransactionsAdd(input: PaymentTransactionInput!): PaymentTransaction
+
+  cpPaymentTransactionsAdd(input: PaymentTransactionInput!): PaymentTransaction
 `;
 
 const queryParams = `
@@ -41,8 +43,6 @@ const queryParams = `
   kind: String
   status: String
 `;
-
-
 
 export const queries = `
   paymentTransactions(${queryParams}): [PaymentTransaction]

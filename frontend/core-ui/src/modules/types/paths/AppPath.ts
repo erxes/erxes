@@ -4,11 +4,13 @@ export enum AppPath {
   ResetPassword = '/reset-password',
   CreateOwner = '/create-owner',
   ForgotPassword = '/forgot-password',
+  ConfirmInvitation = '/confirmation',
 
   //main
   Index = '/',
   Settings = 'settings',
   SettingsCatchAll = `/${Settings}/*`,
+  MainOnboarding = '/welcome',
 
   Products = 'products',
   ProductsCatchAll = `/${Products}/*`,
@@ -30,6 +32,15 @@ export enum AppPath {
 
   Documents = 'documents',
   DocumentsCatchAll = `/${Documents}/*`,
+
+  Broadcasts = 'broadcasts',
+  BroadcastsCatchAll = `/${Broadcasts}/*`,
+
+  Templates = 'templates',
+  TemplatesCatchAll = `/${Templates}/*`,
+
+  ImportExport = 'import-export',
+  ImportExportCatchAll = `/${ImportExport}/*`,
 
   //not found
 

@@ -23,3 +23,11 @@ export const BOT_SUBSCRIBE_FIELDS = [
   'messaging_postbacks',
   'messaging_referrals',
 ];
+
+export const SUBSCRIBED_FIELDS = [
+  'conversations',
+  'feed',
+  'messages',
+  'standby',
+  'messaging_handovers',
+];

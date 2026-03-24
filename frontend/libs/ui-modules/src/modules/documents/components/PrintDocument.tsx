@@ -495,7 +495,7 @@ export const PrintSheet = ({
           Print
         </Button>
       </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-none md:w-[calc(100vw-theme(spacing.4))] flex gap-0 flex-col m-0 p-0">
+      <Sheet.View className="sm:max-w-none md:w-[calc(100vw-(--spacing(4)))] flex gap-0 flex-col m-0 p-0">
         <PrintSheetHeader />
 
         {children}
@@ -569,7 +569,7 @@ export const PrintDocument = (props: Props) => {
       >
         <Resizable.PanelGroup direction="horizontal">
           <Resizable.Panel
-            className="h-full flex flex-col bg-gray-100 !overflow-auto styled-scroll"
+            className="h-full flex flex-col bg-gray-100 overflow-auto! styled-scroll"
             minSize={40}
             defaultSize={80}
           >

@@ -1,13 +1,14 @@
-import { FilterQuery, Model } from 'mongoose';
-import { IModels } from '~/connectionResolvers';
-import { channelSchema } from '@/channel/db/definitions/channel';
 import {
   ChannelMemberRoles,
   IChannel,
   IChannelDocument,
   IChannelFilter,
+  IChannelMember,
 } from '@/channel/@types/channel';
-import { IChannelMember } from '@/channel/@types/channel';
+import { channelSchema } from '@/channel/db/definitions/channel';
+import { FilterQuery, Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
+
 export interface IChannelModel extends Model<IChannelDocument> {
   getChannel(_id: string): Promise<IChannelDocument>;
   getChannels(params: IChannelFilter): Promise<IChannelDocument[]>;

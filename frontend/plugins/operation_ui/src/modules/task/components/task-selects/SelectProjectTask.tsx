@@ -110,7 +110,7 @@ const SelectProjectValue = () => {
       {variant === 'detail' && value && (
         <Button
           variant="ghost"
-          className="h-6 w-6 flex-shrink-0"
+          className="h-6 w-6 shrink-0"
           onClick={handleNavigateToProject}
           title={`Go to ${projectName} project`}
         >
@@ -163,7 +163,7 @@ const SelectProjectContent = () => {
       <Command.Empty>No project found</Command.Empty>
       <Command.List>
         <SelectProjectCommandItem
-          project={{ _id: '', name: 'No project' } as IProject}
+          project={{ _id: 'no-project', name: 'No project' } as IProject}
         />
         {projects.map((project) => (
           <SelectProjectCommandItem key={project._id} project={project} />
@@ -178,12 +178,16 @@ const SelectProjectContent = () => {
   );
 };
 
-export const SelectProjectFilterView = () => {
-  const [project, setProject] = useQueryState<string>('project');
+export const SelectProjectFilterView = ({
+  queryKey,
+}: {
+  queryKey?: string;
+}) => {
+  const [project, setProject] = useQueryState<string>(queryKey || 'project');
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={'project'}>
+    <Filter.View filterKey={queryKey || 'project'}>
       <SelectProjectProvider
         value={project || ''}
         onValueChange={(value: string) => {
@@ -205,7 +209,7 @@ export const SelectProjectFormItem = ({
 }: {
   teamId?: string;
   scope?: string;
-  onValueChange: (value: string) => void;
+  onValueChange: (value: string | null) => void;
   value?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -213,8 +217,9 @@ export const SelectProjectFormItem = ({
   return (
     <SelectProjectProvider
       value={value}
-      onValueChange={(value: string) => {
-        onValueChange(value);
+      onValueChange={(selectedValue: string) => {
+        const projectId = selectedValue === 'no-project' ? null : selectedValue;
+        onValueChange(projectId);
         setOpen(false);
       }}
       teamId={teamId}
@@ -251,11 +256,12 @@ const SelectProjectRoot = ({
     <SelectProjectProvider
       teamId={teamId}
       variant={variant}
-      onValueChange={(value) => {
+      onValueChange={(selectedValue) => {
+        const projectId = selectedValue === 'no-project' ? null : selectedValue;
         updateTask({
           variables: {
             _id: taskId,
-            projectId: value || null,
+            projectId: projectId,
           },
         });
         setOpen(false);
@@ -274,9 +280,10 @@ const SelectProjectRoot = ({
   );
 };
 
-export const SelectProjectFilterBar = () => {
-  const [project, setProject] = useQueryState<string>('project');
+export const SelectProjectFilterBar = ({ queryKey }: { queryKey?: string }) => {
+  const [project, setProject] = useQueryState<string>(queryKey || 'project');
   const [open, setOpen] = useState(false);
+
   return (
     <SelectProjectProvider
       value={project || ''}
@@ -298,6 +305,8 @@ export const SelectProjectFilterBar = () => {
 };
 
 export const SelectProject = Object.assign(SelectProjectRoot, {
+  Provider: SelectProjectProvider,
+  Content: SelectProjectContent,
   FilterView: SelectProjectFilterView,
   FilterBar: SelectProjectFilterBar,
   FormItem: SelectProjectFormItem,

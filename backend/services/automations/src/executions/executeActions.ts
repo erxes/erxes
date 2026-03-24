@@ -1,36 +1,67 @@
+import { executeCoreActions } from '@/executions/executeCoreActions';
+import { executeCreateAction } from '@/executions/actions/executeCreateAction';
+import { handleExecutionActionResponse } from '@/executions/handleExecutionActionResponse';
+import { handleExecutionError } from '@/executions/handleExecutionError';
 import {
+  AUTOMATION_CORE_ACTIONS,
   AUTOMATION_EXECUTION_STATUS,
-  IActionsMap,
+  IAutomationAction,
+  IAutomationActionsMap,
   IAutomationExecAction,
   IAutomationExecutionDocument,
+  splitType,
 } from 'erxes-api-shared/core-modules';
-import { ACTIONS } from '@/constants';
-import { handleCreateAction } from '@/executions/handleCreateAction';
-import { handleifAction } from '@/executions/handleifCondition';
-import { handleSetPropertyAction } from '@/executions/handleSetProperty';
-import { handleWaitAction } from '@/executions/handleWait';
-import { handleEmail } from '@/utils/actions/email';
+import { getPlugins } from 'erxes-api-shared/utils';
+import { ACTION_METHODS, ERROR_MESSAGES, EXECUTION_STATUS } from '@/constants';
 
+/**
+ * Determines the target type for an action based on its configuration
+ * @param action - The automation action
+ * @param actionsMap - Map of all actions in the automation
+ * @param triggerType - The trigger type as fallback
+ * @returns The target type string
+ */
+const getTargetType = (
+  action: IAutomationAction,
+  actionsMap: IAutomationActionsMap,
+  triggerType: string,
+) => {
+  if (action.targetActionId) {
+    const targetAction = actionsMap[action.targetActionId];
+    const [type] = targetAction.type.split('.');
+    return type;
+  }
+  return triggerType;
+};
+
+/**
+ * Executes automation actions recursively based on the action chain
+ * @param subdomain - The subdomain context
+ * @param triggerType - The type of trigger that initiated the automation
+ * @param execution - The automation execution document
+ * @param actionsMap - Map of all actions in the automation
+ * @param currentActionId - The ID of the current action to execute (optional)
+ * @returns Promise resolving to execution status string or null/undefined
+ */
 export const executeActions = async (
   subdomain: string,
   triggerType: string,
   execution: IAutomationExecutionDocument,
-  actionsMap: IActionsMap,
+  actionsMap: IAutomationActionsMap,
   currentActionId?: string,
 ): Promise<string | null | undefined> => {
   if (!currentActionId) {
     execution.status = AUTOMATION_EXECUTION_STATUS.COMPLETE;
     await execution.save();
 
-    return 'finished';
+    return EXECUTION_STATUS.FINISHED;
   }
-
   const action = actionsMap[currentActionId];
   if (!action) {
     execution.status = AUTOMATION_EXECUTION_STATUS.MISSID;
     await execution.save();
 
-    return 'missed action';
+    return EXECUTION_STATUS.MISSED_ACTION;
   }
 
   execution.status = AUTOMATION_EXECUTION_STATUS.ACTIVE;
@@ -43,70 +74,69 @@ export const executeActions = async (
   };
 
   let actionResponse: any = null;
+  const actionType = action.type;
+
+  const targetType = getTargetType(action, actionsMap, triggerType);
 
   try {
-    if (action.type === ACTIONS.WAIT) {
-      await handleWaitAction(subdomain, execution, action, execAction);
-      return 'paused';
-    }
-
-    if (action.type === ACTIONS.IF) {
-      return handleifAction(
-        subdomain,
+    if (
+      Object.values(AUTOMATION_CORE_ACTIONS).find(
+        (value) => actionType === value,
+      )
+    ) {
+      const coreActionResponse = await executeCoreActions(
         triggerType,
+        targetType,
+        actionType,
+        subdomain,
         execution,
         action,
         execAction,
         actionsMap,
       );
-    }
 
-    if (action.type === ACTIONS.SET_PROPERTY) {
-      actionResponse = await handleSetPropertyAction(
-        subdomain,
-        action,
-        triggerType,
-        execution,
-      );
-    }
+      if (coreActionResponse?.shouldBreak) {
+        execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
+        await handleExecutionActionResponse(
+          coreActionResponse.actionResponse,
+          execution,
+          execAction,
+        );
+        return EXECUTION_STATUS.PAUSED;
+      }
+      actionResponse = coreActionResponse.actionResponse;
+    } else {
+      const [serviceName, _module, _collection, method] = splitType(actionType);
+      const isRemoteAction = (await getPlugins()).includes(serviceName);
 
-    if (action.type === ACTIONS.SEND_EMAIL) {
-      // try {
-      actionResponse = await handleEmail({
-        subdomain,
-        target: execution.target,
-        triggerType,
-        config: action.config,
-        execution,
-      });
-      // } catch (err) {
-      //   actionResponse = err.message;
-      // }
-    }
+      if (!isRemoteAction) {
+        throw new Error(ERROR_MESSAGES.PLUGIN_NOT_ENABLED);
+      }
 
-    if (action.type.includes('create')) {
-      actionResponse = await handleCreateAction(
-        subdomain,
-        execution,
-        action,
-        actionsMap,
-      );
-      if (actionResponse === 'paused') {
-        return 'paused';
+      if (method === ACTION_METHODS.CREATE) {
+        const createActionResponse = await executeCreateAction(
+          subdomain,
+          execution,
+          action,
+        );
+        if (createActionResponse.shouldBreak) {
+          execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
+          await handleExecutionActionResponse(
+            createActionResponse.actionResponse,
+            execution,
+            execAction,
+          );
+          return EXECUTION_STATUS.PAUSED;
+        }
+        actionResponse = createActionResponse.actionResponse;
       }
     }
   } catch (e) {
-    execAction.result = { error: e.message, result: e.result };
-    execution.actions = [...(execution.actions || []), execAction];
-    execution.status = AUTOMATION_EXECUTION_STATUS.ERROR;
-    execution.description = `An error occurred while working action: ${action.type}`;
-    await execution.save();
-    return;
+    await handleExecutionError(e, actionType, execution, execAction);
+    return EXECUTION_STATUS.ERROR;
   }
 
-  execAction.result = actionResponse;
-  execution.actions = [...(execution.actions || []), execAction];
-  execution = await execution.save();
+  await handleExecutionActionResponse(actionResponse, execution, execAction);
 
   return executeActions(
     subdomain,

@@ -26,7 +26,7 @@ export const useAddCallHistory = () => {
   ) => {
     addHistoryMutation({
       variables: {
-        timeStamp: parseInt(timeStamp.toString()),
+        timeStamp: Number.parseInt(timeStamp.toString()),
         callType: direction,
         callStatus,
         customerPhone,

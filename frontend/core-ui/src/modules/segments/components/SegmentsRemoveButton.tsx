@@ -37,7 +37,8 @@ export const SegmentRemoveButtonCommandBar = ({
               });
               toast({
                 title: 'Success',
-                variant: 'default',
+                variant: 'success',
+                description: 'Segments deleted successfully',
               });
             },
           });

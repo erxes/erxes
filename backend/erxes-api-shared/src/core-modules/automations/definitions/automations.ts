@@ -1,30 +1,26 @@
 import { Document, Schema } from 'mongoose';
 import { AUTOMATION_STATUSES } from '../constants';
 
-export type IActionsMap = { [key: string]: IAction };
+export type IAutomationActionsMap = { [key: string]: IAutomationAction };
 
-export interface IAction {
+// type for values
+type TAutomationStatus =
+  (typeof AUTOMATION_STATUSES)[keyof typeof AUTOMATION_STATUSES];
+
+export interface IAutomationAction<TConfig = any> {
   id: string;
   type: string;
   nextActionId?: string;
-  config?: any;
+  config?: TConfig;
   style?: any;
   icon?: string;
   label?: string;
   description?: string;
   workflowId?: string;
+  targetActionId?: string;
 }
 
-export type TriggerType =
-  | 'customer'
-  | 'company'
-  | 'deal'
-  | 'task'
-  | 'purchase'
-  | 'ticket'
-  | 'conversation';
-
-export interface ITrigger {
+export interface IAutomationTrigger<TConfig = any> {
   id: string;
   type: string;
   actionId?: string;
@@ -33,7 +29,8 @@ export interface ITrigger {
     reEnrollment: boolean;
     reEnrollmentRules: string[];
     dateConfig: any;
-  };
+    [key: string]: any;
+  } & TConfig;
   style?: any;
   icon?: string;
   label?: string;
@@ -44,9 +41,9 @@ export interface ITrigger {
 
 export interface IAutomation {
   name: string;
-  status: string;
-  triggers: ITrigger[];
-  actions: IAction[];
+  status: TAutomationStatus;
+  triggers: IAutomationTrigger[];
+  actions: IAutomationAction[];
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
@@ -91,16 +88,29 @@ const actionSchema = new Schema(
     label: { type: String, optional: true },
     description: { type: String, optional: true },
     workflowId: { type: String, optional: true },
+    targetActionId: { type: String, optional: true },
+  },
+  { _id: false },
+);
+
+const workflowSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    automationId: { type: String, required: true },
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    config: { type: Object },
+    position: { type: Object },
   },
   { _id: false },
 );
 
 export const automationSchema = new Schema({
-  _id: { type: Schema.Types.ObjectId },
   name: { type: String, required: true },
   status: { type: String, default: AUTOMATION_STATUSES.DRAFT },
   triggers: { type: [triggerSchema] },
   actions: { type: [actionSchema] },
+  workflows: { type: [workflowSchema] },
   createdAt: {
     type: Date,
     default: new Date(),

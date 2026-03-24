@@ -1,17 +1,19 @@
-import { useAutomationTrigger } from '@/automations/components/builder/hooks/useAutomationTrigger';
-import { IActionProps, SegmentForm } from 'ui-modules';
+import { lazy } from 'react';
+import {
+  AutomationComponentMap,
+  AutomationNodeType,
+} from '@/automations/types';
 
-export const Branches = ({ currentAction, handleSave }: IActionProps) => {
-  const { trigger } = useAutomationTrigger(currentAction.id);
-
-  return (
-    <div className="w-[650px] flex flex-col max-h-full">
-      <SegmentForm
-        contentType={trigger?.type || ''}
-        segmentId={currentAction?.config?.contentId}
-        callback={(contentId) => handleSave({ contentId })}
-        isTemporary
-      />
-    </div>
-  );
+const BranchComponents: AutomationComponentMap<AutomationNodeType.Action> = {
+  if: {
+    sidebar: lazy(() =>
+      import(
+        '@/automations/components/builder/nodes/actions/branches/components/BranchesConfigForm'
+      ).then((module) => ({
+        default: module.BranchesConfigForm,
+      })),
+    ),
+  },
 };
+
+export default BranchComponents;

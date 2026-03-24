@@ -53,7 +53,7 @@ export function useDepartmentAdd(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
     refetchQueries: ['Departments'],
@@ -98,7 +98,7 @@ export function useDepartmentEdit(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
   });
@@ -113,7 +113,8 @@ export function useDepartmentEdit(
 export function useRemoveDepartment() {
   const { toast } = useToast();
   const [handleRemove, { loading, error }] = useMutation(REMOVE_DEPARTMENTS, {
-    onCompleted: () => toast({ title: 'Removed successfully!' }),
+    onCompleted: () =>
+      toast({ title: 'Removed successfully!', variant: 'success' }),
     refetchQueries: ['Departments'],
   });
 
@@ -152,6 +153,7 @@ export function useDepartmentInlineEdit() {
         if (data?.departmentsEdit) {
           toast({
             title: 'Department updated successfully!',
+            variant: 'success',
           });
         }
       },

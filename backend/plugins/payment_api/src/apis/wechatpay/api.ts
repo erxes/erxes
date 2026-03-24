@@ -4,6 +4,7 @@ import { redis } from 'erxes-api-shared/utils';
 import { BaseAPI } from '~/apis/base';
 import { IQpayInvoice } from '../types';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
+import { extractErrorMessage } from '~/utils/extractErrorMessage';
 
 export const wechatCallbackHandler = async (models: IModels, data: any) => {
   const { _id } = data;
@@ -12,11 +13,11 @@ export const wechatCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Invoice id is required');
   }
 
-  const transaction = await models.Transactions.getTransaction({
-    _id,
-  });
+  const transaction = await models.Transactions.getTransaction({ _id });
 
-  const payment = await models.PaymentMethods.getPayment(transaction._id);
+  const payment = await models.PaymentMethods.getPayment(
+    transaction.paymentId 
+  );
 
   if (payment.kind !== 'wechatpay') {
     throw new Error('Payment config type is mismatched');
@@ -26,17 +27,20 @@ export const wechatCallbackHandler = async (models: IModels, data: any) => {
     const api = new WechatPayAPI(payment.config);
     const status = await api.checkInvoice(transaction);
 
-    if (status !== PAYMENT_STATUS.PAID) {
-      return transaction;
+    if (status === PAYMENT_STATUS.PAID) {
+      transaction.status = PAYMENT_STATUS.PAID;
     }
 
-    transaction.status = status;
+    if (status === PAYMENT_STATUS.FAILED) {
+      transaction.status = PAYMENT_STATUS.FAILED;
+    }
+
     transaction.updatedAt = new Date();
     await transaction.save();
 
     return transaction;
-  } catch (e) {
-    throw new Error(e.message);
+  } catch (e: any) {
+    throw new Error(extractErrorMessage(e));
   }
 };
 
@@ -47,10 +51,10 @@ export interface IQpayConfig {
 }
 
 export class WechatPayAPI extends BaseAPI {
-  private qpayMerchantUser: string;
-  private qpayMerchantPassword: string;
-  private qpayInvoiceCode: any;
-  private domain?: string;
+  private readonly qpayMerchantUser: string;
+  private readonly qpayMerchantPassword: string;
+  private readonly qpayInvoiceCode: string;
+  private readonly domain?: string;
 
   constructor(config: IQpayConfig, domain?: string) {
     super(config);
@@ -59,6 +63,7 @@ export class WechatPayAPI extends BaseAPI {
     this.qpayMerchantPassword = config.qpayMerchantPassword;
     this.qpayMerchantUser = config.qpayMerchantUser;
     this.domain = domain;
+
     this.apiUrl = PAYMENTS.wechatpay.apiUrl;
   }
 
@@ -78,20 +83,20 @@ export class WechatPayAPI extends BaseAPI {
 
       if (res.error) {
         if (res.error === 'CLIENT_NOTFOUND') {
-          throw new Error(
-            'Invalid credentials!!! Please check your credentials'
-          );
+          throw new Error('Invalid credentials. Please check configuration.');
         }
-
         throw new Error(res.error);
       }
-    } catch (e) {
-      throw new Error(e.message);
+
+      return { success: true };
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async getHeaders() {
-    const token = await redis.get(`wechatpay_token_${this.qpayMerchantUser}`);
+    const cacheKey = `wechatpay_token_${this.qpayMerchantUser}`;
+    const token = await redis.get(cacheKey);
 
     if (token) {
       return {
@@ -101,7 +106,7 @@ export class WechatPayAPI extends BaseAPI {
     }
 
     try {
-      const { access_token } = await this.request({
+      const res = await this.request({
         method: 'POST',
         path: PAYMENTS.wechatpay.actions.getToken,
         headers: {
@@ -113,32 +118,29 @@ export class WechatPayAPI extends BaseAPI {
         },
       }).then((r) => r.json());
 
-      await redis.set(
-        `wechatpay_token_${this.qpayMerchantUser}`,
-        access_token,
-        'EX',
-        3600
-      );
+      if (!res.access_token) {
+        throw new Error(res.error || 'Failed to obtain access token');
+      }
+
+      await redis.set(cacheKey, res.access_token, 'EX', 3600);
 
       return {
-        Authorization: 'Bearer ' + access_token,
+        Authorization: 'Bearer ' + res.access_token,
         'Content-Type': 'application/json',
       };
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async createInvoice(invoice: ITransactionDocument) {
-    const { qpayInvoiceCode } = this;
-
     try {
       const data: IQpayInvoice = {
-        invoice_code: qpayInvoiceCode,
+        invoice_code: this.qpayInvoiceCode,
         sender_invoice_no: invoice._id,
-        sender_terminal_code: 'kktt_wechat_test',
+        sender_terminal_code: 'wechat_terminal',
         invoice_receiver_code: 'terminal',
-        invoice_description: invoice.description || 'test invoice',
+        invoice_description: invoice.description || 'Invoice',
         amount: invoice.amount,
         callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.wechatpay.kind}?_id=${invoice._id}`,
       };
@@ -150,12 +152,18 @@ export class WechatPayAPI extends BaseAPI {
         data,
       }).then((r) => r.json());
 
+      if (res.error) {
+        throw new Error(res.error);
+      }
+
       return {
         ...res,
-        qrData: `data:image/jpg;base64,${res.qr_image}`,
+        qrData: res.qr_image
+          ? `data:image/png;base64,${res.qr_image}`
+          : undefined,
       };
-    } catch (e) {
-      return { error: e.message };
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
     }
   }
 
@@ -167,13 +175,24 @@ export class WechatPayAPI extends BaseAPI {
         headers: await this.getHeaders(),
       }).then((r) => r.json());
 
-      if (res.invoice_status === 'CLOSED') {
+      /**
+       * ✅ Correct status mapping
+       * We trust payment_status, NOT invoice_status
+       */
+      if (res.payment_status === 'PAID') {
         return PAYMENT_STATUS.PAID;
       }
 
+      if (
+        res.payment_status === 'FAILED' ||
+        res.invoice_status === 'CLOSED'
+      ) {
+        return PAYMENT_STATUS.FAILED;
+      }
+
       return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
@@ -184,8 +203,10 @@ export class WechatPayAPI extends BaseAPI {
         path: `${PAYMENTS.wechatpay.actions.invoice}/${invoice.response.invoice_id}`,
         headers: await this.getHeaders(),
       });
-    } catch (e) {
-      return { error: e.message };
+
+      return { success: true };
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
     }
   }
 }

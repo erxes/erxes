@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import { GET_FB_ACCOUNTS } from '../graphql/queries/fbAccounts';
 
 export const useFacebookAccounts = () => {
-  const { data, loading, error } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     facebookGetAccounts: {
       _id: string;
       name: string;
@@ -17,5 +17,5 @@ export const useFacebookAccounts = () => {
   });
   const { facebookGetAccounts = [] } = data || {};
 
-  return { facebookGetAccounts, loading, error };
+  return { facebookGetAccounts, loading, error, refetch };
 };

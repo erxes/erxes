@@ -47,7 +47,11 @@ export const CreateBranch = () => {
       handleAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Branch created successfully',
+          });
           methods.reset();
           setOpen(false);
         },

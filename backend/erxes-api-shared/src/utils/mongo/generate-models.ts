@@ -1,73 +1,90 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 import {
   coreModelOrganizations,
   getSaasCoreConnection,
 } from '../saas/saas-mongo-connection';
-import { isEnabled } from '../service-discovery';
-import { checkServiceRunning, getEnv, getSubdomain } from '../utils';
-import { startChangeStreams } from './change-stream';
+import { getEnv, getSubdomain } from '../utils';
 import { connect } from './mongo-connection';
+import { createEventDispatcher } from '../../core-modules/common/eventDispatcher';
+// Store current context per subdomain so it can be retrieved dynamically
+// This is updated every time generateModels is called, even if models are cached
+const contextStore = new Map<string, Record<string, any>>();
 
-const initializeModels = async <IModels>(
-  connection: mongoose.Connection,
-  loadClasses: (
-    db: mongoose.Connection,
-    subdomain: string,
-  ) => IModels | Promise<IModels>,
-  subdomain: string,
-  logIgnoreOptions?: {
-    ignoreChangeStream?: boolean;
-    ignoreModels?: string[];
-  },
-) => {
-  const models = await loadClasses(connection, subdomain);
-  if (
-    !logIgnoreOptions?.ignoreChangeStream &&
-    (await checkServiceRunning('logs'))
-  ) {
-    startChangeStreams(models as any, subdomain, logIgnoreOptions);
-  }
+const generateEventDispatcher =
+  (subdomain: string, initialContext?: Record<string, any>) =>
+  (pluginName: string, moduleName: string, collectionName: string) => {
+    // Store initial context
+    if (initialContext) {
+      contextStore.set(subdomain, initialContext);
+    }
 
-  return models;
-};
+    // getContents retrieves the CURRENT context from the store dynamically
+    // This ensures we always get the latest processId, even if models are cached
+    const getContext = () => {
+      const currentContext =
+        contextStore.get(subdomain) || initialContext || {};
+      const { user, processId } = currentContext;
+      return {
+        subdomain,
+        processId: processId || '',
+        userId: user?._id || '',
+      };
+    };
+
+    return createEventDispatcher({
+      subdomain,
+      pluginName,
+      moduleName,
+      collectionName,
+      getContext,
+    });
+  };
 
 export const createGenerateModels = <IModels>(
   loadClasses: (
     db: mongoose.Connection,
     subdomain: string,
+    eventDispatcher?: (
+      pluginName: string,
+      moduleName: string,
+      collectionName: string,
+    ) => any,
   ) => IModels | Promise<IModels>,
-  logIgnoreOptions?: {
-    ignoreChangeStream?: boolean;
-    ignoreModels?: string[];
-  },
-): ((hostnameOrSubdomain: string) => Promise<IModels>) => {
+): ((
+  hostnameOrSubdomain: string,
+  context?: Record<string, any>,
+) => Promise<IModels>) => {
   const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
 
   connect();
 
   if (VERSION && VERSION !== 'saas') {
-    const models: IModels | null = null;
     return async function genereteModels(
       hostnameOrSubdomain: string,
+      context?: Record<string, any>,
     ): Promise<IModels> {
-      if (models) {
-        return models;
+      // CRITICAL: Update context store so eventDispatcher can get current processId
+      if (context) {
+        contextStore.set(hostnameOrSubdomain, context);
       }
 
-      return initializeModels(
-        mongoose.connection,
-        loadClasses,
+      const eventDispatcher = generateEventDispatcher(
         hostnameOrSubdomain,
-        logIgnoreOptions,
+        context,
       );
+      const models = await loadClasses(
+        mongoose.connection,
+        hostnameOrSubdomain,
+        eventDispatcher,
+      );
+      return models;
     };
   } else {
     return async function genereteModels(
       hostnameOrSubdomain = '',
+      context?: Record<string, any>,
     ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
-
-      console.log(subdomain, 'subdomain1');
 
       if (!subdomain) {
         throw new Error(`Subdomain is \`${subdomain}\``);
@@ -78,7 +95,10 @@ export const createGenerateModels = <IModels>(
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
 
-      console.log(subdomain, 'subdomain2');
+      // CRITICAL: Update context store so eventDispatcher can get current processId
+      if (context) {
+        contextStore.set(subdomain, context);
+      }
 
       await getSaasCoreConnection();
 
@@ -102,12 +122,10 @@ export const createGenerateModels = <IModels>(
         noListener: true,
       });
 
-      return initializeModels(
-        tenantCon,
-        loadClasses,
-        subdomain,
-        logIgnoreOptions,
-      );
+      const eventDispatcher = generateEventDispatcher(subdomain, context);
+
+      const models = await loadClasses(tenantCon, subdomain, eventDispatcher);
+      return models;
     };
   }
 };

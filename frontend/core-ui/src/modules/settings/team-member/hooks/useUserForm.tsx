@@ -13,7 +13,6 @@ const useUsersSubmitForm = () => {
     defaultValues: {
       entries: Array.from({ length: 1 }, () => ({
         email: undefined,
-        password: undefined,
         groupId: '',
         channelIds: undefined,
         unitId: undefined,

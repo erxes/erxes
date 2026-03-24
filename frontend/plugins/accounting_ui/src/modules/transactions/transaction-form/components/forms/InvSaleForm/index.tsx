@@ -1,7 +1,7 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { IAccount, JournalEnum } from '@/settings/account/types/Account';
+import { AccountKind, IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
-import { ITransactionGroupForm } from '../../../types/JournalForms';
+import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
 import {
   AccountField,
   AssignToField,
@@ -13,6 +13,9 @@ import { CtaxForm } from '../../helpers/CtaxForm';
 import { CustomerFields } from '../../helpers/CustomerFields';
 import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
+import { useAtom } from 'jotai';
+import { followTrDocsState } from '../../../states/trStates';
+import { useWatch } from 'react-hook-form';
 
 export const InvSaleForm = ({
   form,
@@ -21,18 +24,45 @@ export const InvSaleForm = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
+  const trDoc = useWatch({
+    control: form.control,
+    name: `trDocs.${index}`,
+  }) as TInvSaleJournal;
+
+  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+
   const onChangeOutAccount = (account: IAccount) => {
     form.setValue(
       `trDocs.${index}.followExtras.saleOutAccount`,
-      account as any,
+      account,
     );
+
+    setFollowTrDocs((followTrDocs || []).map((ftr) => (
+      ftr.originId === trDoc._id &&
+      ftr.originType === 'invSaleOut'
+    ) && {
+      ...ftr,
+      details: ftr.details.map(ftrd => ({
+        ...ftrd, account, accountId: account._id
+      }))
+    } || ftr));
   };
 
   const onChangeCostAccount = (account: IAccount) => {
     form.setValue(
       `trDocs.${index}.followExtras.saleCostAccount`,
-      account as any,
+      account,
     );
+
+    setFollowTrDocs((followTrDocs || []).map((ftr) => (
+      ftr.originId === trDoc._id &&
+      ftr.originType === 'invSaleCost'
+    ) && {
+      ...ftr,
+      details: ftr.details.map(ftrd => ({
+        ...ftrd, account, accountId: account._id
+      }))
+    } || ftr));
   };
 
   return (
@@ -41,7 +71,7 @@ export const InvSaleForm = ({
         <AccountField
           form={form}
           index={index}
-          filter={{ journals: [JournalEnum.MAIN] }}
+          filter={{ journals: [JournalEnum.INV_FOLLOW], kind: AccountKind.PASSIVE }}
           allDetails={true}
           labelTxt='Sale Account'
         />
@@ -78,7 +108,7 @@ export const InvSaleForm = ({
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.MAIN] }}
+                  defaultFilter={{ journals: [JournalEnum.INV_FOLLOW], kind: AccountKind.ACTIVE }}
                   onCallback={(account) => onChangeCostAccount(account)}
                 />
               </Form.Control>

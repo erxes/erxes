@@ -1,4 +1,5 @@
 import { initTRPC } from '@trpc/server';
+import { getEnv } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 

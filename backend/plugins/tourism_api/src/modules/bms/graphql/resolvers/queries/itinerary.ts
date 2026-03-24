@@ -1,11 +1,21 @@
-import { cursorPaginate } from 'erxes-api-shared/src/utils';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
+const escapeRegExp = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const itineraryQueries = {
-  async bmsItineraries(_root, { branchId, ...params }, { models }: IContext) {
+  async bmsItineraries(
+    _root,
+    { branchId, name, ...params },
+    { models }: IContext,
+  ) {
     const selector: any = {};
     if (branchId) {
       selector.branchId = branchId;
+    }
+    if (name) {
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     }
 
     const { list, totalCount, pageInfo } = await cursorPaginate({

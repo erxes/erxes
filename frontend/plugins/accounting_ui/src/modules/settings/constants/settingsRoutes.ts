@@ -4,4 +4,11 @@ export const SETTINGS_ROUTES = {
   '/settings/accounting/account-categories': 'Account categories',
   '/settings/accounting/vat-rows': "VAT Rows",
   '/settings/accounting/ctax-rows': "CTAX Rows",
+  '/settings/accounting/sync-deal': 'Sync Deal',
+  '/settings/accounting/sync-order': 'Sync Order',
 };
+
+export enum ACCOUNTING_SETTINGS_CODES {
+  SYNC_DEAL = 'syncDeal',
+  SYNC_ORDER = 'syncOrder',
+}

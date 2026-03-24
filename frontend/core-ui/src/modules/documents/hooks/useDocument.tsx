@@ -78,7 +78,7 @@ export const useDocument = () => {
             }, 0);
           }
 
-          toast({ title: 'Successfully saved document' });
+          toast({ title: 'Successfully saved document', variant: 'success' });
         }
       },
       onError: (error) => {

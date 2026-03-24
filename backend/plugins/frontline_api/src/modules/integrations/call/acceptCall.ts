@@ -2,6 +2,7 @@ import { IModels } from '~/connectionResolvers';
 import { getOrCreateCustomer } from './store';
 import { createOrUpdateErxesConversation, findIntegration } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 const acceptCall = async (
   models: IModels,
@@ -37,7 +38,7 @@ const acceptCall = async (
   let customer = await models.CallCustomers.findOne({
     primaryPhone: customerPhone,
   });
-  console.log('1:', customer, 'customerPhone:', customerPhone);
+
   let history;
   try {
     const historyData: any = {
@@ -86,7 +87,6 @@ const acceptCall = async (
       inboxIntegrationId: integration.inboxId,
       primaryPhone: params.customerPhone,
     });
-    console.log('customer1:', customer);
   }
 
   try {
@@ -97,6 +97,7 @@ const acceptCall = async (
       conversationId: history.conversationId,
       updatedAt: new Date(),
       owner: type === 'addHistory' ? user?.details?.operatorPhone : '',
+      userId: type === 'addHistory' ? user?._id : undefined,
     });
 
     const apiConversationResponse = await createOrUpdateErxesConversation(
@@ -124,15 +125,17 @@ const acceptCall = async (
     throw new Error(e);
   }
 
+  const historyMessage = {
+    ...history.toObject(),
+    conversationId: history.conversationId,
+  };
+
   await graphqlPubsub.publish(
     `conversationMessageInserted:${history.conversationId}`,
-    {
-      conversationMessageInserted: {
-        ...history.toObject(),
-        conversationId: history.conversationId,
-      },
-    },
+    { conversationMessageInserted: historyMessage },
   );
+
+  await pConversationClientMessageInserted(subdomain, historyMessage);
 
   return history;
 };

@@ -46,7 +46,7 @@ export const AddTransaction = ({
       }}
     >
       <DropdownMenu.Trigger asChild>{children}</DropdownMenu.Trigger>
-      <DropdownMenu.Content className="min-w-[--radix-dropdown-menu-trigger-width]">
+      <DropdownMenu.Content className="min-w-(--radix-dropdown-menu-trigger-width)">
         <DropdownMenu.Label>Ерөнхий</DropdownMenu.Label>
         <AddTransactionItem
           journal={TrJournalEnum.MAIN}

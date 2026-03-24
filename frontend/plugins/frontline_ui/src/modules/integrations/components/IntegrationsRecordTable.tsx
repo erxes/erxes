@@ -1,30 +1,25 @@
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { CellContext, ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
   Input,
   RecordTable,
   RecordTableInlineCell,
   PopoverScoped,
+  Empty,
 } from 'erxes-ui';
 import { IIntegrationDetail } from '../types/Integration';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
 import { useState } from 'react';
-import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration';
-import { RemoveIntegration } from '@/integrations/components/RemoveIntegration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
-import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegrationRepair';
+import { integrationMoreColumn } from './IntegrationMoreColumn';
+import { IconMessagesOff } from '@tabler/icons-react';
+import { INTEGRATIONS } from '../constants/integrations';
 
-export const IntegrationsRecordTable = ({
-  Actions,
-}: {
-  Actions: (props: {
-    cell: Cell<IIntegrationDetail, unknown>;
-  }) => React.ReactNode;
-}) => {
+export const IntegrationsRecordTable = () => {
   const params = useParams();
 
   const { integrations, loading, handleFetchMore } = useIntegrations({
@@ -36,11 +31,33 @@ export const IntegrationsRecordTable = ({
     errorPolicy: 'all',
   });
 
+  if (!integrations?.length && !loading) {
+    return (
+      <Empty className="w-full h-full rounded-lg bg-accent">
+        <Empty.Header>
+          <Empty.Media>
+            <div className="rounded-sm border-dashed border-2 bg-muted flex items-center justify-center aspect-square w-20 text-muted-foreground">
+              <IconMessagesOff />
+            </div>
+          </Empty.Media>
+          <Empty.Title>
+            No {INTEGRATIONS[params?.integrationType as IntegrationType]?.name}{' '}
+            found
+          </Empty.Title>
+          <Empty.Description>
+            Get started by adding your first{' '}
+            {INTEGRATIONS[params?.integrationType as IntegrationType]?.name}.
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
+    );
+  }
+
   return (
     <RecordTable.Provider
-      columns={integrationTypeColumns({ Actions })}
+      columns={integrationTypeColumns()}
       data={(integrations || []).filter((integration) => integration)}
-      stickyColumns={['name']}
+      stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTable.Scroll>
         <RecordTable className="w-full">
@@ -61,7 +78,11 @@ export const IntegrationsRecordTable = ({
   );
 };
 
-const NameField = ({ cell }: { cell: Cell<IIntegrationDetail, unknown> }) => {
+const NameField = ({
+  cell,
+}: {
+  cell: CellContext<IIntegrationDetail, unknown>;
+}) => {
   const [name, setName] = useState(cell.row.original.name);
   const { editIntegrationField } = useIntegrationEditField(cell.row.original);
   const handleSave = () => {
@@ -103,30 +124,27 @@ const NameField = ({ cell }: { cell: Cell<IIntegrationDetail, unknown> }) => {
 export const BrandField = ({
   cell,
 }: {
-  cell: Cell<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
-  return <></>;
+  return null;
 };
 
-export const integrationTypeColumns = ({
-  Actions,
-}: {
-  Actions: (props: {
-    cell: Cell<IIntegrationDetail, unknown>;
-  }) => React.ReactNode;
-}): ColumnDef<IIntegrationDetail>[] => [
+export const integrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => [
+  integrationMoreColumn(),
   {
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label="Name" />,
-    cell: ({ cell }) => <NameField cell={cell} />,
+    cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
+      <NameField cell={cell} />
+    ),
     size: 300,
   },
   {
     id: 'isActive',
     accessorKey: 'isActive',
     header: () => <RecordTable.InlineHead label="Status" />,
-    cell: ({ cell }) => {
+    cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
       const status = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
@@ -145,7 +163,7 @@ export const integrationTypeColumns = ({
     id: 'healthStatus',
     accessorKey: 'healthStatus',
     header: () => <RecordTable.InlineHead label="Health status" />,
-    cell: ({ cell }) => {
+    cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
       const { status } = cell.getValue() as IIntegrationDetail['healthStatus'];
 
       return (
@@ -157,26 +175,6 @@ export const integrationTypeColumns = ({
             {status}
           </Badge>
         </RecordTableInlineCell>
-      );
-    },
-    size: 120,
-  },
-  {
-    id: 'action-group',
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ cell }) => {
-      const { isActive, _id, name } = cell.row.original;
-      const { integrationType } = useParams();
-      return (
-        <div className="flex items-center gap-1.5 px-2 justify-center">
-          {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
-          IntegrationType.FACEBOOK_POST === integrationType ? (
-            <FacebookIntegrationRepair cell={cell} />
-          ) : null}
-          <Actions cell={cell} />
-          <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
-          <RemoveIntegration _id={_id} name={name} />
-        </div>
       );
     },
     size: 120,

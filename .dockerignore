@@ -1,0 +1,17 @@
+# Node modules — installed fresh in Docker (biggest win: ~2GB excluded from context)
+node_modules
+**/node_modules
+
+# Frontend — not needed for backend Docker builds (~1GB of JS/CSS/assets)
+frontend/
+
+# Standalone apps — not needed for backend Docker builds
+apps/
+
+# Git history — not needed at runtime
+.git/
+
+# Local env and OS artifacts
+.env*
+.DS_Store
+*.log

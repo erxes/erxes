@@ -1,9 +1,9 @@
 import { useFacebookBot } from '@/integrations/facebook/hooks/useFacebookBots';
 import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { Avatar, Label, Separator, Spinner } from 'erxes-ui';
-import { useFacebookMessengerTrigger } from '../hooks/useFacebookMessengerTrigger';
-import { TMessageTriggerFormCondition } from '../states/messageTriggerFormSchema';
 import { AutomationTriggerConfigProps } from 'ui-modules';
+import { TMessageTriggerFormCondition } from '../states/messageTriggerFormSchema';
+import { MESSAGE_TRIGGER_CONDITIONS } from '../constants/messageTriggerForm';
 
 type Props = {
   botId: string;
@@ -14,7 +14,6 @@ export const TriggerConfigContent = ({
   config,
 }: AutomationTriggerConfigProps<Props>) => {
   const { conditions = [], botId } = config || {};
-  const { triggerConditionsConstants } = useFacebookMessengerTrigger();
   const { bot, loading } = useFacebookBot(botId);
 
   return (
@@ -27,7 +26,6 @@ export const TriggerConfigContent = ({
             key={index}
             bot={bot}
             condition={condition}
-            triggerConditionsConstants={triggerConditionsConstants}
             totalCount={
               conditions.filter(({ isSelected }) => isSelected).length
             }
@@ -94,12 +92,10 @@ const Condition = ({
   bot,
   condition,
   totalCount,
-  triggerConditionsConstants = [],
 }: {
   index: number;
   condition: TMessageTriggerFormCondition;
   bot?: IFacebookBot;
-  triggerConditionsConstants: any[];
   totalCount: number;
 }) => {
   if (!condition?.isSelected) {
@@ -107,7 +103,7 @@ const Condition = ({
   }
 
   const { label, description } =
-    triggerConditionsConstants.find((c: any) => c.type === condition.type) ||
+    MESSAGE_TRIGGER_CONDITIONS.find((c: any) => c.type === condition.type) ||
     {};
 
   const renderORSeparator = () => {

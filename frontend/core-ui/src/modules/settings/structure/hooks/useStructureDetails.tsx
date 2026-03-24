@@ -45,7 +45,7 @@ export const useEditStructureDetail = () => {
         });
       },
       onCompleted: () => {
-        toast({ title: 'Updated' });
+        toast({ title: 'Updated', variant: 'success' });
       },
       onError(error) {
         toast({
@@ -71,7 +71,7 @@ export const useAddStructureDetail = () => {
       ...operationVariables,
       variables,
       onCompleted: () => {
-        toast({ title: 'Created successfully!' });
+        toast({ title: 'Created successfully!', variant: 'success' });
       },
       onError(error) {
         toast({

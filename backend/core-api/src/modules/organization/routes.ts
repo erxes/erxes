@@ -1,9 +1,12 @@
-import { Router, Request, Response } from 'express';
-import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
-import { generateModels } from '~/connectionResolvers';
-import { getSaasOrganizationDetail } from 'erxes-api-shared/utils';
-import { handleCoreLogin, magiclinkCallback, ssocallback } from '~/utils/saas';
+import {
+  getEnv,
+  getSaasOrganizationDetail,
+  getSubdomain,
+} from 'erxes-api-shared/utils';
+import { Request, Response, Router } from 'express';
 import rateLimit from 'express-rate-limit';
+import { generateModels } from '~/connectionResolvers';
+import { handleCoreLogin, magiclinkCallback, ssocallback } from '~/utils/saas';
 import { IOrganizationCharge } from './types';
 
 // Rate limiter for /ml-callback route: max 100 requests per 15 minutes per IP
@@ -34,6 +37,17 @@ router.get('/initial-setup', async (req: Request, res: Response) => {
     });
 
     organizationInfo.type = 'saas';
+  }
+
+  if (VERSION && VERSION === 'os') {
+    const orgWhiteLabel = await models.OrgWhiteLabel.getOrgWhiteLabel();
+
+    if (orgWhiteLabel && orgWhiteLabel.enabled) {
+      organizationInfo = {
+        ...organizationInfo,
+        ...orgWhiteLabel,
+      };
+    }
   }
 
   const userCount = await models.Users.countDocuments({
@@ -79,6 +93,15 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
         }
       }
     });
+
+    const hasAgentUi = remotes.some((remote) => remote.name === 'agent_ui');
+
+    if (!hasAgentUi) {
+      remotes.push({
+        name: 'agent_ui',
+        entry: `https://plugins.erxes.io/latest/agent_ui/remoteEntry.js`,
+      });
+    }
 
     return res.json(remotes);
   } else {

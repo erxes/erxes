@@ -1,10 +1,9 @@
 import { CustomersDelete } from '@/contacts/customers/components/customers-command-bar/delete/CustomersDelete';
-import { CommandBar, Separator, RecordTable } from 'erxes-ui';
 import { CustomersMerge } from '@/contacts/customers/components/customers-command-bar/merge/CustomersMerge';
-import { ICustomer, SelectTags } from 'ui-modules';
 import { ApolloError } from '@apollo/client';
-import { toast } from 'erxes-ui';
 import { Row } from '@tanstack/table-core';
+import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
+import { Export, ICustomer, TagsSelect } from 'ui-modules';
 
 export const CustomersCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -25,9 +24,11 @@ export const CustomersCommandBar = () => {
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <SelectTags.CommandbarItem
+        <TagsSelect
+          type="core:customer"
           mode="multiple"
-          tagType="core:customer"
+          variant="secondary"
+          className="shadow-none"
           value={
             intersection(
               table
@@ -54,9 +55,18 @@ export const CustomersCommandBar = () => {
               toast({
                 title: 'Error',
                 description: e.message,
+                variant: 'destructive',
               });
             },
           })}
+        />
+        <Separator.Inline />
+        <Export
+          pluginName="core"
+          moduleName="contact"
+          collectionName="customer"
+          buttonVariant="secondary"
+          ids={customerIds}
         />
         <Separator.Inline />
         <CustomersMerge

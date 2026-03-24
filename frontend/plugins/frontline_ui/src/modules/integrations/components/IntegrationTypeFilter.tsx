@@ -1,17 +1,18 @@
 import {
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
+import {
   SelectIntegrationTypeContext,
   useSelectIntegrationTypeContext,
 } from '@/integrations/constants/context/SelectIntegrationTypeContext';
-import { useUsedIntegrationTypes } from '@/integrations/hooks/useUsedIntegrationTypes';
+
 import { IconPlug } from '@tabler/icons-react';
-import {
-  Filter,
-  Command,
-  Combobox,
-  useQueryState,
-  useFilterContext,
-  Popover,
-} from 'erxes-ui';
+import { useUsedIntegrationTypes } from '@/integrations/hooks/useUsedIntegrationTypes';
 
 const SelectIntegrationTypeProvider = ({
   children,
@@ -120,8 +121,6 @@ export const IntegrationTypeFilterBar = ({
   if (!integrationTypeId) {
     return null;
   }
-
-  console.log(integrationTypeId);
 
   return (
     <Filter.BarItem queryKey="integrationType">

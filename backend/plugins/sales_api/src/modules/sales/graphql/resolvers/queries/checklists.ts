@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { moduleRequireLogin } from 'erxes-api-shared/core-modules';
 
 export const checklistQueries = {
   /**
@@ -27,5 +26,3 @@ export const checklistQueries = {
     return models.Checklists.findOne({ _id }).sort({ order: 1 });
   },
 };
-
-// moduleRequireLogin(checklistQueries);

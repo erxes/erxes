@@ -57,7 +57,7 @@ const LinkFields = () => {
       </ToggleGroup>
 
       {currentLink && (
-        <div className="flex-grow">
+        <div className="grow">
           <FormField
             name={`links.${currentLink}` as keyof FormType}
             element="input"

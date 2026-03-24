@@ -44,7 +44,11 @@ export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
           ...data,
         },
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Branch updated successfully',
+          });
           methods.reset();
           setOpen(null);
         },

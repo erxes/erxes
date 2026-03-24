@@ -12,21 +12,22 @@ import {
   Switch,
   Textarea,
   Tooltip,
-  useQueryState,
 } from 'erxes-ui';
 import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { SelectBrand, SelectMember } from 'ui-modules';
-import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { SelectMember, SelectBrand } from 'ui-modules';
 import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
 import { erxesMessengerSetupConfigAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 import { useCreateMessenger } from '@/integrations/erxes-messenger/hooks/useCreateMessenger';
-import { useSetAtom } from 'jotai';
+import { useEditMessenger } from '@/integrations/erxes-messenger/hooks/useEditMessenger';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { useParams } from 'react-router';
+import { SelectTicketConfig } from '@/pipelines/components/configs/components/SelectTicketConfig';
 
 type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
@@ -41,8 +42,13 @@ export const EMConfig = () => {
   });
 
   const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
+  const idToEdit = useAtomValue(erxesMessengerSetupEditSheetOpenAtom);
 
-  const { createMessenger, loading } = useCreateMessenger();
+  const { createMessenger, loading: createLoading } = useCreateMessenger();
+  const { editMessenger, loading: editLoading } = useEditMessenger();
+
+  const loading = createLoading || editLoading;
+  const isEditMode = !!idToEdit;
 
   return (
     <Form {...form}>
@@ -52,10 +58,17 @@ export const EMConfig = () => {
       />
       <form
         onSubmit={form.handleSubmit((values) => {
-          createMessenger(values, () => {
-            form.reset();
-            resetErxesMessengerSetup();
-          });
+          if (isEditMode && idToEdit) {
+            editMessenger(idToEdit, values, () => {
+              form.reset();
+              resetErxesMessengerSetup();
+            });
+          } else {
+            createMessenger(values, () => {
+              form.reset();
+              resetErxesMessengerSetup();
+            });
+          }
         })}
         className="flex-auto flex flex-col overflow-hidden"
       >
@@ -86,6 +99,27 @@ export const EMConfig = () => {
                       <Form.Control>
                         <Input {...field} />
                       </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="brandId"
+                  rules={{ required: 'Brand is required' }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Brand</Form.Label>
+                      <Form.Control>
+                        <SelectBrand
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select a brand"
+                          className="w-full h-10 rounded-lg border bg-background"
+                        />
+                      </Form.Control>
+                      <Form.Description>
+                        Choose the brand for this integration
+                      </Form.Description>
                       <Form.Message />
                     </Form.Item>
                   )}
@@ -136,7 +170,7 @@ export const EMConfig = () => {
                 />
               </Collapsible.Content>
             </Collapsible>
-            <Collapsible>
+            {/* <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
                 Cloudflare calls setup
@@ -215,6 +249,28 @@ export const EMConfig = () => {
                   )}
                 />
               </Collapsible.Content>
+            </Collapsible> */}
+            <Collapsible>
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
+                <Collapsible.TriggerIcon />
+                Ticket config
+              </Collapsible.TriggerButton>
+              <Collapsible.Content className="p-2 space-y-4">
+                <Form.Field
+                  name="ticketConfigId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Select ticket config</Form.Label>
+                      <Form.Control>
+                        <SelectTicketConfig.FormItem
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
+              </Collapsible.Content>
             </Collapsible>
           </div>
         </EMLayout>
@@ -228,12 +284,14 @@ const PersistentMenu = ({
 }: {
   form: UseFormReturn<z.infer<typeof EM_CONFIG_SCHEMA>>;
 }) => {
-  const { control } = form;
+  const { control, watch } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'botSetup.persistentMenu',
   });
+
+  const persistentMenuValues = watch('botSetup.persistentMenu');
 
   return (
     <Form.Item>
@@ -258,56 +316,80 @@ const PersistentMenu = ({
         </Tooltip.Provider>
       </Form.Label>
       <div className="space-y-3">
-        {fields.map((field, index) => (
-          <div className="flex gap-2 items-end" key={field.id}>
-            <Form.Field
-              key={field.id}
-              name={`botSetup.persistentMenu.${index}.title`}
-              render={({ field }) => (
-                <Form.Item className="flex-auto">
-                  <Form.Label>Title</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              key={field.id}
-              name={`botSetup.persistentMenu.${index}.type`}
-              render={({ field }) => (
-                <Form.Item className="flex-auto">
-                  <Form.Label>Type</Form.Label>
-                  <Select value={field.value} onValueChange={field.onChange}>
+        {fields.map((field, index) => {
+          const currentType = persistentMenuValues?.[index]?.type;
+          return (
+            <div className="space-y-2" key={field.id}>
+              <div className="flex gap-2 items-end">
+                <Form.Field
+                  name={`botSetup.persistentMenu.${index}.text`}
+                  render={({ field }) => (
+                    <Form.Item className="flex-auto">
+                      <Form.Label>Text</Form.Label>
+                      <Form.Control>
+                        <Input {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name={`botSetup.persistentMenu.${index}.type`}
+                  render={({ field }) => (
+                    <Form.Item className="flex-auto">
+                      <Form.Label>Type</Form.Label>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Form.Control>
+                          <Select.Trigger className="mb-0">
+                            <Select.Value placeholder="Select a type" />
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content>
+                          <Select.Item value="button">Button</Select.Item>
+                          <Select.Item value="link">Link</Select.Item>
+                        </Select.Content>
+                      </Select>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Button
+                  onClick={() => remove(index)}
+                  variant="secondary"
+                  size="icon"
+                  className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
+                >
+                  <IconTrash />
+                </Button>
+              </div>
+              {/* Always register `link` so reset() retains its value;
+                  only show the UI when type === 'link' */}
+              <Form.Field
+                name={`botSetup.persistentMenu.${index}.link`}
+                render={({ field }) => (
+                  <Form.Item className={currentType === 'link' ? '' : 'hidden'}>
+                    <Form.Label>URL</Form.Label>
                     <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select a type" />
-                      </Select.Trigger>
+                      <Input
+                        {...field}
+                        type="url"
+                        placeholder="https://example.com"
+                      />
                     </Form.Control>
-                    <Select.Content>
-                      <Select.Item value="button">Button</Select.Item>
-                      <Select.Item value="link">Link</Select.Item>
-                    </Select.Content>
-                  </Select>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Button
-              onClick={() => remove(index)}
-              variant="secondary"
-              size="icon"
-              className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
-            >
-              <IconTrash />
-            </Button>
-          </div>
-        ))}
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </div>
+          );
+        })}
       </div>
       <Button
-        onClick={() => append({ title: '', type: 'button' })}
-        className="flex w-full !mt-5"
+        onClick={() => append({ text: '', type: 'button' })}
+        className="flex w-full mt-5!"
         variant="secondary"
       >
         <IconPlus />
@@ -377,7 +459,7 @@ const CallRouting = ({
       </div>
       <Button
         onClick={() => append({ name: '', operatorIds: [] })}
-        className="flex w-full !mt-5"
+        className="flex w-full mt-5!"
         variant="secondary"
       >
         <IconPlus />

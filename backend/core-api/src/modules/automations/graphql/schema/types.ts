@@ -19,6 +19,16 @@ const commonTriggerTypes = `
 const commonActionTypes = `
   ${commonNodeTypes}
   nextActionId: String
+  targetActionId: String
+`;
+
+const workflowTypes = `
+  id:String
+  automationId:String
+  name:String
+  description:String
+  config:JSON
+  position:JSON
 `;
 
 const types = `
@@ -32,6 +42,10 @@ const types = `
     ${commonActionTypes}
   }
 
+  type Workflow {
+    ${workflowTypes}
+  }
+
   type Automation {
     _id: String!
     name: String
@@ -43,6 +57,7 @@ const types = `
     tagIds:[String]
     triggers: [Trigger]
     actions: [Action]
+    workflows: [Workflow]
 
     createdUser: User
     updatedUser: User
@@ -99,6 +114,41 @@ const types = `
 
   input ActionInput {
     ${commonActionTypes}
+  }
+
+  input WorkflowInput {
+    ${workflowTypes}
+  }
+
+  type TrainingProgress {
+    agentId: String!
+    totalFiles: Int!
+    processedFiles: Int!
+    status: String!
+    error: String
+  }
+
+  type AiAgentMessage {
+    message: String!
+    relevantFile: String
+    similarity: Float
+  }
+
+  type AutomationEmailTemplate {
+    _id: String!
+    name: String!
+    description: String
+    content: String!
+    createdBy: String!
+    createdAt: Date
+    updatedAt: Date
+    createdUser: User
+  }
+
+  type AutomationEmailTemplatesListResponse {
+    list: [AutomationEmailTemplate]
+    totalCount: Float
+    pageInfo: PageInfo
   }
 `;
 

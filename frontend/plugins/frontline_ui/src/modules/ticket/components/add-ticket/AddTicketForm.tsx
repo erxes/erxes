@@ -1,31 +1,44 @@
-import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
-import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
-import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
-import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
-import { addTicketSchema } from '@/ticket/types';
-import { Block } from '@blocknote/core';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
   BlockEditor,
   Button,
+  Combobox,
   Form,
   Input,
   Separator,
   Sheet,
   useBlockEditor,
   useQueryState,
+  useToast,
 } from 'erxes-ui';
+import { TagsSelect, currentUserState } from 'ui-modules';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { TAddTicket } from '@/ticket/types';
-import { currentUserState } from 'ui-modules';
+
+import { Block } from '@blocknote/core';
+import { IconTags } from '@tabler/icons-react';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
+import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
+import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { TAddTicket } from '@/ticket/types';
+import { addTicketSchema } from '@/ticket/types';
+import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
+import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
+export const AddTicketForm = ({
+  onClose,
+  onComplete,
+}: {
+  onClose: () => void;
+  onComplete?: (ticketId: string) => void;
+}) => {
   const [pipelineId] = useQueryState<string>('pipelineId');
-
+  const [channelId] = useQueryState<string>('channelId');
+  const { toast } = useToast();
   const currentUser = useAtomValue(currentUserState);
   const { createTicket, loading: createTicketLoading } = useCreateTicket();
   const [descriptionContent, setDescriptionContent] = useState<Block[]>();
@@ -35,6 +48,7 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
   );
 
   const defaultValues = {
+    channelId: channelId || undefined,
     pipelineId: pipelineId || undefined,
     name: '',
     priority: 0,
@@ -42,7 +56,6 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
     startDate: undefined,
     targetDate: undefined,
   };
-
   const form = useForm<TAddTicket>({
     resolver: zodResolver(addTicketSchema),
     defaultValues,
@@ -76,8 +89,14 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
         priority: data.priority || 0,
         statusId: data.statusId,
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
+        toast({
+          title: 'Success',
+          description: 'Ticket created successfully',
+          variant: 'default',
+        });
         onClose();
+        onComplete?.(data.createTicket._id);
       },
     });
   };
@@ -86,7 +105,11 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log(errors);
+          toast({
+            title: 'Error',
+            description: Object.entries(errors)[0][1].message,
+            variant: 'destructive',
+          });
         })}
         className="h-full flex flex-col"
       >
@@ -110,79 +133,152 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
               </Form.Item>
             )}
           />
-          <div className="flex gap-2 w-full flex-wrap">
-            <Form.Field
-              name="statusId"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">Status</Form.Label>
-                  <SelectStatusTicket.FormItem
-                    value={field.value || ''}
-                    onValueChange={(value) => field.onChange(value)}
-                    form={form}
-                  />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="priority"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">Priority</Form.Label>
-                  <SelectPriorityTicket.FormItem
-                    value={field.value || 0}
-                    onValueChange={(value) => field.onChange(value)}
-                  />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="assigneeId"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">Assignee</Form.Label>
-                  <SelectAssigneeTicket.FormItem
-                    value={field.value || ''}
-                    onValueChange={(value: any) => {
-                      field.onChange(value);
-                    }}
-                  />
-                </Form.Item>
-              )}
-            />
+          <TagsSelect.Provider
+            type="frontline:ticket"
+            mode="multiple"
+            value={form.getValues('tagIds') || []}
+            onValueChange={(value) => form.setValue('tagIds', value)}
+          >
+            <div className="flex gap-2 w-full flex-wrap items-center">
+              <Form.Field
+                name="channelId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">Channel</Form.Label>
+                    <SelectChannel.FormItem
+                      value={field.value || ''}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('pipelineId', '');
+                        form.setValue('statusId', '');
+                      }}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-sm mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name="pipelineId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">Pipeline</Form.Label>
+                    <SelectPipeline.FormItem
+                      value={field.value || ''}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('statusId', '');
+                      }}
+                      form={form}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-sm mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name="statusId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">Status</Form.Label>
+                    <SelectStatusTicket.FormItem
+                      value={field.value || ''}
+                      onValueChange={(value) => field.onChange(value)}
+                      form={form}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-sm mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name="priority"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">Priority</Form.Label>
+                    <SelectPriorityTicket.FormItem
+                      value={field.value || 0}
+                      onValueChange={(value) => field.onChange(value)}
+                    />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name="assigneeId"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">Assignee</Form.Label>
+                    <SelectAssigneeTicket.FormItem
+                      value={field.value || ''}
+                      onValueChange={(value: any) => {
+                        field.onChange(value);
+                      }}
+                    />
+                  </Form.Item>
+                )}
+              />
 
-            <Form.Field
-              name="startDate"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">Start Date</Form.Label>
-                  <SelectDateTicket.FormItem
-                    value={field.value}
-                    placeholder="Start Date"
-                    onValueChange={(value) => field.onChange(value)}
-                  />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="targetDate"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">Target Date</Form.Label>
-                  <SelectDateTicket.FormItem
-                    value={field.value}
-                    onValueChange={(value) => field.onChange(value)}
-                    placeholder="Target Date"
-                  />
-                </Form.Item>
-              )}
-            />
-          </div>
+              <Form.Field
+                name="startDate"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">Start Date</Form.Label>
+                    <SelectDateTicket.FormItem
+                      value={field.value}
+                      placeholder="Start Date"
+                      onValueChange={(value) => field.onChange(value)}
+                    />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name="targetDate"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">Target Date</Form.Label>
+                    <SelectDateTicket.FormItem
+                      value={field.value}
+                      onValueChange={(value) => field.onChange(value)}
+                      placeholder="Target Date"
+                    />
+                  </Form.Item>
+                )}
+              />
+              <IconTags className="size-5 ml-2"></IconTags>
+              <TagsSelect.SelectedList />
+              <Form.Field
+                name="tagIds"
+                control={form.control}
+                render={() => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">Tags</Form.Label>
+                    <Form.Control>
+                      <TagsSelect.Trigger variant="ICON" />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+              <Combobox.Content>
+                <TagsSelect.Content />
+              </Combobox.Content>
+            </div>
+          </TagsSelect.Provider>
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor
@@ -192,7 +288,7 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"

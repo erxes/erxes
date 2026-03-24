@@ -33,7 +33,8 @@ export function useRemoveUsersGroups() {
     try {
       await removeUsersGroupsMutation({
         variables: { id: groupId },
-        onCompleted: () => toast({ title: 'Group has been removed' }),
+        onCompleted: () =>
+          toast({ title: 'Group has been removed', variant: 'success' }),
         onError: () =>
           toast({ title: 'Failed to remove group', variant: 'destructive' }),
         refetchQueries: ['UsersGroups'],
@@ -86,7 +87,8 @@ export const useUsersGroupsCopy = () => {
     try {
       await copy({
         variables: { id: groupId },
-        onCompleted: () => toast({ title: 'Group has been copied!' }),
+        onCompleted: () =>
+          toast({ title: 'Group has been copied!', variant: 'success' }),
         onError: () =>
           toast({ title: 'Failed to copy group', variant: 'destructive' }),
         refetchQueries: ['UsersGroups'],

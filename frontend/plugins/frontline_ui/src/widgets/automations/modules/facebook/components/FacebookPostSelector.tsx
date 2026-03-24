@@ -87,7 +87,7 @@ const FacebookSelectedPost = ({
 
   return (
     <Card className=" flex h-24 overflow-hidden">
-      <div className="h-full aspect-video flex-shrink-0 overflow-hidden">
+      <div className="h-full aspect-video shrink-0 overflow-hidden">
         {facebookGetBotPost?.full_picture ? (
           <img
             src={facebookGetBotPost.full_picture}

@@ -6,8 +6,11 @@ import {
   cn,
   Combobox,
   Command,
+  Filter,
   isUndefinedOrNull,
   PopoverScoped,
+  useFilterContext,
+  useQueryState,
 } from 'erxes-ui';
 import { IconTriangle } from '@tabler/icons-react';
 import { useGetEstimateChoiceByTeam } from '~/modules/task/hooks/useGetEstimateChoiceByTeam';
@@ -17,6 +20,7 @@ import {
   SelectTriggerVariant,
 } from '@/operation/components/SelectOperation';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
+import { useParams } from 'react-router-dom';
 
 interface SelectEstimatedPointContextType {
   value?: number;
@@ -50,14 +54,21 @@ export const SelectEstimatedPointProvider = ({
   teamId: string;
   variant?: `${SelectTriggerVariant}`;
 }) => {
-  const { estimateChoices } = useGetEstimateChoiceByTeam({
+  const { estimateChoices: teamEstimateChoices } = useGetEstimateChoiceByTeam({
     variables: { teamId },
     skip: !teamId,
   });
 
-  if (!estimateChoices || !estimateChoices?.length) {
-    return null;
-  }
+  const defaultEstimateChoices: IEstimateChoice[] = [
+    { value: 0, label: 'No estimate' },
+    { value: 1, label: '1 points' },
+    { value: 2, label: '2 points' },
+    { value: 3, label: '3 points' },
+    { value: 5, label: '5 points' },
+    { value: 8, label: '8 points' },
+  ];
+
+  const estimateChoices = teamId ? teamEstimateChoices : defaultEstimateChoices;
 
   const handleValueChange = (estimate: number) => {
     if (isUndefinedOrNull(estimate)) return;
@@ -103,7 +114,7 @@ const SelectEstimatedPointValue = ({
   if (!value) {
     return (
       <div className="flex items-center gap-2 text-accent-foreground">
-        <IconTriangle className="size-4 flex-shrink-0" />
+        <IconTriangle className="size-4 shrink-0" />
         <span className="truncate font-medium">
           {placeholder || 'Select estimate'}
         </span>
@@ -117,7 +128,7 @@ const SelectEstimatedPointValue = ({
 
   return (
     <div className="flex items-center gap-2">
-      <IconTriangle className="size-4 flex-shrink-0" />
+      <IconTriangle className="size-4 shrink-0" />
       <p className={cn('font-medium', className)}>{estimate?.label}</p>
     </div>
   );
@@ -237,6 +248,56 @@ export const SelectEstimatedPointFormItem = ({
   );
 };
 
+const SelectEstimatedPointFilterView = () => {
+  const { teamId } = useParams();
+  const [estimatePoint, setEstimatePoint] =
+    useQueryState<number>('estimatePoint');
+  const { resetFilterState } = useFilterContext();
+  return (
+    <Filter.View filterKey="estimatePoint">
+      <SelectEstimatedPointProvider
+        value={estimatePoint ?? undefined}
+        onValueChange={(value) => {
+          setEstimatePoint(value);
+          resetFilterState();
+        }}
+        teamId={teamId || ''}
+      >
+        <SelectEstimatedPointContent />
+      </SelectEstimatedPointProvider>
+    </Filter.View>
+  );
+};
+
+const SelectEstimatedPointFilterBar = () => {
+  const { teamId } = useParams();
+  const [estimatePoint, setEstimatePoint] =
+    useQueryState<number>('estimatePoint');
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectEstimatedPointProvider
+      value={estimatePoint || undefined}
+      onValueChange={(value) => {
+        setEstimatePoint(value);
+        setOpen(false);
+      }}
+      teamId={teamId || ''}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen}>
+        <SelectTriggerOperation variant="filter">
+          <SelectEstimatedPointValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant="filter">
+          <SelectEstimatedPointContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectEstimatedPointProvider>
+  );
+};
+
 export const SelectEstimatedPoint = Object.assign(SelectEstimatedPointRoot, {
   FormItem: SelectEstimatedPointFormItem,
+  FilterView: SelectEstimatedPointFilterView,
+  FilterBar: SelectEstimatedPointFilterBar,
 });

@@ -3,7 +3,12 @@ import { z } from 'zod';
 export const addTaskSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  teamId: z.string().min(1, 'Team is required'),
+  teamId: z
+    .string({
+      invalid_type_error: 'Team is required',
+      required_error: 'Team is required',
+    })
+    .min(1, 'Team is required'),
   status: z.string().optional(),
   priority: z.number().optional(),
   startDate: z.date().optional(),
@@ -13,4 +18,5 @@ export const addTaskSchema = z.object({
   cycleId: z.string().optional(),
   estimatePoint: z.number().min(0, 'Estimate point is required'),
   milestoneId: z.string().optional(),
+  tagIds: z.array(z.string()).optional(),
 });

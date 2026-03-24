@@ -17,11 +17,13 @@ export const GET_TICKETS = gql`
         startDate
         targetDate
         createdAt
+        createdBy
         updatedAt
         channelId
         statusChangedDate
         number
         pipelineId
+        state
       }
       ${GQL_PAGE_INFO}
       totalCount

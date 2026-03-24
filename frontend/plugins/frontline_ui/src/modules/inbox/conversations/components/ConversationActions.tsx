@@ -10,6 +10,7 @@ import { FilterConversationsPopover } from '@/inbox/conversations/components/Con
 import { ConversationTag } from './ConversationTag';
 import { ConversationDisplay } from './ConversationDisplay';
 import { ConversationRefetch } from './ConversationRefetch';
+import { ResolveAll } from './ResolveAll';
 
 export const ConversationActions = () => {
   return (
@@ -75,10 +76,7 @@ export const ConversationsCommandBar = () => {
         <Separator.Inline />
         <ReplaceAssignee />
         <ConversationTag conversationIds={selectedConversations} />
-        <Button variant="secondary">
-          <IconCheckbox />
-          Resolve All
-        </Button>
+        <ResolveAll conversationIds={selectedConversations} />
       </CommandBar.Bar>
     </CommandBar>
   );

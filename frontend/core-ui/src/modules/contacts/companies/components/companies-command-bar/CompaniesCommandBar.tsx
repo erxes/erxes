@@ -1,7 +1,8 @@
 import { ApolloError } from '@apollo/client';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
-import { SelectTags } from 'ui-modules';
+import { Export, TagsSelect } from 'ui-modules';
 import { CompaniesDelete } from './CompaniesDelete';
+import { CompaniesMerge } from './CompaniesMerge';
 
 export const CompaniesCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -18,10 +19,18 @@ export const CompaniesCommandBar = () => {
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
         <Separator.Inline />
-        <SelectTags.CommandbarItem
+        <TagsSelect
           mode="multiple"
-          tagType="core:company"
-          value={intersection(selectedRows.map((row) => row.original.tagIds))}
+          variant="secondary"
+          className="shadow-none"
+          value={
+            intersection(
+              table
+                .getFilteredSelectedRowModel()
+                .rows.map((row) => row.original.tagIds),
+            ) || []
+          }
+          type="core:company"
           targetIds={companyIds}
           options={(newSelectedTagIds) => ({
             update: (cache) => {
@@ -41,16 +50,28 @@ export const CompaniesCommandBar = () => {
               toast({
                 title: 'Error',
                 description: e.message,
+                variant: 'destructive',
               });
             },
           })}
         />
-        {/* <Separator.Inline />
-        <CompaniesMerge
-          companies={selectedRows.map((row) => row.original)}
-          rows={selectedRows}
-        /> */}
+        <Separator.Inline/>
+        <Export
+          pluginName="core"
+          moduleName="contact"
+          collectionName="company"
+          buttonVariant="secondary"
+          ids={companyIds}
+        />
         <Separator.Inline />
+        {/* <CompaniesMerge
+          companies={table
+            .getFilteredSelectedRowModel()
+            .rows.map((row) => row.original)}
+          // disabled={table.getFilteredSelectedRowModel().rows.length != 2}
+          rows={selectedRows} 
+        /> */}
+        {/* <Separator.Inline /> */}
         <CompaniesDelete companyIds={companyIds} rows={selectedRows} />
       </CommandBar.Bar>
     </CommandBar>

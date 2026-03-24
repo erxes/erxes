@@ -1,19 +1,15 @@
-import { Button, DropdownMenu, Input, Sheet } from 'erxes-ui';
-import {
-  IconArchive,
-  IconCopy,
-  IconDotsVertical,
-  IconEye,
-  IconLayoutSidebarLeftCollapse,
-  IconPrinter,
-} from '@tabler/icons-react';
+import { Button, Input, Sheet } from 'erxes-ui';
 
+import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 import { IDeal } from '@/deals/types/deals';
+import { IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
+import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useState } from 'react';
 
 export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
+
   const [name, setName] = useState(deal?.name || 'Untitled deal');
 
   const handleName = () => {
@@ -34,7 +30,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
       <Button variant="ghost" size="icon">
         <IconLayoutSidebarLeftCollapse />
       </Button>
-      <Sheet.Title className="shrink-0 w-4/5">
+      <Sheet.Title className="flex-1 min-w-0">
         <Input
           className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
           placeholder="Deal Name"
@@ -45,33 +41,15 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
           onBlur={handleName}
         />
       </Sheet.Title>
-      <div className="flex items-center w-full justify-end">
-        <DropdownMenu>
-          <DropdownMenu.Trigger>
-            <Button variant="outline" className="flex items-center gap-2">
-              <IconDotsVertical />
-              Edit
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content className="w-48 !min-w-fit">
-            <DropdownMenu.Item>
-              <IconCopy />
-              Copy
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <IconEye />
-              Watch
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <IconPrinter />
-              Print document
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <IconArchive />
-              Archive
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
+
+      <div className="flex items-center gap-2 shrink-0">
+        {deal?.status === 'archived' && (
+          <span className="text-sm py-1 px-2 bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-sm whitespace-nowrap ">
+            Archived
+          </span>
+        )}
+        <DealsActions deals={[deal]} />
+        <MoveDealDropdown deal={deal} />
       </div>
       <Sheet.Close />
     </Sheet.Header>

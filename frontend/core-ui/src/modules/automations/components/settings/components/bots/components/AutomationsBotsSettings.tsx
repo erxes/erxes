@@ -6,9 +6,14 @@ import { IAutomationBot } from '@/automations/components/settings/components/bot
 import { Card, cn, getPluginAssetsUrl, ScrollArea, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
 
-const BotCard = ({ bot }: { bot: IAutomationBot }) => {
-  const { name, label, description, logo, pluginName, totalCountQueryName } =
-    bot || {};
+const BotCard = ({
+  name,
+  label,
+  description,
+  logo,
+  pluginName,
+  totalCountQueryName,
+}: IAutomationBot) => {
   const { totalCount, loading } =
     useAutomationBotTotalCount(totalCountQueryName);
 
@@ -51,7 +56,7 @@ const BotsList = ({
     return <Spinner />;
   }
 
-  return bots.map((bot) => <BotCard key={bot.name} bot={bot} />);
+  return bots.map((bot) => <BotCard key={bot.name} {...bot} />);
 };
 
 export const AutomationsBotsSettings = () => {

@@ -1,9 +1,7 @@
-import * as _ from 'underscore';
-
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
-import { fixDate } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 interface IIn {
   $in: string[];
@@ -93,7 +91,7 @@ export default class Builder {
 
       pluginName: 'core',
       method: 'query',
-      module: 'segments',
+      module: 'segment',
       action: 'fetchSegment',
       input: {
         segmentId,

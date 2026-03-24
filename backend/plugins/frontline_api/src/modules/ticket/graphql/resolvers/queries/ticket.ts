@@ -1,0 +1,35 @@
+import { ITicketDocument, ITicketFilter } from '@/ticket/@types/ticket';
+import { generateFilter } from '@/ticket/utils';
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
+import { IContext } from '~/connectionResolvers';
+
+export const ticketQueries = {
+  getTicket: async (_parent: undefined, { _id }, { models }: IContext) => {
+    return models.Ticket.getTicket(_id);
+  },
+
+  getTickets: async (
+    _parent: undefined,
+    { filter }: { filter: ITicketFilter & ICursorPaginateParams },
+    { models, user }: IContext,
+  ) => {
+    const filterQuery: FilterQuery<ITicketDocument> = await generateFilter(
+      filter,
+      user,
+      models,
+    );
+    return await cursorPaginate<ITicketDocument>({
+      model: models.Ticket,
+      params: {
+        ...filter,
+        orderBy: {
+          statusId: 'asc',
+          createdAt: 'asc',
+        },
+      },
+      query: filterQuery,
+    });
+  },
+};

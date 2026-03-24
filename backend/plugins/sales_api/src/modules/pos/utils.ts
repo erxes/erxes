@@ -10,6 +10,7 @@ import { IModels, generateModels } from '~/connectionResolvers';
 import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
 export const getConfig = async (
   subdomain: string,
@@ -354,26 +355,21 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     //   },
     //   "stringValue": "106.93628311157227,47.920138551642026"
     // }
-    dealsData.customFieldsData = [
-      {
-        field: deliveryConfig.mapCustomField.replace('customFieldsData.', ''),
-        locationValue: {
-          type: 'Point',
-          coordinates: [
-            marker.longitude || marker.lng,
-            marker.latitude || marker.lat,
-          ],
-        },
-        value: {
-          lat: marker.latitude || marker.lat,
-          lng: marker.longitude || marker.lng,
-          description: 'location',
-        },
-        stringValue: `${marker.longitude || marker.lng},${
-          marker.latitude || marker.lat
-        }`,
+
+    const field = deliveryConfig.mapCustomField.replace(
+      'customFieldsData.',
+      '',
+    );
+
+    dealsData.propertiesData = {
+      [field]: {
+        type: 'Point',
+        coordinates: [
+          marker.longitude || marker.lng,
+          marker.latitude || marker.lat,
+        ],
       },
-    ];
+    };
   }
 
   if ((doneOrder.deliveryInfo || {}).dealId) {
@@ -426,16 +422,21 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     ) {
       await sendTRPCMessage({
         subdomain,
-
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformities',
-        action: 'addConformity',
+        module: 'relation',
+        action: 'createRelation',
         input: {
-          mainType: 'deal',
-          mainTypeId: deal._id,
-          relType: doneOrder.customerType || 'customer',
-          relTypeId: doneOrder.customerId,
+          entities: [
+            {
+              contentType: 'sales:deal',
+              contentId: deal._id,
+            },
+            {
+              contentType: `core:${doneOrder.customerType || 'customer'}`,
+              contentId: doneOrder.customerId,
+            },
+          ],
         },
       });
     }
@@ -602,16 +603,21 @@ const createDealPerOrder = async ({
     if (newOrder.customerId && cardDeal._id) {
       await sendTRPCMessage({
         subdomain,
-
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformities',
-        action: 'addConformity',
+        module: 'relation',
+        action: 'createRelation',
         input: {
-          mainType: 'deal',
-          mainTypeId: cardDeal._id,
-          relType: newOrder.customerType || 'customer',
-          relTypeId: newOrder.customerId,
+          entities: [
+            {
+              contentType: 'sales:deal',
+              contentId: cardDeal._id,
+            },
+            {
+              contentType: `core:${newOrder.customerType || 'customer'}`,
+              contentId: newOrder.customerId,
+            },
+          ],
         },
       });
     }
@@ -696,119 +702,6 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
   }
 };
 
-const syncInventoriesRem = async ({
-  subdomain,
-  newOrder,
-  oldBranchId,
-  pos,
-}) => {
-  if (!(pos.checkRemainder && newOrder.departmentId)) {
-    return;
-  }
-
-  let multiplier = 1;
-  if (newOrder.status === 'return') {
-    multiplier = -1;
-  }
-
-  if (newOrder.isPre) {
-    if (!newOrder.paidDate) {
-      if (
-        newOrder.branchId &&
-        (!oldBranchId || oldBranchId !== newOrder.branchId)
-      ) {
-        await sendTRPCMessage({
-          subdomain,
-
-          method: 'mutation',
-          pluginName: 'accounting',
-          module: 'remainders',
-          action: 'updateMany',
-          input: {
-            branchId: newOrder.branchId,
-            departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map((item) => ({
-              productId: item.productId,
-              uom: item.uom,
-              diffSoonOut: item.count * multiplier,
-            })),
-          },
-        });
-      }
-
-      if (oldBranchId && oldBranchId !== newOrder.branchId) {
-        await sendTRPCMessage({
-          subdomain,
-
-          method: 'mutation',
-          pluginName: 'accounting',
-          module: 'remainders',
-          action: 'updateMany',
-          input: {
-            branchId: oldBranchId,
-            departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map((item) => ({
-              productId: item.productId,
-              uom: item.uom,
-              diffSoonOut: -1 * item.count * multiplier,
-            })),
-          },
-        });
-      }
-
-      return;
-    }
-  }
-  // ene doorhuudiig bas paidDate shalgah tuhai bodoh
-  // jich bas jururiin salbariin zb bodoh, neg salbar deer l zaragdaj baiga avch salbar deer zuvhun tur hadgalah
-  // ene ni techstore bas adil baina
-
-  if (
-    newOrder.branchId &&
-    (!oldBranchId || oldBranchId !== newOrder.branchId)
-  ) {
-    await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'accounting',
-      module: 'remainders',
-      action: 'updateMany',
-      input: {
-        branchId: newOrder.branchId,
-        departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map((item) => ({
-          productId: item.productId,
-          uom: item.uom,
-          diffCount: -1 * item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? -1 * item.count * multiplier : 0,
-        })),
-      },
-    });
-  }
-
-  if (oldBranchId && oldBranchId !== newOrder.branchId) {
-    await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'accounting',
-      module: 'remainders',
-      action: 'updateMany',
-      input: {
-        branchId: oldBranchId,
-        departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map((item) => ({
-          productId: item.productId,
-          uom: item.uom,
-          diffCount: item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? item.count * multiplier : 0,
-        })),
-      },
-    });
-  }
-};
-
 export const syncOrderFromClient = async ({
   subdomain,
   models,
@@ -871,9 +764,9 @@ export const syncOrderFromClient = async ({
   if (newOrder.paidDate) {
     if (newOrder.customerId && (await checkServiceRunning('automations'))) {
       try {
-        sendWorkerQueue('automations', 'trigger').add('trigger', {
-          subdomain,
-          data: { type: 'pos:posOrder', targets: [newOrder] },
+        sendAutomationTrigger(subdomain, {
+          type: 'pos:posOrder',
+          targets: [newOrder],
         });
       } catch (e) {
         console.log(subdomain, e.message);
@@ -960,11 +853,11 @@ export const syncOrderFromClient = async ({
       console.log(subdomain, e.message);
     }
 
-    try {
-      await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
-    } catch (e) {
-      console.log(subdomain, e.message);
-    }
+    // try {
+    //   await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+    // } catch (e) {
+    //   console.log(subdomain, e.message);
+    // }
   }
 
   const syncedResponseIds = (

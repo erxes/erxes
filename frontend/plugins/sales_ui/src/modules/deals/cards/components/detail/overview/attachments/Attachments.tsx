@@ -37,13 +37,15 @@ const Attachments = () => {
   // );
 
   return (
-    <div className="flex flex-col">
-      {fileAttachments.length > 0 && (
-        <FileAttachments attachments={fileAttachments} />
-      )}
-      {mediaAttachments.length > 0 && (
-        <MediaAttachments attachments={mediaAttachments} />
-      )}
+    <div className="border-b">
+      <div className="flex flex-col">
+        {fileAttachments.length > 0 && (
+          <FileAttachments attachments={fileAttachments} />
+        )}
+        {mediaAttachments.length > 0 && (
+          <MediaAttachments attachments={mediaAttachments} />
+        )}
+      </div>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { IBranchDocument } from '@/bms/@types/branch';
 import { IElementCategoryDocument } from '@/bms/@types/element';
 import { IItineraryDocument } from '@/bms/@types/itinerary';
 import { IOrderDocument } from '@/bms/@types/order';
-import { ITourDocument } from '@/bms/@types/tour';
+import { ITourCategoryDocument, ITourDocument } from '@/bms/@types/tour';
 import { IBranchModel, loadBranchClass } from '@/bms/db/models/Branch';
 import {
   IElementCategoryModel,
@@ -13,9 +13,15 @@ import {
   loadElementCategoryClass,
   loadElementClass,
 } from '@/bms/db/models/Element';
+
 import { IItineraryModel, loadItineraryClass } from '@/bms/db/models/Itinerary';
 import { IOrderModel, loadOrderClass } from '@/bms/db/models/Order';
-import { ITourModel, loadTourClass } from '@/bms/db/models/Tour';
+import {
+  IBmsTourCategoryModel,
+  ITourModel,
+  loadTourCategoryClass as loadBmsTourCategoryClass,
+  loadTourClass,
+} from '@/bms/db/models/Tour';
 import { IAvailabilityDocument } from '@/ota/@types/availabilities';
 import { IOTABookingDocument } from '@/ota/@types/bookings';
 import { IOTAHotelDocument } from '@/ota/@types/hotels';
@@ -46,13 +52,28 @@ import {
   loadTourCategoryClass,
 } from '@/ota/db/models/TourCategories';
 import { IOTATourModel, loadOTATourClass } from '@/ota/db/models/Tours';
+
+import { IPMSBranchModel, loadPmsBranchClass } from '@/pms/db/models/Branch';
+import { ICleaningModel, loadCleaningClass } from '@/pms/db/models/Cleaning';
+import {
+  ICleaningHistoryModel,
+  loadCleaningHistoryClass,
+} from '@/pms/db/models/CleaningHistory';
+import { IConfigModel, loadConfigClass } from '@/pms/db/models/Configs';
+import { IPmsBranchDocument } from '@/pms/@types/branch';
+import {
+  ICleaningDocument,
+  ICleaningHistoryDocument,
+} from '@/pms/@types/cleanings';
 import mongoose from 'mongoose';
+import { IConfigDocument } from '@/pms/@types/configs';
 
 export interface IModels {
   Elements: IElementModel;
   ElementCategories: IElementCategoryModel;
   Itineraries: IItineraryModel;
   Tours: ITourModel;
+  BmsTourCategories: IBmsTourCategoryModel;
   Orders: IOrderModel;
   Branches: IBranchModel;
 
@@ -65,11 +86,17 @@ export interface IModels {
   TourCategories: ITourCategoryModel;
   TourBookings: ITourBookingModel;
   Reviews: IReviewModel;
+
+  PmsBranch: IPMSBranchModel;
+  Cleaning: ICleaningModel;
+  History: ICleaningHistoryModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  commonQuerySelector: any;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
@@ -94,6 +121,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'bm_tours',
     loadTourClass(models),
   );
+
+  models.BmsTourCategories = db.model<
+    ITourCategoryDocument,
+    IBmsTourCategoryModel
+  >('bm_tour_categories', loadBmsTourCategoryClass(models));
 
   models.Orders = db.model<IOrderDocument, IOrderModel>(
     'bm_orders',
@@ -150,6 +182,24 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadReviewClass(models),
   );
 
+  models.PmsBranch = db.model<IPmsBranchDocument, IPMSBranchModel>(
+    'pms_branches',
+    loadPmsBranchClass(models),
+  );
+
+  models.Cleaning = db.model<ICleaningDocument, ICleaningModel>(
+    'pms_cleanings',
+    loadCleaningClass(models),
+  );
+
+  models.History = db.model<ICleaningHistoryDocument, ICleaningHistoryModel>(
+    'pms_cleaning_histories',
+    loadCleaningHistoryClass(models),
+  );
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'pms_configs',
+    loadConfigClass(models),
+  );
   return models;
 };
 

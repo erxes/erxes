@@ -1,33 +1,27 @@
-import { Checkbox, cn, Form, Spinner } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
-import { useFacebookMessengerTrigger } from '../hooks/useFacebookMessengerTrigger';
+import { IconBrandMessenger } from '@tabler/icons-react';
+import { Checkbox, cn } from 'erxes-ui';
+import { useFormContext } from 'react-hook-form';
+import { MESSAGE_TRIGGER_CONDITIONS } from '../constants/messageTriggerForm';
 import { TMessageTriggerForm } from '../states/messageTriggerFormSchema';
 import { getConditionsFieldErrors } from '../utils/messageTriggerUtils';
-import { IconBrandMessenger } from '@tabler/icons-react';
 
 type Props = {
   setActiveItemType: React.Dispatch<React.SetStateAction<string>>;
   selectedConditionTypes?: string[];
   onItemCheck: (type: string, isChecked: boolean) => void;
-  form: UseFormReturn<TMessageTriggerForm>;
 };
 
 export const MessageTriggerConditionsList = ({
   setActiveItemType,
   onItemCheck,
   selectedConditionTypes,
-  form,
 }: Props) => {
-  const { triggerConditionsConstants, loading } = useFacebookMessengerTrigger();
-
-  if (loading) {
-    return <Spinner />;
-  }
-  const errors = getConditionsFieldErrors(form.getFieldState('conditions'));
+  const { getFieldState } = useFormContext<TMessageTriggerForm>();
+  const errors = getConditionsFieldErrors(getFieldState('conditions'));
 
   return (
     <div className="flex flex-col gap-2 p-4">
-      {triggerConditionsConstants.map(({ label, description, type, icon }) => (
+      {MESSAGE_TRIGGER_CONDITIONS.map(({ label, description, type }) => (
         <>
           <div
             key={type}

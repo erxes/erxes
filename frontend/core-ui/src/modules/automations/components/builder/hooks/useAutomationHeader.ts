@@ -1,73 +1,91 @@
+import { useNodeErrorHandler } from '@/automations/components/builder/hooks/useNodeErrorHandler';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import {
   AUTOMATION_CREATE,
   AUTOMATION_EDIT,
 } from '@/automations/graphql/automationMutations';
-import { useTriggersActions } from '@/automations/hooks/useTriggersActions';
-import { AutomationBuilderTabsType } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import { AutomationBuilderTabsType, NodeData } from '@/automations/types';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { useMutation } from '@apollo/client';
-import { useReactFlow } from '@xyflow/react';
-import { useIsMobile, toast } from 'erxes-ui';
+import { Node, useReactFlow } from '@xyflow/react';
+import { toast } from 'erxes-ui';
 import { SubmitErrorHandler, useFormContext } from 'react-hook-form';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 export const useAutomationHeader = () => {
   const { handleSubmit, clearErrors } =
     useFormContext<TAutomationBuilderForm>();
+  const navigate = useNavigate();
 
   const { setQueryParams, reactFlowInstance } = useAutomation();
-  const { actions, triggers } = useTriggersActions();
-  const isMobile = useIsMobile();
+  const { actions, triggers } = useAutomationNodes();
 
-  const { getNodes, setNodes } = useReactFlow();
+  const { getNode, getNodes, setNodes } = useReactFlow();
   const { id } = useParams();
+
+  const { handleNodeErrors, clearNodeErrors } = useNodeErrorHandler({
+    reactFlowInstance,
+    getNodes: getNodes as () => Node<NodeData>[],
+    setNodes: setNodes as (nodes: Node<NodeData>[]) => void,
+  });
 
   const [save, { loading }] = useMutation(
     id ? AUTOMATION_EDIT : AUTOMATION_CREATE,
   );
 
-  const handleSave = async (values: TAutomationBuilderForm) => {
-    const { triggers, actions, name, status } = values;
+  const handleSave = async ({
+    triggers,
+    actions,
+    name,
+    status,
+    workflows,
+  }: TAutomationBuilderForm) => {
     const generateValues = () => {
       return {
         id,
         name,
         status: status,
         triggers: triggers.map((t) => ({
-          id: t.id,
-          type: t.type,
-          config: t.config,
-          icon: t.icon,
-          label: t.label,
-          description: t.description,
-          actionId: t.actionId,
-          position: t.position,
-          isCustom: t.isCustom,
+          ...t,
+          position: getNode(t.id)?.position || t.position,
         })),
         actions: actions.map((a) => ({
-          id: a.id,
-          type: a.type,
-          nextActionId: a.nextActionId,
-          config: a.config,
-          icon: a.icon,
-          label: a.label,
-          description: a.description,
-          position: a.position,
+          ...a,
+          position: getNode(a.id)?.position || a.position,
+        })),
+        workflows: workflows?.map((w) => ({
+          ...w,
+          position: getNode(w.id)?.position || w.position,
         })),
       };
     };
 
-    return save({ variables: generateValues() }).then(() => {
-      clearErrors();
-      toast({
-        title: 'Save successful',
-      });
+    return save({
+      variables: generateValues(),
+      onError: (error) => {
+        toast({
+          title: 'Something went wrong',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+      onCompleted: ({ automationsAdd }) => {
+        clearErrors();
+        clearNodeErrors();
+        toast({
+          title: 'Save successful',
+          variant: 'success',
+        });
+        if (!id && automationsAdd) {
+          navigate(`/automations/edit/${automationsAdd._id}`);
+        }
+      },
     });
   };
 
   const handleError: SubmitErrorHandler<TAutomationBuilderForm> = (errors) => {
-    const nodes = getNodes();
     const { triggers: triggersErrors, actions: actionsErrors } = errors || {};
 
     const nodeErrorMap: Record<string, string> = {};
@@ -91,34 +109,24 @@ export const useAutomationHeader = () => {
     }
 
     if (Object.keys(nodeErrorMap).length > 0) {
-      const updatedNodes = nodes.map((node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          error: nodeErrorMap[node.id],
-        },
-      }));
-
-      setNodes(updatedNodes);
-
-      // Focus on first error node
-      const firstErrorNode = updatedNodes.find((n) => nodeErrorMap[n.id]);
-      if (firstErrorNode && reactFlowInstance) {
-        reactFlowInstance.fitView({
-          nodes: [firstErrorNode],
-          duration: 800,
-        });
-      }
+      // Use the new error handler
+      handleNodeErrors(nodeErrorMap);
     } else {
       const errorKeys = Object.keys(errors || {});
       if (errorKeys?.length > 0) {
-        const errorMessage = (errors as Record<string, { message?: string }>)[
-          errorKeys[0]
-        ]?.message;
+        const { message, ref } =
+          (errors as Record<string, { message?: string; ref: any }>)[
+            errorKeys[0]
+          ] || {};
         toast({
-          title: 'Error',
-          description: errorMessage,
+          title: 'Something went wrong',
+          description: message,
+          variant: 'destructive',
         });
+
+        if (ref) {
+          ref?.focus();
+        }
       }
     }
   };
@@ -132,6 +140,5 @@ export const useAutomationHeader = () => {
     handleSave,
     handleError,
     toggleTabs,
-    isMobile,
   };
 };

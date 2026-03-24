@@ -54,14 +54,12 @@ export const CommentTriggerForm = ({
   const { control, watch } = form;
 
   useImperativeHandle(formRef, () => ({
-    submit: () => {
-      form.handleSubmit(onSaveTriggerConfig, () => {
-        toast({
-          title: 'There is some error in the form',
-          variant: 'destructive',
-        });
-      })();
-    },
+    submit: form.handleSubmit(onSaveTriggerConfig, () =>
+      toast({
+        title: 'There is some error in the form',
+        variant: 'destructive',
+      }),
+    ),
   }));
 
   const [botId, checkContent, postType] = watch([

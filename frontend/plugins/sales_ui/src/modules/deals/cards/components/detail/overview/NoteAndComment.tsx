@@ -116,7 +116,6 @@ const SalesNoteAndComment = () => {
                 // disabled={loading || content?.length === 0}
                 onClick={handleNoteSubmit}
               >
-                {/* {loading ? <Spinner size="small" /> : <IconArrowUp />} */}
                 Add note
               </Button>
             </div>

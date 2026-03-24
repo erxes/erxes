@@ -33,6 +33,7 @@ import {
   useToast,
   Skeleton,
   ColorPicker,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 import {
   IconDots,
@@ -126,9 +127,10 @@ export const Status = ({
         </Button>
         <div className="flex flex-col">
           <span className="capitalize">{status.name}</span>
-          <span className="text-xs text-muted-foreground">
-            {status.description}
-          </span>
+          <TextOverflowTooltip
+            className="text-muted-foreground max-w-36 z-10"
+            value={status.description}
+          />
         </div>
       </span>
       <StatusOptionMenu statusId={status._id} statusType={status.type} />
@@ -276,7 +278,15 @@ export const StatusForm = ({
       )}
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit, (errors) => {
+            toast({
+              title: 'Error',
+              description: Object.entries(errors)[0][1].message,
+              variant: 'destructive',
+            });
+          })}
+        >
           <span className="flex items-center gap-1">
             <IconGripVertical className="invisible w-4 h-4" stroke={1.5} />
             <Form.Field

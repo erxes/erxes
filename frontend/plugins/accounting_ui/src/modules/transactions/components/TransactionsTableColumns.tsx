@@ -55,12 +55,12 @@ const DescriptionCell = ({ getValue, row }: any) => {
   );
 };
 
-const JournalCell = ({ getValue }: any) => {
-  const journal = getValue() as TrJournalEnum;
+const JournalCell = ({ row }: any) => {
+  const { journal } = row.original;
 
   return (
     <RecordTableInlineCell>
-      {TR_JOURNAL_LABELS[journal] || 'Main'}
+      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || 'Main'}
     </RecordTableInlineCell>
   );
 };
@@ -106,7 +106,7 @@ const BranchCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      {`${branch?.code ? `${branch.code} - ` : ''}${branch?.title ?? ''}`}
+      {[branch?.code, branch?.title].filter(Boolean).join(' - ')}
     </RecordTableInlineCell>
   );
 };
@@ -116,9 +116,7 @@ const DepartmentCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      {`${department?.code ? `${department.code} - ` : ''}${
-        department?.title ?? ''
-      }`}
+      {[department?.code, department?.title].filter(Boolean).join(' - ')}
     </RecordTableInlineCell>
   );
 };
@@ -134,10 +132,28 @@ const DateCell = ({ getValue }: any) => {
 const AccountCell = ({ row }: any) => {
   const { details } = row.original;
 
+  const name0 = details[0].account?.name;
+
+  const infoByCode = details.reduce((acc: { [code: string]: number }, d: any) => {
+    const code = d.account?.code || '';
+    acc[code] = (acc[code] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const codes = Object.keys(infoByCode);
+
   return (
     <RecordTableInlineCell>
-      {details.length &&
-        `${details[0].account?.code} - ${details[0].account?.name}`}
+      {codes.map((code, i) => {
+        const count = infoByCode[code];
+        const tot = count > 1 ? `(${count})` : '';
+
+        if (i === 0) {
+          return `${code} - ${name0}${tot}`;
+        }
+
+        return `, ${code}${tot}`;
+      })}
     </RecordTableInlineCell>
   );
 };
@@ -151,9 +167,8 @@ const TransactionMoreColumnCell = ({
 
   return (
     <Link
-      to={`/accounting/transaction/edit?parentId=${parentId}&trId=${
-        originId || _id
-      }`}
+      to={`/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
+        }`}
     >
       <RecordTable.MoreButton className="w-full h-full" />
     </Link>
@@ -224,7 +239,7 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
     id: 'journal',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Journal" />,
     accessorKey: 'journal',
-    cell: ({ getValue, row }) => <JournalCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <JournalCell row={row} />,
   },
   {
     id: 'branch',

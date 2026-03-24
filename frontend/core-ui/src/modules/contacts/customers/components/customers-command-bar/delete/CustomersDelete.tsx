@@ -37,7 +37,8 @@ export const CustomersDelete = ({
               });
               toast({
                 title: 'Success',
-                variant: 'default',
+                variant: 'success',
+                description: 'Customers deleted successfully',
               });
             },
           });

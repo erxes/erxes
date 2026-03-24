@@ -13,9 +13,9 @@ export const AutomationBotDetailSettings = ({ botType }: Props) => {
 
   if (error || !botIntegrationConstant) {
     return (
-      <div>
-        <IconRobotFace />
-        <h4>Something went wrong</h4>
+      <div className="w-full flex flex-col gap-4 justify-center items-center text-accent-foreground">
+        <IconRobotFace className="size-24" />
+        <h4 className="font-bold">Something went wrong</h4>
         <span>{error}</span>
       </div>
     );

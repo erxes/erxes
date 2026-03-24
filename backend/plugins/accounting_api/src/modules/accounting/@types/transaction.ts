@@ -1,18 +1,13 @@
 import { Document } from 'mongoose';
 
-export interface IFollowsForTr {
-  type: string;
-  id: string;
-  subId?: string;
-}
 export interface ITrDetail {
   _id?: string;
   accountId: string;
-  originId?: string;
-  followType?: string;
-  originSubId?: string;
+
   followInfos?: any;
-  follows?: IFollowsForTr[];
+  originId?: string;
+  originType?: string;
+  originSubId?: string;
 
   side: string;
   amount: number;
@@ -34,18 +29,18 @@ export interface ITransaction {
   _id?: string;
   date: Date;
   fullDate?: Date;
-  description: string;
+  description?: string;
   status?: string;
   ptrId?: string;
   parentId?: string;
   number?: string;
   journal: string;
   ptrStatus?: string;
-  originId?: string;
-  followType?: string;
-  originSubId?: string;
+
   followInfos?: any;
-  follows?: IFollowsForTr[];
+  originId?: string;
+  originType?: string;
+  originSubId?: string;
   preTrId?: string;
 
   branchId?: string;
@@ -72,6 +67,9 @@ export interface ITransaction {
   ctaxAmount?: number;
 
   extraData?: any;
+
+  contentType?: string;
+  contentId?: string;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -91,22 +89,24 @@ export interface ITransactionDocument extends ITransaction, Document {
   permission?: string;
 }
 
+export interface ITrRecord extends Omit<ITransaction, 'details'> {
+  details: ITrDetail;
+  trId: string;
+}
+
 export interface IHiddenTransaction extends Document {
   _id: string,
   parentId: string,
   ptrId: string,
   ptrStatus: string;
   originId?: string,
-  followType?: string,
+  originType?: string,
   originSubId?: string,
-  follows?: IFollowsForTr[]
   details: {
     _id: string;
     originId?: string;
-    followType?: string;
+    originType?: string;
     originSubId?: string;
-    follows?: IFollowsForTr[];
-
     side: string;
   }[]
   sumDt: number;

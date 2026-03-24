@@ -9,6 +9,11 @@ import {
   watchItem,
 } from '../../utils';
 import { dealSchema } from '../definitions/deals';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  generateDealActivityLogs,
+  generateDealCreatedActivityLog,
+} from '~/utils/activityLogs';
 
 export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
@@ -18,77 +23,113 @@ export interface IDealModel extends Model<IDealDocument> {
   removeDeals(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
-export const loadDealClass = (models: IModels) => {
+export const loadDealClass = (
+  models: IModels,
+  subdomain: string,
+  dispatcher: EventDispatcherReturn,
+) => {
+  const { sendDbEventLog, getContext } = dispatcher;
+
   class Deal {
+    /** Get single deal */
     public static async getDeal(_id: string) {
       const deal = await models.Deals.findOne({ _id });
+      if (!deal) throw new Error('Deal not found');
+      return deal;
+    }
 
-      if (!deal) {
-        throw new Error('Deal not found');
+    /** Create deal */
+    public static async createDeal(doc: IDeal) {
+      // Prevent duplicate conversion from conversation
+      if (doc.sourceConversationIds?.length) {
+        const existing = await models.Deals.findOne({
+          sourceConversationIds: { $in: doc.sourceConversationIds },
+        });
+        if (existing) throw new Error('Already converted a deal');
       }
+
+      // Calculate totals
+      if (doc.productsData) {
+        doc.productsData = doc.productsData.filter(pd => pd);
+        const totals = await getTotalAmounts(doc.productsData);
+        Object.assign(doc, totals);
+      }
+
+      const deal = await createBoardItem(models, doc);
+
+      sendDbEventLog?.({
+        action: 'create',
+        docId: deal._id,
+        currentDocument: deal.toObject(),
+      });
+
+      dispatcher.createActivityLog(generateDealCreatedActivityLog(deal));
 
       return deal;
     }
 
-    /**
-     * Create a deal
-     */
-    public static async createDeal(doc: IDeal) {
-      if (doc.sourceConversationIds) {
-        const convertedDeal = await models.Deals.findOne({
-          sourceConversationIds: { $in: doc.sourceConversationIds },
-        });
+    public static async updateDeal(_id: string, doc: IDeal) {
+      const prevDeal = await models.Deals.getDeal(_id);
+      const prevDealObj = prevDeal.toObject()
 
-        if (convertedDeal) {
-          throw new Error('Already converted a deal');
-        }
-      }
+      // Fill searchText for indexing
+      const searchText = fillSearchTextItem(doc, prevDeal);
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter((pd) => pd);
-        Object.assign(doc, { ...getTotalAmounts(doc.productsData) })
+        doc.productsData = doc.productsData.filter(
+          pd => pd && pd.productId,
+        );
+        const totals = await getTotalAmounts(doc.productsData);
+        Object.assign(doc, totals);
       }
 
-      return createBoardItem(models, doc);
-    }
-
-    /**
-     * Update Deal
-     */
-    public static async updateDeal(_id: string, doc: IDeal) {
-      const searchText = fillSearchTextItem(
-        doc,
-        await models.Deals.getDeal(_id),
+      await models.Deals.updateOne(
+        { _id },
+        { $set: { ...doc, searchText } },
       );
 
-      if (doc.productsData) {
-        doc.productsData = doc.productsData.filter((pd) => pd && pd.productId);
-        Object.assign(doc, { ...getTotalAmounts(doc.productsData) });
-      }
+      const updatedDeal = await models.Deals.getDeal(_id);
+      const updatedDealObj = updatedDeal.toObject();
 
-      await models.Deals.updateOne({ _id }, { $set: doc, searchText });
+      sendDbEventLog?.({
+        action: 'update',
+        docId: updatedDeal._id,
+        currentDocument: updatedDealObj,
+        prevDocument: prevDealObj,
+      });
 
-      return models.Deals.findOne({ _id });
+      const context = getContext();
+      await generateDealActivityLogs(
+        prevDealObj,
+        updatedDealObj,
+        models,
+        dispatcher.createActivityLog,
+        subdomain,
+      );
+
+      return updatedDeal;
     }
 
-    /**
-     * Watch deal
-     */
     public static watchDeal(_id: string, isAdd: boolean, userId: string) {
       return watchItem(models.Deals, _id, isAdd, userId);
     }
 
     public static async removeDeals(_ids: string[]) {
-      // completely remove all related things
-      for (const _id of _ids) {
-        await destroyBoardItemRelations(models, _id);
+      const deals = await models.Deals.find({ _id: { $in: _ids } });
+
+      for (const deal of deals) {
+        sendDbEventLog?.({
+          action: 'delete',
+          docId: deal._id,
+        });
       }
+
+      await destroyBoardItemRelations(subdomain, models, _ids);
 
       return models.Deals.deleteMany({ _id: { $in: _ids } });
     }
-  } // end Deal class
+  }
 
   dealSchema.loadClass(Deal);
-
   return dealSchema;
 };

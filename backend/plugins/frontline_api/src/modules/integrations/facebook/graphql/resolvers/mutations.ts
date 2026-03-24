@@ -92,7 +92,7 @@ export const facebookMutations = {
         (inboxConversation && inboxConversation.integrationId) || '',
       );
 
-      await sendNotifications({
+      await sendNotifications(subdomain, {
         user,
         conversations: [inboxConversation],
         type: 'conversationStateChange',
@@ -104,5 +104,23 @@ export const facebookMutations = {
     } catch (e) {
       throw new Error(e.message);
     }
+  },
+  async facebookMessengerAddBot(_root, args, { models }: IContext) {
+    return await models.FacebookBots.addBot(args);
+  },
+
+  async facebookMessengerUpdateBot(
+    _root,
+    { _id, ...args },
+    { models }: IContext,
+  ) {
+    return await models.FacebookBots.updateBot(_id, args);
+  },
+
+  async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {
+    return await models.FacebookBots.removeBot(_id);
+  },
+  async facebookMessengerRepairBot(_root, { _id }, { models }: IContext) {
+    return await models.FacebookBots.repair(_id);
   },
 };

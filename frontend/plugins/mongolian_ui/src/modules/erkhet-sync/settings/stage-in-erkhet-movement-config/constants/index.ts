@@ -1,0 +1,2 @@
+export const STAGE_IN_MOVEMENT_ERKHET_CONFIG_CURSOR_SESSION_KEY =
+  'stage_in_movement_erkhet_config_cursor_session_key';

@@ -46,7 +46,7 @@ export function useUnitAdd(options?: MutationHookOptions<AddUnitResult, any>) {
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
     refetchQueries: ['Units'],
@@ -82,7 +82,7 @@ export function useUnitEdit(options?: MutationHookOptions<AddUnitResult, any>) {
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
   });
@@ -97,7 +97,8 @@ export function useUnitEdit(options?: MutationHookOptions<AddUnitResult, any>) {
 export function useRemoveUnit() {
   const { toast } = useToast();
   const [handleRemove, { loading, error }] = useMutation(REMOVE_UNITS, {
-    onCompleted: () => toast({ title: 'Removed successfully!' }),
+    onCompleted: () =>
+      toast({ title: 'Removed successfully!', variant: 'success' }),
     refetchQueries: ['Units'],
   });
 
@@ -136,6 +137,7 @@ export function useUnitInlineEdit() {
         if (data?.unitsEdit) {
           toast({
             title: 'Unit updated successfully!',
+            variant: 'success',
           });
         }
       },

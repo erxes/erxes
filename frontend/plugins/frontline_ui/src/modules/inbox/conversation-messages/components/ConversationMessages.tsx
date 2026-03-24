@@ -1,13 +1,14 @@
-import { useQueryState } from 'erxes-ui';
 import { MessageItem } from './MessageItem';
 import { IMessage } from '@/inbox/types/Conversation';
 import { useConversationMessages } from '@/inbox/conversation-messages/hooks/useConversationMessages';
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
 import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContainer';
 
-export const ConversationMessages = () => {
-  const [conversationId] = useQueryState<string>('conversationId');
-
+export const ConversationMessages = ({
+  conversationId,
+}: {
+  conversationId: string;
+}) => {
   const { messages, loading, handleFetchMore, totalCount } =
     useConversationMessages({
       variables: {

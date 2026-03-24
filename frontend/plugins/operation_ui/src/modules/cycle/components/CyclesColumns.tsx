@@ -24,6 +24,7 @@ import { ChartConfig } from 'erxes-ui';
 import clsx from 'clsx';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { CycleStatusDisplay } from '@/cycle/components/CycleStatusDisplay';
+import { cyclesMoreColumn } from './CyclesMoreColumn';
 
 const chartConfig = {
   visitors: {
@@ -31,12 +32,13 @@ const chartConfig = {
   },
   safari: {
     label: 'Done',
-    color: 'hsl(var(--primary))',
+    color: 'var(--primary)',
   },
 } satisfies ChartConfig;
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICycle>;
 export const cyclesColumns: ColumnDef<ICycle>[] = [
+  cyclesMoreColumn,
   checkBoxColumn,
   {
     id: 'name',
@@ -125,7 +127,7 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
                 {
                   name: 'Progress',
                   value: donePercent,
-                  fill: 'hsl(var(--primary))',
+                  fill: 'var(--primary)',
                 },
               ]}
               startAngle={90}
@@ -138,7 +140,7 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
                 tick={false}
               />
               <RadialBar
-                background={{ fill: 'hsl(var(--border))' }}
+                background={{ fill: 'var(--border)' }}
                 dataKey="value"
                 cornerRadius={10}
               />

@@ -46,7 +46,11 @@ export const CreateUnit = () => {
       handleAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Unit created successfully',
+          });
           methods.reset();
           setOpen(false);
         },

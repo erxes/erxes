@@ -45,7 +45,11 @@ export const PositionEdit = () => {
           ...data,
         },
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Position updated successfully',
+          });
           methods.reset();
           setOpen(null);
         },
