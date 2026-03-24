@@ -7,7 +7,7 @@ import Transactions from './transactionsCommon';
 import Inventories from './inventories';
 import AdjustInventories from './adjustInventories';
 import JournalReport from './journalReport';
-import AdjustClosingEntry from './adjustClosingEntry';
+import AdjustClosing from './adjustClosing';
 
 export {
   Accounts,
@@ -19,5 +19,5 @@ export {
   Inventories,
   AdjustInventories,
   JournalReport,
-  AdjustClosingEntry,
+  AdjustClosing,
 };

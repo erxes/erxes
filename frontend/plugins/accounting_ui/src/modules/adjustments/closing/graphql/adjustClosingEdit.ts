@@ -1,23 +1,26 @@
 import { gql } from '@apollo/client';
 
 export const ADJUST_CLOSING_EDIT = gql`
-  mutation AdjustClosingEntriesEdit(
+  mutation AdjustClosingEdit(
     $_id: String!
-    $code: String
-    $name: String
     $description: String
+    $integrateAccountId: String
+    $periodGLAccountId: String
+    $earningAccountId: String
+    $taxPayableaccountId: String
+    $beginDate: Date
   ) {
-    adjustClosingEntriesEdit(
+    adjustClosingEdit(
       _id: $_id
-      code: $code
-      name: $name
       description: $description
+      integrateAccountId: $integrateAccountId
+      periodGLAccountId: $periodGLAccountId
+      earningAccountId: $earningAccountId
+      taxPayableaccountId: $taxPayableaccountId
+      beginDate: $beginDate
     ) {
       _id
-      code
-      name
       description
-      createdAt
       updatedAt
     }
   }

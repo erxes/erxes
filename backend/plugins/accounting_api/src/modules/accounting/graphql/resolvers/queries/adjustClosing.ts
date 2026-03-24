@@ -18,8 +18,8 @@ export const generateFilter = async (models: IModels, params: IQueryParams) => {
   return filter;
 };
 
-const adjustClosingEntryQueries = {
-  async adjustClosingEntries(
+const adjustClosingQueries = {
+  async adjustClosings(
     _root: undefined,
     params: IQueryParams,
     { models }: IContext,
@@ -35,18 +35,18 @@ const adjustClosingEntryQueries = {
     }
 
     return defaultPaginate(
-      models.AdjustClosingEntries.find(filter).sort(sort).lean(),
+      models.AdjustClosings.find(filter).sort(sort).lean(),
       paginationArgs,
     );
   },
 
-  async adjustClosingEntriesCount(
+  async adjustClosingCount(
     _root: undefined,
     params: IQueryParams,
     { models }: IContext,
   ) {
     const filter = await generateFilter(models, params);
-    return models.AdjustClosingEntries.countDocuments(filter);
+    return models.AdjustClosings.countDocuments(filter);
   },
 
   async adjustClosingDetail(
@@ -54,8 +54,8 @@ const adjustClosingEntryQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    return models.AdjustClosingEntries.findById(_id).lean();
+    return models.AdjustClosings.findById(_id).lean();
   },
 };
 
-export default adjustClosingEntryQueries;
+export default adjustClosingQueries;

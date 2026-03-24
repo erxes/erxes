@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAdjustClosingEntryEdit } from '../hooks/useAdjustClosingEdit';
+import { useAdjustClosingEdit } from '../hooks/useAdjustClosingEdit';
 import { SelectAccountFormItem } from '~/modules/settings/account/components/SelectAccount';
 
 interface SelectAccountFieldProps {
@@ -17,7 +17,7 @@ export const SelectAccountField: React.FC<SelectAccountFieldProps> = ({
   placeholder,
   className,
 }) => {
-  const { adjustClosingEdit } = useAdjustClosingEntryEdit();
+  const { adjustClosingEdit } = useAdjustClosingEdit();
 
   const handleChange = (value: string | string[]) => {
     if (Array.isArray(value)) return;

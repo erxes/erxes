@@ -6,25 +6,24 @@ const adjustClosingEntryMutations = {
    * Creates a new adjust closing
    */
 
-  async adjustClosingEntriesAdd(
+  async adjustClosingAdd(
     _root: undefined,
     doc: IAdjustClosing,
     { models }: IContext,
   ) {
-    return await models.AdjustClosingEntries.createAdjustClosingEntry(doc);
+    return await models.AdjustClosings.createAdjustClosing(doc);
   },
 
   /**
    * Edits a adjust closing
    */
-  async adjustClosingEntriesEdit(
+  async adjustClosingEdit(
     _root: undefined,
     { _id, ...doc }: { _id: string } & IAdjustClosing,
     { models }: IContext,
   ) {
-    console.log('_id', _id);
-    await models.AdjustClosingEntries.getAdjustClosingEntry({ _id });
-    return await models.AdjustClosingEntries.updateAdjustClosingEntry(_id, {
+    await models.AdjustClosings.getAdjustClosing({ _id });
+    return await models.AdjustClosings.updateAdjustClosing(_id, {
       ...doc,
     });
   },
@@ -32,12 +31,12 @@ const adjustClosingEntryMutations = {
   /**
    * Removes a adjust closing
    */
-  async adjustClosingEntriesRemove(
+  async adjustClosingRemove(
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const response = await models.AdjustClosingEntries.removeAdjustClosing(_id);
+    const response = await models.AdjustClosings.removeAdjustClosing(_id);
     return response;
   },
 
@@ -46,19 +45,19 @@ const adjustClosingEntryMutations = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const closing = await models.AdjustClosingEntries.findById(_id).lean();
+    const closing = await models.AdjustClosings.findById(_id).lean();
     if (!closing) throw new Error('Adjust Closing not found');
 
     if (closing.status !== 'draft') {
       throw new Error('Only draft Adjust Closing can be run');
     }
 
-    const details = await models.AdjustClosingEntries.getAdjustClosingEntries({
+    const details = await models.AdjustClosings.getAdjustClosings({
       beginDate: closing.beginDate,
       date: closing.date,
     });
 
-    const updated = await models.AdjustClosingEntries.findByIdAndUpdate(
+    const updated = await models.AdjustClosings.findByIdAndUpdate(
       _id,
       {
         $set: {

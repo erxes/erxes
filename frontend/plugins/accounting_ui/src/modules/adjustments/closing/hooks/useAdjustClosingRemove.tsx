@@ -1,13 +1,11 @@
 import { ApolloError, useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router';
-import { ADJUST_CLOSING_ENTRY_REMOVE } from '../graphql/adjustClosingRemove';
+import { ADJUST_CLOSING_REMOVE } from '../graphql/adjustClosingRemove';
 
 export const useAdjustClosingEntryRemove = () => {
   const navigate = useNavigate();
 
-  const [_removeMutation, { loading }] = useMutation(
-    ADJUST_CLOSING_ENTRY_REMOVE,
-  );
+  const [_removeMutation, { loading }] = useMutation(ADJUST_CLOSING_REMOVE);
 
   const removeAdjust = (
     _id: string,

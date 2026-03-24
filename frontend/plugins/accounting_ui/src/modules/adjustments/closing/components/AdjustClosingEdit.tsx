@@ -6,15 +6,13 @@ import {
   Sheet,
   Spinner,
   Textarea,
-  useQueryState,
 } from 'erxes-ui';
 import { IAdjustClosingDetail } from '../types/AdjustClosing';
 import { TAdjustClosingForm } from '../types/adjustClosingForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { adjustClosingSchema } from '../types/adjustClosingSchema';
-import { useAdjustClosingEntryEdit } from '../hooks/useAdjustClosingEdit';
-import { ApolloError } from '@apollo/client';
+import { useAdjustClosingEdit } from '../hooks/useAdjustClosingEdit';
 import { SelectAccountFormItem } from '~/modules/settings/account/components/SelectAccount';
 import { useSearchParams } from 'react-router';
 import { useAdjustClosingDetail } from '../hooks/useAdjustClosingDetail';
@@ -68,54 +66,38 @@ export const EditAdjustClosingForm = ({
     },
   });
 
-  const { adjustClosingEdit, loading } = useAdjustClosingEntryEdit();
+  const { adjustClosingEdit, loading } = useAdjustClosingEdit();
 
   useEffect(() => {
     if (!detail) return;
+
+    const entry = detail.entries?.[0];
 
     form.reset({
       status: detail.status ?? undefined,
       date: detail.date ? new Date(detail.date) : new Date(),
       description: detail.description ?? '',
       beginDate: detail.beginDate ? new Date(detail.beginDate) : undefined,
-
       integrateAccountId: detail.integrateAccountId ?? undefined,
       periodGLAccountId: detail.periodGLAccountId ?? undefined,
       earningAccountId: detail.earningAccountId ?? undefined,
-      taxPayableAccountId: detail.taxPayableaccountId ?? undefined,
-
-      accountId: detail.accountId ?? undefined,
-      balance: detail.balance ?? undefined,
-      percent: detail.percent ?? undefined,
-      mainAccTrId: detail.mainAccTrId ?? undefined,
-      integrateTrId: detail.integrateTrId ?? undefined,
+      accountId: entry?.accountId ?? undefined,
+      balance: entry?.balance ?? undefined,
+      percent: entry?.percent ?? undefined,
+      mainAccTrId: entry?.mainAccTrId ?? undefined,
+      integrateTrId: entry?.integrateTrId ?? undefined,
     });
-    console.log('values after reset', form.getValues());
-  }, [detail, form]);
+  }, [detail]);
 
   const onSubmit = (data: TAdjustClosingForm) => {
-    console.log('SUBMIT DATA', data);
-    console.log('DETAIL ID', detail._id);
-
     adjustClosingEdit({
       variables: {
-        description: data.description,
-        integrateAccountId: data.integrateAccountId ?? undefined,
-        periodGLAccountId: data.periodGLAccountId ?? undefined,
-        earningAccountId: data.earningAccountId ?? undefined,
-        taxPayableaccountId: data.taxPayableAccountId ?? undefined,
-        accountId: data.accountId ?? undefined,
-        balance: data.balance ?? undefined,
-        percent: data.percent ?? undefined,
-        mainAccTrId: data.mainAccTrId ?? undefined,
-        integrateTrId: data.integrateTrId ?? undefined,
+        ...data,
+        _id: detail._id,
+        taxPayableAccountId: data.taxPayableAccountId,
       },
-      onCompleted: (res) => {
-        console.log('MUTATION RESULT', res);
+      onCompleted: () => {
         setOpen(false);
-      },
-      onError: (e) => {
-        console.log('MUTATION ERROR', e);
       },
     });
   };
@@ -123,7 +105,7 @@ export const EditAdjustClosingForm = ({
     <Form {...form}>
       <form
         className="p-6 flex-auto overflow-auto"
-        onSubmit={form.handleSubmit(onSubmit, console.log)}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <h3 className="text-lg font-bold">Edit Adjust Inventory</h3>
 

@@ -39,10 +39,10 @@ import {
   types as adjustInventoryTypes,
 } from '~/modules/accounting/graphql/schemas/adjustInvDetail';
 import {
-  mutations as adjustClosingEntryMutations,
-  queries as adjustClosingEntryQueries,
-  types as adjustClosingEntryTypes,
-} from '~/modules/accounting/graphql/schemas/adjustClosingEntry';
+  mutations as adjustClosingMutations,
+  queries as adjustClosingQueries,
+  types as adjustClosingTypes,
+} from '~/modules/accounting/graphql/schemas/adjustClosing';
 
 export const types = `
   enum CacheControlScope {
@@ -68,7 +68,7 @@ export const types = `
   ${accInventoryTypes}
   ${adjustInventoryTypes}
   ${journalReportTypes}
-  ${adjustClosingEntryTypes}
+  ${adjustClosingTypes}
 `;
 
 export const queries = `
@@ -80,7 +80,7 @@ export const queries = `
   ${accInventoryQueries}
   ${adjustInventoryQueries}
   ${journalReportQueries}
-  ${adjustClosingEntryQueries}
+  ${adjustClosingQueries}
 `;
 
 export const mutations = `
@@ -91,7 +91,7 @@ export const mutations = `
   ${transactionMutations}
   ${accInventoryMutations}
   ${adjustInventoryMutations}
-  ${adjustClosingEntryMutations}
+  ${adjustClosingMutations}
 `;
 
 export default { types, queries, mutations };

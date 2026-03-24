@@ -16,10 +16,19 @@ export interface IAdjustClosing {
   taxPayableaccountId?: string;
 }
 
+export interface IClosingDetailEntry {
+  _id?: string;
+  accountId?: string;
+  balance?: number;
+  percent?: number;
+  mainAccTrId?: string;
+  integrateTrId?: string;
+}
+
 export interface IAdjustClosingDetail extends IAdjustClosing {
   _id: string;
 
-  entries: any[];
+  entries: IClosingDetailEntry[];
 
   accountId: string;
   balance?: number;

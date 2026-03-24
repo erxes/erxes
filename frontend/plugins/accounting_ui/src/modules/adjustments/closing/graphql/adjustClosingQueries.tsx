@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client';
 
 export const ADJUST_CLOSING_QUERY = gql`
-  query AdjustClosing(
+  query AdjustClosings(
     $page: Int
     $perPage: Int
     $sortField: String
     $sortDirection: Int
   ) {
-    adjustClosingEntries(
+    adjustClosings(
       page: $page
       perPage: $perPage
       sortField: $sortField
@@ -25,11 +25,7 @@ export const ADJUST_CLOSING_QUERY = gql`
       createdAt
       updatedAt
     }
-    adjustClosingEntriesCount(
-      page: $page
-      perPage: $perPage
-      sortField: $sortField
-      sortDirection: $sortDirection
-    )
+
+    adjustClosingsCount
   }
 `;

@@ -8,15 +8,13 @@ import { adjustClosingSchema } from '../definitions/adjustClosingEntry';
 
 export interface IAdjustClosingEntryModel
   extends Model<IAdjustClosingDocument> {
-  getAdjustClosingEntry(selector: any): Promise<IAdjustClosingDocument>;
-  getAdjustClosingEntries(params: {
+  getAdjustClosing(selector: any): Promise<IAdjustClosingDocument>;
+  getAdjustClosings(params: {
     beginDate: Date;
     date: Date;
   }): Promise<IAdjustClosingDocument[]>;
-  createAdjustClosingEntry(
-    doc: IAdjustClosing,
-  ): Promise<IAdjustClosingDocument>;
-  updateAdjustClosingEntry(
+  createAdjustClosing(doc: IAdjustClosing): Promise<IAdjustClosingDocument>;
+  updateAdjustClosing(
     _id: string,
     doc: IAdjustClosing,
   ): Promise<IAdjustClosingDocument>;
@@ -24,18 +22,15 @@ export interface IAdjustClosingEntryModel
   publishAdjustClosing(_id: string): Promise<IAdjustClosingDocument>;
 }
 
-export const loadAdjustClosingEntryClass = (
-  models: IModels,
-  subdomain: string,
-) => {
-  class AdjustClosingEntry {
+export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
+  class AdjustClosing {
     /**
      *
      * Get Adjust Closing
      */
 
-    public static async getAdjustClosingEntry(selector: any) {
-      const adjustClosing = await models.AdjustClosingEntries.findOne(
+    public static async getAdjustClosing(selector: any) {
+      const adjustClosing = await models.AdjustClosings.findOne(
         selector,
       ).lean();
 
@@ -49,8 +44,8 @@ export const loadAdjustClosingEntryClass = (
     /**
      * Create Adjust Closing
      */
-    public static async createAdjustClosingEntry(doc: IAdjustClosing) {
-      const lastEntry = await models.AdjustClosingEntries.findOne({})
+    public static async createAdjustClosing(doc: IAdjustClosing) {
+      const lastEntry = await models.AdjustClosings.findOne({})
         .sort({ createdAt: -1 })
         .lean();
 
@@ -58,7 +53,7 @@ export const loadAdjustClosingEntryClass = (
         throw new Error('Previous Adjust Closing is not published yet');
       }
 
-      return models.AdjustClosingEntries.create({
+      return models.AdjustClosings.create({
         ...doc,
         status: 'draft',
         createdAt: new Date(),
@@ -68,11 +63,8 @@ export const loadAdjustClosingEntryClass = (
     /**
      * Update Adjust Closing
      */
-    public static async updateAdjustClosingEntry(
-      _id: string,
-      doc: IAdjustClosing,
-    ) {
-      const lastEntry = await models.AdjustClosingEntries.findOne({})
+    public static async updateAdjustClosing(_id: string, doc: IAdjustClosing) {
+      const lastEntry = await models.AdjustClosings.findOne({})
         .sort({ createdAt: -1 })
         .lean();
 
@@ -88,7 +80,7 @@ export const loadAdjustClosingEntryClass = (
         throw new Error('Published Adjust Closing cannot be edited');
       }
 
-      const result = await models.AdjustClosingEntries.findByIdAndUpdate(
+      const result = await models.AdjustClosings.findByIdAndUpdate(
         _id,
         { $set: doc },
         { new: true },
@@ -101,7 +93,7 @@ export const loadAdjustClosingEntryClass = (
      * Remove Adjust Closings
      */
     public static async removeAdjustClosing(_id: string) {
-      const lastEntry = await models.AdjustClosingEntries.findOne({})
+      const lastEntry = await models.AdjustClosings.findOne({})
         .sort({ createdAt: -1 })
         .lean();
 
@@ -113,7 +105,7 @@ export const loadAdjustClosingEntryClass = (
         throw new Error('Only the latest Adjust Closing can be removed');
       }
 
-      await models.AdjustClosingEntries.deleteOne({ _id });
+      await models.AdjustClosings.deleteOne({ _id });
 
       return 'success delete';
     }
@@ -122,13 +114,13 @@ export const loadAdjustClosingEntryClass = (
      */
 
     public static async publishAdjustClosing(_id: string) {
-      const lastPublished = await models.AdjustClosingEntries.findOne({
+      const lastPublished = await models.AdjustClosings.findOne({
         status: 'complete',
       })
         .sort({ createdAt: -1 })
         .lean();
 
-      const current = await models.AdjustClosingEntries.findById(_id).lean();
+      const current = await models.AdjustClosings.findById(_id).lean();
 
       if (!current || !current.createdAt) {
         throw new Error('Adjust Closing not found or missing createdAt');
@@ -138,7 +130,7 @@ export const loadAdjustClosingEntryClass = (
         throw new Error('Adjust Closing must be published in order');
       }
 
-      await models.AdjustClosingEntries.updateOne(
+      await models.AdjustClosings.updateOne(
         { _id },
         { $set: { status: 'complete', publishedAt: new Date() } },
       );
@@ -150,7 +142,7 @@ export const loadAdjustClosingEntryClass = (
      * Get Adjust Closings
      */
 
-    public static async getAdjustClosingEntries({
+    public static async getAdjustClosings({
       beginDate,
       date,
     }: {
@@ -193,7 +185,7 @@ export const loadAdjustClosingEntryClass = (
       }));
     }
   }
-  adjustClosingSchema.loadClass(AdjustClosingEntry);
+  adjustClosingSchema.loadClass(AdjustClosing);
 
   return adjustClosingSchema;
 };

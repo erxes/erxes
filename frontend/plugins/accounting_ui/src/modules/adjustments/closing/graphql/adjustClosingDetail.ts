@@ -9,36 +9,26 @@ export const ADJUST_CLOSING_DETAIL_QUERY = gql`
       beginDate
       date
       status
+      description
+      integrateAccountId
+      periodGLAccountId
+      earningAccountId
       closeIntegrateTrId
       periodGLTrId
       createdAt
       updatedAt
-
       entries {
         _id
         accountId
-        code
-        name
-        description
-        status
-        date
-        beginDate
-        integrateAccountId
-        periodGLAccountId
-        earningAccountId
-        taxPayableAccountId
         balance
         percent
         mainAccTrId
         integrateTrId
-        createdAt
-        updatedAt
-        createdBy
-        modifiedBy
       }
     }
   }
 `;
+
 export const ADJUST_CLOSING_DETAILS = gql`
   query AdjustClosingDetails($_id: String!) {
     adjustClosingDetail(_id: $_id) {

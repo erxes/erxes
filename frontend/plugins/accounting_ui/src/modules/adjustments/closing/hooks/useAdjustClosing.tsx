@@ -8,14 +8,14 @@ export const useAdjustClosing = (options?: OperationVariables) => {
     ...options,
     variables: { ...options?.variables, page: 1, perPage: ACC_TRS__PER_PAGE },
   });
-  const { adjustClosingEntries, pageInfo, adjustClosingCount } = data || {};
+  const { adjustClosings, pageInfo, adjustClosingsCount } = data || {};
 
   const handleFetchMore = ({
     direction,
   }: {
     direction: EnumCursorDirection;
   }) => {
-    if (adjustClosingEntries?.length < adjustClosingCount) {
+    if (adjustClosings?.length < adjustClosingsCount) {
       fetchMore({
         variables: {
           cursor:
@@ -31,9 +31,9 @@ export const useAdjustClosing = (options?: OperationVariables) => {
           return {
             ...prev,
             ...fetchMoreResult,
-            adjustClosingEntries: [
-              ...prev.adjustClosingEntries,
-              ...fetchMoreResult.adjustClosingEntries,
+            adjustClosing: [
+              ...prev.adjustClosing,
+              ...fetchMoreResult.adjustClosing,
             ],
           };
         },
@@ -42,8 +42,8 @@ export const useAdjustClosing = (options?: OperationVariables) => {
   };
 
   return {
-    adjustClosing: adjustClosingEntries,
-    totalCount: data?.adjustClosingCount,
+    adjustClosing: adjustClosings,
+    totalCount: data?.adjustClosingsCount,
     loading,
     error,
     handleFetchMore,
