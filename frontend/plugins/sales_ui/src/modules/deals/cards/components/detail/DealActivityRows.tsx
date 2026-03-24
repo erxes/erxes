@@ -191,7 +191,9 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">checked off checklist item</span>
+        <span className="text-muted-foreground">
+          checked off checklist item
+        </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
             {itemName}
