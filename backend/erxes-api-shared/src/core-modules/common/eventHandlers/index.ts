@@ -3,7 +3,7 @@ export {
   createScopedEventHandlers,
   generateEventHandlersFromRequest,
 } from './generateEventHandlers';
-export {
+export type {
   EventDispatcherReturn,
   ActivityLogInput,
   ScopedEventHandlers,
