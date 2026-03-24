@@ -80,8 +80,8 @@ export const PermissionGroupAssignmentSentence = ({
           activity.action?.description ||
           'updated permission group'}
       </span>
-      {displayLabels.map((label: string) => (
-        <Badge key={label} variant="secondary">
+      {displayLabels.map((label: string, index: number) => (
+        <Badge key={index} variant="secondary">
           {label}
         </Badge>
       ))}

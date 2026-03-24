@@ -1,5 +1,5 @@
 import { ActivityLogInput, Resolver } from 'erxes-api-shared/core-modules';
-import { ICustomerDocument } from 'erxes-api-shared/core-types';
+import { ICustomerDocument, ITag, IUser } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { CUSTOMER_PRONOUN_LABELS } from './constants';
 import {
@@ -62,7 +62,7 @@ export const customerActivityResolvers: Record<
       : [];
 
     const labelById = new Map(
-      users.map((user: any) => [
+      users.map((user: { _id: string } & IUser) => [
         String(user._id),
         user?.details?.fullName || user?.email || 'unknown',
       ]),
@@ -102,8 +102,8 @@ export const customerActivityResolvers: Record<
       customer: ctx.customer,
       added,
       removed,
-      addedLabels: addedTags.map((tag: any) => tag.name),
-      removedLabels: removedTags.map((tag: any) => tag.name),
+      addedLabels: addedTags.map((tag: ITag) => tag.name),
+      removedLabels: removedTags.map((tag: ITag) => tag.name),
     });
   },
 };

@@ -70,8 +70,8 @@ const DealAssignmentRow = ({ activity }: { activity: TActivityLog }) => {
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">{verb}</span>
       {labels.length
-        ? labels.map((label: string) => (
-            <Badge key={label} variant="secondary" className="font-medium">
+        ? labels.map((label: string, index: number) => (
+            <Badge key={index} variant="secondary" className="font-medium">
               {label}
             </Badge>
           ))
@@ -113,6 +113,6 @@ export const dealCustomActivities: ActivityLogCustomActivity[] = [
   })),
   {
     type: 'description_change',
-    render: (activity) => <DescriptionChangedActivityRow {...activity} />,
+    render: (activity) => <DescriptionChangedActivityRow activity={activity} />,
   },
 ];

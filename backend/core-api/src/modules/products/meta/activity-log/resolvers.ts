@@ -1,5 +1,5 @@
 import { ActivityLogInput, Resolver } from 'erxes-api-shared/core-modules';
-import { IProductDocument } from 'erxes-api-shared/core-types';
+import { IProductDocument, ITag } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import {
   buildProductDescriptionChangedActivity,
@@ -53,8 +53,8 @@ export const productActivityResolvers: Record<
       product: ctx.product,
       added,
       removed,
-      addedLabels: addedTags.map((tag: any) => tag.name),
-      removedLabels: removedTags.map((tag: any) => tag.name),
+      addedLabels: addedTags.map((tag: ITag) => tag.name),
+      removedLabels: removedTags.map((tag: ITag) => tag.name),
     });
   },
 };

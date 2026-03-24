@@ -18,8 +18,8 @@ const CompanyTagAssignmentRow = ({ activity }: { activity: TActivityLog }) => {
         {isAdded ? 'added tag' : 'removed tag'}
       </span>
       {labels.length ? (
-        labels.map((label: string) => (
-          <Badge key={label} variant="secondary" className="font-medium">
+        labels.map((label: string, index) => (
+          <Badge key={index} variant="secondary" className="font-medium">
             {label}
           </Badge>
         ))

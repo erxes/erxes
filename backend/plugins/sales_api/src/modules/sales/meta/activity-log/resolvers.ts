@@ -8,6 +8,7 @@ import {
   buildDealFieldChangedActivity,
   buildDealStageMovedActivity,
 } from './builders';
+import { ITag } from 'erxes-api-shared/core-types/modules/tags/tag';
 
 type DealActivityContext = {
   deal: any;
@@ -128,8 +129,8 @@ export const dealActivityResolvers: Record<
       actionRemoved: 'deal.tag_removed',
       added,
       removed,
-      addedLabels: addedTags.map((tag: any) => tag.name),
-      removedLabels: removedTags.map((tag: any) => tag.name),
+      addedLabels: addedTags.map((tag: ITag) => tag.name),
+      removedLabels: removedTags.map((tag: ITag) => tag.name),
       entityLabel: 'tag',
     });
   },

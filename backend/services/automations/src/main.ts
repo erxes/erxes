@@ -83,7 +83,7 @@ httpServer.listen(port, async () => {
     LOAD_BALANCER_ADDRESS ||
     `http://${isDev ? 'localhost' : serviceName}:${port}`;
 
-  await redis.set(`erxes-service-${serviceName}`, address);
+  await redis.set('erxes-service-automations', address);
   await redis.set(`service-logs`, address);
 
   console.log(`service-logs joined with ${address}`);

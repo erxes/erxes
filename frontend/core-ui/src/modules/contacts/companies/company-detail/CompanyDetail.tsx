@@ -74,15 +74,17 @@ export const CompanyDetail = () => {
                 <Tabs.Content value="activity">
                   <div className="flex flex-col mb-12">
                     {!!companyDetail?._id && (
-                      <AddInternalNote
-                        contentTypeId={companyDetail._id}
-                        contentType="core:company"
-                      />
+                      <>
+                        <AddInternalNote
+                          contentTypeId={companyDetail._id}
+                          contentType="core:company"
+                        />
+                        <ActivityLogs
+                          targetId={companyDetail._id}
+                          customActivities={companyCustomActivities}
+                        />
+                      </>
                     )}
-                    <ActivityLogs
-                      targetId={companyDetail?._id || ''}
-                      customActivities={companyCustomActivities}
-                    />
                   </div>
                 </Tabs.Content>
               </Tabs>

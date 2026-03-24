@@ -152,7 +152,7 @@ export async function startPlugin(
   }
 
   if (apiHandlers) {
-    for (const handler of apiHandlers || []) {
+    for (const handler of apiHandlers) {
       const { method, path, resolver } = handler;
 
       type LowercaseMethod = (typeof API_METHODS)[TAPIMethod];

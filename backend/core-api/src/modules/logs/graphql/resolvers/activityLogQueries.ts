@@ -58,6 +58,7 @@ export const activityLogQueries = {
         model: models.ActivityLogs,
         params: {
           ...args,
+          direction: variant,
           orderBy: { createdAt: variant === 'backward' ? 1 : -1 },
         },
         query: filter,

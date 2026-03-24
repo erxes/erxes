@@ -24,7 +24,7 @@ export const automationsTriggerTrpcRouter = t.router({
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const { subdomain } = ctx;
+        const { subdomain, processId } = ctx;
         const models = await generateModels(subdomain);
 
         const { type, targets, repeatOptions, recordType } = input;
@@ -45,7 +45,7 @@ export const automationsTriggerTrpcRouter = t.router({
 
         await receiveTrigger({ models, subdomain, type, targets, recordType });
 
-        return { id: (ctx as any).processId || null };
+        return { id: processId || null };
       }),
   }),
 });

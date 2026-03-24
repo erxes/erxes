@@ -50,27 +50,6 @@ const Sentence = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-const UserFieldChangedRow = ({ activity }: { activity: TActivityLog }) => {
-  const field = activity.metadata?.field as string | undefined;
-  const fieldLabel = activity.metadata?.fieldLabel as string | undefined;
-  const previousValue = getFieldValue(activity.changes?.prev, field);
-  const currentValue = getFieldValue(activity.changes?.current, field);
-
-  return (
-    <Sentence>
-      <ActivityLogs.ActorName activity={activity} />
-      <span className="text-muted-foreground">changed</span>
-      <span className="font-medium">
-        {(fieldLabel || 'field').toLowerCase()}
-      </span>
-      <span className="text-muted-foreground">from</span>
-      <span className="font-medium">{formatPrimitive(previousValue)}</span>
-      <span className="text-muted-foreground">to</span>
-      <span className="font-medium">{formatPrimitive(currentValue)}</span>
-    </Sentence>
-  );
-};
-
 const UserInvitedRow = ({ activity }: { activity: TActivityLog }) => {
   const targetText = activity.target?.text;
   const invitedEmail = activity.metadata?.invitedEmail as string | undefined;

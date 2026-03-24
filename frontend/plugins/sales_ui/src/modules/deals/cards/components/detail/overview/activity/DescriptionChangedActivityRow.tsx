@@ -1,7 +1,11 @@
 import { ActivityLogs, TActivityLog } from 'ui-modules';
 import { BlockEditorReadOnly, parseBlocks } from 'erxes-ui';
 
-export const DescriptionChangedActivityRow = (activity: TActivityLog) => {
+export const DescriptionChangedActivityRow = ({
+  activity,
+}: {
+  activity: TActivityLog;
+}) => {
   const { action, changes } = activity;
   const content = changes?.current as string | undefined;
 

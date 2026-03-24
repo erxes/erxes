@@ -54,14 +54,14 @@ export const sendAutomationTrigger = async (
       ],
     });
 
-    const result = await client.mutation('automations.trigger', {
+    const result = (await client.mutation('automations.trigger', {
       type,
       targets,
       repeatOptions,
       recordType,
-    });
+    })) as { id: string } | null;
 
-    return (result as any)?.id || null;
+    return result?.id || null;
   }
 
   const queue = sendWorkerQueue('automations', 'trigger');

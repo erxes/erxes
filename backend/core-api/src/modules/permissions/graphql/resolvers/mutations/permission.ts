@@ -106,6 +106,12 @@ export const permissionMutations = {
     );
 
     // Add new permission
+
+    await models.Users.updateOne(
+      { _id: userId },
+      { $push: { customPermissions: permission } },
+    );
+
     const updatedUser = await models.Users.findOne({ _id: userId });
     if (updatedUser) {
       sendDbEventLog({

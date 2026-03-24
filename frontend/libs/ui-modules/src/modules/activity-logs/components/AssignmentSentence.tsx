@@ -50,9 +50,9 @@ export const AssignmentSentence = ({
           activity.action?.description ||
           'updated'}
       </span>
-      {labels.map((label: string) => (
+      {labels.map((label: string, index: number) => (
         <Badge
-          key={label}
+          key={index}
           variant="secondary"
           className="h-7 rounded-lg border border-border/60 bg-background/80 px-2.5 font-normal text-foreground shadow-none"
         >

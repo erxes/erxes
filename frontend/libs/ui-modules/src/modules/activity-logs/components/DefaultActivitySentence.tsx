@@ -43,7 +43,7 @@ export function DefaultActivitySentence({
 
     return (
       <>
-        <ActivityLogActorName activity={activity} />;
+        <ActivityLogActorName activity={activity} />
         <span className="text-muted-foreground">
           {verb} custom permission for
         </span>
@@ -54,7 +54,7 @@ export function DefaultActivitySentence({
 
   return (
     <>
-      <ActivityLogActorName activity={activity} />;
+      <ActivityLogActorName activity={activity} />
       <span className="text-muted-foreground">
         {action?.description || action?.action || 'did something'}
       </span>

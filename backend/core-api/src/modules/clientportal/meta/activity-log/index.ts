@@ -1,28 +1,27 @@
+import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import {
   ActivityLogInput,
   ActivityRule,
   buildActivities,
   fieldChangeRule,
 } from 'erxes-api-shared/core-modules';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { ICPUserDocument } from '@/clientportal/types/cpUser';
-import {
-  CP_USER_ACTIVITY_FIELDS,
-  CP_USER_ACTIVITY_TARGET_TYPE,
-} from './constants';
 import {
   generateCPUserCreatedActivityLog,
   generateCPUserLoginActivityLog,
   generateCPUserLogoutActivityLog,
   generateCPUserRemovedActivityLog,
 } from './builders';
+import {
+  CP_USER_ACTIVITY_FIELDS,
+  CP_USER_ACTIVITY_TARGET_TYPE,
+} from './constants';
 import type { CPUserLoginActivityPayload } from './types';
 import { getCPUserFieldLabel, sanitizeCPUserForActor } from './utils';
 
 export async function generateCPUserUpdateActivityLogs(
-  prevDocument: ICPUserDocument | Record<string, any>,
-  currentDocument: ICPUserDocument | Record<string, any>,
+  prevDocument: ICPUserDocument,
+  currentDocument: ICPUserDocument,
   models: IModels,
   createActivityLog: (
     activities: ActivityLogInput | ActivityLogInput[],

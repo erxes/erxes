@@ -1,5 +1,5 @@
 import { ActivityLogInput, Resolver } from 'erxes-api-shared/core-modules';
-import { ICompanyDocument } from 'erxes-api-shared/core-types';
+import { ICompanyDocument, ITag } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import {
   buildCompanyFieldChangedActivity,
@@ -44,8 +44,8 @@ export const companyActivityResolvers: Record<
       company: ctx.company,
       added,
       removed,
-      addedLabels: addedTags.map((tag: any) => tag.name),
-      removedLabels: removedTags.map((tag: any) => tag.name),
+      addedLabels: addedTags.map((tag: ITag) => tag.name),
+      removedLabels: removedTags.map((tag: ITag) => tag.name),
     });
   },
 };

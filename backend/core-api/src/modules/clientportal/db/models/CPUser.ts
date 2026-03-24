@@ -175,15 +175,13 @@ export const loadCPUserClass = (
         params,
         models,
       );
-      try {
+      if (prevUser) {
         await generateCPUserUpdateActivityLogs(
-          prevUser || updatedUser,
+          prevUser,
           updatedUser,
           models,
           createActivityLog,
         );
-      } catch {
-        // Activity log failure should not fail the mutation
       }
       return updatedUser;
     }
