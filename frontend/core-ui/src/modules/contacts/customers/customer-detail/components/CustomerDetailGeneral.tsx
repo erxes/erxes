@@ -31,7 +31,11 @@ export const CustomerDetailGeneral = () => {
         <div className="flex flex-col items-start">
           <Can
             action="contactsUpdate"
-            fallback={<div className="px-3 py-2 text-base font-semibold">{fullName}</div>}
+            fallback={
+              <div className="px-3 py-2 text-base font-semibold">
+                {fullName}
+              </div>
+            }
           >
             <CustomerName
               _id={_id}
@@ -39,7 +43,9 @@ export const CustomerDetailGeneral = () => {
               lastName={`${middleName || ''}${middleName ? ' ' : ''}${
                 lastName || ''
               }`}
-              scope={ContactsHotKeyScope.CustomerEditSheet + '.' + _id + '.Name'}
+              scope={
+                ContactsHotKeyScope.CustomerEditSheet + '.' + _id + '.Name'
+              }
             >
               <Popover.Trigger asChild>
                 <Button variant="ghost" className="text-base font-semibold">
