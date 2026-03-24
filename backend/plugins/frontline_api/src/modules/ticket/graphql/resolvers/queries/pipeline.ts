@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import {
   TicketsPipelineFilter,
@@ -62,6 +61,3 @@ export const pipelineQueries = {
     });
   },
 };
-
-requireLogin(pipelineQueries, 'getTicketPipeline');
-requireLogin(pipelineQueries, 'getTicketPipelines');

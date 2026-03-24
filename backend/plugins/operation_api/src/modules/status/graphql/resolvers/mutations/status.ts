@@ -1,20 +1,13 @@
 import { IStatus, IStatusEditInput } from '@/status/@types/status';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const statusMutations = {
   addStatus: async (
     _parent: undefined,
     params: IStatus,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    // ** Deprecated
-    // await checkUserRole({
-    //   models,
-    //   teamId: params.teamId,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    // });
+    await checkPermission('statusCreate');
 
     return models.Status.addStatus(params);
   },
@@ -22,15 +15,9 @@ export const statusMutations = {
   updateStatus: async (
     _parent: undefined,
     { _id, ...params }: IStatusEditInput,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    // ** Deprecated
-    // await checkUserRole({
-    //   models,
-    //   teamId: status.teamId,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    // });
+    await checkPermission('statusUpdate');
 
     return models.Status.updateStatus(_id, params);
   },
@@ -38,20 +25,10 @@ export const statusMutations = {
   deleteStatus: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    // ** Deprecated
-    // await checkUserRole({
-    //   models,
-    //   teamId: status.teamId,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    // });
+    await checkPermission('statusRemove');
 
     return models.Status.removeStatus(_id);
   },
 };
-
-requireLogin(statusMutations, 'addStatus');
-requireLogin(statusMutations, 'updateStatus');
-requireLogin(statusMutations, 'deleteStatus');

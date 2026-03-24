@@ -1,4 +1,3 @@
-import { requireLogin, checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { getSafeRemainders } from '../utils/safeRemainders';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -83,11 +82,5 @@ const remainderQueries = {
     return result;
   },
 };
-
-requireLogin(remainderQueries, 'remainders');
-requireLogin(remainderQueries, 'remainderCount');
-requireLogin(remainderQueries, 'remainderProducts');
-checkPermission(remainderQueries, 'remainderDetail', 'manageRemainders', []);
-checkPermission(remainderQueries, 'remaindersLog', 'manageRemainders', []);
 
 export default remainderQueries;

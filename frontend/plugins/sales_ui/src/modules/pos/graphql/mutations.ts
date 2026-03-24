@@ -10,6 +10,7 @@ const commonFields = `
   $pdomain: String
   $erxesAppToken: String
   $serviceCharge: Float
+  $serviceChargeApplicableProductId: String
   $productDetails: [String]
   $adminIds: [String]
   $cashierIds: [String]
@@ -51,6 +52,7 @@ const commonVariables = `
   pdomain: $pdomain,
   erxesAppToken: $erxesAppToken,
   serviceCharge: $serviceCharge,
+  serviceChargeApplicableProductId: $serviceChargeApplicableProductId,
   productDetails: $productDetails,
   adminIds: $adminIds,
   cashierIds: $cashierIds,

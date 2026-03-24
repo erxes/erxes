@@ -9,6 +9,7 @@ import {
 import { generateRequestProcess, getSubdomain } from '../utils';
 import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
 import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
+import { checkPermissionGroup } from '../../core-modules/permissions/utils';
 
 export const generateApolloContext =
   <TContext>(
@@ -60,6 +61,7 @@ export const generateApolloContext =
         processId: processInfo.processId || '',
         userId: user?._id || '',
       }),
+      checkPermission: checkPermissionGroup(subdomain, user),
     };
 
     if (apolloServerContext) {

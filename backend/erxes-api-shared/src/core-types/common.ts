@@ -106,6 +106,7 @@ export interface IMainContext {
   __: <T extends object>(doc: T) => T & { processId: string };
   processId: string;
   eventHandlers: ScopedEventHandlers;
+  checkPermission: (action: string, ownerId?: string) => Promise<void>;
 }
 
 export interface IOrderInput {

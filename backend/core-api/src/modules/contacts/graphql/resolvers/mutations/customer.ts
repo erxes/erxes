@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import {
   ICustomer,
   ICustomerDocument,
@@ -12,7 +11,13 @@ export const customerMutations: Record<string, Resolver> = {
   /**
    * Create new customer also adds Customer registration log
    */
-  async customersAdd(_parent: undefined, doc: ICustomer, { models }: IContext) {
+  async customersAdd(
+    _parent: undefined,
+    doc: ICustomer,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('contactsCreate');
+
     const customer = await models.Customers.createCustomer(doc);
 
     return customer;
@@ -31,9 +36,13 @@ export const customerMutations: Record<string, Resolver> = {
   async customersEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & ICustomer,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    return await models.Customers.updateCustomer(_id, doc);
+    await checkPermission('contactsUpdate');
+
+    const updated = await models.Customers.updateCustomer(_id, doc);
+
+    return updated;
   },
 
   /**
@@ -42,8 +51,10 @@ export const customerMutations: Record<string, Resolver> = {
   async customersRemove(
     _parent: undefined,
     { customerIds }: { customerIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsDelete');
+
     const customers: ICustomerDocument[] = await models.Customers.find({
       _id: { $in: customerIds },
     });
@@ -76,8 +87,10 @@ export const customerMutations: Record<string, Resolver> = {
   async customersChangeState(
     _parent: undefined,
     args: { _id: string; value: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsUpdate');
+
     return models.Customers.changeState(args._id, args.value);
   },
 
@@ -90,16 +103,20 @@ export const customerMutations: Record<string, Resolver> = {
       customerIds,
       customerFields,
     }: { customerIds: string[]; customerFields: ICustomer },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsMerge');
+
     return models.Customers.mergeCustomers(customerIds, customerFields, user);
   },
 
   async customersVerify(
     _parent: undefined,
     { verificationType }: { verificationType: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsUpdate');
+
     const EMAIL_VERIFIER_ENDPOINT = getEnv({
       name: 'EMAIL_VERIFIER_ENDPOINT',
       defaultValue: 'http://localhost:4100',
@@ -195,8 +212,10 @@ export const customerMutations: Record<string, Resolver> = {
   async customersChangeVerificationStatus(
     _parent: undefined,
     args: { customerIds: string[]; type: string; status: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsUpdate');
+
     return models.Customers.updateVerificationStatus(
       args.customerIds,
       args.type,
@@ -213,8 +232,10 @@ export const customerMutations: Record<string, Resolver> = {
       _ids: string[];
       value: string;
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('contactsUpdate');
+
     if (!_ids || _ids.length < 1) {
       throw new Error('Customer ids can not be empty');
     }
@@ -232,14 +253,3 @@ export const customerMutations: Record<string, Resolver> = {
 customerMutations.cpCustomersAdd.wrapperConfig = {
   forClientPortal: true,
 };
-
-checkPermission(customerMutations, 'customersAdd', 'customersAdd');
-checkPermission(customerMutations, 'customersEdit', 'customersEdit');
-checkPermission(customerMutations, 'customersEditByField', 'customersEdit');
-checkPermission(customerMutations, 'customersMerge', 'customersMerge');
-checkPermission(customerMutations, 'customersRemove', 'customersRemove');
-checkPermission(
-  customerMutations,
-  'customersChangeState',
-  'customersChangeState',
-);

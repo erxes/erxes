@@ -2,12 +2,8 @@ import { Label, Button, Form } from 'erxes-ui';
 import { useState, useEffect, useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { PosFormData } from '@/pos/components/pos-create/PosCreate';
-import {
-  SelectBranches,
-  SelectMember,
-  SelectCategory,
-  SelectProduct,
-} from 'ui-modules';
+import { SelectBranches, SelectMember, SelectProduct } from 'ui-modules';
+import { SelectCategory } from '@/pos/hooks/SelectCategory';
 import { SelectPayment } from '@/pos/components/payment/SelectPayment';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
@@ -26,17 +22,22 @@ export const PosFields = ({ form, productGroupsRef }: PosFieldsProps) => {
 
   const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
 
-  const handleCategorySelect = useCallback((categoryId: string) => {
-    setCategoryIds([categoryId]);
+  const handleCategorySelect = useCallback((value: string | string[]) => {
+    setCategoryIds(Array.isArray(value) ? value : value ? [value] : []);
   }, []);
 
-  const handleExcludeCategorySelect = useCallback((categoryId: string) => {
-    setExcludedCategoryIds([categoryId]);
-  }, []);
+  const handleExcludeCategorySelect = useCallback(
+    (value: string | string[]) => {
+      setExcludedCategoryIds(
+        Array.isArray(value) ? value : value ? [value] : [],
+      );
+    },
+    [],
+  );
 
   const handleExcludeProductsChange = useCallback(
     (value: string | string[]) => {
-      setExcludedProductIds(value as string[]);
+      setExcludedProductIds(Array.isArray(value) ? value : [value]);
     },
     [],
   );
@@ -132,28 +133,29 @@ export const PosFields = ({ form, productGroupsRef }: PosFieldsProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label className="text-sm font-medium">Initial product category</Label>
+        <Label className="text-sm font-medium">
+          Initial product categories
+        </Label>
         <SelectCategory
-          selected={(form.watch('initialCategoryIds') || [])[0] || ''}
-          onSelect={
-            ((categoryId: string) =>
-              form.setValue('initialCategoryIds', [categoryId], {
-                shouldValidate: true,
-              })) as unknown as React.ReactEventHandler<HTMLButtonElement> &
-              ((categoryId: string) => void)
+          mode="multiple"
+          value={form.watch('initialCategoryIds') || []}
+          onValueChange={(value) =>
+            form.setValue('initialCategoryIds', value as string[], {
+              shouldValidate: true,
+            })
           }
+          placeholder="Select initial product categories"
         />
       </div>
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-sm font-medium">PRODUCT CATEGORY</Label>
+          <Label className="text-sm font-medium">PRODUCT CATEGORIES</Label>
           <SelectCategory
-            selected={categoryIds[0] ?? ''}
-            onSelect={
-              handleCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                ((categoryId: string) => void)
-            }
+            mode="multiple"
+            value={categoryIds}
+            onValueChange={handleCategorySelect}
+            placeholder="Select product categories"
           />
         </div>
 
@@ -176,14 +178,13 @@ export const PosFields = ({ form, productGroupsRef }: PosFieldsProps) => {
           <>
             <div className="space-y-2">
               <Label className="text-sm font-medium">
-                EXCLUDE PRODUCT CATEGORY
+                EXCLUDE PRODUCT CATEGORIES
               </Label>
               <SelectCategory
-                selected={excludedCategoryIds[0] ?? ''}
-                onSelect={
-                  handleExcludeCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                    ((categoryId: string) => void)
-                }
+                mode="multiple"
+                value={excludedCategoryIds}
+                onValueChange={handleExcludeCategorySelect}
+                placeholder="Select product categories to exclude"
               />
             </div>
 

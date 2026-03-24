@@ -1,8 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { updateLiveRemainders } from './utils';
-import { checkPermission } from 'erxes-api-shared/core-modules';
 
-export interface IUpdateRemaindersParams {
+interface IUpdateRemaindersParams {
   departmentId: string;
   branchId: string;
   productCategoryId?: string;
@@ -10,7 +9,7 @@ export interface IUpdateRemaindersParams {
 }
 
 const remainderMutations = {
-  remaindersUpdate: async (
+  reCalcRemainders: async (
     _root: any,
     params: IUpdateRemaindersParams,
     { subdomain, models }: IContext,
@@ -18,7 +17,5 @@ const remainderMutations = {
     return await updateLiveRemainders({ subdomain, models, ...params });
   },
 };
-
-checkPermission(remainderMutations, 'remaindersUpdate', 'manageRemainders');
 
 export default remainderMutations;

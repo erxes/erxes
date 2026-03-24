@@ -8,6 +8,7 @@ import { Document } from 'mongoose';
 export interface ITicket {
   name: string;
   channelId: string;
+  stageId: string;
   pipelineId: string;
   statusId?: string;
   description?: string;

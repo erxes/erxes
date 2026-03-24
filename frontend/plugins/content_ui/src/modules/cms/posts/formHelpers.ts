@@ -1,5 +1,13 @@
 import { Block } from '@blocknote/core';
 
+const escapeHtml = (str: string): string =>
+  str
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
 export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
   if (!htmlContent || htmlContent.trim() === '') {
     return [
@@ -92,7 +100,7 @@ export const formatInitialContent = (content?: string): string | undefined => {
     const blocks = convertHTMLToBlocks(content);
     return JSON.stringify(blocks);
   }
-  const blocks = convertHTMLToBlocks(`<p>${content}</p>`);
+  const blocks = convertHTMLToBlocks(`<p>${escapeHtml(content)}</p>`);
   return JSON.stringify(blocks);
 };
 
@@ -127,5 +135,5 @@ export const makeAttachmentArrayFromUrls = (urls?: (string | null)[]) => {
   return (urls || [])
     .filter(Boolean)
     .map((u) => makeAttachmentFromUrl(u as string))
-    .filter(Boolean);
+    .filter(Boolean) as { url: string; name: string }[];
 };
