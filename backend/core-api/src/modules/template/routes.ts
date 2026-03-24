@@ -7,6 +7,7 @@ const router: Router = Router();
 
 const ALGORITHM = 'aes-256-gcm';
 
+/** Reads and validates the TEMPLATE_EXPORT_KEY environment variable. */
 const getEncryptionKey = (): string => {
   const key = process.env.TEMPLATE_EXPORT_KEY;
   if (!key) {
@@ -17,15 +18,17 @@ const getEncryptionKey = (): string => {
   return key;
 };
 
+/** Derives a 32-byte AES-256 key from a passphrase using SHA-256. */
 const deriveKey = (key: string): Buffer => {
   return crypto.createHash('sha256').update(key).digest();
 };
 
+/** Extracts authenticated user from request headers. Returns null and sends 401 on failure. */
 const authenticateRequest = (
   req: Request,
   res: Response,
 ): { _id: string } | null => {
-  let user: any;
+  let user: unknown;
   try {
     user = extractUserFromHeader(req.headers);
   } catch {
@@ -33,15 +36,18 @@ const authenticateRequest = (
     return null;
   }
 
-  if (!user || !user._id) {
+  const typed = user as { _id?: string } | null;
+
+  if (!typed || !typed._id) {
     res.status(401).json({ error: 'Not authenticated' });
     return null;
   }
 
-  return user;
+  return typed as { _id: string };
 };
 
-const encryptData = (data: any, key: string): string => {
+/** Encrypts template data with AES-256-GCM and returns a versioned JSON envelope. */
+const encryptData = (data: Record<string, unknown>, key: string): string => {
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv(ALGORITHM, deriveKey(key), iv);
 
@@ -58,7 +64,8 @@ const encryptData = (data: any, key: string): string => {
   });
 };
 
-const decryptData = (encryptedData: string, key: string): any => {
+/** Decrypts a versioned JSON envelope. Rejects payloads from older format versions. */
+const decryptData = (encryptedData: string, key: string): Record<string, unknown> => {
   const parsed = JSON.parse(encryptedData);
 
   if (!parsed.version || parsed.version < 2) {
@@ -86,7 +93,7 @@ router.get(
   '/export/template/:templateId',
   async (req: Request, res: Response) => {
     const user = authenticateRequest(req, res);
-    if (!user) return;
+    if (!user) return null;
 
     try {
       const { templateId } = req.params;
@@ -111,7 +118,7 @@ router.get(
 
       const sanitizedName =
         template.name
-          .replace(/[^a-zA-Z0-9\s-_]/g, '')
+          .replace(/[^a-zA-Z0-9\s_-]/g, '')
           .replace(/\s+/g, '_')
           .substring(0, 50) || 'template';
 
@@ -128,7 +135,7 @@ router.get(
       const encryptedData = encryptData(template, encryptionKey);
 
       return res.send(encryptedData);
-    } catch (error) {
+    } catch (_err) {
       return res.status(500).json({ error: 'Failed to export template' });
     }
   },
@@ -136,7 +143,7 @@ router.get(
 
 router.post('/import/template', async (req: Request, res: Response) => {
   const user = authenticateRequest(req, res);
-  if (!user) return;
+  if (!user) return null;
 
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
@@ -165,17 +172,17 @@ router.post('/import/template', async (req: Request, res: Response) => {
 
     await models.Template.create(document);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Template imported successfully',
     });
-  } catch (error) {
-    const message =
-      error instanceof Error && error.message.includes('older format')
-        ? error.message
-        : 'Failed to import template';
+  } catch (err) {
+    const isClientError =
+      err instanceof Error && err.message.includes('older format');
 
-    res.status(400).json({ error: message });
+    return res
+      .status(isClientError ? 400 : 500)
+      .json({ error: isClientError ? err.message : 'Failed to import template' });
   }
 });
 
