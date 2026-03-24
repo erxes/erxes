@@ -7,11 +7,14 @@ import {
   keyForConfig,
   redis,
 } from 'erxes-api-shared/utils';
+import { createTRPCContext } from 'erxes-api-shared/utils';
+import * as trpcExpress from '@trpc/server/adapters/express';
 import express from 'express';
 import * as http from 'http';
 import { initMQWorkers } from './bullmq/initMQWorkers';
 import { debugError, debugInfo } from '@/debugger';
 import { webhookRoutes } from '@/executions/actions/webhook/incoming/webhookRoutes';
+import { appRouter } from '@/trpc';
 
 const {
   DOMAIN,
@@ -57,6 +60,14 @@ app.get('/health', createHealthRoute(serviceName));
 
 app.use(webhookRoutes);
 
+app.use(
+  '/trpc',
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+    createContext: createTRPCContext(async (_subdomain, context) => context),
+  }),
+);
+
 const httpServer = http.createServer(app);
 
 httpServer.listen(port, async () => {
@@ -72,6 +83,7 @@ httpServer.listen(port, async () => {
     LOAD_BALANCER_ADDRESS ||
     `http://${isDev ? 'localhost' : serviceName}:${port}`;
 
+  await redis.set('erxes-service-automations', address);
   await redis.set(`service-logs`, address);
 
   console.log(`service-logs joined with ${address}`);

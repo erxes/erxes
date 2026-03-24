@@ -7,6 +7,8 @@ import {
   extractUserFromHeader,
 } from '../headers';
 import { generateRequestProcess, getSubdomain } from '../utils';
+import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
+import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
 import { checkPermissionGroup } from '../../core-modules/permissions/utils';
 
 export const generateApolloContext =
@@ -35,6 +37,11 @@ export const generateApolloContext =
     const processInfo = generateRequestProcess();
 
     const __ = (doc: any) => ({ ...processInfo, ...doc });
+    setEventHandlerRuntimeContext(subdomain, {
+      subdomain,
+      processId: processInfo.processId || '',
+      userId: user?._id || '',
+    });
 
     const context = {
       user,
@@ -49,6 +56,11 @@ export const generateApolloContext =
         secure: req.secure,
         cookies: req.cookies,
       },
+      eventHandlers: createScopedEventHandlers(subdomain, {
+        subdomain,
+        processId: processInfo.processId || '',
+        userId: user?._id || '',
+      }),
       checkPermission: checkPermissionGroup(subdomain, user),
     };
 

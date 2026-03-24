@@ -1,4 +1,4 @@
-import React, { Children, isValidElement } from 'react';
+import React from 'react';
 import { QueryHookOptions } from '@apollo/client';
 import {
   useActivityLogs,
@@ -8,36 +8,15 @@ import { ActivityLogProvider } from '../context/ActivityLogProvider';
 import { ActivityLogLoading } from './ActivityLogLoading';
 import { ActivityLogList } from './ActivityLogList';
 import { ActivityLogCustomActivity } from '../types';
-import { ActivityLogActorName, ActivityLogRow } from './ActivityLogRow';
-
-function hasActivityLogHeader(children: React.ReactNode): boolean {
-  let found = false;
-
-  Children.forEach(children, (child) => {
-    if (found) return;
-
-    if (isValidElement(child)) {
-      if (
-        child.type === ActivityLogsHeader ||
-        (child.type as any)?.displayName === 'ActivityLogsHeader'
-      ) {
-        found = true;
-        return;
-      }
-
-      if (child.props?.children) {
-        found = hasActivityLogHeader(child.props.children);
-      }
-    }
-  });
-
-  return found;
-}
+import { ActivityLogRow } from './ActivityLogRow';
+import { ActivityLogActorName } from './ActivityLogActor';
+import { internalNoteCustomActivity } from '../../internal-notes/components/InternalNoteActivityRow';
 
 type ActivityLogFormRootProps = {
   targetId: string;
   action?: string;
   limit?: number;
+  variant?: 'forward' | 'backward';
   customActivities?: ActivityLogCustomActivity[];
   options?: QueryHookOptions<ActivityLogsQueryData>;
   children: React.ReactNode;
@@ -47,6 +26,7 @@ const ActivityLogsRoot = ({
   targetId,
   action,
   limit,
+  variant = 'forward',
   customActivities,
   options,
   children,
@@ -57,12 +37,14 @@ const ActivityLogsRoot = ({
     error,
     handleFetchMore,
     hasNextPage,
+    hasPreviousPage,
     totalCount,
   } = useActivityLogs(
     {
       targetId,
       action,
       limit,
+      variant,
     },
     options,
   );
@@ -76,11 +58,14 @@ const ActivityLogsRoot = ({
       targetId={targetId}
       activityLogs={activityLogs}
       loading={loading}
+      variant={variant}
       error={error}
       customActivities={customActivities}
       handleFetchMore={handleFetchMore}
       hasNextPage={hasNextPage}
+      hasPreviousPage={hasPreviousPage}
       totalCount={totalCount}
+      limit={limit}
     >
       {children}
     </ActivityLogProvider>
@@ -114,7 +99,9 @@ type LegacyProps = {
   targetId: string;
   action?: string;
   limit?: number;
+  variant?: 'forward' | 'backward';
   customActivities?: ActivityLogCustomActivity[];
+  showInternalNotes?: boolean;
   emptyMessage?: string;
   options?: QueryHookOptions<ActivityLogsQueryData>;
 };
@@ -124,16 +111,23 @@ const ActivityLogsLegacy = ({
   targetId,
   action,
   limit,
+  variant = 'forward',
   customActivities,
+  showInternalNotes = true,
   emptyMessage,
   options,
 }: LegacyProps) => {
+  const mergedActivities = showInternalNotes
+    ? [internalNoteCustomActivity, ...(customActivities || [])]
+    : customActivities;
+
   return (
     <ActivityLogsRoot
       targetId={targetId}
       action={action}
       limit={limit}
-      customActivities={customActivities}
+      variant={variant}
+      customActivities={mergedActivities}
       options={options}
     >
       <ActivityLogsWrapper>
