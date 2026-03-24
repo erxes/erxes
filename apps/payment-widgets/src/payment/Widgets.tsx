@@ -6,16 +6,30 @@ import QrPayment from './components/payments/QrPayment';
 import StorePay from './components/payments/StorePay';
 import Minupay from './components/payments/Minupay';
 
+// 🔒 Read URL ONCE
+const getInitialParams = () => {
+  const url = new URL(window.location.href);
+
+  console.log('🚨 INITIAL URL:', url.href);
+
+  const match = url.pathname.match(/invoice\/([^/?]+)/);
+  const invoiceId = match ? decodeURIComponent(match[1]) : '';
+
+  const kind = url.searchParams.get('kind') || 'qpay';
+  const paymentId = url.searchParams.get('paymentId') || '';
+
+  console.log('👉 INITIAL INVOICE ID:', invoiceId);
+  console.log('👉 INITIAL PAYMENT ID:', paymentId);
+
+  return { invoiceId, kind, paymentId };
+};
+
+const initial = getInitialParams();
+
 const WidgetContent = () => {
-  const params = new URLSearchParams(window.location.search);
-
-  const kind = params.get('kind');
-
-  const pathParts = window.location.pathname.split('/');
-  const invoiceId = pathParts[pathParts.length - 1];
+  const { invoiceId, kind } = initial;
 
   if (!invoiceId) return <div>Missing invoice ID</div>;
-  if (!kind) return <div>Missing payment type</div>;
 
   const paymentMap: Record<string, React.ComponentType<any>> = {
     stripe: StripePayment,
@@ -34,20 +48,17 @@ const WidgetContent = () => {
 };
 
 const Widgets = () => {
-  const params = new URLSearchParams(window.location.search);
-
-  const paymentId = params.get('paymentId') || '';
-  const kind = params.get('kind') || 'stripe';
-
-  //  IMPORTANT: get invoiceId here too
-  const pathParts = window.location.pathname.split('/');
-  const invoiceId = pathParts[pathParts.length - 1] || '';
+  const { invoiceId, kind, paymentId } = initial;
 
   const [apiResponse, setApiResponse] = useState<any>(null);
   const [transactionLoading, setTransactionLoading] = useState(false);
 
-  const requestNewTransaction = async (paymentId: string) => {
-    console.log('🔥 calling QPay with:', paymentId);
+  // ✅ TYPE SAFE + FLEXIBLE
+  const requestNewTransaction = async (paymentIdParam?: string) => {
+    const finalPaymentId = paymentIdParam || paymentId;
+
+    console.log('🔥 calling QPay with:', finalPaymentId);
+    console.log('🔥 using invoiceId:', invoiceId);
 
     setTransactionLoading(true);
 
@@ -66,8 +77,8 @@ const Widgets = () => {
           `,
           variables: {
             input: {
-              paymentId,
-              invoiceId, // 🔥 REQUIRED
+              paymentId: finalPaymentId,
+              invoiceId,
               amount: 1000,
             },
           },
@@ -76,18 +87,32 @@ const Widgets = () => {
 
       const json = await res.json();
 
-      console.log('🔥 FULL RESPONSE:', json);
+      console.log('🔥 FULL RESPONSE:', JSON.stringify(json, null, 2));
 
-      const response = json?.data?.paymentTransactionsAdd?.response;
+      let response = json?.data?.paymentTransactionsAdd?.response;
+
+      if (!response) response = json?.data?.paymentTransactionsAdd;
+
+      if (typeof response === 'string') {
+        try {
+          response = JSON.parse(response);
+        } catch {
+          console.error('❌ Failed to parse response');
+        }
+      }
 
       if (!response) {
-        console.error('❌ No response from backend');
+        console.error('❌ No usable response');
         setTransactionLoading(false);
         return;
       }
 
       setApiResponse({
-        qrData: response.qrData,
+        qrData:
+          response.qrData ||
+          response.qr ||
+          response.qr_code ||
+          response.qrcode,
         urls: response.urls || [],
       });
     } catch (err) {

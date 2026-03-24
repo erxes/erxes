@@ -5,33 +5,24 @@ import { IContext } from '~/connectionResolvers';
 import { IInvoice } from '~/modules/payment/@types/invoices';
 
 const mutations: Record<string, Resolver> = {
-  async generateInvoiceUrl(
-    _root,
-    { input }: { input: IInvoice },
-    { models }: IContext,
-  ) {
-    const domain = getEnv({ name: 'DOMAIN' })
-      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:3001';
+  async generateInvoiceUrl(_root, { input }, { models }) {
+  console.log('🔥 paymentIds input:', input.paymentIds);
 
-    if (!input.paymentIds?.length) {
-      throw new Error('paymentIds is required');
-    }
+  const invoice = await models.Invoices.createInvoice({
+    ...input,
+  });
 
-    const invoice = await models.Invoices.createInvoice({
-      ...input,
-    });
+  // ✅ 👉 ADD THIS LINE RIGHT HERE
+  console.log('🔥 CREATED INVOICE:', invoice);
 
-    // Get payment method (use first ID)
-    const payment = await models.PaymentMethods.findOne({
-      _id: input.paymentIds[0],
-    });
+  const payment = await models.PaymentMethods.findOne({
+    _id: input.paymentIds[0],
+  });
 
-    const kind = payment?.kind || 'unknown';
+  const kind = payment?.kind || 'unknown';
 
-    //
-    return `/pl:payment/widget/invoice/${invoice._id}?kind=${kind}&paymentId=${input.paymentIds[0]}`;
-  },
+  return `/pl:payment/widget/invoice/${invoice._id}?kind=${kind}&paymentId=${input.paymentIds[0]}`;
+},
 
   async invoiceCreate(
     _root,
@@ -120,7 +111,7 @@ const mutations: Record<string, Resolver> = {
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:3001';
+      : 'http://localhost:4200';
 
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 

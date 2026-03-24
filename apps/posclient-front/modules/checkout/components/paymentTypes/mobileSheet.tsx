@@ -17,6 +17,7 @@ import { onError } from "@/components/ui/use-toast"
 
 const MobileSheet = () => {
   const [loading, setLoading] = useState(true)
+
   const config = useAtomValue(configAtom)
   const amount = useAtomValue(currentAmountAtom)
   const activeOrderId = useAtomValue(activeOrderIdAtom)
@@ -24,7 +25,7 @@ const MobileSheet = () => {
   const customerType = useAtomValue(customerTypeAtom)
   const orderNumber = useAtomValue(orderNumberAtom)
 
-  const [generateInvoiceUrl, { data }] = useMutation(
+  const [generateInvoiceUrl] = useMutation(
     mutations.generateInvoiceUrl,
     {
       context: {
@@ -33,36 +34,56 @@ const MobileSheet = () => {
       client: clientMain,
       onError(error) {
         onError(error.message)
+        setLoading(false)
       },
     }
   )
+
   useEffect(() => {
-    generateInvoiceUrl({
-      variables: {
-        input: {
-          amount,
-          contentType: "pos:orders",
-          contentTypeId: activeOrderId,
-          customerId: customer?._id ? customer?._id : "empty",
-          customerType: customerType || "customer",
-          description: orderNumber + "-" + config?.name + "-" + activeOrderId,
-          paymentIds: config?.paymentIds,
-          data: {
-            posToken: config?.token,
+    const run = async () => {
+      try {
+        console.log("🔥 Generating invoice...")
+
+        const res = await generateInvoiceUrl({
+          variables: {
+            input: {
+              amount,
+              contentType: "pos:orders",
+              contentTypeId: activeOrderId,
+              customerId: customer?._id || "empty",
+              customerType: customerType || "customer",
+              description:
+                orderNumber + "-" + config?.name + "-" + activeOrderId,
+              paymentIds: config?.paymentIds, // ⚠️ must include "_"
+              data: {
+                posToken: config?.token,
+              },
+            },
           },
-        },
-      },
-      onCompleted() {
+        })
+
+        const url = res?.data?.generateInvoiceUrl
+
+        console.log("✅ Invoice URL:", url)
+
+        if (!url) {
+          console.error("❌ No invoice URL returned")
+          setLoading(false)
+          return
+        }
+
+        // 🔥 REDIRECT (MAIN FIX)
+        window.location.href = `http://localhost:4200${url}`
+      } catch (err) {
+        console.error("❌ Error generating invoice:", err)
         setLoading(false)
-      },
-    })
+      }
+    }
+
+    run()
   }, [])
 
-  if (loading) {
-    return <Loader />
-  }
-
-  return <iframe src={data?.generateInvoiceUrl} className="w-full h-full" />
+  return <Loader />
 }
 
 export default MobileSheet

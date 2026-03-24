@@ -4,7 +4,7 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { ApolloLink, split } from '@apollo/client/link/core';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { API_URL } from '../config';
+import { API_URL } from '../../config';
 
 const wsUri = API_URL.replace(/^http/, 'ws');
 

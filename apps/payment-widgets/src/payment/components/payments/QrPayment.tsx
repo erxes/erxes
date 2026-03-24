@@ -15,9 +15,10 @@ const QrPayment = () => {
     paymentId,
   } = usePayment();
 
-  // 🔥 THIS TRIGGERS THE BACKEND CALL
+  // ✅ Correct usage with param
   useEffect(() => {
     if (paymentId) {
+      console.log('👉 QrPayment paymentId:', paymentId);
       requestNewTransaction(paymentId);
     }
   }, [paymentId]);

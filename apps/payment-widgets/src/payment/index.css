@@ -8,7 +8,8 @@
 @utility container {
   margin-inline: auto;
   padding-inline: 2rem;
-  @media (width >= 1400px) {
+
+  @media (width >=1400px) {
     max-width: 1400px;
   }
 }
@@ -106,22 +107,27 @@
     from {
       height: 0;
     }
+
     to {
       height: var(--radix-accordion-content-height);
     }
   }
+
   @keyframes accordion-up {
     from {
       height: var(--radix-accordion-content-height);
     }
+
     to {
       height: 0;
     }
   }
+
   @keyframes spinner {
     from {
       opacity: 1;
     }
+
     to {
       opacity: 0.15;
     }
@@ -137,6 +143,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -147,17 +154,21 @@
 }
 
 @utility hide-scroll {
+
   /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     display: none;
   }
 
   /* Hide scrollbar for IE, Edge and Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 @utility styled-scroll {
+
   /* Custom scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     width: 1px;
@@ -175,8 +186,8 @@
 }
 
 @utility block-child {
-  & > * {
-    @apply block!;
+  &>* {
+    @apply block !;
   }
 }
 
@@ -264,18 +275,22 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
   }
+
   h1 {
     @apply text-2xl font-bold;
   }
+
   h2 {
     @apply text-xl font-bold;
   }
+
   h3 {
     @apply text-base font-bold;
   }

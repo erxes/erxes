@@ -1,4 +1,4 @@
-// src/config.ts
+
 declare global {
   interface Window {
     WIDGET_CONFIG?: {
