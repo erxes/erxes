@@ -242,6 +242,7 @@ export const deploy = async (
     // Build env object
     const env: Record<string, string> = {
       ERXES_API_URL: `${domain}/graphql`,
+      NEXT_PUBLIC_ERXES_API_URL:`${domain}/graphql`,
       ERXES_URL: domain,
       ERXES_FILE_URL: `${domain}/read-file?key=`,
       ERXES_CP_ID: web.clientPortalId || '',
