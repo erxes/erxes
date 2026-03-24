@@ -2,10 +2,11 @@ import { Control } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 import React from 'react';
 import { options } from '../../constants';
+import { TPosItemFormData } from '../types/posItemType';
 
 interface PosItemsFormProps {
-  control: Control<any>;
-  summary?: any;
+  control: Control<TPosItemFormData>;
+  summary?: Record<string, number>;
   paidAmounts?: Array<{ type: string; amount: number }>;
 }
 
@@ -24,7 +25,6 @@ export const PosItemsForm = ({
     const summaryKeys = Object.keys(summary || {});
     const paidKeys = (paidAmounts || []).map((p) => p.type);
 
-    // Стандарт төлбөрийн төрлүүдийг нэмж, бүх талбарыг харуулах
     const standardPaymentTypes = options.map((opt) => opt.value);
 
     return Array.from(

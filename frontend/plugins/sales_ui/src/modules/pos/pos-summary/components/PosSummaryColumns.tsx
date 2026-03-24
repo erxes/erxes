@@ -24,7 +24,7 @@ type PaymentSummary = Record<string, number | undefined>;
 export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
   const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
     .filter((a) => !['count', 'cashAmount', 'mobileAmount'].includes(a))
-    .sort();
+    .sort((a, b) => a.localeCompare(b));
 
   return otherPayTitles.map((title: string, index) => ({
     id: `${title}_${index}`,

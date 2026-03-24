@@ -1,4 +1,3 @@
-import { IconChessKnight } from '@tabler/icons-react';
 import {
   Sheet,
   RecordTable,
@@ -13,50 +12,60 @@ import { useSearchParams } from 'react-router-dom';
 import { usePosItemDetail } from './hooks/usePosItemDetail';
 import { usePosItemForm } from './hooks/usePosItemForm';
 import { ColumnDef } from '@tanstack/table-core';
-import { IconTag, IconShoppingCart } from '@tabler/icons-react';
+import {
+  IconTag,
+  IconShoppingCart,
+  IconChessKnight,
+} from '@tabler/icons-react';
 import { PosItemsForm } from './PosItemsForm';
 import { usePosItemChangePayments } from './hooks/usePosItemsChangePayments';
 import { SubmitHandler } from 'react-hook-form';
 import { TPosItemFormData } from '../types/posItemType';
+import { IPosItem } from '../types/posItem';
 
-const itemColumns: ColumnDef<any>[] = [
+const itemColumns: ColumnDef<NonNullable<IPosItem['items']>[0]>[] = [
   {
     id: 'productName',
     accessorKey: 'productName',
     header: () => (
       <RecordTable.InlineHead icon={IconShoppingCart} label="Product" />
     ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const value = cell.getValue() as string;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={value || '-'} />
+        </RecordTableInlineCell>
+      );
+    },
     size: 200,
   },
   {
     id: 'count',
     accessorKey: 'count',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Count" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="text-center">
-        <TextOverflowTooltip
-          value={(cell.getValue() as number)?.toString() || '0'}
-        />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const value = cell.getValue() as number;
+      return (
+        <RecordTableInlineCell className="text-center">
+          <TextOverflowTooltip value={value?.toString() || '0'} />
+        </RecordTableInlineCell>
+      );
+    },
     size: 80,
   },
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Unit Price" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="text-right">
-        <TextOverflowTooltip
-          value={(cell.getValue() as number)?.toLocaleString() || '0'}
-        />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const value = cell.getValue() as number;
+      return (
+        <RecordTableInlineCell className="text-right">
+          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
+        </RecordTableInlineCell>
+      );
+    },
     size: 100,
   },
   {
@@ -109,7 +118,10 @@ export const PosItemDetailSheet = () => {
   const paidAmountsSummary = React.useMemo(() => {
     if (!posItem?.paidAmounts || !Array.isArray(posItem.paidAmounts)) return {};
     return posItem.paidAmounts.reduce(
-      (acc: Record<string, number>, item: any) => {
+      (
+        acc: Record<string, number>,
+        item: { type?: string; amount?: number },
+      ) => {
         if (item?.type) acc[item.type] = item.amount ?? 0;
         return acc;
       },
@@ -125,6 +137,105 @@ export const PosItemDetailSheet = () => {
     }),
     [paidAmountsSummary],
   );
+
+  const renderCustomerInfo = React.useMemo(() => {
+    if (!posItem) return null;
+
+    return (
+      <>
+        <div className="flex justify-between w-full gap-1">
+          <span className="text-base font-medium text-muted-foreground">
+            Customer:
+          </span>
+          <span className="text-base font-medium">
+            {posItem.customer?.primaryEmail || '-'}
+          </span>
+        </div>
+        <div className="flex justify-between w-full gap-1">
+          <span className="text-base font-medium text-muted-foreground">
+            Bill Number:
+          </span>
+          <span className="text-base font-medium">{posItem.number}</span>
+        </div>
+        <div className="flex justify-between w-full gap-1">
+          <span className="text-base font-medium text-muted-foreground">
+            Date:
+          </span>
+          <span className="text-base font-medium">
+            {new Date(posItem.createdAt).toLocaleDateString()}
+          </span>
+        </div>
+        <div className="flex justify-between w-full gap-1">
+          <span className="text-base font-medium text-muted-foreground">
+            Erkhet Info:
+          </span>
+          <span className="text-base font-medium">
+            {posItem.syncErkhetInfo || '-'}
+          </span>
+        </div>
+        <div className="flex justify-between w-full gap-1">
+          <span className="text-base font-medium text-muted-foreground">
+            Bill Id:
+          </span>
+          <span className="text-base font-medium">{posItem.billId || '-'}</span>
+        </div>
+        <div className="flex justify-between w-full gap-1">
+          <span className="text-base font-medium text-muted-foreground">
+            Ebarimt Date:
+          </span>
+          <span className="text-base font-medium">
+            {posItem.putResponses?.[0]?.createdAt
+              ? new Date(posItem.putResponses[0].createdAt).toLocaleDateString()
+              : '-'}
+          </span>
+        </div>
+        <div className="flex justify-between w-full gap-1">
+          <span className="text-base font-medium text-muted-foreground">
+            Deal
+          </span>
+          <span className="text-base font-medium">
+            {posItem.deal?.searchText || '-'}
+          </span>
+        </div>
+      </>
+    );
+  }, [posItem]);
+
+  const renderItemsTable = React.useMemo(() => {
+    if (!posItem?.items || posItem.items.length === 0) return null;
+
+    return (
+      <div className="rounded-md overflow-hidden">
+        <RecordTable.Provider
+          columns={itemColumns}
+          data={posItem.items}
+          className="w-full"
+        >
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.RowList />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Provider>
+      </div>
+    );
+  }, [posItem?.items]);
+
+  const renderTotalAmount = React.useMemo(() => {
+    if (!posItem) return null;
+
+    return (
+      <div className="flex justify-between w-full gap-1">
+        <span className="text-base font-medium text-muted-foreground">
+          Total Amount:
+        </span>
+        <span className="text-base font-medium">
+          {posItem.totalAmount ? posItem.totalAmount : '0'}
+        </span>
+      </div>
+    );
+  }, [posItem]);
 
   const { methods } = usePosItemForm(posItem?.paidAmounts, paymentSummary);
 
@@ -142,8 +253,8 @@ export const PosItemDetailSheet = () => {
           return;
         }
 
-        const cashAmount = Number((data as any)?.cashAmount) || 0;
-        const mobileAmount = Number((data as any)?.mobileAmount) || 0;
+        const cashAmount = Number(data.cashAmount) || 0;
+        const mobileAmount = Number(data.mobileAmount) || 0;
 
         const paidAmounts = Object.entries(data)
           .filter(([key]) => !['cashAmount', 'mobileAmount'].includes(key))
@@ -233,90 +344,9 @@ export const PosItemDetailSheet = () => {
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4 overflow-auto">
               {posItem && (
                 <div className="flex flex-col gap-4 w-full my-4">
-                  <div className="flex justify-between w-full gap-1">
-                    <span className="text-base font-medium text-muted-foreground">
-                      Customer:
-                    </span>
-                    <span className="text-base font-medium">
-                      {posItem.customer?.primaryEmail || '-'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between w-full gap-1">
-                    <span className="text-base font-medium text-muted-foreground">
-                      Bill Number:
-                    </span>
-                    <span className="text-base font-medium">
-                      {posItem.number}
-                    </span>
-                  </div>
-                  <div className="flex justify-between w-full gap-1">
-                    <span className="text-base font-medium text-muted-foreground">
-                      Date:
-                    </span>
-                    <span className="text-base font-medium">
-                      {new Date(posItem.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between w-full gap-1">
-                    <span className="text-base font-medium text-muted-foreground">
-                      Erkhet Info:
-                    </span>
-                    <span className="text-base font-medium">
-                      {posItem.syncErkhetInfo || '-'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between w-full gap-1">
-                    <span className="text-base font-medium text-muted-foreground">
-                      Bill Id:
-                    </span>
-                    <span className="text-base font-medium">
-                      {posItem.billId || '-'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between w-full gap-1">
-                    <span className="text-base font-medium text-muted-foreground">
-                      Ebarimt Date:
-                    </span>
-                    <span className="text-base font-medium">
-                      {posItem.putResponses?.[0]?.createdAt
-                        ? new Date(
-                            posItem.putResponses[0].createdAt,
-                          ).toLocaleDateString()
-                        : '-'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between w-full gap-1">
-                    <span className="text-base font-medium text-muted-foreground">
-                      Deal
-                    </span>
-                    <span className="text-base font-medium">
-                      {posItem.deal?.searchText || '-'}
-                    </span>
-                  </div>
-                  {posItem.items && posItem.items.length > 0 && (
-                    <div className="rounded-md overflow-hidden">
-                      <RecordTable.Provider
-                        columns={itemColumns}
-                        data={posItem.items}
-                        className="w-full"
-                      >
-                        <RecordTable>
-                          <RecordTable.Header />
-                          <RecordTable.Body>
-                            <RecordTable.RowList />
-                          </RecordTable.Body>
-                        </RecordTable>
-                      </RecordTable.Provider>
-                    </div>
-                  )}
-                  <div className="flex justify-between w-full gap-1">
-                    <span className="text-base font-medium text-muted-foreground">
-                      Total Amount:
-                    </span>
-                    <span className="text-base font-medium">
-                      {posItem.totalAmount ? posItem.totalAmount : '0'}
-                    </span>
-                  </div>
+                  {renderCustomerInfo}
+                  {renderItemsTable}
+                  {renderTotalAmount}
                   <PosItemsForm
                     control={methods.control}
                     summary={paymentSummary}

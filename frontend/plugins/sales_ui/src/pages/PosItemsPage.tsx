@@ -1,11 +1,10 @@
-import { PageHeader } from 'ui-modules';
+import { PageHeader, Export } from 'ui-modules';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosItemsRecordTable } from '@/pos/pos-items/components/PosItemsRecordTable';
 import { PosItemsFilter } from '@/pos/pos-items/components/PosItemsFilter';
 import { PosItemDetailSheet } from '@/pos/pos-items/detail/PosItemDetailSheet';
-import { Export } from 'ui-modules';
 import { usePosItemsList } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
 
 export const PosItemsPage = () => {
