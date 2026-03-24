@@ -214,7 +214,9 @@ export const loadCheckListItemClass = (
         currentDocument: item.toObject(),
       });
 
-      const checklist = await models.Checklists.findOne({ _id: item.checklistId });
+      const checklist = await models.Checklists.findOne({
+        _id: item.checklistId,
+      });
 
       const activity = checklist
         ? generateChecklistItemCreatedActivityLog(
