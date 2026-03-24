@@ -288,16 +288,42 @@ export const deploy = async (
     });
     console.log('total files to upload:', files.length);
 
+    // ─── Stable, unique project ID derived from webId ────────────────────────
+    // This never changes for a given web, so Vercel always routes to the same
+    // project regardless of renames.
     const projectId = `erxes-${web._id}`
       .toLowerCase()
       .replace(/[^a-z0-9._-]/g, '-');
 
+    // Human-readable display name derived from web.name.
     const projectName = `${web.name}`
       .toLowerCase()
       .replace(/[^a-z0-9._-]/g, '-');
 
+    // Domain alias derived from web.name (used as Vercel alias / subdomain).
+    const webDomain = `${web.name}`
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+
     console.log('vercel projectId (stable):', projectId);
     console.log('vercel projectName (display):', projectName);
+    console.log('vercel webDomain (alias):', webDomain);
+
+    // ─── Check whether the Vercel project already exists ─────────────────────
+    // GET /v9/projects/:id returns 200 if found, 404 if not.
+    const projectCheckRes = await fetch(
+      `https://api.vercel.com/v9/projects/${projectId}`,
+      { headers: { Authorization: `Bearer ${VERCEL_TOKEN}` } },
+    );
+    const projectExists = projectCheckRes.status === 200;
+    console.log(
+      projectExists
+        ? 'Vercel project exists — redeploying (update)'
+        : 'Vercel project not found — creating new deployment',
+    );
+
     console.log('calling vercel api...');
 
     const response = await fetch(
@@ -309,7 +335,11 @@ export const deploy = async (
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: projectName,
+          // When the project already exists the `name` field must match the
+          // stored project name (which we set to projectId on first creation)
+          // so Vercel routes the deployment into it.
+          // When it doesn't exist, Vercel creates a new project using `name`.
+          name: projectExists ? projectId : projectName,
           project: projectId,
           files,
           target: 'production',
@@ -332,7 +362,35 @@ export const deploy = async (
       );
     }
 
-    return result;
+    // ─── Assign domain alias based on web.name ────────────────────────────────
+    // e.g. web.name "My Cool Site" → "my-cool-site.vercel.app"
+    const domainAlias = `${webDomain}.vercel.app`;
+    console.log('assigning domain alias:', domainAlias);
+
+    const domainRes = await fetch(
+      `https://api.vercel.com/v10/projects/${projectId}/domains`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${VERCEL_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: domainAlias }),
+      },
+    );
+
+    const domainResult = await domainRes.json();
+    if (!domainRes.ok) {
+      // Non-fatal: log but don't abort — the deployment itself succeeded.
+      console.warn(
+        'Domain assignment warning:',
+        domainResult.error?.message || JSON.stringify(domainResult),
+      );
+    } else {
+      console.log('domain assigned:', domainAlias);
+    }
+
+    return { ...result, assignedDomain: domainAlias };
   } catch (error) {
     throw new Error('Failed to deploy to Vercel: ' + error.message);
   } finally {
