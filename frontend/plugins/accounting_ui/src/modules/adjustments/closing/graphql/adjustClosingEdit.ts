@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const ADJUST_CLOSING_ENTRIES_EDIT = gql`
+export const ADJUST_CLOSING_EDIT = gql`
   mutation AdjustClosingEntriesEdit(
     $_id: String!
     $code: String

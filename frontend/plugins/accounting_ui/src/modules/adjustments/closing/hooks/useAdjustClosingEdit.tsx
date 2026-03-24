@@ -1,53 +1,32 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
-import { ADJUST_CLOSING_ENTRIES_EDIT } from '../graphql/adjustClosingEdit';
-import { IAdjustClosingDetail } from '../types/AdjustClosing';
 import { toast, useQueryState } from 'erxes-ui';
+import { ADJUST_CLOSING_EDIT } from '../graphql/adjustClosingEdit';
 
-export const useAdjustClosingEntryEdit = () => {
+export const useAdjustClosingEdit = () => {
   const [adjustClosingId] = useQueryState<string>('adjustClosingId');
+  const [mutate, { loading }] = useMutation(ADJUST_CLOSING_EDIT);
 
-  const [mutate, { loading }] = useMutation(ADJUST_CLOSING_ENTRIES_EDIT);
-
-  const adjustClosingEdit = ({
-    variables,
-    onError,
-    ...options
-  }: MutationHookOptions<
-    { adjustClosingEntriesEdit: { _id: string } },
-    Partial<IAdjustClosingDetail>
-  >) => {
-    mutate({
+  const adjustClosingEdit = (options: MutationHookOptions) => {
+    return mutate({
       ...options,
       variables: {
-        ...variables,
         _id: adjustClosingId,
+        ...options.variables,
       },
       update: (cache, { data }) => {
-        if (!data?.adjustClosingEntry || !variables) return;
-
-        cache.modify({
-          id: cache.identify(data.adjustClosingEntry),
-          fields: (
-            Object.keys(variables) as (keyof IAdjustClosingDetail)[]
-          ).reduce((acc, field) => {
-            acc[field] = () => variables[field];
-            return acc;
-          }, {} as Record<string, () => any>),
-          optimistic: true,
-        });
+        const updatedData = (data as any)?.adjustClosingEdit;
+        if (!updatedData) return;
       },
-
       onError: (error) => {
-        if (onError) {
-          onError(error);
-        }
         toast({
           title: 'Error',
           description: error.message,
           variant: 'destructive',
         });
+        options.onError?.(error);
       },
     });
   };
+
   return { adjustClosingEdit, loading };
 };
