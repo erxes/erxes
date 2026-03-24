@@ -2,11 +2,11 @@ import { Block } from '@blocknote/core';
 
 const escapeHtml = (str: string): string =>
   str
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
   if (!htmlContent || htmlContent.trim() === '') {
