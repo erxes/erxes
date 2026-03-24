@@ -22,7 +22,7 @@ ENV NX_DAEMON=false
 RUN npx nx build:packageJson gateway && npx nx build gateway
 
 # ═══════════════════════════════════════════════════════════
-# Stage 2: Apollo tools + isolated production deployment
+# Stage 2: Apollo tools + flat production node_modules
 # Rover only runs here (build-time) — NOT included in runtime
 # ═══════════════════════════════════════════════════════════
 FROM --platform=linux/amd64 node:22-bookworm-slim AS deployer
@@ -31,24 +31,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
     && rm -rf /var/lib/apt/lists/*
 RUN npm install -g pnpm@9
 
-# Minimal root — prevents installing frontend/build-tool deps
-COPY pnpm-workspace.yaml pnpm-lock.yaml ./
-RUN echo '{"name":"erxes","version":"1.0.0","private":true}' > package.json
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY backend/gateway/package.json backend/gateway/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 
-# Copy compiled dist from builder (includes dummy/ and rhai/ copied by copy-files.js)
-COPY --from=builder /app/backend/gateway/dist backend/gateway/dist
-COPY backend/erxes-api-shared/dist backend/erxes-api-shared/dist
-COPY backend/erxes-api-shared/utils backend/erxes-api-shared/utils
-COPY backend/erxes-api-shared/core-types backend/erxes-api-shared/core-types
-COPY backend/erxes-api-shared/core-modules backend/erxes-api-shared/core-modules
+# --shamefully-hoist: all deps as real directories (no .pnpm virtual store)
+RUN pnpm install --prod --shamefully-hoist \
+    && find node_modules -type f \( \
+         -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
+         -o -name "LICENSE*" -o -name "LICENCE*" \
+         -o -name "CHANGELOG*" -o -name "README*" \
+         -o -name "CONTRIBUTING*" -o -name "AUTHORS*" \
+         -o -name ".npmignore" -o -name ".eslintrc*" -o -name "Makefile" \
+       \) -delete \
+    && find node_modules -mindepth 2 -maxdepth 3 -type d \( \
+         -name "test" -o -name "tests" -o -name "__tests__" -o -name "spec" \
+         -o -name "docs" -o -name "doc" -o -name "examples" -o -name "example" \
+         -o -name ".github" -o -name "coverage" \
+       \) -prune -exec rm -rf {} \; 2>/dev/null || true
 
-# Install only gateway's production deps (~25 from erxes-api-shared, not 159 from root)
-RUN pnpm install --prod
-
-# Run rover supergraph compose (build-time only — generates initial supergraph SDL)
-# Rover is removed after use so it doesn't bloat the deployment
+# Run rover supergraph compose (build-time only — Rover not needed at runtime)
 ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN pnpm add -g @apollo/rover@0.22.0 \
@@ -58,15 +60,10 @@ RUN pnpm add -g @apollo/rover@0.22.0 \
     && pnpm remove -g @apollo/rover \
     && pnpm store prune
 
-# Download Apollo Router binary into dist/ (needed at runtime — started as subprocess)
+# Download Apollo Router binary (needed at runtime — started as subprocess)
 RUN mkdir -p /app/backend/gateway/dist/src/apollo-router/temp \
     && cd /app/backend/gateway/dist/src/apollo-router/temp \
     && curl -sSL https://router.apollo.dev/download/nix/v1.59.2 | sh
-
-# Create isolated deployment:
-# /app/release/ = dist/ + node_modules/ (only ~25 prod deps, erxes-api-shared bundled in)
-# The Apollo Router binary in dist/src/apollo-router/temp/ is included automatically
-RUN pnpm --filter=./backend/gateway deploy --prod --legacy /app/release
 
 # ═══════════════════════════════════════════════════════════
 # Stage 3: Minimal runtime
@@ -75,7 +72,19 @@ RUN pnpm --filter=./backend/gateway deploy --prod --legacy /app/release
 FROM --platform=linux/amd64 node:22-bookworm-slim
 WORKDIR /app
 
-COPY --from=deployer /app/release .
+# All prod deps as real directories
+COPY --from=deployer /app/node_modules ./node_modules
+
+# Replace erxes-api-shared workspace symlink with actual built package
+RUN rm -rf ./node_modules/erxes-api-shared
+COPY backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
+COPY backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
+COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
+COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
+COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
+
+# Compiled gateway dist (includes apollo-router configs + Router binary)
+COPY --from=deployer /app/backend/gateway/dist ./dist
 
 ENV NODE_ENV=production
 
