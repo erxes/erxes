@@ -76,7 +76,11 @@ export async function generateChecklistItemActivityLogs(
     _id: currentDocument.checklistId,
   }).lean();
 
-  const target = checklist ? buildChecklistDealTarget(checklist) : null;
+  if (!checklist) {
+    return;
+  }
+
+  const target = buildChecklistDealTarget(checklist);
 
   if (!target) {
     return;
@@ -88,14 +92,16 @@ export async function generateChecklistItemActivityLogs(
     ),
   ];
 
-  const activities = await buildActivities(
+  const builtActivities = await buildActivities(
     prevDocument,
     currentDocument,
     activityRegistry,
   );
 
+  const manualActivities: ActivityLogInput[] = [];
+
   if (prevDocument.isChecked !== currentDocument.isChecked) {
-    activities.push({
+    manualActivities.push({
       activityType: currentDocument.isChecked
         ? 'checklist.item_checked'
         : 'checklist.item_unchecked',
@@ -107,29 +113,35 @@ export async function generateChecklistItemActivityLogs(
           : 'unchecked checklist item',
       },
       changes: {
-        checklistId: currentDocument.checklistId,
-        checklistItemId: currentDocument._id,
+        current: {
+          isChecked: currentDocument.isChecked,
+        },
       },
       metadata: {
         checklistTitle: checklist.title,
         checklistItemTitle: currentDocument.content,
+        checklistId: currentDocument.checklistId,
+        checklistItemId: currentDocument._id,
       },
     });
   }
 
+  const activities: ActivityLogInput[] = [
+    ...builtActivities.map((activity) => ({
+      ...activity,
+      changes: activity.changes || {},
+      target,
+      metadata: {
+        checklistTitle: checklist.title,
+        checklistItemTitle: currentDocument.content,
+        ...(activity.metadata || {}),
+      },
+    })),
+    ...manualActivities,
+  ];
+
   if (activities.length > 0) {
-    createActivityLog(
-      activities.map((activity) => ({
-        ...activity,
-        changes: activity.changes || {},
-        target,
-        metadata: {
-          checklistTitle: checklist.title,
-          checklistItemTitle: currentDocument.content,
-          ...(activity.metadata || {}),
-        },
-      })),
-    );
+    createActivityLog(activities);
   }
 }
 
