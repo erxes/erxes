@@ -78,12 +78,14 @@ export const loadCheckListClass = (
           docId: checklist._id,
         });
 
-        createActivityLog(
-          generateChecklistRemovedActivityLog(
-            checklist.toObject(),
-            (checklist as any).userId || (checklist as any).createdUserId,
-          ),
+        const activity = generateChecklistRemovedActivityLog(
+          checklist.toObject(),
+          (checklist as any).userId || (checklist as any).createdUserId,
         );
+
+        if (activity) {
+          createActivityLog(activity);
+        }
       }
 
       await models.ChecklistItems.deleteMany({
@@ -111,9 +113,14 @@ export const loadCheckListClass = (
         currentDocument: checklist.toObject(),
       });
 
-      createActivityLog(
-        generateChecklistCreatedActivityLog(checklist.toObject(), user._id),
+      const activity = generateChecklistCreatedActivityLog(
+        checklist.toObject(),
+        user._id,
       );
+
+      if (activity) {
+        createActivityLog(activity);
+      }
 
       return checklist;
     }
@@ -152,12 +159,14 @@ export const loadCheckListClass = (
         docId: checklist._id,
       });
 
-      createActivityLog(
-        generateChecklistRemovedActivityLog(
-          checklist.toObject(),
-          (checklist as any).userId || (checklist as any).createdUserId,
-        ),
+      const activity = generateChecklistRemovedActivityLog(
+        checklist.toObject(),
+        (checklist as any).userId || (checklist as any).createdUserId,
       );
+
+      if (activity) {
+        createActivityLog(activity);
+      }
 
       await models.ChecklistItems.deleteMany({ checklistId: checklist._id });
       await checklist.deleteOne();
@@ -205,9 +214,19 @@ export const loadCheckListItemClass = (
         currentDocument: item.toObject(),
       });
 
-      createActivityLog(
-        generateChecklistItemCreatedActivityLog(item.toObject(), user._id),
-      );
+      const checklist = await models.Checklists.findOne({ _id: item.checklistId });
+
+      const activity = checklist
+        ? generateChecklistItemCreatedActivityLog(
+            item.toObject(),
+            checklist.toObject(),
+            user._id,
+          )
+        : null;
+
+      if (activity) {
+        createActivityLog(activity);
+      }
 
       return item;
     }
@@ -247,12 +266,21 @@ export const loadCheckListItemClass = (
       });
 
       const itemObj = item.toObject();
-      createActivityLog(
-        generateChecklistItemRemovedActivityLog(
-          itemObj,
-          itemObj.userId || (itemObj as any).createdUserId,
-        ),
-      );
+      const checklist = await models.Checklists.findOne({
+        _id: itemObj.checklistId,
+      });
+
+      const activity = checklist
+        ? generateChecklistItemRemovedActivityLog(
+            itemObj,
+            checklist.toObject(),
+            itemObj.userId || (itemObj as any).createdUserId,
+          )
+        : null;
+
+      if (activity) {
+        createActivityLog(activity);
+      }
 
       await item.deleteOne();
       return item;

@@ -9,6 +9,7 @@ import {
   generateDealConvertedActivityLog,
   generateDealCreatedActivityLog,
   generateDealMovedActivityLog,
+  generateDealWatchActivityLog,
 } from './builders';
 import { dealActivityResolvers } from './resolvers';
 import { buildDealTarget } from './utils';
@@ -55,6 +56,7 @@ export {
   generateDealConvertedActivityLog,
   generateDealCreatedActivityLog,
   generateDealMovedActivityLog,
+  generateDealWatchActivityLog,
 };
 export { generateBoardActivityLogs } from './board';
 export { generatePipelineActivityLogs } from './pipeline';

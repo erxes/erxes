@@ -9,7 +9,6 @@ import {
   createOrUpdatePipelineStages,
   removePipelineStagesWithItems,
 } from '~/modules/sales/graphql/resolvers/utils';
-import { generatePipelineActivityLogs } from '~/modules/sales/meta/activity-log';
 import { generateLastNum, watchItem } from '~/modules/sales/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
@@ -37,7 +36,7 @@ export const loadPipelineClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class Pipeline {
     /** Get pipeline */
@@ -105,14 +104,6 @@ export const loadPipelineClass = (
         currentDocument: updatedPipeline.toObject(),
         prevDocument: prevPipeline.toObject(),
       });
-
-      await generatePipelineActivityLogs(
-        prevPipeline.toObject(),
-        updatedPipeline.toObject(),
-        models,
-        createActivityLog,
-        subdomain,
-      );
 
       return updatedPipeline;
     }

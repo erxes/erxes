@@ -3,6 +3,7 @@ import { Badge } from 'erxes-ui';
 import {
   ActivityLogCustomActivity,
   ActivityLogs,
+  MembersInline,
   TActivityLog,
 } from 'ui-modules';
 import { DescriptionChangedActivityRow } from './overview/activity/DescriptionChangedActivityRow';
@@ -80,6 +81,155 @@ const DealAssignmentRow = ({ activity }: { activity: TActivityLog }) => {
   );
 };
 
+const DealAssigneeRow = ({ activity }: { activity: TActivityLog }) => {
+  const isAdded = activity.action?.type === 'assigned';
+  const memberIds =
+    (isAdded ? activity.changes?.added : activity.changes?.removed) || [];
+
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <span className="text-muted-foreground">
+        {isAdded ? 'assigned' : 'unassigned'}
+      </span>
+      <MembersInline
+        memberIds={Array.isArray(memberIds) ? memberIds : []}
+        placeholder="Unknown member"
+      />
+    </Sentence>
+  );
+};
+
+const DealWatchRow = ({ activity }: { activity: TActivityLog }) => {
+  const isWatching =
+    activity.activityType === 'deal.watch_added' ||
+    activity.action?.type === 'watch';
+
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <span className="text-muted-foreground">
+        {isWatching ? 'started watching deal' : 'stopped watching deal'}
+      </span>
+    </Sentence>
+  );
+};
+
+const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const checklistName = activity.metadata?.checklistTitle as string | undefined;
+  const itemName = activity.metadata?.checklistItemTitle as string | undefined;
+
+  if (activity.activityType === 'checklist.create') {
+    return (
+      <Sentence>
+        <ActivityLogs.ActorName activity={activity} />
+        <span className="text-muted-foreground">created checklist</span>
+        {checklistName && (
+          <Badge variant="secondary" className="font-medium">
+            {checklistName}
+          </Badge>
+        )}
+      </Sentence>
+    );
+  }
+
+  if (activity.activityType === 'checklist.remove') {
+    return (
+      <Sentence>
+        <ActivityLogs.ActorName activity={activity} />
+        <span className="text-muted-foreground">removed checklist</span>
+        {checklistName && (
+          <Badge variant="secondary" className="font-medium">
+            {checklistName}
+          </Badge>
+        )}
+      </Sentence>
+    );
+  }
+
+  if (activity.activityType === 'checklist.item_create') {
+    return (
+      <Sentence>
+        <ActivityLogs.ActorName activity={activity} />
+        <span className="text-muted-foreground">added checklist item</span>
+        {itemName && (
+          <Badge variant="secondary" className="font-medium">
+            {itemName}
+          </Badge>
+        )}
+        <span className="text-muted-foreground">to</span>
+        {checklistName && (
+          <Badge variant="secondary" className="font-medium">
+            {checklistName}
+          </Badge>
+        )}
+      </Sentence>
+    );
+  }
+
+  if (activity.activityType === 'checklist.item_remove') {
+    return (
+      <Sentence>
+        <ActivityLogs.ActorName activity={activity} />
+        <span className="text-muted-foreground">removed checklist item</span>
+        {itemName && (
+          <Badge variant="secondary" className="font-medium">
+            {itemName}
+          </Badge>
+        )}
+        <span className="text-muted-foreground">from</span>
+        {checklistName && (
+          <Badge variant="secondary" className="font-medium">
+            {checklistName}
+          </Badge>
+        )}
+      </Sentence>
+    );
+  }
+
+  if (activity.activityType === 'checklist.item_checked') {
+    return (
+      <Sentence>
+        <ActivityLogs.ActorName activity={activity} />
+        <span className="text-muted-foreground">checked off checklist item</span>
+        {itemName && (
+          <Badge variant="secondary" className="font-medium">
+            {itemName}
+          </Badge>
+        )}
+        <span className="text-muted-foreground">in</span>
+        {checklistName && (
+          <Badge variant="secondary" className="font-medium">
+            {checklistName}
+          </Badge>
+        )}
+      </Sentence>
+    );
+  }
+
+  if (activity.activityType === 'checklist.item_unchecked') {
+    return (
+      <Sentence>
+        <ActivityLogs.ActorName activity={activity} />
+        <span className="text-muted-foreground">unchecked checklist item</span>
+        {itemName && (
+          <Badge variant="secondary" className="font-medium">
+            {itemName}
+          </Badge>
+        )}
+        <span className="text-muted-foreground">in</span>
+        {checklistName && (
+          <Badge variant="secondary" className="font-medium">
+            {checklistName}
+          </Badge>
+        )}
+      </Sentence>
+    );
+  }
+
+  return null;
+};
+
 const DEAL_ASSIGNMENT_TYPES = [
   'assignment', // backward compat for old logged activities
   'deal.label_assigned',
@@ -105,6 +255,31 @@ export const dealCustomActivities: ActivityLogCustomActivity[] = [
     type: 'deal.stage_moved',
     render: (activity) => <DealMovedRow activity={activity} />,
   },
+  {
+    type: 'assignee',
+    render: (activity) => <DealAssigneeRow activity={activity} />,
+  },
+  {
+    type: 'deal.watch_added',
+    render: (activity) => <DealWatchRow activity={activity} />,
+  },
+  {
+    type: 'deal.watch_removed',
+    render: (activity) => <DealWatchRow activity={activity} />,
+  },
+  ...[
+    'checklist.create',
+    'checklist.remove',
+    'checklist.item_create',
+    'checklist.item_remove',
+    'checklist.item_checked',
+    'checklist.item_unchecked',
+  ].map((type) => ({
+    type,
+    render: (activity: TActivityLog) => (
+      <ChecklistActivityRow activity={activity} />
+    ),
+  })),
   ...DEAL_ASSIGNMENT_TYPES.map((type) => ({
     type,
     render: (activity: TActivityLog) => (

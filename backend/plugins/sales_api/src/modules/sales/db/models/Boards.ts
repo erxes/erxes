@@ -3,7 +3,6 @@ import { IModels } from '~/connectionResolvers';
 import { IBoard, IBoardDocument } from '../../@types';
 import { boardSchema } from '../definitions/boards';
 import { removePipelineStagesWithItems } from '~/modules/sales/graphql/resolvers/utils';
-import { generateBoardActivityLogs } from '~/modules/sales/meta/activity-log';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IBoardModel extends Model<IBoardDocument> {
@@ -28,7 +27,7 @@ export const loadBoardClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class Board {
     /** Get board */
@@ -67,13 +66,6 @@ export const loadBoardClass = (
         currentDocument: updatedBoard.toObject(),
         prevDocument: prevBoard.toObject(),
       });
-
-      await generateBoardActivityLogs(
-        prevBoard.toObject(),
-        updatedBoard.toObject(),
-        models,
-        createActivityLog,
-      );
 
       return updatedBoard;
     }

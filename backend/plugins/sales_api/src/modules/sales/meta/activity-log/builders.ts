@@ -214,3 +214,22 @@ export const generateDealConvertedActivityLog = (
     dealId: deal._id,
   },
 });
+
+export const generateDealWatchActivityLog = (
+  deal: any,
+  isAdd: boolean,
+  userId: string,
+): ActivityLogInput => ({
+  activityType: isAdd ? 'deal.watch_added' : 'deal.watch_removed',
+  target: buildDealTarget(deal),
+  action: {
+    type: isAdd ? 'watch' : 'unwatch',
+    description: isAdd ? 'started watching deal' : 'stopped watching deal',
+  },
+  changes: {
+    watchedUserId: userId,
+  },
+  metadata: {
+    userId,
+  },
+});

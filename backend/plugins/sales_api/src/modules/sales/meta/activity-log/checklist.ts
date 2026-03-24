@@ -13,6 +13,18 @@ const CHECKLIST_ACTIVITY_FIELDS = [
   { field: 'contentTypeId', label: 'Content Item' },
 ];
 
+const buildChecklistDealTarget = (checklist: any) => {
+  if (!checklist.contentTypeId) {
+    return null;
+  }
+
+  return {
+    _id: checklist.contentTypeId,
+    moduleName: 'sales',
+    collectionName: 'deals',
+  };
+};
+
 export async function generateChecklistActivityLogs(
   prevDocument: any,
   currentDocument: any,
@@ -21,6 +33,12 @@ export async function generateChecklistActivityLogs(
     activities: ActivityLogInput | ActivityLogInput[],
   ) => void,
 ): Promise<void> {
+  const target = buildChecklistDealTarget(currentDocument);
+
+  if (!target) {
+    return;
+  }
+
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
       CHECKLIST_ACTIVITY_FIELDS.map(({ field }) => field),
@@ -40,11 +58,7 @@ export async function generateChecklistActivityLogs(
       activities.map((activity) => ({
         ...activity,
         changes: activity.changes || {},
-        target: {
-          _id: currentDocument._id,
-          moduleName: 'sales',
-          collectionName: 'checklists',
-        },
+        target,
       })),
     );
   }
@@ -58,15 +72,19 @@ export async function generateChecklistItemActivityLogs(
     activities: ActivityLogInput | ActivityLogInput[],
   ) => void,
 ): Promise<void> {
+  const checklist = await models.Checklists.findOne({
+    _id: currentDocument.checklistId,
+  }).lean();
+
+  const target = checklist ? buildChecklistDealTarget(checklist) : null;
+
+  if (!target) {
+    return;
+  }
+
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(['content', 'order'], 'updated', (field: string) =>
       field === 'content' ? 'Content' : 'Order',
-    ),
-    fieldChangeRule(
-      ['isChecked'],
-      'set',
-      (field: string, { current }: { current: any; prev: any }) =>
-        current ? 'Checked' : 'Unchecked',
     ),
   ];
 
@@ -76,15 +94,39 @@ export async function generateChecklistItemActivityLogs(
     activityRegistry,
   );
 
+  if (prevDocument.isChecked !== currentDocument.isChecked) {
+    activities.push({
+      activityType: currentDocument.isChecked
+        ? 'checklist.item_checked'
+        : 'checklist.item_unchecked',
+      target,
+      action: {
+        type: currentDocument.isChecked ? 'check' : 'uncheck',
+        description: currentDocument.isChecked
+          ? 'checked checklist item'
+          : 'unchecked checklist item',
+      },
+      changes: {
+        checklistId: currentDocument.checklistId,
+        checklistItemId: currentDocument._id,
+      },
+      metadata: {
+        checklistTitle: checklist.title,
+        checklistItemTitle: currentDocument.content,
+      },
+    });
+  }
+
   if (activities.length > 0) {
     createActivityLog(
       activities.map((activity) => ({
         ...activity,
         changes: activity.changes || {},
-        target: {
-          _id: currentDocument._id,
-          moduleName: 'sales',
-          collectionName: 'checklistItems',
+        target,
+        metadata: {
+          checklistTitle: checklist.title,
+          checklistItemTitle: currentDocument.content,
+          ...(activity.metadata || {}),
         },
       })),
     );
@@ -94,27 +136,27 @@ export async function generateChecklistItemActivityLogs(
 export function generateChecklistCreatedActivityLog(
   checklist: any,
   userId?: string,
-): ActivityLogInput {
+): ActivityLogInput | null {
+  const target = buildChecklistDealTarget(checklist);
+
+  if (!target) {
+    return null;
+  }
+
   return {
-    activityType: 'create',
-    target: {
-      _id: checklist._id,
-      moduleName: 'sales',
-      collectionName: 'checklists',
-    },
+    activityType: 'checklist.create',
+    target,
     action: {
       type: 'create',
-      description: `Checklist created ${checklist.title}`,
+      description: 'created checklist',
     },
     changes: {
-      title: checklist.title,
-      contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
+      checklistId: checklist._id,
       createdAt: new Date(),
     },
     metadata: {
-      contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
+      checklistId: checklist._id,
+      checklistTitle: checklist.title,
       userId: userId || checklist.userId || checklist.createdUserId,
     },
   };
@@ -123,27 +165,27 @@ export function generateChecklistCreatedActivityLog(
 export function generateChecklistRemovedActivityLog(
   checklist: any,
   userId?: string,
-): ActivityLogInput {
+): ActivityLogInput | null {
+  const target = buildChecklistDealTarget(checklist);
+
+  if (!target) {
+    return null;
+  }
+
   return {
-    activityType: 'delete',
-    target: {
-      _id: checklist._id,
-      moduleName: 'sales',
-      collectionName: 'checklists',
-    },
+    activityType: 'checklist.remove',
+    target,
     action: {
       type: 'delete',
-      description: `Checklist removed ${checklist.title}`,
+      description: 'removed checklist',
     },
     changes: {
-      title: checklist.title,
-      contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
+      checklistId: checklist._id,
       removedAt: new Date(),
     },
     metadata: {
-      contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
+      checklistId: checklist._id,
+      checklistTitle: checklist.title,
       userId: userId || checklist.userId || checklist.createdUserId,
     },
   };
@@ -151,26 +193,32 @@ export function generateChecklistRemovedActivityLog(
 
 export function generateChecklistItemCreatedActivityLog(
   checklistItem: any,
+  checklist: any,
   userId?: string,
-): ActivityLogInput {
+): ActivityLogInput | null {
+  const target = buildChecklistDealTarget(checklist);
+
+  if (!target) {
+    return null;
+  }
+
   return {
-    activityType: 'create',
-    target: {
-      _id: checklistItem._id,
-      moduleName: 'sales',
-      collectionName: 'checklistItems',
-    },
+    activityType: 'checklist.item_create',
+    target,
     action: {
       type: 'create',
-      description: `Checklist item created ${checklistItem.content}`,
+      description: 'added checklist item',
     },
     changes: {
-      content: checklistItem.content,
       checklistId: checklistItem.checklistId,
+      checklistItemId: checklistItem._id,
       createdAt: new Date(),
     },
     metadata: {
       checklistId: checklistItem.checklistId,
+      checklistItemId: checklistItem._id,
+      checklistTitle: checklist.title,
+      checklistItemTitle: checklistItem.content,
       userId: userId || checklistItem.userId || checklistItem.createdUserId,
     },
   };
@@ -178,26 +226,32 @@ export function generateChecklistItemCreatedActivityLog(
 
 export function generateChecklistItemRemovedActivityLog(
   checklistItem: any,
+  checklist: any,
   userId?: string,
-): ActivityLogInput {
+): ActivityLogInput | null {
+  const target = buildChecklistDealTarget(checklist);
+
+  if (!target) {
+    return null;
+  }
+
   return {
-    activityType: 'delete',
-    target: {
-      _id: checklistItem._id,
-      moduleName: 'sales',
-      collectionName: 'checklistItems',
-    },
+    activityType: 'checklist.item_remove',
+    target,
     action: {
       type: 'delete',
-      description: `Checklist item removed ${checklistItem.content}`,
+      description: 'removed checklist item',
     },
     changes: {
-      content: checklistItem.content,
       checklistId: checklistItem.checklistId,
+      checklistItemId: checklistItem._id,
       removedAt: new Date(),
     },
     metadata: {
       checklistId: checklistItem.checklistId,
+      checklistItemId: checklistItem._id,
+      checklistTitle: checklist.title,
+      checklistItemTitle: checklistItem.content,
       userId: userId || checklistItem.userId || checklistItem.createdUserId,
     },
   };

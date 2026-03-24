@@ -6,7 +6,6 @@ import {
   IPipelineLabel,
   IPipelineLabelDocument,
 } from '../../@types';
-import { generatePipelineLabelActivityLogs } from '~/modules/sales/meta/activity-log';
 import { pipelineLabelSchema } from '../definitions/labels';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
@@ -37,7 +36,7 @@ export const loadPipelineLabelClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class PipelineLabel {
     public static async getPipelineLabel(_id: string) {
@@ -131,13 +130,6 @@ export const loadPipelineLabelClass = (
         currentDocument: updatedLabel.toObject(),
         prevDocument: prevLabel.toObject(),
       });
-
-      await generatePipelineLabelActivityLogs(
-        prevLabel.toObject(),
-        updatedLabel.toObject(),
-        models,
-        createActivityLog,
-      );
 
       return updatedLabel;
     }
