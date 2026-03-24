@@ -1,6 +1,5 @@
-import { escapeRegExp } from "erxes-api-shared/utils";
-import { IModels, IContext } from "~/connectionResolvers";
-
+import { escapeRegExp } from 'erxes-api-shared/utils';
+import { IModels, IContext } from '~/connectionResolvers';
 
 const generateFilterCat = async ({
   models,
@@ -85,11 +84,13 @@ const accountCategoryQueries = {
     return models.AccountCategories.find(filter).countDocuments();
   },
 
-  async accountCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async accountCategoryDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
     return models.AccountCategories.findOne({ _id }).lean();
   },
 };
-
-// checkPermission(accountCategoryQueries, 'accountCategories', 'showAccounts', []);
 
 export default accountCategoryQueries;

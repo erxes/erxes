@@ -44,6 +44,12 @@ const Pages = lazy(() =>
   })),
 );
 
+const PagesDetail = lazy(() =>
+  import('~/pages/cms/page-detail/PageDetailPage').then((module) => ({
+    default: module.PagesDetailPage,
+  })),
+);
+
 const CustomTypes = lazy(() =>
   import('~/modules/cms/custom-types/CustomTypes').then((module) => ({
     default: module.CustomTypes,
@@ -83,6 +89,11 @@ const PostsDetailWrapper = () => {
   return <PostsDetail clientPortalId={websiteId || ''} postId={postId} />;
 };
 
+const PagesDetailWrapper = () => {
+  const { websiteId, pageId } = useParams();
+  return <PagesDetail clientPortalId={websiteId || ''} pageId={pageId} />;
+};
+
 const CmsMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -96,6 +107,8 @@ const CmsMain = () => {
           <Route path="categories" element={<Categories />} />
           <Route path="tags" element={<Tags />} />
           <Route path="pages" element={<Pages />} />
+          <Route path="pages/detail" element={<PagesDetailWrapper />} />
+          <Route path="pages/detail/:pageId" element={<PagesDetailWrapper />} />
           <Route path="menus" element={<Menus />} />
           <Route path="custom-types" element={<CustomTypes />} />
           <Route path="custom-fields" element={<CustomFields />} />

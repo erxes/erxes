@@ -1,32 +1,23 @@
-const commonFields = `
-  name: String
-  userGroupId: String
-  expireDate: Date    
-  allowAllPermission: Boolean
-  noExpire: Boolean
-`;
-
 export const types = `
   type App {
     _id: String
-    isEnabled: Boolean
+    name: String
+    token: String
+    status: String
+    lastUsedAt: Date
     createdAt: Date
-    ${commonFields}
-    accessToken: String
-    refreshToken: String
-
-    userGroupName: String
   }
 `;
 
 export const mutations = `
-  appsAdd(${commonFields}): App
-  appsEdit(_id: String!, ${commonFields}): App
+  appsAdd(name: String!): App
+  appsEdit(_id: String!, name: String): App
+  appsRevoke(_id: String!): App
   appsRemove(_id: String!): JSON
 `;
 
 export const queries = `
-  apps: [App]
-  appsTotalCount: Int
+  apps(searchValue: String, page: Int, perPage: Int): [App]
+  appsTotalCount(searchValue: String): Int
   appDetail(_id: String): App
 `;

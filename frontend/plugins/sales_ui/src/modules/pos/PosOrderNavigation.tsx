@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Button,
   Collapsible,
@@ -43,8 +43,12 @@ interface posItemProps {
 }
 
 function PosItem({ pos }: posItemProps) {
+  const { pathname } = useLocation();
+
+  const isPosActive = pathname.includes(`/sales/pos/${pos._id}`);
+
   return (
-    <Collapsible className="group/collapsible">
+    <Collapsible className="group/collapsible" defaultOpen={isPosActive}>
       <Sidebar.Group className="p-0">
         <div className="w-full relative group/trigger hover:cursor-pointer">
           <Collapsible.Trigger asChild>
@@ -74,43 +78,43 @@ function PosItem({ pos }: posItemProps) {
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               <NavigationMenuLinkItem
-                name="Orders"
+                name=" POS orders"
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`sales/pos/${pos._id}/orders`}
               />
               <NavigationMenuLinkItem
-                name="Pos Covers"
+                name="POS covers"
                 path={`sales/pos/${pos._id}/covers`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="Pos By Items"
+                name="POS by items"
                 path={`sales/pos/${pos._id}/by-items`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="Pos Items"
+                name="POS items"
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`sales/pos/${pos._id}/items`}
               />
               <NavigationMenuLinkItem
-                name="Pos Summary"
+                name="POS summary"
                 path={`sales/pos/${pos._id}/summary`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="Pos Orders By Customer"
+                name="POS orders by customer"
                 path={`sales/pos/${pos._id}/orders-by-customer`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="Pos Orders By Subscription"
+                name="POS orders by subscription"
                 path={`sales/pos/${pos._id}/orders-by-subscription`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
@@ -129,15 +133,25 @@ export function PosOrderNavigation() {
   const { pos, loading } = useGetPos({
     variables: { userId: currentUser?._id },
   });
+
   const isPos = location.pathname.startsWith('/sales/pos');
 
   if (!isPos) return null;
+
+  if (!loading && (!pos || pos.length === 0)) {
+    return null;
+  }
+
   return (
     <NavigationMenuGroup name="POS order">
       {loading ? (
         <LoadingSkeleton />
       ) : (
-        pos?.map((pos) => <PosItem key={pos._id} pos={pos} />)
+        <div>
+          {pos?.map((pos) => (
+            <PosItem key={pos._id} pos={pos} />
+          ))}
+        </div>
       )}
     </NavigationMenuGroup>
   );

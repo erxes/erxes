@@ -67,7 +67,7 @@ export const types = `
 `;
 
 export const queries = `
-  bmsItineraries( ${GQL_CURSOR_PARAM_DEFS},branchId: String): ItineraryListResponse
+  bmsItineraries( ${GQL_CURSOR_PARAM_DEFS},branchId: String, name: String): ItineraryListResponse
   bmsItineraryDetail(_id:String!, branchId: String): Itinerary
 `;
 

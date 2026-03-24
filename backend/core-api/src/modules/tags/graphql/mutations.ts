@@ -5,7 +5,13 @@ export const tagMutations: Record<string, Resolver> = {
   /**
    * Creates a new tag
    */
-  async tagsAdd(_parent: undefined, doc: ITag, { models }: IContext) {
+  async tagsAdd(
+    _parent: undefined,
+    doc: ITag,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('tagsCreate');
+
     return await models.Tags.createTag(doc);
   },
 
@@ -15,8 +21,10 @@ export const tagMutations: Record<string, Resolver> = {
   async tagsEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & ITag,
-    { models, __ }: IContext,
+    { models, __, checkPermission }: IContext,
   ) {
+    await checkPermission('tagsUpdate');
+
     return await models.Tags.updateTag(_id, __(doc));
   },
 
@@ -30,8 +38,10 @@ export const tagMutations: Record<string, Resolver> = {
       targetIds,
       tagIds,
     }: { type: string; targetIds: string[]; tagIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('tagsTag');
+
     return await models.Tags.tagsTag(type, targetIds, tagIds);
   },
 
@@ -41,8 +51,10 @@ export const tagMutations: Record<string, Resolver> = {
   async tagsRemove(
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('tagsDelete');
+
     return models.Tags.removeTag(_id);
   },
 

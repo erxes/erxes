@@ -6,6 +6,11 @@ const Tms = lazy(() =>
     default: module.IndexPage,
   })),
 );
+const TmsBranchDetail = lazy(() =>
+  import('~/pages/tms/BranchDetailIndexPage').then((module) => ({
+    default: module.BranchDetailIndexPage,
+  })),
+);
 const TmsPreview = lazy(() =>
   import('~/pages/tms/PreviewPage').then((module) => ({
     default: module.PreviewPage,
@@ -23,6 +28,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Navigate to="tms" replace />} />
         <Route path="tms" element={<Tms />} />
+        <Route path="tms/branches/:branchId" element={<TmsBranchDetail />} />
         <Route path="tms/PreviewPage" element={<TmsPreview />} />
         <Route path="pms" element={<Pms />} />
       </Routes>

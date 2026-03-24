@@ -357,11 +357,11 @@ export function createEventDispatcher(
       action: 'createActivityLog',
       input: Array.isArray(input)
         ? input.map((activity) => ({
-          ...activity,
-          pluginName,
-          moduleName,
-          collectionName,
-        }))
+            ...activity,
+            pluginName,
+            moduleName,
+            collectionName,
+          }))
         : [{ ...input, pluginName, moduleName, collectionName }],
       context: {
         processId,

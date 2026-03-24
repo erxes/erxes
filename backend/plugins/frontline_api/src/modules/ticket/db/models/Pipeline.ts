@@ -55,7 +55,6 @@ export const loadPipelineClass = (models: IModels) => {
     ): Promise<ITicketPipelineDocument | null> {
       const permissionValidator = createPermissionValidator(models);
 
-      // Validate move permission if statusId is being updated
       if (doc.statusId) {
         await permissionValidator.validateMovePermission(doc.statusId, user);
       }

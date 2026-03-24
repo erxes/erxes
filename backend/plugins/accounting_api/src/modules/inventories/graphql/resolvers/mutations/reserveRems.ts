@@ -1,4 +1,3 @@
-import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import {
   IReserveRemsAddParams,
@@ -148,7 +147,5 @@ const reserveRemsMutations = {
     return await models.ReserveRems.reserveRemsRemove(_ids);
   },
 };
-
-moduleCheckPermission(reserveRemsMutations, 'manageRemainders');
 
 export default reserveRemsMutations;

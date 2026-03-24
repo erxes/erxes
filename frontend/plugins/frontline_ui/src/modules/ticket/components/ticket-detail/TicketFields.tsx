@@ -27,6 +27,13 @@ import { TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
+import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
+import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
+import { AttachmentProvider } from '../attachments/AttachmentContext';
+import { IAttachment } from '@/ticket/types/attachments';
+import AttachmentUploader from '../attachments/AttachmentUploader';
+import Attachments from '../attachments/Attachments';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const {
@@ -41,6 +48,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     tagIds,
     isSubscribed: _isSubscribed,
     state: ticketState,
+    attachments,
   } = ticket || {};
   const startDate = (ticket as any)?.startDate;
   const description = (ticket as any)?.description;
@@ -108,6 +116,21 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     initialContent: descriptionContent,
     placeholder: 'Description...',
   });
+  const { pipeline } = useGetPipeline(pipelineId);
+  const { status: currentStatus } = useGetTicketStatusById(statusId);
+  const { canEditTicket, canMoveTicket } = useTicketPermissions({
+    pipeline,
+    status: currentStatus
+      ? {
+          value: currentStatus._id,
+          memberIds: currentStatus.memberIds,
+          canMoveMemberIds: currentStatus.canMoveMemberIds,
+          canEditMemberIds: currentStatus.canEditMemberIds,
+          visibilityType: currentStatus.visibilityType,
+        }
+      : undefined,
+  });
+
   const { updateTicket } = useUpdateTicket();
   const { removeTicket } = useTicketRemove();
   const [name, setName] = useState(_name);
@@ -242,113 +265,125 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubscribed, _isSubscribed, ticketId]);
   return (
-    <div className="flex flex-col gap-3 h-full px-5 py-8">
-      <Input
-        className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-        placeholder="Ticket Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />{' '}
-      <TagsSelect.Provider
-        value={tagIds || []}
-        mode="multiple"
-        type="frontline:ticket"
-        onValueChange={(newTagIds: string[] | string) => {
-          updateTicket({
-            variables: {
-              _id: ticketId,
-              tagIds: newTagIds,
-            },
-          });
-        }}
-      >
-        <div className="gap-2 flex flex-wrap w-full items-center">
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <SelectChannel value={channelId} variant="detail" disabled />
-            </div>
-            <Tooltip.Content>Channel cannot be changed</Tooltip.Content>
-          </Tooltip>
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <SelectPipeline
-                value={pipelineId}
-                variant="detail"
-                channelId={channelId}
-                disabled
-              />
-            </div>
-            <Tooltip.Content>Pipeline cannot be changed</Tooltip.Content>
-          </Tooltip>
-          <SelectStatusTicket
-            variant="detail"
-            value={statusId}
-            id={ticketId}
-            pipelineId={pipelineId}
+    <AttachmentProvider
+      initialAttachments={attachments || ([] as IAttachment[])}
+    >
+      <div className="flex flex-col gap-3 h-full px-5 py-8">
+        <Input
+          className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
+          placeholder="Ticket Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          disabled={!canEditTicket}
+        />{' '}
+        <TagsSelect.Provider
+          value={tagIds || []}
+          mode="multiple"
+          type="frontline:ticket"
+          onValueChange={(newTagIds: string[] | string) => {
+            updateTicket({
+              variables: {
+                _id: ticketId,
+                tagIds: newTagIds,
+              },
+            });
+          }}
+        >
+          <div className="gap-2 flex flex-wrap w-full items-center">
+            <Tooltip>
+              <div className="relative">
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+                <SelectChannel value={channelId} variant="detail" disabled />
+              </div>
+              <Tooltip.Content>Channel cannot be changed</Tooltip.Content>
+            </Tooltip>
+            <Tooltip>
+              <div className="relative">
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+                <SelectPipeline
+                  value={pipelineId}
+                  variant="detail"
+                  channelId={channelId}
+                  disabled
+                />
+              </div>
+              <Tooltip.Content>Pipeline cannot be changed</Tooltip.Content>
+            </Tooltip>
+            <SelectStatusTicket
+              variant="detail"
+              value={statusId}
+              id={ticketId}
+              pipelineId={pipelineId}
+              disabled={!canMoveTicket}
+            />
+            <SelectPriorityTicket
+              id={ticketId}
+              value={priority}
+              variant="detail"
+              disabled={!canEditTicket}
+            />
+            <SelectAssigneeTicket
+              variant="detail"
+              value={assigneeId}
+              id={ticketId}
+              disabled={!canEditTicket}
+            />
+            <SelectDateTicket
+              value={startDate ? new Date(startDate) : undefined}
+              id={ticketId}
+              type="startDate"
+              variant="detail"
+              disabled={!canEditTicket}
+            />
+            <SelectDateTicket
+              value={targetDate ? new Date(targetDate) : undefined}
+              id={ticketId}
+              type="targetDate"
+              variant="detail"
+              disabled={!canEditTicket}
+            />
+            <DropdownMenu>
+              <DropdownMenu.Trigger asChild>
+                <Button variant="ghost" size="sm">
+                  <IconSquareToggle />
+                  {state === 'active' ? 'Archive' : 'Unarchive'}
+                </Button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content>
+                <DropdownMenu.Item onSelect={handleArchiveToggle}>
+                  <IconSquareToggle />
+                  {state === 'active' ? 'Archive' : 'Unarchive'}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onSelect={handleDeleteTicket}
+                  className="text-destructive"
+                >
+                  <IconTrash />
+                  Delete
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu>
+            <FieldSubscribeSwitch isSubscribed={isSubscribed} />
+            <IconTags className="size-5 ml-2"></IconTags>
+            <TagsSelect.SelectedList />
+            <TagsSelect.Trigger variant="ICON" />
+            <Combobox.Content>
+              <TagsSelect.Content />
+            </Combobox.Content>
+          </div>
+        </TagsSelect.Provider>
+        <AttachmentUploader id={ticketId} />
+        <Separator className="mt-4" />
+        <Attachments />
+        <div className="min-h-56 overflow-y-auto">
+          <BlockEditor
+            editor={editor}
+            onChange={canEditTicket ? handleDescriptionChange : undefined}
+            className={`min-h-full read-only${!canEditTicket ? ' pointer-events-none opacity-60' : ''}`}
           />
-          <SelectPriorityTicket
-            id={ticketId}
-            value={priority}
-            variant="detail"
-          />
-          <SelectAssigneeTicket
-            variant="detail"
-            value={assigneeId}
-            id={ticketId}
-          />
-          <SelectDateTicket
-            value={startDate ? new Date(startDate) : undefined}
-            id={ticketId}
-            type="startDate"
-            variant="detail"
-          />
-          <SelectDateTicket
-            value={targetDate ? new Date(targetDate) : undefined}
-            id={ticketId}
-            type="targetDate"
-            variant="detail"
-          />
-          <DropdownMenu>
-            <DropdownMenu.Trigger asChild>
-              <Button variant="ghost" size="sm">
-                <IconSquareToggle />
-                {state === 'active' ? 'Archive' : 'Unarchive'}
-              </Button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content>
-              <DropdownMenu.Item onSelect={handleArchiveToggle}>
-                <IconSquareToggle />
-                {state === 'active' ? 'Archive' : 'Unarchive'}
-              </DropdownMenu.Item>
-              <DropdownMenu.Item
-                onSelect={handleDeleteTicket}
-                className="text-destructive"
-              >
-                <IconTrash />
-                Delete
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu>
-          <FieldSubscribeSwitch isSubscribed={isSubscribed} />
-          <IconTags className="size-5 ml-2"></IconTags>
-          <TagsSelect.SelectedList />
-          <TagsSelect.Trigger variant="ICON" />
-          <Combobox.Content>
-            <TagsSelect.Content />
-          </Combobox.Content>
         </div>
-      </TagsSelect.Provider>
-      <Separator className="my-4" />
-      <div className="min-h-56 overflow-y-auto">
-        <BlockEditor
-          editor={editor}
-          onChange={handleDescriptionChange}
-          className="min-h-full read-only"
-        />
+        <ActivityList contentId={ticketId} contentDetail={ticket} />
       </div>
-      <ActivityList contentId={ticketId} contentDetail={ticket} />
-    </div>
+    </AttachmentProvider>
   );
 };

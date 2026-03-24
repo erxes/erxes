@@ -32,10 +32,10 @@ interface Topic {
 }
 
 interface TopicDrawerProps {
-  topic?: Topic;
-  isOpen: boolean;
-  onClose: () => void;
-  onSaved?: () => void;
+  readonly topic?: Topic;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly onSaved?: () => void;
 }
 
 interface TopicFormData {
@@ -315,7 +315,7 @@ export function TopicDrawer({
                           typeof fileInfo === 'object' &&
                           'url' in fileInfo
                         ) {
-                          field.onChange((fileInfo as any).url);
+                          field.onChange(fileInfo.url);
                         }
                       }}
                     >

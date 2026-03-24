@@ -7,8 +7,10 @@ export const configMutations = {
   async productsConfigsUpdate(
     _parent: undefined,
     { configsMap },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productsConfigsManage');
+
     const codes = Object.keys(configsMap);
 
     for (const code of codes) {

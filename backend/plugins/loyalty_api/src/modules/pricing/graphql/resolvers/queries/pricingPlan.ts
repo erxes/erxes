@@ -1,9 +1,5 @@
 import { IContext, IModels } from '~/connectionResolvers';
 import dayjs from 'dayjs';
-import {
-  moduleCheckPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { getAllowedProducts } from '../../../utils/product';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
@@ -206,6 +202,4 @@ export const pricingPlanQueries = {
   },
 };
 
-moduleRequireLogin(pricingPlanQueries);
-moduleCheckPermission(pricingPlanQueries, 'showPricing');
 export default pricingPlanQueries;

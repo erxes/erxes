@@ -1,4 +1,3 @@
-import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
 import { fixNum } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
@@ -288,7 +287,5 @@ const safeRemainderMutations = {
     return await models.SafeRemainders.getRemainder(_id);
   },
 };
-
-moduleCheckPermission(safeRemainderMutations, 'manageRemainders');
 
 export default safeRemainderMutations;

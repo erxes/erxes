@@ -5,12 +5,14 @@ import { readImage, Spinner } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
 import { ActionMenu } from '@/tms/components/ActionMenu';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface BranchCardProps {
   branch: IBranch;
   onEdit: (branchId: string) => void;
   onDuplicate: (branchId: string) => void;
   onDelete: (branchId: string) => void;
+  onVisitWebsite?: (branchId: string) => void;
   duplicateLoading: boolean;
 }
 
@@ -51,6 +53,7 @@ export const BranchCard = ({
   onEdit,
   onDuplicate,
   onDelete,
+  onVisitWebsite,
   duplicateLoading,
 }: BranchCardProps) => {
   return (
@@ -66,13 +69,21 @@ export const BranchCard = ({
           onEdit={() => onEdit(branch._id)}
           onDuplicate={() => onDuplicate(branch._id)}
           onDelete={() => onDelete(branch._id)}
+          onVisitWebsite={
+            onVisitWebsite ? () => onVisitWebsite(branch._id) : undefined
+          }
           duplicateLoading={duplicateLoading}
         />
       </div>
 
-      <div className="w-full h-[140px] bg-accent/30 overflow-hidden flex items-center justify-center">
-        <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
-      </div>
+      <Link
+        to={`branches/${branch._id}`}
+        className="block w-full h-[180px] border-y bg-muted/30 hover:bg-muted/40 transition-colors"
+      >
+        <div className="overflow-hidden w-full h-full">
+          <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
+        </div>
+      </Link>
 
       <div className="flex justify-between items-center px-3 py-2 border-t">
         <div className="flex gap-2 items-center min-w-0">

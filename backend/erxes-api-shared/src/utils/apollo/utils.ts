@@ -7,6 +7,7 @@ import {
   extractUserFromHeader,
 } from '../headers';
 import { generateRequestProcess, getSubdomain } from '../utils';
+import { checkPermissionGroup } from '../../core-modules/permissions/utils';
 
 export const generateApolloContext =
   <TContext>(
@@ -34,6 +35,7 @@ export const generateApolloContext =
     const processInfo = generateRequestProcess();
 
     const __ = (doc: any) => ({ ...processInfo, ...doc });
+
     const context = {
       user,
       cpUser,
@@ -47,6 +49,7 @@ export const generateApolloContext =
         secure: req.secure,
         cookies: req.cookies,
       },
+      checkPermission: checkPermissionGroup(subdomain, user),
     };
 
     if (apolloServerContext) {

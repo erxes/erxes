@@ -38,7 +38,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Users = db.model('users', userSchema);
   models.Permissions = db.model('permissions', permissionSchema);
-  models.Apps = db.model('apps', appSchema);
+  models.Apps = db.model('app_tokens', appSchema);
   models.ClientPortals =
     db.models.client_portals || db.model('client_portals', clientPortalSchema);
 

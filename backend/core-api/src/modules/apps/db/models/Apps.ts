@@ -1,25 +1,23 @@
 import { Model } from 'mongoose';
-import * as jwt from 'jsonwebtoken';
-import * as dotenv from 'dotenv';
+import * as crypto from 'crypto';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { appSchema } from '@/apps/db/definitions/apps';
 import { IAppDocument, IApp } from 'erxes-api-shared/core-types';
-dotenv.config();
-
-const { JWT_TOKEN_SECRET = '' } = process.env;
+import { redis } from 'erxes-api-shared/utils';
 
 export interface IAppModel extends Model<IAppDocument> {
   getApp(_id: string): Promise<IAppDocument>;
   createApp(doc: IApp): Promise<IAppDocument>;
   updateApp(_id: string, doc: IApp): Promise<IAppDocument>;
+  revokeApp(_id: string): Promise<IAppDocument>;
   removeApp(_id: string): Promise<any>;
 }
 
 export const loadAppClass = (
-  subdomain: string,
   models: IModels,
   { sendDbEventLog }: EventDispatcherReturn,
+  subdomain: string,
 ) => {
   class App {
     public static async getApp(_id: string) {
@@ -33,32 +31,13 @@ export const loadAppClass = (
     }
 
     public static async createApp(doc: IApp) {
-      const app = await models.Apps.create(doc);
-      const tokenOptions: any = {};
-      const refreshOptions: any = {};
+      const token = 'sk_' + crypto.randomBytes(24).toString('hex');
 
-      if (doc.expireDate && !doc.noExpire) {
-        const date = new Date(doc.expireDate);
-        const oneDay = 30 * 24 * 3600 * 1000;
-
-        // accepts time in seconds
-        tokenOptions.expiresIn = Math.round(date.getTime() / 1000);
-
-        refreshOptions.expiresIn = Math.round(
-          new Date(date.getTime() + 30 * oneDay).getTime() / 1000,
-        );
-      }
-
-      const accessToken = await jwt.sign(
-        { app },
-        JWT_TOKEN_SECRET,
-        tokenOptions,
-      );
-      const refreshToken = await jwt.sign(
-        { app },
-        JWT_TOKEN_SECRET,
-        refreshOptions,
-      );
+      const app = await models.Apps.create({
+        ...doc,
+        token,
+        status: 'active',
+      });
 
       sendDbEventLog({
         action: 'create',
@@ -66,12 +45,7 @@ export const loadAppClass = (
         currentDocument: app.toObject(),
       });
 
-      await models.Apps.updateOne(
-        { _id: app._id },
-        { $set: { accessToken, refreshToken } },
-      );
-
-      return models.Apps.findOne({ _id: app._id });
+      return app;
     }
 
     public static async updateApp(_id: string, doc: IApp) {
@@ -93,12 +67,31 @@ export const loadAppClass = (
       return updatedApp;
     }
 
+    public static async revokeApp(_id: string) {
+      const app = await models.Apps.getApp(_id);
+
+      await models.Apps.updateOne({ _id }, { $set: { status: 'revoked' } });
+
+      await redis.del(`app_token:${subdomain}:${app.token}`);
+
+      const updatedApp = await models.Apps.findOne({ _id: app._id });
+
+      if (updatedApp) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedApp._id,
+          currentDocument: updatedApp.toObject(),
+          prevDocument: app.toObject(),
+        });
+      }
+
+      return updatedApp;
+    }
+
     public static async removeApp(_id: string) {
       const app = await models.Apps.getApp(_id);
 
-      if (app.isEnabled) {
-        throw new Error('Can not remove an enabled app');
-      }
+      await redis.del(`app_token:${subdomain}:${app.token}`);
 
       sendDbEventLog({
         action: 'delete',

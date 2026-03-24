@@ -2,15 +2,53 @@ import { gql } from '@apollo/client';
 
 export const PAGE_DETAIL = gql`
   query PageDetail($id: String!) {
-    cmsPageDetail(_id: $id) {
+    cmsPage(_id: $id) {
       _id
       name
       description
       slug
+      parentId
       clientPortalId
       createdAt
       status
       customFieldsData
+      thumbnail {
+        url
+        type
+        name
+        __typename
+      }
+      pageImages {
+        url
+        name
+        type
+        __typename
+      }
+      video {
+        url
+        type
+        name
+        __typename
+      }
+      audio {
+        url
+        type
+        name
+        __typename
+      }
+      documents {
+        url
+        type
+        name
+        __typename
+      }
+      attachments {
+        url
+        type
+        name
+        __typename
+      }
+      videoUrl
       createdUser {
         _id
         email

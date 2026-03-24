@@ -31,6 +31,22 @@ export const getPlugins = async (): Promise<string[]> => {
   return ['core', ...enabledServices, ...enabledApiPlugins];
 };
 
+const ACTIVE_PLUGINS_KEY = 'erxes-active-plugins';
+
+export const setActivePlugins = async (plugins: string[]): Promise<void> => {
+  await redis.set(ACTIVE_PLUGINS_KEY, JSON.stringify(plugins));
+};
+
+export const getActivePlugins = async (): Promise<string[]> => {
+  const data = await redis.get(ACTIVE_PLUGINS_KEY);
+
+  if (!data) {
+    return ['core'];
+  }
+
+  return JSON.parse(data);
+};
+
 export const getAvailablePlugins = async (
   subdomain: string,
 ): Promise<string[]> => {
@@ -165,7 +181,7 @@ export const initializePluginConfig = async <TConfig extends object>(
     JSON.stringify({
       ...configJSON,
       meta: {
-        ...(configJSON?.meta || {}),
+        ...configJSON?.meta,
         [propertyName]: getNonFunctionProps<TConfig>(config),
       },
     }),

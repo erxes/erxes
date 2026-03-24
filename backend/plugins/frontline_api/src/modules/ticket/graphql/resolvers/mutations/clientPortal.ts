@@ -74,6 +74,5 @@ export const cpTicketMutations: Record<string, Resolver> = {
 markResolvers(cpTicketMutations, {
   wrapperConfig: {
     forClientPortal: true,
-    cpUserRequired: true,
   },
 });

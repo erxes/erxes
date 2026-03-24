@@ -1,6 +1,7 @@
 # Base image
 FROM node:22-alpine AS base
 WORKDIR /app
+RUN apk add --no-cache git ca-certificates curl
 RUN npm install -g pnpm
 
 # Dependencies (production only)

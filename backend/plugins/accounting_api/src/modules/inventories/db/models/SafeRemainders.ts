@@ -61,7 +61,6 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         description,
         productCategoryId,
         attachment,
-        filterField,
         items,
       } = params;
 
@@ -81,8 +80,6 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       });
 
       let productFilter: any = {};
-      const attachDatas: any = {};
-      let attachFieldId = '';
 
       if (items?.length) {
         const codes: string[] = items.map((i) => i.code);
@@ -104,7 +101,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         action: 'find',
         input: {
           ...productFilter,
-          fields: { _id: 1, [`remainders.${branchId}.${departmentId}`]: 1 },
+          fields: { _id: 1, [`inventories.${branchId}.${departmentId}`]: 1 },
           sort: { code: 1 },
         },
         defaultValue: [],
@@ -117,25 +114,8 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         order++;
         console.log(product);
         const preCount =
-          product.remainders?.[branchId]?.[departmentId]?.remainder ?? 0;
+          product.inventories?.[branchId]?.[departmentId]?.remainder ?? 0;
         let count = preCount;
-
-        if (attachment?.url) {
-          const datasKey = String(
-            attachFieldId
-              ? product.customFieldsData.find(
-                  (cfd) => cfd.field === attachFieldId,
-                )?.value
-              : product[filterField],
-          );
-          const { lastCount, changeCount } = attachDatas[datasKey];
-
-          if (changeCount) {
-            count = count + changeCount;
-          } else {
-            count = lastCount;
-          }
-        }
 
         if (items?.length) {
           count = items.find((i) => i.code === product.code)?.remainder || 0;

@@ -1,3 +1,9 @@
+import {
+  IAttachment,
+  IPdfAttachment,
+  ICustomField,
+} from 'erxes-api-shared/core-types';
+
 export interface IContentCMS {
   name: string;
   description: string;
@@ -24,6 +30,7 @@ export interface IContentCMSInput {
 
 export interface ICMSMenu {
   clientPortalId: string;
+  webId?: string;
   label: string;
   objectType: string;
   objectId: string;
@@ -54,6 +61,7 @@ export interface ICMSPageItem {
 export interface ICMSPage {
   clientPortalId: string;
   name: string;
+  parentId?: string;
   description?: string;
   content?: string;
   slug: string;
@@ -61,7 +69,17 @@ export interface ICMSPage {
   status?: string;
   createdUserId?: string;
   coverImage?: string;
-  customFieldsData?: any[];
+  customFieldsData?: ICustomField;
+
+  thumbnail?: IAttachment;
+  pageImages?: IAttachment[];
+  video?: IAttachment;
+  audio?: IAttachment;
+  documents?: IAttachment[];
+  attachments?: IAttachment[];
+  videoUrl?: string;
+  pdfAttachment?: IPdfAttachment;
+
   pageItems?: ICMSPageItem[];
 }
 

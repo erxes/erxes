@@ -14,6 +14,7 @@ export const postSchema = new Schema<IPostDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
+    webId: { type: String, optional: true },
     title: { type: String, required: true },
     type: { type: String, required: true, default: 'post' },
     slug: { type: String, required: true, unique: true },
@@ -61,6 +62,8 @@ postSchema.index(
   { slug: 1, clientPortalId: 1 },
   { unique: true, sparse: true },
 );
+
+postSchema.index({ webId: 1 });
 
 export const postCategorySchema = new Schema<IPostCategoryDocument>(
   {
