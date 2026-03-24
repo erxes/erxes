@@ -47,7 +47,6 @@ const DEAL_ACTIVITY_FIELDS = [
   { field: 'stageId', label: 'Stage' },
   { field: 'status', label: 'Status' },
   { field: 'priority', label: 'Priority' },
-  { field: 'description', label: 'Description' },
   { field: 'startDate', label: 'Start Date' },
   { field: 'closeDate', label: 'Close Date' },
   { field: 'number', label: 'Deal Number' },
@@ -74,6 +73,34 @@ const getFieldLabel = (
 ) => {
   const match = fieldConfig.find((f) => f.field === field);
   return match?.label || field;
+};
+
+const extractBlocknoteText = (jsonString: string): string => {
+  if (!jsonString) return '';
+  try {
+    const blocks = JSON.parse(jsonString);
+    if (!Array.isArray(blocks)) return String(jsonString);
+
+    let text = '';
+    const extract = (contentArray: any[]) => {
+      for (const c of contentArray) {
+        if (c.type === 'text' && c.text) {
+          text += c.text + ' ';
+        }
+      }
+    };
+
+    for (const block of blocks) {
+      if (block.content && Array.isArray(block.content)) {
+        extract(block.content);
+      }
+    }
+
+    const result = text.trim();
+    return result ? `"${result}"` : '(empty)';
+  } catch {
+    return String(jsonString);
+  }
 };
 
 /**
@@ -279,6 +306,12 @@ export async function generateDealActivityLogs(
       (field) => getFieldLabel(field, DEAL_ACTIVITY_FIELDS),
     ),
     fieldChangeRule(
+      ['description'],
+      'updated',
+      () => 'Description',
+      (val) => extractBlocknoteText(val),
+    ),
+    fieldChangeRule(
       ['stageId'],
       'moved',
       async (field: string, { current, prev }: { current: any; prev: any }) => {
@@ -286,8 +319,9 @@ export async function generateDealActivityLogs(
           models.Stages.findOne({ _id: current }, { name: 1 }),
           models.Stages.findOne({ _id: prev }, { name: 1 }),
         ]);
-        return `From "${prevStage?.name || prev}" to "${currentStage?.name || current
-          }"`;
+        return `From "${prevStage?.name || prev}" to "${
+          currentStage?.name || current
+        }"`;
       },
     ),
     assignmentRule('assignedUserIds', async (ids: string[]) => {

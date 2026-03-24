@@ -4,6 +4,7 @@ import {
   ActivityLogs,
   FieldsInDetail,
   RelationWidgetSideTabs,
+  internalNoteCustomActivity,
 } from 'ui-modules';
 import { Empty, FocusSheet, ScrollArea, Tabs, useQueryState } from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
@@ -75,7 +76,10 @@ export const SalesItemDetail = () => {
                     />
                   </Tabs.Content>
                   <Tabs.Content value="activityLogs">
-                    <ActivityLogs targetId={deal?._id || ''} />
+                    <ActivityLogs
+                      targetId={deal?._id || ''}
+                      customActivities={[internalNoteCustomActivity]}
+                    />
                   </Tabs.Content>
                   <Tabs.Content value="products" className="p-6">
                     <Products deal={deal || ({} as IDeal)} refetch={refetch} />
