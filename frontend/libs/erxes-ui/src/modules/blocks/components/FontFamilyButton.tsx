@@ -55,7 +55,10 @@ export const FontFamilyButton = () => {
       const styles = editor.getActiveStyles() as FontStyles;
       setCurrentFont(styles?.fontFamily || '');
       const block = editor.getTextCursorPosition()?.block;
-      const blockSpecs = editor.schema.blockSpecs as Record<string, BlockSpecConfig>;
+      const blockSpecs = editor.schema.blockSpecs as Record<
+        string,
+        BlockSpecConfig
+      >;
       const blockSpec = block ? blockSpecs[block.type] : null;
       setIsFileBlock(!!blockSpec?.config?.isFileBlock);
     } catch {

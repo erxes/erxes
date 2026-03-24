@@ -20,10 +20,17 @@ type ImageRenderProps = ReactCustomBlockRenderProps<
   DefaultStyleSchema
 >;
 
-const CustomImagePreview: FC<Omit<ImageRenderProps, 'contentRef'>> = ({
-  block,
-}) => {
-  const { loadingState, downloadUrl } = useResolveUrl(block.props.url);
+type FileBlockWrapperProps = Parameters<typeof ResizableFileBlockWrapper>[0];
+type FileBlockRenderProps = Omit<
+  FileBlockWrapperProps,
+  'buttonText' | 'buttonIcon' | 'children'
+>;
+
+const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
+  props as unknown as FileBlockRenderProps;
+
+const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
+  const { loadingState, downloadUrl } = useResolveUrl(block.props.url ?? '');
 
   if (loadingState === 'loading') {
     return (
@@ -48,6 +55,7 @@ const CustomImagePreview: FC<Omit<ImageRenderProps, 'contentRef'>> = ({
 
 const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
+  const fileProps = toFileBlockProps(props);
 
   if (loading) {
     return (
@@ -62,12 +70,12 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
 
   return (
     <ResizableFileBlockWrapper
-      block={props.block}
-      editor={props.editor}
+      block={fileProps.block}
+      editor={fileProps.editor}
       buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
       buttonIcon={<IconPhoto size={24} />}
     >
-      <CustomImagePreview block={props.block} editor={props.editor} />
+      <CustomImagePreview block={fileProps.block} editor={fileProps.editor} />
     </ResizableFileBlockWrapper>
   );
 };
