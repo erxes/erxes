@@ -129,11 +129,16 @@ export const TourColumns = (
       header: () => (
         <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
       ),
-      cell: ({ cell }: { cell: any }) => (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
-        </RecordTableInlineCell>
-      ),
+      cell: ({ row }: { row: any }) => {
+        const tour = row.original as ITour;
+        const dateValue =
+          tour.dateType === 'flexible' ? tour.availableFrom : tour.startDate;
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={formatDate(dateValue)} />
+          </RecordTableInlineCell>
+        );
+      },
       size: 140,
     },
     {
@@ -142,11 +147,16 @@ export const TourColumns = (
       header: () => (
         <RecordTable.InlineHead icon={IconCalendar} label="End Date" />
       ),
-      cell: ({ cell }: { cell: any }) => (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
-        </RecordTableInlineCell>
-      ),
+      cell: ({ row }: { row: any }) => {
+        const tour = row.original as ITour;
+        const dateValue =
+          tour.dateType === 'flexible' ? tour.availableTo : tour.endDate;
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={formatDate(dateValue)} />
+          </RecordTableInlineCell>
+        );
+      },
       size: 140,
     },
     {

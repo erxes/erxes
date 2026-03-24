@@ -29,5 +29,7 @@ export const MainContent = ({ activeStep, branch }: MainContentProps) => {
     }
   };
 
-  return <div className="overflow-auto flex-1">{renderContent()}</div>;
+  return (
+    <div className="overflow-hidden flex-1 min-h-0">{renderContent()}</div>
+  );
 };

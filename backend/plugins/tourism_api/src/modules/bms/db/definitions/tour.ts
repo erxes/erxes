@@ -47,8 +47,21 @@ export const tourSchema = new Schema({
     label: 'location',
   },
   itineraryId: { type: String, optional: true, label: 'initeraryId' },
+  dateType: {
+    type: String,
+    enum: ['fixed', 'flexible'],
+    default: 'fixed',
+    optional: true,
+    label: 'date type',
+  },
   startDate: { type: Date, optional: true, label: 'date' },
   endDate: { type: Date, optional: true, label: 'date' },
+  availableFrom: {
+    type: Date,
+    optional: true,
+    label: 'available from',
+  },
+  availableTo: { type: Date, optional: true, label: 'available to' },
   groupSize: { type: Number, optional: true, label: 'group size' },
   guides: { type: [guideItemSchema], optional: true, label: 'guides' },
   status: {

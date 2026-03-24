@@ -46,8 +46,7 @@ export const usePagesColumns = (
       accessorKey: 'name',
       cell: ({ row }) => {
         const page = row.original;
-        const translatedLangs =
-          page.translations?.map((t) => t.language) || [];
+        const translatedLangs = page.translations?.map((t) => t.language) || [];
         const missingTranslation =
           selectedLanguage &&
           selectedLanguage !== defaultLanguage &&
@@ -63,10 +62,35 @@ export const usePagesColumns = (
               }}
               className="cursor-pointer"
             >
-              <Badge variant="secondary" className={missingTranslation ? 'text-red-500' : ''}>
+              <Badge
+                variant="secondary"
+                className={missingTranslation ? 'text-red-500' : ''}
+              >
                 <TextOverflowTooltip value={page.name} />
               </Badge>
             </div>
+          </RecordTableInlineCell>
+        );
+      },
+      size: 200,
+    },
+    {
+      id: 'parentPage',
+      header: () => (
+        <RecordTable.InlineHead icon={IconSitemap} label="Parent Page" />
+      ),
+      accessorKey: 'parentId',
+      cell: ({ row }) => {
+        const page = row.original;
+        if (!page.parentId) {
+          return (
+            <RecordTableInlineCell className="text-muted-foreground"></RecordTableInlineCell>
+          );
+        }
+        const parent = pages?.find((p) => p._id === page.parentId);
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={parent?.name || page.parentId} />
           </RecordTableInlineCell>
         );
       },

@@ -6,6 +6,14 @@ export interface IAttachment {
   duration?: number;
 }
 
+export interface IAttachment {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+  duration?: number;
+}
+
 export interface IPage {
   _id: string;
   name: string;

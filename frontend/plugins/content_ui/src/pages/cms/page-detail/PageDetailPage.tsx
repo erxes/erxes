@@ -2,6 +2,7 @@ import { PageContainer, Spinner } from 'erxes-ui';
 import { PageDrawer } from '~/modules/cms/pages/PageDrawer';
 import { PagesHeader } from '~/modules/cms/pages/components/PagesHeader';
 import { PageHeaderActions } from '~/modules/cms/pages/components/PageHeaderActions';
+import { PageHeaderActions } from '~/modules/cms/pages/components/PageHeaderActions';
 import { usePageDetail } from '~/modules/cms/pages/hooks/usePageDetail';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useCallback } from 'react';

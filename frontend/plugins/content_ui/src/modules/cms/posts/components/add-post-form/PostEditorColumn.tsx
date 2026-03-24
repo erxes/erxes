@@ -1,19 +1,23 @@
 import { Form, Input } from 'erxes-ui';
+import { UseFormReturn, FieldValues } from 'react-hook-form';
 import { PostPreview } from '../../PostPreview';
-import { formatInitialContent } from '../../formHelpers';
-import { CustomFieldsSection } from './CustomFieldsSection';
+import { CustomFieldValue } from '../../CustomFieldInput';
+import { CustomFieldsSection, FieldGroup } from './CustomFieldsSection';
 
 interface PostEditorColumnProps {
-  form: any;
+  form: UseFormReturn<FieldValues>;
   selectedLanguage: string;
   defaultLanguage: string;
   selectedType: string | undefined;
-  fieldGroups: any[];
-  fullPost: any;
+  fieldGroups: FieldGroup[];
+  fullPost: { _id?: string } | null | undefined;
   generateSlug: (val: string) => string;
   handleEditorChange: (content: string) => void;
-  getCustomFieldValue: (fieldId: string) => any;
-  updateCustomFieldValue: (fieldId: string, value: any) => void;
+  getCustomFieldValue: (fieldId: string) => CustomFieldValue;
+  updateCustomFieldValue: (
+    fieldId: string,
+    value: string | boolean | string[],
+  ) => void;
 }
 
 export const PostEditorColumn = ({

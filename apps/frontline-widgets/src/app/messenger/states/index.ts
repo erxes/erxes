@@ -11,10 +11,15 @@ import { IHeaderItem, IMessage } from '../types';
 import type { INotificationItem } from '../hooks/useWidgetNotifications';
 import { HEADER_ITEMS } from '../constants';
 import { ITicketCheckProgress } from '../ticket/types';
+import { atomWithStorage } from 'jotai/utils';
+import { set } from 'date-fns';
 
 export const customerIdAtom = atom<string | null>(null);
 
-export const customerDataAtom = atom<ICustomerData | null>(null);
+export const customerDataAtom = atomWithStorage<ICustomerData | null>(
+  'customerData',
+  null,
+);
 
 export const messengerTabAtom = atom<string>('default');
 export const setActiveTabAtom = atom(null, (get, set, tab: string) => {

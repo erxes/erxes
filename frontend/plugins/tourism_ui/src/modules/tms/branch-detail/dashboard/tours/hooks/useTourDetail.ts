@@ -13,9 +13,12 @@ export interface ITourDetail {
     | 'running'
     | 'completed'
     | 'cancelled';
+  dateType?: 'fixed' | 'flexible';
   duration?: number;
   categoryIds?: string[];
   endDate?: string;
+  availableFrom?: string;
+  availableTo?: string;
   groupSize?: number;
   imageThumbnail?: string;
   images?: string[];

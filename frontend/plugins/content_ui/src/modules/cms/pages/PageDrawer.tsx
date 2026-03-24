@@ -2,6 +2,9 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { Form, ScrollArea, toast } from 'erxes-ui';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
+import { Form, ScrollArea, toast } from 'erxes-ui';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
 import { useAddPage } from './hooks/useAddPage';
@@ -110,6 +113,7 @@ interface PageInput {
   slug: string;
   description: string | undefined;
   parentId?: string;
+  parentId?: string;
   status: string;
   language?: string;
   translations?: PageTranslationInput[];
@@ -138,6 +142,10 @@ function resolveMainFields(
       description: normalizeContent(defaultLangData.content || ''),
     };
   }
+  return {
+    name: currentName,
+    description: normalizeContent(currentDescription || ''),
+  };
   return {
     name: currentName,
     description: normalizeContent(currentDescription || ''),
@@ -196,10 +204,20 @@ interface PageFormProps extends IPageDrawerProps {
   }) => void;
 }
 
+interface PageFormProps extends IPageDrawerProps {
+  onFormReady?: (formState: {
+    form: UseFormReturn<IPageFormData>;
+    onSubmit: (data: IPageFormData) => void;
+    getSaving: () => boolean;
+  }) => void;
+}
+
 export function PageDrawer({
   page,
   onClose,
   clientPortalId,
+  onFormReady,
+}: PageFormProps) {
   onFormReady,
 }: PageFormProps) {
   const isEditing = Boolean(page);
@@ -239,8 +257,16 @@ export function PageDrawer({
       path: '',
       description: '',
       parentId: '',
+      parentId: '',
       status: 'active',
       clientPortalId,
+      thumbnail: null,
+      gallery: [],
+      video: null,
+      videoUrl: '',
+      audio: null,
+      documents: [],
+      attachments: [],
       thumbnail: null,
       gallery: [],
       video: null,
@@ -259,6 +285,12 @@ export function PageDrawer({
   useEffect(() => {
     savingRef.current = saving;
   }, [saving]);
+  const saving = savingEdit || savingAdd;
+
+  const savingRef = useRef(saving);
+  useEffect(() => {
+    savingRef.current = saving;
+  }, [saving]);
 
   useEffect(() => {
     if (isEditing && page) {
@@ -267,8 +299,16 @@ export function PageDrawer({
         path: page.slug || '',
         description: page.description || '',
         parentId: page.parentId || '',
+        parentId: page.parentId || '',
         status: page.status || 'active',
         clientPortalId,
+        thumbnail: page.thumbnail || null,
+        gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
+        video: page.video?.url || null,
+        videoUrl: page.videoUrl || '',
+        audio: page.audio?.url || null,
+        documents: (page.documents || []).map((d) => d.url).filter(Boolean),
+        attachments: (page.attachments || []).map((a) => a.url).filter(Boolean),
         thumbnail: page.thumbnail || null,
         gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
         video: page.video?.url || null,
@@ -283,8 +323,16 @@ export function PageDrawer({
         path: '',
         description: '',
         parentId: '',
+        parentId: '',
         status: 'active',
         clientPortalId,
+        thumbnail: null,
+        gallery: [],
+        video: null,
+        videoUrl: '',
+        audio: null,
+        documents: [],
+        attachments: [],
         thumbnail: null,
         gallery: [],
         video: null,
@@ -363,7 +411,38 @@ export function PageDrawer({
     const curDefaultLangData = defaultLangDataRef.current;
     const curTranslations = translationsRef.current;
 
+  const selectedLanguageRef = useRef(selectedLanguage);
+  useEffect(() => {
+    selectedLanguageRef.current = selectedLanguage;
+  }, [selectedLanguage]);
+
+  const defaultLanguageRef = useRef(defaultLanguage);
+  useEffect(() => {
+    defaultLanguageRef.current = defaultLanguage;
+  }, [defaultLanguage]);
+
+  const defaultLangDataRef = useRef(defaultLangData);
+  useEffect(() => {
+    defaultLangDataRef.current = defaultLangData;
+  }, [defaultLangData]);
+
+  const translationsRef = useRef(translations);
+  useEffect(() => {
+    translationsRef.current = translations;
+  }, [translations]);
+
+  const onSubmitRef = useRef<(data: IPageFormData) => void>(() => undefined);
+
+  onSubmitRef.current = (data: IPageFormData) => {
+    const curSelectedLanguage = selectedLanguageRef.current;
+    const curDefaultLanguage = defaultLanguageRef.current;
+    const curDefaultLangData = defaultLangDataRef.current;
+    const curTranslations = translationsRef.current;
+
     const isNonDefaultLang =
+      Boolean(curSelectedLanguage) &&
+      Boolean(curDefaultLanguage) &&
+      curSelectedLanguage !== curDefaultLanguage;
       Boolean(curSelectedLanguage) &&
       Boolean(curDefaultLanguage) &&
       curSelectedLanguage !== curDefaultLanguage;
@@ -376,6 +455,7 @@ export function PageDrawer({
       currentDescription,
       isCreating,
       isNonDefaultLang,
+      curDefaultLangData,
       curDefaultLangData,
     );
 
@@ -398,13 +478,29 @@ export function PageDrawer({
     const videoPayload = normalizeAttachment(data.video ?? undefined);
     const audioPayload = normalizeAttachment(data.audio ?? undefined);
 
+    const imagesPayload = makeAttachmentArrayFromUrls(data.gallery ?? []);
+    const documentsPayload = makeAttachmentArrayFromUrls(data.documents ?? []);
+    const attachmentsPayload = makeAttachmentArrayFromUrls(
+      data.attachments ?? [],
+    );
+    const videoPayload = normalizeAttachment(data.video ?? undefined);
+    const audioPayload = normalizeAttachment(data.audio ?? undefined);
+
     const input: PageInput = {
       clientPortalId: data.clientPortalId,
       name: main.name,
       slug: data.path,
       description: main.description,
       parentId: data.parentId || undefined,
+      parentId: data.parentId || undefined,
       status: data.status || 'active',
+      thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
+      pageImages: imagesPayload.length ? imagesPayload : undefined,
+      video: videoPayload,
+      videoUrl: data.videoUrl,
+      audio: audioPayload,
+      documents: documentsPayload.length ? documentsPayload : undefined,
+      attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
       thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
       pageImages: imagesPayload.length ? imagesPayload : undefined,
       video: videoPayload,
@@ -415,7 +511,10 @@ export function PageDrawer({
     };
 
     if (curSelectedLanguage) {
+    if (curSelectedLanguage) {
       input.language = resolveLanguage(
+        curSelectedLanguage,
+        curDefaultLanguage,
         curSelectedLanguage,
         curDefaultLanguage,
         isCreating,
@@ -424,7 +523,11 @@ export function PageDrawer({
     }
 
     if (curDefaultLanguage) {
+    if (curDefaultLanguage) {
       const translationEntries = buildPageTranslations(
+        curTranslations,
+        curDefaultLanguage,
+        curSelectedLanguage,
         curTranslations,
         curDefaultLanguage,
         curSelectedLanguage,
@@ -453,7 +556,15 @@ export function PageDrawer({
 
   const isSwitchingLanguageRef = useRef(false);
 
+  const onSubmit = useCallback(
+    (data: IPageFormData) => onSubmitRef.current(data),
+    [],
+  );
+
+  const isSwitchingLanguageRef = useRef(false);
+
   const onLanguageChange = (lang: string) => {
+    isSwitchingLanguageRef.current = true;
     isSwitchingLanguageRef.current = true;
     handleLanguageChange(
       lang,
@@ -467,8 +578,15 @@ export function PageDrawer({
         requestAnimationFrame(() => {
           isSwitchingLanguageRef.current = false;
         });
+        requestAnimationFrame(() => {
+          isSwitchingLanguageRef.current = false;
+        });
       },
       page
+        ? {
+            title: page.name || '',
+            content: page.description || '',
+          }
         ? {
             title: page.name || '',
             content: page.description || '',
@@ -548,6 +666,25 @@ export function PageDrawer({
               </div>
             </div>
           )}
+    <ScrollArea className="flex-auto" viewportClassName="p-4">
+      <Form {...form}>
+        <div className="flex flex-col w-full mb-4 px-4 pt-4">
+          {hasPermissionError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+              <div className="flex items-start gap-2">
+                <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-red-800">
+                    Permission Required
+                  </p>
+                  <p className="text-red-700 mt-1">
+                    You need permission to create or edit pages. Please contact
+                    your administrator to grant this permission.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <PageEditorColumn
@@ -568,7 +705,28 @@ export function PageDrawer({
               isTranslationMode={isTranslationMode}
             />
           </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <PageEditorColumn
+              form={form}
+              selectedLanguage={selectedLanguage}
+              defaultLanguage={defaultLanguage}
+              page={page}
+              handleEditorChange={handleEditorChange}
+            />
+            <PageSidebarPanel
+              form={form}
+              websiteId={clientPortalId}
+              currentPageId={page?._id}
+              availableLanguages={availableLanguages}
+              selectedLanguage={selectedLanguage}
+              languageOptions={languageOptions}
+              handleLanguageChange={onLanguageChange}
+              isTranslationMode={isTranslationMode}
+            />
+          </div>
         </div>
+      </Form>
+    </ScrollArea>
       </Form>
     </ScrollArea>
   );
