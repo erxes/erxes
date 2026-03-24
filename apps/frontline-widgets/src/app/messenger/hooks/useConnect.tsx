@@ -150,7 +150,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
 
     executeConnection();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [integrationId, messengerData?.email]);
+  }, [integrationId, messengerData?.email, messengerData?.phone]);
 
   return {
     result: data,

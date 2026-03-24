@@ -644,8 +644,9 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
-          module: 'broadcast',
+          module: 'broadcasts',
           actions: [
+            'broadcastRead',
             'broadcastCreate',
             'broadcastUpdate',
             'broadcastDelete',
@@ -726,8 +727,8 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
-          module: 'broadcast',
-          actions: ['broadcastCreate', 'broadcastUpdate'],
+          module: 'broadcasts',
+          actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
         },
       ],
@@ -811,13 +812,13 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
-          module: 'broadcast',
+          module: 'broadcasts',
           actions: ['broadcastRead'],
           scope: 'all',
         },
         {
           plugin: 'core',
-          module: 'broadcast',
+          module: 'broadcasts',
           actions: ['broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
         },
