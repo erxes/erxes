@@ -28,6 +28,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
       'profile',
       'login',
       'register',
+      'booking',
     ];
     const ecommercePages = [
       'products',
@@ -37,6 +38,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
       'confirmation',
       'login',
       'register',
+      'booking',
     ];
     const commerceKinds = ['ecommerce', 'restaurant', 'hotel'];
 
