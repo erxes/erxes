@@ -20,11 +20,9 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './paymentSettings': './src/modules/payment/Settings.tsx',
-    './widgets': './src/widgets/Widgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
-    // 🔥 make core libs singleton
     if (coreLibraries.has(libraryName)) {
       return {
         ...defaultConfig,
@@ -32,14 +30,6 @@ const config: ModuleFederationConfig = {
         requiredVersion: false,
       };
     }
-
-    // 🔥 CRITICAL FIX: share your context file
-    if (libraryName === './src/widgets/hooks/use-payment') {
-      return {
-        singleton: true,
-      };
-    }
-
     return false;
   },
 };

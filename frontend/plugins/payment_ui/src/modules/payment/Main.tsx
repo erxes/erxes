@@ -7,11 +7,6 @@ const IndexPage = lazy(() =>
   })),
 );
 
-const PaymentWidget = lazy(() =>
-  import('../../widgets/Widgets').then((module) => ({
-    default: module.default,
-  })),
-);
 
 const PaymentMain = () => {
   return (
@@ -19,12 +14,6 @@ const PaymentMain = () => {
       <Routes>
         {/* Admin page */}
         <Route path="/" element={<IndexPage />} />
-
-        {/* PUBLIC WIDGET ROUTE */}
-        <Route
-          path="/pl:payment/widget/invoice/:id"
-          element={<PaymentWidget />}
-        />
       </Routes>
     </Suspense>
   );
