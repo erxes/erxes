@@ -81,6 +81,7 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue("automations:trigger.find", async ({ subdomain, data }) => {
+    console.log({ subdomain, data },"Hell yeah");
     debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
     const models = await generateModels(subdomain);
     try {

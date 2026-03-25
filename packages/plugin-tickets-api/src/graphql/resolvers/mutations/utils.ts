@@ -139,7 +139,7 @@ export const itemsAdd = async (
       contentType: type,
     });
 
-    await putCreateLog(
+    putCreateLog(
       models,
       subdomain,
       {
@@ -147,7 +147,8 @@ export const itemsAdd = async (
         newData: extendedDoc,
         object: item,
       },
-      user
+      user,
+      { sendTriggerAutomationTRPC: true }
     );
   }
 
@@ -402,7 +403,8 @@ export const itemsEdit = async (
       newData: extendedDoc,
       updatedDocument: updatedItem,
     },
-    user
+    user,
+    { sendTriggerAutomationTRPC: true }
   );
 
   const updatedStage = await models.Stages.getStage(updatedItem.stageId);
@@ -633,7 +635,7 @@ export const itemsChange = async (
     });
   }
 
-  await putUpdateLog(
+  putUpdateLog(
     models,
     subdomain,
     {
@@ -642,7 +644,8 @@ export const itemsChange = async (
       newData: extendedDoc,
       updatedDocument: updatedItem,
     },
-    user
+    user,
+    { sendTriggerAutomationTRPC: true }
   );
 
   // order notification

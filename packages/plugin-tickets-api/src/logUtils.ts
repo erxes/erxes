@@ -489,7 +489,9 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
+    options?:{sendTriggerAutomationTRPC?:boolean}
+
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
@@ -503,7 +505,8 @@ export const putUpdateLog = async (
   await commonPutUpdateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `tickets:${logDoc.type}` },
-    user
+    user,
+    options
   );
 };
 
@@ -511,7 +514,8 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
+  options?:{sendTriggerAutomationTRPC?:boolean}
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
@@ -525,7 +529,8 @@ export const putCreateLog = async (
   await commonPutCreateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `tickets:${logDoc.type}` },
-    user
+    user,
+    options
   );
 };
 
