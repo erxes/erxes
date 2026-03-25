@@ -134,7 +134,11 @@ export const TeamMemberMoreColumnCell = ({
                   }
                 >
                   <div className="flex items-center gap-2">
-                    {loading ? <Spinner size="sm" /> : <IconRefresh size={18} />}
+                    {loading ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      <IconRefresh size={18} />
+                    )}
                     Resend Invite
                   </div>
                 </Command.Item>

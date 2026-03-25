@@ -1,9 +1,4 @@
-import {
-  Can,
-  PageHeader,
-  PageHeaderEnd,
-  PageHeaderStart,
-} from 'ui-modules';
+import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { CreateBrand } from './CreateBrand';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';

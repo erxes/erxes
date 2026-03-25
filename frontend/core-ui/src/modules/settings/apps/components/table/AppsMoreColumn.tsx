@@ -9,11 +9,7 @@ import { useSetAtom } from 'jotai';
 import { editingAppAtom } from '../../state';
 import { Can } from 'ui-modules';
 
-export const AppsMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IApp, unknown>;
-}) => {
+export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
   const { _id, name, status } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
