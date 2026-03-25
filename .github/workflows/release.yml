@@ -39,6 +39,7 @@ jobs:
             erxes/erxes-next-logs \
             erxes/erxes-next-automations \
             erxes/erxes-next-ui \
+            erxes/posclient-front\
             erxes/frontline-widgets; do
             echo "Tagging $IMAGE:latest → $IMAGE:$VERSION"
             docker buildx imagetools create \
