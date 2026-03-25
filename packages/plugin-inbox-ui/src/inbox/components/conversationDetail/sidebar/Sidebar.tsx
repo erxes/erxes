@@ -221,6 +221,12 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
     if (currentSubTab === "details") {
       return (
         <TabContent>
+          <TaggerSection
+            data={customer}
+            type="core:customer"
+            refetchQueries={taggerRefetchQueries}
+            collapseCallback={toggleSection}
+          />
           <DetailInfo
             customer={customer}
             fieldsVisibility={customerVisibility}
@@ -244,12 +250,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
             />
             <ConversationCustomFieldsSection conversation={conversation} />
           </Box>
-          <TaggerSection
-            data={customer}
-            type="core:customer"
-            refetchQueries={taggerRefetchQueries}
-            collapseCallback={toggleSection}
-          />
+
 
           {this.renderTrackedData({ customer, kind, toggleSection })}
           {this.renderDeviceProperties({
