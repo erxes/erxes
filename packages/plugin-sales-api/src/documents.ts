@@ -50,8 +50,10 @@ const commonFields = [
   { value: 'closeDate', name: 'Close date' },
   { value: 'description', name: 'Description' },
   { value: 'productsInfo', name: 'Products information' },
+  { value: 'productCategoryInfo', name: 'Products with category information' },
   { value: 'servicesInfo', name: 'Services information' },
   { value: 'assignedUsers', name: 'Assigned users' },
+  { value: 'labels', name: 'Labels' },
   { value: 'stageName', name: 'Stage name' },
   { value: 'brandName', name: 'Brand name' },
   { value: 'customers', name: 'Customers' },
@@ -199,6 +201,17 @@ export default {
         )
         .join(',')
     );
+
+    if (replacedContent.includes('{{ labels }}')) {
+      const labels = await models.PipelineLabels.find({
+        _id: { $in: item.labelIds || [] }
+      });
+
+      replacedContent = replacedContent.replace(
+        /{{ labels }}/g,
+        labels.map(label => label.name).join(', ')
+      );
+    }
 
     if (
       replacedContent.includes('{{ customers }}') ||
@@ -404,6 +417,125 @@ export default {
 
       return { totalAmount, discount };
     };
+
+    const replaceProductCategoryInfo = async () => {
+      const productsData = item.productsData || [];
+      const productRows: string[] = [];
+      let index = 0;
+      let totalAmount = 0;
+      let totalQuantity = 0;
+
+      for (const pd of productsData) {
+        if (!pd || !pd.productId) {
+          continue;
+        }
+
+        if (!pd.tickUsed) {
+          continue;
+        }
+
+        const product = await sendCoreMessage({
+          subdomain,
+          action: 'products.findOne',
+          data: { _id: pd.productId },
+          isRPC: true
+        });
+
+        if (!product) {
+          continue;
+        }
+
+        if (
+          (brandId &&
+            brandId !== 'noBrand' &&
+            !product.scopeBrandIds.includes(brandId)) ||
+          (brandId === 'noBrand' && product.scopeBrandIds.length > 0)
+        ) {
+          continue;
+        }
+
+        if (
+          (branchId && branchId !== 'noBranch' && pd.branchId !== branchId) ||
+          (branchId === 'noBranch' && pd.branchId)
+        ) {
+          continue;
+        }
+
+        if (
+          (departmentId &&
+            departmentId !== 'noDepartment' &&
+            pd.departmentId !== departmentId) ||
+          (departmentId === 'noDepartment' && pd.departmentId)
+        ) {
+          continue;
+        }
+
+        let categoryName = '';
+        if (product.categoryId) {
+          const category = await sendCoreMessage({
+            subdomain,
+            action: 'categories.findOne',
+            data: { _id: product.categoryId },
+            isRPC: true
+          });
+          categoryName = category ? category.name : '';
+        }
+
+        index++;
+
+        const tAmount = pd.quantity * pd.unitPrice;
+        totalAmount += tAmount;
+        totalQuantity += pd.quantity;
+
+        productRows.push(
+          `<tr>
+            <td>${index}</td>
+            <td>${categoryName}</td>
+            <td>${product.name}</td>
+            <td>${pd.quantity}</td>
+            <td>${toMoney(pd.unitPrice)}</td>
+            <td>${toMoney(tAmount)}</td>
+          </tr>
+          `
+        );
+      }
+
+      replacedContent = replacedContent.replace(
+        /{{ productCategoryInfo }}/g,
+        productRows.length > 0
+          ? `<table>
+              <tbody>
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>Category</th>
+                    <th>Product name</th>
+                    <th>Quantity</th>
+                    <th>Unit price</th>
+                    <th>Total amount</th>
+                  </tr>
+                </thead>
+                ${productRows.join('')}
+                <tr>
+                  <td colspan="3"><strong>Total</strong></td>
+                  <td><strong>${totalQuantity}</strong></td>
+                  <td></td>
+                  <td><strong>${toMoney(totalAmount)}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <script>
+              window.print();
+            </script>
+            `
+          : ''
+      );
+    };
+
+    if (replacedContent.includes('{{ productCategoryInfo }}')) {
+      await replaceProductCategoryInfo();
+    }
 
     const replaceProductsResult = await replaceProducts(
       /{{ productsInfo }}/g,
