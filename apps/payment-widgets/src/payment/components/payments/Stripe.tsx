@@ -76,7 +76,6 @@ const CheckoutForm = () => {
 
 const StripePayment = () => {
   const { paymentId } = usePayment();
-  console.log('🔥 paymentId:', paymentId);
   // Initialize the stripePromise using the publishable key
   const { data, loading } = useQuery(QUERY, {
     variables: { id: paymentId },

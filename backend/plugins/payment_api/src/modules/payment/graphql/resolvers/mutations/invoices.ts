@@ -6,12 +6,10 @@ import { IInvoice } from '~/modules/payment/@types/invoices';
 
 const mutations: Record<string, Resolver> = {
   async generateInvoiceUrl(_root, { input }, { models }) {
-    console.log('🔥 paymentIds input:', input.paymentIds);
 
     const invoice = await models.Invoices.createInvoice({
       ...input,
     });
-    console.log('🔥 CREATED INVOICE:', invoice);
 
     const payment = await models.PaymentMethods.findOne({
       _id: input.paymentIds[0],
@@ -155,9 +153,6 @@ const mutations: Record<string, Resolver> = {
             if (!res.ok) {
               throw new Error(`HTTP ${res.status} – ${res.statusText}`);
             }
-            console.log(
-              `[invoicesCheck] Callback succeeded for invoice ${_id}`,
-            );
           })
           .catch((err) => {
             console.error(
