@@ -1,4 +1,4 @@
-import { chunkText } from '@/utils/cloudflare';
+import { chunkText } from '../utils/cloudflare';
 
 export async function embedTextCFChunks(
   text: string,

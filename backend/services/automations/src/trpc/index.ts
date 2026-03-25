@@ -1,5 +1,5 @@
-import { t } from '@/trpc/init-trpc';
-import { automationsTriggerTrpcRouter } from '@/trpc/automations/trigger';
+import { t } from './init-trpc';
+import { automationsTriggerTrpcRouter } from './automations/trigger';
 
 export const appRouter = t.mergeRouters(automationsTriggerTrpcRouter);
 

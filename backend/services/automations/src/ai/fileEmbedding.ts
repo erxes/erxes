@@ -1,10 +1,10 @@
-import { embedTextCFChunks } from '@/ai/embedTextCFChunks';
-import { generateTextCF } from '@/ai/generateTextCF';
+import { embedTextCFChunks } from './embedTextCFChunks';
+import { generateTextCF } from './generateTextCF';
 import {
   getPromptMessageTemplate,
   getObjectGenerationPrompt,
-} from '@/ai/prompts';
-import { getFileAsStringFromCF } from '@/utils/cloudflare';
+} from './prompts';
+import { getFileAsStringFromCF } from '../utils/cloudflare';
 import { getEnv } from 'erxes-api-shared/utils';
 export interface IFileEmbedding {
   fileId: string;

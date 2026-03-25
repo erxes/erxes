@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
-import { setExecutionWaitAction } from '@/bullmq/actionHandlerWorker/setWait';
-import { generateModels } from '@/connectionResolver';
-import { TAutomationWaitEventConfig } from '@/types';
+import { setExecutionWaitAction } from '../../bullmq/actionHandlerWorker/setWait';
+import { generateModels } from '../../connectionResolver';
+import { TAutomationWaitEventConfig } from '../../types';
 import {
   AUTOMATION_EXECUTION_STATUS,
   EXECUTE_WAIT_TYPES,

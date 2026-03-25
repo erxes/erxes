@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { t } from '@/trpc/init-trpc';
-import { generateModels } from '@/connectionResolver';
-import { checkIsWaitingAction } from '@/executions/checkIsWaitingActionTarget';
-import { executeWaitingAction } from '@/executions/executeWaitingAction';
-import { receiveTrigger } from '@/executions/receiveTrigger';
-import { repeatActionExecution } from '@/executions/repeatActionExecution';
+import { t } from '../init-trpc';
+import { generateModels } from '../../connectionResolver';
+import { checkIsWaitingAction } from '../../executions/checkIsWaitingActionTarget';
+import { executeWaitingAction } from '../../executions/executeWaitingAction';
+import { receiveTrigger } from '../../executions/receiveTrigger';
+import { repeatActionExecution } from '../../executions/repeatActionExecution';
 
 export const automationsTriggerTrpcRouter = t.router({
   automations: t.router({

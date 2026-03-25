@@ -37,5 +37,4 @@ COPY backend/services/automations/dist ./dist
 
 ENV NODE_ENV=production
 USER 1000
-CMD ["node", "-r", "tsconfig-paths/register", "dist/src/main.js"]
-
+CMD ["node", "dist/src/main.js"]

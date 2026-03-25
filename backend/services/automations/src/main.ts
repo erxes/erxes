@@ -12,9 +12,9 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import express from 'express';
 import * as http from 'http';
 import { initMQWorkers } from './bullmq/initMQWorkers';
-import { debugError, debugInfo } from '@/debugger';
-import { webhookRoutes } from '@/executions/actions/webhook/incoming/webhookRoutes';
-import { appRouter } from '@/trpc';
+import { debugError, debugInfo } from './debugger';
+import { webhookRoutes } from './executions/actions/webhook/incoming/webhookRoutes';
+import { appRouter } from './trpc';
 
 const {
   DOMAIN,

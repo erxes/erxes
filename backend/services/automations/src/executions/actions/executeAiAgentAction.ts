@@ -1,4 +1,4 @@
-import { sendAutomationWorkerMessage } from '@/utils/sendAutomationWorkerMessage';
+import { sendAutomationWorkerMessage } from '../../utils/sendAutomationWorkerMessage';
 import {
   IAutomationAction,
   IAutomationExecutionDocument,
