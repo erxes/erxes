@@ -19,6 +19,7 @@ import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useMutation } from '@apollo/client';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
 import { getDepthPrefix } from '../menuUtils';
+import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 
 const BADGE_CLASS =
   'mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent';
@@ -67,10 +68,12 @@ const MoreCell = ({ row, onEdit, refetch }: MoreCellProps) => {
 interface LabelCellProps {
   cell: any;
   refetch: () => void;
+  isMissing: (translations?: { language: string }[]) => boolean;
 }
 
-const LabelCell = ({ cell, refetch }: LabelCellProps) => {
+const LabelCell = ({ cell, refetch, isMissing }: LabelCellProps) => {
   const original = cell.row.original as any;
+  const missing = isMissing(original.translations);
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState<string>(cell.getValue() as string);
   const [editMenu] = useMutation(CMS_MENU_EDIT);
@@ -93,7 +96,7 @@ const LabelCell = ({ cell, refetch }: LabelCellProps) => {
       }}
     >
       <RecordTableInlineCell.Trigger>
-        <span>
+        <span className={missing ? 'text-red-500' : ''}>
           {getDepthPrefix(original.depth) + (cell.getValue() as string)}
         </span>
       </RecordTableInlineCell.Trigger>
@@ -107,10 +110,13 @@ const LabelCell = ({ cell, refetch }: LabelCellProps) => {
   );
 };
 
-export const createMenusColumns = (
+export const useMenusColumns = (
   onEdit: (menu: any) => void,
   refetch: () => void,
-): ColumnDef<any>[] => [
+): ColumnDef<Record<string, unknown>>[] => {
+  const { isMissing } = useIsTranslationMissing();
+
+  return [
   {
     id: 'more',
     header: () => <span className="sr-only">More</span>,
@@ -122,7 +128,7 @@ export const createMenusColumns = (
     id: 'label',
     header: () => <RecordTable.InlineHead icon={IconList} label="Label" />,
     accessorKey: 'label',
-    cell: ({ cell }) => <LabelCell cell={cell} refetch={refetch} />,
+    cell: ({ cell }) => <LabelCell cell={cell} refetch={refetch} isMissing={isMissing} />,
     size: 280,
   },
   {
@@ -152,3 +158,4 @@ export const createMenusColumns = (
     size: 140,
   },
 ];
+};

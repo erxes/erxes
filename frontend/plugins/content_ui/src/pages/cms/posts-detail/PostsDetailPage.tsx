@@ -2,7 +2,7 @@ import { PageContainer } from 'erxes-ui';
 import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Spinner } from 'erxes-ui';
@@ -19,8 +19,17 @@ export const PostsDetailPage = ({
   const navigate = useNavigate();
   const { websiteId } = useParams();
 
+  const languageChangeRef = useRef<(lang: string) => void>();
+
   const handleFormReady = useCallback((state: any) => {
     setFormState(state);
+    languageChangeRef.current = state.handleLanguageChange;
+  }, []);
+
+  const handleHeaderLanguageChange = useCallback((lang: string) => {
+    if (languageChangeRef.current) {
+      languageChangeRef.current(lang);
+    }
   }, []);
 
   const handleClose = useCallback(() => {
@@ -29,7 +38,7 @@ export const PostsDetailPage = ({
 
   return (
     <PageContainer key={postId}>
-      <PostsHeader>
+      <PostsHeader onLanguageChange={handleHeaderLanguageChange}>
         {formState && (
           <AddPostHeaderActions
             form={formState.form}
