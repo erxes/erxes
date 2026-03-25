@@ -109,7 +109,7 @@ const LabelCell = ({ cell, refetch, isMissing }: LabelCellProps) => {
     >
       <RecordTableInlineCell.Trigger>
         <span className={missing ? 'text-red-500' : ''}>
-          {getDepthPrefix(original.depth) + (cell.getValue() as string)}
+          {getDepthPrefix(original.depth || 0) + (cell.getValue() as string)}
         </span>
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
@@ -129,45 +129,49 @@ export const useMenusColumns = (
   const { isMissing } = useIsTranslationMissing();
 
   return [
-  {
-    id: 'more',
-    header: () => <span className="sr-only">More</span>,
-    cell: ({ row }) => <MoreCell row={row} onEdit={onEdit} refetch={refetch} />,
-    size: 40,
-  },
-  RecordTable.checkboxColumn as ColumnDef<MenuItem>,
-  {
-    id: 'label',
-    header: () => <RecordTable.InlineHead icon={IconList} label="Label" />,
-    accessorKey: 'label',
-    cell: ({ cell }) => <LabelCell cell={cell} refetch={refetch} isMissing={isMissing} />,
-    size: 280,
-  },
-  {
-    id: 'url',
-    header: () => <RecordTable.InlineHead icon={IconLink} label="URL" />,
-    accessorKey: 'url',
-    cell: ({ cell }) => (
-      <div className={BADGE_CLASS}>
-        <span className="text-sm text-gray-500">
-          {(cell.getValue() as string) || ''}
-        </span>
-      </div>
-    ),
-    size: 260,
-  },
-  {
-    id: 'kind',
-    header: () => <RecordTable.InlineHead icon={IconArticle} label="Kind" />,
-    accessorKey: 'kind',
-    cell: ({ cell }) => (
-      <div className={BADGE_CLASS}>
-        <span className="text-sm text-gray-500">
-          {(cell.getValue() as string) || ''}
-        </span>
-      </div>
-    ),
-    size: 140,
-  },
-];
+    {
+      id: 'more',
+      header: () => <span className="sr-only">More</span>,
+      cell: ({ row }) => (
+        <MoreCell row={row} onEdit={onEdit} refetch={refetch} />
+      ),
+      size: 40,
+    },
+    RecordTable.checkboxColumn as ColumnDef<MenuItem>,
+    {
+      id: 'label',
+      header: () => <RecordTable.InlineHead icon={IconList} label="Label" />,
+      accessorKey: 'label',
+      cell: ({ cell }) => (
+        <LabelCell cell={cell} refetch={refetch} isMissing={isMissing} />
+      ),
+      size: 280,
+    },
+    {
+      id: 'url',
+      header: () => <RecordTable.InlineHead icon={IconLink} label="URL" />,
+      accessorKey: 'url',
+      cell: ({ cell }) => (
+        <div className={BADGE_CLASS}>
+          <span className="text-sm text-gray-500">
+            {(cell.getValue() as string) || ''}
+          </span>
+        </div>
+      ),
+      size: 260,
+    },
+    {
+      id: 'kind',
+      header: () => <RecordTable.InlineHead icon={IconArticle} label="Kind" />,
+      accessorKey: 'kind',
+      cell: ({ cell }) => (
+        <div className={BADGE_CLASS}>
+          <span className="text-sm text-gray-500">
+            {(cell.getValue() as string) || ''}
+          </span>
+        </div>
+      ),
+      size: 140,
+    },
+  ];
 };
