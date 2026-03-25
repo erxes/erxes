@@ -1,6 +1,6 @@
 import { Form, ScrollArea } from 'erxes-ui';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
@@ -84,12 +84,27 @@ export const AddPostForm = ({
 
   const formInitializedRef = useRef(false);
 
+  const handleLanguageChangeRef = useRef<(lang: string) => void>(
+    () => undefined,
+  );
+
+  const handleLanguageChangeStable = useCallback(
+    (lang: string) => handleLanguageChangeRef.current(lang),
+    [],
+  );
+
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
-      onFormReady({ form, onSubmit, creating, saving, handleLanguageChange });
+      onFormReady({
+        form,
+        onSubmit,
+        creating,
+        saving,
+        handleLanguageChange: handleLanguageChangeStable,
+      });
       formInitializedRef.current = true;
     }
-  }, [form, onSubmit, creating, saving, onFormReady]);
+  }, [form, onSubmit, creating, saving, onFormReady, handleLanguageChangeStable]);
 
   // Helper: apply translation (or clear) translatable fields and save default data
   const applyTranslationToForm = (lang: string) => {
@@ -191,12 +206,12 @@ export const AddPostForm = ({
       const data = defaultLangData || {
         title: fullPost?.title || '',
         content: fullPost?.content || '',
-        description: fullPost?.excerpt || fullPost?.description || '',
+        excerpt: fullPost?.excerpt || fullPost?.description || '',
         customFieldsData: fullPost?.customFieldsData || [],
       };
       form.setValue('title', data.title);
       form.setValue('content', data.content);
-      form.setValue('description', data.description);
+      form.setValue('description', data.excerpt);
       form.setValue('customFieldsData', data.customFieldsData);
     } else {
       const translation = translations[lang];
@@ -209,6 +224,9 @@ export const AddPostForm = ({
     setSelectedLanguage(lang);
     setCmsLanguage(lang);
   };
+
+  // Keep ref in sync so the stable callback always delegates to latest logic
+  handleLanguageChangeRef.current = handleLanguageChange;
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">

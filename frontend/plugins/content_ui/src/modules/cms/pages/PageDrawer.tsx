@@ -299,11 +299,14 @@ export function PageDrawer({
   }, [page, isEditing, clientPortalId, form]);
 
   // Helper: apply translation (or clear) translatable fields
-  const applyTranslationToForm = (lang: string) => {
-    const translation = translations[lang];
-    form.setValue('name', translation?.title || '');
-    form.setValue('description', translation?.content || '');
-  };
+  const applyTranslationToForm = useCallback(
+    (lang: string) => {
+      const translation = translations[lang];
+      form.setValue('name', translation?.title || '');
+      form.setValue('description', translation?.content || '');
+    },
+    [translations, form],
+  );
 
   // Initial language sync from cmsLanguageAtom.
   // This must run AFTER the form-reset effect above so form.setValue
@@ -322,7 +325,7 @@ export function PageDrawer({
     }
     applyTranslationToForm(cmsLanguage);
     setSelectedLanguage(cmsLanguage);
-  }, [selectedLanguage, defaultLanguage, cmsLanguage]);
+  }, [selectedLanguage, defaultLanguage, cmsLanguage, applyTranslationToForm, setSelectedLanguage]);
 
   // When page data loads, the form-reset effect above overwrites translatable
   // fields with default-lang data.  Re-apply for the current non-default lang.
@@ -340,7 +343,7 @@ export function PageDrawer({
 
     applyTranslationToForm(selectedLanguage);
     appliedForPageRef.current = page ?? null;
-  }, [selectedLanguage, defaultLanguage, translations, form, isEditing, page]);
+  }, [selectedLanguage, defaultLanguage, applyTranslationToForm, isEditing, page]);
 
   const onCompleted = () => {
     onClose();
@@ -400,6 +403,16 @@ export function PageDrawer({
   useEffect(() => {
     translationsRef.current = translations;
   }, [translations]);
+
+  const handleLanguageChangeRef = useRef(handleLanguageChange);
+  useEffect(() => {
+    handleLanguageChangeRef.current = handleLanguageChange;
+  }, [handleLanguageChange]);
+
+  const pageRef = useRef(page);
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
 
   const onSubmitRef = useRef<(data: IPageFormData) => void>(() => undefined);
 
@@ -499,47 +512,58 @@ export function PageDrawer({
 
   const isSwitchingLanguageRef = useRef(false);
 
-  const onLanguageChange = (lang: string) => {
-    isSwitchingLanguageRef.current = true;
-    setCmsLanguage(lang);
+  const onLanguageChange = useCallback(
+    (lang: string) => {
+      isSwitchingLanguageRef.current = true;
+      setCmsLanguage(lang);
 
-    handleLanguageChange(
-      lang,
-      () => ({
-        title: form.getValues('name') || '',
-        content: form.getValues('description') || '',
-      }),
-      (data) => {
-        form.setValue('name', data.title || '');
-        form.setValue('description', data.content || '');
-      },
-      page
-        ? {
-            title: page.name || '',
-            content: page.description || '',
-          }
-        : undefined,
-    );
+      const curPage = pageRef.current;
+      const curDefaultLanguage = defaultLanguageRef.current;
+      const curDefaultLangData = defaultLangDataRef.current;
+      const curTranslations = translationsRef.current;
 
-    // Explicitly set form values after handleLanguageChange to guarantee
-    // the Editor (which remounts on selectedLanguage key change) reads
-    // the correct initialContent.
-    if (lang === defaultLanguage) {
-      form.setValue('name', defaultLangData?.title || page?.name || '');
-      form.setValue(
-        'description',
-        defaultLangData?.content || page?.description || '',
+      handleLanguageChangeRef.current(
+        lang,
+        () => ({
+          title: form.getValues('name') || '',
+          content: form.getValues('description') || '',
+        }),
+        (data) => {
+          form.setValue('name', data.title || '');
+          form.setValue('description', data.content || '');
+        },
+        curPage
+          ? {
+              title: curPage.name || '',
+              content: curPage.description || '',
+            }
+          : undefined,
       );
-    } else {
-      const translation = translations[lang];
-      form.setValue('name', translation?.title || '');
-      form.setValue('description', translation?.content || '');
-    }
 
-    requestAnimationFrame(() => {
-      isSwitchingLanguageRef.current = false;
-    });
-  };
+      // Explicitly set form values after handleLanguageChange to guarantee
+      // the Editor (which remounts on selectedLanguage key change) reads
+      // the correct initialContent.
+      if (lang === curDefaultLanguage) {
+        form.setValue(
+          'name',
+          curDefaultLangData?.title || curPage?.name || '',
+        );
+        form.setValue(
+          'description',
+          curDefaultLangData?.content || curPage?.description || '',
+        );
+      } else {
+        const translation = curTranslations[lang];
+        form.setValue('name', translation?.title || '');
+        form.setValue('description', translation?.content || '');
+      }
+
+      requestAnimationFrame(() => {
+        isSwitchingLanguageRef.current = false;
+      });
+    },
+    [form, setCmsLanguage],
+  );
 
   const handleEditorChange = useCallback(
     (content: string) => {
