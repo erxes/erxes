@@ -7,13 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to tag (e.g. 3.0.4-test)'
+        description: 'Version to release (e.g. 3.0.4)'
         required: true
-        default: 'test'
 
 jobs:
-  tag-backend-images:
-    name: Tag backend Docker images
+  tag-docker-images:
+    name: Tag Docker images
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -25,33 +24,47 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Tag all backend images with release version
+      - name: Tag all images with release version
         run: |
           VERSION="${{ github.event.inputs.version || github.ref_name }}"
-          for IMAGE in \
-            erxes/erxes-next-core-api \
-            erxes/erxes-next-gateway \
-            erxes/erxes-next-sales_api \
-            erxes/erxes-next-frontline_api \
-            erxes/erxes-next-accounting_api \
-            erxes/erxes-next-content_api \
-            erxes/erxes-next-operation_api \
-            erxes/erxes-next-payment_api \
-            erxes/erxes-next-tourism_api \
-            erxes/erxes-next-loyalty_api \
-            erxes/erxes-next-mongolian_api \
-            erxes/erxes-next-posclient_api \
-            erxes/erxes-next-insurance_api \
-            erxes/erxes-next-logs \
-            erxes/erxes-next-automations \
-            erxes/erxes-next-ui \
-            erxes/posclient-front\
-            erxes/frontline-widgets; do
-            echo "Tagging $IMAGE:latest → $IMAGE:$VERSION"
-            docker buildx imagetools create \
-              -t "$IMAGE:$VERSION" \
-              "$IMAGE:latest"
+          echo "Tagging images with version: $VERSION"
+          FAILED=()
+          IMAGES=(
+            erxes/erxes-next-core-api
+            erxes/erxes-next-gateway
+            erxes/erxes-next-sales_api
+            erxes/erxes-next-frontline_api
+            erxes/erxes-next-accounting_api
+            erxes/erxes-next-content_api
+            erxes/erxes-next-operation_api
+            erxes/erxes-next-payment_api
+            erxes/erxes-next-tourism_api
+            erxes/erxes-next-loyalty_api
+            erxes/erxes-next-mongolian_api
+            erxes/erxes-next-posclient_api
+            erxes/erxes-next-insurance_api
+            erxes/erxes-next-logs
+            erxes/erxes-next-automations
+            erxes/erxes-next-ui
+            erxes/posclient-front
+            erxes/frontline-widgets
+          )
+          for IMAGE in "${IMAGES[@]}"; do
+            echo "Tagging $IMAGE:latest -> $IMAGE:$VERSION"
+            if docker buildx imagetools create -t "$IMAGE:$VERSION" "$IMAGE:latest"; then
+              echo "OK: $IMAGE"
+            else
+              echo "FAILED: $IMAGE"
+              FAILED+=("$IMAGE")
+            fi
           done
+          if [ ${#FAILED[@]} -gt 0 ]; then
+            echo ""
+            echo "The following images failed to tag:"
+            for F in "${FAILED[@]}"; do echo "  - $F"; done
+            exit 1
+          fi
+          echo "All images tagged successfully."
 
   copy-frontend-assets:
     name: Copy frontend assets to versioned R2 folder
@@ -62,21 +75,31 @@ jobs:
       AWS_DEFAULT_REGION: auto
       R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
     steps:
-      - name: Copy /latest/ → /version/ in Cloudflare R2
+      - name: Copy latest to versioned folder in R2
         run: |
           VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          echo "Copying assets to version: $VERSION"
+          FAILED=()
           PLUGINS=(
             sales_ui frontline_ui accounting_ui content_ui operation_ui
             payment_ui tourism_ui loyalty_ui mongolian_ui insurance_ui
           )
           for PLUGIN in "${PLUGINS[@]}"; do
-            echo "Copying $PLUGIN: s3://erxes-next/latest/$PLUGIN/ → s3://erxes-next/$VERSION/$PLUGIN/"
-            aws s3 sync \
+            echo "Copying $PLUGIN: latest -> $VERSION"
+            if aws s3 sync \
               "s3://erxes-next/latest/$PLUGIN/" \
-              "/tmp/$PLUGIN/" \
-              --endpoint-url "$R2_ENDPOINT"
-            aws s3 sync \
-              "/tmp/$PLUGIN/" \
               "s3://erxes-next/$VERSION/$PLUGIN/" \
-              --endpoint-url "$R2_ENDPOINT"
+              --endpoint-url "$R2_ENDPOINT"; then
+              echo "OK: $PLUGIN"
+            else
+              echo "FAILED: $PLUGIN"
+              FAILED+=("$PLUGIN")
+            fi
           done
+          if [ ${#FAILED[@]} -gt 0 ]; then
+            echo ""
+            echo "The following plugins failed to copy:"
+            for F in "${FAILED[@]}"; do echo "  - $F"; done
+            exit 1
+          fi
+          echo "All frontend assets copied successfully."
