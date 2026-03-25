@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - '[0-9]*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to tag (e.g. 3.0.4-test)'
+        required: true
+        default: 'test'
 
 jobs:
   tag-backend-images:
