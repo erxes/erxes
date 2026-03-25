@@ -28,9 +28,9 @@ RUN apk add --no-cache bash
 COPY --from=build /app/dist/frontend/core-ui /usr/share/nginx/html
 
 # Copy configuration files
-COPY frontend/core-ui/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY frontend/core-ui/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY frontend/core-ui/docker-entrypoint.sh /usr/local/bin/
+COPY --from=build /app/frontend/core-ui/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY --from=build /app/frontend/core-ui/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/frontend/core-ui/docker-entrypoint.sh /usr/local/bin/
 
 # Set up entrypoint script
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
