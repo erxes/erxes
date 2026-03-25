@@ -11,8 +11,6 @@ const mutations: Record<string, Resolver> = {
     const invoice = await models.Invoices.createInvoice({
       ...input,
     });
-
-    // ✅ 👉 ADD THIS LINE RIGHT HERE
     console.log('🔥 CREATED INVOICE:', invoice);
 
     const payment = await models.PaymentMethods.findOne({

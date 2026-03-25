@@ -5,7 +5,7 @@ export const types = `
     byStatus: JSON
   }
 
-  type Invoice @key(fields: "_id") {
+  type PaymentInvoice @key(fields: "_id") {
     _id: String
     invoiceNumber: String
 
@@ -35,8 +35,8 @@ export const types = `
     transactions: [PaymentTransaction]
   }
 
-  type InvoicesListResponse {
-    list: [Invoice],
+  type PaymentInvoicesListResponse {
+    list: [PaymentInvoice],
     pageInfo: PageInfo
     totalCount: Int,
   }
@@ -63,12 +63,12 @@ export const inputs = `
 
 export const mutations = `
   generateInvoiceUrl(input: InvoiceInput!): String
-  invoiceCreate(input: InvoiceInput!): Invoice
-  invoiceUpdate(_id: String!, input: InvoiceInput!): Invoice
+  invoiceCreate(input: InvoiceInput!): PaymentInvoice
+  invoiceUpdate(_id: String!, input: InvoiceInput!): PaymentInvoice
   invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
 
-  cpInvoiceCreate(input: InvoiceInput!): Invoice
+  cpInvoiceCreate(input: InvoiceInput!): PaymentInvoice
   cpInvoicesCheck(_id:String!): String
 `;
 
@@ -89,8 +89,8 @@ const queryParams = `
 `;
 
 export const queries = `
-  invoices(${queryParams}): InvoicesListResponse
+  invoices(${queryParams}): PaymentInvoicesListResponse
   invoicesTotalCount(${queryParams}): invoicesTotalCount
-  invoiceDetail(_id: String!): Invoice
-  invoiceDetailByContent(contentType: String!, contentTypeId: String!): [Invoice]
+  invoiceDetail(_id: String!): PaymentInvoice
+  invoiceDetailByContent(contentType: String!, contentTypeId: String!): [PaymentInvoice]
 `;

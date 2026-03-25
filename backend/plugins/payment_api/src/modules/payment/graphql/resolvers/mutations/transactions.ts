@@ -1,6 +1,6 @@
 import { Resolver } from 'erxes-api-shared/src/core-types';
 import { IContext } from '~/connectionResolvers';
-import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api'; // ✅ required
+import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api'; 
 
 const mutations: Record<string, Resolver> = {
   async paymentTransactionsAdd(
@@ -17,7 +17,6 @@ const mutations: Record<string, Resolver> = {
 
     const description = invoice.description || invoice.invoiceNumber;
 
-    // ✅ STEP 1: create transaction
     const transaction = await models.Transactions.createTransaction({
       ...input,
       subdomain,
@@ -25,17 +24,15 @@ const mutations: Record<string, Resolver> = {
       details: { ...input.details, ...invoice.data },
     });
 
-    // ✅ STEP 2: get payment
+
     const payment = await models.PaymentMethods.getPayment(input.paymentId);
 
-    // ✅ STEP 3: call QPay ONLY if correct kind
     if (payment?.kind === 'qpayQuickqr') {
       try {
         const api = new QPayQuickQrAPI(payment.config);
 
         const response = await api.createInvoice(transaction);
 
-        // ✅ STEP 4: save response
         transaction.response = response;
         await transaction.save();
       } catch (e) {
@@ -43,7 +40,6 @@ const mutations: Record<string, Resolver> = {
       }
     }
 
-    // ✅ STEP 5: return ALWAYS
     return transaction;
   },
 
