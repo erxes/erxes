@@ -6,7 +6,6 @@ import QrPayment from './components/payments/QrPayment';
 import StorePay from './components/payments/StorePay';
 import Minupay from './components/payments/Minupay';
 
-
 const getInitialParams = () => {
   const url = new URL(window.location.href);
 

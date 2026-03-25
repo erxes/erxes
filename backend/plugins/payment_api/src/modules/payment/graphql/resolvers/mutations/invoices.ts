@@ -6,7 +6,6 @@ import { IInvoice } from '~/modules/payment/@types/invoices';
 
 const mutations: Record<string, Resolver> = {
   async generateInvoiceUrl(_root, { input }, { models }) {
-
     const invoice = await models.Invoices.createInvoice({
       ...input,
     });
