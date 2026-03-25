@@ -65,9 +65,9 @@ export async function embedTextCFChunks(
         }
         const vector = data.result.data[0];
         if (!Array.isArray(vector)) {
-          throw new Error(`Missing embedding vector on chunk ${index + 1}`);
+          throw new TypeError(`Missing embedding vector on chunk ${index + 1}`);
         }
-        return vector as number[];
+        return vector;
       } catch (error) {
         clearTimeout(timeout);
         attempt += 1;
@@ -109,7 +109,7 @@ export async function embedTextCFChunks(
   };
 
   let nextIndex = 0;
-  let results: number[] = Array(chunks.length);
+  let results: number[] = new Array(chunks.length);
   const errors: { index: number; error: unknown }[] = [];
   let processed = 0;
   let failed = 0;
