@@ -1,7 +1,7 @@
 import initCallApp from '@/integrations/call/initApp';
-import { initWebsocketService } from '@/integrations/call/webSocket';
+// import { initWebsocketService } from '@/integrations/call/webSocket';
 import onServerInitImap from '@/integrations/imap/initApp';
-import { getEnv, startPlugin } from 'erxes-api-shared/utils';
+import { startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/init-trpc';
 import { afterProcess } from '~/meta/afterProcess';
@@ -32,10 +32,10 @@ startPlugin({
   onServerInit: async (app) => {
     await initCallApp(app);
     await onServerInitImap(app);
-    const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
-    if (CALL_WS_SERVER) {
-      await initWebsocketService();
-    }
+    // const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
+    // if (CALL_WS_SERVER) {
+    //   await initWebsocketService();
+    // }
   },
 
   apolloServerContext: async (subdomain, context) => {
