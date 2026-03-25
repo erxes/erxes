@@ -13,6 +13,7 @@ interface UseActivityLogsParams {
   targetId: string;
   action?: string;
   limit?: number;
+  variant?: 'forward' | 'backward';
   targetType?: string;
   contextType?: string;
   contextId?: string;
@@ -32,7 +33,13 @@ export type ActivityLogsQueryData = {
 };
 
 export const useActivityLogs = (
-  { targetId, action, limit, targetType }: UseActivityLogsParams,
+  {
+    targetId,
+    action,
+    limit,
+    targetType,
+    variant = 'forward',
+  }: UseActivityLogsParams,
   options?: QueryHookOptions<ActivityLogsQueryData>,
 ) => {
   const { data, loading, error, refetch, subscribeToMore, fetchMore } =
@@ -43,6 +50,7 @@ export const useActivityLogs = (
         targetType,
         action,
         limit,
+        variant,
         ...options?.variables,
       },
       skip: !targetId,
@@ -81,7 +89,10 @@ export const useActivityLogs = (
           ...prev,
           activityLogs: {
             ...prev.activityLogs,
-            list: [newActivityLog, ...prev.activityLogs.list],
+            list:
+              variant === 'backward'
+                ? [...prev.activityLogs.list, newActivityLog]
+                : [newActivityLog, ...prev.activityLogs.list],
             totalCount: prev.activityLogs.totalCount + 1,
           },
         };
@@ -91,7 +102,7 @@ export const useActivityLogs = (
     return () => {
       unsubscribe();
     };
-  }, [targetId, subscribeToMore]);
+  }, [targetId, subscribeToMore, variant]);
 
   const pageInfo = data?.activityLogs.pageInfo || {
     hasNextPage: false,
@@ -112,6 +123,7 @@ export const useActivityLogs = (
     fetchMore({
       variables: {
         ...options?.variables,
+        variant,
         cursor:
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
@@ -142,5 +154,6 @@ export const useActivityLogs = (
     handleFetchMore,
     hasNextPage: pageInfo.hasNextPage,
     hasPreviousPage: pageInfo.hasPreviousPage,
+    variant,
   };
 };

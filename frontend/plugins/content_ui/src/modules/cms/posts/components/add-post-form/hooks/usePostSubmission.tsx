@@ -23,6 +23,8 @@ interface BlockContent {
   content?: InlineContent[];
   props?: {
     level?: number;
+    url?: string;
+    caption?: string;
   };
 }
 
@@ -94,6 +96,14 @@ interface MainFields {
   customFields: CustomField[] | undefined;
 }
 
+const escapeHtml = (str: string): string =>
+  str
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
 const blocksToHtml = (raw: string): string => {
   try {
     const blocks = JSON.parse(raw) as BlockContent[];
@@ -108,7 +118,7 @@ const blocksToHtml = (raw: string): string => {
 
         const html = inlines
           .map((inline) => {
-            let text = inline.text ?? '';
+            let text = escapeHtml(inline.text ?? '');
 
             if (inline.styles?.bold) text = `<strong>${text}</strong>`;
             if (inline.styles?.italic) text = `<em>${text}</em>`;
@@ -127,6 +137,18 @@ const blocksToHtml = (raw: string): string => {
 
         if (block.type === 'codeBlock') {
           return `<pre><code>${html}</code></pre>`;
+        }
+
+        if (block.type === 'image') {
+          const url = block.props?.url;
+          if (!url) return '';
+          const caption = block.props?.caption || '';
+          const img = `<img src="${url}"${
+            caption ? ` alt="${caption}"` : ''
+          } />`;
+          return caption
+            ? `<figure>${img}<figcaption>${caption}</figcaption></figure>`
+            : img;
         }
 
         return `<p>${html}</p>`;

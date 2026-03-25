@@ -29,6 +29,7 @@ export const PAGE_LIST = gql`
         name
         description
         slug
+        parentId
         clientPortalId
         createdAt
         customFieldsData

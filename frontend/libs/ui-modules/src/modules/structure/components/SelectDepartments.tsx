@@ -51,14 +51,14 @@ export const SelectDepartmentsProvider = ({
     const newSelectedDepartmentIds = isSingleMode
       ? [department._id]
       : isSelected
-      ? multipleValue.filter((d) => d !== department._id)
-      : [...multipleValue, department._id];
+        ? multipleValue.filter((d) => d !== department._id)
+        : [...multipleValue, department._id];
 
     const newSelectedDepartments = isSingleMode
       ? [department]
       : isSelected
-      ? selectedDepartments.filter((d) => d._id !== department._id)
-      : [...selectedDepartments, department];
+        ? selectedDepartments.filter((d) => d._id !== department._id)
+        : [...selectedDepartments, department];
 
     setSelectedDepartments(newSelectedDepartments);
     onValueChange?.(isSingleMode ? department._id : newSelectedDepartmentIds);
@@ -187,7 +187,7 @@ export const SelectDepartmentsItem = ({
   department: IDepartment & { hasChildren: boolean };
 }) => {
   const { onSelect, departmentIds } = useSelectDepartmentsContext();
-  const isSelected = departmentIds?.some((d) => d === department._id);
+  const isSelected = departmentIds?.includes(department._id);
   return (
     <SelectTree.Item
       key={department._id}

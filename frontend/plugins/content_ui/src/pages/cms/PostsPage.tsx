@@ -5,6 +5,7 @@ import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
 import { useNavigate, useParams } from 'react-router';
 import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
+import { HeaderLanguageTabs } from '~/modules/cms/shared/HeaderLanguageTabs';
 import { Posts } from '~/modules/cms/posts/types/postsType';
 
 interface PostsPageContentProps {
@@ -49,6 +50,7 @@ export const PostsIndexPage = ({
   return (
     <PageContainer>
       <PostsHeader>
+        <HeaderLanguageTabs />
         <PostsAdd clientPortalId={clientPortalId} />
       </PostsHeader>
 

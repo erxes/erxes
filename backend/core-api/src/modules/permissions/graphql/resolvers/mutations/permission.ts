@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IPermissionInput } from 'erxes-api-shared/core-types';
+import { generateUserUpdateActivityLogs } from '~/modules/organization/team-member/meta/activity-log';
 import { clearGroupActionsCache } from 'erxes-api-shared/core-modules';
 
 export const permissionMutations = {
@@ -93,10 +94,7 @@ export const permissionMutations = {
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
-    await models.Users.updateOne(
-      { _id: userId },
-      { $set: { permissionGroupIds: groupIds } },
-    );
+    await models.Users.updateUser(userId, { permissionGroupIds: groupIds });
 
     await clearGroupActionsCache({ userId });
 
@@ -107,13 +105,17 @@ export const permissionMutations = {
   async userAddCustomPermission(
     _root: any,
     { userId, permission }: { userId: string; permission: IPermissionInput },
-    { models, checkPermission }: IContext,
+    { subdomain, models, eventHandlers, checkPermission }: IContext,
   ) {
     await checkPermission('permissionsManage');
 
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
 
+    const { sendDbEventLog, createActivityLog } = eventHandlers('core')(
+      'organization',
+      'users',
+    );
     // Remove existing permission for same module (replace)
     await models.Users.updateOne(
       { _id: userId },
@@ -121,34 +123,71 @@ export const permissionMutations = {
     );
 
     // Add new permission
+
     await models.Users.updateOne(
       { _id: userId },
       { $push: { customPermissions: permission } },
     );
 
-    await clearGroupActionsCache({ userId });
+    const updatedUser = await models.Users.findOne({ _id: userId });
+    if (updatedUser) {
+      sendDbEventLog({
+        action: 'update',
+        docId: updatedUser._id,
+        currentDocument: updatedUser.toObject(),
+        prevDocument: user.toObject(),
+      });
 
-    return models.Users.findOne({ _id: userId });
+      // Generate activity logs for changed activity fields
+      generateUserUpdateActivityLogs(
+        { models, subdomain },
+        user,
+        updatedUser,
+        createActivityLog,
+      );
+    }
+    await clearGroupActionsCache({ userId });
+    return updatedUser;
   },
 
   // Remove custom permission from user
   async userRemoveCustomPermission(
     _root: any,
     { userId, module }: { userId: string; module: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, eventHandlers, checkPermission }: IContext,
   ) {
     await checkPermission('permissionsManage');
 
     const user = await models.Users.findOne({ _id: userId });
     if (!user) throw new Error('User not found');
-
+    const { sendDbEventLog, createActivityLog } = eventHandlers('core')(
+      'organization',
+      'users',
+    );
     await models.Users.updateOne(
       { _id: userId },
       { $pull: { customPermissions: { module } } },
     );
 
-    await clearGroupActionsCache({ userId });
+    const updatedUser = await models.Users.findOne({ _id: userId });
 
-    return models.Users.findOne({ _id: userId });
+    if (updatedUser) {
+      sendDbEventLog({
+        action: 'update',
+        docId: updatedUser._id,
+        currentDocument: updatedUser.toObject(),
+        prevDocument: user.toObject(),
+      });
+
+      // Generate activity logs for changed activity fields
+      generateUserUpdateActivityLogs(
+        { models, subdomain },
+        user,
+        updatedUser,
+        createActivityLog,
+      );
+    }
+    await clearGroupActionsCache({ userId });
+    return updatedUser;
   },
 };

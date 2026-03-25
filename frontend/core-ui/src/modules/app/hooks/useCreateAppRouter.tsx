@@ -152,6 +152,27 @@ export const useCreateAppRouter = () => {
               />
 
               <Route
+                path={AppPath.BroadcastsCatchAll}
+                element={
+                  <PermissionRouteGuard module="broadcasts">
+                    <BroadcastRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
+
+              {isOS && (
+                <Route
+                  path={AppPath.TemplatesCatchAll}
+                  element={<TemplateRoutes />}
+                />
+              )}
+
+              <Route
+                path={AppPath.ImportExportCatchAll}
+                element={<ImportExportRoutes />}
+              />
+
+              <Route
                 path={AppPath.MyInboxCatchAll}
                 element={<NotificationsRoutes />}
               />

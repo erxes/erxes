@@ -5,7 +5,7 @@ import { REACT_APP_WIDGETS_URL } from '@/utils';
 import { Link, useNavigate } from 'react-router';
 
 type Props = {
-  integrationId: string;
+  readonly integrationId: string;
 };
 
 export function EMInstallScript({ integrationId }: Props) {

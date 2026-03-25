@@ -1,5 +1,25 @@
-import { AdjustmentHome } from '~/modules/adjustments/components/Home';
+import { PageSubHeader } from 'erxes-ui';
+import { AccountingHeader } from '~/modules/layout/components/Header';
+import { AccountingLayout } from '~/modules/layout/components/Layout';
+import { ProductsFilter } from '~/modules/inventories/remainders/components/ProductsFilter';
+import { ProductsRecordTable } from '~/modules/inventories/remainders/components/ProductsRecordTable';
+import { ReCalcRemainderForm } from '~/modules/inventories/remainders/components/ReCalcRemainderForm';
 
 export const RemaindersPage = () => {
-  return <AdjustmentHome />;
+  return (
+    <AccountingLayout>
+      <AccountingHeader
+        returnLink="/accounting/inventories/remainders"
+        returnText="Live Remainders"
+        skipSettings={true}
+      >
+        <ReCalcRemainderForm />
+      </AccountingHeader>
+      <PageSubHeader>
+        <ProductsFilter />
+      </PageSubHeader>
+      <ProductsRecordTable />
+      {/* <ProductDetailSheet /> */}
+    </AccountingLayout>
+  );
 };

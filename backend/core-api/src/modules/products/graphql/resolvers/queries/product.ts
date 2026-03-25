@@ -169,7 +169,7 @@ const generateFilter = async (
   if (branchId && departmentId) {
     if (minRemainder || minRemainder === 0) {
       andFilters.push({
-        [`remainders.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchId}.${departmentId}.remainder`]: {
           $exists: true,
           $gte: minRemainder,
         },
@@ -177,7 +177,7 @@ const generateFilter = async (
     }
     if (maxRemainder || maxRemainder === 0) {
       andFilters.push({
-        [`remainders.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchId}.${departmentId}.remainder`]: {
           $exists: true,
           $lte: maxRemainder,
         },
