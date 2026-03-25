@@ -1,4 +1,3 @@
-# Build jo from source
 FROM alpine:3.11 AS jo-builder
 RUN apk add --no-cache alpine-sdk && \
     cd /tmp && curl -s -LO https://github.com/jpmens/jo/releases/download/1.3/jo-1.3.tar.gz && \
