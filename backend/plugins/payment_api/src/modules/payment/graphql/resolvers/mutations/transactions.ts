@@ -1,6 +1,6 @@
 import { Resolver } from 'erxes-api-shared/src/core-types';
 import { IContext } from '~/connectionResolvers';
-import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api'; 
+import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api';
 
 const mutations: Record<string, Resolver> = {
   async paymentTransactionsAdd(
@@ -23,7 +23,6 @@ const mutations: Record<string, Resolver> = {
       description,
       details: { ...input.details, ...invoice.data },
     });
-
 
     const payment = await models.PaymentMethods.getPayment(input.paymentId);
 
