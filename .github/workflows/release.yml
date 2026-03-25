@@ -12,8 +12,29 @@ on:
 
 jobs:
   tag-docker-images:
-    name: Tag Docker images
+    name: Tag ${{ matrix.image }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image:
+          - erxes/erxes-next-core-api
+          - erxes/erxes-next-gateway
+          - erxes/erxes-next-sales_api
+          - erxes/erxes-next-frontline_api
+          - erxes/erxes-next-accounting_api
+          - erxes/erxes-next-content_api
+          - erxes/erxes-next-operation_api
+          - erxes/erxes-next-payment_api
+          - erxes/erxes-next-tourism_api
+          - erxes/erxes-next-loyalty_api
+          - erxes/erxes-next-mongolian_api
+          - erxes/erxes-next-posclient_api
+          - erxes/erxes-next-insurance_api
+          - erxes/erxes-next-logs
+          - erxes/erxes-next-automations
+          - erxes/erxes-next-ui
+          - erxes/frontline-widgets
+      fail-fast: false
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -24,82 +45,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Tag all images with release version
+      - name: Tag ${{ matrix.image }}
         run: |
           VERSION="${{ github.event.inputs.version || github.ref_name }}"
-          echo "Tagging images with version: $VERSION"
-          FAILED=()
-          IMAGES=(
-            erxes/erxes-next-core-api
-            erxes/erxes-next-gateway
-            erxes/erxes-next-sales_api
-            erxes/erxes-next-frontline_api
-            erxes/erxes-next-accounting_api
-            erxes/erxes-next-content_api
-            erxes/erxes-next-operation_api
-            erxes/erxes-next-payment_api
-            erxes/erxes-next-tourism_api
-            erxes/erxes-next-loyalty_api
-            erxes/erxes-next-mongolian_api
-            erxes/erxes-next-posclient_api
-            erxes/erxes-next-insurance_api
-            erxes/erxes-next-logs
-            erxes/erxes-next-automations
-            erxes/erxes-next-ui
-            erxes/posclient-front
-            erxes/frontline-widgets
-          )
-          for IMAGE in "${IMAGES[@]}"; do
-            echo "Tagging $IMAGE:latest -> $IMAGE:$VERSION"
-            if docker buildx imagetools create -t "$IMAGE:$VERSION" "$IMAGE:latest"; then
-              echo "OK: $IMAGE"
-            else
-              echo "FAILED: $IMAGE"
-              FAILED+=("$IMAGE")
-            fi
-          done
-          if [ ${#FAILED[@]} -gt 0 ]; then
-            echo ""
-            echo "The following images failed to tag:"
-            for F in "${FAILED[@]}"; do echo "  - $F"; done
-            exit 1
-          fi
-          echo "All images tagged successfully."
-
-  copy-frontend-assets:
-    name: Copy frontend assets to versioned R2 folder
-    runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: auto
-      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
-    steps:
-      - name: Copy latest to versioned folder in R2
-        run: |
-          VERSION="${{ github.event.inputs.version || github.ref_name }}"
-          echo "Copying assets to version: $VERSION"
-          FAILED=()
-          PLUGINS=(
-            sales_ui frontline_ui accounting_ui content_ui operation_ui
-            payment_ui tourism_ui loyalty_ui mongolian_ui insurance_ui
-          )
-          for PLUGIN in "${PLUGINS[@]}"; do
-            echo "Copying $PLUGIN: latest -> $VERSION"
-            if aws s3 sync \
-              "s3://erxes-next/latest/$PLUGIN/" \
-              "s3://erxes-next/$VERSION/$PLUGIN/" \
-              --endpoint-url "$R2_ENDPOINT"; then
-              echo "OK: $PLUGIN"
-            else
-              echo "FAILED: $PLUGIN"
-              FAILED+=("$PLUGIN")
-            fi
-          done
-          if [ ${#FAILED[@]} -gt 0 ]; then
-            echo ""
-            echo "The following plugins failed to copy:"
-            for F in "${FAILED[@]}"; do echo "  - $F"; done
-            exit 1
-          fi
-          echo "All frontend assets copied successfully."
+          docker buildx imagetools create -t "${{ matrix.image }}:$VERSION" "${{ matrix.image }}:latest"

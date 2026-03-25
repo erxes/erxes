@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - '[0-9]*'
     paths:
       - 'frontend/plugins/sales_ui/**'
       - 'frontend/libs/**'
@@ -13,6 +15,12 @@ on:
       - 'frontend/plugins/sales_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-sales.yml'
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version folder to deploy to (e.g. 3.0.4)'
+        required: false
+        type: string
 
 permissions:
   actions: read
@@ -52,8 +60,14 @@ jobs:
           pnpm nx build sales_ui
 
       - name: Sync to Cloudflare R2
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_call'
+        if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))) || github.event_name == 'workflow_call'
         run: |
-          FOLDER="${{ inputs.version || 'latest' }}"
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            FOLDER="${{ github.ref_name }}"
+          elif [[ -n "${{ inputs.version }}" ]]; then
+            FOLDER="${{ inputs.version }}"
+          else
+            FOLDER="latest"
+          fi
           aws s3 sync dist/frontend/plugins/sales_ui s3://erxes-next/$FOLDER/sales_ui/ \
             --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com
