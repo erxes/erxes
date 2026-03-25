@@ -7,6 +7,7 @@ import { useAppsRemove } from '../../hooks/useAppsRemove';
 import { useAppsRevoke } from '../../hooks/useAppsRevoke';
 import { useSetAtom } from 'jotai';
 import { editingAppAtom } from '../../state';
+import { Can } from 'ui-modules';
 
 export const AppsMoreColumnCell = ({
   cell,
@@ -54,31 +55,33 @@ export const AppsMoreColumnCell = ({
   };
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => setEditingApp(cell.row.original)}
-            >
-              <IconEdit /> Edit
-            </Command.Item>
-            {status === 'active' && (
-              <Command.Item value="revoke" onSelect={handleRevoke}>
-                <IconLock /> Revoke
+    <Can action="appsManage">
+      <Popover>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+        <Combobox.Content>
+          <Command shouldFilter={false}>
+            <Command.List>
+              <Command.Item
+                value="edit"
+                onSelect={() => setEditingApp(cell.row.original)}
+              >
+                <IconEdit /> Edit
               </Command.Item>
-            )}
-            <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+              {status === 'active' && (
+                <Command.Item value="revoke" onSelect={handleRevoke}>
+                  <IconLock /> Revoke
+                </Command.Item>
+              )}
+              <Command.Item value="delete" onSelect={handleDelete}>
+                <IconTrash /> Delete
+              </Command.Item>
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+    </Can>
   );
 };
 

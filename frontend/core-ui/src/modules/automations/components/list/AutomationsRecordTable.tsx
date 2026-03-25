@@ -11,13 +11,12 @@ import {
   Kbd,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
 import { AutomationRecordTableCommandBar } from '@/automations/components/list/AutomationRecordTableCommandBar';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Can, PageHeader } from 'ui-modules';
 
 export const AutomationsRecordTable = () => {
   const {
@@ -64,12 +63,14 @@ export const AutomationsRecordTable = () => {
               {t('go-to-settings')}
             </Link>
           </Button>
-          <Button asChild>
-            <Link to={'/automations/create'}>
-              {t('create')}
-              <Kbd>C</Kbd>
-            </Link>
-          </Button>
+          <Can action="automationsCreate">
+            <Button asChild>
+              <Link to={'/automations/create'}>
+                {t('create')}
+                <Kbd>C</Kbd>
+              </Link>
+            </Button>
+          </Can>
         </PageHeader.End>
       </PageHeader>
       <AutomationRecordTableFilters loading={loading} totalCount={totalCount} />

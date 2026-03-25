@@ -1,4 +1,9 @@
-import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
+import {
+  Can,
+  PageHeader,
+  PageHeaderEnd,
+  PageHeaderStart,
+} from 'ui-modules';
 import { CreateBrand } from './CreateBrand';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -26,7 +31,9 @@ export function BrandsHeader() {
         </Breadcrumb>
       </PageHeaderStart>
       <PageHeaderEnd>
-        <CreateBrand />
+        <Can action="brandsCreate">
+          <CreateBrand />
+        </Can>
       </PageHeaderEnd>
     </PageHeader>
   );

@@ -27,6 +27,7 @@ import { PermissionGroupAdd } from '@/settings/permissions/components/form/Permi
 import { useRemovePermissionGroup } from '@/settings/permissions/hooks/useRemovePermissionGroup';
 import { PermissionGroupEdit } from './form/PermissionGroupEdit';
 import { PermissionGroupDetails } from './PermissionGroupDetails';
+import { Can } from 'ui-modules';
 
 export const PermissionGroups = () => {
   const { defaultGroups, loading: defaultLoading } =
@@ -152,14 +153,16 @@ export const PermissionGroups = () => {
               </Button>
             </Collapsible.Trigger>
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
-              <PermissionGroupAdd
-                text=""
-                trigger={
-                  <Button variant="ghost" size="icon" className="size-7">
-                    <IconPlus size={16} />
-                  </Button>
-                }
-              />
+              <Can action="permissionsManage">
+                <PermissionGroupAdd
+                  text=""
+                  trigger={
+                    <Button variant="ghost" size="icon" className="size-7">
+                      <IconPlus size={16} />
+                    </Button>
+                  }
+                />
+              </Can>
             </div>
           </div>
           <Collapsible.Content className="pt-2">
@@ -168,7 +171,9 @@ export const PermissionGroups = () => {
                 <p className="text-muted-foreground mb-4">
                   No custom groups yet
                 </p>
-                <PermissionGroupAdd />
+                <Can action="permissionsManage">
+                  <PermissionGroupAdd />
+                </Can>
               </div>
             ) : (
               <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
@@ -243,20 +248,27 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
             </DropdownMenu.Item>
           }
         />
-        <PermissionGroupEdit
-          group={group}
-          trigger={
-            <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
-              <IconEdit size={16} />
-              Edit
+        <Can action="permissionsManage">
+          <>
+            <PermissionGroupEdit
+              group={group}
+              trigger={
+                <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
+                  <IconEdit size={16} />
+                  Edit
+                </DropdownMenu.Item>
+              }
+            />
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item
+              className="text-destructive"
+              onClick={handleDelete}
+            >
+              <IconTrash size={16} />
+              Delete
             </DropdownMenu.Item>
-          }
-        />
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item className="text-destructive" onClick={handleDelete}>
-          <IconTrash size={16} />
-          Delete
-        </DropdownMenu.Item>
+          </>
+        </Can>
       </DropdownMenu.Content>
     </DropdownMenu>
   );
