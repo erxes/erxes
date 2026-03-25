@@ -26,7 +26,7 @@ export const getCustomerDisplayText = (doc: Partial<ICustomerDocument>) =>
 export const buildCustomerTarget = (
   customer: ICustomerDocument | { _id: string },
 ) => ({
-  _id: customer._id,
+  _id: customer?._id,
   moduleName: 'contacts',
   collectionName: 'customers',
   text: getCustomerDisplayText(customer as ICustomerDocument),
