@@ -27,6 +27,7 @@ import {
   graphqlPubsub,
   getPureDate,
   sendTRPCMessage,
+  markResolvers,
 } from 'erxes-api-shared/utils';
 import { IContext, IOrderInput } from '@/posclient/@types/types';
 import { IConfig, IConfigDocument } from '~/modules/posclient/@types/configs';
@@ -36,6 +37,8 @@ import { IOrderItemInput } from '~/modules/posclient/@types/types';
 import { checkSlotStatus } from '~/modules/posclient/utils/slots';
 import { IModels } from '~/connectionResolvers';
 import { prepareSettlePayment } from '~/modules/posclient/utils';
+import { debugError } from '~/modules/posclient/debugError';
+import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 
 interface IPaymentBase {
   billType: string;
@@ -170,16 +173,6 @@ export const ordersAdd = async (
   },
 ) => {
   const { totalAmount, type, customerId, customerType, branchId, isPre } = doc;
-  if (!posUser && !doc.customerId && customerType !== 'visitor') {
-    throw new Error('order has not owner');
-  }
-
-  if (
-    posUser &&
-    ![...config.adminIds, ...config.cashierIds].includes(posUser._id)
-  ) {
-    throw new Error('Please logout and reLogin');
-  }
 
   await validateOrder(subdomain, models, config, doc);
 
@@ -399,75 +392,160 @@ const getItemInput = (item) => {
   };
 };
 
+const QR_MENU_ACTIVE_ORDER_STATUSES = [
+  ORDER_STATUSES.NEW,
+  ORDER_STATUSES.DOING,
+  ORDER_STATUSES.DONE,
+  ORDER_STATUSES.COMPLETE,
+  ORDER_STATUSES.REDOING,
+  ORDER_STATUSES.PENDING,
+];
+
+type OrderMutationCtx = {
+  posUser?: IPosUserDocument;
+  config: IConfigDocument;
+  models: IModels;
+  subdomain: string;
+};
+
+async function findOpenQrMenuOrderForSlot(
+  models: IModels,
+  config: IConfigDocument,
+  slotCode: string,
+) {
+  return models.Orders.findOne({
+    $or: [{ posToken: config.token }, { subToken: config.token }],
+    paidDate: { $exists: false },
+    status: { $in: QR_MENU_ACTIVE_ORDER_STATUSES },
+    origin: 'qrMenu',
+    slotCode,
+    isSingle: { $ne: true },
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+}
+
+async function tryMergeQrMenuIntoExistingSlotOrder(
+  doc: IOrderInput,
+  ctx: OrderMutationCtx,
+) {
+  if (!(doc.origin === 'qrMenu' && doc.isSingle === false && doc.slotCode)) {
+    return null;
+  }
+
+  if (doc.deviceId) {
+    doc.items = doc.items.map((i) => ({
+      ...i,
+      byDevice: { [doc.deviceId || '']: i.count },
+    }));
+  }
+
+  const slotInSameOrder = await findOpenQrMenuOrderForSlot(
+    ctx.models,
+    ctx.config,
+    doc.slotCode,
+  );
+
+  if (!slotInSameOrder?._id) {
+    return null;
+  }
+
+  const items: IOrderItemInput[] = (
+    await ctx.models.OrderItems.find({ orderId: slotInSameOrder._id }).lean()
+  ).map((item) => ({ ...getItemInput(item) }));
+
+  for (const newItem of doc.items || []) {
+    const duplicatedItem = items.find(
+      (i) =>
+        i.productId === newItem.productId &&
+        Boolean(i.isPackage) === Boolean(newItem.isPackage) &&
+        Boolean(i.isTake) === Boolean(newItem.isTake),
+    );
+
+    if (duplicatedItem) {
+      duplicatedItem.count += newItem.count;
+
+      duplicatedItem.byDevice = {
+        ...(duplicatedItem.byDevice || {}),
+        [doc.deviceId || '']:
+          ((duplicatedItem.byDevice || {})[doc.deviceId || ''] || 0) +
+          newItem.count,
+      };
+    } else {
+      items.push({
+        ...getItemInput(newItem),
+        byDevice: { [doc.deviceId || '']: newItem.count },
+      });
+    }
+  }
+
+  return ordersEdit({ ...doc, ...slotInSameOrder, items }, ctx);
+}
+
+async function cancelPosOrder(models: IModels, _id: string) {
+  const order = await models.Orders.getOrder(_id);
+
+  checkOrderStatus(order);
+
+  if (
+    order.mobileAmount ||
+    (order.paidAmounts || []).filter(
+      (pa) => pa.info && Object.keys(pa.info).length,
+    ).length > 0
+  ) {
+    throw new Error('Card payment exists for this order');
+  }
+
+  if (
+    order.isPre &&
+    (order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
+  ) {
+    throw new Error('Cannot cancel cause PreOrder added payment');
+  }
+
+  if (order.synced === true) {
+    throw new Error('Order is already synced to erxes');
+  }
+
+  await models.OrderItems.deleteMany({ orderId: _id });
+
+  return models.Orders.deleteOne({ _id });
+}
+
+async function applyOrderSaleStatusChange(
+  models: IModels,
+  _id: string,
+  saleStatus: string,
+) {
+  const oldOrder = await models.Orders.getOrder(_id);
+
+  await models.Orders.updateOrder(_id, {
+    ...oldOrder,
+    saleStatus,
+    modifiedAt: new Date(),
+  });
+
+  return models.Orders.getOrder(_id);
+}
+
 const orderMutations: Record<string, Resolver> = {
   async ordersAdd(
     _root,
     doc: IOrderInput,
     { posUser, config, models, subdomain }: IContext,
   ) {
-    if (doc.origin === 'qrMenu' && doc.isSingle === false && doc.slotCode) {
-      if (doc.deviceId) {
-        doc.items = doc.items.map((i) => ({
-          ...i,
-          byDevice: { [doc.deviceId || '']: i.count },
-        }));
-      }
-      const slotInSameOrder = await models.Orders.findOne({
-        $or: [{ posToken: config.token }, { subToken: config.token }],
-        paidDate: { $exists: false },
-        status: {
-          $in: [
-            ORDER_STATUSES.NEW,
-            ORDER_STATUSES.DOING,
-            ORDER_STATUSES.DONE,
-            ORDER_STATUSES.COMPLETE,
-            ORDER_STATUSES.REDOING,
-            ORDER_STATUSES.PENDING,
-          ],
-        },
-        origin: 'qrMenu',
-        slotCode: doc.slotCode,
-        isSingle: { $ne: true },
-      })
-        .sort({ createdAt: -1 })
-        .lean();
+    assertPosUser(posUser);
 
-      if (slotInSameOrder?._id) {
-        const items: IOrderItemInput[] = (
-          await models.OrderItems.find({ orderId: slotInSameOrder._id }).lean()
-        ).map((item) => ({ ...getItemInput(item) }));
-
-        for (const newItem of doc.items || []) {
-          const duplicatedItem = items.find(
-            (i) =>
-              i.productId === newItem.productId &&
-              Boolean(i.isPackage) === Boolean(newItem.isPackage) &&
-              Boolean(i.isTake) === Boolean(newItem.isTake),
-          );
-
-          if (duplicatedItem) {
-            duplicatedItem.count += newItem.count;
-
-            duplicatedItem.byDevice = {
-              ...(duplicatedItem.byDevice || {}),
-              [doc.deviceId || '']:
-                ((duplicatedItem.byDevice || {})[doc.deviceId || ''] || 0) +
-                newItem.count,
-            };
-          } else {
-            items.push({
-              ...getItemInput(newItem),
-              byDevice: { [doc.deviceId || '']: newItem.count },
-            });
-          }
-        }
-
-        return ordersEdit(
-          { ...doc, ...slotInSameOrder, items },
-          { posUser, config, models, subdomain },
-        );
-      }
+    const merged = await tryMergeQrMenuIntoExistingSlotOrder(doc, {
+      posUser,
+      config,
+      models,
+      subdomain,
+    });
+    if (merged) {
+      return merged;
     }
+
     return ordersAdd(doc, { posUser, config, models, subdomain });
   },
 
@@ -476,69 +554,16 @@ const orderMutations: Record<string, Resolver> = {
     doc: IOrderInput,
     { posUser, config, models, subdomain }: IContext,
   ) {
-    if (doc.origin === 'qrMenu' && doc.isSingle === false && doc.slotCode) {
-      if (doc.deviceId) {
-        doc.items = doc.items.map((i) => ({
-          ...i,
-          byDevice: { [doc.deviceId || '']: i.count },
-        }));
-      }
-      const slotInSameOrder = await models.Orders.findOne({
-        $or: [{ posToken: config.token }, { subToken: config.token }],
-        paidDate: { $exists: false },
-        status: {
-          $in: [
-            ORDER_STATUSES.NEW,
-            ORDER_STATUSES.DOING,
-            ORDER_STATUSES.DONE,
-            ORDER_STATUSES.COMPLETE,
-            ORDER_STATUSES.REDOING,
-            ORDER_STATUSES.PENDING,
-          ],
-        },
-        origin: 'qrMenu',
-        slotCode: doc.slotCode,
-        isSingle: { $ne: true },
-      })
-        .sort({ createdAt: -1 })
-        .lean();
-
-      if (slotInSameOrder?._id) {
-        const items: IOrderItemInput[] = (
-          await models.OrderItems.find({ orderId: slotInSameOrder._id }).lean()
-        ).map((item) => ({ ...getItemInput(item) }));
-
-        for (const newItem of doc.items || []) {
-          const duplicatedItem = items.find(
-            (i) =>
-              i.productId === newItem.productId &&
-              Boolean(i.isPackage) === Boolean(newItem.isPackage) &&
-              Boolean(i.isTake) === Boolean(newItem.isTake),
-          );
-
-          if (duplicatedItem) {
-            duplicatedItem.count += newItem.count;
-
-            duplicatedItem.byDevice = {
-              ...(duplicatedItem.byDevice || {}),
-              [doc.deviceId || '']:
-                ((duplicatedItem.byDevice || {})[doc.deviceId || ''] || 0) +
-                newItem.count,
-            };
-          } else {
-            items.push({
-              ...getItemInput(newItem),
-              byDevice: { [doc.deviceId || '']: newItem.count },
-            });
-          }
-        }
-
-        return ordersEdit(
-          { ...doc, ...slotInSameOrder, items },
-          { posUser, config, models, subdomain },
-        );
-      }
+    const merged = await tryMergeQrMenuIntoExistingSlotOrder(doc, {
+      posUser,
+      config,
+      models,
+      subdomain,
+    });
+    if (merged) {
+      return merged;
     }
+
     return ordersAdd(doc, { posUser, config, models, subdomain });
   },
 
@@ -555,14 +580,18 @@ const orderMutations: Record<string, Resolver> = {
     doc: IOrderEditParams,
     { posUser, config, models, subdomain }: IContext,
   ) {
+    assertPosUser(posUser);
+
     return ordersEdit(doc, { posUser, config, models, subdomain });
   },
 
   async orderChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, subdomain, config }: IContext,
+    { models, subdomain, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const oldOrder = await models.Orders.getOrder(_id);
 
     const order = await models.Orders.updateOrder(_id, {
@@ -623,17 +652,11 @@ const orderMutations: Record<string, Resolver> = {
   async orderChangeSaleStatus(
     _root,
     { _id, saleStatus }: { _id: string; saleStatus: string },
-    { models }: IContext,
+    { models, posUser, config }: IContext,
   ) {
-    const oldOrder = await models.Orders.getOrder(_id);
+    assertPosUser(posUser);
 
-    await models.Orders.updateOrder(_id, {
-      ...oldOrder,
-      saleStatus,
-      modifiedAt: new Date(),
-    });
-
-    return await models.Orders.getOrder(_id);
+    return applyOrderSaleStatusChange(models, _id, saleStatus);
   },
 
   async cpOrderChangeSaleStatus(
@@ -641,22 +664,16 @@ const orderMutations: Record<string, Resolver> = {
     { _id, saleStatus }: { _id: string; saleStatus: string },
     { models }: IContext,
   ) {
-    const oldOrder = await models.Orders.getOrder(_id);
-
-    await models.Orders.updateOrder(_id, {
-      ...oldOrder,
-      saleStatus,
-      modifiedAt: new Date(),
-    });
-
-    return await models.Orders.getOrder(_id);
+    return applyOrderSaleStatusChange(models, _id, saleStatus);
   },
 
   async ordersChange(
     _root,
     params: IOrderChangeParams,
-    { models, config, subdomain }: IContext,
+    { models, config, subdomain, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     // after paid then edit order some field
     // if online, update branch
     // update dueDate
@@ -726,8 +743,10 @@ const orderMutations: Record<string, Resolver> = {
   async orderItemChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, config }: IContext,
+    { models, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const oldOrderItem = await models.OrderItems.getOrderItem(_id);
 
     await models.OrderItems.updateOrderItem(_id, { ...oldOrderItem, status });
@@ -750,6 +769,8 @@ const orderMutations: Record<string, Resolver> = {
     { _id, doc }: IPaymentParams,
     { config, models, subdomain, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     let order = await models.Orders.getOrder(_id);
 
     checkOrderStatus(order);
@@ -856,8 +877,10 @@ const orderMutations: Record<string, Resolver> = {
       cashAmount?: number;
       paidAmounts?: IPaidAmount[];
     },
-    { models, config, subdomain }: IContext,
+    { models, config, subdomain, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const order = await models.Orders.getOrder(_id);
 
     const amount =
@@ -922,64 +945,14 @@ const orderMutations: Record<string, Resolver> = {
     return newOrder;
   },
 
-  async ordersCancel(_root, { _id }, { models }: IContext) {
-    const order = await models.Orders.getOrder(_id);
+  async ordersCancel(_root, { _id }, { models, posUser, config }: IContext) {
+    assertPosUser(posUser);
 
-    checkOrderStatus(order);
-
-    if (
-      order.mobileAmount ||
-      (order.paidAmounts || []).filter(
-        (pa) => pa.info && Object.keys(pa.info).length,
-      ).length > 0
-    ) {
-      throw new Error('Card payment exists for this order');
-    }
-
-    if (
-      order.isPre &&
-      (order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
-    ) {
-      throw new Error('Cannot cancel cause PreOrder added payment');
-    }
-
-    if (order.synced === true) {
-      throw new Error('Order is already synced to erxes');
-    }
-
-    await models.OrderItems.deleteMany({ orderId: _id });
-
-    return models.Orders.deleteOne({ _id });
+    return cancelPosOrder(models, _id);
   },
 
   async cpOrdersCancel(_root, { _id }, { models }: IContext) {
-    const order = await models.Orders.getOrder(_id);
-
-    checkOrderStatus(order);
-
-    if (
-      order.mobileAmount ||
-      (order.paidAmounts || []).filter(
-        (pa) => pa.info && Object.keys(pa.info).length,
-      ).length > 0
-    ) {
-      throw new Error('Card payment exists for this order');
-    }
-
-    if (
-      order.isPre &&
-      (order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
-    ) {
-      throw new Error('Cannot cancel cause PreOrder added payment');
-    }
-
-    if (order.synced === true) {
-      throw new Error('Order is already synced to erxes');
-    }
-
-    await models.OrderItems.deleteMany({ orderId: _id });
-
-    return models.Orders.deleteOne({ _id });
+    return cancelPosOrder(models, _id);
   },
 
   /**
@@ -992,6 +965,8 @@ const orderMutations: Record<string, Resolver> = {
     { _id, billType, registerNumber }: ISettlePaymentParams,
     { config, models, subdomain, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const order = await models.Orders.getOrder(_id);
 
     if (!ORDER_TYPES.SALES.includes(order.type || '')) {
@@ -1019,6 +994,8 @@ const orderMutations: Record<string, Resolver> = {
     params,
     { models, subdomain, posUser, config }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const order = await models.Orders.getOrder(params._id);
     if (!order.branchId) {
       throw new Error(`First choose orders branch`);
@@ -1161,8 +1138,10 @@ const orderMutations: Record<string, Resolver> = {
   async afterFormSubmit(
     _root,
     { _id, conversationId }: { _id: string; conversationId: string },
-    { models, subdomain, config }: IContext,
+    { models, subdomain, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const order = await models.Orders.getOrder(_id);
 
     await sendTRPCMessage({
@@ -1175,7 +1154,7 @@ const orderMutations: Record<string, Resolver> = {
         conversationId,
         internal: true,
         customerId:
-          order.customerType || 'customer' === 'customer'
+          (order.customerType || 'customer') === 'customer'
             ? order.customerId
             : '',
         userId:
@@ -1202,6 +1181,8 @@ const orderMutations: Record<string, Resolver> = {
     doc: IOrderInput & { _id?: string },
     { config, models, subdomain, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     if (!ORDER_TYPES.OUT.includes(doc.type || '')) {
       throw new Error(
         'Зөвхөн зарлагадах төрөлтэй захиалгыг л шууд хаах боломжтой',
@@ -1311,6 +1292,8 @@ const orderMutations: Record<string, Resolver> = {
     },
     { subdomain, models, posUser, config }: IContext,
   ) {
+    assertPosUser(posUser);
+
     if (!posUser?._id || !config.adminIds.includes(posUser._id)) {
       throw new Error('Order return admin required');
     }
@@ -1429,9 +1412,11 @@ const orderMutations: Record<string, Resolver> = {
   },
 };
 
-function debugError(arg0: string) {
-  throw new Error('Function not implemented.');
-}
+markResolvers(orderMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 
 orderMutations.cpOrdersAdd.wrapperConfig = {
   forClientPortal: true,
@@ -1448,5 +1433,4 @@ orderMutations.cpOrderChangeSaleStatus.wrapperConfig = {
 orderMutations.cpOrdersCancel.wrapperConfig = {
   forClientPortal: true,
 };
-
 export default orderMutations;
