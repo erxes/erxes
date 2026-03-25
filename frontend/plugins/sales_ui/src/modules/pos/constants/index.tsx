@@ -11,12 +11,17 @@ import { CustomNode } from '../slot/types';
 import { isStepVisible } from './fieldConfig';
 
 export {
-  FIELD_VISIBILITY_CONFIG, isFieldVisible,
+  FIELD_VISIBILITY_CONFIG,
+  isFieldVisible,
   isStepVisible,
-  posTypeToContext, STEP_VISIBILITY_CONFIG
+  posTypeToContext,
+  STEP_VISIBILITY_CONFIG,
 } from './fieldConfig';
 export type {
-  CategoryFieldConfig, FieldConfig, FieldContext, PosTypeValue
+  CategoryFieldConfig,
+  FieldConfig,
+  FieldContext,
+  PosTypeValue,
 } from './fieldConfig';
 
 export type AllowedPosType =
@@ -48,12 +53,12 @@ export const ALLOW_TYPES = [
 ] as const;
 
 export const options = [
-  { value: 'debtAmount', label: 'Зээлийн данс' },
-  { value: 'cashAmount', label: 'Бэлэн мөнгө данс' },
-  { value: 'cardAmount', label: 'Картын данс' },
-  { value: 'card2Amount', label: 'Картын данс нэмэлт' },
-  { value: 'mobileAmount', label: 'Мобайл данс' },
-  { value: 'debtBarterAmount', label: 'Бартер данс' },
+  { value: 'debtAmount', label: 'Debt Account' },
+  { value: 'cashAmount', label: 'Cash Account' },
+  { value: 'cardAmount', label: 'Card Account' },
+  { value: 'card2Amount', label: 'Card Account Additional' },
+  { value: 'mobileAmount', label: 'Mobile Account' },
+  { value: 'debtBarterAmount', label: 'Barter Account' },
 ];
 
 export const DefaultNode: CustomNode = {

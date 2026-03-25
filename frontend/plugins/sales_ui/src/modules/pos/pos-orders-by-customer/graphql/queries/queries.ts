@@ -49,40 +49,6 @@ export const POS_ORDERS_BY_CUSTOMER = gql`
         subBranch
         user {
           _id
-          createdAt
-          username
-          email
-          isActive
-
-          links
-          status
-          chatStatus
-          emailSignatures
-          getNotificationByEmail
-
-          onboardedPlugins
-          groupIds
-          permissionGroupIds
-
-          isSubscribed
-          isShowNotification
-          propertiesData
-          isOwner
-          configs
-          configsConstants
-
-          departmentIds
-          brandIds
-
-          branchIds
-
-          positionIds
-
-          score
-          leaderBoardPosition
-          employeeId
-          isOnboarded
-          cursor
         }
         customer {
           _id

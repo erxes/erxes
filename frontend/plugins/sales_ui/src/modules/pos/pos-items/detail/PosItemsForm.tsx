@@ -2,12 +2,12 @@ import { Control } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 import React from 'react';
 import { options } from '../../constants';
+import { TPosItemFormData } from '../types/posItemType';
 
-interface PosOrderFormProps {
-  control: Control<any>;
-  summary?: any;
+interface PosItemsFormProps {
+  control: Control<TPosItemFormData>;
+  summary?: Record<string, number>;
   paidAmounts?: Array<{ type: string; amount: number }>;
-  posName?: string;
 }
 
 const formatNumberWithCommas = (value: string | number | undefined) => {
@@ -16,12 +16,11 @@ const formatNumberWithCommas = (value: string | number | undefined) => {
   return num.toLocaleString('en-US');
 };
 
-export const PosOrderForm = ({
+export const PosItemsForm = ({
   control,
   summary,
   paidAmounts,
-  posName,
-}: PosOrderFormProps) => {
+}: PosItemsFormProps) => {
   const paymentTypes = React.useMemo(() => {
     const summaryKeys = Object.keys(summary || {});
     const paidKeys = (paidAmounts || []).map((p) => p.type);
@@ -32,7 +31,7 @@ export const PosOrderForm = ({
       new Set([...standardPaymentTypes, ...summaryKeys, ...paidKeys]),
     )
       .filter((key) => key !== '_id')
-      .sort();
+      .sort((a, b) => a.localeCompare(b));
   }, [summary, paidAmounts]);
 
   return (

@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-export const POS_ORDER_DETAIL_QUERY = gql`
-  query PosOrderDetail($id: String) {
-    posOrderDetail(_id: $id) {
+export const POS_ITEM_DETAIL_QUERY = gql`
+  query PosOrderDetail($_id: String) {
+    posOrderDetail(_id: $_id) {
       customer {
         _id
         code

@@ -24,12 +24,40 @@ interface PaymentSummary {
 }
 
 interface PaymentRow {
-  original: IOrder & PaymentSummary;
+  original: IOrder;
 }
 
-export const generateOtherPaymentColumns = (summary: PaymentSummary) => {
+const getPaidAmountsMap = (paidAmounts: any): Record<string, number> => {
+  if (!paidAmounts) {
+    return {};
+  }
+
+  if (Array.isArray(paidAmounts)) {
+    return paidAmounts.reduce<Record<string, number>>((acc, item) => {
+      const key = (item?.title || item?.type) as string | undefined;
+      const amount = Number(item?.amount || 0);
+
+      if (!key) {
+        return acc;
+      }
+
+      acc[key] = (acc[key] || 0) + amount;
+
+      return acc;
+    }, {});
+  }
+
+  return paidAmounts as Record<string, number>;
+};
+
+export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
   const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
-    .filter((a) => !['_id'].includes(a))
+    .filter(
+      (a) =>
+        !['_id', 'count', 'cashAmount', 'mobileAmount', 'totalAmount'].includes(
+          a,
+        ),
+    )
     .sort();
 
   return otherPayTitles.map((title: string, index) => ({
@@ -37,7 +65,8 @@ export const generateOtherPaymentColumns = (summary: PaymentSummary) => {
     header: () => <RecordTable.InlineHead icon={IconClock} label={title} />,
     cell: ({ row }: { row: PaymentRow }) => {
       const order = row.original;
-      const value = order[title] || 0;
+      const dynamicAmounts = getPaidAmountsMap(order.paidAmounts);
+      const value = dynamicAmounts[title] || 0;
 
       return (
         <RecordTableInlineCell>

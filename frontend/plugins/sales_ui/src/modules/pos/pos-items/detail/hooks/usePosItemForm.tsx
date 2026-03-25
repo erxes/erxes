@@ -25,20 +25,19 @@ const buildDefaultValues = (
 ): Record<string, number> => {
   const normalized = normalizePaidAmounts(paidAmounts);
 
-  const result: Record<string, number> = {};
-
-  Object.entries(summary || {}).forEach(([key, value]) => {
-    result[key] = Number(value) || 0;
-  });
-
-  normalized.forEach(({ type, amount }) => {
-    result[type] = amount;
-  });
-
-  return result;
+  return {
+    ...(summary || {}),
+    ...normalized.reduce(
+      (acc, { type, amount }) => {
+        acc[type] = amount;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
+  };
 };
 
-export const usePosOrderForm = (paidAmounts?: any, summary?: any) => {
+export const usePosItemForm = (paidAmounts?: any, summary?: any) => {
   const paidAmountsKey = React.useMemo(() => {
     try {
       return JSON.stringify(paidAmounts);
@@ -47,17 +46,10 @@ export const usePosOrderForm = (paidAmounts?: any, summary?: any) => {
     }
   }, [paidAmounts]);
 
-  const summaryKey = React.useMemo(() => {
-    try {
-      return JSON.stringify(summary);
-    } catch {
-      return '';
-    }
-  }, [summary]);
-
   const defaultValues = React.useMemo(
     () => buildDefaultValues(paidAmounts, summary),
-    [paidAmounts, summary],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [paidAmountsKey, summary],
   );
 
   const methods = useForm<any>({
@@ -67,7 +59,8 @@ export const usePosOrderForm = (paidAmounts?: any, summary?: any) => {
 
   React.useEffect(() => {
     methods.reset(defaultValues);
-  }, [defaultValues, methods, paidAmountsKey, summaryKey]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paidAmountsKey]);
 
   return { methods };
 };

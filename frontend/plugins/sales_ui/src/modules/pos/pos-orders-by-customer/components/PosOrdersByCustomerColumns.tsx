@@ -11,10 +11,9 @@ import { PosOrdersByCustomerMoreColumn } from '@/pos/pos-orders-by-customer/comp
 
 export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
   PosOrdersByCustomerMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IPosOrdersByCustomer>,
   {
-    id: 'customerType',
-    accessorKey: 'customerType',
+    id: 'type',
+    accessorKey: 'customerDetail.state',
     header: () => <RecordTable.InlineHead icon={IconLabel} label="Type" />,
     cell: ({ cell }) => {
       return (
@@ -25,7 +24,7 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     },
   },
   {
-    id: 'customerDetail.primaryName',
+    id: 'customerName',
     accessorKey: 'customerDetail.primaryName',
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label="Customer Name" />
@@ -39,7 +38,7 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     },
   },
   {
-    id: 'customerDetail.emails.email',
+    id: 'customerEmail',
     accessorKey: 'customerDetail.emails.email',
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label="Customer Email" />

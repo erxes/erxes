@@ -21,11 +21,13 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
     ...generateOtherPaymentColumns(posOrdersSummary),
     ...secondOrderColumns,
   ];
+  const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;
 
   return (
     <RecordTable.Provider
+      key={columnsKey}
       columns={allColumns}
       data={ordersList || []}
       className="m-3"

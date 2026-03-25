@@ -25,6 +25,7 @@ export interface IPosItem extends IFields {
   departmentTitle: string;
   createdAt: string;
   createdBy: string;
+  status?: string;
   user: {
     _id: string;
     email: string;
@@ -43,6 +44,8 @@ export interface IPosItem extends IFields {
   customer?: {
     _id: string;
     primaryEmail: string;
+    firstName?: string;
+    primaryPhone?: string;
   };
   companyRD?: string;
   factor?: number;
@@ -60,7 +63,25 @@ export interface IPosItem extends IFields {
   posId?: string;
   branchId?: string;
   departmentId?: string;
+  totalAmount?: number;
+  syncErkhetInfo?: string;
+  billId?: string;
+  deal?: {
+    searchText?: string;
+  };
+  putResponses?: Array<{
+    createdAt: string;
+  }>;
   items?: Array<{
+    product?: {
+      code?: string;
+      barcodes?: string[];
+      productCategory?: {
+        code?: string;
+        name?: string;
+      };
+      name?: string;
+    };
     productCode?: string;
     productCategoryCode?: string;
     productCategoryName?: string;
@@ -68,9 +89,11 @@ export interface IPosItem extends IFields {
     count?: number;
     unitPrice?: number;
     discountAmount?: number;
+    discountPercent?: number;
     barcodes?: string[];
   }>;
   paidAmounts?: Array<{
+    type?: string;
     amount?: number;
   }>;
 }
