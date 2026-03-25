@@ -21,7 +21,6 @@ FROM nginx:alpine
 # Copy jo from builder
 COPY --from=jo-builder /usr/local/bin/jo /usr/local/bin/jo
 
-# Install bash
 RUN apk add --no-cache bash
 
 # Copy application files
