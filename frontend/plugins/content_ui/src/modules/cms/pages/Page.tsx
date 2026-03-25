@@ -36,9 +36,7 @@ export function Page() {
 
   return (
     <PageContainer>
-      <PagesHeader>
-        {headerActions}
-      </PagesHeader>
+      <PagesHeader>{headerActions}</PagesHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
         <div className="flex flex-col w-full overflow-hidden flex-auto">

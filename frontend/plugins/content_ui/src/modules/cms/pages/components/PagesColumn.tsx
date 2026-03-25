@@ -33,7 +33,9 @@ export const usePagesColumns = (
       header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
       accessorKey: 'name',
       cell: ({ row }) => {
-        const page = row.original as IPage & { translations?: { language: string }[] };
+        const page = row.original as IPage & {
+          translations?: { language: string }[];
+        };
         const missing = isMissing(page.translations);
         return (
           <RecordTableInlineCell>
@@ -46,7 +48,10 @@ export const usePagesColumns = (
               }}
               className="cursor-pointer"
             >
-              <Badge variant={missing ? 'outline' : 'secondary'} className={missing ? 'text-red-500 border-red-300' : ''}>
+              <Badge
+                variant={missing ? 'outline' : 'secondary'}
+                className={missing ? 'text-red-500 border-red-300' : ''}
+              >
                 <TextOverflowTooltip value={page.name} />
               </Badge>
             </div>
