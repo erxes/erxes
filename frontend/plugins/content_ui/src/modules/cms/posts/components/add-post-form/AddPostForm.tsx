@@ -96,10 +96,7 @@ export const AddPostForm = ({
     setDefaultLangData({
       title: fullPost?.title || '',
       content: fullPost?.content || '',
-      excerpt:
-        fullPost?.excerpt ||
-        fullPost?.description ||
-        '',
+      excerpt: fullPost?.excerpt || fullPost?.description || '',
       customFieldsData: fullPost?.customFieldsData || [],
     });
     const translation = translations[lang];
@@ -139,7 +136,13 @@ export const AddPostForm = ({
 
     applyTranslationToForm(selectedLanguage);
     appliedForPostRef.current = fullPost ?? null;
-  }, [selectedLanguage, defaultLanguage, translations, fullPost, currentEditingPost]);
+  }, [
+    selectedLanguage,
+    defaultLanguage,
+    translations,
+    fullPost,
+    currentEditingPost,
+  ]);
 
   useEffect(() => {
     if (currentEditingPost || !customTypes.length) return;
