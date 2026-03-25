@@ -1,5 +1,13 @@
 
 
+## [3.0.2](https://github.com/erxes/erxes/compare/3.0.1...3.0.2) (2026-03-25)
+
+
+### Features
+
+* read version from each plugins env ([90c9f6a](https://github.com/erxes/erxes/commit/90c9f6a23512241410b324c80a722c00e5b13482))
+* read version from each plugins env ([14762dd](https://github.com/erxes/erxes/commit/14762ddb16f7b4b919f2ccab06cd4b8034d3139f))
+
 ## [3.0.1](https://github.com/erxes/erxes/compare/3.0.0...3.0.1) (2026-03-25)
 
 
