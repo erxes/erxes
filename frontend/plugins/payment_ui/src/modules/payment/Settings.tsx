@@ -13,7 +13,6 @@ export const InvoicesPage = lazy(() =>
   })),
 );
 
-
 const PaymentSettings = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>

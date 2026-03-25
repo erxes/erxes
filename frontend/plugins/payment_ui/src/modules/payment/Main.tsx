@@ -7,7 +7,6 @@ const IndexPage = lazy(() =>
   })),
 );
 
-
 const PaymentMain = () => {
   return (
     <Suspense fallback={<div />}>
