@@ -19,12 +19,14 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
+import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 
 export const usePostsColumns = (
   onEditPost?: (post: any) => void,
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
   const navigate = useNavigate();
+  const { isMissing } = useIsTranslationMissing();
 
   return [
     postMoreColumn(onEditPost, undefined, onRefetch),
@@ -37,6 +39,7 @@ export const usePostsColumns = (
       accessorKey: 'title',
       cell: ({ cell, row }) => {
         const post = row.original;
+        const missing = isMissing(post.translations);
         return (
           <RecordTableInlineCell>
             <div
@@ -48,7 +51,7 @@ export const usePostsColumns = (
               }}
               className="cursor-pointer "
             >
-              <Badge variant="secondary">
+              <Badge variant={missing ? 'outline' : 'secondary'} className={missing ? 'text-red-500 border-red-300' : ''}>
                 <TextOverflowTooltip value={post.title || post.name} />
               </Badge>
             </div>

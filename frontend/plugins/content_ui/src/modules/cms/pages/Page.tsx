@@ -7,7 +7,6 @@ import { IPage } from './types/pageTypes';
 import { EmptyState } from '../shared/EmptyState';
 import { PagesHeader } from './components/PagesHeader';
 import { CmsSidebar } from '../shared/CmsSidebar';
-import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
 
 export function Page() {
   const { websiteId } = useParams();
@@ -38,7 +37,6 @@ export function Page() {
   return (
     <PageContainer>
       <PagesHeader>
-        <HeaderLanguageTabs />
         {headerActions}
       </PagesHeader>
       <div className="flex overflow-hidden flex-auto">
