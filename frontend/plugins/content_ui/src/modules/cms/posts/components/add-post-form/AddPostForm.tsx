@@ -104,7 +104,14 @@ export const AddPostForm = ({
       });
       formInitializedRef.current = true;
     }
-  }, [form, onSubmit, creating, saving, onFormReady, handleLanguageChangeStable]);
+  }, [
+    form,
+    onSubmit,
+    creating,
+    saving,
+    onFormReady,
+    handleLanguageChangeStable,
+  ]);
 
   // Helper: apply translation (or clear) translatable fields and save default data
   const applyTranslationToForm = (lang: string) => {

@@ -325,7 +325,13 @@ export function PageDrawer({
     }
     applyTranslationToForm(cmsLanguage);
     setSelectedLanguage(cmsLanguage);
-  }, [selectedLanguage, defaultLanguage, cmsLanguage, applyTranslationToForm, setSelectedLanguage]);
+  }, [
+    selectedLanguage,
+    defaultLanguage,
+    cmsLanguage,
+    applyTranslationToForm,
+    setSelectedLanguage,
+  ]);
 
   // When page data loads, the form-reset effect above overwrites translatable
   // fields with default-lang data.  Re-apply for the current non-default lang.
@@ -343,7 +349,13 @@ export function PageDrawer({
 
     applyTranslationToForm(selectedLanguage);
     appliedForPageRef.current = page ?? null;
-  }, [selectedLanguage, defaultLanguage, applyTranslationToForm, isEditing, page]);
+  }, [
+    selectedLanguage,
+    defaultLanguage,
+    applyTranslationToForm,
+    isEditing,
+    page,
+  ]);
 
   const onCompleted = () => {
     onClose();
@@ -544,10 +556,7 @@ export function PageDrawer({
       // the Editor (which remounts on selectedLanguage key change) reads
       // the correct initialContent.
       if (lang === curDefaultLanguage) {
-        form.setValue(
-          'name',
-          curDefaultLangData?.title || curPage?.name || '',
-        );
+        form.setValue('name', curDefaultLangData?.title || curPage?.name || '');
         form.setValue(
           'description',
           curDefaultLangData?.content || curPage?.description || '',
