@@ -8,7 +8,7 @@ import {
   CMS_EDIT_TRANSLATION,
 } from '../../../../graphql/queries';
 
-interface PostFormData {
+export interface PostFormData {
   title: string;
   slug: string;
   description?: string;

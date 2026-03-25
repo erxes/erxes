@@ -1,11 +1,12 @@
 import { Form, Input } from 'erxes-ui';
-import { UseFormReturn, FieldValues } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { PostPreview } from '../../PostPreview';
 import { CustomFieldValue } from '../../CustomFieldInput';
 import { CustomFieldsSection, FieldGroup } from './CustomFieldsSection';
+import { PostFormData } from './hooks/usePostForm';
 
 interface PostEditorColumnProps {
-  form: UseFormReturn<FieldValues>;
+  form: UseFormReturn<PostFormData>;
   selectedLanguage: string;
   defaultLanguage: string;
   selectedType: string | undefined;

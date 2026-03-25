@@ -527,7 +527,10 @@ export function PageDrawer({
     // stale closure state; this second pass uses the render-current values.
     if (lang === defaultLanguage) {
       form.setValue('name', defaultLangData?.title || page?.name || '');
-      form.setValue('description', defaultLangData?.content || page?.description || '');
+      form.setValue(
+        'description',
+        defaultLangData?.content || page?.description || '',
+      );
     } else {
       const translation = translations[lang];
       form.setValue('name', translation?.title || '');
@@ -553,7 +556,12 @@ export function PageDrawer({
 
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
-      onFormReady({ form, onSubmit, getSaving, handleLanguageChange: onLanguageChange });
+      onFormReady({
+        form,
+        onSubmit,
+        getSaving,
+        handleLanguageChange: onLanguageChange,
+      });
       formInitializedRef.current = true;
     }
   }, [form, onSubmit, getSaving, onFormReady]);

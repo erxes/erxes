@@ -51,7 +51,10 @@ export const usePostsColumns = (
               }}
               className="cursor-pointer "
             >
-              <Badge variant={missing ? 'outline' : 'secondary'} className={missing ? 'text-red-500 border-red-300' : ''}>
+              <Badge
+                variant={missing ? 'default' : 'secondary'}
+                className={missing ? 'text-red-500 border-red-300' : ''}
+              >
                 <TextOverflowTooltip value={post.title || post.name} />
               </Badge>
             </div>

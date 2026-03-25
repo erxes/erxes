@@ -3,6 +3,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { CategoryField } from './CategoryField';
 import { TagField } from './TagField';
 import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
+import { PostFormData } from './hooks/usePostForm';
 
 interface SelectOption {
   label: string;
@@ -23,7 +24,7 @@ interface LanguageOption {
 }
 
 interface ContentTabProps {
-  form: UseFormReturn;
+  form: UseFormReturn<PostFormData>;
   categories: SelectOption[];
   tags: SelectOption[];
   customTypes: CustomType[];

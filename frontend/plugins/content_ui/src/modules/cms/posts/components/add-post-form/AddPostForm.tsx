@@ -96,10 +96,7 @@ export const AddPostForm = ({
     setDefaultLangData({
       title: fullPost?.title || '',
       content: fullPost?.content || '',
-      excerpt:
-        fullPost?.excerpt ||
-        fullPost?.description ||
-        '',
+      excerpt: fullPost?.excerpt || fullPost?.description || '',
       customFieldsData: fullPost?.customFieldsData || [],
     });
     const translation = translations[lang];
@@ -127,19 +124,9 @@ export const AddPostForm = ({
   // translation override for the current non-default language.
   const appliedForPostRef = useRef<any>(null);
   useEffect(() => {
-    if (
-      !selectedLanguage ||
-      !defaultLanguage ||
-      selectedLanguage === defaultLanguage
-    ) {
-      return;
-    }
-    if (currentEditingPost && !fullPost) return;
-    if (appliedForPostRef.current === (fullPost ?? null)) return;
-
-    applyTranslationToForm(selectedLanguage);
-    appliedForPostRef.current = fullPost ?? null;
-  }, [selectedLanguage, defaultLanguage, translations, fullPost, currentEditingPost]);
+    if (!selectedLanguage && defaultLanguage)
+      setSelectedLanguage(defaultLanguage);
+  }, [defaultLanguage, selectedLanguage, setSelectedLanguage]);
 
   useEffect(() => {
     if (currentEditingPost || !customTypes.length) return;
@@ -188,12 +175,12 @@ export const AddPostForm = ({
       const data = defaultLangData || {
         title: fullPost?.title || '',
         content: fullPost?.content || '',
-        description: fullPost?.excerpt || fullPost?.description || '',
+        excerpt: fullPost?.excerpt || fullPost?.description || '',
         customFieldsData: fullPost?.customFieldsData || [],
       };
       form.setValue('title', data.title);
       form.setValue('content', data.content);
-      form.setValue('description', data.description);
+      form.setValue('description', data.excerpt);
       form.setValue('customFieldsData', data.customFieldsData);
     } else {
       const translation = translations[lang];

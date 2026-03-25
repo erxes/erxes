@@ -1,10 +1,11 @@
 import { Form, Editor } from 'erxes-ui';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { readImage } from 'erxes-ui/utils/core';
-import { UseFormReturn, FieldValues } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
+import { PostFormData } from './components/add-post-form/hooks/usePostForm';
 
 interface PostPreviewProps {
-  form: UseFormReturn<FieldValues>;
+  form: UseFormReturn<PostFormData>;
   selectedLanguage: string;
   defaultLanguage: string;
   fullPost: { _id?: string } | null | undefined;
