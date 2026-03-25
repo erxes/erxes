@@ -1,5 +1,12 @@
 
 
+## [3.0.4](https://github.com/erxes/erxes/compare/3.0.3...3.0.4) (2026-03-25)
+
+
+### Bug Fixes
+
+* core use dynamic import for file-type to resolve ESM compatibility error  ([867d0d7](https://github.com/erxes/erxes/commit/867d0d7fcf426120505ef6c396a17c4d83785a8f))
+
 ## [3.0.3](https://github.com/erxes/erxes/compare/3.0.2...3.0.3) (2026-03-25)
 
 ## [3.0.2](https://github.com/erxes/erxes/compare/3.0.1...3.0.2) (2026-03-25)
