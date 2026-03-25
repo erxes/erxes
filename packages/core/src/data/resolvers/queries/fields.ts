@@ -152,10 +152,12 @@ const fieldQueries = {
       groupIds.push(...inputGroupIds);
     }
 
+    let erxesDefinedGroup: any = null;
+
     if (isVisibleToCreate !== undefined) {
       query.isVisibleToCreate = isVisibleToCreate;
 
-      const erxesDefinedGroup = await models.FieldsGroups.findOne({
+      erxesDefinedGroup = await models.FieldsGroups.findOne({
         contentType,
         isDefinedByErxes: true,
         code: { $exists: false },
@@ -174,28 +176,58 @@ const fieldQueries = {
     }
 
     if (pipelineId) {
-      const otherGroupIds = await models.FieldsGroups.find({
+
+
+      const pipelineGroups = await models.FieldsGroups.find({
         'config.boardsPipelines.pipelineIds': { $in: [pipelineId] },
-      })
-        .select({ _id: 1 })
-        .sort({ order: 1 });
+      }).sort({ order: 1 });
+
+      if (pipelineGroups.length === 0) {
+        if (groupIds && groupIds.length > 0) {
+          query.groupId = { $in: groupIds };
+        }
+        return models.Fields.find(query).sort({ order: 1 });
+      }
 
       const allFields: any[] = [];
 
-      const fields = await models.Fields.find({
-        ...query,
-        groupId: { $in: groupIds },
-      }).sort({ order: 1 });
+      for (const group of pipelineGroups) {
+        const fv: Record<string, boolean> | undefined =
+          group.config?.fieldVisibility;
 
-      allFields.push(...fields);
+        if (group.isDefinedByErxes) {
 
-      for (const groupId of otherGroupIds) {
-        const groupFields = await models.Fields.find({
-          groupId,
-          ...query,
-        }).sort({ order: 1 });
+          if (fv && Object.keys(fv).length > 0) {
+            const shownFieldIds = Object.keys(fv).filter(
+              (id) => fv[id] === true,
+            );
 
-        allFields.push(...groupFields);
+            if (shownFieldIds.length > 0) {
+              const groupFields = await models.Fields.find({
+                groupId: group._id,
+                contentType: query.contentType,
+                _id: { $in: shownFieldIds },
+              }).sort({ order: 1 });
+
+              allFields.push(...groupFields);
+            }
+          } else {
+            const groupFields = await models.Fields.find({
+              groupId: group._id,
+              contentType: query.contentType,
+              isVisible: { $ne: false },
+            }).sort({ order: 1 });
+
+            allFields.push(...groupFields);
+          }
+        } else {
+          const groupFields = await models.Fields.find({
+            groupId: group._id,
+            ...query,
+          }).sort({ order: 1 });
+
+          allFields.push(...groupFields);
+        }
       }
 
       return allFields;

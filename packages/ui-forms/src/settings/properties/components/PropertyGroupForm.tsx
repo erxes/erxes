@@ -15,7 +15,7 @@ import { ModalFooter } from "@erxes/ui/src/styles/main";
 import PropertyLogics from "../containers/PropertyLogics";
 import React from "react";
 import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
-import { Row } from "../styles";
+import { FlexRow, Row } from "../styles";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { __ } from "@erxes/ui/src/utils";
 import ProductPropertGroupForm from "@erxes/ui-products/src/containers/form/PropertyGroupForm";
@@ -51,8 +51,22 @@ class PropertyGroupForm extends React.Component<Props, State> {
       isMultiple = props.group.isMultiple;
       isVisible = props.group.isVisible;
       isVisibleInDetail = props.group.isVisibleInDetail;
-      config = props.group.config;
+      config = props.group.config || {};
       alwaysOpen = props.group.alwaysOpen;
+
+      // Pre-populate fieldVisibility for system groups from each field's
+      // isVisibleToCreate so saving without clicking a toggle persists defaults.
+      if (
+        props.group.isDefinedByErxes &&
+        !config.fieldVisibility &&
+        props.group.fields?.length
+      ) {
+        const fieldVisibility: Record<string, boolean> = {};
+        for (const field of props.group.fields) {
+          fieldVisibility[field._id] = !!field.isVisibleToCreate;
+        }
+        config = { ...config, fieldVisibility };
+      }
     }
 
     this.state = {
@@ -81,6 +95,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     if (group) {
       finalValues._id = group._id;
+
+      // For system-defined groups preserve existing identity fields
+      if (group.isDefinedByErxes) {
+        finalValues.name = group.name;
+        finalValues.description = group.description || "";
+      }
     }
 
     return {
@@ -172,12 +192,73 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
   onChangeItems = (boardsPipelines: any, key?: string) => {
     if (key) {
-      this.setState({ config: { [key]: boardsPipelines } });
+      this.setState(prev => ({
+        config: { ...prev.config, [key]: boardsPipelines }
+      }));
       return;
     }
 
-    this.setState({ config: { boardsPipelines } });
+    this.setState(prev => ({
+      config: { ...prev.config, boardsPipelines }
+    }));
   };
+
+  onFieldVisibilityChange = (fieldId: string, value: boolean) => {
+    this.setState(prev => ({
+      config: {
+        ...prev.config,
+        fieldVisibility: {
+          ...(prev.config?.fieldVisibility || {}),
+          [fieldId]: value
+        }
+      }
+    }));
+  };
+
+  renderFieldVisibilitySection() {
+    const { group } = this.props;
+
+    if (!group || !group.isDefinedByErxes || !group.fields?.length) {
+      return null;
+    }
+
+    const fieldVisibility: Record<string, boolean> =
+      this.state.config?.fieldVisibility || {};
+
+    return (
+      <FormGroup>
+        <ControlLabel>{__("Field Visibility to Create")}</ControlLabel>
+        <p>
+          {__(
+            "Choose which fields appear in the create form for the configured pipelines."
+          )}
+        </p>
+        {group.fields.map(field => {
+            const isChecked =
+              fieldVisibility[field._id] !== undefined
+                ? fieldVisibility[field._id]
+                : !!field.isVisibleToCreate;
+
+            return (
+              <FlexRow key={field._id} style={{ marginBottom: 8 }}>
+                <span style={{ flex: 1 }}>{field.text}</span>
+                <Toggle
+                  id={`fv_${field._id}`}
+                  checked={isChecked}
+                  icons={{
+                    checked: <span>{__("Yes")}</span>,
+                    unchecked: <span>{__("No")}</span>
+                  }}
+                  onChange={e =>
+                    this.onFieldVisibilityChange(field._id, e.target.checked)
+                  }
+                />
+              </FlexRow>
+            );
+          })}
+      </FormGroup>
+    );
+  }
 
   onChangeLogicAction = value => {
     this.setState({ logicAction: value });
@@ -226,6 +307,28 @@ class PropertyGroupForm extends React.Component<Props, State> {
     const { values, isSubmitted } = formProps;
 
     const object = group || ({} as IFieldGroup);
+
+    // For system-defined groups, only allow board & pipeline + field visibility configuration
+    if (group && group.isDefinedByErxes) {
+      return (
+        <>
+          {this.renderExtraContent()}
+          {this.renderFieldVisibilitySection()}
+          <ModalFooter>
+            <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
+              Close
+            </Button>
+            {renderButton({
+              name: "property group",
+              values: this.generateDoc(values),
+              isSubmitted,
+              callback: closeModal,
+              object: group
+            })}
+          </ModalFooter>
+        </>
+      );
+    }
 
     return (
       <>
