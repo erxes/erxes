@@ -209,7 +209,7 @@ const FilterCampaign = (props: IProps) => {
       );
     }
 
-    const options = FILTER_OPTIONS[field][type] || FILTER_OPTIONS[field] || [];
+    const options: { value: string; label: string }[] = FILTER_OPTIONS[field]?.[type] || FILTER_OPTIONS[field] || [];
 
     return (
       <Box
