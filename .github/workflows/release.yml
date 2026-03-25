@@ -53,24 +53,21 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
       R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
     steps:
       - name: Copy /latest/ → /version/ in Cloudflare R2
         run: |
           VERSION="${{ github.ref_name }}"
-          for PLUGIN in \
-            sales_ui \
-            frontline_ui \
-            accounting_ui \
-            content_ui \
-            operation_ui \
-            payment_ui \
-            tourism_ui \
-            loyalty_ui \
-            mongolian_ui \
-            insurance_ui; do
+          PLUGINS=(
+            sales_ui frontline_ui accounting_ui content_ui operation_ui
+            payment_ui tourism_ui loyalty_ui mongolian_ui insurance_ui
+          )
+          for PLUGIN in "${PLUGINS[@]}"; do
             echo "Copying $PLUGIN: s3://erxes-next/latest/$PLUGIN/ → s3://erxes-next/$VERSION/$PLUGIN/"
-            aws s3 sync s3://erxes-next/latest/$PLUGIN/ s3://erxes-next/$VERSION/$PLUGIN/ \
-              --endpoint-url $R2_ENDPOINT \
+            aws s3 sync \
+              "s3://erxes-next/latest/$PLUGIN/" \
+              "s3://erxes-next/$VERSION/$PLUGIN/" \
+              --endpoint-url "$R2_ENDPOINT" \
               --copy-props none
           done

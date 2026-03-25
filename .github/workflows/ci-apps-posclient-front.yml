@@ -43,10 +43,9 @@ jobs:
         with:
           images: erxes/posclient-front
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=ref,event=branch
             type=sha,format=short
-            type=semver,pattern={{version}}
 
       - name: Build and push
         uses: docker/build-push-action@v5
