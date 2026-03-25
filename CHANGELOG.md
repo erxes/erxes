@@ -1,5 +1,7 @@
 
 
+## [3.0.3](https://github.com/erxes/erxes/compare/3.0.2...3.0.3) (2026-03-25)
+
 ## [3.0.2](https://github.com/erxes/erxes/compare/3.0.1...3.0.2) (2026-03-25)
 
 
