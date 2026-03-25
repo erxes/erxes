@@ -115,7 +115,8 @@ export const joinErxesGateway = async ({
   hasSubscriptions = false,
   meta,
 }: PluginConfig) => {
-  const version = process.env.VERSION;
+  const rawVersion = process.env.VERSION;
+  const version = rawVersion?.startsWith('3.') ? rawVersion : 'latest';
 
   await redis.set(
     keyForConfig(name),
