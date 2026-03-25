@@ -1,11 +1,13 @@
 import { Form, ScrollArea } from 'erxes-ui';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useEffect, useRef, useMemo } from 'react';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
 import { usePostSubmission } from './hooks/usePostSubmission';
 import { PostEditorColumn } from './PostEditorColumn';
 import { PostSidebarPanel } from './PostSidebarPanel';
+import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 
 interface AddPostFormProps {
   websiteId: string;
@@ -16,6 +18,7 @@ interface AddPostFormProps {
     onSubmit: (data?: any) => Promise<void>;
     creating: boolean;
     saving: boolean;
+    handleLanguageChange: (lang: string) => void;
   }) => void;
 }
 
@@ -27,6 +30,8 @@ export const AddPostForm = ({
 }: AddPostFormProps) => {
   const location = useLocation() as any;
   const [searchParams] = useSearchParams();
+  const setCmsLanguage = useSetAtom(cmsLanguageAtom);
+  const cmsLanguage = useAtomValue(cmsLanguageAtom);
   const currentEditingPost = editingPost || (location?.state?.post as any);
 
   const {
@@ -81,15 +86,60 @@ export const AddPostForm = ({
 
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
-      onFormReady({ form, onSubmit, creating, saving });
+      onFormReady({ form, onSubmit, creating, saving, handleLanguageChange });
       formInitializedRef.current = true;
     }
   }, [form, onSubmit, creating, saving, onFormReady]);
 
+  // Helper: apply translation (or clear) translatable fields and save default data
+  const applyTranslationToForm = (lang: string) => {
+    setDefaultLangData({
+      title: fullPost?.title || '',
+      content: fullPost?.content || '',
+      excerpt:
+        fullPost?.excerpt ||
+        fullPost?.description ||
+        '',
+      customFieldsData: fullPost?.customFieldsData || [],
+    });
+    const translation = translations[lang];
+    form.setValue('title', translation?.title || '');
+    form.setValue('content', translation?.content || '');
+    form.setValue('description', translation?.excerpt || '');
+    form.setValue('customFieldsData', translation?.customFieldsData || []);
+  };
+
   useEffect(() => {
-    if (!selectedLanguage && defaultLanguage)
-      setSelectedLanguage(defaultLanguage);
-  }, [defaultLanguage, selectedLanguage, setSelectedLanguage]);
+    if (!selectedLanguage && defaultLanguage) {
+      const initialLang = cmsLanguage || defaultLanguage;
+      // Set form values BEFORE setting selectedLanguage so the Editor
+      // (which remounts on key change including selectedLanguage) reads
+      // the correct values when it re-initialises.
+      if (initialLang !== defaultLanguage) {
+        applyTranslationToForm(initialLang);
+      }
+      setSelectedLanguage(initialLang);
+    }
+  }, [defaultLanguage, selectedLanguage, setSelectedLanguage, cmsLanguage]);
+
+  // When fullPost changes (loads twice: editingPost then fullPostData.cmsPost),
+  // the hook's effect resets the form with default-lang data.  Re-apply the
+  // translation override for the current non-default language.
+  const appliedForPostRef = useRef<any>(null);
+  useEffect(() => {
+    if (
+      !selectedLanguage ||
+      !defaultLanguage ||
+      selectedLanguage === defaultLanguage
+    ) {
+      return;
+    }
+    if (currentEditingPost && !fullPost) return;
+    if (appliedForPostRef.current === (fullPost ?? null)) return;
+
+    applyTranslationToForm(selectedLanguage);
+    appliedForPostRef.current = fullPost ?? null;
+  }, [selectedLanguage, defaultLanguage, translations, fullPost, currentEditingPost]);
 
   useEffect(() => {
     if (currentEditingPost || !customTypes.length) return;
@@ -154,6 +204,7 @@ export const AddPostForm = ({
     }
 
     setSelectedLanguage(lang);
+    setCmsLanguage(lang);
   };
 
   return (
