@@ -20,6 +20,15 @@ export interface TPosOrder {
   number: string;
   customerId?: string;
   customerType?: string;
+  customer?: {
+    _id: string;
+    code?: string;
+    primaryEmail?: string;
+    primaryPhone?: string;
+    firstName?: string;
+    lastName?: string;
+    primaryAddress?: string;
+  };
   cashAmount: number;
   mobileAmount: number;
   paidAmounts: Array<{
@@ -30,6 +39,7 @@ export interface TPosOrder {
   finalAmount: number;
   shouldPrintEbarimt?: boolean;
   printedEbarimt?: boolean;
+  ebarimtDate?: string;
   billType?: string;
   billId?: string;
   registerNumber?: string;

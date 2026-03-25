@@ -113,12 +113,12 @@ function PosItem({ pos }: posItemProps) {
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
-              <NavigationMenuLinkItem
+              {/* <NavigationMenuLinkItem
                 name="POS orders by subscription"
                 path={`sales/pos/${pos._id}/orders-by-subscription`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
-              />
+              /> */}
             </Sidebar.Menu>
           </Sidebar.GroupContent>
         </Collapsible.Content>
