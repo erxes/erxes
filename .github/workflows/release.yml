@@ -21,7 +21,7 @@ jobs:
 
       - name: Tag all backend images with release version
         run: |
-          VERSION="${{ github.ref_name }}"
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
           for IMAGE in \
             erxes/erxes-next-core-api \
             erxes/erxes-next-gateway \
@@ -57,7 +57,7 @@ jobs:
     steps:
       - name: Copy /latest/ → /version/ in Cloudflare R2
         run: |
-          VERSION="${{ github.ref_name }}"
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
           PLUGINS=(
             sales_ui frontline_ui accounting_ui content_ui operation_ui
             payment_ui tourism_ui loyalty_ui mongolian_ui insurance_ui
@@ -66,7 +66,10 @@ jobs:
             echo "Copying $PLUGIN: s3://erxes-next/latest/$PLUGIN/ → s3://erxes-next/$VERSION/$PLUGIN/"
             aws s3 sync \
               "s3://erxes-next/latest/$PLUGIN/" \
+              "/tmp/$PLUGIN/" \
+              --endpoint-url "$R2_ENDPOINT"
+            aws s3 sync \
+              "/tmp/$PLUGIN/" \
               "s3://erxes-next/$VERSION/$PLUGIN/" \
-              --endpoint-url "$R2_ENDPOINT" \
-              --copy-props none
+              --endpoint-url "$R2_ENDPOINT"
           done

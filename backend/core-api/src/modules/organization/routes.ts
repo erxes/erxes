@@ -71,7 +71,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
   const getPluginVersion = async (pluginName: string): Promise<string> => {
     try {
       const pluginInfo = await getPlugin(pluginName);
-      return pluginInfo?.config?.version || 'latest';
+      return pluginInfo?.config?.releaseVersion || 'latest';
     } catch {
       return 'latest';
     }
