@@ -37,7 +37,10 @@ jobs:
             erxes/erxes-next-posclient_api \
             erxes/erxes-next-insurance_api \
             erxes/erxes-next-logs \
-            erxes/erxes-next-automations; do
+            erxes/erxes-next-automations \
+            erxes/erxes-next-ui \
+            erxes/posclient-front \
+            erxes/frontline-widgets; do
             echo "Tagging $IMAGE:latest → $IMAGE:$VERSION"
             docker buildx imagetools create \
               -t "$IMAGE:$VERSION" \
@@ -50,12 +53,24 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      R2_ENDPOINT: https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
     steps:
       - name: Copy /latest/ → /version/ in Cloudflare R2
         run: |
           VERSION="${{ github.ref_name }}"
-          echo "Copying s3://erxes-next/latest/ → s3://erxes-next/$VERSION/"
-          aws s3 cp s3://erxes-next/latest/ s3://erxes-next/$VERSION/ \
-            --recursive \
-            --endpoint-url $R2_ENDPOINT
+          for PLUGIN in \
+            sales_ui \
+            frontline_ui \
+            accounting_ui \
+            content_ui \
+            operation_ui \
+            payment_ui \
+            tourism_ui \
+            loyalty_ui \
+            mongolian_ui \
+            insurance_ui; do
+            echo "Copying $PLUGIN: s3://erxes-next/latest/$PLUGIN/ → s3://erxes-next/$VERSION/$PLUGIN/"
+            aws s3 sync s3://erxes-next/latest/$PLUGIN/ s3://erxes-next/$VERSION/$PLUGIN/ \
+              --endpoint-url $R2_ENDPOINT \
+              --copy-props none
+          done
