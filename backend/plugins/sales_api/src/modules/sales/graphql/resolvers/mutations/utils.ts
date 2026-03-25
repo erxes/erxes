@@ -195,6 +195,7 @@ export const editDeal = async ({
     // order notification
     await changeItemStatus(models, user, {
       item: updatedItem,
+      oldDeal,
       status: activityAction,
       processId,
       stage,
@@ -218,12 +219,19 @@ export const editDeal = async ({
     doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 
-  await subscriptionWrapper(models, {
-    action: 'update',
-    deal: updatedItem,
-    oldDeal,
-    pipelineId: stage.pipelineId,
-  });
+  const transitionedToArchived =
+    doc.status === 'archived' &&
+    !!oldDeal.status &&
+    oldDeal.status !== doc.status;
+
+  if (!transitionedToArchived) {
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: updatedItem,
+      oldDeal,
+      pipelineId: stage.pipelineId,
+    });
+  }
 
   // await doScoreCampaign(subdomain, models, _id, updatedItem);
 
