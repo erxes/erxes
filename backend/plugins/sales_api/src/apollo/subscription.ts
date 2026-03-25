@@ -39,7 +39,7 @@ export default {
               return false;
             }
 
-            const filterParams = await sendTRPCMessage({
+            const filterParamsResponse = await sendTRPCMessage({
               subdomain,
 
               pluginName: 'sales',
@@ -50,7 +50,10 @@ export default {
                 userId,
               },
             });
-
+            let filterParams = [];
+            if (filterParamsResponse?.status === 'success') {
+              filterParams = filterParamsResponse?.data;
+            }
             const matchesOld = oldDeal ? sift(filterParams)(oldDeal) : false;
             const matchesNew = deal ? sift(filterParams)(deal) : false;
 

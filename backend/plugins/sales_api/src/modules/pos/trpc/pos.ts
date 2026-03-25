@@ -15,46 +15,6 @@ const t = initTRPC.context<SalesTRPCContext>().create();
 
 export const posTrpcRouter = t.router({
   pos: t.router({
-    orders: t.router({
-      findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-        const { models } = ctx;
-
-        return {
-          status: 'success',
-          data: await models.PosOrders.findOne(input || {}).lean(),
-        };
-      }),
-      find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const { query, skip, limit, sort = {} } = input || {};
-
-        if (!query) {
-          return {
-            status: 'success',
-            data: await models.PosOrders.find(input || {}).lean(),
-          };
-        }
-
-        return {
-          status: 'success',
-          data: await models.PosOrders.find(query)
-            .skip(skip || 0)
-            .limit(limit || 0)
-            .sort(sort)
-            .lean(),
-        };
-      }),
-      updateOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-        const { selector, modifier } = input;
-        const { models } = ctx;
-
-        return {
-          status: 'success',
-          data: await models.PosOrders.updateOne(selector, modifier),
-        };
-      }),
-    }),
-
     confirmCover: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
@@ -213,5 +173,44 @@ export const posTrpcRouter = t.router({
           status: 'success',
         };
       }),
+  }),
+  order: t.router({
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+
+      return {
+        status: 'success',
+        data: await models.PosOrders.findOne(input || {}).lean(),
+      };
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { query, skip, limit, sort = {} } = input || {};
+
+      if (!query) {
+        return {
+          status: 'success',
+          data: await models.PosOrders.find(input || {}).lean(),
+        };
+      }
+
+      return {
+        status: 'success',
+        data: await models.PosOrders.find(query)
+          .skip(skip || 0)
+          .limit(limit || 0)
+          .sort(sort)
+          .lean(),
+      };
+    }),
+    updateOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { selector, modifier } = input;
+      const { models } = ctx;
+
+      return {
+        status: 'success',
+        data: await models.PosOrders.updateOne(selector, modifier),
+      };
+    }),
   }),
 });

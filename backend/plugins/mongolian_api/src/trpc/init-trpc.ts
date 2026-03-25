@@ -4,6 +4,7 @@ import { ITRPCContext } from 'erxes-api-shared/utils';
 import { ebarimtTrpcRouter } from '../modules/ebarimt/trpc';
 import { productPlacesTrpcRouter } from '~/modules/productPlaces/trpc/productPlaces';
 import { exchangeRateTrpcRouter } from '~/modules/exchangeRates/trpc/exchangeRate';
+import { erkhetTrpcRouter } from '~/modules/erkhet/trpc/erkhet';
 
 const t = initTRPC.context<ITRPCContext>().create();
 
@@ -11,6 +12,7 @@ export const appRouter = t.mergeRouters(
   ebarimtTrpcRouter,
   productPlacesTrpcRouter,
   exchangeRateTrpcRouter,
+  erkhetTrpcRouter,
 );
 
 export type AppRouter = typeof appRouter;

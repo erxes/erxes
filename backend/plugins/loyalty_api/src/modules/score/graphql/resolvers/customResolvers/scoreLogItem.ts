@@ -7,8 +7,8 @@ const TARGET_ACTIONS: Record<
   { module: string; action: string; fields: string[] }
 > = {
   pos: {
-    module: 'pos',
-    action: 'orders.findOne',
+    module: 'order',
+    action: 'findOne',
     fields: ['items', 'number', 'totalAmount'],
   },
   sales: {

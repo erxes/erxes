@@ -151,27 +151,27 @@ export const dealTrpcRouter = t.router({
         return { data: dealProductIds, status: 'success' };
       }),
 
-    // createItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-    //   const { models, subdomain } = ctx;
-    //   const { user, processId, ...doc } = input;
-    //   if (!user || !processId) {
-    //     return {
-    //       status: 'error',
-    //       errorMessage: 'you must provide some params',
-    //     };
-    //   }
-    //   try {
-    //     return {
-    //       status: 'success',
-    //       data: await addDeal({ models, subdomain, user, doc }),
-    //     };
-    //   } catch (e) {
-    //     return {
-    //       status: 'error',
-    //       errorMessage: e.message,
-    //     };
-    //   }
-    // }),
+    createItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      const { user, processId, ...doc } = input;
+      if (!user || !processId) {
+        return {
+          status: 'error',
+          errorMessage: 'you must provide some params',
+        };
+      }
+      try {
+        return {
+          status: 'success',
+          data: await addDeal({ models, subdomain, user, doc }),
+        };
+      } catch (e) {
+        return {
+          status: 'error',
+          errorMessage: e.message,
+        };
+      }
+    }),
 
     editItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
@@ -399,6 +399,7 @@ export const dealTrpcRouter = t.router({
         }
       }),
     subscriptionWrapper: publishDealSubscription,
+    // those create and update procedures are for system user, because of user missing
     create: createDealProcedure,
     updateOne: updateDealProcedure,
   },

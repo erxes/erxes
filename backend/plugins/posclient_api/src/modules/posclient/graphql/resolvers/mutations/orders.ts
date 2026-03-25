@@ -1034,15 +1034,8 @@ const orderMutations: Record<string, Resolver> = {
     }
 
     if (order.convertDealId) {
-      // const deal = await sendSalesMessage({
-      //   subdomain,
-      //   action: 'deals.findOne',
-      //   data: { _id: order.convertDealId },
-      //   isRPC: true,
-      // });
       const deal = await sendTRPCMessage({
         subdomain,
-
         pluginName: 'sales',
         module: 'deal',
         action: 'findOne',
@@ -1060,7 +1053,7 @@ const orderMutations: Record<string, Resolver> = {
           defaultValue: null,
         });
 
-        throw new Error(`Already converted: ${dealLink}`);
+        throw new Error(`Already converted: ${dealLink?.data || ''}`);
       }
     }
 
@@ -1108,20 +1101,11 @@ const orderMutations: Record<string, Resolver> = {
         },
       ];
     }
-
-    // const deal = await sendSalesMessage({
-    //   subdomain,
-    //   action: 'deals.create',
-    //   data: dealData,
-    //   isRPC: true,
-    //   defaultValue: {},
-    // });
     const deal = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'sales',
       module: 'deal',
-      action: 'createItem',
+      action: 'create',
       input: dealData,
       defaultValue: null,
     });
@@ -1142,17 +1126,25 @@ const orderMutations: Record<string, Resolver> = {
         //   },
         //   isRPC: true,
         // });
+
+        // conformity to relation
         await sendTRPCMessage({
           subdomain,
-
+          method: 'mutation',
           pluginName: 'core',
-          module: 'conformity',
-          action: 'addConformity',
+          module: 'relation',
+          action: 'createRelation',
           input: {
-            mainType: 'deal',
-            mainTypeId: deal._id,
-            relType: order.customerType || 'customer',
-            relTypeId: order.customerId,
+            entities: [
+              {
+                contentType: 'sales:deal',
+                contentId: deal._id,
+              },
+              {
+                contentType: `core:${order.customerType || 'customer'}`,
+                contentId: order.customerId,
+              },
+            ],
           },
           defaultValue: null,
         });
@@ -1173,34 +1165,36 @@ const orderMutations: Record<string, Resolver> = {
   ) {
     const order = await models.Orders.getOrder(_id);
 
-    // await sendInboxMessage({
-    //   subdomain,
-    //   action: 'createOnlyMessage',
-    //   data: {
-    //     conversationId,
-    //     internal: true,
-    //     customerId:
-    //       order.customerType || 'customer' === 'customer'
-    //         ? order.customerId
-    //         : '',
-    //     userId:
-    //       (config.adminIds && config.adminIds.length && config.adminIds[0]) ||
-    //       (config.cashierIds && config.cashierIds[0]) ||
-    //       '',
-    //     content: `
-    //       Pos order:
-    //         paid link:
-    //         <a href="/pos-orders?posId=${config.posId}&search=${order.number}">
-    //           ${order.number}
-    //         </a> <br />
-    //         posclient link:
-    //         <a href="${config.pdomain ?? '/'}?orderId=${order._id}">
-    //           ${order.number}
-    //         </a> <br />
-    //     `,
-    //   },
-    //   isRPC: true,
-    // });
+    await sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'frontline',
+      module: 'inbox',
+      action: 'createOnlyMessage',
+      input: {
+        conversationId,
+        internal: true,
+        customerId:
+          order.customerType || 'customer' === 'customer'
+            ? order.customerId
+            : '',
+        userId:
+          (config.adminIds && config.adminIds.length && config.adminIds[0]) ||
+          (config.cashierIds && config.cashierIds[0]) ||
+          '',
+        content: `
+          Pos order:
+            paid link:
+            <a href="/pos-orders?posId=${config.posId}&search=${order.number}">
+              ${order.number}
+            </a> <br />
+            posclient link:
+            <a href="${config.pdomain ?? '/'}?orderId=${order._id}">
+              ${order.number}
+            </a> <br />
+        `,
+      },
+    });
   },
 
   async ordersFinish(
