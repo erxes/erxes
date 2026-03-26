@@ -158,7 +158,7 @@ export async function startPlugin(
       type LowercaseMethod = (typeof API_METHODS)[TAPIMethod];
 
       // Ensure `method` is one of the keys
-      const METHOD = API_METHODS[method];
+      const METHOD = API_METHODS[method] as LowercaseMethod;
       type TApiMethodApp = Record<
         LowercaseMethod,
         Application[LowercaseMethod]

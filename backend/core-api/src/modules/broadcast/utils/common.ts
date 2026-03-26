@@ -44,30 +44,25 @@ interface IEngageParams {
   user;
 }
 
-export const subscribeEngage = (models: IModels) => {
-  return new Promise(async (resolve, reject) => {
-    const snsApi = await getApi(models, 'sns');
-    const sesApi = await getApi(models, 'ses');
-    const configSet = await getValueAsString(
-      models,
-      'configSet',
-      'AWS_SES_CONFIG_SET',
-      'erxes',
-    );
+export const subscribeEngage = async (models: IModels) => {
+  const snsApi = await getApi(models, 'sns');
+  const sesApi = await getApi(models, 'ses');
+  const configSet = await getValueAsString(
+    models,
+    'configSet',
+    'AWS_SES_CONFIG_SET',
+    'erxes',
+  );
 
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
+  try {
     const topicArn = await snsApi
       .createTopic({ Name: configSet })
-      .promise()
-      .catch((e) => {
-        console.log(e.message);
-
-        return reject(e.message);
-      });
+      .promise();
 
     if (!topicArn) {
-      return reject('Error occurred');
+      throw new Error('Error occurred');
     }
 
     await snsApi
@@ -76,14 +71,7 @@ export const subscribeEngage = (models: IModels) => {
         Protocol: 'https',
         Endpoint: `${DOMAIN}/gateway/pl:engages/service/engage/tracker`,
       })
-      .promise()
-      .then((response: Response) => {
-        console.log(response);
-      })
-      .catch((e: Error) => {
-        console.log(e.message);
-        return reject(e.message);
-      });
+      .promise();
 
     await sesApi
       .createConfigurationSet({
@@ -93,13 +81,9 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .catch((e: Error) => {
-        console.log(e.message);
-
-        if (e.message.includes('already exists')) {
-          return;
+        if (!e.message.includes('already exists')) {
+          throw e;
         }
-
-        return reject(e.message);
       });
 
     await sesApi
@@ -125,17 +109,16 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .catch((e: Error) => {
-        console.log(e.message);
-
-        if (e.message.includes('already exists')) {
-          return;
+        if (!e.message.includes('already exists')) {
+          throw e;
         }
-
-        return reject(e.message);
       });
 
-    return resolve(true);
-  });
+    return true;
+  } catch (e: any) {
+    console.log(e.message);
+    throw e;
+  }
 };
 
 export const updateConfigs = async (
@@ -753,11 +736,7 @@ const sendCampaignNotification = async (
     //   );
     // });
   } catch (e) {
-    await models.Logs.create({
-      engageMessageId: groupId,
-      message: e.message,
-      type: 'failure',
-    });
+    // await models.Logs.createLog(groupId, 'failure', e.message);
   }
 };
 
