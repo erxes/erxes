@@ -35,6 +35,7 @@ export const triggerFacebookAutomation = async (
     target.adData = adData;
     type = 'facebook:ads';
   }
+  console.log({ type, targets: [target], repeatOptions });
 
   sendAutomationTrigger(
     subdomain,

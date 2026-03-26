@@ -20,6 +20,7 @@ export const checkMessageTrigger = async (
   { target, config },
 ) => {
   const { conditions = [], botId } = config;
+  console.log({ target, config });
 
   if (target.botId !== botId) {
     return false;

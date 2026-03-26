@@ -1,34 +1,25 @@
 import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
-import { useMutation } from '@apollo/client';
-import { IconEdit, IconRefresh, IconX } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Avatar,
-  Button,
   RecordTable,
   RecordTableInlineCell,
-  Spinner,
-  toast,
-  useQueryState,
 } from 'erxes-ui';
-import {
-  REMOVE_FACEBOOK_BOT,
-  REPAIR_FACEBOOK_BOT,
-} from '~/widgets/automations/modules/facebook/components/bots/graphql/automationBotsMutations';
+import { FacebookBotHealthCell } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotHealthCell';
+import { facebookBotMoreColumn } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotMoreColumn';
 
 export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
+    facebookBotMoreColumn(),
   {
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label="Name" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 250,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="truncate font-medium">
+        {cell.getValue() as string}
+      </RecordTableInlineCell>
+    ),
+    size: 280,
   },
   {
     id: 'account',
@@ -36,9 +27,9 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
     header: () => <RecordTable.InlineHead label="Account" />,
     cell: ({ cell }) => {
       const { name = '-' } = cell.getValue() || ({} as any);
-      return <RecordTableInlineCell>{name}</RecordTableInlineCell>;
+      return <RecordTableInlineCell className="truncate">{name}</RecordTableInlineCell>;
     },
-    size: 235,
+    size: 180,
   },
   {
     id: 'page',
@@ -48,74 +39,27 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
       const { profileUrl = '' } = cell.row.original || {};
       const { name = '-' } = cell.getValue() || ({} as any);
       return (
-        <RecordTableInlineCell className="w-full flex items-center justify-center">
-          <Avatar>
+        <RecordTableInlineCell className="min-w-0">
+          <div className="flex min-w-0 items-center gap-2">
+            <Avatar>
             <Avatar.Image src={profileUrl} />
             <Avatar.Fallback>{name}</Avatar.Fallback>
-          </Avatar>
-          {name}
+            </Avatar>
+            <span className="truncate">{name}</span>
+          </div>
         </RecordTableInlineCell>
       );
     },
+    size: 190,
   },
-
   {
-    id: 'action-group',
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ cell }) => {
-      const { _id } = cell.row.original || {};
-      const [_, setFacebookBotId] = useQueryState('facebookBotId');
-      const [repairBot, { loading: loadingRepair }] = useMutation(
-        REPAIR_FACEBOOK_BOT,
-        {
-          variables: { _id },
-          onCompleted: () => toast({ title: 'Repaired successfully' }),
-          onError: (error) =>
-            toast({
-              title: 'Something went wrong',
-              description: error.message,
-              variant: 'destructive',
-            }),
-        },
-      );
-
-      const [removeBot, { loading: loadingRemove }] = useMutation(
-        REMOVE_FACEBOOK_BOT,
-        {
-          variables: { _id },
-          onCompleted: () => toast({ title: 'Removed successfully' }),
-          onError: (error) =>
-            toast({
-              title: 'Something went wrong',
-              description: error.message,
-              variant: 'destructive',
-            }),
-        },
-      );
-
-      return (
-        <div className="flex items-center justify-center gap-1 [&>button]:px-2">
-          <Button variant="ghost" onClick={() => setFacebookBotId(_id)}>
-            <IconEdit />
-          </Button>
-
-          <Button
-            disabled={loadingRepair}
-            variant="ghost"
-            onClick={() => repairBot()}
-          >
-            {loadingRepair ? <Spinner /> : <IconRefresh />}
-          </Button>
-
-          <Button
-            disabled={loadingRemove}
-            variant="ghost"
-            onClick={() => removeBot()}
-          >
-            {loadingRemove ? <Spinner /> : <IconX />}
-          </Button>
-        </div>
-      );
-    },
+    id: 'health',
+    accessorKey: 'health',
+    header: () => <RecordTable.InlineHead label="Health" />,
+    cell: ({ cell }) => (
+      <FacebookBotHealthCell health={cell.getValue() as IFacebookBot['health']} />
+    ),
+    size: 150,
   },
+
 ];

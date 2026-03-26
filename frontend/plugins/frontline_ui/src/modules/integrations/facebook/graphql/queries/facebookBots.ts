@@ -12,6 +12,14 @@ const FACEBOOK_BOT_FIELDS = `
   persistentMenus {
     _id,text,type,link
   }
+  health {
+    status
+    isSubscribed
+    isProfileSynced
+    lastSyncedAt
+    lastVerifiedAt
+    lastError
+  }
 `;
 
 export const FACEBOOK_BOTS_LIST = gql`

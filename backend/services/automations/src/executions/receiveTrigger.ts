@@ -37,6 +37,7 @@ export const receiveTrigger = async ({
       },
     ],
   }).lean();
+  console.log({ automations, type });
 
   if (!automations.length) {
     return;
@@ -50,17 +51,20 @@ export const receiveTrigger = async ({
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
         if (!trigger.type.includes(type)) {
+          console.log('daskvdha');
           continue;
         }
 
         // recordType check only for non-custom triggers
         if (!trigger?.isCustom && recordType) {
+          console.log({ recordType });
           const triggerRecordType = trigger?.config?.recordType;
           if (
             triggerRecordType &&
             triggerRecordType !== 'every' &&
             triggerRecordType !== recordType
           ) {
+            console.log(`fuck:`, { recordType });
             continue;
           }
         }
@@ -71,6 +75,7 @@ export const receiveTrigger = async ({
           trigger,
           target,
         });
+        console.log({ execution });
 
         if (execution) {
           await executeActions(

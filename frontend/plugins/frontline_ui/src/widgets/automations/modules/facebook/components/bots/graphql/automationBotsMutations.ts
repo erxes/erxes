@@ -1,5 +1,34 @@
 import gql from 'graphql-tag';
 
+const FACEBOOK_BOT_MUTATION_FIELDS = `
+  _id
+  name
+  account
+  accountId
+  createdAt
+  page
+  pageId
+  profileUrl
+  persistentMenus {
+    _id
+    text
+    type
+    link
+  }
+  greetText
+  tag
+  isEnabledBackBtn
+  backButtonText
+  health {
+    status
+    isSubscribed
+    isProfileSynced
+    lastSyncedAt
+    lastVerifiedAt
+    lastError
+  }
+`;
+
 const FACEBOOK_BOT_PARAMS = `
   $name: String,
   $accountId: String,
@@ -24,13 +53,17 @@ const FACEBOOK_BOT_PARAMS_DEF = `
 
 const ADD_FACEBOOK_BOT = gql`
   mutation FacebookMessengerAddBot(${FACEBOOK_BOT_PARAMS}) {
-    facebookMessengerAddBot(${FACEBOOK_BOT_PARAMS_DEF})
+    facebookMessengerAddBot(${FACEBOOK_BOT_PARAMS_DEF}) {
+      ${FACEBOOK_BOT_MUTATION_FIELDS}
+    }
   }
 `;
 
 const UPDATE_FACEBOOK_BOT = gql`
     mutation FacebookMessengerUpdateBot($_id: String,${FACEBOOK_BOT_PARAMS}) {
-      facebookMessengerUpdateBot(_id: $_id,${FACEBOOK_BOT_PARAMS_DEF})
+      facebookMessengerUpdateBot(_id: $_id,${FACEBOOK_BOT_PARAMS_DEF}) {
+        ${FACEBOOK_BOT_MUTATION_FIELDS}
+      }
     }
 `;
 

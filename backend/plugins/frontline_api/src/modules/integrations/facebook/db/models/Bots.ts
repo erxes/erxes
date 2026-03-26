@@ -33,6 +33,24 @@ const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   }
 };
 
+const FACEBOOK_BOT_HEALTH_CHECKS = {
+  IS_SUBSCRIBED: 'isSubscribed',
+  HAS_VALID_GET_STARTED: 'hasValidGetStarted',
+  HAS_VALID_PERSISTENT_MENU: 'hasValidPersistentMenu',
+  HAS_VALID_GREETING: 'hasValidGreeting',
+} as const;
+
+const FACEBOOK_BOT_HEALTH_MESSAGES = {
+  [FACEBOOK_BOT_HEALTH_CHECKS.IS_SUBSCRIBED]:
+    'Facebook subscriptions are missing',
+  [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_GET_STARTED]:
+    'Get Started is out of sync',
+  [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_PERSISTENT_MENU]:
+    'Persistent menu is out of sync',
+  [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_GREETING]:
+    'Greeting text is out of sync',
+} as const;
+
 export interface IFacebookBotModel extends Model<IFacebookBotDocument> {
   addBot(doc: any): Promise<IFacebookBotDocument>;
   updateBot(_id: string, doc: any): Promise<IFacebookBotDocument>;
@@ -42,6 +60,7 @@ export interface IFacebookBotModel extends Model<IFacebookBotDocument> {
 
 export const loadFacebookBotClass = (models: IModels) => {
   class FacebookBot {
+    // Shared lookup used by the bot lifecycle methods below.
     static async getBot(_id) {
       const bot = await models.FacebookBots.findOne({ _id });
 
@@ -50,6 +69,400 @@ export const loadFacebookBotClass = (models: IModels) => {
       }
       return bot;
     }
+
+    // Internal health helpers keep sync/verify state updates consistent.
+    static buildHealthUpdate(health: Record<string, any>) {
+      return {
+        $set: Object.entries(health).reduce((acc, [key, value]) => {
+          acc[`health.${key}`] = value;
+          return acc;
+        }, {} as Record<string, any>),
+      };
+    }
+
+    static async markSyncing(botId: string) {
+      await models.FacebookBots.updateOne(
+        { _id: botId },
+        this.buildHealthUpdate({
+          status: 'syncing',
+          lastError: '',
+        }),
+      );
+    }
+
+    static async markHealthy(
+      botId: string,
+      {
+        isSubscribed = true,
+        isProfileSynced = true,
+      }: {
+        isSubscribed?: boolean;
+        isProfileSynced?: boolean;
+      } = {},
+    ) {
+      const now = new Date();
+
+      await models.FacebookBots.updateOne(
+        { _id: botId },
+        this.buildHealthUpdate({
+          status: 'healthy',
+          isSubscribed,
+          isProfileSynced,
+          lastSyncedAt: now,
+          lastVerifiedAt: now,
+          lastError: '',
+        }),
+      );
+    }
+
+    static async markDegraded(
+      botId: string,
+      {
+        isSubscribed = false,
+        isProfileSynced = false,
+        error,
+      }: {
+        isSubscribed?: boolean;
+        isProfileSynced?: boolean;
+        error?: string;
+      } = {},
+    ) {
+      await models.FacebookBots.updateOne(
+        { _id: botId },
+        this.buildHealthUpdate({
+          status: 'degraded',
+          isSubscribed,
+          isProfileSynced,
+          lastVerifiedAt: new Date(),
+          lastError: error || 'Bot health check failed',
+        }),
+      );
+    }
+
+    static buildExpectedPersistentMenus({
+      botId,
+      persistentMenus,
+      isEnabledBackBtn,
+      backButtonText,
+    }: {
+      botId: string;
+      persistentMenus?: Array<{
+        _id: string;
+        type: string;
+        text: string;
+        link?: string;
+      }>;
+      isEnabledBackBtn?: boolean;
+      backButtonText?: string;
+    }) {
+      const expectedMenus: any[] = [
+        {
+          type: 'postback',
+          title: 'Get Started',
+          payload: JSON.stringify({ botId }),
+        },
+      ];
+
+      for (const { _id, type, text, link } of persistentMenus || []) {
+        if (!text) {
+          continue;
+        }
+
+        if (type === 'link' && link) {
+          expectedMenus.push({
+            type: 'web_url',
+            title: text,
+            url: link,
+          });
+          continue;
+        }
+
+        expectedMenus.push({
+          type: 'postback',
+          title: text,
+          payload: JSON.stringify({
+            botId,
+            persistentMenuId: _id,
+          }),
+        });
+      }
+
+      if (isEnabledBackBtn) {
+        expectedMenus.push({
+          type: 'postback',
+          title: backButtonText || 'Back',
+          isBackButton: true,
+        });
+      }
+
+      return expectedMenus;
+    }
+
+    static normalizePersistentMenuItem(menu: any) {
+      return {
+        type: menu?.type || '',
+        title: menu?.title || '',
+        url: menu?.url || '',
+        payload: menu?.payload || '',
+      };
+    }
+
+    static getRequiredSubscribedFields() {
+      return ['messages', ...BOT_SUBSCRIBE_FIELDS];
+    }
+
+    static hasRequiredSubscribedFields(subscribedData: any[] = []) {
+      const subscribedFields = subscribedData.flatMap(
+        (item) => item?.subscribed_fields || [],
+      );
+
+      return this.getRequiredSubscribedFields().every((field) =>
+        subscribedFields.includes(field),
+      );
+    }
+
+    static hasValidGetStartedPayload(botId: string, profileData: any) {
+      const expectedPayload = JSON.stringify({ botId });
+      const actualPayload = profileData?.get_started?.payload || '';
+
+      return actualPayload === expectedPayload;
+    }
+
+    static hasValidGreeting(greetText: string | undefined, profileData: any) {
+      if (!greetText) {
+        return true;
+      }
+
+      return (profileData?.greeting || []).some(
+        (item) => item?.text === greetText,
+      );
+    }
+
+    static hasValidPersistentMenus(
+      bot: Partial<IFacebookBotDocument>,
+      profileData: any,
+    ) {
+      const actualPersistentMenus =
+        profileData?.persistent_menu?.[0]?.call_to_actions || [];
+      const expectedPersistentMenus = this.buildExpectedPersistentMenus({
+        botId: bot._id as string,
+        persistentMenus: bot.persistentMenus,
+        isEnabledBackBtn: bot.isEnabledBackBtn,
+        backButtonText: bot.backButtonText,
+      });
+      const normalizedActualMenus = actualPersistentMenus.map((menu) =>
+        this.normalizePersistentMenuItem(menu),
+      );
+
+      return (
+        expectedPersistentMenus.length === normalizedActualMenus.length &&
+        expectedPersistentMenus.every((expectedMenu, index) =>
+          this.isExpectedMenuMatched(
+            expectedMenu,
+            normalizedActualMenus[index],
+          ),
+        )
+      );
+    }
+
+    static async fetchBotProfileState(pageAccessToken: string) {
+      const subscribedApps: any = await graphRequest.get(
+        '/me/subscribed_apps',
+        pageAccessToken,
+      );
+
+      const messengerProfile: any = await graphRequest.get(
+        '/me/messenger_profile?fields=get_started,persistent_menu,greeting',
+        pageAccessToken,
+      );
+
+      const rawProfileData = messengerProfile || {};
+      const profileData = rawProfileData?.data?.[0] || rawProfileData;
+
+      return {
+        subscribedData: subscribedApps?.data || [],
+        profileData,
+        rawProfileData,
+      };
+    }
+
+    static buildVerificationResult({
+      subscribedData,
+      profileData,
+      bot,
+    }: {
+      subscribedData: any[];
+      profileData: any;
+      bot: Partial<IFacebookBotDocument>;
+    }) {
+      const isSubscribed = this.hasRequiredSubscribedFields(subscribedData);
+      const hasValidGetStarted = this.hasValidGetStartedPayload(
+        bot._id as string,
+        profileData,
+      );
+      const hasValidPersistentMenu = this.hasValidPersistentMenus(
+        bot,
+        profileData,
+      );
+      const hasValidGreeting = this.hasValidGreeting(
+        bot.greetText,
+        profileData,
+      );
+
+      const checks = {
+        [FACEBOOK_BOT_HEALTH_CHECKS.IS_SUBSCRIBED]: isSubscribed,
+        [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_GET_STARTED]: hasValidGetStarted,
+        [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_PERSISTENT_MENU]:
+          hasValidPersistentMenu,
+        [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_GREETING]: hasValidGreeting,
+      };
+
+      const failedChecks = Object.entries(checks)
+        .filter(([, passed]) => !passed)
+        .map(([name]) => name);
+
+      const isProfileSynced =
+        hasValidGetStarted && hasValidPersistentMenu && hasValidGreeting;
+
+      return {
+        checks,
+        failedChecks,
+        isProfileSynced,
+        isHealthy: isSubscribed && isProfileSynced,
+      };
+    }
+
+    static getVerificationErrorMessage(failedChecks: string[] = []) {
+      const messages = failedChecks.map(
+        (check) =>
+          FACEBOOK_BOT_HEALTH_MESSAGES[
+            check as keyof typeof FACEBOOK_BOT_HEALTH_MESSAGES
+          ] || 'Bot profile verification failed',
+      );
+
+      return messages.join('. ');
+    }
+
+    static isExpectedMenuMatched(expected: any, actual: any) {
+      if (!actual) {
+        return false;
+      }
+
+      if (expected.type !== actual.type) {
+        return false;
+      }
+
+      if (expected.title !== actual.title) {
+        return false;
+      }
+
+      if (expected.type === 'web_url') {
+        return expected.url === actual.url;
+      }
+
+      if (expected.isBackButton) {
+        try {
+          const parsed = JSON.parse(actual.payload || '{}');
+          return parsed.botId && parsed.isBackBtn === true;
+        } catch {
+          return false;
+        }
+      }
+
+      return expected.payload === actual.payload;
+    }
+
+    static async verifyBotProfile(
+      botId: string,
+      {
+        expectedState,
+        persistFailure = true,
+      }: {
+        expectedState?: Partial<IFacebookBotDocument>;
+        persistFailure?: boolean;
+      } = {},
+    ) {
+      const currentBot = await this.getBot(botId);
+      const bot = {
+        ...currentBot.toObject(),
+        ...(expectedState || {}),
+      };
+
+      const pageAccessToken = bot.token || '';
+      const { subscribedData, profileData, rawProfileData } =
+        await this.fetchBotProfileState(pageAccessToken);
+      const verification = this.buildVerificationResult({
+        subscribedData,
+        profileData,
+        bot,
+      });
+
+      if (verification.isHealthy) {
+        await this.markHealthy(botId, {
+          isSubscribed:
+            verification.checks[FACEBOOK_BOT_HEALTH_CHECKS.IS_SUBSCRIBED],
+          isProfileSynced: verification.isProfileSynced,
+        });
+      } else if (persistFailure) {
+        const errorMessage = this.getVerificationErrorMessage(
+          verification.failedChecks,
+        );
+        await this.markDegraded(botId, {
+          isSubscribed:
+            verification.checks[FACEBOOK_BOT_HEALTH_CHECKS.IS_SUBSCRIBED],
+          isProfileSynced: verification.isProfileSynced,
+          error: errorMessage,
+        });
+      }
+
+      return {
+        ...verification,
+        profileData,
+        subscribedData,
+      };
+    }
+
+    static async syncAndVerifyBotProfile({
+      botId,
+      pageAccessToken,
+      persistentMenus,
+      greetText,
+      isEnabledBackBtn,
+      backButtonText,
+      expectedState,
+    }: {
+      botId: string;
+      pageAccessToken: string;
+      persistentMenus?: IFacebookBotDocument['persistentMenus'];
+      greetText?: string;
+      isEnabledBackBtn?: boolean;
+      backButtonText?: string;
+      expectedState?: Partial<IFacebookBotDocument>;
+    }) {
+      await this.connectBotPageMessenger({
+        botId,
+        pageAccessToken,
+        persistentMenus,
+        greetText,
+        isEnabledBackBtn,
+        backButtonText,
+      });
+
+      const verification = await this.verifyBotProfile(botId, {
+        expectedState,
+        persistFailure: true,
+      });
+
+      if (verification.isHealthy) {
+        return verification;
+      }
+
+      throw new Error(
+        this.getVerificationErrorMessage(verification.failedChecks || []) ||
+          'Bot profile verification failed',
+      );
+    }
+
     public static async addBot(doc) {
       try {
         await validateDoc(models, doc);
@@ -81,15 +494,26 @@ export const loadFacebookBotClass = (models: IModels) => {
         token: pageTokenResponse,
       });
 
+      await this.markSyncing(bot._id);
+
       try {
-        return await this.connectBotPageMessenger({
+        await this.syncAndVerifyBotProfile({
           pageAccessToken: bot.token,
           botId: bot._id,
           persistentMenus: bot.persistentMenus,
           greetText: bot?.greetText,
           isEnabledBackBtn: bot?.isEnabledBackBtn,
           backButtonText: bot?.backButtonText,
+          expectedState: {
+            token: bot.token,
+            persistentMenus: bot.persistentMenus,
+            greetText: bot.greetText,
+            isEnabledBackBtn: bot.isEnabledBackBtn,
+            backButtonText: bot.backButtonText,
+          },
         });
+
+        return await this.getBot(bot._id);
       } catch (error) {
         await models.FacebookBots.deleteOne({ _id: bot._id });
 
@@ -99,6 +523,8 @@ export const loadFacebookBotClass = (models: IModels) => {
 
     public static async repair(_id) {
       const bot = await this.getBot(_id);
+
+      await this.markSyncing(bot._id);
 
       const account = await models.FacebookAccounts.findOne({
         _id: bot.accountId,
@@ -126,15 +552,25 @@ export const loadFacebookBotClass = (models: IModels) => {
       }
 
       try {
-        await this.connectBotPageMessenger({
+        await this.syncAndVerifyBotProfile({
           botId: bot._id,
           pageAccessToken: bot.token,
           persistentMenus: bot.persistentMenus,
           greetText: bot.greetText,
           isEnabledBackBtn: bot?.isEnabledBackBtn,
           backButtonText: bot?.backButtonText,
+          expectedState: {
+            token: bot.token,
+            persistentMenus: bot.persistentMenus,
+            greetText: bot.greetText,
+            isEnabledBackBtn: bot.isEnabledBackBtn,
+            backButtonText: bot.backButtonText,
+          },
         });
       } catch (err) {
+        await this.markDegraded(bot._id, {
+          error: err.message,
+        });
         throw new Error(err.message);
       }
 
@@ -175,33 +611,41 @@ export const loadFacebookBotClass = (models: IModels) => {
         })
       ) {
         try {
+          await this.markSyncing(bot._id);
+
           if (pageId !== bot.pageId) {
             await this.disconnectBotPageMessenger(_id);
           }
 
-          await this.connectBotPageMessenger({
+          await this.syncAndVerifyBotProfile({
             botId: bot._id,
             pageAccessToken: bot.token,
-            persistentMenus: doc.persistentMenus,
+            persistentMenus,
             greetText: greetText !== bot.greetText ? greetText : undefined,
-            isEnabledBackBtn: bot?.isEnabledBackBtn,
-            backButtonText: bot?.backButtonText,
+            isEnabledBackBtn,
+            backButtonText,
+            expectedState: {
+              token: bot.token,
+              persistentMenus,
+              greetText,
+              isEnabledBackBtn,
+              backButtonText,
+            },
           });
         } catch (error) {
+          await this.markDegraded(bot._id, {
+            error: error.message,
+          });
           throw new Error(error.message);
         }
       }
 
       await models.FacebookBots.updateOne({ _id }, { ...doc });
-      return { status: 'success' };
+      return await this.getBot(_id);
     }
 
     public static async removeBot(_id) {
-      try {
-        await this.disconnectBotPageMessenger(_id);
-      } catch (error) {
-        console.error(`Failed to disconnect bot ${_id} from messenger:`, error);
-      }
+      await this.disconnectBotPageMessenger(_id);
 
       await models.FacebookBots.deleteOne({ _id });
 
@@ -290,17 +734,24 @@ export const loadFacebookBotClass = (models: IModels) => {
 
     static async disconnectBotPageMessenger(_id) {
       const bot = await this.getBot(_id);
-
       const pageAccessToken = bot.token || '';
 
-      await graphRequest.delete(`/me/messenger_profile`, pageAccessToken, {
-        fields: ['get_started', 'persistent_menu'],
-        access_token: pageAccessToken,
-      });
+      await this.markSyncing(bot._id);
 
-      await models.FacebookBots.deleteOne({ _id });
+      try {
+        await graphRequest.delete('/me/messenger_profile', pageAccessToken, {
+          fields: ['get_started', 'persistent_menu', 'greeting'],
+          access_token: pageAccessToken,
+        });
 
-      return { status: 'success' };
+        return { status: 'success' };
+      } catch (error) {
+        await this.markDegraded(bot._id, {
+          error: error.message,
+        });
+
+        throw new Error(error.message);
+      }
     }
   }
 

@@ -54,24 +54,32 @@ export const sendAutomationTrigger = async (
       ],
     });
 
-    const result = (await client.mutation('automations.trigger', {
-      type,
-      targets,
-      repeatOptions,
-      recordType,
-    })) as { id: string } | null;
+    client
+      .mutation('automations.trigger', {
+        type,
+        targets,
+        repeatOptions,
+        recordType,
+      })
+      .catch((error) => {
+        console.error('Error adding job to queue:', error);
+      });
 
-    return result?.id || null;
+    return 'success';
   }
 
   const queue = sendWorkerQueue('automations', 'trigger');
-  const job = await queue.add(
-    'trigger',
-    {
-      subdomain,
-      data: { type, targets, repeatOptions, recordType },
-    },
-    jobOptions,
-  );
-  return job.id;
+  queue
+    .add(
+      'trigger',
+      {
+        subdomain,
+        data: { type, targets, repeatOptions, recordType },
+      },
+      jobOptions,
+    )
+    .catch((error) => {
+      console.error('Error adding job to queue:', error);
+    });
+  return 'success';
 };
