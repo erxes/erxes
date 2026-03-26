@@ -30,7 +30,7 @@ const acceptCall = async (
     queueName,
   } = params;
 
-  let queue = queueName as any;
+  let queue = queueName;
   if (queueName === '') {
     queue = null; // or set a default value
   }
