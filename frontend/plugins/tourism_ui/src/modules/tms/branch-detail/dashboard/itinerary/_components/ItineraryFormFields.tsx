@@ -2,7 +2,6 @@ import { Control } from 'react-hook-form';
 import {
   Form,
   Input,
-  ColorPicker,
   Button,
   Upload,
   readImage,
@@ -53,34 +52,6 @@ export const ItineraryContentField = ({
               initialContent={field.value}
               onChange={field.onChange}
               isHTML
-            />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
-export const ItineraryColorField = ({
-  control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
-  return (
-    <Form.Field
-      control={control}
-      name="color"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>
-            Color <span className="text-destructive">*</span>
-          </Form.Label>
-          <Form.Control>
-            <ColorPicker
-              value={field.value || '#4F46E5'}
-              onValueChange={field.onChange}
-              className="w-24 h-8"
             />
           </Form.Control>
           <Form.Message className="text-destructive" />
@@ -279,7 +250,7 @@ export const ItineraryImageField = ({
                   }
                 >
                   {!imageUrl && (
-                    <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
                       {isLoading ? (
                         <span>Uploading...</span>
                       ) : (
@@ -292,7 +263,7 @@ export const ItineraryImageField = ({
                   )}
 
                   {imageUrl && (
-                    <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
+                    <div className="absolute inset-0 flex items-center justify-center transition bg-black/0 group-hover:bg-black/30">
                       <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 bg-black/70 group-hover:opacity-100">
                         Change image
                       </span>
@@ -304,7 +275,7 @@ export const ItineraryImageField = ({
                   <Upload.RemoveButton
                     size="sm"
                     variant="destructive"
-                    className="absolute top-2 right-2 shadow opacity-0 group-hover:opacity-100"
+                    className="absolute shadow opacity-0 top-2 right-2 group-hover:opacity-100"
                     onClick={() => field.onChange([])}
                   >
                     <IconTrash size={14} />
@@ -347,7 +318,7 @@ export const ItineraryPersonCostField = ({
               control={control}
               name={`personCost.${dayKey}`}
               render={({ field }) => (
-                <Form.Item className="flex gap-2 items-center space-y-0">
+                <Form.Item className="flex items-center gap-2 space-y-0">
                   <Form.Control className="flex-1">
                     <Input
                       type="number"

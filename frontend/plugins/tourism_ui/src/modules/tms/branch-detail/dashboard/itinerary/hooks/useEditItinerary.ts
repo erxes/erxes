@@ -12,7 +12,6 @@ export interface IEditItineraryVariables {
   branchId?: string;
   name?: string;
   duration?: number;
-  color?: string;
   images?: string[];
   groupDays?: Array<{
     day?: number;

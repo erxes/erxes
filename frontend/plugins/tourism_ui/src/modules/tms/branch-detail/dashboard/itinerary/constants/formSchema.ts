@@ -23,7 +23,6 @@ const DayItemSchema = z.object({
 export const ItineraryCreateFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   duration: OptionalNumberSchema,
-  color: z.string().optional(),
   groupDays: z.array(DayItemSchema).optional(),
   totalCost: OptionalNumberSchema,
   guideCost: OptionalNumberSchema,

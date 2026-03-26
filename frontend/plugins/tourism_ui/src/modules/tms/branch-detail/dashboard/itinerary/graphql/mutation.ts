@@ -7,7 +7,6 @@ export const CREATE_ITINERARY = gql`
     $branchId: String
     $name: String
     $duration: Int
-    $color: String
     $images: [String]
     $guideCost: Float
     $driverCost: Float
@@ -23,7 +22,6 @@ export const CREATE_ITINERARY = gql`
       branchId: $branchId
       name: $name
       duration: $duration
-      color: $color
       images: $images
       guideCost: $guideCost
       driverCost: $driverCost
@@ -46,7 +44,6 @@ export const EDIT_ITINERARY = gql`
     $duration: Int
     $totalCost: Float
     $groupDays: [DayItemInput]
-    $color: String
     $images: [String]
     $foodCost: Float
     $personCost: JSON
@@ -63,7 +60,6 @@ export const EDIT_ITINERARY = gql`
       duration: $duration
       totalCost: $totalCost
       groupDays: $groupDays
-      color: $color
       images: $images
       foodCost: $foodCost
       personCost: $personCost

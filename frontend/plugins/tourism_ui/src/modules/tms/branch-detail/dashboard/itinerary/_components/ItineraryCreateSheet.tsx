@@ -12,7 +12,6 @@ import {
 import {
   ItineraryNameField,
   ItineraryContentField,
-  ItineraryColorField,
   ItineraryImageField,
   ItineraryGuideCostField,
   ItineraryDriverCostField,
@@ -69,7 +68,6 @@ export const ItineraryCreateSheet = ({
       name: '',
       content: '',
       duration: 1,
-      color: '#4F46E5',
       images: [],
       totalCost: 0,
       groupDays: [],
@@ -98,7 +96,7 @@ export const ItineraryCreateSheet = ({
 
   const stepFields: Record<Step, (keyof ItineraryCreateFormType)[]> = {
     build: ['groupDays'],
-    info: ['name', 'color'],
+    info: ['name'],
   };
 
   const handleNextStep = async () => {
@@ -176,7 +174,6 @@ export const ItineraryCreateSheet = ({
           name: values.name,
           content: values.content,
           duration: totalDays,
-          color: values.color,
           images: values.images?.slice(0, 1) || [],
           totalCost,
           groupDays: transformedGroupDays,
@@ -237,11 +234,11 @@ export const ItineraryCreateSheet = ({
               <Sheet.Close />
             </Sheet.Header>
 
-            <Sheet.Content className="overflow-hidden flex-1 p-0">
+            <Sheet.Content className="flex-1 p-0 overflow-hidden">
               <Tabs value={currentStep} className="flex flex-col h-full">
                 <Tabs.Content
                   value="build"
-                  className="overflow-hidden flex-1 p-3"
+                  className="flex-1 p-3 overflow-hidden"
                 >
                   <ItineraryBuilder
                     control={form.control}
@@ -253,17 +250,9 @@ export const ItineraryCreateSheet = ({
                   />
                 </Tabs.Content>
 
-                <Tabs.Content value="info" className="overflow-y-auto p-3">
-                  <div className="space-y-4 w-full">
-                    <div className="grid grid-cols-10 gap-4 pb-4 border-b border-muted">
-                      <div className="col-span-2">
-                        <ItineraryColorField control={form.control} />
-                      </div>
-
-                      <div className="col-span-8">
-                        <ItineraryNameField control={form.control} />
-                      </div>
-                    </div>
+                <Tabs.Content value="info" className="p-3 overflow-y-auto">
+                  <div className="w-full space-y-4">
+                    <ItineraryNameField control={form.control} />
 
                     <ItineraryContentField control={form.control} />
 
@@ -274,7 +263,7 @@ export const ItineraryCreateSheet = ({
                       onOpenChange={setShowMoreOptions}
                       className="flex flex-col items-center my-5"
                     >
-                      <Collapsible.Content className="order-1 pt-4 space-y-4 w-full">
+                      <Collapsible.Content className="order-1 w-full pt-4 space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <ItineraryGuideCostField control={form.control} />
                           <ItineraryDriverCostField control={form.control} />

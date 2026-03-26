@@ -6,7 +6,6 @@ export interface IItineraryDetail {
   branchId?: string;
   name?: string;
   duration?: number;
-  color?: string;
   totalCost?: number;
   images?: [string];
   groupDays?: Array<{
