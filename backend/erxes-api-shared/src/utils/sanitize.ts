@@ -54,9 +54,9 @@ export const sanitizeKey = (key: string): string => {
     throw new Error('Invalid key: path traversal is not allowed');
   }
 
-  // Allow only alphanumeric, slash, dash, underscore, space, parentheses and dot characters
-  // Adjust this regex based on your expected key format
-  if (!/^[a-zA-Z0-9/_\-. ()]+$/.test(key)) {
+  // Allow alphanumeric, Unicode letters/marks (for non-Latin filenames),
+  // slash, dash, underscore, space, parentheses, and dot
+  if (!/^[a-zA-Z0-9/_\-. ()\p{L}\p{M}]+$/u.test(key)) {
     throw new Error('Invalid key: contains disallowed characters');
   }
 
