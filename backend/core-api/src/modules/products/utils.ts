@@ -29,7 +29,7 @@ export const checkCodeMask = (category?: IProductCategory, code?: string) => {
     }
 
     if (value.type === 'char') {
-      maskList.push(value.char.replace(/./g, '\\.'));
+      maskList.push(value.char.replaceAll('.', '\\.'));
     }
 
     if (value.type === 'customField' && value.matches) {
@@ -56,8 +56,8 @@ export const initCustomField = async (
 ) => {
   if (!category?.maskType || !category.mask?.values) {
     const propertiesData = {
-      ...(productPropertiesData || {}),
-      ...(docPropertiesData || {}),
+      ...productPropertiesData,
+      ...docPropertiesData,
     };
 
     if (Object.keys(propertiesData)?.length) {
@@ -90,8 +90,8 @@ export const initCustomField = async (
   }
 
   const propertiesData = {
-    ...(productPropertiesData || {}),
-    ...(docPropertiesData || {}),
+    ...productPropertiesData,
+    ...docPropertiesData,
     ...maskPropertiesData,
   };
 
@@ -123,9 +123,9 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
     const codeRegex = ['*', '.', '_'].includes(mask)
       ? new RegExp(
           `^${mask
-            .replace(/\./g, '\\.')
-            .replace(/\*/g, '.')
-            .replace(/_/g, '.')}.*`,
+            .replaceAll('.', '\\.')
+            .replaceAll('*', '.')
+            .replaceAll('_', '.')}.*`,
           'igu',
         )
       : new RegExp(`.*${mask}.*`, 'igu');
