@@ -95,13 +95,14 @@ const ProductsPayment = ({
   const formatNumber = (value: number | string) => {
     if (value === '' || value === null || value === undefined) return '';
     const num =
-      typeof value === 'number' ? value : Number(value.replace(/,/g, ''));
+      typeof value === 'number' ? value : Number(value.replaceAll(/,/g, ''));
 
-    if (isNaN(num)) return '';
+    if (Number.isNaN(num)) return '';
     return num.toLocaleString();
   };
 
-  const parseNumber = (value: string) => Number(value.replace(/,/g, '')) || 0;
+  const parseNumber = (value: string) =>
+    Number(value.replaceAll(/,/g, '')) || 0;
 
   const renderAmount = (amount: number, currency: string) => {
     if (amount < 0) {
