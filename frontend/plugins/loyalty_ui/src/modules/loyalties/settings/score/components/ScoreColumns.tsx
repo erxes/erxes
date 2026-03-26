@@ -1,24 +1,19 @@
-import {
-  IconDots,
-  IconTag,
-  IconToggleLeft,
-  IconSettings,
-  IconLabelFilled,
-} from '@tabler/icons-react';
+import { IconTag, IconToggleLeft, IconLabelFilled } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  Button,
   Switch,
 } from 'erxes-ui';
 import { ScoreNameCell } from '../score-detail/components/ScoreNameCell';
 import { IScore } from '../types/loyaltyScoreTypes';
+import { scoreMoreColumn } from './LoyaltyScoreMoreColumn';
 
 export const scoreColumns: (
   editStatus: (options: any) => void,
 ) => ColumnDef<IScore>[] = (editStatus) => [
+  scoreMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IScore>,
 
   {
@@ -76,23 +71,6 @@ export const scoreColumns: (
               });
             }}
           />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
-  },
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSettings} label="Actions" />
-    ),
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <Button className="mx-auto" variant="ghost" size="sm">
-            <IconDots className="h-4 w-4" />
-          </Button>
         </RecordTableInlineCell>
       );
     },

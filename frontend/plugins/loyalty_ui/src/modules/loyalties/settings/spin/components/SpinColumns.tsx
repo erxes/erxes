@@ -1,7 +1,6 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
-  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -11,11 +10,10 @@ import { SpinNameCell } from '../spin-detail/components/SpinNameCell';
 import {
   IconCalendar,
   IconCalendarEvent,
-  IconDots,
   IconHash,
-  IconSettings,
   IconTag,
 } from '@tabler/icons-react';
+import { spinMoreColumn } from './SpinMoreColumn';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -41,6 +39,7 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
 export const spinColumns: (
   editStatus: (options: any) => void,
 ) => ColumnDef<ISpin>[] = (editStatus) => [
+  spinMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ISpin>,
 
   {
@@ -105,23 +104,5 @@ export const spinColumns: (
       );
     },
     size: 150,
-  },
-
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSettings} label="Actions" />
-    ),
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <Button className="mx-auto" variant="ghost" size="sm">
-            <IconDots className="h-4 w-4" />
-          </Button>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
   },
 ];

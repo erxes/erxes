@@ -9,6 +9,7 @@ import { LOYALTY_SCORE_CURSOR_SESSION_KEY } from '../constants/loyaltyScoreCurso
 import { IconTicket } from '@tabler/icons-react';
 import { LoyaltyScoreCommandBar } from './loyalty-score-command-bar/LoyaltyScoreCommandBar';
 import { LoyaltyScoreAddSheet } from './LoyaltyScoreAddSheet';
+import { LoyaltyScoreEditSheet } from '../score-detail/components/LoyaltyScoreEditSheet';
 
 export const ScoreRecordTable = () => {
   const { campaigns, handleFetchMore, loading, pageInfo } = useLoyaltyScore();
@@ -64,6 +65,7 @@ export const ScoreRecordTable = () => {
         )}
       </RecordTable.CursorProvider>
       <LoyaltyScoreCommandBar />
+      <LoyaltyScoreEditSheet />
     </RecordTable.Provider>
   );
 };
