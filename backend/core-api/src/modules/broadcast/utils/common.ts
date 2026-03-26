@@ -57,9 +57,7 @@ export const subscribeEngage = async (models: IModels) => {
   const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   try {
-    const topicArn = await snsApi
-      .createTopic({ Name: configSet })
-      .promise();
+    const topicArn = await snsApi.createTopic({ Name: configSet }).promise();
 
     if (!topicArn) {
       throw new Error('Error occurred');
