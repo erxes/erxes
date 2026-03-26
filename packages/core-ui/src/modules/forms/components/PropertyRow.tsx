@@ -116,7 +116,26 @@ class PropertyRow extends React.Component<Props, State> {
   };
 
   renderActionButtons = (data, remove, content, isGroup) => {
-    if (data.isDefinedByErxes || data.isDisabled) {
+    if (data.isDisabled) {
+      return null;
+    }
+
+    if (data.isDefinedByErxes) {
+      if (
+        isGroup &&
+        (data.contentType || '').split(':')[0] === 'tickets'
+      ) {
+        return (
+          <ActionButtons>
+            <ModalTrigger
+              title="Configure group"
+              trigger={<Button btnStyle="link" icon="edit-3" />}
+              content={content}
+              size="lg"
+            />
+          </ActionButtons>
+        );
+      }
       return null;
     }
 
