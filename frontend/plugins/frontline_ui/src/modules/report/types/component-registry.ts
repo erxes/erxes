@@ -60,6 +60,45 @@ export const DEFAULT_CARD_CONFIGS: Omit<ReportCardConfig, 'component'>[] = [
   { id: 'conversation-list', title: 'Conversation List', colSpan: 6 },
 ];
 
+export const ticketReportComponents: Record<
+  string,
+  LazyExoticComponent<ComponentType<ReportComponentProps>>
+> = {
+  'ticket-date': lazy(() =>
+    import('@/report/components/ticket-charts/TicketOpenDate').then(
+      (module) => ({ default: module.TicketOpenDate }),
+    ),
+  ),
+  'ticket-source': lazy(() =>
+    import('@/report/components/ticket-charts/TicketSource').then(
+      (module) => ({ default: module.TicketSource }),
+    ),
+  ),
+  'ticket-tags': lazy(() =>
+    import('@/report/components/ticket-charts/TicketTags').then(
+      (module) => ({ default: module.TicketTags }),
+    ),
+  ),
+  'ticket-list': lazy(() =>
+    import('@/report/components/ticket-charts/TicketList').then(
+      (module) => ({ default: module.TicketList }),
+    ),
+  ),
+  'ticket-status-summary': lazy(() =>
+    import('@/report/components/ticket-charts/TicketStatusSummary').then(
+      (module) => ({ default: module.TicketStatusSummary }),
+    ),
+  ),
+};
+
+export const TICKET_DEFAULT_CARD_CONFIGS: Omit<ReportCardConfig, 'component'>[] = [
+  { id: 'ticket-status-summary', title: 'Ticket Status Summary', colSpan: 12 },
+  { id: 'ticket-date', title: 'Ticket Date', colSpan: 12 },
+  { id: 'ticket-source', title: 'Ticket Source', colSpan: 6 },
+  { id: 'ticket-tags', title: 'Ticket Tags', colSpan: 6 },
+  { id: 'ticket-list', title: 'Ticket List', colSpan: 12 },
+];
+
 export function getReportComponent(
   id: string,
 ): LazyExoticComponent<ComponentType<ReportComponentProps>> | undefined {
