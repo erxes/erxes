@@ -69,8 +69,7 @@ export const ProductForm = ({
         deductibleConfig: product.deductibleConfig || { levels: [] },
       });
 
-      const percentageByDuration = (product.pricingConfig as any)
-        ?.percentageByDuration;
+      const percentageByDuration = product.pricingConfig?.percentageByDuration;
       if (percentageByDuration && typeof percentageByDuration === 'object') {
         const durationEntries = Object.entries(percentageByDuration).map(
           ([duration, percentage]) => ({
@@ -288,8 +287,8 @@ export const ProductForm = ({
                     onClick={() => {
                       const previewWindow = window.open('', '_blank');
                       if (previewWindow) {
-                        previewWindow.document.write(formData.pdfContent);
-                        previewWindow.document.close();
+                        previewWindow.document.body.innerHTML =
+                          formData.pdfContent;
                       }
                     }}
                   >
@@ -415,7 +414,7 @@ export const ProductForm = ({
                           handleRiskChange(
                             index,
                             'coveragePercentage',
-                            parseInt(e.target.value),
+                            Number.parseInt(e.target.value),
                           )
                         }
                         placeholder="%"
@@ -449,7 +448,7 @@ export const ProductForm = ({
                     ...formData,
                     pricingConfig: {
                       ...formData.pricingConfig,
-                      percentage: parseFloat(e.target.value) || 3,
+                      percentage: Number.parseFloat(e.target.value) || 3,
                     },
                   })
                 }
@@ -528,7 +527,8 @@ export const ProductForm = ({
                             const newFields = [...durationFields];
                             newFields[index] = {
                               ...newFields[index],
-                              percentage: parseFloat(e.target.value) || 0,
+                              percentage:
+                                Number.parseFloat(e.target.value) || 0,
                             };
                             setDurationFields(newFields);
 
@@ -727,7 +727,7 @@ export const ProductForm = ({
                                     ...newCoverages[index].limits,
                                   ];
                                   newLimits[limitIndex] =
-                                    parseFloat(e.target.value) || 0;
+                                    Number.parseFloat(e.target.value) || 0;
                                   newCoverages[index] = {
                                     ...newCoverages[index],
                                     limits: newLimits,
@@ -1006,8 +1006,8 @@ export const ProductForm = ({
               {creating || updating
                 ? 'Saving...'
                 : product
-                  ? 'Update'
-                  : 'Create'}
+                ? 'Update'
+                : 'Create'}
             </Button>
           </Dialog.Footer>
         </form>

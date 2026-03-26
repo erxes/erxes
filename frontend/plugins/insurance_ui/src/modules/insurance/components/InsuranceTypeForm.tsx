@@ -242,7 +242,7 @@ export const InsuranceTypeForm = ({
                               index,
                               'min',
                               e.target.value
-                                ? parseFloat(e.target.value)
+                                ? Number.parseFloat(e.target.value)
                                 : undefined,
                             )
                           }
@@ -259,7 +259,7 @@ export const InsuranceTypeForm = ({
                               index,
                               'max',
                               e.target.value
-                                ? parseFloat(e.target.value)
+                                ? Number.parseFloat(e.target.value)
                                 : undefined,
                             )
                           }
