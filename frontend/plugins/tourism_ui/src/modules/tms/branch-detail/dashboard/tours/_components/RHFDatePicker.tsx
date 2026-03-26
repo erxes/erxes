@@ -1,0 +1,64 @@
+import { Controller, Control, FieldValues, Path } from 'react-hook-form';
+import { DatePicker } from 'erxes-ui';
+
+type Mode = 'single' | 'multiple';
+
+const toDate = (val: unknown): Date | undefined => {
+  if (!val) return undefined;
+  if (val instanceof Date) return val;
+
+  const d = new Date(val as any);
+  return isNaN(d.getTime()) ? undefined : d;
+};
+
+const toDates = (val: unknown): Date[] | undefined => {
+  if (!Array.isArray(val)) return undefined;
+
+  return val.map((v) => toDate(v)).filter((d): d is Date => !!d);
+};
+
+type Props<T extends FieldValues> = {
+  control: Control<T>;
+  name: Path<T>;
+  mode?: Mode;
+  disabled?: boolean;
+  fromDate?: Date;
+};
+
+export const RHFDatePicker = <T extends FieldValues>({
+  control,
+  name,
+  mode = 'single',
+  disabled = false,
+  fromDate,
+}: Props<T>) => {
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field }) => {
+        if (mode === 'single') {
+          return (
+            <DatePicker
+              mode="single"
+              value={toDate(field.value)}
+              fromDate={fromDate}
+              disabled={!!disabled}
+              onChange={(val) => field.onChange(val ?? undefined)}
+            />
+          );
+        }
+
+        return (
+          <DatePicker
+            mode="multiple"
+            value={toDates(field.value)}
+            fromDate={fromDate}
+            disabled={!!disabled}
+            onChange={(val) => field.onChange(val ?? undefined)}
+          />
+        );
+      }}
+    />
+  );
+};
