@@ -144,7 +144,7 @@ export const putCreateLog = async (
   user: IUserDocument,
   options?: ILogOptions
 ) => {
-  await sendAutomationTrigger(
+  sendAutomationTrigger(
     subdomain,
     {
       type: `${params.type}`,
