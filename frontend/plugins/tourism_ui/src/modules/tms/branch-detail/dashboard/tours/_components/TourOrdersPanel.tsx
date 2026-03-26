@@ -65,7 +65,7 @@ function OrderRow({
       className="overflow-hidden transition cursor-pointer bg-background hover:bg-muted/40"
       onClick={onClick}
     >
-      <div className="flex justify-between items-start px-3 py-2">
+      <div className="flex items-start justify-between px-3 py-2">
         <div className="flex flex-col">
           <span className="text-sm font-semibold leading-none text-foreground">
             {order._id ?? 'Order:'}
@@ -80,7 +80,7 @@ function OrderRow({
       <div className="flex flex-col gap-2 p-3">
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
           {order.numberOfPeople != null && (
-            <span className="flex gap-1 items-center">
+            <span className="flex items-center gap-1">
               <IconUsers className="w-3.5 h-3.5" />
               {order.numberOfPeople}
             </span>
@@ -110,8 +110,8 @@ function OrderRow({
 
       <Separator />
 
-      <div className="flex justify-between items-center px-3 h-10">
-        <div className="flex gap-2 items-center text-xs text-muted-foreground">
+      <div className="flex items-center justify-between h-10 px-3">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <IconCalendarEventFilled className="w-4 h-4" />
           <span>{formatDate(order.createdAt)}</span>
         </div>
@@ -128,39 +128,39 @@ function OrderRow({
 
 export const TourOrdersPanel = ({ tourId }: Props) => {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const { orders, loading, totalCount } = useTourOrders({
+  const { orders, totalCount } = useTourOrders({
     variables: { tourId },
     skip: !tourId,
   });
 
-  if (loading) {
-    return (
-      <div className="p-3 space-y-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="p-3 space-y-2 bg-white rounded-xl border animate-pulse"
-          >
-            <div className="flex justify-between">
-              <div className="w-24 h-3 bg-gray-200 rounded" />
-              <div className="w-14 h-4 bg-gray-200 rounded-full" />
-            </div>
+  // if (loading) {
+  //   return (
+  //     <div className="p-3 space-y-3">
+  //       {Array.from({ length: 3 }).map((_, i) => (
+  //         <div
+  //           key={i}
+  //           className="p-3 space-y-2 bg-white border rounded-xl animate-pulse"
+  //         >
+  //           <div className="flex justify-between">
+  //             <div className="w-24 h-3 bg-gray-200 rounded" />
+  //             <div className="h-4 bg-gray-200 rounded-full w-14" />
+  //           </div>
 
-            <div className="w-20 h-3 bg-gray-200 rounded" />
+  //           <div className="w-20 h-3 bg-gray-200 rounded" />
 
-            <div className="flex justify-between">
-              <div className="w-16 h-3 bg-gray-200 rounded" />
-              <div className="w-20 h-4 bg-gray-300 rounded" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
+  //           <div className="flex justify-between">
+  //             <div className="w-16 h-3 bg-gray-200 rounded" />
+  //             <div className="w-20 h-4 bg-gray-300 rounded" />
+  //           </div>
+  //         </div>
+  //       ))}
+  //     </div>
+  //   );
+  // }
 
   if (!orders.length) {
     return (
-      <div className="flex flex-col gap-3 justify-center items-center px-4 h-full text-center">
+      <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
         <IconClipboardList className="w-8 h-8 text-muted-foreground" />
 
         <h3 className="text-base font-semibold">No bookings yet</h3>
@@ -176,7 +176,7 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
   return (
     <>
       <div className="p-3 space-y-3">
-        <div className="flex justify-between items-center px-1">
+        <div className="flex items-center justify-between px-1">
           <span className="text-xs text-gray-400">
             {totalCount === 1 ? '1 booking' : `${totalCount} bookings`}
           </span>

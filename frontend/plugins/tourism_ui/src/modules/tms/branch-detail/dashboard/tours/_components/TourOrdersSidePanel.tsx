@@ -3,6 +3,7 @@
 import { Tooltip } from 'erxes-ui';
 import { IconUser, IconClipboardList } from '@tabler/icons-react';
 import { TourOrdersPanel } from './TourOrdersPanel';
+import { TourCustomersPanel } from './TourCustomersPanel';
 
 const TABS = [
   { name: 'orders', label: 'Orders', Icon: IconClipboardList },
@@ -30,7 +31,13 @@ export const TourOrdersSidePanel = ({
         </div>
       )}
 
-      <div className="flex flex-col gap-3 items-center py-3 w-16 border-l bg-sidebar shrink-0">
+      {activeTab === 'customers' && (
+        <div className="overflow-y-auto w-[340px] border-l">
+          <TourCustomersPanel />
+        </div>
+      )}
+
+      <div className="flex flex-col items-center w-16 gap-3 py-3 border-l bg-sidebar shrink-0">
         <Tooltip.Provider>
           {TABS.map(({ name, label, Icon }) => {
             const isActive = activeTab === name;
