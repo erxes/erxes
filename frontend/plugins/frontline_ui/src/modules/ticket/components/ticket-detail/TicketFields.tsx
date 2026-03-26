@@ -8,15 +8,13 @@ import {
   DropdownMenu,
   useConfirm,
   useToast,
+  Button,
 } from 'erxes-ui';
-import { IconSquareToggle, IconTrash } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { IconSquareToggle, IconTrash, IconTags } from '@tabler/icons-react';
+import React, { useEffect, useState } from 'react';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { Block } from '@blocknote/core';
-import { Button } from 'erxes-ui';
 import { ITicket } from '@/ticket/types';
-import { IconTags } from '@tabler/icons-react';
-import React from 'react';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
@@ -134,7 +132,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const { updateTicket } = useUpdateTicket();
   const { removeTicket } = useTicketRemove();
   const [name, setName] = useState(_name);
-  const [isSubscribed, setSubscribe] = useState<boolean>(
+  const [isSubscribed, setIsSubscribed] = useState<boolean>(
     _isSubscribed || false,
   );
 
@@ -152,16 +150,14 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     isSubscribed: boolean;
   }) => {
     return (
-      <div
+      <button
         className="space-x-2 flex items-center gap-2"
         onClick={() => {
-          setSubscribe(!isSubscribed);
+          setIsSubscribed(!isSubscribed);
         }}
       >
-        <Button variant="ghost">
-          <legend>{isSubscribed ? 'UnSubscribe' : 'Subscribe'}</legend>
-        </Button>
-      </div>
+        <legend>{isSubscribed ? 'UnSubscribe' : 'Subscribe'}</legend>
+      </button>
     );
   };
 
@@ -379,7 +375,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           <BlockEditor
             editor={editor}
             onChange={canEditTicket ? handleDescriptionChange : undefined}
-            className={`min-h-full read-only${!canEditTicket ? ' pointer-events-none opacity-60' : ''}`}
+            className={`min-h-full read-only${
+              canEditTicket ? '' : ' pointer-events-none opacity-60'
+            }`}
           />
         </div>
         <ActivityList contentId={ticketId} contentDetail={ticket} />
