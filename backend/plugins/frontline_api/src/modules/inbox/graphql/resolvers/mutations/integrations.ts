@@ -223,7 +223,7 @@ export const integrationMutations = {
       name: 'Default channel',
     })) as IChannelDocument;
 
-    if (!channel) {
+    if (channel === null) {
       channel = await models.Channels.createChannel({
         channelDoc: { name: 'Default channel' },
         adminId: user._id,
