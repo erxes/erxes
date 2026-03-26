@@ -10,13 +10,8 @@ interface TicketDateResponse {
   reportTicketDate: TicketDateStat[];
 }
 
-export const useTicketDate = (
-  options?: QueryHookOptions<TicketDateResponse>,
-) => {
-  const { data, loading, error } = useQuery<TicketDateResponse>(
-    GET_TICKET_DATE,
-    options,
-  );
+export const useTicketDate = (options?: QueryHookOptions<TicketDateResponse>) => {
+  const { data, loading, error } = useQuery<TicketDateResponse>(GET_TICKET_DATE, options);
 
   return {
     ticketDate: data?.reportTicketDate,

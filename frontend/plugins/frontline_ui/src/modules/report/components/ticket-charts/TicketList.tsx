@@ -31,11 +31,7 @@ interface TicketListProps {
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
-export const TicketList = ({
-  title,
-  colSpan = 6,
-  onColSpanChange,
-}: TicketListProps) => {
+export const TicketList = ({ title, colSpan = 6, onColSpanChange }: TicketListProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
   const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
@@ -56,7 +52,16 @@ export const TicketList = ({
 
   useEffect(() => {
     setPage(1);
-  }, [channelFilter, memberFilter, pipelineFilter, stateFilter, priorityFilter, tagFilter, customerFilter, companyFilter]);
+  }, [
+    channelFilter,
+    memberFilter,
+    pipelineFilter,
+    stateFilter,
+    priorityFilter,
+    tagFilter,
+    customerFilter,
+    companyFilter,
+  ]);
 
   const { ticketList, loading, error } = useTicketList({
     variables: {
@@ -81,15 +86,29 @@ export const TicketList = ({
 
   if (loading) {
     return (
-      <FrontlineCard id={id} title={title} description="Ticket list" colSpan={colSpan} onColSpanChange={onColSpanChange}>
-        <FrontlineCard.Content><FrontlineCard.Skeleton /></FrontlineCard.Content>
+      <FrontlineCard
+        id={id}
+        title={title}
+        description="Ticket list"
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
+        <FrontlineCard.Content>
+          <FrontlineCard.Skeleton />
+        </FrontlineCard.Content>
       </FrontlineCard>
     );
   }
 
   if (error) {
     return (
-      <FrontlineCard id={id} title={title} description="Ticket list" colSpan={colSpan} onColSpanChange={onColSpanChange}>
+      <FrontlineCard
+        id={id}
+        title={title}
+        description="Ticket list"
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
         <FrontlineCard.Content>
           <Alert variant="destructive">
             <Alert.Title>Error loading data</Alert.Title>
@@ -102,9 +121,17 @@ export const TicketList = ({
 
   if (!ticketList?.list || ticketList.list.length === 0) {
     return (
-      <FrontlineCard id={id} title={title} description="No tickets found." colSpan={colSpan} onColSpanChange={onColSpanChange}>
+      <FrontlineCard
+        id={id}
+        title={title}
+        description="No tickets found."
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
         <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
-        <FrontlineCard.Content><FrontlineCard.Empty /></FrontlineCard.Content>
+        <FrontlineCard.Content>
+          <FrontlineCard.Empty />
+        </FrontlineCard.Content>
       </FrontlineCard>
     );
   }
@@ -112,7 +139,13 @@ export const TicketList = ({
   const { totalCount, totalPages } = ticketList;
 
   return (
-    <FrontlineCard id={id} title={title} description={`${totalCount} tickets`} colSpan={colSpan} onColSpanChange={onColSpanChange}>
+    <FrontlineCard
+      id={id}
+      title={title}
+      description={`${totalCount} tickets`}
+      colSpan={colSpan}
+      onColSpanChange={onColSpanChange}
+    >
       <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
       <FrontlineCard.Content>
         <TicketListTable tickets={ticketList.list} />
@@ -150,24 +183,14 @@ const Pagination = memo(function Pagination({
         {from}–{to} of {totalCount}
       </span>
       <div className="flex items-center gap-1">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPrev}
-          disabled={page <= 1}
-        >
+        <Button variant="outline" size="sm" onClick={onPrev} disabled={page <= 1}>
           <IconChevronLeft className="size-4" />
           Prev
         </Button>
         <span className="text-xs text-muted-foreground px-2">
           {page} / {totalPages}
         </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNext}
-          disabled={page >= totalPages}
-        >
+        <Button variant="outline" size="sm" onClick={onNext} disabled={page >= totalPages}>
           Next
           <IconChevronRight className="size-4" />
         </Button>
@@ -183,7 +206,9 @@ const TicketListTable = memo(function TicketListTable({ tickets }: { tickets: Ti
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
-            <RecordTable.Body><RecordTable.RowList /></RecordTable.Body>
+            <RecordTable.Body>
+              <RecordTable.RowList />
+            </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
       </RecordTable.Provider>
@@ -193,13 +218,19 @@ const TicketListTable = memo(function TicketListTable({ tickets }: { tickets: Ti
 
 export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   {
-    id: 'name', header: 'Name', accessorKey: 'name',
+    id: 'name',
+    header: 'Name',
+    accessorKey: 'name',
     cell: ({ cell }) => (
-      <RecordTableInlineCell className="px-4 text-xs font-medium">{cell.getValue() as string}</RecordTableInlineCell>
+      <RecordTableInlineCell className="px-4 text-xs font-medium">
+        {cell.getValue() as string}
+      </RecordTableInlineCell>
     ),
   },
   {
-    id: 'createdAt', header: 'Created', accessorKey: 'createdAt',
+    id: 'createdAt',
+    header: 'Created',
+    accessorKey: 'createdAt',
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <span className="text-xs text-muted-foreground">
@@ -209,33 +240,52 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
     ),
   },
   {
-    id: 'priority', header: 'Priority', accessorKey: 'priority', size: 80,
+    id: 'priority',
+    header: 'Priority',
+    accessorKey: 'priority',
+    size: 80,
     cell: ({ cell }) => {
       const priority = cell.getValue() as number;
       const label = PROJECT_PRIORITIES_OPTIONS[priority] || 'Unknown';
       return (
         <RecordTableInlineCell className="flex items-center justify-center">
-          <Badge variant="secondary" className="text-xs">{label}</Badge>
+          <Badge variant="secondary" className="text-xs">
+            {label}
+          </Badge>
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'state', header: 'State', accessorKey: 'state', size: 80,
+    id: 'state',
+    header: 'State',
+    accessorKey: 'state',
+    size: 80,
     cell: ({ cell }) => {
       const state = cell.getValue() as string | undefined;
       return (
         <RecordTableInlineCell className="flex items-center justify-center">
-          {state ? <Badge className="text-xs capitalize">{state}</Badge> : <span className="text-xs text-muted-foreground">—</span>}
+          {state ? (
+            <Badge className="text-xs capitalize">{state}</Badge>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          )}
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'assigneeId', header: 'Assigned', accessorKey: 'assigneeId',
+    id: 'assigneeId',
+    header: 'Assigned',
+    accessorKey: 'assigneeId',
     cell: ({ cell }) => {
       const assigneeId = cell.getValue() as string;
-      if (!assigneeId) return <RecordTableInlineCell className="text-xs text-muted-foreground">Unassigned</RecordTableInlineCell>;
+      if (!assigneeId)
+        return (
+          <RecordTableInlineCell className="text-xs text-muted-foreground">
+            Unassigned
+          </RecordTableInlineCell>
+        );
       return (
         <RecordTableInlineCell>
           <MembersInline.Provider memberIds={[assigneeId]}>
@@ -247,7 +297,10 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
     },
   },
   {
-    id: 'targetDate', header: 'Due Date', accessorKey: 'targetDate', size: 100,
+    id: 'targetDate',
+    header: 'Due Date',
+    accessorKey: 'targetDate',
+    size: 100,
     cell: ({ cell }) => {
       const targetDate = cell.getValue() as string | undefined;
       return (
@@ -258,7 +311,8 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
     },
   },
   {
-    id: 'open', size: 33,
+    id: 'open',
+    size: 33,
     cell: ({ cell }) => <TicketMoreCell cell={cell} />,
   },
 ];

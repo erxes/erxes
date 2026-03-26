@@ -13,13 +13,8 @@ interface TicketTagsResponse {
   reportTicketTags: TicketTag[];
 }
 
-export const useTicketTags = (
-  options?: QueryHookOptions<TicketTagsResponse>,
-) => {
-  const { data, loading, error } = useQuery<TicketTagsResponse>(
-    GET_TICKET_TAGS,
-    options,
-  );
+export const useTicketTags = (options?: QueryHookOptions<TicketTagsResponse>) => {
+  const { data, loading, error } = useQuery<TicketTagsResponse>(GET_TICKET_TAGS, options);
 
   return {
     ticketTags: data?.reportTicketTags,

@@ -13,9 +13,7 @@ interface TicketStatusSummaryResponse {
   reportTicketStatusSummary: TicketStatusSummaryItem[];
 }
 
-export const useTicketStatusSummary = (
-  options?: QueryHookOptions<TicketStatusSummaryResponse>,
-) => {
+export const useTicketStatusSummary = (options?: QueryHookOptions<TicketStatusSummaryResponse>) => {
   const { data, loading, error } = useQuery<TicketStatusSummaryResponse>(
     GET_TICKET_STATUS_SUMMARY,
     options,

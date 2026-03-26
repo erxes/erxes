@@ -20,34 +20,34 @@ export const reportComponents: Record<
   LazyExoticComponent<ComponentType<ReportComponentProps>>
 > = {
   'conversation-open': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationOpen').then(
-      (module) => ({ default: module.ConversationOpen }),
-    ),
+    import('@/report/components/conversation-charts/ConversationOpen').then((module) => ({
+      default: module.ConversationOpen,
+    })),
   ),
   'conversation-resolved': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationResolved').then(
-      (module) => ({ default: module.ConversationResolved }),
-    ),
+    import('@/report/components/conversation-charts/ConversationResolved').then((module) => ({
+      default: module.ConversationResolved,
+    })),
   ),
   'conversation-source': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationSource').then(
-      (module) => ({ default: module.ConversationSource }),
-    ),
+    import('@/report/components/conversation-charts/ConversationSource').then((module) => ({
+      default: module.ConversationSource,
+    })),
   ),
   'conversation-tag': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationTag').then(
-      (module) => ({ default: module.ConversationTag }),
-    ),
+    import('@/report/components/conversation-charts/ConversationTag').then((module) => ({
+      default: module.ConversationTag,
+    })),
   ),
   'conversation-responses': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationResponse').then(
-      (module) => ({ default: module.ConversationResponse }),
-    ),
+    import('@/report/components/conversation-charts/ConversationResponse').then((module) => ({
+      default: module.ConversationResponse,
+    })),
   ),
   'conversation-list': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationList').then(
-      (module) => ({ default: module.ConversationList }),
-    ),
+    import('@/report/components/conversation-charts/ConversationList').then((module) => ({
+      default: module.ConversationList,
+    })),
   ),
 };
 
@@ -65,29 +65,29 @@ export const ticketReportComponents: Record<
   LazyExoticComponent<ComponentType<ReportComponentProps>>
 > = {
   'ticket-date': lazy(() =>
-    import('@/report/components/ticket-charts/TicketOpenDate').then(
-      (module) => ({ default: module.TicketOpenDate }),
-    ),
+    import('@/report/components/ticket-charts/TicketOpenDate').then((module) => ({
+      default: module.TicketOpenDate,
+    })),
   ),
   'ticket-source': lazy(() =>
-    import('@/report/components/ticket-charts/TicketSource').then(
-      (module) => ({ default: module.TicketSource }),
-    ),
+    import('@/report/components/ticket-charts/TicketSource').then((module) => ({
+      default: module.TicketSource,
+    })),
   ),
   'ticket-tags': lazy(() =>
-    import('@/report/components/ticket-charts/TicketTags').then(
-      (module) => ({ default: module.TicketTags }),
-    ),
+    import('@/report/components/ticket-charts/TicketTags').then((module) => ({
+      default: module.TicketTags,
+    })),
   ),
   'ticket-list': lazy(() =>
-    import('@/report/components/ticket-charts/TicketList').then(
-      (module) => ({ default: module.TicketList }),
-    ),
+    import('@/report/components/ticket-charts/TicketList').then((module) => ({
+      default: module.TicketList,
+    })),
   ),
   'ticket-status-summary': lazy(() =>
-    import('@/report/components/ticket-charts/TicketStatusSummary').then(
-      (module) => ({ default: module.TicketStatusSummary }),
-    ),
+    import('@/report/components/ticket-charts/TicketStatusSummary').then((module) => ({
+      default: module.TicketStatusSummary,
+    })),
   ),
 };
 

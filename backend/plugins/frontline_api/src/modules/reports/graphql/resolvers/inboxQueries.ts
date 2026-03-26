@@ -418,9 +418,8 @@ export const reportInboxQueries = {
       { $limit: filters.limit ?? 10 },
     );
 
-    const tagCounts: Array<{ _id: any; count: number }> = await models.Conversations.aggregate(
-      pipeline,
-    );
+    const tagCounts: Array<{ _id: any; count: number }> =
+      await models.Conversations.aggregate(pipeline);
 
     if (!tagCounts.length) {
       return [];

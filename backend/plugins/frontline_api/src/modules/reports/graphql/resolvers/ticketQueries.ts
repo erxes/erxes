@@ -78,7 +78,11 @@ export const reportTicketQueries = {
     }));
   },
 
-  async reportTicketDate(_parent, { filters = {} }: { filters?: IReportFilters }, { models, subdomain }) {
+  async reportTicketDate(
+    _parent,
+    { filters = {} }: { filters?: IReportFilters },
+    { models, subdomain },
+  ) {
     const pipeline = await buildTicketPipeline(filters, subdomain);
 
     pipeline.push(...buildDateGroupPipeline('createdAt', filters.frequency));
@@ -106,7 +110,11 @@ export const reportTicketQueries = {
     };
   },
 
-  async reportTicketList(_parent, { filters = {} }: { filters?: IReportFilters }, { models, subdomain }) {
+  async reportTicketList(
+    _parent,
+    { filters = {} }: { filters?: IReportFilters },
+    { models, subdomain },
+  ) {
     const pipeline = await buildTicketPipeline(filters, subdomain);
 
     pipeline.push({ $sort: { updatedAt: -1 } });
@@ -267,5 +275,4 @@ export const reportTicketQueries = {
       };
     });
   },
-
 };

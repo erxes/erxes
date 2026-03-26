@@ -12,13 +12,8 @@ interface TicketSourceResponse {
   reportTicketSource: TicketSource[];
 }
 
-export const useTicketSource = (
-  options?: QueryHookOptions<TicketSourceResponse>,
-) => {
-  const { data, loading, error } = useQuery<TicketSourceResponse>(
-    GET_TICKET_SOURCE,
-    options,
-  );
+export const useTicketSource = (options?: QueryHookOptions<TicketSourceResponse>) => {
+  const { data, loading, error } = useQuery<TicketSourceResponse>(GET_TICKET_SOURCE, options);
 
   return {
     ticketSources: data?.reportTicketSource,
