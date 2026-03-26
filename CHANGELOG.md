@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.17.38](https://github.com/erxes/erxes/compare/2.17.37...2.17.38) (2026-03-26)
+
+### Features
+
+* add labels and productCategoryInfo attribute for deal document ([a32755b](https://github.com/erxes/erxes/commit/a32755bd6d16ea2db94b5397e9ca431a68db3c46))
+* add support for automation triggers in log and checklist mutations ([3612dca](https://github.com/erxes/erxes/commit/3612dca151f0a2746fa527ffb47969f1b32d9eba))
+* core  clarify pipeline visibility logic for fields and groups ([ac1673d](https://github.com/erxes/erxes/commit/ac1673de69d716ce76ee73597eccfee4809d5ce6))
+* enhance voucher owner queries and client portal integration with voucher ([86e8049](https://github.com/erxes/erxes/commit/86e8049dcae73eb8082804d725fd12f4aef86198))
+
+### Bug Fixes
+
+* **pos:** refetch poscSlots after order cancel to update table status ([#7223](https://github.com/erxes/erxes/issues/7223)) ([caf53bb](https://github.com/erxes/erxes/commit/caf53bb3d87d2bcc1f88ecc902518d3b5acee204))
+* **print:** resolve print closing issue after printing ([#7212](https://github.com/erxes/erxes/issues/7212)) ([bb7a658](https://github.com/erxes/erxes/commit/bb7a65825e694c9b05454d7d582db472ff8b2ce3))
+* **print:** resolve print timing issue and add table number to receipt ([#7220](https://github.com/erxes/erxes/issues/7220)) ([79e80c2](https://github.com/erxes/erxes/commit/79e80c25998a16b4836e0c92a98836331f124851))
+* **ticket:** correct isCheckDepartment visibility using department intersection filter ([3cf8405](https://github.com/erxes/erxes/commit/3cf8405b408d7811fa1c798812ca19e3b0ad4463))
+* update fixDate function to accept undefined value ([24bab49](https://github.com/erxes/erxes/commit/24bab49e83a70a12cb5405b9dadaf0a27bb47751))
+
 ## [2.17.37](https://github.com/erxes/erxes/compare/2.17.36...2.17.37) (2026-03-17)
 
 ### Features
