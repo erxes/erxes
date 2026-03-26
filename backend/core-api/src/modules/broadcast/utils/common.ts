@@ -24,7 +24,7 @@ import { generateCustomerSelector } from './engage';
 export const isUsingElk = () => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
-  return ELK_SYNCER === 'false' ? false : true;
+  return ELK_SYNCER !== 'false';
 };
 
 export interface IUser {
@@ -225,9 +225,7 @@ export const cleanIgnoredCustomers = async (
     });
 
     return {
-      customers: customers.filter(
-        (c) => ignoredCustomerIds.indexOf(c._id) === -1,
-      ),
+      customers: customers.filter((c) => !ignoredCustomerIds.includes(c._id)),
       ignoredCustomerIds,
     };
   }
@@ -309,8 +307,7 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
       {
         $set: {
           // valid count must never exceed total count
-          validCustomersCount:
-            validSum > totalCustomersCount ? totalCustomersCount : validSum,
+          validCustomersCount: Math.min(validSum, totalCustomersCount),
           lastRunAt: new Date(),
         },
         $inc: { runCount: 1 },
@@ -757,7 +754,11 @@ const sendCampaignNotification = async (
     //   );
     // });
   } catch (e) {
-    // await models.Logs.createLog(groupId, 'failure', e.message);
+    await models.Logs.create({
+      engageMessageId: groupId,
+      message: e.message,
+      type: 'failure',
+    });
   }
 };
 
