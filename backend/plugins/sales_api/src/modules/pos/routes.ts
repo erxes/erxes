@@ -151,7 +151,6 @@ export const getProductsData = async (
 
     const pricing = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'loyalty',
       module: 'pricing',
       action: 'checkPricing',

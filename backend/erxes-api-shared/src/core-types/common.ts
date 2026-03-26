@@ -2,6 +2,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { SortOrder } from 'mongoose';
 import { IUserDocument } from './modules/team-member/user';
 import { Request as ApiRequest, Response as ApiResponse } from 'express';
+import { ScopedEventHandlers } from '../core-modules';
 
 export interface IRule {
   kind: string;
@@ -104,6 +105,7 @@ export interface IMainContext {
   models?: any;
   __: <T extends object>(doc: T) => T & { processId: string };
   processId: string;
+  eventHandlers: ScopedEventHandlers;
   checkPermission: (action: string, ownerId?: string) => Promise<void>;
 }
 

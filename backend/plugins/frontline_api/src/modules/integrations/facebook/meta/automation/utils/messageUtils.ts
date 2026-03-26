@@ -43,11 +43,7 @@ export const triggerFacebookAutomation = async (
       targets: [target],
       repeatOptions,
     },
-    {
-      priority: 1,
-      removeOnComplete: true,
-      removeOnFail: true,
-    },
+    { transport: 'trpc' },
   );
 };
 

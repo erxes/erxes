@@ -1,13 +1,33 @@
 import AWS from 'aws-sdk';
 
 import { getValueAsString } from '@/organization/settings/db/models/Configs';
-import { getSubdomain } from 'erxes-api-shared/utils';
+import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { SES_DELIVERY_STATUSES } from '../constants';
 
-export const getApi = async (models: IModels, type: string): Promise<any> => {
+const getAwsConfig = async (models: IModels) => {
   const config = await models.EngageMessages.broadcastConfigs();
+
+  if (config && config.accessKeyId && config.secretAccessKey && config.region) {
+    return config;
+  }
+
+  const VERSION = getEnv({ name: 'VERSION', defaultValue: '' });
+
+  if (VERSION === 'saas') {
+    return {
+      accessKeyId: getEnv({ name: 'AWS_SES_ACCESS_KEY_ID' }),
+      secretAccessKey: getEnv({ name: 'AWS_SES_SECRET_ACCESS_KEY' }),
+      region: getEnv({ name: 'AWS_REGION' }),
+    };
+  }
+
+  return config;
+};
+
+export const getApi = async (models: IModels, type: string): Promise<any> => {
+  const config = await getAwsConfig(models);
 
   if (!config) {
     return;

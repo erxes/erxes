@@ -179,7 +179,7 @@ export const SelectBranchesItem = ({
   branch: IBranch & { hasChildren: boolean };
 }) => {
   const { onSelect, branchIds } = useSelectBranchesContext();
-  const isSelected = branchIds?.some((b) => b === branch._id);
+  const isSelected = branchIds?.includes(branch._id);
   return (
     <SelectTree.Item
       key={branch._id}
@@ -330,12 +330,12 @@ const SelectBranchesBadgesView = () => {
 export const SelectBranchesDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(
   (
     { onValueChange, scope, value, mode, options, className, ...props },

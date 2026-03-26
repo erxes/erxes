@@ -20,7 +20,7 @@ export const PagesRecordTable = ({
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const columns = usePagesColumns(onEditPage, refetch);
+  const columns = usePagesColumns(onEditPage, refetch, pages);
 
   return (
     <RecordTable.Provider

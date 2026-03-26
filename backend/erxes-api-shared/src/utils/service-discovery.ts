@@ -115,6 +115,9 @@ export const joinErxesGateway = async ({
   hasSubscriptions = false,
   meta,
 }: PluginConfig) => {
+  const rawVersion = process.env.RELEASE_VERSION;
+  const releaseVersion = rawVersion?.startsWith('3.') ? rawVersion : 'latest';
+
   await redis.set(
     keyForConfig(name),
 
@@ -122,6 +125,7 @@ export const joinErxesGateway = async ({
       dbConnectionString: MONGO_URL,
       hasSubscriptions,
       meta,
+      releaseVersion,
     }),
   );
 

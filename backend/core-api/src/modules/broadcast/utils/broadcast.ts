@@ -1,4 +1,5 @@
 import { ICustomer, ICustomerDocument } from 'erxes-api-shared/core-types';
+import { getEnv } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
@@ -48,12 +49,22 @@ const sendBroadcastEmail = async ({
     throw new Error('Invalid from user');
   }
 
-  const configSet = await getValueAsString(
+  let configSet = await getValueAsString(
     models,
     'BROADCAST_AWS_SES_CONFIG_SET',
     'BROADCAST_AWS_SES_CONFIG_SET',
-    'erxes',
+    '',
   );
+
+  if (!configSet) {
+    const VERSION = getEnv({ name: 'VERSION', defaultValue: '' });
+
+    if (VERSION === 'saas') {
+      configSet = getEnv({ name: 'AWS_SES_CONFIG_SET', defaultValue: 'erxes' });
+    } else {
+      configSet = 'erxes';
+    }
+  }
 
   await models.EngageMessages.updateOne(
     { _id },

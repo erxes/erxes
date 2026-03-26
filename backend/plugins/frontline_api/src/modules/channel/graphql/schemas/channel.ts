@@ -36,5 +36,6 @@ export const mutations = `
     channelRemove(_id: String!): Channel
     channelAddMembers(_id: String!, memberIds: [String]): [ChannelMember]
     channelRemoveMember(channelId: String!, memberId: String!): ChannelMember
+    channelRemoveMembers(channelId: String!, memberIds: [String]): [ChannelMember]
     channelUpdateMember(_id: String!, role: String): ChannelMember
 `;

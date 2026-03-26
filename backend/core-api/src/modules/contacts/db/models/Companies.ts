@@ -9,7 +9,7 @@ import {
 import { validSearchText } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { generateCompanyActivityLogs } from '../../utils/activityLogs';
+import { generateCompanyUpdateActivityLogs } from '../../meta/activity-log/companies';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   getCompany(_id: string): Promise<ICompanyDocument>;
@@ -136,7 +136,7 @@ export const loadCompanyClass = (
         const propertiesData = await models.Fields.validateFieldValues(
           doc.propertiesData,
         );
-        
+
         doc.propertiesData = propertiesData;
       }
 
@@ -157,7 +157,7 @@ export const loadCompanyClass = (
           currentDocument: updatedCompany.toObject(),
           prevDocument: company.toObject(),
         });
-        generateCompanyActivityLogs(
+        generateCompanyUpdateActivityLogs(
           company,
           updatedCompany,
           models,

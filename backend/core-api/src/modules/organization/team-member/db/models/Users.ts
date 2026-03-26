@@ -8,6 +8,9 @@ import {
   USER_ROLES,
   userMovemmentSchema,
   userSchema,
+  buildBranchAssignmentActivity,
+  buildDepartmentAssignmentActivity,
+  buildPositionAssignmentActivity,
 } from 'erxes-api-shared/core-modules';
 import {
   IDetail,
@@ -26,9 +29,9 @@ import { sendOnboardNotification } from '~/modules/notifications/utils';
 import {
   generateLoginActivityLog,
   generateLogoutActivityLog,
-  generateUserActivityLogs,
+  generateUserUpdateActivityLogs,
   generateUserInvitationActivityLog,
-} from '../../utils/activityLogs';
+} from '../../meta/activity-log';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -47,6 +50,7 @@ interface IUpdateUser extends IEditProfile {
   password?: string;
   groupIds?: string[];
   brandIds?: string[];
+  permissionGroupIds?: string[];
 }
 
 interface IInviteParams {
@@ -128,8 +132,16 @@ export interface IUserModel extends Model<IUserDocument> {
 export const loadUserClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  // { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  coreEventHandlers: (
+    moduleName: string,
+    collectionName: string,
+  ) => EventDispatcherReturn,
 ) => {
+  const { sendDbEventLog, createActivityLog } = coreEventHandlers(
+    'organization',
+    'users',
+  );
   class User {
     public static async getUser(_id: string) {
       const user = await models.Users.findOne({ _id });
@@ -326,7 +338,12 @@ export const loadUserClass = (
         });
 
         // Generate activity logs for changed activity fields
-        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+        generateUserUpdateActivityLogs(
+          { models, subdomain },
+          user,
+          updatedUser,
+          createActivityLog,
+        );
       }
       return updatedUser;
     }
@@ -449,7 +466,13 @@ export const loadUserClass = (
           prevDocument: user.toObject(),
         });
 
-        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+        await generateUserUpdateActivityLogs(
+          { models, subdomain },
+          user,
+          updatedUser,
+
+          createActivityLog,
+        );
       }
       return updatedUser;
     }
@@ -505,10 +528,10 @@ export const loadUserClass = (
             currentDocument: updatedUser.toObject(),
             prevDocument: user.toObject(),
           });
-          generateUserActivityLogs(
+          await generateUserUpdateActivityLogs(
+            { models, subdomain },
             user,
             updatedUser,
-            models,
             createActivityLog,
           );
         }
@@ -524,10 +547,10 @@ export const loadUserClass = (
             currentDocument: updatedUser.toObject(),
             prevDocument: user.toObject(),
           });
-          generateUserActivityLogs(
+          await generateUserUpdateActivityLogs(
+            { models, subdomain },
             user,
             updatedUser,
-            models,
             createActivityLog,
           );
         }
@@ -962,7 +985,12 @@ export const loadUserClass = (
           currentDocument: updatedUser.toObject(),
           prevDocument: user.toObject(),
         });
-        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+        await generateUserUpdateActivityLogs(
+          { models, subdomain },
+          user,
+          updatedUser,
+          createActivityLog,
+        );
       }
       return updatedUser;
     }
@@ -1004,8 +1032,124 @@ export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
   ): Promise<IUserMovementDocument>;
 }
 
-export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
+export const loadUserMovemmentClass = (
+  models: IModels,
+  subdomain: string,
+  coreEventHandlers: (
+    moduleName: string,
+    collectionName: string,
+  ) => EventDispatcherReturn,
+) => {
+  const { createActivityLog } = coreEventHandlers(
+    'organization',
+    'userMovements',
+  );
   class UserMovemment {
+    static getAssignmentConfig() {
+      return {
+        branch: {
+          model: models.Branches,
+          collectionName: 'branches',
+          assignedType: 'branch.assigned',
+          unassignedType: 'branch.unassigned',
+          build: buildBranchAssignmentActivity,
+        },
+        department: {
+          model: models.Departments,
+          collectionName: 'departments',
+          assignedType: 'department.assigned',
+          unassignedType: 'department.unassigned',
+          build: buildDepartmentAssignmentActivity,
+        },
+        position: {
+          model: models.Positions,
+          collectionName: 'positions',
+          assignedType: 'position.assigned',
+          unassignedType: 'position.unassigned',
+          build: buildPositionAssignmentActivity,
+        },
+      } as const;
+    }
+
+    static async getAssignmentContentLabel(params: {
+      contentType: string;
+      contentTypeId: string;
+    }) {
+      const { contentType, contentTypeId } = params;
+      const config = this.getAssignmentConfig()[contentType];
+
+      const content = await config.model
+        .findOne({ _id: contentTypeId }, { title: 1 })
+        .lean();
+
+      return content?.title || `unknown ${contentType}`;
+    }
+
+    static async buildAssignmentActivities(params: {
+      targetUserIds: string[];
+      contentType: string;
+      contentTypeId: string;
+      action: string;
+      createdBy?: string;
+    }) {
+      const { targetUserIds, contentType, contentTypeId, action, createdBy } =
+        params;
+      const config = this.getAssignmentConfig()[contentType];
+      const label = await this.getAssignmentContentLabel({
+        contentType,
+        contentTypeId,
+      });
+
+      return targetUserIds.map((userId) =>
+        config.build({
+          activityType:
+            action === 'assigned' ? config.assignedType : config.unassignedType,
+          target: {
+            moduleName: 'organization',
+            collectionName: 'users',
+            _id: userId,
+          },
+          context: {
+            moduleName: 'organization',
+            collectionName: config.collectionName,
+            text: label,
+          },
+          ids: [contentTypeId],
+          labels: [label],
+          metadata: {
+            contentType,
+            contentTypeId,
+            action,
+            createdBy,
+          },
+        }),
+      );
+    }
+
+    static async createAssignmentActivities(params: {
+      createdBy?: string;
+      targetUserIds: string[];
+      contentType: string;
+      contentTypeId: string;
+      action: string;
+    }) {
+      const { createdBy, targetUserIds, contentType, contentTypeId, action } =
+        params;
+
+      const activities = await this.buildAssignmentActivities({
+        targetUserIds,
+        contentType,
+        contentTypeId,
+        action,
+        createdBy,
+      });
+
+      if (!activities.length) {
+        return;
+      }
+      createActivityLog(activities);
+    }
+
     public static async manageUserMovement(params: ICommonUserMovement) {
       const user = params.user as IUserDocument;
 
@@ -1194,56 +1338,12 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
           );
 
           if (contentType && contentTypeId) {
-            const schemas = {
-              branch: models.Branches,
-              department: models.Departments,
-              position: models.Positions,
-            };
-
-            const schema = schemas[contentType];
-
-            const content = await schema
-              .find({ _id: contentTypeId }, { title: 1 })
-              .lean();
-            const contextNames = content?.title || `unknown ${contentType}`;
-            const activities = targetUserIds.map((userId) => ({
-              activityType: 'assignment',
-              target: {
-                moduleName: 'organization',
-                collectionName: 'users',
-                _id: userId,
-              },
-              action: {
-                type: action === 'assigned' ? 'assigned' : 'unassigned',
-                description:
-                  action === 'assigned'
-                    ? `assigned to ${contextNames}`
-                    : `unassigned from ${contextNames}`,
-              },
-              changes: {
-                [action === 'assigned' ? 'added' : 'removed']: {
-                  [fieldName]: contentTypeId,
-                },
-              },
-              metadata: {
-                contentType,
-                contentTypeId,
-                action,
-                createdBy,
-              },
-            }));
-
-            sendTRPCMessage({
-              subdomain,
-              pluginName: 'core',
-              method: 'mutation',
-              module: 'activityLog',
-              action: 'createActivityLog',
-              input: activities,
-              context: {
-                processId,
-                userId: createdBy,
-              },
+            await this.createAssignmentActivities({
+              createdBy,
+              targetUserIds,
+              contentType,
+              contentTypeId,
+              action,
             });
 
             if (createdBy) {

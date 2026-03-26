@@ -1,5 +1,5 @@
-import { setExecutionWaitAction } from '@/bullmq/actionHandlerWorker/setWait';
-import { generateModels } from '@/connectionResolver';
+import { setExecutionWaitAction } from '../bullmq/actionHandlerWorker/setWait';
+import { generateModels } from '../connectionResolver';
 import {
   AutomationExecutionSetWaitCondition,
   EXECUTE_WAIT_TYPES,

@@ -8,8 +8,7 @@ const isValidBlocks = (blocks: unknown): blocks is Block[] =>
       typeof block === 'object' &&
       block !== null &&
       'id' in block &&
-      'type' in block &&
-      'content' in block,
+      'type' in block,
   );
 
 export const parseBlocks = (content: unknown) => {
