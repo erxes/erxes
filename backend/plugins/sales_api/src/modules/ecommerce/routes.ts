@@ -491,9 +491,8 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
           break;
 
         case 'addLastViewed':
-          const lastViewed = await models.LastViewedItem.lastViewedItemAdd(
-            data,
-          );
+          const lastViewed =
+            await models.LastViewedItem.lastViewedItemAdd(data);
           results.push({
             type,
             success: true,
