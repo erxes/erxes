@@ -1,5 +1,12 @@
 import { ApolloError, useMutation } from '@apollo/client';
-import { Button, Form, ScrollArea, Sheet, useToast, useQueryState } from 'erxes-ui';
+import {
+  Button,
+  Form,
+  ScrollArea,
+  Sheet,
+  useToast,
+  useQueryState,
+} from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
 import { LoyaltyScoreAddCoreFields } from '../../add-score-campaign/components/LoyaltyScoreAddCoreFields';
@@ -33,8 +40,12 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
       }
 
       const restrictions = {
-        productCategoryIds: (data.conditions.productCategoryIds || []).join(','),
-        excludeProductCategoryIds: (data.conditions.excludeProductCategoryIds || []).join(','),
+        productCategoryIds: (data.conditions.productCategoryIds || []).join(
+          ',',
+        ),
+        excludeProductCategoryIds: (
+          data.conditions.excludeProductCategoryIds || []
+        ).join(','),
         productIds: (data.conditions.productIds || []).join(','),
         excludeProductIds: (data.conditions.excludeProductIds || []).join(','),
         tagIds: (data.conditions.tagIds || []).join(','),

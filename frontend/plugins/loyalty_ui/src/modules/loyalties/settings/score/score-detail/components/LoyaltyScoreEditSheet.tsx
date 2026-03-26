@@ -63,7 +63,9 @@ export const LoyaltyScoreEditSheet = () => {
           productCategoryIds: parseIds(restrictions.productCategoryIds),
           productIds: parseIds(restrictions.productIds),
           tagIds: parseIds(restrictions.tagIds),
-          excludeProductCategoryIds: parseIds(restrictions.excludeProductCategoryIds),
+          excludeProductCategoryIds: parseIds(
+            restrictions.excludeProductCategoryIds,
+          ),
           excludeProductIds: parseIds(restrictions.excludeProductIds),
           excludeTagIds: parseIds(restrictions.excludeTagIds),
         },
@@ -88,7 +90,9 @@ export const LoyaltyScoreEditSheet = () => {
   useEffect(() => {
     if (editScoreId) {
       setOpen(true);
-      setHotkeyScopeAndMemorizePreviousScope(LoyaltyHotKeyScope.LoyaltyEditSheet);
+      setHotkeyScopeAndMemorizePreviousScope(
+        LoyaltyHotKeyScope.LoyaltyEditSheet,
+      );
     } else {
       setOpen(false);
       setHotkeyScope(LoyaltyHotKeyScope.LoyaltiesPage);
@@ -102,11 +106,7 @@ export const LoyaltyScoreEditSheet = () => {
   useScopedHotkeys(`esc`, () => onClose(), LoyaltyHotKeyScope.LoyaltyEditSheet);
 
   return (
-    <Sheet
-      onOpenChange={(open) => !open && onClose()}
-      open={open}
-      modal
-    >
+    <Sheet onOpenChange={(open) => !open && onClose()} open={open} modal>
       <Sheet.View
         className="sm:max-w-2xl p-0"
         onEscapeKeyDown={(e) => {

@@ -67,8 +67,16 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
         excludeCategoryIds: restrictions.excludeCategoryIds ?? [],
         productIds: restrictions.productIds ?? [],
         excludeProductIds: restrictions.excludeProductIds ?? [],
-        tag: Array.isArray(restrictions.tag) ? restrictions.tag : restrictions.tag ? [restrictions.tag] : [],
-        orExcludeTag: Array.isArray(restrictions.orExcludeTag) ? restrictions.orExcludeTag : restrictions.orExcludeTag ? [restrictions.orExcludeTag] : [],
+        tag: Array.isArray(restrictions.tag)
+          ? restrictions.tag
+          : restrictions.tag
+            ? [restrictions.tag]
+            : [],
+        orExcludeTag: Array.isArray(restrictions.orExcludeTag)
+          ? restrictions.orExcludeTag
+          : restrictions.orExcludeTag
+            ? [restrictions.orExcludeTag]
+            : [],
         bonusProduct: voucherDetail.bonusProductId ?? undefined,
         bonusCount: voucherDetail.bonusCount ?? undefined,
         spinCount: voucherDetail.spinCount ?? undefined,
@@ -106,11 +114,7 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
   useScopedHotkeys(`esc`, () => onClose(), VoucherHotKeyScope.VoucherEditSheet);
 
   return (
-    <Sheet
-      onOpenChange={(open) => (!open && onClose())}
-      open={open}
-      modal
-    >
+    <Sheet onOpenChange={(open) => !open && onClose()} open={open} modal>
       {voucherId && (
         <Sheet.Trigger asChild>
           <Button variant="ghost" size="sm">

@@ -80,13 +80,13 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
         tag: Array.isArray(restrictions.tag)
           ? restrictions.tag
           : restrictions.tag
-          ? [restrictions.tag]
-          : [],
+            ? [restrictions.tag]
+            : [],
         orExcludeTag: Array.isArray(restrictions.orExcludeTag)
           ? restrictions.orExcludeTag
           : restrictions.orExcludeTag
-          ? [restrictions.orExcludeTag]
-          : [],
+            ? [restrictions.orExcludeTag]
+            : [],
         codeLength: codeRule.codeLength,
         prefixUppercase: codeRule.prefixUppercase,
         pattern: codeRule.pattern,

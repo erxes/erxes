@@ -85,10 +85,7 @@ export const SelectFieldProvider = ({
     },
   });
 
-  const fields = useMemo(
-    () => data?.fields?.list || [],
-    [data?.fields?.list],
-  );
+  const fields = useMemo(() => data?.fields?.list || [], [data?.fields?.list]);
 
   const handleValueChange = useCallback(
     (field: string) => {

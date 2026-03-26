@@ -4,7 +4,6 @@ import { Form } from 'erxes-ui';
 import { CouponFormValues } from '../../../constants/couponFormSchema';
 import { SelectProduct, SelectTags } from 'ui-modules';
 
-
 interface CouponAddRestrictionMoreFieldsProps {
   form: UseFormReturn<CouponFormValues>;
 }

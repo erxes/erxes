@@ -46,7 +46,9 @@ export const CouponStaticCodeRuleField: React.FC<
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value === '' ? undefined : Number(e.target.value),
+                      e.target.value === ''
+                        ? undefined
+                        : Number(e.target.value),
                     )
                   }
                 />
@@ -70,7 +72,9 @@ export const CouponStaticCodeRuleField: React.FC<
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value === '' ? undefined : Number(e.target.value),
+                      e.target.value === ''
+                        ? undefined
+                        : Number(e.target.value),
                     )
                   }
                 />

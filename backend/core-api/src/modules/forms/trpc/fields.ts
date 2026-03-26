@@ -21,7 +21,12 @@ export const fieldsTrpcRouter = t.router({
         return await models.Fields.find(query, projection).sort(sort).lean();
       }),
     findOne: t.procedure
-      .input(z.object({ _id: z.string().optional(), query: z.record(z.any()).optional() }))
+      .input(
+        z.object({
+          _id: z.string().optional(),
+          query: z.record(z.any()).optional(),
+        }),
+      )
       .query(async ({ ctx, input }) => {
         const { _id, query } = input;
         const { models } = ctx;
@@ -31,14 +36,22 @@ export const fieldsTrpcRouter = t.router({
       .input(z.record(z.any()))
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        const order = await models.Fields.findOne({ contentType: input.contentType })
+        const order = await models.Fields.findOne({
+          contentType: input.contentType,
+        })
           .sort({ order: -1 })
           .lean()
           .then((f) => (f?.order || 0) + 10);
-        return await models.Fields.create({ ...input, order, isDefinedByErxes: false });
+        return await models.Fields.create({
+          ...input,
+          order,
+          isDefinedByErxes: false,
+        });
       }),
     updateOne: t.procedure
-      .input(z.object({ selector: z.record(z.any()), modifier: z.record(z.any()) }))
+      .input(
+        z.object({ selector: z.record(z.any()), modifier: z.record(z.any()) }),
+      )
       .mutation(async ({ ctx, input }) => {
         const { selector, modifier } = input;
         const { models } = ctx;
@@ -55,7 +68,10 @@ export const fieldsTrpcRouter = t.router({
           const extra: any = {};
           if (fieldDoc) {
             const { type, validation } = fieldDoc as any;
-            if (type === 'number' || (type === 'input' && validation === 'number')) {
+            if (
+              type === 'number' ||
+              (type === 'input' && validation === 'number')
+            ) {
               extra.numberValue = Number(value);
             } else if (['text', 'textarea', 'input'].includes(type || '')) {
               extra.stringValue = String(value);

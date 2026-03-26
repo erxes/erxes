@@ -61,89 +61,92 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
   const formatDate = (date: any) =>
     date instanceof Date ? date.toISOString() : date;
 
-  const handleSubmit = form.handleSubmit((data) => {
-    if (!voucherDetail?._id) {
-      toast({
-        title: 'Error',
-        description: 'Voucher ID not found',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const variables = {
-      _id: voucherDetail._id,
-
-      title: data.title || '',
-      description: data.description || '',
-      status: data.status || 'active',
-
-      voucherType: data.type,
-      kind: data.kind,
-
-      value: toNumber(data.value),
-      buyScore: toNumber(data.buyScore),
-
-      startDate: formatDate(data.startDate),
-      endDate: formatDate(data.endDate),
-
-      restrictions: {
-        minimumSpend: toNumber(data.minimumSpend),
-        maximumSpend: toNumber(data.maximumSpend),
-        categoryIds: data.categoryIds || [],
-        excludeCategoryIds: data.excludeCategoryIds || [],
-        productIds: data.productIds || [],
-        excludeProductIds: data.excludeProductIds || [],
-        tag: data.tag || [],
-        orExcludeTag: data.orExcludeTag || [],
-      },
-
-      ...(data.bonusProduct && {
-        bonusProductId: data.bonusProduct,
-      }),
-
-      ...(data.bonusCount && {
-        bonusCount: toNumber(data.bonusCount),
-      }),
-
-      ...(data.spinCampaignId && {
-        spinCampaignId: data.spinCampaignId,
-      }),
-
-      ...(data.spinCount && {
-        spinCount: toNumber(data.spinCount),
-      }),
-
-      ...(data.lotteryCount && {
-        lotteryCount: toNumber(data.lotteryCount),
-      }),
-    };
-
-    voucherEdit({
-      variables,
-      onError: (e: ApolloError) =>
+  const handleSubmit = form.handleSubmit(
+    (data) => {
+      if (!voucherDetail?._id) {
         toast({
           title: 'Error',
-          description: e.message,
+          description: 'Voucher ID not found',
           variant: 'destructive',
-        }),
-      onCompleted: () => {
-        toast({
-          title: 'Success',
-          description: 'Voucher campaign updated successfully',
-          variant: 'default',
         });
-        onOpenChange(false);
-      },
-    });
-  }, () => {
-    setActiveTab('campaign');
-    toast({
-      title: 'Validation Error',
-      description: 'Please fill in all required fields',
-      variant: 'destructive',
-    });
-  });
+        return;
+      }
+
+      const variables = {
+        _id: voucherDetail._id,
+
+        title: data.title || '',
+        description: data.description || '',
+        status: data.status || 'active',
+
+        voucherType: data.type,
+        kind: data.kind,
+
+        value: toNumber(data.value),
+        buyScore: toNumber(data.buyScore),
+
+        startDate: formatDate(data.startDate),
+        endDate: formatDate(data.endDate),
+
+        restrictions: {
+          minimumSpend: toNumber(data.minimumSpend),
+          maximumSpend: toNumber(data.maximumSpend),
+          categoryIds: data.categoryIds || [],
+          excludeCategoryIds: data.excludeCategoryIds || [],
+          productIds: data.productIds || [],
+          excludeProductIds: data.excludeProductIds || [],
+          tag: data.tag || [],
+          orExcludeTag: data.orExcludeTag || [],
+        },
+
+        ...(data.bonusProduct && {
+          bonusProductId: data.bonusProduct,
+        }),
+
+        ...(data.bonusCount && {
+          bonusCount: toNumber(data.bonusCount),
+        }),
+
+        ...(data.spinCampaignId && {
+          spinCampaignId: data.spinCampaignId,
+        }),
+
+        ...(data.spinCount && {
+          spinCount: toNumber(data.spinCount),
+        }),
+
+        ...(data.lotteryCount && {
+          lotteryCount: toNumber(data.lotteryCount),
+        }),
+      };
+
+      voucherEdit({
+        variables,
+        onError: (e: ApolloError) =>
+          toast({
+            title: 'Error',
+            description: e.message,
+            variant: 'destructive',
+          }),
+        onCompleted: () => {
+          toast({
+            title: 'Success',
+            description: 'Voucher campaign updated successfully',
+            variant: 'default',
+          });
+          onOpenChange(false);
+        },
+      });
+    },
+    () => {
+      setActiveTab('campaign');
+      toast({
+        title: 'Validation Error',
+        description: 'Please fill in all required fields',
+        variant: 'destructive',
+      });
+    },
+  );
 
   return (
     <Tabs
@@ -185,14 +188,20 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
         </Form>
       </Tabs.Content>
 
-      <Tabs.Content value="restriction" className="flex-1 min-h-0 overflow-y-auto">
+      <Tabs.Content
+        value="restriction"
+        className="flex-1 min-h-0 overflow-y-auto"
+      >
         <Form {...form}>
           <AddVoucherRestrictionForm form={form} />
         </Form>
       </Tabs.Content>
 
       {showProductBonusTab && (
-        <Tabs.Content value="productBonus" className="flex-1 min-h-0 overflow-y-auto">
+        <Tabs.Content
+          value="productBonus"
+          className="flex-1 min-h-0 overflow-y-auto"
+        >
           <Form {...form}>
             <AddVoucherProductBonusForm form={form} />
           </Form>
@@ -200,7 +209,10 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
       )}
 
       {showLotteryTab && (
-        <Tabs.Content value="lottery" className="flex-1 min-h-0 overflow-y-auto">
+        <Tabs.Content
+          value="lottery"
+          className="flex-1 min-h-0 overflow-y-auto"
+        >
           <Form {...form}>
             <AddVoucherLotteryForm form={form} />
           </Form>

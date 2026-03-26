@@ -8,8 +8,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
 
-export interface IAssignmentCampaignModel
-  extends Model<IAssignmentCampaignDocument> {
+export interface IAssignmentCampaignModel extends Model<IAssignmentCampaignDocument> {
   getAssignmentCampaign(_id: string): Promise<IAssignmentCampaignDocument>;
   createAssignmentCampaign(
     doc: IAssignmentCampaign,

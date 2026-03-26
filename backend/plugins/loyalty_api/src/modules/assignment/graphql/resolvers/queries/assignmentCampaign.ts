@@ -29,7 +29,8 @@ export const assignmentCampaignQueries = {
     params: IAssignmentCampaignParams,
     { models }: IContext,
   ) {
-    const filter: FilterQuery<IAssignmentCampaignDocument> = generateFilter(params);
+    const filter: FilterQuery<IAssignmentCampaignDocument> =
+      generateFilter(params);
 
     return cursorPaginate({
       model: models.AssignmentCampaigns,
