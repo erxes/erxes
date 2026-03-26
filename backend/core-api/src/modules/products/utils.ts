@@ -122,7 +122,7 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
     const codeRegex = ['*', '.', '_'].includes(mask)
       ? new RegExp(
           `^${mask
-            .replaceAll('.', '\\.')
+            .replaceAll('.', '.')
             .replaceAll('*', '.')
             .replaceAll('_', '.')}.*`,
           'igu',
