@@ -26,13 +26,8 @@ interface TicketListResponse {
   reportTicketList: TicketListResult;
 }
 
-export const useTicketList = (
-  options?: QueryHookOptions<TicketListResponse>,
-) => {
-  const { data, loading, error } = useQuery<TicketListResponse>(
-    GET_TICKET_LIST,
-    options,
-  );
+export const useTicketList = (options?: QueryHookOptions<TicketListResponse>) => {
+  const { data, loading, error } = useQuery<TicketListResponse>(GET_TICKET_LIST, options);
 
   return {
     ticketList: data?.reportTicketList,

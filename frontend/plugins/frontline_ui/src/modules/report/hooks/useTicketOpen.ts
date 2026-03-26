@@ -10,13 +10,8 @@ interface TicketOpenResponse {
   reportTicketOpen: TicketMetric;
 }
 
-export const useTicketOpen = (
-  options?: QueryHookOptions<TicketOpenResponse>,
-) => {
-  const { data, loading, error } = useQuery<TicketOpenResponse>(
-    GET_TICKET_OPEN,
-    options,
-  );
+export const useTicketOpen = (options?: QueryHookOptions<TicketOpenResponse>) => {
+  const { data, loading, error } = useQuery<TicketOpenResponse>(GET_TICKET_OPEN, options);
 
   return {
     ticketOpen: data?.reportTicketOpen,

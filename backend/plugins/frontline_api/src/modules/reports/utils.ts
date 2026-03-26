@@ -18,10 +18,7 @@ export const calculatePercentage = (value: number, total: number) => {
   return Math.round((value / total) * 100);
 };
 
-export function buildDateMatch(
-  filters: IReportFilters,
-  field: 'createdAt' | 'closedAt',
-) {
+export function buildDateMatch(filters: IReportFilters, field: 'createdAt' | 'closedAt') {
   if (!filters.fromDate && !filters.toDate) return {};
 
   const range: { $gte?: Date; $lte?: Date } = {};
@@ -74,9 +71,7 @@ export async function generateConversationReportFilter(
     }).lean();
 
     if (match.integrationId) {
-      const channelIdSet = new Set(
-        (match.integrationId.$in as any[]).map(String),
-      );
+      const channelIdSet = new Set((match.integrationId.$in as any[]).map(String));
       const intersection = sourceIntegrations
         .filter((i) => channelIdSet.has(i._id.toString()))
         .map((i) => i._id);
@@ -86,19 +81,13 @@ export async function generateConversationReportFilter(
     }
   }
 
-  if (
-    filters.callStatus &&
-    filters.source &&
-    sourceMap[filters.source] === 'calls'
-  ) {
+  if (filters.callStatus && filters.source && sourceMap[filters.source] === 'calls') {
     const callHistories = await models.CallHistory.find(
       { callStatus: filters.callStatus },
       { conversationId: 1 },
     ).lean();
 
-    const conversationIds = (callHistories as any[])
-      .map((h) => h.conversationId)
-      .filter(Boolean);
+    const conversationIds = (callHistories as any[]).map((h) => h.conversationId).filter(Boolean);
 
     if (!conversationIds.length) {
       return { _id: { $in: [] } };
@@ -124,10 +113,7 @@ export const buildConversationPipeline = async (
 
   if (options.withPagination) {
     if (filters.page && filters.limit) {
-      pipeline.push(
-        { $skip: (filters.page - 1) * filters.limit },
-        { $limit: filters.limit },
-      );
+      pipeline.push({ $skip: (filters.page - 1) * filters.limit }, { $limit: filters.limit });
     } else if (filters.limit) {
       pipeline.push({ $limit: filters.limit });
     }
@@ -144,8 +130,7 @@ export async function buildConversationStatusCountReport(
     dateField: 'createdAt' | 'closedAt';
   },
 ) {
-  const statusOverride =
-    normalizeStatus(filters.status) ?? options.statusDefault;
+  const statusOverride = normalizeStatus(filters.status) ?? options.statusDefault;
 
   const [statusFilter, baseFilter] = await Promise.all([
     generateConversationReportFilter(filters, models, {
@@ -274,10 +259,7 @@ export function normalizeDateField(field: string) {
   };
 }
 
-export function buildDateGroupPipeline(
-  field: string,
-  frequency?: string,
-) {
+export function buildDateGroupPipeline(field: string, frequency?: string) {
   const freq = frequency?.toLowerCase();
 
   let groupId: any;
@@ -370,10 +352,7 @@ export function buildTicketMatch(filters: IReportFilters) {
     const hasPriorityZero = filters.priority.includes(0);
     if (hasPriorityZero) {
       andConditions.push({
-        $or: [
-          { priority: { $in: filters.priority } },
-          { priority: { $exists: false } },
-        ],
+        $or: [{ priority: { $in: filters.priority } }, { priority: { $exists: false } }],
       });
     } else {
       match.priority = { $in: filters.priority };
@@ -401,10 +380,7 @@ export function buildTicketMatch(filters: IReportFilters) {
   return match;
 }
 
-export const buildTicketPipeline = async (
-  filters: IReportFilters,
-  subdomain: string,
-) => {
+export const buildTicketPipeline = async (filters: IReportFilters, subdomain: string) => {
   const pipeline: any[] = [];
   const match = buildTicketMatch(filters);
 
@@ -450,9 +426,7 @@ export const buildTicketPipeline = async (
     if (ticketIdSets.length === 1) {
       filteredIds = [...ticketIdSets[0]];
     } else if (ticketIdSets.length > 1) {
-      filteredIds = [...ticketIdSets[0]].filter((id) =>
-        ticketIdSets.every((s) => s.has(id)),
-      );
+      filteredIds = [...ticketIdSets[0]].filter((id) => ticketIdSets.every((s) => s.has(id)));
     }
 
     if (!filteredIds.length) {

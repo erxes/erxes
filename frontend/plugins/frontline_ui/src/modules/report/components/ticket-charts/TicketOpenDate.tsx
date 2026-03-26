@@ -61,11 +61,7 @@ interface ChartProps {
   chartData: Array<{ date: string; count: number }>;
 }
 
-export const TicketOpenDate = ({
-  title,
-  colSpan = 6,
-  onColSpanChange,
-}: TicketOpenDateProps) => {
+export const TicketOpenDate = ({ title, colSpan = 6, onColSpanChange }: TicketOpenDateProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -104,8 +100,12 @@ export const TicketOpenDate = ({
   const allData = useMemo(() => ticketDate || [], [ticketDate]);
   const {
     pagedData: chartData,
-    page, totalPages, totalCount,
-    handlePrev, handleNext, hasMultiplePages,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+    hasMultiplePages,
   } = useChartPagination(allData);
 
   const filterEl = (
@@ -195,21 +195,27 @@ export const TicketOpenDate = ({
   );
 };
 
-export const TicketOpenBarChart = memo(function TicketOpenBarChart({
-  chartData,
-}: ChartProps) {
-  const chartConfig = useMemo(
-    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
-    [],
-  );
+export const TicketOpenBarChart = memo(function TicketOpenBarChart({ chartData }: ChartProps) {
+  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
   if (!chartData.length) return null;
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 60 }}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <Bar dataKey="count" fill="var(--primary)" name="Count" />
-        <XAxis dataKey="date" tickLine={false} axisLine={false} angle={-45} textAnchor="end" height={60} />
-        <YAxis tickLine={false} axisLine={false} label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
+        <XAxis
+          dataKey="date"
+          tickLine={false}
+          axisLine={false}
+          angle={-45}
+          textAnchor="end"
+          height={60}
+        />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+        />
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
       </BarChart>
@@ -217,21 +223,37 @@ export const TicketOpenBarChart = memo(function TicketOpenBarChart({
   );
 });
 
-export const TicketOpenLineChart = memo(function TicketOpenLineChart({
-  chartData,
-}: ChartProps) {
-  const chartConfig = useMemo(
-    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
-    [],
-  );
+export const TicketOpenLineChart = memo(function TicketOpenLineChart({ chartData }: ChartProps) {
+  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
   if (!chartData.length) return null;
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 60 }}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <Area type="monotone" dataKey="count" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.2} strokeWidth={2} name="Count" dot={{ fill: 'var(--primary)' }} activeDot={{ r: 6 }} />
-        <XAxis dataKey="date" tickLine={false} axisLine={false} angle={-45} textAnchor="end" height={60} />
-        <YAxis tickLine={false} axisLine={false} label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
+        <Area
+          type="monotone"
+          dataKey="count"
+          stroke="var(--primary)"
+          fill="var(--primary)"
+          fillOpacity={0.2}
+          strokeWidth={2}
+          name="Count"
+          dot={{ fill: 'var(--primary)' }}
+          activeDot={{ r: 6 }}
+        />
+        <XAxis
+          dataKey="date"
+          tickLine={false}
+          axisLine={false}
+          angle={-45}
+          textAnchor="end"
+          height={60}
+        />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+        />
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
       </AreaChart>
@@ -239,18 +261,21 @@ export const TicketOpenLineChart = memo(function TicketOpenLineChart({
   );
 });
 
-export const TicketOpenPieChart = memo(function TicketOpenPieChart({
-  chartData,
-}: ChartProps) {
+export const TicketOpenPieChart = memo(function TicketOpenPieChart({ chartData }: ChartProps) {
   const [hoveredDate, setHoveredDate] = useState<string | undefined>(undefined);
-  const chartConfig = useMemo(
-    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
-    [],
-  );
+  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
   const colors = [
-    'var(--chart-50)', 'var(--chart-100)', 'var(--chart-200)', 'var(--chart-300)',
-    'var(--chart-400)', 'var(--chart-500)', 'var(--chart-600)', 'var(--chart-700)',
-    'var(--chart-800)', 'var(--chart-900)', 'var(--chart-950)',
+    'var(--chart-50)',
+    'var(--chart-100)',
+    'var(--chart-200)',
+    'var(--chart-300)',
+    'var(--chart-400)',
+    'var(--chart-500)',
+    'var(--chart-600)',
+    'var(--chart-700)',
+    'var(--chart-800)',
+    'var(--chart-900)',
+    'var(--chart-950)',
   ];
   const data = useMemo(
     () => chartData.map((item, i) => ({ ...item, fill: colors[i % colors.length] })),
@@ -259,33 +284,57 @@ export const TicketOpenPieChart = memo(function TicketOpenPieChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <PieChart>
-        <Pie dataKey="count" data={data} cx="50%" cy="50%" outerRadius={100} innerRadius={70} nameKey="date">
+        <Pie
+          dataKey="count"
+          data={data}
+          cx="50%"
+          cy="50%"
+          outerRadius={100}
+          innerRadius={70}
+          nameKey="date"
+        >
           {data.map((entry, i) => (
-            <Cell key={i} fill={entry.fill} opacity={hoveredDate && hoveredDate !== entry.date ? 0.5 : 1} />
+            <Cell
+              key={i}
+              fill={entry.fill}
+              opacity={hoveredDate && hoveredDate !== entry.date ? 0.5 : 1}
+            />
           ))}
         </Pie>
-        <Legend content={(props: any) => <CustomLegendContent {...props} onMouseEnter={(d: LegendPayload) => setHoveredDate(d.value as string)} onMouseLeave={() => setHoveredDate(undefined)} />} />
+        <Legend
+          content={(props: any) => (
+            <CustomLegendContent
+              {...props}
+              onMouseEnter={(d: LegendPayload) => setHoveredDate(d.value as string)}
+              onMouseLeave={() => setHoveredDate(undefined)}
+            />
+          )}
+        />
         <Tooltip content={<ChartTooltipContent />} />
       </PieChart>
     </ChartContainer>
   );
 });
 
-export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({
-  chartData,
-}: ChartProps) {
-  const chartConfig = useMemo(
-    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
-    [],
+export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({ chartData }: ChartProps) {
+  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+  const maxCount = useMemo(
+    () => Math.ceil(Math.max(...chartData.map((d) => d.count), 0) / 10) * 10 || 100,
+    [chartData],
   );
-  const maxCount = useMemo(() => Math.ceil(Math.max(...chartData.map((d) => d.count), 0) / 10) * 10 || 100, [chartData]);
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <RadarChart data={chartData}>
         <PolarGrid />
         <PolarAngleAxis dataKey="date" tickLine={false} tick={{ fontSize: 12 }} />
         <PolarRadiusAxis angle={90} domain={[0, maxCount]} tick={false} axisLine={false} />
-        <Radar name="Count" dataKey="count" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.3} />
+        <Radar
+          name="Count"
+          dataKey="count"
+          stroke="var(--primary)"
+          fill="var(--primary)"
+          fillOpacity={0.3}
+        />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </RadarChart>
@@ -293,20 +342,26 @@ export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({
   );
 });
 
-export const TicketOpenTableChart = memo(function TicketOpenTableChart({
-  chartData,
-}: ChartProps) {
+export const TicketOpenTableChart = memo(function TicketOpenTableChart({ chartData }: ChartProps) {
   const columns: ColumnDef<{ date: string; count: number }>[] = [
     {
-      id: 'date', header: 'Date', accessorKey: 'date',
+      id: 'date',
+      header: 'Date',
+      accessorKey: 'date',
       cell: ({ cell }) => (
-        <RecordTableInlineCell className="px-4 text-xs">{cell.getValue() as string}</RecordTableInlineCell>
+        <RecordTableInlineCell className="px-4 text-xs">
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
       ),
     },
     {
-      id: 'count', header: 'Count', accessorKey: 'count',
+      id: 'count',
+      header: 'Count',
+      accessorKey: 'count',
       cell: ({ cell }) => (
-        <RecordTableInlineCell className="px-3 text-xs flex items-center justify-end text-muted-foreground">{cell.getValue() as number}</RecordTableInlineCell>
+        <RecordTableInlineCell className="px-3 text-xs flex items-center justify-end text-muted-foreground">
+          {cell.getValue() as number}
+        </RecordTableInlineCell>
       ),
     },
   ];
@@ -316,7 +371,9 @@ export const TicketOpenTableChart = memo(function TicketOpenTableChart({
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
-            <RecordTable.Body><RecordTable.RowList /></RecordTable.Body>
+            <RecordTable.Body>
+              <RecordTable.RowList />
+            </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
       </RecordTable.Provider>
