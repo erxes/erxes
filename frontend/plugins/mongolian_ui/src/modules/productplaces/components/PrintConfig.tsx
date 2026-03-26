@@ -118,7 +118,7 @@ const PrintConfig: React.FC<Props> = ({
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Delete this print config?')) return;
+    if (!globalThis.confirm('Delete this print config?')) return;
 
     await deleteConfig();
     setSavedConfigs([]);
@@ -151,10 +151,13 @@ const PrintConfig: React.FC<Props> = ({
             <h3 className="font-medium">Saved configs</h3>
 
             {savedConfigs.map((cfg, index) => (
-              <div
+              <button
                 key={`${cfg.stageId}-${index}`}
-                className={`cursor-pointer rounded px-3 py-2 border
-                  ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
+                type="button"
+                className={`cursor-pointer rounded px-3 py-2 border w-full text-left
+                  ${
+                    index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'
+                  }`}
                 onClick={() => setActiveIndex(index)}
               >
                 <div className="font-medium">
@@ -163,7 +166,7 @@ const PrintConfig: React.FC<Props> = ({
                 <div className="text-xs text-gray-500">
                   Stage: {cfg.stageId || '—'}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -234,7 +237,12 @@ const PrintConfig: React.FC<Props> = ({
           <div className="flex justify-between items-center">
             <h3 className="font-medium">Print Conditions</h3>
 
-            <Button type="button" variant="outline" size="sm" onClick={addCondition}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addCondition}
+            >
               + Add condition
             </Button>
           </div>
