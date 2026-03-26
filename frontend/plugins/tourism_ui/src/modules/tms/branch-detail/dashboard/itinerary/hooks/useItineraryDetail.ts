@@ -8,6 +8,7 @@ export interface IItineraryDetail {
   duration?: number;
   color?: string;
   totalCost?: number;
+  images?: [string];
   groupDays?: Array<{
     day?: number;
     title?: string;
@@ -24,6 +25,7 @@ export interface IItineraryDetail {
   guideCostExtra?: number;
   createdAt?: string;
   modifiedAt?: string;
+  content?: string;
 }
 
 interface ItineraryDetailResponse {

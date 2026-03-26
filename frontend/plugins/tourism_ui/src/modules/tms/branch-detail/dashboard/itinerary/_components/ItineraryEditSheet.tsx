@@ -1,7 +1,16 @@
-import { Button, Form, Sheet, useToast, Tabs, Spinner } from 'erxes-ui';
+import {
+  Button,
+  Collapsible,
+  Form,
+  Sheet,
+  useToast,
+  Tabs,
+  Spinner,
+} from 'erxes-ui';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { IconChevronDown } from '@tabler/icons-react';
 
 import {
   ItineraryCreateFormSchema,
@@ -10,7 +19,9 @@ import {
 
 import {
   ItineraryNameField,
+  ItineraryContentField,
   ItineraryColorField,
+  ItineraryImageField,
   ItineraryGuideCostField,
   ItineraryDriverCostField,
   ItineraryFoodCostField,
@@ -40,6 +51,7 @@ export const ItineraryEditSheet = ({
   onOpenChange,
 }: ItineraryEditSheetProps) => {
   const [currentStep, setCurrentStep] = useState<Step>('build');
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
 
   const { toast } = useToast();
   const { editItinerary, loading: editLoading } = useEditItinerary();
@@ -64,8 +76,10 @@ export const ItineraryEditSheet = ({
     reValidateMode: 'onChange',
     defaultValues: {
       name: '',
+      content: '',
       duration: 1,
-      color: '#000000',
+      color: '#4F46E5',
+      images: [],
       totalCost: 0,
       groupDays: [],
       guideCost: 0,
@@ -89,8 +103,10 @@ export const ItineraryEditSheet = ({
       }));
 
       form.setValue('name', itinerary.name || '');
+      form.setValue('content', itinerary.content || '');
       form.setValue('duration', itinerary.duration || 1);
-      form.setValue('color', itinerary.color || '#000000');
+      form.setValue('color', itinerary.color || '#4F46E5');
+      form.setValue('images', itinerary.images || []);
       form.setValue('totalCost', itinerary.totalCost || 0);
       form.setValue('groupDays', transformedGroupDays);
       form.setValue('guideCost', itinerary.guideCost || 0);
@@ -106,6 +122,7 @@ export const ItineraryEditSheet = ({
     if (!value) {
       form.reset();
       setCurrentStep('build');
+      setShowMoreOptions(false);
     }
     onOpenChange?.(value);
   };
@@ -185,8 +202,10 @@ export const ItineraryEditSheet = ({
           id: itineraryId,
           branchId,
           name: values.name,
+          content: values.content,
           duration: totalDays,
           color: values.color,
+          images: values.images?.slice(0, 1) || [],
           totalCost,
           groupDays: transformedGroupDays,
           guideCost: values.guideCost,
@@ -258,7 +277,7 @@ export const ItineraryEditSheet = ({
                     />
                   </Tabs.Content>
 
-                  <Tabs.Content value="info" className="overflow-y-auto p-3">
+                  <Tabs.Content value="info" className="overflow-y-auto p-6">
                     <div className="space-y-4 w-full">
                       <div className="grid grid-cols-10 gap-4 pb-4 border-b border-muted">
                         <div className="col-span-2">
@@ -270,22 +289,56 @@ export const ItineraryEditSheet = ({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <ItineraryGuideCostField control={form.control} />
-                        <ItineraryDriverCostField control={form.control} />
-                      </div>
+                      <ItineraryContentField control={form.control} />
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <ItineraryFoodCostField control={form.control} />
-                        <ItineraryGasCostField control={form.control} />
-                      </div>
+                      <ItineraryImageField control={form.control} />
 
-                      <ItineraryGuideCostExtraField control={form.control} />
+                      <Collapsible
+                        open={showMoreOptions}
+                        onOpenChange={setShowMoreOptions}
+                        className="flex flex-col items-center my-5"
+                      >
+                        <Collapsible.Content className="order-1 pt-4 space-y-4 w-full">
+                          <div className="grid grid-cols-2 gap-4">
+                            <ItineraryGuideCostField control={form.control} />
+                            <ItineraryDriverCostField control={form.control} />
+                          </div>
 
-                      <ItineraryPersonCostField
-                        control={form.control}
-                        duration={form.watch('groupDays')?.length || 1}
-                      />
+                          <div className="grid grid-cols-2 gap-4">
+                            <ItineraryFoodCostField control={form.control} />
+                            <ItineraryGasCostField control={form.control} />
+                          </div>
+
+                          <ItineraryGuideCostExtraField
+                            control={form.control}
+                          />
+
+                          <ItineraryPersonCostField
+                            control={form.control}
+                            duration={form.watch('groupDays')?.length || 1}
+                          />
+                        </Collapsible.Content>
+
+                        <Collapsible.Trigger asChild>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="group"
+                            size="sm"
+                          >
+                            {showMoreOptions
+                              ? 'Hide more options'
+                              : 'Show more options'}
+                            <IconChevronDown
+                              size={12}
+                              strokeWidth={2}
+                              className={`transition-transform ${
+                                showMoreOptions ? 'rotate-180' : ''
+                              }`}
+                            />
+                          </Button>
+                        </Collapsible.Trigger>
+                      </Collapsible>
                     </div>
                   </Tabs.Content>
                 </Tabs>

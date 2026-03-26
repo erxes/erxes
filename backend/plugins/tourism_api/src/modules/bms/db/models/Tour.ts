@@ -2,6 +2,7 @@ import { FilterQuery, Model } from 'mongoose';
 
 import { IModels } from '~/connectionResolvers';
 import {
+  IPricingOption,
   ITour,
   ITourCategory,
   ITourCategoryDocument,
@@ -63,6 +64,20 @@ export const loadTourClass = (models: IModels) => {
         }
       }
 
+      if (doc.pricingOptions) {
+        if (doc.pricingOptions.length > 0) {
+          this.validatePricingOptions(doc.pricingOptions);
+
+          const prices = doc.pricingOptions
+            .map((opt) => opt.pricePerPerson)
+            .filter((p) => typeof p === 'number');
+
+          doc.startingPrice = prices.length ? Math.min(...prices) : undefined;
+        } else {
+          doc.startingPrice = undefined;
+        }
+      }
+
       const element = await models.Tours.create({
         ...doc,
         dateType,
@@ -103,12 +118,87 @@ export const loadTourClass = (models: IModels) => {
         }
       }
 
+      if (doc.pricingOptions) {
+        if (doc.pricingOptions.length > 0) {
+          this.validatePricingOptions(doc.pricingOptions);
+
+          const prices = doc.pricingOptions
+            .map((opt) => opt.pricePerPerson)
+            .filter((p) => typeof p === 'number');
+
+          doc.startingPrice = prices.length ? Math.min(...prices) : undefined;
+        } else {
+          doc.startingPrice = undefined;
+        }
+      }
+
       await models.Tours.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date() } },
       );
 
       return await models.Tours.findOne({ _id });
+    }
+
+    /**
+     * Validate pricing options
+     */
+    private static validatePricingOptions(
+      pricingOptions: IPricingOption[],
+    ): void {
+      const combinations = new Set<string>();
+
+      for (const option of pricingOptions) {
+        // 1. minPersons validation
+        if (typeof option.minPersons !== 'number' || option.minPersons < 1) {
+          throw new Error(
+            `Invalid pricing option "${option.title}": minPersons must be >= 1`,
+          );
+        }
+
+        // 2. maxPersons validation
+        if (
+          option.maxPersons !== undefined &&
+          option.maxPersons !== null &&
+          option.maxPersons < option.minPersons
+        ) {
+          throw new Error(
+            `Invalid pricing option "${option.title}": maxPersons (${option.maxPersons}) must be >= minPersons (${option.minPersons})`,
+          );
+        }
+
+        // 3. price validation
+        if (
+          option.pricePerPerson === undefined ||
+          option.pricePerPerson === null ||
+          option.pricePerPerson <= 0
+        ) {
+          throw new Error(
+            `Invalid pricing option "${option.title}": pricePerPerson must be > 0`,
+          );
+        }
+
+        // 4. normalize accommodationType (optional safety)
+        const accommodationType = option.accommodationType
+          ? option.accommodationType.trim().toLowerCase()
+          : '';
+
+        // 5. duplicate check
+        const key = JSON.stringify({
+          min: option.minPersons,
+          max: option.maxPersons ?? null,
+          acc: accommodationType,
+          price: option.pricePerPerson,
+        });
+
+        if (combinations.has(key)) {
+          throw new Error(
+            `Duplicate pricing option found: minPersons=${option.minPersons}, maxPersons=${option.maxPersons}, accommodationType=${accommodationType}`,
+          );
+        }
+
+        combinations.add(key);
+      }
     }
 
     /**

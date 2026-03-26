@@ -19,8 +19,6 @@ import {
   TourNameField,
   TourRefNumberField,
   TourStatusField,
-  TourCostField,
-  TourPersonCostField,
   TourDurationField,
   TourGroupSizeField,
   TourInfo1Field,
@@ -36,6 +34,7 @@ import {
   TourImageThumbnailField,
   TourImagesField,
   TourDateSchedulingField,
+  TourPricingOptionsField,
 } from './TourFormFields';
 import { TourOrdersSidePanel } from './TourOrdersSidePanel';
 
@@ -52,51 +51,7 @@ interface Itinerary {
   duration?: number;
 }
 
-const normalizeIncomingPersonCost = (
-  personCost: unknown,
-): Record<string, number> => {
-  if (
-    !personCost ||
-    Array.isArray(personCost) ||
-    typeof personCost !== 'object'
-  ) {
-    return {};
-  }
-
-  return Object.entries(personCost).reduce<Record<string, number>>(
-    (acc, [range, price]) => {
-      const normalizedRange = range.trim();
-      const normalizedPrice = Number(price);
-
-      if (!normalizedRange || Number.isNaN(normalizedPrice)) {
-        return acc;
-      }
-
-      acc[normalizedRange] = normalizedPrice;
-
-      return acc;
-    },
-    {},
-  );
-};
-
-const normalizePersonCost = (personCost?: TourCreateFormType['personCost']) => {
-  return Object.entries(personCost ?? {}).reduce<Record<string, number>>(
-    (acc, [range, price]) => {
-      const normalizedRange = range.trim();
-      const normalizedPrice = Number(price);
-
-      if (!normalizedRange || Number.isNaN(normalizedPrice)) {
-        return acc;
-      }
-
-      acc[normalizedRange] = normalizedPrice;
-
-      return acc;
-    },
-    {},
-  );
-};
+const hideFields = false;
 
 const isSameDay = (left: Date, right: Date) =>
   left.getFullYear() === right.getFullYear() &&
@@ -120,7 +75,13 @@ const calculateEndDate = (startDate: Date, duration?: number) => {
   return endDate;
 };
 
-export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp, onSideTabChange }: Props) => {
+export const TourEditForm = ({
+  tourId,
+  branchId,
+  onSuccess,
+  sideTab: sideTabProp,
+  onSideTabChange,
+}: Props) => {
   const { toast } = useToast();
   const { editTour, loading: editLoading } = useEditTour();
   const [editorResetKey, setEditorResetKey] = useState(0);
@@ -145,9 +106,14 @@ export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp
       content: '',
       itineraryId: '',
       categoryIds: [],
-      cost: 0,
       duration: 0,
       groupSize: 0,
+      isFlexibleDate: false,
+      isGroupTour: false,
+      availableFrom: undefined,
+      availableTo: undefined,
+      startDate: undefined,
+      endDate: undefined,
       advanceCheck: false,
       advancePercent: 0,
       joinPercent: 0,
@@ -159,7 +125,7 @@ export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp
       images: [],
       imageThumbnail: '',
       guides: [],
-      personCost: {},
+      pricingOptions: [],
     },
   });
 
@@ -192,40 +158,43 @@ export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp
   }, [itineraryId, itineraries]);
 
   useEffect(() => {
-    if (!tourDetail) return;
+    if (!tourDetail || !tourDetail._id) return;
 
     const tour = tourDetail;
 
-    form.reset({
-      name: tour.name ?? '',
-      refNumber: tour.refNumber ?? '',
-      status: tour.status ?? 'draft',
-      content: tour.content ?? '',
-      itineraryId: tour.itineraryId ?? '',
-      categoryIds: tour.categoryIds ?? [],
-      cost: tour.cost ?? 0,
-      duration: tour.duration ?? 0,
-      groupSize: tour.groupSize ?? 0,
-      advanceCheck: tour.advanceCheck ?? false,
-      advancePercent: tour.advancePercent ?? 0,
-      joinPercent: tour.joinPercent ?? 0,
-      info1: tour.info1 ?? '',
-      info2: tour.info2 ?? '',
-      info3: tour.info3 ?? '',
-      info4: tour.info4 ?? '',
-      info5: tour.info5 ?? '',
-      images: tour.images ?? [],
-      imageThumbnail: tour.imageThumbnail ?? '',
-      guides: [],
-      personCost: normalizeIncomingPersonCost(tour.personCost),
-      isFlexibleDate: tour.dateType === 'flexible',
-      startDate: tour.startDate ? new Date(tour.startDate) : undefined,
-      endDate: tour.endDate ? new Date(tour.endDate) : undefined,
-      availableFrom: tour.availableFrom
-        ? new Date(tour.availableFrom)
-        : undefined,
-      availableTo: tour.availableTo ? new Date(tour.availableTo) : undefined,
-    });
+    form.reset(
+      {
+        name: tour.name ?? '',
+        refNumber: tour.refNumber ?? '',
+        status: tour.status ?? 'draft',
+        content: tour.content ?? '',
+        itineraryId: tour.itineraryId ?? '',
+        categoryIds: tour.categoryIds ?? [],
+        duration: tour.duration ?? 0,
+        groupSize: tour.groupSize ?? 0,
+        advanceCheck: tour.advanceCheck ?? false,
+        advancePercent: tour.advancePercent ?? 0,
+        joinPercent: tour.joinPercent ?? 0,
+        info1: tour.info1 ?? '',
+        info2: tour.info2 ?? '',
+        info3: tour.info3 ?? '',
+        info4: tour.info4 ?? '',
+        info5: tour.info5 ?? '',
+        images: tour.images ?? [],
+        imageThumbnail: tour.imageThumbnail ?? '',
+        guides: [],
+        pricingOptions: tour.pricingOptions ?? [],
+        isFlexibleDate: tour.dateType === 'flexible',
+        isGroupTour: false,
+        startDate: tour.startDate ? new Date(tour.startDate) : undefined,
+        endDate: tour.endDate ? new Date(tour.endDate) : undefined,
+        availableFrom: tour.availableFrom
+          ? new Date(tour.availableFrom)
+          : undefined,
+        availableTo: tour.availableTo ? new Date(tour.availableTo) : undefined,
+      },
+      { keepDirty: false, keepTouched: false },
+    );
     setEditorResetKey((prev) => prev + 1);
   }, [tourDetail, form]);
 
@@ -254,28 +223,56 @@ export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp
       return;
     }
 
+    if (!values.pricingOptions || values.pricingOptions.length === 0) {
+      toast({
+        title: 'Error',
+        description: 'At least one pricing option is required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
-      const personCost = normalizePersonCost(values.personCost);
       const {
         startDate: _startDate,
         endDate: _endDate,
+        availableFrom: _availableFrom,
+        availableTo: _availableTo,
+        isFlexibleDate: _isFlexibleDate,
+        isGroupTour: _isGroupTour,
+        pricingOptions,
         ...restValues
       } = values;
+
+      const normalizedPricingOptions = pricingOptions.map((opt) => ({
+        ...opt,
+        accommodationType: opt.accommodationType
+          ? opt.accommodationType.trim().toLowerCase()
+          : opt.accommodationType,
+      }));
+
+      const isFlexible = values.isFlexibleDate;
+
       const normalizedStartDate = Array.isArray(values.startDate)
-        ? values.startDate[0]
+        ? values.startDate?.[0]
         : values.startDate;
 
       await editTour({
         id: tourId,
-        dateStatus: getDateStatus(normalizedStartDate),
         ...restValues,
-        dateType: values.isFlexibleDate ? 'flexible' : 'fixed',
-        startDate: normalizedStartDate,
-        endDate:
-          normalizedStartDate && values.duration
-            ? calculateEndDate(normalizedStartDate, values.duration)
-            : undefined,
-        personCost,
+        pricingOptions: normalizedPricingOptions,
+        dateType: isFlexible ? 'flexible' : 'fixed',
+        startDate: isFlexible ? undefined : normalizedStartDate,
+        endDate: isFlexible
+          ? undefined
+          : normalizedStartDate && values.duration
+          ? calculateEndDate(normalizedStartDate, values.duration)
+          : undefined,
+        availableFrom: isFlexible ? values.availableFrom : undefined,
+        availableTo: isFlexible ? values.availableTo : undefined,
+        dateStatus: isFlexible
+          ? 'unscheduled'
+          : getDateStatus(normalizedStartDate),
       });
 
       toast({
@@ -293,7 +290,6 @@ export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp
       });
     }
   };
-
   const loading = editLoading || tourLoading;
 
   return (
@@ -307,14 +303,14 @@ export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp
           <Sheet.Close />
         </Sheet.Header>
 
-        <Sheet.Content className="flex-1 overflow-hidden p-0">
+        <Sheet.Content className="overflow-hidden flex-1 p-0">
           {tourLoading ? (
             <div className="flex h-full min-h-[400px] items-center justify-center">
               <Spinner />
             </div>
           ) : (
             <div className="flex h-full">
-              <div className="flex flex-col flex-1 gap-6 py-4 px-6 overflow-y-auto">
+              <div className="flex overflow-y-auto flex-col flex-1 gap-6 px-6 py-4">
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <TourNameField control={form.control} />
@@ -332,31 +328,47 @@ export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp
                   <TourCategoryField control={form.control} />
 
                   <TourDescriptionField
-                    key={`tour-content-${editorResetKey}`}
                     control={form.control}
+                    key={`tour-content-${editorResetKey}`}
                   />
                 </div>
 
-                <div className="pt-4 space-y-4 border-t">
-                  <div className="grid grid-cols-3 gap-4">
+                <div className="flex items-center">
+                  <div className="flex-1 border-t" />
+                  <Form.Label className="mx-2">Duration Info</Form.Label>
+                  <div className="flex-1 border-t" />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <TourDurationField control={form.control} />
                     <TourGroupSizeField control={form.control} />
-                    <TourCostField control={form.control} />
                   </div>
 
-                  <TourDateSchedulingField control={form.control} />
-
-                  <TourPersonCostField control={form.control} />
+                  <TourDateSchedulingField
+                    control={form.control}
+                    setValue={form.setValue}
+                  />
                 </div>
 
-                <div className="pt-4 space-y-4 border-t">
-                  <TourAdvanceCheckField control={form.control} />
+                <div className="flex items-center">
+                  <div className="flex-1 border-t" />
+                  <Form.Label className="mx-2">Pricing Info</Form.Label>
+                  <div className="flex-1 border-t" />
+                </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <TourAdvancePercentField control={form.control} />
-                    <TourJoinPercentField control={form.control} />
+                <TourPricingOptionsField control={form.control} />
+
+                {hideFields && (
+                  <div className="pt-4 space-y-4 border-t">
+                    <TourAdvanceCheckField control={form.control} />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <TourAdvancePercentField control={form.control} />
+                      <TourJoinPercentField control={form.control} />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="pt-4 space-y-4 border-t">
                   <TourImageThumbnailField control={form.control} />
@@ -376,38 +388,23 @@ export const TourEditForm = ({ tourId, branchId, onSuccess, sideTab: sideTabProp
                     </Tabs.List>
 
                     <Tabs.Content value="info1" className="pt-4">
-                      <TourInfo1Field
-                        key={`tour-info1-${editorResetKey}`}
-                        control={form.control}
-                      />
+                      <TourInfo1Field control={form.control} />
                     </Tabs.Content>
 
                     <Tabs.Content value="info2" className="pt-4">
-                      <TourInfo2Field
-                        key={`tour-info2-${editorResetKey}`}
-                        control={form.control}
-                      />
+                      <TourInfo2Field control={form.control} />
                     </Tabs.Content>
 
                     <Tabs.Content value="info3" className="pt-4">
-                      <TourInfo3Field
-                        key={`tour-info3-${editorResetKey}`}
-                        control={form.control}
-                      />
+                      <TourInfo3Field control={form.control} />
                     </Tabs.Content>
 
                     <Tabs.Content value="info4" className="pt-4">
-                      <TourInfo4Field
-                        key={`tour-info4-${editorResetKey}`}
-                        control={form.control}
-                      />
+                      <TourInfo4Field control={form.control} />
                     </Tabs.Content>
 
                     <Tabs.Content value="info5" className="pt-4">
-                      <TourInfo5Field
-                        key={`tour-info5-${editorResetKey}`}
-                        control={form.control}
-                      />
+                      <TourInfo5Field control={form.control} />
                     </Tabs.Content>
                   </Tabs>
                 </div>

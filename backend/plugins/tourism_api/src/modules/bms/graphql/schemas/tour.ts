@@ -28,6 +28,17 @@ export const types = `
     fixed
     flexible
   }
+  type PricingOption {
+    _id: ID!
+    title: String!
+    minPersons: Int!
+    maxPersons: Int
+    pricePerPerson: Float!
+    accommodationType: String
+    domesticFlightPerPerson: Float
+    singleSupplement: Float
+    note: String
+  }
   type Tour {
     _id: String!
     branchId: String
@@ -68,6 +79,8 @@ export const types = `
     extra: JSON
     images: [String]
     imageThumbnail: String
+   pricingOptions: [PricingOption]
+    startingPrice: Float
   }
 
   type BmsOrder {
@@ -102,6 +115,17 @@ export const types = `
   input GuideItemInput {
     guideId: String
     type: String
+    }
+  input PricingOptionInput {
+    _id: ID
+    title: String!
+    minPersons: Int!
+    maxPersons: Int
+    pricePerPerson: Float!
+    accommodationType: String
+    domesticFlightPerPerson: Float
+    singleSupplement: Float
+    note: String
   }
   type TourListResponse {
     list: [Tour]
@@ -173,7 +197,8 @@ const params = `
   personCost: JSON,
   extra: JSON,
   images: [String],
-  imageThumbnail: String
+  imageThumbnail: String,
+  pricingOptions: [PricingOptionInput]
 `;
 
 export const mutations = `

@@ -1,5 +1,67 @@
 import { z } from 'zod';
 
+const emptyStringOrNullToUndefined = (value: unknown) => {
+  if (value === '' || value === null) return undefined;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed === '' ? undefined : trimmed;
+  }
+  return value;
+};
+
+const optionalNumber = (schema: z.ZodNumber) =>
+  z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    if (typeof value === 'string') {
+      const num = Number(value);
+      return isNaN(num) ? undefined : num;
+    }
+    return value;
+  }, schema.optional());
+
+const optionalString = (schema: z.ZodString = z.string()) =>
+  z.preprocess(emptyStringOrNullToUndefined, schema.optional());
+
+export const PricingOptionSchema = z.object({
+  _id: z.string().optional(),
+
+  title: z.string().trim().min(1, 'Title is required'),
+
+  minPersons: z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    if (typeof value === 'string') {
+      const num = Number(value);
+      return isNaN(num) ? undefined : num;
+    }
+    return value;
+  }, z.coerce.number().min(1, 'Min persons must be at least 1')),
+
+  maxPersons: optionalNumber(
+    z.number().min(1, 'Max persons must be at least 1'),
+  ),
+
+  pricePerPerson: z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    if (typeof value === 'string') {
+      const num = Number(value);
+      return isNaN(num) ? undefined : num;
+    }
+    return value;
+  }, z.coerce.number().min(0.01, 'Price must be greater than 0')),
+
+  accommodationType: optionalString(),
+
+  domesticFlightPerPerson: optionalNumber(
+    z.number().min(0, 'Domestic flight must be 0 or greater'),
+  ),
+
+  singleSupplement: optionalNumber(
+    z.number().min(0, 'Single supplement must be 0 or greater'),
+  ),
+
+  note: optionalString(),
+});
+
 const GuideSchema = z.object({
   guideId: z.string(),
   name: z.string().optional(),
@@ -26,7 +88,6 @@ export const TourCreateFormSchema = z
 
     groupSize: z.coerce.number().optional(),
     duration: z.coerce.number().optional(),
-    cost: z.coerce.number().optional(),
 
     guides: z.array(GuideSchema).optional(),
 
@@ -43,7 +104,9 @@ export const TourCreateFormSchema = z
     advanceCheck: z.boolean().optional(),
     joinPercent: z.coerce.number().optional(),
 
-    personCost: z.record(z.any()).optional(),
+    pricingOptions: z
+      .array(PricingOptionSchema)
+      .min(1, 'At least one pricing option is required'),
   })
   .refine(
     (data) => {

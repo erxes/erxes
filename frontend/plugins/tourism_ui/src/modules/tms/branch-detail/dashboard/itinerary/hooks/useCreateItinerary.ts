@@ -12,6 +12,7 @@ export interface ICreateItineraryVariables {
   name?: string;
   duration?: number;
   color?: string;
+  images?: string[];
   groupDays?: Array<{
     day?: number;
     title?: string;
@@ -27,6 +28,7 @@ export interface ICreateItineraryVariables {
   gasCost?: number;
   personCost?: Record<string, number>;
   guideCostExtra?: number;
+  content?: string;
 }
 
 export const useCreateItinerary = () => {

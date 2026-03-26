@@ -29,6 +29,7 @@ export const GET_ITINERARIES = gql`
         name
         duration
         color
+        images
         guideCost
         driverCost
         foodCost
@@ -38,6 +39,7 @@ export const GET_ITINERARIES = gql`
         totalCost
         createdAt
         modifiedAt
+        content
       }
       pageInfo {
         hasNextPage
@@ -73,6 +75,8 @@ export const GET_ITINERARY_DETAIL = gql`
         title
       }
       color
+      images
+      content
       foodCost
       personCost
       gasCost

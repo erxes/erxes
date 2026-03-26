@@ -1,10 +1,35 @@
-import { Control, useWatch } from 'react-hook-form';
+import { useCallback } from 'react';
+import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
 import { Form, DatePicker, Switch, Label, cn } from 'erxes-ui';
 import { TourCreateFormType } from '../constants/formSchema';
+
+const toDate = (value: unknown): Date | undefined => {
+  if (!value) return undefined;
+  if (value instanceof Date) {
+    return isNaN(value.getTime()) ? undefined : value;
+  }
+  if (typeof value === 'string' || typeof value === 'number') {
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? undefined : d;
+  }
+  return undefined;
+};
+
+const toDates = (value: unknown): Date[] | undefined => {
+  if (Array.isArray(value)) {
+    const valid = value.map(toDate).filter((d): d is Date => d !== undefined);
+    return valid.length > 0 ? valid : undefined;
+  }
+  const single = toDate(value);
+  return single ? [single] : undefined;
+};
+
 export const TourDateSchedulingField = ({
   control,
+  setValue,
 }: {
   control: Control<TourCreateFormType>;
+  setValue: UseFormSetValue<TourCreateFormType>;
 }) => {
   const isFlexibleDate = useWatch({
     control,
@@ -17,6 +42,31 @@ export const TourDateSchedulingField = ({
     defaultValue: false,
   });
   const availableFrom = useWatch({ control, name: 'availableFrom' });
+
+  const handleFlexibleChange = useCallback(
+    (checked: boolean) => {
+      setValue('isFlexibleDate', checked);
+      if (checked) {
+        setValue('startDate', undefined);
+        setValue('endDate', undefined);
+        setValue('isGroupTour', false);
+      } else {
+        setValue('availableFrom', undefined);
+        setValue('availableTo', undefined);
+      }
+    },
+    [setValue],
+  );
+
+  const handleGroupTourChange = useCallback(
+    (checked: boolean) => {
+      setValue('isGroupTour', checked);
+      setValue('startDate', undefined);
+      setValue('endDate', undefined);
+    },
+    [setValue],
+  );
+
   return (
     <div className="space-y-6">
       <Form.Field
@@ -25,7 +75,10 @@ export const TourDateSchedulingField = ({
         render={({ field }) => (
           <Form.Item className="flex gap-3 items-center space-y-0">
             <Form.Control>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch
+                checked={field.value}
+                onCheckedChange={handleFlexibleChange}
+              />
             </Form.Control>
             <div className="space-y-1">
               <Form.Label className="cursor-pointer">
@@ -50,7 +103,7 @@ export const TourDateSchedulingField = ({
                 <Form.Control>
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={handleGroupTourChange}
                   />
                 </Form.Control>
                 <div className="space-y-1">
@@ -79,31 +132,21 @@ export const TourDateSchedulingField = ({
                   <Form.Control>
                     {isGroupTour ? (
                       <DatePicker
-                        value={
-                          Array.isArray(field.value)
-                            ? field.value
-                            : field.value instanceof Date
-                            ? [field.value]
-                            : undefined
-                        }
-                        onChange={field.onChange}
+                        key={`multi-${toDates(field.value)?.length ?? 0}`}
+                        value={toDates(field.value)}
+                        onChange={(dates) => field.onChange(dates ?? undefined)}
                         required={false}
-                        defaultMonth={
-                          Array.isArray(field.value)
-                            ? field.value[0]
-                            : field.value instanceof Date
-                            ? field.value
-                            : undefined
-                        }
+                        defaultMonth={toDates(field.value)?.[0]}
                         mode="multiple"
                       />
                     ) : (
                       <DatePicker
-                        value={field.value}
-                        onChange={field.onChange}
-                        defaultMonth={
-                          field.value instanceof Date ? field.value : undefined
-                        }
+                        key={`single-${
+                          toDate(field.value)?.getTime() ?? 'empty'
+                        }`}
+                        value={toDate(field.value)}
+                        onChange={(date) => field.onChange(date ?? undefined)}
+                        defaultMonth={toDate(field.value)}
                         mode="single"
                       />
                     )}
@@ -120,11 +163,9 @@ export const TourDateSchedulingField = ({
                   <Form.Label>End Date (Auto-calculated)</Form.Label>
                   <Form.Control>
                     <DatePicker
-                      value={field.value}
-                      onChange={field.onChange}
-                      defaultMonth={
-                        field.value instanceof Date ? field.value : undefined
-                      }
+                      value={toDate(field.value)}
+                      onChange={(date) => field.onChange(date ?? undefined)}
+                      defaultMonth={toDate(field.value)}
                       mode="single"
                       disabled
                     />
@@ -155,11 +196,9 @@ export const TourDateSchedulingField = ({
                   </Form.Label>
                   <Form.Control>
                     <DatePicker
-                      value={field.value}
-                      onChange={field.onChange}
-                      defaultMonth={
-                        field.value instanceof Date ? field.value : undefined
-                      }
+                      value={toDate(field.value)}
+                      onChange={(date) => field.onChange(date ?? undefined)}
+                      defaultMonth={toDate(field.value)}
                       mode="single"
                     />
                   </Form.Control>
@@ -177,22 +216,13 @@ export const TourDateSchedulingField = ({
                   </Form.Label>
                   <Form.Control>
                     <DatePicker
-                      value={field.value}
-                      onChange={field.onChange}
+                      value={toDate(field.value)}
+                      onChange={(date) => field.onChange(date ?? undefined)}
                       defaultMonth={
-                        (field.value instanceof Date
-                          ? field.value
-                          : undefined) ||
-                        (availableFrom instanceof Date
-                          ? availableFrom
-                          : undefined)
+                        toDate(field.value) || toDate(availableFrom)
                       }
                       mode="single"
-                      fromDate={
-                        availableFrom instanceof Date
-                          ? availableFrom
-                          : undefined
-                      }
+                      fromDate={toDate(availableFrom)}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />

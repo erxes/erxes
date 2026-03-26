@@ -10,6 +10,18 @@ export interface IGuideItem {
 
 export type DateType = 'fixed' | 'flexible';
 
+export interface IPricingOption {
+  _id?: string;
+  title: string;
+  minPersons: number;
+  maxPersons?: number;
+  pricePerPerson: number;
+  accommodationType?: string;
+  domesticFlightPerPerson?: number;
+  singleSupplement?: number;
+  note?: string;
+}
+
 export interface ITour {
   name: string;
   groupCode: string;
@@ -43,6 +55,8 @@ export interface ITour {
   extra?: any;
   images?: string[];
   imageThumbnail?: string;
+  pricingOptions: IPricingOption[];
+  startingPrice?: number;
 }
 
 export interface ITourDocument extends ITour, Document {

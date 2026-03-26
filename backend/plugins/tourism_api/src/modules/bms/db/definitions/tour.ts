@@ -31,6 +31,50 @@ export const guideItemSchema = new Schema(
   { _id: false },
 );
 
+export const pricingOptionSchema = new Schema({
+  title: { type: String, required: true },
+
+  minPersons: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+
+  maxPersons: {
+    type: Number,
+    min: 1,
+    validate: {
+      validator: function (value: number) {
+        return !value || value >= this.minPersons;
+      },
+      message: 'Max persons must be greater than or equal to min persons',
+    },
+  },
+
+  pricePerPerson: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+
+  accommodationType: {
+    type: String,
+    set: (v: string) => v?.trim().toLowerCase(),
+  },
+
+  domesticFlightPerPerson: {
+    type: Number,
+    min: 0,
+  },
+
+  singleSupplement: {
+    type: Number,
+    min: 0,
+  },
+
+  note: { type: String },
+});
+
 export const tourSchema = new Schema({
   _id: mongooseStringRandomId,
 
@@ -114,6 +158,36 @@ export const tourSchema = new Schema({
 
   images: { type: [String], optional: true, label: 'images' },
   imageThumbnail: { type: String, optional: true, label: 'images' },
+
+  pricingOptions: {
+    type: [pricingOptionSchema],
+    validate: {
+      validator: (v: (typeof pricingOptionSchema)[]) => v.length > 0,
+      message: 'At least one pricing option is required',
+    },
+  },
+
+  startingPrice: {
+    type: Number,
+  },
+});
+
+tourSchema.pre('save', function (next) {
+  if (Array.isArray(this.pricingOptions) && this.pricingOptions.length > 0) {
+    const prices = this.pricingOptions
+      .map((p: { pricePerPerson?: number }) => p.pricePerPerson)
+      .filter((price): price is number => typeof price === 'number');
+
+    if (prices.length > 0) {
+      this.startingPrice = Math.min(...prices);
+    } else {
+      this.startingPrice = undefined;
+    }
+  } else {
+    this.startingPrice = undefined;
+  }
+
+  next();
 });
 
 tourSchema.index({ categoryIds: 1 });

@@ -147,6 +147,17 @@ export const GET_TOUR_DETAIL = gql`
       startDate
       status
       categoryIds
+      pricingOptions {
+        _id
+        title
+        minPersons
+        maxPersons
+        pricePerPerson
+        accommodationType
+        domesticFlightPerPerson
+        singleSupplement
+        note
+      }
     }
   }
 `;
