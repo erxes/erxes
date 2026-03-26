@@ -115,7 +115,7 @@ const ProductFooter = ({
   };
 
   const parseFormattedNumber = (value: string): number => {
-    const parsed = Number.parseInt(value.replaceAll('', ''), 10);
+    const parsed = Number.parseInt(value.replaceAll(',', ''), 10);
     return Number.isNaN(parsed) ? 0 : parsed;
   };
 
