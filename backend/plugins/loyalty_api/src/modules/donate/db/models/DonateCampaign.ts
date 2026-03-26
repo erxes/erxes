@@ -104,7 +104,7 @@ export const loadDonateCampaignClass = (models: IModels) => {
       }).distinct('campaignId');
 
       const usedCampaignIds = ids.filter((id) => atDonateIds.includes(id));
-      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const deleteCampaignIds = ids.filter((id) => !usedCampaignIds.includes(id));
       const now = new Date();
 
       await models.DonateCampaigns.updateMany(

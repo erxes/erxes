@@ -61,10 +61,15 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
   const formatDate = (date: any) =>
     date instanceof Date ? date.toISOString() : date;
 
-  const handleSubmit = () => {
-    if (!voucherDetail?._id) return;
-
-    const data = form.getValues();
+  const handleSubmit = form.handleSubmit((data) => {
+    if (!voucherDetail?._id) {
+      toast({
+        title: 'Error',
+        description: 'Voucher ID not found',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const variables = {
       _id: voucherDetail._id,
@@ -89,8 +94,8 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
         excludeCategoryIds: data.excludeCategoryIds || [],
         productIds: data.productIds || [],
         excludeProductIds: data.excludeProductIds || [],
-        tag: data.tag || '',
-        orExcludeTag: data.orExcludeTag || '',
+        tag: data.tag || [],
+        orExcludeTag: data.orExcludeTag || [],
       },
 
       ...(data.bonusProduct && {
@@ -122,9 +127,23 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
           description: e.message,
           variant: 'destructive',
         }),
-      onCompleted: () => onOpenChange(false),
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Voucher campaign updated successfully',
+          variant: 'default',
+        });
+        onOpenChange(false);
+      },
     });
-  };
+  }, () => {
+    setActiveTab('campaign');
+    toast({
+      title: 'Validation Error',
+      description: 'Please fill in all required fields',
+      variant: 'destructive',
+    });
+  });
 
   return (
     <Tabs
@@ -160,20 +179,20 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
         )}
       </Tabs.List>
 
-      <Tabs.Content value="campaign">
+      <Tabs.Content value="campaign" className="flex-1 min-h-0">
         <Form {...form}>
           <AddVoucherCampaignForm onOpenChange={onOpenChange} form={form} />
         </Form>
       </Tabs.Content>
 
-      <Tabs.Content value="restriction">
+      <Tabs.Content value="restriction" className="flex-1 min-h-0 overflow-y-auto">
         <Form {...form}>
-          <AddVoucherRestrictionForm onOpenChange={onOpenChange} />
+          <AddVoucherRestrictionForm form={form} />
         </Form>
       </Tabs.Content>
 
       {showProductBonusTab && (
-        <Tabs.Content value="productBonus">
+        <Tabs.Content value="productBonus" className="flex-1 min-h-0 overflow-y-auto">
           <Form {...form}>
             <AddVoucherProductBonusForm form={form} />
           </Form>
@@ -181,7 +200,7 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
       )}
 
       {showLotteryTab && (
-        <Tabs.Content value="lottery">
+        <Tabs.Content value="lottery" className="flex-1 min-h-0 overflow-y-auto">
           <Form {...form}>
             <AddVoucherLotteryForm form={form} />
           </Form>
@@ -189,7 +208,7 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
       )}
 
       {showSpinTab && (
-        <Tabs.Content value="spin">
+        <Tabs.Content value="spin" className="flex-1 min-h-0 overflow-y-auto">
           <Form {...form}>
             <AddVoucherSpinForm form={form} />
           </Form>

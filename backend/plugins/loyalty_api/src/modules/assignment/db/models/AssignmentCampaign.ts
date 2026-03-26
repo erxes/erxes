@@ -98,7 +98,9 @@ export const loadAssignmentCampaignClass = (models: IModels) => {
       const campaignIds = [...atAssignmentIds];
 
       const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
-      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const deleteCampaignIds = ids.filter(
+        (id) => !usedCampaignIds.includes(id),
+      );
       const now = new Date();
 
       await models.AssignmentCampaigns.updateMany(

@@ -36,31 +36,34 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
     resolver: zodResolver(couponFormSchema),
     defaultValues: {
       title: '',
-      buyScore: '0',
+      buyScore: 0,
       description: '',
       status: 'active',
       count: 0,
       codeLength: 0,
       prefixUppercase: '',
       pattern: '',
+
       redemptionLimitPerUser: 0,
       characterSet: '',
       numberOfCodes: 0,
       postfixUppercase: '',
       usageLimit: 0,
+      staticCode: '',
     },
   });
 
   useEffect(() => {
     if (couponDetail && couponDetail._id === editCouponId) {
-      const conditions = couponDetail.conditions || {};
+      const restrictions = couponDetail.restrictions || {};
+      const codeRule = couponDetail.codeRule || {};
 
       form.reset({
         title: couponDetail.title || '',
-        buyScore: conditions.buyScore?.toString() || '0',
+        buyScore: couponDetail.buyScore || 0,
+        count: couponDetail.value,
         description: couponDetail.description || '',
         status: couponDetail.status || 'active',
-        count: conditions.count || 0,
         startDate: couponDetail.startDate
           ? new Date(couponDetail.startDate)
           : undefined,
@@ -68,22 +71,31 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
           ? new Date(couponDetail.endDate)
           : undefined,
         kind: couponDetail.kind || '',
-        minimumSpend: conditions.restrictions?.minimumSpend,
-        maximumSpend: conditions.restrictions?.maximumSpend,
-        categoryIds: conditions.restrictions?.categoryIds,
-        excludeCategoryIds: conditions.restrictions?.excludeCategoryIds,
-        productIds: conditions.restrictions?.productIds,
-        excludeProductIds: conditions.restrictions?.excludeProductIds,
-        tag: conditions.restrictions?.tag,
-        orExcludeTag: conditions.restrictions?.orExcludeTag,
-        codeLength: conditions.codeRule?.codeLength,
-        prefixUppercase: conditions.codeRule?.prefixUppercase,
-        pattern: conditions.codeRule?.pattern,
-        redemptionLimitPerUser: conditions.codeRule?.redemptionLimitPerUser,
-        characterSet: conditions.codeRule?.characterSet,
-        numberOfCodes: conditions.codeRule?.numberOfCodes,
-        postfixUppercase: conditions.codeRule?.postfixUppercase,
-        usageLimit: conditions.codeRule?.usageLimit,
+        minimumSpend: restrictions.minimumSpend,
+        maximumSpend: restrictions.maximumSpend,
+        categoryIds: restrictions.categoryIds,
+        excludeCategoryIds: restrictions.excludeCategoryIds,
+        productIds: restrictions.productIds,
+        excludeProductIds: restrictions.excludeProductIds,
+        tag: Array.isArray(restrictions.tag)
+          ? restrictions.tag
+          : restrictions.tag
+          ? [restrictions.tag]
+          : [],
+        orExcludeTag: Array.isArray(restrictions.orExcludeTag)
+          ? restrictions.orExcludeTag
+          : restrictions.orExcludeTag
+          ? [restrictions.orExcludeTag]
+          : [],
+        codeLength: codeRule.codeLength,
+        prefixUppercase: codeRule.prefixUppercase,
+        pattern: codeRule.pattern,
+        redemptionLimitPerUser: codeRule.redemptionLimitPerUser,
+        characterSet: codeRule.characterSet,
+        numberOfCodes: codeRule.numberOfCodes,
+        postfixUppercase: codeRule.postfixUppercase,
+        usageLimit: codeRule.usageLimit,
+        staticCode: codeRule.staticCode ?? '',
       });
     }
   }, [couponDetail, editCouponId, form]);

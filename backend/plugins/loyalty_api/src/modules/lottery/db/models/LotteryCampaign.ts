@@ -102,7 +102,9 @@ export const loadLotteryCampaignClass = (models: IModels) => {
       const campaignIds = [...atLotteryIds, ...atVoucherIds];
 
       const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
-      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const deleteCampaignIds = ids.filter(
+        (id) => !usedCampaignIds.includes(id),
+      );
       const now = new Date();
 
       await models.LotteryCampaigns.updateMany(

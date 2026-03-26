@@ -1,9 +1,10 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input } from 'erxes-ui';
-import React from 'react';
+import React, { useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { SelectVoucherCampaign } from '../../../components/selects/SelectVoucherCampaign';
 import { LotteryFormValues } from '../../../constants/lotteryFormSchema';
+import { SelectFormatNumber } from '../../../components/selects/SelectFormatNumber';
 
 interface LotteryAddCampaignCoreFieldsProps {
   form: UseFormReturn<LotteryFormValues>;
@@ -18,37 +19,97 @@ export const LotteryAddCampaignCoreFields: React.FC<
     name: 'awards',
   });
 
+  const [formatType, setFormatType] = useState('');
+  const [formatCount, setFormatCount] = useState(6);
+
+  const handleAddFormat = () => {
+    if (!formatType) return;
+    const current = form.getValues('numberFormat') || '';
+    const newPart = `{ ${formatType} * ${formatCount} }`;
+    form.setValue('numberFormat', current + newPart);
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-2">
+      <Form.Field
+        control={form.control}
+        name="title"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Title</Form.Label>
+            <Form.Control>
+              <Input placeholder="Enter lottery title" {...field} />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name={`buyScore`}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Buy Score</Form.Label>
+            <Form.Control>
+              <Input
+                type="number"
+                placeholder="Enter Buy score"
+                {...field}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <div className="space-y-4">
+        <Form.Label>Number Format</Form.Label>
+        <div className="flex gap-2 items-center">
+          <SelectFormatNumber.FormItem
+            value={formatType}
+            placeholder="Choose allow chars"
+            onValueChange={(value) => setFormatType(value)}
+            className="w-62"
+          />
+
+          <Form.Item>
+            <Form.Control>
+              <Input
+                className="w-62"
+                type="number"
+                value={formatCount}
+                onChange={(e) => setFormatCount(Number(e.target.value))}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+
+          <Button
+            className="h-8 w-52"
+            type="button"
+            variant="outline"
+            size="default"
+            onClick={handleAddFormat}
+            disabled={!formatType}
+          >
+            <IconPlus />
+            Add format
+          </Button>
+        </div>
         <Form.Field
           control={form.control}
-          name="title"
+          name="numberFormat"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
-              <Form.Control>
-                <Input placeholder="Enter lottery title" {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name={`buyScore`}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Buy Score</Form.Label>
               <Form.Control>
                 <Input
-                  type="number"
-                  placeholder="Enter Buy score"
+                  readOnly
+                  placeholder="Format preview"
                   {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  value={field.value || ''}
                 />
               </Form.Control>
-              <Form.Message />
             </Form.Item>
           )}
         />
@@ -90,14 +151,14 @@ export const LotteryAddCampaignCoreFields: React.FC<
                 />
                 <Form.Field
                   control={form.control}
-                  name={`awards.${index}.probablity`}
+                  name={`awards.${index}.count`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Probablity</Form.Label>
+                      <Form.Label>Count</Form.Label>
                       <Form.Control>
                         <Input
                           type="number"
-                          placeholder="Probablity"
+                          placeholder="Count"
                           {...field}
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
@@ -126,7 +187,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
           onClick={() =>
             append({
               name: '',
-              probablity: 0,
+              count: 0,
               voucherCampaignId: '',
             })
           }

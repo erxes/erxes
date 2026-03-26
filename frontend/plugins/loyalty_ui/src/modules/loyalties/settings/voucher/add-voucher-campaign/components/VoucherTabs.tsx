@@ -10,6 +10,10 @@ import {
   isLastVoucherTab,
 } from '../../utils/getVoucherTabs';
 import { AddVoucherCampaignForm } from './AddVoucherCampaignForm';
+import { AddVoucherLotteryForm } from './AddVoucherLotteryForm';
+import { AddVoucherProductBonusForm } from './AddVoucherProductBonusForm';
+import { AddVoucherRestrictionForm } from './AddVoucherRestrictionForm';
+import { AddVoucherSpinForm } from './AddVoucherSpinForm';
 
 type Props = {
   onOpenChange: (open: boolean) => void;
@@ -38,15 +42,13 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
     if (next) setActiveTab(next);
   };
 
-  const handleSubmit = async () => {
-    const data = form.getValues();
+  const toNumber = (value: any) =>
+    value === '' || value == null ? undefined : Number(value);
 
-    const toNumber = (value: any) =>
-      value === '' || value == null ? undefined : Number(value);
+  const formatDate = (date: any) =>
+    date instanceof Date ? date.toISOString() : date;
 
-    const formatDate = (date: any) =>
-      date instanceof Date ? date.toISOString() : date;
-
+  const handleSubmit = form.handleSubmit((data) => {
     const variables = {
       title: data.title || '',
       description: data.description || '',
@@ -67,8 +69,8 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
         excludeCategoryIds: data.excludeCategoryIds || [],
         productIds: data.productIds || [],
         excludeProductIds: data.excludeProductIds || [],
-        tag: data.tag || '',
-        orExcludeTag: data.orExcludeTag || '',
+        tag: data.tag || [],
+        orExcludeTag: data.orExcludeTag || [],
       },
 
       ...(data.bonusProduct && {
@@ -105,7 +107,14 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
         onOpenChange(false);
       },
     });
-  };
+  }, () => {
+    setActiveTab('campaign');
+    toast({
+      title: 'Validation Error',
+      description: 'Please fill in all required fields',
+      variant: 'destructive',
+    });
+  });
 
   const isLast = isLastVoucherTab({
     activeTab,
@@ -148,11 +157,41 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
         )}
       </Tabs.List>
 
-      <Tabs.Content value="campaign">
+      <Tabs.Content value="campaign" className="flex-1 min-h-0">
         <Form {...form}>
           <AddVoucherCampaignForm onOpenChange={onOpenChange} form={form} />
         </Form>
       </Tabs.Content>
+
+      <Tabs.Content value="restriction" className="flex-1 min-h-0 overflow-y-auto">
+        <Form {...form}>
+          <AddVoucherRestrictionForm form={form} />
+        </Form>
+      </Tabs.Content>
+
+      {showProductBonusTab && (
+        <Tabs.Content value="productBonus" className="flex-1 min-h-0 overflow-y-auto">
+          <Form {...form}>
+            <AddVoucherProductBonusForm form={form} />
+          </Form>
+        </Tabs.Content>
+      )}
+
+      {showLotteryTab && (
+        <Tabs.Content value="lottery" className="flex-1 min-h-0 overflow-y-auto">
+          <Form {...form}>
+            <AddVoucherLotteryForm form={form} />
+          </Form>
+        </Tabs.Content>
+      )}
+
+      {showSpinTab && (
+        <Tabs.Content value="spin" className="flex-1 min-h-0 overflow-y-auto">
+          <Form {...form}>
+            <AddVoucherSpinForm form={form} />
+          </Form>
+        </Tabs.Content>
+      )}
 
       <Sheet.Footer className="flex justify-end gap-2 p-2">
         <Button variant="ghost" onClick={() => onOpenChange(false)}>

@@ -14,9 +14,6 @@ interface LotteryAddCampaignMoreFieldsProps {
   form: UseFormReturn<LotteryFormValues>;
 }
 
-/**
- * Prevents "Invalid Date" from being created
- */
 const getSafeDate = (value?: Date | string | null): Date | undefined => {
   if (!value) return undefined;
 
@@ -88,7 +85,6 @@ export const LotteryAddCampaignMoreFields: React.FC<
 > = ({ form }) => {
   return (
     <div className="grid grid-cols-2 gap-4">
-      {/* START DATE */}
       <Form.Field
         control={form.control}
         name="startDate"
@@ -105,7 +101,6 @@ export const LotteryAddCampaignMoreFields: React.FC<
         )}
       />
 
-      {/* END DATE */}
       <Form.Field
         control={form.control}
         name="endDate"

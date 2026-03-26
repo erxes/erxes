@@ -19,7 +19,7 @@ export function useEditSpin() {
 
     return editSpin({
       variables: {
-        _id: variables._id,
+        id: variables._id,
         title: variables.title,
         buyScore: variables.buyScore,
         startDate: variables.startDate,

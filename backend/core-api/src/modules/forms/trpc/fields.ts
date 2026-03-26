@@ -21,11 +21,51 @@ export const fieldsTrpcRouter = t.router({
         return await models.Fields.find(query, projection).sort(sort).lean();
       }),
     findOne: t.procedure
-      .input(z.object({ _id: z.string() }))
+      .input(z.object({ _id: z.string().optional(), query: z.record(z.any()).optional() }))
       .query(async ({ ctx, input }) => {
-        const { _id } = input;
+        const { _id, query } = input;
         const { models } = ctx;
-        return await models.Fields.findOne({ _id });
+        return await models.Fields.findOne(query || { _id });
+      }),
+    create: t.procedure
+      .input(z.record(z.any()))
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const order = await models.Fields.findOne({ contentType: input.contentType })
+          .sort({ order: -1 })
+          .lean()
+          .then((f) => (f?.order || 0) + 10);
+        return await models.Fields.create({ ...input, order, isDefinedByErxes: false });
+      }),
+    updateOne: t.procedure
+      .input(z.object({ selector: z.record(z.any()), modifier: z.record(z.any()) }))
+      .mutation(async ({ ctx, input }) => {
+        const { selector, modifier } = input;
+        const { models } = ctx;
+        return await models.Fields.updateOne(selector, modifier);
+      }),
+    prepareCustomFieldsData: t.procedure
+      .input(z.array(z.object({ field: z.string(), value: z.any() })))
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const result: any[] = [];
+        for (const item of input) {
+          const { field: fieldId, value } = item;
+          const fieldDoc = await models.Fields.findOne({ _id: fieldId }).lean();
+          const extra: any = {};
+          if (fieldDoc) {
+            const { type, validation } = fieldDoc as any;
+            if (type === 'number' || (type === 'input' && validation === 'number')) {
+              extra.numberValue = Number(value);
+            } else if (['text', 'textarea', 'input'].includes(type || '')) {
+              extra.stringValue = String(value);
+            } else if (type === 'date') {
+              extra.dateValue = value;
+            }
+          }
+          result.push({ field: fieldId, value, ...extra });
+        }
+        return result;
       }),
     updateMany: t.procedure
       .input(

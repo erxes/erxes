@@ -40,7 +40,7 @@ export const VoucherAddCampaignCoreFields: React.FC<
                     className={field.value ? '' : 'text-muted-foreground'}
                   >
                     {VOUCHER_TYPES.find((type) => type.value === field.value)
-                      ?.label || 'Select type'}
+                      ?.label || 'Select voucher type'}
                   </Select.Trigger>
                   <Select.Content>
                     {VOUCHER_TYPES.map((option) => (
@@ -63,10 +63,14 @@ export const VoucherAddCampaignCoreFields: React.FC<
               <Form.Label>Count</Form.Label>
               <Form.Control>
                 <Input
-                  type="text"
+                  type="number"
                   placeholder="Enter count"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value)}
+                  value={field.value ?? ''}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === '' ? undefined : Number(e.target.value),
+                    )
+                  }
                 />
               </Form.Control>
               <Form.Message />
