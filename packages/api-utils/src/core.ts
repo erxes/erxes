@@ -124,7 +124,7 @@ export const fixNum = (value: any, p = 4) => {
  * then returns default value
  */
 
-export const fixDate = (value: string | Date, defaultValue = new Date()): Date => {
+export const fixDate = (value: string | Date | undefined, defaultValue = new Date()): Date => {
   if (!value) return defaultValue;
 
   const date = new Date(value);
