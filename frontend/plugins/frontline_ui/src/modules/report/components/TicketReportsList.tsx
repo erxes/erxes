@@ -65,11 +65,14 @@ export const TicketReportsList = () => {
 
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
   const modifiers = useMemo(() => [restrictToWindowEdges], []);
 
-  const handleDragStart = (event: DragStartEvent) => setActiveId(event.active.id as string);
+  const handleDragStart = (event: DragStartEvent) =>
+    setActiveId(event.active.id as string);
 
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
@@ -99,7 +102,9 @@ export const TicketReportsList = () => {
   };
 
   const handleColSpanChange = (id: string, colSpan: 6 | 12) => {
-    setCards((items) => items.map((item) => (item.id === id ? { ...item, colSpan } : item)));
+    setCards((items) =>
+      items.map((item) => (item.id === id ? { ...item, colSpan } : item)),
+    );
   };
 
   if (priorityLoading) return <ReportsViewSkeleton />;
@@ -150,10 +155,15 @@ export const TicketReportsList = () => {
         {priorityData?.map((priority) => (
           <InfoCard key={priority.priority} title={priority.name}>
             <InfoCard.Content className="text-center">
-              <div className="text-2xl font-bold" style={{ color: priority.color }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: priority.color }}
+              >
                 {priority.count}
               </div>
-              <div className="text-xs text-muted-foreground">{priority.percentage}%</div>
+              <div className="text-xs text-muted-foreground">
+                {priority.percentage}%
+              </div>
             </InfoCard.Content>
           </InfoCard>
         ))}
@@ -168,10 +178,17 @@ export const TicketReportsList = () => {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={cards.map((c) => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
             <div className="grid grid-cols-12 gap-3 p-1">
               {cards.map((card) => (
-                <DroppableArea key={card.id} id={card.id} colSpan={card.colSpan}>
+                <DroppableArea
+                  key={card.id}
+                  id={card.id}
+                  colSpan={card.colSpan}
+                >
                   {renderCard(card)}
                 </DroppableArea>
               ))}

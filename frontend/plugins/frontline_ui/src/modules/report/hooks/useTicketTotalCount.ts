@@ -5,7 +5,9 @@ interface TicketTotalCountResponse {
   reportTicketTotalCount: number;
 }
 
-export const useTicketTotalCount = (options?: QueryHookOptions<TicketTotalCountResponse>) => {
+export const useTicketTotalCount = (
+  options?: QueryHookOptions<TicketTotalCountResponse>,
+) => {
   const { data, loading, error } = useQuery<TicketTotalCountResponse>(
     GET_TICKET_TOTAL_COUNT,
     options,

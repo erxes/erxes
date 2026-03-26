@@ -48,7 +48,10 @@ import {
   getReportCompanyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
-import { useChartPagination, ChartPagination } from '../chart-pagination/ChartPagination';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface TicketSourceProps {
   title: string;
@@ -56,7 +59,11 @@ interface TicketSourceProps {
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
-export const TicketSource = ({ title, colSpan = 6, onColSpanChange }: TicketSourceProps) => {
+export const TicketSource = ({
+  title,
+  colSpan = 6,
+  onColSpanChange,
+}: TicketSourceProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -170,12 +177,27 @@ export const TicketSource = ({ title, colSpan = 6, onColSpanChange }: TicketSour
     >
       <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
-        <div className={cn({ 'p-4': chartType !== ResponsesChartType.Table }, 'w-full')}>
-          {chartType === ResponsesChartType.Bar && <TicketSourceBarChart sources={sources} />}
-          {chartType === ResponsesChartType.Line && <TicketSourceLineChart sources={sources} />}
-          {chartType === ResponsesChartType.Pie && <TicketSourcePieChart sources={sources} />}
-          {chartType === ResponsesChartType.Radar && <TicketSourceRadarChart sources={sources} />}
-          {chartType === ResponsesChartType.Table && <TicketSourceTableChart sources={sources} />}
+        <div
+          className={cn(
+            { 'p-4': chartType !== ResponsesChartType.Table },
+            'w-full',
+          )}
+        >
+          {chartType === ResponsesChartType.Bar && (
+            <TicketSourceBarChart sources={sources} />
+          )}
+          {chartType === ResponsesChartType.Line && (
+            <TicketSourceLineChart sources={sources} />
+          )}
+          {chartType === ResponsesChartType.Pie && (
+            <TicketSourcePieChart sources={sources} />
+          )}
+          {chartType === ResponsesChartType.Radar && (
+            <TicketSourceRadarChart sources={sources} />
+          )}
+          {chartType === ResponsesChartType.Table && (
+            <TicketSourceTableChart sources={sources} />
+          )}
         </div>
         <ChartPagination
           page={page}
@@ -208,15 +230,25 @@ export const TicketSourceBarChart = memo(function TicketSourceBarChart({
 }: {
   sources: SourceData[];
 }) {
-  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+  const chartConfig = useMemo(
+    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
+    [],
+  );
   const chartData = useMemo(
-    () => sources.map((s) => ({ source: s.name || s._id || 'Unknown', count: s.count || 0 })),
+    () =>
+      sources.map((s) => ({
+        source: s.name || s._id || 'Unknown',
+        count: s.count || 0,
+      })),
     [sources],
   );
   if (!chartData.length) return null;
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+      <BarChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+      >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="source" tickLine={false} axisLine={false} />
         <YAxis
@@ -269,7 +301,11 @@ export const TicketSourceLineChart = memo(function TicketSourceLineChart({
           orientation="right"
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Percentage (%)', angle: 90, position: 'insideRight' }}
+          label={{
+            value: 'Percentage (%)',
+            angle: 90,
+            position: 'insideRight',
+          }}
         />
         <Area
           yAxisId="count"
@@ -304,7 +340,10 @@ export const TicketSourcePieChart = memo(function TicketSourcePieChart({
   sources: SourceData[];
 }) {
   const [hovered, setHovered] = useState<string | undefined>(undefined);
-  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+  const chartConfig = useMemo(
+    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
+    [],
+  );
   const chartData = useMemo(
     () =>
       sources.map((s, i) => ({
@@ -327,7 +366,11 @@ export const TicketSourcePieChart = memo(function TicketSourcePieChart({
           nameKey="source"
         >
           {chartData.map((item, i) => (
-            <Cell key={i} fill={item.fill} opacity={hovered && hovered !== item.source ? 0.5 : 1} />
+            <Cell
+              key={i}
+              fill={item.fill}
+              opacity={hovered && hovered !== item.source ? 0.5 : 1}
+            />
           ))}
         </Pie>
         <Legend
@@ -358,14 +401,17 @@ export const TicketSourceRadarChart = memo(function TicketSourceRadarChart({
     [],
   );
   const maxCount = useMemo(
-    () => Math.ceil(Math.max(...sources.map((s) => s.count || 0), 0) / 10) * 10 || 100,
+    () =>
+      Math.ceil(Math.max(...sources.map((s) => s.count || 0), 0) / 10) * 10 ||
+      100,
     [sources],
   );
   const maxPercentage = useMemo(
     () => Math.max(...sources.map((s) => s.percentage || 0), 100),
     [sources],
   );
-  const scaleFactor = maxCount > 0 && maxPercentage > 0 ? maxCount / maxPercentage : 1;
+  const scaleFactor =
+    maxCount > 0 && maxPercentage > 0 ? maxCount / maxPercentage : 1;
   const chartData = useMemo(
     () =>
       sources.map((s) => ({
@@ -380,8 +426,17 @@ export const TicketSourceRadarChart = memo(function TicketSourceRadarChart({
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <RadarChart data={chartData}>
         <PolarGrid />
-        <PolarAngleAxis dataKey="source" tickLine={false} tick={{ fontSize: 12 }} />
-        <PolarRadiusAxis angle={90} domain={[0, maxCount]} tick={false} axisLine={false} />
+        <PolarAngleAxis
+          dataKey="source"
+          tickLine={false}
+          tick={{ fontSize: 12 }}
+        />
+        <PolarRadiusAxis
+          angle={90}
+          domain={[0, maxCount]}
+          tick={false}
+          axisLine={false}
+        />
         <Radar
           name="Count"
           dataKey="count"
@@ -401,7 +456,10 @@ export const TicketSourceRadarChart = memo(function TicketSourceRadarChart({
           content={<ChartTooltipContent />}
           formatter={(v: number, name: string, props: any) =>
             name === 'Percentage'
-              ? [props.payload.percentageOriginal?.toFixed(1) + '%', 'Percentage']
+              ? [
+                  props.payload.percentageOriginal?.toFixed(1) + '%',
+                  'Percentage',
+                ]
               : [v, name]
           }
         />

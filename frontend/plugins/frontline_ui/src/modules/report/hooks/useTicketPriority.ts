@@ -13,8 +13,13 @@ interface TicketPriorityResponse {
   reportTicketPriority: TicketPriorityItem[];
 }
 
-export const useTicketPriority = (options?: QueryHookOptions<TicketPriorityResponse>) => {
-  const { data, loading, error } = useQuery<TicketPriorityResponse>(GET_TICKET_PRIORITY, options);
+export const useTicketPriority = (
+  options?: QueryHookOptions<TicketPriorityResponse>,
+) => {
+  const { data, loading, error } = useQuery<TicketPriorityResponse>(
+    GET_TICKET_PRIORITY,
+    options,
+  );
 
   return {
     priorityData: data?.reportTicketPriority,

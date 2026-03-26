@@ -428,19 +428,20 @@ export const reportInboxQueries = {
     const total = tagCounts.reduce((sum, t) => sum + t.count, 0);
     const tagIds = tagCounts.map((t) => t._id);
 
-    const tags: Array<{ _id: any; name: string; colorCode?: string }> = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'tags',
-      action: 'find',
-      input: {
-        type: 'frontline:ticket',
-        query: { _id: { $in: tagIds } },
-        fields: { _id: 1, name: 1, colorCode: 1 },
-      },
-      defaultValue: [],
-    });
+    const tags: Array<{ _id: any; name: string; colorCode?: string }> =
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: {
+          type: 'frontline:ticket',
+          query: { _id: { $in: tagIds } },
+          fields: { _id: 1, name: 1, colorCode: 1 },
+        },
+        defaultValue: [],
+      });
 
     const tagMap = new Map<string, ITagInfo>(
       tags.map((t) => [

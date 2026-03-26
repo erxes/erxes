@@ -20,34 +20,46 @@ export const reportComponents: Record<
   LazyExoticComponent<ComponentType<ReportComponentProps>>
 > = {
   'conversation-open': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationOpen').then((module) => ({
-      default: module.ConversationOpen,
-    })),
+    import('@/report/components/conversation-charts/ConversationOpen').then(
+      (module) => ({
+        default: module.ConversationOpen,
+      }),
+    ),
   ),
   'conversation-resolved': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationResolved').then((module) => ({
-      default: module.ConversationResolved,
-    })),
+    import('@/report/components/conversation-charts/ConversationResolved').then(
+      (module) => ({
+        default: module.ConversationResolved,
+      }),
+    ),
   ),
   'conversation-source': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationSource').then((module) => ({
-      default: module.ConversationSource,
-    })),
+    import('@/report/components/conversation-charts/ConversationSource').then(
+      (module) => ({
+        default: module.ConversationSource,
+      }),
+    ),
   ),
   'conversation-tag': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationTag').then((module) => ({
-      default: module.ConversationTag,
-    })),
+    import('@/report/components/conversation-charts/ConversationTag').then(
+      (module) => ({
+        default: module.ConversationTag,
+      }),
+    ),
   ),
   'conversation-responses': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationResponse').then((module) => ({
-      default: module.ConversationResponse,
-    })),
+    import('@/report/components/conversation-charts/ConversationResponse').then(
+      (module) => ({
+        default: module.ConversationResponse,
+      }),
+    ),
   ),
   'conversation-list': lazy(() =>
-    import('@/report/components/conversation-charts/ConversationList').then((module) => ({
-      default: module.ConversationList,
-    })),
+    import('@/report/components/conversation-charts/ConversationList').then(
+      (module) => ({
+        default: module.ConversationList,
+      }),
+    ),
   ),
 };
 
@@ -65,9 +77,11 @@ export const ticketReportComponents: Record<
   LazyExoticComponent<ComponentType<ReportComponentProps>>
 > = {
   'ticket-date': lazy(() =>
-    import('@/report/components/ticket-charts/TicketOpenDate').then((module) => ({
-      default: module.TicketOpenDate,
-    })),
+    import('@/report/components/ticket-charts/TicketOpenDate').then(
+      (module) => ({
+        default: module.TicketOpenDate,
+      }),
+    ),
   ),
   'ticket-source': lazy(() =>
     import('@/report/components/ticket-charts/TicketSource').then((module) => ({
@@ -85,13 +99,18 @@ export const ticketReportComponents: Record<
     })),
   ),
   'ticket-status-summary': lazy(() =>
-    import('@/report/components/ticket-charts/TicketStatusSummary').then((module) => ({
-      default: module.TicketStatusSummary,
-    })),
+    import('@/report/components/ticket-charts/TicketStatusSummary').then(
+      (module) => ({
+        default: module.TicketStatusSummary,
+      }),
+    ),
   ),
 };
 
-export const TICKET_DEFAULT_CARD_CONFIGS: Omit<ReportCardConfig, 'component'>[] = [
+export const TICKET_DEFAULT_CARD_CONFIGS: Omit<
+  ReportCardConfig,
+  'component'
+>[] = [
   { id: 'ticket-status-summary', title: 'Ticket Status Summary', colSpan: 12 },
   { id: 'ticket-date', title: 'Ticket Date', colSpan: 12 },
   { id: 'ticket-source', title: 'Ticket Source', colSpan: 6 },

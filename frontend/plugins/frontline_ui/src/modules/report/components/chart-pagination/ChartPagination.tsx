@@ -16,7 +16,10 @@ export function useChartPagination<T>(data: T[], pageSize = DEFAULT_PAGE_SIZE) {
   }, [data, safePage, pageSize]);
 
   const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
-  const handleNext = useCallback(() => setPage((p) => Math.min(totalPages, p + 1)), [totalPages]);
+  const handleNext = useCallback(
+    () => setPage((p) => Math.min(totalPages, p + 1)),
+    [totalPages],
+  );
 
   const reset = useCallback(() => setPage(1), []);
 
@@ -51,13 +54,23 @@ export const ChartPagination = memo(function ChartPagination({
     <div className="flex items-center justify-between px-4 py-2 border-t">
       <span className="text-xs text-muted-foreground">{totalCount} items</span>
       <div className="flex items-center gap-1">
-        <Button variant="outline" size="sm" onClick={onPrev} disabled={page <= 1}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPrev}
+          disabled={page <= 1}
+        >
           <IconChevronLeft className="size-4" />
         </Button>
         <span className="text-xs text-muted-foreground px-2">
           {page} / {totalPages}
         </span>
-        <Button variant="outline" size="sm" onClick={onNext} disabled={page >= totalPages}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNext}
+          disabled={page >= totalPages}
+        >
           <IconChevronRight className="size-4" />
         </Button>
       </div>
