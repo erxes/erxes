@@ -1,4 +1,4 @@
-import { Breadcrumb } from 'erxes-ui';
+import { Breadcrumb, PageContainer, ScrollArea } from 'erxes-ui';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { TeamDetails } from '@/team/components/team-details/TeamDetails';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,7 @@ export const TeamDetailPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <PageContainer>
       <div className="px-4 h-16 flex items-center">
         <Breadcrumb>
           <Breadcrumb.List>
@@ -27,11 +27,13 @@ export const TeamDetailPage = () => {
           </Breadcrumb.List>
         </Breadcrumb>
       </div>
-      <section className="mx-auto max-w-2xl w-full relative">
-        <div className="flex items-center">
-          <TeamDetails />
-        </div>
-      </section>
-    </div>
+      <ScrollArea>
+        <section className="mx-auto max-w-2xl w-full relative">
+          <div className="flex items-center h-auto mb-5">
+            <TeamDetails />
+          </div>
+        </section>
+      </ScrollArea>
+    </PageContainer>
   );
 };
