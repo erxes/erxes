@@ -1,4 +1,8 @@
-import { IAttachment, IBrowserInfo, Resolver } from 'erxes-api-shared/core-types';
+import {
+  IAttachment,
+  IBrowserInfo,
+  Resolver,
+} from 'erxes-api-shared/core-types';
 import {
   getEnv,
   graphqlPubsub,
@@ -25,7 +29,7 @@ import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
 
 export const pConversationClientMessageInserted = async (
   subdomain,
-  message: { _id: string;[other: string]: any },
+  message: { _id: string; [other: string]: any },
 ) => {
   const models = await generateModels(subdomain);
 
@@ -72,6 +76,7 @@ export const pConversationClientMessageInserted = async (
       },
     );
   } catch (err) {
+    console.log('Error publishing subscription:', err);
     throw new Error(
       'conversationMessageInserted Error publishing subscription:',
     );
@@ -186,7 +191,7 @@ export const getMessengerData = async (
   }
 
   return {
-    ...(messengerData || {}),
+    ...messengerData,
     getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId,
@@ -306,28 +311,28 @@ export const widgetMutations: Record<string, Resolver> = {
       };
       customer = customer
         ? await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'customers',
-          action: 'updateMessengerCustomer',
-          input: {
-            _id: customer._id,
-            doc,
-            customData,
-          },
-        })
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'customers',
+            action: 'updateMessengerCustomer',
+            input: {
+              _id: customer._id,
+              doc,
+              customData,
+            },
+          })
         : await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'customers',
-          action: 'createMessengerCustomer',
-          input: {
-            doc,
-            customData,
-          },
-        });
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'customers',
+            action: 'createMessengerCustomer',
+            input: {
+              doc,
+              customData,
+            },
+          });
     }
 
     // get or create company
@@ -364,23 +369,7 @@ export const widgetMutations: Record<string, Resolver> = {
       // trackData note: trackedData is not used for now
       // companyData.trackedData = trackedData;
 
-      if (!company) {
-        companyData.primaryName = companyData.name;
-        companyData.names = [companyData.name];
-
-        company = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'companies',
-          action: 'createCompany',
-          input: {
-            query: {
-              ...companyData,
-            },
-          },
-        });
-      } else {
+      if (company) {
         company = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
@@ -404,6 +393,22 @@ export const widgetMutations: Record<string, Resolver> = {
           input: {
             type: 'core:company',
             targets: [company],
+          },
+        });
+      } else {
+        companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
+
+        company = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'companies',
+          action: 'createCompany',
+          input: {
+            query: {
+              ...companyData,
+            },
           },
         });
       }
@@ -519,7 +524,7 @@ export const widgetMutations: Record<string, Resolver> = {
           videoCallRequestMessage.createdAt,
         ).getTime();
 
-        const nowTime = new Date().getTime();
+        const nowTime = Date.now();
 
         let integrationConfigs: Array<{ code: string; value?: string }> = [];
 
@@ -535,7 +540,9 @@ export const widgetMutations: Record<string, Resolver> = {
 
         const timeDelayIntValue = Number.parseInt(timeDelay.value || '0', 10);
 
-        const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
+        const timeDelayValue = Number.isNaN(timeDelayIntValue)
+          ? 0
+          : timeDelayIntValue;
 
         if (messageTime + timeDelayValue * 1000 > nowTime) {
           const defaultValue = 'Video call request has already been sent';
@@ -673,14 +680,14 @@ export const widgetMutations: Record<string, Resolver> = {
         const { responses } = botRequest;
 
         const botData =
-          responses.length !== 0
+          responses.length > 0
             ? responses
             : [
-              {
-                type: 'text',
-                text: AUTO_BOT_MESSAGES.NO_RESPONSE,
-              },
-            ];
+                {
+                  type: 'text',
+                  text: AUTO_BOT_MESSAGES.NO_RESPONSE,
+                },
+              ];
 
         const botMessage = await models.ConversationMessages.createMessage({
           conversationId: conversation._id,
@@ -1032,7 +1039,7 @@ export const widgetMutations: Record<string, Resolver> = {
     { integrationId }: { integrationId: string },
     { models }: IContext,
   ) {
-    const sessionId = `_${Math.random().toString(36).substr(2, 9)}`;
+    const sessionId = `_${Math.random().toString(36).substring(2, 11)}`;
 
     await redis.set(
       `bot_initial_message_session_id_${integrationId}`,
@@ -1099,7 +1106,7 @@ export const widgetMutations: Record<string, Resolver> = {
         modifiedAt: new Date(),
         stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc),
-        number: new Date().getTime().toString(),
+        number: Date.now().toString(),
       });
       await sendTRPCMessage({
         subdomain,
