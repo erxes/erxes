@@ -88,7 +88,7 @@ class QueueStateManager {
 
   private decodeUTF8Name(name: string): string {
     try {
-      let decoded = decodeURIComponent(escape(name));
+      let decoded = decodeURIComponent(name);
 
       if (decoded === name) {
         const buffer = Buffer.from(name, 'latin1');
