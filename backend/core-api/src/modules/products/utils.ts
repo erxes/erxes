@@ -29,7 +29,7 @@ export const checkCodeMask = (category?: IProductCategory, code?: string) => {
     }
 
     if (value.type === 'char') {
-      maskList.push(value.char.replaceAll('.', '\\.'));
+      maskList.push(value.char.replaceAll('.', String.raw`\.`));
     }
 
     if (value.type === 'customField' && value.matches) {
@@ -121,13 +121,13 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
 
     const codeRegex = ['*', '.', '_'].includes(mask)
       ? new RegExp(
-          `^${mask
-            .replaceAll('.', '\\.')
+          String.raw`^${mask
+            .replaceAll('.', String.raw`\.`)
             .replaceAll('*', '.')
             .replaceAll('_', '.')}.*`,
           'igu',
         )
-      : new RegExp(`.*${mask}.*`, 'igu');
+      : new RegExp(String.raw`.*${mask}.*`, 'igu');
 
     const filterFieldVal = filterFieldDef.includes('customFieldsData.')
       ? (
