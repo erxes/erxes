@@ -52,7 +52,7 @@ export default {
         createdAt: history.createdAt,
         contentTypeDetail: {
           history,
-          conversationMessages: messages ? messages : [],
+          conversationMessages: messages ?? [],
           assignedUser:
             user && user._id ? { details: user.details, _id: user._id } : {},
         },

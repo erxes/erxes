@@ -46,13 +46,8 @@ export async function callNotification({ subdomain, data }) {
 
   const { type } = data;
 
-  switch (type) {
-    case 'removeCustomers':
-      await removeCustomers(models, data);
-      break;
-
-    default:
-      break;
+  if (type === 'removeCustomers') {
+    await removeCustomers(models, data);
   }
 }
 
