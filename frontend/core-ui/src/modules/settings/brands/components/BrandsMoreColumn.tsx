@@ -37,35 +37,35 @@ export const BrandsMoreColumnCell = ({
   };
 
   return (
-    <Can actions={['brandsUpdate', 'brandsDelete']}>
-      <Popover>
+    <Popover>
+      <Can actions={['brandsUpdate', 'brandsDelete']}>
         <Popover.Trigger asChild>
           <RecordTable.MoreButton className="w-full h-full" />
         </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Can action="brandsUpdate">
-                <Command.Item
-                  value="edit"
-                  onSelect={() => {
-                    setRenderingBrandDetail(true);
-                    setBrandDetail(_id);
-                  }}
-                >
-                  <IconEdit /> Edit
-                </Command.Item>
-              </Can>
-              <Can action="brandsDelete">
-                <Command.Item value="delete" onSelect={handleDelete}>
-                  <IconTrash /> Delete
-                </Command.Item>
-              </Can>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
-    </Can>
+      </Can>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Can action="brandsUpdate">
+              <Command.Item
+                value="edit"
+                onSelect={() => {
+                  setRenderingBrandDetail(true);
+                  setBrandDetail(_id);
+                }}
+              >
+                <IconEdit /> Edit
+              </Command.Item>
+            </Can>
+            <Can action="brandsDelete">
+              <Command.Item value="delete" onSelect={handleDelete}>
+                <IconTrash /> Delete
+              </Command.Item>
+            </Can>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 

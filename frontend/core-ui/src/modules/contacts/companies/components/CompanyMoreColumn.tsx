@@ -22,22 +22,22 @@ export const CompanyMoreColumnCell = ({
   };
 
   return (
-    <Can action="contactsUpdate">
-      <Popover>
+    <Popover>
+      <Can action="contactsUpdate">
         <Popover.Trigger asChild>
           <RecordTable.MoreButton className="w-full h-full" />
         </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Command.Item value="edit" onSelect={() => setOpen(_id)}>
-                <IconEdit /> Edit
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
-    </Can>
+      </Can>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={() => setOpen(_id)}>
+              <IconEdit /> Edit
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 

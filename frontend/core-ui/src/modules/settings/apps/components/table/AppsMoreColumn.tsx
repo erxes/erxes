@@ -51,33 +51,33 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
   };
 
   return (
-    <Can action="appsManage">
-      <Popover>
+    <Popover>
+      <Can action="appsManage">
         <Popover.Trigger asChild>
           <RecordTable.MoreButton className="w-full h-full" />
         </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Command.Item
-                value="edit"
-                onSelect={() => setEditingApp(cell.row.original)}
-              >
-                <IconEdit /> Edit
+      </Can>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item
+              value="edit"
+              onSelect={() => setEditingApp(cell.row.original)}
+            >
+              <IconEdit /> Edit
+            </Command.Item>
+            {status === 'active' && (
+              <Command.Item value="revoke" onSelect={handleRevoke}>
+                <IconLock /> Revoke
               </Command.Item>
-              {status === 'active' && (
-                <Command.Item value="revoke" onSelect={handleRevoke}>
-                  <IconLock /> Revoke
-                </Command.Item>
-              )}
-              <Command.Item value="delete" onSelect={handleDelete}>
-                <IconTrash /> Delete
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
-    </Can>
+            )}
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 

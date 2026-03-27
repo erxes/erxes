@@ -46,108 +46,108 @@ export const TeamMemberMoreColumnCell = ({
   };
 
   return (
-    <Can
-      actions={[
-        'permissionsManage',
-        'teamMembersInvite',
-        'teamMembersResetPassword',
-        'teamMembersUpdate',
-      ]}
-    >
-      <Popover>
+    <Popover>
+      <Can
+        actions={[
+          'permissionsManage',
+          'teamMembersInvite',
+          'teamMembersResetPassword',
+          'teamMembersUpdate',
+        ]}
+      >
         <Popover.Trigger asChild>
           <RecordTable.MoreButton className="w-full h-full" />
         </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Can action="teamMembersUpdate">
-                <Command.Item value="edit" onSelect={handleEdit}>
-                  <IconEdit /> Edit
-                </Command.Item>
-              </Can>
-              <Can action="permissionsManage">
-                <Command.Item
-                  value="permissions"
-                  onSelect={handleEditPermissions}
-                >
-                  <IconSettings size={18} /> Edit Permission Groups
-                </Command.Item>
-              </Can>
-              <Can action="teamMembersResetPassword">
-                <Command.Item
-                  value="reset-password"
-                  onSelect={() => {
-                    setResetPasswordOpen(_id);
-                    setRenderingTeamMemberResetPasswordAtom(true);
-                  }}
-                >
-                  <IconLock /> Reset Password
-                </Command.Item>
-              </Can>
-              <Can action="teamMembersUpdate">
-                <Command.Item
-                  value="toggle-status"
-                  onSelect={() => {
-                    editStatus({
-                      variables: {
-                        _id,
-                      },
-                      onCompleted: () =>
-                        toast({
-                          title: `User ${
-                            isActive ? 'deactivated' : 'activated'
-                          } successfully`,
-                          variant: 'success',
-                        }),
-                      onError: (error) =>
-                        toast({ title: error.message, variant: 'destructive' }),
-                    });
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    {isActive ? (
-                      <IconToggleLeft size={18} />
-                    ) : (
-                      <IconToggleRight size={18} />
-                    )}
-                    {isActive ? 'Deactivate' : 'Activate'}
-                  </div>
-                </Command.Item>
-              </Can>
-              <Can action="teamMembersInvite">
-                <Command.Item
-                  value="status"
-                  onSelect={() =>
-                    resend({
-                      variables: {
-                        email,
-                      },
-                      onError: (error) =>
-                        toast({ title: error.message, variant: 'destructive' }),
-                      onCompleted: () =>
-                        toast({
-                          title: 'Invitation has been resent',
-                          variant: 'success',
-                        }),
-                    })
-                  }
-                >
-                  <div className="flex items-center gap-2">
-                    {loading ? (
-                      <Spinner size="sm" />
-                    ) : (
-                      <IconRefresh size={18} />
-                    )}
-                    Resend Invite
-                  </div>
-                </Command.Item>
-              </Can>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
-    </Can>
+      </Can>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Can action="teamMembersUpdate">
+              <Command.Item value="edit" onSelect={handleEdit}>
+                <IconEdit /> Edit
+              </Command.Item>
+            </Can>
+            <Can action="permissionsManage">
+              <Command.Item
+                value="permissions"
+                onSelect={handleEditPermissions}
+              >
+                <IconSettings size={18} /> Edit Permission Groups
+              </Command.Item>
+            </Can>
+            <Can action="teamMembersResetPassword">
+              <Command.Item
+                value="reset-password"
+                onSelect={() => {
+                  setResetPasswordOpen(_id);
+                  setRenderingTeamMemberResetPasswordAtom(true);
+                }}
+              >
+                <IconLock /> Reset Password
+              </Command.Item>
+            </Can>
+            <Can action="teamMembersUpdate">
+              <Command.Item
+                value="toggle-status"
+                onSelect={() => {
+                  editStatus({
+                    variables: {
+                      _id,
+                    },
+                    onCompleted: () =>
+                      toast({
+                        title: `User ${
+                          isActive ? 'deactivated' : 'activated'
+                        } successfully`,
+                        variant: 'success',
+                      }),
+                    onError: (error) =>
+                      toast({ title: error.message, variant: 'destructive' }),
+                  });
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  {isActive ? (
+                    <IconToggleLeft size={18} />
+                  ) : (
+                    <IconToggleRight size={18} />
+                  )}
+                  {isActive ? 'Deactivate' : 'Activate'}
+                </div>
+              </Command.Item>
+            </Can>
+            <Can action="teamMembersInvite">
+              <Command.Item
+                value="status"
+                onSelect={() =>
+                  resend({
+                    variables: {
+                      email,
+                    },
+                    onError: (error) =>
+                      toast({ title: error.message, variant: 'destructive' }),
+                    onCompleted: () =>
+                      toast({
+                        title: 'Invitation has been resent',
+                        variant: 'success',
+                      }),
+                  })
+                }
+              >
+                <div className="flex items-center gap-2">
+                  {loading ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    <IconRefresh size={18} />
+                  )}
+                  Resend Invite
+                </div>
+              </Command.Item>
+            </Can>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
