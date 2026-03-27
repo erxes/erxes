@@ -173,8 +173,8 @@ export const TmsInformationFields = ({
             {currentStep === 1
               ? 'General information'
               : currentStep === 2
-              ? 'Permission'
-              : 'Payments'}
+                ? 'Permission'
+                : 'Payments'}
           </p>
         </div>
         <div className="flex gap-2 items-center self-stretch">
@@ -185,8 +185,8 @@ export const TmsInformationFields = ({
                 step === currentStep
                   ? 'bg-primary w-24'
                   : step < currentStep
-                  ? 'bg-primary/50 w-16'
-                  : 'bg-muted w-16'
+                    ? 'bg-primary/50 w-16'
+                    : 'bg-muted w-16'
               }`}
             />
           ))}
@@ -195,8 +195,8 @@ export const TmsInformationFields = ({
           {currentStep === 1
             ? 'Set up your TMS information'
             : currentStep === 2
-            ? 'Setup your permission'
-            : 'Setup your payments'}
+              ? 'Setup your permission'
+              : 'Setup your payments'}
         </p>
       </div>
       <div className="overflow-hidden relative flex-1 min-h-0">

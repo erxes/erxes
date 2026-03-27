@@ -59,7 +59,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
 
   return (
     <div className="space-y-6">
-      <Form.Item className="flex gap-3 items-center space-y-0">
+      <Form.Item className="flex items-center gap-3 space-y-0">
         <Switch
           checked={!!isFlexibleDate}
           onCheckedChange={handleFlexibleChange}
@@ -102,7 +102,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
         </div>
       ) : (
         <div className="space-y-4">
-          <Form.Item className="flex gap-3 items-center space-y-0">
+          <Form.Item className="flex items-center gap-3 space-y-0">
             <Switch
               checked={!!isGroupTour}
               onCheckedChange={handleGroupChange}
