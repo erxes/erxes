@@ -48,26 +48,26 @@ startPlugin({
     // await initMQWorkers(redis);
   },
   meta: {
-  automations,
-  segments,
-  tags: { types: [{ type: 'deal', description: 'Sales' }] },
-  properties: {
-    types: [
-      {
-        description: 'Sales pipelines',
-        type: 'deal',
-      },
-    ],
-  },
-  notifications,
-  afterProcess,
-
-  importExport: {
-    export: {
-      configured: true,
-      hasGetExportHeaders: true,
-      hasGetExportData: true,
+    automations,
+    segments,
+    tags: { types: [{ type: 'deal', description: 'Sales' }] },
+    properties: {
+      types: [
+        {
+          description: 'Sales pipelines',
+          type: 'deal',
+        },
+      ],
     },
-  },
-} as any
+    notifications,
+    afterProcess,
+
+    importExport: {
+      export: {
+        configured: true,
+        hasGetExportHeaders: true,
+        hasGetExportData: true,
+      },
+    },
+  } as any,
 });

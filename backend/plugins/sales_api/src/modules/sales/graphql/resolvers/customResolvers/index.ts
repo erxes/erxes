@@ -11,7 +11,7 @@ export default {
   SalesStage,
   Deal,
   SalesChecklist,
-    Query: {
-    ...ExportResolvers, 
+  Query: {
+    ...ExportResolvers,
   },
 };
