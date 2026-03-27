@@ -29,27 +29,35 @@ export const PricingOptionSchema = z.object({
 
   title: z.string().trim().min(1, 'Title is required'),
 
-  minPersons: z.preprocess((value) => {
-    if (value === '' || value === null || value === undefined) return undefined;
-    if (typeof value === 'string') {
-      const num = Number(value);
-      return Number.isNaN(num) ? undefined : num;
-    }
-    return value;
-  }, z.coerce.number().min(1, 'Min persons must be at least 1')),
+  minPersons: z.preprocess(
+    (value) => {
+      if (value === '' || value === null || value === undefined)
+        return undefined;
+      if (typeof value === 'string') {
+        const num = Number(value);
+        return Number.isNaN(num) ? undefined : num;
+      }
+      return value;
+    },
+    z.coerce.number().min(1, 'Min persons must be at least 1'),
+  ),
 
   maxPersons: optionalNumber(
     z.number().min(1, 'Max persons must be at least 1'),
   ),
 
-  pricePerPerson: z.preprocess((value) => {
-    if (value === '' || value === null || value === undefined) return undefined;
-    if (typeof value === 'string') {
-      const num = Number(value);
-      return Number.isNaN(num) ? undefined : num;
-    }
-    return value;
-  }, z.coerce.number().min(0.01, 'Price must be greater than 0')),
+  pricePerPerson: z.preprocess(
+    (value) => {
+      if (value === '' || value === null || value === undefined)
+        return undefined;
+      if (typeof value === 'string') {
+        const num = Number(value);
+        return Number.isNaN(num) ? undefined : num;
+      }
+      return value;
+    },
+    z.coerce.number().min(0.01, 'Price must be greater than 0'),
+  ),
 
   accommodationType: optionalString(),
 
