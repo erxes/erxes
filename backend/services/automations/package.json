@@ -15,7 +15,7 @@
     "erxes-api-shared": "workspace:^",
     "tslib": "^2.6.3",
     "debug": "^4.4.0",
-    "nodemailer": "^6.9.10",
+    "nodemailer": "^8.0.4",
     "aws-sdk": "^2.1692.0",
     "bullmq": "^5.40.0",
     "moment": "^2.30.1",
