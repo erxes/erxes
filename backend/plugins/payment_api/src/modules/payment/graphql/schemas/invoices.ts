@@ -93,4 +93,6 @@ export const queries = `
   invoicesTotalCount(${queryParams}): invoicesTotalCount
   invoiceDetail(_id: String!): Invoice
   invoiceDetailByContent(contentType: String!, contentTypeId: String!): [Invoice]
+
+  cpInvoiceDetail(_id: String!): Invoice
 `;

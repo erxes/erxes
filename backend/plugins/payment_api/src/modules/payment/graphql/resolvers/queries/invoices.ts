@@ -98,6 +98,10 @@ const queries: Record<string, Resolver> = {
     return models.Invoices.getInvoice({ _id });
   },
 
+  async cpInvoiceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Invoices.getInvoice({ _id });
+  },
+
   async invoiceDetailByContent(
     _root,
     { contentType, contentTypeId },
@@ -110,5 +114,10 @@ const queries: Record<string, Resolver> = {
 queries.invoiceDetail.wrapperConfig = {
   skipPermission: true,
 };
+
+queries.cpInvoiceDetail.wrapperConfig = {
+  skipPermission:true,
+  forClientPortal:true
+}
 
 export default queries;
