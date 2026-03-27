@@ -191,6 +191,7 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
+tourSchema.index({ startingPrice: 1 });
 tourSchema.index({ categoryIds: 1 });
 tourSchema.index({ categories: 1 });
 tourSchema.index({ tagIds: 1 });

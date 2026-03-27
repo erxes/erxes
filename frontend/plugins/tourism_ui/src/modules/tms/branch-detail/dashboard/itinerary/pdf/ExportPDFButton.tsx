@@ -49,9 +49,11 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     link.click();
 
     downloadTimeoutRef.current = setTimeout(() => {
-      document.body.removeChild(link);
+      if (document.body.contains(link)) {
+        link.remove();
+      }
       URL.revokeObjectURL(url);
-    }, 100);
+    }, 5000);
   }, []);
 
   // Cleanup on unmount

@@ -20,20 +20,11 @@ export const toOptionalNumber = (
   }
 
   const num = typeof value === 'string' ? Number(value) : value;
-  return isNaN(num) ? undefined : num;
+  return Number.isNaN(num) ? undefined : num;
 };
 
 /**
  * Converts empty string to undefined for required number fields
  * Returns number or undefined (let Zod handle validation)
  */
-export const toRequiredNumber = (
-  value: string | number | undefined,
-): number | undefined => {
-  if (value === '' || value === undefined) {
-    return undefined;
-  }
-
-  const num = typeof value === 'string' ? Number(value) : value;
-  return isNaN(num) ? undefined : num;
-};
+export const toRequiredNumber = toOptionalNumber;

@@ -67,15 +67,8 @@ export const loadTourClass = (models: IModels) => {
       if (doc.pricingOptions) {
         if (doc.pricingOptions.length > 0) {
           this.validatePricingOptions(doc.pricingOptions);
-
-          const prices = doc.pricingOptions
-            .map((opt) => opt.pricePerPerson)
-            .filter((p) => typeof p === 'number');
-
-          doc.startingPrice = prices.length ? Math.min(...prices) : undefined;
-        } else {
-          doc.startingPrice = undefined;
         }
+        doc.startingPrice = this.calculateStartingPrice(doc.pricingOptions);
       }
 
       const element = await models.Tours.create({
@@ -121,15 +114,8 @@ export const loadTourClass = (models: IModels) => {
       if (doc.pricingOptions) {
         if (doc.pricingOptions.length > 0) {
           this.validatePricingOptions(doc.pricingOptions);
-
-          const prices = doc.pricingOptions
-            .map((opt) => opt.pricePerPerson)
-            .filter((p) => typeof p === 'number');
-
-          doc.startingPrice = prices.length ? Math.min(...prices) : undefined;
-        } else {
-          doc.startingPrice = undefined;
         }
+        doc.startingPrice = this.calculateStartingPrice(doc.pricingOptions);
       }
 
       await models.Tours.updateOne(
@@ -138,6 +124,21 @@ export const loadTourClass = (models: IModels) => {
       );
 
       return await models.Tours.findOne({ _id });
+    }
+
+    /**
+     * Calculate starting price from pricing options
+     */
+    private static calculateStartingPrice(
+      pricingOptions?: IPricingOption[],
+    ): number | undefined {
+      if (!pricingOptions || pricingOptions.length === 0) {
+        return undefined;
+      }
+      const prices = pricingOptions
+        .map((opt) => opt.pricePerPerson)
+        .filter((p): p is number => typeof p === 'number');
+      return prices.length ? Math.min(...prices) : undefined;
     }
 
     /**
@@ -162,8 +163,12 @@ export const loadTourClass = (models: IModels) => {
           option.maxPersons !== null &&
           option.maxPersons < option.minPersons
         ) {
+          const maxPersonsDisplay =
+            option.maxPersons === undefined || option.maxPersons === null
+              ? 'unlimited'
+              : option.maxPersons;
           throw new Error(
-            `Invalid pricing option "${option.title}": maxPersons (${option.maxPersons}) must be >= minPersons (${option.minPersons})`,
+            `Invalid pricing option "${option.title}": maxPersons (${maxPersonsDisplay}) must be >= minPersons (${option.minPersons})`,
           );
         }
 

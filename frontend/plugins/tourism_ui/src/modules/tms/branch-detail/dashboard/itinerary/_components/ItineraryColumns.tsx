@@ -3,7 +3,6 @@ import {
   IconCalendarPlus,
   IconClock,
   IconLabel,
-  IconPalette,
   IconCalendarDot,
   IconCurrencyDollar,
 } from '@tabler/icons-react';

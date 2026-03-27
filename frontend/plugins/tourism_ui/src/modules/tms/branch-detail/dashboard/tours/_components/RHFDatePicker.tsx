@@ -8,7 +8,7 @@ const toDate = (val: unknown): Date | undefined => {
   if (val instanceof Date) return val;
 
   const d = new Date(val as any);
-  return isNaN(d.getTime()) ? undefined : d;
+  return Number.isNaN(d.getTime()) ? undefined : d;
 };
 
 const toDates = (val: unknown): Date[] | undefined => {

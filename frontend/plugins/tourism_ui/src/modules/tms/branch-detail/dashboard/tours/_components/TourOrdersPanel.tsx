@@ -12,7 +12,7 @@ import { CustomersInline } from 'ui-modules';
 import { OrderDetailSheet } from './OrderDetailSheet';
 
 interface Props {
-  tourId: string;
+  readonly tourId: string;
 }
 
 function formatDate(dateStr?: string): string {
@@ -24,7 +24,7 @@ function formatDate(dateStr?: string): string {
   });
 }
 
-function StatusBadge({ status }: { status?: string }) {
+function StatusBadge({ status }: Readonly<{ status?: string }>) {
   const colorMap: Record<string, string> = {
     paid: 'bg-green-100 text-green-700',
     pending: 'bg-yellow-100 text-yellow-700',
@@ -56,10 +56,10 @@ function StatusBadge({ status }: { status?: string }) {
 function OrderRow({
   order,
   onClick,
-}: {
+}: Readonly<{
   order: ITourOrder;
   onClick: () => void;
-}) {
+}>) {
   return (
     <Card
       className="overflow-hidden transition cursor-pointer bg-background hover:bg-muted/40"

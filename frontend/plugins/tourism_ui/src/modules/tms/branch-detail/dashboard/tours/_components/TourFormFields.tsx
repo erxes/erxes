@@ -725,6 +725,7 @@ const TourPricingOptionsFieldContent = ({
                     <Input
                       type="number"
                       step="0.01"
+                      min="0.01"
                       {...field}
                       placeholder="0.00"
                     />

@@ -60,11 +60,14 @@ export const DayBlock: React.FC<DayBlockProps> = React.memo(
         <Text style={styles.dayContent}>
           {contentSegments.map((seg, i) =>
             seg.bold ? (
-              <Text key={i} style={styles.dayContentBold}>
+              <Text
+                key={`${i}-${seg.text.slice(0, 16)}`}
+                style={styles.dayContentBold}
+              >
                 {seg.text}
               </Text>
             ) : (
-              <Text key={i}>{seg.text}</Text>
+              <Text key={`${i}-${seg.text.slice(0, 16)}`}>{seg.text}</Text>
             ),
           )}
         </Text>

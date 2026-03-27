@@ -12,10 +12,10 @@ export interface SortableItem {
 }
 
 interface SortableListProps<T extends SortableItem> {
-  items: T[];
-  onReorder: (reorderedItems: T[]) => void;
-  renderItem: (item: T, index: number) => React.ReactNode;
-  keyExtractor?: (item: T) => string;
+  readonly items: T[];
+  readonly onReorder: (reorderedItems: T[]) => void;
+  readonly renderItem: (item: T, index: number) => React.ReactNode;
+  readonly keyExtractor?: (item: T) => string;
 }
 
 export function SortableList<T extends SortableItem>({
@@ -113,6 +113,7 @@ export function SortableList<T extends SortableItem>({
         return (
           <div
             key={keyExtractor(item)}
+            role="listitem"
             draggable
             onDragStart={(e) => handleDragStart(e, index)}
             onDragEnter={(e) => handleDragEnter(e, index)}

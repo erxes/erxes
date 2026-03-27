@@ -1,9 +1,5 @@
 import { IconUsers } from '@tabler/icons-react';
 
-// interface Props {
-//   tourId: string;
-// }
-
 export const TourCustomersPanel = () => {
   return (
     <div className="flex flex-col gap-3 justify-center items-center px-4 h-full text-center">

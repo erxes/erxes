@@ -3,7 +3,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo, useState } from 'react';
-import { TourSideTab } from './TourOrdersSidePanel';
+import { TourSideTab, TourOrdersSidePanel } from './TourOrdersSidePanel';
 
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
 import { useEditTour } from '../hooks/useEditTour';
@@ -36,7 +36,6 @@ import {
   TourDateSchedulingField,
   TourPricingOptionsField,
 } from './TourFormFields';
-import { TourOrdersSidePanel } from './TourOrdersSidePanel';
 
 interface Props {
   tourId: string;
@@ -87,7 +86,7 @@ export const TourEditForm = ({
   const [editorResetKey, setEditorResetKey] = useState(0);
   const [sideTabLocal, setSideTabLocal] = useState<TourSideTab | null>(null);
 
-  const sideTab = sideTabProp !== undefined ? sideTabProp : sideTabLocal;
+  const sideTab = sideTabProp ?? sideTabLocal;
   const setSideTab = onSideTabChange ?? setSideTabLocal;
 
   const { tourDetail, loading: tourLoading } = useTourDetail({
@@ -158,7 +157,7 @@ export const TourEditForm = ({
   }, [itineraryId, itineraries]);
 
   useEffect(() => {
-    if (!tourDetail || !tourDetail._id) return;
+    if (!tourDetail?._id) return;
 
     const tour = tourDetail;
 
@@ -266,8 +265,8 @@ export const TourEditForm = ({
         endDate: isFlexible
           ? undefined
           : normalizedStartDate && values.duration
-            ? calculateEndDate(normalizedStartDate, values.duration)
-            : undefined,
+          ? calculateEndDate(normalizedStartDate, values.duration)
+          : undefined,
         availableFrom: isFlexible ? values.availableFrom : undefined,
         availableTo: isFlexible ? values.availableTo : undefined,
         dateStatus: isFlexible

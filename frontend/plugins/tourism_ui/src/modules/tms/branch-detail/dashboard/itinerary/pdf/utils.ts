@@ -23,27 +23,27 @@ const ENTITY_REGEX = new RegExp(Object.keys(HTML_ENTITIES).join('|'), 'gi');
 export const stripHtml = (html?: string | null): string => {
   if (!html) return '';
   let result = html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<\/div>/gi, '\n')
-    .replace(/<\/li>/gi, '\n');
+    .replaceAll(/<br\s*\/?>/gi, '\n')
+    .replaceAll(/<\/p>/gi, '\n')
+    .replaceAll(/<\/div>/gi, '\n')
+    .replaceAll(/<\/li>/gi, '\n');
 
   // Loop to handle nested/malformed tags (e.g. <scr<script>ipt>)
   let prev;
   do {
     prev = result;
-    result = result.replace(/<[^>]*>/g, '');
+    result = result.replaceAll(/<[^>]*>/g, '');
   } while (result !== prev);
 
   // Strip any remaining incomplete tags (e.g. <script without closing >)
-  result = result.replace(/<[a-z][\s\S]*/gi, '');
+  result = result.replaceAll(/<[a-z][\s\S]*/gi, '');
 
   return result
-    .replace(
+    .replaceAll(
       ENTITY_REGEX,
       (match) => HTML_ENTITIES[match.toLowerCase()] || match,
     )
-    .replace(/\n{3,}/g, '\n\n')
+    .replaceAll(/\n{3,}/g, '\n\n')
     .trim();
 };
 
@@ -53,8 +53,8 @@ export const stripHtml = (html?: string | null): string => {
 export const generateFilename = (name?: string | null): string => {
   const safeName = (name || 'untitled')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replaceAll(/[^a-z0-9]+/g, '-')
+    .replaceAll(/^-|-$/g, '');
   return `${safeName}.pdf`;
 };
 

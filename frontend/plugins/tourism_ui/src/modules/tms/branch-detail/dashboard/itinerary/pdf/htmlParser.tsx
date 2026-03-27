@@ -8,8 +8,10 @@ interface ParsedNode {
   content: string;
 }
 
+type TextAlignment = 'left' | 'center' | 'right' | 'justify';
+
 interface ParsedParagraph {
-  alignment: 'left' | 'center' | 'right' | 'justify';
+  alignment: TextAlignment;
   nodes: ParsedNode[];
 }
 
@@ -43,7 +45,7 @@ const INLINE_ENTITY_REGEX = new RegExp(
 );
 
 const decodeEntities = (text: string): string =>
-  text.replace(
+  text.replaceAll(
     INLINE_ENTITY_REGEX,
     (m) => INLINE_ENTITIES[m.toLowerCase()] || m,
   );
@@ -53,9 +55,9 @@ const stripTags = (text: string): string => {
   let prev;
   do {
     prev = result;
-    result = result.replace(/<[^>]*>/g, '');
+    result = result.replaceAll(/<[^>]*>/g, '');
   } while (result !== prev);
-  return result.replace(/<[a-z][\s\S]*/gi, '');
+  return result.replaceAll(/<[a-z][\s\S]*/gi, '');
 };
 
 const extractAlignment = (
@@ -74,12 +76,12 @@ const parseInlineNodes = (html: string): ParsedNode[] => {
     if (match[1]) {
       // <strong> or <b>
       const boldText = decodeEntities(
-        stripTags(match[2].replace(/<br\s*\/?>/gi, '\n')),
+        stripTags(match[2].replaceAll(/<br\s*\/?>/gi, '\n')),
       );
       if (boldText) {
         nodes.push({ type: 'bold', content: boldText });
       }
-    } else if (match[0].match(/^<br\s*\/?>/i)) {
+    } else if (/^<br\s*\/?>/i.test(match[0])) {
       nodes.push({ type: 'break', content: '\n' });
     } else if (match[3]) {
       // Plain text
@@ -93,57 +95,46 @@ const parseInlineNodes = (html: string): ParsedNode[] => {
   return nodes;
 };
 
+const pushIfNonEmpty = (
+  paragraphs: ParsedParagraph[],
+  text: string,
+  alignment: ParsedParagraph['alignment'] = 'center',
+): void => {
+  const nodes = parseInlineNodes(text);
+  if (nodes.length > 0) {
+    paragraphs.push({ alignment, nodes });
+  }
+};
+
 const parseParagraphs = (html: string): ParsedParagraph[] => {
   const paragraphs: ParsedParagraph[] = [];
 
-  // Match <p ...>content</p> blocks
   const pRegex = /<p([^>]*)>([\s\S]*?)<\/p>/gi;
   let match: RegExpExecArray | null;
   let lastIndex = 0;
 
   while ((match = pRegex.exec(html)) !== null) {
-    // Capture any text between paragraphs
     if (match.index > lastIndex) {
       const between = html.slice(lastIndex, match.index).trim();
-      if (between) {
-        const nodes = parseInlineNodes(between);
-        if (nodes.length > 0) {
-          paragraphs.push({ alignment: 'center', nodes });
-        }
-      }
+      if (between) pushIfNonEmpty(paragraphs, between);
     }
     lastIndex = pRegex.lastIndex;
 
-    const attrs = match[1];
-    const innerHtml = match[2];
-
-    const alignment = extractAlignment(attrs);
-    const nodes = parseInlineNodes(innerHtml);
-
-    // Skip empty paragraphs
+    const alignment = extractAlignment(match[1]);
+    const nodes = parseInlineNodes(match[2]);
     const hasContent = nodes.some((n) => n.content.trim().length > 0);
     if (hasContent) {
       paragraphs.push({ alignment, nodes });
     }
   }
 
-  // Handle remaining text after last </p>
   if (lastIndex < html.length) {
     const remaining = html.slice(lastIndex).trim();
-    if (remaining) {
-      const nodes = parseInlineNodes(remaining);
-      if (nodes.length > 0) {
-        paragraphs.push({ alignment: 'center', nodes });
-      }
-    }
+    if (remaining) pushIfNonEmpty(paragraphs, remaining);
   }
 
-  // If no <p> found, treat the whole string as one paragraph
   if (paragraphs.length === 0 && html.trim()) {
-    const nodes = parseInlineNodes(html);
-    if (nodes.length > 0) {
-      paragraphs.push({ alignment: 'center', nodes });
-    }
+    pushIfNonEmpty(paragraphs, html);
   }
 
   return paragraphs;
@@ -154,32 +145,32 @@ const parseParagraphs = (html: string): ParsedParagraph[] => {
  * Supports <p>, <strong>/<b>, <br>, and data-text-alignment.
  */
 export const parseHtmlToPdfElements = (html: string): React.ReactNode[] => {
-  if (!html || !html.trim()) return [];
+  if (!html?.trim()) return [];
 
   try {
     const paragraphs = parseParagraphs(html);
 
     return paragraphs.map((para, pIdx) => (
-      <View key={`p-${pIdx}`} style={PARAGRAPH_SPACING}>
+      <View key={`p-${pIdx}-${para.alignment}`} style={PARAGRAPH_SPACING}>
         <Text style={[BASE_STYLE, { textAlign: para.alignment }]}>
           {para.nodes.map((node, nIdx) => {
+            const key = `${nIdx}-${node.type}-${node.content.slice(0, 12)}`;
             if (node.type === 'break') {
-              return <Text key={`n-${pIdx}-${nIdx}`}>{'\n'}</Text>;
+              return <Text key={key}>{'\n'}</Text>;
             }
             if (node.type === 'bold') {
               return (
-                <Text key={`n-${pIdx}-${nIdx}`} style={BOLD_STYLE}>
+                <Text key={key} style={BOLD_STYLE}>
                   {node.content}
                 </Text>
               );
             }
-            return <Text key={`n-${pIdx}-${nIdx}`}>{node.content}</Text>;
+            return <Text key={key}>{node.content}</Text>;
           })}
         </Text>
       </View>
     ));
-  } catch (error) {
-    console.error('Failed to parse HTML for PDF:', error);
+  } catch {
     return [
       <Text key="fallback" style={BASE_STYLE}>
         {stripHtml(html)}
