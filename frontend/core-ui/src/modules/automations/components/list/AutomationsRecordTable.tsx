@@ -16,7 +16,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import { Link, useNavigate } from 'react-router-dom';
-import { Can, PageHeader } from 'ui-modules';
+import { Can, PageHeader, usePermissionCheck } from 'ui-modules';
 
 export const AutomationsRecordTable = () => {
   const {
@@ -31,10 +31,18 @@ export const AutomationsRecordTable = () => {
   const { t } = useTranslation('automations');
   const columns = useMemo(() => getAutomationColumns(t), [t]);
   const navigate = useNavigate();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canCreateAutomation =
+    isLoaded && hasActionPermission('automationsCreate');
+
   useScopedHotkeys(
     `c`,
-    () => navigate('/automations/create'),
+    () => {
+      if (!canCreateAutomation) return;
+      navigate('/automations/create');
+    },
     AutomationsHotKeyScope.AutomationsPage,
+    [canCreateAutomation, navigate],
   );
   if (loading) {
     return <Spinner />;
