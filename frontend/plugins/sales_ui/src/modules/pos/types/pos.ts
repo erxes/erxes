@@ -77,6 +77,7 @@ export interface EbarimtConfig {
   merchantTin?: string;
   posNo?: string;
   branchNo?: string;
+  isCleanTaxPrice?: boolean;
 }
 
 export interface ErkhetConfig {
