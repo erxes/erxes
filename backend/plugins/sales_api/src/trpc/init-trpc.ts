@@ -25,7 +25,6 @@ export const appRouter = t.router({
         }),
       )
       .query(async ({ input }) => {
-
         const { moduleName, collectionName } = input;
 
         if (moduleName === 'pos' && collectionName === 'posItems') {
