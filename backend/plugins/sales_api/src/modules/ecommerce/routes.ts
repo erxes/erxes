@@ -1,4 +1,4 @@
-import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getSubdomain } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { IProductReviewDocument } from '~/modules/ecommerce/@types/productReview';
 import { IWishlistDocument } from './@types/wishlist';
@@ -289,7 +289,7 @@ export const ecommerceLastViewed = async (req: any, res: any) => {
 
     const lastViewedItems = await models.LastViewedItem.find({ customerId })
       .sort({ modifiedAt: -1 })
-      .limit(parseInt(limit as string))
+      .limit(Number.parseInt(limit as string))
       .lean();
 
     const productIds = lastViewedItems.map((item) => item.productId);
@@ -404,8 +404,8 @@ export const ecommerceProductReviews = async (req: any, res: any) => {
 
     const reviews = await models.ProductReview.find({ productId })
       .sort(sort as string)
-      .skip(parseInt(skip as string))
-      .limit(parseInt(limit as string))
+      .skip(Number.parseInt(skip as string))
+      .limit(Number.parseInt(limit as string))
       .lean();
 
     const customerIds = reviews
@@ -477,7 +477,7 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
           results.push({
             type,
             success: true,
-            data: wishlistItem as IWishlistDocument,
+            data: wishlistItem,
           });
           break;
 
@@ -486,7 +486,7 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
           results.push({
             type,
             success: true,
-            data: review as IProductReviewDocument,
+            data: review,
           });
           break;
 
@@ -496,7 +496,7 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
           results.push({
             type,
             success: true,
-            data: lastViewed as ILastViewedItemDocument,
+            data: lastViewed,
           });
           break;
 
@@ -505,7 +505,7 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
           results.push({
             type,
             success: true,
-            data: address as IAddressDocument,
+            data: address,
           });
           break;
 
