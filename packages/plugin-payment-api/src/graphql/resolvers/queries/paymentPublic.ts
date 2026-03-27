@@ -1,5 +1,5 @@
 import { IContext } from "../../../connectionResolver";
-
+import axios from "axios";
 const queries = {
   async paymentsPublic(_root, args, { models }: IContext) {
     const { kind, _ids, currency } = args;
@@ -20,9 +20,25 @@ const queries = {
   },
 
   async paymentsGetStripeKey(_root, args, { models }: IContext) {
-    const {_id} = args
+    const { _id } = args;
 
-    return models.PaymentMethods.getStripeKey(_id)
+    return models.PaymentMethods.getStripeKey(_id);
+  },
+  async checkTokiUserLegalAge(_root, { token }, {}: IContext) {
+    const res = await axios.get(
+      "https://staging-api.toki.mn/third-party-service/v1/shoppy/user",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "api-key": process.env.TOKI_API_KEY,
+          accept: "application/json",
+        },
+      },
+    );
+
+    const age = res.data?.data?.age ?? res.data?.age;
+
+    return age >= 21;
   },
 };
 

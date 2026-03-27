@@ -2,7 +2,7 @@ import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IAttachment } from '@erxes/api-utils/src/types';
 import * as randomize from 'randomatic';
-import axios from "axios";
+
 import * as jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import { tokenHandler } from '../../../auth/authUtils';
@@ -1087,28 +1087,6 @@ export const clientPortalUserMutations = {
 
     const response = await fetchUserFromToki(token, clientPortal);
     const { _id, phoneNo, profilePicURL, name } = response.data;
-    
-    const ageResponse = await axios.get(
-      "https://staging-api.toki.mn/third-party-service/v1/shoppy/user",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "api-key": process.env.TOKI_API_KEY,
-          accept: "application/json",
-        },
-      },
-    );
-
-    const age = ageResponse.data?.data?.age ?? ageResponse.data?.age;
-
-    if (age === undefined || age === null) {
-      throw new Error("Unable to verify user age");
-    }
-
-    if (age < 21) {
-      throw new Error("User must be 21+");
-    }
-
     const [firstName = '', lastName = ''] = name.trim().split(' ');
 
     const mobileNumber = phoneNo;
