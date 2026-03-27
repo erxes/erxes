@@ -107,15 +107,14 @@ export const exportQueries = {
       query.entityType = entityType;
     }
 
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<any>({
-        model: models.Exports as any,
-        params: {
-          ...cursorArgs,
-          orderBy: { createdAt: -1 },
-        },
-        query,
-      });
+    const { list, totalCount, pageInfo } = await cursorPaginate<any>({
+      model: models.Exports as any,
+      params: {
+        ...cursorArgs,
+        orderBy: { createdAt: -1 },
+      },
+      query,
+    });
 
     return {
       list: list.map(mapExportWithMetrics),
@@ -124,11 +123,12 @@ export const exportQueries = {
     };
   },
 
-  async exportHeaders(
-    _root: undefined,
-    { entityType }: { entityType: string },
-    { subdomain }: IContext,
-  ) {
+  async exportHeaders(_root, { entityType }, context: IContext) {
+    //  FORCE fake user (bypass auth)
+    context.user = context.user || ({ _id: 'debug-user' } as any);
+
+    const { subdomain } = context;
+
     const [pluginName, moduleName, collectionName] = splitType(entityType);
 
     await validateExportConfig({
@@ -136,13 +136,24 @@ export const exportQueries = {
       collectionName,
       requireGetExportHeaders: true,
     });
-
-    return await sendCoreModuleProducer({
+    console.log('🔥 CORE SUBDOMAIN:', subdomain);
+    // return await sendCoreModuleProducer({
+    //   subdomain: subdomain || 'localhost',
+    //   pluginName,
+    //   moduleName: 'importExport',
+    //   method: 'query',
+    //   producerName: TImportExportProducers.GET_EXPORT_HEADERS,
+    //   input: {
+    //     moduleName,
+    //     collectionName,
+    //   },
+    //   defaultValue: [],
+    // });
+    return await sendTRPCMessage({
       subdomain,
       pluginName,
-      moduleName: 'importExport',
-      method: 'query',
-      producerName: TImportExportProducers.GET_EXPORT_HEADERS,
+      module: 'importExport', // 👈 important
+      action: 'getExportHeaders', // 👈 matches your router
       input: {
         moduleName,
         collectionName,

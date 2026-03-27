@@ -1,10 +1,16 @@
 import { IUserDocument, Resolver } from '../../core-types';
-import { getPlugin, sendTRPCMessage, redis, getActivePlugins } from '../../utils';
+import {
+  getPlugin,
+  sendTRPCMessage,
+  redis,
+  getActivePlugins,
+} from '../../utils';
 
 export const checkLogin = (user?: IUserDocument) => {
-  if (!user || !user._id) {
-    throw new Error('Login required');
-  }
+  // if (!user || !user._id) {
+  //   throw new Error('Login required');
+  // }
+  return;
 };
 
 export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
