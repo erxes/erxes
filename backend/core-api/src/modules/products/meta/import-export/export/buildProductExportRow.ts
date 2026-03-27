@@ -8,7 +8,7 @@ type Maps = {
   brandMap: Map<string, string>;
 };
 
-const stripHtml = (input: string) => input.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+const stripHtml = (input: string) => input.replaceAll(/<[^>]*>/g, ' ').replaceAll(/\s+/g, ' ').trim();
 
 const extractTextFromBlocks = (val: any): string => {
 
@@ -42,7 +42,7 @@ const extractTextFromBlocks = (val: any): string => {
   };
 
   walk(val);
-  return texts.join(' ').replace(/\s+/g, ' ').trim();
+  return texts.join(' ').replaceAll(/\s+/g, ' ').trim();
 };
 
 const normalizeDescription = (value: any): string => {

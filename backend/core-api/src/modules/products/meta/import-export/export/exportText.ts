@@ -1,5 +1,5 @@
 const stripHtml = (html: string) =>
-    html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    html.replaceAll(/<[^>]*>/g, ' ').replaceAll(/\s+/g, ' ').trim();
   
   const extractTextFromBlocks = (blocks: any[]): string => {
     const texts: string[] = [];
@@ -22,7 +22,7 @@ const stripHtml = (html: string) =>
   
     walk(blocks);
   
-    return texts.join(' ').replace(/\s+/g, ' ').trim();
+    return texts.join(' ').replaceAll(/\s+/g, ' ').trim();
   };
   
   export const toPlainText = (value: any): string => {
@@ -57,8 +57,8 @@ const stripHtml = (html: string) =>
     }
   
     if (typeof value === 'object') {
-      if (Array.isArray((value as any).blocks)) {
-        return extractTextFromBlocks((value as any).blocks);
+      if (Array.isArray((value).blocks)) {
+        return extractTextFromBlocks((value).blocks);
       }
       return JSON.stringify(value);
     }

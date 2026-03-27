@@ -96,7 +96,7 @@ export async function getProductExportData(
   }
 
   return products.map((p) =>
-    buildProductExportRow(p as any, selectedFields, {
+    buildProductExportRow(p, selectedFields, {
       tagMap,
       categoryMap,
       vendorMap,
