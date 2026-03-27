@@ -86,25 +86,25 @@ export const toBase64 = async (url: string): Promise<string> => {
 
   const promise = (async () => {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10_000);
-      const response = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeoutId);
+      const response = await fetch(url);
       if (!response.ok) return '';
 
       const blob = await response.blob();
-      if (!blob.type.startsWith('image/')) return '';
+      if (blob.size === 0) return '';
 
       return await new Promise<string>((resolve) => {
         const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
+        reader.onloadend = () => resolve((reader.result as string) || '');
         reader.onerror = () => resolve('');
         reader.readAsDataURL(blob);
       });
     } catch {
       return '';
     }
-  })();
+  })().then((result) => {
+    if (!result) base64Cache.delete(url);
+    return result;
+  });
 
   base64Cache.set(url, promise);
   return promise;
