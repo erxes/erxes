@@ -112,6 +112,7 @@ export function CallConversationDetail() {
                 <audio controls className="w-full">
                   <source src={readImage(recordUrl)} type="audio/wav" />
                   Your browser does not support the audio element.
+                  <track kind="captions" />
                 </audio>
               )}
               <div className="font-medium">

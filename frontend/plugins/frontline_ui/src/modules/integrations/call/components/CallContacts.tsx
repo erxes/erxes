@@ -53,9 +53,9 @@ export const CallContacts = () => {
                 customers={[customer]}
                 placeholder="Unnamed customer"
               />
-              {[customer.primaryPhone, ...(customer.phones || [])].filter(
+              {[customer.primaryPhone, ...(customer.phones || [])].some(
                 (phone) => phone,
-              ).length > 0 && (
+              ) && (
                 <DropdownMenu>
                   <DropdownMenu.Trigger asChild>
                     <Button variant="secondary" className="ml-auto" size="icon">

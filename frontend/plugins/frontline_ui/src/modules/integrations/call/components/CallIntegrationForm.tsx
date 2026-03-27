@@ -1,5 +1,5 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Sheet, Form, Input, Checkbox, Spinner } from 'erxes-ui';
+import { Button, Sheet, Form, Input, Spinner } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
 import { z } from 'zod';
