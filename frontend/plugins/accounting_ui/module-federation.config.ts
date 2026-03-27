@@ -18,6 +18,7 @@ const config: ModuleFederationConfig = {
     './config': './src/config.tsx',
     './accounting': './src/modules/AccountingMain.tsx',
     './accountingSettings': './src/modules/AccountingSettings.tsx',
+    './subNavigation': './src/modules/SubNavigation.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

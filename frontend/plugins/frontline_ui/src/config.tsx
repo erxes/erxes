@@ -8,12 +8,6 @@ const FrontlineNavigation = lazy(() =>
   })),
 );
 
-const FrontlineSubGroups = lazy(() =>
-  import('./modules/FrontlineSubGroups').then((module) => ({
-    default: module.FrontlineSubGroups,
-  })),
-);
-
 const FrontlineSettingsNavigation = lazy(() =>
   import('./modules/FrontlineSettingsNavigation').then((module) => ({
     default: module.FrontlineSettingsNavigation,
@@ -37,11 +31,7 @@ export const CONFIG: IUIConfig = {
         <FrontlineNavigation />
       </Suspense>
     ),
-    subGroup: () => (
-      <Suspense fallback={<div />}>
-        <FrontlineSubGroups />
-      </Suspense>
-    ),
+    subGroup: 'subNavigation',
   },
   widgets: {
     relationWidgets: [

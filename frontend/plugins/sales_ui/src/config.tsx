@@ -9,18 +9,6 @@ const MainNavigation = lazy(() =>
   })),
 );
 
-const SalesSubNavigation = lazy(() =>
-  import('./modules/SalesSubNavigation').then((module) => ({
-    default: module.SalesSubNavigation,
-  })),
-);
-
-const PosOrderNavigation = lazy(() =>
-  import('./modules/pos/PosOrderNavigation').then((module) => ({
-    default: module.PosOrderNavigation,
-  })),
-);
-
 const SalesSettingsNavigation = lazy(() =>
   import('./modules/SalesSettingsNavigation').then((module) => ({
     default: module.SalesSettingsNavigation,
@@ -43,12 +31,7 @@ export const CONFIG: IUIConfig = {
         <MainNavigation />
       </Suspense>
     ),
-    subGroup: () => (
-      <Suspense fallback={<div />}>
-        <SalesSubNavigation />
-        <PosOrderNavigation />
-      </Suspense>
-    ),
+    subGroup: 'subNavigation',
   },
   modules: [
     {
