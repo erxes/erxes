@@ -26,4 +26,3 @@ const command = `nx serve core-ui ${devRemotesArg} --verbose`;
 console.log(`Running: ${command}`);
 
 execSync(command, { stdio: 'inherit' });
-
