@@ -91,7 +91,7 @@ export class EditorAttributeUtil {
       href = `${this.API_DOMAIN}/read-file?key=${key}&name=${uriName}`;
     }
 
-    return `<a target="_blank" download href="${href}">${name || url}</a>`;
+    return `<a target="_blank" rel="noopener noreferrer" download href="${href}">${name || url}</a>`;
   }
 
   async customFieldsDataItemToFileLink(

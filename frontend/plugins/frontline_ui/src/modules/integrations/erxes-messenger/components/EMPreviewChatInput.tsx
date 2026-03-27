@@ -38,7 +38,11 @@ export const EMPersistentMenu = () => {
           if (menu.type === 'link') {
             return (
               <DropdownMenu.Item key={menu.text}>
-                <Link to={menu.link || '#'} target="_blank">
+                <Link
+                  to={menu.link || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <span className="text-sm">{menu.text}</span>
                 </Link>
               </DropdownMenu.Item>
