@@ -9,6 +9,7 @@ import {
   Textarea,
   toast,
   useConfirm,
+  getPluginAssetsUrl,
 } from 'erxes-ui';
 import { useFacebookUpdateConfigs } from '../hooks/useFacebookUpdateConfigs';
 import { useForm } from 'react-hook-form';
@@ -20,7 +21,6 @@ import { INTEGRATIONS } from '@/integrations/constants/integrations';
 import { IntegrationType } from '@/types/Integration';
 import { useFacebookGetConfigs } from '../hooks/useFacebookGetConfigs';
 import { useEffect } from 'react';
-import { getPluginAssetsUrl } from 'erxes-ui';
 
 export const FacebookConfigUpdateCollapse = () => {
   return (
