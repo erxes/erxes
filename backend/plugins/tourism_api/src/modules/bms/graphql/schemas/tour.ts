@@ -175,4 +175,8 @@ export const mutations = `
   bmsOrderAdd(order:BmsOrderInput): BmsOrder
   bmsOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder
   bmsOrderRemove(ids:[String]): JSON
+
+  cpBmsOrderAdd(order:BmsOrderInput): BmsOrder
+  cpBmsOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder
+  cpBmsOrderRemove(ids:[String]): JSON
 `;

@@ -29,6 +29,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
       'login',
       'register',
       'booking',
+      'inquiry'
     ];
     const ecommercePages = [
       'products',
