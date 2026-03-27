@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.17.39](https://github.com/erxes/erxes/compare/2.17.38...2.17.39) (2026-03-27)
+
+### Features
+
+* **pos:** added isCleanTaxPrice to interface ([#7317](https://github.com/erxes/erxes/issues/7317)) ([2930f25](https://github.com/erxes/erxes/commit/2930f25686959ff672bc52be33d64d59162f1fbd))
+
+### Bug Fixes
+
+* return ([5efb33b](https://github.com/erxes/erxes/commit/5efb33bf85e9183b2b53b8dab6141b6f5e5a4206))
+
 ## [2.17.38](https://github.com/erxes/erxes/compare/2.17.37...2.17.38) (2026-03-26)
 
 ### Features
