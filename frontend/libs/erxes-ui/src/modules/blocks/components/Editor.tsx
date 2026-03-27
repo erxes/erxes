@@ -17,6 +17,7 @@ export const Editor = ({
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
   const skipNextOnChangeRef = useRef(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastEditorOutputRef = useRef<string>('');
 
   useEffect(() => {
     return () => {
@@ -30,22 +31,48 @@ export const Editor = ({
   });
 
   useEffect(() => {
-    async function loadInitialHTML(initialHTML?: string) {
-      if (!initialHTML) return;
-      // Support legacy JSON content stored before isHTML mode was used
-      const parsed = parseBlocks(initialHTML);
+    if (!isHTML || !initialContent) return;
+
+    let isActive = true;
+
+    const syncHTMLContent = async () => {
+      // Skip if this change was emitted by the editor itself — no need to re-sync
+      if (initialContent === lastEditorOutputRef.current) return;
+
+      // Support legacy JSON content stored before isHTML mode was introduced
+      const parsed = parseBlocks(initialContent);
       if (parsed) {
-        editor.replaceBlocks(editor.document, parsed);
+        const currentSerialized = JSON.stringify(editor.document);
+        const nextSerialized = JSON.stringify(parsed);
+        if (isActive && currentSerialized !== nextSerialized) {
+          skipNextOnChangeRef.current = true;
+          editor.replaceBlocks(editor.document, parsed);
+        }
         return;
       }
-      const blocks = await editor.tryParseHTMLToBlocks(initialHTML);
-      editor.replaceBlocks(editor.document, blocks);
-    }
-    if (isHTML) {
-      loadInitialHTML(initialContent);
-    }
+
+      try {
+        const blocks = await editor.tryParseHTMLToBlocks(initialContent);
+        if (!isActive) return;
+
+        const currentSerialized = JSON.stringify(editor.document);
+        const nextSerialized = JSON.stringify(blocks);
+        if (currentSerialized !== nextSerialized) {
+          skipNextOnChangeRef.current = true;
+          editor.replaceBlocks(editor.document, blocks);
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    syncHTMLContent();
+
+    return () => {
+      isActive = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor]);
+  }, [editor, initialContent, isHTML]);
 
   useEffect(() => {
     if (isHTML) return;
@@ -106,6 +133,7 @@ export const Editor = ({
       if (!content) return;
       if (isHTML) {
         const htmlContent = await editor.blocksToHTMLLossy(content as Block[]);
+        lastEditorOutputRef.current = htmlContent;
         onChange(htmlContent);
       } else {
         onChange(JSON.stringify(content));

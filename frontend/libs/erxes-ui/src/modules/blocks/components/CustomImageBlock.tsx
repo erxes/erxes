@@ -11,7 +11,7 @@ import {
   useUploadLoading,
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Spinner } from 'erxes-ui/components';
 
 type ImageRenderProps = ReactCustomBlockRenderProps<
@@ -31,26 +31,53 @@ const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
 
 const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url ?? '');
+  const [imgLoaded, setImgLoaded] = useState(false);
 
-  if (loadingState === 'loading') {
-    return (
-      <div className="bn-visual-media-wrapper flex items-center justify-center min-h-24">
-        <Spinner size="sm" />
-      </div>
-    );
-  }
+  const src = downloadUrl ?? block.props.url;
+  const isResolving = loadingState === 'loading';
 
   return (
     <div className="bn-visual-media-wrapper">
-      <img
-        className="bn-visual-media"
-        src={downloadUrl ?? block.props.url}
-        alt={block.props.caption || block.props.name || ''}
-        contentEditable={false}
-        draggable={false}
-      />
+      {(!imgLoaded || isResolving) && (
+        <div className="flex items-center justify-center min-h-24 w-full">
+          <Spinner size="sm" />
+        </div>
+      )}
+      {!isResolving && src && (
+        <img
+          className="bn-visual-media"
+          src={src}
+          alt={block.props.caption || block.props.name || ''}
+          contentEditable={false}
+          draggable={false}
+          style={imgLoaded ? undefined : { display: 'none' }}
+          onLoad={() => setImgLoaded(true)}
+          onError={() => setImgLoaded(true)}
+        />
+      )}
     </div>
   );
+};
+
+const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
+  const { url, caption, name, previewWidth } = block.props;
+  if (!url) return <p>Add image</p>;
+  const img = (
+    <img
+      src={url}
+      alt={caption || name || ''}
+      {...(previewWidth ? { width: previewWidth } : {})}
+    />
+  );
+  if (caption) {
+    return (
+      <figure>
+        {img}
+        <figcaption>{caption}</figcaption>
+      </figure>
+    );
+  }
+  return img;
 };
 
 const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
@@ -82,6 +109,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
 
 export const customImageBlock = createReactBlockSpec(imageBlockConfig, {
   render: CustomImageBlockContent,
+  toExternalHTML: ExternalImageHtml,
   parse: (element) => {
     if (element.tagName === 'IMG') {
       if (element.closest('figure')) return undefined;
