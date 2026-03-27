@@ -9,6 +9,7 @@ import {
   handleOnCreateCampaignScoreField,
   handleOnUpdateCampaignScoreField,
   resolvePlaceholderValue,
+  safeEvalMath,
 } from '@/score/utils';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -159,7 +160,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         placeholder = resolvePlaceholderValue(target, attribute);
       }
 
-      let changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
+      let changeScore = (safeEvalMath(placeholder) || 0) * Number(currencyRatio) || 0;
 
       const { score = 0, customFieldsData = [] } = owner || {};
 
@@ -265,7 +266,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      const changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
+      const changeScore = (safeEvalMath(placeholder) || 0) * Number(currencyRatio) || 0;
       if (!changeScore) {
         return;
       }
