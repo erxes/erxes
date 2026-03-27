@@ -39,42 +39,42 @@ import { List } from './List';
 import { createPortal } from 'react-dom';
 
 export interface Props {
-  activationConstraint?: PointerActivationConstraint;
-  animateLayoutChanges?: AnimateLayoutChanges;
-  adjustScale?: boolean;
-  collisionDetection?: CollisionDetection;
-  coordinateGetter?: KeyboardCoordinateGetter;
-  Container?: any; // To-do: Fix me
-  dropAnimation?: DropAnimation | null;
-  getNewIndex?: NewIndexGetter;
-  handle?: boolean;
-  itemCount?: number;
-  items?: UniqueIdentifier[];
-  measuring?: MeasuringConfiguration;
-  modifiers?: Modifiers;
-  renderItem?: any;
-  removable?: boolean;
-  reorderItems?: (
+  readonly activationConstraint?: PointerActivationConstraint;
+  readonly animateLayoutChanges?: AnimateLayoutChanges;
+  readonly adjustScale?: boolean;
+  readonly collisionDetection?: CollisionDetection;
+  readonly coordinateGetter?: KeyboardCoordinateGetter;
+  readonly Container?: any; // To-do: Fix me
+  readonly dropAnimation?: DropAnimation | null;
+  readonly getNewIndex?: NewIndexGetter;
+  readonly handle?: boolean;
+  readonly itemCount?: number;
+  readonly items?: UniqueIdentifier[];
+  readonly measuring?: MeasuringConfiguration;
+  readonly modifiers?: Modifiers;
+  readonly renderItem?: any;
+  readonly removable?: boolean;
+  readonly reorderItems?: (
     items: UniqueIdentifier[],
     oldIndex: number,
     newIndex: number,
   ) => UniqueIdentifier[];
-  strategy?: SortingStrategy;
-  style?: React.CSSProperties;
-  useDragOverlay?: boolean;
+  readonly strategy?: SortingStrategy;
+  readonly style?: React.CSSProperties;
+  readonly useDragOverlay?: boolean;
   getItemStyles?(args: {
-    id: UniqueIdentifier;
-    index: number;
-    isSorting: boolean;
-    isDragOverlay: boolean;
-    overIndex: number;
-    isDragging: boolean;
+    readonly id: UniqueIdentifier;
+    readonly index: number;
+    readonly isSorting: boolean;
+    readonly isDragOverlay: boolean;
+    readonly overIndex: number;
+    readonly isDragging: boolean;
   }): React.CSSProperties;
   wrapperStyle?(args: {
-    active: Pick<Active, 'id'> | null;
-    index: number;
-    isDragging: boolean;
-    id: UniqueIdentifier;
+    readonly active: Pick<Active, 'id'> | null;
+    readonly index: number;
+    readonly isDragging: boolean;
+    readonly id: UniqueIdentifier;
   }): React.CSSProperties;
   isDisabled?(id: UniqueIdentifier): boolean;
 }
@@ -103,7 +103,7 @@ export function createRange<T = number>(
   length: number,
   initializer: (index: number) => any = defaultInitializer,
 ): T[] {
-  return [...new Array(length)].map((_, index) => initializer(index));
+  return Array.from({ length }, (_, index) => initializer(index));
 }
 
 export function Sortable({
@@ -157,14 +157,14 @@ export function Sortable({
     }),
     useSensor(KeyboardSensor, {
       // Disable smooth scrolling in Cypress automated tests
-      scrollBehavior: 'Cypress' in window ? 'auto' : undefined,
+      scrollBehavior: 'Cypress' in globalThis ? 'auto' : undefined,
       coordinateGetter,
     }),
   );
   const isFirstAnnouncement = useRef(true);
   const getIndex = (id: UniqueIdentifier) => items.indexOf(id);
   const getPosition = (id: UniqueIdentifier) => getIndex(id) + 1;
-  const activeIndex = activeId != null ? getIndex(activeId) : -1;
+  const activeIndex = activeId == null ? -1 : getIndex(activeId);
   const handleRemove = removable
     ? (id: UniqueIdentifier) =>
         setItems((items) => items.filter((item) => item !== id))
@@ -191,8 +191,6 @@ export function Sortable({
           active.id
         } was moved into position ${getPosition(over.id)} of ${items.length}`;
       }
-
-      return;
     },
     onDragEnd({ active, over }) {
       if (over) {
@@ -200,8 +198,6 @@ export function Sortable({
           active.id
         } was dropped at position ${getPosition(over.id)} of ${items.length}`;
       }
-
-      return;
     },
     onDragCancel({ active: { id } }) {
       return `Sorting was cancelled. Sortable item ${id} was dropped and returned to position ${getPosition(
@@ -285,7 +281,7 @@ export function Sortable({
               adjustScale={adjustScale}
               dropAnimation={dropAnimation}
             >
-              {activeId != null ? (
+              {activeId == null ? null : (
                 <Item
                   value={items[activeIndex]}
                   handle={handle}
@@ -306,7 +302,7 @@ export function Sortable({
                   })}
                   dragOverlay
                 />
-              ) : null}
+              )}
             </DragOverlay>,
             document.body,
           )
@@ -316,17 +312,17 @@ export function Sortable({
 }
 
 interface SortableItemProps {
-  animateLayoutChanges?: AnimateLayoutChanges;
-  disabled?: boolean;
-  getNewIndex?: NewIndexGetter;
-  id: UniqueIdentifier;
-  index: number;
-  handle: boolean;
-  useDragOverlay?: boolean;
+  readonly animateLayoutChanges?: AnimateLayoutChanges;
+  readonly disabled?: boolean;
+  readonly getNewIndex?: NewIndexGetter;
+  readonly id: UniqueIdentifier;
+  readonly index: number;
+  readonly handle: boolean;
+  readonly useDragOverlay?: boolean;
   onRemove?(id: UniqueIdentifier): void;
-  style(values: any): React.CSSProperties;
-  renderItem?(args: any): React.ReactElement;
-  wrapperStyle: Props['wrapperStyle'];
+  readonly style: (values: any) => React.CSSProperties;
+  readonly renderItem?: (args: any) => React.ReactElement;
+  readonly wrapperStyle: Props['wrapperStyle'];
 }
 
 export function SortableItem({
