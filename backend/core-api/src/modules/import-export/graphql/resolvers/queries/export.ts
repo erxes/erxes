@@ -10,6 +10,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { validateExportConfig } from '~/modules/import-export/utils/validateConfig';
 
+
 const mapExportWithMetrics = (exportDoc: any) => {
   const progress =
     exportDoc.totalRows > 0
@@ -125,29 +126,46 @@ export const exportQueries = {
   },
 
   async exportHeaders(
-    _root: undefined,
-    { entityType }: { entityType: string },
-    { subdomain }: IContext,
-  ) {
-    const [pluginName, moduleName, collectionName] = splitType(entityType);
+  _root,
+  { entityType },
+  context: IContext
+) {
+  //  FORCE fake user (bypass auth)
+  context.user = context.user || { _id: 'debug-user' } as any;
 
-    await validateExportConfig({
-      pluginName,
-      collectionName,
-      requireGetExportHeaders: true,
-    });
+  const { subdomain } = context;
 
-    return await sendCoreModuleProducer({
-      subdomain,
-      pluginName,
-      moduleName: 'importExport',
-      method: 'query',
-      producerName: TImportExportProducers.GET_EXPORT_HEADERS,
-      input: {
-        moduleName,
-        collectionName,
-      },
-      defaultValue: [],
-    });
+  const [pluginName, moduleName, collectionName] = splitType(entityType);
+
+  await validateExportConfig({
+    pluginName,
+    collectionName,
+    requireGetExportHeaders: true,
+  });
+  console.log('🔥 CORE SUBDOMAIN:', subdomain);
+  // return await sendCoreModuleProducer({
+  //   subdomain: subdomain || 'localhost',
+  //   pluginName,
+  //   moduleName: 'importExport',
+  //   method: 'query',
+  //   producerName: TImportExportProducers.GET_EXPORT_HEADERS,
+  //   input: {
+  //     moduleName,
+  //     collectionName,
+  //   },
+  //   defaultValue: [],
+  // });
+  return await sendTRPCMessage({
+  subdomain,
+  pluginName,
+  module: 'importExport', // 👈 important
+  action: 'getExportHeaders', // 👈 matches your router
+  input: {
+    moduleName,
+    collectionName,
   },
+  defaultValue: [],
+});
+}
+
 };

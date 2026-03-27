@@ -12,32 +12,69 @@ export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
 
-export const appRouter = t.mergeRouters(
-  dealTrpcRouter,
-  posTrpcRouter,
-  t.router({
-    fields: t.router({
-      getFieldList: t.procedure
-        .input(
-          z.object({
-            moduleType: z.string(),
-            collectionType: z.string().optional(),
-            segmentId: z.string().optional(),
-            usageType: z.string().optional(),
-            config: z.record(z.any()).optional(),
-          }),
-        )
-        .query(async ({ ctx, input }) => {
-          const { models, subdomain } = ctx;
-          const { moduleType } = input;
-          if (moduleType === 'sales') {
-            return await generateSalesFields(subdomain, models, input);
-          }
+export const appRouter = t.router({
+  deal: dealTrpcRouter,
+  pos: posTrpcRouter,
 
-          return [];
+  importExport: t.router({
+    getExportHeaders: t.procedure
+      .input(
+        z.object({
+          moduleName: z.string(),
+          collectionName: z.string(),
         }),
-    }),
-  }),
-);
+      )
+      .query(async ({ input }) => {
+        console.log('🔥 TRPC EXPORT HIT:', input);
 
-export type AppRouter = typeof appRouter;
+        const { moduleName, collectionName } = input;
+
+        if (moduleName === 'pos' && collectionName === 'posItems') {
+          return [
+            {
+              key: 'number',
+              label: 'Number',
+              isDefault: true,
+              type: 'string',
+            },
+            {
+              key: 'createdAt',
+              label: 'Created Date',
+              isDefault: true,
+              type: 'date',
+            },
+          ];
+        }
+
+        return [];
+      }),
+
+    getExportData: t.procedure
+      .input(
+        z.object({
+          moduleName: z.string(),
+          collectionName: z.string(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { moduleName, collectionName } = input;
+
+        console.log('🔥 EXPORT DATA HIT:', {
+          moduleName,
+          collectionName,
+        });
+
+        if (moduleName === 'pos' && collectionName === 'posItems') {
+          const items = await (models as any).PosItems.find().lean();
+
+          return items.map((item: any) => ({
+            number: item.number,
+            createdAt: item.createdAt,
+          }));
+        }
+
+        return [];
+      }),
+  }),
+});

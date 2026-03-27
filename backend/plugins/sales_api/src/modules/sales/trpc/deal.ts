@@ -450,3 +450,4 @@ export const fetchSegment = async (
     defaultValue: [],
   });
 };
+
