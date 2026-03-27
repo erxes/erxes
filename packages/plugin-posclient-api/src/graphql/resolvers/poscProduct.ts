@@ -25,9 +25,9 @@ export default {
     const cityTaxPercent =
       (ebarimtConfig.hasCitytax && Number(ebarimtConfig.cityTaxPercent)) || 0;
 
-    const taxRule = (product as any).taxRules?.[config.token] || {};
+    const taxRule = product.taxRules?.[config.token] || {};
 
-    if (["2", "3", "5"].includes(taxRule.taxType)) {
+    if (taxRule.taxType && ["2", "3", "5"].includes(taxRule.taxType)) {
       return mainPrice;
     }
 

@@ -22,7 +22,7 @@ export interface IEbarimtConfig {
   footerText?: string;
   hasCopy: boolean;
   hasSumQty: boolean;
-  isCleanTaxPrice: boolean;
+  isCleanTaxPrice?: boolean;
 }
 
 interface IConfigColors {
