@@ -56,7 +56,6 @@ const currentConfig = gql`
         footerText
         hasCopy
         hasSumQty
-        isCleanTaxPrice
       }
       saveRemainder
       serviceCharge

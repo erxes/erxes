@@ -54,7 +54,6 @@ const EbarimtConfig = (props: Props) => {
         footerText: '',
         hasCopy: false,
         hasSumQty: false,
-        isCleanTaxPrice: false,
       }
   );
 
@@ -211,7 +210,6 @@ const EbarimtConfig = (props: Props) => {
               {renderInput('footerText', 'Footer text', '', 'text', true)}
               {renderCheckbox('hasCopy', 'Has copy', '')}
               {renderCheckbox('hasSumQty', 'Has summary qty', '')}
-              {renderCheckbox('isCleanTaxPrice', 'Is clean tax price', '')}
             </BlockRow>
           </Block>
         </LeftItem>

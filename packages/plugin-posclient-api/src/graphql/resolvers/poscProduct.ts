@@ -13,36 +13,7 @@ export default {
   },
 
   unitPrice(product: IProductDocument, _args, { config }: IContext) {
-    const mainPrice = product.prices?.[config.token] || 0;
-
-    const ebarimtConfig = config.ebarimtConfig;
-    if (!ebarimtConfig?.isCleanTaxPrice) {
-      return mainPrice;
-    }
-
-    const vatPercent =
-      (ebarimtConfig.hasVat && Number(ebarimtConfig.vatPercent)) || 0;
-    const cityTaxPercent =
-      (ebarimtConfig.hasCitytax && Number(ebarimtConfig.cityTaxPercent)) || 0;
-
-    const taxRule = product.taxRules?.[config.token] || {};
-
-    if (taxRule.taxType && ["2", "3", "5"].includes(taxRule.taxType)) {
-      return mainPrice;
-    }
-
-    let totalPercent = vatPercent + cityTaxPercent + 100;
-
-    if (
-      !ebarimtConfig.hasCitytax &&
-      ebarimtConfig.reverseCtaxRules?.length &&
-      taxRule.citytaxCode
-    ) {
-      const pCtaxPercent = Number(taxRule.citytaxPercent) || 0;
-      totalPercent = vatPercent + pCtaxPercent + 100;
-    }
-
-    return Number(((mainPrice / totalPercent) * 100).toFixed(2));
+    return product.prices?.[config.token] || 0;
   },
 
   savedRemainder(product: IProductDocument, args, { config }: IContext) {
