@@ -9,33 +9,35 @@ interface FooterPageProps {
   content?: string;
 }
 
-export const FooterPage: React.FC<FooterPageProps> = React.memo(({ branch, content }) => {
-  const primaryColor = branch?.primaryColor || COLORS.primary;
+export const FooterPage: React.FC<FooterPageProps> = React.memo(
+  ({ branch, content }) => {
+    const primaryColor = branch?.primaryColor || COLORS.primary;
 
-  const parsedContent = useMemo(
-    () => parseHtmlToPdfElements(content || ''),
-    [content],
-  );
+    const parsedContent = useMemo(
+      () => parseHtmlToPdfElements(content || ''),
+      [content],
+    );
 
-  return (
-    <Page size="A4" style={styles.footerPage}>
-      <View style={styles.pageHeader}>
-        {branch?.mainLogoBase64 ? (
-          <Image src={branch.mainLogoBase64} style={styles.pageHeaderLogo} />
-        ) : null}
-      </View>
+    return (
+      <Page size="A4" style={styles.footerPage}>
+        <View style={styles.pageHeader}>
+          {branch?.mainLogoBase64 ? (
+            <Image src={branch.mainLogoBase64} style={styles.pageHeaderLogo} />
+          ) : null}
+        </View>
 
-      <View style={styles.footerPageContent}>
-        <View style={styles.footerDivider} />
+        <View style={styles.footerPageContent}>
+          <View style={styles.footerDivider} />
 
-        {parsedContent.length > 0 ? (
-          <View style={styles.footerNotesBlock}>{parsedContent}</View>
-        ) : null}
-      </View>
+          {parsedContent.length > 0 ? (
+            <View style={styles.footerNotesBlock}>{parsedContent}</View>
+          ) : null}
+        </View>
 
-      <View
-        style={[styles.footerAccentBar, { backgroundColor: primaryColor }]}
-      />
-    </Page>
-  );
-});
+        <View
+          style={[styles.footerAccentBar, { backgroundColor: primaryColor }]}
+        />
+      </Page>
+    );
+  },
+);

@@ -32,74 +32,76 @@ const parseBoldSegments = (
   return segments.length > 0 ? segments : [{ text, bold: false }];
 };
 
-export const DayBlock: React.FC<DayBlockProps> = React.memo(({
-  groupDay,
-  index,
-}) => {
-  const plainContent = useMemo(() => stripHtml(groupDay.content), [groupDay.content]);
-  const image = groupDay.base64Images?.[0];
-  const dayNumber = groupDay.day ?? index + 1;
-  const isImageLeft = index % 2 === 0;
+export const DayBlock: React.FC<DayBlockProps> = React.memo(
+  ({ groupDay, index }) => {
+    const plainContent = useMemo(
+      () => stripHtml(groupDay.content),
+      [groupDay.content],
+    );
+    const image = groupDay.base64Images?.[0];
+    const dayNumber = groupDay.day ?? index + 1;
+    const isImageLeft = index % 2 === 0;
 
-  const titleParts = useMemo(
-    () =>
-      [`DAY ${dayNumber}.`, (groupDay.title || 'UNTITLED').toUpperCase()]
-        .filter(Boolean)
-        .join(' '),
-    [dayNumber, groupDay.title],
-  );
+    const titleParts = useMemo(
+      () =>
+        [`DAY ${dayNumber}.`, (groupDay.title || 'UNTITLED').toUpperCase()]
+          .filter(Boolean)
+          .join(' '),
+      [dayNumber, groupDay.title],
+    );
 
-  const contentSegments = useMemo(
-    () => parseBoldSegments(plainContent),
-    [plainContent],
-  );
+    const contentSegments = useMemo(
+      () => parseBoldSegments(plainContent),
+      [plainContent],
+    );
 
-  const contentView = useMemo(
-    () => (
-      <Text style={styles.dayContent}>
-        {contentSegments.map((seg, i) =>
-          seg.bold ? (
-            <Text key={i} style={styles.dayContentBold}>
-              {seg.text}
-            </Text>
-          ) : (
-            <Text key={i}>{seg.text}</Text>
-          ),
-        )}
-      </Text>
-    ),
-    [contentSegments],
-  );
+    const contentView = useMemo(
+      () => (
+        <Text style={styles.dayContent}>
+          {contentSegments.map((seg, i) =>
+            seg.bold ? (
+              <Text key={i} style={styles.dayContentBold}>
+                {seg.text}
+              </Text>
+            ) : (
+              <Text key={i}>{seg.text}</Text>
+            ),
+          )}
+        </Text>
+      ),
+      [contentSegments],
+    );
 
-  if (!image) {
+    if (!image) {
+      return (
+        <View style={styles.dayBlock} wrap={false}>
+          <Text style={styles.dayTitle}>{titleParts}</Text>
+          <View style={styles.dayNoImage}>{contentView}</View>
+        </View>
+      );
+    }
+
     return (
       <View style={styles.dayBlock} wrap={false}>
         <Text style={styles.dayTitle}>{titleParts}</Text>
-        <View style={styles.dayNoImage}>{contentView}</View>
+        <View style={styles.dayTwoColumn}>
+          {isImageLeft ? (
+            <>
+              <View style={styles.dayImageColumn}>
+                <Image src={image} style={styles.dayImage} />
+              </View>
+              <View style={styles.dayContentColumn}>{contentView}</View>
+            </>
+          ) : (
+            <>
+              <View style={styles.dayContentColumnWide}>{contentView}</View>
+              <View style={styles.dayImageColumnWide}>
+                <Image src={image} style={styles.dayImage} />
+              </View>
+            </>
+          )}
+        </View>
       </View>
     );
-  }
-
-  return (
-    <View style={styles.dayBlock} wrap={false}>
-      <Text style={styles.dayTitle}>{titleParts}</Text>
-      <View style={styles.dayTwoColumn}>
-        {isImageLeft ? (
-          <>
-            <View style={styles.dayImageColumn}>
-              <Image src={image} style={styles.dayImage} />
-            </View>
-            <View style={styles.dayContentColumn}>{contentView}</View>
-          </>
-        ) : (
-          <>
-            <View style={styles.dayContentColumnWide}>{contentView}</View>
-            <View style={styles.dayImageColumnWide}>
-              <Image src={image} style={styles.dayImage} />
-            </View>
-          </>
-        )}
-      </View>
-    </View>
-  );
-});
+  },
+);

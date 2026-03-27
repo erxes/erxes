@@ -28,7 +28,10 @@ export const stripHtml = (html?: string | null): string => {
     .replace(/<\/div>/gi, '\n')
     .replace(/<\/li>/gi, '\n')
     .replace(/<[^>]*>/g, '')
-    .replace(ENTITY_REGEX, (match) => HTML_ENTITIES[match.toLowerCase()] || match)
+    .replace(
+      ENTITY_REGEX,
+      (match) => HTML_ENTITIES[match.toLowerCase()] || match,
+    )
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 };
@@ -43,7 +46,6 @@ export const generateFilename = (name?: string | null): string => {
     .replace(/^-|-$/g, '');
   return `${safeName}.pdf`;
 };
-
 
 /**
  * Returns multiple URL candidates for an image path (for fallback).

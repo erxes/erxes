@@ -26,46 +26,47 @@ const PageHeaderSection: React.FC<{
   );
 });
 
-const PageFooterSection: React.FC<{ name: string }> = React.memo(function PageFooterSection({ name }) {
-  return (
-    <View style={styles.fixedFooter} fixed>
-      <Text style={styles.fixedFooterText}>{name}</Text>
-      <Text
-        style={styles.fixedFooterText}
-        render={({ pageNumber, totalPages }) =>
-          `Page ${pageNumber} of ${totalPages}`
-        }
-      />
-    </View>
-  );
-});
+const PageFooterSection: React.FC<{ name: string }> = React.memo(
+  function PageFooterSection({ name }) {
+    return (
+      <View style={styles.fixedFooter} fixed>
+        <Text style={styles.fixedFooterText}>{name}</Text>
+        <Text
+          style={styles.fixedFooterText}
+          render={({ pageNumber, totalPages }) =>
+            `Page ${pageNumber} of ${totalPages}`
+          }
+        />
+      </View>
+    );
+  },
+);
 
-export const ItineraryPage: React.FC<ItineraryPageProps> = React.memo(function ItineraryPage({
-  itinerary,
-  branch,
-}) {
-  const groupDays = itinerary.groupDays ?? [];
-  const primaryColor = branch?.primaryColor || COLORS.primary;
-  const name = itinerary.name || 'Untitled Itinerary';
+export const ItineraryPage: React.FC<ItineraryPageProps> = React.memo(
+  function ItineraryPage({ itinerary, branch }) {
+    const groupDays = itinerary.groupDays ?? [];
+    const primaryColor = branch?.primaryColor || COLORS.primary;
+    const name = itinerary.name || 'Untitled Itinerary';
 
-  return (
-    <Page size="A4" style={styles.page} wrap>
-      <PageHeaderSection branch={branch} primaryColor={primaryColor} />
-      <PageFooterSection name={name} />
+    return (
+      <Page size="A4" style={styles.page} wrap>
+        <PageHeaderSection branch={branch} primaryColor={primaryColor} />
+        <PageFooterSection name={name} />
 
-      {groupDays.length === 0 ? (
-        <Text style={styles.noItineraryText}>
-          No daily itinerary has been added yet.
-        </Text>
-      ) : (
-        groupDays.map((day, idx) => (
-          <DayBlock
-            key={`day-${day.day ?? idx}`}
-            groupDay={day}
-            index={idx}
-          />
-        ))
-      )}
-    </Page>
-  );
-});
+        {groupDays.length === 0 ? (
+          <Text style={styles.noItineraryText}>
+            No daily itinerary has been added yet.
+          </Text>
+        ) : (
+          groupDays.map((day, idx) => (
+            <DayBlock
+              key={`day-${day.day ?? idx}`}
+              groupDay={day}
+              index={idx}
+            />
+          ))
+        )}
+      </Page>
+    );
+  },
+);

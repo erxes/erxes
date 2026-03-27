@@ -1,12 +1,5 @@
 import { Control } from 'react-hook-form';
-import {
-  Form,
-  Input,
-  Button,
-  Upload,
-  readImage,
-  Editor,
-} from 'erxes-ui';
+import { Form, Input, Button, Upload, readImage, Editor } from 'erxes-ui';
 import { ItineraryCreateFormType } from '../constants/formSchema';
 import { IconMinus, IconUpload, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
