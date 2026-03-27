@@ -53,9 +53,9 @@ export const loadProductClass = (
      */
     public static async createProduct(doc: IProduct) {
       doc.code = doc.code
-        .replace(/\*/g, '')
-        .replace(/_/g, '')
-        .replace(/ /g, '');
+        .replaceAll('*', '')
+        .replaceAll('_', '')
+        .replaceAll(' ', '');
       await this.checkCodeDuplication(doc.code);
 
       doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
@@ -134,7 +134,7 @@ export const loadProductClass = (
       });
 
       if (doc.code) {
-        doc.code = doc.code.replace(/\*/g, '');
+        doc.code = doc.code.replaceAll('*', '');
         doc.uom = await models.Uoms.checkUOM(doc);
         doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
 
@@ -276,7 +276,7 @@ export const loadProductClass = (
         // property note: prepare mergeProperties method
         propertiesData = {
           ...propertiesData,
-          ...(productObj.propertiesData || {}),
+          ...productObj.propertiesData,
         };
 
         // Merging products tagIds
@@ -397,7 +397,7 @@ export const loadProductClass = (
       if (barcodes && barcodes.length) {
         barcodes = barcodes
           .filter((bc) => bc)
-          .map((bc) => bc.replace(/\s/g, '').replace(/_/g, ''));
+          .map((bc) => bc.replaceAll(' ', '').replaceAll('_', ''));
 
         if (variants) {
           const undefinedVariantCodes = Object.keys(variants).filter(
