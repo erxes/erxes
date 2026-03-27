@@ -19,4 +19,5 @@ export interface IEbarimtConfig {
 
   reverseVatRules?: string[];
   reverseCtaxRules?: string[];
+  isCleanTaxPrice: boolean;
 }
