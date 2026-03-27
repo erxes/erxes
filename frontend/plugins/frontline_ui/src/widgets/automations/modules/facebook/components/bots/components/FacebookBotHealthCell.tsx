@@ -1,6 +1,6 @@
 import { IFacebookBotHealth } from '@/integrations/facebook/types/FacebookBot';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { Badge, Popover, RecordTableInlineCell } from 'erxes-ui';
+import { Badge, Popover, RecordTableInlineCell, Tooltip } from 'erxes-ui';
 import { useFacebookBotHealthCell } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotHealthCell';
 
 export const FacebookBotHealthCell = ({
