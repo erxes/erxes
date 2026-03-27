@@ -13,6 +13,7 @@ import { useAtomValue } from "jotai"
 
 import Image from "@/components/ui/image"
 import ActivateOrderQr from "@/modules/settings/components/activateOrder"
+import ActiveteOrderPrint from "@/modules/settings/components/activeteOrderPrint"
 
 const Settings = () => {
   const { details, email } = useAtomValue(currentUserAtom) || {}
@@ -27,9 +28,9 @@ const Settings = () => {
         width={80}
         className="rounded-full"
       />
-      <div className="mb-1 mt-3 font-bold">{details?.fullName}</div>
+      <div className="mt-3 mb-1 font-bold">{details?.fullName}</div>
       <div className="mb-5">{email}</div>
-      <div className="mb-4 w-full rounded-lg bg-neutral-100 py-2 text-center">
+      <div className="w-full py-2 mb-4 text-center rounded-lg bg-neutral-100">
         <p>{config?.name}</p>
         <div className="font-bold">{config?.createdAt}</div>
       </div>
@@ -40,6 +41,7 @@ const Settings = () => {
       <ScrollerWidth />
       <PrintItemStatus />
       <ActivateOrderQr/>
+      <ActiveteOrderPrint />
       <CategoriesToPrint />
       <StatusExplain />
     </>

@@ -30,12 +30,12 @@ const CategoriesToPrint = () => {
 
   if (loading) return <Loader />
 
-  const rootCategories = (categories || []).filter(
-    (category) =>
-      !categories.find(
-        (cat) => cat._id !== category._id && category.order.includes(cat.order)
-      )
-  )
+  // const rootCategories = (categories || []).filter(
+  //   (category) =>
+  //     !categories.find(
+  //       (cat) => cat._id !== category._id && category.order.includes(cat.order)
+  //     )
+  // )
 
   const getGen = (order: string) => order.split("/").length
 
@@ -81,7 +81,7 @@ const CategoriesToPrint = () => {
   }
 
   return (
-    <div className="space-y-3 w-full">
+    <div className="w-full space-y-3">
       {categoriesToPrint.map((filterGroup, index) => (
         <div
           key={`category-filter-${index}-${(filterGroup || []).join("|")}`}
@@ -89,7 +89,7 @@ const CategoriesToPrint = () => {
         >
           <div className="flex-1">
             <FacetedFilter
-              options={getMainCategories(rootCategories).map((category) => ({
+              options={(categories || []).map((category) => ({
                 label: category.name,
                 value: category.order,
               }))}
@@ -104,7 +104,7 @@ const CategoriesToPrint = () => {
               variant="ghost"
               size="sm"
               onClick={() => removeFilter(index)}
-              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+              className="w-8 h-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
               aria-label={`Remove filter group ${index + 1}`}
             >
               ❌
@@ -117,9 +117,9 @@ const CategoriesToPrint = () => {
         variant="outline"
         size="sm"
         onClick={addNewFilter}
-        className="w-full h-8 text-xs text-muted-foreground border-dashed hover:border-solid"
+        className="w-full h-8 text-xs border-dashed text-muted-foreground hover:border-solid"
       >
-        <Plus className="h-3 w-3 mr-1" />
+        <Plus className="w-3 h-3 mr-1" />
         Шинэ принт нэмэх
       </Button>
     </div>
