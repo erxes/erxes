@@ -6,6 +6,7 @@ import { useSetAtom } from 'jotai';
 import { IBrand } from '../types';
 import { renderingBrandDetailAtom } from '../state';
 import { useBrandsRemove } from '../hooks/useBrandsRemove';
+import { Can } from 'ui-modules';
 
 export const BrandsMoreColumnCell = ({
   cell,
@@ -37,24 +38,30 @@ export const BrandsMoreColumnCell = ({
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
+      <Can actions={['brandsUpdate', 'brandsDelete']}>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+      </Can>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => {
-                setRenderingBrandDetail(true);
-                setBrandDetail(_id);
-              }}
-            >
-              <IconEdit /> Edit
-            </Command.Item>
-            <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
-            </Command.Item>
+            <Can action="brandsUpdate">
+              <Command.Item
+                value="edit"
+                onSelect={() => {
+                  setRenderingBrandDetail(true);
+                  setBrandDetail(_id);
+                }}
+              >
+                <IconEdit /> Edit
+              </Command.Item>
+            </Can>
+            <Can action="brandsDelete">
+              <Command.Item value="delete" onSelect={handleDelete}>
+                <IconTrash /> Delete
+              </Command.Item>
+            </Can>
           </Command.List>
         </Command>
       </Combobox.Content>
