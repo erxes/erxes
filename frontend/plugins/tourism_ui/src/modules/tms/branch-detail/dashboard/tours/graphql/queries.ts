@@ -58,6 +58,26 @@ export const GET_TOURS = gql`
   }
 `;
 
+export const GET_TOUR_ORDER_DETAIL = gql`
+  query BmsOrderDetail($id: String!) {
+    bmsOrderDetail(_id: $id) {
+      _id
+      branchId
+      customerId
+      tourId
+      amount
+      status
+      note
+      numberOfPeople
+      type
+      additionalCustomers
+      isChild
+      parent
+      createdAt
+    }
+  }
+`;
+
 export const GET_TOUR_GROUPS = gql`
   query BmToursGroup(
     $branchId: String
@@ -127,6 +147,64 @@ export const GET_TOUR_DETAIL = gql`
       startDate
       status
       categoryIds
+      pricingOptions {
+        _id
+        title
+        minPersons
+        maxPersons
+        pricePerPerson
+        accommodationType
+        domesticFlightPerPerson
+        singleSupplement
+        note
+      }
+    }
+  }
+`;
+
+export const GET_TOUR_ORDERS = gql`
+  query BmsOrders(
+    $tourId: String
+    $orderBy: JSON
+    $sortMode: String
+    $aggregationPipeline: [JSON]
+    $direction: CURSOR_DIRECTION
+    $cursorMode: CURSOR_MODE
+    $cursor: String
+    $limit: Int
+  ) {
+    bmsOrders(
+      tourId: $tourId
+      orderBy: $orderBy
+      sortMode: $sortMode
+      aggregationPipeline: $aggregationPipeline
+      direction: $direction
+      cursorMode: $cursorMode
+      cursor: $cursor
+      limit: $limit
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      list {
+        _id
+        branchId
+        customerId
+        tourId
+        amount
+        status
+        note
+        numberOfPeople
+        type
+        additionalCustomers
+        isChild
+        parent
+        createdAt
+      }
     }
   }
 `;

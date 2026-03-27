@@ -3,7 +3,6 @@ export interface IItinerary {
   branchId?: string;
   name?: string;
   duration?: number;
-  color?: string;
   createdAt?: string;
   modifiedAt?: string;
 }

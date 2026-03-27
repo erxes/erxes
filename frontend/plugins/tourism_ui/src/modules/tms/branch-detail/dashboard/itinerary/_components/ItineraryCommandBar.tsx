@@ -10,6 +10,8 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useRemoveItineraries } from '../hooks/useRemoveItineraries';
+import { useItineraryDetail } from '../hooks/useItineraryDetail';
+import { ExportPDFButton } from '../pdf';
 
 export const ItineraryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -20,6 +22,11 @@ export const ItineraryCommandBar = () => {
   const itineraryIds = selectedRows.map((row) => row.original._id);
   const selectedCount = itineraryIds.length;
   const { removeItineraries, loading } = useRemoveItineraries();
+  const singleId = selectedCount === 1 ? itineraryIds[0] : undefined;
+  const { itinerary, loading: detailLoading } = useItineraryDetail(
+    singleId,
+    selectedCount === 1,
+  );
 
   const onRemove = () => {
     confirm({
@@ -50,6 +57,17 @@ export const ItineraryCommandBar = () => {
       <CommandBar.Bar>
         <CommandBar.Value>{selectedCount} selected</CommandBar.Value>
         <Separator.Inline />
+        {selectedCount === 1 && (
+          <>
+            <ExportPDFButton
+              itinerary={itinerary}
+              loading={detailLoading}
+              variant="secondary"
+              size="sm"
+            />
+            <Separator.Inline />
+          </>
+        )}
         <Button
           variant="secondary"
           className="text-destructive"

@@ -27,7 +27,7 @@ function buildDateSelector(
 }
 
 const escapeRegExp = (value: string): string =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
 async function buildSubCategoryIds(
   models: IContext['models'],
@@ -254,13 +254,17 @@ const tourQueries: Record<string, Resolver> = {
     return models.Tours.findById(_id);
   },
 
-  bmsTourCategories(_root, { parentId }, { models }: IContext) {
+  bmsTourCategories(_root, { parentId, name }, { models }: IContext) {
     const selector: any = {};
 
     if (parentId) {
       selector.parentId = parentId;
     } else if (parentId === null) {
       selector.parentId = null;
+    }
+
+    if (name) {
+      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     }
 
     return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });

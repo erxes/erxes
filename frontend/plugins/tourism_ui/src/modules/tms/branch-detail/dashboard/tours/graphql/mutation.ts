@@ -31,6 +31,7 @@ export const CREATE_TOUR = gql`
     $joinPercent: Float
     $personCost: JSON
     $categoryIds: [String]
+    $pricingOptions: [PricingOptionInput]
   ) {
     bmsTourAdd(
       branchId: $branchId
@@ -62,6 +63,7 @@ export const CREATE_TOUR = gql`
       joinPercent: $joinPercent
       personCost: $personCost
       categoryIds: $categoryIds
+      pricingOptions: $pricingOptions
     ) {
       _id
     }
@@ -98,6 +100,7 @@ export const EDIT_TOUR = gql`
     $images: [String]
     $imageThumbnail: String
     $categoryIds: [String]
+    $pricingOptions: [PricingOptionInput]
   ) {
     bmsTourEdit(
       _id: $id
@@ -128,6 +131,7 @@ export const EDIT_TOUR = gql`
       images: $images
       imageThumbnail: $imageThumbnail
       categoryIds: $categoryIds
+      pricingOptions: $pricingOptions
     ) {
       _id
     }
@@ -137,5 +141,25 @@ export const EDIT_TOUR = gql`
 export const REMOVE_TOUR = gql`
   mutation BmsTourRemove($ids: [String]) {
     bmsTourRemove(ids: $ids)
+  }
+`;
+
+export const EDIT_TOUR_ORDER = gql`
+  mutation BmsOrderEdit($id: String!, $order: BmsOrderInput) {
+    bmsOrderEdit(_id: $id, order: $order) {
+      _id
+      branchId
+      customerId
+      tourId
+      amount
+      status
+      note
+      numberOfPeople
+      type
+      additionalCustomers
+      isChild
+      parent
+      createdAt
+    }
   }
 `;
