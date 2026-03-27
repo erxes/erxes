@@ -25,7 +25,6 @@ export const appRouter = t.router({
         }),
       )
       .query(async ({ input }) => {
-        console.log('🔥 TRPC EXPORT HIT:', input);
 
         const { moduleName, collectionName } = input;
 
@@ -59,11 +58,6 @@ export const appRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         const { moduleName, collectionName } = input;
-
-        console.log('🔥 EXPORT DATA HIT:', {
-          moduleName,
-          collectionName,
-        });
 
         if (moduleName === 'pos' && collectionName === 'posItems') {
           const items = await (models as any).PosItems.find().lean();
