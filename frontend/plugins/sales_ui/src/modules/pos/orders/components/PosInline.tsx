@@ -27,17 +27,17 @@ const PosInlineProvider = ({
   placeholder,
   updatePos,
 }: PosInlineProps & { children?: React.ReactNode }) => {
-  const [_pos, _setPos] = useState<IPos[]>(pos || []);
+  const [localPos, setLocalPos] = useState<IPos[]>(pos || []);
 
   const contextValue = useMemo(() => {
     return {
-      pos: pos || _pos,
+      pos: pos || localPos,
       loading: false,
       posIds: posIds || [],
       placeholder: isUndefinedOrNull(placeholder) ? 'Select pos' : placeholder,
-      updatePos: updatePos || _setPos,
+      updatePos: updatePos || setLocalPos,
     };
-  }, [pos, _pos, posIds, placeholder, updatePos]);
+  }, [pos, localPos, posIds, placeholder, updatePos]);
 
   return (
     <PosInlineContext.Provider value={contextValue}>

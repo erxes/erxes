@@ -1,4 +1,4 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Spinner } from 'erxes-ui';
 import {
   firstOrderColumns,
   secondOrderColumns,
@@ -7,7 +7,6 @@ import {
 import { useOrdersList } from '@/pos/orders/hooks/UseOrderList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
-import { Spinner } from 'erxes-ui';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { ordersList, handleFetchMore, loading, pageInfo } = useOrdersList({
