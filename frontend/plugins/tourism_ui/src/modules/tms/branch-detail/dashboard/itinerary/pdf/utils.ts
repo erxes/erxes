@@ -26,7 +26,6 @@ export const stripHtml = (html?: string | null): string => {
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/p>/gi, '\n')
     .replace(/<\/div>/gi, '\n')
-<<<<<<< HEAD
     .replace(/<\/li>/gi, '\n');
 
   // Loop to handle nested/malformed tags (e.g. <scr<script>ipt>)
@@ -40,10 +39,6 @@ export const stripHtml = (html?: string | null): string => {
   result = result.replace(/<[a-z][\s\S]*/gi, '');
 
   return result
-=======
-    .replace(/<\/li>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
->>>>>>> 34ae83f752a22d497f86d6ef407c3d387444bf68
     .replace(
       ENTITY_REGEX,
       (match) => HTML_ENTITIES[match.toLowerCase()] || match,
