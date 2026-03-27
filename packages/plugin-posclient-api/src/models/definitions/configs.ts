@@ -22,6 +22,7 @@ export interface IEbarimtConfig {
   footerText?: string;
   hasCopy: boolean;
   hasSumQty: boolean;
+  isCleanTaxPrice?: boolean;
 }
 
 interface IConfigColors {
@@ -149,6 +150,7 @@ const ebarimtConfigSchema = new Schema(
     footerText: field({ type: String, optional: true, label: "Footer text" }),
     hasCopy: field({ type: Boolean, optional: true }),
     hasSumQty: field({ type: Boolean, optional: true }),
+    isCleanTaxPrice: field({ type: Boolean, optional: true }),
   },
   { _id: false },
 );

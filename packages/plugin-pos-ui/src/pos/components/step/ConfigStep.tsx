@@ -359,7 +359,7 @@ const ConfigStep = (props: Props) => {
                 type="number"
                 min={0}
                 max={100}
-                value={pos.serviceCharge || ""}
+                value={pos.serviceCharge ?? ""}
                 onChange={onChangeInput}
               />
             </FormGroup>

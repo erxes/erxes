@@ -55,6 +55,7 @@ export interface IEbarimtConfig {
   ebarimtUrl?: string
   companyRD?: string
   companyName?: string
+  isCleanTaxPrice?: boolean
 }
 
 export interface IPaymentType {
