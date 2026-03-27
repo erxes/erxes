@@ -41,8 +41,10 @@ export const adminMutations: Record<string, Resolver> = {
   async cpUsersRemove(
     _root: unknown,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('clientPortalManage');
+
     await models.CPUser.removeUser(_id, models);
     return { _id };
   },

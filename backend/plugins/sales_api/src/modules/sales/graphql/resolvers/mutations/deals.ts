@@ -109,12 +109,24 @@ export const dealMutations = {
   async dealsRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { user, models }: IContext,
   ) {
     const item = await models.Deals.findOne({ _id });
 
     if (!item) {
       throw new Error('Deal not found');
+    }
+
+    const stage = await models.Stages.getStage(item.stageId);
+
+    const { canEditMemberIds } = stage;
+
+    if (
+      canEditMemberIds &&
+      canEditMemberIds.length > 0 &&
+      !canEditMemberIds.includes(user._id)
+    ) {
+      throw new Error('Permission denied');
     }
 
     const removed = await models.Deals.removeDeals([item._id]);
