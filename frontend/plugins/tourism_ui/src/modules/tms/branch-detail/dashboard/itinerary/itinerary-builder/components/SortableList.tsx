@@ -105,7 +105,7 @@ export function SortableList<T extends SortableItem>({
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-2 w-full">
+    <div role="list" className="space-y-2 w-full">
       {items.map((item, index) => {
         const isDragging = dragIndex === index;
         const isOver = overIndex === index && dragIndex !== index;

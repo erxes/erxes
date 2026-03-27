@@ -40,8 +40,10 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   const [generating, setGenerating] = useState(false);
   const { toast } = useToast();
   const downloadTimeoutRef = useRef<NodeJS.Timeout>();
+  const lastObjectUrlRef = useRef<string>();
 
   const triggerDownload = useCallback((url: string, filename: string): void => {
+    lastObjectUrlRef.current = url;
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
@@ -53,6 +55,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
         link.remove();
       }
       URL.revokeObjectURL(url);
+      lastObjectUrlRef.current = undefined;
     }, 5000);
   }, []);
 
@@ -61,6 +64,9 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     return () => {
       if (downloadTimeoutRef.current) {
         clearTimeout(downloadTimeoutRef.current);
+      }
+      if (lastObjectUrlRef.current) {
+        URL.revokeObjectURL(lastObjectUrlRef.current);
       }
     };
   }, []);
@@ -92,9 +98,9 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
 
     try {
       // Check blob cache first — skip full regeneration if data unchanged.
-      const cacheKey = `${itinerary._id}:${itinerary.modifiedAt ?? ''}:${
-        branchId ?? ''
-      }`;
+      const cacheKey = `${itinerary._id}:${
+        itinerary.modifiedAt ?? Date.now()
+      }:${branchId ?? ''}`;
       const cachedBlob = pdfBlobCache.get(cacheKey);
       if (cachedBlob) {
         const url = URL.createObjectURL(cachedBlob);
@@ -110,27 +116,46 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
         return;
       }
 
+      let totalImages = 0;
+      let loadedImages = 0;
+
       const groupDaysWithImages = await Promise.all(
-        (itinerary.groupDays || []).map(async (day) => ({
-          ...day,
-          base64Images: await convertImagesToBase64(day.images || [], 1),
-        })),
+        (itinerary.groupDays || []).map(async (day) => {
+          const images = day.images || [];
+          if (images.length > 0) totalImages++;
+          const base64Images = await convertImagesToBase64(images, 1);
+          if (base64Images.length > 0) loadedImages++;
+          return { ...day, base64Images };
+        }),
       );
 
       const coverImages = itinerary.images || [];
+      if (coverImages.length > 0 && coverImages[0]) totalImages++;
       const [coverImageBase64] = await convertImagesToBase64(
         coverImages.length > 0 && coverImages[0] ? [coverImages[0]] : [],
         1,
       );
+      if (coverImageBase64) loadedImages++;
 
       const logoKey =
         branchDetail?.uiOptions?.mainLogo ||
         branchDetail?.uiOptions?.logo ||
         '';
+      if (logoKey) totalImages++;
       const [mainLogoBase64] = await convertImagesToBase64(
         logoKey ? [logoKey] : [],
         1,
       );
+      if (mainLogoBase64) loadedImages++;
+
+      if (totalImages > 0 && loadedImages < totalImages) {
+        toast({
+          title: 'Some images failed to load',
+          description: `${
+            totalImages - loadedImages
+          } of ${totalImages} image(s) could not be loaded. The PDF may have missing images.`,
+        });
+      }
 
       const primaryColor =
         branchDetail?.uiOptions?.colors?.primary || undefined;

@@ -637,7 +637,7 @@ const TourPricingOptionsFieldContent = ({
                     </Form.Label>
                     <Input
                       {...field}
-                      placeholder="e.g., Standard - Solo, Standart - Group"
+                      placeholder="e.g., Standard - Solo, Standard - Group"
                     />
                     <Form.Message>{fieldState.error?.message}</Form.Message>
                   </div>

@@ -163,12 +163,8 @@ export const loadTourClass = (models: IModels) => {
           option.maxPersons !== null &&
           option.maxPersons < option.minPersons
         ) {
-          const maxPersonsDisplay =
-            option.maxPersons === undefined || option.maxPersons === null
-              ? 'unlimited'
-              : option.maxPersons;
           throw new Error(
-            `Invalid pricing option "${option.title}": maxPersons (${maxPersonsDisplay}) must be >= minPersons (${option.minPersons})`,
+            `Invalid pricing option "${option.title}": maxPersons (${option.maxPersons}) must be >= minPersons (${option.minPersons})`,
           );
         }
 

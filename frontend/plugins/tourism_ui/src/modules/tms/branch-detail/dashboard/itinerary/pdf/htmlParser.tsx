@@ -86,7 +86,7 @@ const parseInlineNodes = (html: string): ParsedNode[] => {
     } else if (match[3]) {
       // Plain text
       const text = decodeEntities(match[3]);
-      if (text.trim()) {
+      if (text.length > 0) {
         nodes.push({ type: 'text', content: text });
       }
     }
@@ -154,7 +154,7 @@ export const parseHtmlToPdfElements = (html: string): React.ReactNode[] => {
       <View key={`p-${pIdx}-${para.alignment}`} style={PARAGRAPH_SPACING}>
         <Text style={[BASE_STYLE, { textAlign: para.alignment }]}>
           {para.nodes.map((node, nIdx) => {
-            const key = `${nIdx}-${node.type}-${node.content.slice(0, 12)}`;
+            const key = `p${pIdx}-n${nIdx}`;
             if (node.type === 'break') {
               return <Text key={key}>{'\n'}</Text>;
             }
