@@ -40,7 +40,7 @@ const Settings = () => {
       <ProductSimilarityConfig />
       <ScrollerWidth />
       <PrintItemStatus />
-      <ActivateOrderQr/>
+      <ActivateOrderQr />
       <ActiveteOrderPrint />
       <CategoriesToPrint />
       <StatusExplain />

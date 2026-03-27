@@ -26,7 +26,7 @@ export default {
 
     const taxRule = product.taxRules?.[config.token] || {};
 
-    if (taxRule.taxType && ["2", "3", "5"].includes(taxRule.taxType)) {
+    if (taxRule.taxType && ['2', '3', '5'].includes(taxRule.taxType)) {
       return mainPrice;
     }
 

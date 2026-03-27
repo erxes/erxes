@@ -1,8 +1,12 @@
-import { FormEvent,  useState } from "react"
+import { FormEvent, useState } from "react"
 import { mutations } from "@/modules/orders/graphql"
 import { orderPasswordAtom } from "@/store/config.store"
 import { paymentDetailAtom } from "@/store/history.store"
-import { activeOrderIdAtom, openCancelDialogAtom, setInitialAtom } from "@/store/order.store"
+import {
+  activeOrderIdAtom,
+  openCancelDialogAtom,
+  setInitialAtom,
+} from "@/store/order.store"
 import { useMutation } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
@@ -30,8 +34,7 @@ export const HistoryOrderCancelTrigger = ({
   loading?: boolean
   _id: string
 }) => {
-  const paymentDetail =
-    useAtomValue(paymentDetailAtom)
+  const paymentDetail = useAtomValue(paymentDetailAtom)
   const { changeOpen, lessZero } = useOrderCancel(paymentDetail)
 
   return (
@@ -46,17 +49,21 @@ export const HistoryOrderCancelTrigger = ({
 }
 
 export const CheckoutCancel = ({ order }: { order: IOrder | null }) => {
-  if (!order) return null;
+  if (!order) return null
 
-  const { _id, number } = order || {};
-  if (!_id) return null;
+  const { _id, number } = order || {}
+  if (!_id) return null
 
-  return (<OrderCancel _id={_id} number={number ?? ""} refetchQueries={['ActiveOrders']} />);
-};
+  return (
+    <OrderCancel
+      _id={_id}
+      number={number ?? ""}
+      refetchQueries={["ActiveOrders"]}
+    />
+  )
+}
 
-export const useOrderCancel = (order
-  :IOrder | null
-) => {
+export const useOrderCancel = (order: IOrder | null) => {
   const { cashAmount, mobileAmount, paidAmounts } = order || {}
   const changeOpen = useSetAtom(openCancelDialogAtom)
 
@@ -64,7 +71,7 @@ export const useOrderCancel = (order
     (cashAmount ?? 0) +
     (mobileAmount ?? 0) +
     (paidAmounts?.reduce((total, el) => el.amount + total, 0) ?? 0)
-  
+
   return {
     changeOpen,
     lessZero: paidTotal <= 0,
@@ -127,9 +134,9 @@ const OrderCancel = ({
     return setError(true)
   }
   const handleCancel = () => {
-    changeOpen(null);
-    reset();
-  };
+    changeOpen(null)
+    reset()
+  }
 
   return (
     <>
@@ -174,7 +181,9 @@ const OrderCancel = ({
             )}
 
             <AlertDialogFooter className="pt-6">
-              <AlertDialogCancel onClick={handleCancel}>Болих</AlertDialogCancel>
+              <AlertDialogCancel onClick={handleCancel}>
+                Болих
+              </AlertDialogCancel>
               <Button variant="destructive" type="submit" loading={loading}>
                 Устгах
               </Button>
