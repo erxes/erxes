@@ -28,6 +28,7 @@ import {
   useErxesUpload,
   useRemoveFile,
   useQueryState,
+  Spinner,
 } from 'erxes-ui';
 import { SelectUOMWithName } from './SelectUOMWithName';
 import { SubUomRow, type SubUomItem } from './SubUomRow';
@@ -55,7 +56,6 @@ import { FieldDate } from 'ui-modules/modules/properties/components/FieldDate';
 import { FieldSelect } from 'ui-modules/modules/properties/components/FieldSelect';
 import { FieldRelation } from 'ui-modules/modules/properties/components/FieldRelation';
 import { FieldFile } from 'ui-modules/modules/properties/components/FieldFile';
-import { Spinner } from 'erxes-ui';
 
 export function AddProductForm({
   embed,
@@ -64,11 +64,11 @@ export function AddProductForm({
   onShowMoreInfoChange,
   options,
 }: {
-  embed?: boolean;
-  onOpenChange: (open: boolean) => void;
-  showMoreInfo?: boolean;
-  onShowMoreInfoChange?: (showMoreInfo: boolean) => void;
-  options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
+  readonly embed?: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly showMoreInfo?: boolean;
+  readonly onShowMoreInfoChange?: (showMoreInfo: boolean) => void;
+  readonly options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
 }) {
   const { productsAdd, loading } = useAddProduct();
   const { uoms } = useUom();
@@ -116,10 +116,13 @@ export function AddProductForm({
       ) {
         const customFieldsObj = Object.entries(value)
           .filter(([_, val]) => val !== undefined && val !== null && val !== '')
-          .reduce((acc, [fieldId, val]) => {
-            acc[fieldId] = val;
-            return acc;
-          }, {} as Record<string, unknown>);
+          .reduce(
+            (acc, [fieldId, val]) => {
+              acc[fieldId] = val;
+              return acc;
+            },
+            {} as Record<string, unknown>,
+          );
         if (Object.keys(customFieldsObj).length > 0) {
           cleanData['propertiesData'] = customFieldsObj;
         }
@@ -179,12 +182,9 @@ export function AddProductForm({
 
   const [internalShowMoreInfo, setInternalShowMoreInfo] = useState(false);
   const [selectedTab] = useQueryState<string>('tab');
-  const showMoreInfo =
-    controlledShowMoreInfo !== undefined
-      ? controlledShowMoreInfo
-      : internalShowMoreInfo;
+  const showMoreInfo = controlledShowMoreInfo ?? internalShowMoreInfo;
   const setShowMoreInfo = (value: boolean) => {
-    if (controlledShowMoreInfo === undefined) {
+    if (controlledShowMoreInfo ?? undefined) {
       setInternalShowMoreInfo(value);
     }
     onShowMoreInfoChange?.(value);
@@ -341,7 +341,11 @@ type BarcodeItem = {
   image?: AttachmentItem;
 };
 
-function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
+function BarcodeManager({
+  form,
+}: {
+  readonly form: UseFormReturn<IProductFormValues>;
+}) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
 
   const [code, setCode] = useState('');
@@ -546,7 +550,11 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
   );
 }
 
-function SubUomManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
+function SubUomManager({
+  form,
+}: {
+  readonly form: UseFormReturn<IProductFormValues>;
+}) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
 
   return (
@@ -629,8 +637,8 @@ function AddProductFormFieldsDetail({
   form,
   showExtended = false,
 }: {
-  form: UseFormReturn<IProductFormValues>;
-  showExtended?: boolean;
+  readonly form: UseFormReturn<IProductFormValues>;
+  readonly showExtended?: boolean;
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   return (
@@ -823,7 +831,7 @@ type AttachmentItem = {
 function AddProductFeaturedImage({
   form,
 }: {
-  form: UseFormReturn<IProductFormValues>;
+  readonly form: UseFormReturn<IProductFormValues>;
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const attachment = form.watch('attachment');
@@ -916,7 +924,7 @@ function AddProductFeaturedImage({
 function AddProductAttachmentMore({
   form,
 }: {
-  form: UseFormReturn<IProductFormValues>;
+  readonly form: UseFormReturn<IProductFormValues>;
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const attachmentMore = form.watch('attachmentMore');
@@ -1020,7 +1028,7 @@ function AddProductAttachmentMore({
 function AddProductFormAttachmentsAndExtra({
   form,
 }: {
-  form: UseFormReturn<IProductFormValues>;
+  readonly form: UseFormReturn<IProductFormValues>;
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   return (
@@ -1101,8 +1109,8 @@ function AddProductFormCustomFields({
   form,
   noTopPadding,
 }: {
-  form: UseFormReturn<IProductFormValues>;
-  noTopPadding?: boolean;
+  readonly form: UseFormReturn<IProductFormValues>;
+  readonly noTopPadding?: boolean;
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const { fieldGroups, loading: fieldGroupsLoading } = useFieldGroups({
@@ -1161,9 +1169,9 @@ function CustomFieldsGroup({
   customFieldsData,
   onFieldChange,
 }: {
-  group: IFieldGroup;
-  customFieldsData: Record<string, unknown>;
-  onFieldChange: (fieldId: string, value: unknown) => void;
+  readonly group: IFieldGroup;
+  readonly customFieldsData: Record<string, unknown>;
+  readonly onFieldChange: (fieldId: string, value: unknown) => void;
 }) {
   const { fields, loading } = useFields({
     groupId: group._id,
@@ -1207,9 +1215,9 @@ function CustomField({
   value,
   onFieldChange,
 }: {
-  field: any;
-  value: unknown;
-  onFieldChange: (fieldId: string, value: unknown) => void;
+  readonly field: any;
+  readonly value: unknown;
+  readonly onFieldChange: (fieldId: string, value: unknown) => void;
 }) {
   const handleChange = useCallback(
     (newValue: unknown) => {

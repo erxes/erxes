@@ -10,15 +10,15 @@ export type SubUomItem = {
 };
 
 interface SubUomRowProps {
-  subUom: SubUomItem;
-  index: number;
-  onUpdate: (
+  readonly subUom: SubUomItem;
+  readonly index: number;
+  readonly onUpdate: (
     index: number,
     fieldName: keyof SubUomItem,
     value: string | number,
   ) => void;
-  onRemove: (index: number) => void;
-  t: (key: string) => string;
+  readonly onRemove: (index: number) => void;
+  readonly t: (key: string) => string;
 }
 
 export function SubUomRow({
@@ -37,7 +37,7 @@ export function SubUomRow({
       return false;
     }
     const num = typeof value === 'number' ? value : Number(value);
-    return !isNaN(num) && num !== 0;
+    return !Number.isNaN(num) && num !== 0;
   };
 
   const parseNumber = (value: string | number): number | null => {
@@ -48,15 +48,15 @@ export function SubUomRow({
   };
 
   const ratioValue = parseNumber(subUom.ratio);
-  const calculatedInverseRatio = ratioValue !== null ? 1 / ratioValue : 1;
+  const calculatedInverseRatio = ratioValue === null ? 1 : 1 / ratioValue;
 
   const inverseRatioDisplay =
-    localInverseRatio !== ''
-      ? localInverseRatio
-      : calculatedInverseRatio.toLocaleString('en-US', {
+    localInverseRatio === ''
+      ? calculatedInverseRatio.toLocaleString('en-US', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        });
+        })
+      : localInverseRatio;
 
   useEffect(() => {
     if (!isUpdatingFromRatioRef.current) {
@@ -82,7 +82,7 @@ export function SubUomRow({
           value={
             typeof subUom.ratio === 'string'
               ? subUom.ratio
-              : subUom.ratio?.toString() ?? ''
+              : (subUom.ratio?.toString() ?? '')
           }
           onChange={(e) => {
             const rawValue = e.target.value;
@@ -94,15 +94,15 @@ export function SubUomRow({
 
             const num = Number(rawValue);
 
-            if (!isNaN(num)) {
+            if (Number.isNaN(num)) {
+              onUpdate(index, 'ratio', rawValue);
+            } else {
               isUpdatingFromRatioRef.current = true;
               onUpdate(index, 'ratio', num);
               setLocalInverseRatio('');
               setTimeout(() => {
                 isUpdatingFromRatioRef.current = false;
               }, 0);
-            } else {
-              onUpdate(index, 'ratio', rawValue);
             }
           }}
           onBlur={() => {
@@ -137,7 +137,7 @@ export function SubUomRow({
 
             const invValue = Number(rawValue);
 
-            if (!isNaN(invValue) && invValue !== 0) {
+            if (!Number.isNaN(invValue) && invValue !== 0) {
               const newRatio = 1 / invValue;
               isUpdatingFromRatioRef.current = true;
               onUpdate(index, 'ratio', newRatio);
@@ -150,7 +150,7 @@ export function SubUomRow({
             const invValue = Number(localInverseRatio || inverseRatioDisplay);
 
             if (
-              isNaN(invValue) ||
+              Number.isNaN(invValue) ||
               invValue === 0 ||
               localInverseRatio === '' ||
               localInverseRatio === '-'
