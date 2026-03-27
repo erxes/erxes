@@ -43,7 +43,7 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
         {
           name: '',
           voucherCampaignId: '',
-          probablity: 0,
+          probability: 0,
         },
       ],
     },
@@ -67,7 +67,7 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
           {
             name: spinDetail.awards?.name || '',
             voucherCampaignId: spinDetail.awards?.voucherCampaignId || '',
-            probablity: spinDetail.awards?.probablity || 0,
+            probability: spinDetail.awards?.probability || 0,
           },
         ],
       });

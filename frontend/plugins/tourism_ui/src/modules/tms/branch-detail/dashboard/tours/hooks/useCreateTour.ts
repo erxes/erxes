@@ -46,6 +46,16 @@ export interface ICreateTourVariables {
   joinPercent?: number;
   personCost?: Record<string, any>;
   categoryIds?: string[];
+  pricingOptions?: Array<{
+    title: string;
+    minPersons: number;
+    maxPersons?: number;
+    pricePerPerson: number;
+    accommodationType?: string;
+    domesticFlightPerPerson?: number;
+    singleSupplement?: number;
+    note?: string;
+  }>;
 }
 
 export const useCreateTour = () => {

@@ -23,7 +23,6 @@ const DayItemSchema = z.object({
 export const ItineraryCreateFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   duration: OptionalNumberSchema,
-  color: z.string().optional(),
   groupDays: z.array(DayItemSchema).optional(),
   totalCost: OptionalNumberSchema,
   guideCost: OptionalNumberSchema,
@@ -32,6 +31,8 @@ export const ItineraryCreateFormSchema = z.object({
   gasCost: OptionalNumberSchema,
   personCost: z.record(OptionalNumberSchema).optional(),
   guideCostExtra: OptionalNumberSchema,
+  images: z.array(z.string()).optional(),
+  content: z.string().optional(),
 });
 
 export type ItineraryCreateFormType = z.infer<typeof ItineraryCreateFormSchema>;

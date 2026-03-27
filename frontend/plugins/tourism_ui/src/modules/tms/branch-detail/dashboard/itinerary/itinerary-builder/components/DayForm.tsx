@@ -8,6 +8,7 @@ import { IAmenity } from '../../../amenities/types/amenity';
 
 import { ImageUploadGrid } from '../../../../components';
 import { DayAmenitiesSelect } from './DayAmenitiesSelect';
+import { SortableList } from './SortableList';
 
 interface DayFormProps {
   dayIndex: number;
@@ -16,6 +17,7 @@ interface DayFormProps {
   availableAmenities: IAmenity[];
   droppedElements: IElement[];
   onRemoveElement: (elementId: string) => void;
+  onReorderElements: (reorderedElements: IElement[]) => void;
 }
 
 export const DayForm = ({
@@ -25,6 +27,7 @@ export const DayForm = ({
   availableAmenities,
   droppedElements,
   onRemoveElement,
+  onReorderElements,
 }: DayFormProps) => {
   const dayCost = useMemo(() => {
     return droppedElements.reduce((sum, el) => sum + (el.cost || 0), 0);
@@ -84,29 +87,29 @@ export const DayForm = ({
             Please drag and drop from elements
           </p>
         ) : (
-          <div className="p-4 space-y-2 w-full">
-            <div className="space-y-2 w-full">
-              {droppedElements.map((element) => (
-                <div
-                  key={element._id}
-                  className="flex gap-2 items-center px-3 py-2 rounded-md border transition group"
-                >
+          <div className="p-4 w-full">
+            <SortableList
+              items={droppedElements.map((el) => ({ ...el, id: el._id }))}
+              onReorder={onReorderElements}
+              keyExtractor={(item) => item.id}
+              renderItem={(item) => (
+                <div className="flex gap-2 items-center w-full">
                   <span className="flex-1 min-w-0 text-sm break-all">
-                    {element.name}
+                    {item.name}
                   </span>
 
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
-                    onClick={() => onRemoveElement(element._id)}
+                    onClick={() => onRemoveElement(item._id)}
                     className="shrink-0 text-destructive"
                   >
                     <IconTrash size={16} />
                   </Button>
                 </div>
-              ))}
-            </div>
+              )}
+            />
           </div>
         )}
       </div>

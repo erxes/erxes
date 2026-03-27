@@ -1,5 +1,26 @@
 
 
+## [3.0.6](https://github.com/erxes/erxes/compare/3.0.5...3.0.6) (2026-03-27)
+
+
+### Bug Fixes
+
+* allow unicode letters in sanitizeKey ([95965b3](https://github.com/erxes/erxes/commit/95965b37e44abb289d8e7a6d1fbc057f77b0cd93))
+* handle optional customer ID in buildCustomerTarget function ([1de6dc4](https://github.com/erxes/erxes/commit/1de6dc41f0d6ab15e69047d352cff973b73ffa6c))
+* loyalty improve ([#7303](https://github.com/erxes/erxes/issues/7303)) ([6f83af2](https://github.com/erxes/erxes/commit/6f83af20378280354edb843d85e1ec23acf3a448))
+* restore broadcast, template, and import/export routes ([68bd7aa](https://github.com/erxes/erxes/commit/68bd7aa07969bae72d0e0eac59bcd333e4835d07))
+* show uploaded image on editor ([#7320](https://github.com/erxes/erxes/issues/7320)) ([7131f00](https://github.com/erxes/erxes/commit/7131f00a8f1f9e96d96e2556d87102af3b52c4bd))
+* sonar resolve be/erxes-api-shared/utils ([#7299](https://github.com/erxes/erxes/issues/7299)) ([703a9b7](https://github.com/erxes/erxes/commit/703a9b779611b79b1e0482be8edf741aee00c5f3))
+* sonar resolve be/frontline/modules/inbox/graphql/resolvers/mutations ([#7301](https://github.com/erxes/erxes/issues/7301)) ([45acdd1](https://github.com/erxes/erxes/commit/45acdd13896b1249844a0b21dd7b2572044011e5))
+
+
+### Features
+
+* **core:** guard contact actions with can ([#7282](https://github.com/erxes/erxes/issues/7282)) ([c04c76f](https://github.com/erxes/erxes/commit/c04c76f61cf0eff73ed03d9a792724b563dc5205))
+* enhance sales deal overview, activity logs, and configurable record-table columns ([#7315](https://github.com/erxes/erxes/issues/7315)) ([07f1f74](https://github.com/erxes/erxes/commit/07f1f74fc3d3f17465904eab0a7564c65ecf62a4))
+* lang switcher in detail page, no content indicator ([#7296](https://github.com/erxes/erxes/issues/7296)) ([74ecf3c](https://github.com/erxes/erxes/commit/74ecf3cf46b342402ffcbe6a57133606a0adb4e8))
+* **tms:** add language fields and remove preview page from create form ([#7283](https://github.com/erxes/erxes/issues/7283)) ([7698e6a](https://github.com/erxes/erxes/commit/7698e6aefe544e4b3a4ed54317002a3a1114717b))
+
 ## [3.0.5](https://github.com/erxes/erxes/compare/3.0.4...3.0.5) (2026-03-25)
 
 ## [3.0.4](https://github.com/erxes/erxes/compare/3.0.3...3.0.4) (2026-03-25)

@@ -15,6 +15,7 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { IPage } from '../types/pageTypes';
+import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 
 export const usePagesColumns = (
   onEditPage?: (page: IPage) => void,
@@ -22,6 +23,7 @@ export const usePagesColumns = (
   pages?: IPage[],
 ): ColumnDef<IPage>[] => {
   const navigate = useNavigate();
+  const { isMissing } = useIsTranslationMissing();
 
   return [
     pageMoreColumn(onEditPage, undefined, onRefetch) as ColumnDef<IPage>,
@@ -31,7 +33,10 @@ export const usePagesColumns = (
       header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
       accessorKey: 'name',
       cell: ({ row }) => {
-        const page = row.original;
+        const page = row.original as IPage & {
+          translations?: { language: string }[];
+        };
+        const missing = isMissing(page.translations);
         return (
           <RecordTableInlineCell>
             <div
@@ -43,7 +48,10 @@ export const usePagesColumns = (
               }}
               className="cursor-pointer"
             >
-              <Badge variant="secondary">
+              <Badge
+                variant={missing ? 'outline' : 'secondary'}
+                className={missing ? 'text-red-500 border-red-300' : ''}
+              >
                 <TextOverflowTooltip value={page.name} />
               </Badge>
             </div>

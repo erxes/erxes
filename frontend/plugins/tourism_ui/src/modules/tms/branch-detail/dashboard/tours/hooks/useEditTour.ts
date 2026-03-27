@@ -6,6 +6,18 @@ import {
   GET_TOUR_DETAIL,
 } from '../graphql/queries';
 
+export interface IPricingOption {
+  _id?: string;
+  title: string;
+  minPersons: number;
+  maxPersons?: number;
+  pricePerPerson: number;
+  accommodationType?: string;
+  domesticFlightPerPerson?: number;
+  singleSupplement?: number;
+  note?: string;
+}
+
 export interface IEditTourVariables {
   id: string;
   dateStatus:
@@ -43,6 +55,7 @@ export interface IEditTourVariables {
   images?: string[];
   imageThumbnail?: string;
   categoryIds?: string[];
+  pricingOptions?: IPricingOption[];
 }
 
 interface IEditTourResponse {

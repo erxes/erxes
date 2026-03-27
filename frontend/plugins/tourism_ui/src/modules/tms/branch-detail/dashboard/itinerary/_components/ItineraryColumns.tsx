@@ -3,7 +3,6 @@ import {
   IconCalendarPlus,
   IconClock,
   IconLabel,
-  IconPalette,
   IconCalendarDot,
   IconCurrencyDollar,
 } from '@tabler/icons-react';
@@ -58,29 +57,6 @@ export const itineraryColumns = (
       </RecordTableInlineCell>
     ),
     size: 140,
-  },
-  {
-    id: 'color',
-    accessorKey: 'color',
-    header: () => <RecordTable.InlineHead icon={IconPalette} label="Color" />,
-    cell: ({ cell }: { cell: any }) => {
-      const color = cell.getValue() as string;
-
-      return (
-        <RecordTableInlineCell>
-          {color ? (
-            <div
-              className="w-6 h-6 rounded-md border border-border"
-              style={{ backgroundColor: color }}
-              title={color}
-            />
-          ) : (
-            <span className="text-xs text-muted-foreground">—</span>
-          )}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 80,
   },
   {
     id: 'totalCost',

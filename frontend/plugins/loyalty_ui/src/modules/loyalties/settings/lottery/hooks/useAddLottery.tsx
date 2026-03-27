@@ -17,7 +17,7 @@ export interface AddLotteryVariables {
   awards?: {
     name?: string;
     voucherCampaignId?: string;
-    probablity?: string;
+    count?: number;
     buyScore?: number;
   };
 }

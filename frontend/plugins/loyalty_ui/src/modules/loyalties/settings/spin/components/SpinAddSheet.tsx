@@ -31,7 +31,7 @@ export const LoyaltySpinAddSheet = () => {
         {
           name: '',
           voucherCampaignId: '',
-          probablity: 0,
+          probability: 0,
         },
       ],
     },

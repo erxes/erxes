@@ -27,6 +27,10 @@ const orderQueries = {
 
     return { list, totalCount, pageInfo };
   },
+
+  async bmsOrderDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Orders.getOrder(_id);
+  },
 };
 
 export default orderQueries;

@@ -110,19 +110,17 @@ export class EditorAttributeUtil {
   }
 
   async getPossibleCustomerFields(): Promise<ICustomerField[]> {
-    if (!this._possibleCustomerFields) {
-      this._possibleCustomerFields = await sendTRPCMessage({
-        subdomain: this.subdomain,
+    this._possibleCustomerFields ??= await sendTRPCMessage({
+      subdomain: this.subdomain,
 
-        pluginName: 'core',
-        method: 'query',
-        module: 'fields',
-        action: 'fieldsCombinedByContentType',
-        input: {
-          contentType: 'core:customer',
-        },
-      });
-    }
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: 'fieldsCombinedByContentType',
+      input: {
+        contentType: 'core:customer',
+      },
+    });
 
     if (!this._possibleCustomerFields) {
       throw new Error('Cannot acquire possibleCustomerFields');
@@ -294,14 +292,16 @@ export class EditorAttributeUtil {
       replacers.push({ key: '{{ user.email }}', value: user.email || '' });
 
       if (user.details) {
-        replacers.push({
-          key: '{{ user.fullName }}',
-          value: user.details.fullName || '',
-        });
-        replacers.push({
-          key: '{{ user.position }}',
-          value: user.details.position || '',
-        });
+        replacers.push(
+          {
+            key: '{{ user.fullName }}',
+            value: user.details.fullName || '',
+          },
+          {
+            key: '{{ user.position }}',
+            value: user.details.position || '',
+          },
+        );
       }
     }
 
@@ -312,44 +312,47 @@ export class EditorAttributeUtil {
 
     // deal, ticket, task mapping
     if (item) {
-      replacers.push({ key: '{{ itemName }}', value: item.name || '' });
-      replacers.push({
-        key: '{{ itemDescription }}',
-        value: item.description || '',
-      });
-
-      replacers.push({
-        key: '{{ itemCloseDate }}',
-        value: item.closeDate
-          ? new Date(item.closeDate).toLocaleDateString()
-          : '',
-      });
-      replacers.push({
-        key: '{{ itemCreatedAt }}',
-        value: item.createdAt
-          ? new Date(item.createdAt).toLocaleDateString()
-          : '',
-      });
-      replacers.push({
-        key: '{{ itemModifiedAt }}',
-        value: item.modifiedAt
-          ? new Date(item.modifiedAt).toLocaleDateString()
-          : '',
-      });
+      replacers.push(
+        { key: '{{ itemName }}', value: item.name || '' },
+        {
+          key: '{{ itemDescription }}',
+          value: item.description || '',
+        },
+        {
+          key: '{{ itemCloseDate }}',
+          value: item.closeDate
+            ? new Date(item.closeDate).toLocaleDateString()
+            : '',
+        },
+        {
+          key: '{{ itemCreatedAt }}',
+          value: item.createdAt
+            ? new Date(item.createdAt).toLocaleDateString()
+            : '',
+        },
+        {
+          key: '{{ itemModifiedAt }}',
+          value: item.modifiedAt
+            ? new Date(item.modifiedAt).toLocaleDateString()
+            : '',
+        },
+      );
 
       const products = await this.generateProducts(item.productsData);
       const amounts = await this.generateAmounts(item.productsData);
 
-      replacers.push({
-        key: '{{ dealProducts }}',
-        value: products.map((p: any) => p.product.name).join(','),
-      });
-      replacers.push({
-        key: '{{ dealAmounts }}',
-        value: Object.keys(amounts)
-          .map((key) => `${amounts[key]}${key}`)
-          .join(','),
-      });
+      replacers.push(
+        {
+          key: '{{ dealProducts }}',
+          value: products.map((p: any) => p.product.name).join(','),
+        },
+        {
+          key: '{{ dealAmounts }}',
+          value: Object.keys(amounts)
+            .map((key) => `${amounts[key]}${key}`)
+            .join(','),
+        },
+      );
 
       const fieldMetaDatas: any = await sendTRPCMessage({
         subdomain: this.subdomain,
