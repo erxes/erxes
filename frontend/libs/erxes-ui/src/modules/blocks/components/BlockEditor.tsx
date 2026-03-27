@@ -38,12 +38,6 @@ export const BlockEditor = ({
         className,
       )}
     >
-      <style>{`
-        [data-text-alignment="left"]   { text-align: left; }
-        [data-text-alignment="center"] { text-align: center; }
-        [data-text-alignment="right"]  { text-align: right; }
-        [data-text-alignment="justify"]{ text-align: justify; }
-      `}</style>
       <BlockNoteView
         theme={theme as 'light' | 'dark'}
         editor={editor}
