@@ -9,48 +9,46 @@ interface CoverPageProps {
   coverImageBase64?: string;
 }
 
-export const CoverPage: React.FC<CoverPageProps> = React.memo(function CoverPage({
-  itinerary,
-  branch,
-  coverImageBase64,
-}) {
-  const primaryColor = branch?.primaryColor || COLORS.primary;
-  const title = itinerary.name || 'Untitled Itinerary';
-  const duration = itinerary.duration;
+export const CoverPage: React.FC<CoverPageProps> = React.memo(
+  function CoverPage({ itinerary, branch, coverImageBase64 }) {
+    const primaryColor = branch?.primaryColor || COLORS.primary;
+    const title = itinerary.name || 'Untitled Itinerary';
+    const duration = itinerary.duration;
 
-  return (
-    <Page size="A4" style={styles.coverPage}>
-      <View style={styles.coverContentWrapper}>
-        {coverImageBase64 ? (
-          <Image src={coverImageBase64} style={styles.coverBackgroundImage} />
-        ) : (
+    return (
+      <Page size="A4" style={styles.coverPage}>
+        <View style={styles.coverContentWrapper}>
+          {coverImageBase64 ? (
+            <Image src={coverImageBase64} style={styles.coverBackgroundImage} />
+          ) : (
+            <View
+              style={[
+                styles.coverBackgroundImage,
+                { backgroundColor: primaryColor },
+              ]}
+            />
+          )}
+
+          <View style={styles.coverDarkOverlay} />
+
+          {branch?.mainLogoBase64 ? (
+            <View style={styles.coverLogoContainer}>
+              <Image src={branch.mainLogoBase64} style={styles.coverLogo} />
+            </View>
+          ) : null}
+
           <View
             style={[
-              styles.coverBackgroundImage,
-              { backgroundColor: primaryColor },
+              styles.coverOverlayBox,
+              { backgroundColor: primaryColor, opacity: 0.85 },
             ]}
-          />
-        )}
-
-        <View style={styles.coverDarkOverlay} />
-
-        {branch?.mainLogoBase64 ? (
-          <View style={styles.coverLogoContainer}>
-            <Image src={branch.mainLogoBase64} style={styles.coverLogo} />
+          >
+            <Text style={styles.coverTitle}>{title}</Text>
+            <View style={styles.coverDivider} />
+            <Text style={styles.coverDateText}>Duration: {duration} Days</Text>
           </View>
-        ) : null}
-
-        <View
-          style={[
-            styles.coverOverlayBox,
-            { backgroundColor: primaryColor, opacity: 0.85 },
-          ]}
-        >
-          <Text style={styles.coverTitle}>{title}</Text>
-          <View style={styles.coverDivider} />
-          <Text style={styles.coverDateText}>Duration: {duration} Days</Text>
         </View>
-      </View>
-    </Page>
-  );
-});
+      </Page>
+    );
+  },
+);

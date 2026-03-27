@@ -296,7 +296,8 @@ export const ItineraryCreateSheet = ({
                             size={12}
                             strokeWidth={2}
                             className={`transition-transform ${
-                              showMoreOptions ? 'rotate-180' : ''}`}
+                              showMoreOptions ? 'rotate-180' : ''
+                            }`}
                           />
                         </Button>
                       </Collapsible.Trigger>
