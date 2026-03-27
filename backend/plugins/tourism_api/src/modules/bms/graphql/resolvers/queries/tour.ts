@@ -264,7 +264,8 @@ const tourQueries: Record<string, Resolver> = {
     }
 
     if (name) {
-      selector.name = { $regex: name, $options: 'i' };
+      const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      selector.name = { $regex: escapedName, $options: 'i' };
     }
 
     return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });

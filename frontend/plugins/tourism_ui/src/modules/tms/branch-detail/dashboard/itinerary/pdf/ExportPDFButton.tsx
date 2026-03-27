@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import { IconFileTypePdf } from '@tabler/icons-react';
 import { Button, Spinner, useToast } from 'erxes-ui';
@@ -12,20 +12,14 @@ import { useBranchDetail } from '@/tms/hooks/BranchDetail';
  * Skips full PDF regeneration when the same data is exported again.
  */
 const pdfBlobCache = new Map<string, Blob>();
+const MAX_PDF_CACHE_SIZE = 50;
 
-/**
- * Creates a temporary <a> element to trigger a file download, then cleans up.
- */
-function triggerDownload(url: string, filename: string): void {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  setTimeout(() => {
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }, 100);
+function setCachedPdf(key: string, blob: Blob) {
+  if (pdfBlobCache.size >= MAX_PDF_CACHE_SIZE) {
+    const firstKey = pdfBlobCache.keys().next().value;
+    if (firstKey) pdfBlobCache.delete(firstKey);
+  }
+  pdfBlobCache.set(key, blob);
 }
 
 interface ExportPDFButtonProps {
@@ -45,6 +39,29 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
 }) => {
   const [generating, setGenerating] = useState(false);
   const { toast } = useToast();
+  const downloadTimeoutRef = useRef<NodeJS.Timeout>();
+
+  const triggerDownload = useCallback((url: string, filename: string): void => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+
+    downloadTimeoutRef.current = setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (downloadTimeoutRef.current) {
+        clearTimeout(downloadTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const branchId = itinerary?.branchId;
   const { branchDetail, loading: branchLoading } = useBranchDetail({
@@ -73,14 +90,18 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
 
     try {
       // Check blob cache first — skip full regeneration if data unchanged.
-      const cacheKey = `${itinerary._id}:${itinerary.modifiedAt ?? ''}:${branchId ?? ''}`;
+      const cacheKey = `${itinerary._id}:${itinerary.modifiedAt ?? ''}:${
+        branchId ?? ''
+      }`;
       const cachedBlob = pdfBlobCache.get(cacheKey);
       if (cachedBlob) {
         const url = URL.createObjectURL(cachedBlob);
         triggerDownload(url, generateFilename(itinerary.name));
         toast({
           title: 'PDF exported',
-          description: `"${itinerary.name || 'Itinerary'}" has been downloaded.`,
+          description: `"${
+            itinerary.name || 'Itinerary'
+          }" has been downloaded.`,
           variant: 'success',
         });
         setGenerating(false);
@@ -127,7 +148,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
         />,
       ).toBlob();
 
-      pdfBlobCache.set(cacheKey, blob);
+      setCachedPdf(cacheKey, blob);
 
       const url = URL.createObjectURL(blob);
       triggerDownload(url, generateFilename(itinerary.name));
@@ -156,6 +177,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     branchLoading,
     itinerary,
     toast,
+    triggerDownload,
   ]);
 
   const isDisabled =

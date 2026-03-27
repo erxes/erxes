@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View } from '@react-pdf/renderer';
 import { COLORS } from './styles';
+import { stripHtml } from './utils';
 
 interface ParsedNode {
   type: 'text' | 'bold' | 'break';
@@ -27,6 +28,36 @@ const PARAGRAPH_SPACING = {
   marginBottom: 6,
 };
 
+const INLINE_ENTITIES: Record<string, string> = {
+  '&nbsp;': ' ',
+  '&amp;': '&',
+  '&lt;': '<',
+  '&gt;': '>',
+  '&quot;': '"',
+  '&#39;': "'",
+};
+
+const INLINE_ENTITY_REGEX = new RegExp(
+  Object.keys(INLINE_ENTITIES).join('|'),
+  'gi',
+);
+
+const decodeEntities = (text: string): string =>
+  text.replace(
+    INLINE_ENTITY_REGEX,
+    (m) => INLINE_ENTITIES[m.toLowerCase()] || m,
+  );
+
+const stripTags = (text: string): string => {
+  let result = text;
+  let prev;
+  do {
+    prev = result;
+    result = result.replace(/<[^>]*>/g, '');
+  } while (result !== prev);
+  return result.replace(/<[a-z][\s\S]*/gi, '');
+};
+
 const extractAlignment = (
   tag: string,
 ): 'left' | 'center' | 'right' | 'justify' => {
@@ -42,15 +73,9 @@ const parseInlineNodes = (html: string): ParsedNode[] => {
   while ((match = regex.exec(html)) !== null) {
     if (match[1]) {
       // <strong> or <b>
-      const boldText = match[2]
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<[^>]*>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'");
+      const boldText = decodeEntities(
+        stripTags(match[2].replace(/<br\s*\/?>/gi, '\n')),
+      );
       if (boldText) {
         nodes.push({ type: 'bold', content: boldText });
       }
@@ -58,13 +83,7 @@ const parseInlineNodes = (html: string): ParsedNode[] => {
       nodes.push({ type: 'break', content: '\n' });
     } else if (match[3]) {
       // Plain text
-      const text = match[3]
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'");
+      const text = decodeEntities(match[3]);
       if (text.trim()) {
         nodes.push({ type: 'text', content: text });
       }
@@ -137,25 +156,34 @@ const parseParagraphs = (html: string): ParsedParagraph[] => {
 export const parseHtmlToPdfElements = (html: string): React.ReactNode[] => {
   if (!html || !html.trim()) return [];
 
-  const paragraphs = parseParagraphs(html);
+  try {
+    const paragraphs = parseParagraphs(html);
 
-  return paragraphs.map((para, pIdx) => (
-    <View key={`p-${pIdx}`} style={PARAGRAPH_SPACING}>
-      <Text style={[BASE_STYLE, { textAlign: para.alignment }]}>
-        {para.nodes.map((node, nIdx) => {
-          if (node.type === 'break') {
-            return <Text key={`n-${pIdx}-${nIdx}`}>{'\n'}</Text>;
-          }
-          if (node.type === 'bold') {
-            return (
-              <Text key={`n-${pIdx}-${nIdx}`} style={BOLD_STYLE}>
-                {node.content}
-              </Text>
-            );
-          }
-          return <Text key={`n-${pIdx}-${nIdx}`}>{node.content}</Text>;
-        })}
-      </Text>
-    </View>
-  ));
+    return paragraphs.map((para, pIdx) => (
+      <View key={`p-${pIdx}`} style={PARAGRAPH_SPACING}>
+        <Text style={[BASE_STYLE, { textAlign: para.alignment }]}>
+          {para.nodes.map((node, nIdx) => {
+            if (node.type === 'break') {
+              return <Text key={`n-${pIdx}-${nIdx}`}>{'\n'}</Text>;
+            }
+            if (node.type === 'bold') {
+              return (
+                <Text key={`n-${pIdx}-${nIdx}`} style={BOLD_STYLE}>
+                  {node.content}
+                </Text>
+              );
+            }
+            return <Text key={`n-${pIdx}-${nIdx}`}>{node.content}</Text>;
+          })}
+        </Text>
+      </View>
+    ));
+  } catch (error) {
+    console.error('Failed to parse HTML for PDF:', error);
+    return [
+      <Text key="fallback" style={BASE_STYLE}>
+        {stripHtml(html)}
+      </Text>,
+    ];
+  }
 };

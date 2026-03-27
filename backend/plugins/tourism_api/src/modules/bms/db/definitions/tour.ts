@@ -44,7 +44,7 @@ export const pricingOptionSchema = new Schema({
     type: Number,
     min: 1,
     validate: {
-      validator: function (value: number) {
+      validator(value: number) {
         return !value || value >= this.minPersons;
       },
       message: 'Max persons must be greater than or equal to min persons',
@@ -54,7 +54,7 @@ export const pricingOptionSchema = new Schema({
   pricePerPerson: {
     type: Number,
     required: true,
-    min: 0,
+    min: 0.01,
   },
 
   accommodationType: {
@@ -161,6 +161,7 @@ export const tourSchema = new Schema({
 
   pricingOptions: {
     type: [pricingOptionSchema],
+    required: true,
     validate: {
       validator: (v: (typeof pricingOptionSchema)[]) => v.length > 0,
       message: 'At least one pricing option is required',

@@ -1,4 +1,10 @@
-import { useState, useRef, useCallback, type DragEvent } from 'react';
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  type DragEvent,
+} from 'react';
 import { IconGripVertical } from '@tabler/icons-react';
 
 export interface SortableItem {
@@ -87,6 +93,13 @@ export function SortableList<T extends SortableItem>({
     dragCounter.current.clear();
     setDragIndex(null);
     setOverIndex(null);
+  }, []);
+
+  useEffect(() => {
+    const counter = dragCounter.current;
+    return () => {
+      counter.clear();
+    };
   }, []);
 
   // ── Render ───────────────────────────────────────────────────────────────

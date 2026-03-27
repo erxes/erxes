@@ -55,7 +55,7 @@ export interface ITour {
   extra?: any;
   images?: string[];
   imageThumbnail?: string;
-  pricingOptions: IPricingOption[];
+  pricingOptions?: IPricingOption[];
   startingPrice?: number;
 }
 

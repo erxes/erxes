@@ -183,13 +183,10 @@ export const loadTourClass = (models: IModels) => {
           ? option.accommodationType.trim().toLowerCase()
           : '';
 
-        // 5. duplicate check
-        const key = JSON.stringify({
-          min: option.minPersons,
-          max: option.maxPersons ?? null,
-          acc: accommodationType,
-          price: option.pricePerPerson,
-        });
+        // 5. duplicate check – normalize for comparison
+        const key = `${option.minPersons}|${
+          option.maxPersons ?? ''
+        }|${accommodationType}|${option.pricePerPerson}`;
 
         if (combinations.has(key)) {
           throw new Error(

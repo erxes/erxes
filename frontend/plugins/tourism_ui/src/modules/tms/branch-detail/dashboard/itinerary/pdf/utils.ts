@@ -22,13 +22,27 @@ const ENTITY_REGEX = new RegExp(Object.keys(HTML_ENTITIES).join('|'), 'gi');
  */
 export const stripHtml = (html?: string | null): string => {
   if (!html) return '';
-  return html
+  let result = html
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/p>/gi, '\n')
     .replace(/<\/div>/gi, '\n')
-    .replace(/<\/li>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
-    .replace(ENTITY_REGEX, (match) => HTML_ENTITIES[match.toLowerCase()] || match)
+    .replace(/<\/li>/gi, '\n');
+
+  // Loop to handle nested/malformed tags (e.g. <scr<script>ipt>)
+  let prev;
+  do {
+    prev = result;
+    result = result.replace(/<[^>]*>/g, '');
+  } while (result !== prev);
+
+  // Strip any remaining incomplete tags (e.g. <script without closing >)
+  result = result.replace(/<[a-z][\s\S]*/gi, '');
+
+  return result
+    .replace(
+      ENTITY_REGEX,
+      (match) => HTML_ENTITIES[match.toLowerCase()] || match,
+    )
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 };
@@ -44,7 +58,6 @@ export const generateFilename = (name?: string | null): string => {
   return `${safeName}.pdf`;
 };
 
-
 /**
  * Returns multiple URL candidates for an image path (for fallback).
  */
@@ -55,6 +68,7 @@ export const getImageUrlCandidates = (path?: string | null): string[] => {
 };
 
 const base64Cache = new Map<string, Promise<string>>();
+const MAX_BASE64_CACHE = 100;
 
 /**
  * Converts an image URL to base64 data URL for PDF rendering.
@@ -64,6 +78,11 @@ export const toBase64 = async (url: string): Promise<string> => {
 
   const existing = base64Cache.get(url);
   if (existing) return existing;
+
+  if (base64Cache.size >= MAX_BASE64_CACHE) {
+    const firstKey = base64Cache.keys().next().value;
+    if (firstKey) base64Cache.delete(firstKey);
+  }
 
   const promise = (async () => {
     try {

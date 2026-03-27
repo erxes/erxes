@@ -432,7 +432,7 @@ const LanguageSelectFormItem = ({
   );
 };
 
-export const LanguegeSelect = ({
+export const LanguageSelect = ({
   control,
 }: {
   control: Control<TmsFormType>;

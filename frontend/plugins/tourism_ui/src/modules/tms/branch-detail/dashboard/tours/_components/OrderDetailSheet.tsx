@@ -55,13 +55,15 @@ export const OrderDetailSheet = ({ orderId, open, onOpenChange }: Props) => {
   useEffect(() => {
     if (!order || !open) return;
 
-    form.reset({
-      status: order.status ?? 'pending',
-      note: order.note ?? '',
-      amount: order.amount ?? 0,
-      numberOfPeople: order.numberOfPeople ?? 1,
-      type: order.type ?? '',
-    });
+    if (!form.formState.isDirty) {
+      form.reset({
+        status: order.status ?? 'pending',
+        note: order.note ?? '',
+        amount: order.amount ?? 0,
+        numberOfPeople: order.numberOfPeople ?? 1,
+        type: order.type ?? '',
+      });
+    }
   }, [order, open, form]);
 
   const headerTitle = useMemo(() => {
