@@ -97,14 +97,14 @@ const PipelineStageItem = (props: Props) => {
           text-gray-800 font-normal text-base
           whitespace-nowrap
           transition-shadow duration-200 ease-out
-          ${!handle ? 'cursor-grab touch-manipulation' : ''}
+          ${!handle ? '' : 'cursor-grab touch-manipulation'}
           ${dragging && !dragOverlay ? 'opacity-50' : ''}
           ${disabled ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : ''}
           ${dragOverlay ? 'cursor-default shadow-lg' : ''}
         `}
         style={style}
         data-cypress="draggable-item"
-        tabIndex={!handle ? 0 : undefined}
+        tabIndex={!handle ? undefined : 0}
       >
         <span className="absolute top-1/2 left-0 h-full w-[3px] -translate-y-1/2 rounded-l-sm bg-purple-500" />
         <div {...listeners} className="cursor-grab p-2 pl-0">
@@ -309,7 +309,8 @@ const PipelineStageItem = (props: Props) => {
             )}
           </div>
           <div className="flex items-center gap-3 mt-6">
-            <div
+            <button
+              type="button"
               className={`
               flex items-center gap-1 text-xs text-purple-500 cursor-pointer
               p-2 rounded bg-purple-50 hover:bg-purple-100 transition-colors duration-150
@@ -323,9 +324,10 @@ const PipelineStageItem = (props: Props) => {
                     <IconChevronDown size={16} />,
                     'Show extra fields',
                   )}
-            </div>
+            </button>
 
-            <div
+            <button
+              type="button"
               className={`
               flex items-center gap-1 text-xs text-red-500 cursor-pointer
               p-2 rounded bg-red-50 hover:bg-red-100 transition-colors duration-150
@@ -334,7 +336,7 @@ const PipelineStageItem = (props: Props) => {
               onClick={onRemoveStage}
             >
               <IconTrashX size={16} />
-            </div>
+            </button>
           </div>
         </div>
       </div>
