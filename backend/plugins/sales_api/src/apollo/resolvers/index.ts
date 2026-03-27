@@ -19,9 +19,7 @@ const resolvers: any = {
   ...apolloCustomScalars,
 
   ...Object.fromEntries(
-    Object.entries(cr).filter(
-      ([key]) => key !== 'Query' && key !== 'Mutation'
-    )
+    Object.entries(cr).filter(([key]) => key !== 'Query' && key !== 'Mutation'),
   ),
 };
 
