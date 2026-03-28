@@ -12,8 +12,9 @@ export const FormsSection = ({ channel }: { channel: IChannel }) => {
   });
 
   return (
-    <div
-      className="w-full shrink-0 border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
+    <button
+      type="button"
+      className="w-full shrink-0 border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer text-left"
       onClick={() =>
         navigate(`/settings/frontline/channels/${channel._id}/forms`)
       }
@@ -30,6 +31,6 @@ export const FormsSection = ({ channel }: { channel: IChannel }) => {
           </div>
         </div>
       </section>
-    </div>
+    </button>
   );
 };

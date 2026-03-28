@@ -6,8 +6,9 @@ export const IntegrationsSection = ({ channel }: { channel: IChannel }) => {
   const navigate = useNavigate();
 
   return (
-    <div
-      className="mt-4 w-full border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
+    <button
+      type="button"
+      className="mt-4 w-full border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer text-left"
       onClick={() =>
         navigate(`/settings/frontline/channels/integrations/${channel._id}`)
       }
@@ -26,6 +27,6 @@ export const IntegrationsSection = ({ channel }: { channel: IChannel }) => {
           </div>
         </div>
       </section>
-    </div>
+    </button>
   );
 };
