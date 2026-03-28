@@ -9,6 +9,16 @@ export const types = `
     page: Int
     channelIds: [String]
     memberIds: [String]
+    pipelineIds: [String]
+    tagIds: [String]
+    state: String
+    priority: [Int]
+    startDate: String
+    targetDate: String
+    companyIds: [String]
+    customerIds: [String]
+    frequency: String
+    branchIds: [String]
   }
 
   type ReportTicketMetric {
@@ -22,6 +32,7 @@ export const types = `
     count: Int
     percentage: Int
   }
+
   type ReportTicketTag {
     _id: String
     name: String
@@ -41,12 +52,31 @@ export const types = `
     page: Int
     totalPages: Int
   }
+
+  type ReportTicketStatusSummary {
+    statusType: Int
+    name: String
+    color: String
+    count: Int
+    percentage: Int
+  }
+  type ReportTicketPriority {
+    priority: Int
+    name: String
+    color: String
+    count: Int
+    percentage: Int
+  }
+
 `;
 
 export const queries = `
   reportTicketSource(filters: TicketReportFilter): [ReportTicketSource]
-  reportTicketOpenDate(filters: TicketReportFilter): [TicketDateStat]
+  reportTicketDate(filters: TicketReportFilter): [TicketDateStat]
   reportTicketOpen(filters: TicketReportFilter): ReportTicketMetric
   reportTicketList(filters: TicketReportFilter): TicketListResult
   reportTicketTags(filters: TicketReportFilter): [ReportTicketTag]
+  reportTicketTotalCount(filters: TicketReportFilter): Int
+  reportTicketStatusSummary(filters: TicketReportFilter): [ReportTicketStatusSummary]
+  reportTicketPriority(filters: TicketReportFilter): [ReportTicketPriority]
 `;
