@@ -181,9 +181,9 @@ export const ContractForm = ({
                         onClick={() => {
                           const previewWindow = window.open('', '_blank');
                           if (previewWindow) {
-                            previewWindow.document.write(
-                              selectedProduct.pdfContent || '',
-                            );
+                            previewWindow.document.open();
+                            previewWindow.document.documentElement.innerHTML =
+                              selectedProduct.pdfContent || '';
                             previewWindow.document.close();
                           }
                         }}
@@ -209,7 +209,7 @@ export const ContractForm = ({
                   ...formData,
                   insuredObject: {
                     ...formData.insuredObject,
-                    assessedValue: parseFloat(e.target.value) || 0,
+                    assessedValue: Number.parseFloat(e.target.value) || 0,
                   },
                 })
               }
