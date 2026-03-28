@@ -2,7 +2,7 @@ import { PROBABILITY } from './constants';
 import // BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
 // BOARD_ITEM_EXTENDED_FIELDS,
 '~/modules/sales/constants';
-import { generateModels, IModels } from '~/connectionResolvers';
+import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateFieldsFromSchema } from 'erxes-api-shared/core-modules';
 
@@ -205,10 +205,8 @@ export const generateSalesFields = async (
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  switch (collectionType) {
-    case 'deal':
-      schema = models.Deals.schema;
-      break;
+  if (collectionType === 'deal') {
+    schema = models.Deals.schema;
   }
 
   // if (usageType && usageType === 'import') {
@@ -323,19 +321,17 @@ export const generateSalesFields = async (
 
   fields = [
     ...fields,
-    ...[
-      createdByOptions,
-      modifiedByOptions,
-      assignedUserOptions,
-      watchedUserOptions,
-      customersFullNameOptions,
-      customersPrimaryEmailOptions,
-      customersPrimaryPhoneOptions,
-      companiesOptions,
-      branchesOptions,
-      departmentsOptions,
-      tagsOptions,
-    ],
+    createdByOptions,
+    modifiedByOptions,
+    assignedUserOptions,
+    watchedUserOptions,
+    customersFullNameOptions,
+    customersPrimaryEmailOptions,
+    customersPrimaryPhoneOptions,
+    companiesOptions,
+    branchesOptions,
+    departmentsOptions,
+    tagsOptions,
   ];
 
   if (usageType === 'automations') {
@@ -411,7 +407,7 @@ export const generateSalesFields = async (
       'select',
     );
 
-    fields = [...fields, ...[productOptions, productsCategoriesOptions]];
+    fields = [...fields, productOptions, productsCategoriesOptions];
   }
 
   if (moduleType === 'deal' && usageType === 'export') {
