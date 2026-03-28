@@ -64,11 +64,13 @@ export const SAFE_REMAINDER_ITEM_EDIT = gql`
     $_id: String,
     $status: String,
     $remainder: Float,
+    $trInfo: JSON,
   ) {
     safeRemainderItemEdit(
       _id: $_id,
       status: $status,
       remainder: $remainder,
+      trInfo: $trInfo,
     ) {
       ${safeRemainderItemFields}
     }

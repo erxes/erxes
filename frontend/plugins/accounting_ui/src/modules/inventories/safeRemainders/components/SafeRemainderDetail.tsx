@@ -1,6 +1,6 @@
 import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Button, Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
+import { Button, cn, Label, RecordTable, Spinner, Tabs, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
@@ -18,9 +18,16 @@ import {
 import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
 import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
 import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
+import { activeTabState } from '../states';
+import { useAtom } from 'jotai';
+import { CENSUS_TABS } from '../types/constants';
+import { safeRemDetailColumnsIncome } from './SafeRemainderDetailColsIncome';
+import { safeRemDetailColumnsOut } from './SafeRemainderDetailColsOut';
+import { safeRemDetailColumnsSale } from './SafeRemainderDetailColsSale';
 
 export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
+  const [activeTab, setActiveTab] = useAtom(activeTabState);
 
   const { safeRemainder, loading } = useSafeRemainderDetail({
     variables: { _id: id },
@@ -118,7 +125,7 @@ export const SafeRemainderDetail = () => {
 
   return (
     <>
-      <div className="m-3 flex-auto">
+      <div className="m-3 mb-0">
         <h3 className="text-lg font-bold">Inventory Census Detail</h3>
         <div className="flex items-center col-span-2 xl:col-span-3 gap-6">
           <div>
@@ -133,32 +140,151 @@ export const SafeRemainderDetail = () => {
           {renderEvents()}
         </div>
       </div>
-
-      <SafeRemainderDetailFilter />
-
-      <RecordTable.Provider
-        columns={safeRemDetailTableColumns}
-        data={safeRemainderItems || []}
-        stickyColumns={[]}
-        className="m-3"
+      <div className="">
+        <SafeRemainderDetailFilter />
+      </div>
+      <Tabs
+        className="col-span-2"
+        value={activeTab}
+        onValueChange={setActiveTab}
       >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-              {!detailsLoading &&
-                safeRemainderItemsCount > safeRemainderItems?.length && (
-                  <RecordTable.RowSkeleton
-                    rows={4}
-                    handleInView={handleFetchMore}
-                  />
-                )}
-            </RecordTable.Body>
-          </RecordTable>
-          <SafeRemDetailCommandbar />
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
+        <div className="flex items-center gap-3">
+          <Tabs.List className="w-full justify-start flex-auto">
+            {Object.values(CENSUS_TABS).map((field) => (
+              <Tabs.Trigger
+                key={field.value}
+                value={field.value}
+                className={cn(field.value === activeTab && "font-bold", "capitalize py-1 gap-2 pr-1 h-8")}
+                asChild
+              >
+                <div>
+                  {field.label}
+                </div>
+              </Tabs.Trigger>
+            ))}
+          </Tabs.List>
+        </div>
+
+        <Tabs.Content
+          key={CENSUS_TABS.CENSUS.value}
+          value={CENSUS_TABS.CENSUS.value}
+          className="mt-6"
+        >
+          <RecordTable.Provider
+            columns={safeRemDetailTableColumns}
+            data={safeRemainderItems || []}
+            stickyColumns={[]}
+            className="m-3"
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                  {!detailsLoading &&
+                    safeRemainderItemsCount > safeRemainderItems?.length && (
+                      <RecordTable.RowSkeleton
+                        rows={4}
+                        handleInView={handleFetchMore}
+                      />
+                    )}
+                </RecordTable.Body>
+              </RecordTable>
+              <SafeRemDetailCommandbar />
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
+        </Tabs.Content>
+
+        <Tabs.Content
+          key={CENSUS_TABS.INCOME.value}
+          value={CENSUS_TABS.INCOME.value}
+          className="mt-6"
+        >
+          <RecordTable.Provider
+            columns={safeRemDetailColumnsIncome}
+            data={safeRemainderItems?.filter(item => item.preCount < item.count) || []}
+            stickyColumns={[]}
+            className="m-3"
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                  {!detailsLoading &&
+                    safeRemainderItemsCount > safeRemainderItems?.length && (
+                      <RecordTable.RowSkeleton
+                        rows={4}
+                        handleInView={handleFetchMore}
+                      />
+                    )}
+                </RecordTable.Body>
+              </RecordTable>
+              <SafeRemDetailCommandbar />
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
+        </Tabs.Content>
+
+        <Tabs.Content
+          key={CENSUS_TABS.OUT.value}
+          value={CENSUS_TABS.OUT.value}
+          className="mt-6"
+        >
+          <RecordTable.Provider
+            columns={safeRemDetailColumnsOut}
+            data={safeRemainderItems.filter(item => item.preCount > item.count && !item.trInfo?.isSale) || []}
+            stickyColumns={[]}
+            className="m-3"
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                  {!detailsLoading &&
+                    safeRemainderItemsCount > safeRemainderItems?.length && (
+                      <RecordTable.RowSkeleton
+                        rows={4}
+                        handleInView={handleFetchMore}
+                      />
+                    )}
+                </RecordTable.Body>
+              </RecordTable>
+              <SafeRemDetailCommandbar />
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
+        </Tabs.Content>
+
+        <Tabs.Content
+          key={CENSUS_TABS.SALE.value}
+          value={CENSUS_TABS.SALE.value}
+          className="mt-6"
+        >
+          <RecordTable.Provider
+            columns={safeRemDetailColumnsSale}
+            data={safeRemainderItems.filter(item => item.preCount > item.count && item.trInfo?.isSale) || []}
+            stickyColumns={[]}
+            className="m-3"
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                  {!detailsLoading &&
+                    safeRemainderItemsCount > safeRemainderItems?.length && (
+                      <RecordTable.RowSkeleton
+                        rows={4}
+                        handleInView={handleFetchMore}
+                      />
+                    )}
+                </RecordTable.Body>
+              </RecordTable>
+              <SafeRemDetailCommandbar />
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
+        </Tabs.Content>
+      </Tabs>
     </>
   );
 };

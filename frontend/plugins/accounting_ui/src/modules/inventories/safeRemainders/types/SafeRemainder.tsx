@@ -40,6 +40,12 @@ export type ISafeRemainderItem = {
   departmentId: string;
 
   product: IProduct;
+
+  trInfo?: {
+    unitCost?: number;
+    isSale?: boolean;
+    salePrice?: number;
+  };
 };
 
 export const SAFE_REMAINDER_STATUSES = {

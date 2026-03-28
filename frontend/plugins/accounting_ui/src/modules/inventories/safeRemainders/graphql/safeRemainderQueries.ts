@@ -58,6 +58,8 @@ export const safeRemainderItemFields = `
   }
   productId
   uom
+
+  trInfo
 `;
 
 const safeRemFilterParamDefs = `
