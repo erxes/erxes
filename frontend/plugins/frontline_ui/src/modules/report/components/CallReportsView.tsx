@@ -11,20 +11,14 @@ import {
   Table,
 } from 'erxes-ui';
 import { endOfDay, format, startOfMonth } from 'date-fns';
-import { CALL_USER_INTEGRATIONS } from '@/integrations/call/graphql/queries/callConfigQueries';
 import { CALL_QUEUE_LIST } from '@/integrations/call/graphql/queries/callQueueList';
+import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import { callReportsDashboard } from '@/integrations/call/graphql/queries/callStatistics';
 import { formatSeconds } from '@/integrations/call/utils/callUtils';
 import { ReportDateFilter } from '@/report/components/filter-popover/ReportDateFilter';
 import { getDateRange } from '@/report/utils/dateFilters';
 
 const GET_DASHBOARD_STATS = gql(callReportsDashboard);
-
-type CallIntegration = {
-  _id: string;
-  name?: string;
-  phone?: string;
-};
 
 type QueueRecord = {
   _id?: string;
@@ -100,15 +94,15 @@ const normalizeQueue = (queue: string | QueueRecord): QueueOption | null => {
     };
   }
 
-  const value = queue.name || queue._id;
+  const value = queue.name || queue._id || queue.queue;
 
   if (!value) {
     return null;
   }
 
   return {
-    label: queue.name || value,
-    value,
+    label: queue.name || String(value),
+    value: String(value),
   };
 };
 
@@ -128,11 +122,20 @@ const SummaryCard = ({
   return (
     <InfoCard title={title}>
       <div className="space-y-1">
-        <div className="text-3xl font-semibold tracking-tight">{value}</div>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <div className="text-3xl px-2 font-semibold tracking-tight">{value}</div>
+        <p className="text-sm  px-4text-muted-foreground">{description}</p>
       </div>
     </InfoCard>
   );
+};
+
+const formatPhoneStr = (phone: string) => {
+  if (!phone) return '';
+  if (phone.includes(',')) return phone.split(',').map((p) => p.trim()).join(', ');
+  if (/^\d+$/.test(phone) && phone.length > 8 && phone.length % 8 === 0) {
+    return phone.match(/.{1,8}/g)?.join(', ') || phone;
+  }
+  return phone;
 };
 
 export const CallReportsView = () => {
@@ -140,6 +143,27 @@ export const CallReportsView = () => {
   const [selectedQueue, setSelectedQueue] = useState('');
   const [dateFilter, setDateFilter] = useState(format(new Date(), 'yyyy-MMM'));
   const [direction, setDirection] = useState('all');
+  console.log(selectedIntegrationId, 'selectedIntegrationId')
+  const {
+    callUserIntegrations: integrations = [],
+    loading: integrationsLoading,
+  } = useCallUserIntegration();
+
+  const uniqueIntegrations = useMemo(() => {
+    const map = new Map();
+    for (const integration of integrations) {
+      const formatted = formatPhoneStr(integration.phone);
+      if (map.has(integration.inboxId)) {
+        const existing = map.get(integration.inboxId);
+        if (!existing.phone.includes(formatted)) {
+          existing.phone += `, ${formatted}`;
+        }
+      } else {
+        map.set(integration.inboxId, { ...integration, phone: formatted });
+      }
+    }
+    return Array.from(map.values());
+  }, [integrations]);
 
   const { startDate, endDate, dateRangeLabel } = useMemo(() => {
     const { fromDate, toDate } = getDateRange(dateFilter);
@@ -156,17 +180,13 @@ export const CallReportsView = () => {
     };
   }, [dateFilter]);
 
-  const { data: integrationsData, loading: integrationsLoading } = useQuery<{
-    callUserIntegrations: CallIntegration[];
-  }>(CALL_USER_INTEGRATIONS, {
-    onCompleted: ({ callUserIntegrations }) => {
-      const firstIntegrationId = callUserIntegrations?.[0]?._id;
+  useEffect(() => {
+    if (selectedIntegrationId || !uniqueIntegrations.length) {
+      return;
+    }
 
-      if (firstIntegrationId && !selectedIntegrationId) {
-        setSelectedIntegrationId(firstIntegrationId);
-      }
-    },
-  });
+    setSelectedIntegrationId(uniqueIntegrations[0].inboxId);
+  }, [uniqueIntegrations, selectedIntegrationId]);
 
   const [loadQueues, { data: queuesData, loading: queuesLoading }] =
     useLazyQuery<QueueListQuery, { inboxId: string }>(CALL_QUEUE_LIST);
@@ -219,7 +239,6 @@ export const CallReportsView = () => {
     skip: !hasQueue,
   });
 
-  const integrations = integrationsData?.callUserIntegrations || [];
   const queueStats = data?.callGetQueueStats || [];
   const agentStats = data?.callGetAgentStats || [];
   const selectedQueueStats = queueStats[0] || {
@@ -268,8 +287,8 @@ export const CallReportsView = () => {
   ];
 
   return (
-    <ScrollArea className="h-full">
-      <div className="flex flex-col gap-6 p-4">
+    <ScrollArea className="h-full w-full">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-8 pb-8">
         <div className="flex flex-wrap items-end gap-4 rounded-lg border bg-background p-4">
           <div className="w-64">
             <label className="mb-1 block text-sm font-medium">
@@ -283,9 +302,9 @@ export const CallReportsView = () => {
                 <Select.Value placeholder="Select integration" />
               </Select.Trigger>
               <Select.Content>
-                {integrations.map((integration) => (
-                  <Select.Item key={integration._id} value={integration._id}>
-                    {integration.phone || integration.name || integration._id}
+                {uniqueIntegrations.map((integration) => (
+                  <Select.Item key={integration.inboxId} value={integration.inboxId}>
+                    {integration.phone}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -344,7 +363,7 @@ export const CallReportsView = () => {
           </div>
         )}
 
-        {!integrationsLoading && integrations.length === 0 && (
+        {!integrationsLoading && uniqueIntegrations.length === 0 && (
           <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
             No call integration was found for this user.
           </div>
@@ -352,7 +371,7 @@ export const CallReportsView = () => {
 
         {!queuesLoading &&
           selectedIntegrationId &&
-          integrations.length > 0 &&
+          uniqueIntegrations.length > 0 &&
           queueOptions.length === 0 && (
             <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
               The selected integration has no assigned queues.
@@ -374,103 +393,107 @@ export const CallReportsView = () => {
             </div>
 
             {queueStats.length === 0 && (
-              <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
+              <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground mt-4">
                 No call records were found for this queue in the selected date
                 range.
               </div>
             )}
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Queue Snapshot</h3>
-              <div className="rounded-md border">
-                <Table>
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.Head>Queue</Table.Head>
-                      <Table.Head>Total</Table.Head>
-                      <Table.Head>Answered</Table.Head>
-                      <Table.Head>Missed</Table.Head>
-                      <Table.Head>Answer Rate</Table.Head>
-                      <Table.Head>Avg Wait</Table.Head>
-                      <Table.Head>Avg Talk</Table.Head>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    <Table.Row>
-                      <Table.Cell>
-                        {selectedQueueStats.queue || selectedQueue}
-                      </Table.Cell>
-                      <Table.Cell>{selectedQueueStats.totalCalls}</Table.Cell>
-                      <Table.Cell>
-                        {selectedQueueStats.answeredCalls}
-                      </Table.Cell>
-                      <Table.Cell>
-                        {selectedQueueStats.abandonedCalls}
-                      </Table.Cell>
-                      <Table.Cell>
-                        {formatPercentage(selectedQueueStats.answeredRate)}
-                      </Table.Cell>
-                      <Table.Cell>
-                        {formatDuration(selectedQueueStats.averageWaitTime)}
-                      </Table.Cell>
-                      <Table.Cell>
-                        {formatDuration(selectedQueueStats.averageTalkTime)}
-                      </Table.Cell>
-                    </Table.Row>
-                  </Table.Body>
-                </Table>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Agent Breakdown</h3>
-              <div className="rounded-md border">
-                <Table>
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.Head>Agent</Table.Head>
-                      <Table.Head>Total</Table.Head>
-                      <Table.Head>Answered</Table.Head>
-                      <Table.Head>Missed</Table.Head>
-                      <Table.Head>Answer Rate</Table.Head>
-                      <Table.Head>Avg Wait</Table.Head>
-                      <Table.Head>Avg Talk</Table.Head>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    {agentStats.length > 0 ? (
-                      agentStats.map((stat) => (
-                        <Table.Row
-                          key={`${stat.agent}-${stat.agentName || ''}`}
-                        >
+            {queueStats.length > 0 && (
+              <>
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Queue Snapshot</h3>
+                  <div className="rounded-md border">
+                    <Table>
+                      <Table.Header>
+                        <Table.Row>
+                          <Table.Head>Queue</Table.Head>
+                          <Table.Head>Total</Table.Head>
+                          <Table.Head>Answered</Table.Head>
+                          <Table.Head>Missed</Table.Head>
+                          <Table.Head>Answer Rate</Table.Head>
+                          <Table.Head>Avg Wait</Table.Head>
+                          <Table.Head>Avg Talk</Table.Head>
+                        </Table.Row>
+                      </Table.Header>
+                      <Table.Body >
+                        <Table.Row style={{ padding: "0 4px" }}>
                           <Table.Cell>
-                            {stat.agentName || stat.agent}
+                            {selectedQueueStats.queue || selectedQueue}
                           </Table.Cell>
-                          <Table.Cell>{stat.totalCalls}</Table.Cell>
-                          <Table.Cell>{stat.answeredCalls}</Table.Cell>
-                          <Table.Cell>{stat.missedCalls}</Table.Cell>
+                          <Table.Cell>{selectedQueueStats.totalCalls}</Table.Cell>
                           <Table.Cell>
-                            {formatPercentage(stat.answeredRate)}
+                            {selectedQueueStats.answeredCalls}
                           </Table.Cell>
                           <Table.Cell>
-                            {formatDuration(stat.averageWaitTime)}
+                            {selectedQueueStats.abandonedCalls}
                           </Table.Cell>
                           <Table.Cell>
-                            {formatDuration(stat.averageTalkTime)}
+                            {formatPercentage(selectedQueueStats.answeredRate)}
+                          </Table.Cell>
+                          <Table.Cell>
+                            {formatDuration(selectedQueueStats.averageWaitTime)}
+                          </Table.Cell>
+                          <Table.Cell>
+                            {formatDuration(selectedQueueStats.averageTalkTime)}
                           </Table.Cell>
                         </Table.Row>
-                      ))
-                    ) : (
-                      <Table.Row>
-                        <Table.Cell colSpan={7} className="text-center">
-                          No agent level statistics available
-                        </Table.Cell>
-                      </Table.Row>
-                    )}
-                  </Table.Body>
-                </Table>
-              </div>
-            </div>
+                      </Table.Body>
+                    </Table>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Agent Breakdown</h3>
+                  <div className="rounded-md border">
+                    <Table>
+                      <Table.Header>
+                        <Table.Row>
+                          <Table.Head>Agent</Table.Head>
+                          <Table.Head>Total</Table.Head>
+                          <Table.Head>Answered</Table.Head>
+                          <Table.Head>Missed</Table.Head>
+                          <Table.Head>Answer Rate</Table.Head>
+                          <Table.Head>Avg Wait</Table.Head>
+                          <Table.Head>Avg Talk</Table.Head>
+                        </Table.Row>
+                      </Table.Header>
+                      <Table.Body >
+                        {agentStats.length > 0 ? (
+                          agentStats.map((stat) => (
+                            <Table.Row
+                              key={`${stat.agent}-${stat.agentName || ''}`}
+                            >
+                              <Table.Cell>
+                                {stat.agentName || stat.agent}
+                              </Table.Cell>
+                              <Table.Cell>{stat.totalCalls}</Table.Cell>
+                              <Table.Cell>{stat.answeredCalls}</Table.Cell>
+                              <Table.Cell>{stat.missedCalls}</Table.Cell>
+                              <Table.Cell>
+                                {formatPercentage(stat.answeredRate)}
+                              </Table.Cell>
+                              <Table.Cell>
+                                {formatDuration(stat.averageWaitTime)}
+                              </Table.Cell>
+                              <Table.Cell>
+                                {formatDuration(stat.averageTalkTime)}
+                              </Table.Cell>
+                            </Table.Row>
+                          ))
+                        ) : (
+                          <Table.Row>
+                            <Table.Cell colSpan={7} className="text-center">
+                              No agent level statistics available
+                            </Table.Cell>
+                          </Table.Row>
+                        )}
+                      </Table.Body>
+                    </Table>
+                  </div>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
