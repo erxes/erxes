@@ -1,6 +1,6 @@
-import { IModels } from '@/connectionResolver';
-import { IAutomationWaitingActionDocument } from '@/mongo/waitingActionsToExecute';
-import { isInSegment } from '@/utils/isInSegment';
+import { IModels } from '../connectionResolver';
+import { IAutomationWaitingActionDocument } from '../mongo/waitingActionsToExecute';
+import { isInSegment } from '../utils/isInSegment';
 import { EXECUTE_WAIT_TYPES } from 'erxes-api-shared/core-modules';
 
 function accessNestedObject(obj: any, keys: string[]) {

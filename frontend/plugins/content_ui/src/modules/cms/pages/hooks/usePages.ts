@@ -10,8 +10,9 @@ import {
 import { PAGE_LIST } from '../graphql/queries/pagesListQueries';
 import { PAGES_CURSOR_SESSION_KEY } from '../constants/pagesCursorSessionKey';
 import { IPage } from '../types/pageTypes';
-import { useSetAtom } from 'jotai';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { pagesTotalCountAtom } from '../states/pagesCounts';
+import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
 import { useEffect } from 'react';
 
 export const PAGES_PER_PAGE = 30;
@@ -34,6 +35,8 @@ export const usePagesVariables = (
       publishedDate: string;
     }>(['name', 'path', 'createdAt', 'updatedAt', 'publishedDate']);
 
+  const language = useAtomValue(cmsLanguageAtom);
+
   const { cursor } = useRecordTableCursor({
     sessionKey: PAGES_CURSOR_SESSION_KEY,
   });
@@ -41,6 +44,7 @@ export const usePagesVariables = (
   return {
     limit: PAGES_PER_PAGE,
     cursor,
+    language,
     name: name || undefined,
     path: path || undefined,
     dateFilters: {
@@ -76,6 +80,7 @@ export const usePages = (options?: QueryHookOptions) => {
       ...options?.variables,
       ...variables,
     },
+    fetchPolicy: 'network-only',
   });
 
   const { pages = [], totalCount = 0, pageInfo } = data?.cmsPageList || {};
@@ -100,7 +105,6 @@ export const usePages = (options?: QueryHookOptions) => {
 
     fetchMore({
       variables: {
-        ...variables,
         cursor:
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
@@ -110,14 +114,33 @@ export const usePages = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
+
+        const isForward = direction === EnumCursorDirection.FORWARD;
+        const fetchPageInfo = fetchMoreResult.cmsPageList?.pageInfo || {};
+        const prevPageInfo = prev.cmsPageList?.pageInfo || {};
+        const fetchPages = fetchMoreResult.cmsPageList?.pages || [];
+        const prevPages = prev.cmsPageList?.pages || [];
+
         return Object.assign({}, prev, {
           cmsPageList: {
-            pages: [
-              ...(prev.cmsPageList?.pages || []),
-              ...fetchMoreResult.cmsPageList.pages,
-            ],
-            totalCount: fetchMoreResult.cmsPageList.totalCount,
-            pageInfo: fetchMoreResult.cmsPageList.pageInfo,
+            ...fetchMoreResult.cmsPageList,
+            pages: isForward
+              ? [...prevPages, ...fetchPages]
+              : [...fetchPages, ...prevPages],
+            pageInfo: {
+              endCursor: isForward
+                ? fetchPageInfo.endCursor
+                : prevPageInfo.endCursor,
+              hasNextPage: isForward
+                ? fetchPageInfo.hasNextPage
+                : prevPageInfo.hasNextPage,
+              hasPreviousPage: isForward
+                ? prevPageInfo.hasPreviousPage
+                : fetchPageInfo.hasPreviousPage,
+              startCursor: isForward
+                ? prevPageInfo.startCursor
+                : fetchPageInfo.startCursor,
+            },
           },
         });
       },

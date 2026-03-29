@@ -2,9 +2,12 @@
 
 import {
   ActivityLogs,
+  AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
+  internalNoteCustomActivity,
 } from 'ui-modules';
+import { dealCustomActivities } from './DealActivityRows';
 import { Empty, FocusSheet, ScrollArea, Tabs, useQueryState } from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
@@ -75,7 +78,18 @@ export const SalesItemDetail = () => {
                     />
                   </Tabs.Content>
                   <Tabs.Content value="activityLogs">
-                    <ActivityLogs targetId={deal?._id || ''} />
+                    <div className="flex flex-col mb-12">
+                      {!!deal?._id && (
+                        <AddInternalNote
+                          contentTypeId={deal._id}
+                          contentType="sales:deal"
+                        />
+                      )}
+                      <ActivityLogs
+                        targetId={deal?._id || ''}
+                        customActivities={dealCustomActivities}
+                      />
+                    </div>
                   </Tabs.Content>
                   <Tabs.Content value="products" className="p-6">
                     <Products deal={deal || ({} as IDeal)} refetch={refetch} />

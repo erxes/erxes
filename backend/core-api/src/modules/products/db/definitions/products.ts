@@ -89,7 +89,7 @@ export const productSchema = schemaWrapper(
         label: 'PDF attachment',
       },
 
-      remainders: { type: Object, optional: true },
+      inventories: { type: Object, optional: true },
       discounts: { type: Object, optional: true },
     },
     {

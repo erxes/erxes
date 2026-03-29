@@ -28,6 +28,7 @@ interface PostFormData {
   documents?: string[];
   attachments?: string[];
   pdf?: string | null;
+  publishDate?: Date | null;
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
@@ -40,7 +41,7 @@ export const usePostForm = (editingPost?: any) => {
   const [defaultLangData, setDefaultLangData] = useState<{
     title: string;
     content: string;
-    description: string;
+    excerpt: string;
     customFieldsData: any[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
@@ -66,6 +67,7 @@ export const usePostForm = (editingPost?: any) => {
       documents: [],
       attachments: [],
       pdf: null,
+      publishDate: null,
       scheduledDate: null,
       autoArchiveDate: null,
       enableAutoArchive: false,
@@ -93,7 +95,7 @@ export const usePostForm = (editingPost?: any) => {
   const fullPost = (fullPostData?.cmsPost as any) || editingPost;
 
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
-    variables: { postId: editingPost?._id },
+    variables: { objectId: editingPost?._id, type: 'post' },
     skip: !editingPost?._id,
     fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: false,
@@ -146,6 +148,7 @@ export const usePostForm = (editingPost?: any) => {
           .map((a: any) => a.url)
           .filter(Boolean),
         pdf: fullPost.pdf || null,
+        publishDate: toDate(fullPost.publishedDate) || null,
         scheduledDate: toDate(fullPost.scheduledDate) || null,
         autoArchiveDate: toDate(fullPost.autoArchiveDate) || null,
         enableAutoArchive: !!fullPost.autoArchiveDate,

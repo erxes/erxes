@@ -2,7 +2,7 @@ import {
   OutgoingAuthConfig,
   OutgoingRetryOptions,
   TOutgoinWebhookActionConfig,
-} from '@/types';
+} from '../../../../types';
 import {
   IAutomationAction,
   splitType,

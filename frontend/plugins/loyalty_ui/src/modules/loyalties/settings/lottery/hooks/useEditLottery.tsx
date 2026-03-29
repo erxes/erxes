@@ -24,11 +24,12 @@ export function useEditLottery() {
       variables: {
         _id: variables._id,
         title: variables.title,
+        description: variables.description,
         buyScore: variables.buyScore,
         startDate: variables.startDate,
         endDate: variables.endDate,
         status: variables.status,
-        type: variables.type,
+        numberFormat: variables.numberFormat,
         awards: variables.awards,
       },
       onCompleted: (data) => {

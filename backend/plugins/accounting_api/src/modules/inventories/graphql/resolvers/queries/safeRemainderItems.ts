@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { paginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -80,18 +79,5 @@ const safeRemainderItemsQueries = {
     return models.SafeRemainderItems.find(query).countDocuments();
   },
 };
-
-checkPermission(
-  safeRemainderItemsQueries,
-  'safeRemainderItems',
-  'manageRemainders',
-  [],
-);
-checkPermission(
-  safeRemainderItemsQueries,
-  'safeRemainderItemsCount',
-  'manageRemainders',
-  [],
-);
 
 export default safeRemainderItemsQueries;

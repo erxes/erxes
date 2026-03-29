@@ -7,12 +7,12 @@ const TARGET_ACTIONS: Record<
   { module: string; action: string; fields: string[] }
 > = {
   pos: {
-    module: 'orders',
+    module: 'order',
     action: 'findOne',
     fields: ['items', 'number', 'totalAmount'],
   },
   sales: {
-    module: 'deals',
+    module: 'deal',
     action: 'findOne',
     fields: ['productsData', 'number'],
   },
@@ -33,16 +33,18 @@ const fetchTarget = async ({
     return null;
   }
 
-  const target = await sendTRPCMessage({
+  const response = await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
     method: 'query',
     module: config.module,
     action: config.action,
     input: {
-      query: { _id: targetId },
+      _id: targetId,
     },
   });
+
+  const target = response?.status === 'success' ? response?.data : response;
 
   if (!target) {
     return null;

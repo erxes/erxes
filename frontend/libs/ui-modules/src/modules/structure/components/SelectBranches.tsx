@@ -179,7 +179,7 @@ export const SelectBranchesItem = ({
   branch: IBranch & { hasChildren: boolean };
 }) => {
   const { onSelect, branchIds } = useSelectBranchesContext();
-  const isSelected = branchIds?.some((b) => b === branch._id);
+  const isSelected = branchIds?.includes(branch._id);
   return (
     <SelectTree.Item
       key={branch._id}
@@ -330,12 +330,12 @@ const SelectBranchesBadgesView = () => {
 export const SelectBranchesDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(
   (
     { onValueChange, scope, value, mode, options, className, ...props },
@@ -403,6 +403,35 @@ export const SelectBranchesCommandbarItem = ({
         <RecordTableInlineCell.Content className="w-96">
           <SelectBranchesContent />
         </RecordTableInlineCell.Content>
+      </Popover>
+    </SelectBranchesProvider>
+  );
+};
+
+export const SelectBranchesComboboxItem = ({
+  onValueChange,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> & {
+  className?: string;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  return (
+    <SelectBranchesProvider
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <SelectBranchesValue />
+        </Combobox.Trigger>
+
+        <Combobox.Content>
+          <SelectBranchesContent />
+        </Combobox.Content>
       </Popover>
     </SelectBranchesProvider>
   );
@@ -539,6 +568,7 @@ export const SelectBranches = Object.assign(SelectBranchesProvider, {
   Value: SelectBranchesValue,
   List: BranchesList,
   InlineCell: SelectBranchesInlineCell,
+  ComboboxItem: SelectBranchesComboboxItem,
   FormItem: SelectBranchesFormItem,
   FilterItem: SelectBranchesFilterItem,
   FilterView: SelectBranchesFilterView,

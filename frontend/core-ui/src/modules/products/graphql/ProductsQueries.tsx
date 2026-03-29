@@ -54,10 +54,10 @@ const productsMain = gql`
         type
         vendor {
           _id
-            primaryName
-          }
+          primaryName
         }
-        ${GQL_PAGE_INFO}
+      }
+      ${GQL_PAGE_INFO}
     }
   }
 `;

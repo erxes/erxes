@@ -32,10 +32,32 @@ export default {
     return models.Companies.findOne({ _id: product.vendorId });
   },
 
-  remainder: async (product: IProductDocument, args: IProductParams) => {
-    if (args.branchId && args.departmentId) {
-      return product.remainders?.[args.branchId]?.[args.departmentId];
+  remainder: async (
+    product: IProductDocument,
+    _args: undefined,
+    _c: IContext,
+    info: any,
+  ) => {
+    const { branchId, departmentId } = info?.variableValues || {};
+
+    if (branchId && departmentId) {
+      const { remainder, cost, soonIn, soonOut } =
+        product?.inventories?.[branchId]?.[departmentId] || {};
+      return { remainder, cost, soonIn, soonOut };
     }
+
+    const result = { remainder: 0, cost: 0, soonIn: 0, soonOut: 0 };
+
+    for (const branch of Object.values(product.inventories || {})) {
+      for (const department of Object.values(branch)) {
+        const { remainder = 0, cost = 0, soonIn = 0, soonOut = 0 } = department;
+        result.remainder += remainder;
+        result.cost += cost;
+        result.soonIn += soonIn;
+        result.soonOut += soonOut;
+      }
+    }
+    return result;
   },
 
   discount: async (product: IProductDocument, args: IProductParams) => {

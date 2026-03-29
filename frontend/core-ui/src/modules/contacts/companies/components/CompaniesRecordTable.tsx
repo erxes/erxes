@@ -17,6 +17,7 @@ export const CompaniesRecordTable = () => {
       data={companies || [{}]}
       stickyColumns={['more', 'checkbox', 'avatar', 'primaryName']}
       className="m-3"
+      tableId="companies_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

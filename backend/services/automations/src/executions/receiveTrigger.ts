@@ -1,7 +1,7 @@
-import { IModels } from '@/connectionResolver';
-import { calculateExecution } from '@/executions/calculateExecutions';
-import { executeActions } from '@/executions/executeActions';
-import { getActionsMap } from '@/utils/utils';
+import { IModels } from '../connectionResolver';
+import { calculateExecution } from './calculateExecutions';
+import { executeActions } from './executeActions';
+import { getActionsMap } from '../utils/utils';
 
 /**
  * Receives and processes automation triggers for matching automations

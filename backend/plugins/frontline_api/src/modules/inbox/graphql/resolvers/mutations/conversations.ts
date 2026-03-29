@@ -3,13 +3,18 @@ import {
   IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
 import { IConversationDocument } from '@/inbox/@types/conversations';
-import { AUTO_BOT_MESSAGES, CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  AUTO_BOT_MESSAGES,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
+import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
+import * as strip from 'strip';
 
 interface DispatchConversationData {
   action: string;
@@ -128,19 +133,22 @@ export const publishMessage = async (
   }
 };
 
-export const sendNotifications = async ({
-  user,
-  conversations,
-  type,
-  mobile,
-  messageContent,
-}: {
-  user: IUserDocument;
-  conversations: IConversationDocument[];
-  type: string;
-  mobile?: boolean;
-  messageContent?: string;
-}) => {
+export const sendNotifications = async (
+  subdomain: string,
+  {
+    user,
+    conversations,
+    type,
+    mobile,
+    messageContent,
+  }: {
+    user: IUserDocument;
+    conversations: IConversationDocument[];
+    type: string;
+    mobile?: boolean;
+    messageContent?: string;
+  },
+) => {
   for (const conversation of conversations) {
     if (!conversation || !conversation._id) {
       throw new Error('Error: Conversation or Conversation ID is undefined');
@@ -154,9 +162,7 @@ export const sendNotifications = async ({
       createdUser: user,
       link: `/inbox/index?_id=${conversation._id}`,
       title: 'Conversation updated',
-      content: messageContent
-        ? messageContent
-        : conversation.content || 'Conversation updated',
+      content: messageContent || conversation.content || 'Conversation updated',
       notifType: type,
       receivers: conversationNotifReceivers(conversation, user._id),
       action: 'updated conversation',
@@ -182,6 +188,35 @@ export const sendNotifications = async ({
         break;
       default:
         break;
+    }
+
+    if (mobile) {
+      try {
+        await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'core',
+          action: 'sendMobileNotification',
+          input: {
+            title: doc.title,
+            body: strip(doc.content),
+            receivers: conversationNotifReceivers(
+              conversation,
+              user._id,
+              false,
+            ),
+            customerId: conversation.customerId,
+            conversationId: conversation._id,
+            data: {
+              type: 'messenger',
+              id: conversation._id,
+            },
+          },
+        });
+      } catch (e) {
+        debugError(`Failed to send mobile notification: ${e.message}`);
+      }
     }
   }
 };
@@ -217,7 +252,7 @@ export const conversationMutations = {
       const { content = '', internal, attachments = [], extraInfo } = doc;
       const { _id: userId } = user;
 
-      await sendNotifications({
+      await sendNotifications(subdomain, {
         user,
         conversations: [conversation],
         type: 'conversationAddMessage',
@@ -226,14 +261,18 @@ export const conversationMutations = {
       });
 
       const { kind } = integration;
-      const customer = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'customers',
-        action: 'findOne',
-        input: { query: { _id: conversation.customerId } },
-      });
+
+      const customer = conversation.customerId
+        ? await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'customers',
+            action: 'findOne',
+            input: { _id: conversation.customerId },
+            defaultValue: null,
+          })
+        : null;
 
       if (!customer) {
         throw new Error('Customer not found for the conversation');
@@ -373,7 +412,7 @@ export const conversationMutations = {
     // notify graphl subscription
     publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations,
       type: 'conversationAssigneeChange',
@@ -407,7 +446,7 @@ export const conversationMutations = {
     const updatedConversations =
       await models.Conversations.unassignUserConversation(_ids);
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: oldConversations,
       type: 'unassign',
@@ -434,7 +473,7 @@ export const conversationMutations = {
       _id: { $in: _ids },
     });
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: updatedConversations,
       type: 'conversationStateChange',

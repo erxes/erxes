@@ -27,9 +27,9 @@ export const types = `
     createdAt: Date
     updatedAt: Date
     pageItems: [WebPageItem]
-
     customFieldsData: JSON
     customFieldsMap: JSON
+    translations: [Translation]
   }
 
   type WebPageList {
@@ -52,6 +52,7 @@ export const inputs = `
 
   input WebPageInput {
     webId: String
+    language: String
     name: String
     description: String
     coverImage: String
@@ -61,6 +62,7 @@ export const inputs = `
     content: String
     pageItems: [WebPageItemInput]
     customFieldsData: JSON
+    translations: [TranslationInput]
   }
 `;
 

@@ -11,7 +11,6 @@ import {
 } from '~/modules/sales/graphql/resolvers/utils';
 import { generateLastNum, watchItem } from '~/modules/sales/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { generatePipelineActivityLogs } from '~/utils/activityLogs';
 
 export interface IPipelineModel extends Model<IPipelineDocument> {
   getPipeline(_id: string): Promise<IPipelineDocument>;
@@ -37,7 +36,7 @@ export const loadPipelineClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog} = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class Pipeline {
     /** Get pipeline */
@@ -95,10 +94,7 @@ export const loadPipelineClass = (
         }
       }
 
-      await models.Pipelines.updateOne(
-        { _id },
-        { $set: { ...doc, userId } },
-      );
+      await models.Pipelines.updateOne({ _id }, { $set: { ...doc, userId } });
 
       const updatedPipeline = await models.Pipelines.getPipeline(_id);
 
@@ -108,14 +104,6 @@ export const loadPipelineClass = (
         currentDocument: updatedPipeline.toObject(),
         prevDocument: prevPipeline.toObject(),
       });
-
-      await generatePipelineActivityLogs(
-        prevPipeline.toObject(),
-        updatedPipeline.toObject(),
-        models,
-        createActivityLog,
-        subdomain,
-      );
 
       return updatedPipeline;
     }
@@ -160,10 +148,7 @@ export const loadPipelineClass = (
           ? SALES_STATUSES.ARCHIVED
           : SALES_STATUSES.ACTIVE;
 
-      await models.Pipelines.updateOne(
-        { _id },
-        { $set: { status, userId } },
-      );
+      await models.Pipelines.updateOne({ _id }, { $set: { status, userId } });
 
       sendDbEventLog?.({
         action: 'update',

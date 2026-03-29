@@ -33,7 +33,7 @@ const resolvers = {
         subdomain,
 
         pluginName: 'core',
-        module: 'company',
+        module: 'companies',
         action: 'findOne',
         input: { _id: order.customerId },
       });
@@ -134,14 +134,15 @@ const resolvers = {
       return null;
     }
 
-    return await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'findOne',
       input: { _id: order.convertDealId },
     });
+    return response?.data;
   },
 
   async dealLink(order: IPosOrderDocument, _, { subdomain }: IContext) {
@@ -149,14 +150,15 @@ const resolvers = {
       return null;
     }
 
-    return await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'getLink',
       input: { _id: order.convertDealId, type: 'deal' },
     });
+    return response?.data;
   },
 };
 

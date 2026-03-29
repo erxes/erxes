@@ -26,6 +26,8 @@ export interface ICreateBranchVariables {
       primary?: string;
     };
   };
+  language?: string;
+  languages?: string[];
 }
 
 export const useCreateBranch = () => {

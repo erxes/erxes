@@ -11,6 +11,7 @@ import { webDrawerState } from '../states/webBuilderState';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
 import { IWeb } from '../types';
 import { REACT_APP_WEBBUILDER_URL } from '@/utils';
+import { TEMPLATES } from '../constants';
 
 interface WebCardProps {
   web: IWeb;
@@ -22,7 +23,10 @@ export const WebCard = ({ web, index }: WebCardProps) => {
   const { removeWeb } = useRemoveWeb();
   const { confirm } = useConfirm();
 
-  const thumbnailUrl = web.thumbnail?.url;
+  const templateThumbnail = web.templateId
+    ? TEMPLATES.find((t) => t.id === web.templateId)?.thumbnail
+    : undefined;
+  const thumbnailUrl = web.thumbnail?.url || templateThumbnail;
 
   const sessionCode = sessionStorage.getItem('sessioncode') || '';
   const buildUrl = `${REACT_APP_WEBBUILDER_URL}/dashboard/projects/${
@@ -42,11 +46,14 @@ export const WebCard = ({ web, index }: WebCardProps) => {
     <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
       <div className={`aspect-video relative overflow-hidden bg-gray-100`}>
         {thumbnailUrl ? (
-          <img
-            src={thumbnailUrl}
-            alt={web.name}
-            className="w-full h-full object-cover"
-          />
+          <>
+            <img
+              src={thumbnailUrl}
+              alt={web.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/30" />
+          </>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">

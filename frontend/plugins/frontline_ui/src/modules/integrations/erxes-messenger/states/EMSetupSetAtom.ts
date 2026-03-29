@@ -49,6 +49,7 @@ export const erxesMessengerSetSetupAtom = atom(
       const config = {
         name: payload?.name || '',
         channelId,
+        brandId: payload?.brandId,
         ticketConfigId: payload?.ticketConfigId,
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,

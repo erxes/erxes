@@ -242,8 +242,6 @@ export const pipelineQueries: Record<string, Resolver> = {
   },
 };
 
-// moduleRequireLogin(pipelineQueries);
-
 pipelineQueries.cpSalesPipelines.wrapperConfig = {
   forClientPortal: true,
 };

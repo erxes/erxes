@@ -33,7 +33,7 @@ import {
   generateCPUserLoginActivityLog,
   generateCPUserLogoutActivityLog,
   createCPUserActivityLog,
-} from '@/clientportal/utils/activityLogs';
+} from '@/clientportal/meta/activity-log';
 
 export const authMutations: Record<string, Resolver> = {
   async clientPortalUserRegister(

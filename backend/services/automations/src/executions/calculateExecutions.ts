@@ -1,7 +1,7 @@
-import { IModels } from '@/connectionResolver';
-import { debugError } from '@/debugger';
-import { isInSegment } from '@/utils/isInSegment';
-import { isDiffValue } from '@/utils/utils';
+import { IModels } from '../connectionResolver';
+import { debugError } from '../debugger';
+import { isInSegment } from '../utils/isInSegment';
+import { isDiffValue } from '../utils/utils';
 import {
   AUTOMATION_EXECUTION_STATUS,
   IAutomationExecutionDocument,

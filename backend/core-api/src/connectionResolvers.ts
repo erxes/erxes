@@ -20,11 +20,6 @@ import {
   ICustomerModel,
   loadCustomerClass,
 } from '@/contacts/db/models/Customers';
-import { IExchangeRateDocument } from '@/exchangeRates/@types/exchangeRate';
-import {
-  IExchangeRateModel,
-  loadExchangeRateClass,
-} from '@/exchangeRates/db/models/ExchangeRates';
 import {
   IInternalNoteModel,
   loadInternalNoteClass,
@@ -249,6 +244,10 @@ import {
   ITemplateCategoryDocument,
   ITemplateDocument,
 } from '@/template/@types';
+import {
+  IActivityLogsModel,
+  loadActivityLogsClass,
+} from '@/logs/db/models/ActivityLogs';
 
 export interface IModels {
   Brands: IBrandModel;
@@ -277,7 +276,6 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
-  ExchangeRates: IExchangeRateModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
@@ -294,7 +292,7 @@ export interface IModels {
 
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
-  ActivityLogs: Model<IActivityLogDocument>;
+  ActivityLogs: IActivityLogsModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
   SmsRequests: ISmsRequestModel;
@@ -321,21 +319,17 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
-  eventDispatcher: <TDocument extends Document = any>(
+  eventHandlers: <TDocument extends Document = any>(
     pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ) => any,
+  ) => (moduleName: string, collectionName: string) => any,
 ): IModels => {
   const models = {} as IModels;
 
+  const coreEventHandlers = eventHandlers('core');
+
   models.Users = db.model<IUserDocument, IUserModel>(
     'users',
-    loadUserClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'organization', 'users'),
-    ),
+    loadUserClass(models, subdomain, coreEventHandlers),
   );
 
   models.Brands = db.model<IBrandDocument, IBrandModel>(
@@ -343,7 +337,7 @@ export const loadClasses = (
     loadBrandClass(
       subdomain,
       models,
-      eventDispatcher('core', 'organization', 'brands'),
+      coreEventHandlers('organization', 'brands'),
     ),
   );
 
@@ -357,7 +351,7 @@ export const loadClasses = (
     loadCustomerClass(
       models,
       subdomain,
-      eventDispatcher('core', 'contacts', 'customers'),
+      coreEventHandlers('contacts', 'customers'),
     ),
   );
 
@@ -366,13 +360,13 @@ export const loadClasses = (
     loadCompanyClass(
       subdomain,
       models,
-      eventDispatcher('core', 'contacts', 'companies'),
+      coreEventHandlers('contacts', 'companies'),
     ),
   );
 
   models.UserMovements = db.model<IUserMovementDocument, IUserMovemmentModel>(
     'user_movements',
-    loadUserMovemmentClass(models, subdomain),
+    loadUserMovemmentClass(models, subdomain, coreEventHandlers),
   );
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
@@ -380,13 +374,13 @@ export const loadClasses = (
     loadConfigClass(
       subdomain,
       models,
-      eventDispatcher('core', 'organization', 'configs'),
+      coreEventHandlers('organization', 'configs'),
     ),
   );
 
   models.Tags = db.model<ITagDocument, ITagModel>(
     'tags',
-    loadTagClass(subdomain, models, eventDispatcher('core', 'tags', 'tags')),
+    loadTagClass(subdomain, models, coreEventHandlers('tags', 'tags')),
   );
 
   models.InternalNotes = db.model<IInternalNoteDocument, IInternalNoteModel>(
@@ -394,7 +388,7 @@ export const loadClasses = (
     loadInternalNoteClass(
       models,
       subdomain,
-      eventDispatcher('core', 'internalNote', 'internal_notes'),
+      coreEventHandlers('internalNote', 'internal_notes'),
     ),
   );
 
@@ -403,17 +397,13 @@ export const loadClasses = (
     loadProductClass(
       models,
       subdomain,
-      eventDispatcher('core', 'products', 'products'),
+      coreEventHandlers('products', 'products'),
     ),
   );
 
   models.Uoms = db.model<IUomDocument, IUomModel>(
     'uoms',
-    loadUomClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'products', 'uoms'),
-    ),
+    loadUomClass(models, subdomain, coreEventHandlers('products', 'uoms')),
   );
 
   models.ProductsConfigs = db.model<
@@ -424,7 +414,7 @@ export const loadClasses = (
     loadProductsConfigClass(
       models,
       subdomain,
-      eventDispatcher('core', 'products', 'products_configs'),
+      coreEventHandlers('products', 'products_configs'),
     ),
   );
 
@@ -436,7 +426,7 @@ export const loadClasses = (
     loadProductCategoryClass(
       models,
       subdomain,
-      eventDispatcher('core', 'products', 'product_categories'),
+      coreEventHandlers('products', 'product_categories'),
     ),
   );
 
@@ -448,7 +438,7 @@ export const loadClasses = (
     'departments',
     loadDepartmentClass(
       models,
-      eventDispatcher('core', 'organization', 'departments'),
+      coreEventHandlers('organization', 'departments'),
     ),
   );
   models.Units = db.model<IUnitDocument, IUnitModel>(
@@ -457,23 +447,17 @@ export const loadClasses = (
   );
   models.Branches = db.model<IBranchDocument, IBranchModel>(
     'branches',
-    loadBranchClass(
-      models,
-      eventDispatcher('core', 'organization', 'branches'),
-    ),
+    loadBranchClass(models, coreEventHandlers('organization', 'branches')),
   );
   models.Positions = db.model<IPositionDocument, IPositionModel>(
     'positions',
-    loadPositionClass(
-      models,
-      eventDispatcher('core', 'organization', 'positions'),
-    ),
+    loadPositionClass(models, coreEventHandlers('organization', 'positions')),
   );
   models.Apps = db.model<IAppDocument, IAppModel>(
     'app_tokens',
     loadAppClass(
       models,
-      eventDispatcher('core', 'app_tokens', 'app_tokens'),
+      coreEventHandlers('app_tokens', 'app_tokens'),
       subdomain,
     ),
   );
@@ -507,11 +491,6 @@ export const loadClasses = (
   models.Favorites = db.model<IFavoritesDocument, IFavoritesModel>(
     'favorites',
     loadFavoritesClass(models),
-  );
-
-  models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
-    'exchange_rates',
-    loadExchangeRateClass(models, subdomain),
   );
 
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
@@ -559,10 +538,10 @@ export const loadClasses = (
     Model<IAiEmbeddingDocument>
   >('ai_embeddings', aiEmbeddingSchema);
 
-  models.ActivityLogs = db.model<
-    IActivityLogDocument,
-    Model<IActivityLogDocument>
-  >('activity_logs', activityLogsSchema);
+  models.ActivityLogs = db.model<IActivityLogDocument, IActivityLogsModel>(
+    'activity_logs',
+    loadActivityLogsClass(models),
+  );
 
   models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(
     'broadcast_engage_messages',
@@ -586,18 +565,12 @@ export const loadClasses = (
 
   models.Imports = db.model<IImportDocument, IImportModel>(
     'imports',
-    loadImportClass(
-      models,
-      eventDispatcher('core', 'import-export', 'imports'),
-    ),
+    loadImportClass(models, coreEventHandlers('import-export', 'imports')),
   );
 
   models.Exports = db.model<IExportDocument, IExportModel>(
     'exports',
-    loadExportClass(
-      models,
-      eventDispatcher('core', 'import-export', 'exports'),
-    ),
+    loadExportClass(models, coreEventHandlers('import-export', 'exports')),
   );
   models.OrgWhiteLabel = db.model<IOrgWhiteLabelDocument, IOrgWhiteLabelModel>(
     'org_white_labels',
@@ -613,7 +586,7 @@ export const loadClasses = (
     loadCPUserClass(
       models,
       subdomain,
-      eventDispatcher('core', 'clientportal', 'cpUser'),
+      coreEventHandlers('clientportal', 'cpUser'),
     ),
   );
   models.CPComments = db.model<ICPCommentDocument, ICPCommentsModel>(
@@ -621,7 +594,7 @@ export const loadClasses = (
     loadCommentClass(
       models,
       subdomain,
-      eventDispatcher('core', 'clientportal', 'client_portal_comments'),
+      coreEventHandlers('clientportal', 'client_portal_comments'),
     ),
   );
 
