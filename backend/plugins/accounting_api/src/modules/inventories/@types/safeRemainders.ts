@@ -12,6 +12,7 @@ export interface ISafeRemainderTrRule {
   accountId: string;
   customerType: string;
   customerId: string;
+  [key: string]: any;
 }
 
 export interface ISafeRemEditFields {
