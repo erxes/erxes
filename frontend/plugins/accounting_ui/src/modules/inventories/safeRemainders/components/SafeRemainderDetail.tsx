@@ -1,6 +1,6 @@
 import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Button, cn, Form, Label, RecordTable, Spinner, Tabs, useQueryState } from 'erxes-ui';
+import { Button, cn, Label, RecordTable, Spinner, Tabs, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';

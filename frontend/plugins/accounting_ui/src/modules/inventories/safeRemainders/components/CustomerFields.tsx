@@ -6,9 +6,7 @@ import {
   SelectMember,
 } from 'ui-modules';
 import { TSafeRemainderEditForm } from '../types/safeRemainderForm';
-import { useForm, UseFormReturn } from 'react-hook-form';
-import { safeRemainderEditSchema } from '../types/safeRemainderSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { UseFormReturn } from 'react-hook-form';
 
 export const CustomerFields = ({
   form,
@@ -17,10 +15,6 @@ export const CustomerFields = ({
   form: UseFormReturn<TSafeRemainderEditForm>;
   kind: 'incomeRule' | 'outRule' | 'saleRule'
 }) => {
-  // const form = useForm<TSafeRemainderEditForm>({
-  //   resolver: zodResolver(safeRemainderEditSchema),
-  // });
-
   const { customerType } = form.watch(`${kind}`);
 
   const SelectComponent =

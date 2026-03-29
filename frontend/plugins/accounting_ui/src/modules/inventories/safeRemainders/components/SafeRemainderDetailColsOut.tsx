@@ -98,7 +98,7 @@ const IsSaleField = ({
         onCheckedChange={(value) =>
           editRemItem(
             {
-              variables: { ...remItem, trInfo: { ...remItem.trInfo, isSale: Number(value) > 0 ? true : false } },
+              variables: { ...remItem, trInfo: { ...remItem.trInfo, isSale: Number(value) > 0 } },
             },
             ['trInfo'],
           )
