@@ -13,7 +13,7 @@ export const CustomerFields = ({
   kind,
 }: {
   form: UseFormReturn<TSafeRemainderEditForm>;
-  kind: 'incomeRule' | 'outRule' | 'saleRule'
+  kind: 'incomeRule' | 'outRule' | 'saleRule';
 }) => {
   const { customerType } = form.watch(`${kind}`);
 

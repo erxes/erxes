@@ -1,13 +1,7 @@
 import { JournalEnum } from '@/settings/account/types/Account';
 import { zodResolver } from '@hookform/resolvers/zod';
 import deepEqual from 'deep-equal';
-import {
-  Button,
-  Dialog,
-  Form,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, Dialog, Form, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router';
@@ -20,9 +14,7 @@ import { safeRemainderEditSchema } from '../types/safeRemainderSchema';
 export const EditSafeRemainder = () => {
   const form = useForm<TSafeRemainderEditForm>({
     resolver: zodResolver(safeRemainderEditSchema),
-    defaultValues: {
-
-    }
+    defaultValues: {},
   });
   const [id] = useQueryState<string>('id');
   const { safeRemainder, loading: detailLoading } = useSafeRemainderDetail({
@@ -40,7 +32,6 @@ export const EditSafeRemainder = () => {
     if (hasChanges) {
       reset({ ...safeRemainder });
     }
-
   }, [safeRemainder, reset, form]);
 
   const { submitSafeRemainder, loading } = useSafeRemainderEdit(id || '');
@@ -68,14 +59,21 @@ export const EditSafeRemainder = () => {
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <h5 className="">
-          Орлого: {safeRemainder?.incomeTrId ? <Link
-            className="text-blue-500 underline"
-            to={`/accounting/transaction/edit?parentId=${safeRemainder.incomeTrId}&trId=${safeRemainder.incomeTrId}}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >( Гүйлгээ )</Link> : ''}
+          Орлого:{' '}
+          {safeRemainder?.incomeTrId ? (
+            <Link
+              className="text-blue-500 underline"
+              to={`/accounting/transaction/edit?parentId=${safeRemainder.incomeTrId}&trId=${safeRemainder.incomeTrId}}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ( Гүйлгээ )
+            </Link>
+          ) : (
+            ''
+          )}
         </h5>
-        <div className='flex flex-wrap items-center justify-start gap-2 max-w-full'>
+        <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
           <Form.Field
             control={form.control}
             name="incomeRule.accountId"
@@ -87,7 +85,7 @@ export const EditSafeRemainder = () => {
                     value={field.value || ''}
                     onValueChange={field.onChange}
                     defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                    mode='single'
+                    mode="single"
                   />
                 </Form.Control>
                 <Form.Message />
@@ -96,14 +94,21 @@ export const EditSafeRemainder = () => {
           />
         </div>
         <h5 className="">
-          Зарлага: {safeRemainder?.outTrId ? <Link
-            className="text-blue-500 underline"
-            to={`/accounting/transaction/edit?parentId=${safeRemainder.outTrId}&trId=${safeRemainder.outTrId}}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >( Гүйлгээ )</Link> : ''}
+          Зарлага:{' '}
+          {safeRemainder?.outTrId ? (
+            <Link
+              className="text-blue-500 underline"
+              to={`/accounting/transaction/edit?parentId=${safeRemainder.outTrId}&trId=${safeRemainder.outTrId}}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ( Гүйлгээ )
+            </Link>
+          ) : (
+            ''
+          )}
         </h5>
-        <div className='flex flex-wrap items-center justify-start gap-2 max-w-full'>
+        <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
           <Form.Field
             control={form.control}
             name="outRule.accountId"
@@ -115,7 +120,7 @@ export const EditSafeRemainder = () => {
                     value={field.value}
                     onValueChange={field.onChange}
                     defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                    mode='single'
+                    mode="single"
                   />
                 </Form.Control>
                 <Form.Message />
@@ -124,14 +129,21 @@ export const EditSafeRemainder = () => {
           />
         </div>
         <h5 className="">
-          Борлуулалт: {safeRemainder?.saleTrId ? <Link
-            className="text-blue-500 underline"
-            to={`/accounting/transaction/edit?parentId=${safeRemainder.saleTrId}&trId=${safeRemainder.saleTrId}}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >( Гүйлгээ )</Link> : ''}
+          Борлуулалт:{' '}
+          {safeRemainder?.saleTrId ? (
+            <Link
+              className="text-blue-500 underline"
+              to={`/accounting/transaction/edit?parentId=${safeRemainder.saleTrId}&trId=${safeRemainder.saleTrId}}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ( Гүйлгээ )
+            </Link>
+          ) : (
+            ''
+          )}
         </h5>
-        <div className='flex flex-wrap items-center justify-start gap-2 max-w-full'>
+        <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
           <Form.Field
             control={form.control}
             name="saleRule.outAccountId"
@@ -143,7 +155,7 @@ export const EditSafeRemainder = () => {
                     value={field.value}
                     onValueChange={field.onChange}
                     defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                    mode='single'
+                    mode="single"
                   />
                 </Form.Control>
                 <Form.Message />
@@ -161,7 +173,7 @@ export const EditSafeRemainder = () => {
                     value={field.value}
                     onValueChange={field.onChange}
                     defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-                    mode='single'
+                    mode="single"
                   />
                 </Form.Control>
                 <Form.Message />
@@ -179,7 +191,7 @@ export const EditSafeRemainder = () => {
                     value={field.value}
                     onValueChange={field.onChange}
                     defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-                    mode='single'
+                    mode="single"
                   />
                 </Form.Control>
                 <Form.Message />

@@ -3,5 +3,5 @@ export const CENSUS_TABS = {
   INCOME: { value: 'income', label: 'Орлого' },
   OUT: { value: 'out', label: 'Зарлага' },
   SALE: { value: 'sale', label: 'Борлуулалт' },
-  CONFIG: {value: 'config', label: 'Тохируулга'},
-}
+  CONFIG: { value: 'config', label: 'Тохируулга' },
+};

@@ -102,7 +102,7 @@ const UnitCostField = ({
           {
             variables: {
               ...remItem,
-              trInfo: { ...remItem.trInfo, unitCost: value }
+              trInfo: { ...remItem.trInfo, unitCost: value },
             },
           },
           ['count'],
@@ -129,7 +129,10 @@ const DebitCostField = ({
           {
             variables: {
               ...remItem,
-              trInfo: { ...remItem.trInfo, unitCost: value / ((remItem.count - remItem.preCount) || 1) }
+              trInfo: {
+                ...remItem.trInfo,
+                unitCost: value / (remItem.count - remItem.preCount || 1),
+              },
             },
           },
           ['count'],
@@ -197,7 +200,9 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'unitCost',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
+    ),
     accessorKey: 'unitCost',
     cell: ({ row }) => (
       <UnitCostField
@@ -210,11 +215,16 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'debitCost',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Debit Cost" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Debit Cost" />
+    ),
     accessorKey: 'debitCost',
     cell: ({ row }) => (
       <DebitCostField
-        value={(row.original.trInfo?.unitCost ?? 0) * (row.original.count - row.original.preCount)}
+        value={
+          (row.original.trInfo?.unitCost ?? 0) *
+          (row.original.count - row.original.preCount)
+        }
         field="debitCost"
         _id={row.original._id}
         remItem={row.original}

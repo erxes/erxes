@@ -149,7 +149,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
     public static async updateRemainder(
       _subdomain: string,
       params: ISafeRemEditFields & { _id: string },
-      userId: string
+      userId: string,
     ) {
       const { _id, description, incomeRule, outRule, saleRule } = params;
       const safeRemainder = await models.SafeRemainders.getRemainder(_id);
