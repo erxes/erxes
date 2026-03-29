@@ -15,7 +15,7 @@ export const CustomerFields = ({
   kind,
 }: {
   form: UseFormReturn<TSafeRemainderEditForm>;
-  kind: 'incomeRule' | 'outRule' | 'saleRule'
+  kind: 'incomeRule' | 'outRule' | 'saleRule';
 }) => {
   // const form = useForm<TSafeRemainderEditForm>({
   //   resolver: zodResolver(safeRemainderEditSchema),

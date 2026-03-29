@@ -98,7 +98,13 @@ const IsSaleField = ({
         onCheckedChange={(value) =>
           editRemItem(
             {
-              variables: { ...remItem, trInfo: { ...remItem.trInfo, isSale: Number(value) > 0 ? true : false } },
+              variables: {
+                ...remItem,
+                trInfo: {
+                  ...remItem.trInfo,
+                  isSale: Number(value) > 0 ? true : false,
+                },
+              },
             },
             ['trInfo'],
           )
@@ -166,13 +172,11 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'isSale',
     accessorKey: 'isSale',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="IsSale" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="IsSale" />,
     size: 33,
     cell: ({ row }) => (
       <IsSaleField
-        value={row.original.trInfo?.isSale && 1 || 0}
+        value={(row.original.trInfo?.isSale && 1) || 0}
         field="trInfo.status"
         _id={row.original._id}
         remItem={row.original}
@@ -185,7 +189,9 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
     ),
     accessorKey: 'unitCost',
-    cell: ({ row }) => <NumberCell value={row.original.trInfo?.unitCost ?? 0} />,
+    cell: ({ row }) => (
+      <NumberCell value={row.original.trInfo?.unitCost ?? 0} />
+    ),
   },
   {
     id: 'CreditCost',
@@ -193,6 +199,13 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
     ),
     accessorKey: 'unitCost',
-    cell: ({ row }) => <NumberCell value={(row.original.trInfo?.unitCost ?? 0) * (row.original.preCount - row.original.count)} />,
+    cell: ({ row }) => (
+      <NumberCell
+        value={
+          (row.original.trInfo?.unitCost ?? 0) *
+          (row.original.preCount - row.original.count)
+        }
+      />
+    ),
   },
 ];

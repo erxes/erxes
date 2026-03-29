@@ -98,7 +98,13 @@ const IsSaleField = ({
         onCheckedChange={(value) =>
           editRemItem(
             {
-              variables: { ...remItem, trInfo: { ...remItem.trInfo, isSale: Number(value) > 0 ? true : false } },
+              variables: {
+                ...remItem,
+                trInfo: {
+                  ...remItem.trInfo,
+                  isSale: Number(value) > 0 ? true : false,
+                },
+              },
             },
             ['trInfo'],
           )
@@ -124,7 +130,7 @@ const UnitPriceField = ({
           {
             variables: {
               ...remItem,
-              trInfo: { ...remItem.trInfo, unitPrice: value }
+              trInfo: { ...remItem.trInfo, unitPrice: value },
             },
           },
           ['count'],
@@ -151,7 +157,10 @@ const SalePriceField = ({
           {
             variables: {
               ...remItem,
-              trInfo: { ...remItem.trInfo, unitPrice: value / ((remItem.preCount - remItem.count) || 1) }
+              trInfo: {
+                ...remItem.trInfo,
+                unitPrice: value / (remItem.preCount - remItem.count || 1),
+              },
             },
           },
           ['count'],
@@ -161,7 +170,6 @@ const SalePriceField = ({
     />
   );
 };
-
 
 export const safeRemDetailColumnsSale: ColumnDef<ISafeRemainderItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
@@ -221,13 +229,11 @@ export const safeRemDetailColumnsSale: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'isSale',
     accessorKey: 'isSale',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="IsSale" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="IsSale" />,
     size: 33,
     cell: ({ row }) => (
       <IsSaleField
-        value={row.original.trInfo?.isSale && 1 || 0}
+        value={(row.original.trInfo?.isSale && 1) || 0}
         field="trInfo.status"
         _id={row.original._id}
         remItem={row.original}
@@ -236,7 +242,9 @@ export const safeRemDetailColumnsSale: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'unitPrice',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />
+    ),
     accessorKey: 'unitPrice',
     cell: ({ row }) => (
       <UnitPriceField
@@ -249,11 +257,16 @@ export const safeRemDetailColumnsSale: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'salePrice',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Sale Price" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Sale Price" />
+    ),
     accessorKey: 'salePrice',
     cell: ({ row }) => (
       <SalePriceField
-        value={(row.original.trInfo?.unitPrice ?? 0) * (row.original.preCount - row.original.count)}
+        value={
+          (row.original.trInfo?.unitPrice ?? 0) *
+          (row.original.preCount - row.original.count)
+        }
         field="salePrice"
         _id={row.original._id}
         remItem={row.original}

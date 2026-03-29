@@ -1,6 +1,15 @@
 import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Button, cn, Form, Label, RecordTable, Spinner, Tabs, useQueryState } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  Form,
+  Label,
+  RecordTable,
+  Spinner,
+  Tabs,
+  useQueryState,
+} from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
@@ -155,12 +164,13 @@ export const SafeRemainderDetail = () => {
               <Tabs.Trigger
                 key={field.value}
                 value={field.value}
-                className={cn(field.value === activeTab && "font-bold", "capitalize py-1 gap-2 pr-1 h-8")}
+                className={cn(
+                  field.value === activeTab && 'font-bold',
+                  'capitalize py-1 gap-2 pr-1 h-8',
+                )}
                 asChild
               >
-                <div>
-                  {field.label}
-                </div>
+                <div>{field.label}</div>
               </Tabs.Trigger>
             ))}
           </Tabs.List>
@@ -203,7 +213,11 @@ export const SafeRemainderDetail = () => {
         >
           <RecordTable.Provider
             columns={safeRemDetailColumnsIncome}
-            data={safeRemainderItems?.filter(item => item.preCount < item.count) || []}
+            data={
+              safeRemainderItems?.filter(
+                (item) => item.preCount < item.count,
+              ) || []
+            }
             stickyColumns={[]}
             className="m-3"
           >
@@ -233,7 +247,11 @@ export const SafeRemainderDetail = () => {
         >
           <RecordTable.Provider
             columns={safeRemDetailColumnsOut}
-            data={safeRemainderItems.filter(item => item.preCount > item.count && !item.trInfo?.isSale) || []}
+            data={
+              safeRemainderItems.filter(
+                (item) => item.preCount > item.count && !item.trInfo?.isSale,
+              ) || []
+            }
             stickyColumns={[]}
             className="m-3"
           >
@@ -263,7 +281,11 @@ export const SafeRemainderDetail = () => {
         >
           <RecordTable.Provider
             columns={safeRemDetailColumnsSale}
-            data={safeRemainderItems.filter(item => item.preCount > item.count && item.trInfo?.isSale) || []}
+            data={
+              safeRemainderItems.filter(
+                (item) => item.preCount > item.count && item.trInfo?.isSale,
+              ) || []
+            }
             stickyColumns={[]}
             className="m-3"
           >
