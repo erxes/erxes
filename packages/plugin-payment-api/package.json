@@ -17,7 +17,6 @@
     "@erxes/api-utils": "*",
     "@stripe/react-stripe-js": "^2.8.1",
     "@stripe/stripe-js": "^4.9.0",
-    "axios": "^1.13.6",
     "babel-loader": "^8.2.1",
     "babel-polyfill": "^6.26.0",
     "compression-webpack-plugin": "9.2.0",
