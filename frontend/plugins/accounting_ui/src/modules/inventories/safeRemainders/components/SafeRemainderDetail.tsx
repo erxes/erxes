@@ -1,6 +1,6 @@
 import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Button, cn, Label, RecordTable, Spinner, Tabs, useQueryState } from 'erxes-ui';
+import { Button, cn, Form, Label, RecordTable, Spinner, Tabs, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
@@ -24,6 +24,7 @@ import { CENSUS_TABS } from '../types/constants';
 import { safeRemDetailColumnsIncome } from './SafeRemainderDetailColsIncome';
 import { safeRemDetailColumnsOut } from './SafeRemainderDetailColsOut';
 import { safeRemDetailColumnsSale } from './SafeRemainderDetailColsSale';
+import { EditSafeRemainder } from './SafeRemainderEditForm';
 
 export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
@@ -283,6 +284,14 @@ export const SafeRemainderDetail = () => {
               <SafeRemDetailCommandbar />
             </RecordTable.Scroll>
           </RecordTable.Provider>
+        </Tabs.Content>
+
+        <Tabs.Content
+          key={CENSUS_TABS.CONFIG.value}
+          value={CENSUS_TABS.CONFIG.value}
+          className="mt-6"
+        >
+          <EditSafeRemainder />
         </Tabs.Content>
       </Tabs>
     </>

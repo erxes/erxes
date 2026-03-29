@@ -37,6 +37,13 @@ export const safeRemainderFields = `
       fullName
     }
   }
+
+  incomeRule
+  incomeTrId
+  outRule
+  outTrId
+  saleRule
+  saleTrId
 `;
 
 export const safeRemainderItemFields = `

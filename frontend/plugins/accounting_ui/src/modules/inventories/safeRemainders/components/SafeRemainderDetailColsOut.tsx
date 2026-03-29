@@ -5,7 +5,6 @@ import {
   CurrencyCode,
   CurrencyFormatedDisplay,
   INumberFieldContainerProps,
-  ITextFieldContainerProps,
   NumberField,
   RecordTable,
   RecordTableInlineCell,
@@ -194,6 +193,6 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
     ),
     accessorKey: 'unitCost',
-    cell: ({ row }) => <NumberCell value={(row.original.trInfo?.unitCost ?? 0) * (row.original.count - row.original.preCount)} />,
+    cell: ({ row }) => <NumberCell value={(row.original.trInfo?.unitCost ?? 0) * (row.original.preCount - row.original.count)} />,
   },
 ];

@@ -25,6 +25,13 @@ export type ISafeRemainder = {
   department: IDepartment;
   productCategory: IProductCategory;
   modifiedUser: IUser;
+
+  incomeRule?: any;
+  incomeTrId?: string;
+  outRule?: any;
+  outTrId?: string;
+  saleRule?: any;
+  saleTrId?: string;
 };
 
 export type ISafeRemainderItem = {
@@ -44,7 +51,7 @@ export type ISafeRemainderItem = {
   trInfo?: {
     unitCost?: number;
     isSale?: boolean;
-    salePrice?: number;
+    unitPrice?: number;
   };
 };
 

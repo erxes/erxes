@@ -108,6 +108,61 @@ const IsSaleField = ({
   );
 };
 
+const UnitPriceField = ({
+  value,
+  _id,
+  remItem,
+}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
+  const { editRemItem } = useSafeRemainderItemEdit();
+
+  return (
+    <NumberField
+      value={value}
+      scope={`remItem-${_id}-diff`}
+      onSave={(value) => {
+        editRemItem(
+          {
+            variables: {
+              ...remItem,
+              trInfo: { ...remItem.trInfo, unitPrice: value }
+            },
+          },
+          ['count'],
+        );
+      }}
+      className={'shadow-none rounded-none px-2'}
+    />
+  );
+};
+
+const SalePriceField = ({
+  value,
+  _id,
+  remItem,
+}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
+  const { editRemItem } = useSafeRemainderItemEdit();
+
+  return (
+    <NumberField
+      value={value}
+      scope={`remItem-${_id}-diff`}
+      onSave={(value) => {
+        editRemItem(
+          {
+            variables: {
+              ...remItem,
+              trInfo: { ...remItem.trInfo, unitPrice: value / ((remItem.preCount - remItem.count) || 1) }
+            },
+          },
+          ['count'],
+        );
+      }}
+      className={'shadow-none rounded-none px-2'}
+    />
+  );
+};
+
+
 export const safeRemDetailColumnsSale: ColumnDef<ISafeRemainderItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
@@ -180,19 +235,29 @@ export const safeRemDetailColumnsSale: ColumnDef<ISafeRemainderItem>[] = [
     ),
   },
   {
-    id: 'UnitCost',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
+    id: 'unitPrice',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
+    accessorKey: 'unitPrice',
+    cell: ({ row }) => (
+      <UnitPriceField
+        value={row.original.trInfo?.unitPrice ?? 0}
+        field="trInfo.unitPrice"
+        _id={row.original._id}
+        remItem={row.original}
+      />
     ),
-    accessorKey: 'unitCost',
-    cell: ({ row }) => <NumberCell value={row.original.trInfo?.unitCost ?? 0} />,
   },
   {
-    id: 'CreditCost',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
+    id: 'salePrice',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Sale Price" />,
+    accessorKey: 'salePrice',
+    cell: ({ row }) => (
+      <SalePriceField
+        value={(row.original.trInfo?.unitPrice ?? 0) * (row.original.preCount - row.original.count)}
+        field="salePrice"
+        _id={row.original._id}
+        remItem={row.original}
+      />
     ),
-    accessorKey: 'unitCost',
-    cell: ({ row }) => <NumberCell value={(row.original.trInfo?.unitCost ?? 0) * (row.original.count - row.original.preCount)} />,
   },
 ];

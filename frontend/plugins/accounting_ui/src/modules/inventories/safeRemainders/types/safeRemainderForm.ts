@@ -1,4 +1,5 @@
 import { z } from 'zod';
-import { safeRemainderSchema } from './safeRemainderSchema';
+import { safeRemainderEditSchema, safeRemainderSchema } from './safeRemainderSchema';
 
 export type TSafeRemainderForm = z.infer<typeof safeRemainderSchema>;
+export type TSafeRemainderEditForm = z.infer<typeof safeRemainderEditSchema>;
