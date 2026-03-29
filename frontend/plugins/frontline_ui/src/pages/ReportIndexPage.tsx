@@ -9,6 +9,10 @@ import { TicketReportsView } from '@/report/components/TicketReportsView';
 
 export default function ReportIndexPage() {
   const location = useLocation();
+  const isCallReport = location.pathname.includes('/call');
+  const isTicketReport = location.pathname.includes('/ticket');
+  const isOverviewReport = !isCallReport && !isTicketReport;
+
   return (
     <PageContainer>
       <PageHeader>
@@ -55,14 +59,21 @@ export default function ReportIndexPage() {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      {location.pathname.includes('/ticket') ? (
+      <div className="flex flex-wrap gap-2 px-4 pt-4">
+        <Button variant={isOverviewReport ? 'default' : 'outline'} asChild>
+          <Link to="/frontline/reports">Frontline Overview</Link>
+        </Button>
+        <Button variant={isCallReport ? 'default' : 'outline'} asChild>
+          <Link to="/frontline/reports/call">Call Center</Link>
+        </Button>
+      </div>
+      {isTicketReport ? (
         <TicketReportsView />
-      ) : location.pathname.includes('/call') ? (
+      ) : isCallReport ? (
         <CallReportsView />
       ) : (
         <ReportsView />
       )}
     </PageContainer>
   );
-};
-
+}

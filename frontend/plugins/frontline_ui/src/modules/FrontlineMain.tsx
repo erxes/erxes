@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 
 const CallDashboardIndexPage = lazy(() =>
   import('~/pages/CallIndexPage').then((module) => ({
@@ -77,9 +77,22 @@ const IntegrationsMain = () => {
       <Routes>
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/tickets" element={<Ticket />} />
-        <Route path="/calls" element={<CallDashboardIndexPage />} />
+        <Route
+          path="/calls"
+          element={<Navigate to="/frontline/calls/dashboard" replace />}
+        />
+        <Route path="/calls/dashboard" element={<CallDashboardIndexPage />} />
+        <Route
+          path="/calls/dashboard/:id"
+          element={<CallDashboardDetailPage />}
+        />
+        <Route path="/calls/statistics" element={<CallStatisticsIndexPage />} />
+        <Route
+          path="/calls/statistics/:id"
+          element={<CallStatisticsDetailPage />}
+        />
         <Route path="/calls/:id" element={<CallDashboardDetailPage />} />
-        <Route path="/reports" element={<Report />} />
+        <Route path="/reports/*" element={<Report />} />
         <Route path="/forms" element={<Forms />} />
         <Route path="/forms/:formId" element={<FormDetailPage />} />
         <Route path="/forms/create" element={<FormCreatePage />} />

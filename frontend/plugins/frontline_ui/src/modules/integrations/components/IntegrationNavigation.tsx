@@ -15,7 +15,7 @@ export const IntegrationNavigation = () => {
         name="Call center"
         icon={IconPhone}
         path="frontline/calls/dashboard"
-        isActive={pathname.includes('/frontline/calls/dashboard')}
+        isActive={pathname.includes('/frontline/calls')}
       />
     )
   );

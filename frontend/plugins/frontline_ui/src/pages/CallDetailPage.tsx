@@ -111,20 +111,21 @@ export const CallDetailPage = () => {
           <Breadcrumb>
             <Breadcrumb.List>
               <Breadcrumb.Item>
-                <Breadcrumb.Link asChild>
-                  <Button variant="ghost" asChild>
-                    <Link to="/frontline/calls/dashboard">
-                      <IconPhone />
-                      Calls dashboard
-                    </Link>
-                  </Button>
-                  <Button variant="ghost" asChild>
-                    <Link to="/frontline/calls/statistics">
-                      <IconPhone />
-                      Calls statistics
-                    </Link>
-                  </Button>
-                </Breadcrumb.Link>
+                <Button variant="ghost" asChild>
+                  <Link to="/frontline/calls/dashboard">
+                    <IconPhone />
+                    Calls dashboard
+                  </Link>
+                </Button>
+              </Breadcrumb.Item>
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item>
+                <Button variant="ghost" asChild>
+                  <Link to="/frontline/calls/statistics">
+                    <IconPhone />
+                    Calls statistics
+                  </Link>
+                </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
@@ -142,7 +143,7 @@ export const CallDetailPage = () => {
       <div className="flex flex-col flex-auto overflow-hidden p-5 gap-5">
         <div>
           <Button variant="ghost" asChild className="px-2 gap-1">
-            <Link to="/frontline/calls">
+            <Link to="/frontline/calls/dashboard">
               <IconChevronLeft />
               Go back to queues
             </Link>
