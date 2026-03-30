@@ -93,3 +93,22 @@ export const GET_TICKET_PRIORITY = gql`
     }
   }
 `;
+
+export const GET_TICKET_EXPORT = gql`
+  query ReportTicketExport($filters: TicketReportFilter) {
+    reportTicketExport(filters: $filters) {
+      _id
+      name
+      state
+      priorityLabel
+      statusLabel
+      assigneeName
+      pipelineName
+      tagNames
+      createdAt
+      startDate
+      targetDate
+      updatedAt
+    }
+  }
+`;

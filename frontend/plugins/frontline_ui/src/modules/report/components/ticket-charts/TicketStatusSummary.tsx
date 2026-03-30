@@ -46,6 +46,7 @@ import {
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { type LegendPayload } from 'recharts';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
 
 interface TicketStatusSummaryProps {
   title: string;
@@ -91,10 +92,19 @@ export const TicketStatusSummary = ({
     },
   });
 
+  const data = useMemo(() => statusSummary || [], [statusSummary]);
+
+  const exportColumns = useMemo(() => [
+    { key: 'name' as const, header: 'Status' },
+    { key: 'count' as const, header: 'Count' },
+    { key: 'percentage' as const, header: 'Percentage', format: (v: number) => `${v}%` },
+  ], []);
+
   const filterEl = (
     <>
       <TicketReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ChartExportButton data={data} columns={exportColumns} filename="ticket-status-summary" />
     </>
   );
 
@@ -133,8 +143,6 @@ export const TicketStatusSummary = ({
       </FrontlineCard>
     );
   }
-
-  const data = statusSummary || [];
 
   if (!data.length) {
     return (

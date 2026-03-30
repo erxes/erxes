@@ -25,6 +25,7 @@ export const ExportIndexPage = () => {
         "core:contact.company",
         "core:user.user",
         "core:product.product",
+        "frontline:ticket.ticket",
       ]} />
     </PageContainer>
   );

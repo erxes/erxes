@@ -24,7 +24,9 @@ export const ImportIndexPage = () => {
         "core:contact.lead",
         "core:contact.company",
         "core:user.user",
-        "core:product.product",]} />
+        "core:product.product",
+        "frontline:ticket.ticket",
+      ]} />
     </PageContainer>
   );
 };

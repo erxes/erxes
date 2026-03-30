@@ -50,6 +50,7 @@ import {
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { useChartPagination, ChartPagination } from '../chart-pagination/ChartPagination';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
 
 interface TicketOpenDateProps {
   title: string;
@@ -108,10 +109,16 @@ export const TicketOpenDate = ({ title, colSpan = 6, onColSpanChange }: TicketOp
     hasMultiplePages,
   } = useChartPagination(allData);
 
+  const exportColumns = useMemo(() => [
+    { key: 'date' as const, header: 'Date' },
+    { key: 'count' as const, header: 'Count' },
+  ], []);
+
   const filterEl = (
     <>
       <TicketReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ChartExportButton data={allData} columns={exportColumns} filename="ticket-date" />
     </>
   );
 

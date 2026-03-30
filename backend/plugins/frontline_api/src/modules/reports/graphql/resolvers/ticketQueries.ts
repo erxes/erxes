@@ -275,4 +275,92 @@ export const reportTicketQueries = {
       };
     });
   },
+
+  async reportTicketExport(
+    _parent: undefined,
+    { filters = {} }: { filters?: IReportFilters },
+    { models, subdomain }: IContext,
+  ) {
+    const pipeline = await buildTicketPipeline(filters, subdomain);
+    pipeline.push({ $sort: { createdAt: -1 } });
+
+    const tickets = await models.Ticket.aggregate(pipeline);
+
+    if (!tickets.length) {
+      return [];
+    }
+
+    const assigneeIds = [...new Set(tickets.map((t: any) => t.assigneeId).filter(Boolean))];
+    const pipelineIds = [...new Set(tickets.map((t: any) => t.pipelineId).filter(Boolean))];
+    const allTagIds = [...new Set(tickets.flatMap((t: any) => t.tagIds || []))];
+
+    const [members, pipelines, tags] = await Promise.all([
+      assigneeIds.length
+        ? sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'users',
+            action: 'find',
+            input: { query: { _id: { $in: assigneeIds } } },
+            defaultValue: [],
+          })
+        : [],
+      pipelineIds.length
+        ? models.Pipeline.find({ _id: { $in: pipelineIds } }).lean()
+        : [],
+      allTagIds.length
+        ? sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'tags',
+            action: 'find',
+            input: { query: { _id: { $in: allTagIds } } },
+            defaultValue: [],
+          })
+        : [],
+    ]);
+
+    const memberMap = new Map(
+      (members as any[]).map((m: any) => [
+        m._id.toString(),
+        m.details?.fullName || m.email || 'Unknown',
+      ]),
+    );
+    const pipelineMap = new Map(
+      (pipelines as any[]).map((p: any) => [p._id.toString(), p.name]),
+    );
+    const tagMap = new Map(
+      (tags as any[]).map((t: any) => [t._id.toString(), t.name]),
+    );
+
+    const statusMap = new Map(
+      TICKET_DEFAULT_STATUSES.map((s) => [s.type, s.name]),
+    );
+    const priorityMap = new Map(
+      TICKET_PRIORITY_TYPES.map((p) => [p.type, p.name]),
+    );
+
+    return tickets.map((ticket: any) => ({
+      _id: ticket._id,
+      name: ticket.name,
+      state: ticket.state || 'active',
+      priorityLabel: priorityMap.get(ticket.priority) || 'No Priority',
+      statusLabel: statusMap.get(ticket.statusType) || 'Unknown',
+      assigneeName: ticket.assigneeId
+        ? memberMap.get(ticket.assigneeId.toString()) || 'Unknown'
+        : 'Unassigned',
+      pipelineName: ticket.pipelineId
+        ? pipelineMap.get(ticket.pipelineId.toString()) || 'Unknown'
+        : '',
+      tagNames: (ticket.tagIds || []).map(
+        (id: string) => tagMap.get(id.toString()) || 'Unknown',
+      ),
+      createdAt: ticket.createdAt,
+      startDate: ticket.startDate,
+      targetDate: ticket.targetDate,
+      updatedAt: ticket.updatedAt,
+    }));
+  },
 };

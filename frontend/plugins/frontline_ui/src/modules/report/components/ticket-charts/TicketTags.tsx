@@ -49,6 +49,7 @@ import {
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { useChartPagination, ChartPagination } from '../chart-pagination/ChartPagination';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
 
 interface TicketTagsProps {
   title: string;
@@ -100,10 +101,17 @@ export const TicketTags = ({ title, colSpan = 6, onColSpanChange }: TicketTagsPr
     handleNext,
   } = useChartPagination(allTags);
 
+  const exportColumns = useMemo(() => [
+    { key: 'name' as const, header: 'Tag' },
+    { key: 'count' as const, header: 'Count' },
+    { key: 'percentage' as const, header: 'Percentage', format: (v: number) => `${v}%` },
+  ], []);
+
   const filterEl = (
     <>
       <TicketReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ChartExportButton data={allTags} columns={exportColumns} filename="ticket-tags" />
     </>
   );
 

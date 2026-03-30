@@ -4,8 +4,8 @@ import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
 import { getFilters } from '@/report/utils/dateFilters';
 import { formatDate } from 'date-fns';
 import { MembersInline } from 'ui-modules';
-import { memo, useState, useEffect, useCallback } from 'react';
-import { IconTicket, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import { IconTicket, IconChevronLeft, IconChevronRight, IconDownload } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import {
@@ -22,6 +22,8 @@ import {
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { ColumnDef, Cell } from '@tanstack/react-table';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
+import { useTicketExport } from '@/report/hooks/useTicketExport';
+import { generateTicketExcel, downloadExcel } from '@/report/utils/exportCsv';
 
 const PER_PAGE = 20;
 
@@ -44,6 +46,7 @@ export const TicketList = ({ title, colSpan = 6, onColSpanChange }: TicketListPr
   const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
   const [page, setPage] = useState(1);
+  const { fetchExport, loading: exportLoading } = useTicketExport();
 
   useEffect(() => {
     setFilters(getFilters(dateValue || undefined));
@@ -83,6 +86,50 @@ export const TicketList = ({ title, colSpan = 6, onColSpanChange }: TicketListPr
 
   const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
   const handleNext = useCallback(() => setPage((p) => p + 1), []);
+
+  const handleExport = useCallback(async () => {
+    const result = await fetchExport({
+      variables: {
+        filters: {
+          ...filters,
+          limit: undefined,
+          channelIds: channelFilter.length ? channelFilter : undefined,
+          memberIds: memberFilter.length ? memberFilter : undefined,
+          pipelineIds: pipelineFilter.length ? pipelineFilter : undefined,
+          state: stateFilter || undefined,
+          priority: priorityFilter.length ? priorityFilter : undefined,
+          tagIds: tagFilter.length ? tagFilter : undefined,
+          customerIds: customerFilter.length ? customerFilter : undefined,
+          companyIds: companyFilter.length ? companyFilter : undefined,
+        },
+      },
+    });
+    const tickets = result.data?.reportTicketExport;
+    if (tickets?.length) {
+      const buffer = await generateTicketExcel(tickets);
+      const timestamp = new Date().toISOString().slice(0, 10);
+      downloadExcel(buffer, `ticket-list-${timestamp}.xlsx`);
+    }
+  }, [
+    fetchExport, filters, channelFilter, memberFilter, pipelineFilter,
+    stateFilter, priorityFilter, tagFilter, customerFilter, companyFilter,
+  ]);
+
+  const filterEl = useMemo(() => (
+    <>
+      <TicketReportFilter cardId={id} />
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-7"
+        onClick={handleExport}
+        disabled={exportLoading}
+        title="Export Excel"
+      >
+        <IconDownload className="size-3.5" />
+      </Button>
+    </>
+  ), [id, handleExport, exportLoading]);
 
   if (loading) {
     return (
@@ -128,7 +175,7 @@ export const TicketList = ({ title, colSpan = 6, onColSpanChange }: TicketListPr
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -146,7 +193,7 @@ export const TicketList = ({ title, colSpan = 6, onColSpanChange }: TicketListPr
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <TicketListTable tickets={ticketList.list} />
         <Pagination

@@ -68,6 +68,20 @@ export const types = `
     percentage: Int
   }
 
+  type TicketExportItem {
+    _id: String
+    name: String
+    state: String
+    priorityLabel: String
+    statusLabel: String
+    assigneeName: String
+    pipelineName: String
+    tagNames: [String]
+    createdAt: Date
+    startDate: Date
+    targetDate: Date
+    updatedAt: Date
+  }
 `;
 
 export const queries = `
@@ -79,4 +93,5 @@ export const queries = `
   reportTicketTotalCount(filters: TicketReportFilter): Int
   reportTicketStatusSummary(filters: TicketReportFilter): [ReportTicketStatusSummary]
   reportTicketPriority(filters: TicketReportFilter): [ReportTicketPriority]
+  reportTicketExport(filters: TicketReportFilter): [TicketExportItem]
 `;
