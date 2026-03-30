@@ -10,7 +10,9 @@ function getOrCreate<K, V>(map: Map<K, V>, key: K, factory: () => V): V {
   return value;
 }
 
-export const reportChartTypeState = atom<Record<string, ResponsesChartType>>({});
+export const reportChartTypeState = atom<Record<string, ResponsesChartType>>(
+  {},
+);
 
 export const reportDateFilterState = atom<Record<string, string>>({});
 
@@ -27,14 +29,29 @@ const chartTypeAtomCache = new Map<
   WritableAtom<ResponsesChartType, [ResponsesChartType], void>
 >();
 
-const dateFilterAtomCache = new Map<string, WritableAtom<string, [string], void>>();
+const dateFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
 
-const sourceFilterAtomCache = new Map<string, WritableAtom<string, [string], void>>();
-const channelFilterAtomCache = new Map<string, WritableAtom<string[], [string[]], void>>();
+const sourceFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
+const channelFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
 
-const memberFilterAtomCache = new Map<string, WritableAtom<string[], [string[]], void>>();
+const memberFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
 
-const callStatusFilterAtomCache = new Map<string, WritableAtom<string, [string], void>>();
+const callStatusFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
 export const getReportChartTypeAtom = (cardId: string) =>
   getOrCreate(chartTypeAtomCache, cardId, () =>
     atom(
@@ -119,11 +136,26 @@ export const reportStateFilterState = atom<Record<string, string>>({});
 export const reportPriorityFilterState = atom<Record<string, number[]>>({});
 export const reportFrequencyFilterState = atom<Record<string, string>>({});
 
-const pipelineFilterAtomCache = new Map<string, WritableAtom<string[], [string[]], void>>();
-const ticketTagFilterAtomCache = new Map<string, WritableAtom<string[], [string[]], void>>();
-const stateFilterAtomCache = new Map<string, WritableAtom<string, [string], void>>();
-const priorityFilterAtomCache = new Map<string, WritableAtom<number[], [number[]], void>>();
-const frequencyFilterAtomCache = new Map<string, WritableAtom<string, [string], void>>();
+const pipelineFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+const ticketTagFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+const stateFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
+const priorityFilterAtomCache = new Map<
+  string,
+  WritableAtom<number[], [number[]], void>
+>();
+const frequencyFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
 
 export const getReportPipelineFilterAtom = (cardId: string) =>
   getOrCreate(pipelineFilterAtomCache, cardId, () =>
@@ -194,8 +226,14 @@ export const getReportFrequencyFilterAtom = (cardId: string) =>
 export const reportCustomerFilterState = atom<Record<string, string[]>>({});
 export const reportCompanyFilterState = atom<Record<string, string[]>>({});
 
-const customerFilterAtomCache = new Map<string, WritableAtom<string[], [string[]], void>>();
-const companyFilterAtomCache = new Map<string, WritableAtom<string[], [string[]], void>>();
+const customerFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+const companyFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
 
 export const getReportCustomerFilterAtom = (cardId: string) =>
   getOrCreate(customerFilterAtomCache, cardId, () =>

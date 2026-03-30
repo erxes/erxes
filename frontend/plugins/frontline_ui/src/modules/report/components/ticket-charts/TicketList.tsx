@@ -1,11 +1,21 @@
-import { Alert, Badge, Button, RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  RecordTable,
+  RecordTableInlineCell,
+} from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
 import { getFilters } from '@/report/utils/dateFilters';
 import { formatDate } from 'date-fns';
 import { MembersInline } from 'ui-modules';
-import { memo, useState, useEffect, useCallback, useMemo } from 'react';
-import { IconTicket, IconChevronLeft, IconChevronRight, IconDownload } from '@tabler/icons-react';
+import { memo, useState, useEffect, useCallback } from 'react';
+import {
+  IconTicket,
+  IconChevronLeft,
+  IconChevronRight,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import {
@@ -33,7 +43,11 @@ interface TicketListProps {
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
-export const TicketList = ({ title, colSpan = 6, onColSpanChange }: TicketListProps) => {
+export const TicketList = ({
+  title,
+  colSpan = 6,
+  onColSpanChange,
+}: TicketListProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
   const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
@@ -111,25 +125,36 @@ export const TicketList = ({ title, colSpan = 6, onColSpanChange }: TicketListPr
       downloadExcel(buffer, `ticket-list-${timestamp}.xlsx`);
     }
   }, [
-    fetchExport, filters, channelFilter, memberFilter, pipelineFilter,
-    stateFilter, priorityFilter, tagFilter, customerFilter, companyFilter,
+    fetchExport,
+    filters,
+    channelFilter,
+    memberFilter,
+    pipelineFilter,
+    stateFilter,
+    priorityFilter,
+    tagFilter,
+    customerFilter,
+    companyFilter,
   ]);
 
-  const filterEl = useMemo(() => (
-    <>
-      <TicketReportFilter cardId={id} />
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-7"
-        onClick={handleExport}
-        disabled={exportLoading}
-        title="Export Excel"
-      >
-        <IconDownload className="size-3.5" />
-      </Button>
-    </>
-  ), [id, handleExport, exportLoading]);
+  const filterEl = useMemo(
+    () => (
+      <>
+        <TicketReportFilter cardId={id} />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={handleExport}
+          disabled={exportLoading}
+          title="Export Excel"
+        >
+          <IconDownload className="size-3.5" />
+        </Button>
+      </>
+    ),
+    [id, handleExport, exportLoading],
+  );
 
   if (loading) {
     return (
@@ -230,14 +255,24 @@ const Pagination = memo(function Pagination({
         {from}–{to} of {totalCount}
       </span>
       <div className="flex items-center gap-1">
-        <Button variant="outline" size="sm" onClick={onPrev} disabled={page <= 1}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPrev}
+          disabled={page <= 1}
+        >
           <IconChevronLeft className="size-4" />
           Prev
         </Button>
         <span className="text-xs text-muted-foreground px-2">
           {page} / {totalPages}
         </span>
-        <Button variant="outline" size="sm" onClick={onNext} disabled={page >= totalPages}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNext}
+          disabled={page >= totalPages}
+        >
           Next
           <IconChevronRight className="size-4" />
         </Button>
@@ -246,10 +281,18 @@ const Pagination = memo(function Pagination({
   );
 });
 
-const TicketListTable = memo(function TicketListTable({ tickets }: { tickets: TicketListItem[] }) {
+const TicketListTable = memo(function TicketListTable({
+  tickets,
+}: {
+  tickets: TicketListItem[];
+}) {
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
-      <RecordTable.Provider data={tickets} columns={ticketListColumns} className="m-3">
+      <RecordTable.Provider
+        data={tickets}
+        columns={ticketListColumns}
+        className="m-3"
+      >
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />

@@ -8,7 +8,10 @@ import {
   buildTicketTagMatch,
   buildDateGroupPipeline,
 } from '@/reports/utils';
-import { TICKET_DEFAULT_STATUSES, TICKET_PRIORITY_TYPES } from '@/ticket/constants/types';
+import {
+  TICKET_DEFAULT_STATUSES,
+  TICKET_PRIORITY_TYPES,
+} from '@/ticket/constants/types';
 
 export const reportTicketQueries = {
   async reportTicketSource(
@@ -166,7 +169,8 @@ export const reportTicketQueries = {
       { $limit: filters.limit ?? 10 },
     ];
 
-    const tagCounts: Array<{ _id: any; count: number }> = await models.Ticket.aggregate(pipeline);
+    const tagCounts: Array<{ _id: any; count: number }> =
+      await models.Ticket.aggregate(pipeline);
 
     if (!tagCounts.length) {
       return [];
@@ -175,20 +179,24 @@ export const reportTicketQueries = {
     const total = tagCounts.reduce((s, t) => s + t.count, 0);
     const tagIds = tagCounts.map((t) => t._id);
 
-    const tags: Array<{ _id: any; name: string; colorCode?: string }> = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'tags',
-      action: 'find',
-      input: {
-        query: { _id: { $in: tagIds } },
-      },
-      defaultValue: [],
-    });
+    const tags: Array<{ _id: any; name: string; colorCode?: string }> =
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: {
+          query: { _id: { $in: tagIds } },
+        },
+        defaultValue: [],
+      });
 
     const tagMap = new Map<string, { name: string; colorCode?: string }>(
-      tags.map((t) => [t._id.toString(), { name: t.name, colorCode: t.colorCode }]),
+      tags.map((t) => [
+        t._id.toString(),
+        { name: t.name, colorCode: t.colorCode },
+      ]),
     );
 
     return tagCounts.map((tag) => {
@@ -261,7 +269,9 @@ export const reportTicketQueries = {
 
     const total = priorityCounts.reduce((s: number, r: any) => s + r.count, 0);
 
-    const countMap = Object.fromEntries(priorityCounts.map((r: any) => [r._id, r.count]));
+    const countMap = Object.fromEntries(
+      priorityCounts.map((r: any) => [r._id, r.count]),
+    );
 
     return TICKET_PRIORITY_TYPES.map((p) => {
       const count = countMap[p.type] ?? 0;

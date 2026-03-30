@@ -49,8 +49,10 @@ import {
   getReportCompanyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
-import { useChartPagination, ChartPagination } from '../chart-pagination/ChartPagination';
-import { ChartExportButton } from '../chart-export/ChartExportButton';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface TicketOpenDateProps {
   title: string;
@@ -62,7 +64,11 @@ interface ChartProps {
   chartData: Array<{ date: string; count: number }>;
 }
 
-export const TicketOpenDate = ({ title, colSpan = 6, onColSpanChange }: TicketOpenDateProps) => {
+export const TicketOpenDate = ({
+  title,
+  colSpan = 6,
+  onColSpanChange,
+}: TicketOpenDateProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -109,16 +115,23 @@ export const TicketOpenDate = ({ title, colSpan = 6, onColSpanChange }: TicketOp
     hasMultiplePages,
   } = useChartPagination(allData);
 
-  const exportColumns = useMemo(() => [
-    { key: 'date' as const, header: 'Date' },
-    { key: 'count' as const, header: 'Count' },
-  ], []);
+  const exportColumns = useMemo(
+    () => [
+      { key: 'date' as const, header: 'Date' },
+      { key: 'count' as const, header: 'Count' },
+    ],
+    [],
+  );
 
   const filterEl = (
     <>
       <TicketReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
-      <ChartExportButton data={allData} columns={exportColumns} filename="ticket-date" />
+      <ChartExportButton
+        data={allData}
+        columns={exportColumns}
+        filename="ticket-date"
+      />
     </>
   );
 
@@ -202,12 +215,20 @@ export const TicketOpenDate = ({ title, colSpan = 6, onColSpanChange }: TicketOp
   );
 };
 
-export const TicketOpenBarChart = memo(function TicketOpenBarChart({ chartData }: ChartProps) {
-  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+export const TicketOpenBarChart = memo(function TicketOpenBarChart({
+  chartData,
+}: ChartProps) {
+  const chartConfig = useMemo(
+    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
+    [],
+  );
   if (!chartData.length) return null;
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 60 }}>
+      <BarChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
+      >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <Bar dataKey="count" fill="var(--primary)" name="Count" />
         <XAxis
@@ -230,12 +251,20 @@ export const TicketOpenBarChart = memo(function TicketOpenBarChart({ chartData }
   );
 });
 
-export const TicketOpenLineChart = memo(function TicketOpenLineChart({ chartData }: ChartProps) {
-  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+export const TicketOpenLineChart = memo(function TicketOpenLineChart({
+  chartData,
+}: ChartProps) {
+  const chartConfig = useMemo(
+    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
+    [],
+  );
   if (!chartData.length) return null;
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 60 }}>
+      <AreaChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
+      >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <Area
           type="monotone"
@@ -268,9 +297,14 @@ export const TicketOpenLineChart = memo(function TicketOpenLineChart({ chartData
   );
 });
 
-export const TicketOpenPieChart = memo(function TicketOpenPieChart({ chartData }: ChartProps) {
+export const TicketOpenPieChart = memo(function TicketOpenPieChart({
+  chartData,
+}: ChartProps) {
   const [hoveredDate, setHoveredDate] = useState<string | undefined>(undefined);
-  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+  const chartConfig = useMemo(
+    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
+    [],
+  );
   const colors = [
     'var(--chart-50)',
     'var(--chart-100)',
@@ -285,7 +319,11 @@ export const TicketOpenPieChart = memo(function TicketOpenPieChart({ chartData }
     'var(--chart-950)',
   ];
   const data = useMemo(
-    () => chartData.map((item, i) => ({ ...item, fill: colors[i % colors.length] })),
+    () =>
+      chartData.map((item, i) => ({
+        ...item,
+        fill: colors[i % colors.length],
+      })),
     [chartData],
   );
   return (
@@ -312,7 +350,9 @@ export const TicketOpenPieChart = memo(function TicketOpenPieChart({ chartData }
           content={(props: any) => (
             <CustomLegendContent
               {...props}
-              onMouseEnter={(d: LegendPayload) => setHoveredDate(d.value as string)}
+              onMouseEnter={(d: LegendPayload) =>
+                setHoveredDate(d.value as string)
+              }
               onMouseLeave={() => setHoveredDate(undefined)}
             />
           )}
@@ -323,18 +363,33 @@ export const TicketOpenPieChart = memo(function TicketOpenPieChart({ chartData }
   );
 });
 
-export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({ chartData }: ChartProps) {
-  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({
+  chartData,
+}: ChartProps) {
+  const chartConfig = useMemo(
+    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
+    [],
+  );
   const maxCount = useMemo(
-    () => Math.ceil(Math.max(...chartData.map((d) => d.count), 0) / 10) * 10 || 100,
+    () =>
+      Math.ceil(Math.max(...chartData.map((d) => d.count), 0) / 10) * 10 || 100,
     [chartData],
   );
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <RadarChart data={chartData}>
         <PolarGrid />
-        <PolarAngleAxis dataKey="date" tickLine={false} tick={{ fontSize: 12 }} />
-        <PolarRadiusAxis angle={90} domain={[0, maxCount]} tick={false} axisLine={false} />
+        <PolarAngleAxis
+          dataKey="date"
+          tickLine={false}
+          tick={{ fontSize: 12 }}
+        />
+        <PolarRadiusAxis
+          angle={90}
+          domain={[0, maxCount]}
+          tick={false}
+          axisLine={false}
+        />
         <Radar
           name="Count"
           dataKey="count"
@@ -349,7 +404,9 @@ export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({ chartDa
   );
 });
 
-export const TicketOpenTableChart = memo(function TicketOpenTableChart({ chartData }: ChartProps) {
+export const TicketOpenTableChart = memo(function TicketOpenTableChart({
+  chartData,
+}: ChartProps) {
   const columns: ColumnDef<{ date: string; count: number }>[] = [
     {
       id: 'date',

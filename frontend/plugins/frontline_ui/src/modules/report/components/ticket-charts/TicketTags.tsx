@@ -48,8 +48,15 @@ import {
   getReportCompanyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
+<<<<<<< HEAD
 import { useChartPagination, ChartPagination } from '../chart-pagination/ChartPagination';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
+=======
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
+>>>>>>> 9bb4b11d3cbd55a9427ca4a7f3532b34b04972c4
 
 interface TicketTagsProps {
   title: string;
@@ -57,7 +64,11 @@ interface TicketTagsProps {
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
-export const TicketTags = ({ title, colSpan = 6, onColSpanChange }: TicketTagsProps) => {
+export const TicketTags = ({
+  title,
+  colSpan = 6,
+  onColSpanChange,
+}: TicketTagsProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -178,12 +189,27 @@ export const TicketTags = ({ title, colSpan = 6, onColSpanChange }: TicketTagsPr
     >
       <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
-        <div className={cn({ 'p-4': chartType !== ResponsesChartType.Table }, 'w-full')}>
-          {chartType === ResponsesChartType.Bar && <TicketTagBarChart tags={tags} />}
-          {chartType === ResponsesChartType.Line && <TicketTagLineChart tags={tags} />}
-          {chartType === ResponsesChartType.Pie && <TicketTagPieChart tags={tags} />}
-          {chartType === ResponsesChartType.Radar && <TicketTagRadarChart tags={tags} />}
-          {chartType === ResponsesChartType.Table && <TicketTagTableChart tags={tags} />}
+        <div
+          className={cn(
+            { 'p-4': chartType !== ResponsesChartType.Table },
+            'w-full',
+          )}
+        >
+          {chartType === ResponsesChartType.Bar && (
+            <TicketTagBarChart tags={tags} />
+          )}
+          {chartType === ResponsesChartType.Line && (
+            <TicketTagLineChart tags={tags} />
+          )}
+          {chartType === ResponsesChartType.Pie && (
+            <TicketTagPieChart tags={tags} />
+          )}
+          {chartType === ResponsesChartType.Radar && (
+            <TicketTagRadarChart tags={tags} />
+          )}
+          {chartType === ResponsesChartType.Table && (
+            <TicketTagTableChart tags={tags} />
+          )}
         </div>
         <ChartPagination
           page={page}
@@ -211,7 +237,11 @@ const CHART_COLORS = [
   'var(--chart-950)',
 ];
 
-export const TicketTagBarChart = memo(function TicketTagBarChart({ tags }: { tags: TagData[] }) {
+export const TicketTagBarChart = memo(function TicketTagBarChart({
+  tags,
+}: {
+  tags: TagData[];
+}) {
   const chartConfig = useMemo(
     () => ({
       count: { label: 'Count', color: 'var(--primary)' },
@@ -219,8 +249,14 @@ export const TicketTagBarChart = memo(function TicketTagBarChart({ tags }: { tag
     }),
     [],
   );
-  const maxCount = useMemo(() => Math.max(...tags.map((t) => t.count || 0), 0), [tags]);
-  const maxPct = useMemo(() => Math.max(...tags.map((t) => t.percentage || 0), 100), [tags]);
+  const maxCount = useMemo(
+    () => Math.max(...tags.map((t) => t.count || 0), 0),
+    [tags],
+  );
+  const maxPct = useMemo(
+    () => Math.max(...tags.map((t) => t.percentage || 0), 100),
+    [tags],
+  );
   const scaleFactor = maxCount > 0 && maxPct > 0 ? maxCount / maxPct : 1;
   const chartData = useMemo(
     () =>
@@ -244,7 +280,11 @@ export const TicketTagBarChart = memo(function TicketTagBarChart({ tags }: { tag
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
         <Bar dataKey="count" fill="var(--primary)" name="Count" />
-        <Bar dataKey="percentageScaled" fill="var(--success)" name="Percentage" />
+        <Bar
+          dataKey="percentageScaled"
+          fill="var(--success)"
+          name="Percentage"
+        />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip
           content={<ChartTooltipContent />}
@@ -259,7 +299,11 @@ export const TicketTagBarChart = memo(function TicketTagBarChart({ tags }: { tag
   );
 });
 
-export const TicketTagLineChart = memo(function TicketTagLineChart({ tags }: { tags: TagData[] }) {
+export const TicketTagLineChart = memo(function TicketTagLineChart({
+  tags,
+}: {
+  tags: TagData[];
+}) {
   const chartConfig = useMemo(
     () => ({
       count: { label: 'Count', color: 'var(--primary)' },
@@ -292,7 +336,11 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({ tags }: { t
           orientation="right"
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Percentage (%)', angle: 90, position: 'insideRight' }}
+          label={{
+            value: 'Percentage (%)',
+            angle: 90,
+            position: 'insideRight',
+          }}
         />
         <Area
           yAxisId="count"
@@ -321,9 +369,16 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({ tags }: { t
   );
 });
 
-export const TicketTagPieChart = memo(function TicketTagPieChart({ tags }: { tags: TagData[] }) {
+export const TicketTagPieChart = memo(function TicketTagPieChart({
+  tags,
+}: {
+  tags: TagData[];
+}) {
   const [hovered, setHovered] = useState<string | undefined>(undefined);
-  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+  const chartConfig = useMemo(
+    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
+    [],
+  );
   const chartData = useMemo(
     () =>
       tags.map((t, i) => ({
@@ -346,7 +401,11 @@ export const TicketTagPieChart = memo(function TicketTagPieChart({ tags }: { tag
           nameKey="tag"
         >
           {chartData.map((item, i) => (
-            <Cell key={i} fill={item.fill} opacity={hovered && hovered !== item.tag ? 0.5 : 1} />
+            <Cell
+              key={i}
+              fill={item.fill}
+              opacity={hovered && hovered !== item.tag ? 0.5 : 1}
+            />
           ))}
         </Pie>
         <Legend
@@ -377,10 +436,14 @@ export const TicketTagRadarChart = memo(function TicketTagRadarChart({
     [],
   );
   const maxCount = useMemo(
-    () => Math.ceil(Math.max(...tags.map((t) => t.count || 0), 0) / 10) * 10 || 100,
+    () =>
+      Math.ceil(Math.max(...tags.map((t) => t.count || 0), 0) / 10) * 10 || 100,
     [tags],
   );
-  const maxPct = useMemo(() => Math.max(...tags.map((t) => t.percentage || 0), 100), [tags]);
+  const maxPct = useMemo(
+    () => Math.max(...tags.map((t) => t.percentage || 0), 100),
+    [tags],
+  );
   const scaleFactor = maxCount > 0 && maxPct > 0 ? maxCount / maxPct : 1;
   const chartData = useMemo(
     () =>
@@ -396,8 +459,17 @@ export const TicketTagRadarChart = memo(function TicketTagRadarChart({
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <RadarChart data={chartData}>
         <PolarGrid />
-        <PolarAngleAxis dataKey="tag" tickLine={false} tick={{ fontSize: 12 }} />
-        <PolarRadiusAxis angle={90} domain={[0, maxCount]} tick={false} axisLine={false} />
+        <PolarAngleAxis
+          dataKey="tag"
+          tickLine={false}
+          tick={{ fontSize: 12 }}
+        />
+        <PolarRadiusAxis
+          angle={90}
+          domain={[0, maxCount]}
+          tick={false}
+          axisLine={false}
+        />
         <Radar
           name="Count"
           dataKey="count"
@@ -417,7 +489,10 @@ export const TicketTagRadarChart = memo(function TicketTagRadarChart({
           content={<ChartTooltipContent />}
           formatter={(v: number, name: string, props: any) =>
             name === 'Percentage'
-              ? [props.payload.percentageOriginal?.toFixed(1) + '%', 'Percentage']
+              ? [
+                  props.payload.percentageOriginal?.toFixed(1) + '%',
+                  'Percentage',
+                ]
               : [v, name]
           }
         />

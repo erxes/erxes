@@ -18,7 +18,11 @@ import {
 } from '@/report/states';
 import { MemberFormContent } from '../frontline-card/MemberFormContent';
 import { SelectMember, SelectCustomer, SelectCompany } from 'ui-modules';
-import { getReportDisplayValue, REPORT_FIXED_DATES, ReportDateFilter } from './ReportDateFilter';
+import {
+  getReportDisplayValue,
+  REPORT_FIXED_DATES,
+  ReportDateFilter,
+} from './ReportDateFilter';
 import { BackButton } from './back-button';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
 import { IPipeline } from '@/pipelines/types';
@@ -47,16 +51,34 @@ interface TicketReportFilterProps {
 }
 
 export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
-  const [channelFilter, setChannelFilter] = useAtom(getReportChannelFilterAtom(cardId));
-  const [memberFilter, setMemberFilter] = useAtom(getReportMemberFilterAtom(cardId));
+  const [channelFilter, setChannelFilter] = useAtom(
+    getReportChannelFilterAtom(cardId),
+  );
+  const [memberFilter, setMemberFilter] = useAtom(
+    getReportMemberFilterAtom(cardId),
+  );
   const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(cardId));
-  const [pipelineFilter, setPipelineFilter] = useAtom(getReportPipelineFilterAtom(cardId));
-  const [ticketTagFilter, setTicketTagFilter] = useAtom(getReportTicketTagFilterAtom(cardId));
-  const [stateFilter, setStateFilter] = useAtom(getReportStateFilterAtom(cardId));
-  const [priorityFilter, setPriorityFilter] = useAtom(getReportPriorityFilterAtom(cardId));
-  const [frequency, setFrequency] = useAtom(getReportFrequencyFilterAtom(cardId));
-  const [customerFilter, setCustomerFilter] = useAtom(getReportCustomerFilterAtom(cardId));
-  const [companyFilter, setCompanyFilter] = useAtom(getReportCompanyFilterAtom(cardId));
+  const [pipelineFilter, setPipelineFilter] = useAtom(
+    getReportPipelineFilterAtom(cardId),
+  );
+  const [ticketTagFilter, setTicketTagFilter] = useAtom(
+    getReportTicketTagFilterAtom(cardId),
+  );
+  const [stateFilter, setStateFilter] = useAtom(
+    getReportStateFilterAtom(cardId),
+  );
+  const [priorityFilter, setPriorityFilter] = useAtom(
+    getReportPriorityFilterAtom(cardId),
+  );
+  const [frequency, setFrequency] = useAtom(
+    getReportFrequencyFilterAtom(cardId),
+  );
+  const [customerFilter, setCustomerFilter] = useAtom(
+    getReportCustomerFilterAtom(cardId),
+  );
+  const [companyFilter, setCompanyFilter] = useAtom(
+    getReportCompanyFilterAtom(cardId),
+  );
 
   const { channels } = useGetChannels();
 
@@ -86,7 +108,10 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
   };
 
   return (
-    <Filter id={`ticket-report-filter-${cardId}`} sessionKey={`ticket-report-filter-${cardId}`}>
+    <Filter
+      id={`ticket-report-filter-${cardId}`}
+      sessionKey={`ticket-report-filter-${cardId}`}
+    >
       <Filter.Popover scope={`ticket-report-filter-${cardId}`}>
         <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
@@ -105,7 +130,11 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 {hasFilters && (
                   <>
                     <Command.Separator />
-                    <Command.Item value="clear" onSelect={handleClear} className="text-red-500">
+                    <Command.Item
+                      value="clear"
+                      onSelect={handleClear}
+                      className="text-red-500"
+                    >
                       Clear all
                     </Command.Item>
                   </>
@@ -146,13 +175,19 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
 
           <Filter.View filterKey="state">
             <Command shouldFilter={false}>
-              <StateFilterView value={stateFilter} onValueChange={setStateFilter} />
+              <StateFilterView
+                value={stateFilter}
+                onValueChange={setStateFilter}
+              />
             </Command>
           </Filter.View>
 
           <Filter.View filterKey="priority">
             <Command shouldFilter={false}>
-              <PriorityFilterView value={priorityFilter} onValueChange={setPriorityFilter} />
+              <PriorityFilterView
+                value={priorityFilter}
+                onValueChange={setPriorityFilter}
+              />
             </Command>
           </Filter.View>
 
@@ -178,12 +213,19 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
 
           <Filter.View filterKey="frequency">
             <Command shouldFilter={false}>
-              <FrequencyFilterView value={frequency} onValueChange={setFrequency} />
+              <FrequencyFilterView
+                value={frequency}
+                onValueChange={setFrequency}
+              />
             </Command>
           </Filter.View>
 
           <Filter.View filterKey="date">
-            <DateView filterKey="date" selected={dateValue} onSelect={setDateValue} />
+            <DateView
+              filterKey="date"
+              selected={dateValue}
+              onSelect={setDateValue}
+            />
           </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
@@ -308,7 +350,9 @@ const PipelineFilterView = ({
               onSelect={() => handleSelect(pipeline._id)}
             >
               <div className="flex items-center gap-2">
-                {value.includes(pipeline._id) && <IconCheck className="size-4" />}
+                {value.includes(pipeline._id) && (
+                  <IconCheck className="size-4" />
+                )}
                 <span>{pipeline.name}</span>
               </div>
             </Command.Item>
@@ -358,7 +402,9 @@ const PriorityFilterView = ({
 }) => {
   const handleSelect = (priority: number) => {
     const isSelected = value.includes(priority);
-    onValueChange(isSelected ? value.filter((v) => v !== priority) : [...value, priority]);
+    onValueChange(
+      isSelected ? value.filter((v) => v !== priority) : [...value, priority],
+    );
   };
 
   return (
@@ -432,7 +478,9 @@ const DateView = ({
   return (
     <Command>
       <Command.Input
-        placeholder={filterKey.charAt(0).toUpperCase() + filterKey.slice(1) + ' date'}
+        placeholder={
+          filterKey.charAt(0).toUpperCase() + filterKey.slice(1) + ' date'
+        }
         focusOnMount
       />
       <Command.List>
@@ -445,7 +493,10 @@ const DateView = ({
             className={cn('h-8', selected === date && 'text-primary')}
           >
             {getReportDisplayValue(date)}
-            <Combobox.Check checked={selected === date} className="text-primary" />
+            <Combobox.Check
+              checked={selected === date}
+              className="text-primary"
+            />
           </Command.Item>
         ))}
         <Command.Separator className="my-1" />

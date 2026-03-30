@@ -171,20 +171,42 @@ export const TicketStatusSummary = ({
     >
       <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
-        <div className={cn({ 'p-4': chartType !== ResponsesChartType.Table }, 'w-full')}>
-          {chartType === ResponsesChartType.Bar && <StatusBarChart data={data} />}
-          {chartType === ResponsesChartType.Line && <StatusLineChart data={data} />}
-          {chartType === ResponsesChartType.Pie && <StatusPieChart data={data} />}
-          {chartType === ResponsesChartType.Radar && <StatusBarChart data={data} />}
-          {chartType === ResponsesChartType.Table && <StatusTableChart data={data} />}
+        <div
+          className={cn(
+            { 'p-4': chartType !== ResponsesChartType.Table },
+            'w-full',
+          )}
+        >
+          {chartType === ResponsesChartType.Bar && (
+            <StatusBarChart data={data} />
+          )}
+          {chartType === ResponsesChartType.Line && (
+            <StatusLineChart data={data} />
+          )}
+          {chartType === ResponsesChartType.Pie && (
+            <StatusPieChart data={data} />
+          )}
+          {chartType === ResponsesChartType.Radar && (
+            <StatusBarChart data={data} />
+          )}
+          {chartType === ResponsesChartType.Table && (
+            <StatusTableChart data={data} />
+          )}
         </div>
       </FrontlineCard.Content>
     </FrontlineCard>
   );
 };
 
-const StatusBarChart = memo(function StatusBarChart({ data }: { data: TicketStatusSummaryItem[] }) {
-  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+const StatusBarChart = memo(function StatusBarChart({
+  data,
+}: {
+  data: TicketStatusSummaryItem[];
+}) {
+  const chartConfig = useMemo(
+    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
+    [],
+  );
   const chartData = useMemo(
     () =>
       data.map((s) => ({
@@ -197,7 +219,10 @@ const StatusBarChart = memo(function StatusBarChart({ data }: { data: TicketStat
 
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+      <BarChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+      >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="name" tickLine={false} axisLine={false} />
         <YAxis tickLine={false} axisLine={false} />
@@ -240,7 +265,12 @@ const StatusLineChart = memo(function StatusLineChart({
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="name" tickLine={false} axisLine={false} />
         <YAxis yAxisId="count" tickLine={false} axisLine={false} />
-        <YAxis yAxisId="percentage" orientation="right" tickLine={false} axisLine={false} />
+        <YAxis
+          yAxisId="percentage"
+          orientation="right"
+          tickLine={false}
+          axisLine={false}
+        />
         <Area
           yAxisId="count"
           dataKey="count"
@@ -266,9 +296,16 @@ const StatusLineChart = memo(function StatusLineChart({
   );
 });
 
-const StatusPieChart = memo(function StatusPieChart({ data }: { data: TicketStatusSummaryItem[] }) {
+const StatusPieChart = memo(function StatusPieChart({
+  data,
+}: {
+  data: TicketStatusSummaryItem[];
+}) {
   const [hovered, setHovered] = useState<string | undefined>(undefined);
-  const chartConfig = useMemo(() => ({ count: { label: 'Count', color: 'var(--primary)' } }), []);
+  const chartConfig = useMemo(
+    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
+    [],
+  );
   const chartData = useMemo(
     () =>
       data.map((s) => ({
@@ -292,7 +329,11 @@ const StatusPieChart = memo(function StatusPieChart({ data }: { data: TicketStat
           nameKey="name"
         >
           {chartData.map((item, i) => (
-            <Cell key={i} fill={item.fill} opacity={hovered && hovered !== item.name ? 0.5 : 1} />
+            <Cell
+              key={i}
+              fill={item.fill}
+              opacity={hovered && hovered !== item.name ? 0.5 : 1}
+            />
           ))}
         </Pie>
         <Legend
