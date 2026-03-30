@@ -773,9 +773,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       };
 
       const pageAccessToken = bot.token || '';
-      const { subscribedData, profileData } = await this.fetchBotProfileState(
-        pageAccessToken,
-      );
+      const { subscribedData, profileData } =
+        await this.fetchBotProfileState(pageAccessToken);
       const verification = this.buildVerificationResult({
         subscribedData,
         profileData,
