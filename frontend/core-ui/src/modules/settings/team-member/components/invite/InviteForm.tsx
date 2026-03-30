@@ -54,19 +54,17 @@ export function InviteForm({
     loading: defaultGroupsLoading,
     error: defaultGroupsError,
     refetch: refetchDefaultGroups,
-  } =
-    useGetPermissionDefaultGroups({
-      skip: !shouldLoadPermissionGroups,
-    });
+  } = useGetPermissionDefaultGroups({
+    skip: !shouldLoadPermissionGroups,
+  });
   const {
     permissionGroups,
     loading: permissionGroupsLoading,
     error: permissionGroupsError,
     refetch: refetchPermissionGroups,
-  } =
-    useGetPermissionGroups({
-      skip: !shouldLoadPermissionGroups,
-    });
+  } = useGetPermissionGroups({
+    skip: !shouldLoadPermissionGroups,
+  });
 
   const addTag = (value: string) => {
     const trimmedValue = value.trim();
@@ -226,8 +224,7 @@ export function InviteForm({
   const isPermissionStepLoading =
     shouldLoadPermissionGroups &&
     (defaultGroupsLoading || permissionGroupsLoading);
-  const permissionGroupsLoadError =
-    defaultGroupsError || permissionGroupsError;
+  const permissionGroupsLoadError = defaultGroupsError || permissionGroupsError;
 
   const handleRetryPermissionGroups = useCallback(() => {
     void Promise.allSettled([
