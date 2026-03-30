@@ -143,7 +143,6 @@ export const CallReportsView = () => {
   const [selectedQueue, setSelectedQueue] = useState('');
   const [dateFilter, setDateFilter] = useState(format(new Date(), 'yyyy-MMM'));
   const [direction, setDirection] = useState('all');
-  console.log(selectedIntegrationId, 'selectedIntegrationId')
   const {
     callUserIntegrations: integrations = [],
     loading: integrationsLoading,
