@@ -12,7 +12,7 @@ import {
   Label,
 } from 'erxes-ui';
 import { TourCreateFormType } from '../constants/formSchema';
-import { IconPlus, IconTrash, IconUpload } from '@tabler/icons-react';
+import { IconPlus, IconTrash, IconUpload, IconFileText } from '@tabler/icons-react';
 import { useState } from 'react';
 import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
 import { ImageUploadGrid } from '../../../components';
@@ -320,7 +320,7 @@ export const TourAdvanceCheckField = ({
       control={control}
       name="advanceCheck"
       render={({ field }) => (
-        <Form.Item className="flex gap-2 items-center">
+        <Form.Item className="flex items-center gap-2">
           <Form.Control>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
           </Form.Control>
@@ -477,7 +477,7 @@ export const TourImageThumbnailField = ({
                 }
               >
                 {!field.value && (
-                  <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
                     {isLoading ? (
                       <span>Uploading...</span>
                     ) : (
@@ -490,7 +490,7 @@ export const TourImageThumbnailField = ({
                 )}
 
                 {field.value && (
-                  <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
+                  <div className="absolute inset-0 flex items-center justify-center transition bg-black/0 group-hover:bg-black/30">
                     <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 group-hover:opacity-100 bg-black/70">
                       Change image
                     </span>
@@ -502,7 +502,7 @@ export const TourImageThumbnailField = ({
                 <Upload.RemoveButton
                   size="sm"
                   variant="destructive"
-                  className="absolute top-2 right-2 shadow opacity-0 group-hover:opacity-100"
+                  className="absolute shadow opacity-0 top-2 right-2 group-hover:opacity-100"
                 >
                   <IconTrash size={14} />
                 </Upload.RemoveButton>
@@ -554,6 +554,87 @@ export const TourImagesField = ({
   );
 };
 
+export const TourAttachmentsField = ({
+  control,
+}: {
+  control: Control<TourCreateFormType>;
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  return (
+    <Form.Field
+      control={control}
+      name="attachment"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Attachment (PDF)</Form.Label>
+
+          <Form.Control>
+            <Upload.Root
+              value={field.value?.url || ''}
+              onChange={(fileInfo: any) => {
+                if (!fileInfo || fileInfo === '') {
+                  field.onChange(null);
+                } else if (typeof fileInfo === 'object' && 'url' in fileInfo) {
+                  field.onChange({
+                    url: fileInfo.url,
+                    name: fileInfo.name || '',
+                    type: fileInfo.type || '',
+                    size: fileInfo.size || 0,
+                  });
+                }
+              }}
+              className="relative group"
+            >
+              <Upload.Button
+                size="sm"
+                type="button"
+                variant="secondary"
+                className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent">
+                {!field.value ? (
+                  <div className="flex items-center justify-center w-full gap-2 text-sm text-muted-foreground">
+                    {isLoading ? (
+                      <span>Uploading...</span>
+                    ) : (
+                      <>
+                        <IconUpload size={18} />
+                        <span>Upload PDF</span>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center w-full gap-2 px-1">
+                    <IconFileText size={18} className="shrink-0 text-muted-foreground" />
+                    <span className="text-sm truncate">{field.value.name}</span>
+                  </div>
+                )}
+              </Upload.Button>
+
+              {field.value && (
+                <Upload.RemoveButton
+                  size="sm"
+                  variant="destructive"
+                  className="absolute -translate-y-1/2 shadow opacity-0 top-1/2 right-2 group-hover:opacity-100"
+                >
+                  <IconTrash size={14} />
+                </Upload.RemoveButton>
+              )}
+
+              <div className="hidden">
+                <Upload.Preview
+                  onUploadStart={() => setIsLoading(true)}
+                  onAllUploadsComplete={() => setIsLoading(false)}
+                />
+              </div>
+            </Upload.Root>
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 export { TourDateSchedulingField } from './TourDateSchedulingField';
 
 const TourPricingOptionsFieldContent = ({
@@ -587,7 +668,7 @@ const TourPricingOptionsFieldContent = ({
 
   return (
     <Form.Item className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <Form.Label>Pricing Options</Form.Label>
           <Form.Description>
@@ -607,9 +688,9 @@ const TourPricingOptionsFieldContent = ({
         {fields.map((field, index) => (
           <div
             key={field.id}
-            className="p-4 space-y-3 rounded-lg border bg-card"
+            className="p-4 space-y-3 border rounded-lg bg-card"
           >
-            <div className="flex justify-between items-start">
+            <div className="flex items-start justify-between">
               <Label>
                 Package: <Label className="text-black">{index + 1}</Label>
               </Label>

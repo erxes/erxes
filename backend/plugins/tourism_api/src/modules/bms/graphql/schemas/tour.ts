@@ -79,7 +79,8 @@ export const types = `
     extra: JSON
     images: [String]
     imageThumbnail: String
-   pricingOptions: [PricingOption]
+    attachment: Attachment
+    pricingOptions: [PricingOption]
     startingPrice: Float
   }
 
@@ -198,6 +199,7 @@ const params = `
   extra: JSON,
   images: [String],
   imageThumbnail: String,
+  attachment: AttachmentInput,
   pricingOptions: [PricingOptionInput]
 `;
 

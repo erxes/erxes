@@ -158,6 +158,7 @@ export const tourSchema = new Schema({
 
   images: { type: [String], optional: true, label: 'images' },
   imageThumbnail: { type: String, optional: true, label: 'images' },
+  attachment: { type: Object, optional: true, label: 'attachment' },
 
   pricingOptions: {
     type: [pricingOptionSchema],

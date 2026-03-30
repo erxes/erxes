@@ -29,35 +29,27 @@ export const PricingOptionSchema = z.object({
 
   title: z.string().trim().min(1, 'Title is required'),
 
-  minPersons: z.preprocess(
-    (value) => {
-      if (value === '' || value === null || value === undefined)
-        return undefined;
-      if (typeof value === 'string') {
-        const num = Number(value);
-        return Number.isNaN(num) ? undefined : num;
-      }
-      return value;
-    },
-    z.coerce.number().min(1, 'Min persons must be at least 1'),
-  ),
+  minPersons: z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    if (typeof value === 'string') {
+      const num = Number(value);
+      return Number.isNaN(num) ? undefined : num;
+    }
+    return value;
+  }, z.coerce.number().min(1, 'Min persons must be at least 1')),
 
   maxPersons: optionalNumber(
     z.number().min(1, 'Max persons must be at least 1'),
   ),
 
-  pricePerPerson: z.preprocess(
-    (value) => {
-      if (value === '' || value === null || value === undefined)
-        return undefined;
-      if (typeof value === 'string') {
-        const num = Number(value);
-        return Number.isNaN(num) ? undefined : num;
-      }
-      return value;
-    },
-    z.coerce.number().min(0.01, 'Price must be greater than 0'),
-  ),
+  pricePerPerson: z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    if (typeof value === 'string') {
+      const num = Number(value);
+      return Number.isNaN(num) ? undefined : num;
+    }
+    return value;
+  }, z.coerce.number().min(0.01, 'Price must be greater than 0')),
 
   accommodationType: optionalString(),
 
@@ -130,6 +122,15 @@ export const TourCreateFormSchema = z
 
     images: z.array(z.string()).optional(),
     imageThumbnail: z.string().optional(),
+    attachment: z
+      .object({
+        url: z.string(),
+        name: z.string(),
+        type: z.string(),
+        size: z.number(),
+      })
+      .nullable()
+      .optional(),
 
     advancePercent: z.coerce.number().optional(),
     advanceCheck: z.boolean().optional(),
@@ -147,11 +148,11 @@ export const TourCreateFormSchema = z
     (data) => {
       if (!data.isFlexibleDate) {
         if (data.isGroupTour) {
-          // 👥 group tour → multiple start dates only
+          // group tour → multiple start dates only
           return Array.isArray(data.startDate) && data.startDate.length > 0;
         }
 
-        // 🧍 single tour → start + end
+        // single tour → start + end
         return !!data.startDate && !!data.endDate;
       }
       return true;
