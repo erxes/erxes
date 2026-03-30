@@ -1,4 +1,16 @@
+# Changelog
 
+## [3.0.8](https://github.com/erxes/erxes/compare/3.0.7...3.0.8) (2026-03-30)
+
+
+### Bug Fixes
+
+* posProducts pagination bug ([#7200](https://github.com/erxes/erxes/issues/7200)) ([47c8a0e](https://github.com/erxes/erxes/commit/47c8a0ee00b024c2617333dd574ab2de420789c2))
+
+
+### Features
+
+* implement health check and verification for Facebook bots ([#7339](https://github.com/erxes/erxes/issues/7339)) ([b92d558](https://github.com/erxes/erxes/commit/b92d5584d71cfa815b70699bc4ca272d94585a66))
 
 ## [3.0.7](https://github.com/erxes/erxes/compare/3.0.6...3.0.7) (2026-03-30)
 
