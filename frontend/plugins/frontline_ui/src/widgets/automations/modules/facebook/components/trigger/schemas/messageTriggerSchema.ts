@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const messageTriggerSchema = z.object({
-  botId: z.string({ message: 'You should select a bot' }),
+  botId: z.string().min(1, { message: 'You should select a bot' }),
   persistentMenuIds: z.array(z.string()).optional(),
   conditions: z
     .array(
@@ -56,7 +56,13 @@ export const messageTriggerSchema = z.object({
               });
             }
 
-            if (type === 'direct' && (!conditions || conditions.length === 0)) {
+            const hasDirectKeyword = !!conditions?.some((condition) =>
+              (condition.keywords || []).some(
+                ({ text }) => text.trim().length > 0,
+              ),
+            );
+
+            if (type === 'direct' && !hasDirectKeyword) {
               ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message:

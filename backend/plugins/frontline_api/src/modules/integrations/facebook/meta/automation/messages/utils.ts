@@ -290,7 +290,7 @@ export const getOrCreateFacebookMessageActionContext = async (
   subdomain: string,
   collectionType: string,
   target: any,
-  config: any,
+  config: TAutomationActionConfig,
 ): Promise<{
   conversation: IFacebookConversationDocument;
   integration: IFacebookIntegrationDocument;
@@ -315,13 +315,13 @@ export const getOrCreateFacebookMessageActionContext = async (
   });
 };
 
-const getOrCreateDirectMessageActionContext = async ({
+async function getOrCreateDirectMessageActionContext({
   target,
   models,
 }: {
   target: IFacebookConversationMessageDocument;
   models: IModels;
-}) => {
+}) {
   const conversation = await models.FacebookConversations.findOne({
     _id: target?.conversationId,
   });
@@ -362,8 +362,9 @@ const getOrCreateDirectMessageActionContext = async ({
     senderId,
     botId,
   };
-};
-const getOrCreateCommentMessageActionContext = async ({
+}
+
+async function getOrCreateCommentMessageActionContext({
   target,
   models,
   config,
@@ -371,9 +372,9 @@ const getOrCreateCommentMessageActionContext = async ({
 }: {
   subdomain: string;
   target: IFacebookCommentConversation;
-  config: any;
+  config: TAutomationActionConfig;
   models: IModels;
-}) => {
+}) {
   const { senderId, recipientId, erxesApiId } = target;
 
   const { botId } = config;
@@ -382,6 +383,8 @@ const getOrCreateCommentMessageActionContext = async ({
     senderId,
     recipientId,
   });
+
+  const didCreateConversation = !conversation;
 
   const customer = await models.FacebookCustomers.findOne({
     erxesApiId: target.customerId,
@@ -459,7 +462,9 @@ const getOrCreateCommentMessageActionContext = async ({
       );
     }
   } catch (e) {
-    await models.Conversations.deleteOne({ _id: conversation._id });
+    if (didCreateConversation) {
+      await models.FacebookConversations.deleteOne({ _id: conversation._id });
+    }
     throw new Error(e);
   }
 
@@ -495,14 +500,12 @@ const getOrCreateCommentMessageActionContext = async ({
     senderId,
     botId,
   };
-};
+}
 
 export const generateConditionWaitToAction = ({
-  config,
   customer,
   conversation,
 }: {
-  config: any;
   conversation: IFacebookConversationDocument;
   customer: IFacebookCustomerDocument;
 }): AutomationExecutionSetWaitCondition => {

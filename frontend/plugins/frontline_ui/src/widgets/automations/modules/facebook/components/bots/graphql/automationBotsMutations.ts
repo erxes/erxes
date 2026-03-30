@@ -25,7 +25,6 @@ const FACEBOOK_BOT_MUTATION_FIELDS = `
     isProfileSynced
     lastSyncedAt
     lastVerifiedAt
-    lastError
   }
 `;
 

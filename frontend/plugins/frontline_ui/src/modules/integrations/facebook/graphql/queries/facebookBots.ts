@@ -39,7 +39,6 @@ const FACEBOOK_BOT_FIELDS = `
     isProfileSynced
     lastSyncedAt
     lastVerifiedAt
-    lastError
   }
 `;
 

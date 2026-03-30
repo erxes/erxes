@@ -1,35 +1,52 @@
+import { FieldErrors } from 'react-hook-form';
+import { TMessageTriggerForm } from '../types/messageTrigger';
+
+const normalizeConditionErrorField = (field: string) => {
+  if (field === 'persistentMenuIds') {
+    return 'persistentMenu';
+  }
+
+  if (field === 'conditions') {
+    return 'direct';
+  }
+
+  if (field === 'sourceIds') {
+    return 'open_thread';
+  }
+
+  return field;
+};
+
+const getErrorMessage = (error: unknown) => {
+  if (!error || typeof error !== 'object' || !('message' in error)) {
+    return '';
+  }
+
+  return typeof error.message === 'string' ? error.message : '';
+};
+
 export function getConditionsFieldErrors(
-  fieldState: any,
+  formErrors: FieldErrors<TMessageTriggerForm>,
 ): Record<string, string> {
-  if (!fieldState?.error) {
+  if (!Array.isArray(formErrors.conditions)) {
     return {};
   }
 
   const errors: Record<string, string> = {};
 
-  for (const errorItem of fieldState.error) {
-    if (!errorItem) {
+  for (const errorItem of formErrors.conditions) {
+    if (!errorItem || typeof errorItem !== 'object') {
       continue;
     }
 
-    for (let [field, error] of Object.entries<any>(errorItem)) {
-      if (!error?.message) {
+    for (const [field, error] of Object.entries(errorItem)) {
+      const message = getErrorMessage(error);
+
+      if (!message) {
         continue;
       }
 
-      if (field === 'persistentMenuIds') {
-        field = 'persistentMenu';
-      }
-
-      if (field === 'conditions') {
-        field = 'direct';
-      }
-
-      if (field === 'sourceIds') {
-        field = 'open_thread';
-      }
-
-      errors[field] = error.message;
+      errors[normalizeConditionErrorField(field)] = message;
     }
   }
 

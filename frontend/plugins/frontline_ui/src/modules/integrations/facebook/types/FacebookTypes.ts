@@ -11,17 +11,23 @@ export interface IFacebookConversationMessage {
   internal?: boolean;
 }
 
+export interface IFacebookBotButton {
+  title: string;
+  url?: string;
+  type?: string | null;
+}
+
+export interface IFacebookBotQuickReply {
+  title: string;
+}
+
 export type TBotDataCarousel = {
   type: 'carousel';
   elements: {
     picture?: string;
     title: string;
     subtitle?: string;
-    buttons: {
-      title: any;
-      url: any;
-      type: string | null;
-    }[];
+    buttons: IFacebookBotButton[];
   }[];
 };
 
@@ -33,11 +39,7 @@ export type TBotDataImage = {
 export type TBotDataButtonTemplate = {
   type: 'button_template';
   text: string;
-  buttons: {
-    title: any;
-    url: any;
-    type: string | null;
-  }[];
+  buttons: IFacebookBotButton[];
 };
 
 export type TBotDataText = {
@@ -48,7 +50,7 @@ export type TBotDataText = {
 export type TBotDataQuickReplies = {
   type: 'quick_replies';
   text: string;
-  quick_replies: { title: string }[];
+  quick_replies: IFacebookBotQuickReply[];
 };
 
 export type TBotData =

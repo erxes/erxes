@@ -62,16 +62,6 @@ export const receiveMessage = async (
       };
     }
 
-    const messageKey =
-      mid ||
-      (isOpenThreadEvent
-        ? `open_thread:${userId}:${pageId}:${timestamp}:${
-            referral?.source || 'unknown'
-          }:${
-            referral?.ad_id || referral?.ads_context_data?.post_id || 'unknown'
-          }`
-        : undefined);
-
     const customer = await getOrCreateCustomer(
       models,
       subdomain,
@@ -162,17 +152,17 @@ export const receiveMessage = async (
       throw new Error(e);
     }
     // get conversation message
-    let conversationMessage = messageKey
-      ? await models.FacebookConversationMessages.findOne({
-          mid: messageKey,
-        })
-      : null;
+    let conversationMessage = await models.FacebookConversationMessages.findOne(
+      {
+        mid: mid,
+      },
+    );
 
     if (!conversationMessage) {
       try {
         const created = await models.FacebookConversationMessages.create({
           conversationId: conversation._id,
-          mid: messageKey,
+          mid,
           createdAt: timestamp,
           content: text,
           customerId: customer.erxesApiId,

@@ -22,8 +22,7 @@ export const loginMiddleware = async (req, res) => {
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
   );
 
-  const DOMAIN = 'https://3ssjcbl97r6d.share.zrok.io';
-  // getEnv({ name: 'DOMAIN', subdomain });
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
     models,

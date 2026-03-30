@@ -32,7 +32,7 @@ export type ICheckTriggerData = {
 
 export type IReplacePlaceholdersData = {
   target: IFacebookConversationMessage;
-  config: any;
+  config: TAutomationActionConfig;
   relatedValueProps: any;
 };
 
@@ -157,7 +157,7 @@ type TBotDataCarousel = {
     title: string;
     subtitle: string;
     buttons: {
-      title: any;
+      title: string;
       url: any;
       type: string | null;
     }[];
@@ -173,7 +173,7 @@ type TBotDataButtonTemplate = {
   type: 'button_template';
   text: string;
   buttons: {
-    title: any;
+    title: string;
     url: any;
     type: string | null;
   }[];

@@ -148,7 +148,7 @@ export const actionCreateMessage = async ({
   );
 
   try {
-    let result: IFacebookConversationMessageDocument[] = [];
+    const result: IFacebookConversationMessageDocument[] = [];
 
     const messages = await generateMessages({
       subdomain,
@@ -203,7 +203,6 @@ export const actionCreateMessage = async ({
     return {
       result,
       waitCondition: generateConditionWaitToAction({
-        config,
         conversation,
         customer,
       }),

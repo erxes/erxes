@@ -26,7 +26,7 @@ export const facebookAfterProcessWorkers = {
         pageId: { $in: facebookPageIds },
       }).lean();
       if (bot && facebookPageTokensMap[bot.pageId]) {
-        void models.FacebookBots.reviveByPageId({
+        models.FacebookBots.reviveByPageId({
           pageId: bot.pageId,
           accountId,
           token: facebookPageTokensMap[bot.pageId],

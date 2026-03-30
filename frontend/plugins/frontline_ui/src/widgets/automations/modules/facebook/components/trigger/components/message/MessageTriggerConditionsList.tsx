@@ -7,12 +7,12 @@ import { getConditionsFieldErrors } from '../../utils/triggerConditionErrors';
 import { MessageTriggerConditionCard } from './MessageTriggerConditionCard';
 
 export const MessageTriggerConditionsList = () => {
-  const { getFieldState } = useFormContext<TMessageTriggerForm>();
+  const { formState } = useFormContext<TMessageTriggerForm>();
   const { setActiveConditionType } = useMessageTriggerFormContext();
   const { selectedConditionTypes, updateCondition } =
     useMessageTriggerConditions();
 
-  const errors = getConditionsFieldErrors(getFieldState('conditions'));
+  const errors = getConditionsFieldErrors(formState.errors);
 
   return (
     <div className="flex flex-col gap-2 p-4">

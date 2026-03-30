@@ -32,7 +32,7 @@ export const sendAutomationTrigger = (
   { transport = 'bullmq', jobOptions }: TSendAutomationTriggerProps = {},
 ): void => {
   if (transport === 'trpc') {
-    void redis
+    redis
       .get('erxes-service-automations')
       .then((address) => {
         const trpcUrl = address ? `${address}/trpc` : null;
@@ -60,18 +60,20 @@ export const sendAutomationTrigger = (
           ],
         });
 
-        return client.mutation('automations.trigger', {
-          type,
-          targets,
-          repeatOptions,
-          recordType,
-        });
+        client
+          .mutation('automations.trigger', {
+            type,
+            targets,
+            repeatOptions,
+            recordType,
+          })
+          .catch((error) => {
+            console.error('Error sending  trpc request ', error);
+          });
       })
       .catch((error) => {
-        console.error('Error adding job to queue:', error);
+        console.error('Error sending  trpc request ', error);
       });
-
-    return;
   }
 
   const queue = sendWorkerQueue('automations', 'trigger');

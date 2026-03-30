@@ -8,7 +8,111 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IFacebookBotDocument, facebookBotSchema } from '../definitions/bots';
 
-const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
+type TBotPersistentMenuInput = {
+  _id: string;
+  type: string;
+  text: string;
+  link: string;
+};
+
+export type TCreateBotInputDoc = {
+  name: string;
+  accountId: string;
+  pageId: string;
+  persistentMenus: TBotPersistentMenuInput[];
+  greetText: string;
+  tag: string;
+  isEnabledBackBtn: Boolean;
+  backButtonText: string;
+};
+
+type TBotHealthUpdateValue = string | boolean | Date;
+
+type TSubscribedApp = {
+  subscribed_fields?: string[];
+};
+
+type TSubscribedAppsResponse = {
+  data?: TSubscribedApp[];
+};
+
+type TProfileGetStarted = {
+  payload?: string;
+};
+
+type TProfileGreeting = {
+  locale?: string;
+  text?: string;
+};
+
+type TProfilePersistentMenuAction = {
+  type?: string;
+  url?: string;
+  title?: string;
+  payload?: string;
+};
+
+type TProfilePersistentMenu = {
+  call_to_actions?: TProfilePersistentMenuAction[];
+};
+
+type TMessengerProfileData = {
+  get_started?: TProfileGetStarted;
+  greeting?: TProfileGreeting[];
+  persistent_menu?: TProfilePersistentMenu[];
+};
+
+type TMessengerProfileResponse = TMessengerProfileData & {
+  data?: TMessengerProfileData[];
+};
+
+type TExpectedPersistentMenu = {
+  type: string;
+  title: string;
+  payload?: string;
+  url?: string;
+  isBackButton?: boolean;
+};
+
+type TNormalizedPersistentMenu = {
+  type: string;
+  title: string;
+  url: string;
+  payload: string;
+};
+
+type TMessengerProfileRequestAction = {
+  type: 'web_url' | 'postback';
+  title: string;
+  url?: string;
+  payload?: string;
+  webview_height_ratio?: 'full';
+};
+
+type TMessengerProfileRequest = {
+  get_started: {
+    payload: string;
+  };
+  persistent_menu: [
+    {
+      locale: 'default';
+      composer_input_disabled: false;
+      call_to_actions: TMessengerProfileRequestAction[];
+    },
+  ];
+  greeting?: [
+    {
+      locale: 'default';
+      text: string;
+    },
+  ];
+};
+
+const validateDoc = async (
+  models: IModels,
+  doc: TCreateBotInputDoc,
+  isUpdate?: boolean,
+) => {
   if (!doc.name) {
     throw new Error('Please provide a name of bot');
   }
@@ -76,7 +180,7 @@ const generateBotHealthUpdate = ({
   userId,
 }: Omit<TSetBotHealthInput, 'notify'>) => {
   const now = new Date();
-  const set: Record<string, any> = {
+  const set: Record<string, TBotHealthUpdateValue> = {
     'health.status': status,
     'health.lastVerifiedAt': now,
     updatedAt: now,
@@ -117,12 +221,14 @@ const generateBotHealthUpdate = ({
 
   return { $set: set };
 };
-
 export interface IFacebookBotModel extends Model<IFacebookBotDocument> {
-  addBot(doc: any, options: TBotActorContext): Promise<IFacebookBotDocument>;
+  addBot(
+    doc: TCreateBotInputDoc,
+    options: TBotActorContext,
+  ): Promise<IFacebookBotDocument>;
   updateBot(
     _id: string,
-    doc: any,
+    doc: TCreateBotInputDoc,
     options: TBotActorContext,
   ): Promise<IFacebookBotDocument>;
   removeBot(_id: string): Promise<{ status: 'success' }>;
@@ -286,7 +392,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         notify?: boolean;
       } = {},
     ) {
-      return this.setBotHealth(botId, {
+      return await this.setBotHealth(botId, {
         status: 'degraded',
         reason: error,
         isSubscribed,
@@ -308,7 +414,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         notify?: boolean;
       },
     ) {
-      return this.setBotHealth(botId, {
+      return await this.setBotHealth(botId, {
         status: 'broken',
         reason,
         isSubscribed: false,
@@ -421,7 +527,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       isEnabledBackBtn?: boolean;
       backButtonText?: string;
     }) {
-      const expectedMenus: any[] = [
+      const expectedMenus: TExpectedPersistentMenu[] = [
         {
           type: 'postback',
           title: 'Get Started',
@@ -453,7 +559,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         });
       }
 
-      if (isEnabledBackBtn) {
+      if (Boolean(isEnabledBackBtn)) {
         expectedMenus.push({
           type: 'postback',
           title: backButtonText || 'Back',
@@ -464,7 +570,12 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       return expectedMenus;
     }
 
-    static normalizePersistentMenuItem(menu: any) {
+    static normalizePersistentMenuItem(menu: {
+      type?: string;
+      url?: string;
+      title?: string;
+      payload?: string;
+    }): TNormalizedPersistentMenu {
       return {
         type: menu?.type || '',
         title: menu?.title || '',
@@ -473,7 +584,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       };
     }
 
-    static hasRequiredSubscribedFields(subscribedData: any[] = []) {
+    static hasRequiredSubscribedFields(subscribedData: TSubscribedApp[] = []) {
       const subscribedFields = subscribedData.flatMap(
         (item) => item?.subscribed_fields || [],
       );
@@ -483,14 +594,20 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       );
     }
 
-    static hasValidGetStartedPayload(botId: string, profileData: any) {
+    static hasValidGetStartedPayload(
+      botId: string,
+      profileData: TMessengerProfileData,
+    ) {
       const expectedPayload = JSON.stringify({ botId });
       const actualPayload = profileData?.get_started?.payload || '';
 
       return actualPayload === expectedPayload;
     }
 
-    static hasValidGreeting(greetText: string | undefined, profileData: any) {
+    static hasValidGreeting(
+      greetText: string | undefined,
+      profileData: TMessengerProfileData,
+    ) {
       if (!greetText) {
         return true;
       }
@@ -502,7 +619,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
 
     static hasValidPersistentMenus(
       bot: Partial<IFacebookBotDocument>,
-      profileData: any,
+      profileData: TMessengerProfileData,
     ) {
       const actualPersistentMenus =
         profileData?.persistent_menu?.[0]?.call_to_actions || [];
@@ -527,16 +644,19 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       );
     }
 
-    static async fetchBotProfileState(pageAccessToken: string) {
-      const subscribedApps: any = await graphRequest.get(
+    static async fetchBotProfileState(pageAccessToken: string): Promise<{
+      subscribedData: TSubscribedApp[];
+      profileData: TMessengerProfileData;
+    }> {
+      const subscribedApps = (await graphRequest.get(
         '/me/subscribed_apps',
         pageAccessToken,
-      );
+      )) as TSubscribedAppsResponse;
 
-      const messengerProfile: any = await graphRequest.get(
+      const messengerProfile = (await graphRequest.get(
         '/me/messenger_profile?fields=get_started,persistent_menu,greeting',
         pageAccessToken,
-      );
+      )) as TMessengerProfileResponse;
 
       const rawProfileData = messengerProfile || {};
       const profileData = rawProfileData?.data?.[0] || rawProfileData;
@@ -544,7 +664,6 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       return {
         subscribedData: subscribedApps?.data || [],
         profileData,
-        rawProfileData,
       };
     }
 
@@ -553,8 +672,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       profileData,
       bot,
     }: {
-      subscribedData: any[];
-      profileData: any;
+      subscribedData: TSubscribedApp[];
+      profileData: TMessengerProfileData;
       bot: Partial<IFacebookBotDocument>;
     }) {
       const isSubscribed = this.hasRequiredSubscribedFields(subscribedData);
@@ -605,7 +724,10 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       return messages.join('. ');
     }
 
-    static isExpectedMenuMatched(expected: any, actual: any) {
+    static isExpectedMenuMatched(
+      expected: TExpectedPersistentMenu,
+      actual?: TNormalizedPersistentMenu,
+    ) {
       if (!actual) {
         return false;
       }
@@ -651,8 +773,9 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       };
 
       const pageAccessToken = bot.token || '';
-      const { subscribedData, profileData, rawProfileData } =
-        await this.fetchBotProfileState(pageAccessToken);
+      const { subscribedData, profileData } = await this.fetchBotProfileState(
+        pageAccessToken,
+      );
       const verification = this.buildVerificationResult({
         subscribedData,
         profileData,
@@ -978,8 +1101,15 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       greetText,
       isEnabledBackBtn,
       backButtonText,
+    }: {
+      botId: string;
+      pageAccessToken: string;
+      persistentMenus?: IFacebookBotDocument['persistentMenus'];
+      greetText?: string;
+      isEnabledBackBtn?: boolean;
+      backButtonText?: string;
     }) {
-      let generatedPersistentMenus: any[] = [];
+      const generatedPersistentMenus: TMessengerProfileRequestAction[] = [];
 
       for (const { _id, type, text, link } of persistentMenus || []) {
         if (text) {
@@ -1003,7 +1133,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      if (isEnabledBackBtn) {
+      if (Boolean(isEnabledBackBtn)) {
         generatedPersistentMenus.push({
           type: 'postback',
           title: backButtonText || 'Back',
@@ -1015,7 +1145,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         });
       }
 
-      let doc: any = {
+      const doc: TMessengerProfileRequest = {
         get_started: { payload: JSON.stringify({ botId: botId }) },
         persistent_menu: [
           {
@@ -1056,7 +1186,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       try {
         const fields = ['get_started', 'persistent_menu'];
 
-        if (!!bot.greetText) {
+        if (Boolean(bot.greetText)) {
           fields.push('greeting');
         }
 

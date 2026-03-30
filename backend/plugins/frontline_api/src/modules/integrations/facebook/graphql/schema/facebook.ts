@@ -109,7 +109,6 @@ export const types = `
     isProfileSynced: Boolean
     lastSyncedAt: Date
     lastVerifiedAt: Date
-    lastError: String
   }
 
   input BotPersistentMenuInput {

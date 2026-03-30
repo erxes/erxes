@@ -6,6 +6,7 @@ import {
 import { IReplyParams } from '@/integrations/facebook/@types/utils';
 import { sendReply } from '@/integrations/facebook/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
+import { TCreateBotInputDoc } from '../../db/models/Bots';
 export const facebookMutations = {
   async facebookUpdateConfigs(_root, { configsMap }, { subdomain }: IContext) {
     await updateConfigs(subdomain, configsMap);
@@ -113,7 +114,7 @@ export const facebookMutations = {
 
   async facebookMessengerUpdateBot(
     _root,
-    { _id, ...args },
+    { _id, ...args }: TCreateBotInputDoc & { _id: string },
     { models, user }: IContext,
   ) {
     return await models.FacebookBots.updateBot(_id, args, {

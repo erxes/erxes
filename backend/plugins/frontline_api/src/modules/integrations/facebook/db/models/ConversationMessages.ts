@@ -17,6 +17,89 @@ interface IAddFacebookConversationBotMessage {
   conversationErxesApiId: string;
 }
 
+const hasMeaningfulHtml = (value: string = '') => {
+  return stripHtml(value).result.trim().length > 0;
+};
+
+const wrapParagraph = (value: string = '') => {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return '';
+  }
+
+  return `<p>${trimmedValue}</p>`;
+};
+
+const extractBotMessageContent = (botData: TBotData[] = []) => {
+  const parts: string[] = [];
+
+  for (const item of botData) {
+    if (item.type === 'text') {
+      if (hasMeaningfulHtml(item.text)) {
+        parts.push(item.text);
+      }
+
+      continue;
+    }
+
+    if (item.type === 'button_template') {
+      if (hasMeaningfulHtml(item.text)) {
+        parts.push(item.text);
+      }
+
+      const buttonTitles = item.buttons
+        .map(({ title }) => title?.trim())
+        .filter(Boolean);
+
+      if (buttonTitles.length) {
+        parts.push(wrapParagraph(buttonTitles.join(', ')));
+      }
+
+      continue;
+    }
+
+    if (item.type === 'quick_replies') {
+      if (hasMeaningfulHtml(item.text)) {
+        parts.push(item.text);
+      }
+
+      const quickReplyTitles = item.quick_replies
+        .map(({ title }) => title?.trim())
+        .filter(Boolean);
+
+      if (quickReplyTitles.length) {
+        parts.push(wrapParagraph(quickReplyTitles.join(', ')));
+      }
+
+      continue;
+    }
+
+    if (item.type === 'carousel') {
+      for (const element of item.elements) {
+        parts.push(wrapParagraph(element.title));
+        parts.push(wrapParagraph(element.subtitle));
+
+        const buttonTitles = element.buttons
+          .map(({ title }) => title?.trim())
+          .filter(Boolean);
+
+        if (buttonTitles.length) {
+          parts.push(wrapParagraph(buttonTitles.join(', ')));
+        }
+      }
+
+      continue;
+    }
+
+    if (item.type === 'file' && item.url) {
+      parts.push(wrapParagraph(item.url));
+    }
+  }
+
+  return parts.filter(Boolean).join('');
+};
+
 export interface IFacebookConversationMessageModel extends Model<IFacebookConversationMessageDocument> {
   getMessage(_id: string): Promise<IFacebookConversationMessageDocument>;
   createMessage(
@@ -110,10 +193,12 @@ export const loadFacebookConversationMessageClass = (models: IModels) => {
         conversationErxesApiId,
       }: IAddFacebookConversationBotMessage,
     ) {
+      const content = extractBotMessageContent(botData);
+
       const conversationMessage =
         await models.FacebookConversationMessages.addMessage({
           conversationId,
-          content: '<p>Bot Message</p>',
+          content,
           internal: false,
           mid,
           botId,

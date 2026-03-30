@@ -34,6 +34,7 @@ export const triggerFacebookMessageAutomation = (
 
   if (adData) {
     target.entryType = 'open_thread';
+    target.adData = adData;
     target.openThread = {
       source: adData?.source || 'ADS',
       type: adData?.type || 'OPEN_THREAD',
