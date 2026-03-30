@@ -6,6 +6,7 @@ import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 import { ItineraryPDF } from './ItineraryPDF';
 import { generateFilename, convertImagesToBase64 } from './utils';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
+import './fonts';
 
 /**
  * Module-level blob cache: key = `${itinerary._id}:${modifiedAt}:${branchId}`.

@@ -1,3 +1,4 @@
+export { registerPdfFonts, PDF_FONT_FAMILY } from './fonts';
 export { ItineraryPDF } from './ItineraryPDF';
 export { ExportPDFButton } from './ExportPDFButton';
 export { CoverPage } from './CoverPage';
