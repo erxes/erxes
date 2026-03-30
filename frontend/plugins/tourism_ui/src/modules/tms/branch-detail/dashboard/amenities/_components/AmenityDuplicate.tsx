@@ -5,7 +5,10 @@ import { IAmenity } from '../types/amenity';
 interface AmenityDuplicateProps {
   amenity: IAmenity;
   branchId?: string;
-  children: (props: { onClick: () => void; disabled: boolean }) => React.ReactNode;
+  children: (props: {
+    onClick: () => void;
+    disabled: boolean;
+  }) => React.ReactNode;
 }
 
 export const AmenityDuplicate = ({

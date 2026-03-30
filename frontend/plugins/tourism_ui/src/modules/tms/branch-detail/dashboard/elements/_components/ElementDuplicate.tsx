@@ -5,7 +5,10 @@ import { IElement } from '../types/element';
 interface ElementDuplicateProps {
   element: IElement;
   branchId?: string;
-  children: (props: { onClick: () => void; disabled: boolean }) => React.ReactNode;
+  children: (props: {
+    onClick: () => void;
+    disabled: boolean;
+  }) => React.ReactNode;
 }
 
 export const ElementDuplicate = ({
