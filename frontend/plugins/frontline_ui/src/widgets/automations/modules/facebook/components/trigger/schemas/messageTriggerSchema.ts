@@ -8,9 +8,16 @@ export const messageTriggerSchema = z.object({
       z
         .object({
           _id: z.string(),
-          type: z.string(),
+          type: z.enum([
+            'getStarted',
+            'persistentMenu',
+            'direct',
+            'open_thread',
+          ]),
           isSelected: z.boolean().optional(),
           persistentMenuIds: z.array(z.string()).optional(),
+          sourceMode: z.enum(['all', 'specific']).optional(),
+          sourceIds: z.array(z.string()).optional(),
           conditions: z
             .array(
               z.object({
@@ -28,7 +35,14 @@ export const messageTriggerSchema = z.object({
             .optional(),
         })
         .superRefine((data, ctx) => {
-          const { type, isSelected, persistentMenuIds, conditions } = data;
+          const {
+            type,
+            isSelected,
+            persistentMenuIds,
+            conditions,
+            sourceMode,
+            sourceIds,
+          } = data;
 
           if (isSelected) {
             if (
@@ -48,6 +62,18 @@ export const messageTriggerSchema = z.object({
                 message:
                   'You should provide at least one keyword on direct message',
                 path: ['conditions'],
+              });
+            }
+
+            if (
+              type === 'open_thread' &&
+              sourceMode === 'specific' &&
+              (!sourceIds || sourceIds.length === 0)
+            ) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'You should provide at least one source id',
+                path: ['sourceIds'],
               });
             }
           }

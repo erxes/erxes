@@ -14,12 +14,27 @@ export type IFacebookBotHealth = {
   lastError?: string;
 };
 
+export type IFacebookBotUser = {
+  _id: string;
+  username?: string;
+  email?: string;
+  details?: {
+    fullName?: string;
+    avatar?: string;
+  };
+};
+
 export type IFacebookBot = {
   _id: string;
   name: string;
   account: any;
   accountId: string;
   createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
+  createdUser?: IFacebookBotUser;
+  updatedUser?: IFacebookBotUser;
   page: any;
   pageId: string;
   profileUrl: string;

@@ -1,5 +1,6 @@
 import { AUTOMATION_NODE_TYPE_LIST_PROERTY } from '@/automations/constants';
 import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useDnD } from '@/automations/context/AutomationBuilderDnDProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
@@ -16,13 +17,15 @@ import {
 import '@xyflow/react/dist/style.css';
 import { themeState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
 
 export const useReactFlowEditor = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const editorWrapper = useRef<HTMLDivElement>(null);
+  const dragOverTimeoutRef = useRef<number | null>(null);
   const { setAutomationBuilderFormValue } = useAutomationFormController();
+  const { updateCursor, setCanvasOver, reset } = useDnD();
 
   const theme = useAtomValue(themeState);
   const {
@@ -61,46 +64,73 @@ export const useReactFlowEditor = () => {
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
-  }, []);
+    updateCursor({ x: event.clientX, y: event.clientY });
+    setCanvasOver(true);
+
+    if (dragOverTimeoutRef.current) {
+      window.clearTimeout(dragOverTimeoutRef.current);
+    }
+
+    dragOverTimeoutRef.current = window.setTimeout(() => {
+      setCanvasOver(false);
+    }, 120);
+  }, [setCanvasOver, updateCursor]);
 
   const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    const { newNodeId, newNode, nodeType, generatedNode } =
-      automationDropHandler({
-        triggers,
-        actions,
-        workflows,
-        event,
-        reactFlowInstance,
-        getNodes,
-      });
-
-    const listFieldName = AUTOMATION_NODE_TYPE_LIST_PROERTY[nodeType];
-
-    // Update form state minimally
-    setAutomationBuilderFormValue(listFieldName, [
-      ...getList(nodeType),
-      newNode,
-    ]);
-
-    if (newNodeId && generatedNode) {
-      addNodes(generatedNode);
-      if (awaitingToConnectNodeId) {
-        onAwaitingNodeConnection(
-          awaitingToConnectNodeId,
-          newNodeId,
-          generatedNode,
-        );
+    try {
+      if (dragOverTimeoutRef.current) {
+        window.clearTimeout(dragOverTimeoutRef.current);
       }
-      setQueryParams({ activeNodeId: newNodeId });
-    }
 
-    if (nodes.find((node) => node.type === 'scratch')) {
-      setNodes((nodes) => nodes.filter((node) => node.type !== 'scratch'));
-    }
-    if (awaitingToConnectNodeId) {
-      setAwaitingToConnectNodeId('');
+      const { newNodeId, newNode, nodeType, generatedNode } =
+        automationDropHandler({
+          triggers,
+          actions,
+          workflows,
+          event,
+          reactFlowInstance,
+          getNodes,
+        });
+
+      const listFieldName = AUTOMATION_NODE_TYPE_LIST_PROERTY[nodeType];
+
+      // Update form state minimally
+      setAutomationBuilderFormValue(listFieldName, [
+        ...getList(nodeType),
+        newNode,
+      ]);
+
+      if (newNodeId && generatedNode) {
+        addNodes(generatedNode);
+        if (awaitingToConnectNodeId) {
+          onAwaitingNodeConnection(
+            awaitingToConnectNodeId,
+            newNodeId,
+            generatedNode,
+          );
+        }
+        setQueryParams({ activeNodeId: newNodeId });
+      }
+
+      if (nodes.find((node) => node.type === 'scratch')) {
+        setNodes((nodes) => nodes.filter((node) => node.type !== 'scratch'));
+      }
+      if (awaitingToConnectNodeId) {
+        setAwaitingToConnectNodeId('');
+      }
+    } finally {
+      setCanvasOver(false);
+      reset();
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (dragOverTimeoutRef.current) {
+        window.clearTimeout(dragOverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     theme,

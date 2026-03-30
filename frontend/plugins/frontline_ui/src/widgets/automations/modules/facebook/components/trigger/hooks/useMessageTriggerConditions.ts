@@ -5,6 +5,8 @@ import {
   TMessageTriggerDirectConditions,
   TMessageTriggerForm,
   TMessageTriggerPersistentMenuIds,
+  TMessageTriggerSourceIds,
+  TMessageTriggerSourceMode,
 } from '../types/messageTrigger';
 
 export const useMessageTriggerConditions = () => {
@@ -13,10 +15,17 @@ export const useMessageTriggerConditions = () => {
 
   const updateCondition = (
     conditionType: string,
-    fieldName: 'persistentMenuIds' | 'conditions' | 'isSelected',
+    fieldName:
+      | 'persistentMenuIds'
+      | 'conditions'
+      | 'isSelected'
+      | 'sourceMode'
+      | 'sourceIds',
     fieldValue:
       | TMessageTriggerDirectConditions
       | TMessageTriggerPersistentMenuIds
+      | TMessageTriggerSourceMode
+      | TMessageTriggerSourceIds
       | boolean,
   ) => {
     const condition = conditions.find(({ type }) => type === conditionType);

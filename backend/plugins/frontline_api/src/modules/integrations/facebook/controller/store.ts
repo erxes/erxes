@@ -9,11 +9,15 @@ import {
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { debugError } from '@/integrations/facebook/debuggers';
 import {
-  getFacebookUser, getFacebookUserProfilePic,
-  getPostDetails, getPostLink, uploadMedia
+  getFacebookUser,
+  getFacebookUserProfilePic,
+  getPostDetails,
+  getPostLink,
+  uploadMedia,
 } from '@/integrations/facebook/utils';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -213,6 +217,16 @@ export const getOrCreateComment = async (
           conversationId: conversation.erxesApiId,
         },
       },
+    );
+
+    sendAutomationTrigger(
+      subdomain,
+      {
+        type: 'frontline:facebook.comments',
+        targets: [doc],
+        // repeatOptions,
+      },
+      { transport: 'trpc' },
     );
   } catch {
     throw new Error(

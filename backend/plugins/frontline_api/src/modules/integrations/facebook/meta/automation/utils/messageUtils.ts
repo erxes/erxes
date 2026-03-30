@@ -8,7 +8,7 @@ import {
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
-export const triggerFacebookAutomation = async (
+export const triggerFacebookMessageAutomation = (
   subdomain: string,
   {
     conversationMessage,
@@ -21,26 +21,34 @@ export const triggerFacebookAutomation = async (
   },
 ) => {
   const target: any = { ...conversationMessage };
-  let type = 'frontline:facebook.messages';
   let repeatOptions;
+
   if (payload) {
     target.payload = JSON.parse(payload || '{}');
     const { executionId, actionId, btnId } = target?.payload || {};
+
     if (executionId && actionId) {
       repeatOptions = { executionId, actionId, optionalConnectId: btnId };
     }
   }
 
   if (adData) {
-    target.adData = adData;
-    type = 'facebook:ads';
+    target.entryType = 'open_thread';
+    target.openThread = {
+      source: adData?.source || 'ADS',
+      type: adData?.type || 'OPEN_THREAD',
+      adId: adData?.adId,
+      postId: adData?.postId,
+      pageId: adData?.pageId,
+    };
+  } else {
+    target.entryType = 'direct';
   }
-  console.log({ type, targets: [target], repeatOptions });
 
   sendAutomationTrigger(
     subdomain,
     {
-      type,
+      type: 'frontline:facebook.messages',
       targets: [target],
       repeatOptions,
     },
@@ -138,8 +146,8 @@ export const generateBotData = (
 
   if (type === 'quickReplies') {
     botData.push({
-      type: 'custom',
-      component: 'QuickReplies',
+      type: 'quick_replies',
+      text: `<p>${text}</p>`,
       quick_replies: quickReplies.map(({ text }) => ({
         title: text,
       })),
@@ -153,14 +161,13 @@ export const generateBotData = (
     });
   }
 
-  if (type === 'text' && buttons?.length > 0) {
+  if (['text', 'input'].includes(type) && buttons?.length > 0) {
     botData.push({
-      type: 'carousel',
-      elements: [{ title: text, buttons: generateButtons(buttons) }],
+      type: 'button_template',
+      text: `<p>${text}</p>`,
+      buttons: generateButtons(buttons),
     });
-  }
-
-  if (type === 'text') {
+  } else if (['text', 'input'].includes(type)) {
     botData.push({
       type: 'text',
       text: `<p>${text}</p>`,

@@ -23,6 +23,14 @@ const buildConditionValue = (
       .join(',');
   }
 
+  if (condition.type === 'open_thread') {
+    if ((condition.sourceMode || 'all') === 'all') {
+      return 'All send message entries';
+    }
+
+    return (condition.sourceIds || []).join(',');
+  }
+
   return '';
 };
 

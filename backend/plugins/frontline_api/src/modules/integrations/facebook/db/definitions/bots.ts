@@ -29,6 +29,10 @@ export interface IFacebookBot {
   tag?: string;
   isEnabledBackBtn?: boolean;
   backButtonText?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+  updatedBy: string;
   health?: IBotHealth;
 }
 
@@ -71,6 +75,9 @@ export const facebookBotSchema = schemaWrapper(
     greetText: { type: String, optional: true },
     tag: { type: String, optional: true },
     createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
+    createdBy: { type: String, required: true, index: true },
+    updatedBy: { type: String, required: true, index: true },
     isEnabledBackBtn: { type: Boolean, optional: true },
     backButtonText: { type: String, optional: true },
     health: { type: healthSchema, default: () => ({}) },

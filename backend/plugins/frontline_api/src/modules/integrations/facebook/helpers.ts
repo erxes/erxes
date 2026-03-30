@@ -12,6 +12,7 @@ import { generateModels } from '~/connectionResolvers';
 export const removeIntegration = async (
   subdomain: string,
   integrationErxesApiId: string,
+  actorId?: string,
 ): Promise<string> => {
   const models = await generateModels(subdomain);
 
@@ -38,6 +39,14 @@ export const removeIntegration = async (
     if (!account) {
       throw new Error('Account not found');
     }
+
+    await models.FacebookBots.markBrokenByPageIds(
+      integration.facebookPageIds || [],
+      {
+        reason: 'Facebook integration was removed',
+        userId: actorId,
+      },
+    );
 
     for (const pageId of integration.facebookPageIds || []) {
       let pageTokenResponse;
@@ -123,6 +132,10 @@ export const removeAccount = async (
     throw new Error(`Account not found: ${_id}`);
   }
 
+  await models.FacebookBots.markBrokenByAccount(account._id, {
+    reason: 'Facebook account was removed',
+  });
+
   const erxesApiIds: string[] = [];
 
   const integrations = await models.FacebookIntegrations.find({
@@ -146,6 +159,7 @@ export const removeAccount = async (
 export const repairIntegrations = async (
   subdomain: string,
   integrationId: string,
+  actorId?: string,
 ): Promise<true | Error> => {
   const models = await generateModels(subdomain);
 
@@ -164,6 +178,18 @@ export const repairIntegrations = async (
     );
 
     await subscribePage(models, pageId, pageTokens[pageId]);
+
+    void models.FacebookBots.reviveByPageId({
+      pageId,
+      accountId: integration.accountId,
+      token: pageTokens[pageId],
+      userId: actorId,
+      notify: true,
+    }).catch((error) => {
+      debugError(
+        `Failed to revive facebook bot for page ${pageId}: ${error.message}`,
+      );
+    });
 
     await models.FacebookIntegrations.deleteMany({
       erxesApiId: { $ne: integrationId },
@@ -286,7 +312,8 @@ export const facebookCreateIntegration = async (
       } catch (e) {
         // Log and throw error if token retrieval fails
         debugError(
-          `Error occurred while trying to get page access token with ${e.message || e
+          `Error occurred while trying to get page access token with ${
+            e.message || e
           }`,
         );
         throw e;

@@ -105,22 +105,28 @@ export const facebookMutations = {
       throw new Error(e.message);
     }
   },
-  async facebookMessengerAddBot(_root, args, { models }: IContext) {
-    return await models.FacebookBots.addBot(args);
+  async facebookMessengerAddBot(_root, args, { models, user }: IContext) {
+    return await models.FacebookBots.addBot(args, {
+      userId: user._id,
+    });
   },
 
   async facebookMessengerUpdateBot(
     _root,
     { _id, ...args },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
-    return await models.FacebookBots.updateBot(_id, args);
+    return await models.FacebookBots.updateBot(_id, args, {
+      userId: user._id,
+    });
   },
 
   async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {
     return await models.FacebookBots.removeBot(_id);
   },
-  async facebookMessengerRepairBot(_root, { _id }, { models }: IContext) {
-    return await models.FacebookBots.repair(_id);
+  async facebookMessengerRepairBot(_root, { _id }, { models, user }: IContext) {
+    return await models.FacebookBots.repair(_id, {
+      userId: user._id,
+    });
   },
 };

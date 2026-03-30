@@ -6,6 +6,27 @@ const FACEBOOK_BOT_FIELDS = `
   account
   accountId
   createdAt
+  updatedAt
+  createdBy
+  updatedBy
+  createdUser {
+    _id
+    username
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
+  updatedUser {
+    _id
+    username
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
   page
   pageId
   profileUrl

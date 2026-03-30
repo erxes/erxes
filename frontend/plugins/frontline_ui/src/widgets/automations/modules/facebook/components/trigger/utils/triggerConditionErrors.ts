@@ -25,6 +25,10 @@ export function getConditionsFieldErrors(
         field = 'direct';
       }
 
+      if (field === 'sourceIds') {
+        field = 'open_thread';
+      }
+
       errors[field] = error.message;
     }
   }

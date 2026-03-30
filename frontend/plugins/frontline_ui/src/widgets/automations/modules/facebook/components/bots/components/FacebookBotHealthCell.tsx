@@ -1,6 +1,6 @@
 import { IFacebookBotHealth } from '@/integrations/facebook/types/FacebookBot';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { Badge, Popover, RecordTableInlineCell, Tooltip } from 'erxes-ui';
+import { Badge, Popover, RecordTableInlineCell } from 'erxes-ui';
 import { useFacebookBotHealthCell } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotHealthCell';
 
 export const FacebookBotHealthCell = ({
@@ -11,9 +11,6 @@ export const FacebookBotHealthCell = ({
   const {
     statusLabel,
     statusVariant,
-    hasSubscriptionIssue,
-    hasProfileIssue,
-    lastError,
     showDetails,
     detailItems,
   } = useFacebookBotHealthCell(health);
@@ -22,21 +19,6 @@ export const FacebookBotHealthCell = ({
     <RecordTableInlineCell className="min-w-0">
       <div className="flex items-center gap-1.5 whitespace-nowrap">
         <Badge variant={statusVariant}>{statusLabel}</Badge>
-        {hasSubscriptionIssue ? (
-          <Tooltip.Provider>
-            <Tooltip delayDuration={100}>
-              <Tooltip.Trigger asChild>
-                <span>
-                  <Badge variant="secondary">Sub</Badge>
-                </span>
-              </Tooltip.Trigger>
-              <Tooltip.Content>Subscription issue</Tooltip.Content>
-            </Tooltip>
-          </Tooltip.Provider>
-        ) : null}
-        {hasProfileIssue ? (
-          <Badge variant="secondary">Profile</Badge>
-        ) : null}
         {showDetails ? (
           <Popover>
             <Popover.Trigger asChild>

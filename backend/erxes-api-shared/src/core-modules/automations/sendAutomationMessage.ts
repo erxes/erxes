@@ -12,7 +12,7 @@ type TSendAutomationTriggerProps = {
   jobOptions?: DefaultJobOptions;
 };
 
-export const sendAutomationTrigger = async (
+export const sendAutomationTrigger = (
   subdomain: string,
   {
     type,
@@ -30,46 +30,53 @@ export const sendAutomationTrigger = async (
     recordType?: 'new' | 'existing';
   },
   { transport = 'bullmq', jobOptions }: TSendAutomationTriggerProps = {},
-) => {
+): void => {
   if (transport === 'trpc') {
-    const address = await redis.get('erxes-service-automations');
-    const trpcUrl = address ? `${address}/trpc` : null;
+    void redis
+      .get('erxes-service-automations')
+      .then((address) => {
+        const trpcUrl = address ? `${address}/trpc` : null;
 
-    if (!trpcUrl) {
-      throw new Error(
-        'Missing trpcUrl for sendAutomationTrigger. Provide props.trpcUrl or ensure service discovery has erxes-service-automations set.',
-      );
-    }
+        if (!trpcUrl) {
+          throw new Error(
+            'Missing trpcUrl for sendAutomationTrigger. Provide props.trpcUrl or ensure service discovery has erxes-service-automations set.',
+          );
+        }
 
-    const contextHeader = encodeTRPCContextHeader(subdomain, 'mutation', {});
+        const contextHeader = encodeTRPCContextHeader(
+          subdomain,
+          'mutation',
+          {},
+        );
 
-    const client = createTRPCUntypedClient({
-      links: [
-        httpBatchLink({
-          url: trpcUrl,
-          headers: () => ({
-            [trpcContextHeaderName]: contextHeader,
-          }),
-        }),
-      ],
-    });
+        const client = createTRPCUntypedClient({
+          links: [
+            httpBatchLink({
+              url: trpcUrl,
+              headers: () => ({
+                [trpcContextHeaderName]: contextHeader,
+              }),
+            }),
+          ],
+        });
 
-    client
-      .mutation('automations.trigger', {
-        type,
-        targets,
-        repeatOptions,
-        recordType,
+        return client.mutation('automations.trigger', {
+          type,
+          targets,
+          repeatOptions,
+          recordType,
+        });
       })
       .catch((error) => {
         console.error('Error adding job to queue:', error);
       });
 
-    return 'success';
+    return;
   }
 
   const queue = sendWorkerQueue('automations', 'trigger');
-  queue
+
+  void queue
     .add(
       'trigger',
       {
@@ -81,5 +88,4 @@ export const sendAutomationTrigger = async (
     .catch((error) => {
       console.error('Error adding job to queue:', error);
     });
-  return 'success';
 };

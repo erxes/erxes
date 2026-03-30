@@ -127,6 +127,11 @@ export const types = `
     pageId: String
     page: JSON
     createdAt: Date
+    updatedAt: Date
+    createdBy: String
+    updatedBy: String
+    createdUser: User
+    updatedUser: User
     persistentMenus:[BotPersistentMenuType]
     profileUrl:String
     greetText:String

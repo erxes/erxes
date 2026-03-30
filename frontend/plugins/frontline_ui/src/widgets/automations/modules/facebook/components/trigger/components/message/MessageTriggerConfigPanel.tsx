@@ -5,6 +5,7 @@ import { useMessageTriggerFormContext } from '../../context/MessageTriggerFormCo
 import { useMessageTriggerConditions } from '../../hooks/useMessageTriggerConditions';
 import { TMessageTriggerForm } from '../../types/messageTrigger';
 import { DirectMessageEditor } from './DirectMessageEditor';
+import { OpenThreadTriggerEditor } from './OpenThreadTriggerEditor';
 import { PersistentMenuSelector } from './PersistentMenuSelector';
 
 export const MessageTriggerConfigPanel = () => {
@@ -52,6 +53,20 @@ export const MessageTriggerConfigPanel = () => {
               fieldName,
               fieldValue as any,
             )
+          }
+        />
+      ) : null}
+
+      {activeConditionType === 'open_thread' ? (
+        <OpenThreadTriggerEditor
+          botId={botId}
+          sourceMode={currentCondition?.sourceMode || 'all'}
+          sourceIds={currentCondition?.sourceIds || []}
+          onSourceModeChange={(value) =>
+            updateCondition(activeConditionType, 'sourceMode', value)
+          }
+          onSourceIdsChange={(value) =>
+            updateCondition(activeConditionType, 'sourceIds', value)
           }
         />
       ) : null}

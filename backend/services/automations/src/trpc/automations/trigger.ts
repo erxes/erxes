@@ -38,18 +38,10 @@ export const automationsTriggerTrpcRouter = t.router({
             type,
             targets,
           );
-          console.log({ waitingAction });
           if (waitingAction) {
             executeWaitingAction(subdomain, models, waitingAction);
           }
         }
-        console.log('recieve trigger', {
-          type,
-          targets,
-          recordType,
-          repeatOptions,
-        });
-
         await receiveTrigger({ models, subdomain, type, targets, recordType });
 
         return 'success';

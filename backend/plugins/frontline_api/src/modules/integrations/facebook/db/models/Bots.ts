@@ -1,14 +1,12 @@
-import { Model } from 'mongoose';
-import { IFacebookBotDocument, facebookBotSchema } from '../definitions/bots';
+import { SUBSCRIBED_FIELDS } from '@/integrations/facebook/constants';
 import {
   getPageAccessToken,
   graphRequest,
 } from '@/integrations/facebook/utils';
+import { sendNotification } from 'erxes-api-shared/core-modules';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import {
-  BOT_SUBSCRIBE_FIELDS,
-  SUBSCRIBED_FIELDS,
-} from '@/integrations/facebook/constants';
+import { IFacebookBotDocument, facebookBotSchema } from '../definitions/bots';
 
 const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   if (!doc.name) {
@@ -51,14 +49,110 @@ const FACEBOOK_BOT_HEALTH_MESSAGES = {
     'Greeting text is out of sync',
 } as const;
 
+type TBotHealthStatus = 'healthy' | 'degraded' | 'broken' | 'syncing';
+
+type TBotActorContext = {
+  userId: string;
+};
+
+type TSetBotHealthInput = {
+  status: TBotHealthStatus;
+  reason?: string;
+  accountId?: string;
+  token?: string;
+  isSubscribed?: boolean;
+  isProfileSynced?: boolean;
+  userId?: string;
+  notify?: boolean;
+};
+
+const generateBotHealthUpdate = ({
+  status,
+  reason,
+  accountId,
+  token,
+  isSubscribed,
+  isProfileSynced,
+  userId,
+}: Omit<TSetBotHealthInput, 'notify'>) => {
+  const now = new Date();
+  const set: Record<string, any> = {
+    'health.status': status,
+    'health.lastVerifiedAt': now,
+    updatedAt: now,
+  };
+
+  if (typeof isSubscribed === 'boolean') {
+    set['health.isSubscribed'] = isSubscribed;
+  }
+
+  if (typeof isProfileSynced === 'boolean') {
+    set['health.isProfileSynced'] = isProfileSynced;
+  }
+
+  if (accountId) {
+    set.accountId = accountId;
+  }
+
+  if (token) {
+    set.token = token;
+  }
+
+  if (userId) {
+    set.updatedBy = userId;
+  }
+
+  if (status === 'healthy') {
+    set['health.lastSyncedAt'] = now;
+    set['health.lastError'] = '';
+  }
+
+  if (status === 'syncing') {
+    set['health.lastError'] = '';
+  }
+
+  if (status === 'broken' || status === 'degraded') {
+    set['health.lastError'] = reason || 'Bot health check failed';
+  }
+
+  return { $set: set };
+};
+
 export interface IFacebookBotModel extends Model<IFacebookBotDocument> {
-  addBot(doc: any): Promise<IFacebookBotDocument>;
-  updateBot(_id: string, doc: any): Promise<IFacebookBotDocument>;
-  removeBot(_id: string): Promise<IFacebookBotDocument>;
-  repair(_id: string): Promise<IFacebookBotDocument>;
+  addBot(doc: any, options: TBotActorContext): Promise<IFacebookBotDocument>;
+  updateBot(
+    _id: string,
+    doc: any,
+    options: TBotActorContext,
+  ): Promise<IFacebookBotDocument>;
+  removeBot(_id: string): Promise<{ status: 'success' }>;
+  repair(
+    _id: string,
+    options: TBotActorContext,
+  ): Promise<{ status: 'success' }>;
+  markBrokenByAccount(
+    accountId: string,
+    options: { reason: string; userId?: string; notify?: boolean },
+  ): Promise<void>;
+  markBrokenByPageIds(
+    pageIds: string[],
+    options: { reason: string; userId?: string; notify?: boolean },
+  ): Promise<void>;
+  reviveByPageId(input: {
+    pageId: string;
+    accountId: string;
+    token: string;
+    userId?: string;
+    notify?: boolean;
+  }): Promise<IFacebookBotDocument | null>;
+  updatePageToken(
+    pageId: string,
+    token: string,
+    options?: { userId?: string },
+  ): Promise<void>;
 }
 
-export const loadFacebookBotClass = (models: IModels) => {
+export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
   class FacebookBot {
     // Shared lookup used by the bot lifecycle methods below.
     static async getBot(_id) {
@@ -70,22 +164,85 @@ export const loadFacebookBotClass = (models: IModels) => {
       return bot;
     }
 
-    // Internal health helpers keep sync/verify state updates consistent.
-    static buildHealthUpdate(health: Record<string, any>) {
-      return {
-        $set: Object.entries(health).reduce((acc, [key, value]) => {
-          acc[`health.${key}`] = value;
-          return acc;
-        }, {} as Record<string, any>),
-      };
+    static async sendHealthChangeNotification(
+      botId: string,
+      {
+        status,
+        reason,
+      }: {
+        status: 'healthy' | 'degraded' | 'broken';
+        reason?: string;
+      },
+    ) {
+      const bot = await this.getBot(botId);
+      const recipientIds = Array.from(
+        new Set([bot.createdBy, bot.updatedBy].filter(Boolean)),
+      ) as string[];
+
+      if (!recipientIds.length) {
+        return;
+      }
+
+      await sendNotification(subdomain, {
+        title:
+          status === 'healthy'
+            ? 'Facebook bot restored'
+            : 'Facebook bot unhealthy',
+        message:
+          status === 'healthy'
+            ? `${bot.name} is healthy again`
+            : `${bot.name} became unavailable. ${reason || ''}`.trim(),
+        type: status === 'healthy' ? 'success' : 'warning',
+        priority: 'medium',
+        userIds: recipientIds,
+        kind: 'system',
+        contentType: 'frontline:facebookBot.health',
+        content: bot.name,
+        metadata: {
+          botId: bot._id,
+          pageId: bot.pageId,
+          status,
+          reason,
+        },
+      });
     }
 
-    static async markSyncing(botId: string) {
+    static async setBotHealth(botId: string, input: TSetBotHealthInput) {
+      const bot = await this.getBot(botId);
+      const previousStatus = bot.health?.status;
+      const update = generateBotHealthUpdate(input);
+
+      await models.FacebookBots.updateOne({ _id: botId }, update);
+
+      const isNotificationEnabled = input.notify !== false;
+      const statusChanged = previousStatus !== input.status;
+      const becameHealthy = input.status === 'healthy';
+      const becameDegraded = input.status === 'degraded';
+      const becameBroken = input.status === 'broken';
+      const becameUnhealthy = becameDegraded || becameBroken;
+      const isNotifiableStatus = becameHealthy || becameUnhealthy;
+      const shouldNotify =
+        isNotificationEnabled && statusChanged && isNotifiableStatus;
+
+      if (shouldNotify) {
+        await this.sendHealthChangeNotification(botId, {
+          status: input.status as 'healthy' | 'degraded' | 'broken',
+          reason: input.reason,
+        });
+      }
+
+      return this.getBot(botId);
+    }
+
+    static async markSyncing(
+      botId: string,
+      { userId }: { userId?: string } = {},
+    ) {
       await models.FacebookBots.updateOne(
         { _id: botId },
-        this.buildHealthUpdate({
+        generateBotHealthUpdate({
           status: 'syncing',
-          lastError: '',
+          userId,
         }),
       );
     }
@@ -95,24 +252,22 @@ export const loadFacebookBotClass = (models: IModels) => {
       {
         isSubscribed = true,
         isProfileSynced = true,
+        userId,
+        notify = false,
       }: {
         isSubscribed?: boolean;
         isProfileSynced?: boolean;
+        userId?: string;
+        notify?: boolean;
       } = {},
     ) {
-      const now = new Date();
-
-      await models.FacebookBots.updateOne(
-        { _id: botId },
-        this.buildHealthUpdate({
-          status: 'healthy',
-          isSubscribed,
-          isProfileSynced,
-          lastSyncedAt: now,
-          lastVerifiedAt: now,
-          lastError: '',
-        }),
-      );
+      return this.setBotHealth(botId, {
+        status: 'healthy',
+        isSubscribed,
+        isProfileSynced,
+        userId,
+        notify,
+      });
     }
 
     static async markDegraded(
@@ -121,21 +276,132 @@ export const loadFacebookBotClass = (models: IModels) => {
         isSubscribed = false,
         isProfileSynced = false,
         error,
+        userId,
+        notify = false,
       }: {
         isSubscribed?: boolean;
         isProfileSynced?: boolean;
         error?: string;
+        userId?: string;
+        notify?: boolean;
       } = {},
     ) {
+      return this.setBotHealth(botId, {
+        status: 'degraded',
+        reason: error,
+        isSubscribed,
+        isProfileSynced,
+        userId,
+        notify,
+      });
+    }
+
+    static async markBroken(
+      botId: string,
+      {
+        reason,
+        userId,
+        notify = true,
+      }: {
+        reason: string;
+        userId?: string;
+        notify?: boolean;
+      },
+    ) {
+      return this.setBotHealth(botId, {
+        status: 'broken',
+        reason,
+        isSubscribed: false,
+        isProfileSynced: false,
+        userId,
+        notify,
+      });
+    }
+
+    static async markBrokenByAccount(
+      accountId: string,
+      {
+        reason,
+        userId,
+        notify = true,
+      }: {
+        reason: string;
+        userId?: string;
+        notify?: boolean;
+      },
+    ) {
+      const bots = await models.FacebookBots.find({ accountId }).lean();
+
+      for (const bot of bots) {
+        await this.markBroken(bot._id, { reason, userId, notify });
+      }
+    }
+
+    static async markBrokenByPageIds(
+      pageIds: string[],
+      {
+        reason,
+        userId,
+        notify = true,
+      }: {
+        reason: string;
+        userId?: string;
+        notify?: boolean;
+      },
+    ) {
+      const bots = await models.FacebookBots.find({
+        pageId: { $in: pageIds },
+      }).lean();
+
+      for (const bot of bots) {
+        await this.markBroken(bot._id, { reason, userId, notify });
+      }
+    }
+
+    static async reviveByPageId({
+      pageId,
+      accountId,
+      token,
+      userId,
+      notify = true,
+    }: {
+      pageId: string;
+      accountId: string;
+      token: string;
+      userId?: string;
+      notify?: boolean;
+    }) {
+      const bot = await models.FacebookBots.findOne({ pageId });
+
+      if (!bot) {
+        return null;
+      }
+
+      return this.setBotHealth(bot._id, {
+        status: 'healthy',
+        accountId,
+        token,
+        isSubscribed: true,
+        isProfileSynced: true,
+        userId,
+        notify,
+      });
+    }
+
+    static async updatePageToken(
+      pageId: string,
+      token: string,
+      { userId }: { userId?: string } = {},
+    ) {
       await models.FacebookBots.updateOne(
-        { _id: botId },
-        this.buildHealthUpdate({
-          status: 'degraded',
-          isSubscribed,
-          isProfileSynced,
-          lastVerifiedAt: new Date(),
-          lastError: error || 'Bot health check failed',
-        }),
+        { pageId },
+        {
+          $set: {
+            token,
+            updatedAt: new Date(),
+            ...(userId ? { updatedBy: userId } : {}),
+          },
+        },
       );
     }
 
@@ -207,16 +473,12 @@ export const loadFacebookBotClass = (models: IModels) => {
       };
     }
 
-    static getRequiredSubscribedFields() {
-      return ['messages', ...BOT_SUBSCRIBE_FIELDS];
-    }
-
     static hasRequiredSubscribedFields(subscribedData: any[] = []) {
       const subscribedFields = subscribedData.flatMap(
         (item) => item?.subscribed_fields || [],
       );
 
-      return this.getRequiredSubscribedFields().every((field) =>
+      return SUBSCRIBED_FIELDS.every((field) =>
         subscribedFields.includes(field),
       );
     }
@@ -463,7 +725,7 @@ export const loadFacebookBotClass = (models: IModels) => {
       );
     }
 
-    public static async addBot(doc) {
+    public static async addBot(doc, { userId }: TBotActorContext) {
       try {
         await validateDoc(models, doc);
       } catch (error) {
@@ -488,13 +750,19 @@ export const loadFacebookBotClass = (models: IModels) => {
         );
       }
 
+      const now = new Date();
+
       const bot = await models.FacebookBots.create({
         ...doc,
         uid: account.uid,
         token: pageTokenResponse,
+        createdAt: now,
+        updatedAt: now,
+        createdBy: userId,
+        updatedBy: userId,
       });
 
-      await this.markSyncing(bot._id);
+      await this.markSyncing(bot._id, { userId });
 
       try {
         await this.syncAndVerifyBotProfile({
@@ -521,10 +789,14 @@ export const loadFacebookBotClass = (models: IModels) => {
       }
     }
 
-    public static async repair(_id) {
+    public static async repair(_id, { userId }: TBotActorContext) {
       const bot = await this.getBot(_id);
+      const previousHealthStatus = bot.health?.status;
+      const shouldNotifyRevived =
+        previousHealthStatus === 'broken' ||
+        previousHealthStatus === 'degraded';
 
-      await this.markSyncing(bot._id);
+      await this.markSyncing(bot._id, { userId });
 
       const account = await models.FacebookAccounts.findOne({
         _id: bot.accountId,
@@ -567,9 +839,27 @@ export const loadFacebookBotClass = (models: IModels) => {
             backButtonText: bot.backButtonText,
           },
         });
+
+        await this.setBotHealth(bot._id, {
+          status: 'healthy',
+          accountId: bot.accountId,
+          token: bot.token,
+          isSubscribed: true,
+          isProfileSynced: true,
+          userId,
+          notify: false,
+        });
+
+        if (shouldNotifyRevived) {
+          await this.sendHealthChangeNotification(bot._id, {
+            status: 'healthy',
+          });
+        }
       } catch (err) {
-        await this.markDegraded(bot._id, {
-          error: err.message,
+        await this.markBroken(bot._id, {
+          reason: err.message,
+          userId,
+          notify: true,
         });
         throw new Error(err.message);
       }
@@ -577,7 +867,7 @@ export const loadFacebookBotClass = (models: IModels) => {
       return { status: 'success' };
     }
 
-    public static async updateBot(_id, doc) {
+    public static async updateBot(_id, doc, { userId }: TBotActorContext) {
       try {
         await validateDoc(models, doc, true);
       } catch (error) {
@@ -593,6 +883,10 @@ export const loadFacebookBotClass = (models: IModels) => {
       } = doc;
 
       const bot = await this.getBot(_id);
+      const previousHealthStatus = bot.health?.status;
+      const shouldNotifyRevived =
+        previousHealthStatus === 'broken' ||
+        previousHealthStatus === 'degraded';
 
       if (
         JSON.stringify({
@@ -611,7 +905,7 @@ export const loadFacebookBotClass = (models: IModels) => {
         })
       ) {
         try {
-          await this.markSyncing(bot._id);
+          await this.markSyncing(bot._id, { userId });
 
           if (pageId !== bot.pageId) {
             await this.disconnectBotPageMessenger(_id);
@@ -632,15 +926,40 @@ export const loadFacebookBotClass = (models: IModels) => {
               backButtonText,
             },
           });
+
+          await this.setBotHealth(bot._id, {
+            status: 'healthy',
+            isSubscribed: true,
+            isProfileSynced: true,
+            userId,
+            notify: false,
+          });
+
+          if (shouldNotifyRevived) {
+            await this.sendHealthChangeNotification(bot._id, {
+              status: 'healthy',
+            });
+          }
         } catch (error) {
           await this.markDegraded(bot._id, {
             error: error.message,
+            userId,
+            notify: true,
           });
           throw new Error(error.message);
         }
       }
 
-      await models.FacebookBots.updateOne({ _id }, { ...doc });
+      await models.FacebookBots.updateOne(
+        { _id },
+        {
+          $set: {
+            ...doc,
+            updatedAt: new Date(),
+            updatedBy: userId,
+          },
+        },
+      );
       return await this.getBot(_id);
     }
 
@@ -696,10 +1015,6 @@ export const loadFacebookBotClass = (models: IModels) => {
         });
       }
 
-      await graphRequest.post('/me/subscribed_apps', pageAccessToken, {
-        subscribed_fields: ['messages', ...BOT_SUBSCRIBE_FIELDS],
-      });
-
       let doc: any = {
         get_started: { payload: JSON.stringify({ botId: botId }) },
         persistent_menu: [
@@ -739,8 +1054,14 @@ export const loadFacebookBotClass = (models: IModels) => {
       await this.markSyncing(bot._id);
 
       try {
+        const fields = ['get_started', 'persistent_menu'];
+
+        if (!!bot.greetText) {
+          fields.push('greeting');
+        }
+
         await graphRequest.delete('/me/messenger_profile', pageAccessToken, {
-          fields: ['get_started', 'persistent_menu', 'greeting'],
+          fields,
           access_token: pageAccessToken,
         });
 

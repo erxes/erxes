@@ -6,6 +6,16 @@ import {
   IFacebookConversationMessage,
   IFacebookConversationMessageDocument,
 } from '@/integrations/facebook/@types/conversationMessages';
+import { pConversationClientMessageInserted } from '~/modules/inbox/graphql/resolvers/mutations/widget';
+import { TBotData } from '../../meta/automation/types/automationTypes';
+
+interface IAddFacebookConversationBotMessage {
+  conversationId: string;
+  botId: string;
+  botData: TBotData[];
+  mid: string;
+  conversationErxesApiId: string;
+}
 
 export interface IFacebookConversationMessageModel
   extends Model<IFacebookConversationMessageDocument> {
@@ -16,6 +26,17 @@ export interface IFacebookConversationMessageModel
   addMessage(
     doc: IFacebookConversationMessage,
     userId?: string,
+  ): Promise<IFacebookConversationMessageDocument>;
+
+  addBotMessage(
+    subdomain: string,
+    {
+      conversationId,
+      botId,
+      botData,
+      mid,
+      conversationErxesApiId,
+    }: IAddFacebookConversationBotMessage,
   ): Promise<IFacebookConversationMessageDocument>;
 }
 
@@ -78,6 +99,34 @@ export const loadFacebookConversationMessageClass = (models: IModels) => {
       }
 
       return this.createMessage({ ...doc, userId });
+    }
+
+    public static async addBotMessage(
+      subdomain: string,
+      {
+        conversationId,
+        botId,
+        botData,
+        mid,
+        conversationErxesApiId,
+      }: IAddFacebookConversationBotMessage,
+    ) {
+      const conversationMessage =
+        await models.FacebookConversationMessages.addMessage({
+          conversationId,
+          content: '<p>Bot Message</p>',
+          internal: false,
+          mid,
+          botId,
+          botData,
+          fromBot: true,
+        });
+
+      pConversationClientMessageInserted(subdomain, {
+        ...conversationMessage,
+        conversationId: conversationErxesApiId,
+      });
+      return conversationMessage;
     }
   }
 

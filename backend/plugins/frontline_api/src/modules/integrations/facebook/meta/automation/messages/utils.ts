@@ -1,5 +1,3 @@
-import { getEnv } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import {
@@ -10,18 +8,17 @@ import {
   IFacebookCustomer,
   IFacebookCustomerDocument,
 } from '@/integrations/facebook/@types/customers';
+import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
 import { debugError } from '@/integrations/facebook/debuggers';
 import {
   ISendMessageData,
   TAttachmentMessage,
   TAutomationActionConfig,
-  TBotConfigMessage,
   TBotConfigMessageButton,
   TFacebookMessageButton,
   TGenericTemplateMessage,
   TQuickRepliesMessage,
-  TQuickReplyMessage,
   TTemplateMessage,
   TTextInputMessage,
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
@@ -31,7 +28,14 @@ import {
   getUrl,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import { sendReply } from '@/integrations/facebook/utils';
-import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
+import {
+  AutomationExecutionSetWaitCondition,
+  EXECUTE_WAIT_TYPES,
+} from 'erxes-api-shared/core-modules';
+import { getEnv } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { IFacebookCommentConversation } from '../../../@types/comment_conversations';
+import { IFacebookConversationMessageDocument } from '../../../@types/conversationMessages';
 
 type TGenerateMessagesParams = {
   subdomain: string;
@@ -202,73 +206,6 @@ export const generateMessages = async ({
   return generatedMessages;
 };
 
-export const generateObjectToWait = ({
-  messages = [],
-  optionalConnects = [],
-  conversation,
-  customer,
-}: {
-  messages: TBotConfigMessage[];
-  optionalConnects: {
-    sourceId: string;
-    actionId: string;
-    optionalConnectId: string;
-  }[];
-  conversation: { _id: string } & IFacebookConversation;
-  customer: IFacebookCustomer;
-}) => {
-  const obj: any = {};
-  const general: any = {
-    conversationId: conversation._id,
-    customerId: customer.erxesApiId,
-  };
-  let propertyName = 'payload.btnId';
-
-  // if (messages.some((msg) => msg.type === 'input')) {
-  //   const inputMessageConfig = messages.find(
-  //     (msg) => msg.type === 'input',
-  //   )?.input;
-  //   if (inputMessageConfig) {
-  //     if (inputMessageConfig?.type === 'day') {
-  //       obj.startWaitingDate = moment()
-  //         .add(inputMessageConfig?.value || 0, 'day')
-  //         .toDate();
-  //     }
-
-  //     if (inputMessageConfig?.type === 'hour') {
-  //       obj.startWaitingDate = moment()
-  //         .add(inputMessageConfig?.value || 0, 'hour')
-  //         .toDate();
-  //     }
-  //     if (inputMessageConfig?.type === 'minute') {
-  //       obj.startWaitingDate = moment()
-  //         .add(inputMessageConfig?.value || 0, 'minute')
-  //         .toDate();
-  //     }
-  //   }
-
-  //   const actionIdIfNotReply =
-  //     optionalConnects.find(
-  //       (connect) => connect?.optionalConnectId === 'ifNotReply',
-  //     )?.actionId || null;
-
-  //   obj.waitingActionId = actionIdIfNotReply;
-
-  //   propertyName = 'botId';
-  // } else {
-  //   obj.startWaitingDate = moment().add(24, 'hours').toDate();
-  //   obj.waitingActionId = null;
-  // }
-
-  return {
-    ...obj,
-    objToCheck: {
-      propertyName,
-      general,
-    },
-  };
-};
-
 export const sendMessage = async (
   models: IModels,
   bot: IFacebookBotDocument,
@@ -348,7 +285,7 @@ async function trySendTypingOn(
   }
 }
 
-export const getData = async (
+export const getOrCreateFacebookMessageActionContext = async (
   models: IModels,
   subdomain: string,
   collectionType: string,
@@ -364,125 +301,27 @@ export const getData = async (
   botId: string;
 }> => {
   if (collectionType === 'comments') {
-    const { senderId, recipientId, erxesApiId } = target;
-
-    const { botId } = config;
-
-    let conversation = await models.FacebookConversations.findOne({
-      senderId,
-      recipientId,
-    });
-
-    const customer = await models.FacebookCustomers.findOne({
-      erxesApiId: target.customerId,
-    });
-
-    if (!customer) {
-      throw new Error(
-        `Error occurred during send message with trigger type ${collectionType}`,
-      );
-    }
-    const integration = await models.FacebookIntegrations.findOne({
-      erxesApiId: customer?.integrationId,
-    });
-
-    if (!integration) {
-      throw new Error(
-        `Error occurred during send message with trigger type ${collectionType}`,
-      );
-    }
-
-    const bot = await models.FacebookBots.findOne({ _id: botId });
-
-    if (!bot) {
-      throw new Error('Bot not found');
-    }
-
-    const DOMAIN = getEnv({
-      name: 'DOMAIN',
+    return await getOrCreateCommentMessageActionContext({
+      target,
+      models,
+      config,
       subdomain,
     });
-
-    const timestamp = new Date();
-    if (!conversation) {
-      try {
-        conversation = await models.FacebookConversations.create({
-          timestamp,
-          senderId,
-          recipientId,
-          content: 'Start conversation from comment',
-          integrationId: integration._id,
-          isBot: true,
-          botId,
-        });
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation duplication'
-            : e,
-        );
-      }
-    }
-
-    // save on api
-    try {
-      const apiConversationResponse = await receiveInboxMessage(subdomain, {
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId: customer.erxesApiId,
-          integrationId: integration.erxesApiId,
-          content: 'Start conversation from comment',
-          conversationId: conversation.erxesApiId,
-          updatedAt: timestamp,
-        }),
-      });
-
-      if (apiConversationResponse.status === 'success') {
-        conversation.erxesApiId = apiConversationResponse.data._id;
-
-        await conversation.save();
-      } else {
-        throw new Error(
-          `Conversation creation failed: ${JSON.stringify(
-            apiConversationResponse,
-          )}`,
-        );
-      }
-    } catch (e) {
-      await models.Conversations.deleteOne({ _id: conversation._id });
-      throw new Error(e);
-    }
-
-    const created = await models.ConversationMessages.addMessage({
-      conversationId: conversation._id,
-      content: '<p>Bot Message</p>',
-      internal: true,
-      botId,
-      botData: [
-        {
-          type: 'text',
-          text: `${DOMAIN}/inbox/index?_id=${erxesApiId}`,
-        },
-      ],
-      fromBot: true,
-    });
-
-    pConversationClientMessageInserted(subdomain, {
-      ...created.toObject(),
-      conversationId: conversation.erxesApiId,
-    });
-
-    return {
-      conversation,
-      integration,
-      customer,
-      bot,
-      recipientId,
-      senderId,
-      botId,
-    };
   }
 
+  return await getOrCreateDirectMessageActionContext({
+    target,
+    models,
+  });
+};
+
+const getOrCreateDirectMessageActionContext = async ({
+  target,
+  models,
+}: {
+  target: IFacebookConversationMessageDocument;
+  models: IModels;
+}) => {
   const conversation = await models.FacebookConversations.findOne({
     _id: target?.conversationId,
   });
@@ -522,5 +361,158 @@ export const getData = async (
     recipientId,
     senderId,
     botId,
+  };
+};
+const getOrCreateCommentMessageActionContext = async ({
+  target,
+  models,
+  config,
+  subdomain,
+}: {
+  subdomain: string;
+  target: IFacebookCommentConversation;
+  config: any;
+  models: IModels;
+}) => {
+  const { senderId, recipientId, erxesApiId } = target;
+
+  const { botId } = config;
+
+  let conversation = await models.FacebookConversations.findOne({
+    senderId,
+    recipientId,
+  });
+
+  const customer = await models.FacebookCustomers.findOne({
+    erxesApiId: target.customerId,
+  });
+
+  if (!customer) {
+    throw new Error(
+      `Error occurred during send message with trigger type comments`,
+    );
+  }
+  const integration = await models.FacebookIntegrations.findOne({
+    erxesApiId: customer?.integrationId,
+  });
+
+  if (!integration) {
+    throw new Error(
+      `Error occurred during send message with trigger type comments`,
+    );
+  }
+
+  const bot = await models.FacebookBots.findOne({ _id: botId });
+
+  if (!bot) {
+    throw new Error('Bot not found');
+  }
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+    subdomain,
+  });
+
+  const timestamp = new Date();
+  if (!conversation) {
+    try {
+      conversation = await models.FacebookConversations.create({
+        timestamp,
+        senderId,
+        recipientId,
+        content: 'Start conversation from comment',
+        integrationId: integration._id,
+        isBot: true,
+        botId,
+      });
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: conversation duplication'
+          : e,
+      );
+    }
+  }
+
+  // save on api
+  try {
+    const apiConversationResponse = await receiveInboxMessage(subdomain, {
+      action: 'create-or-update-conversation',
+      payload: JSON.stringify({
+        customerId: customer.erxesApiId,
+        integrationId: integration.erxesApiId,
+        content: 'Start conversation from comment',
+        conversationId: conversation.erxesApiId,
+        updatedAt: timestamp,
+      }),
+    });
+
+    if (apiConversationResponse.status === 'success') {
+      conversation.erxesApiId = apiConversationResponse.data._id;
+
+      await conversation.save();
+    } else {
+      throw new Error(
+        `Conversation creation failed: ${JSON.stringify(
+          apiConversationResponse,
+        )}`,
+      );
+    }
+  } catch (e) {
+    await models.Conversations.deleteOne({ _id: conversation._id });
+    throw new Error(e);
+  }
+
+  if (!conversation.erxesApiId) {
+    throw new Error('Conversation erxesApiId is required');
+  }
+
+  const created = await models.ConversationMessages.addMessage({
+    conversationId: conversation.erxesApiId,
+    content: '<p>Bot Message</p>',
+    internal: true,
+    botId,
+    botData: [
+      {
+        type: 'text',
+        text: `${DOMAIN}/inbox/index?_id=${erxesApiId}`,
+      },
+    ],
+    fromBot: true,
+  });
+
+  pConversationClientMessageInserted(subdomain, {
+    ...created.toObject(),
+    conversationId: conversation.erxesApiId,
+  });
+
+  return {
+    conversation,
+    integration,
+    customer,
+    bot,
+    recipientId,
+    senderId,
+    botId,
+  };
+};
+
+export const generateConditionWaitToAction = ({
+  config,
+  customer,
+  conversation,
+}: {
+  config: any;
+  conversation: IFacebookConversationDocument;
+  customer: IFacebookCustomerDocument;
+}): AutomationExecutionSetWaitCondition => {
+  return {
+    type: EXECUTE_WAIT_TYPES.CHECK_OBJECT,
+    propertyName: 'payload.btnId',
+    expectedState: {
+      conversationId: conversation._id,
+      customerId: customer.erxesApiId,
+    },
+    shouldCheckOptionalConnect: true,
   };
 };

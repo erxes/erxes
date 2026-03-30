@@ -9,7 +9,7 @@ import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mu
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   checkIsBot,
-  triggerFacebookAutomation,
+  triggerFacebookMessageAutomation,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 
 export const receiveMessage = async (
@@ -48,6 +48,29 @@ export const receiveMessage = async (
     if (message?.quick_reply) {
       message.payload = message.quick_reply.payload;
     }
+
+    const referral = message?.referral || postback?.referral;
+    const isOpenThreadEvent = referral?.type === 'OPEN_THREAD';
+
+    if (isOpenThreadEvent) {
+      adData = {
+        source: referral.source,
+        type: referral.type,
+        adId: referral.ad_id,
+        postId: referral.ads_context_data?.post_id,
+        pageId,
+      };
+    }
+
+    const messageKey =
+      mid ||
+      (isOpenThreadEvent
+        ? `open_thread:${userId}:${pageId}:${timestamp}:${
+            referral?.source || 'unknown'
+          }:${
+            referral?.ad_id || referral?.ads_context_data?.post_id || 'unknown'
+          }`
+        : undefined);
 
     const customer = await getOrCreateCustomer(
       models,
@@ -139,16 +162,17 @@ export const receiveMessage = async (
       throw new Error(e);
     }
     // get conversation message
-    let conversationMessage = await models.FacebookConversationMessages.findOne(
-      {
-        mid: mid,
-      },
-    );
+    let conversationMessage = messageKey
+      ? await models.FacebookConversationMessages.findOne({
+          mid: messageKey,
+        })
+      : null;
+
     if (!conversationMessage) {
       try {
         const created = await models.FacebookConversationMessages.create({
           conversationId: conversation._id,
-          mid: mid,
+          mid: messageKey,
           createdAt: timestamp,
           content: text,
           customerId: customer.erxesApiId,
@@ -180,7 +204,7 @@ export const receiveMessage = async (
 
         conversationMessage = created;
 
-        await triggerFacebookAutomation(subdomain, {
+        triggerFacebookMessageAutomation(subdomain, {
           conversationMessage: conversationMessage.toObject(),
           payload: message?.payload,
           adData,
