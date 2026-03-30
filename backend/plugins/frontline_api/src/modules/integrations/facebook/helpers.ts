@@ -73,9 +73,8 @@ export const removeIntegration = async (
 
     integrationRemoveBy = { fbPageIds: integration.facebookPageIds };
 
-    const conversationIds = await models.FacebookConversations.find(
-      selector,
-    ).distinct('_id');
+    const conversationIds =
+      await models.FacebookConversations.find(selector).distinct('_id');
 
     await models.FacebookCustomers.deleteMany({
       integrationId: integrationErxesApiId,
