@@ -68,6 +68,8 @@
     "invite-team-members": "Invite team members",
     "notify": "Send an email and notify members that they've been invited!",
     "separate-emails": "Separate emails with comma, space, or Enter",
+    "next": "Next",
+    "back": "Back",
     "send-invites": "Send invites",
     "date-created": "Date created",
     "name": "Name",

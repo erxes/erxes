@@ -207,11 +207,16 @@ export const userMutations: Record<string, Resolver> = {
       entries: Array<{
         email: string;
         password: string;
+        permissionGroupIds?: string[];
       }>;
     },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('teamMembersInvite');
+
+    if (entries.some((entry) => entry.permissionGroupIds?.length)) {
+      await checkPermission('permissionsManage');
+    }
 
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });

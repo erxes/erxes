@@ -56,6 +56,7 @@ interface IUpdateUser extends IEditProfile {
 interface IInviteParams {
   email: string;
   password?: string;
+  permissionGroupIds?: string[];
 }
 
 interface ILoginParams {
@@ -363,7 +364,11 @@ export const loadUserClass = (
     /**
      * Create new user with invitation token
      */
-    public static async invite({ email, password }: IInviteParams) {
+    public static async invite({
+      email,
+      password,
+      permissionGroupIds,
+    }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
@@ -382,6 +387,7 @@ export const loadUserClass = (
         registrationToken: token,
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
+        ...(permissionGroupIds?.length ? { permissionGroupIds } : {}),
         ...(password && { password: await this.generatePassword(password) }),
       });
 
