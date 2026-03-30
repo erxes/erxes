@@ -24,7 +24,11 @@ export const ItineraryPDF: React.FC<ItineraryPDFProps> = React.memo(
 
         <ItineraryPage itinerary={itinerary} branch={branch} />
 
-        <FooterPage branch={branch} content={itinerary.content} />
+        <FooterPage
+          branch={branch}
+          content={itinerary.content}
+          color={itinerary.color}
+        />
       </Document>
     );
   },
