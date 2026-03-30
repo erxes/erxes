@@ -22,17 +22,11 @@ export const EditSafeRemainder = () => {
     skip: !id,
   });
 
-  const { reset } = form;
-
   useEffect(() => {
-    // Only reset if configs are different from current form values
-    const currentValues = form.getValues();
-    const hasChanges = !deepEqual(safeRemainder, currentValues);
-
-    if (hasChanges) {
-      reset({ ...safeRemainder });
+    if (safeRemainder) {
+      form.reset({ ...safeRemainder });
     }
-  }, [safeRemainder, reset, form]);
+  }, [safeRemainder, form]);
 
   const { submitSafeRemainder, loading } = useSafeRemainderEdit(id || '');
   const onSubmit = (data: TSafeRemainderEditForm) => {

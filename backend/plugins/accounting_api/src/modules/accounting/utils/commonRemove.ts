@@ -8,7 +8,7 @@ export const commonRemove = async (
   tr: ITransaction,
 ) => {
   const handler = getJournalHandler(tr.journal);
-  if (!handler) throw new Error(`Unsupported journal: ${tr.journal}`);
+  if (!handler) return;
 
   await handler(models, subdomain, tr);
 };

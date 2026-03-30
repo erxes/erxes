@@ -1,3 +1,4 @@
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
@@ -6,17 +7,28 @@ import {
   ACCOUNT_JOURNALS,
   TR_SIDES,
 } from '~/modules/accounting/@types/constants';
-import { ITransaction } from '~/modules/accounting/@types/transaction';
-import { IUpdateRemaindersParams } from '~/modules/inventories/@types/safeRemainders';
+import { ITransaction, ITransactionDocument, ITrDetail } from '~/modules/accounting/@types/transaction';
+import { ISafeRemainderDocument, IUpdateRemaindersParams } from '~/modules/inventories/@types/safeRemainders';
 
 export const safeRemainderDoTrs = async (
   models: IModels,
-  safeRemainder,
-  details,
-  journal,
-  oldMainTr,
-  otherTrs,
-  user,
+  {
+    safeRemainder,
+    details,
+    journal,
+    oldMainTr,
+    otherTrs,
+    user,
+    followInfos
+  }: {
+    safeRemainder: ISafeRemainderDocument,
+    details: ITrDetail[],
+    journal: string,
+    oldMainTr?: ITransactionDocument,
+    otherTrs?: ITransactionDocument[],
+    user: IUserDocument,
+    followInfos?: any
+  }
 ) => {
   if (!oldMainTr && !details.length) {
     return;
@@ -24,7 +36,7 @@ export const safeRemainderDoTrs = async (
 
   if (oldMainTr && !details.length) {
     // remove
-    await models.Transactions.removePTransaction(oldMainTr.parentId);
+    await models.Transactions.removePTransaction({ parentId: oldMainTr.parentId });
     return;
   }
 
@@ -37,9 +49,10 @@ export const safeRemainderDoTrs = async (
     contentType: 'safeRem',
     contentId: safeRemainder._id,
     details,
+    followInfos
   };
 
-  if (!oldMainTr && details.length) {
+  if (!oldMainTr) {
     // create
     const mainTrId = nanoid();
     await models.Transactions.createPTransaction(
@@ -52,7 +65,7 @@ export const safeRemainderDoTrs = async (
   // update
   await models.Transactions.updatePTransaction(
     oldMainTr.parentId,
-    [{ ...oldMainTr, ...transactionDoc }, ...otherTrs],
+    [{ ...oldMainTr, ...transactionDoc }, ...(otherTrs ?? [])],
     user,
   );
   return oldMainTr._id;
@@ -67,7 +80,7 @@ export const safeRemainderUndoTrs = async (models: IModels, trId?: string) => {
     return;
   }
 
-  await models.Transactions.removePTransaction(tr.parentId);
+  await models.Transactions.removePTransaction({ parentId: tr.parentId });
 };
 
 export const updateLiveRemainders = async ({

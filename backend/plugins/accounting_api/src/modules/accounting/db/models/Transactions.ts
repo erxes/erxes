@@ -39,10 +39,12 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTransaction(_id: string): Promise<string>;
-  removePTransaction(
+  removePTransaction({
+    parentId, ptrId
+  }: {
     parentId?: string,
     ptrId?: string,
-  ): Promise<{ n: number; ok: number }>;
+  }): Promise<{ n: number; ok: number }>;
 }
 
 export const loadTransactionClass = (models: IModels, subdomain: string) => {
@@ -85,7 +87,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         _id: trId,
       }).lean();
       if (!transaction) {
-        return;
+        return {};
       }
 
       const otherTrs = await models.Transactions.find({
@@ -359,7 +361,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       return 'success';
     }
 
-    public static async removePTransaction(parentId?: string, ptrId?: string) {
+    public static async removePTransaction({ parentId, ptrId }: { parentId?: string, ptrId?: string }) {
       const $or: any = [];
       if (parentId) {
         $or.push({ parentId });

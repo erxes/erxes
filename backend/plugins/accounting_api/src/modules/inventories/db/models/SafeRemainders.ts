@@ -20,7 +20,6 @@ export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
     userId: string,
   ): Promise<ISafeRemainderDocument>;
   updateRemainder(
-    subdomain: string,
     params: ISafeRemEditFields & { _id: string },
     userId: string,
   ): Promise<ISafeRemainderDocument>;
@@ -35,7 +34,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
      * @returns Found object
      */
     public static async getRemainder(_id: string) {
-      const result: any = await models.SafeRemainders.findOne({ _id });
+      const result: any = await models.SafeRemainders.findOne({ _id }).lean();
 
       if (!result) throw new Error('Safe remainder not found!');
 
@@ -143,20 +142,16 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
 
     /**
      * update some fields safe remainder
-     * @param _id Safe remainder ID
+     * @param allowed fields
      * @returns updated response
      */
     public static async updateRemainder(
-      _subdomain: string,
       params: ISafeRemEditFields & { _id: string },
       userId: string,
     ) {
       const { _id, description, incomeRule, outRule, saleRule } = params;
-      const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
-      if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
-        throw new Error('Can`t edit: cause published');
-      }
+      const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
       await models.SafeRemainders.updateOne(
         { _id },
@@ -166,6 +161,11 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
             incomeRule: { ...safeRemainder.incomeRule, ...incomeRule },
             outRule: { ...safeRemainder.outRule, ...outRule },
             saleRule: { ...safeRemainder.saleRule, ...saleRule },
+            incomeTrId: params.incomeTrId,
+            outTrId: params.outTrId,
+            saleTrId: params.saleTrId,
+            status: params.status,
+            modifiedAt: new Date(),
             modifiedBy: userId,
           },
         },

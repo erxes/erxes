@@ -6,7 +6,7 @@ import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants'
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
 import {
   ISafeRemainder,
-  ISafeRemainderTrRule,
+  ISafeRemEditFields,
 } from '~/modules/inventories/@types/safeRemainders';
 import {
   safeRemainderDoTrs,
@@ -29,17 +29,10 @@ const safeRemainderMutations = {
 
   safeRemainderEdit: async (
     _root: any,
-    params: {
-      _id: string;
-      description?: string;
-      incomeRule?: ISafeRemainderTrRule;
-      outRule?: ISafeRemainderTrRule;
-      saleRule?: ISafeRemainderTrRule;
-    },
-    { models, subdomain, user }: IContext,
+    params: ISafeRemEditFields & { _id: string },
+    { models, user }: IContext,
   ) => {
     return await models.SafeRemainders.updateRemainder(
-      subdomain,
       params,
       user._id,
     );
@@ -228,30 +221,40 @@ const safeRemainderMutations = {
 
     const newIncomeTrId = await safeRemainderDoTrs(
       models,
-      safeRemainder,
-      incomeDetails,
-      JOURNALS.INV_INCOME,
-      oldIncomeTr,
-      incomeOtherTrs,
-      user,
+      {
+        safeRemainder,
+        details: incomeDetails,
+        journal: JOURNALS.INV_INCOME,
+        oldMainTr: oldIncomeTr,
+        otherTrs: incomeOtherTrs,
+        user,
+      }
     );
     const newOutTrId = await safeRemainderDoTrs(
       models,
-      safeRemainder,
-      outDetails,
-      JOURNALS.INV_OUT,
-      oldOutTr,
-      outOtherTrs,
-      user,
+      {
+        safeRemainder,
+        details: outDetails,
+        journal: JOURNALS.INV_OUT,
+        oldMainTr: oldOutTr,
+        otherTrs: outOtherTrs,
+        user,
+      }
     );
     const newSaleTrId = await safeRemainderDoTrs(
       models,
-      safeRemainder,
-      saleDetails,
-      JOURNALS.INV_SALE,
-      oldSaleTr,
-      saleOtherTrs,
-      user,
+      {
+        safeRemainder,
+        details: saleDetails,
+        journal: JOURNALS.INV_SALE,
+        oldMainTr: oldSaleTr,
+        otherTrs: saleOtherTrs,
+        user,
+        followInfos: {
+          saleOutAccountId: safeRemainder.saleRule?.outAccountId,
+          saleCostAccountId: safeRemainder.saleRule?.costAccountId,
+        }
+      }
     );
     await models.SafeRemainders.updateOne(
       { _id: safeRemainder._id },
@@ -277,12 +280,14 @@ const safeRemainderMutations = {
     await safeRemainderUndoTrs(models, incomeTrId);
     await safeRemainderUndoTrs(models, outTrId);
     await safeRemainderUndoTrs(models, saleTrId);
-    await models.SafeRemainders.updateOne(
-      { _id: safeRemainder._id },
+    await models.SafeRemainders.updateRemainder(
       {
-        $unset: { incomeTrId: '', outTrId: '', saleTrId: '' },
-        $set: { status: SAFE_REMAINDER_STATUSES.DONE },
-      },
+        _id: safeRemainder._id,
+        incomeTrId: '', outTrId: '', saleTrId: '',
+        status: SAFE_REMAINDER_STATUSES.DONE
+
+      }, 
+      user._id
     );
     return await models.SafeRemainders.getRemainder(_id);
   },

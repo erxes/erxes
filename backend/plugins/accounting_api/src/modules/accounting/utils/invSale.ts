@@ -10,8 +10,8 @@ import { createOrUpdateTr } from './utils';
 class InvSaleOutCostTrs {
   private readonly models: IModels;
   private readonly trDoc: ITransaction;
-  private outAccount: IAccountDocument;
-  private costAccount: IAccountDocument;
+  private outAccount?: IAccountDocument;
+  private costAccount?: IAccountDocument;
 
   constructor(
     models: IModels,
@@ -31,12 +31,12 @@ class InvSaleOutCostTrs {
     const outAccount = accounts.find(a => a._id === saleOutAccountId)
     const costAccount = accounts.find(a => a._id === saleCostAccountId)
 
-    if (!outAccount?._id || !costAccount?._id) {
-      throw new Error('Not found sale Out Account or Cost Account')
-    }
-
     this.outAccount = outAccount;
     this.costAccount = costAccount;
+
+    if (!this.outAccount || !this.costAccount) {
+      throw new Error('Not found sale Out Account or Cost Account')
+    }
   }
 
   private async cleanFollowTrs(oldTrs: ITransactionDocument[]) {
@@ -86,7 +86,7 @@ class InvSaleOutCostTrs {
     const followOutDetails: ITrDetail[] = [];
     const followCostDetails: ITrDetail[] = [];
 
-    const costs = await activeCost(this.models, this.outAccount._id, transaction.branchId, transaction.departmentId, details.map(d => d.productId));
+    const costs = await activeCost(this.models, this.outAccount?._id ?? '', transaction.branchId, transaction.departmentId, details.map(d => d.productId));
 
     for (const detail of details) {
       const oldOutDetail = oldFollowOutTr?.details.find(oldDet => oldDet.originId === detail._id);
@@ -108,7 +108,7 @@ class InvSaleOutCostTrs {
         ...oldOutDetail,
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_OUT,
-        accountId: this.outAccount._id,
+        accountId: this.outAccount?._id ?? '',
         side: TR_SIDES.CREDIT
       })
 
@@ -116,7 +116,7 @@ class InvSaleOutCostTrs {
         ...oldCostDetail,
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_COST,
-        accountId: this.costAccount._id,
+        accountId: this.costAccount?._id ?? '',
         side: TR_SIDES.DEBIT
       })
     }

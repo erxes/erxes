@@ -41,7 +41,7 @@ const transactionsMutations = {
     { parentId, ptrId }: { parentId: string, ptrId: string },
     { models }: IContext,
   ) {
-    const removed = await models.Transactions.removePTransaction(parentId, ptrId);
+    const removed = await models.Transactions.removePTransaction({ parentId, ptrId });
 
     return removed;
   },
