@@ -4,6 +4,11 @@ import { ILogDoc } from '@/logs/types';
 import { LogLoading } from '@/logs/components/LogLoading';
 import { IconFileX } from '@tabler/icons-react';
 
+interface LogDetailProviderProps {
+  readonly logId: string;
+  readonly children: React.ReactNode;
+}
+
 interface LogDetailContextType {
   detail: ILogDoc;
   loading: boolean;
@@ -15,10 +20,7 @@ const LogDetailContext = createContext<LogDetailContextType | null>(null);
 export function LogDetailProvider({
   logId,
   children,
-}: {
-  logId: string;
-  children: React.ReactNode;
-}) {
+}: LogDetailProviderProps) {
   const { detail, loading, error } = useLogDetail(logId);
 
   if (loading) {
