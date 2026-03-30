@@ -40,10 +40,11 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   removeTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTransaction(_id: string): Promise<string>;
   removePTransaction({
-    parentId, ptrId
+    parentId,
+    ptrId,
   }: {
-    parentId?: string,
-    ptrId?: string,
+    parentId?: string;
+    ptrId?: string;
   }): Promise<{ n: number; ok: number }>;
 }
 
@@ -361,7 +362,13 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       return 'success';
     }
 
-    public static async removePTransaction({ parentId, ptrId }: { parentId?: string, ptrId?: string }) {
+    public static async removePTransaction({
+      parentId,
+      ptrId,
+    }: {
+      parentId?: string;
+      ptrId?: string;
+    }) {
       const $or: any = [];
       if (parentId) {
         $or.push({ parentId });

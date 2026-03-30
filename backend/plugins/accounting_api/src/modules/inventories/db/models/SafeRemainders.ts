@@ -1,8 +1,6 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import {
-  SAFE_REMAINDER_STATUSES,
-} from '../../@types/constants';
+import { SAFE_REMAINDER_STATUSES } from '../../@types/constants';
 import {
   ISafeRemainder,
   ISafeRemainderDocument,

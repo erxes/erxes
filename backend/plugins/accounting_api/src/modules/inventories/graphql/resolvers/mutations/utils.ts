@@ -7,11 +7,23 @@ import {
   ACCOUNT_JOURNALS,
   TR_SIDES,
 } from '~/modules/accounting/@types/constants';
-import { ITransaction, ITransactionDocument, ITrDetail } from '~/modules/accounting/@types/transaction';
+import {
+  ITransaction,
+  ITransactionDocument,
+  ITrDetail,
+} from '~/modules/accounting/@types/transaction';
 import { SAFE_REMAINDER_ITEM_STATUSES } from '~/modules/inventories/@types/constants';
-import { ISafeRemainderDocument, IUpdateRemaindersParams } from '~/modules/inventories/@types/safeRemainders';
+import {
+  ISafeRemainderDocument,
+  IUpdateRemaindersParams,
+} from '~/modules/inventories/@types/safeRemainders';
 
-export const setSafeRemItems = async (subdomain: string, models: IModels, safeRemainder: ISafeRemainderDocument, userId: string) => {
+export const setSafeRemItems = async (
+  subdomain: string,
+  models: IModels,
+  safeRemainder: ISafeRemainderDocument,
+  userId: string,
+) => {
   let productFilter: any = {};
   const { productCategoryId, branchId, departmentId } = safeRemainder;
 
@@ -56,7 +68,7 @@ export const setSafeRemItems = async (subdomain: string, models: IModels, safeRe
     departmentId,
     'details.accountId': { $in: invAccountIds },
     'details.productId': { $in: allProductIds },
-    date: { $lte: safeRemainder.date }
+    date: { $lte: safeRemainder.date },
   };
 
   const lastAdjInv = await models.AdjustInventories.findOne({
@@ -112,7 +124,10 @@ export const setSafeRemItems = async (subdomain: string, models: IModels, safeRe
   for (const product of products) {
     order++;
     const productId = product._id;
-    const newInfo = inventoryByProductId[productId] ?? { remainder: 0, cost: 0 };
+    const newInfo = inventoryByProductId[productId] ?? {
+      remainder: 0,
+      cost: 0,
+    };
 
     bulkOps.push({
       updateOne: {
@@ -131,14 +146,14 @@ export const setSafeRemItems = async (subdomain: string, models: IModels, safeRe
               $cond: [
                 {
                   $and: [
-                    { $eq: ["$status", SAFE_REMAINDER_ITEM_STATUSES.NEW] },
-                    { $eq: ["$preCount", "$count"] }
-                  ]
+                    { $eq: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW] },
+                    { $eq: ['$preCount', '$count'] },
+                  ],
                 },
                 newInfo.remainder,
-                "$count"
-              ]
-            }
+                '$count',
+              ],
+            },
           },
           $setOnInsert: {
             remainderId: safeRemainder._id,
@@ -147,7 +162,7 @@ export const setSafeRemItems = async (subdomain: string, models: IModels, safeRe
             departmentId: safeRemainder.departmentId,
             status: SAFE_REMAINDER_ITEM_STATUSES.NEW,
             uom: product.uom,
-          }
+          },
         },
         upsert: true,
       },
@@ -162,7 +177,7 @@ export const setSafeRemItems = async (subdomain: string, models: IModels, safeRe
   if (bulkOps.length) {
     await models.SafeRemainderItems.bulkWrite(bulkOps, { ordered: false });
   }
-}
+};
 
 export const safeRemainderDoTrs = async (
   models: IModels,
@@ -173,16 +188,16 @@ export const safeRemainderDoTrs = async (
     oldMainTr,
     otherTrs,
     user,
-    followInfos
+    followInfos,
   }: {
-    safeRemainder: ISafeRemainderDocument,
-    details: ITrDetail[],
-    journal: string,
-    oldMainTr?: ITransactionDocument,
-    otherTrs?: ITransactionDocument[],
-    user: IUserDocument,
-    followInfos?: any
-  }
+    safeRemainder: ISafeRemainderDocument;
+    details: ITrDetail[];
+    journal: string;
+    oldMainTr?: ITransactionDocument;
+    otherTrs?: ITransactionDocument[];
+    user: IUserDocument;
+    followInfos?: any;
+  },
 ) => {
   if (!oldMainTr && !details.length) {
     return;
@@ -190,7 +205,9 @@ export const safeRemainderDoTrs = async (
 
   if (oldMainTr && !details.length) {
     // remove
-    await models.Transactions.removePTransaction({ parentId: oldMainTr.parentId });
+    await models.Transactions.removePTransaction({
+      parentId: oldMainTr.parentId,
+    });
     return;
   }
 
@@ -203,7 +220,7 @@ export const safeRemainderDoTrs = async (
     contentType: 'safeRem',
     contentId: safeRemainder._id,
     details,
-    followInfos
+    followInfos,
   };
 
   if (!oldMainTr) {
@@ -347,7 +364,10 @@ export const updateLiveRemainders = async ({
       product.inventories?.[branchId]?.[departmentId]?.remainder ?? 0;
     const productCost =
       product.inventories?.[branchId]?.[departmentId]?.cost ?? 0;
-    const newInfo = inventoryByProductId[productId] || { remainder: 0, cost: 0 };
+    const newInfo = inventoryByProductId[productId] || {
+      remainder: 0,
+      cost: 0,
+    };
 
     if (
       productRemainder === newInfo.remainder &&

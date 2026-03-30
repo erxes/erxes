@@ -2,8 +2,17 @@ import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { IAccountDocument } from '../@types/account';
-import { JOURNALS, TR_DETAIL_FOLLOW_TYPES, TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
-import { ITransaction, ITransactionDocument, ITrDetail } from '../@types/transaction';
+import {
+  JOURNALS,
+  TR_DETAIL_FOLLOW_TYPES,
+  TR_FOLLOW_TYPES,
+  TR_SIDES,
+} from '../@types/constants';
+import {
+  ITransaction,
+  ITransactionDocument,
+  ITrDetail,
+} from '../@types/transaction';
 import { activeCost } from './inventories';
 import { createOrUpdateTr } from './utils';
 
@@ -13,10 +22,7 @@ class InvSaleOutCostTrs {
   private outAccount?: IAccountDocument;
   private costAccount?: IAccountDocument;
 
-  constructor(
-    models: IModels,
-    trDoc: ITransaction
-  ) {
+  constructor(models: IModels, trDoc: ITransaction) {
     this.models = models;
     this.trDoc = trDoc;
   }
@@ -24,18 +30,20 @@ class InvSaleOutCostTrs {
   public async checkValidation() {
     const { saleOutAccountId, saleCostAccountId } = this.trDoc.followInfos;
     if (!saleOutAccountId || !saleCostAccountId) {
-      throw new Error('Must fill sale Out Account and Cost Account')
+      throw new Error('Must fill sale Out Account and Cost Account');
     }
 
-    const accounts = await this.models.Accounts.find({ _id: { $in: [saleOutAccountId, saleCostAccountId] } });
-    const outAccount = accounts.find(a => a._id === saleOutAccountId)
-    const costAccount = accounts.find(a => a._id === saleCostAccountId)
+    const accounts = await this.models.Accounts.find({
+      _id: { $in: [saleOutAccountId, saleCostAccountId] },
+    });
+    const outAccount = accounts.find((a) => a._id === saleOutAccountId);
+    const costAccount = accounts.find((a) => a._id === saleCostAccountId);
 
     this.outAccount = outAccount;
     this.costAccount = costAccount;
 
     if (!this.outAccount || !this.costAccount) {
-      throw new Error('Not found sale Out Account or Cost Account')
+      throw new Error('Not found sale Out Account or Cost Account');
     }
   }
 
@@ -49,7 +57,9 @@ class InvSaleOutCostTrs {
     }
 
     const oldTr = oldTrs.shift();
-    await this.models.Transactions.deleteMany({ _id: { $in: oldTrs.map(otr => otr._id) } });
+    await this.models.Transactions.deleteMany({
+      _id: { $in: oldTrs.map((otr) => otr._id) },
+    });
     return oldTr;
   }
 
@@ -57,12 +67,18 @@ class InvSaleOutCostTrs {
     const { details } = transaction;
 
     const oldFollowOutTrs = await this.models.Transactions.find({
-      originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_SALE_OUT
-    }).sort({ createdAt: -1 }).lean();
+      originId: transaction._id,
+      originType: TR_FOLLOW_TYPES.INV_SALE_OUT,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
     const oldFollowCostTrs = await this.models.Transactions.find({
-      originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_SALE_COST
-    }).sort({ createdAt: -1 }).lean();
+      originId: transaction._id,
+      originType: TR_FOLLOW_TYPES.INV_SALE_COST,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
     const oldFollowOutTr = await this.cleanFollowTrs(oldFollowOutTrs);
     const oldFollowCostTr = await this.cleanFollowTrs(oldFollowCostTrs);
@@ -80,20 +96,30 @@ class InvSaleOutCostTrs {
       departmentId: transaction.departmentId,
       customerType: transaction.customerType,
       customerId: transaction.customerId,
-      details: []
-    }
+      details: [],
+    };
 
     const followOutDetails: ITrDetail[] = [];
     const followCostDetails: ITrDetail[] = [];
 
-    const costs = await activeCost(this.models, this.outAccount?._id ?? '', transaction.branchId, transaction.departmentId, details.map(d => d.productId));
+    const costs = await activeCost(
+      this.models,
+      this.outAccount?._id ?? '',
+      transaction.branchId,
+      transaction.departmentId,
+      details.map((d) => d.productId),
+    );
 
     for (const detail of details) {
-      const oldOutDetail = oldFollowOutTr?.details.find(oldDet => oldDet.originId === detail._id);
-      const oldCostDetail = oldFollowCostTr?.details.find(oldDet => oldDet.originId === detail._id);
+      const oldOutDetail = oldFollowOutTr?.details.find(
+        (oldDet) => oldDet.originId === detail._id,
+      );
+      const oldCostDetail = oldFollowCostTr?.details.find(
+        (oldDet) => oldDet.originId === detail._id,
+      );
 
       const cost = costs[detail.productId] || {};
-      const unitPrice = cost?.totalCost / (cost?.remainder ?? 1)
+      const unitPrice = cost?.totalCost / (cost?.remainder ?? 1);
       const amount = fixNum(unitPrice * detail.count, 4);
 
       const commonDetail = {
@@ -101,44 +127,48 @@ class InvSaleOutCostTrs {
         productId: detail.productId,
         count: detail.count,
         amount,
-        unitPrice: amount / (detail.count ?? 1)
-      }
+        unitPrice: amount / (detail.count ?? 1),
+      };
 
       followOutDetails.push({
         ...oldOutDetail,
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_OUT,
         accountId: this.outAccount?._id ?? '',
-        side: TR_SIDES.CREDIT
-      })
+        side: TR_SIDES.CREDIT,
+      });
 
       followCostDetails.push({
         ...oldCostDetail,
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_COST,
         accountId: this.costAccount?._id ?? '',
-        side: TR_SIDES.DEBIT
-      })
+        side: TR_SIDES.DEBIT,
+      });
     }
 
     const outTrDoc: ITransaction = {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_SALE_OUT,
       journal: JOURNALS.INV_SALE_OUT,
-      details: followOutDetails
-    }
+      details: followOutDetails,
+    };
 
     const costTrDoc: ITransaction = {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_SALE_COST,
       journal: JOURNALS.INV_SALE_COST,
-      details: followCostDetails
-    }
+      details: followCostDetails,
+    };
 
     const outTr = await createOrUpdateTr(this.models, outTrDoc, oldFollowOutTr);
-    const costTr = await createOrUpdateTr(this.models, costTrDoc, oldFollowCostTr);
+    const costTr = await createOrUpdateTr(
+      this.models,
+      costTrDoc,
+      oldFollowCostTr,
+    );
 
-    return [outTr, costTr]
+    return [outTr, costTr];
   }
 }
 
