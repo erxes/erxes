@@ -3,7 +3,7 @@ import { IconCube } from '@tabler/icons-react';
 
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader } from 'ui-modules';
 
 export const DocumentsHeader = () => {
   return (
@@ -26,7 +26,9 @@ export const DocumentsHeader = () => {
       </PageHeader.Start>
 
       <PageHeader.End>
-        <DocumentSheet />
+        <Can action="manageDocuments">
+          <DocumentSheet />
+        </Can>
       </PageHeader.End>
     </PageHeader>
   );

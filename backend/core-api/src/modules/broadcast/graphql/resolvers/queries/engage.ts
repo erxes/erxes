@@ -244,14 +244,22 @@ export const engageQueries = {
       isActive: true,
     };
 
-    if (isVerified) {
-      const verifiedEmails: any = await awsRequests.getVerifiedEmails(models);
+    const verifiedEmails: any = await awsRequests.getVerifiedEmails(models);
 
+    if (isVerified) {
       query.email = { $in: verifiedEmails || [] };
     }
 
     if (searchValue) {
       query.email = { $regex: searchValue, $options: '$i' };
+    }
+
+    if (isVerified && searchValue) {
+      query.email = {
+        $in: verifiedEmails || [],
+        $regex: searchValue,
+        $options: 'i'
+      };
     }
 
     return await cursorPaginate({

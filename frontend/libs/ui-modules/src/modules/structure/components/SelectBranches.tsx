@@ -408,6 +408,35 @@ export const SelectBranchesCommandbarItem = ({
   );
 };
 
+export const SelectBranchesComboboxItem = ({
+  onValueChange,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> & {
+  className?: string;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  return (
+    <SelectBranchesProvider
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <SelectBranchesValue />
+        </Combobox.Trigger>
+
+        <Combobox.Content>
+          <SelectBranchesContent />
+        </Combobox.Content>
+      </Popover>
+    </SelectBranchesProvider>
+  );
+};
+
 export const SelectBranchesFormItem = ({
   onValueChange,
   className,
@@ -539,6 +568,7 @@ export const SelectBranches = Object.assign(SelectBranchesProvider, {
   Value: SelectBranchesValue,
   List: BranchesList,
   InlineCell: SelectBranchesInlineCell,
+  ComboboxItem: SelectBranchesComboboxItem,
   FormItem: SelectBranchesFormItem,
   FilterItem: SelectBranchesFilterItem,
   FilterView: SelectBranchesFilterView,

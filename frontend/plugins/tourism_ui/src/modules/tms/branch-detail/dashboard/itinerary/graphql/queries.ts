@@ -28,7 +28,7 @@ export const GET_ITINERARIES = gql`
         branchId
         name
         duration
-        color
+        images
         guideCost
         driverCost
         foodCost
@@ -38,6 +38,8 @@ export const GET_ITINERARIES = gql`
         totalCost
         createdAt
         modifiedAt
+        content
+        color
       }
       pageInfo {
         hasNextPage
@@ -72,7 +74,8 @@ export const GET_ITINERARY_DETAIL = gql`
         images
         title
       }
-      color
+      images
+      content
       foodCost
       personCost
       gasCost
@@ -81,6 +84,7 @@ export const GET_ITINERARY_DETAIL = gql`
       guideCostExtra
       createdAt
       modifiedAt
+      color
     }
   }
 `;

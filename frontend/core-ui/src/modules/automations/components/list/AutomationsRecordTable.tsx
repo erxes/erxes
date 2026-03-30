@@ -11,13 +11,12 @@ import {
   Kbd,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
 import { AutomationRecordTableCommandBar } from '@/automations/components/list/AutomationRecordTableCommandBar';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Can, PageHeader, usePermissionCheck } from 'ui-modules';
 
 export const AutomationsRecordTable = () => {
   const {
@@ -32,10 +31,18 @@ export const AutomationsRecordTable = () => {
   const { t } = useTranslation('automations');
   const columns = useMemo(() => getAutomationColumns(t), [t]);
   const navigate = useNavigate();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canCreateAutomation =
+    isLoaded && hasActionPermission('automationsCreate');
+
   useScopedHotkeys(
     `c`,
-    () => navigate('/automations/create'),
+    () => {
+      if (!canCreateAutomation) return;
+      navigate('/automations/create');
+    },
     AutomationsHotKeyScope.AutomationsPage,
+    [canCreateAutomation, navigate],
   );
   if (loading) {
     return <Spinner />;
@@ -64,12 +71,14 @@ export const AutomationsRecordTable = () => {
               {t('go-to-settings')}
             </Link>
           </Button>
-          <Button asChild>
-            <Link to={'/automations/create'}>
-              {t('create')}
-              <Kbd>C</Kbd>
-            </Link>
-          </Button>
+          <Can action="automationsCreate">
+            <Button asChild>
+              <Link to={'/automations/create'}>
+                {t('create')}
+                <Kbd>C</Kbd>
+              </Link>
+            </Button>
+          </Can>
         </PageHeader.End>
       </PageHeader>
       <AutomationRecordTableFilters loading={loading} totalCount={totalCount} />

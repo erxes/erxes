@@ -39,6 +39,7 @@ export const TasksMoreColumnCell = ({
 
 export const tasksMoreColumn = {
   id: 'more',
+  header: RecordTable.ColumnSelector,
   cell: TasksMoreColumnCell,
   size: 33,
 };

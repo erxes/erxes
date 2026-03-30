@@ -5,6 +5,7 @@ import {
   AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
+  internalNoteCustomActivity,
 } from 'ui-modules';
 import { dealCustomActivities } from './DealActivityRows';
 import { Empty, FocusSheet, ScrollArea, Tabs, useQueryState } from 'erxes-ui';

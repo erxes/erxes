@@ -1,4 +1,4 @@
-import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
+import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconShieldCog } from '@tabler/icons-react';
@@ -22,7 +22,9 @@ export function AppsHeader() {
         </Breadcrumb>
       </PageHeaderStart>
       <PageHeaderEnd>
-        <CreateApp />
+        <Can action="appsManage">
+          <CreateApp />
+        </Can>
       </PageHeaderEnd>
     </PageHeader>
   );

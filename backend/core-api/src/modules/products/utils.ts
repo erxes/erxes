@@ -29,7 +29,7 @@ export const checkCodeMask = (category?: IProductCategory, code?: string) => {
     }
 
     if (value.type === 'char') {
-      maskList.push(value.char.replace(/./g, '\\.'));
+      maskList.push(value.char.replaceAll('.', String.raw`\.`));
     }
 
     if (value.type === 'customField' && value.matches) {
@@ -56,8 +56,8 @@ export const initCustomField = async (
 ) => {
   if (!category?.maskType || !category.mask?.values) {
     const propertiesData = {
-      ...(productPropertiesData || {}),
-      ...(docPropertiesData || {}),
+      ...productPropertiesData,
+      ...docPropertiesData,
     };
 
     if (Object.keys(propertiesData)?.length) {
@@ -68,7 +68,7 @@ export const initCustomField = async (
   }
 
   let strInd = 0;
-  let maskPropertiesData: IPropertyField = {};
+  const maskPropertiesData: IPropertyField = {};
 
   for (const value of category.mask.values || []) {
     const len = Number(value.len);
@@ -90,8 +90,8 @@ export const initCustomField = async (
   }
 
   const propertiesData = {
-    ...(productPropertiesData || {}),
-    ...(docPropertiesData || {}),
+    ...productPropertiesData,
+    ...docPropertiesData,
     ...maskPropertiesData,
   };
 
@@ -103,9 +103,8 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
     return undefined;
   }
 
-  const similarityGroups = await models.ProductsConfigs.getConfig(
-    'similarityGroup',
-  );
+  const similarityGroups =
+    await models.ProductsConfigs.getConfig('similarityGroup');
 
   if (!similarityGroups) {
     return undefined;
@@ -122,13 +121,13 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
 
     const codeRegex = ['*', '.', '_'].includes(mask)
       ? new RegExp(
-          `^${mask
-            .replace(/\./g, '\\.')
-            .replace(/\*/g, '.')
-            .replace(/_/g, '.')}.*`,
+          String.raw`^${mask
+            .replaceAll('.', String.raw`\.`)
+            .replaceAll('*', '.')
+            .replaceAll('_', '.')}.*`,
           'igu',
         )
-      : new RegExp(`.*${mask}.*`, 'igu');
+      : new RegExp(String.raw`.*${mask}.*`, 'igu');
 
     const filterFieldVal = filterFieldDef.includes('customFieldsData.')
       ? (

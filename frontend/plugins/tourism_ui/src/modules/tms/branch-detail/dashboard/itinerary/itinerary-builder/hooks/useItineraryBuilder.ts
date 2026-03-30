@@ -67,6 +67,13 @@ export const useItineraryBuilder = ({
     [groupDays, setValue],
   );
 
+  const handleReorderElements = useCallback(
+    (dayIndex: number, reorderedElementIds: string[]) => {
+      setValue(`groupDays.${dayIndex}.elements`, reorderedElementIds);
+    },
+    [setValue],
+  );
+
   const handleAddDay = useCallback(() => {
     const newDay = {
       title: '',
@@ -94,6 +101,7 @@ export const useItineraryBuilder = ({
     handleDragEnd,
     handleDrop,
     handleRemoveElement,
+    handleReorderElements,
     handleAddDay,
     handleRemoveDay,
   };

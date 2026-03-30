@@ -12,7 +12,7 @@ export function Teams() {
     navigate(`/settings/operation/team/details/${teamId}`);
   };
   return (
-    <div className="overflow-auto h-full px-8">
+    <div className="overflow-auto h-full px-8 pb-4">
       <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
         <Table>
           <Table.Header>

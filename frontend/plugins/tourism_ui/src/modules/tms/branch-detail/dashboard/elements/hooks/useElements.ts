@@ -45,6 +45,7 @@ export const useElements = (
 
   const variables: ElementsQueryVariables = {
     orderBy: { createdAt: -1 },
+    quick: false,
     ...(options?.variables || {}),
     cursor,
     limit: ELEMENTS_PER_PAGE,

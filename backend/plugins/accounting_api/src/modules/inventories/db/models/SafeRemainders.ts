@@ -35,7 +35,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
      * @returns Found object
      */
     public static async getRemainder(_id: string) {
-      const result: any = await models.SafeRemainders.findById(_id);
+      const result: any = await models.SafeRemainders.findOne({ _id });
 
       if (!result) throw new Error('Safe remainder not found!');
 
@@ -146,13 +146,12 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
      * @param _id Safe remainder ID
      * @returns updated response
      */
-    public static async updateRemainder({
-      _id,
-      description,
-      incomeRule,
-      outRule,
-      saleRule,
-    }: ISafeRemEditFields & { _id: string }) {
+    public static async updateRemainder(
+      _subdomain: string,
+      params: ISafeRemEditFields & { _id: string },
+      userId: string,
+    ) {
+      const { _id, description, incomeRule, outRule, saleRule } = params;
       const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
       if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
@@ -167,6 +166,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
             incomeRule: { ...safeRemainder.incomeRule, ...incomeRule },
             outRule: { ...safeRemainder.outRule, ...outRule },
             saleRule: { ...safeRemainder.saleRule, ...saleRule },
+            modifiedBy: userId,
           },
         },
       );

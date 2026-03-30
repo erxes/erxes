@@ -343,7 +343,7 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
-      name: 'broadcast',
+      name: 'broadcasts',
       description: 'Broadcast & engage message management',
       scopeField: null,
       ownerFields: ['createdBy'],
