@@ -1186,10 +1186,6 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       try {
         const fields = ['get_started', 'persistent_menu'];
 
-        if (Boolean(bot.greetText)) {
-          fields.push('greeting');
-        }
-
         await graphRequest.delete('/me/messenger_profile', pageAccessToken, {
           fields,
           access_token: pageAccessToken,
