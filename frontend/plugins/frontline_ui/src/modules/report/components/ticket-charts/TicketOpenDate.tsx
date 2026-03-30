@@ -113,7 +113,6 @@ export const TicketOpenDate = ({
     totalCount,
     handlePrev,
     handleNext,
-    hasMultiplePages,
   } = useChartPagination(allData);
 
   const exportColumns = useMemo(
