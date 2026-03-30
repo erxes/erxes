@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View } from '@react-pdf/renderer';
 import { COLORS } from './styles';
+import { PDF_FONT_FAMILY } from './fonts';
 import { stripHtml } from './utils';
 
 interface ParsedNode {
@@ -19,11 +20,12 @@ const BASE_STYLE = {
   fontSize: 9,
   color: COLORS.text,
   lineHeight: 1.7,
-  fontFamily: 'Helvetica',
+  fontFamily: PDF_FONT_FAMILY,
 } as const;
 
 const BOLD_STYLE = {
-  fontFamily: 'Helvetica-Bold' as const,
+  fontFamily: PDF_FONT_FAMILY,
+  fontWeight: 'bold' as const,
 };
 
 const PARAGRAPH_SPACING = {
