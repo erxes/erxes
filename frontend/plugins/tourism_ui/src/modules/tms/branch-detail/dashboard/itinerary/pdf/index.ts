@@ -1,4 +1,5 @@
 export { ItineraryPDF } from './ItineraryPDF';
+export { registerPdfFonts, PDF_FONT_FAMILY } from './fonts';
 export { ExportPDFButton } from './ExportPDFButton';
 export { CoverPage } from './CoverPage';
 export { DayBlock } from './DayBlock';
