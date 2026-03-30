@@ -6,7 +6,7 @@ import {
 } from 'erxes-ui';
 
 const productsMain = gql`
-  query ProductsMain(
+  query ProductsRemainderMain(
     $type: String
     $categoryIds: [String]
     $searchValue: String

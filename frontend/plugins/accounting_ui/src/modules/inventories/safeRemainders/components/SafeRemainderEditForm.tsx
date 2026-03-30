@@ -1,6 +1,5 @@
 import { JournalEnum } from '@/settings/account/types/Account';
 import { zodResolver } from '@hookform/resolvers/zod';
-import deepEqual from 'deep-equal';
 import { Button, Dialog, Form, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -22,17 +21,11 @@ export const EditSafeRemainder = () => {
     skip: !id,
   });
 
-  const { reset } = form;
-
   useEffect(() => {
-    // Only reset if configs are different from current form values
-    const currentValues = form.getValues();
-    const hasChanges = !deepEqual(safeRemainder, currentValues);
-
-    if (hasChanges) {
-      reset({ ...safeRemainder });
+    if (safeRemainder) {
+      form.reset({ ...safeRemainder });
     }
-  }, [safeRemainder, reset, form]);
+  }, [safeRemainder, form]);
 
   const { submitSafeRemainder, loading } = useSafeRemainderEdit(id || '');
   const onSubmit = (data: TSafeRemainderEditForm) => {
