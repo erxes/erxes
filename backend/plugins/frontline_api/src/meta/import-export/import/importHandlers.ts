@@ -35,9 +35,7 @@ export const ticketImportHandlers = {
     const handler =
       ticketImportMap[collectionName as keyof typeof ticketImportMap];
     if (!handler)
-      throw new Error(
-        `Import headers handler not found for ${collectionName}`,
-      );
+      throw new Error(`Import headers handler not found for ${collectionName}`);
     return handler.headers;
   },
   insertImportRows: async (

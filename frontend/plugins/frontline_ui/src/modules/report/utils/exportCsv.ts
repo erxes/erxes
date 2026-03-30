@@ -70,7 +70,10 @@ export async function generateTicketExcel(tickets: TicketExportItem[]) {
   return buffer;
 }
 
-export function downloadExcel(buffer: ArrayBuffer | ExcelJS.Buffer, filename: string) {
+export function downloadExcel(
+  buffer: ArrayBuffer | ExcelJS.Buffer,
+  filename: string,
+) {
   const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
