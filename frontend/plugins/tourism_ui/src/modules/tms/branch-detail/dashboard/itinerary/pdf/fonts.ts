@@ -4,7 +4,7 @@ export const PDF_FONT_FAMILY = 'NotoSans';
 export const PDF_FONT_FAMILY_BOLD = 'NotoSans';
 
 const NOTO_SANS_BASE =
-  'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/notosans';
+  'https://cdn.jsdelivr.net/gh/google/fonts@30e44882f1cfcd17627d5342a93c168849ef773f/ofl/notosans';
 
 const FONT_URLS = {
   regular: `${NOTO_SANS_BASE}/NotoSans%5Bwdth%2Cwght%5D.ttf`,
