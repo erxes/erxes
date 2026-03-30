@@ -39,6 +39,7 @@ export const GET_ITINERARIES = gql`
         createdAt
         modifiedAt
         content
+        color
       }
       pageInfo {
         hasNextPage
@@ -83,6 +84,7 @@ export const GET_ITINERARY_DETAIL = gql`
       guideCostExtra
       createdAt
       modifiedAt
+      color
     }
   }
 `;

@@ -29,6 +29,7 @@ export interface IEditItineraryVariables {
   personCost?: Record<string, number>;
   guideCostExtra?: number;
   content?: string;
+  color?: string;
 }
 
 export const useEditItinerary = () => {
