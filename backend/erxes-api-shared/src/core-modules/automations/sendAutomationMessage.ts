@@ -12,7 +12,7 @@ type TSendAutomationTriggerProps = {
   jobOptions?: DefaultJobOptions;
 };
 
-export const sendAutomationTrigger = async (
+export const sendAutomationTrigger = (
   subdomain: string,
   {
     type,
@@ -30,48 +30,64 @@ export const sendAutomationTrigger = async (
     recordType?: 'new' | 'existing';
   },
   { transport = 'bullmq', jobOptions }: TSendAutomationTriggerProps = {},
-) => {
+): void => {
   if (transport === 'trpc') {
-    const address = await redis.get('erxes-service-automations');
-    const trpcUrl = address ? `${address}/trpc` : null;
+    redis
+      .get('erxes-service-automations')
+      .then((address) => {
+        const trpcUrl = address ? `${address}/trpc` : null;
 
-    if (!trpcUrl) {
-      throw new Error(
-        'Missing trpcUrl for sendAutomationTrigger. Provide props.trpcUrl or ensure service discovery has erxes-service-automations set.',
-      );
-    }
+        if (!trpcUrl) {
+          throw new Error(
+            'Missing trpcUrl for sendAutomationTrigger. Provide props.trpcUrl or ensure service discovery has erxes-service-automations set.',
+          );
+        }
 
-    const contextHeader = encodeTRPCContextHeader(subdomain, 'mutation', {});
+        const contextHeader = encodeTRPCContextHeader(
+          subdomain,
+          'mutation',
+          {},
+        );
 
-    const client = createTRPCUntypedClient({
-      links: [
-        httpBatchLink({
-          url: trpcUrl,
-          headers: () => ({
-            [trpcContextHeaderName]: contextHeader,
-          }),
-        }),
-      ],
-    });
+        const client = createTRPCUntypedClient({
+          links: [
+            httpBatchLink({
+              url: trpcUrl,
+              headers: () => ({
+                [trpcContextHeaderName]: contextHeader,
+              }),
+            }),
+          ],
+        });
 
-    const result = (await client.mutation('automations.trigger', {
-      type,
-      targets,
-      repeatOptions,
-      recordType,
-    })) as { id: string } | null;
-
-    return result?.id || null;
+        client
+          .mutation('automations.trigger', {
+            type,
+            targets,
+            repeatOptions,
+            recordType,
+          })
+          .catch((error) => {
+            console.error('Error sending  trpc request ', error);
+          });
+      })
+      .catch((error) => {
+        console.error('Error sending  trpc request ', error);
+      });
   }
 
   const queue = sendWorkerQueue('automations', 'trigger');
-  const job = await queue.add(
-    'trigger',
-    {
-      subdomain,
-      data: { type, targets, repeatOptions, recordType },
-    },
-    jobOptions,
-  );
-  return job.id;
+
+  void queue
+    .add(
+      'trigger',
+      {
+        subdomain,
+        data: { type, targets, repeatOptions, recordType },
+      },
+      jobOptions,
+    )
+    .catch((error) => {
+      console.error('Error adding job to queue:', error);
+    });
 };

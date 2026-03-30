@@ -3,7 +3,7 @@ import {
   TMessageActionForm,
 } from '../../states/replyMessageActionForm';
 import { AutomationActionNodeConfigProps, TAutomationAction } from 'ui-modules';
-import { TMessageTriggerForm } from '~/widgets/automations/modules/facebook/components/trigger/states/messageTriggerFormSchema';
+import { TMessageTriggerForm } from '~/widgets/automations/modules/facebook/components/trigger/types/messageTrigger';
 import { ActionMessageCard } from './ActionMessageCard';
 
 export const ActionMessageConfigContent = ({

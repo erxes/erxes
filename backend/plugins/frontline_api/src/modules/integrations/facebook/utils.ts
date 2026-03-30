@@ -110,7 +110,7 @@ export const createAWS = async (subdomain: string) => {
 
 // Define a simple in-memory cache (outside the function scope)
 
-type UploadConfig = { AWS_BUCKET?: string;[k: string]: any } | null;
+type UploadConfig = { AWS_BUCKET?: string; [k: string]: any } | null;
 let cachedUploadConfig: UploadConfig = null;
 let fetchUploadConfigPromise: Promise<UploadConfig | null> | null = null;
 let lastFetchTime = 0;
@@ -121,8 +121,9 @@ export const uploadMedia = async (
   url: string,
   video: boolean,
 ) => {
-  const mediaFile = `uploads/${randomAlphanumeric(16)}.${video ? 'mp4' : 'jpg'
-    }`;
+  const mediaFile = `uploads/${randomAlphanumeric(16)}.${
+    video ? 'mp4' : 'jpg'
+  }`;
 
   // 1. Ensure we have cachedUploadConfig (with promise-based concurrency control)
   if (!cachedUploadConfig) {
@@ -289,6 +290,8 @@ export const refreshPageAccessToken = async (
 
   facebookPageTokensMap[pageId] = pageAccessToken;
 
+  await models.FacebookBots.updatePageToken(pageId, pageAccessToken);
+
   await models.FacebookIntegrations.updateOne(
     { _id: integration._id },
     { $set: { facebookPageTokensMap } },
@@ -447,7 +450,8 @@ export const sendReply = async (
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to facebook ${e.message
+      `Error ocurred while trying to send post request to facebook ${
+        e.message
       } data: ${JSON.stringify(data)}`,
     );
 
