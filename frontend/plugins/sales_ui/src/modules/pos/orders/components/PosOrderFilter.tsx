@@ -209,7 +209,7 @@ export const PosOrderFilter = () => {
             mode="single"
             value={customer || ''}
             onValueChange={(value) => {
-              setCustomer(value as string);
+              setCustomer(value);
               setOpen(false);
             }}
           >

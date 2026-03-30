@@ -24,9 +24,14 @@ export const ClickableBillNumber = ({
 
   return (
     <RecordTableInlineCell>
-      <div className="cursor-pointer" onClick={handleClick}>
+      <button
+        type="button"
+        className="cursor-pointer"
+        onClick={handleClick}
+        title={value}
+      >
         <TextOverflowTooltip value={value} />
-      </div>
+      </button>
     </RecordTableInlineCell>
   );
 };

@@ -1,4 +1,8 @@
-import { IconChessKnight } from '@tabler/icons-react';
+import {
+  IconChessKnight,
+  IconTag,
+  IconShoppingCart,
+} from '@tabler/icons-react';
 import {
   Button,
   Sheet,
@@ -16,7 +20,6 @@ import { usePosOrderChangePayments } from '../detail/hooks/usePosOrderChangePaym
 import { SubmitHandler } from 'react-hook-form';
 import { PosOrderForm } from '../detail/PosOrderForm';
 import { ColumnDef } from '@tanstack/table-core';
-import { IconTag, IconShoppingCart } from '@tabler/icons-react';
 import { TPosOrderFormData } from '../types/posOrderType';
 
 const itemColumns: ColumnDef<any>[] = [
@@ -161,8 +164,8 @@ export const PosOrderSheet = () => {
           return;
         }
 
-        const cashAmount = Number((data as any)?.cashAmount) || 0;
-        const mobileAmount = Number((data as any)?.mobileAmount) || 0;
+        const cashAmount = Number(data?.cashAmount) || 0;
+        const mobileAmount = Number(data?.mobileAmount) || 0;
 
         const paidAmounts = Object.entries(data)
           .filter(([key]) => !['cashAmount', 'mobileAmount'].includes(key))
