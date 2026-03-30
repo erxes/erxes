@@ -130,6 +130,15 @@ export const TourCreateFormSchema = z
 
     images: z.array(z.string()).optional(),
     imageThumbnail: z.string().optional(),
+    attachment: z
+      .object({
+        url: z.string(),
+        name: z.string(),
+        type: z.string(),
+        size: z.number(),
+      })
+      .nullable()
+      .optional(),
 
     advancePercent: z.coerce.number().optional(),
     advanceCheck: z.boolean().optional(),
@@ -147,11 +156,11 @@ export const TourCreateFormSchema = z
     (data) => {
       if (!data.isFlexibleDate) {
         if (data.isGroupTour) {
-          // 👥 group tour → multiple start dates only
+          // group tour → multiple start dates only
           return Array.isArray(data.startDate) && data.startDate.length > 0;
         }
 
-        // 🧍 single tour → start + end
+        // single tour → start + end
         return !!data.startDate && !!data.endDate;
       }
       return true;

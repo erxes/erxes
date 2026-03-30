@@ -33,6 +33,7 @@ import {
   TourCategoryField,
   TourImageThumbnailField,
   TourImagesField,
+  TourAttachmentsField,
   TourDateSchedulingField,
   TourPricingOptionsField,
 } from './TourFormFields';
@@ -123,6 +124,7 @@ export const TourEditForm = ({
       info5: '',
       images: [],
       imageThumbnail: '',
+      attachment: null,
       guides: [],
       pricingOptions: [],
     },
@@ -181,6 +183,7 @@ export const TourEditForm = ({
         info5: tour.info5 ?? '',
         images: tour.images ?? [],
         imageThumbnail: tour.imageThumbnail ?? '',
+        attachment: tour.attachment ?? null,
         guides: [],
         pricingOptions: tour.pricingOptions ?? [],
         isFlexibleDate: tour.dateType === 'flexible',
@@ -372,6 +375,7 @@ export const TourEditForm = ({
                 <div className="pt-4 space-y-4 border-t">
                   <TourImageThumbnailField control={form.control} />
                   <TourImagesField control={form.control} />
+                  <TourAttachmentsField control={form.control} />
                 </div>
 
                 <div className="pt-4 space-y-4 border-t">

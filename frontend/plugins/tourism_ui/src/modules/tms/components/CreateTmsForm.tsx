@@ -135,7 +135,7 @@ const CreateTmsForm = ({
   }
 
   return (
-    <Sheet.View className="p-0 w-full max-w-full h-full">
+    <Sheet.View className="p-0 w-[700px] md:w-[700px] sm:max-w-[700px] h-full">
       {isEditMode ? (
         <Sheet.Header>
           <Sheet.Title>Edit Tour Management System</Sheet.Title>

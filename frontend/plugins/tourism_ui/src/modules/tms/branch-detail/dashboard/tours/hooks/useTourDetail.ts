@@ -34,6 +34,12 @@ export interface ITourDetail {
   groupSize?: number;
   imageThumbnail?: string;
   images?: string[];
+  attachment?: {
+    url: string;
+    name: string;
+    type: string;
+    size: number;
+  } | null;
   info1?: string;
   info2?: string;
   info3?: string;
