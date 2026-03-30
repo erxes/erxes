@@ -91,9 +91,7 @@ export const CommentTriggerFilters = ({
           name="checkContent"
           render={({ field }) => (
             <Form.Item className="flex items-center justify-between">
-              <Form.Label>
-                Check comment text contains with keywords
-              </Form.Label>
+              <Form.Label>Check comment text contains with keywords</Form.Label>
               <Form.Control>
                 <Switch
                   checked={field.value}

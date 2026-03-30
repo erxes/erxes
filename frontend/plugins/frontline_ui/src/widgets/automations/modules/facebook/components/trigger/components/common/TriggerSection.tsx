@@ -9,7 +9,9 @@ export const TriggerSection = ({
 }) => {
   return (
     <div className="flex flex-col gap-2 p-4">
-      {title ? <p className="font-semibold text-sm text-muted-foreground">{title}</p> : null}
+      {title ? (
+        <p className="font-semibold text-sm text-muted-foreground">{title}</p>
+      ) : null}
       {children}
     </div>
   );

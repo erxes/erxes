@@ -312,9 +312,8 @@ export const getOrCreatePostConversation = async (
 
     const facebookPost = await fetchFacebookPostDetails(pageId, models, params);
     if (!postConversation) {
-      postConversation = await models.FacebookPostConversations.create(
-        facebookPost,
-      );
+      postConversation =
+        await models.FacebookPostConversations.create(facebookPost);
       return postConversation;
     } else {
       const hasPostContentChanged =

@@ -39,7 +39,9 @@ export const MessageTriggerForm = ({
 
           <Label className="ml-4 mt-2">Triggers</Label>
 
-          <div className={cn('relative flex flex-1 flex-col', { blur: !botId })}>
+          <div
+            className={cn('relative flex flex-1 flex-col', { blur: !botId })}
+          >
             {!activeConditionType ? <MessageTriggerConditionsList /> : null}
             <MessageTriggerConfigPanel />
           </div>

@@ -12,11 +12,7 @@ type AutomationsRecordTableContentProps = {
   loading: boolean;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
-  handleFetchMore: ({
-    direction,
-  }: {
-    direction: EnumCursorDirection;
-  }) => void;
+  handleFetchMore: ({ direction }: { direction: EnumCursorDirection }) => void;
 };
 
 export const AutomationsRecordTableContent = ({

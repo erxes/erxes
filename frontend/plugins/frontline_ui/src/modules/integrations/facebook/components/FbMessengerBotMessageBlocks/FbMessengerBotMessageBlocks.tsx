@@ -60,7 +60,10 @@ export const FbMessengerBotMessageBlocks = ({
 
         if (item.type === 'carousel') {
           return (
-            <FbMessengerBotCarouselBlock key={`carousel-${index}`} data={item} />
+            <FbMessengerBotCarouselBlock
+              key={`carousel-${index}`}
+              data={item}
+            />
           );
         }
 

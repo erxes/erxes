@@ -92,7 +92,9 @@ export const checkMessageTrigger = async (
           target.openThread?.postId,
         ].filter(Boolean);
 
-        if (openThreadSourceIds.some((sourceId) => sourceIds.includes(sourceId))) {
+        if (
+          openThreadSourceIds.some((sourceId) => sourceIds.includes(sourceId))
+        ) {
           return true;
         }
       }

@@ -61,20 +61,23 @@ export const useReactFlowEditor = () => {
   const { isValidConnection, onConnect, onAwaitingNodeConnection } =
     useNodeConnect();
 
-  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    updateCursor({ x: event.clientX, y: event.clientY });
-    setCanvasOver(true);
+  const onDragOver = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      updateCursor({ x: event.clientX, y: event.clientY });
+      setCanvasOver(true);
 
-    if (dragOverTimeoutRef.current) {
-      window.clearTimeout(dragOverTimeoutRef.current);
-    }
+      if (dragOverTimeoutRef.current) {
+        window.clearTimeout(dragOverTimeoutRef.current);
+      }
 
-    dragOverTimeoutRef.current = window.setTimeout(() => {
-      setCanvasOver(false);
-    }, 120);
-  }, [setCanvasOver, updateCursor]);
+      dragOverTimeoutRef.current = window.setTimeout(() => {
+        setCanvasOver(false);
+      }, 120);
+    },
+    [setCanvasOver, updateCursor],
+  );
 
   const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
     try {
