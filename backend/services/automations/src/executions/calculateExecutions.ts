@@ -39,7 +39,6 @@ const checkIsValidCustomTigger = async (
   }).catch((e) =>
     debugError(`An error occurred while check trigger: ${e.message}`),
   );
-  console.log({ response });
 
   return response;
 };
@@ -93,7 +92,6 @@ export const calculateExecution = async ({
       subdomain,
       automationId,
     );
-    console.log({ isValidTrigger });
     if (!isValidTrigger) {
       return;
     }
