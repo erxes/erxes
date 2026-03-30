@@ -605,7 +605,11 @@ function safeEval(expression: string, scope: Record<string, number>): number {
   try {
     const compiled = limitedMath.compile(expression);
     const result = compiled.evaluate(scope);
-    if (typeof result !== 'number' || Number.isNaN(result) || !Number.isFinite(result)) {
+    if (
+      typeof result !== 'number' ||
+      Number.isNaN(result) ||
+      !Number.isFinite(result)
+    ) {
       throw new TypeError('Invalid numeric result');
     }
     return result;
