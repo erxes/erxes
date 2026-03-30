@@ -35,11 +35,7 @@ const ReCalcRemaindersForm = ({
     branchId?: string;
     departmentId?: string;
     categoryIds?: string[];
-  }>([
-    'branchId',
-    'departmentId',
-    'categoryIds',
-  ]);
+  }>(['branchId', 'departmentId', 'categoryIds']);
 
   const form = useForm<TReCalcRemainderForm>({
     resolver: zodResolver(reCalcRemainderSchema),
