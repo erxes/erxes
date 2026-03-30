@@ -48,15 +48,11 @@ import {
   getReportCompanyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
-<<<<<<< HEAD
-import { useChartPagination, ChartPagination } from '../chart-pagination/ChartPagination';
-import { ChartExportButton } from '../chart-export/ChartExportButton';
-=======
 import {
   useChartPagination,
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
->>>>>>> 9bb4b11d3cbd55a9427ca4a7f3532b34b04972c4
+import { ChartExportButton } from '../chart-export/ChartExportButton';
 
 interface TicketTagsProps {
   title: string;
@@ -112,17 +108,28 @@ export const TicketTags = ({
     handleNext,
   } = useChartPagination(allTags);
 
-  const exportColumns = useMemo(() => [
-    { key: 'name' as const, header: 'Tag' },
-    { key: 'count' as const, header: 'Count' },
-    { key: 'percentage' as const, header: 'Percentage', format: (v: number) => `${v}%` },
-  ], []);
+  const exportColumns = useMemo(
+    () => [
+      { key: 'name' as const, header: 'Tag' },
+      { key: 'count' as const, header: 'Count' },
+      {
+        key: 'percentage' as const,
+        header: 'Percentage',
+        format: (v: number) => `${v}%`,
+      },
+    ],
+    [],
+  );
 
   const filterEl = (
     <>
       <TicketReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
-      <ChartExportButton data={allTags} columns={exportColumns} filename="ticket-tags" />
+      <ChartExportButton
+        data={allTags}
+        columns={exportColumns}
+        filename="ticket-tags"
+      />
     </>
   );
 

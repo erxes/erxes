@@ -10,11 +10,12 @@ import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
 import { getFilters } from '@/report/utils/dateFilters';
 import { formatDate } from 'date-fns';
 import { MembersInline } from 'ui-modules';
-import { memo, useState, useEffect, useCallback } from 'react';
+import { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   IconTicket,
   IconChevronLeft,
   IconChevronRight,
+  IconDownload,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';

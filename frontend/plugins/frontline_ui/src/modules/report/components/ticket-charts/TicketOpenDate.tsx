@@ -10,7 +10,7 @@ import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketDate } from '@/report/hooks/useTicketOpenDate';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ResponsesChartType } from '@/report/types';
-import { memo, useMemo, useState, useEffect, useCallback } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import {
   Bar,
@@ -53,6 +53,7 @@ import {
   useChartPagination,
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
 
 interface TicketOpenDateProps {
   title: string;

@@ -52,6 +52,7 @@ import {
   useChartPagination,
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
 
 interface TicketSourceProps {
   title: string;
