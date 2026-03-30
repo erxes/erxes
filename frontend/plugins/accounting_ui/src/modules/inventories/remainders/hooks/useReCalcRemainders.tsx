@@ -28,16 +28,7 @@ export const useReCalcRemainders = (options?: OperationVariables) => {
         });
         options?.onCompleted();
       },
-      refetchQueries: ['SafeRemainders'],
-      update: (_cache, { data }) => {
-        const newId = data?.safeRemainderAdd?._id;
-
-        const pathname = newId
-          ? `/accounting/inventories/safe-remainder/detail?id=${newId}`
-          : '/accounting/inventories/safe-remainders';
-
-        navigate(pathname);
-      },
+      refetchQueries: ['ProductsRemainderMain'],
     });
   };
 

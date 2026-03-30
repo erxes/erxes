@@ -1,7 +1,7 @@
 import { AccountingDialog } from '@/layout/components/Dialog';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Dialog, Form, Spinner } from 'erxes-ui';
+import { Button, Dialog, Form, Spinner, useMultiQueryState } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
@@ -20,21 +20,35 @@ export const ReCalcRemainderForm = () => {
         </Button>
       </Dialog.Trigger>
       <AccountingDialog title="ReCalc Form" description="Add a new account">
-        <AddSafeRemainderForm setOpen={setOpen} />
+        <ReCalcRemaindersForm setOpen={setOpen} />
       </AccountingDialog>
     </Dialog>
   );
 };
 
-const AddSafeRemainderForm = ({
+const ReCalcRemaindersForm = ({
   setOpen,
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const [queries] = useMultiQueryState<{
+    branchId?: string;
+    departmentId?: string;
+    categoryIds?: string[];
+  }>([
+    'branchId',
+    'departmentId',
+    'categoryIds',
+  ]);
+
   const form = useForm<TReCalcRemainderForm>({
     resolver: zodResolver(reCalcRemainderSchema),
-    defaultValues: {},
+    defaultValues: {
+      branchId: queries.branchId ?? '',
+      departmentId: queries.departmentId ?? '',
+    },
   });
+
   const { addSafeRemainder, loading } = useReCalcRemainders();
   const onSubmit = (data: TReCalcRemainderForm) => {
     addSafeRemainder({
@@ -110,7 +124,7 @@ const AddSafeRemainderForm = ({
           </Dialog.Close>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save
+            RUN
           </Button>
         </Dialog.Footer>
       </form>

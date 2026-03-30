@@ -364,7 +364,7 @@ export const updateLiveRemainders = async ({
       product.inventories?.[branchId]?.[departmentId]?.remainder ?? 0;
     const productCost =
       product.inventories?.[branchId]?.[departmentId]?.cost ?? 0;
-    const newInfo = inventoryByProductId[productId] || {
+    const newInfo = inventoryByProductId[productId] ?? {
       remainder: 0,
       cost: 0,
     };
@@ -382,7 +382,7 @@ export const updateLiveRemainders = async ({
       cost: newInfo.cost,
     });
 
-    if (bulkOps.length >= 100) {
+    if (bulkOps.length >= 1000) {
       await sendTRPCMessage({
         subdomain,
         method: 'mutation',
@@ -406,7 +406,7 @@ export const updateLiveRemainders = async ({
       method: 'mutation',
       pluginName: 'core',
       module: 'products',
-      action: 'setRemainders',
+      action: 'setInventories',
       input: {
         branchId,
         departmentId,
