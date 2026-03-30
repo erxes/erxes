@@ -1,6 +1,5 @@
 import { JournalEnum } from '@/settings/account/types/Account';
 import { zodResolver } from '@hookform/resolvers/zod';
-import deepEqual from 'deep-equal';
 import { Button, Dialog, Form, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';

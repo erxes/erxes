@@ -43,7 +43,7 @@ export const setSafeRemItems = async (
     action: 'find',
     input: {
       ...productFilter,
-      fields: { _id: 1, [`inventories.${branchId}.${departmentId}`]: 1 },
+      fields: { _id: 1, uom: 1, code: 1, [`inventories.${branchId}.${departmentId}`]: 1 },
       sort: { code: 1 },
     },
     defaultValue: [],
@@ -158,8 +158,6 @@ export const setSafeRemItems = async (
           $setOnInsert: {
             remainderId: safeRemainder._id,
             productId: product._id,
-            branchId: safeRemainder.branchId,
-            departmentId: safeRemainder.departmentId,
             status: SAFE_REMAINDER_ITEM_STATUSES.NEW,
             uom: product.uom,
           },
