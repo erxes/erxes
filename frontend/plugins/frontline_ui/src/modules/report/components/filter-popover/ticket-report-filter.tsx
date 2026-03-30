@@ -192,23 +192,33 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
           </Filter.View>
 
           <Filter.View filterKey="customer">
-            <SelectCustomer.Provider
-              mode="multiple"
-              value={customerFilter}
-              onValueChange={(val) => setCustomerFilter(val as string[])}
-            >
-              <SelectCustomer.Content />
-            </SelectCustomer.Provider>
+            <Command shouldFilter={false}>
+              <Command.List>
+                <BackButton />
+              </Command.List>
+              <SelectCustomer.Provider
+                mode="multiple"
+                value={customerFilter}
+                onValueChange={(val) => setCustomerFilter(val as string[])}
+              >
+                <SelectCustomer.Content />
+              </SelectCustomer.Provider>
+            </Command>
           </Filter.View>
 
           <Filter.View filterKey="company">
-            <SelectCompany.Provider
-              mode="multiple"
-              value={companyFilter}
-              onValueChange={(val) => setCompanyFilter(val as string[])}
-            >
-              <SelectCompany.Content />
-            </SelectCompany.Provider>
+            <Command shouldFilter={false}>
+              <Command.List>
+                <BackButton />
+              </Command.List>
+              <SelectCompany.Provider
+                mode="multiple"
+                value={companyFilter}
+                onValueChange={(val) => setCompanyFilter(val as string[])}
+              >
+                <SelectCompany.Content />
+              </SelectCompany.Provider>
+            </Command>
           </Filter.View>
 
           <Filter.View filterKey="frequency">
