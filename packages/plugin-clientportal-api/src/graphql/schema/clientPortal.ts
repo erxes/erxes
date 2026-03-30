@@ -591,5 +591,5 @@ export const mutations = enabledPlugins => `
     transactionId: String!
   ): JSON
 
-  checkTokiUserLegalAge(token: String!): Boolean
+  checkTokiUserLegalAge(clientPortalId:String!,token: String!): Boolean
 `;
