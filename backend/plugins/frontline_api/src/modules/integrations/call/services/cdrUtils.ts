@@ -52,10 +52,15 @@ const createNewCdr = async (
   conversationId,
 ) => {
   const camelCaseParams = toCamelCase(cdrParams);
-  const { AcctId: acctId, ...filteredParams } = camelCaseParams as any;
+  const {
+    AcctId: acctId,
+    disposition,
+    ...filteredParams
+  } = camelCaseParams as any;
 
   return await models.CallCdrs.create({
     acctId,
+    disposition,
     ...filteredParams,
     inboxIntegrationId: inboxId,
     conversationId,

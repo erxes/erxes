@@ -100,8 +100,6 @@ export const types = `
     avgtalktime: Int
     availablecount: Int
     agentcount: Int
-    transferoutcalls: Int
-    transferoutrate: String
   }
 
   type CallQueueStatistics {
@@ -116,8 +114,6 @@ export const types = `
     vqTotalCalls: Int
     slaRate: Float
     vqSlaRate: Float
-    transferOutCalls: Int
-    transferOutRate: Float
     abandonedRate: Float
     createdAt: String
     updatedAt: String
@@ -160,6 +156,138 @@ export const types = `
     internal: Boolean
     customer: Customer
     user: User
+  }
+
+  type QueueStats {
+    queue: String!
+    totalCalls: Int!
+    answeredCalls: Int!
+    answeredRate: Float!
+    abandonedCalls: Int!
+    abandonedRate: Float!
+    averageWaitTime: Float!
+    averageTalkTime: Float!
+  }
+
+  type CallKeyStatistics {
+    serviceLevel: Float
+    firstCallResolution: Float
+    averageSpeed: Float
+    averageAnsweredTime: Float
+    callstotal: Int
+  }
+
+  type CallCdr {
+    conversationId: String
+  AcctId: String
+  src: String
+  dst: String
+  dcontext: String
+  clid: String
+  channel: String
+  dstchannel: String
+  lastapp: String
+  lastdata: String
+  start: String
+  answer: String
+  end: String
+  duration: String
+  billsec: String
+  disposition: String
+  amaflags: String
+  uniqueid: String
+  userfield: String
+  channel_ext: String
+  dstchannel_ext: String
+  service: String
+  caller_name: String
+  recordfiles: String
+  dstanswer: String
+  session: String
+  action_owner: String
+  action_type: String
+  src_trunk_name: String
+  dst_trunk_name: String
+  nat_call: String
+  nat_call_peer: String
+  video_call: String
+  gdms_unique_code: String
+  gds_call: String
+  gsc_call: String
+  wave_src_seqid: String
+  wave_dst_seqid: String
+  device_info: String
+  device_info_peer: String
+  recordfiles_desc: String
+  anonymous_call: String
+  reason: String
+  wave_src_hide: String
+  wave_dst_hide: String
+  new_src: String
+  sn: String
+}
+  type AgentStats {
+    agent: String!
+    agentName: String
+    totalCalls: Int!
+    answeredCalls: Int!
+    answeredRate: Float!
+    missedCalls: Int!
+    missedRate: Float!
+    totalTalkTime: Int!
+    averageTalkTime: Float!
+    totalWaitTime: Int!
+    averageWaitTime: Float!
+    shortestCall: Int!
+    longestCall: Int!
+  }
+  type CallbackStats {
+    queue: String!
+    totalMissedCalls: Int!
+    callbackAttempts: Int!
+    successfulCallbacks: Int!
+    callbackRate: Float!
+    pendingCallbacks: Int!
+    averageCallbackTime: Float!
+  }
+
+    type OperatorStats {
+    operatorId: String
+    totalCalls: Int
+    answeredCount: Int
+    missedCount: Int
+    answerRate: Float
+  }
+
+  type CallLog {
+    _id: ID
+    src: String
+    dst: String
+    start: Date
+    duration: Int
+    disposition: String
+  }
+
+  type PaginatedCallLogs {
+    calls: [CallLog]
+    totalCount: Int  
+    totalPages: Int
+  }
+
+  input CallLogFilter {
+    startDate: Date!
+    endDate: Date!
+    operatorId: String 
+    status: String
+  }
+    type AgentStat {
+    agent: String
+    totalIncoming: Int
+    incomingAnswered: Int
+    incomingMissed: Int
+    totalOutgoing: Int
+    outgoingAnswered: Int
+    totalTalkTime: Int
   }
 `;
 
@@ -214,10 +342,20 @@ export const queries = `
   callQueueList(integrationId: String!): JSON
   callQueueInitialList(queue: String!): String
   callQueueMemberList(integrationId: String!, queue: String!): JSON
-  callTodayStatistics(queue: String!): JSON
+  callTodayStatistics(queue: String!): CallKeyStatistics
+  callCalculateServiceLevel(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateFirstCallResolution(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateAbandonmentRate(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateAverageSpeedOfAnswer(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateAverageHandlingTime(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateOccupancyRate(queue: String!, startDate: String!, endDate: String!, direction: String): Float
 
   callConversationNotes(conversationId: String! getFirst: Boolean, ${pageParams}): [CallConversationNotes]
   callHistoryDetail(_id: String, conversationId: String): CallHistory
+  callGetQueueStats(startDate: String!, endDate: String!, queueId: String, direction: String): [QueueStats!]!
+  callGetAgentStats(startDate: String!,endDate: String!, queueId: String, agentId: String, direction: String): [AgentStats!]!
+  getCallbackStats(startDate: String!, endDate: String!, queueId: String): [CallbackStats!]!
+  callGetOperatorStats(startDate: Date!, endDate: Date!): [AgentStat]
   `;
 
 export const mutations = `
