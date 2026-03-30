@@ -33,6 +33,7 @@ export const ItineraryCreateFormSchema = z.object({
   guideCostExtra: OptionalNumberSchema,
   images: z.array(z.string()).optional(),
   content: z.string().optional(),
+  color: z.string().optional(),
 });
 
 export type ItineraryCreateFormType = z.infer<typeof ItineraryCreateFormSchema>;

@@ -54,6 +54,7 @@ export interface IEditTourVariables {
   personCost?: Record<string, any>;
   images?: string[];
   imageThumbnail?: string;
+  attachment?: { url: string; name: string; type: string; size: number } | null;
   categoryIds?: string[];
   pricingOptions?: IPricingOption[];
 }

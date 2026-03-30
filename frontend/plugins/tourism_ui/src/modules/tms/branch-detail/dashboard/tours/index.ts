@@ -6,6 +6,8 @@ export { TourFilter } from './_components/TourFilter';
 export { TourGroupList } from './_components/TourGroupList';
 export { TourCommandBar } from './_components/TourCommandBar';
 export { TourColumns } from './_components/TourColumns';
+export { TourMoreColumn, tourMoreColumn } from './_components/TourMoreCell';
+export { TourDuplicateSheet } from './_components/TourDuplicateSheet';
 export { GroupedTourColumns } from './_components/TourGroupColumns';
 export { TourCalendar } from './_components/TourCalendar';
 export { ToursView, ToursViewControl } from './_components/ToursView';

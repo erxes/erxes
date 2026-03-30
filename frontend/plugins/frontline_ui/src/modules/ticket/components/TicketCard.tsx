@@ -82,7 +82,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
           className="text-muted-foreground px-1 hover:bg-background"
         >
           <IconCalendarEventFilled />
-          {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
+          {createdAt && format(new Date(createdAt), 'MMM d, yyyy HH:mm')}
         </Button>
         <SelectAssigneeTicket variant="card" value={assigneeId} id={_id} />
       </div>

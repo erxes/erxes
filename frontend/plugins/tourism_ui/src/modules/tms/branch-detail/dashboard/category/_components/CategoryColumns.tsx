@@ -17,11 +17,13 @@ import {
 } from 'erxes-ui';
 import { ICategory } from '../types/category';
 import { CategoryEditSheet } from './CategoryEditSheet';
+import { categoryMoreColumn } from './CategoryMoreCell';
 
 export const categoryColumns: (
   categoryObject: Record<string, ICategory>,
 ) => ColumnDef<ICategory & { hasChildren: boolean }>[] = (categoryObject) => [
   RecordTable.checkboxColumn as ColumnDef<ICategory & { hasChildren: boolean }>,
+  categoryMoreColumn,
   {
     id: 'attachment',
     header: () => <RecordTable.InlineHead icon={IconImageInPicture} label="" />,

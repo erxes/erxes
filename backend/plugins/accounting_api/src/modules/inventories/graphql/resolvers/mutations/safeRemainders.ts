@@ -210,7 +210,7 @@ const safeRemainderMutations = {
         saleDetails.push({
           accountId: saleRule?.accountId ?? '',
           side: TR_SIDES.CREDIT,
-          amount: fixNum(outCount * (item.trInfo?.salePrice ?? 0), 6),
+          amount: fixNum(outCount * (item.trInfo?.unitPrice ?? 0), 6),
           productId,
           count: outCount,
         });

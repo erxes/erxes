@@ -28,6 +28,7 @@ export interface ICreateItineraryVariables {
   personCost?: Record<string, number>;
   guideCostExtra?: number;
   content?: string;
+  color?: string;
 }
 
 export const useCreateItinerary = () => {

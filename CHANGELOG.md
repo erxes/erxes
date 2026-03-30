@@ -1,5 +1,25 @@
 
 
+## [3.0.7](https://github.com/erxes/erxes/compare/3.0.6...3.0.7) (2026-03-30)
+
+
+### Bug Fixes
+
+* census detail improvement ([#7329](https://github.com/erxes/erxes/issues/7329)) ([87ce0e9](https://github.com/erxes/erxes/commit/87ce0e9f10ad17fd3eb7a776248009c5ee0c8c27))
+* resolve pdf image not displaying issue ([#7324](https://github.com/erxes/erxes/issues/7324)) ([87edaec](https://github.com/erxes/erxes/commit/87edaeca6950ee4776f1ddae094059d86f0e6d35))
+* show fallback text in BroadcastSettingsVerifiedEmail when no search query ([faa9082](https://github.com/erxes/erxes/commit/faa9082c210dce10cd362dbad3c65a073b3454b0))
+
+
+### Features
+
+* frontline ticket report and export ([d3a4ea5](https://github.com/erxes/erxes/commit/d3a4ea58f25bed2b76ae3fcfbd545c98d08469b3))
+* **pdf:** use itinerary color instead of branch primarycolor ([#7334](https://github.com/erxes/erxes/issues/7334)) ([b41a792](https://github.com/erxes/erxes/commit/b41a7923efc0d7e8d803fe6d412590f9d223bcda))
+* **tour:** add attachment field to form and apply improvements ([#7330](https://github.com/erxes/erxes/issues/7330)) ([2ab20f8](https://github.com/erxes/erxes/commit/2ab20f88e65c6aa1f00f28a1bf24f92446708380))
+* **tour:** add itinerary color field ([#7333](https://github.com/erxes/erxes/issues/7333)) ([238cbc4](https://github.com/erxes/erxes/commit/238cbc4e3b4879efcce48bfd058448cbe6042319))
+* **tour:** add mongolian cyrillic support in pdf export ([#7332](https://github.com/erxes/erxes/issues/7332)) ([3e96a27](https://github.com/erxes/erxes/commit/3e96a273aaa5a538f07605f3320a4fa2b29658c0))
+* **tour:** add variable to elements ([#7335](https://github.com/erxes/erxes/issues/7335)) ([e284433](https://github.com/erxes/erxes/commit/e284433846c8349a90d45a16cacece98155659dd))
+* **validation:** prevent duplicates in tour, itinerary, elements and amenities ([#7338](https://github.com/erxes/erxes/issues/7338)) ([f212452](https://github.com/erxes/erxes/commit/f212452c4c16d019bdf806df531840b2cf55140b))
+
 ## [3.0.6](https://github.com/erxes/erxes/compare/3.0.5...3.0.6) (2026-03-27)
 
 

@@ -14,15 +14,35 @@ import {
   Badge,
 } from 'erxes-ui';
 import { IItinerary } from '../types/itinerary';
+import { itineraryMoreColumn } from './ItineraryMoreCell';
 
 interface ItineraryColumnsProps {
   onEditClick?: (itineraryId: string, branchId?: string) => void;
+  branchId?: string;
 }
 
 export const itineraryColumns = (
   props?: ItineraryColumnsProps,
 ): ColumnDef<IItinerary>[] => [
   RecordTable.checkboxColumn as ColumnDef<IItinerary>,
+  itineraryMoreColumn(props?.onEditClick, props?.branchId),
+  {
+    id: 'color',
+    accessorKey: 'color',
+    header: () => <RecordTable.InlineHead icon={IconLabel} label="Color" />,
+    cell: ({ cell }: { cell: any }) => {
+      const color = (cell.getValue() as string) || '#4F46E5';
+      return (
+        <RecordTableInlineCell>
+          <div
+            className="w-4 h-4 rounded-full border border-border"
+            style={{ backgroundColor: color }}
+          />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 60,
+  },
   {
     id: 'name',
     accessorKey: 'name',

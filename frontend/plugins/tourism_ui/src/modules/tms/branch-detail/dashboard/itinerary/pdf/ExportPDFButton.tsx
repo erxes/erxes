@@ -6,6 +6,7 @@ import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 import { ItineraryPDF } from './ItineraryPDF';
 import { generateFilename, convertImagesToBase64 } from './utils';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
+import './fonts';
 
 /**
  * Module-level blob cache: key = `${itinerary._id}:${modifiedAt}:${branchId}`.
@@ -157,9 +158,6 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
         });
       }
 
-      const primaryColor =
-        branchDetail?.uiOptions?.colors?.primary || undefined;
-
       const blob = await pdf(
         <ItineraryPDF
           itinerary={{
@@ -170,7 +168,6 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
           branch={{
             name: branchDetail?.name,
             mainLogoBase64,
-            primaryColor,
           }}
         />,
       ).toBlob();
@@ -197,7 +194,6 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     }
   }, [
     branchDetail?.name,
-    branchDetail?.uiOptions?.colors?.primary,
     branchDetail?.uiOptions?.logo,
     branchDetail?.uiOptions?.mainLogo,
     branchId,

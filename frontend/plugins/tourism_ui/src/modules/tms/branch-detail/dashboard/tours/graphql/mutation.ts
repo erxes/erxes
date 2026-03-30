@@ -26,6 +26,7 @@ export const CREATE_TOUR = gql`
     $info5: String
     $images: [String]
     $imageThumbnail: String
+    $attachment: AttachmentInput
     $advancePercent: Float
     $advanceCheck: Boolean
     $joinPercent: Float
@@ -58,6 +59,7 @@ export const CREATE_TOUR = gql`
       info5: $info5
       images: $images
       imageThumbnail: $imageThumbnail
+      attachment: $attachment
       advancePercent: $advancePercent
       advanceCheck: $advanceCheck
       joinPercent: $joinPercent
@@ -99,6 +101,7 @@ export const EDIT_TOUR = gql`
     $personCost: JSON
     $images: [String]
     $imageThumbnail: String
+    $attachment: AttachmentInput
     $categoryIds: [String]
     $pricingOptions: [PricingOptionInput]
   ) {
@@ -130,6 +133,7 @@ export const EDIT_TOUR = gql`
       personCost: $personCost
       images: $images
       imageThumbnail: $imageThumbnail
+      attachment: $attachment
       categoryIds: $categoryIds
       pricingOptions: $pricingOptions
     ) {

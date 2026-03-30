@@ -41,6 +41,7 @@ export interface ICreateTourVariables {
   info5?: string;
   images?: string[];
   imageThumbnail?: string;
+  attachment?: { url: string; name: string; type: string; size: number } | null;
   advancePercent?: number;
   advanceCheck?: boolean;
   joinPercent?: number;

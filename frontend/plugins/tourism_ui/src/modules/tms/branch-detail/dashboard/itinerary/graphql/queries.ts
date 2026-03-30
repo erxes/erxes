@@ -39,6 +39,21 @@ export const GET_ITINERARIES = gql`
         createdAt
         modifiedAt
         content
+        color
+        groupDays {
+          content
+          day
+          elements {
+            elementId
+            orderOfDay
+          }
+          elementsQuick {
+            elementId
+            orderOfDay
+          }
+          images
+          title
+        }
       }
       pageInfo {
         hasNextPage
@@ -83,6 +98,7 @@ export const GET_ITINERARY_DETAIL = gql`
       guideCostExtra
       createdAt
       modifiedAt
+      color
     }
   }
 `;

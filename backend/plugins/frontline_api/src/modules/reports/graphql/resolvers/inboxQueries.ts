@@ -436,6 +436,7 @@ export const reportInboxQueries = {
         module: 'tags',
         action: 'find',
         input: {
+          type: 'frontline:ticket',
           query: { _id: { $in: tagIds } },
           fields: { _id: 1, name: 1, colorCode: 1 },
         },

@@ -134,6 +134,12 @@ export const GET_TOUR_DETAIL = gql`
       groupSize
       imageThumbnail
       images
+      attachment {
+        url
+        name
+        type
+        size
+      }
       info1
       info2
       info3

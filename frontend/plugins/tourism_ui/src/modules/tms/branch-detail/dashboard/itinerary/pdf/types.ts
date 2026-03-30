@@ -14,7 +14,6 @@ export interface IItineraryPDFData extends Omit<IItineraryDetail, 'groupDays'> {
 export interface IBranchPDFData {
   name?: string;
   mainLogoBase64?: string;
-  primaryColor?: string;
 }
 
 export interface ItineraryPDFProps {

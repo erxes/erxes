@@ -32,6 +32,7 @@ import {
   TourCategoryField,
   TourImageThumbnailField,
   TourImagesField,
+  TourAttachmentsField,
   TourDateSchedulingField,
   TourPricingOptionsField,
 } from './TourFormFields';
@@ -100,6 +101,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
       info5: '',
       images: [],
       imageThumbnail: '',
+      attachment: null,
       guides: [],
       pricingOptions: [
         {
@@ -312,7 +314,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
           <Sheet.Close />
         </Sheet.Header>
 
-        <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
+        <Sheet.Content className="flex-1 px-6 py-4 overflow-y-auto rounded-none">
           <div className="flex flex-col gap-6">
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -373,11 +375,12 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
             <div className="pt-4 space-y-4 border-t">
               <TourImageThumbnailField control={form.control} />
               <TourImagesField control={form.control} />
+              <TourAttachmentsField control={form.control} />
             </div>
 
             <div className="pt-4 space-y-4 border-t">
               <Tabs defaultValue="info1" className="w-full">
-                <Tabs.List className="grid grid-cols-5 w-full">
+                <Tabs.List className="grid w-full grid-cols-5">
                   <Tabs.Trigger value="info1">Included</Tabs.Trigger>
                   <Tabs.Trigger value="info2">Not Included</Tabs.Trigger>
                   <Tabs.Trigger value="info3">Highlights</Tabs.Trigger>
