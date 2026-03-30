@@ -2,8 +2,8 @@ import {
   getEnv,
   getSaasOrganizations,
   isEnabled,
+  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { collections } from '../constants';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
@@ -605,8 +605,8 @@ function safeEval(expression: string, scope: Record<string, number>): number {
   try {
     const compiled = limitedMath.compile(expression);
     const result = compiled.evaluate(scope);
-    if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
-      throw new Error('Invalid numeric result');
+    if (typeof result !== 'number' || Number.isNaN(result) || !Number.isFinite(result)) {
+      throw new TypeError('Invalid numeric result');
     }
     return result;
   } catch (err) {
@@ -631,8 +631,8 @@ export const handleScore = async (models: IModels, data) => {
   for (const attr of attributes) {
     const val = target[attr];
     if (val === undefined) throw new Error(`Attribute "${attr}" not found`);
-    placeholder = placeholder.replace(
-      new RegExp(`\\{\\{\\s*${attr}\\s*\\}\\}`, 'g'),
+    placeholder = placeholder.replaceAll(
+      new RegExp(String.raw`\[\[\s*${attr}\s*\]\]`, 'g'),
       val,
     );
   }
@@ -641,8 +641,8 @@ export const handleScore = async (models: IModels, data) => {
 
   const scope: Record<string, number> = {};
   for (const attr of attributes) {
-    const num = parseFloat(target[attr]);
-    if (isNaN(num)) throw new Error(`Attribute ${attr} is not a number`);
+    const num = Number.parseFloat(target[attr]);
+    if (Number.isNaN(num)) throw new Error(`Attribute ${attr} is not a number`);
     scope[attr] = num;
   }
 
