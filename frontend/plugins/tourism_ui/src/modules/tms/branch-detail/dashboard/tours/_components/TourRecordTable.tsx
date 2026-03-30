@@ -38,10 +38,10 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
   return (
     <>
       <RecordTable.Provider
-        columns={TourColumns(categories || [], handleEdit)}
+        columns={TourColumns(categories || [], handleEdit, branchId)}
         data={tours || []}
         className="h-full"
-        stickyColumns={['checkbox', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
       >
         <TourCommandBar />
         <RecordTable.CursorProvider

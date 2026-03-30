@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 import { ITour } from '../types/tour';
 import { ICategory } from '../../category';
+import { tourMoreColumn } from './TourMoreCell';
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
@@ -35,9 +36,11 @@ const formatDate = (value?: string) => {
 export const TourColumns = (
   categories: ICategory[],
   onEdit?: (tourId: string) => void,
+  branchId?: string,
 ): ColumnDef<ITour>[] => {
   return [
     RecordTable.checkboxColumn as ColumnDef<ITour>,
+    tourMoreColumn(onEdit, branchId),
     {
       id: 'name',
       accessorKey: 'name',
