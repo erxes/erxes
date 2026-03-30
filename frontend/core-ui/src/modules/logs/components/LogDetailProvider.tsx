@@ -17,10 +17,7 @@ interface LogDetailContextType {
 
 const LogDetailContext = createContext<LogDetailContextType | null>(null);
 
-export function LogDetailProvider({
-  logId,
-  children,
-}: LogDetailProviderProps) {
+export function LogDetailProvider({ logId, children }: LogDetailProviderProps) {
   const { detail, loading, error } = useLogDetail(logId);
 
   if (loading) {
