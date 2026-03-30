@@ -2,7 +2,11 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { checkPermissionGroup } from 'erxes-api-shared/core-modules/permissions/utils';
 
 const exportResolvers: Record<string, Resolver> = {
-  async getExportHeaders(_root, { moduleName, collectionName }, { user, subdomain }) {
+  async getExportHeaders(
+    _root,
+    { moduleName, collectionName },
+    { user, subdomain },
+  ) {
     const checkPermission = checkPermissionGroup(subdomain, user);
     await checkPermission('export');
 
@@ -26,7 +30,11 @@ const exportResolvers: Record<string, Resolver> = {
     return [];
   },
 
-  async getExportData(_root, { moduleName, collectionName }, { models, user, subdomain }) {
+  async getExportData(
+    _root,
+    { moduleName, collectionName },
+    { models, user, subdomain },
+  ) {
     const checkPermission = checkPermissionGroup(subdomain, user);
     await checkPermission('export');
 
