@@ -14,7 +14,7 @@ export const useGetPermissionDefaultGroups = (
     permissionDefaultGroups: IDefaultPermissionGroup[];
   }>,
 ) => {
-  const { data, loading, error } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     permissionDefaultGroups: IDefaultPermissionGroup[];
   }>(GET_PERMISSION_DEFAULT_GROUPS, options);
 
@@ -22,6 +22,7 @@ export const useGetPermissionDefaultGroups = (
     defaultGroups: data?.permissionDefaultGroups || [],
     loading,
     error,
+    refetch,
   };
 };
 
@@ -30,7 +31,7 @@ export const useGetPermissionGroups = (
     permissionGroups: IPermissionGroup[];
   }>,
 ) => {
-  const { data, loading, error } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     permissionGroups: IPermissionGroup[];
   }>(GET_PERMISSION_GROUPS, options);
 
@@ -38,5 +39,6 @@ export const useGetPermissionGroups = (
     permissionGroups: data?.permissionGroups || [],
     loading,
     error,
+    refetch,
   };
 };

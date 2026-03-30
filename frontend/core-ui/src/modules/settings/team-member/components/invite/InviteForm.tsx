@@ -49,11 +49,21 @@ export function InviteForm({
   const canManagePermissions = hasActionPermission('permissionsManage');
   const shouldLoadPermissionGroups =
     canManagePermissions && step === 'permissions';
-  const { defaultGroups, loading: defaultGroupsLoading } =
+  const {
+    defaultGroups,
+    loading: defaultGroupsLoading,
+    error: defaultGroupsError,
+    refetch: refetchDefaultGroups,
+  } =
     useGetPermissionDefaultGroups({
       skip: !shouldLoadPermissionGroups,
     });
-  const { permissionGroups, loading: permissionGroupsLoading } =
+  const {
+    permissionGroups,
+    loading: permissionGroupsLoading,
+    error: permissionGroupsError,
+    refetch: refetchPermissionGroups,
+  } =
     useGetPermissionGroups({
       skip: !shouldLoadPermissionGroups,
     });
@@ -216,6 +226,15 @@ export function InviteForm({
   const isPermissionStepLoading =
     shouldLoadPermissionGroups &&
     (defaultGroupsLoading || permissionGroupsLoading);
+  const permissionGroupsLoadError =
+    defaultGroupsError || permissionGroupsError;
+
+  const handleRetryPermissionGroups = useCallback(() => {
+    void Promise.allSettled([
+      refetchDefaultGroups(),
+      refetchPermissionGroups(),
+    ]);
+  }, [refetchDefaultGroups, refetchPermissionGroups]);
 
   const renderPermissionGroup = (
     group: IDefaultPermissionGroup | IPermissionGroup,
@@ -266,7 +285,7 @@ export function InviteForm({
             <div className="w-full">
               <Input
                 name="email"
-                placeholder="Enter email addresses"
+                placeholder={t('enter-email-addresses')}
                 value={inputValue}
                 autoFocus
                 onChange={handleChange}
@@ -294,6 +313,8 @@ export function InviteForm({
                   >
                     <TextOverflowTooltip value={tag} className="truncate" />
                     <button
+                      type="button"
+                      aria-label={t('remove-email', { email: tag })}
                       onClick={() => removeTag(tag)}
                       className="hover:bg-secondary-foreground/20 rounded-sm p-0.5 shrink-0"
                     >
@@ -330,6 +351,20 @@ export function InviteForm({
           <div className="flex flex-col gap-4">
             {isPermissionStepLoading ? (
               <Spinner containerClassName="py-10" />
+            ) : permissionGroupsLoadError ? (
+              <div className="flex flex-col gap-3 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-4">
+                <p className="text-sm text-destructive">
+                  {t('failed-to-load-invite-options')}
+                </p>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleRetryPermissionGroups}
+                  className="w-fit text-sm"
+                >
+                  {t('retry')}
+                </Button>
+              </div>
             ) : (
               <div className="flex max-h-80 flex-col gap-4 overflow-y-auto pr-1 styled-scroll">
                 {Object.entries(groupedDefaultGroups).map(
@@ -349,7 +384,7 @@ export function InviteForm({
                 {permissionGroups.length > 0 && (
                   <div className="space-y-2">
                     <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      Custom Permission Groups
+                      {t('custom-permission-groups')}
                     </div>
                     <div className="space-y-2">
                       {permissionGroups.map((group) =>
@@ -371,7 +406,11 @@ export function InviteForm({
             </Button>
             <Button
               onClick={submitHandler}
-              disabled={loading || isPermissionStepLoading}
+              disabled={
+                loading ||
+                isPermissionStepLoading ||
+                Boolean(permissionGroupsLoadError)
+              }
               className="text-sm"
             >
               {(loading && (
