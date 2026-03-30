@@ -32,14 +32,19 @@ const FixedFormSchema = z.object({
   startDate: z.coerce.date({ required_error: 'Start date is required' }),
 });
 
-const FlexibleFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  refNumber: z.string().min(1, 'Ref number is required'),
-  availableFrom: z.coerce.date({
-    required_error: 'Available from is required',
-  }),
-  availableTo: z.coerce.date({ required_error: 'Available to is required' }),
-});
+const FlexibleFormSchema = z
+  .object({
+    name: z.string().min(1, 'Name is required'),
+    refNumber: z.string().min(1, 'Ref number is required'),
+    availableFrom: z.coerce.date({
+      required_error: 'Available from is required',
+    }),
+    availableTo: z.coerce.date({ required_error: 'Available to is required' }),
+  })
+  .refine((data) => data.availableFrom < data.availableTo, {
+    message: 'Available from must be before available to',
+    path: ['availableTo'],
+  });
 
 type FixedFormType = z.infer<typeof FixedFormSchema>;
 type FlexibleFormType = z.infer<typeof FlexibleFormSchema>;
@@ -129,11 +134,12 @@ const FixedDuplicateSheet = ({
   const startDate = useWatch({ control: form.control, name: 'startDate' });
 
   const handleSubmit = async (values: FixedFormType) => {
-    const computedEndDate = calculateEndDate(values.startDate, tour.cost);
+    if (!branchId) return;
+    const computedEndDate = calculateEndDate(values.startDate, tour.duration);
 
     createTour({
       variables: {
-        branchId: branchId || '',
+        branchId,
         name: values.name,
         refNumber: values.refNumber,
         date_status: getDateStatus(values.startDate),
@@ -292,9 +298,10 @@ const FlexibleDuplicateSheet = ({
   });
 
   const handleSubmit = async (values: FlexibleFormType) => {
+    if (!branchId) return;
     createTour({
       variables: {
-        branchId: branchId || '',
+        branchId,
         name: values.name,
         refNumber: values.refNumber,
         date_status: 'unscheduled',

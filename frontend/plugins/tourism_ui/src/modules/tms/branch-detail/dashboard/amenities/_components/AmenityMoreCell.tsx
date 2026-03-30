@@ -36,23 +36,33 @@ export const AmenityMoreColumn = ({
     confirm({
       message: 'Are you sure you want to delete this amenity?',
       options: { confirmationValue: 'delete' },
-    }).then(() => {
-      removeAmenities({ variables: { ids: [amenity._id] } })
-        .then(() => {
-          toast({
-            title: 'Success',
-            variant: 'success',
-            description: 'Amenity deleted successfully',
+    })
+      .then(() => {
+        removeAmenities({ variables: { ids: [amenity._id] } })
+          .then(() => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: 'Amenity deleted successfully',
+            });
+          })
+          .catch((e: any) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+              variant: 'destructive',
+            });
           });
-        })
-        .catch((e: any) => {
+      })
+      .catch((e: unknown) => {
+        if (e instanceof Error) {
           toast({
             title: 'Error',
             description: e.message,
             variant: 'destructive',
           });
-        });
-    });
+        }
+      });
   };
 
   return (

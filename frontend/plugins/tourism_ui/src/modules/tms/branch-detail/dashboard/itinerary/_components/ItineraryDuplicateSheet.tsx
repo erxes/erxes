@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Button, Form, Input, Sheet, ColorPicker, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,6 +36,17 @@ export const ItineraryDuplicateSheet = ({
       color: itinerary.color || '#4F46E5',
     },
   });
+
+  const { reset } = form;
+
+  useEffect(() => {
+    if (open) {
+      reset({
+        name: `${itinerary.name || ''} (copy)`,
+        color: itinerary.color || '#4F46E5',
+      });
+    }
+  }, [open, itinerary, reset]);
 
   const handleSubmit = async (values: ItineraryDuplicateFormType) => {
     createItinerary({

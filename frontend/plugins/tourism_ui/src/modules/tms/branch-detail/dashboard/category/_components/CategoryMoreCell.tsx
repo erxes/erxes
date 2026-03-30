@@ -30,23 +30,33 @@ export const CategoryMoreColumn = (
     confirm({
       message: 'Are you sure you want to delete this category?',
       options: { confirmationValue: 'delete' },
-    }).then(() => {
-      deleteCategory({ variables: { id: category._id } })
-        .then(() => {
-          toast({
-            title: 'Success',
-            variant: 'success',
-            description: 'Category deleted successfully',
+    })
+      .then(() => {
+        deleteCategory({ variables: { id: category._id } })
+          .then(() => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: 'Category deleted successfully',
+            });
+          })
+          .catch((e: any) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+              variant: 'destructive',
+            });
           });
-        })
-        .catch((e: any) => {
+      })
+      .catch((e: unknown) => {
+        if (e instanceof Error) {
           toast({
             title: 'Error',
             description: e.message,
             variant: 'destructive',
           });
-        });
-    });
+        }
+      });
   };
 
   return (
