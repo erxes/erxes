@@ -40,6 +40,20 @@ export const GET_ITINERARIES = gql`
         modifiedAt
         content
         color
+        groupDays {
+          content
+          day
+          elements {
+            elementId
+            orderOfDay
+          }
+          elementsQuick {
+            elementId
+            orderOfDay
+          }
+          images
+          title
+        }
       }
       pageInfo {
         hasNextPage

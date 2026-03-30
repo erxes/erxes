@@ -28,10 +28,10 @@ export const AmenityRecordTable = ({ branchId }: { branchId: string }) => {
 
   return (
     <RecordTable.Provider
-      columns={amenityColumns}
+      columns={amenityColumns(branchId)}
       data={amenities || []}
       className="h-full"
-      stickyColumns={['checkbox', 'icon', 'name']}
+      stickyColumns={['more', 'checkbox', 'icon', 'name']}
     >
       <AmenityCommandBar />
       <RecordTable.CursorProvider

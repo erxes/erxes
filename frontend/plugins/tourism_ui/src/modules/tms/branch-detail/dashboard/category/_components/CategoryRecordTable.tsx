@@ -36,6 +36,7 @@ export const CategoryRecordTable = () => {
       columns={categoryColumns(categoryObject)}
       data={categoriesWithChildren || []}
       className="h-full"
+      stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTableTree id="tour-categories" ordered>
         <RecordTable.Scroll>

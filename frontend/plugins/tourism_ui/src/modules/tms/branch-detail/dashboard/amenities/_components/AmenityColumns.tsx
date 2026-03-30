@@ -15,9 +15,11 @@ import {
 } from 'erxes-ui';
 import { IAmenity } from '../types/amenity';
 import { AmenityEditSheet } from './AmenityEditSheet';
+import { amenityMoreColumn } from './AmenityMoreCell';
 
-export const amenityColumns: ColumnDef<IAmenity>[] = [
+export const amenityColumns = (branchId?: string): ColumnDef<IAmenity>[] => [
   RecordTable.checkboxColumn as ColumnDef<IAmenity>,
+  amenityMoreColumn(branchId),
   {
     id: 'icon',
     accessorKey: 'icon',
