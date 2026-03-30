@@ -43,7 +43,12 @@ export const setSafeRemItems = async (
     action: 'find',
     input: {
       ...productFilter,
-      fields: { _id: 1, uom: 1, code: 1, [`inventories.${branchId}.${departmentId}`]: 1 },
+      fields: {
+        _id: 1,
+        uom: 1,
+        code: 1,
+        [`inventories.${branchId}.${departmentId}`]: 1,
+      },
       sort: { code: 1 },
     },
     defaultValue: [],
