@@ -12,7 +12,12 @@ import {
   Label,
 } from 'erxes-ui';
 import { TourCreateFormType } from '../constants/formSchema';
-import { IconPlus, IconTrash, IconUpload, IconFileText } from '@tabler/icons-react';
+import {
+  IconPlus,
+  IconTrash,
+  IconUpload,
+  IconFileText,
+} from '@tabler/icons-react';
 import { useState } from 'react';
 import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
 import { ImageUploadGrid } from '../../../components';
@@ -590,7 +595,8 @@ export const TourAttachmentsField = ({
                 size="sm"
                 type="button"
                 variant="secondary"
-                className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent">
+                className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
+              >
                 {!field.value ? (
                   <div className="flex items-center justify-center w-full gap-2 text-sm text-muted-foreground">
                     {isLoading ? (
@@ -604,7 +610,10 @@ export const TourAttachmentsField = ({
                   </div>
                 ) : (
                   <div className="flex items-center w-full gap-2 px-1">
-                    <IconFileText size={18} className="shrink-0 text-muted-foreground" />
+                    <IconFileText
+                      size={18}
+                      className="shrink-0 text-muted-foreground"
+                    />
                     <span className="text-sm truncate">{field.value.name}</span>
                   </div>
                 )}
