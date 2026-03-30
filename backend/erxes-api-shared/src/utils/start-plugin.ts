@@ -299,16 +299,6 @@ export async function startPlugin(
     `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
-  if (importExport) {
-    startImportExportWorker({
-      pluginName: name,
-      config: {
-        ...importExport,
-      },
-      app,
-    });
-  }
-
   if (meta) {
     const { automations, segments, afterProcess, notifications, payments } =
       meta || {};
@@ -340,6 +330,16 @@ export async function startPlugin(
     hasSubscriptions: hasSubscriptions,
     meta: meta,
   });
+
+  if (importExport) {
+    startImportExportWorker({
+      pluginName: name,
+      config: {
+        ...importExport,
+      },
+      app,
+    });
+  }
 
   if (onServerInit) {
     onServerInit(app);
