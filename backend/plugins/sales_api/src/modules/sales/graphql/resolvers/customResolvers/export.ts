@@ -21,6 +21,19 @@ const exportResolvers: Record<string, Resolver> = {
 
     return [];
   },
+
+  async getExportData(_root, { moduleName, collectionName }, { models }) {
+    if (moduleName === 'pos' && collectionName === 'posItems') {
+      const items = await (models as any).PosItems.find().lean();
+
+      return items.map((item: any) => ({
+        number: item.number,
+        createdAt: item.createdAt,
+      }));
+    }
+
+    return [];
+  },
 };
 
 export default exportResolvers;

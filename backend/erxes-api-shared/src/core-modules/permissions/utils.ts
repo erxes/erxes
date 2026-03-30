@@ -7,10 +7,9 @@ import {
 } from '../../utils';
 
 export const checkLogin = (user?: IUserDocument) => {
-  // if (!user || !user._id) {
-  //   throw new Error('Login required');
-  // }
-  return;
+  if (!user || !user._id) {
+    throw new Error('Login required');
+  }
 };
 
 export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
