@@ -19,6 +19,7 @@ import {
 
 import {
   ItineraryNameField,
+  ItineraryColorField,
   ItineraryContentField,
   ItineraryImageField,
   ItineraryGuideCostField,
@@ -75,6 +76,7 @@ export const ItineraryEditSheet = ({
     reValidateMode: 'onChange',
     defaultValues: {
       name: '',
+      color: '#4F46E5',
       content: '',
       duration: 1,
       images: [],
@@ -101,6 +103,7 @@ export const ItineraryEditSheet = ({
       }));
 
       form.setValue('name', itinerary.name || '');
+      form.setValue('color', itinerary.color || '#4F46E5');
       form.setValue('content', itinerary.content || '');
       form.setValue('duration', itinerary.duration || 1);
       form.setValue('images', itinerary.images || []);
@@ -199,6 +202,7 @@ export const ItineraryEditSheet = ({
           id: itineraryId,
           branchId,
           name: values.name,
+          color: values.color,
           content: values.content,
           duration: totalDays,
           images: values.images?.slice(0, 1) || [],
@@ -256,11 +260,11 @@ export const ItineraryEditSheet = ({
                 <Sheet.Close />
               </Sheet.Header>
 
-              <Sheet.Content className="flex-1 p-0 overflow-hidden">
+              <Sheet.Content className="overflow-hidden flex-1 p-0">
                 <Tabs value={currentStep} className="flex flex-col h-full">
                   <Tabs.Content
                     value="build"
-                    className="flex-1 p-3 overflow-hidden"
+                    className="overflow-hidden flex-1 p-3"
                   >
                     <ItineraryBuilder
                       control={form.control}
@@ -273,9 +277,16 @@ export const ItineraryEditSheet = ({
                     />
                   </Tabs.Content>
 
-                  <Tabs.Content value="info" className="p-6 overflow-y-auto">
-                    <div className="w-full space-y-4">
-                      <ItineraryNameField control={form.control} />
+                  <Tabs.Content value="info" className="overflow-y-auto p-6">
+                    <div className="space-y-4 w-full">
+                      <div className="flex gap-4 items-end">
+                        <div className="w-[20%]">
+                          <ItineraryColorField control={form.control} />
+                        </div>
+                        <div className="w-[80%]">
+                          <ItineraryNameField control={form.control} />
+                        </div>
+                      </div>
 
                       <ItineraryContentField control={form.control} />
 
@@ -286,7 +297,7 @@ export const ItineraryEditSheet = ({
                         onOpenChange={setShowMoreOptions}
                         className="flex flex-col items-center my-5"
                       >
-                        <Collapsible.Content className="order-1 w-full pt-4 space-y-4">
+                        <Collapsible.Content className="order-1 pt-4 space-y-4 w-full">
                           <div className="grid grid-cols-2 gap-4">
                             <ItineraryGuideCostField control={form.control} />
                             <ItineraryDriverCostField control={form.control} />

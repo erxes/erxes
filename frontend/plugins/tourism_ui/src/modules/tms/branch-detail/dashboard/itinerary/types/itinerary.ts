@@ -5,4 +5,5 @@ export interface IItinerary {
   duration?: number;
   createdAt?: string;
   modifiedAt?: string;
+  color?: string;
 }

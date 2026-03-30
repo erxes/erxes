@@ -25,6 +25,7 @@ export interface IItineraryDetail {
   createdAt?: string;
   modifiedAt?: string;
   content?: string;
+  color?: string;
 }
 
 interface ItineraryDetailResponse {
