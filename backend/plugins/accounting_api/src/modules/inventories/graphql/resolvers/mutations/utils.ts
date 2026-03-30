@@ -8,7 +8,161 @@ import {
   TR_SIDES,
 } from '~/modules/accounting/@types/constants';
 import { ITransaction, ITransactionDocument, ITrDetail } from '~/modules/accounting/@types/transaction';
+import { SAFE_REMAINDER_ITEM_STATUSES } from '~/modules/inventories/@types/constants';
 import { ISafeRemainderDocument, IUpdateRemaindersParams } from '~/modules/inventories/@types/safeRemainders';
+
+export const setSafeRemItems = async (subdomain: string, models: IModels, safeRemainder: ISafeRemainderDocument, userId: string) => {
+  let productFilter: any = {};
+  const { productCategoryId, branchId, departmentId } = safeRemainder;
+
+  productFilter = {
+    query: { status: { $ne: 'deleted' } },
+  };
+
+  if (productCategoryId) {
+    productFilter.categoryId = productCategoryId;
+  }
+
+  // Get products related to product category
+  const products = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'products',
+    action: 'find',
+    input: {
+      ...productFilter,
+      fields: { _id: 1, [`inventories.${branchId}.${departmentId}`]: 1 },
+      sort: { code: 1 },
+    },
+    defaultValue: [],
+  });
+
+  let bulkOps: any[] = [];
+  let order = 0;
+
+  // Get product ids
+  const allProductIds = products.map((item: any) => item._id);
+  const inventoryByProductId: {
+    [productId: string]: { remainder: number; cost: number };
+  } = {};
+  const invAccountIds = (
+    await models.Accounts.find({
+      journal: { $in: ACCOUNT_JOURNALS.INVENTORY },
+    }).lean()
+  ).map((acc) => acc._id);
+
+  const trFilter: any = {
+    branchId,
+    departmentId,
+    'details.accountId': { $in: invAccountIds },
+    'details.productId': { $in: allProductIds },
+    date: { $lte: safeRemainder.date }
+  };
+
+  const lastAdjInv = await models.AdjustInventories.findOne({
+    status: ADJ_INV_STATUSES.PUBLISH,
+  })
+    .sort({ date: -1 })
+    .lean();
+
+  if (lastAdjInv) {
+    trFilter.date.$gt = lastAdjInv.date;
+    const lastConfigedDetails = await models.AdjustInvDetails.find({
+      adjustId: lastAdjInv._id,
+      branchId,
+      departmentId,
+      productId: { $in: allProductIds },
+    }).lean();
+
+    for (const lastDet of lastConfigedDetails) {
+      if (!inventoryByProductId[lastDet.productId]) {
+        inventoryByProductId[lastDet.productId] = { remainder: 0, cost: 0 };
+      }
+      inventoryByProductId[lastDet.productId]['remainder'] =
+        (inventoryByProductId[lastDet.productId]?.['remainder'] ?? 0) +
+        lastDet.remainder;
+      inventoryByProductId[lastDet.productId]['cost'] =
+        (inventoryByProductId[lastDet.productId]?.['cost'] ?? 0) + lastDet.cost;
+    }
+  }
+
+  const trDetails = await models.Transactions.aggregate([
+    { $match: trFilter },
+    { $unwind: '$details' },
+    { $match: { 'details.productId': { $in: allProductIds } } },
+    { $sort: { date: 1 } },
+    { $project: { details: 1 } },
+  ]);
+
+  for (const trDet of trDetails) {
+    const { details } = trDet;
+    const { productId, count, side, amount } = details;
+    const multiplier = side === TR_SIDES.CREDIT ? -1 : 1;
+
+    if (!inventoryByProductId[productId]) {
+      inventoryByProductId[productId] = { remainder: 0, cost: 0 };
+    }
+    inventoryByProductId[productId]['remainder'] =
+      (inventoryByProductId[productId]?.['remainder'] ?? 0) +
+      multiplier * count;
+    inventoryByProductId[productId]['cost'] =
+      (inventoryByProductId[productId]?.['cost'] ?? 0) + multiplier * amount;
+  }
+
+  for (const product of products) {
+    order++;
+    const productId = product._id;
+    const newInfo = inventoryByProductId[productId] ?? { remainder: 0, cost: 0 };
+
+    bulkOps.push({
+      updateOne: {
+        filter: {
+          remainderId: safeRemainder._id,
+          productId: product._id,
+        },
+        update: {
+          $set: {
+            preCount: newInfo.remainder,
+            cost: newInfo.cost,
+            modifiedAt: new Date(),
+            modifiedBy: userId,
+            order,
+            count: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ["$status", SAFE_REMAINDER_ITEM_STATUSES.NEW] },
+                    { $eq: ["$preCount", "$count"] }
+                  ]
+                },
+                newInfo.remainder,
+                "$count"
+              ]
+            }
+          },
+          $setOnInsert: {
+            remainderId: safeRemainder._id,
+            productId: product._id,
+            branchId: safeRemainder.branchId,
+            departmentId: safeRemainder.departmentId,
+            status: SAFE_REMAINDER_ITEM_STATUSES.NEW,
+            uom: product.uom,
+          }
+        },
+        upsert: true,
+      },
+    });
+
+    if (bulkOps.length >= 1000) {
+      await models.SafeRemainderItems.bulkWrite(bulkOps, { ordered: false });
+      bulkOps = [];
+    }
+  }
+
+  if (bulkOps.length) {
+    await models.SafeRemainderItems.bulkWrite(bulkOps, { ordered: false });
+  }
+}
 
 export const safeRemainderDoTrs = async (
   models: IModels,
@@ -93,7 +247,7 @@ export const updateLiveRemainders = async ({
 }: IUpdateRemaindersParams & { subdomain: string; models: IModels }) => {
   const productFilter: any = {};
   if (productIds?.length) {
-    productFilter._ids = { $in: productIds };
+    productFilter._id = { $in: productIds };
   }
 
   // Find all products in category by categoryId
@@ -133,6 +287,7 @@ export const updateLiveRemainders = async ({
   })
     .sort({ date: -1 })
     .lean();
+
   if (lastAdjInv) {
     trFilter.date = { $gt: lastAdjInv.date };
     const lastConfigedDetails = await models.AdjustInvDetails.find({
@@ -177,8 +332,6 @@ export const updateLiveRemainders = async ({
       (inventoryByProductId[productId]?.['cost'] ?? 0) + multiplier * amount;
   }
 
-  const resultRemainder: any[] = [];
-
   let bulkOps: {
     productId: string;
     uom?: string;
@@ -188,14 +341,13 @@ export const updateLiveRemainders = async ({
     soonOut?: number;
   }[] = [];
 
-  let counter = 0;
   for (const product of products) {
     const productId = product._id;
     const productRemainder =
       product.inventories?.[branchId]?.[departmentId]?.remainder ?? 0;
     const productCost =
       product.inventories?.[branchId]?.[departmentId]?.cost ?? 0;
-    const newInfo = inventoryByProductId[productId];
+    const newInfo = inventoryByProductId[productId] || { remainder: 0, cost: 0 };
 
     if (
       productRemainder === newInfo.remainder &&
@@ -204,21 +356,13 @@ export const updateLiveRemainders = async ({
       continue;
     }
 
-    counter += 1;
     bulkOps.push({
       productId,
       remainder: newInfo.remainder,
       cost: newInfo.cost,
     });
-    resultRemainder.push({
-      branchId,
-      departmentId,
-      productId,
-      count: newInfo.remainder,
-      cost: newInfo.cost,
-    });
 
-    if (counter > 100) {
+    if (bulkOps.length >= 100) {
       await sendTRPCMessage({
         subdomain,
         method: 'mutation',
@@ -231,7 +375,7 @@ export const updateLiveRemainders = async ({
           productsInfo: bulkOps,
         },
       });
-      counter = 0;
+
       bulkOps = [];
     }
   }
@@ -250,8 +394,6 @@ export const updateLiveRemainders = async ({
       },
     });
   }
-
-  return resultRemainder;
 };
 
 export const getProducts = async (subdomain, productId, productCategoryId) => {

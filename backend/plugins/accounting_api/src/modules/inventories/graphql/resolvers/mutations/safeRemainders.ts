@@ -11,7 +11,7 @@ import {
 import {
   safeRemainderDoTrs,
   safeRemainderUndoTrs,
-  updateLiveRemainders,
+  setSafeRemItems,
 } from './utils';
 
 const safeRemainderMutations = {
@@ -20,11 +20,13 @@ const safeRemainderMutations = {
     params: ISafeRemainder,
     { models, subdomain, user }: IContext,
   ) => {
-    return await models.SafeRemainders.createRemainder(
-      subdomain,
+    const safeRemainder = await models.SafeRemainders.createRemainder(
       params,
       user._id,
     );
+
+    await setSafeRemItems(subdomain, models, safeRemainder, user._id);
+    return safeRemainder
   },
 
   safeRemainderEdit: async (
@@ -50,33 +52,14 @@ const safeRemainderMutations = {
   safeRemainderReCalc: async (
     _root: any,
     { _id }: { _id: string },
-    { subdomain, models }: IContext,
+    { subdomain, models, user }: IContext,
   ) => {
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
     if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
       throw new Error('can`t update, cause: status is published');
     }
 
-    const items: ISafeRemainderItemDocument[] =
-      await models.SafeRemainderItems.find({ remainderId: _id }).lean();
-
-    const result = await updateLiveRemainders({
-      subdomain,
-      models,
-      branchId: safeRemainder.branchId,
-      departmentId: safeRemainder.departmentId,
-      productIds: items.map((item) => item.productId),
-    });
-
-    await models.SafeRemainderItems.bulkWrite(
-      result.map((rem) => ({
-        updateOne: {
-          filter: { remainderId: _id, productId: rem.productId },
-          update: { preCount: rem.count },
-        },
-      })),
-    );
-
+    await setSafeRemItems(subdomain, models, safeRemainder, user._id);
     return 'success';
   },
 
@@ -286,7 +269,7 @@ const safeRemainderMutations = {
         incomeTrId: '', outTrId: '', saleTrId: '',
         status: SAFE_REMAINDER_STATUSES.DONE
 
-      }, 
+      },
       user._id
     );
     return await models.SafeRemainders.getRemainder(_id);

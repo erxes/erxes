@@ -31,3 +31,7 @@ safeRemainderItemSchema.index({
   remainderId: 1,
   productId: 1,
 });
+safeRemainderItemSchema.index({
+  remainderId: 1,
+  order: 1,
+});
