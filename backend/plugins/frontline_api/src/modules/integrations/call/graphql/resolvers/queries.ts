@@ -1,6 +1,9 @@
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import { INotesParams } from '@/integrations/call/@types/conversationNotes';
-import { ICallHistory, ICallHistoryFilterOptions } from '@/integrations/call/@types/histories';
+import {
+  ICallHistory,
+  ICallHistoryFilterOptions,
+} from '@/integrations/call/@types/histories';
 import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
 import {
   calculateAbandonmentRate,
@@ -352,7 +355,12 @@ const callQueries = {
       startDate,
       endDate,
       direction,
-    }: { queue: string; startDate: string; endDate: string; direction?: string },
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const filter: any = {
@@ -378,7 +386,12 @@ const callQueries = {
       startDate,
       endDate,
       direction,
-    }: { queue: string; startDate: string; endDate: string; direction?: string },
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const filter: any = {
@@ -404,7 +417,12 @@ const callQueries = {
       startDate,
       endDate,
       direction,
-    }: { queue: string; startDate: string; endDate: string; direction?: string },
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const filter: any = {
@@ -431,7 +449,12 @@ const callQueries = {
       startDate,
       endDate,
       direction,
-    }: { queue: string; startDate: string; endDate: string; direction?: string },
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const filter: any = {
@@ -458,7 +481,12 @@ const callQueries = {
       startDate,
       endDate,
       direction,
-    }: { queue: string; startDate: string; endDate: string; direction?: string },
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const filter: any = {
@@ -485,7 +513,12 @@ const callQueries = {
       startDate,
       endDate,
       direction,
-    }: { queue: string; startDate: string; endDate: string; direction?: string },
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const filter: any = {
@@ -585,11 +618,9 @@ const callQueries = {
   },
 
   async callGetAnwseredCalls(_args, { uniqueId }, { models }: IContext) {
-
     return await models.CallCdrs.find({
       uniqueid: uniqueId,
     });
-
   },
 
   async callGetQueueStats(
@@ -601,7 +632,7 @@ const callQueries = {
       user._id,
     );
 
-    const isContainsQueue = true
+    const isContainsQueue = true;
     const matchStage: any = {
       start: { $gte: new Date(startDate) },
       end: { $lte: new Date(endDate) },
@@ -781,7 +812,6 @@ const callQueries = {
 
       { $sort: { queue: 1 } },
     ]);
-
   },
   async callGetAgentStats(
     _args,
@@ -998,7 +1028,6 @@ const callQueries = {
 
       { $sort: { agent: 1 } },
     ]);
-
 
     return data;
   },

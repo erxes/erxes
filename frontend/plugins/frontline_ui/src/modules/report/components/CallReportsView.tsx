@@ -122,7 +122,9 @@ const SummaryCard = ({
   return (
     <InfoCard title={title}>
       <div className="space-y-1">
-        <div className="text-3xl px-2 font-semibold tracking-tight">{value}</div>
+        <div className="text-3xl px-2 font-semibold tracking-tight">
+          {value}
+        </div>
         <p className="text-sm  px-4text-muted-foreground">{description}</p>
       </div>
     </InfoCard>
@@ -131,7 +133,11 @@ const SummaryCard = ({
 
 const formatPhoneStr = (phone: string) => {
   if (!phone) return '';
-  if (phone.includes(',')) return phone.split(',').map((p) => p.trim()).join(', ');
+  if (phone.includes(','))
+    return phone
+      .split(',')
+      .map((p) => p.trim())
+      .join(', ');
   if (/^\d+$/.test(phone) && phone.length > 8 && phone.length % 8 === 0) {
     return phone.match(/.{1,8}/g)?.join(', ') || phone;
   }
@@ -302,7 +308,10 @@ export const CallReportsView = () => {
               </Select.Trigger>
               <Select.Content>
                 {uniqueIntegrations.map((integration) => (
-                  <Select.Item key={integration.inboxId} value={integration.inboxId}>
+                  <Select.Item
+                    key={integration.inboxId}
+                    value={integration.inboxId}
+                  >
                     {integration.phone}
                   </Select.Item>
                 ))}
@@ -415,12 +424,14 @@ export const CallReportsView = () => {
                           <Table.Head>Avg Talk</Table.Head>
                         </Table.Row>
                       </Table.Header>
-                      <Table.Body >
-                        <Table.Row style={{ padding: "0 4px" }}>
+                      <Table.Body>
+                        <Table.Row style={{ padding: '0 4px' }}>
                           <Table.Cell>
                             {selectedQueueStats.queue || selectedQueue}
                           </Table.Cell>
-                          <Table.Cell>{selectedQueueStats.totalCalls}</Table.Cell>
+                          <Table.Cell>
+                            {selectedQueueStats.totalCalls}
+                          </Table.Cell>
                           <Table.Cell>
                             {selectedQueueStats.answeredCalls}
                           </Table.Cell>
@@ -457,7 +468,7 @@ export const CallReportsView = () => {
                           <Table.Head>Avg Talk</Table.Head>
                         </Table.Row>
                       </Table.Header>
-                      <Table.Body >
+                      <Table.Body>
                         {agentStats.length > 0 ? (
                           agentStats.map((stat) => (
                             <Table.Row
