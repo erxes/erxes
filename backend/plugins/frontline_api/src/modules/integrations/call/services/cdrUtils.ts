@@ -57,7 +57,6 @@ const createNewCdr = async (
     disposition,
     ...filteredParams
   } = camelCaseParams as any;
-  console.log(disposition, 'disposition');
 
   return await models.CallCdrs.create({
     acctId,

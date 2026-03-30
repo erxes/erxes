@@ -585,14 +585,11 @@ const callQueries = {
   },
 
   async callGetAnwseredCalls(_args, { uniqueId }, { models }: IContext) {
-    console.log('1...', typeof uniqueId);
 
-    const cdrs = await models.CallCdrs.find({
+    return await models.CallCdrs.find({
       uniqueid: uniqueId,
     });
-    console.log('cdrs', cdrs);
 
-    return cdrs;
   },
 
   async callGetQueueStats(
@@ -603,11 +600,7 @@ const callQueries = {
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
     );
-    // console.log(queueId, 'queueId', queues)
-    // const isContainsQueue = queueId && queues.includes(queueId);
-    // if (!isContainsQueue && queueId) {
-    //   return [];
-    // }
+
     const isContainsQueue = true
     const matchStage: any = {
       start: { $gte: new Date(startDate) },
@@ -789,58 +782,6 @@ const callQueries = {
       { $sort: { queue: 1 } },
     ]);
 
-    // const start = new Date(startDate);
-    // const end = new Date(endDate);
-
-    // const inboundCount = await getInboundStats(models, startDate, endDate);
-    // console.log(inboundCount, 'inbound count');
-
-    // const queueStat = await getQueueStatsByDateRange(
-    //   models,
-    //   startDate,
-    //   endDate,
-    // );
-    // console.log(queueStat, 'queue count');
-
-    // return queueStat;
-
-    // const as = await getDailyCallRecords(models, startDate, endDate);
-    // console.log(as, 'getDailyCallRecords');
-
-    //ENE BOLSON....
-    // const ans = await getAnsweredList(models, startDate, endDate);
-    // console.log(ans, 'ans count');
-    // return a;
-
-    //ENE BOLSON....
-    // const mis = await getMissedList(models, startDate, endDate);
-    // console.log(mis, 'mis count');
-
-    // const incomingUnique = await models.CallCdrs.distinct('uniqueid', {
-    //   start: { $gte: start },
-    //   end: { $lte: end },
-    //   userfield: 'Inbound',
-    // });
-    // const incomingCallTotalCount = incomingUnique.length;
-
-    // const outgoingCallTotalCount = await models.CallCdrs.find({
-    //   start: { $gte: new Date(startDate) },
-    //   end: { $lte: new Date(endDate) },
-    //   userfield: 'Outbound',
-    // }).countDocuments();
-
-    // const answeredCount = await models.CallCdrs.find({
-    //   start: { $gte: new Date(startDate) },
-    //   end: { $lte: new Date(endDate) },
-    //   disposition: 'ANSWERED',
-    //   userfield: 'Inbound',
-    // }).countDocuments();
-
-    // console.log({
-    //   incomingCallTotalCount,
-    //   outgoingCallTotalCount,
-    //   answeredCount,
-    // });
   },
   async callGetAgentStats(
     _args,
@@ -862,7 +803,7 @@ const callQueries = {
     const matchStage: any = {
       start: { $gte: new Date(startDate) },
       end: { $lte: new Date(endDate) },
-      lastapp: 'Queue', // Зөвхөн Queue app-р дамжсан CDR-үүд
+      lastapp: 'Queue',
     };
 
     if (direction) {
@@ -874,7 +815,6 @@ const callQueries = {
         $match: matchStage,
       },
 
-      // QUEUE ID салгаж авна
       {
         $addFields: {
           queue: {
@@ -904,12 +844,10 @@ const callQueries = {
               null,
             ],
           },
-          // Agent нь dst талбар (1803, 1804 гэх мэт)
           agent: { $toString: '$dst' },
         },
       },
 
-      // Queue болон Agent filter
       {
         $match: {
           queue: queueId ? queueId : { $ne: null },
@@ -924,7 +862,6 @@ const callQueries = {
         },
       },
 
-      // Unique call-р бүлэглэх
       {
         $group: {
           _id: { queue: '$queue', agent: '$agent', uniqueid: '$uniqueid' },
@@ -939,7 +876,6 @@ const callQueries = {
         $project: {
           queue: '$_id.queue',
           agent: '$_id.agent',
-          // Answered: ANSWERED disposition, billsec > 0
           isAnswered: {
             $and: [
               { $in: ['ANSWERED', '$dispositions'] },
@@ -1063,28 +999,13 @@ const callQueries = {
       { $sort: { agent: 1 } },
     ]);
 
-    // Agent нэрийг Users model-с авах (optional)
-    // Хэрэв Users collection байгаа бол энийг ашиглаж болно
-    /*
-    const agentIds = data.map(d => d.agent);
-    const users = await models.Users.find({ extension: { $in: agentIds } });
-    const userMap = users.reduce((acc, user) => {
-      acc[user.extension] = user.name || user.username;
-      return acc;
-    }, {});
-  
-    return data.map(d => ({
-      ...d,
-      agentName: userMap[d.agent] || null
-    }));
-    */
 
     return data;
   },
   async getCallbackStats(
     _args,
     { startDate, endDate, queueId },
-    { models, user }: IContext,
+    { models }: IContext,
   ) {
     const data = await models.CallCdrs.aggregate([
       {
@@ -1127,14 +1048,12 @@ const callQueries = {
         },
       },
 
-      // Queue filter
       {
         $match: {
           queue: queueId ? queueId : { $ne: null },
         },
       },
 
-      // Unique call-р бүлэглэх
       {
         $group: {
           _id: { queue: '$queue', uniqueid: '$uniqueid' },
@@ -1153,7 +1072,6 @@ const callQueries = {
           src: 1,
           start: 1,
           end: 1,
-          // Missed: ANSWERED байхгүй эсвэл ANSWERED байсан ч billsec = 0
           isMissed: {
             $or: [
               { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
@@ -1168,12 +1086,10 @@ const callQueries = {
         },
       },
 
-      // Зөвхөн алдсан дуудлагууд
       {
         $match: { isMissed: true },
       },
 
-      // Callback-ийг шалгах (тухайн src дугаараас эргэн холбогдсон эсэх)
       {
         $lookup: {
           from: 'callcdrs',
@@ -1187,11 +1103,8 @@ const callQueries = {
               $match: {
                 $expr: {
                   $and: [
-                    // Outbound дуудлага
                     { $eq: ['$userfield', 'Outbound'] },
-                    // Алдсан дуудлагын дугаар руу холбогдсон
                     { $eq: ['$dst', '$$missedSrc'] },
-                    // Алдсан дуудлагын дараа холбогдсон (24 цагийн дотор)
                     { $gte: ['$start', '$$missedTime'] },
                     {
                       $lte: [
@@ -1240,7 +1153,7 @@ const callQueries = {
                   {
                     $subtract: [{ $min: '$callbacks.start' }, '$end'],
                   },
-                  60000, // Минут руу хөрвүүлэх
+                  60000,
                 ],
               },
               null,
@@ -1249,7 +1162,6 @@ const callQueries = {
         },
       },
 
-      // Queue-р бүлэглэх
       {
         $group: {
           _id: '$queue',
@@ -1323,80 +1235,6 @@ const callQueries = {
     return data;
   },
   async callGetOperatorStats(_, { startDate, endDate }, { models }: IContext) {
-    console.log('-------', typeof startDate, startDate);
-    // const stats = await models.CallCdrs.aggregate([
-    //   // STAGE 1: $match (Огноо, нөхцөлөөр шүүх)
-    //   {
-    //     $match: {
-    //       // Огноог query-ээс авна
-    //       start: { $gte: new Date(startDate) },
-    //       end: { $lte: new Date(endDate) },
-
-    //       // lastApp: "Queue" эсвэл "ReadExten" гэж өргөтгөж болно. Одоогоор "Queue"
-    //       lastApp: { $in: ['Queue'] },
-
-    //       // Операторын ID (dst) байгаа эсэх болон 18-аар эхэлсэн эсэхийг баталгаажуулах
-    //       dst: {
-    //         $exists: true,
-    //         $ne: '',
-    //       },
-    //     },
-    //   },
-
-    //   // STAGE 2: $group by uniqueId (Дуудлагын давхцлыг арилгах)
-    //   // Нэг uniqueId-тай дуудлагаас хамгийн сайн мэдээллийг авна.
-    //   {
-    //     $group: {
-    //       _id: '$uniqueId',
-
-    //       // Энэ дуудлагыг хүлээж авсан операторын ID-г хадгалах
-    //       operatorId: { $first: '$dst' },
-
-    //       // Disposition (Хариулт/Татгалзсан)
-    //       disposition: { $first: '$disposition' },
-    //     },
-    //   },
-
-    //   // STAGE 3: $group by operatorId (Эцсийн тооцоо)
-    //   // Одоо оператор бүрээр давхардаагүй дуудлагуудыг тоолно.
-    //   {
-    //     $group: {
-    //       _id: '$operatorId', // Операторын ID
-
-    //       totalCalls: { $sum: 1 }, // Unique дуудлагын нийт тоо
-
-    //       // ANSWERED бол 1-ээр нэмэгдэнэ
-    //       answeredCount: {
-    //         $sum: { $cond: [{ $eq: ['$disposition', 'ANSWERED'] }, 1, 0] },
-    //       },
-
-    //       // ANSWERED биш бол 1-ээр нэмэгдэнэ (Missed/No Answer)
-    //       missedCount: {
-    //         $sum: { $cond: [{ $ne: ['$disposition', 'ANSWERED'] }, 1, 0] },
-    //       },
-    //     },
-    //   },
-
-    //   // STAGE 4: $addFields (Нэмэлт талбар: Хариултын хувь - Answer Rate)
-    //   {
-    //     $addFields: {
-    //       answerRate: {
-    //         $round: [
-    //           {
-    //             $multiply: [
-    //               { $divide: ['$answeredCount', '$totalCalls'] },
-    //               100,
-    //             ],
-    //           },
-    //           2, // 2 оронгоор тоймлох
-    //         ],
-    //       },
-    //     },
-    //   },
-
-    //   // STAGE 5: $sort (Хамгийн их дуудлагатай оператороос эхлэн эрэмбэлэх)
-    //   { $sort: { totalCalls: -1 } },
-    // ]);
     return await models.CallCdrs.aggregate([
       {
         $match: {
@@ -1406,8 +1244,6 @@ const callQueries = {
       {
         $group: {
           _id: {
-            // Агентыг тодорхойлох логик:
-            // Outbound бол src нь агент. Inbound бол dst нь агент.
             agent: {
               $cond: [{ $eq: ['$userfield', 'Outbound'] }, '$src', '$dst'],
             },
@@ -1463,10 +1299,8 @@ const callQueries = {
           totalTalkTime: { $sum: '$billsec' },
         },
       },
-      // Зөвхөн 4 оронтой тоо (Агент)-уудыг шүүж авах (Жишээ нь 1801, 1002 гэх мэт)
       {
         $addFields: {
-          // Agent ID-г string болгож, цэвэрлэх
           cleanAgentId: {
             $trim: { input: { $toString: '$_id.agent' } },
           },
@@ -1474,7 +1308,6 @@ const callQueries = {
       },
       {
         $match: {
-          // Цэвэрлэсэн ID нь 3 эсвэл 4 оронтой тоо байх
           cleanAgentId: { $regex: '^[0-9]{3,4}$' },
         },
       },

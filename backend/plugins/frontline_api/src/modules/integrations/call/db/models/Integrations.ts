@@ -59,7 +59,6 @@ export const loadCallIntegrationClass = (models: IModels) => {
       if (!integration) {
         throw new Error('Integration not found');
       }
-      console.log(integration, 'integration');
       return integration.queues || [];
     }
   }
