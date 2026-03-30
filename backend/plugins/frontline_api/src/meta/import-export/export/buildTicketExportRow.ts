@@ -58,18 +58,12 @@ export const buildTicketExportRow = (
     pipelineId: formatValue(pipelineName),
     tagIds: formatValue(tagNames),
     number: formatValue(ticket.number),
-    startDate: formatValue(
-      ticket.startDate ? new Date(ticket.startDate) : '',
-    ),
+    startDate: formatValue(ticket.startDate ? new Date(ticket.startDate) : ''),
     targetDate: formatValue(
       ticket.targetDate ? new Date(ticket.targetDate) : '',
     ),
-    createdAt: formatValue(
-      ticket.createdAt ? new Date(ticket.createdAt) : '',
-    ),
-    updatedAt: formatValue(
-      ticket.updatedAt ? new Date(ticket.updatedAt) : '',
-    ),
+    createdAt: formatValue(ticket.createdAt ? new Date(ticket.createdAt) : ''),
+    updatedAt: formatValue(ticket.updatedAt ? new Date(ticket.updatedAt) : ''),
   };
 
   if (selectedFields?.length) {

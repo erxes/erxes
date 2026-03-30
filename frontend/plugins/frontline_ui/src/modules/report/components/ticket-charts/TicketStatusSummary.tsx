@@ -94,17 +94,28 @@ export const TicketStatusSummary = ({
 
   const data = useMemo(() => statusSummary || [], [statusSummary]);
 
-  const exportColumns = useMemo(() => [
-    { key: 'name' as const, header: 'Status' },
-    { key: 'count' as const, header: 'Count' },
-    { key: 'percentage' as const, header: 'Percentage', format: (v: number) => `${v}%` },
-  ], []);
+  const exportColumns = useMemo(
+    () => [
+      { key: 'name' as const, header: 'Status' },
+      { key: 'count' as const, header: 'Count' },
+      {
+        key: 'percentage' as const,
+        header: 'Percentage',
+        format: (v: number) => `${v}%`,
+      },
+    ],
+    [],
+  );
 
   const filterEl = (
     <>
       <TicketReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
-      <ChartExportButton data={data} columns={exportColumns} filename="ticket-status-summary" />
+      <ChartExportButton
+        data={data}
+        columns={exportColumns}
+        filename="ticket-status-summary"
+      />
     </>
   );
 

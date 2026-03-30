@@ -300,8 +300,12 @@ export const reportTicketQueries = {
       return [];
     }
 
-    const assigneeIds = [...new Set(tickets.map((t: any) => t.assigneeId).filter(Boolean))];
-    const pipelineIds = [...new Set(tickets.map((t: any) => t.pipelineId).filter(Boolean))];
+    const assigneeIds = [
+      ...new Set(tickets.map((t: any) => t.assigneeId).filter(Boolean)),
+    ];
+    const pipelineIds = [
+      ...new Set(tickets.map((t: any) => t.pipelineId).filter(Boolean)),
+    ];
     const allTagIds = [...new Set(tickets.flatMap((t: any) => t.tagIds || []))];
 
     const [members, pipelines, tags] = await Promise.all([

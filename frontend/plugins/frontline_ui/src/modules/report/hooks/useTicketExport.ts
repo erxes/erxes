@@ -21,10 +21,12 @@ interface TicketExportResponse {
 }
 
 export const useTicketExport = () => {
-  const [fetchExport, { loading, error }] =
-    useLazyQuery<TicketExportResponse>(GET_TICKET_EXPORT, {
+  const [fetchExport, { loading, error }] = useLazyQuery<TicketExportResponse>(
+    GET_TICKET_EXPORT,
+    {
       fetchPolicy: 'network-only',
-    });
+    },
+  );
 
   return { fetchExport, loading, error };
 };

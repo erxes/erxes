@@ -1,4 +1,7 @@
-import { GetExportData, IImportExportContext } from 'erxes-api-shared/core-modules';
+import {
+  GetExportData,
+  IImportExportContext,
+} from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildTicketExportRow } from './buildTicketExportRow';
