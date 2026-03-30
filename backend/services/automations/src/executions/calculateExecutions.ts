@@ -39,6 +39,7 @@ const checkIsValidCustomTigger = async (
   }).catch((e) =>
     debugError(`An error occurred while check trigger: ${e.message}`),
   );
+  console.log({ response });
 
   return response;
 };
@@ -51,7 +52,7 @@ const checkValidTrigger = async (
 ) => {
   const { type = '', config, isCustom } = trigger;
   const { contentId } = config || {};
-  if (!!isCustom) {
+  if (Boolean(isCustom)) {
     const isValidCustomTigger = await checkIsValidCustomTigger(
       type,
       subdomain,
@@ -92,6 +93,7 @@ export const calculateExecution = async ({
       subdomain,
       automationId,
     );
+    console.log({ isValidTrigger });
     if (!isValidTrigger) {
       return;
     }

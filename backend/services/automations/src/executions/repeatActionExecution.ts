@@ -52,6 +52,7 @@ export const repeatActionExecution = async (
       nextExecutedActionId = optionalConnect.actionId;
     }
   }
+  console.log({ nextExecutedAction, executionId, actionId, optionalConnectId });
 
   if (nextExecutedAction) {
     execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;

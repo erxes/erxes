@@ -38,6 +38,7 @@ export const automationsTriggerTrpcRouter = t.router({
             type,
             targets,
           );
+          console.log({ waitingAction: JSON.stringify(waitingAction) });
           if (waitingAction) {
             executeWaitingAction(subdomain, models, waitingAction);
           }

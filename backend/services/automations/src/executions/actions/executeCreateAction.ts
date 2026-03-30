@@ -35,6 +35,7 @@ export const executeCreateAction = async (
     },
     defaultValue: null,
   });
+  console.log({ actionResponse });
 
   if (actionResponse.error) {
     throw new Error(actionResponse.error);
