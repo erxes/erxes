@@ -121,6 +121,7 @@ export const queries = `
     ${tagQueries}
     ${menuQueries}
     ${pageQueries}
+    ${adminQueries}
   `;
 
 export const mutations = `

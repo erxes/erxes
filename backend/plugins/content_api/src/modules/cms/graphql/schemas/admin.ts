@@ -17,6 +17,6 @@ export const mutations = `
   cmsFixTranslationIndex: FixTranslationIndexResponse
 `;
 
-export const queries = ``;
+export const queries = '';
 
-export const inputs = ``;
+export const inputs = '';
