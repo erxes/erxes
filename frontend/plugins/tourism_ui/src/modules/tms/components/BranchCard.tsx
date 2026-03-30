@@ -73,8 +73,9 @@ export const BranchCard = ({
 
       <Link
         to={`branches/${branch._id}`}
-        className="w-full h-[140px] bg-accent/30 overflow-hidden flex items-center justify-center">
-          <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
+        className="w-full h-[140px] bg-accent/30 overflow-hidden flex items-center justify-center"
+      >
+        <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
       </Link>
 
       <div className="flex items-center justify-between px-3 py-2 border-t">
