@@ -134,7 +134,14 @@ const FixedDuplicateSheet = ({
   const startDate = useWatch({ control: form.control, name: 'startDate' });
 
   const handleSubmit = async (values: FixedFormType) => {
-    if (!branchId) return;
+    if (!branchId) {
+      toast({
+        title: 'Error',
+        description: 'Branch not selected — cannot duplicate tour',
+        variant: 'destructive',
+      });
+      return;
+    }
     const computedEndDate = calculateEndDate(values.startDate, tour.duration);
 
     createTour({
@@ -298,7 +305,14 @@ const FlexibleDuplicateSheet = ({
   });
 
   const handleSubmit = async (values: FlexibleFormType) => {
-    if (!branchId) return;
+    if (!branchId) {
+      toast({
+        title: 'Error',
+        description: 'Branch not selected — cannot duplicate tour',
+        variant: 'destructive',
+      });
+      return;
+    }
     createTour({
       variables: {
         branchId,
