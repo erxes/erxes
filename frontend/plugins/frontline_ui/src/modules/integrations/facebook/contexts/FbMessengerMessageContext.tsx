@@ -18,8 +18,14 @@ export const useFbMessengerMessageContext = () => {
     );
   }
 
-  const { previousMessage, nextMessage, userId, customerId, createdAt, botData } =
-    context;
+  const {
+    previousMessage,
+    nextMessage,
+    userId,
+    customerId,
+    createdAt,
+    botData,
+  } = context;
   const isOutgoing = !!userId || !!botData?.length;
 
   const checkHasSibling = (message?: IFacebookConversationMessage) => {

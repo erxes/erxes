@@ -12,7 +12,10 @@ export type TMessageTriggerDirectConditions = NonNullable<
 >;
 
 export type TMessageTriggerPersistentMenuIds = NonNullable<
-  Extract<TMessageTriggerCondition, { type: 'persistentMenu' }>['persistentMenuIds']
+  Extract<
+    TMessageTriggerCondition,
+    { type: 'persistentMenu' }
+  >['persistentMenuIds']
 >;
 
 export type TMessageTriggerSourceMode = NonNullable<

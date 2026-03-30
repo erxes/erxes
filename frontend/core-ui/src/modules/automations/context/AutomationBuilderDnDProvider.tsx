@@ -60,9 +60,7 @@ export const useDnD = () => {
   const context = useContext(DnDContext);
 
   if (!context) {
-    throw new Error(
-      'useDnD must be used within AutomationBuilderDnDProvider',
-    );
+    throw new Error('useDnD must be used within AutomationBuilderDnDProvider');
   }
 
   return context;

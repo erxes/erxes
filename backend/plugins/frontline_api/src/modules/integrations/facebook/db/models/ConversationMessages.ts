@@ -17,8 +17,7 @@ interface IAddFacebookConversationBotMessage {
   conversationErxesApiId: string;
 }
 
-export interface IFacebookConversationMessageModel
-  extends Model<IFacebookConversationMessageDocument> {
+export interface IFacebookConversationMessageModel extends Model<IFacebookConversationMessageDocument> {
   getMessage(_id: string): Promise<IFacebookConversationMessageDocument>;
   createMessage(
     doc: IFacebookConversationMessage,

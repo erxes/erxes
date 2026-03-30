@@ -34,11 +34,7 @@ export const MessageTriggerConfigPanel = () => {
         <DirectMessageEditor
           conditions={currentCondition?.conditions || []}
           onConditionChange={(fieldName, fieldValue) =>
-            updateCondition(
-              activeConditionType,
-              fieldName,
-              fieldValue as any,
-            )
+            updateCondition(activeConditionType, fieldName, fieldValue as any)
           }
         />
       ) : null}
@@ -48,11 +44,7 @@ export const MessageTriggerConfigPanel = () => {
           botId={botId}
           selectedPersistentMenuIds={currentCondition?.persistentMenuIds}
           onConditionChange={(fieldName, fieldValue) =>
-            updateCondition(
-              activeConditionType,
-              fieldName,
-              fieldValue as any,
-            )
+            updateCondition(activeConditionType, fieldName, fieldValue as any)
           }
         />
       ) : null}

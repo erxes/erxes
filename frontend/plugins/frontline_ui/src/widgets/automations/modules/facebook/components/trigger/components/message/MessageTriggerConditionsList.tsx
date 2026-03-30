@@ -26,9 +26,7 @@ export const MessageTriggerConditionsList = () => {
             icon={Icon}
             isSelected={selectedConditionTypes.includes(type)}
             errorMessage={errors[type]}
-            onCheck={(checked) =>
-              updateCondition(type, 'isSelected', checked)
-            }
+            onCheck={(checked) => updateCondition(type, 'isSelected', checked)}
             onOpen={() => setActiveConditionType(type)}
           />
         ),

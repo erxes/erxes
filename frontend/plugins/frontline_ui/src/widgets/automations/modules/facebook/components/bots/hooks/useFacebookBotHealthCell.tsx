@@ -16,9 +16,7 @@ const BOT_STATUS_VARIANTS = {
   unknown: 'secondary',
 } as const;
 
-export const useFacebookBotHealthCell = (
-  health?: IFacebookBotHealth,
-) => {
+export const useFacebookBotHealthCell = (health?: IFacebookBotHealth) => {
   const status = health?.status || 'unknown';
   const statusLabel =
     BOT_STATUS_LABELS[status as keyof typeof BOT_STATUS_LABELS] ||

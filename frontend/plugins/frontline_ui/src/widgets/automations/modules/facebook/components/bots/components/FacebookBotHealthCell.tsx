@@ -8,12 +8,8 @@ export const FacebookBotHealthCell = ({
 }: {
   health?: IFacebookBotHealth;
 }) => {
-  const {
-    statusLabel,
-    statusVariant,
-    showDetails,
-    detailItems,
-  } = useFacebookBotHealthCell(health);
+  const { statusLabel, statusVariant, showDetails, detailItems } =
+    useFacebookBotHealthCell(health);
 
   return (
     <RecordTableInlineCell className="min-w-0">
