@@ -25,6 +25,9 @@ export const MessageTriggerConditionCard = ({
 
   return (
     <div
+      role={isDisabled ? undefined : 'button'}
+      tabIndex={isDisabled ? -1 : 0}
+      aria-disabled={isDisabled}
       onClick={(e) => {
         e.preventDefault();
 
@@ -33,6 +36,16 @@ export const MessageTriggerConditionCard = ({
         }
 
         onOpen();
+      }}
+      onKeyDown={(e) => {
+        if (isDisabled) {
+          return;
+        }
+
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpen();
+        }
       }}
       className={cn(
         'flex flex-row items-center gap-4 rounded border p-4 transition-all duration-300 ease-in-out',

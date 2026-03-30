@@ -42,7 +42,10 @@ const Attachment = ({
 
   if (!isImage) {
     return (
-      <div
+      <a
+        href={readImage(attachment.url)}
+        target="_blank"
+        rel="noopener noreferrer"
         className={cn(
           {
             'col-span-2': length === 1,
@@ -50,17 +53,10 @@ const Attachment = ({
           },
           'flex w-full cursor-pointer items-center justify-center gap-2 rounded bg-accent px-2 py-1',
         )}
-        onClick={() => {
-          window.open(
-            readImage(attachment.url),
-            '_blank',
-            'noopener,noreferrer',
-          );
-        }}
       >
         <IconFile className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground">{attachment.name}</span>
-      </div>
+      </a>
     );
   }
 
