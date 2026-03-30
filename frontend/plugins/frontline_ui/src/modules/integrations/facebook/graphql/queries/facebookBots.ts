@@ -6,11 +6,39 @@ const FACEBOOK_BOT_FIELDS = `
   account
   accountId
   createdAt
+  updatedAt
+  createdBy
+  updatedBy
+  createdUser {
+    _id
+    username
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
+  updatedUser {
+    _id
+    username
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
   page
   pageId
   profileUrl
   persistentMenus {
     _id,text,type,link
+  }
+  health {
+    status
+    isSubscribed
+    isProfileSynced
+    lastSyncedAt
+    lastVerifiedAt
   }
 `;
 
