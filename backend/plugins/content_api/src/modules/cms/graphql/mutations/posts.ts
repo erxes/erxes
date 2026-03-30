@@ -16,15 +16,64 @@ const saveTranslations = async (
 ) => {
   if (!Array.isArray(translations) || translations.length === 0) return;
 
-  await Promise.all(
-    translations.map((t) =>
-      models.Translations.upsertTranslation({
-        ...t,
-        objectId,
-        type: t.type || 'post',
-      }),
-    ),
-  );
+  try {
+    await Promise.all(
+      translations.map((t) =>
+        models.Translations.upsertTranslation({
+          ...t,
+          objectId,
+          type: t.type || 'post',
+        }),
+      ),
+    );
+  } catch (error: any) {
+    // Auto-fix duplicate key error
+    if (error.code === 11000 && error.message.includes('cms_translations')) {
+      console.log('🔧 Auto-fixing translation index issue...');
+      
+      // Run the fix automatically
+      await fixTranslationIndex(models);
+      
+      // Retry the operation
+      await Promise.all(
+        translations.map((t) =>
+          models.Translations.upsertTranslation({
+            ...t,
+            objectId,
+            type: t.type || 'post',
+          }),
+        ),
+      );
+      
+      console.log('✅ Translation index issue auto-fixed and retry successful');
+    } else {
+      throw error;
+    }
+  }
+};
+
+// Auto-fix function for translation index issues
+const fixTranslationIndex = async (models: IContext['models']) => {
+  const db = models.Translations.db;
+  const translationsCollection = db.collection('cms_translations');
+  
+  try {
+    // Drop old index if exists
+    await translationsCollection.dropIndex('postId_1_language_1_type_1').catch(() => {});
+    
+    // Clean up null objectId documents
+    await translationsCollection.deleteMany({ objectId: null });
+    
+    // Create correct index
+    await translationsCollection.createIndex(
+      { objectId: 1, language: 1, type: 1 },
+      { unique: true, name: 'objectId_1_language_1_type_1' }
+    ).catch(() => {}); // Index might already exist
+    
+    console.log('🔧 Translation index auto-fix completed');
+  } catch (error) {
+    console.error('❌ Auto-fix failed:', error);
+  }
 };
 
 export const postMutations: Record<string, Resolver> = {
