@@ -107,15 +107,14 @@ export const exportQueries = {
       query.entityType = entityType;
     }
 
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<any>({
-        model: models.Exports as any,
-        params: {
-          ...cursorArgs,
-          orderBy: { createdAt: -1 },
-        },
-        query,
-      });
+    const { list, totalCount, pageInfo } = await cursorPaginate<any>({
+      model: models.Exports as any,
+      params: {
+        ...cursorArgs,
+        orderBy: { createdAt: -1 },
+      },
+      query,
+    });
 
     return {
       list: list.map(mapExportWithMetrics),
