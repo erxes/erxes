@@ -16,7 +16,7 @@ export interface ICallCustomerModel extends Model<ICustomerDocument> {
   checkDuplication(
     primaryPhone: string | number,
     idsToExclude?: string[] | string,
-  ): never;
+  ): Promise<never>;
   removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
 }
 

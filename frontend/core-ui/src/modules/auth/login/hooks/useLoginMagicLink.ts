@@ -54,7 +54,7 @@ export const useLoginMagicLink = () => {
   const onGoogleLogin = () =>
     loginWithGoogle({
       onCompleted: (data) => {
-        if (data && data.loginWithGoogle) {
+        if (data?.loginWithGoogle) {
           try {
             const url = new URL(data.loginWithGoogle);
             if (url.protocol === 'https:' || url.protocol === 'http:') {

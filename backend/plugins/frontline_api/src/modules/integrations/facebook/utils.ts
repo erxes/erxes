@@ -304,7 +304,7 @@ export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string },
 ): string => {
-  return (pageTokens || {})[pageId];
+  return pageTokens?.[pageId];
 };
 
 export const subscribePage = async (
@@ -396,7 +396,7 @@ export const restorePost = async (
   let pageAccessToken;
 
   try {
-    pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(
       `Error occurred while trying to get page access token with ${e.message}`,

@@ -14,7 +14,7 @@ export interface ICPCommentsModel extends Model<ICPCommentDocument> {
     _id: string,
     doc: Partial<ICPComment>,
   ): Promise<ICPCommentDocument>;
-  deleteComment(_id: string): void;
+  deleteComment(_id: string): Promise<void>;
 }
 
 export const loadCommentClass = (models: IModels, subdomain: string) => {

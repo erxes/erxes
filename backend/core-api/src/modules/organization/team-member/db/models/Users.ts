@@ -81,7 +81,7 @@ export interface IUserModel extends Model<IUserDocument> {
     username?: string;
   }): Promise<never>;
   getSecret(): string;
-  generateToken(duration?: number): { token: string; expires: Date };
+  generateToken(duration?: number): Promise<{ token: string; expires: Date }>;
   createUser(doc: IUser & { notUsePassword?: boolean }): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -97,9 +97,9 @@ export interface IUserModel extends Model<IUserDocument> {
   ): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
-  invite(params: IInviteParams): string;
+  invite(params: IInviteParams): Promise<string>;
   resendInvitation({ email }: { email: string }): Promise<string>;
-  comparePassword(password: string, userPassword: string): boolean;
+  comparePassword(password: string, userPassword: string): Promise<boolean>;
   resetPassword(params: {
     token: string;
     newPassword: string;
@@ -109,7 +109,7 @@ export interface IUserModel extends Model<IUserDocument> {
     params: IPasswordParams & { currentPassword: string },
   ): Promise<IUserDocument>;
   forgotPassword(email: string): Promise<string>;
-  createTokens(_user: IUserDocument, secret: string): string[];
+  createTokens(_user: IUserDocument, secret: string): Promise<string[]>;
   refreshTokens(refreshToken: string): {
     token: string;
     refreshToken: string;
@@ -807,7 +807,7 @@ export const loadUserClass = (
         isActive: true,
       });
 
-      if (!user || !user.password) {
+      if (!user?.password) {
         // user with provided email not found
         throw new Error('Invalid login');
       }
@@ -957,7 +957,7 @@ export const loadUserClass = (
         isActive: true,
       });
 
-      if (!user || !user.password) {
+      if (!user?.password) {
         // user with provided email not found
         throw new Error('Invalid login');
       }

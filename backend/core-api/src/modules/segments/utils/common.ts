@@ -585,7 +585,7 @@ const associationPropertyFilter = async (
   },
 ) => {
   const plugin = await getPlugin(pluginName);
-  const segmentMeta = (plugin.config.meta || {}).segments;
+  const segmentMeta = plugin.config?.meta?.segments;
 
   if (segmentMeta) {
     return await sendCoreModuleProducer({

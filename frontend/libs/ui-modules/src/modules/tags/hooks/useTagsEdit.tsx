@@ -111,7 +111,7 @@ export const useTagsEdit = () => {
           id: cache.identify(tagsEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field as keyof ITag];
+              fields[field] = () => variables?.[field as keyof ITag];
               return fields;
             },
             {},
