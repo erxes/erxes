@@ -22,8 +22,15 @@ export interface IChannelModel extends Model<IChannelDocument> {
     adminId: string;
     memberIds: string[];
   }): Promise<IChannelDocument>;
-  updateChannel(_id: string, doc: IChannel, userId: string): Promise<IChannelDocument>;
-  updateUserChannels(channelIds: string[], userId: string): Promise<IChannelDocument[]>;
+  updateChannel(
+    _id: string,
+    doc: IChannel,
+    userId: string,
+  ): Promise<IChannelDocument>;
+  updateUserChannels(
+    channelIds: string[],
+    userId: string,
+  ): Promise<IChannelDocument[]>;
   removeChannel(_id: string): Promise<void>;
 }
 
