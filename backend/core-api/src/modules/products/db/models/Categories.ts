@@ -115,7 +115,7 @@ export const loadProductCategoryClass = (
         _id: doc.parentId,
       }).lean();
 
-      if (parentCategory && parentCategory.parentId === _id) {
+      if (parentCategory?.parentId === _id) {
         throw new Error('Cannot change category');
       }
 

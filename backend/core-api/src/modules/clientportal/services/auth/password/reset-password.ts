@@ -1,4 +1,3 @@
-import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IModels } from '~/connectionResolvers';
 import { AuthenticationError } from '@/clientportal/services/errorHandler';
@@ -9,7 +8,7 @@ function validateResetToken(
   user: ICPUserDocument | null,
   code?: string | number,
 ): void {
-  if (!user || !user.actionCode) {
+  if (!user?.actionCode) {
     throw new AuthenticationError('Invalid or expired reset token');
   }
   const codeToValidate = code !== undefined ? code : user.actionCode.code;
@@ -58,7 +57,7 @@ export async function resetPasswordWithCode(
     clientPortalId,
   );
 
-  if (!user || !user.actionCode) {
+  if (!user?.actionCode) {
     throw new AuthenticationError('Invalid or expired reset token');
   }
 

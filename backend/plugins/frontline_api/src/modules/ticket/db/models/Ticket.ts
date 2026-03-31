@@ -92,7 +92,7 @@ export const loadTicketClass = (models: IModels) => {
 
       const status = await models.Status.getStatus(doc.statusId);
 
-      if (status && status.pipelineId) {
+      if (status?.pipelineId) {
         doc.pipelineId = status.pipelineId;
       }
 
@@ -229,9 +229,7 @@ export const loadTicketClass = (models: IModels) => {
       });
 
       if (
-        detail &&
-        detail.subscribedUserIds &&
-        detail.subscribedUserIds.length > 0
+        (detail?.subscribedUserIds?.length ?? 0) > 0
       ) {
         const userIds = detail.subscribedUserIds.filter(
           (id) => id !== userId && id !== doc.assigneeId,

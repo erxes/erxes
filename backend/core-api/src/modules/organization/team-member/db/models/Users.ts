@@ -807,7 +807,7 @@ export const loadUserClass = (
         isActive: true,
       });
 
-      if (!user || !user.password) {
+      if (!user?.password) {
         // user with provided email not found
         throw new Error('Invalid login');
       }
@@ -957,7 +957,7 @@ export const loadUserClass = (
         isActive: true,
       });
 
-      if (!user || !user.password) {
+      if (!user?.password) {
         // user with provided email not found
         throw new Error('Invalid login');
       }

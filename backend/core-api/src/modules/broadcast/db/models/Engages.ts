@@ -287,7 +287,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
           const conversationMessage =
             await this.createOrUpdateConversationAndMessages({
-              customerId: customer && customer._id,
+              customerId: customer?._id,
               visitorId,
               integrationId,
               user,

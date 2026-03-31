@@ -80,7 +80,7 @@ export const facebookQueries = {
         erxesApiId: senderId,
       });
 
-      if (customer && customer.userId) {
+      if (customer?.userId) {
         query.senderId = customer.userId;
       }
     } else {

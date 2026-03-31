@@ -154,7 +154,7 @@ export const fetchSegment = async (
 
       /* istanbul ignore next */
 
-      if (hits.total && hits.total.value === results.length) {
+      if (hits.total?.value === results.length) {
         // check to see if we have collected all the documents
         break;
       }

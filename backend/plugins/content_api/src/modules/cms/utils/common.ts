@@ -56,7 +56,7 @@ export const customFieldsDataByFieldCode = async (
   object,
 ) => {
   const customFieldsData =
-    object.customFieldsData && object.customFieldsData.toObject
+    object.customFieldsData?.toObject
       ? object.customFieldsData.toObject()
       : object.customFieldsData || [];
 

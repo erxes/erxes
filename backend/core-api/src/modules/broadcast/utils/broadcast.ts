@@ -45,7 +45,7 @@ const sendBroadcastEmail = async ({
 
   const fromUser = await models.Users.findOne({ _id: fromUserId }).lean();
 
-  if (!fromUser || !fromUser?.email) {
+  if (!fromUser?.email) {
     throw new Error('Invalid from user');
   }
 

@@ -50,7 +50,7 @@ const fetchUsers = async (
     },
   });
   for (const user of users) {
-    if (user.details && user.details.location) {
+    if (user.details?.location) {
       user.isOnline = await isMessengerOnline(
         models,
         integration,
@@ -255,7 +255,7 @@ export const widgetQueries: Record<string, Resolver> = {
 
     const messengerData = integration.messengerData || { supporterIds: [] };
 
-    if (integration.messengerData && integration.messengerData.timezone) {
+    if (integration.messengerData?.timezone) {
       timezone = integration.messengerData.timezone;
     }
 
@@ -294,7 +294,7 @@ export const widgetQueries: Record<string, Resolver> = {
   ) {
     const config = await models.TicketConfig.getTicketConfig(args.configId);
 
-    if (config && config.formFields?.tags?.isShow) {
+    if (config?.formFields?.tags?.isShow) {
       return await sendTRPCMessage({
         subdomain,
         pluginName: 'core',

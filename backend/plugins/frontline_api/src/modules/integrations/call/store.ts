@@ -58,11 +58,10 @@ export const getOrCreateCustomer = async (
       };
       const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
 
-      if (apiCustomerResponse && apiCustomerResponse.status === 'success') {
+      if (apiCustomerResponse?.status === 'success') {
         if (
           customer &&
-          apiCustomerResponse.data &&
-          apiCustomerResponse.data._id
+          apiCustomerResponse.data?._id
         ) {
           customer.erxesApiId = apiCustomerResponse.data._id;
           customer.status = 'completed';
@@ -84,7 +83,7 @@ export const getOrCreateCustomer = async (
       throw new Error(`Failed to sync with API: ${e.stack || e.message || e}`);
     }
   }
-  if (customer && customer.erxesApiId) {
+  if (customer?.erxesApiId) {
     const coreCustomer = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -95,7 +94,7 @@ export const getOrCreateCustomer = async (
         query: { _id: customer.erxesApiId },
       },
     });
-    if (coreCustomer && coreCustomer._id) {
+    if (coreCustomer?._id) {
       await sendTRPCMessage({
         subdomain,
 
@@ -126,7 +125,7 @@ export const getOrCreateCustomer = async (
           },
         },
       });
-      if (newCustomer && newCustomer._id) {
+      if (newCustomer?._id) {
         customer.erxesApiId = newCustomer._id;
         await customer.save();
       }
@@ -193,7 +192,7 @@ export const getOrCreateCdr = async (
 
       let conversationId = '';
 
-      if (existingConversation && existingConversation.conversationId) {
+      if (existingConversation?.conversationId) {
         // Use existing conversation
         conversationId = existingConversation.conversationId;
       }

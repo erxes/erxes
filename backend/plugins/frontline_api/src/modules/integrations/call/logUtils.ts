@@ -54,7 +54,7 @@ export default {
           history,
           conversationMessages: messages ? messages : [],
           assignedUser:
-            user && user._id ? { details: user.details, _id: user._id } : {},
+            user?._id ? { details: user.details, _id: user._id } : {},
         },
       });
     }

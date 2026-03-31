@@ -11,10 +11,9 @@ export const checkCodeMask = (category?: IProductCategory, code?: string) => {
   }
 
   if (
-    !category ||
-    !category.maskType ||
-    !category.mask ||
-    !category.mask.values
+    !category?.maskType ||
+    !category?.mask ||
+    !category?.mask.values
   ) {
     return true;
   }

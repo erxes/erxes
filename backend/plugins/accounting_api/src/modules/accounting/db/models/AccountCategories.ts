@@ -93,7 +93,7 @@ export const loadAccountCategoryClass = (models: IModels, _subdomain: string, { 
         _id: doc.parentId,
       }).lean();
 
-      if (parentCategory && parentCategory.parentId === _id) {
+      if (parentCategory?.parentId === _id) {
         throw new Error('Cannot change category');
       }
 

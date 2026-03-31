@@ -79,7 +79,7 @@ const generateFilter = async (
   if (tag) {
     const object = await models.Tags.findOne({ _id: tag });
 
-    const relatedIds = object && object.relatedIds ? object.relatedIds : [];
+    const relatedIds = object?.relatedIds || [];
 
     filter.tagIds = { $in: [tag, ...relatedIds] };
   }

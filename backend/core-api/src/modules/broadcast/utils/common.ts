@@ -398,7 +398,7 @@ export const timeCheckScheduledBroadcast = async (
   scheduleDate?: IScheduleDateDocument,
 ) => {
   const isValidScheduledBroadcast =
-    scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime;
+    scheduleDate?.type === 'pre' && scheduleDate?.dateTime;
   // Check for pre scheduled engages
 
   if (isValidScheduledBroadcast) {

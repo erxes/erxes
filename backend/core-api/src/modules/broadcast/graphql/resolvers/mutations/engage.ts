@@ -255,7 +255,7 @@ export const engageMutations = {
 
     delete doc._id;
 
-    if (doc.scheduleDate && doc.scheduleDate.dateTime) {
+    if (doc.scheduleDate?.dateTime) {
       // schedule date should be manually set
       doc.scheduleDate.dateTime = null;
     }

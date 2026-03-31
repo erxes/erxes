@@ -304,7 +304,7 @@ export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string },
 ): string => {
-  return (pageTokens || {})[pageId];
+  return pageTokens?.[pageId];
 };
 
 export const subscribePage = async (

@@ -78,7 +78,7 @@ export const sendAutomationTrigger = (
 
   const queue = sendWorkerQueue('automations', 'trigger');
 
-  void queue
+  queue
     .add(
       'trigger',
       {

@@ -18,7 +18,7 @@ export const getRelatedValue = async (
     const user = await models.Users.getUser(target[targetKey]);
 
     return (
-      (user && ((user.details && user.details.fullName) || user.email)) || ''
+      user?.details?.fullName || user?.email || ''
     );
   }
 
@@ -31,7 +31,7 @@ export const getRelatedValue = async (
 
     return (
       users.map(
-        (user) => (user.details && user.details.fullName) || user.email,
+        (user) => user.details?.fullName || user.email,
       ) || []
     ).join(', ');
   }
