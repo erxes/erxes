@@ -1,7 +1,12 @@
 import { PageSubHeader } from 'erxes-ui';
 import { CategoryRecordTable, CategoryFilter } from '../category';
+import { IBranch } from '@/tms/types/branch';
 
-export const CategoryPage = () => {
+interface CategoryPageProps {
+  branch: IBranch;
+}
+
+export const CategoryPage = ({ branch }: CategoryPageProps) => {
   return (
     <div className="flex flex-col h-full">
       <PageSubHeader>
@@ -11,7 +16,7 @@ export const CategoryPage = () => {
       </PageSubHeader>
       <div className="overflow-hidden flex-auto p-3 min-h-0">
         <div className="flex flex-col h-full min-h-0">
-          <CategoryRecordTable />
+          <CategoryRecordTable branchId={branch._id} />
         </div>
       </div>
     </div>

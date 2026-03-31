@@ -20,10 +20,12 @@ export const SelectParentCategory = React.forwardRef<
     open?: boolean;
     setOpen?: (open: boolean) => void;
     id?: string;
+    branchId?: string;
   }
->(({ onSelect, selected, id, ...props }, ref) => {
+>(({ onSelect, selected, id, branchId, ...props }, ref) => {
   const [selectedCategory, setSelectedCategory] = useState<ICategory>();
   const { categories, loading } = useCategories({
+    variables: { branchId },
     onCompleted: ({
       bmsTourCategories,
     }: {

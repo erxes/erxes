@@ -10,6 +10,7 @@ export const tourCategorySchema = new Schema({
   code: { type: String, optional: true, label: 'code' },
   order: { type: String, optional: true, label: 'order', index: true },
   parentId: { type: String, label: 'parentId', index: true },
+  branchId: { type: String, optional: true, label: 'branchId', index: true },
   attachment: { type: Object, optional: true, label: 'attachment' },
   createdAt: {
     type: Date,

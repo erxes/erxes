@@ -1,10 +1,18 @@
+import { useMemo } from 'react';
 import { Button, Form, Input, Sheet, Spinner, useToast } from 'erxes-ui';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateTour } from '../hooks/useCreateTour';
 import { useTourDetail, ITourDetail } from '../hooks/useTourDetail';
 import { RHFDatePicker } from './RHFDatePicker';
+
+const stripTypename = <T extends Record<string, any>>(
+  obj: T,
+): Omit<T, '__typename'> => {
+  const { __typename, ...rest } = obj as any;
+  return rest;
+};
 
 const isSameDay = (left: Date, right: Date) =>
   left.getFullYear() === right.getFullYear() &&
@@ -121,6 +129,7 @@ const FixedDuplicateSheet = ({
 }: InnerSheetProps) => {
   const { createTour, loading } = useCreateTour();
   const { toast } = useToast();
+  const today = useMemo(() => new Date(), []);
 
   const form = useForm<FixedFormType>({
     resolver: zodResolver(FixedFormSchema),
@@ -130,8 +139,6 @@ const FixedDuplicateSheet = ({
       startDate: tour.startDate ? new Date(tour.startDate) : undefined,
     },
   });
-
-  const startDate = useWatch({ control: form.control, name: 'startDate' });
 
   const handleSubmit = async (values: FixedFormType) => {
     if (!branchId) {
@@ -162,7 +169,9 @@ const FixedDuplicateSheet = ({
         itineraryId: tour.itineraryId,
         imageThumbnail: tour.imageThumbnail,
         images: tour.images,
-        attachment: tour.attachment,
+        attachment: tour.attachment
+          ? stripTypename(tour.attachment)
+          : tour.attachment,
         duration: tour.duration,
         groupSize: tour.groupSize,
         advancePercent: tour.advancePercent,
@@ -174,7 +183,9 @@ const FixedDuplicateSheet = ({
         info4: tour.info4,
         info5: tour.info5,
         personCost: tour.personCost,
-        pricingOptions: tour.pricingOptions?.map(({ _id: _, ...opt }) => opt),
+        pricingOptions: tour.pricingOptions?.map(({ _id: _, ...opt }) =>
+          stripTypename(opt),
+        ),
       },
       onCompleted: () => {
         toast({
@@ -204,7 +215,7 @@ const FixedDuplicateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Duplicate tour (fixed)</Sheet.Title>
+              <Sheet.Title>Duplicate tour</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
 
@@ -248,18 +259,13 @@ const FixedDuplicateSheet = ({
                         <RHFDatePicker
                           control={form.control}
                           name="startDate"
+                          fromDate={today}
                         />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
                   )}
                 />
-
-                {startDate && (
-                  <div className="text-xs text-muted-foreground">
-                    Status: <strong>{getDateStatus(startDate)}</strong>
-                  </div>
-                )}
               </div>
             </Sheet.Content>
 
@@ -291,6 +297,7 @@ const FlexibleDuplicateSheet = ({
 }: InnerSheetProps) => {
   const { createTour, loading } = useCreateTour();
   const { toast } = useToast();
+  const today = useMemo(() => new Date(), []);
 
   const form = useForm<FlexibleFormType>({
     resolver: zodResolver(FlexibleFormSchema),
@@ -331,7 +338,9 @@ const FlexibleDuplicateSheet = ({
         itineraryId: tour.itineraryId,
         imageThumbnail: tour.imageThumbnail,
         images: tour.images,
-        attachment: tour.attachment,
+        attachment: tour.attachment
+          ? stripTypename(tour.attachment)
+          : tour.attachment,
         duration: tour.duration,
         groupSize: tour.groupSize,
         advancePercent: tour.advancePercent,
@@ -343,7 +352,9 @@ const FlexibleDuplicateSheet = ({
         info4: tour.info4,
         info5: tour.info5,
         personCost: tour.personCost,
-        pricingOptions: tour.pricingOptions?.map(({ _id: _, ...opt }) => opt),
+        pricingOptions: tour.pricingOptions?.map(({ _id: _, ...opt }) =>
+          stripTypename(opt),
+        ),
       },
       onCompleted: () => {
         toast({
@@ -373,7 +384,7 @@ const FlexibleDuplicateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Duplicate tour (flexible)</Sheet.Title>
+              <Sheet.Title>Duplicate tour</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
 
@@ -417,6 +428,7 @@ const FlexibleDuplicateSheet = ({
                         <RHFDatePicker
                           control={form.control}
                           name="availableFrom"
+                          fromDate={today}
                         />
                       </Form.Control>
                       <Form.Message />
@@ -434,6 +446,7 @@ const FlexibleDuplicateSheet = ({
                         <RHFDatePicker
                           control={form.control}
                           name="availableTo"
+                          fromDate={today}
                         />
                       </Form.Control>
                       <Form.Message />
