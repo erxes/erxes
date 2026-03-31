@@ -25,26 +25,17 @@ const getFieldLableOperator = ({
 export const LogRecordTableFilterBarOperator = ({
   fieldName,
 }: {
-  fieldName: 'status' | 'source' | 'action' | 'userIds' | 'createdAt';
+  fieldName: string;
 }) => {
   const [searchParams] = useSearchParams();
-  const [queries, setQueries] = useMultiQueryState<{
-    statusOperator: string;
-    sourceOperator: string;
-    actionOperator: string;
-    userIdsOperator: string;
-    createdAtOperator: string;
-  }>([
-    'statusOperator',
-    'sourceOperator',
-    'actionOperator',
-    'userIdsOperator',
-    'createdAtOperator',
+  const [, setQueries] = useMultiQueryState<Record<string, string>>([
+    `${fieldName}Operator`,
   ]);
 
   const operator = searchParams.get(`${fieldName}Operator`) || undefined;
   const fields =
-    LOG_FILTER_BAR_OPERATORS[fieldName] || COMMON_FILTER_BAR_OPERATORS;
+    LOG_FILTER_BAR_OPERATORS[fieldName as keyof typeof LOG_FILTER_BAR_OPERATORS] ||
+    COMMON_FILTER_BAR_OPERATORS;
 
   return (
     <Popover>

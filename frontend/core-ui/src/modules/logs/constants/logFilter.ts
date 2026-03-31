@@ -91,18 +91,52 @@ export const LOG_FILTER_BAR_OPERATORS = {
   action: [...COMMON_FILTER_BAR_OPERATORS],
   userIds: [...COMMON_FILTER_BAR_OPERATORS],
   createdAt: [...COMMON_FILTER_BAR_OPERATORS],
+  contentType: [...COMMON_FILTER_BAR_OPERATORS],
+  docId: [...COMMON_FILTER_BAR_OPERATORS],
 };
 
 export const LOGS_COMMON_FILTER_FIELD_NAMES = [
+  'searchValue',
   'status',
   'source',
   'action',
   'userIds',
   'createdAt',
+  'contentType',
+  'docId',
   'statusOperator',
   'sourceOperator',
   'actionOperator',
   'userIdsOperator',
   'createdAtOperator',
+  'contentTypeOperator',
+  'docIdOperator',
   'logId',
 ];
+
+export const formatLogContentTypeSegmentLabel = (value?: string | null) => {
+  if (!value) {
+    return '';
+  }
+
+  return value
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+};
+
+export const formatLogContentTypeLabel = (value?: string | null) => {
+  if (!value) {
+    return '';
+  }
+
+  const [pluginName = '', contentType = ''] = value.split(':');
+  const [moduleName = '', collectionName = ''] = contentType.split('.');
+
+  const label = [pluginName, moduleName, collectionName]
+    .map((segment) => formatLogContentTypeSegmentLabel(segment))
+    .filter(Boolean)
+    .join(' / ');
+
+  return label || value;
+};

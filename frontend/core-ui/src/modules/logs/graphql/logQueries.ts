@@ -5,9 +5,52 @@ import {
 } from 'erxes-ui';
 import { gql } from '@apollo/client';
 
+export const LOGS_GET_CONTENT_TYPES = gql`
+  query LogsGetContentTypes {
+    logsGetContentTypes {
+      value
+      pluginName
+      moduleName
+      collectionName
+    }
+  }
+`;
+
 export const LOGS_MAIN_LIST = gql`
-query LogsMainList(${GQL_CURSOR_PARAM_DEFS},$searchValue: String, $page: Int, $perPage: Int, $ids: [String], $excludeIds: [String], $filters: JSON) {
-  logsMainList(${GQL_CURSOR_PARAMS},searchValue: $searchValue, page: $page, perPage: $perPage, ids: $ids, excludeIds: $excludeIds, filters: $filters) {
+query LogsMainList(
+  ${GQL_CURSOR_PARAM_DEFS},
+  $searchValue: String,
+  $page: Int,
+  $perPage: Int,
+  $ids: [String],
+  $excludeIds: [String],
+  $status: String,
+  $source: String,
+  $action: String,
+  $userIds: [String],
+  $contentType: String,
+  $documentId: String,
+  $createdAtFrom: Date,
+  $createdAtTo: Date,
+  $filters: JSON
+) {
+  logsMainList(
+    ${GQL_CURSOR_PARAMS},
+    searchValue: $searchValue,
+    page: $page,
+    perPage: $perPage,
+    ids: $ids,
+    excludeIds: $excludeIds,
+    status: $status,
+    source: $source,
+    action: $action,
+    userIds: $userIds,
+    contentType: $contentType,
+    documentId: $documentId,
+    createdAtFrom: $createdAtFrom,
+    createdAtTo: $createdAtTo,
+    filters: $filters
+  ) {
     list {
       _id
       createdAt
@@ -50,7 +93,6 @@ export const LOG_DETAIL = gql`
           fullName
         }
       }
-      prevObject
     }
   }
 `;

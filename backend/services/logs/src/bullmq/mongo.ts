@@ -39,6 +39,27 @@ type BulkEventPayload = {
   contentType?: string;
 };
 
+const getCollectionType = (contentType?: string, collectionName?: string) => {
+  if (contentType) {
+    const [, , collectionType = ''] = contentType.replace(':', '.').split('.');
+
+    if (collectionType) {
+      return collectionType;
+    }
+  }
+
+  return collectionName || '';
+};
+
+const withCollectionType = (
+  payload: Record<string, any>,
+  contentType?: string,
+  collectionName?: string,
+) => ({
+  ...payload,
+  collectionType: getCollectionType(contentType, collectionName),
+});
+
 const createLogDocument = async (
   Logs: Model<ILogDocument>,
   collectionName: string,
@@ -47,6 +68,7 @@ const createLogDocument = async (
   payload: any,
   processId?: string,
   userId?: string,
+  contentType?: string,
 ) => {
   return await Logs.create({
     action,
@@ -57,6 +79,7 @@ const createLogDocument = async (
     processId,
     userId,
     createdAt: new Date(),
+    contentType,
   });
 };
 
@@ -68,6 +91,7 @@ const createLogDocumentsBatch = async (
   payload: any,
   processId?: string,
   userId?: string,
+  contentType?: string,
 ) => {
   const logDocuments = docIds.map((docId) => ({
     action,
@@ -78,6 +102,7 @@ const createLogDocumentsBatch = async (
     processId,
     userId,
     createdAt: new Date(),
+    contentType,
   }));
 
   return await Logs.insertMany(logDocuments);
@@ -101,9 +126,10 @@ const handleCreate = async (
     payload.collectionName,
     payload.docId,
     LOG_ACTIONS.CREATE,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, payload.collectionName),
     payload.processId,
     payload.userId,
+    payload.contentType,
   );
 };
 
@@ -125,9 +151,10 @@ const handleUpdate = async (
     payload.collectionName,
     payload.docId,
     LOG_ACTIONS.UPDATE,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, payload.collectionName),
     payload.processId,
     payload.userId,
+    payload.contentType,
   );
 };
 
@@ -148,9 +175,10 @@ const handleDelete = async (
     payload.collectionName,
     payload.docId,
     LOG_ACTIONS.DELETE,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, payload.collectionName),
     payload.processId,
     payload.userId,
+    payload.contentType,
   );
 };
 
@@ -179,9 +207,10 @@ const handleUpdateMany = async (
         collectionName,
         batch,
         LOG_ACTIONS.UPDATE_MANY,
-        logPayload,
+        withCollectionType(logPayload, payload.contentType, collectionName),
         processId,
         userId,
+        payload.contentType,
       );
       results.push(...batchResult);
     }
@@ -193,9 +222,10 @@ const handleUpdateMany = async (
     collectionName,
     docIds,
     LOG_ACTIONS.UPDATE_MANY,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, collectionName),
     processId,
     userId,
+    payload.contentType,
   );
 };
 
@@ -224,9 +254,10 @@ const handleBulkWrite = async (
         collectionName,
         batch,
         LOG_ACTIONS.BULK_WRITE,
-        logPayload,
+        withCollectionType(logPayload, payload.contentType, collectionName),
         processId,
         userId,
+        payload.contentType,
       );
       results.push(...batchResult);
     }
@@ -238,9 +269,10 @@ const handleBulkWrite = async (
     collectionName,
     docIds,
     LOG_ACTIONS.BULK_WRITE,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, collectionName),
     processId,
     userId,
+    payload.contentType,
   );
 };
 

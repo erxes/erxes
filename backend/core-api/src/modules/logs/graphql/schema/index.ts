@@ -19,6 +19,13 @@ export const types = `
         pageInfo: PageInfo
     }
 
+    type LogContentType {
+      value: String!
+      pluginName: String!
+      moduleName: String!
+      collectionName: String!
+    }
+
     type ActivityLogsList {
         list:[ActivityLog]
         totalCount: Int
@@ -58,6 +65,14 @@ export const commonListQueryParams = `
 const commonQueryParams = `
     ${commonListQueryParams},
     ${cursorParams},
+    status: String
+    source: String
+    action: String
+    userIds: [String]
+    contentType: String
+    documentId: String
+    createdAtFrom: Date
+    createdAtTo: Date
     filters:JSON
 `;
 
@@ -72,6 +87,7 @@ const activityLogQueryParams = `
 export const queries = `
     activityLogs(${activityLogQueryParams}):ActivityLogsList
     logsMainList(${commonQueryParams}):MainLogsList
+    logsGetContentTypes: [LogContentType!]!
     logDetail(_id:String!):Log
 `;
 export default { types, queries };
