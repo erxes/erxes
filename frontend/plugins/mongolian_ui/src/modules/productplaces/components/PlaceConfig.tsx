@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, ApolloCache } from '@apollo/client';
 import { Button, Label } from 'erxes-ui';
 import PerConditions from './PerConditions';
 import { PlaceConditionUI } from '../types';
@@ -17,7 +17,6 @@ import {
   keyValueArrayToObject,
 } from '../utils/transformers';
 
-// ---------- Types ----------
 export interface PlaceConfigData {
   _id?: string;
   subId?: string;
@@ -66,6 +65,25 @@ const emptyForm: PlaceConfigData = {
   checkPricing: false,
   conditions: [],
 };
+const updateConfigsCache = (
+  cache: ApolloCache<any>,
+  updater: (configs: MnConfig[]) => MnConfig[],
+) => {
+  const existing = cache.readQuery<MnConfigsQueryResponse>({
+    query: MN_CONFIGS,
+    variables: { code: 'dealsProductsDataPlaces' },
+  });
+
+  if (!existing?.mnConfigs) return;
+
+  cache.writeQuery<MnConfigsQueryResponse>({
+    query: MN_CONFIGS,
+    variables: { code: 'dealsProductsDataPlaces' },
+    data: {
+      mnConfigs: updater(existing.mnConfigs),
+    },
+  });
+};
 
 const PlaceConfig: React.FC = () => {
   const [savedConfigs, setSavedConfigs] = useState<PlaceConfigData[]>([]);
@@ -89,19 +107,10 @@ const PlaceConfig: React.FC = () => {
     {
       update(cache, { data }) {
         if (!data) return;
-        const existing = cache.readQuery<MnConfigsQueryResponse>({
-          query: MN_CONFIGS,
-          variables: { code: 'dealsProductsDataPlaces' },
-        });
-        if (existing?.mnConfigs) {
-          cache.writeQuery<MnConfigsQueryResponse>({
-            query: MN_CONFIGS,
-            variables: { code: 'dealsProductsDataPlaces' },
-            data: {
-              mnConfigs: [...existing.mnConfigs, data.mnConfigsCreate],
-            },
-          });
-        }
+        updateConfigsCache(cache, (configs) => [
+          ...configs,
+          data.mnConfigsCreate,
+        ]);
       },
     },
   );
@@ -111,23 +120,11 @@ const PlaceConfig: React.FC = () => {
     {
       update(cache, { data }) {
         if (!data) return;
-        const existing = cache.readQuery<MnConfigsQueryResponse>({
-          query: MN_CONFIGS,
-          variables: { code: 'dealsProductsDataPlaces' },
-        });
-        if (existing?.mnConfigs) {
-          cache.writeQuery<MnConfigsQueryResponse>({
-            query: MN_CONFIGS,
-            variables: { code: 'dealsProductsDataPlaces' },
-            data: {
-              mnConfigs: existing.mnConfigs.map((cfg) =>
-                cfg._id === data.mnConfigsUpdate._id
-                  ? data.mnConfigsUpdate
-                  : cfg,
-              ),
-            },
-          });
-        }
+        updateConfigsCache(cache, (configs) =>
+          configs.map((cfg) =>
+            cfg._id === data.mnConfigsUpdate._id ? data.mnConfigsUpdate : cfg,
+          ),
+        );
       },
     },
   );
@@ -137,21 +134,9 @@ const PlaceConfig: React.FC = () => {
     {
       update(cache, { data }) {
         if (!data) return;
-        const existing = cache.readQuery<MnConfigsQueryResponse>({
-          query: MN_CONFIGS,
-          variables: { code: 'dealsProductsDataPlaces' },
-        });
-        if (existing?.mnConfigs) {
-          cache.writeQuery<MnConfigsQueryResponse>({
-            query: MN_CONFIGS,
-            variables: { code: 'dealsProductsDataPlaces' },
-            data: {
-              mnConfigs: existing.mnConfigs.filter(
-                (cfg) => cfg._id !== data.mnConfigsRemove._id,
-              ),
-            },
-          });
-        }
+        updateConfigsCache(cache, (configs) =>
+          configs.filter((cfg) => cfg._id !== data.mnConfigsRemove._id),
+        );
       },
     },
   );
