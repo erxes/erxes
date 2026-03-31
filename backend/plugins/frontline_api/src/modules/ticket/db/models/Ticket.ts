@@ -229,9 +229,10 @@ export const loadTicketClass = (models: IModels) => {
       });
 
       if (detail?.subscribedUserIds?.length) {
-        const userIds = detail.subscribedUserIds.filter(
-          (id) => id !== userId && id !== doc.assigneeId,
-        ) || [];
+        const userIds =
+          detail.subscribedUserIds.filter(
+            (id) => id !== userId && id !== doc.assigneeId,
+          ) || [];
         await createNotifications({
           contentType: 'ticket',
           contentTypeId: detail._id,
