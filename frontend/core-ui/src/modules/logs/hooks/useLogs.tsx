@@ -22,9 +22,7 @@ const parseSearchParamValue = (value: string | null) => {
 
   const trimmedValue = value.trim();
 
-  if (
-    !(trimmedValue.startsWith('{') || trimmedValue.startsWith('['))
-  ) {
+  if (!(trimmedValue.startsWith('{') || trimmedValue.startsWith('['))) {
     return value;
   }
 

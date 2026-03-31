@@ -170,13 +170,10 @@ const sanitizeLogValue = (
   if (typeof value === 'object') {
     return Object.entries(value as Record<string, unknown>).reduce<
       Record<string, unknown>
-    >(
-      (acc, [childKey, childValue]) => {
-        acc[childKey] = sanitizeLogValue(childValue, childKey, options);
-        return acc;
-      },
-      {},
-    );
+    >((acc, [childKey, childValue]) => {
+      acc[childKey] = sanitizeLogValue(childValue, childKey, options);
+      return acc;
+    }, {});
   }
 
   if (!key || typeof value !== 'string') {
@@ -423,9 +420,9 @@ export const logQueries = {
   ) {
     await requireLogsReadAccess(checkPermission);
 
-    const detail = (await models.Logs.findOne({ _id }).lean()) as
-      | LeanLogDetail
-      | null;
+    const detail = (await models.Logs.findOne({
+      _id,
+    }).lean()) as LeanLogDetail | null;
 
     if (!detail) {
       return null;

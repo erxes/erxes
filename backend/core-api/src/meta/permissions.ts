@@ -758,7 +758,8 @@ export const permissions: IPermissionConfig = {
     {
       id: 'core:viewer',
       name: 'Core Viewer',
-      description: 'Read-only access to all Core modules, with own-data mutations',
+      description:
+        'Read-only access to all Core modules, with own-data mutations',
       permissions: [
         {
           plugin: 'core',
