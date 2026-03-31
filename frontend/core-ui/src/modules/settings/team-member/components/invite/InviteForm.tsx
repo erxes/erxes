@@ -27,6 +27,7 @@ import {
 
 const emailSchema = z.string().email();
 type InviteStep = 'emails' | 'permissions';
+const normalizeEmail = (value: string) => value.trim().toLowerCase();
 
 export function InviteForm({
   setIsOpen,
@@ -67,22 +68,22 @@ export function InviteForm({
   });
 
   const addTag = (value: string) => {
-    const trimmedValue = value.trim();
+    const normalizedValue = normalizeEmail(value);
 
-    if (!trimmedValue) return;
+    if (!normalizedValue) return;
 
-    const validation = emailSchema.safeParse(trimmedValue);
+    const validation = emailSchema.safeParse(normalizedValue);
     if (!validation.success) {
       setError('Please enter a valid email address');
       return;
     }
 
-    if (tags.includes(trimmedValue)) {
+    if (tags.includes(normalizedValue)) {
       setError('This email has already been added');
       return;
     }
 
-    setTags([...tags, trimmedValue]);
+    setTags([...tags, normalizedValue]);
     setInputValue('');
     setError('');
   };
@@ -109,9 +110,28 @@ export function InviteForm({
     }
   };
 
+  const getDraftState = useCallback(() => {
+    const draftEmail = normalizeEmail(inputValue);
+
+    if (!draftEmail) {
+      return {
+        draftEmail,
+        isEmpty: true,
+        isValid: false,
+        isDuplicate: false,
+      };
+    }
+
+    return {
+      draftEmail,
+      isEmpty: false,
+      isValid: emailSchema.safeParse(draftEmail).success,
+      isDuplicate: tags.includes(draftEmail),
+    };
+  }, [inputValue, tags]);
+
   const getInvitationEntries = useCallback(() => {
-    const trimmedInputValue = inputValue.trim();
-    const validation = emailSchema.safeParse(trimmedInputValue);
+    const { draftEmail, isDuplicate, isValid } = getDraftState();
     const permissionGroupIds =
       selectedPermissionGroupIds.length > 0
         ? { permissionGroupIds: selectedPermissionGroupIds }
@@ -122,21 +142,23 @@ export function InviteForm({
         email: tag,
         ...permissionGroupIds,
       })),
-      ...(validation.success
+      ...(isValid && !isDuplicate
         ? [
             {
-              email: trimmedInputValue,
+              email: draftEmail,
               ...permissionGroupIds,
             },
           ]
         : []),
     ];
-  }, [inputValue, selectedPermissionGroupIds, tags]);
+  }, [getDraftState, selectedPermissionGroupIds, tags]);
 
   const validateInvitations = useCallback(() => {
-    const validation = emailSchema.safeParse(inputValue.trim());
+    const { isDuplicate, isEmpty, isValid } = getDraftState();
 
-    if (tags.length === 0 && !validation.success) {
+    setError('');
+
+    if (tags.length === 0 && isEmpty) {
       toast({
         title: 'Please add at least one email address',
         variant: 'destructive',
@@ -144,8 +166,18 @@ export function InviteForm({
       return false;
     }
 
+    if (!isEmpty && !isValid) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    if (isDuplicate) {
+      setError('This email has already been added');
+      return false;
+    }
+
     return true;
-  }, [inputValue, tags, toast]);
+  }, [getDraftState, tags.length, toast]);
 
   const submitHandler = useCallback(async () => {
     if (!validateInvitations()) {
@@ -181,8 +213,17 @@ export function InviteForm({
       return;
     }
 
+    const { draftEmail, isEmpty } = getDraftState();
+
+    if (!isEmpty) {
+      setTags((current) =>
+        current.includes(draftEmail) ? current : [...current, draftEmail],
+      );
+      setInputValue('');
+    }
+
     setStep('permissions');
-  }, [validateInvitations]);
+  }, [getDraftState, validateInvitations]);
 
   const handlePermissionGroupChange = useCallback(
     (groupId: string, checked: boolean, isDefaultGroup = false) => {
