@@ -169,8 +169,8 @@ const NewItemCell: React.FC<NewItemCellProps> = ({ tagType }) => {
         mode === 'adding-group'
           ? 'Enter group name...'
           : mode === 'adding-tag-to-group'
-            ? 'Enter tag name for this group...'
-            : 'Enter tag name...'
+          ? 'Enter tag name for this group...'
+          : 'Enter tag name...'
       }
       value={value}
       onChange={(e) => setValue(e.target.value)}
@@ -308,15 +308,15 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
   const { _id, name, isGroup, order } = row;
   const [editingTagId, setEditingTagId] = useQueryState('editingTagId');
   const [open, setOpen] = React.useState<boolean>(false);
-  const [nameState, setName] = React.useState<string>(name);
+  const [tagName, setTagName] = React.useState<string>(name);
 
   React.useEffect(() => {
-    setName(name);
+    setTagName(name);
   }, [name]);
 
   React.useEffect(() => {
     if (editingTagId === _id) {
-      setName(name);
+      setTagName(name);
       setOpen(true);
       setEditingTagId(null);
     }
@@ -332,11 +332,11 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
   }
 
   const onSave = () => {
-    if (nameState !== name) {
+    if (tagName !== name) {
       tagsEdit({
         variables: {
           id: _id,
-          name: nameState,
+          name: tagName,
           isGroup: isGroup,
         },
       });
@@ -344,7 +344,7 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
   };
 
   const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
-    setName(el.currentTarget.value);
+    setTagName(el.currentTarget.value);
   };
 
   return (
@@ -378,7 +378,7 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
         </RecordTableTree.Trigger>
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
-        <Input value={nameState} onChange={onChange} disabled={loading} />
+        <Input value={tagName} onChange={onChange} disabled={loading} />
       </RecordTableInlineCell.Content>
     </Popover>
   );
@@ -387,7 +387,7 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
 const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
   const { _id, description, name, isGroup } = cell.row.original;
   const [open, setOpen] = useState<boolean>(false);
-  const [descriptionState, setDescription] = useState<string>(
+  const [descriptionValue, setDescription] = useState<string>(
     description ?? '',
   );
   const { tagsEdit, loading } = useTagsEdit();
@@ -397,12 +397,12 @@ const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
   }, [description]);
 
   const onSave = () => {
-    if (descriptionState !== description) {
+    if (descriptionValue !== description) {
       tagsEdit({
         variables: {
           id: _id,
           name: name,
-          description: descriptionState,
+          description: descriptionValue,
           isGroup: isGroup,
         },
       });
@@ -426,7 +426,7 @@ const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Textarea
-          value={descriptionState}
+          value={descriptionValue}
           onChange={onChange}
           disabled={loading}
         />
