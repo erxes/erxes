@@ -301,7 +301,7 @@ export const PosOrderSheet = () => {
                         : '-'}
                     </span>
                   </div>
-                  {posOrder?.items?.length > 0 && (
+                  {posOrder?.items?.length && (
                     <div className="rounded-md overflow-hidden">
                       <RecordTable.Provider
                         columns={itemColumns}
