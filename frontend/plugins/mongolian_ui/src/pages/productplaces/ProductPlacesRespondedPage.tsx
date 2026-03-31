@@ -6,6 +6,7 @@ import { PerResponse } from '~/modules/productplaces/components/PerResponse';
 import { Response } from '~/modules/productplaces/components/Response';
 
 export const ProductPlacesRespondedPage = () => {
+  console.log(' ProductPlacesRespondedPage mounted');
   const currentUser = useAtomValue(currentUserState);
 
   useSubscription(PRODUCT_PLACES_RESPONDED, {
@@ -14,52 +15,46 @@ export const ProductPlacesRespondedPage = () => {
       sessionCode: '',
     },
     skip: !currentUser?._id,
-
     onData: ({ data }) => {
-      const payload = data?.data?.productPlacesResponded;
-      if (!payload) return;
+      console.log(' Subscription data received:', data);
+      const productPlacesResponded = data.data?.productPlacesResponded;
+      if (!productPlacesResponded) return;
 
-      let parsedPayload: any;
+      // Parse the JSON string returned by the subscription
+      let parsedPayload;
       try {
-        parsedPayload = JSON.parse(payload);
-      } catch (error) {
-        console.error('[ProductPlaces] Failed to parse payload', error);
+        parsedPayload = JSON.parse(productPlacesResponded);
+      } catch (e) {
+        console.error('Failed to parse payload', e);
         return;
       }
 
-      const content = parsedPayload?.content;
-      if (!content) return;
-
-      let parsedContent: any[];
+      const { content } = parsedPayload;
+      let parsedContent;
       try {
         parsedContent = JSON.parse(content);
-      } catch (error) {
-        console.error('[ProductPlaces] Failed to parse content', error);
+      } catch (e) {
+        console.error('Failed to parse content', e);
         return;
       }
 
-      if (!Array.isArray(parsedContent) || parsedContent.length === 0) return;
+      if (!parsedContent?.length) return;
 
       const printContents = parsedContent.map((receipt: any, index: number) =>
         PerResponse(receipt, index),
       );
-
       const printMainContent = Response(printContents.join(''));
 
-      const printWindow = window.open('', '_blank', 'width=800,height=800');
-
-      if (!printWindow) {
-        console.error('[ProductPlaces] Popup blocked');
+      const myWindow = window.open('__', '_blank', 'width=800, height=800');
+      if (myWindow) {
+        myWindow.document.write(printMainContent);
+        myWindow.document.close();
+      } else {
         alert('Please allow pop-ups and redirects in site settings!');
-        return;
       }
-
-      printWindow.document.write(printMainContent);
-      printWindow.document.close();
     },
-
     onError: (error) => {
-      console.error('[ProductPlaces] Subscription error:', error);
+      console.error(' Subscription error:', error);
     },
   });
 

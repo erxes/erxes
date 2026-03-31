@@ -232,7 +232,6 @@ const SplitConfig: React.FC = () => {
           },
         });
       }
-      await refetch();
       setActiveIndex(null);
       setFormData(emptyForm);
     } catch (error) {
@@ -252,7 +251,6 @@ const SplitConfig: React.FC = () => {
     setError(null);
     try {
       await deleteConfig({ variables: { _id: config._id } });
-      await refetch();
       setActiveIndex(null);
       setFormData(emptyForm);
     } catch (error) {

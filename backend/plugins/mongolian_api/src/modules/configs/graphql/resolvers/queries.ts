@@ -22,7 +22,9 @@ export const mnConfigQueries = {
     { code }: { code: string },
     { models }: IContext,
   ) => {
+    console.log('mnConfigs called with code:', code);
     const configs = await models.Configs.getConfigs(code);
+    console.log('mnConfigs found:', configs.length, 'configs');
     return configs;
   },
 

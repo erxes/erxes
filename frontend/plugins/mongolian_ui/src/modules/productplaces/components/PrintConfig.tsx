@@ -247,7 +247,6 @@ const PrintConfig: React.FC = () => {
           },
         });
       }
-      await refetch();
       setActiveIndex(null);
       setFormData(emptyForm);
     } catch (error) {
@@ -267,7 +266,6 @@ const PrintConfig: React.FC = () => {
     setError(null);
     try {
       await deleteConfig({ variables: { _id: config._id } });
-      await refetch();
       setActiveIndex(null);
       setFormData(emptyForm);
     } catch (error) {
