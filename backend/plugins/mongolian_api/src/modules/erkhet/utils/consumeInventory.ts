@@ -92,11 +92,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
         (match, path) => {
           const value = path
             .split('.')
-            .reduce(
-              (acc: any, segment: string) =>
-                acc != null ? acc[segment] : undefined,
-              doc,
-            );
+            .reduce((acc: any, segment: string) => acc?.[segment], doc,);
           return value !== undefined && value !== null ? String(value) : match;
         },
       );

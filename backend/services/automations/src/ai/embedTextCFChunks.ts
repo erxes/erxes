@@ -61,7 +61,7 @@ export async function embedTextCFChunks(
           result?: { data?: number[][] };
         } | null;
         if (!Array.isArray(data?.result?.data)) {
-          throw new Error(`Invalid response structure on chunk ${index + 1}`);
+          throw new TypeError(`Invalid response structure on chunk ${index + 1}`);
         }
         const vector = data.result.data[0];
         if (!Array.isArray(vector)) {

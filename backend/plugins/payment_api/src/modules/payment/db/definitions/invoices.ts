@@ -44,9 +44,7 @@ invoiceSchema.pre<IInvoiceDocument>('save', async function (next) {
         this.constructor as Model<IInvoiceDocument>
       ).findOne({}, {}, { sort: { createdAt: -1 } });
 
-      if (!lastInvoice?.invoiceNumber) {
-        this.invoiceNumber = `INV-${currentDateString}-0001`;
-      } else {
+      if (lastInvoice?.invoiceNumber) {
         const lastInvoiceDate = lastInvoice.invoiceNumber.split('-')[1];
         const lastValue = Number(
           lastInvoice.invoiceNumber.split('-').pop() || '0000',
@@ -61,6 +59,8 @@ invoiceSchema.pre<IInvoiceDocument>('save', async function (next) {
         } else {
           this.invoiceNumber = `INV-${currentDateString}-0001`;
         }
+      } else {
+        this.invoiceNumber = `INV-${currentDateString}-0001`;
       }
     }
     next();

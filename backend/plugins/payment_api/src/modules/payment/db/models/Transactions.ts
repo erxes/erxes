@@ -41,9 +41,7 @@ const generateCode = async (models: IModels) => {
   );
 
   let code = `${currentDateString}-0001`;
-  if (!last?.code) {
-    code = `${currentDateString}-0001`;
-  } else {
+  if (last?.code) {
     const lastInvoiceDate = last.code.split('-')[0];
     const lastValue = Number(last.code.split('-')[1] || '0000');
 
@@ -56,6 +54,8 @@ const generateCode = async (models: IModels) => {
     } else {
       code = `${currentDateString}-0001`;
     }
+  } else {
+    code = `${currentDateString}-0001`;
   }
 
   const codeExists = await models.Transactions.findOne({ code });

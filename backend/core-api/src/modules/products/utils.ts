@@ -10,7 +10,7 @@ export const checkCodeMask = (category?: IProductCategory, code?: string) => {
     return false;
   }
 
-  if (!category?.maskType || !category?.mask || !category?.mask.values) {
+  if (!category?.maskType || !category?.mask?.values) {
     return true;
   }
 

@@ -14,9 +14,8 @@ export const getServerAddress = async (
 ) => {
   const { SERVER_DOMAIN } = process.env;
   if (SERVER_DOMAIN) {
-    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${
-      serviceName || 'sales'
-    }`;
+    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${serviceName || 'sales'
+      }`;
   }
   //uncomplete
   const posService = { address: '' }; //await getService(serviceName || 'pos');
@@ -144,9 +143,9 @@ export const importProducts = async (
   const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
 
   const attachmentUrlChanger = (attachment) => {
-    return !attachment?.url?.includes('http')
-      ? { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` }
-      : attachment;
+    return attachment?.url?.includes('http')
+      ? attachment
+      : { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` };
   };
 
   for (const group of groups) {
