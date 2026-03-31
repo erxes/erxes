@@ -119,8 +119,9 @@ const PropertyRow = ({
             {fieldTypeObject?.icon}
             {fieldTypeObject?.label}
             {type === 'relation' &&
-              ` (${CORE_RELATION_TYPES.find((type) => type.value === relationType)
-                ?.label
+              ` (${
+                CORE_RELATION_TYPES.find((type) => type.value === relationType)
+                  ?.label
               })`}
           </div>
         </Button>

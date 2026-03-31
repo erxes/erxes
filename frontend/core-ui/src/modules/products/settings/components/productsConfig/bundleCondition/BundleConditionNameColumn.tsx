@@ -11,7 +11,7 @@ import { IBundleCondition } from './types';
 import { Can } from 'ui-modules';
 
 export const BundleConditionNameColumnCell = (
-  props: CellContext<IBundleCondition, unknown>
+  props: CellContext<IBundleCondition, unknown>,
 ) => {
   const bundleCondition = props.row.original;
   const [open, setOpen] = useState(false);

@@ -7,15 +7,15 @@ import { Can, TemplateSheet } from 'ui-modules';
 export const CategoryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const [refreshKey, setRefreshKey] = useState(0);
-  
+
   const resetSelection = () => {
     table.resetRowSelection(true);
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   return (
-    <CommandBar 
-      key={refreshKey} 
+    <CommandBar
+      key={refreshKey}
       open={table.getFilteredSelectedRowModel().rows.length > 0}
     >
       <CommandBar.Bar>
@@ -26,7 +26,8 @@ export const CategoryCommandBar = () => {
         <CategoriesDelete
           categoryIds={table
             .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id).join(',')}
+            .rows.map((row) => row.original._id)
+            .join(',')}
           onDeleteSuccess={resetSelection}
         />
         <Separator.Inline />

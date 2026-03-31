@@ -60,7 +60,9 @@ export const PropertyFieldsGroupSettings = () => {
                 <div className="flex items-center justify-end mt-2">
                   <Can action="fieldsManage">
                     <Button variant="secondary" asChild>
-                      <Link to={`/settings/properties/${type}/${group._id}/add`}>
+                      <Link
+                        to={`/settings/properties/${type}/${group._id}/add`}
+                      >
                         <IconPlus />
                         Add field
                       </Link>

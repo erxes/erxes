@@ -29,8 +29,7 @@ export const CreatePosition = () => {
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
-  const canManagePositions =
-    isLoaded && hasActionPermission('positionsManage');
+  const canManagePositions = isLoaded && hasActionPermission('positionsManage');
 
   const onOpen = () => {
     setOpen(true);

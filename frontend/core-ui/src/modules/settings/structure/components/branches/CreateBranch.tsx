@@ -29,8 +29,7 @@ export const CreateBranch = () => {
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
-  const canManageBranches =
-    isLoaded && hasActionPermission('branchesManage');
+  const canManageBranches = isLoaded && hasActionPermission('branchesManage');
 
   const onOpen = () => {
     setOpen(true);

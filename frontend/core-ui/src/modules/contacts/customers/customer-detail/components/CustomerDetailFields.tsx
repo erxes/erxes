@@ -65,8 +65,13 @@ export const CustomerDetailFields = () => {
   });
 
   const onSubmit = (data: CustomerFormType) => {
-    const { emailValidationStatus, phoneValidationStatus, sex, avatar, ...rest } =
-      data;
+    const {
+      emailValidationStatus,
+      phoneValidationStatus,
+      sex,
+      avatar,
+      ...rest
+    } = data;
     void emailValidationStatus;
     void phoneValidationStatus;
 
