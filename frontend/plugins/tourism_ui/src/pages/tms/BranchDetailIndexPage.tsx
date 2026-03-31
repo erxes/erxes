@@ -59,7 +59,10 @@ export const BranchDetailIndexPage = () => {
   }, [selectedBranch?.languages]);
 
   const activeLanguage =
-    searchParams.get('lang') || selectedBranch?.language || availableLanguages[0]?.value || '';
+    searchParams.get('lang') ||
+    selectedBranch?.language ||
+    availableLanguages[0]?.value ||
+    '';
 
   const setActiveLang = useSetAtom(activeLangAtom);
 
@@ -70,7 +73,8 @@ export const BranchDetailIndexPage = () => {
   useEffect(() => {
     if (!branchId) return;
 
-    const defaultLang = selectedBranch?.language || availableLanguages[0]?.value;
+    const defaultLang =
+      selectedBranch?.language || availableLanguages[0]?.value;
     if (!searchParams.get('lang')) {
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
@@ -138,7 +142,10 @@ export const BranchDetailIndexPage = () => {
 
               <Breadcrumb.Item>
                 {availableLanguages.length > 0 ? (
-                  <Select value={activeLanguage} onValueChange={onSelectLanguage}>
+                  <Select
+                    value={activeLanguage}
+                    onValueChange={onSelectLanguage}
+                  >
                     <Select.Trigger className="w-[180px]">
                       <Select.Value placeholder="Select language" />
                     </Select.Trigger>
