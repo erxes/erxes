@@ -22,7 +22,6 @@ export const mainScheduler = async () => {
       });
     }
 
-    return 'success';
   } else {
     const timezone = await sendTRPCMessage({
       subdomain: 'os',
@@ -41,8 +40,8 @@ export const mainScheduler = async () => {
       subdomain: 'os',
       timezone,
     });
-    return 'success';
   }
+  return 'success';
 };
 
 export const runner = async (job: Job) => {
