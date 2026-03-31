@@ -115,11 +115,13 @@ export const CreateTagForm = () => {
   );
 };
 
+interface SelectTagCreateContainerProps {
+  readonly children: React.ReactNode;
+}
+
 export function SelectTagCreateContainer({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: SelectTagCreateContainerProps) {
   const { setNewTagName } = useSelectTagsContext();
   return (
     <div className="overflow-auto">

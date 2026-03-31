@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ITagType } from '../types/Tag';
 import { ButtonProps, cn, Combobox, Command, Popover } from 'erxes-ui';
 import { useTagsTypes } from '../hooks/useTagsTypes';

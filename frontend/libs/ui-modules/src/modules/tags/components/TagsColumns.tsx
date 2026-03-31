@@ -29,7 +29,6 @@ import React, { useState } from 'react';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
 import { ITag, ITagQueryResponse } from 'ui-modules/modules/tags/types/Tag';
 import { TFunction } from 'i18next';
-import { useTranslation } from 'react-i18next';
 
 const MoveTagPopover: React.FC<{
   tagId: string;
@@ -309,7 +308,7 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
   const { _id, name, isGroup, order } = row;
   const [editingTagId, setEditingTagId] = useQueryState('editingTagId');
   const [open, setOpen] = React.useState<boolean>(false);
-  const [_name, setName] = React.useState<string>(name);
+  const [nameState, setName] = React.useState<string>(name);
 
   React.useEffect(() => {
     setName(name);
@@ -333,11 +332,11 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
   }
 
   const onSave = () => {
-    if (name !== _name) {
+    if (name !== nameState) {
       tagsEdit({
         variables: {
           id: _id,
-          name: _name,
+          name: nameState,
           isGroup: isGroup,
         },
       });
@@ -379,7 +378,7 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
         </RecordTableTree.Trigger>
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
-        <Input value={_name} onChange={onChange} disabled={loading} />
+        <Input value={nameState} onChange={onChange} disabled={loading} />
       </RecordTableInlineCell.Content>
     </Popover>
   );
@@ -388,7 +387,9 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
 const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
   const { _id, description, name, isGroup } = cell.row.original;
   const [open, setOpen] = useState<boolean>(false);
-  const [_description, setDescription] = useState<string>(description ?? '');
+  const [descriptionState, setDescription] = useState<string>(
+    description ?? '',
+  );
   const { tagsEdit, loading } = useTagsEdit();
 
   React.useEffect(() => {
@@ -396,12 +397,12 @@ const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
   }, [description]);
 
   const onSave = () => {
-    if (_description !== description) {
+    if (descriptionState !== description) {
       tagsEdit({
         variables: {
           id: _id,
           name: name,
-          description: _description,
+          description: descriptionState,
           isGroup: isGroup,
         },
       });
@@ -424,7 +425,11 @@ const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
         <TextOverflowTooltip value={cell.getValue() as string} />
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
-        <Textarea value={_description} onChange={onChange} disabled={loading} />
+        <Textarea
+          value={descriptionState}
+          onChange={onChange}
+          disabled={loading}
+        />
       </RecordTableInlineCell.Content>
     </Popover>
   );
