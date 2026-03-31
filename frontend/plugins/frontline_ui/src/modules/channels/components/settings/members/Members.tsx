@@ -1,11 +1,11 @@
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
-import { RecordTableTree, Spinner } from 'erxes-ui';
+import { RecordTable, RecordTableTree, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { AddMembers } from './AddMembers';
-import { RecordTable } from 'erxes-ui';
-import columns from './MembersColumn';
-import { useTranslation } from 'react-i18next';
 import { MemberCommandBar } from './MemberCommandBar';
+import columns from './MembersColumn';
+
 export function Members() {
   const { id: channelId } = useParams<{ id: string }>();
   const { members, loading } = useGetChannelMembers({ channelIds: channelId });

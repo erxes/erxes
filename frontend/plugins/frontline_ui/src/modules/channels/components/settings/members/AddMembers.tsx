@@ -1,6 +1,10 @@
-import React from 'react';
-
+import { MemberForm } from '@/channels/components/settings/members/MemberForm';
+import { useChannelMembersAdd } from '@/channels/hooks/useChannelMembersAdd';
+import { useChannelMembersForm } from '@/channels/hooks/useChannelMembersForm';
+import { ChannelHotKeyScope, TChannelMemberForm } from '@/channels/types';
+import { IconPlus } from '@tabler/icons-react';
 import {
+  Button,
   Dialog,
   Form,
   Kbd,
@@ -9,15 +13,9 @@ import {
   useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
-import { useChannelMembersForm } from '@/channels/hooks/useChannelMembersForm';
-import { Button } from 'erxes-ui';
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { IconPlus } from '@tabler/icons-react';
-import { useChannelMembersAdd } from '@/channels/hooks/useChannelMembersAdd';
-import { MemberForm } from '@/channels/components/settings/members/MemberForm';
-import { ChannelHotKeyScope, TChannelMemberForm } from '@/channels/types';
+import React, { useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 
 export const AddMembers = () => {
   const form = useChannelMembersForm({});

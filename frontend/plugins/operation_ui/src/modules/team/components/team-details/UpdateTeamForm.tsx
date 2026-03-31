@@ -1,9 +1,8 @@
-import React from 'react';
 import { useTeamForm } from '@/team/hooks/useTeamForm';
-import { ITeam, TTeamForm } from '@/team/types';
-import { Form, Input, Textarea, IconPicker, Button } from 'erxes-ui';
 import { useTeamUpdate } from '@/team/hooks/useTeamUpdate';
-import { useToast } from 'erxes-ui';
+import { ITeam, TTeamForm } from '@/team/types';
+import { Button, Form, IconPicker, Input, Textarea, useToast } from 'erxes-ui';
+import React from 'react';
 import { SubmitHandler } from 'react-hook-form';
 
 export const UpdateTeamForm = ({ team }: { team: ITeam }) => {

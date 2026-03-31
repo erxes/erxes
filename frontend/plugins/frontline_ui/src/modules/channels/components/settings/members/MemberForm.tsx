@@ -1,6 +1,9 @@
+import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { TChannelMemberForm } from '@/channels/types';
-import { UseFormReturn } from 'react-hook-form';
 import { Combobox, Command, Form, Popover } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import React, { useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import {
   currentUserState,
@@ -9,11 +12,7 @@ import {
   useSelectMemberContext,
   useUsers,
 } from 'ui-modules';
-import { useAtomValue } from 'jotai';
 import { useDebounce } from 'use-debounce';
-import { useState } from 'react';
-import React from 'react';
-import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 
 export const MemberForm = ({
   form,
