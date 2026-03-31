@@ -81,7 +81,6 @@ import {
 } from '@/relations/db/models/Relations';
 import { ITagModel, loadTagClass } from '@/tags/db/models/Tags';
 import {
-  activityLogsSchema,
   AiAgentDocument,
   aiAgentSchema,
   aiEmbeddingSchema,

@@ -3,7 +3,7 @@ import {
   IUserDocument,
   Resolver,
 } from 'erxes-api-shared/core-types';
-import { cursorPaginate, PERMISSION_ROLES } from 'erxes-api-shared/utils';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
 interface FilterArgs {

@@ -8,16 +8,12 @@ import {
   handleCPContacts,
   updateCustomerStateToCustomer,
 } from './contactService';
-
-import { sendAndStoreOTP } from '@/clientportal/services/helpers/otpSenderHelper';
 import {
   detectIdentifierType,
-  identifierTypeToActionCodeType,
   validateUserRegistration,
 } from '@/clientportal/services/helpers/validators';
 import {
   buildUserQuery,
-  buildDuplicationQuery,
 } from '@/clientportal/services/helpers/queryBuilders';
 import { normalizeEmail } from '@/clientportal/utils';
 import {

@@ -2,7 +2,6 @@ import { TAfterProcessProducers } from 'erxes-api-shared/core-modules';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 import {
   AfterProcessContext,
-  HandlerContext,
   UpdatedDocumentRule,
   CreateDocumentRule,
 } from './types';

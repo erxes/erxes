@@ -1,10 +1,7 @@
 import { Model } from 'mongoose';
 import { ICPComment, ICPCommentDocument } from '../../types/comment';
 import { IModels } from '~/connectionResolvers';
-import {
-  commentSchema,
-  EventDispatcherReturn,
-} from 'erxes-api-shared/core-modules';
+import { commentSchema } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export interface ICPCommentsModel extends Model<ICPCommentDocument> {

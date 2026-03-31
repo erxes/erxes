@@ -3,7 +3,6 @@ import {
   isEnabled,
   redis,
   sendTRPCMessage,
-  sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels, generateModels } from '~/connectionResolvers';

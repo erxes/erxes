@@ -21,7 +21,7 @@ import {
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
-import { redis, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { redis } from 'erxes-api-shared/utils';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';

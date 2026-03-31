@@ -2,8 +2,6 @@ import { initTRPC } from '@trpc/server';
 
 import {
   ITRPCContext,
-  MessageProps,
-  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 
 import { IModels } from './connectionResolvers';

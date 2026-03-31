@@ -2,7 +2,6 @@ import { IContext } from '~/connectionResolvers';
 import {
   cursorPaginate,
   sendCoreModuleProducer,
-  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import {
   splitType,
@@ -47,7 +46,7 @@ export const exportQueries = {
   async exportProgress(
     _root: undefined,
     { exportId }: { exportId: string },
-    { models, subdomain, user }: IContext,
+    { models, user }: IContext,
   ) {
     const exportDoc = await models.Exports.getExport(exportId);
 

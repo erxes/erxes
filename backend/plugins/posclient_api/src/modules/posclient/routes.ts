@@ -1,9 +1,8 @@
 import {
   authCookieOptions,
-  getSubdomain,
-  sendTRPCMessage,
+  getSubdomain
 } from 'erxes-api-shared/utils';
-import { IModels, generateModels } from '~/connectionResolvers';
+import { generateModels } from '~/connectionResolvers';
 
 export const posInitialSetup = async (req, res) => {
   const subdomain = getSubdomain(req);

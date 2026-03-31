@@ -1,12 +1,9 @@
 import { NotificationsFilters } from '@/notification/components/filter/NotificationsFilters';
 import { NotificationSort } from '@/notification/components/NotificationSort';
 import {
-  IconCommand,
-  IconBackspace,
   IconInbox,
-  IconMailOpened,
 } from '@tabler/icons-react';
-import { Button, Separator, Sidebar, Tooltip } from 'erxes-ui';
+import { Button, Separator, Sidebar } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 

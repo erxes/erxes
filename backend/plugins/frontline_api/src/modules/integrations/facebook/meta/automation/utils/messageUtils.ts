@@ -1,4 +1,4 @@
-import { getEnv, sendWorkerQueue } from 'erxes-api-shared/utils';
+import { getEnv } from 'erxes-api-shared/utils';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import { IFacebookConversation } from '@/integrations/facebook/@types/conversations';

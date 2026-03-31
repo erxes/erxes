@@ -3,15 +3,12 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import {
   Icon,
-  // IconLayoutBottombarExpand,
-  IconLayoutSidebarRightExpand,
   IconProps,
 } from '@tabler/icons-react';
 import {
   Badge,
   Button,
   Command,
-  // PageSubHeader,
   Resizable,
   Spinner,
   Tooltip,

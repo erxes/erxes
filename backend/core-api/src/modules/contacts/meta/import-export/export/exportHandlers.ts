@@ -1,6 +1,5 @@
 import {
   TExportHandlers,
-  GetExportDataArgs,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
 import { getCustomerExportData } from './customers/getCustomerExportData';

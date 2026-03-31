@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose';
-import { INSURANCE_TYPES } from '@/insurance/@types/enums';
 
 export const templateSchema = new Schema(
   {
