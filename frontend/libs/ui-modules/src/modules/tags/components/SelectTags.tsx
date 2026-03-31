@@ -21,14 +21,13 @@ import {
   ITag,
   useGiveTags,
 } from 'ui-modules/modules';
-import { IconPlus, IconTag } from '@tabler/icons-react';
+import { IconPlus, IconTag, IconTagPlus } from '@tabler/icons-react';
 import React, { useEffect, useState } from 'react';
 
 import { SelectTagsContext } from '../contexts/SelectTagsContext';
 import { TagBadge } from './TagBadge';
 import { useDebounce } from 'use-debounce';
 import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
-import { IconTagPlus } from '@tabler/icons-react';
 import { useTags } from '../hooks/useTags';
 import { useTranslation } from 'react-i18next';
 
@@ -406,7 +405,7 @@ export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
 
   return (
     <TagList
-      placeholder={placeholder === undefined ? 'Select Tags' : placeholder}
+      placeholder={placeholder ?? 'Select Tags'}
       renderAsPlainText={mode === 'single'}
     />
   );
@@ -458,12 +457,12 @@ export const SelectTagsInlineCell = ({
 export const SelectTagsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(
   (
     {
@@ -516,7 +515,6 @@ export const SelectTagsDetail = React.forwardRef<
 
 SelectTagsDetail.displayName = 'SelectTagsDetail';
 
-
 export const ConversationTagList = ({
   placeholder,
   renderAsPlainText,
@@ -540,7 +538,7 @@ export const ConversationTagList = ({
   }
 
   return (
-    <ScrollArea className='flex-1'>
+    <ScrollArea className="flex-1">
       <div className="flex flex-nowrap gap-2">
         {selectedTagIds.map((tagId) => (
           <TagBadge
@@ -573,12 +571,12 @@ export const ConversationTagList = ({
 export const SelectTagsConversationDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(
   (
     {
@@ -700,12 +698,12 @@ export const SelectTagsCommandbarItem = ({
 export const SelectTagsRoot = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(
   (
     {
