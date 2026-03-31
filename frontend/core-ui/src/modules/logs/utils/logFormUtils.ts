@@ -35,11 +35,7 @@ const isPhoneKey = (key: string) =>
   PHONE_KEY_PATTERNS.some((pattern) => pattern.test(key));
 
 export const maskIdentifier = (value?: string | null) => {
-  if (!value) {
-    return '••••••';
-  }
-
-  if (value.length <= 8) {
+  if (!value || value.length <= 8) {
     return '••••••';
   }
 

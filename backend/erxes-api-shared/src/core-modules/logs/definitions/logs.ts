@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
-const LOG_RETENTION_SECONDS = 365 * 24 * 60 * 60; // 1 year in seconds
+const LOG_RETENTION_SECONDS =
+  Number(process.env.LOG_RETENTION_DAYS || '365') * 24 * 60 * 60;
 
 export const logsSchema = new Schema(
   {
@@ -12,11 +13,11 @@ export const logsSchema = new Schema(
       required: true,
     },
     userId: { type: String, label: 'User Id' },
-    docId: { type: String, optional: true },
+    docId: { type: String },
     payload: { type: Schema.Types.Mixed },
-    action: { type: String, label: 'action', optional: true },
-    processId: { type: String, label: 'Process', optional: true },
-    contentType: { type: String, label: 'Content Type', optional: true },
+    action: { type: String, label: 'action' },
+    processId: { type: String, label: 'Process' },
+    contentType: { type: String, label: 'Content Type' },
   },
   {
     minimize: true,

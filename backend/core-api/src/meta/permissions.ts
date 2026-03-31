@@ -540,6 +540,22 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'logs',
+      description: 'System log access',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'View system logs',
+          name: 'logsRead',
+          description: 'View system logs',
+        },
+      ],
+    },
+    {
       name: 'internalNotes',
       description: 'Internal note management',
       scopeField: null,
@@ -692,6 +708,12 @@ export const permissions: IPermissionConfig = {
             'automationsUpdate',
             'automationsDelete',
           ],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'logs',
+          actions: ['logsRead'],
           scope: 'all',
         },
       ],

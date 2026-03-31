@@ -111,11 +111,46 @@ type SanitizeLogOptions = {
   exposeEmail?: boolean;
 };
 
+type PayloadFilterInput = {
+  operator?: string;
+  value?: unknown;
+};
+
+type LogsQueryParams = {
+  status?: string;
+  source?: string;
+  action?: string;
+  contentType?: string;
+  documentId?: string;
+  userIds?: string[];
+  createdAtFrom?: string | Date;
+  createdAtTo?: string | Date;
+  filters?: Record<string, PayloadFilterInput>;
+};
+
+type LogsQueryFilter = Record<string, unknown> & {
+  $or?: Array<Record<string, unknown>>;
+  createdAt?: {
+    $gte?: Date;
+    $lte?: Date;
+  };
+  userId?: {
+    $in: string[];
+  };
+};
+
+type LeanLogDetail = Record<string, unknown> & {
+  _id: string;
+  source: string;
+  payload?: unknown;
+  prevObject?: unknown;
+};
+
 const sanitizeLogValue = (
-  value: any,
+  value: unknown,
   key?: string,
   options: SanitizeLogOptions = {},
-): any => {
+): unknown => {
   if (value === null || value === undefined) {
     return value;
   }
@@ -133,7 +168,9 @@ const sanitizeLogValue = (
   }
 
   if (typeof value === 'object') {
-    return Object.entries(value).reduce<Record<string, any>>(
+    return Object.entries(value as Record<string, unknown>).reduce<
+      Record<string, unknown>
+    >(
       (acc, [childKey, childValue]) => {
         acc[childKey] = sanitizeLogValue(childValue, childKey, options);
         return acc;
@@ -177,35 +214,53 @@ const sanitizeLogValue = (
   return value;
 };
 
-const generateValue = (field, value, operator) => {
+const generateValue = (field: string, value: unknown, operator: string) => {
   if (field === 'createdAt') {
-    return new Date(value);
+    if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      value instanceof Date
+    ) {
+      return new Date(value);
+    }
+
+    return new Date(String(value ?? ''));
   }
+
+  const stringValue = typeof value === 'string' ? value : String(value ?? '');
+
   if (operator === 'startsWith') {
-    return new RegExp(`^${value}`, 'i');
+    return new RegExp(`^${stringValue}`, 'i');
   }
   if (operator === 'endsWith') {
-    return new RegExp(`${value}$`, 'i');
+    return new RegExp(`${stringValue}$`, 'i');
   }
   if (operator === 'contain') {
-    return new RegExp(value, 'i');
+    return new RegExp(stringValue, 'i');
   }
 
   if (operator === 'exists') {
-    return JSON.parse(value);
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    return value === 'true';
   }
 
   return value;
 };
 
-const generatePayloadFilters = (params) => {
-  const filter: any = {};
+const generatePayloadFilters = (params: LogsQueryParams) => {
+  const filter: Record<string, unknown> = {};
 
   if (Object.keys(params?.filters || {})?.length) {
-    for (const [field, { operator, value }] of Object.entries<{
-      operator: string;
-      value: any;
-    }>(params?.filters)) {
+    for (const [field, filterConfig] of Object.entries(params?.filters || {})) {
+      if (!filterConfig) {
+        continue;
+      }
+
+      const { operator = 'eq', value } = filterConfig;
+
       filter[`payload.${field}`] = {
         [generateOperator(operator)]: generateValue(field, value, operator),
       };
@@ -215,8 +270,8 @@ const generatePayloadFilters = (params) => {
   return filter;
 };
 
-const generateBuiltInFilters = (params) => {
-  const filter: any = {};
+const generateBuiltInFilters = (params: LogsQueryParams) => {
+  const filter: LogsQueryFilter = {};
 
   if (params.status) {
     filter.status = params.status;
@@ -235,6 +290,7 @@ const generateBuiltInFilters = (params) => {
 
     if (collectionType) {
       filter.$or = [
+        { 'payload.collectionType': collectionType },
         { 'payload.collectionName': collectionType },
         { contentType: params.contentType },
       ];
@@ -271,6 +327,12 @@ const generateFilters = (params) => ({
   ...generatePayloadFilters(params),
 });
 
+const requireLogsReadAccess = async (
+  checkPermission: IContext['checkPermission'],
+) => {
+  await checkPermission('logsRead');
+};
+
 const sortByContentType = (
   a: { pluginName: string; moduleName: string; collectionName: string },
   b: { pluginName: string; moduleName: string; collectionName: string },
@@ -280,47 +342,62 @@ const sortByContentType = (
   );
 
 export const logQueries = {
-  async logsGetContentTypes(_root, _args, { user }: IContext) {
+  async logsGetContentTypes(
+    _root: unknown,
+    _args: unknown,
+    { checkPermission }: IContext,
+  ) {
+    await requireLogsReadAccess(checkPermission);
+
     const pluginNames = await getPlugins();
+    const pluginContentTypes = await Promise.all(
+      pluginNames.map(async (pluginName) => {
+        try {
+          const plugin = await getPlugin(pluginName);
+          const meta = plugin.config?.meta || {};
+          const serviceContentTypes = (meta.logs?.contentTypes ||
+            []) as ILogContentTypeConfig[];
+
+          return serviceContentTypes
+            .filter(({ moduleName, collectionName }) => {
+              return !!moduleName && !!collectionName;
+            })
+            .map(({ moduleName, collectionName }) => ({
+              value: `${pluginName}:${moduleName}.${collectionName}`,
+              pluginName,
+              moduleName,
+              collectionName,
+            }));
+        } catch (error) {
+          console.error(
+            `Failed to load logs config from plugin ${pluginName}:`,
+            error,
+          );
+          return [];
+        }
+      }),
+    );
+
     const seen = new Set<string>();
-    const contentTypes: Array<{
-      value: string;
-      pluginName: string;
-      moduleName: string;
-      collectionName: string;
-    }> = [];
-
-    for (const pluginName of pluginNames) {
-      const plugin = await getPlugin(pluginName);
-      const meta = plugin.config?.meta || {};
-      const serviceContentTypes = (meta.logs?.contentTypes ||
-        []) as ILogContentTypeConfig[];
-
-      for (const { moduleName, collectionName } of serviceContentTypes) {
-        if (!moduleName || !collectionName) {
-          continue;
-        }
-
-        const value = `${pluginName}:${moduleName}.${collectionName}`;
-
-        if (seen.has(value)) {
-          continue;
-        }
-
-        seen.add(value);
-        contentTypes.push({
-          value,
-          pluginName,
-          moduleName,
-          collectionName,
-        });
+    const contentTypes = pluginContentTypes.flat().filter(({ value }) => {
+      if (seen.has(value)) {
+        return false;
       }
-    }
+
+      seen.add(value);
+      return true;
+    });
 
     return contentTypes.sort(sortByContentType);
   },
 
-  async logsMainList(_root, args, { models }: IContext) {
+  async logsMainList(
+    _root: unknown,
+    args: LogsQueryParams,
+    { models, checkPermission }: IContext,
+  ) {
+    await requireLogsReadAccess(checkPermission);
+
     const filter = generateFilters(args);
 
     const { list, totalCount, pageInfo } = await cursorPaginate<ILogDocument>({
@@ -339,8 +416,16 @@ export const logQueries = {
     };
   },
 
-  async logDetail(_root, { _id }, { models }: IContext) {
-    const detail = await models.Logs.findOne({ _id }).lean();
+  async logDetail(
+    _root: unknown,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await requireLogsReadAccess(checkPermission);
+
+    const detail = (await models.Logs.findOne({ _id }).lean()) as
+      | LeanLogDetail
+      | null;
 
     if (!detail) {
       return null;
@@ -357,7 +442,7 @@ export const logQueries = {
         undefined,
         payloadSanitizeOptions,
       ),
-      prevObject: sanitizeLogValue((detail as any).prevObject),
+      prevObject: sanitizeLogValue(detail.prevObject),
     };
   },
 };

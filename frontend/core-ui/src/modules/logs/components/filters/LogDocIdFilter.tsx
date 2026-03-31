@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Input, useMultiQueryState } from 'erxes-ui';
 
 export const LogDocIdFilter = () => {
@@ -6,17 +7,23 @@ export const LogDocIdFilter = () => {
     docIdOperator: string;
   }>(['docId', 'docIdOperator']);
   const { docId } = queries;
+  const [value, setValue] = useState(docId || '');
+
+  useEffect(() => {
+    setValue(docId || '');
+  }, [docId]);
 
   return (
     <div className="p-2">
       <Input
         autoFocus
-        defaultValue={docId || ''}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         placeholder="Paste document ID"
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             setQueries({
-              docId: e.currentTarget.value.trim() || null,
+              docId: value.trim() || null,
               docIdOperator: null,
             });
           }

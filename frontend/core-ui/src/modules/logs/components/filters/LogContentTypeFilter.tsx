@@ -8,8 +8,10 @@ import {
 import { IconCheck } from '@tabler/icons-react';
 import { Combobox, Command, useMultiQueryState } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const LogContentTypeFilter = () => {
+  const { t } = useTranslation('common');
   const [queries, setQueries] = useMultiQueryState<{
     contentType: string;
     contentTypeOperator: string;
@@ -71,7 +73,7 @@ export const LogContentTypeFilter = () => {
   return (
     <Command shouldFilter={false}>
       <Command.Input
-        placeholder="Search content type"
+        placeholder={t('logs.searchContentType')}
         value={search}
         onValueChange={setSearch}
       />

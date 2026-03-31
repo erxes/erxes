@@ -20,10 +20,10 @@ type EventPayload = {
   docIds?: string | string[];
   docId?: string;
   action?: string;
-  fullDocument?: any;
-  prevDocument?: any;
-  currentDocument?: any;
-  updateDescription?: Record<string, any>;
+  fullDocument?: unknown;
+  prevDocument?: unknown;
+  currentDocument?: unknown;
+  updateDescription?: Record<string, unknown>;
   processId?: string;
   userId?: string;
   contentType?: string;
@@ -33,7 +33,7 @@ type BulkEventPayload = {
   action: typeof LOG_ACTIONS.UPDATE_MANY | typeof LOG_ACTIONS.BULK_WRITE;
   docIds: string[];
   collectionName: string;
-  updateDescription?: Record<string, any>;
+  updateDescription?: Record<string, unknown>;
   processId?: string;
   userId?: string;
   contentType?: string;
@@ -52,7 +52,7 @@ const getCollectionType = (contentType?: string, collectionName?: string) => {
 };
 
 const withCollectionType = (
-  payload: Record<string, any>,
+  payload: Record<string, unknown>,
   contentType?: string,
   collectionName?: string,
 ) => ({
@@ -62,10 +62,9 @@ const withCollectionType = (
 
 const createLogDocument = async (
   Logs: Model<ILogDocument>,
-  collectionName: string,
   docId: string,
   action: string,
-  payload: any,
+  payload: Record<string, unknown>,
   processId?: string,
   userId?: string,
   contentType?: string,
@@ -85,10 +84,9 @@ const createLogDocument = async (
 
 const createLogDocumentsBatch = async (
   Logs: Model<ILogDocument>,
-  collectionName: string,
   docIds: string[],
   action: string,
-  payload: any,
+  payload: Record<string, unknown>,
   processId?: string,
   userId?: string,
   contentType?: string,
@@ -123,7 +121,6 @@ const handleCreate = async (
 
   return await createLogDocument(
     Logs,
-    payload.collectionName,
     payload.docId,
     LOG_ACTIONS.CREATE,
     withCollectionType(logPayload, payload.contentType, payload.collectionName),
@@ -148,7 +145,6 @@ const handleUpdate = async (
 
   return await createLogDocument(
     Logs,
-    payload.collectionName,
     payload.docId,
     LOG_ACTIONS.UPDATE,
     withCollectionType(logPayload, payload.contentType, payload.collectionName),
@@ -172,7 +168,6 @@ const handleDelete = async (
 
   return await createLogDocument(
     Logs,
-    payload.collectionName,
     payload.docId,
     LOG_ACTIONS.DELETE,
     withCollectionType(logPayload, payload.contentType, payload.collectionName),
@@ -204,7 +199,6 @@ const handleUpdateMany = async (
     for (const batch of batches) {
       const batchResult = await createLogDocumentsBatch(
         Logs,
-        collectionName,
         batch,
         LOG_ACTIONS.UPDATE_MANY,
         withCollectionType(logPayload, payload.contentType, collectionName),
@@ -219,7 +213,6 @@ const handleUpdateMany = async (
 
   return await createLogDocumentsBatch(
     Logs,
-    collectionName,
     docIds,
     LOG_ACTIONS.UPDATE_MANY,
     withCollectionType(logPayload, payload.contentType, collectionName),
@@ -251,7 +244,6 @@ const handleBulkWrite = async (
     for (const batch of batches) {
       const batchResult = await createLogDocumentsBatch(
         Logs,
-        collectionName,
         batch,
         LOG_ACTIONS.BULK_WRITE,
         withCollectionType(logPayload, payload.contentType, collectionName),
@@ -266,7 +258,6 @@ const handleBulkWrite = async (
 
   return await createLogDocumentsBatch(
     Logs,
-    collectionName,
     docIds,
     LOG_ACTIONS.BULK_WRITE,
     withCollectionType(logPayload, payload.contentType, collectionName),

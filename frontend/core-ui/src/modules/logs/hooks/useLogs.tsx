@@ -20,12 +20,16 @@ const parseSearchParamValue = (value: string | null) => {
     return null;
   }
 
-  // Handle boolean strings explicitly before JSON.parse
-  if (value === 'true') return true;
-  if (value === 'false') return false;
+  const trimmedValue = value.trim();
+
+  if (
+    !(trimmedValue.startsWith('{') || trimmedValue.startsWith('['))
+  ) {
+    return value;
+  }
 
   try {
-    return JSON.parse(value);
+    return JSON.parse(trimmedValue);
   } catch {
     return value;
   }
@@ -71,18 +75,25 @@ const generatePayloadFilters = (searchParams: URLSearchParams) => {
   return filters;
 };
 
+const normalizeUserIds = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (value) {
+    return [value];
+  }
+
+  return undefined;
+};
+
 const generateVariables = (searchParams: URLSearchParams) => {
   const queryParams = getParamsObject(searchParams);
   const createdAtRange =
     typeof queryParams.createdAt === 'string'
       ? parseDateRangeFromString(queryParams.createdAt)
       : undefined;
-
-  const userIds = Array.isArray(queryParams.userIds)
-    ? queryParams.userIds
-    : queryParams.userIds
-      ? [queryParams.userIds]
-      : undefined;
+  const userIds = normalizeUserIds(queryParams.userIds);
 
   return {
     status:

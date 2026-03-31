@@ -4,6 +4,12 @@ import { ILogDoc } from '../types';
 import { maskFields } from '../utils/logFormUtils';
 import { LogDetailJsonPanel, LogDetailSection } from './LogDetailPrimitives';
 
+interface IMongoLogPayload {
+  collectionName?: string;
+  fullDocument?: unknown;
+  updateDescription?: unknown;
+}
+
 const formatLabel = (value?: string) => {
   if (!value) {
     return '-';
@@ -17,8 +23,26 @@ const formatLabel = (value?: string) => {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
+function MongoUpdateLogDetailContent({
+  payload,
+}: {
+  payload: IMongoLogPayload;
+}) {
+  const { updateDescription } = payload;
+
+  return (
+    <LogDetailJsonPanel
+      title="Change Set"
+      description="Updated fields, removed fields, and array truncations."
+      src={maskFields(updateDescription, ['password'])}
+      emptyMessage="No field-level diff was captured for this update."
+    />
+  );
+}
+
 export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
-  const { collectionName, fullDocument } = payload || {};
+  const mongoPayload = (payload || {}) as IMongoLogPayload;
+  const { collectionName, fullDocument } = mongoPayload;
   const actionLabel = formatLabel(action);
   const collectionLabel = formatLabel(collectionName);
   const currentDocument = maskFields(fullDocument, ['password']);
@@ -48,7 +72,7 @@ export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
       </div>
 
       {action === 'update' ? (
-        <MongoUpdateLogDetailContent payload={payload} />
+        <MongoUpdateLogDetailContent payload={mongoPayload} />
       ) : (
         <LogDetailJsonPanel
           title={action === 'delete' ? 'Removed Document' : 'Document'}
@@ -58,18 +82,5 @@ export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
         />
       )}
     </LogDetailSection>
-  );
-};
-
-const MongoUpdateLogDetailContent = ({ payload }: { payload: any }) => {
-  const { updateDescription } = payload || {};
-
-  return (
-    <LogDetailJsonPanel
-      title="Change Set"
-      description="Updated fields, removed fields, and array truncations."
-      src={maskFields(updateDescription, ['password'])}
-      emptyMessage="No field-level diff was captured for this update."
-    />
   );
 };

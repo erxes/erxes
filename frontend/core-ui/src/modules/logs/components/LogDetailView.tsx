@@ -90,6 +90,20 @@ const SummaryBadge = ({
   );
 };
 
+const getStatusBadgeVariant = (
+  status?: string,
+): React.ComponentProps<typeof Badge>['variant'] => {
+  if (status === ILogStatusType.FAILED) {
+    return 'destructive';
+  }
+
+  if (status === ILogStatusType.SUCCESS) {
+    return 'success';
+  }
+
+  return 'secondary';
+};
+
 export const LogDetailView = ({ logId }: { logId: string }) => {
   const { detail, error, loading } = useLogDetail(logId);
 
@@ -143,11 +157,7 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
               <SummaryBadge>
                 {formatLabel(generateOperationText(detail))}
               </SummaryBadge>
-              <SummaryBadge
-                variant={
-                  status === ILogStatusType.FAILED ? 'destructive' : 'success'
-                }
-              >
+              <SummaryBadge variant={getStatusBadgeVariant(status)}>
                 {formatLabel(status)}
               </SummaryBadge>
               <SummaryBadge variant="secondary">

@@ -12,12 +12,15 @@ import {
 import { IconCheck } from '@tabler/icons-react';
 import { useSearchParams } from 'react-router';
 
+type FilterOperatorOption = (typeof COMMON_FILTER_BAR_OPERATORS)[number];
+type FilterOperatorOptions = FilterOperatorOption[];
+
 const getFieldLableOperator = ({
   operator = 'eq',
   fields,
 }: {
   operator?: string | null;
-  fields: { value: string; label: string }[];
+  fields: FilterOperatorOptions;
 }) => {
   return fields.find(({ value }) => value === operator)?.label;
 };
@@ -34,8 +37,8 @@ export const LogRecordTableFilterBarOperator = ({
 
   const operator = searchParams.get(`${fieldName}Operator`) || undefined;
   const fields =
-    LOG_FILTER_BAR_OPERATORS[
-      fieldName as keyof typeof LOG_FILTER_BAR_OPERATORS
+    (LOG_FILTER_BAR_OPERATORS as Record<string, FilterOperatorOptions>)[
+      fieldName
     ] || COMMON_FILTER_BAR_OPERATORS;
 
   return (

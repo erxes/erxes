@@ -1,19 +1,23 @@
 import { Avatar, cn, readImage } from 'erxes-ui';
 import { IUser } from 'ui-modules';
 
-export const LogUserInfo = ({
-  user,
-  email,
-  variant = 'compact',
-}: {
+interface ILogUserInfoProps {
   user?: IUser;
   email?: string;
   variant?: 'compact' | 'card';
-}) => {
+}
+
+export function LogUserInfo({
+  user,
+  email,
+  variant = 'compact',
+}: ILogUserInfoProps) {
   const details = user?.details;
-  const fullName = details?.fullName || user?.email || email || 'Unknown user';
+  const fullName = details?.fullName || user?.email || 'Unknown user';
+  const secondaryEmailCandidate = email || user?.email || '';
+  const secondaryEmail =
+    fullName === secondaryEmailCandidate ? '' : secondaryEmailCandidate;
   const initials = fullName ? fullName.charAt(0).toUpperCase() : '';
-  const secondaryEmail = email || user?.email || '';
 
   if (variant === 'card') {
     return (
@@ -51,9 +55,9 @@ export const LogUserInfo = ({
       <span>{generateUserName(user, email)}</span>
     </div>
   );
-};
+}
 
-const generateUserName = (user: IUser | undefined, email?: string) => {
+function generateUserName(user: IUser | undefined, email?: string) {
   if (!user) return email || 'Unknown user';
 
   if (user?.details?.fullName) {
@@ -61,4 +65,4 @@ const generateUserName = (user: IUser | undefined, email?: string) => {
   }
 
   return user.email || email || 'Unknown user';
-};
+}

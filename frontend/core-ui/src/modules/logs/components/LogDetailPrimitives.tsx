@@ -3,7 +3,18 @@ import { cn } from 'erxes-ui';
 import type { ComponentType, ReactNode } from 'react';
 import ReactJson from 'react-json-view';
 
-const normalizeJsonSource = (value: any) => {
+type LogDetailJsonSource =
+  | Record<string, unknown>
+  | unknown[]
+  | { value: string }
+  | null;
+
+type LogDetailIconProps = {
+  size?: number;
+  className?: string;
+};
+
+const normalizeJsonSource = (value: unknown): LogDetailJsonSource => {
   if (value === null || value === undefined || value === '') {
     return null;
   }
@@ -12,7 +23,15 @@ const normalizeJsonSource = (value: any) => {
     return { value };
   }
 
-  return value;
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === 'object') {
+    return value as Record<string, unknown>;
+  }
+
+  return { value: String(value) };
 };
 
 export const LogDetailSection = ({
@@ -24,7 +43,7 @@ export const LogDetailSection = ({
 }: {
   title: string;
   description?: string;
-  icon?: ComponentType<any>;
+  icon?: ComponentType<LogDetailIconProps>;
   children: ReactNode;
   className?: string;
 }) => {
@@ -81,7 +100,7 @@ export const LogDetailJsonPanel = ({
 }: {
   title: string;
   description?: string;
-  src: any;
+  src: unknown;
   emptyMessage?: string;
   className?: string;
 }) => {
@@ -116,7 +135,7 @@ export const LogDetailMetricCard = ({
 }: {
   title: string;
   value?: ReactNode;
-  icon?: ComponentType<any>;
+  icon?: ComponentType<LogDetailIconProps>;
   className?: string;
 }) => {
   return (
