@@ -231,12 +231,12 @@ export const loadTicketClass = (models: IModels) => {
       if (
         (detail?.subscribedUserIds?.length ?? 0) > 0
       ) {
-        const userIds = detail.subscribedUserIds.filter(
+        const userIds = detail?.subscribedUserIds?.filter(
           (id) => id !== userId && id !== doc.assigneeId,
-        );
+        ) || [];
         await createNotifications({
           contentType: 'ticket',
-          contentTypeId: detail._id,
+          contentTypeId: detail?._id ?? '',
           fromUserId: userId,
           subdomain,
           notificationType: 'updateTicket',
