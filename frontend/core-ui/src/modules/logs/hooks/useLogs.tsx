@@ -85,8 +85,8 @@ const generateVariables = (searchParams: URLSearchParams) => {
   const userIds = Array.isArray(queryParams.userIds)
     ? queryParams.userIds
     : queryParams.userIds
-    ? [queryParams.userIds]
-    : undefined;
+      ? [queryParams.userIds]
+      : undefined;
 
   return {
     status:
