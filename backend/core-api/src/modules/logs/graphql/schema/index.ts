@@ -55,7 +55,6 @@ const cursorParams = `
 `;
 
 export const commonListQueryParams = `
-    searchValue:String,
     page:Int,
     perPage:Int,
     ids:[String]

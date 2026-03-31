@@ -19,7 +19,6 @@ export const LOGS_GET_CONTENT_TYPES = gql`
 export const LOGS_MAIN_LIST = gql`
 query LogsMainList(
   ${GQL_CURSOR_PARAM_DEFS},
-  $searchValue: String,
   $page: Int,
   $perPage: Int,
   $ids: [String],
@@ -36,7 +35,6 @@ query LogsMainList(
 ) {
   logsMainList(
     ${GQL_CURSOR_PARAMS},
-    searchValue: $searchValue,
     page: $page,
     perPage: $perPage,
     ids: $ids,

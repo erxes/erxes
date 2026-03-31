@@ -5,7 +5,12 @@ export const logsSchema = new Schema(
   {
     source: { type: String, label: 'Source' },
     status: { type: String, enum: ['success', 'failed'], required: true },
-    createdAt: { type: Date, label: 'Created At', default: Date.now },
+    createdAt: {
+      type: Date,
+      label: 'Created At',
+      default: Date.now,
+      required: true,
+    },
     userId: { type: String, label: 'User Id' },
     docId: { type: String, optional: true },
     payload: { type: Schema.Types.Mixed },

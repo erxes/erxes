@@ -50,11 +50,11 @@ export const LogUserInfo = ({
 };
 
 const generateUserName = (user: IUser | undefined, email?: string) => {
-  if (!user) return email || '';
+  if (!user) return email || 'Unknown user';
 
   if (user?.details?.fullName) {
     return user.details.fullName;
   }
 
-  return user.email || email || '';
+  return user.email || email || 'Unknown user';
 };

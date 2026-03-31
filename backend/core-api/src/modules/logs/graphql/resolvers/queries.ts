@@ -280,7 +280,7 @@ const sortByContentType = (
   );
 
 export const logQueries = {
-  async logsGetContentTypes() {
+  async logsGetContentTypes(_root, _args, { user }: IContext) {
     const pluginNames = await getPlugins();
     const seen = new Set<string>();
     const contentTypes: Array<{

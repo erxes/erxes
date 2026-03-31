@@ -20,17 +20,13 @@ const parseSearchParamValue = (value: string | null) => {
     return null;
   }
 
+  // Handle boolean strings explicitly before JSON.parse
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+
   try {
     return JSON.parse(value);
   } catch {
-    if (value === 'true') {
-      return true;
-    }
-
-    if (value === 'false') {
-      return false;
-    }
-
     return value;
   }
 };

@@ -96,7 +96,6 @@ export const LOG_FILTER_BAR_OPERATORS = {
 };
 
 export const LOGS_COMMON_FILTER_FIELD_NAMES = [
-  'searchValue',
   'status',
   'source',
   'action',
