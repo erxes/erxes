@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Control, UseFormSetValue, useController } from 'react-hook-form';
 import { Form, Switch } from 'erxes-ui';
 import { RHFDatePicker } from './RHFDatePicker';
@@ -28,6 +28,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
   });
 
   const isFlexibleDate = flexibleField.value;
+  const today = useMemo(() => new Date(), []);
   const isGroupTour = groupField.value;
   const availableFrom = availableFromField.value;
 
@@ -85,7 +86,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
                 <RHFDatePicker
                   control={control}
                   name="availableFrom"
-                  fromDate={new Date()}
+                  fromDate={today}
                 />
               </Form.Control>
             </Form.Item>
@@ -139,7 +140,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
                   control={control}
                   name="startDate"
                   mode={isGroupTour ? 'multiple' : 'single'}
-                  fromDate={new Date()}
+                  fromDate={today}
                 />
               </Form.Control>
             </Form.Item>

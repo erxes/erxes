@@ -25,6 +25,17 @@ type Props<T extends FieldValues> = {
   fromDate?: Date;
 };
 
+const isDateDisabled = (date: Date, fromDate?: Date) => {
+  if (!fromDate) return false;
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const min = new Date(
+    fromDate.getFullYear(),
+    fromDate.getMonth(),
+    fromDate.getDate(),
+  );
+  return d < min;
+};
+
 export const RHFDatePicker = <T extends FieldValues>({
   control,
   name,
@@ -42,8 +53,9 @@ export const RHFDatePicker = <T extends FieldValues>({
             <DatePicker
               mode="single"
               value={toDate(field.value)}
-              fromDate={fromDate}
-              disabled={!!disabled}
+              disabled={(date: Date) =>
+                !!disabled || isDateDisabled(date, fromDate)
+              }
               onChange={(val) => field.onChange(val ?? undefined)}
             />
           );
@@ -53,8 +65,9 @@ export const RHFDatePicker = <T extends FieldValues>({
           <DatePicker
             mode="multiple"
             value={toDates(field.value)}
-            fromDate={fromDate}
-            disabled={!!disabled}
+            disabled={(date: Date) =>
+              !!disabled || isDateDisabled(date, fromDate)
+            }
             onChange={(val) => field.onChange(val ?? undefined)}
           />
         );

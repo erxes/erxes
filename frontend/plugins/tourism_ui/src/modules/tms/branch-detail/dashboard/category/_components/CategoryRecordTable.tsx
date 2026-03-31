@@ -30,7 +30,7 @@ export const CategoryRecordTable = ({ branchId }: { branchId?: string }) => {
   }, [categoriesWithChildren]);
 
   if (!loading && (categories?.length ?? 0) === 0) {
-    return <EmptyStateRow />;
+    return <EmptyStateRow branchId={branchId} />;
   }
 
   return (
@@ -56,7 +56,7 @@ export const CategoryRecordTable = ({ branchId }: { branchId?: string }) => {
   );
 };
 
-function EmptyStateRow() {
+function EmptyStateRow({ branchId }: { branchId?: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconLayoutGrid
@@ -73,7 +73,7 @@ function EmptyStateRow() {
         Create your first category to get started.
       </p>
 
-      <CategoryCreateSheet />
+      <CategoryCreateSheet branchId={branchId} />
     </div>
   );
 }
