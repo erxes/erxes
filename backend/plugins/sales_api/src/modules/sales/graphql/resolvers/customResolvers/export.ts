@@ -1,7 +1,12 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 
+type PosItem = {
+  number?: string;
+  createdAt?: Date;
+};
+
 const exportResolvers: Record<string, Resolver> = {
-  async getExportHeaders(_root, { moduleName, collectionName }) {
+  getExportHeaders(_root, { moduleName, collectionName }) {
     if (moduleName === 'pos' && collectionName === 'posItems') {
       return [
         {
@@ -26,11 +31,11 @@ const exportResolvers: Record<string, Resolver> = {
     if (moduleName === 'pos' && collectionName === 'posItems') {
       const MAX_EXPORT = 10000;
 
-      const items = await (models as any).PosItems.find()
+      const items: PosItem[] = await models.PosItems.find()
         .limit(MAX_EXPORT)
         .lean();
 
-      return items.map((item: any) => ({
+      return items.map((item) => ({
         number: item.number,
         createdAt: item.createdAt,
       }));
