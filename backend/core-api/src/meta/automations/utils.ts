@@ -17,9 +17,7 @@ export const getRelatedValue = async (
   ) {
     const user = await models.Users.getUser(target[targetKey]);
 
-    return (
-      (user && ((user.details && user.details.fullName) || user.email)) || ''
-    );
+    return user?.details?.fullName || user?.email || '';
   }
 
   if (
@@ -30,9 +28,7 @@ export const getRelatedValue = async (
     const users = await models.Users.find({ _id: { $in: target[targetKey] } });
 
     return (
-      users.map(
-        (user) => (user.details && user.details.fullName) || user.email,
-      ) || []
+      users.map((user) => user.details?.fullName || user.email) || []
     ).join(', ');
   }
 

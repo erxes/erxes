@@ -287,7 +287,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
           const conversationMessage =
             await this.createOrUpdateConversationAndMessages({
-              customerId: customer && customer._id,
+              customerId: customer?._id,
               visitorId,
               integrationId,
               user,
@@ -448,26 +448,26 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         'BROADCAST_AWS_SES_ACCESS_KEY_ID',
         'BROADCAST_AWS_SES_ACCESS_KEY_ID',
       );
-    
+
       const secretAccessKey = await getValueAsString(
         models,
         'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
         'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
       );
-    
+
       const region = await getValueAsString(
         models,
         'BROADCAST_AWS_REGION',
         'BROADCAST_AWS_REGION',
       );
-    
+
       const unverifiedEmailsLimit = await getValueAsString(
         models,
         'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
         'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
         '100',
       );
-    
+
       return {
         accessKeyId,
         secretAccessKey,

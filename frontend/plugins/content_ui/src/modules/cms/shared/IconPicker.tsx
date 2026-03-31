@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { Icon123 } from '@tabler/icons-react';
+import { Button, Command } from 'erxes-ui';
 import { Popover } from 'erxes-ui/components/popover';
 import { Popover as PopoverPrimitive } from 'radix-ui';
-import { Button } from 'erxes-ui';
-import { Command } from 'erxes-ui';
-import { Icon123 } from '@tabler/icons-react';
+import { useState } from 'react';
 
 interface IconPickerProps {
   value?: string;

@@ -1,10 +1,7 @@
-import { Link } from 'react-router-dom';
-import { Button } from 'erxes-ui';
-import { IconComponent } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
 import { useGetChannel } from '@/channels/hooks/useGetChannel';
-import { Skeleton } from 'erxes-ui';
+import { Button, IconComponent, Skeleton } from 'erxes-ui';
 import { useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
 
 export const ChannelDetailBreadcrumb = ({
   channelId,

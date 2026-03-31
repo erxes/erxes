@@ -21,16 +21,20 @@ interface SelectTourCategoryProps {
   value?: string[];
   onValueChange?: (value: string[]) => void;
   placeholder?: string;
+  branchId?: string;
 }
 
 export const SelectTourCategory = ({
   value = [],
   onValueChange,
   placeholder = 'Select categories',
+  branchId,
 }: SelectTourCategoryProps) => {
   const [open, setOpen] = useState(false);
 
-  const { categories, loading } = useCategories();
+  const { categories, loading } = useCategories({
+    variables: { branchId },
+  });
 
   const handleToggle = (categoryId: string) => {
     const newValue = value.includes(categoryId)

@@ -325,7 +325,7 @@ export const TourAdvanceCheckField = ({
       control={control}
       name="advanceCheck"
       render={({ field }) => (
-        <Form.Item className="flex items-center gap-2">
+        <Form.Item className="flex gap-2 items-center">
           <Form.Control>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
           </Form.Control>
@@ -415,8 +415,10 @@ export const TourItineraryIdField = ({
 
 export const TourCategoryField = ({
   control,
+  branchId,
 }: {
   control: Control<TourCreateFormType>;
+  branchId?: string;
 }) => {
   return (
     <Form.Field
@@ -430,6 +432,7 @@ export const TourCategoryField = ({
               value={field.value}
               onValueChange={field.onChange}
               placeholder="Select categories"
+              branchId={branchId}
             />
           </Form.Control>
           <Form.Message className="text-destructive" />
@@ -482,7 +485,7 @@ export const TourImageThumbnailField = ({
                 }
               >
                 {!field.value && (
-                  <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
                     {isLoading ? (
                       <span>Uploading...</span>
                     ) : (
@@ -495,7 +498,7 @@ export const TourImageThumbnailField = ({
                 )}
 
                 {field.value && (
-                  <div className="absolute inset-0 flex items-center justify-center transition bg-black/0 group-hover:bg-black/30">
+                  <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
                     <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 group-hover:opacity-100 bg-black/70">
                       Change image
                     </span>
@@ -507,7 +510,7 @@ export const TourImageThumbnailField = ({
                 <Upload.RemoveButton
                   size="sm"
                   variant="destructive"
-                  className="absolute shadow opacity-0 top-2 right-2 group-hover:opacity-100"
+                  className="absolute top-2 right-2 shadow opacity-0 group-hover:opacity-100"
                 >
                   <IconTrash size={14} />
                 </Upload.RemoveButton>
@@ -598,7 +601,7 @@ export const TourAttachmentsField = ({
                 className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
               >
                 {!field.value ? (
-                  <div className="flex items-center justify-center w-full gap-2 text-sm text-muted-foreground">
+                  <div className="flex gap-2 justify-center items-center w-full text-sm text-muted-foreground">
                     {isLoading ? (
                       <span>Uploading...</span>
                     ) : (
@@ -609,7 +612,7 @@ export const TourAttachmentsField = ({
                     )}
                   </div>
                 ) : (
-                  <div className="flex items-center w-full gap-2 px-1">
+                  <div className="flex gap-2 items-center px-1 w-full">
                     <IconFileText
                       size={18}
                       className="shrink-0 text-muted-foreground"
@@ -623,7 +626,7 @@ export const TourAttachmentsField = ({
                 <Upload.RemoveButton
                   size="sm"
                   variant="destructive"
-                  className="absolute -translate-y-1/2 shadow opacity-0 top-1/2 right-2 group-hover:opacity-100"
+                  className="absolute right-2 top-1/2 shadow opacity-0 -translate-y-1/2 group-hover:opacity-100"
                 >
                   <IconTrash size={14} />
                 </Upload.RemoveButton>
@@ -677,7 +680,7 @@ const TourPricingOptionsFieldContent = ({
 
   return (
     <Form.Item className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
           <Form.Label>Pricing Options</Form.Label>
           <Form.Description>
@@ -697,9 +700,9 @@ const TourPricingOptionsFieldContent = ({
         {fields.map((field, index) => (
           <div
             key={field.id}
-            className="p-4 space-y-3 border rounded-lg bg-card"
+            className="p-4 space-y-3 rounded-lg border bg-card"
           >
-            <div className="flex items-start justify-between">
+            <div className="flex justify-between items-start">
               <Label>
                 Package: <Label className="text-black">{index + 1}</Label>
               </Label>

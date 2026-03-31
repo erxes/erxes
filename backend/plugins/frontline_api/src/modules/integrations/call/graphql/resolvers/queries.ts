@@ -1,6 +1,9 @@
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import { INotesParams } from '@/integrations/call/@types/conversationNotes';
-import { ICallHistory, ICallHistoryFilterOptions } from '@/integrations/call/@types/histories';
+import {
+  ICallHistory,
+  ICallHistoryFilterOptions,
+} from '@/integrations/call/@types/histories';
 import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
 import {
   calculateAbandonmentRate,
@@ -106,7 +109,7 @@ const callQueries = {
       user,
     )) as any;
 
-    if (queueData && queueData.response) {
+    if (queueData?.response) {
       const { account } = queueData.response;
 
       if (account) {
@@ -274,7 +277,7 @@ const callQueries = {
       user,
     )) as any;
 
-    if (queueData && queueData.response) {
+    if (queueData?.response) {
       const { CallQueueMembersMessage } = queueData.response;
 
       if (CallQueueMembersMessage) {

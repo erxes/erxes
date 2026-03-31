@@ -1,40 +1,30 @@
-import {
-  DndContext,
-  closestCenter,
-  DragEndEvent,
-  DragMoveEvent,
-} from '@dnd-kit/core';
-import { useAtomValue, useAtom, useSetAtom } from 'jotai';
+import { TICKET_STATUS_FORM_SCHEMA } from '@/settings/schema/ticketStatus';
 import {
   addingStatusState,
   editingStatusState,
 } from '@/settings/states/StatusStates';
+import {
+  StatusInlineIcon,
+  StatusInlineLabel,
+} from '@/status/components/StatusInline';
 import { useAddTicketStatus } from '@/status/hooks/useAddTicketStatus';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useDeleteTicketStatus } from '@/status/hooks/useDeleteTicketStatus';
+import { useGetTicketStatus } from '@/status/hooks/useGetTicketStatus';
+import { useUpdateTicketStatus } from '@/status/hooks/useUpdateTicketStatus';
+import { ITicketStatus } from '@/status/types';
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  DragMoveEvent,
+} from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
+  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useState, useEffect } from 'react';
-import { useGetTicketStatus } from '@/status/hooks/useGetTicketStatus';
-import { useUpdateTicketStatus } from '@/status/hooks/useUpdateTicketStatus';
-import { useSortable } from '@dnd-kit/sortable';
-import { ITicketStatus } from '@/status/types';
-import { TICKET_STATUS_FORM_SCHEMA } from '@/settings/schema/ticketStatus';
-import {
-  Button,
-  cn,
-  DropdownMenu,
-  Form,
-  Input,
-  useToast,
-  Skeleton,
-  ColorPicker,
-  TextOverflowTooltip,
-} from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   IconDots,
   IconEdit,
@@ -42,12 +32,22 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { useParams } from 'react-router';
-import { useDeleteTicketStatus } from '@/status/hooks/useDeleteTicketStatus';
 import {
-  StatusInlineIcon,
-  StatusInlineLabel,
-} from '@/status/components/StatusInline';
+  Button,
+  cn,
+  ColorPicker,
+  DropdownMenu,
+  Form,
+  Input,
+  Skeleton,
+  TextOverflowTooltip,
+  useToast,
+} from 'erxes-ui';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useParams } from 'react-router';
+import { z } from 'zod';
 
 const StatusSkeleton = () => {
   return (

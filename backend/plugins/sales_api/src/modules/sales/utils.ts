@@ -338,19 +338,19 @@ const generateArchivedItemsFilter = (
     filter.userId = { $in: userIds };
   }
 
-  if (priorities && priorities.length) {
+  if (priorities?.length) {
     filter.priority = { $in: priorities };
   }
 
-  if (assignedUserIds && assignedUserIds.length) {
+  if (assignedUserIds?.length) {
     filter.assignedUserIds = { $in: assignedUserIds };
   }
 
-  if (labelIds && labelIds.length) {
+  if (labelIds?.length) {
     filter.labelIds = { $in: labelIds };
   }
 
-  if (productIds && productIds.length) {
+  if (productIds?.length) {
     filter['productsData.productId'] = { $in: productIds };
   }
 
@@ -370,11 +370,11 @@ const generateArchivedItemsFilter = (
     }
   }
 
-  if (sources && sources.length) {
+  if (sources?.length) {
     filter.source = { $in: sources };
   }
 
-  if (hackStages && hackStages.length) {
+  if (hackStages?.length) {
     filter.hackStages = { $in: hackStages };
   }
 
@@ -1175,7 +1175,7 @@ export const itemsAdd = async (
 
   const extendedDoc = {
     ...modifiedDoc,
-    modifiedBy: user && user._id,
+    modifiedBy: user?._id,
     userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection: models.Deals,

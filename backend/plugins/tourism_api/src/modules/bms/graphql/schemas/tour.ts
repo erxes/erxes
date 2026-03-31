@@ -12,6 +12,7 @@ export const types = `
     code: String
     order: String
     parentId: String
+    branchId: String
     attachment: Attachment
     tourCount: Int
     createdAt: Date
@@ -152,7 +153,7 @@ export const queries = `
   bmsTours(branchId:String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS): TourListResponse
   bmsToursTotalCount(branchId:String): Int
   bmsTourDetail(_id:String!,branchId: String): Tour
-  bmsTourCategories(parentId:String, name: String): [TourCategory]
+  bmsTourCategories(parentId:String, name: String, branchId: String): [TourCategory]
   bmsOrders( tourId:String, customerId:String ,branchId: String, ${GQL_CURSOR_PARAM_DEFS}):BmsOrderListResponse
   bmsOrderDetail(_id: String!): BmsOrder
   bmToursGroup(branchId:String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
@@ -208,9 +209,9 @@ export const mutations = `
   bmsTourRemove(ids: [String]): JSON
   bmsTourViewCount(_id: String): JSON
   bmsTourEdit(_id:String!, ${params}): Tour
-  bmsTourCategoryAdd(name:String,code:String,parentId:String,attachment:AttachmentInput):TourCategory
+  bmsTourCategoryAdd(name:String,code:String,parentId:String,branchId:String,attachment:AttachmentInput):TourCategory
   bmsTourCategoryRemove(_id: String, ids: [String]):JSON
-  bmsTourCategoryEdit(_id: String!, name:String,code:String,parentId:String,attachment:AttachmentInput): TourCategory
+  bmsTourCategoryEdit(_id: String!, name:String,code:String,parentId:String,branchId:String,attachment:AttachmentInput): TourCategory
   bmsOrderAdd(order:BmsOrderInput): BmsOrder
   bmsOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder
   bmsOrderRemove(ids:[String]): JSON

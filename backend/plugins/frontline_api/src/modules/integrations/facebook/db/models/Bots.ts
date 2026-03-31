@@ -302,7 +302,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         priority: 'medium',
         userIds: recipientIds,
         kind: 'system',
-        contentType: 'frontline:facebookBot.health',
+        contentType: 'frontline:facebook.bot_health',
         content: bot.name,
         metadata: {
           botId: bot._id,
@@ -773,8 +773,9 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       };
 
       const pageAccessToken = bot.token || '';
-      const { subscribedData, profileData } =
-        await this.fetchBotProfileState(pageAccessToken);
+      const { subscribedData, profileData } = await this.fetchBotProfileState(
+        pageAccessToken,
+      );
       const verification = this.buildVerificationResult({
         subscribedData,
         profileData,
