@@ -14,8 +14,9 @@ export const getServerAddress = async (
 ) => {
   const { SERVER_DOMAIN } = process.env;
   if (SERVER_DOMAIN) {
-    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${serviceName || 'sales'
-      }`;
+    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${
+      serviceName || 'sales'
+    }`;
   }
   //uncomplete
   const posService = { address: '' }; //await getService(serviceName || 'pos');
