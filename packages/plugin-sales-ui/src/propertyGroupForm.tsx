@@ -24,7 +24,16 @@ class Form extends React.Component<any, any> {
           return boardsPipeline;
         });
 
+      // Build a flat map of pipelineId -> pipelineName for all selected pipelines
+      const pipelineNames: Record<string, string> = {};
+      (items || []).forEach((e: any) => {
+        if (e.pipelineNames) {
+          Object.assign(pipelineNames, e.pipelineNames);
+        }
+      });
+
       this.props.onChangeItems(boardsPipelines);
+      this.props.onChangeItems(pipelineNames, "pipelineNames");
     });
   };
 

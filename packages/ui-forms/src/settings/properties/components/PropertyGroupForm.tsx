@@ -45,7 +45,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     let isVisible = true;
     let isVisibleInDetail = true;
     let alwaysOpen = false;
-    let config = {};
+    let config: any = {};
 
     if (props.group) {
       isMultiple = props.group.isMultiple;
@@ -54,18 +54,38 @@ class PropertyGroupForm extends React.Component<Props, State> {
       config = props.group.config || {};
       alwaysOpen = props.group.alwaysOpen;
 
-      // Pre-populate fieldVisibility for system groups from each field's
-      // isVisibleToCreate so saving without clicking a toggle persists defaults.
-      if (
-        props.group.isDefinedByErxes &&
-        !config.fieldVisibility &&
-        props.group.fields?.length
-      ) {
-        const fieldVisibility: Record<string, boolean> = {};
-        for (const field of props.group.fields) {
-          fieldVisibility[field._id] = !!field.isVisibleToCreate;
+      if (props.group.isDefinedByErxes && props.group.fields?.length) {
+        const fields = props.group.fields;
+
+        // Pre-populate global fieldVisibility as a fallback.
+        if (!config.fieldVisibility) {
+          const fieldVisibility: Record<string, boolean> = {};
+          for (const field of fields) {
+            fieldVisibility[field._id] = !!field.isVisibleToCreate;
+          }
+          config = { ...config, fieldVisibility };
         }
-        config = { ...config, fieldVisibility };
+
+        // Pre-populate pipelineFieldVisibility for every already-configured pipeline.
+        if (!config.pipelineFieldVisibility) {
+          const boardsPipelines: any[] = config.boardsPipelines || [];
+          const pipelineIds: string[] = [];
+          for (const bp of boardsPipelines) {
+            if (bp.pipelineIds) pipelineIds.push(...bp.pipelineIds);
+          }
+          if (pipelineIds.length > 0) {
+            const pipelineFieldVisibility: Record<string, Record<string, boolean>> = {};
+            for (const pid of pipelineIds) {
+              const fv: Record<string, boolean> = {};
+              for (const field of fields) {
+                fv[field._id] =
+                  config.fieldVisibility?.[field._id] ?? !!field.isVisibleToCreate;
+              }
+              pipelineFieldVisibility[pid] = fv;
+            }
+            config = { ...config, pipelineFieldVisibility };
+          }
+        }
       }
     }
 
@@ -198,9 +218,37 @@ class PropertyGroupForm extends React.Component<Props, State> {
       return;
     }
 
-    this.setState(prev => ({
-      config: { ...prev.config, boardsPipelines }
-    }));
+    // When boardsPipelines changes, initialize any new pipelines in pipelineFieldVisibility.
+    const { group } = this.props;
+    const fields = (group && group.fields) || [];
+
+    this.setState(prev => {
+      const existingPFV: Record<string, Record<string, boolean>> =
+        prev.config?.pipelineFieldVisibility || {};
+      const newPFV = { ...existingPFV };
+
+      for (const bp of boardsPipelines || []) {
+        for (const pid of bp.pipelineIds || []) {
+          if (!newPFV[pid]) {
+            const fv: Record<string, boolean> = {};
+            for (const field of fields) {
+              fv[field._id] =
+                prev.config?.fieldVisibility?.[field._id] ??
+                !!field.isVisibleToCreate;
+            }
+            newPFV[pid] = fv;
+          }
+        }
+      }
+
+      return {
+        config: {
+          ...prev.config,
+          boardsPipelines,
+          pipelineFieldVisibility: newPFV
+        }
+      };
+    });
   };
 
   onFieldVisibilityChange = (fieldId: string, value: boolean) => {
@@ -215,6 +263,29 @@ class PropertyGroupForm extends React.Component<Props, State> {
     }));
   };
 
+  onPipelineFieldVisibilityChange = (
+    pipelineId: string,
+    fieldId: string,
+    value: boolean
+  ) => {
+    this.setState(prev => {
+      const existing: Record<string, Record<string, boolean>> =
+        prev.config?.pipelineFieldVisibility || {};
+      return {
+        config: {
+          ...prev.config,
+          pipelineFieldVisibility: {
+            ...existing,
+            [pipelineId]: {
+              ...(existing[pipelineId] || {}),
+              [fieldId]: value
+            }
+          }
+        }
+      };
+    });
+  };
+
   renderFieldVisibilitySection() {
     const { group } = this.props;
 
@@ -222,23 +293,39 @@ class PropertyGroupForm extends React.Component<Props, State> {
       return null;
     }
 
-    const fieldVisibility: Record<string, boolean> =
-      this.state.config?.fieldVisibility || {};
+    const { config } = this.state;
+    const boardsPipelines: any[] = config?.boardsPipelines || [];
+    const pipelineFieldVisibility: Record<string, Record<string, boolean>> =
+      config?.pipelineFieldVisibility || {};
+    const pipelineNames: Record<string, string> = config?.pipelineNames || {};
 
-    return (
-      <FormGroup>
-        <ControlLabel>{__("Field Visibility to Create")}</ControlLabel>
-        <p>
-          {__(
-            "Choose which fields appear in the create form for the configured pipelines."
-          )}
-        </p>
-        {group.fields.map(field => {
+    // Collect all configured pipeline IDs in order.
+    const pipelineIds: string[] = [];
+    for (const bp of boardsPipelines) {
+      for (const pid of bp.pipelineIds || []) {
+        if (!pipelineIds.includes(pid)) {
+          pipelineIds.push(pid);
+        }
+      }
+    }
+
+    // No pipelines configured yet — show a single global section (backward compat).
+    if (pipelineIds.length === 0) {
+      const fieldVisibility: Record<string, boolean> =
+        config?.fieldVisibility || {};
+      return (
+        <FormGroup>
+          <ControlLabel>{__("Field Visibility to Create")}</ControlLabel>
+          <p>
+            {__(
+              "Choose which fields appear in the create form for the configured pipelines."
+            )}
+          </p>
+          {group.fields.map(field => {
             const isChecked =
               fieldVisibility[field._id] !== undefined
                 ? fieldVisibility[field._id]
                 : !!field.isVisibleToCreate;
-
             return (
               <FlexRow key={field._id} style={{ marginBottom: 8 }}>
                 <span style={{ flex: 1 }}>{field.text}</span>
@@ -250,12 +337,68 @@ class PropertyGroupForm extends React.Component<Props, State> {
                     unchecked: <span>{__("No")}</span>
                   }}
                   onChange={e =>
-                    this.onFieldVisibilityChange(field._id, e.target.checked)
+                    this.onFieldVisibilityChange(
+                      field._id,
+                      (e.target as HTMLInputElement).checked
+                    )
                   }
                 />
               </FlexRow>
             );
           })}
+        </FormGroup>
+      );
+    }
+
+    // Per-pipeline visibility sections.
+    return (
+      <FormGroup>
+        <ControlLabel>{__("Field Visibility to Create")}</ControlLabel>
+        <p>
+          {__(
+            "Choose which fields appear in the create form. Each pipeline has its own settings."
+          )}
+        </p>
+        {pipelineIds.map((pipelineId, idx) => {
+          const fv: Record<string, boolean> =
+            pipelineFieldVisibility[pipelineId] || {};
+          const label =
+            pipelineNames[pipelineId] || `${__("Pipeline")} ${idx + 1}`;
+          return (
+            <div key={pipelineId} style={{ marginBottom: 16 }}>
+              <strong>{label}</strong>
+              {group.fields.map(field => {
+                const isChecked =
+                  fv[field._id] !== undefined
+                    ? fv[field._id]
+                    : !!field.isVisibleToCreate;
+                return (
+                  <FlexRow
+                    key={field._id}
+                    style={{ marginBottom: 4, paddingLeft: 8 }}
+                  >
+                    <span style={{ flex: 1 }}>{field.text}</span>
+                    <Toggle
+                      id={`fv_${pipelineId}_${field._id}`}
+                      checked={isChecked}
+                      icons={{
+                        checked: <span>{__("Yes")}</span>,
+                        unchecked: <span>{__("No")}</span>
+                      }}
+                      onChange={e =>
+                        this.onPipelineFieldVisibilityChange(
+                          pipelineId,
+                          field._id,
+                          (e.target as HTMLInputElement).checked
+                        )
+                      }
+                    />
+                  </FlexRow>
+                );
+              })}
+            </div>
+          );
+        })}
       </FormGroup>
     );
   }
