@@ -33,7 +33,9 @@ export const GraphqlLogDetailContent = ({ payload }: ILogDoc) => {
               : 'Resolved response returned by the API.'
           }
           src={
-            typeof res === 'string' ? { message: res } : maskFields(res, ['password'])
+            typeof res === 'string'
+              ? { message: res }
+              : maskFields(res, ['password'])
           }
           emptyMessage="No result payload was captured for this request."
         />

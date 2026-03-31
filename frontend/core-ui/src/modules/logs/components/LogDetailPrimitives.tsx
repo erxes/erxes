@@ -29,12 +29,7 @@ export const LogDetailSection = ({
   className?: string;
 }) => {
   return (
-    <section
-      className={cn(
-        'rounded-3xl border bg-background p-5',
-        className,
-      )}
-    >
+    <section className={cn('rounded-3xl border bg-background p-5', className)}>
       <div className="mb-4 flex items-start gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
           <Icon size={18} />
@@ -125,12 +120,7 @@ export const LogDetailMetricCard = ({
   className?: string;
 }) => {
   return (
-    <div
-      className={cn(
-        'rounded-2xl border bg-muted/20 p-4',
-        className,
-      )}
-    >
+    <div className={cn('rounded-2xl border bg-muted/20 p-4', className)}>
       <div className="flex items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-background text-muted-foreground">
           <Icon size={18} />

@@ -17,10 +17,7 @@ const formatLabel = (value?: string) => {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-export const MongoLogDetailContent = ({
-  payload,
-  action,
-}: ILogDoc) => {
+export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
   const { collectionName, fullDocument } = payload || {};
   const actionLabel = formatLabel(action);
   const collectionLabel = formatLabel(collectionName);
@@ -64,11 +61,7 @@ export const MongoLogDetailContent = ({
   );
 };
 
-const MongoUpdateLogDetailContent = ({
-  payload,
-}: {
-  payload: any;
-}) => {
+const MongoUpdateLogDetailContent = ({ payload }: { payload: any }) => {
   const { updateDescription } = payload || {};
 
   return (

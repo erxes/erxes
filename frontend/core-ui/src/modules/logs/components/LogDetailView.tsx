@@ -140,7 +140,9 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 px-6 py-4">
-              <SummaryBadge>{formatLabel(generateOperationText(detail))}</SummaryBadge>
+              <SummaryBadge>
+                {formatLabel(generateOperationText(detail))}
+              </SummaryBadge>
               <SummaryBadge
                 variant={
                   status === ILogStatusType.FAILED ? 'destructive' : 'success'

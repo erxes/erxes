@@ -16,8 +16,9 @@ export const LogContentTypeFilter = () => {
   }>(['contentType', 'contentTypeOperator']);
   const { contentType } = queries;
   const [search, setSearch] = useState('');
-  const { data, loading, error } =
-    useQuery<LogsGetContentTypesQueryResponse>(LOGS_GET_CONTENT_TYPES);
+  const { data, loading, error } = useQuery<LogsGetContentTypesQueryResponse>(
+    LOGS_GET_CONTENT_TYPES,
+  );
 
   const options = data?.logsGetContentTypes || [];
   const normalizedSearch = search.trim().toLowerCase();
@@ -78,9 +79,14 @@ export const LogContentTypeFilter = () => {
         <Combobox.Empty loading={loading} error={error} />
         {groupedOptions.map(([pluginName, modules], pluginIndex) => (
           <div key={pluginName}>
-            <Command.Group heading={formatLogContentTypeSegmentLabel(pluginName)}>
+            <Command.Group
+              heading={formatLogContentTypeSegmentLabel(pluginName)}
+            >
               {Object.entries(modules).map(([moduleName, items]) => (
-                <div key={`${pluginName}:${moduleName}`} className="pb-1 last:pb-0">
+                <div
+                  key={`${pluginName}:${moduleName}`}
+                  className="pb-1 last:pb-0"
+                >
                   <div className="px-2 pt-1 pb-1 text-[11px] font-medium text-muted-foreground">
                     {formatLogContentTypeSegmentLabel(moduleName)}
                   </div>
@@ -97,7 +103,9 @@ export const LogContentTypeFilter = () => {
                       }
                     >
                       {formatLogContentTypeSegmentLabel(collectionName)}
-                      {contentType === value && <IconCheck className="ml-auto" />}
+                      {contentType === value && (
+                        <IconCheck className="ml-auto" />
+                      )}
                     </Command.Item>
                   ))}
                 </div>

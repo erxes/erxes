@@ -34,8 +34,9 @@ export const LogRecordTableFilterBarOperator = ({
 
   const operator = searchParams.get(`${fieldName}Operator`) || undefined;
   const fields =
-    LOG_FILTER_BAR_OPERATORS[fieldName as keyof typeof LOG_FILTER_BAR_OPERATORS] ||
-    COMMON_FILTER_BAR_OPERATORS;
+    LOG_FILTER_BAR_OPERATORS[
+      fieldName as keyof typeof LOG_FILTER_BAR_OPERATORS
+    ] || COMMON_FILTER_BAR_OPERATORS;
 
   return (
     <Popover>

@@ -25,7 +25,9 @@ export const LogUserInfo = ({
           </Avatar.Fallback>
         </Avatar>
         <div className="min-w-0">
-          <div className="truncate font-semibold text-foreground">{fullName}</div>
+          <div className="truncate font-semibold text-foreground">
+            {fullName}
+          </div>
           {secondaryEmail && (
             <div className="truncate text-sm text-muted-foreground">
               {secondaryEmail}
@@ -37,7 +39,9 @@ export const LogUserInfo = ({
   }
 
   return (
-    <div className={cn('flex items-center gap-2', !user && !email && 'opacity-70')}>
+    <div
+      className={cn('flex items-center gap-2', !user && !email && 'opacity-70')}
+    >
       <Avatar className="h-6 w-6 rounded-full">
         <Avatar.Image src={readImage(details?.avatar || '')} alt={fullName} />
         <Avatar.Fallback className="rounded-lg text-black">

@@ -90,11 +90,17 @@ const maskPhoneValue = (value?: string | null) => {
   return `${'•'.repeat(Math.max(4, value.length - 2))}${value.slice(-2)}`;
 };
 
-export const maskFields = (data: any, keysToMask: string[] = [], key?: string): any => {
+export const maskFields = (
+  data: any,
+  keysToMask: string[] = [],
+  key?: string,
+): any => {
   if (Array.isArray(data)) {
     if (key && isIdLikeKey(key)) {
       return data.map((item) =>
-        typeof item === 'string' ? maskIdentifier(item) : maskFields(item, keysToMask),
+        typeof item === 'string'
+          ? maskIdentifier(item)
+          : maskFields(item, keysToMask),
       );
     }
 
