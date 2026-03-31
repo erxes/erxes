@@ -89,7 +89,7 @@ export const dealMutations = {
     const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
 
     // Deal updates are handled via mongolian_api afterProcess hook.
-   // Direct TRPC calls are intentionally removed to avoid tight coupling.  
+    // Direct TRPC calls are intentionally removed to avoid tight coupling.
 
     await itemMover(models, user._id, item, destinationStageId);
 
