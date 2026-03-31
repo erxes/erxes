@@ -12,7 +12,7 @@ export type TNotificationStatus = 'read' | 'unread' | 'all';
 export type TNotificationType = 'info' | 'success' | 'warning' | 'error';
 export type TNotificationPriority = 'low' | 'medium' | 'high' | 'urgent';
 
-export type TNotificationOrderBy = 'new' | 'old' | 'priority';
+export type TNotificationOrderBy = 'new' | 'old' | 'priority' | 'readAt';
 
 export type TNotification = {
   _id: string;

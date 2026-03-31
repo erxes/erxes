@@ -1,5 +1,5 @@
 import { Button } from 'erxes-ui';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { FallbackProps } from 'react-error-boundary';
 import { NotificationContent } from './system/NotficationContent';
 import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
@@ -51,7 +51,15 @@ const NotificationRemoteEntries = (props: TNotification) => {
     moduleName === 'facebook' && type === 'bot_health';
 
   if (isFacebookBotHealthNotification) {
-    return <NotificationContent.facebookBotHealth {...props} />;
+    return (
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center p-4">Loading...</div>
+        }
+      >
+        + <NotificationContent.facebookBotHealth {...props} />+{' '}
+      </Suspense>
+    );
   }
 
   if (moduleName === 'system' && type) {

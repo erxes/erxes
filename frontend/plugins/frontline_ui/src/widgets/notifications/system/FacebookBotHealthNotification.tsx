@@ -1,26 +1,15 @@
 import {
   IconAlertTriangle,
-  IconCircleCheck,
-  IconRefresh,
-  IconRobot,
   IconSettings,
 } from '@tabler/icons-react';
 import { Badge, Button, RelativeDateDisplay, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
-  TFacebookBotHealthStatus,
+  TFacebookBotHealthStatusView,
   useFacebookBotHealthNotification,
 } from './useFacebookBotHealthNotification';
 import { TNotification } from 'ui-modules';
-
-const statusVariantMap = {
-  healthy: 'success',
-  degraded: 'destructive',
-  broken: 'destructive',
-  syncing: 'secondary',
-  unknown: 'secondary',
-} as const;
 
 export const FacebookBotHealthNotificationContent = ({
   title,
@@ -29,7 +18,7 @@ export const FacebookBotHealthNotificationContent = ({
   createdAt,
 }: TNotification) => {
   const { t } = useTranslation();
-  const { botId, status, reason, statusView, pageValue, botValue } =
+  const { botId, reason, statusView, statusVariant, pageValue, botValue } =
     useFacebookBotHealthNotification({ metadata, t });
 
   return (
@@ -42,9 +31,7 @@ export const FacebookBotHealthNotificationContent = ({
       />
 
       <div className="mt-5 flex items-center gap-3">
-        <Badge variant={statusVariantMap[status]}>
-          {statusView.badgeLabel}
-        </Badge>
+        <Badge variant={statusVariant}>{statusView.badgeLabel}</Badge>
         <div className="text-sm text-muted-foreground">
           <RelativeDateDisplay value={createdAt}>
             <RelativeDateDisplay.Value value={createdAt} />
@@ -108,7 +95,7 @@ const NotificationHeader = ({
   title?: string;
   message: string;
   description: string;
-  statusView: ReturnType<typeof buildStatusView>;
+  statusView: TFacebookBotHealthStatusView;
 }) => {
   return (
     <div className="flex items-start gap-4">
@@ -174,64 +161,4 @@ const DetailItem = ({
       </div>
     </div>
   );
-};
-
-const buildStatusView = (
-  status: TFacebookBotHealthStatus,
-  t: ReturnType<typeof useTranslation>['t'],
-) => {
-  const statusMap = {
-    healthy: {
-      badgeLabel: t('healthy', { defaultValue: 'Healthy' }),
-      description: t('facebookBotHealthyDescription', {
-        defaultValue:
-          'This bot is connected, subscribed, and ready to handle Facebook Messenger automations.',
-      }),
-      icon: IconCircleCheck,
-      iconClassName: 'size-8 text-success',
-      iconContainerClassName: 'bg-success/10 text-success',
-    },
-    degraded: {
-      badgeLabel: t('needsRepair', { defaultValue: 'Needs repair' }),
-      description: t('facebookBotDegradedDescription', {
-        defaultValue:
-          'This bot needs attention before Messenger automations can run reliably again.',
-      }),
-      icon: IconAlertTriangle,
-      iconClassName: 'size-8 text-destructive',
-      iconContainerClassName: 'bg-destructive/10 text-destructive',
-    },
-    broken: {
-      badgeLabel: t('broken', { defaultValue: 'Broken' }),
-      description: t('facebookBotBrokenDescription', {
-        defaultValue:
-          'The connection is currently unavailable, so Messenger automations may stop working.',
-      }),
-      icon: IconAlertTriangle,
-      iconClassName: 'size-8 text-destructive',
-      iconContainerClassName: 'bg-destructive/10 text-destructive',
-    },
-    syncing: {
-      badgeLabel: t('syncing', { defaultValue: 'Syncing' }),
-      description: t('facebookBotSyncingDescription', {
-        defaultValue:
-          'The bot is being verified and synced with Facebook right now.',
-      }),
-      icon: IconRefresh,
-      iconClassName: 'size-8 text-muted-foreground',
-      iconContainerClassName: 'bg-accent text-muted-foreground',
-    },
-    unknown: {
-      badgeLabel: t('unknown', { defaultValue: 'Unknown' }),
-      description: t('facebookBotUnknownDescription', {
-        defaultValue:
-          'We could not determine the latest bot health details from this notification.',
-      }),
-      icon: IconRobot,
-      iconClassName: 'size-8 text-muted-foreground',
-      iconContainerClassName: 'bg-accent text-muted-foreground',
-    },
-  } as const;
-
-  return statusMap[status];
 };

@@ -28,6 +28,22 @@ type TFacebookBotDetailQuery = {
   facebookMessengerBot?: Pick<IFacebookBot, '_id' | 'name' | 'page' | 'pageId'>;
 };
 
+const statusVariantMap = {
+  healthy: 'success',
+  degraded: 'destructive',
+  broken: 'destructive',
+  syncing: 'secondary',
+  unknown: 'secondary',
+} as const;
+
+export type TFacebookBotHealthStatusView = {
+  badgeLabel: string;
+  description: string;
+  icon: typeof IconRobot;
+  iconClassName: string;
+  iconContainerClassName: string;
+};
+
 const parseFacebookBotHealthMetadata = (
   metadata?: unknown,
 ): TFacebookBotHealthMetadata => {
@@ -69,7 +85,7 @@ const getPageName = (
     }
   }
 
-  return bot?.name || '';
+  return '';
 };
 
 export const useFacebookBotHealthNotification = ({
@@ -109,19 +125,18 @@ export const useFacebookBotHealthNotification = ({
 
   return {
     botId,
-    pageId,
-    status,
     reason,
-    isBotDetailsLoading: loading,
-    botName,
-    pageName,
+    statusVariant: statusVariantMap[status],
     statusView,
     pageValue,
     botValue,
   };
 };
 
-const buildStatusView = (status: TFacebookBotHealthStatus, t: TFunction) => {
+const buildStatusView = (
+  status: TFacebookBotHealthStatus,
+  t: TFunction,
+): TFacebookBotHealthStatusView => {
   const statusMap = {
     healthy: {
       badgeLabel: t('healthy', { defaultValue: 'Healthy' }),
