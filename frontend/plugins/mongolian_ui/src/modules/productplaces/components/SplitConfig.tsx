@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useQuery, useMutation, ApolloCache } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { Button, Label } from 'erxes-ui';
 import { PerSplitConfig } from '../types';
 import { SelectSalesBoard } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
@@ -76,23 +76,6 @@ const emptyForm: SplitConfigData = {
   gtUnitPrice: undefined,
   ltUnitPrice: undefined,
 };
-const updateSplitConfigsCache = (
-  cache: ApolloCache<any>,
-  updater: (configs: MnConfig[]) => MnConfig[],
-) => {
-  const existing = cache.readQuery<MnConfigsQueryResponse>({
-    query: MN_CONFIGS,
-    variables: { code: 'dealsProductsDataSplit' },
-  });
-
-  if (!existing?.mnConfigs) return;
-
-  cache.writeQuery<MnConfigsQueryResponse>({
-    query: MN_CONFIGS,
-    variables: { code: 'dealsProductsDataSplit' },
-    data: { mnConfigs: updater(existing.mnConfigs) },
-  });
-};
 
 const SplitConfig: React.FC = () => {
   const [savedConfigs, setSavedConfigs] = useState<SplitConfigData[]>([]);
@@ -116,10 +99,19 @@ const SplitConfig: React.FC = () => {
     {
       update(cache, { data }) {
         if (!data) return;
-        updateSplitConfigsCache(cache, (configs) => [
-          ...configs,
-          data.mnConfigsCreate,
-        ]);
+        const existing = cache.readQuery<MnConfigsQueryResponse>({
+          query: MN_CONFIGS,
+          variables: { code: 'dealsProductsDataSplit' },
+        });
+        if (existing?.mnConfigs) {
+          cache.writeQuery<MnConfigsQueryResponse>({
+            query: MN_CONFIGS,
+            variables: { code: 'dealsProductsDataSplit' },
+            data: {
+              mnConfigs: [...existing.mnConfigs, data.mnConfigsCreate],
+            },
+          });
+        }
       },
     },
   );
@@ -129,11 +121,23 @@ const SplitConfig: React.FC = () => {
     {
       update(cache, { data }) {
         if (!data) return;
-        updateSplitConfigsCache(cache, (configs) =>
-          configs.map((cfg) =>
-            cfg._id === data.mnConfigsUpdate._id ? data.mnConfigsUpdate : cfg,
-          ),
-        );
+        const existing = cache.readQuery<MnConfigsQueryResponse>({
+          query: MN_CONFIGS,
+          variables: { code: 'dealsProductsDataSplit' },
+        });
+        if (existing?.mnConfigs) {
+          cache.writeQuery<MnConfigsQueryResponse>({
+            query: MN_CONFIGS,
+            variables: { code: 'dealsProductsDataSplit' },
+            data: {
+              mnConfigs: existing.mnConfigs.map((cfg) =>
+                cfg._id === data.mnConfigsUpdate._id
+                  ? data.mnConfigsUpdate
+                  : cfg,
+              ),
+            },
+          });
+        }
       },
     },
   );
@@ -143,9 +147,21 @@ const SplitConfig: React.FC = () => {
     {
       update(cache, { data }) {
         if (!data) return;
-        updateSplitConfigsCache(cache, (configs) =>
-          configs.filter((cfg) => cfg._id !== data.mnConfigsRemove._id),
-        );
+        const existing = cache.readQuery<MnConfigsQueryResponse>({
+          query: MN_CONFIGS,
+          variables: { code: 'dealsProductsDataSplit' },
+        });
+        if (existing?.mnConfigs) {
+          cache.writeQuery<MnConfigsQueryResponse>({
+            query: MN_CONFIGS,
+            variables: { code: 'dealsProductsDataSplit' },
+            data: {
+              mnConfigs: existing.mnConfigs.filter(
+                (cfg) => cfg._id !== data.mnConfigsRemove._id,
+              ),
+            },
+          });
+        }
       },
     },
   );
