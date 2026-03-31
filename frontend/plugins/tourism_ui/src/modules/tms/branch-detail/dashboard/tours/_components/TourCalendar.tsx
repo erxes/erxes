@@ -98,7 +98,7 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue: 'delete' };
-  const { tours, loading } = useTours({
+  const { tours, loading, error } = useTours({
     variables: { branchId },
   });
   const { removeTours } = useRemoveTours();
@@ -309,7 +309,13 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
                 </div>
               )}
 
-              {!loading && (!tours || tours.length === 0) && (
+              {!loading && error && (
+                <div className="flex items-center justify-center py-10 text-sm text-destructive">
+                  {error.message || 'Failed to load tours'}
+                </div>
+              )}
+
+              {!loading && !error && (!tours || tours.length === 0) && (
                 <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
                   No tours to display
                 </div>
