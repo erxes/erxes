@@ -48,8 +48,7 @@ const NotificationRemoteEntries = (props: TNotification) => {
     .split('.');
 
   const isFacebookBotHealthNotification =
-    (moduleName === 'facebookBot' && type === 'health') ||
-    (moduleName === 'facebook' && type === 'bot_health');
+    moduleName === 'facebook' && type === 'bot_health';
 
   if (isFacebookBotHealthNotification) {
     return <NotificationContent.facebookBotHealth {...props} />;
