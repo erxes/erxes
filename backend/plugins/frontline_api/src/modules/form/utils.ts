@@ -1,5 +1,3 @@
-import { LOG_MAPPINGS } from '../inbox/constants';
-
 type Field = {
   name: string;
   label?: string;

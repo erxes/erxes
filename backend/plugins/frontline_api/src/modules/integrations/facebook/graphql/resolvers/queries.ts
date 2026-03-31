@@ -2,7 +2,6 @@ import { IContext } from '~/connectionResolvers';
 import {
   getPageList,
   fetchPagesPostsList,
-  fetchPagePosts,
   fetchPagePost,
 } from '@/integrations/facebook/utils';
 import {

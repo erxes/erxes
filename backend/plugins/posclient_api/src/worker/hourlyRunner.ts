@@ -5,7 +5,6 @@ import {
   sendTRPCMessage,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
-import { tz } from 'moment-timezone';
 import { generateModels } from '~/connectionResolvers';
 import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
 import { syncRemainders } from '~/modules/posclient/utils/products';

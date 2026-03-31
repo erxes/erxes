@@ -1,14 +1,11 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
-
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
 import {
   LOGIN_WITH_GOOGLE,
   LOGIN_WITH_MAGIC_LINK,
 } from '@/auth/login/grahpql/mutations/login';
 import { useApolloClient, useMutation } from '@apollo/client';
-import { FormType, toast } from 'erxes-ui';
+import { toast } from 'erxes-ui';
 import {
   magicLinkFormSchema,
   MagicLinkFormType,
