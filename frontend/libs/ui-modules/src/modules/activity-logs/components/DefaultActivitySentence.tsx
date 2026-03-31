@@ -14,7 +14,7 @@ import { PropertiesFieldChangeSentence } from './PropertiesFieldChangeSentence';
 export function DefaultActivitySentence({
   activity,
 }: {
-  activity: TActivityLog;
+  readonly activity: TActivityLog;
 }) {
   const { activityType, metadata, action, context, contextType } =
     activity || {};
