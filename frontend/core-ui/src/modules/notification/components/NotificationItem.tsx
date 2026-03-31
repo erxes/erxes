@@ -1,11 +1,10 @@
-import { INotification } from '@/notification/types/notifications';
-import { Badge, Button, cn, RelativeDateDisplay, Tooltip } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { Link, useParams } from 'react-router-dom';
-import { pluginsConfigState } from 'ui-modules';
 import { OrgLogoIcon } from '@/auth/components/Logo';
 import { IconBackspace, IconCommand } from '@tabler/icons-react';
+import { Badge, Button, cn, RelativeDateDisplay, Tooltip } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { pluginsConfigState, TNotification } from 'ui-modules';
 
 export const NotificationItem = ({
   _id,
@@ -14,7 +13,7 @@ export const NotificationItem = ({
   isRead,
   contentType = '',
   priority,
-}: INotification) => {
+}: TNotification) => {
   const { id } = useParams();
   const isActive = id === _id;
   const [showTooltip, setShowTooltip] = useState(false);
