@@ -33,7 +33,7 @@ export interface ICMSMenu {
   webId?: string;
   label: string;
   contentType: string;
-  contentId: string;
+  contentTypeId: string;
   kind: string;
   icon?: string;
   url?: string;

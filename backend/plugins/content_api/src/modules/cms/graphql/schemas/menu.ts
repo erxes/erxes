@@ -9,7 +9,7 @@ export const types = `
     webId: String
     label: String
     contentType: String
-    contentId: String
+    contentTypeId: String
     kind: String
     icon: String
     url: String
@@ -32,7 +32,7 @@ export const inputs = `
     webId: String
     label: String
     contentType: String
-    contentId: String
+    contentTypeId: String
     kind: String
     icon: String
     url: String
