@@ -25,24 +25,23 @@ export function UploadServiceRadioGroup({ form, selected }: Props) {
             defaultValue={field.value}
             onValueChange={field.onChange}
           >
-            {
-              UPLOAD_SERVICE_DATA?.map((config, idx) => (
-                <motion.label
-                  key={idx}
-                  tabIndex={0}
-                  whileTap={{ scale: 0.975 }}
-                  className="relative flex cursor-pointer flex-col items-center gap-3 rounded-lg border hover:bg-accent px-2 py-3 text-center shadow-sm shadow-black/5 outline-offset-2 transition-colors has-data-[state=checked]:border-ring has-data-[state=checked]:bg-primary/10 has-focus-visible:outline-solid has-focus-visible:outline-2 has-focus-visible:outline-ring/70"
-                >
-                  <RadioGroup.Item
-                    id={config.value}
-                    value={config.value}
-                    checked={config.value.toLocaleUpperCase() === selected}
-                    className="sr-only after:absolute after:inset-0"
-                  />
-                  <config.icon className={cn('stroke-primary')} />
-                  <span>{config.label}</span>
-                </motion.label>
-              ))}
+            {UPLOAD_SERVICE_DATA?.map((config, idx) => (
+              <motion.label
+                key={idx}
+                tabIndex={0}
+                whileTap={{ scale: 0.975 }}
+                className="relative flex cursor-pointer flex-col items-center gap-3 rounded-lg border hover:bg-accent px-2 py-3 text-center shadow-sm shadow-black/5 outline-offset-2 transition-colors has-data-[state=checked]:border-ring has-data-[state=checked]:bg-primary/10 has-focus-visible:outline-solid has-focus-visible:outline-2 has-focus-visible:outline-ring/70"
+              >
+                <RadioGroup.Item
+                  id={config.value}
+                  value={config.value}
+                  checked={config.value.toLocaleUpperCase() === selected}
+                  className="sr-only after:absolute after:inset-0"
+                />
+                <config.icon className={cn('stroke-primary')} />
+                <span>{config.label}</span>
+              </motion.label>
+            ))}
           </RadioGroup>
         )}
       />

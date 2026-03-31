@@ -277,7 +277,8 @@ export const appRouter = t.router({
           for (const allowProductId of allowedProductIds) {
             const product = productsById[allowProductId];
             const unitPrice = product.unitPrice || 0;
-            const prePrice = rulesByProductId[allowProductId]?.price || unitPrice;
+            const prePrice =
+              rulesByProductId[allowProductId]?.price || unitPrice;
 
             const price =
               unitPrice -

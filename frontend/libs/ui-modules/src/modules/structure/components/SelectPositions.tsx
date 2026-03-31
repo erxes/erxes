@@ -338,12 +338,12 @@ const SelectPositionsBadgesView = () => {
 export const SelectPositionsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectPositionsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(
   (
     { onValueChange, scope, value, mode, options, className, ...props },

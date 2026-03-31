@@ -212,9 +212,7 @@ const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
 
-  if (
-    afterMutations['pos:order']?.['synced']?.length
-  ) {
+  if (afterMutations['pos:order']?.['synced']?.length) {
     const user = await sendTRPCMessage({
       subdomain,
 

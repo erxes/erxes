@@ -21,7 +21,6 @@ const Payment = (props: Props) => {
     [invoiceDetail.transactions],
   );
 
-
   const [currentTransaction, setCurrentTransaction] = useState<any>(
     props.newTransaction,
   );
@@ -52,9 +51,7 @@ const Payment = (props: Props) => {
 
       if (pendingTransaction?.paymentKind === 'minupay') {
         props.requestNewTransaction(payment._id);
-      } else if (
-        pendingTransaction?.paymentKind === 'golomt'
-      ) {
+      } else if (pendingTransaction?.paymentKind === 'golomt') {
         // request new transaction for golomt if the transaction is older than 7 minutes
         const now = new Date();
         const sevenMinutesAgo = new Date(now.getTime() - 7 * 60 * 1000);
@@ -117,7 +114,8 @@ const Payment = (props: Props) => {
           <div className="text-right border-t border-dashed pt-3">
             <p className="text-neutral-500 text-sm">Payment Amount</p>
             <div className="font-bold text-2xl">
-              {(invoiceDetail.amount ?? 0).toLocaleString()} {invoiceDetail.currency}
+              {(invoiceDetail.amount ?? 0).toLocaleString()}{' '}
+              {invoiceDetail.currency}
             </div>
           </div>
         </div>

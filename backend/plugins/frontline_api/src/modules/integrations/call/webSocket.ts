@@ -343,7 +343,7 @@ class QueueStateManager {
 
 // Event Processing
 class EventProcessor {
-  constructor(private stateManager: QueueStateManager) { }
+  constructor(private stateManager: QueueStateManager) {}
 
   async processEvent(eventData: any): Promise<string[]> {
     const updatedQueues: Set<string> = new Set();
@@ -451,7 +451,7 @@ class PBXWebSocketClient {
   constructor(
     private stateManager: QueueStateManager,
     private eventProcessor: EventProcessor,
-  ) { }
+  ) {}
 
   async initialize(): Promise<void> {
     this.queues = await this.loadQueuesFromDB();

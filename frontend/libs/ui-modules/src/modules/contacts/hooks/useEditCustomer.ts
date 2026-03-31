@@ -20,7 +20,7 @@ export const useCustomerEdit = () => {
       optimisticResponse: {
         customersEdit: {
           ...variables,
-          __typename:"Customer"
+          __typename: 'Customer',
         },
       },
       update: (cache, { data: { customersEdit } }) => {

@@ -102,17 +102,15 @@ export const AddTransaction = ({
         >
           Хангамжийн зарлага
         </AddTransactionItem>
-        {
-          !inForm && (
-            <AddTransactionItem
-              journal={TrJournalEnum.INV_MOVE}
-              onClick={onClick}
-              inForm={inForm}
-            >
-              Дотоод хөдөлгөөн
-            </AddTransactionItem>
-          )
-        }
+        {!inForm && (
+          <AddTransactionItem
+            journal={TrJournalEnum.INV_MOVE}
+            onClick={onClick}
+            inForm={inForm}
+          >
+            Дотоод хөдөлгөөн
+          </AddTransactionItem>
+        )}
         <AddTransactionItem
           journal={TrJournalEnum.INV_SALE}
           onClick={onClick}

@@ -86,8 +86,9 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
         </Sidebar.MenuButton>
       </Link>
       <div
-        className={`absolute right-0 top-0 bottom-0 flex items-center gap-1 opacity-0 ${isActive ? 'bg-primary/20' : 'bg-gray-100'
-          } translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pr-2`}
+        className={`absolute right-0 top-0 bottom-0 flex items-center gap-1 opacity-0 ${
+          isActive ? 'bg-primary/20' : 'bg-gray-100'
+        } translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pr-2`}
       >
         <button
           onClick={() => setBoardId(board._id)}

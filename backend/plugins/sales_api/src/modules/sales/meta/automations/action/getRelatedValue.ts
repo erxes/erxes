@@ -33,9 +33,7 @@ export const getRelatedValue = async (
       return user[key];
     }
 
-    return (
-      (user?.detail?.fullName || user?.email) || ''
-    );
+    return user?.detail?.fullName || user?.email || '';
   }
 
   if (
@@ -65,9 +63,7 @@ export const getRelatedValue = async (
     }
 
     return (
-      users.map(
-        (user) => user.detail?.fullName || user.email,
-      ) || []
+      users.map((user) => user.detail?.fullName || user.email) || []
     ).join(', ');
   }
 

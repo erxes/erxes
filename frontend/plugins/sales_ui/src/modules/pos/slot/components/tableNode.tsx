@@ -209,7 +209,8 @@ export function TableNode({ id, data, selected }: NodeProps) {
       <div
         ref={nodeRef}
         className={`flex items-center justify-center font-medium text-center ${
-          selected ? 'ring-2 ring-white ring-opacity-80' : ''}`}
+          selected ? 'ring-2 ring-white ring-opacity-80' : ''
+        }`}
         style={{
           backgroundColor: nodeData.color || '#5E5CFF',
           width: nodeData.width || 100,

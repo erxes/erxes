@@ -21,10 +21,7 @@ export function useAddCategory(
           query: productsQueries.productCategories,
         });
 
-        if (
-          !existingData?.productCategories ||
-          !data?.productCategoriesAdd
-        )
+        if (!existingData?.productCategories || !data?.productCategoriesAdd)
           return;
 
         cache.writeQuery<CategoryData>({

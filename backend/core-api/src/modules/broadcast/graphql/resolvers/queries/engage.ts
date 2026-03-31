@@ -258,7 +258,7 @@ export const engageQueries = {
       query.email = {
         $in: verifiedEmails || [],
         $regex: searchValue,
-        $options: 'i'
+        $options: 'i',
       };
     }
 

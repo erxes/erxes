@@ -79,11 +79,11 @@ export const generateOrderNumber = async (
       (suffixParts.length === 2 && suffixParts[1]) || suffixParts[0];
 
     const latestNum = Number.parseInt(latestSuffix, 10);
-    const addend = (
-      config?.maxSkipNumber &&
-      config?.maxSkipNumber > 1 &&
-      Math.round(cryptoRandom() * (config.maxSkipNumber - 1) + 1)
-    ) || 1;
+    const addend =
+      (config?.maxSkipNumber &&
+        config?.maxSkipNumber > 1 &&
+        Math.round(cryptoRandom() * (config.maxSkipNumber - 1) + 1)) ||
+      1;
 
     suffix = String(latestNum + addend).padStart(4, '0');
     number = `${todayStr}_${beginNumber}${suffix}`;
@@ -506,8 +506,8 @@ export const prepareOrderDoc = async (
     const fixedUnitPrice = Number(
       Number(
         productsOfId[item.productId]?.prices?.[config.token] ||
-        item.unitPrice ||
-        0,
+          item.unitPrice ||
+          0,
       ).toFixed(2),
     );
 
@@ -633,9 +633,8 @@ export const prepareOrderDoc = async (
       for (const addProduct of takingProducts) {
         const toAddItem = toAddProducts[addProduct._id];
 
-        const fixedUnitPrice = Number(
-          addProduct.prices?.[config.token]?.toFixed(2),
-        ) || 0;
+        const fixedUnitPrice =
+          Number(addProduct.prices?.[config.token]?.toFixed(2)) || 0;
 
         items.push({
           _id: cryptoRandom().toString(),
@@ -651,17 +650,13 @@ export const prepareOrderDoc = async (
     }
   }
 
-  if (
-    doc.type === ORDER_TYPES.DELIVERY &&
-    config.deliveryConfig?.productId
-  ) {
+  if (doc.type === ORDER_TYPES.DELIVERY && config.deliveryConfig?.productId) {
     const deliveryProd = await models.Products.findOne({
       _id: config.deliveryConfig.productId,
     }).lean();
 
     if (deliveryProd) {
-      const deliveryUnitPrice =
-        deliveryProd.prices?.[config.token || ''] || 0;
+      const deliveryUnitPrice = deliveryProd.prices?.[config.token || ''] || 0;
       items.push({
         _id: cryptoRandom().toString(),
         productId: deliveryProd._id,

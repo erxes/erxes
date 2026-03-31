@@ -310,9 +310,7 @@ export const unfetchOrderInfo = async (req, res) => {
   const { orderId, token } = req.body;
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
-  if (
-    erkhetConfig?.apiToken !== token
-  ) {
+  if (erkhetConfig?.apiToken !== token) {
     return res.send({ error: 'not found token' });
   }
 

@@ -150,7 +150,7 @@ export const widgetQueries: Record<string, Resolver> = {
           botGreetMessage: messengerData.botGreetMessage,
           getStarted:
             getStartedCondition && typeof getStartedCondition !== 'boolean'
-              ? getStartedCondition.isSelected ?? false
+              ? (getStartedCondition.isSelected ?? false)
               : false,
           messages: [],
           isOnline: await isMessengerOnline(models, integration),

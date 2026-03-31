@@ -367,9 +367,7 @@ export const companyCheckCode = async (params, models: IModels) => {
 
   const config = await models.Configs.getConfigValue('EBARIMT');
 
-  if (
-    !(config?.checkTaxpayerUrl || '').includes('http')
-  ) {
+  if (!(config?.checkTaxpayerUrl || '').includes('http')) {
     return params;
   }
 
@@ -474,7 +472,11 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
     pluginName: 'core',
     module: 'relation',
     action: 'getRelationIds',
-    input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
+    input: {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      relatedContentType: 'core:company',
+    },
     defaultValue: [],
   });
 
@@ -544,7 +546,11 @@ const checkBillType = async (subdomain, config, deal) => {
       pluginName: 'core',
       module: 'relation',
       action: 'getRelationIds',
-      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
+      },
       defaultValue: [],
     });
 
@@ -814,7 +820,7 @@ const calcGrouped = async (models: IModels, activeProductsData: any[]) => {
         amount: fixNum(mainData.amount * mainRatio + subData.amount * subRatio),
         discount: fixNum(
           (mainData.discount ?? 0) * mainRatio +
-          (subData.discount ?? 0) * subRatio,
+            (subData.discount ?? 0) * subRatio,
         ),
         unitPrice: fixNum(mainData.unitPrice + subData.unitPrice),
       });

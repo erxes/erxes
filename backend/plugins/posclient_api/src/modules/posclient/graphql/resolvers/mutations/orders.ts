@@ -76,8 +76,8 @@ export interface IOrderChangeParams {
 
 const getTaxInfo = (config: IConfig) => {
   return {
-    hasVat: (config.ebarimtConfig?.hasVat) || false,
-    hasCitytax: (config.ebarimtConfig?.hasCitytax) || false,
+    hasVat: config.ebarimtConfig?.hasVat || false,
+    hasCitytax: config.ebarimtConfig?.hasCitytax || false,
   };
 };
 
@@ -467,8 +467,7 @@ async function tryMergeQrMenuIntoExistingSlotOrder(
       duplicatedItem.byDevice = {
         ...(duplicatedItem.byDevice || {}),
         [doc.deviceId || '']:
-          (duplicatedItem.byDevice?.[doc.deviceId || ''] ?? 0) +
-          newItem.count,
+          (duplicatedItem.byDevice?.[doc.deviceId || ''] ?? 0) + newItem.count,
       };
     } else {
       items.push({
@@ -1071,8 +1070,9 @@ const orderMutations: Record<string, Resolver> = {
             lng: marker.longitude || marker.lng,
             description: 'location',
           },
-          stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat
-            }`,
+          stringValue: `${marker.longitude || marker.lng},${
+            marker.latitude || marker.lat
+          }`,
         },
       ];
     }
@@ -1155,10 +1155,7 @@ const orderMutations: Record<string, Resolver> = {
           (order.customerType || 'customer') === 'customer'
             ? order.customerId
             : '',
-        userId:
-          (config.adminIds?.[0]) ||
-          (config.cashierIds?.[0]) ||
-          '',
+        userId: config.adminIds?.[0] || config.cashierIds?.[0] || '',
         content: `
           Pos order:
             paid link:

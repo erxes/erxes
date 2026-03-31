@@ -96,7 +96,6 @@ export const useUserCustomFieldEdit = () => {
   };
 };
 
-
 export const useUsersStatusEdit = () => {
   const { toast } = useToast();
   const [editStatus, { loading }] = useMutation(

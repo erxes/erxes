@@ -1,7 +1,10 @@
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IModels } from '~/connectionResolvers';
 import { AuthenticationError } from '@/clientportal/services/errorHandler';
-import { detectIdentifierType, validatePassword } from '../../helpers/validators';
+import {
+  detectIdentifierType,
+  validatePassword,
+} from '../../helpers/validators';
 import { validateActionCode } from '../../helpers/actionCodeHelper';
 
 function validateResetToken(

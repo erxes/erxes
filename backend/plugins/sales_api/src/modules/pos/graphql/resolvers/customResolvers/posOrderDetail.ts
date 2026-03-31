@@ -68,7 +68,7 @@ const resolvers = {
       return {
         _id: user._id,
         code: user.code,
-        primaryPhone: (user.details?.operatorPhone) || '',
+        primaryPhone: user.details?.operatorPhone || '',
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         primaryEmail: user.email,
         lastName: user.username,

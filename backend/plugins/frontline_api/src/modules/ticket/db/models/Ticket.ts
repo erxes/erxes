@@ -228,9 +228,7 @@ export const loadTicketClass = (models: IModels) => {
         new: true,
       });
 
-      if (
-        (detail?.subscribedUserIds?.length ?? 0) > 0
-      ) {
+      if ((detail?.subscribedUserIds?.length ?? 0) > 0) {
         const userIds = detail.subscribedUserIds.filter(
           (id) => id !== userId && id !== doc.assigneeId,
         );

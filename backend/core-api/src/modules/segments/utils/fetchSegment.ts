@@ -19,9 +19,8 @@ export const fetchSegment = async (
 ): Promise<any> => {
   const { contentType } = segment;
 
-  const { pluginConfigs, mongoConnectionString } = await getPluginSegmentConfig(
-    contentType,
-  );
+  const { pluginConfigs, mongoConnectionString } =
+    await getPluginSegmentConfig(contentType);
 
   let index = await getEsIndexByContentType(contentType);
   let selector = { bool: {} };

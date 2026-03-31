@@ -131,8 +131,7 @@ export const contractQueries = {
         'vendor customer insuranceType insuranceProduct coveredRisks.risk',
       );
 
-      if (!contract?.insuranceProduct || !contract?.insuranceType)
-        return null;
+      if (!contract?.insuranceProduct || !contract?.insuranceType) return null;
 
       return {
         ...contract.toObject(),
@@ -195,8 +194,7 @@ export const contractQueries = {
         'vendor customer insuranceType insuranceProduct coveredRisks.risk',
       );
 
-      if (!contract?.insuranceProduct || !contract?.insuranceType)
-        return null;
+      if (!contract?.insuranceProduct || !contract?.insuranceType) return null;
 
       return {
         ...contract.toObject(),

@@ -69,10 +69,7 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
         : customerType;
   }
 
-  if (
-    (statuses?.length) ||
-    (excludeStatuses?.length)
-  ) {
+  if (statuses?.length || excludeStatuses?.length) {
     const _in = statuses?.length ? { $in: statuses || [] } : {};
     query.status = { ..._in, $nin: excludeStatuses || [] };
   }

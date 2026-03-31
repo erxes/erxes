@@ -91,10 +91,7 @@ const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
       <div className="flex gap-2 items-center">
         {selectedChannels.map((channel) => (
           <Badge key={channel._id} variant="secondary">
-            <IconComponent
-              name={channel.icon}
-              className="size-4 shrink-0"
-            />
+            <IconComponent name={channel.icon} className="size-4 shrink-0" />
             <TextOverflowTooltip value={channel.name} className="max-w-32" />
           </Badge>
         ))}
