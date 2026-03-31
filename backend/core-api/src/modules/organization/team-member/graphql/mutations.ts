@@ -261,9 +261,7 @@ export const userMutations: Record<string, Resolver> = {
     await checkPermission('teamMembersInvite');
 
     const permissionGroupIds = [
-      ...new Set(
-        entries.flatMap((entry) => entry.permissionGroupIds || []),
-      ),
+      ...new Set(entries.flatMap((entry) => entry.permissionGroupIds || [])),
     ];
 
     if (permissionGroupIds.length > 0) {
