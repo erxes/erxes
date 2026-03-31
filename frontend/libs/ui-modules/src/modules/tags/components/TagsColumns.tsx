@@ -387,29 +387,29 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
 const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
   const { _id, description, name, isGroup } = cell.row.original;
   const [open, setOpen] = useState<boolean>(false);
-  const [descriptionValue, setDescription] = useState<string>(
+  const [tagDescription, setTagDescription] = useState<string>(
     description ?? '',
   );
   const { tagsEdit, loading } = useTagsEdit();
 
   React.useEffect(() => {
-    setDescription(description ?? '');
+    setTagDescription(description ?? '');
   }, [description]);
 
   const onSave = () => {
-    if (descriptionValue !== description) {
+    if (tagDescription !== description) {
       tagsEdit({
         variables: {
           id: _id,
           name: name,
-          description: descriptionValue,
+          description: tagDescription,
           isGroup: isGroup,
         },
       });
     }
   };
   const onChange = (el: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDescription(el.currentTarget.value);
+    setTagDescription(el.currentTarget.value);
   };
   return (
     <Popover
@@ -426,7 +426,7 @@ const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Textarea
-          value={descriptionValue}
+          value={tagDescription}
           onChange={onChange}
           disabled={loading}
         />
