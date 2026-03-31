@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
 import { ITransaction } from '../types/Transaction';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { TR_JOURNAL_LABELS, TrJournalEnum } from '../types/constants';
 import { useState } from 'react';
 import {
@@ -12,8 +12,13 @@ import {
   CurrencyFormatedDisplay,
   RecordTableInlineCell,
   PopoverScoped,
+  Popover,
+  Combobox,
+  Command,
+  useConfirm,
 } from 'erxes-ui';
-
+import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 // Create named components for cell renderers to fix React Hook usage
 const NumberCell = ({ getValue, row }: any) => {
   const [number, setNumber] = useState(getValue() as string);
@@ -134,11 +139,14 @@ const AccountCell = ({ row }: any) => {
 
   const name0 = details[0].account?.name;
 
-  const infoByCode = details.reduce((acc: { [code: string]: number }, d: any) => {
-    const code = d.account?.code || '';
-    acc[code] = (acc[code] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const infoByCode = details.reduce(
+    (acc: { [code: string]: number }, d: any) => {
+      const code = d.account?.code || '';
+      acc[code] = (acc[code] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const codes = Object.keys(infoByCode);
 
@@ -164,14 +172,45 @@ const TransactionMoreColumnCell = ({
   cell: Cell<ITransaction, unknown>;
 }) => {
   const { parentId, _id, originId } = cell.row.original;
+  const navigate = useNavigate();
+  const { confirm } = useConfirm();
+  const { removeTransactions } = useTransactionsRemove();
+  const handleEdit = () => {
+    navigate(
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${
+        originId || _id
+      }`,
+    );
+  };
+  const handleDelete = () =>
+    confirm({
+      message: 'Are you sure you want to delete these transactions?',
+      options: {
+        okLabel: 'Delete',
+        cancelLabel: 'Cancel',
+      },
+    }).then(() => {
+      removeTransactions(parentId);
+    });
 
   return (
-    <Link
-      to={`/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
-        }`}
-    >
-      <RecordTable.MoreButton className="w-full h-full" />
-    </Link>
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 

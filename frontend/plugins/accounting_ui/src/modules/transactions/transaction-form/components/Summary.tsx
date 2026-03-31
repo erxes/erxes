@@ -22,11 +22,11 @@ const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
 
     tr.details?.forEach((det: ITrDetail) => {
       if (det?.side === TR_SIDES.DEBIT) {
-        sumDebit += det.amount ?? 0
+        sumDebit += det.amount ?? 0;
       } else {
-        sumCredit += det.amount ?? 0
+        sumCredit += det.amount ?? 0;
       }
-    })
+    });
   });
   return [sumDebit, sumCredit];
 };
@@ -55,11 +55,9 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
         cancelLabel: 'Cancel',
       },
     }).then(() => {
-      removeTransactions({
-        variables: {
-          parentId,
-        },
-      });
+      if (parentId) {
+        removeTransactions(parentId);
+      }
     });
 
   return (
@@ -92,7 +90,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
           <CurrencyFormatedDisplay
             currencyValue={{
               currencyCode: CurrencyCode.MNT,
-              amountMicros: (sumCredit - sumDebit),
+              amountMicros: sumCredit - sumDebit,
             }}
           />
         </span>
