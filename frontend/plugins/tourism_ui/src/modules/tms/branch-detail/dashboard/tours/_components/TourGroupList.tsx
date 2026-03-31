@@ -8,6 +8,7 @@ import { TourCommandBar } from './TourCommandBar';
 import { GroupedTourColumns, TourGroupRow } from './TourGroupColumns';
 import { flattenGroups } from './TourGroupUtils';
 import { TourEditForm } from './TourEditForm';
+import { TourSideTab } from './TourOrdersSidePanel';
 
 export const TourGroupList = ({ branchId }: { branchId: string }) => {
   const { groups, loading, total } = useTourGroups({
@@ -15,6 +16,7 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
   });
 
   const [editTourId, setEditTourId] = useState<string | null>(null);
+  const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
 
   const groupedTours = useMemo(() => flattenGroups(groups), [groups]);
   const columns = useMemo(
@@ -61,14 +63,30 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
       <TourCommandBar />
       <Sheet
         open={!!editTourId}
-        onOpenChange={(open) => !open && setEditTourId(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditTourId(null);
+            setSideTab(null);
+          }
+        }}
       >
-        <Sheet.View className="w-[850px] sm:max-w-[850px] p-0">
+        <Sheet.View
+          className={`p-0 transition-all duration-200 ${
+            sideTab
+              ? 'w-[1220px] sm:max-w-[1220px]'
+              : 'w-[900px] sm:max-w-[900px]'
+          }`}
+        >
           {editTourId && (
             <TourEditForm
               tourId={editTourId}
               branchId={branchId}
-              onSuccess={() => setEditTourId(null)}
+              onSuccess={() => {
+                setEditTourId(null);
+                setSideTab(null);
+              }}
+              sideTab={sideTab}
+              onSideTabChange={setSideTab}
             />
           )}
         </Sheet.View>
