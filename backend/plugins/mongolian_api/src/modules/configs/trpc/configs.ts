@@ -20,7 +20,6 @@ export const configsTrpcRouter = t.router({
       // If count > 0, try to find one
       if (count > 0) {
         const config = await models.Configs.findOne({ code, subId }).lean();
-        if (config) console.log('config:', config);
         return config;
       } else {
         return null;

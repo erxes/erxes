@@ -246,6 +246,7 @@ const PlaceConfig: React.FC = () => {
           },
         });
       }
+      await refetch();
       setActiveIndex(null);
       setFormData(emptyForm);
     } catch (error) {
@@ -267,6 +268,7 @@ const PlaceConfig: React.FC = () => {
       await deleteConfig({ variables: { _id: config._id } });
       setActiveIndex(null);
       setFormData(emptyForm);
+      await refetch();
     } catch (error) {
       console.error('Delete failed', error);
       setError('Delete failed. Please try again.');
