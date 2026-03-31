@@ -811,7 +811,7 @@ export const syncOrderFromClient = async ({
 
     // change branch and before another pos synced then remove from befort sync
     if (
-      oldOrder.subBranchId &&
+      oldOrder?.subBranchId &&
       newOrder.subBranchId !== oldOrder?.subBranchId
     ) {
       const toCancelPos = await models.Pos.findOne({
