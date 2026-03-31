@@ -96,13 +96,13 @@ export const PropertiesFieldChangeSentence = ({
       <ActivityLogActorName activity={activity} />
       <span className="text-muted-foreground">changed</span>
       <span className="font-medium">{fieldLabel}</span>
-      {previousValue != undefined ? (
+      {previousValue !== undefined ? (
         <PropertiesFieldChangeSentencePart
           name="from"
           props={{ value: previousValue, fieldType, options: fieldOptions }}
         />
       ) : null}
-      {currentValue != undefined ? (
+      {currentValue !== undefined ? (
         <PropertiesFieldChangeSentencePart
           name="to"
           props={{ value: currentValue, fieldType, options: fieldOptions }}
