@@ -99,14 +99,9 @@ export const setPlace = async (
     });
 
     if (result?.status === 'error') {
-      console.error('setPlace: Failed to update deal', result.error);
-
-      throw new Error(result.error || 'Failed to update deal');
+    } else {
     }
-  } catch (error) {
-    console.error('setPlace: TRPC call failed', error);
-    throw error;
-  }
+  } catch (error) {}
 
   return pdatas;
 };

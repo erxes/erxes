@@ -91,13 +91,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         });
 
         productById = Object.fromEntries(products.map((p) => [p._id, p]));
-      } catch (error) {
-        console.error(
-          '[ProductPlaces][afterMutations] fetch products failed:',
-          error,
-        );
-        productById = {};
-      }
+      } catch (error) {}
     } else {
       productById = {};
     }
