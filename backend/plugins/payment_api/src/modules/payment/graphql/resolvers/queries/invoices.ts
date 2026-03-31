@@ -128,12 +128,12 @@ queries.invoiceDetail.wrapperConfig = {
 };
 
 queries.cpInvoiceDetail.wrapperConfig = {
-  skipPermission:true,
-  forClientPortal:true
-}
+  skipPermission: true,
+  forClientPortal: true,
+};
 
-queries.cpInvoices.wrapperConfig={
-  forClientPortal:true,
-}
+queries.cpInvoices.wrapperConfig = {
+  forClientPortal: true,
+};
 
 export default queries;

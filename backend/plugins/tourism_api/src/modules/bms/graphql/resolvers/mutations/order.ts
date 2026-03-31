@@ -45,12 +45,12 @@ const orderMutations: Record<string, Resolver> = {
 
 export default orderMutations;
 
-orderMutations.cpBmsOrderAdd.wrapperConfig={
-  forClientPortal:true
-}
-orderMutations.cpBmsOrderEdit.wrapperConfig={
-  forClientPortal:true
-}
-orderMutations.cpBmsOrderRemove.wrapperConfig={
-  forClientPortal:true
-}
+orderMutations.cpBmsOrderAdd.wrapperConfig = {
+  forClientPortal: true,
+};
+orderMutations.cpBmsOrderEdit.wrapperConfig = {
+  forClientPortal: true,
+};
+orderMutations.cpBmsOrderRemove.wrapperConfig = {
+  forClientPortal: true,
+};

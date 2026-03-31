@@ -15,12 +15,7 @@ export const cpBms: Record<string, Resolver> = {
     return paginate(models.Branches.find(commonQuerySelector || {}), params);
   },
 
-  async cpBmsBranches(
-    _root,
-    params,
-    context: IContext,
-    info,
-  ) {
+  async cpBmsBranches(_root, params, context: IContext, info) {
     const { models } = context;
 
     if (!models) {
