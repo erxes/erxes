@@ -591,11 +591,7 @@ export const loadClasses = (
   );
   models.CPComments = db.model<ICPCommentDocument, ICPCommentsModel>(
     'client_portal_comments',
-    loadCommentClass(
-      models,
-      subdomain,
-      coreEventHandlers('clientportal', 'client_portal_comments'),
-    ),
+    loadCommentClass(models, subdomain),
   );
 
   models.CPNotifications = db.model<
@@ -617,16 +613,6 @@ export const loadClasses = (
     'product_rules',
     loadProductRuleClass(models, subdomain),
   );
-
-  const db_name = db.name;
-
-  const logDb = db.useDb(`${db_name}_logs`);
-
-  models.Logs = logDb.model<ILogDocument, ILogModel>(
-    'logs',
-    loadLogsClass(models),
-  );
-
   models.PermissionGroups = db.model<
     IPermissionGroupDocument,
     IPermissionGroupModel
@@ -641,6 +627,15 @@ export const loadClasses = (
     ITemplateCategoryDocument,
     ITemplateCategoryModal
   >('template_categories', loadTemplateCategoryClass(models));
+
+  const db_name = db.name;
+
+  const logDb = db.useDb(`${db_name}_logs`);
+
+  models.Logs = logDb.model<ILogDocument, ILogModel>(
+    'logs',
+    loadLogsClass(models),
+  );
 
   return models;
 };

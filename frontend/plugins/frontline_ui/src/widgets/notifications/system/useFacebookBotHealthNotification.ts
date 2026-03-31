@@ -8,6 +8,7 @@ import {
   IconRobot,
 } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { TNotification } from 'ui-modules';
 
 export type TFacebookBotHealthStatus =
@@ -90,10 +91,9 @@ const getPageName = (
 
 export const useFacebookBotHealthNotification = ({
   metadata,
-  t,
-}: Pick<TNotification, 'metadata'> & {
-  t: TFunction;
-}) => {
+}: Pick<TNotification, 'metadata'>) => {
+  const { t } = useTranslation();
+
   const {
     botId,
     status: rawStatus,
@@ -121,6 +121,13 @@ export const useFacebookBotHealthNotification = ({
   const botValue = loading
     ? t('loading', { defaultValue: 'Loading...' })
     : botName || t('notAvailable', { defaultValue: 'Not available' });
+  const statusLabel = t('status', { defaultValue: 'Status' });
+  const pageLabel = t('page', { defaultValue: 'Page' });
+  const botLabel = t('bot', { defaultValue: 'Bot' });
+  const updatedAtLabel = t('updatedAt', { defaultValue: 'Updated at' });
+  const openBotSettingsLabel = t('openBotSettings', {
+    defaultValue: 'Open bot settings',
+  });
 
   return {
     botId,
@@ -129,6 +136,11 @@ export const useFacebookBotHealthNotification = ({
     statusView,
     pageValue,
     botValue,
+    statusLabel,
+    pageLabel,
+    botLabel,
+    updatedAtLabel,
+    openBotSettingsLabel,
   };
 };
 
