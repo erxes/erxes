@@ -1,13 +1,16 @@
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Form, ScrollArea, toast } from 'erxes-ui';
+import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
 import { useSetAtom, useAtomValue } from 'jotai';
-import { useAddPage } from './hooks/useAddPage';
+import { CustomFieldValue } from '../posts/CustomFieldInput';
 import { useEditPage } from './hooks/useEditPage';
+import { useAddPage } from './hooks/useAddPage';
 import { IPage, IPageDrawerProps, IPageFormData } from './types/pageTypes';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
+import { CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import {
   useCmsTranslation,
   TranslationData,
@@ -15,6 +18,10 @@ import {
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
 import { PageEditorColumn } from './components/PageEditorColumn';
 import { PageSidebarPanel } from './components/PageSidebarPanel';
+import {
+  PageCustomFieldsSection,
+  FieldGroup,
+} from './components/PageCustomFieldsSection';
 import {
   normalizeAttachment,
   makeAttachmentArrayFromUrls,
@@ -115,11 +122,10 @@ interface PageInput {
   translations?: PageTranslationInput[];
   thumbnail?: { url: string; name: string; type?: string } | null;
   pageImages?: { url: string; name: string }[];
-  video?: { url: string; name: string; type?: string } | null;
   videoUrl?: string;
-  audio?: { url: string; name: string; type?: string } | null;
   documents?: { url: string; name: string }[];
   attachments?: { url: string; name: string }[];
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
 }
 
 function resolveMainFields(
@@ -245,13 +251,62 @@ export function PageDrawer({
       clientPortalId,
       thumbnail: null,
       gallery: [],
-      video: null,
       videoUrl: '',
-      audio: null,
       documents: [],
       attachments: [],
+      customFieldsData: [],
     },
   });
+
+  // Custom fields functionality
+  const updateCustomFieldValue = useCallback(
+    (fieldId: string, value: CustomFieldValue) => {
+      const currentData = form.getValues('customFieldsData') || [];
+      const existingIndex = currentData.findIndex(
+        (item) => item.field === fieldId,
+      );
+
+      let updated;
+      if (existingIndex >= 0) {
+        updated = [...currentData];
+        updated[existingIndex] = { field: fieldId, value };
+      } else {
+        updated = [...currentData, { field: fieldId, value }];
+      }
+
+      form.setValue('customFieldsData', updated, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: false,
+      });
+    },
+    [form],
+  );
+
+  const getCustomFieldValue = useCallback(
+    (fieldId: string): CustomFieldValue => {
+      const currentData = form.watch('customFieldsData') || [];
+      const item = currentData.find((item) => item.field === fieldId);
+      return item?.value ?? '';
+    },
+    [form],
+  );
+
+  // Fetch custom field groups
+  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: {
+      clientPortalId,
+    },
+    fetchPolicy: 'cache-first',
+    skip: !clientPortalId,
+  });
+
+  const fieldGroups: FieldGroup[] = (
+    customFieldsData?.cmsCustomFieldGroupList?.list || []
+  ).filter(
+    (group: FieldGroup) =>
+      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
+  );
 
   const { editPage, loading: savingEdit } = useEditPage();
   const { addPage, loading: savingAdd } = useAddPage();
@@ -273,11 +328,10 @@ export function PageDrawer({
         clientPortalId,
         thumbnail: page.thumbnail || null,
         gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
-        video: page.video?.url || null,
         videoUrl: page.videoUrl || '',
-        audio: page.audio?.url || null,
         documents: (page.documents || []).map((d) => d.url).filter(Boolean),
         attachments: (page.attachments || []).map((a) => a.url).filter(Boolean),
+        customFieldsData: page.customFieldsData || [],
       });
     } else {
       form.reset({
@@ -289,11 +343,10 @@ export function PageDrawer({
         clientPortalId,
         thumbnail: null,
         gallery: [],
-        video: null,
         videoUrl: '',
-        audio: null,
         documents: [],
         attachments: [],
+        customFieldsData: [],
       });
     }
   }, [page, isEditing, clientPortalId, form]);
@@ -466,9 +519,6 @@ export function PageDrawer({
     const attachmentsPayload = makeAttachmentArrayFromUrls(
       data.attachments ?? [],
     );
-    const videoPayload = normalizeAttachment(data.video ?? undefined);
-    const audioPayload = normalizeAttachment(data.audio ?? undefined);
-
     const input: PageInput = {
       clientPortalId: data.clientPortalId,
       name: main.name,
@@ -478,11 +528,10 @@ export function PageDrawer({
       status: data.status || 'active',
       thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
       pageImages: imagesPayload.length ? imagesPayload : undefined,
-      video: videoPayload,
       videoUrl: data.videoUrl,
-      audio: audioPayload,
       documents: documentsPayload.length ? documentsPayload : undefined,
       attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
+      customFieldsData: data.customFieldsData || [],
     };
 
     if (curSelectedLanguage) {
@@ -620,13 +669,22 @@ export function PageDrawer({
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <PageEditorColumn
-              form={form}
-              selectedLanguage={selectedLanguage}
-              defaultLanguage={defaultLanguage}
-              page={page}
-              handleEditorChange={handleEditorChange}
-            />
+            <div className="lg:col-span-2">
+              <PageEditorColumn
+                form={form}
+                selectedLanguage={selectedLanguage}
+                defaultLanguage={defaultLanguage}
+                page={page}
+                handleEditorChange={handleEditorChange}
+              />
+              {fieldGroups.length > 0 && (
+                <PageCustomFieldsSection
+                  fieldGroups={fieldGroups}
+                  getCustomFieldValue={getCustomFieldValue}
+                  updateCustomFieldValue={updateCustomFieldValue}
+                />
+              )}
+            </div>
             <PageSidebarPanel
               form={form}
               websiteId={clientPortalId}

@@ -4,6 +4,42 @@ interface ManualInlineContent {
   styles: Record<string, boolean>;
 }
 
+export interface AttachmentInput {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+  duration?: number;
+}
+
+export interface Block {
+  id: string;
+  type: string;
+  props?: Record<string, any>;
+  content: ManualInlineContent[];
+  children: Block[];
+}
+
+interface ManualBlock {
+  id: string;
+  type: string;
+  props?: Record<string, any>;
+  content: ManualInlineContent[];
+  children: Block[];
+}
+
+const emptyParagraph = (): Block => ({
+  id: crypto.randomUUID(),
+  type: 'paragraph',
+  props: {
+    textColor: 'default',
+    backgroundColor: 'default',
+    textAlignment: 'left',
+  },
+  content: [{ type: 'text', text: '', styles: {} }],
+  children: [],
+});
+
 const escapeHtml = (str: string): string =>
   str
     .replaceAll('&', '&amp;')
@@ -87,7 +123,7 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
       if (!textContent.trim()) return;
 
       const blockType = tag.match(/^h[1-6]$/) ? 'heading' : 'paragraph';
-      const props: ManualBlockProps = {
+      const props: Record<string, any> = {
         textColor: 'default',
         backgroundColor: 'default',
         textAlignment: 'left',

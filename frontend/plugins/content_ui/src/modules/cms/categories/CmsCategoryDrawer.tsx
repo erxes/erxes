@@ -1,12 +1,18 @@
 import { useMutation, useQuery, useApolloClient } from '@apollo/client';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   CMS_CATEGORIES,
   CMS_CATEGORIES_ADD,
   CMS_CATEGORIES_EDIT,
+  CMS_CUSTOM_FIELD_GROUPS,
 } from './graphql';
+import {
+  CategoryCustomFieldsSection,
+  FieldGroup,
+} from './components/CategoryCustomFieldsSection';
+import { CustomFieldValue } from '../posts/CustomFieldInput';
 
 interface Category {
   _id: string;
@@ -33,6 +39,7 @@ interface CategoryFormData {
   description?: string;
   parentId?: string;
   status: 'active' | 'inactive';
+  customFieldsData?: { field: string; value: any }[];
 }
 
 export function CmsCategoryDrawer({
@@ -64,6 +71,7 @@ export function CmsCategoryDrawer({
       description: '',
       parentId: undefined,
       status: 'active',
+      customFieldsData: [],
     },
   });
 
@@ -75,6 +83,7 @@ export function CmsCategoryDrawer({
         description: category.description || '',
         parentId: category.parentId || undefined,
         status: (category.status as any) || 'active',
+        customFieldsData: (category as any).customFieldsData || [],
       });
       setIsSlugManuallyEdited(false);
     } else if (isOpen) {
@@ -84,6 +93,7 @@ export function CmsCategoryDrawer({
         description: '',
         parentId: undefined,
         status: 'active',
+        customFieldsData: [],
       });
       setIsSlugManuallyEdited(false);
     }
@@ -114,6 +124,56 @@ export function CmsCategoryDrawer({
   const parentOptions: Category[] = (
     catsData?.cmsCategories?.list || []
   ).filter((c: Category) => c._id !== category?._id);
+
+  // Custom fields functionality
+  const updateCustomFieldValue = useCallback(
+    (fieldId: string, value: CustomFieldValue) => {
+      const currentData = form.getValues('customFieldsData') || [];
+      const existingIndex = currentData.findIndex(
+        (item) => item.field === fieldId,
+      );
+
+      let updated;
+      if (existingIndex >= 0) {
+        updated = [...currentData];
+        updated[existingIndex] = { field: fieldId, value };
+      } else {
+        updated = [...currentData, { field: fieldId, value }];
+      }
+
+      form.setValue('customFieldsData', updated, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: false,
+      });
+    },
+    [form],
+  );
+
+  const getCustomFieldValue = useCallback(
+    (fieldId: string): CustomFieldValue => {
+      const currentData = form.watch('customFieldsData') || [];
+      const item = currentData.find((item) => item.field === fieldId);
+      return item?.value ?? '';
+    },
+    [form],
+  );
+
+  // Fetch custom field groups
+  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: {
+      clientPortalId,
+    },
+    fetchPolicy: 'cache-first',
+    skip: !isOpen,
+  });
+
+  const fieldGroups = (
+    customFieldsData?.cmsCustomFieldGroupList?.list || []
+  ).filter(
+    (group: any) =>
+      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
+  );
 
   const [addCategory, { loading: adding }] = useMutation(CMS_CATEGORIES_ADD, {
     onCompleted: (data) => {
@@ -201,7 +261,7 @@ export function CmsCategoryDrawer({
   );
 
   const onSubmit = (data: CategoryFormData) => {
-    const input = { ...data, clientPortalId } as any;
+    const input = { ...data, clientPortalId } as CategoryFormData;
     if (isEditing && category?._id) {
       editCategory({ variables: { _id: category._id, input } });
     } else {
@@ -329,6 +389,14 @@ export function CmsCategoryDrawer({
               )}
             />
 
+            {fieldGroups.length > 0 && (
+              <CategoryCustomFieldsSection
+                fieldGroups={fieldGroups}
+                getCustomFieldValue={getCustomFieldValue}
+                updateCustomFieldValue={updateCustomFieldValue}
+              />
+            )}
+
             <div className="flex justify-end space-x-2">
               <Button onClick={onClose} variant="outline">
                 Cancel
@@ -339,8 +407,8 @@ export function CmsCategoryDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create Category'}
+                  ? 'Save Changes'
+                  : 'Create Category'}
               </Button>
             </div>
           </form>

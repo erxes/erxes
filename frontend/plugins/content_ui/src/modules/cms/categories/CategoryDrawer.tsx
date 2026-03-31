@@ -1,13 +1,28 @@
 import { useMutation, useQuery, useApolloClient } from '@apollo/client';
-import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
-import { useEffect } from 'react';
+import {
+  Button,
+  Form,
+  Input,
+  Select,
+  Sheet,
+  Textarea,
+  toast,
+  ScrollArea,
+} from 'erxes-ui';
+import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   CMS_CATEGORIES,
   CMS_CATEGORIES_ADD,
   CMS_CATEGORIES_EDIT,
+  CMS_CUSTOM_FIELD_GROUPS,
 } from './graphql';
 import { ICategory, PostCategoryInput } from './types';
+import {
+  CategoryCustomFieldsSection,
+  FieldGroup,
+} from './components/CategoryCustomFieldsSection';
+import { CustomFieldValue } from '../posts/CustomFieldInput';
 
 interface CmsCategoryDrawerProps {
   category?: Partial<ICategory>;
@@ -23,6 +38,7 @@ interface CategoryFormData {
   slug?: string;
   status?: string;
   parentId?: string;
+  customFieldsData?: { field: string; value: any }[];
 }
 
 export function CmsCategoryDrawer({
@@ -42,8 +58,59 @@ export function CmsCategoryDrawer({
       slug: '',
       status: 'active',
       parentId: undefined,
+      customFieldsData: [],
     },
   });
+
+  // Custom fields functionality
+  const updateCustomFieldValue = useCallback(
+    (fieldId: string, value: CustomFieldValue) => {
+      const currentData = form.getValues('customFieldsData') || [];
+      const existingIndex = currentData.findIndex(
+        (item) => item.field === fieldId,
+      );
+
+      let updated;
+      if (existingIndex >= 0) {
+        updated = [...currentData];
+        updated[existingIndex] = { field: fieldId, value };
+      } else {
+        updated = [...currentData, { field: fieldId, value }];
+      }
+
+      form.setValue('customFieldsData', updated, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: false,
+      });
+    },
+    [form],
+  );
+
+  const getCustomFieldValue = useCallback(
+    (fieldId: string): CustomFieldValue => {
+      const currentData = form.watch('customFieldsData') || [];
+      const item = currentData.find((item) => item.field === fieldId);
+      return item?.value ?? '';
+    },
+    [form],
+  );
+
+  // Fetch custom field groups
+  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: {
+      clientPortalId,
+    },
+    fetchPolicy: 'cache-first',
+    skip: !isOpen,
+  });
+
+  const fieldGroups: FieldGroup[] = (
+    customFieldsData?.cmsCustomFieldGroupList?.list || []
+  ).filter(
+    (group: any) =>
+      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
+  );
 
   useEffect(() => {
     if (category && isOpen) {
@@ -53,6 +120,7 @@ export function CmsCategoryDrawer({
         slug: category.slug || '',
         status: category.status || 'active',
         parentId: category.parentId || undefined,
+        customFieldsData: category.customFieldsData || [],
       });
     } else if (isOpen) {
       form.reset({
@@ -61,6 +129,7 @@ export function CmsCategoryDrawer({
         slug: '',
         status: 'active',
         parentId: undefined,
+        customFieldsData: [],
       });
     }
   }, [category, isOpen, form]);
@@ -185,106 +254,124 @@ export function CmsCategoryDrawer({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="p-4 space-y-4"
+            className="flex overflow-hidden flex-col h-full"
           >
-            <Form.Field
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Name</Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder="Enter category name"
-                      required
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+            <ScrollArea className="flex-auto">
+              <div className="p-4 space-y-4">
+                <Form.Field
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Name</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          placeholder="Enter category name"
+                          required
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Description</Form.Label>
-                  <Form.Control>
-                    <Textarea
-                      {...field}
-                      placeholder="Enter description"
-                      rows={3}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+                <Form.Field
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Description</Form.Label>
+                      <Form.Control>
+                        <Textarea
+                          {...field}
+                          placeholder="Enter description"
+                          rows={3}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-            <Form.Field
-              control={form.control}
-              name="slug"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Slug</Form.Label>
-                  <Form.Control>
-                    <Input {...field} placeholder="Enter category slug" />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+                <Form.Field
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Slug</Form.Label>
+                      <Form.Control>
+                        <Input {...field} placeholder="Enter category slug" />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-            <Form.Field
-              control={form.control}
-              name="parentId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Parent Category</Form.Label>
-                  <Form.Control>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select..." />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {parentOptions.map((opt) => (
-                          <Select.Item key={opt._id} value={opt._id}>
-                            {opt.name}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+                <Form.Field
+                  control={form.control}
+                  name="parentId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Parent Category</Form.Label>
+                      <Form.Control>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <Select.Trigger>
+                            <Select.Value placeholder="Select..." />
+                          </Select.Trigger>
+                          <Select.Content>
+                            {parentOptions.map((opt) => (
+                              <Select.Item key={opt._id} value={opt._id}>
+                                {opt.name}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-            <Form.Field
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Status</Form.Label>
-                  <Form.Control>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select status" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="active">Active</Select.Item>
-                        <Select.Item value="inactive">Inactive</Select.Item>
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+                <Form.Field
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Status</Form.Label>
+                      <Form.Control>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <Select.Trigger>
+                            <Select.Value placeholder="Select status" />
+                          </Select.Trigger>
+                          <Select.Content>
+                            <Select.Item value="active">Active</Select.Item>
+                            <Select.Item value="inactive">Inactive</Select.Item>
+                          </Select.Content>
+                        </Select>
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-            <div className="flex justify-end space-x-2">
+                {fieldGroups.length > 0 && (
+                  <CategoryCustomFieldsSection
+                    fieldGroups={fieldGroups}
+                    getCustomFieldValue={getCustomFieldValue}
+                    updateCustomFieldValue={updateCustomFieldValue}
+                  />
+                )}
+              </div>
+            </ScrollArea>
+
+            <div className="flex justify-end space-x-2 p-4 border-t bg-background">
               <Button onClick={onClose} variant="outline">
                 Cancel
               </Button>
@@ -294,8 +381,8 @@ export function CmsCategoryDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create Category'}
+                  ? 'Save Changes'
+                  : 'Create Category'}
               </Button>
             </div>
           </form>
