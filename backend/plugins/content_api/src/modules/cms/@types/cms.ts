@@ -42,7 +42,8 @@ export interface ICMSMenu {
   target?: string;
 }
 
-export interface ICMSMenuDocument extends Omit<Document, 'contentType'>, ICMSMenu {
+export interface ICMSMenuDocument
+  extends Omit<Document, 'contentType'>, ICMSMenu {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
