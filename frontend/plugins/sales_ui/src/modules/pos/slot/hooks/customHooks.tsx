@@ -72,9 +72,8 @@ export const useSlotManager = (
     return [clampPositionForNode(DefaultNode)];
   };
 
-  const [nodes, setNodes, onNodesChangeInternal] = useNodesState<CustomNode>(
-    getInitialNodes(),
-  );
+  const [nodes, setNodes, onNodesChangeInternal] =
+    useNodesState<CustomNode>(getInitialNodes());
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
   const [selectedNode, setSelectedNode] = useAtom(syncSelectedNodeAtom);

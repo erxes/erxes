@@ -38,9 +38,8 @@ export const TagsListRowForm = () => {
       className={cn(
         'h-10 w-full shadow-xs flex items-center pr-12 pl-14 group relative hover:bg-foreground/10 bg-background ',
         addingTag?.parentId &&
-        'pl-20 last:[--svg-height:calc(2.5rem/2-10px)] [--svg-height:calc(2.5rem)] [&>div>svg]:block',
-        !addingTag?.parentId &&
-        'first:rounded-t-lg last:rounded-b-lg',
+          'pl-20 last:[--svg-height:calc(2.5rem/2-10px)] [--svg-height:calc(2.5rem)] [&>div>svg]:block',
+        !addingTag?.parentId && 'first:rounded-t-lg last:rounded-b-lg',
       )}
     >
       <div className="absolute w-px bg-muted-foreground h-(--svg-height) top-0 left-[calc(3.5rem+26px/2)]">

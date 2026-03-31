@@ -54,9 +54,11 @@ export const useQuerySelectInputList = (
             return prev;
           }
 
-          const { pageInfo: fetchMorePageInfo, list: fetchMoreList = [] } = fetchMoreResult?.[queryName] || {};
+          const { pageInfo: fetchMorePageInfo, list: fetchMoreList = [] } =
+            fetchMoreResult?.[queryName] || {};
 
-          const { pageInfo: prevPageInfo, list: prevList = [] } = prev?.[queryName] || {};
+          const { pageInfo: prevPageInfo, list: prevList = [] } =
+            prev?.[queryName] || {};
 
           // setCursor(prevPageInfo?.endCursor);
 

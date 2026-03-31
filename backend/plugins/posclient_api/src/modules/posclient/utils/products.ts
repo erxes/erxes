@@ -38,11 +38,7 @@ export const checkRemainders = async (
   }> = [];
   if (config.erkhetConfig?.getRemainder) {
     const configs = config.erkhetConfig;
-    if (
-      configs?.getRemainderApiUrl &&
-      configs?.apiKey &&
-      configs?.apiSecret
-    ) {
+    if (configs?.getRemainderApiUrl && configs?.apiKey && configs?.apiSecret) {
       try {
         let account = configs.account;
         let location = configs.location;

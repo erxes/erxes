@@ -136,9 +136,10 @@ export const erxesMessengerSetSetupAtom = atom(
       set(erxesMessengerSetupSettingsAtom, settings);
 
       // Set intro messages
-      const messages = payload?.messengerData?.messages?.[
-        payload?.languageCode || DEFAULT_LANGUAGE
-      ];
+      const messages =
+        payload?.messengerData?.messages?.[
+          payload?.languageCode || DEFAULT_LANGUAGE
+        ];
       const intro = {
         welcome: messages?.welcome ?? '',
         away: messages?.away ?? '',

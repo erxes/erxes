@@ -1,4 +1,8 @@
-import { IconChessKnight, IconShoppingCart, IconTag } from '@tabler/icons-react';
+import {
+  IconChessKnight,
+  IconShoppingCart,
+  IconTag,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Button,

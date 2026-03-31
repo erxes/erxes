@@ -35,8 +35,7 @@ export function usePositionAdd(
         const existingData = cache.readQuery<PositionData>({
           query: GET_POSITIONS_LIST,
         });
-        if (!existingData?.positionsMain || !data?.positionsAdd)
-          return;
+        if (!existingData?.positionsMain || !data?.positionsAdd) return;
 
         cache.writeQuery<PositionData>({
           query: GET_POSITIONS_LIST,
@@ -73,11 +72,7 @@ export function usePositionEdit(
         const existingData = cache.readQuery<PositionData>({
           query: GET_POSITIONS_LIST,
         });
-        if (
-          !existingData?.positionsMain ||
-          !data?.positionsEdit
-        )
-          return;
+        if (!existingData?.positionsMain || !data?.positionsEdit) return;
 
         cache.writeQuery<PositionData>({
           query: GET_POSITIONS_LIST,

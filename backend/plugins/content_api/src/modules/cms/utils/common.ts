@@ -55,10 +55,9 @@ export const customFieldsDataByFieldCode = async (
   subdomain: string,
   object,
 ) => {
-  const customFieldsData =
-    object.customFieldsData?.toObject
-      ? object.customFieldsData.toObject()
-      : object.customFieldsData || [];
+  const customFieldsData = object.customFieldsData?.toObject
+    ? object.customFieldsData.toObject()
+    : object.customFieldsData || [];
 
   const fieldIds = customFieldsData.map((data) => data.field);
 

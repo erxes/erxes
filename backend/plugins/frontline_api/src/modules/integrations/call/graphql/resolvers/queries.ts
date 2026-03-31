@@ -1,6 +1,9 @@
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import { INotesParams } from '@/integrations/call/@types/conversationNotes';
-import { ICallHistory, ICallHistoryFilterOptions } from '@/integrations/call/@types/histories';
+import {
+  ICallHistory,
+  ICallHistoryFilterOptions,
+} from '@/integrations/call/@types/histories';
 import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
 import {
   calculateAbandonmentRate,

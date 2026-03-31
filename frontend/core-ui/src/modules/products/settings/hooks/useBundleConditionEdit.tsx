@@ -20,7 +20,7 @@ export const useBundleConditionEdit = () => {
               }
               return fields;
             },
-            {}
+            {},
           ),
         });
       },

@@ -50,8 +50,8 @@ export const TagsListGroupRow = ({ tag }: { tag: ITag }) => {
       <Collapsible.Content>
         {addingTag?.parentId === tag._id && <TagsListRowForm />}
         {childTagsMap?.[tag._id]?.map((childTag) => (
-            <TagsListRowContent tag={childTag} key={childTag._id} />
-          ))}
+          <TagsListRowContent tag={childTag} key={childTag._id} />
+        ))}
       </Collapsible.Content>
     </Collapsible>
   );
@@ -63,7 +63,7 @@ export const TagsListRowContent = ({ tag }: { tag: ITag }) => {
       className={cn(
         'h-10 w-full shadow-xs flex items-center pr-12 pl-14 group hover:bg-foreground/10 bg-background relative ',
         tag.parentId &&
-        'pl-20 last:[--svg-height:calc(2.5rem/2-10px)] [--svg-height:calc(2.5rem)] [&>div>svg]:block',
+          'pl-20 last:[--svg-height:calc(2.5rem/2-10px)] [--svg-height:calc(2.5rem)] [&>div>svg]:block',
       )}
     >
       <TagsListRowOptionMenu tag={tag} />

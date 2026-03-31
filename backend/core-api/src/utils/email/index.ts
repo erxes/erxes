@@ -165,7 +165,7 @@ export const sendEmail = async (
     } else if (
       !defaultTemplate ||
       !defaultTemplateType ||
-      (defaultTemplateType?.toString() === 'simple')
+      defaultTemplateType?.toString() === 'simple'
     ) {
       html = await applyTemplate(data, 'base');
     } else if (defaultTemplate) {

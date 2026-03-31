@@ -21,9 +21,7 @@ export const saveMessages = async (
   console.log(`======== found ${msgs.length} messages`);
 
   for (const msg of msgs) {
-    if (
-      msg.to?.value?.[0]?.address !== integration.user
-    ) {
+    if (msg.to?.value?.[0]?.address !== integration.user) {
       continue;
     }
 

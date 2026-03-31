@@ -44,10 +44,14 @@ export const validCompanyCode = async (config, companyCode) => {
     return result;
   }
 
-  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/gui;
+  const re =
+    /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/giu;
 
   if (re.test(companyCode)) {
-    const response = await getCompanyInfo({ checkTaxpayerUrl: config.checkCompanyUrl, no: companyCode })
+    const response = await getCompanyInfo({
+      checkTaxpayerUrl: config.checkCompanyUrl,
+      no: companyCode,
+    });
 
     if (response.status === 'checked' && response.tin) {
       result = response.result?.data?.name;

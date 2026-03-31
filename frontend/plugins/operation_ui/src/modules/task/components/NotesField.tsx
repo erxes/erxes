@@ -15,8 +15,7 @@ export const NotesField = ({ contentId }: { contentId: string }) => {
             authorId={activity.createdBy}
             createdAt={activity.createdAt?.toLocaleString()}
           />
-        ))
-      }
+        ))}
       <NoteInput contentId={contentId} />
     </div>
   );

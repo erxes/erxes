@@ -2,7 +2,10 @@ import { ACCOUNT_STATUSES } from '../../@types/constants';
 import { accountCategorySchema } from '../definitions/accountCategory';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { IAccountCategory, IAccountCategoryDocument } from '../../@types/accountCategory';
+import {
+  IAccountCategory,
+  IAccountCategoryDocument,
+} from '../../@types/accountCategory';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
@@ -18,7 +21,11 @@ export interface IAccountCategoryModel extends Model<IAccountCategoryDocument> {
   removeAccountCategory(_id: string): Promise<void>;
 }
 
-export const loadAccountCategoryClass = (models: IModels, _subdomain: string, { sendDbEventLog }: EventDispatcherReturn) => {
+export const loadAccountCategoryClass = (
+  models: IModels,
+  _subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class AccountingCategory {
     /**
      *
@@ -63,15 +70,18 @@ export const loadAccountCategoryClass = (models: IModels, _subdomain: string, { 
       // Generating order
       doc.order = await this.generateOrder(doc, parentCategory);
 
-      const category = await models.AccountCategories.create({ ...doc, createdAt: new Date() });
+      const category = await models.AccountCategories.create({
+        ...doc,
+        createdAt: new Date(),
+      });
 
       sendDbEventLog({
         action: 'create',
         docId: category._id,
-        currentDocument: category.toObject()
+        currentDocument: category.toObject(),
       });
 
-      return category
+      return category;
     }
 
     /**
@@ -151,7 +161,7 @@ export const loadAccountCategoryClass = (models: IModels, _subdomain: string, { 
 
       sendDbEventLog({
         action: 'delete',
-        docId: _id
+        docId: _id,
       });
 
       return result;

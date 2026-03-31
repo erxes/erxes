@@ -183,7 +183,8 @@ export const getIncomeData = async (
 
   for (const paymentKind of Object.keys(purchase.paymentsData || [])) {
     const payment = purchase.paymentsData[paymentKind];
-    const accountStr = config.payAccounts?.[paymentKind] || config.defaultPayAccount;
+    const accountStr =
+      config.payAccounts?.[paymentKind] || config.defaultPayAccount;
     payments[accountStr] = (payments[accountStr] || 0) + payment.amount;
     sumSaleAmount = sumSaleAmount - payment.amount;
   }

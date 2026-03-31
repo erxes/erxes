@@ -90,10 +90,13 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       doc.description = config.consumeDescription.replace(
         /\$\{doc\.([^}]+)\}/g,
         (match, path) => {
-          const value = path.split('.').reduce(
-            (acc: any, segment: string) => (acc != null ? acc[segment] : undefined),
-            doc,
-          );
+          const value = path
+            .split('.')
+            .reduce(
+              (acc: any, segment: string) =>
+                acc != null ? acc[segment] : undefined,
+              doc,
+            );
           return value !== undefined && value !== null ? String(value) : match;
         },
       );
