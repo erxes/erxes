@@ -96,7 +96,6 @@ export const useFacebookBotHealthNotification = ({
 }) => {
   const {
     botId,
-    pageId,
     status: rawStatus,
     reason,
   } = parseFacebookBotHealthMetadata(metadata);

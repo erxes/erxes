@@ -1,7 +1,4 @@
-import {
-  IconAlertTriangle,
-  IconSettings,
-} from '@tabler/icons-react';
+import { IconAlertTriangle, IconSettings } from '@tabler/icons-react';
 import { Badge, Button, RelativeDateDisplay, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -109,9 +106,9 @@ const NotificationHeader = ({
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        <h2 className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
           {title || 'Bot health status'}
-        </div>
+        </h2>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
           {message}
         </h2>

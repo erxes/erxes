@@ -57,7 +57,7 @@ const NotificationRemoteEntries = (props: TNotification) => {
           <div className="flex items-center justify-center p-4">Loading...</div>
         }
       >
-        + <NotificationContent.facebookBotHealth {...props} />+{' '}
+        <NotificationContent.facebookBotHealth {...props} />
       </Suspense>
     );
   }
