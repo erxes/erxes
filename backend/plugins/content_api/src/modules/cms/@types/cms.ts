@@ -32,8 +32,8 @@ export interface ICMSMenu {
   clientPortalId: string;
   webId?: string;
   label: string;
-  objectType: string;
-  objectId: string;
+  contentType: string;
+  contentId: string;
   kind: string;
   icon?: string;
   url?: string;
@@ -42,12 +42,11 @@ export interface ICMSMenu {
   target?: string;
 }
 
-export interface ICMSMenuDocument extends ICMSMenu, Document {
+export interface ICMSMenuDocument extends Omit<Document, 'contentType'>, ICMSMenu {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
 }
-
 export interface ICMSPageItem {
   name: string;
   type: string;
