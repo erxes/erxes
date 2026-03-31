@@ -1,4 +1,4 @@
-import { Card, Resizable, Sheet } from 'erxes-ui';
+import { Card } from 'erxes-ui';
 import ReactJson from 'react-json-view';
 import { ILogDoc } from '../types';
 import { maskFields } from '../utils/logFormUtils';

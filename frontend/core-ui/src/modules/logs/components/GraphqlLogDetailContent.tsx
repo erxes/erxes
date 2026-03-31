@@ -6,7 +6,7 @@ import { maskFields } from '../utils/logFormUtils';
 export const GraphqlLogDetailContent = ({ payload, createdAt }: ILogDoc) => {
   const { mutationName, args, result, error } = payload || {};
 
-  const res = error ? error : result;
+  const res = error || result;
 
   return (
     <Resizable.PanelGroup direction="horizontal">
