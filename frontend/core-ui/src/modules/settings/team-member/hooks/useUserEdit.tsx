@@ -72,7 +72,7 @@ export const useUserEdit = () => {
           id: cache.identify(usersEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field];
+              fields[field] = () => variables?.[field];
               return fields;
             },
             {},

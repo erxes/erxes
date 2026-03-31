@@ -16,7 +16,7 @@ import {
 
 const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
   trDocs?.forEach((tr) => {
-    if (!(tr?.details && tr?.details[0])) {
+    if (!tr?.details?.[0]) {
       return;
     }
 

@@ -144,7 +144,7 @@ export const importProducts = async (
   const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
 
   const attachmentUrlChanger = (attachment) => {
-    return attachment && attachment.url && !attachment.url.includes('http')
+    return !attachment?.url?.includes('http')
       ? { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` }
       : attachment;
   };
@@ -323,7 +323,7 @@ export const receiveProduct = async (models: IModels, data) => {
       tokens.push(token);
     }
     const info = action === 'update' ? updatedDocument : object;
-    if (info.attachment && info.attachment.url) {
+    if (info?.attachment?.url) {
       const FILE_PATH = `${await getServerAddress(
         'localhost',
         'core',
@@ -383,7 +383,7 @@ export const receiveProductCategory = async (models: IModels, data) => {
   }
 
   if (action === 'delete') {
-    if (!category || category.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
+    if (category?.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
       return;
     }
 

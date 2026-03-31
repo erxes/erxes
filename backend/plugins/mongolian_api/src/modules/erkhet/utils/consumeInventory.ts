@@ -60,7 +60,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
         numberValue: Number(doc.weight),
       };
 
-      if (product && product.customFieldsData) {
+      if (product?.customFieldsData) {
         const otherFieldsData = (product.customFieldsData || []).filter(
           (cfd) => cfd.field !== weightField._id,
         );
@@ -72,7 +72,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
     }
 
     if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {
-      let subUoms = (product || {}).subUoms || [];
+      let subUoms = product?.subUoms || [];
       const subUomCodes = subUoms.map((u) => u.uom);
 
       if (subUomCodes.includes(doc.sub_measure_unit_code)) {

@@ -102,7 +102,7 @@ export const ActionInlineEffectComponent = ({
 
   const { actions: list, loading } = usePermissionsActions();
   const actionsDetail =
-    list && list.find((action) => action.name === actionName);
+    list?.find((action) => action.name === actionName);
 
   useEffect(() => {
     if (!actionsDetail) return;

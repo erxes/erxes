@@ -30,8 +30,9 @@ export function useAddProduct(
             variables: queryVariables,
           });
 
-          if (!existingData || !existingData.productsMain || !data?.productsAdd)
+          if (!existingData?.productsMain || !data?.productsAdd)
             return;
+
           cache.writeQuery<ProductData>({
             query: productsQueries.productsMain,
             variables: queryVariables,

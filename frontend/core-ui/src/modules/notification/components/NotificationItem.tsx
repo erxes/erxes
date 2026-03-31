@@ -94,7 +94,7 @@ export const NotificationItem = ({
 
 const NotificationIcon = ({ contentType }: { contentType: string }) => {
   const pluginName = contentType?.split(':')[0] || '';
-  const pluginMetaData = (useAtomValue(pluginsConfigState) || {})[
+  const pluginMetaData = useAtomValue(pluginsConfigState)?.[
     pluginName + '_ui'
   ];
   if (pluginName === 'core') {

@@ -26,7 +26,7 @@ export const TagsListGroupRow = ({ tag }: { tag: ITag }) => {
   const [type] = useQueryState<string>('tagType');
   const childTagsMap = useAtomValue(childTagsMapAtomFamily(type));
   useEffect(() => {
-    if (addingTag && addingTag.parentId === tag._id) {
+    if (addingTag?.parentId === tag._id) {
       setOpen(true);
     }
   }, [addingTag, tag._id]);
@@ -48,9 +48,8 @@ export const TagsListGroupRow = ({ tag }: { tag: ITag }) => {
         <TagsListRowContent tag={tag} />
       </div>
       <Collapsible.Content>
-        {addingTag && addingTag.parentId === tag._id && <TagsListRowForm />}
-        {childTagsMap[tag._id] &&
-          childTagsMap[tag._id].map((childTag) => (
+        {addingTag?.parentId === tag._id && <TagsListRowForm />}
+        {childTagsMap?.[tag._id]?.map((childTag) => (
             <TagsListRowContent tag={childTag} key={childTag._id} />
           ))}
       </Collapsible.Content>

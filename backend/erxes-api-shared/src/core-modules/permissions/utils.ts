@@ -2,7 +2,7 @@ import { IUserDocument, Resolver } from '../../core-types';
 import { getPlugin, sendTRPCMessage, redis, getActivePlugins } from '../../utils';
 
 export const checkLogin = (user?: IUserDocument) => {
-  if (!user || !user._id) {
+  if (!user?._id) {
     throw new Error('Login required');
   }
 };

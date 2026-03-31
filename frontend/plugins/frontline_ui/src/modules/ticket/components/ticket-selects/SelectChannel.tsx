@@ -75,7 +75,7 @@ const SelectChannelProvider = ({
 const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, channels } = useSelectChannelContext();
 
-  if (!channels || channels.length === 0 || !value || !value.length) {
+  if (!channels || channels?.length === 0 || !value?.length) {
     return (
       <span className="text-accent-foreground/80">
         {placeholder || 'Select channels'}

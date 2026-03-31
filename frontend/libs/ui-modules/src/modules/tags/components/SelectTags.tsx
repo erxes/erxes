@@ -353,7 +353,7 @@ export const TagList = ({
 
   const selectedTagIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return (
       <div className="flex items-center justify-center gap-2">
         <IconTagPlus className="size-4 text-muted-foreground" />
@@ -528,7 +528,7 @@ export const ConversationTagList = ({
 
   const selectedTagIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return (
       <div className="flex items-center justify-center gap-2">
         <IconTagPlus className="size-4 text-muted-foreground" />

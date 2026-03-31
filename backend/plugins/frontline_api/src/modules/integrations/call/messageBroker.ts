@@ -32,7 +32,7 @@ export async function callUpdateIntegration({ subdomain, data }) {
 
 export async function callRemoveIntergration({ subdomain, data }) {
   try {
-    removeIntegration({ subdomain, data });
+    await removeIntegration({ subdomain, data });
   } catch (e) {
     return {
       status: 'error',

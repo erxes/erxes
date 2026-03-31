@@ -125,7 +125,7 @@ export const getConfigPostData = async (
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = (customers.find((c) => c.code))?.code ?? '';
     }
   }
 
@@ -419,7 +419,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code ?? '';
     }
   }
 

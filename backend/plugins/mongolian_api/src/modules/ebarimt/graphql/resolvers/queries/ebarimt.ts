@@ -358,11 +358,11 @@ export const putResponseQueries = {
       { $group: { _id: '', amount: { $sum: { $toDecimal: '$totalAmount' } } } },
     ]);
 
-    if (!res || !res.length) {
+    if (!res?.length) {
       return 0;
     }
 
-    return Number((res[0] || {}).amount || 0);
+    return Number(res[0]?.amount || 0);
   },
 
   putResponsesByDate: async (

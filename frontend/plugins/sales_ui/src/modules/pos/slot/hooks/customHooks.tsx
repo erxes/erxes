@@ -125,7 +125,7 @@ export const useSlotManager = (
 
   const syncPositionToSlotDetail = useCallback(
     (nodeId: string, position: { x: number; y: number }) => {
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode?.id === nodeId) {
         setSlotDetail((prev) => ({
           ...prev,
           left: String(position.x),
@@ -176,7 +176,7 @@ export const useSlotManager = (
       setNodes((nds) => nds.map(updateNode));
       setHookNodes((nds) => nds.map(updateNode));
 
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode?.id === nodeId) {
         setSelectedNode({
           ...selectedNode,
           position: nextPosition,
@@ -263,7 +263,7 @@ export const useSlotManager = (
       setNodes((nds) => nds.map(updateNode));
       setHookNodes((nds) => nds.map(updateNode));
 
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode?.id === nodeId) {
         setSelectedNode({
           ...selectedNode,
           data: {
@@ -493,7 +493,7 @@ export const useSlotManager = (
         eds.filter((edge) => edge.source !== id && edge.target !== id),
       );
 
-      if (selectedNodeRef.current && selectedNodeRef.current.id === id) {
+      if (selectedNodeRef.current?.id === id) {
         setSelectedNode(null);
         setSidebarView('list');
       }

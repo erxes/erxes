@@ -295,9 +295,7 @@ export const CarInsurancePage = () => {
                 <Separator />
 
                 {/* Dynamic Fields from Insurance Type Attributes */}
-                {carInsuranceType &&
-                  carInsuranceType.attributes &&
-                  carInsuranceType.attributes.length > 0 && (
+                {carInsuranceType?.attributes?.length && (
                     <div>
                       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <IconCar size={20} />

@@ -60,7 +60,7 @@ export async function embedTextCFChunks(
         const data = (await resp.json().catch(() => null)) as {
           result?: { data?: number[][] };
         } | null;
-        if (!data || !data.result || !Array.isArray(data.result.data)) {
+        if (!Array.isArray(data?.result?.data)) {
           throw new Error(`Invalid response structure on chunk ${index + 1}`);
         }
         const vector = data.result.data[0];

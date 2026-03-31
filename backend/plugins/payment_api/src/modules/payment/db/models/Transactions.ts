@@ -41,7 +41,7 @@ const generateCode = async (models: IModels) => {
   );
 
   let code = `${currentDateString}-0001`;
-  if (!last || !last.code) {
+  if (!last?.code) {
     code = `${currentDateString}-0001`;
   } else {
     const lastInvoiceDate = last.code.split('-')[0];

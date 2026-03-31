@@ -25,8 +25,8 @@ export function UploadServiceRadioGroup({ form, selected }: Props) {
             defaultValue={field.value}
             onValueChange={field.onChange}
           >
-            {UPLOAD_SERVICE_DATA &&
-              UPLOAD_SERVICE_DATA.map((config, idx) => (
+            {
+              UPLOAD_SERVICE_DATA?.map((config, idx) => (
                 <motion.label
                   key={idx}
                   tabIndex={0}

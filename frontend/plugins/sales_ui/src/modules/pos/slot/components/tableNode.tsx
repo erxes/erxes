@@ -191,7 +191,7 @@ export function TableNode({ id, data, selected }: NodeProps) {
       ];
 
       return () => {
-        cleanups.forEach((cleanup) => cleanup && cleanup());
+        cleanups.forEach((cleanup) => cleanup?.());
       };
     }
   }, [selected, setupResize]);

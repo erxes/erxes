@@ -333,5 +333,5 @@ export const getSimilaritiesProductsCount = async (models, filter, params) => {
     { $group: { _id: {}, count: { $sum: 1 } } },
   ]);
 
-  return ((groupedData || [])[0] || {}).count || 0;
+  return groupedData?.[0]?.count ?? 0;
 };

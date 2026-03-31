@@ -50,11 +50,10 @@ const Payment = (props: Props) => {
         (t) => t.paymentId === payment._id && t.status === 'pending',
       );
 
-      if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
+      if (pendingTransaction?.paymentKind === 'minupay') {
         props.requestNewTransaction(payment._id);
       } else if (
-        pendingTransaction &&
-        pendingTransaction.paymentKind === 'golomt'
+        pendingTransaction?.paymentKind === 'golomt'
       ) {
         // request new transaction for golomt if the transaction is older than 7 minutes
         const now = new Date();

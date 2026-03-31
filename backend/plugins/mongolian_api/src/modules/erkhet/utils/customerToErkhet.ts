@@ -40,18 +40,14 @@ export const customerToErkhet = async (
 
 export const validCompanyCode = async (config, companyCode) => {
   let result = '';
-  if (
-    !config ||
-    !config.checkCompanyUrl ||
-    !config.checkCompanyUrl.includes('http')
-  ) {
+  if (!config?.checkCompanyUrl?.includes('http')) {
     return result;
   }
 
   const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/gui;
 
   if (re.test(companyCode)) {
-    const response = await getCompanyInfo({checkTaxpayerUrl: config.checkCompanyUrl, no: companyCode})
+    const response = await getCompanyInfo({ checkTaxpayerUrl: config.checkCompanyUrl, no: companyCode })
 
     if (response.status === 'checked' && response.tin) {
       result = response.result?.data?.name;

@@ -138,9 +138,9 @@ export const usePostForm = (editingPost?: any) => {
         seoDescription: fullPost.seoDescription || '',
         thumbnail: fullPost.thumbnail || null,
         gallery: (fullPost.images || []).map((i: any) => i.url).filter(Boolean),
-        video: (fullPost.video && fullPost.video.url) || fullPost.video || null,
+        video: (fullPost.video?.url) || fullPost.video || null,
         videoUrl: fullPost.videoUrl || '',
-        audio: (fullPost.audio && fullPost.audio.url) || fullPost.audio || null,
+        audio: (fullPost.audio?.url) || fullPost.audio || null,
         documents: (fullPost.documents || [])
           .map((d: any) => d.url)
           .filter(Boolean),

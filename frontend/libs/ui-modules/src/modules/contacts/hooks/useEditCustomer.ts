@@ -28,7 +28,7 @@ export const useCustomerEdit = () => {
           id: cache.identify(customersEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field as keyof ICustomer];
+              fields[field] = () => variables?.[field as keyof ICustomer];
               return fields;
             },
             {},

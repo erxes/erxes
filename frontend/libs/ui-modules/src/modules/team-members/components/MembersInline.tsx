@@ -113,7 +113,7 @@ const MemberInlineEffectComponent = ({ memberId }: { memberId: string }) => {
         return [...prev, { ...userDetail, _id: memberId }];
       });
     }
-    if (currentUser && currentUser._id === memberId) {
+    if (currentUser?._id === memberId) {
       updateMembers((prev) => {
         if (prev.some((m) => m._id === memberId)) return prev;
         return [currentUser, ...prev];

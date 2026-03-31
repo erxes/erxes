@@ -94,7 +94,7 @@ export default {
   async isWatched(deal: IDealDocument, _args: undefined, { user }: IContext) {
     const watchedUserIds = deal.watchedUserIds || [];
 
-    if (watchedUserIds && watchedUserIds.includes(user._id)) {
+    if (watchedUserIds?.includes(user._id)) {
       return true;
     }
 

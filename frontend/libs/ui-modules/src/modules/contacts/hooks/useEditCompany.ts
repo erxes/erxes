@@ -19,7 +19,7 @@ export const useCompaniesEdit = () => {
           id: cache.identify(companiesEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field as keyof ICompany];
+              fields[field] = () => variables?.[field as keyof ICompany];
               return fields;
             },
             {},

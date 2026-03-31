@@ -36,8 +36,7 @@ export function useDepartmentAdd(
           query: GET_DEPARTMENTS_LIST,
         });
         if (
-          !existingData ||
-          !existingData.departmentsMain ||
+          !existingData?.departmentsMain ||
           !data?.departmentsAdd
         )
           return;
@@ -78,8 +77,7 @@ export function useDepartmentEdit(
           query: GET_DEPARTMENTS_LIST,
         });
         if (
-          !existingData ||
-          !existingData.departmentsMain ||
+          !existingData?.departmentsMain ||
           !data?.departmentsEdit
         )
           return;

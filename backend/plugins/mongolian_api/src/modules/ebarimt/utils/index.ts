@@ -569,7 +569,7 @@ const checkBillType = async (subdomain, config, deal) => {
         defaultValue: [],
       });
 
-      let customer = customers.find((c) => c.code && c.code.match(/^\d{8}$/g));
+      let customer = customers.find((c) => c.code?.match(/^\d{8}$/g));
 
       if (customer) {
         customerCode = customer.code || '';

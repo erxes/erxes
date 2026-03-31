@@ -71,7 +71,7 @@ export const generateOrderNumber = async (
     latestOrder = latestOrders[0];
   }
 
-  if (latestOrder && latestOrder._id) {
+  if (latestOrder?._id) {
     const parts = latestOrder.number.split('_');
 
     const suffixParts = parts[1].split('.');
@@ -79,12 +79,11 @@ export const generateOrderNumber = async (
       (suffixParts.length === 2 && suffixParts[1]) || suffixParts[0];
 
     const latestNum = Number.parseInt(latestSuffix, 10);
-    const addend =
-      (config &&
-        config.maxSkipNumber &&
-        config.maxSkipNumber > 1 &&
-        Math.round(cryptoRandom() * (config.maxSkipNumber - 1) + 1)) ||
-      1;
+    const addend = (
+      config?.maxSkipNumber &&
+      config?.maxSkipNumber > 1 &&
+      Math.round(cryptoRandom() * (config.maxSkipNumber - 1) + 1)
+    ) || 1;
 
     suffix = String(latestNum + addend).padStart(4, '0');
     number = `${todayStr}_${beginNumber}${suffix}`;
@@ -164,7 +163,7 @@ export const validateOrder = async (
     config.departmentId
   ) {
     const checkProducts = products.filter(
-      (p) => (p.isCheckRems || {})[config.token || ''] || false,
+      (p) => p.isCheckRems?.[config.token || ''] || false,
     );
 
     if (checkProducts.length) {
@@ -506,9 +505,9 @@ export const prepareOrderDoc = async (
   for (const item of items) {
     const fixedUnitPrice = Number(
       Number(
-        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-          item.unitPrice ||
-          0,
+        productsOfId[item.productId]?.prices?.[config.token] ||
+        item.unitPrice ||
+        0,
       ).toFixed(2),
     );
 
@@ -583,7 +582,7 @@ export const prepareOrderDoc = async (
       .map((cpm) => cpm.categoryId);
     const hasTakeProducIds = hasTakeItems.map((hti) => hti.productId);
     const hasTakeCatIds = hasTakeProducIds.map(
-      (htpi) => (productsOfId[htpi] || {}).categoryId,
+      (htpi) => productsOfId[htpi]?.categoryId,
     );
     const categories = await models.ProductCategories.find({
       _id: { $in: [...mapCatIds, ...hasTakeCatIds] },
@@ -635,8 +634,8 @@ export const prepareOrderDoc = async (
         const toAddItem = toAddProducts[addProduct._id];
 
         const fixedUnitPrice = Number(
-          ((addProduct.prices || {})[config.token] || 0).toFixed(2),
-        );
+          addProduct.prices?.[config.token]?.toFixed(2),
+        ) || 0;
 
         items.push({
           _id: cryptoRandom().toString(),
@@ -654,8 +653,7 @@ export const prepareOrderDoc = async (
 
   if (
     doc.type === ORDER_TYPES.DELIVERY &&
-    config.deliveryConfig &&
-    config.deliveryConfig.productId
+    config.deliveryConfig?.productId
   ) {
     const deliveryProd = await models.Products.findOne({
       _id: config.deliveryConfig.productId,
@@ -663,7 +661,7 @@ export const prepareOrderDoc = async (
 
     if (deliveryProd) {
       const deliveryUnitPrice =
-        (deliveryProd.prices || {})[config.token || ''] || 0;
+        deliveryProd.prices?.[config.token || ''] || 0;
       items.push({
         _id: cryptoRandom().toString(),
         productId: deliveryProd._id,
@@ -812,7 +810,7 @@ export const reverseItemStatus = async (
   models: IModels,
   items: IOrderItemInput[],
 ) => {
-  let newPreparedDocItems: IOrderItemInput[] = [...items];
+  const newPreparedDocItems: IOrderItemInput[] = [...items];
   try {
     const oldOrderItems = await models.OrderItems.find({
       _id: { $in: items.map((item) => item._id) },
@@ -823,7 +821,7 @@ export const reverseItemStatus = async (
           (oldItem) =>
             oldItem._id === newItem._id && oldItem.count < newItem.count,
         );
-        if (foundItem && foundItem._id) {
+        if (foundItem?._id) {
           newPreparedDocItems[index].status = ORDER_ITEM_STATUSES.CONFIRM;
 
           await models.OrderItems.updateOrderItem(foundItem._id, {

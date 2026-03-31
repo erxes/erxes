@@ -292,12 +292,12 @@ export const PosOrderSheet = () => {
                     <span className="text-base font-medium">
                       {posOrder.putResponses?.[0]?.createdAt
                         ? new Date(
-                            posOrder.putResponses[0].createdAt,
+                            posOrder.putResponses?.[0].createdAt,
                           ).toLocaleDateString()
                         : '-'}
                     </span>
                   </div>
-                  {posOrder && posOrder.items && posOrder.items.length > 0 && (
+                  {posOrder?.items?.length > 0 && (
                     <div className="rounded-md overflow-hidden">
                       <RecordTable.Provider
                         columns={itemColumns}

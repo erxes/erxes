@@ -159,7 +159,7 @@ const AddTransactionItem = ({
     );
   }
   return (
-    <DropdownMenu.Item onClick={() => onClick && onClick(journal)}>
+    <DropdownMenu.Item onClick={() => onClick?.(journal)}>
       {children}
     </DropdownMenu.Item>
   );

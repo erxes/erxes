@@ -22,8 +22,7 @@ export function useAddCategory(
         });
 
         if (
-          !existingData ||
-          !existingData.productCategories ||
+          !existingData?.productCategories ||
           !data?.productCategoriesAdd
         )
           return;
