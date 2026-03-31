@@ -118,7 +118,7 @@ export const CreateTagForm = () => {
 export function SelectTagCreateContainer({
   children,
 }: {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }) {
   const { setNewTagName } = useSelectTagsContext();
   return (
