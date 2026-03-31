@@ -23,7 +23,7 @@ export const CustomersCommandBar = () => {
         <CommandBar.Value>
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
-        <Can action="contactsUpdate">
+        <Can action="tagsTag">
           <>
             <Separator.Inline />
             <TagsSelect

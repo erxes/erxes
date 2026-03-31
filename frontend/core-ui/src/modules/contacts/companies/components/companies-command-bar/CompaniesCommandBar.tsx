@@ -17,7 +17,7 @@ export const CompaniesCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
-        <Can action="contactsUpdate">
+        <Can action="tagsTag">
           <>
             <Separator.Inline />
             <TagsSelect
