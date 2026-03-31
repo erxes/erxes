@@ -146,7 +146,9 @@ export const setSafeRemItems = async (
               _id: { $ifNull: ['$_id', nanoid()] },
               remainderId: { $ifNull: ['$remainderId', safeRemainder._id] },
               productId: { $ifNull: ['$productId', product._id] },
-              status: { $ifNull: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW] },
+              status: {
+                $ifNull: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW],
+              },
               uom: { $ifNull: ['$uom', product.uom] },
 
               preCount: newInfo.remainder,
@@ -162,18 +164,20 @@ export const setSafeRemItems = async (
                       { $not: [{ $ifNull: ['$count', false] }] },
                       {
                         $and: [
-                          { $eq: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW] },
-                          { $eq: ['$preCount', '$count'] }
-                        ]
-                      }
-                    ]
+                          {
+                            $eq: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW],
+                          },
+                          { $eq: ['$preCount', '$count'] },
+                        ],
+                      },
+                    ],
                   },
                   newInfo.remainder,
-                  '$count'
-                ]
-              }
-            }
-          }
+                  '$count',
+                ],
+              },
+            },
+          },
         ],
         upsert: true,
       },
