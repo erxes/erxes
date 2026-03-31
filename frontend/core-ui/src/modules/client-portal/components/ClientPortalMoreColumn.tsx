@@ -9,6 +9,7 @@ import {
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { useClientPortalRemove } from '@/client-portal/hooks/useClientPortalRemove';
+import { Can } from 'ui-modules';
 
 export const ClientPortalMoreColumnCell = ({
   cell,
@@ -52,9 +53,11 @@ export const ClientPortalMoreColumnCell = ({
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
+      <Can action="clientPortalManage">
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+      </Can>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>

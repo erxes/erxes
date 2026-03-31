@@ -9,7 +9,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { ISegment } from 'ui-modules';
+import { Can, ISegment } from 'ui-modules';
 import { useRemoveSegments } from '../hooks/useRemoveSegments';
 
 export const SegmentMoreColumnCell = ({
@@ -58,9 +58,11 @@ export const SegmentMoreColumnCell = ({
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
+      <Can action="segmentsManage">
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+      </Can>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>

@@ -2,7 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { CategoriesDelete } from './delete/CategoryDelete';
 import { useState } from 'react';
-import { TemplateSheet } from 'ui-modules';
+import { Can, TemplateSheet } from 'ui-modules';
 
 export const CategoryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -30,10 +30,12 @@ export const CategoryCommandBar = () => {
           onDeleteSuccess={resetSelection}
         />
         <Separator.Inline />
-        <Button variant="secondary">
-          <IconPlus />
-          Create
-        </Button>
+        <Can action="productCategoriesManage">
+          <Button variant="secondary">
+            <IconPlus />
+            Create
+          </Button>
+        </Can>
 
         <Separator.Inline />
         <TemplateSheet
