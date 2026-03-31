@@ -126,7 +126,7 @@ export const CategoryEditSheet = ({
                 <div className="space-y-4">
                   <CategoryNameField control={form.control} />
                   <CategoryCodeField control={form.control} />
-                  <CategoryParentIdField control={form.control} />
+                  <CategoryParentIdField control={form.control} branchId={category.branchId} />
                   <CategoryAttachmentField control={form.control} />
                 </div>
               </div>
