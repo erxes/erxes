@@ -207,7 +207,7 @@ const PlaceConfig: React.FC = () => {
       conditions: [
         ...prev.conditions,
         {
-          id: crypto.randomUUID?.() || Math.random().toString(36).substr(2, 9),
+          id: crypto.randomUUID(),
           branchId: '',
           departmentId: '',
         },
