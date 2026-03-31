@@ -94,5 +94,6 @@ export const queries = `
   invoiceDetail(_id: String!): Invoice
   invoiceDetailByContent(contentType: String!, contentTypeId: String!): [Invoice]
 
+  cpInvoices(${queryParams}): InvoicesListResponse
   cpInvoiceDetail(_id: String!): Invoice
 `;
