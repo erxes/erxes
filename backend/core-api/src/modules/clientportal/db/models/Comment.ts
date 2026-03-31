@@ -17,11 +17,7 @@ export interface ICPCommentsModel extends Model<ICPCommentDocument> {
   deleteComment(_id: string): Promise<void>;
 }
 
-export const loadCommentClass = (
-  models: IModels,
-  subdomain: string,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
-) => {
+export const loadCommentClass = (models: IModels, subdomain: string) => {
   class Comment {
     /**
      * Retrieves comment

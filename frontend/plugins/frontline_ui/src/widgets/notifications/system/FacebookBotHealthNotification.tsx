@@ -14,21 +14,31 @@ export const FacebookBotHealthNotificationContent = ({
   metadata,
   createdAt,
 }: TNotification) => {
-  const { t } = useTranslation();
-  const { botId, reason, statusView, statusVariant, pageValue, botValue } =
-    useFacebookBotHealthNotification({ metadata, t });
-
+  const {
+    botId,
+    reason,
+    statusView,
+    statusVariant,
+    pageValue,
+    botValue,
+    statusLabel,
+    pageLabel,
+    botLabel,
+    updatedAtLabel,
+    openBotSettingsLabel,
+  } = useFacebookBotHealthNotification({ metadata });
+  const { description, badgeLabel } = statusView;
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col px-10 py-12">
       <NotificationHeader
         title={title}
         message={message}
-        description={statusView.description}
+        description={description}
         statusView={statusView}
       />
 
       <div className="mt-5 flex items-center gap-3">
-        <Badge variant={statusVariant}>{statusView.badgeLabel}</Badge>
+        <Badge variant={statusVariant}>{badgeLabel}</Badge>
         <div className="text-sm text-muted-foreground">
           <RelativeDateDisplay value={createdAt}>
             <RelativeDateDisplay.Value value={createdAt} />
@@ -41,20 +51,11 @@ export const FacebookBotHealthNotificationContent = ({
       {reason ? <IssueCard reason={reason} /> : null}
 
       <div className="mt-6 grid gap-6 sm:grid-cols-2">
+        <DetailItem label={statusLabel} value={badgeLabel} />
+        <DetailItem label={pageLabel} value={pageValue} />
+        <DetailItem label={botLabel} value={botValue} />
         <DetailItem
-          label={t('status', { defaultValue: 'Status' })}
-          value={statusView.badgeLabel}
-        />
-        <DetailItem
-          label={t('page', { defaultValue: 'Page' })}
-          value={pageValue}
-        />
-        <DetailItem
-          label={t('bot', { defaultValue: 'Bot' })}
-          value={botValue}
-        />
-        <DetailItem
-          label={t('updatedAt', { defaultValue: 'Updated' })}
+          label={updatedAtLabel}
           value={
             <RelativeDateDisplay value={createdAt}>
               <RelativeDateDisplay.Value value={createdAt} />
@@ -75,7 +76,7 @@ export const FacebookBotHealthNotificationContent = ({
             }
           >
             <IconSettings className="size-4" />
-            {t('openBotSettings', { defaultValue: 'Open bot settings' })}
+            {openBotSettingsLabel}
           </Link>
         </Button>
       </div>
