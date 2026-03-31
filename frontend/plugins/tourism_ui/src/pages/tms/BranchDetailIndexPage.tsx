@@ -79,7 +79,7 @@ export const BranchDetailIndexPage = () => {
       });
       setActiveLang(defaultLang || '');
     }
-  }, [branchId]);
+  }, [branchId, selectedBranch?.language, availableLanguages, searchParams, setSearchParams, setActiveLang]);
 
   const onSelectLanguage = (lang: string) => {
     setSearchParams((prev) => {
