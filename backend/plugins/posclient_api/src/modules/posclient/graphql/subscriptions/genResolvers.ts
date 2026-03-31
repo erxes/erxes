@@ -9,10 +9,10 @@ export default function genResolvers() {
   const Subscription: any = {
     ...orders,
     ...orderItems,
-    ...slots
+    ...slots,
   };
 
   return {
-    Subscription
+    Subscription,
   };
 }

@@ -1,9 +1,6 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import {
-  ICleaning,
-  ICleaningDocument,
-} from '@/pms/@types/cleanings';
+import { ICleaning, ICleaningDocument } from '@/pms/@types/cleanings';
 import { cleaningSchema } from '@/pms/db/definitions/cleanings';
 
 export interface ICleaningModel extends Model<ICleaningDocument> {

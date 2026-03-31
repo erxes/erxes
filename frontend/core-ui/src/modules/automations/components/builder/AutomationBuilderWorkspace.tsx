@@ -1,10 +1,7 @@
 import { AutomationBuilderCanvas } from '@/automations/components/builder/AutomationBuilderCanvas';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationsHotKeyScope } from '@/automations/types';
-import {
-  Icon,
-  IconProps,
-} from '@tabler/icons-react';
+import { Icon, IconProps } from '@tabler/icons-react';
 import {
   Badge,
   Button,

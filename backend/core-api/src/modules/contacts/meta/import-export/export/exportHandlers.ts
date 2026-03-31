@@ -18,7 +18,6 @@ const contactExportMap = {
   },
 };
 
-
 export const contactExportHandlers: TExportHandlers = {
   getExportHeaders: async (data: any, ctx: IImportExportContext) => {
     const collectionName = data?.collectionName ?? data?.data?.collectionName;

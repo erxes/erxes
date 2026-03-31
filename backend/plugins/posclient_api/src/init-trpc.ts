@@ -1,8 +1,6 @@
 import { initTRPC } from '@trpc/server';
 
-import {
-  ITRPCContext,
-} from 'erxes-api-shared/utils';
+import { ITRPCContext } from 'erxes-api-shared/utils';
 
 import { IModels } from './connectionResolvers';
 import { posclientTrpcRouter } from '~/modules/posclient/trpc/posclient';

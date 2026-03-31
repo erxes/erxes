@@ -6,10 +6,7 @@ import {
   CreateDocumentRule,
 } from './types';
 
-export function getAllKeys(
-  obj: Record<string, any>,
-  prefix = '',
-): string[] {
+export function getAllKeys(obj: Record<string, any>, prefix = ''): string[] {
   let keys: string[] = [];
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -56,16 +53,20 @@ export function shouldProcessUpdatedDocument(
     return true;
   }
 
-  const { updated: updatedFields = {}, added: addedFields = {}, removed: removedFields = {} } =
-    payload.updateDescription || {};
+  const {
+    updated: updatedFields = {},
+    added: addedFields = {},
+    removed: removedFields = {},
+  } = payload.updateDescription || {};
 
   const hasRemovedFields = getAllKeys(removedFields).some((key) =>
     (when.fieldsRemoved || []).includes(key),
   );
 
-  const hasUpdatedFields = getAllKeys({ ...addedFields, ...updatedFields }).some((key) =>
-    (when.fieldsUpdated || []).includes(key),
-  );
+  const hasUpdatedFields = getAllKeys({
+    ...addedFields,
+    ...updatedFields,
+  }).some((key) => (when.fieldsUpdated || []).includes(key));
 
   return hasRemovedFields || hasUpdatedFields;
 }
@@ -96,4 +97,3 @@ export function shouldProcessCreateDocument(
 
   return hasFieldsExists;
 }
-

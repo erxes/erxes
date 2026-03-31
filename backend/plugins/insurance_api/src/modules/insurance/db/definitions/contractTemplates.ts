@@ -7,7 +7,7 @@ export const templateSchema = new Schema(
       required: true,
     },
     description: String,
-    
+
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'products',

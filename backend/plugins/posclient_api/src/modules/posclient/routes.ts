@@ -1,7 +1,4 @@
-import {
-  authCookieOptions,
-  getSubdomain
-} from 'erxes-api-shared/utils';
+import { authCookieOptions, getSubdomain } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
 export const posInitialSetup = async (req, res) => {

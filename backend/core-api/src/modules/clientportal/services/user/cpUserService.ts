@@ -12,9 +12,7 @@ import {
   detectIdentifierType,
   validateUserRegistration,
 } from '@/clientportal/services/helpers/validators';
-import {
-  buildUserQuery,
-} from '@/clientportal/services/helpers/queryBuilders';
+import { buildUserQuery } from '@/clientportal/services/helpers/queryBuilders';
 import { normalizeEmail } from '@/clientportal/utils';
 import {
   getCPUserByIdOrThrow,
