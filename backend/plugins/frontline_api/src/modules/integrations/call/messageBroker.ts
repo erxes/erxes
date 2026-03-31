@@ -21,7 +21,7 @@ export async function callCreateIntegration({ subdomain, data }) {
 }
 export async function callUpdateIntegration({ subdomain, data }) {
   try {
-    updateIntegration({ subdomain, data });
+    await updateIntegration({ subdomain, data });
   } catch (e) {
     return {
       status: 'error',

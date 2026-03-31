@@ -993,7 +993,7 @@ export const returnResponse = async (url, data) => {
         return { status: 200 };
       }
       try {
-        return r.json();
+        return await r.json();
       } catch (e) {
         return {
           status: 'ERROR',

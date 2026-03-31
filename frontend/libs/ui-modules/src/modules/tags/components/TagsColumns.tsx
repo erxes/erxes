@@ -212,7 +212,7 @@ export const TagMoreColumnCell: React.FC<TagMoreColumnCellProps> = ({
       options: confirmOptions,
     }).then(async () => {
       try {
-        removeTag(_id);
+        await removeTag(_id);
       } catch (e: any) {
         console.error(e.message);
       }
