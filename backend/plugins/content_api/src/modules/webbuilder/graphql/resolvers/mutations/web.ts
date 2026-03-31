@@ -29,7 +29,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
       'login',
       'register',
       'booking',
-      'inquiry'
+      'inquiry',
     ];
     const ecommercePages = [
       'products',
@@ -121,7 +121,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
         { _id },
         {
           $set: {
-            vercelProjectId: result.projectId, 
+            vercelProjectId: result.projectId,
             lastDeploymentId: result.id,
             lastDeploymentUrl: result.url,
           },
@@ -159,7 +159,8 @@ export const webBuilderMutations: Record<string, Resolver> = {
     });
     if (!web) throw new Error('Web not found');
     if (!web.projectId) throw new Error('No project found for this web');
-    if (!web.vercelProjectId) throw new Error('No vercel project id found for this web');
+    if (!web.vercelProjectId)
+      throw new Error('No vercel project id found for this web');
     return removeProject(web.vercelProjectId);
   },
 };

@@ -136,9 +136,18 @@ export const deploy = async (
   web: IWebDocument,
   models: IModels,
 ) => {
-  console.log('GITHUB_TOKEN:', getEnv({ name: 'GITHUB_TOKEN' }) ? 'set' : 'missing');
-  console.log('VERCEL_TOKEN:', getEnv({ name: 'VERCEL_TOKEN' }) ? 'set' : 'missing');
-  console.log('VERCEL_TEAM_ID:', getEnv({ name: 'VERCEL_TEAM_ID' }) ? 'set' : 'missing');
+  console.log(
+    'GITHUB_TOKEN:',
+    getEnv({ name: 'GITHUB_TOKEN' }) ? 'set' : 'missing',
+  );
+  console.log(
+    'VERCEL_TOKEN:',
+    getEnv({ name: 'VERCEL_TOKEN' }) ? 'set' : 'missing',
+  );
+  console.log(
+    'VERCEL_TEAM_ID:',
+    getEnv({ name: 'VERCEL_TEAM_ID' }) ? 'set' : 'missing',
+  );
   console.log('DOMAIN:', getEnv({ name: 'DOMAIN' }));
   console.log('web.templateId:', web.templateId);
   console.log('web.erxesAppToken:', web.erxesAppToken ? 'set' : 'missing');
@@ -207,7 +216,9 @@ export const deploy = async (
 
   // vercelProjectId is Vercel's own ID saved after first deployment.
   // Cast because the field may not be in the TypeScript type yet.
-  const existingVercelProjectId = (web as any).vercelProjectId as string | undefined;
+  const existingVercelProjectId = (web as any).vercelProjectId as
+    | string
+    | undefined;
 
   console.log('vercel projectName   (web.name slug):', projectName);
   console.log('vercel domainAlias:', domainAlias);
@@ -242,7 +253,7 @@ export const deploy = async (
     // Build env object
     const env: Record<string, string> = {
       ERXES_API_URL: `${domain}/graphql`,
-      NEXT_PUBLIC_ERXES_API_URL:`${domain}/graphql`,
+      NEXT_PUBLIC_ERXES_API_URL: `${domain}/graphql`,
       ERXES_URL: domain,
       ERXES_FILE_URL: `${domain}/read-file?key=`,
       ERXES_CP_ID: web.clientPortalId || '',
@@ -317,7 +328,11 @@ export const deploy = async (
       const isBinary = binaryExts.test(path.extname(filePath));
       const fileData = fs.readFileSync(filePath);
       return isBinary
-        ? { file: relPath, data: fileData.toString('base64'), encoding: 'base64' }
+        ? {
+            file: relPath,
+            data: fileData.toString('base64'),
+            encoding: 'base64',
+          }
         : { file: relPath, data: fileData.toString('utf8') };
     });
     console.log('total files to upload:', files.length);
@@ -346,9 +361,13 @@ export const deploy = async (
 
     if (existingVercelProjectId) {
       deploymentBody.project = existingVercelProjectId;
-      console.log(`Re-deploying into existing Vercel project: ${existingVercelProjectId}`);
+      console.log(
+        `Re-deploying into existing Vercel project: ${existingVercelProjectId}`,
+      );
     } else {
-      console.log(`First deploy — creating new Vercel project as "${projectName}"`);
+      console.log(
+        `First deploy — creating new Vercel project as "${projectName}"`,
+      );
     }
 
     console.log('calling vercel deploy api...');
@@ -390,7 +409,12 @@ export const deploy = async (
     // it explicitly every time — safe (idempotent) and guarantees the alias
     // stays present even if it was manually removed.
     const vercelProjectId = result.projectId || existingVercelProjectId;
-    console.log('assigning domain alias:', domainAlias, 'to project:', vercelProjectId);
+    console.log(
+      'assigning domain alias:',
+      domainAlias,
+      'to project:',
+      vercelProjectId,
+    );
 
     const domainRes = await fetch(
       `https://api.vercel.com/v10/projects/${vercelProjectId}/domains`,

@@ -2,7 +2,7 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-const orderQueries: Record<string, Resolver>= {
+const orderQueries: Record<string, Resolver> = {
   async bmsOrders(
     _root,
     { tourId, customerId, branchId, ...params },
@@ -58,7 +58,6 @@ const orderQueries: Record<string, Resolver>= {
 
 export default orderQueries;
 
-orderQueries.cpBmsOrders.wrapperConfig={
-  forClientPortal:true,
-}
-
+orderQueries.cpBmsOrders.wrapperConfig = {
+  forClientPortal: true,
+};
