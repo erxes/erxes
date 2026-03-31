@@ -9,6 +9,7 @@ import { categoryTotalCountAtom } from '../states/categoryCounts';
 type CategoriesQueryVariables = {
   parentId?: string;
   name?: string;
+  branchId?: string;
 };
 
 export const useCategories = (

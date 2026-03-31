@@ -268,8 +268,8 @@ export const TourEditForm = ({
         endDate: isFlexible
           ? undefined
           : normalizedStartDate && values.duration
-            ? calculateEndDate(normalizedStartDate, values.duration)
-            : undefined,
+          ? calculateEndDate(normalizedStartDate, values.duration)
+          : undefined,
         availableFrom: isFlexible ? values.availableFrom : undefined,
         availableTo: isFlexible ? values.availableTo : undefined,
         dateStatus: isFlexible
@@ -327,7 +327,10 @@ export const TourEditForm = ({
                     />
                   </div>
 
-                  <TourCategoryField control={form.control} />
+                  <TourCategoryField
+                    control={form.control}
+                    branchId={branchId}
+                  />
 
                   <TourDescriptionField
                     control={form.control}
@@ -372,13 +375,19 @@ export const TourEditForm = ({
                   </div>
                 )}
 
-                <div className="pt-4 space-y-4 border-t">
+                <div className="flex items-center">
+                  <div className="flex-1 border-t" />
+                  <Form.Label className="mx-2">More Info</Form.Label>
+                  <div className="flex-1 border-t" />
+                </div>
+
+                <div className="pt-4 space-y-4">
                   <TourImageThumbnailField control={form.control} />
                   <TourImagesField control={form.control} />
                   <TourAttachmentsField control={form.control} />
                 </div>
 
-                <div className="pt-4 space-y-4 border-t">
+                <div className="space-y-4">
                   <Tabs defaultValue="info1" className="w-full">
                     <Tabs.List className="grid grid-cols-5 w-full">
                       <Tabs.Trigger value="info1">Included</Tabs.Trigger>

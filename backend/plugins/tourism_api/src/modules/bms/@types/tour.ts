@@ -72,6 +72,7 @@ export interface ITourCategory {
   code?: string;
   order?: string;
   parentId?: string;
+  branchId?: string;
   attachment?: IAttachment;
   modifiedAt?: Date;
 }

@@ -18,12 +18,14 @@ import {
 import { useCreateCategory } from '../hooks/useCreateCategory';
 
 interface CategoryCreateSheetProps {
+  branchId?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   showTrigger?: boolean;
 }
 
 export const CategoryCreateSheet = ({
+  branchId,
   open,
   onOpenChange,
   showTrigger = true,
@@ -61,6 +63,7 @@ export const CategoryCreateSheet = ({
           code: values.code,
           ...(values.parentId &&
             values.parentId.trim() !== '' && { parentId: values.parentId }),
+          ...(branchId && { branchId }),
           ...(values.attachment && { attachment: values.attachment }),
         },
       });

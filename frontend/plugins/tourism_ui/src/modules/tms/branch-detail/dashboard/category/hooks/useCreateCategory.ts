@@ -12,6 +12,7 @@ export interface ICreateCategoryVariables {
   name?: string;
   code?: string;
   parentId?: string;
+  branchId?: string;
   attachment?: IAttachment;
 }
 

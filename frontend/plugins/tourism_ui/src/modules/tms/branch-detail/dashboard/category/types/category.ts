@@ -12,6 +12,7 @@ export interface ICategory {
   code?: string;
   tourCount?: number;
   parentId?: string;
+  branchId?: string;
   order?: string;
   attachment?: IAttachment;
 }

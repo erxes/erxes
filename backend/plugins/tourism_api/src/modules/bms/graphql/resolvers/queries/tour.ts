@@ -254,7 +254,7 @@ const tourQueries: Record<string, Resolver> = {
     return models.Tours.findById(_id);
   },
 
-  bmsTourCategories(_root, { parentId, name }, { models }: IContext) {
+  bmsTourCategories(_root, { parentId, name, branchId }, { models }: IContext) {
     const selector: any = {};
 
     if (parentId) {
@@ -265,6 +265,10 @@ const tourQueries: Record<string, Resolver> = {
 
     if (name) {
       selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    }
+
+    if (branchId) {
+      selector.branchId = branchId;
     }
 
     return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });

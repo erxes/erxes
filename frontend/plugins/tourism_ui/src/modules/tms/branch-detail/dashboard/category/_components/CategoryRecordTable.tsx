@@ -7,8 +7,10 @@ import { CategoryCommandBar } from './CategoryCommandBar';
 import { useMemo } from 'react';
 import { ICategory } from '../types/category';
 
-export const CategoryRecordTable = () => {
-  const { categories, loading } = useCategories();
+export const CategoryRecordTable = ({ branchId }: { branchId?: string }) => {
+  const { categories, loading } = useCategories({
+    variables: { branchId },
+  });
 
   const categoriesWithChildren = categories?.map((category: ICategory) => ({
     ...category,
