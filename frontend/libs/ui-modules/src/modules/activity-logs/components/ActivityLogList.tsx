@@ -67,7 +67,7 @@ export const ActivityLogList = ({
     <div className="w-full flex flex-col">
       {variant === 'backward' && canFetchMore && !loading && !reachedLimit && (
         <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
-          {[...new Array(4)].map((_, index) => (
+          {new Array(4).map((_, index) => (
             <div key={index} className="flex gap-2 items-center">
               <Skeleton className="size-6 rounded-full" />
               <Skeleton className="w-1/2 h-3" />
@@ -85,7 +85,7 @@ export const ActivityLogList = ({
       ))}
       {variant === 'forward' && canFetchMore && !loading && !reachedLimit && (
         <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
-          {[...new Array(4)].map((_, index) => (
+          {new Array(4).map((_, index) => (
             <div key={index} className="flex gap-2 items-center">
               <Skeleton className="size-6 rounded-full" />
               <Skeleton className="w-1/2 h-3" />
