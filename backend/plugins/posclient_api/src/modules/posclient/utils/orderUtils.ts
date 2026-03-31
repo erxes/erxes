@@ -131,7 +131,7 @@ export const validateOrder = async (
     throw new Error('Products missing in order. Please add products');
   }
 
-  if (!(await validDueDate(doc, order))) {
+  if (!validDueDate(doc, order)) {
     throw new Error(
       'The due date of the pre-order must be recorded in the future',
     );

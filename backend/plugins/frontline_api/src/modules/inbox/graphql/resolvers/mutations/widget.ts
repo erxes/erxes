@@ -134,7 +134,7 @@ export const getMessengerData = async (
       messengerData.hideWhenOffline &&
       messengerData.availabilityMethod === 'auto'
     ) {
-      const isOnline = await models.Integrations.isOnline(integration);
+      const isOnline = models.Integrations.isOnline(integration);
       if (!isOnline) {
         messengerData.showChat = false;
       }

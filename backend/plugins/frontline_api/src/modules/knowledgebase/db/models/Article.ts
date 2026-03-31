@@ -29,7 +29,7 @@ export interface IArticleCreate extends IArticle {
     ): void;
     incrementViewCount(
       articleId: string,
-    ): void;
+    ): Promise<void>;
   }
   
   export const loadArticleClass = (models: IModels) => {

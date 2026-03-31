@@ -302,7 +302,7 @@ export const getEditorAttributeUtil = async (subdomain: string) => {
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  const editor: any = await new EditorAttributeUtil(
+  const editor: any = new EditorAttributeUtil(
     `${DOMAIN}/gateway/pl:core`,
     services,
     subdomain,

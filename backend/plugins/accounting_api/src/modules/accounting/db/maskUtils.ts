@@ -36,7 +36,7 @@ export const checkCodeMask = async (
 
   const mask = new RegExp(maskStr, 'g');
 
-  if (await mask.test(code)) {
+  if (mask.test(code)) {
     return true;
   }
 
