@@ -407,8 +407,8 @@ export function CmsCategoryDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                  ? 'Save Changes'
-                  : 'Create Category'}
+                    ? 'Save Changes'
+                    : 'Create Category'}
               </Button>
             </div>
           </form>
