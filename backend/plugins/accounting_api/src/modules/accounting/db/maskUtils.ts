@@ -1,4 +1,4 @@
-import { IAccountCategory } from "../@types/accountCategory";
+import { IAccountCategory } from '../@types/accountCategory';
 
 export const checkCodeMask = async (
   category?: IAccountCategory,
@@ -8,10 +8,7 @@ export const checkCodeMask = async (
     return false;
   }
 
-  if (
-    !category?.maskType ||
-    !category?.mask?.values
-  ) {
+  if (!category?.maskType || !category?.mask?.values) {
     return true;
   }
 

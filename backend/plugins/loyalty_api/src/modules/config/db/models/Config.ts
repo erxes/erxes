@@ -5,7 +5,10 @@ import { IModels } from '~/connectionResolvers';
 
 export interface ILoyaltyConfigModel extends Model<ILoyaltyConfigDocument> {
   getConfig(code: string): Promise<ILoyaltyConfigDocument>;
-  createOrUpdateConfig({ code, value }: ILoyaltyConfig): Promise<ILoyaltyConfigDocument>;
+  createOrUpdateConfig({
+    code,
+    value,
+  }: ILoyaltyConfig): Promise<ILoyaltyConfigDocument>;
 }
 
 export const loadLoyaltyConfigClass = (models: IModels) => {
