@@ -36,32 +36,29 @@ export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
     }
     setSearchParams(newSearchParams);
   };
-  const submitHandler: SubmitHandler<TBranchForm> = React.useCallback(
-    async (data) => {
-      handleEdit({
-        variables: {
-          id,
-          ...data,
-        },
-        onCompleted: () => {
-          toast({
-            title: 'Success!',
-            variant: 'success',
-            description: 'Branch updated successfully',
-          });
-          methods.reset();
-          setOpen(null);
-        },
-        onError: (error) =>
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [handleEdit],
-  );
+  const submitHandler: SubmitHandler<TBranchForm> = async (data) => {
+    handleEdit({
+      variables: {
+        ...data,
+        id,
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success!',
+          variant: 'success',
+          description: 'Branch updated successfully',
+        });
+        methods.reset();
+        setOpen(null);
+      },
+      onError: (error) =>
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
 
   useEffect(() => {
     if (branchDetail) {
