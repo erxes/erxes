@@ -192,14 +192,17 @@ const fieldQueries = {
       const allFields: any[] = [];
 
       for (const group of pipelineGroups) {
+        // Prefer per-pipeline visibility; fall back to the global fieldVisibility map.
+        const pfv: Record<string, Record<string, boolean>> | undefined =
+          group.config?.pipelineFieldVisibility;
         const fv: Record<string, boolean> | undefined =
-          group.config?.fieldVisibility;
+          (pfv && pfv[pipelineId]) ?? group.config?.fieldVisibility;
 
         if (group.isDefinedByErxes) {
 
           if (fv && Object.keys(fv).length > 0) {
             const shownFieldIds = Object.keys(fv).filter(
-              (id) => fv[id] === true,
+              (id) => fv![id] === true,
             );
 
             if (shownFieldIds.length > 0) {
