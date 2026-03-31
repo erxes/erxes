@@ -1,15 +1,14 @@
-import { BoardCardProps, Separator } from 'erxes-ui';
-import { IconCalendarEventFilled } from '@tabler/icons-react';
-import { format } from 'date-fns';
-import { Button, TextOverflowTooltip } from 'erxes-ui';
-import { useAtomValue, useSetAtom, atom } from 'jotai';
-import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
+import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
 import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
 import { ticketCountByBoardAtom } from '@/ticket/states/ticketsTotalCountState';
-import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
+import { IconCalendarEventFilled } from '@tabler/icons-react';
+import { format } from 'date-fns';
+import { BoardCardProps, Button, Separator, TextOverflowTooltip } from 'erxes-ui';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 
 export const ticketBoardItemAtom = atom(
   (get) => (id: string) => get(allTicketsMapState)[id],

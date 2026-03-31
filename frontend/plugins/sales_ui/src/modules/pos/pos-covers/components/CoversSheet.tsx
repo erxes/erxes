@@ -1,17 +1,16 @@
+import { IconChessKnight, IconShoppingCart, IconTag } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
-import { IconChessKnight } from '@tabler/icons-react';
 import {
-  Sheet,
   Form,
   RecordTable,
-  TextOverflowTooltip,
   RecordTableInlineCell,
+  Sheet,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { ColumnDef } from '@tanstack/table-core';
-import { IconTag, IconShoppingCart } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router-dom';
 import { usePosCoversQuery } from '../detail/hook/usePosCoversQuery';
 
 const renderDetailValue = (value: unknown) => {

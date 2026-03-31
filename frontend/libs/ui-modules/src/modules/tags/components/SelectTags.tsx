@@ -1,3 +1,4 @@
+import { IconPlus, IconTag, IconTagPlus } from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -15,22 +16,19 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ISelectTagsProviderProps,
   ITag,
   useGiveTags,
 } from 'ui-modules/modules';
-import { IconPlus, IconTag } from '@tabler/icons-react';
-import React, { useEffect, useState } from 'react';
-
-import { SelectTagsContext } from '../contexts/SelectTagsContext';
-import { TagBadge } from './TagBadge';
 import { useDebounce } from 'use-debounce';
+import { SelectTagsContext } from '../contexts/SelectTagsContext';
 import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
-import { IconTagPlus } from '@tabler/icons-react';
 import { useTags } from '../hooks/useTags';
-import { useTranslation } from 'react-i18next';
+import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
+import { TagBadge } from './TagBadge';
 
 export const SelectTagsProvider = ({
   children,

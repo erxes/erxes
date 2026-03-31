@@ -1,11 +1,10 @@
-import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable, RecordTableInlineCell, Select } from 'erxes-ui';
-
-import { MembersInline } from 'ui-modules';
 import { useChannelMemberUpdate } from '@/channels/hooks/useChannelMemberUpdate';
 import { IChannelMember } from '@/channels/types';
-import { Cell } from '@tanstack/table-core';
+import { Cell, ColumnDef } from '@tanstack/table-core';
+import { RecordTable, RecordTableInlineCell, Select } from 'erxes-ui';
+import { MembersInline } from 'ui-modules';
 import { MemberMoreColumn } from './MemberMoreColumn';
+
 type RowType = { order: string; hasChildren: boolean } & IChannelMember;
 
 const RoleCell = ({ cell }: { cell: Cell<RowType, unknown> }) => {

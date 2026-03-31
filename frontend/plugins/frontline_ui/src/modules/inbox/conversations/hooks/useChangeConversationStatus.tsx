@@ -1,7 +1,6 @@
-import { useMutation } from '@apollo/client';
-import { CONVERSATION_CHANGE_STATUS } from '../graphql/mutations/conversationChangeStatus';
-import { MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { CONVERSATION_CHANGE_STATUS } from '../graphql/mutations/conversationChangeStatus';
 
 export const useChangeConversationStatus = () => {
   const [changeConversationStatus, { loading }] = useMutation(

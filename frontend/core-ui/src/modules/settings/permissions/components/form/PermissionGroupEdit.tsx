@@ -1,10 +1,9 @@
-import { FocusSheet, Sheet, toast } from 'erxes-ui';
-import { Button } from 'erxes-ui';
-import { useState, useCallback } from 'react';
-import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
-import { PermissionGroupForm } from './PermissionGroupForm';
 import { useEditPermissionGroup } from '@/settings/permissions/hooks/useEditPermissionGroup';
+import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { IPermissionGroup } from '@/settings/permissions/types';
+import { Button, FocusSheet, Sheet, toast } from 'erxes-ui';
+import { useCallback, useState } from 'react';
+import { PermissionGroupForm } from './PermissionGroupForm';
 
 export const PermissionGroupEdit = ({
   group,

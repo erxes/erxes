@@ -1,18 +1,16 @@
-import { useParams, useLocation } from 'react-router-dom';
+import { IconPlus, IconTags } from '@tabler/icons-react';
+import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-import { TagsRecordTable } from './components/TagsRecordTable';
-import { TagsHeader } from './components/TagsHeader';
-import { TagDrawer } from './TagDrawer';
-import { useRemoveTag } from './hooks/useRemoveTag';
-import { CmsTag } from './types/tagTypes';
-import { CmsSidebar } from '../shared/CmsSidebar';
-import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
-import { PageContainer } from 'erxes-ui';
-import { EmptyState } from '../shared/EmptyState';
-import { IconTags } from '@tabler/icons-react';
+import { useLocation, useParams } from 'react-router-dom';
 import { useTags } from '../hooks/useTags';
-import { Button, Kbd } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
+import { CmsSidebar } from '../shared/CmsSidebar';
+import { EmptyState } from '../shared/EmptyState';
+import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
+import { TagsHeader } from './components/TagsHeader';
+import { TagsRecordTable } from './components/TagsRecordTable';
+import { useRemoveTag } from './hooks/useRemoveTag';
+import { TagDrawer } from './TagDrawer';
+import { CmsTag } from './types/tagTypes';
 
 export function Tag() {
   const { websiteId } = useParams();
