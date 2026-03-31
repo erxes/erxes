@@ -332,7 +332,7 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
   }
 
   const onSave = () => {
-    if (name !== nameState) {
+    if (nameState !== name) {
       tagsEdit({
         variables: {
           id: _id,
