@@ -17,7 +17,7 @@ import {
 
 import {
   IElementTranslationModel,
-  loadElementTranslationClass 
+  loadElementTranslationClass,
 } from '@/bms/db/models/ElementTranslation';
 
 import { IItineraryModel, loadItineraryClass } from '@/bms/db/models/Itinerary';
@@ -77,7 +77,7 @@ import { IConfigDocument } from '@/pms/@types/configs';
 export interface IModels {
   Elements: IElementModel;
   ElementCategories: IElementCategoryModel;
-  ElementTranslations:IElementTranslationModel;
+  ElementTranslations: IElementTranslationModel;
   Itineraries: IItineraryModel;
   Tours: ITourModel;
   BmsTourCategories: IBmsTourCategoryModel;
@@ -120,9 +120,9 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   >('bm_element_categories', loadElementCategoryClass(models));
 
   models.ElementTranslations = db.model<
-   IElementTranslationDocument,
-   IElementTranslationModel
-   >('bm_element_translations', loadElementTranslationClass(models));
+    IElementTranslationDocument,
+    IElementTranslationModel
+  >('bm_element_translations', loadElementTranslationClass(models));
 
   models.Itineraries = db.model<IItineraryDocument, IItineraryModel>(
     'bm_itinerary',

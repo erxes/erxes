@@ -154,7 +154,11 @@ export async function getBmsListWithTranslations<T extends { _id: string }>(
     .find({ objectId: { $in: itemIds }, language: args.language })
     .lean();
 
-  const translatedList = applyTranslationsToList(list, translations, fieldMappings);
+  const translatedList = applyTranslationsToList(
+    list,
+    translations,
+    fieldMappings,
+  );
 
   return { list: translatedList, totalCount, pageInfo };
 }

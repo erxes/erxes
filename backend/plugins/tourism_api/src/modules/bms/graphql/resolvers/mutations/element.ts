@@ -31,7 +31,11 @@ const elementMutations = {
 
   bmsElementEdit: async (
     _root,
-    { _id, translations, ...doc }: { _id: string; translations?: any[] } & Partial<IElement>,
+    {
+      _id,
+      translations,
+      ...doc
+    }: { _id: string; translations?: any[] } & Partial<IElement>,
     { models }: IContext,
   ) => {
     const element = await models.Elements.updateElement(_id, doc as IElement);
@@ -74,7 +78,17 @@ const elementMutations = {
 
   bmsElementTranslationUpsert: async (
     _root,
-    { input }: { input: { objectId: string; language: string; name?: string; note?: string; cost?: number } },
+    {
+      input,
+    }: {
+      input: {
+        objectId: string;
+        language: string;
+        name?: string;
+        note?: string;
+        cost?: number;
+      };
+    },
     { models }: IContext,
   ) => {
     const element = await models.Elements.findOne({ _id: input.objectId });

@@ -9,8 +9,7 @@ export interface IElementTranslation {
 }
 
 export interface IElementTranslationDocument
-  extends IElementTranslation,
-    Document {
+  extends IElementTranslation, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

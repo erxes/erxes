@@ -1,5 +1,5 @@
-import { Resolver } from "erxes-api-shared/core-types";
-import { IContext } from "~/connectionResolvers";
+import { Resolver } from 'erxes-api-shared/core-types';
+import { IContext } from '~/connectionResolvers';
 
 const queries: Record<string, Resolver> = {
   async paymentsPublic(_root, args, { models }: IContext) {
@@ -20,7 +20,6 @@ const queries: Record<string, Resolver> = {
     return models.PaymentMethods.find(query);
   },
 
-
   async cpPaymentsPublic(_root, args, { models }: IContext) {
     const { kind, _ids, currency } = args;
     const query: any = {};
@@ -40,15 +39,14 @@ const queries: Record<string, Resolver> = {
   },
 
   async paymentsGetStripeKey(_root, args, { models }: IContext) {
-    const {_id} = args
+    const { _id } = args;
 
-    return models.PaymentMethods.getStripeKey(_id)
+    return models.PaymentMethods.getStripeKey(_id);
   },
 };
 
 export default queries;
 
-
-queries.cpPaymentsPublic.wrapperConfig={
-  forClientPortal:true,
-}
+queries.cpPaymentsPublic.wrapperConfig = {
+  forClientPortal: true,
+};

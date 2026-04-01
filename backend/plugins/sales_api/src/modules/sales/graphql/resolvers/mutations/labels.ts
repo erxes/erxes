@@ -59,7 +59,10 @@ export const pipelineLabelMutations: Record<string, Resolver> = {
     { targetId, labelIds }: { targetId: string; labelIds: string[] },
     { models }: IContext,
   ) {
-    const { oldDeal, deal } = await models.PipelineLabels.labelObject({ dealId: targetId, labelIds });
+    const { oldDeal, deal } = await models.PipelineLabels.labelObject({
+      dealId: targetId,
+      labelIds,
+    });
     const stage = await models.Stages.getStage(deal.stageId);
 
     await subscriptionWrapper(models, {
@@ -71,6 +74,6 @@ export const pipelineLabelMutations: Record<string, Resolver> = {
   },
 };
 
-pipelineLabelMutations.cpSalesPipelineLabelsAdd.wrapperConfig={
-  forClientPortal:true,
-}
+pipelineLabelMutations.cpSalesPipelineLabelsAdd.wrapperConfig = {
+  forClientPortal: true,
+};

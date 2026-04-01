@@ -88,6 +88,6 @@ tagMutations.cpTagsTag.wrapperConfig = {
   forClientPortal: true,
 };
 
-tagMutations.cpTagsAdd.wrapperConfig={
-  forClientPortal:true,
-}
+tagMutations.cpTagsAdd.wrapperConfig = {
+  forClientPortal: true,
+};

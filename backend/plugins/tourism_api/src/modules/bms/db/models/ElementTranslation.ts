@@ -6,8 +6,7 @@ import {
 } from '@/bms/@types/elementTranslation';
 import { elementTranslationSchema } from '@/bms/db/definitions/elementTranslation';
 
-export interface IElementTranslationModel
-  extends Model<IElementTranslationDocument> {
+export interface IElementTranslationModel extends Model<IElementTranslationDocument> {
   upsertTranslation(
     doc: IElementTranslation,
   ): Promise<IElementTranslationDocument>;
