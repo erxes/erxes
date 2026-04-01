@@ -23,6 +23,7 @@ import multer from 'multer';
 import tmp from 'tmp';
 import path from 'path';
 import fs from 'fs';
+import rateLimit from 'express-rate-limit';
 
 interface UploadStatus {
   id: string;
@@ -35,6 +36,18 @@ interface UploadStatus {
 
 const router: Router = Router();
 
+const readLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: 'Too many requests from this IP, please try again later.',
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  message: 'Too many upload requests from this IP, please try again later.',
+});
+
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
 interface ReadFileQuery {
@@ -46,6 +59,7 @@ interface ReadFileQuery {
 
 router.get(
   '/read-file',
+  readLimiter,
   async (
     req: Request<never, never, never, ReadFileQuery>,
     res: Response,
@@ -95,7 +109,7 @@ router.get(
   },
 );
 
-router.post('/upload-file', async (req: Request, res: Response) => {
+router.post('/upload-file', uploadLimiter, async (req: Request, res: Response) => {
   const subdomain = getSubdomain(req);
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
@@ -203,7 +217,7 @@ const chunkStore = new Map<
 >();
 
 // 1. Initialize chunked upload
-router.post('/upload-chunked/init', (req, res) => {
+router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
   const { fileName, fileSize, totalChunks } = req.body;
   const uploadId = crypto.randomUUID();
 
@@ -221,6 +235,7 @@ router.post('/upload-chunked/init', (req, res) => {
 // 2. Upload a chunk
 router.post(
   '/upload-chunked/chunk',
+  uploadLimiter,
   upload.single('chunk'),
   async (req: any, res: any) => {
     const subdomain = getSubdomain(req);
