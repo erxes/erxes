@@ -91,7 +91,7 @@ export default class Builder {
 
       pluginName: 'core',
       method: 'query',
-      module: 'segments',
+      module: 'segment',
       action: 'fetchSegment',
       input: {
         segmentId,
@@ -143,12 +143,7 @@ export default class Builder {
     ...queries: any[]
   ): Promise<{ integrationId: IIn }> {
     // filter only queries with $in field
-    const withIn = queries.filter(
-      (q) =>
-        q.integrationId &&
-        q.integrationId.$in &&
-        q.integrationId.$in.length > 0,
-    );
+    const withIn = queries.filter((q) => q.integrationId?.$in?.length);
 
     // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
     const $ins = _.pluck(withIn, 'integrationId');

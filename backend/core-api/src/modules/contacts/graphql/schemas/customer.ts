@@ -56,8 +56,6 @@ export const types = `
     links: JSON
     companies: [Company]
     getTags: [Tag]
-    webId: String
-
     cursor: String
   }
 
@@ -108,7 +106,6 @@ const queryParams = `
   segmentData: String
   emailValidationStatus:String
   status: CONTACT_STATUS
-  webId: String
 
   ${conformityQueryFields}
   ${GQL_CURSOR_PARAM_DEFS}
@@ -148,7 +145,6 @@ const fields = `
   birthDate: Date
   emailValidationStatus: String
   phoneValidationStatus: String
-  webId: String
 `;
 
 export const mutations = `

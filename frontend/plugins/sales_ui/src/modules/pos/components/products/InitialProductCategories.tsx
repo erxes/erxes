@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Label, toast } from 'erxes-ui';
-import { SelectCategory } from 'ui-modules';
+import { SelectCategory } from '@/pos/hooks/SelectCategory';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
@@ -12,24 +12,24 @@ interface InitialProductCategoriesProps {
 export const InitialProductCategories: React.FC<
   InitialProductCategoriesProps
 > = ({ posId }) => {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
 
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
-    if (hasChanges || selectedCategoryId) {
+    if (hasChanges || selectedCategoryIds.length) {
       return;
     }
 
     if (posDetail?.initialCategoryIds?.length) {
-      setSelectedCategoryId(posDetail.initialCategoryIds[0]);
+      setSelectedCategoryIds(posDetail.initialCategoryIds);
     }
-  }, [posDetail, hasChanges, selectedCategoryId]);
+  }, [posDetail, hasChanges, selectedCategoryIds]);
 
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryId(categoryId);
+  const handleCategorySelect = (value: string | string[]) => {
+    setSelectedCategoryIds(Array.isArray(value) ? value : value ? [value] : []);
     setHasChanges(true);
   };
 
@@ -43,10 +43,10 @@ export const InitialProductCategories: React.FC<
       return;
     }
 
-    if (!selectedCategoryId) {
+    if (!selectedCategoryIds.length) {
       toast({
         title: 'Error',
-        description: 'Please select a category',
+        description: 'Please select categories',
         variant: 'destructive',
       });
       return;
@@ -56,20 +56,20 @@ export const InitialProductCategories: React.FC<
       await posEdit({
         variables: {
           _id: posId,
-          initialCategoryIds: [selectedCategoryId],
+          initialCategoryIds: selectedCategoryIds,
         },
       });
 
       toast({
         title: 'Success',
-        description: 'Initial product category saved successfully',
+        description: 'Initial product categories saved successfully',
       });
 
       setHasChanges(false);
     } catch {
       toast({
         title: 'Error',
-        description: 'Failed to save initial product category',
+        description: 'Failed to save initial product categories',
         variant: 'destructive',
       });
     }
@@ -92,10 +92,12 @@ export const InitialProductCategories: React.FC<
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Product Category</Label>
+        <Label>Product Categories</Label>
         <SelectCategory
-          selected={selectedCategoryId}
-          onSelect={handleCategorySelect as any}
+          mode="multiple"
+          value={selectedCategoryIds}
+          onValueChange={handleCategorySelect}
+          placeholder="Select initial product categories"
         />
       </div>
 

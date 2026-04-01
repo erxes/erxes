@@ -4,9 +4,9 @@ import {
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
-import { isInSegment } from '@/utils/isInSegment';
-import { executeActions } from '@/executions/executeActions';
-import { TIfActionConfig } from '@/types';
+import { isInSegment } from '../../utils/isInSegment';
+import { executeActions } from '../executeActions';
+import { TIfActionConfig } from '../../types';
 
 /**
  * Executes an if condition action by checking if target is in segment

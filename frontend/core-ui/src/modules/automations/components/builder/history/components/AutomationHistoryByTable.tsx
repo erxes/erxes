@@ -14,7 +14,6 @@ import {
   IAutomationHistoryAction,
   splitAutomationNodeType,
 } from 'ui-modules';
-import { useAutomationExecutionDetail } from '../hooks/useAutomationExecutionDetail';
 
 export const ExecutionActionResult = ({
   action,

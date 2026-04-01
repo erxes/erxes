@@ -1,11 +1,7 @@
-import { IContext } from "~/connectionResolvers";
-import { VAT_ROW_STATUS } from "@/accounting/@types/vatRow";
+import { IContext } from '~/connectionResolvers';
+import { VAT_ROW_STATUS } from '@/accounting/@types/vatRow';
 
-const generateFilterCat = async ({
-  kinds,
-  searchValue,
-  status,
-}) => {
+const generateFilterCat = async ({ kinds, searchValue, status }) => {
   const filter: any = {};
   filter.status = { $nin: [VAT_ROW_STATUS.DELETED] };
 
@@ -26,21 +22,19 @@ const generateFilterCat = async ({
 };
 
 const vatRowQueries = {
-  async vatRows(
-    _root,
-    { kinds, searchValue, status },
-    { models }: IContext,
-  ) {
+  async vatRows(_root, { kinds, searchValue, status }, { models }: IContext) {
     const filter = await generateFilterCat({
       kinds,
       status,
-      searchValue
+      searchValue,
     });
 
     const sortParams: any = { number: 1 };
 
-    return await models.VatRows.find(filter).sort(sortParams)
-      .collation({ locale: "en", numericOrdering: true }).lean();
+    return await models.VatRows.find(filter)
+      .sort(sortParams)
+      .collation({ locale: 'en', numericOrdering: true })
+      .lean();
   },
 
   async vatRowsCount(
@@ -60,7 +54,5 @@ const vatRowQueries = {
     return models.VatRows.findOne({ _id }).lean();
   },
 };
-
-// checkPermission(vatRowQueries, 'vatRows', 'showVatRows', []);
 
 export default vatRowQueries;

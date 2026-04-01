@@ -124,5 +124,5 @@ export const pageMoreColumn = (
       onRefetch={onRefetch}
     />
   ),
-  size: 20,
+  size: 33,
 });

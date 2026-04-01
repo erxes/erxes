@@ -1,8 +1,12 @@
-FROM node:22-alpine AS base
-WORKDIR /erxespos/
-RUN chown -R node:node /erxespos
-COPY --chown=node:node . /erxespos
-USER node
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json ./
+RUN npm install
+COPY . .
 RUN npm run build
-ENTRYPOINT [ "sh", "./docker-entrypoint.sh" ]
-CMD [ "npm", "start" ]
+
+FROM node:22-alpine
+WORKDIR /app
+COPY --from=build /app ./
+ENTRYPOINT ["sh", "./docker-entrypoint.sh"]
+CMD ["npm", "start"]

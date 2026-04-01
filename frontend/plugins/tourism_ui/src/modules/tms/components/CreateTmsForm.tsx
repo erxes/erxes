@@ -1,6 +1,6 @@
 import { TmsCreateSheetHeader } from '@/tms/components/CreateTmsSheet';
 
-import { Sheet, Form, Preview, Separator, Spinner, Resizable } from 'erxes-ui';
+import { Sheet, Form, Spinner } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { TmsFormSchema, TmsFormType } from '@/tms/constants/formSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -45,6 +45,8 @@ const CreateTmsForm = ({
     color,
     logo,
     favIcon,
+    language,
+    mainLanguage,
     generalManager,
     managers,
     payment,
@@ -59,6 +61,8 @@ const CreateTmsForm = ({
       color: color || '#4F46E5',
       logo: logo || '',
       favIcon: favIcon || '',
+      language: Array.isArray(language) ? language : [],
+      mainLanguage: mainLanguage || '',
       generalManager: Array.isArray(generalManager) ? generalManager : [],
       managers: Array.isArray(managers) ? managers : [],
       payment: Array.isArray(payment) ? payment : [],
@@ -90,6 +94,8 @@ const CreateTmsForm = ({
         paymentIds,
         erxesAppToken,
         permissionConfig,
+        language: mainLanguageFromDetail,
+        languages,
       } = branchDetail;
 
       const updatedFormData = {
@@ -97,6 +103,13 @@ const CreateTmsForm = ({
         color: uiOptions?.colors?.primary || '#4F46E5',
         logo: uiOptions?.logo || '',
         favIcon: uiOptions?.favIcon || '',
+        language: Array.isArray(languages)
+          ? languages.filter((code): code is string => typeof code === 'string')
+          : [],
+        mainLanguage:
+          typeof mainLanguageFromDetail === 'string'
+            ? mainLanguageFromDetail
+            : '',
         generalManager: generalManagerIds || [],
         managers: managerIds || [],
         payment: Array.isArray(paymentIds)
@@ -122,7 +135,7 @@ const CreateTmsForm = ({
   }
 
   return (
-    <Sheet.View className="p-0 sm:max-w-8xl">
+    <Sheet.View className="p-0 w-[700px] md:w-[700px] sm:max-w-[700px] h-full">
       {isEditMode ? (
         <Sheet.Header>
           <Sheet.Title>Edit Tour Management System</Sheet.Title>
@@ -135,14 +148,10 @@ const CreateTmsForm = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex flex-col h-full"
+          className="flex flex-col w-full h-full"
         >
-          <Resizable.PanelGroup direction="horizontal">
-            <Resizable.Panel
-              className="flex flex-col"
-              defaultSize={100}
-              minSize={30}
-            >
+          <div className="flex flex-col w-full h-full min-h-0">
+            <div className="flex flex-col w-full h-full min-h-0">
               <TmsInformationFields
                 form={form}
                 onOpenChange={onOpenChange}
@@ -150,23 +159,8 @@ const CreateTmsForm = ({
                 isLoading={isLoading}
                 isOpen={isOpen}
               />
-            </Resizable.Panel>
-
-            <Resizable.Handle className="hidden md:flex" />
-            <Resizable.Panel
-              className="hidden flex-col h-full md:flex"
-              defaultSize={100}
-              minSize={30}
-            >
-              <Preview>
-                <div className="bg-background">
-                  <Preview.Toolbar path="/tourism/tms/PreviewPage?inPreview=true" />
-                </div>
-                <Separator />
-                <Preview.View iframeSrc="/tourism/tms/PreviewPage?inPreview=true" />
-              </Preview>
-            </Resizable.Panel>
-          </Resizable.PanelGroup>
+            </div>
+          </div>
         </form>
       </Form>
     </Sheet.View>

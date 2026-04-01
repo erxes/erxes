@@ -1,4 +1,3 @@
-import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { SAFE_REMAINDER_ITEM_STATUSES } from '~/modules/inventories/@types/constants';
 
@@ -9,14 +8,16 @@ const safeRemainderItemMutations = {
       _id: string;
       status?: string;
       remainder: number;
+      trInfo?: any;
     },
     { models, user }: IContext,
   ) {
-    const { _id, status, remainder } = params;
+    const { _id, status, remainder, trInfo } = params;
 
     const doc = {
       count: remainder,
       status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
+      trInfo,
     };
 
     return await models.SafeRemainderItems.updateItem(_id, doc, user._id);
@@ -30,7 +31,5 @@ const safeRemainderItemMutations = {
     return models.SafeRemainderItems.removeItems(ids);
   },
 };
-
-moduleCheckPermission(safeRemainderItemMutations, 'manageRemainders');
 
 export default safeRemainderItemMutations;

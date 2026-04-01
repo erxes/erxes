@@ -43,6 +43,7 @@ export const usePosSummaryVariables = (
       user,
       pos,
       types,
+      groupField,
       status,
       excludeStatus,
       paidDateRange,
@@ -55,6 +56,7 @@ export const usePosSummaryVariables = (
     user: string;
     pos: string;
     types: string;
+    groupField: string;
     status: string;
     excludeStatus: string;
     paidDateRange: string;
@@ -66,6 +68,7 @@ export const usePosSummaryVariables = (
     'user',
     'pos',
     'types',
+    'groupField',
     'status',
     'excludeStatus',
     'paidDateRange',
@@ -75,7 +78,7 @@ export const usePosSummaryVariables = (
 
   return {
     perPage: POS_PER_PAGE,
-    ...(posId && { posId }),
+    posId: posId !== undefined ? posId : pos || undefined,
     search: (() => {
       const searchParts = [];
       if (searchValue) searchParts.push(searchValue);
@@ -84,8 +87,8 @@ export const usePosSummaryVariables = (
     })(),
     customerId: customer || company || undefined,
     userId: user || undefined,
-    posId: pos || undefined,
     types: types && types !== 'all' ? [types] : undefined,
+    groupField: groupField && groupField !== 'all' ? groupField : undefined,
     statuses: status && status !== 'all' ? [status] : undefined,
     excludeStatuses:
       excludeStatus && excludeStatus !== 'all' ? [excludeStatus] : undefined,
@@ -124,6 +127,7 @@ export const usePosSummaryList = (
           cashAmount: item.cashAmount || 0,
           mobileAmount: item.mobileAmount || 0,
           invoice: item.invoice || 0,
+          qpayAmount: item.qpayAmount || 0,
         },
       })) || [],
     [data?.posOrdersGroupSummary?.amounts],

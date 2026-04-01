@@ -1,4 +1,3 @@
-import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
 import {
   escapeRegExp,
   paginate,
@@ -102,7 +101,5 @@ const reserveRemsQueries = {
     return await models.ReserveRems.find(filter).countDocuments();
   },
 };
-
-moduleCheckPermission(reserveRemsQueries, 'manageRemainders');
 
 export default reserveRemsQueries;

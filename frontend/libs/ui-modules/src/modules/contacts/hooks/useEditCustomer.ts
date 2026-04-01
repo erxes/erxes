@@ -20,7 +20,7 @@ export const useCustomerEdit = () => {
       optimisticResponse: {
         customersEdit: {
           ...variables,
-          __typename:"Customer"
+          __typename: 'Customer',
         },
       },
       update: (cache, { data: { customersEdit } }) => {
@@ -28,7 +28,7 @@ export const useCustomerEdit = () => {
           id: cache.identify(customersEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field as keyof ICustomer];
+              fields[field] = () => variables?.[field as keyof ICustomer];
               return fields;
             },
             {},

@@ -1,4 +1,4 @@
-import { OutgoingAuthConfig, OutgoingHeaderItem, OutgoingRetryOptions, TOutgoinWebhookActionConfig } from '@/types';
+import { OutgoingAuthConfig, OutgoingHeaderItem, OutgoingRetryOptions, TOutgoinWebhookActionConfig } from '../../../../types';
 import * as https from 'https';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import jwt from 'jsonwebtoken';

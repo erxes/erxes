@@ -7,6 +7,7 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
+import { Can } from 'ui-modules';
 import { useProductRulesRemove } from '@/products/settings/hooks/useProductRulesRemove';
 
 export const ProductRuleCommandBar = () => {
@@ -50,14 +51,16 @@ export const ProductRuleCommandBar = () => {
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <Button
-          variant="secondary"
-          className="text-destructive"
-          onClick={handleDelete}
-        >
-          <IconTrash />
-          Delete
-        </Button>
+        <Can action="productRulesManage">
+          <Button
+            variant="secondary"
+            className="text-destructive"
+            onClick={handleDelete}
+          >
+            <IconTrash />
+            Delete
+          </Button>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

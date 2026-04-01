@@ -6,6 +6,19 @@ import {
 import { useState } from 'react';
 import { IconTypography, IconCheck } from '@tabler/icons-react';
 
+interface FontStyles {
+  fontFamily?: string;
+}
+
+interface BlockSpecConfig {
+  config?: { isFileBlock?: boolean };
+}
+
+interface EditorWithFontFamily {
+  addStyles(styles: FontStyles): void;
+  removeStyles(styles: FontStyles): void;
+}
+
 const FONT_FAMILIES = [
   { name: 'Default', value: '' },
   { name: 'Arial', value: 'Arial, sans-serif' },
@@ -34,12 +47,20 @@ export const FontFamilyButton = () => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
   const [currentFont, setCurrentFont] = useState('');
+  const [isFileBlock, setIsFileBlock] = useState(false);
 
   useEditorContentOrSelectionChange(() => {
     if (!editor) return;
     try {
-      const styles = editor.getActiveStyles() as any;
+      const styles = editor.getActiveStyles() as FontStyles;
       setCurrentFont(styles?.fontFamily || '');
+      const block = editor.getTextCursorPosition()?.block;
+      const blockSpecs = editor.schema.blockSpecs as Record<
+        string,
+        BlockSpecConfig
+      >;
+      const blockSpec = block ? blockSpecs[block.type] : null;
+      setIsFileBlock(!!blockSpec?.config?.isFileBlock);
     } catch {
       // ignore
     }
@@ -49,10 +70,11 @@ export const FontFamilyButton = () => {
     if (!editor) return;
 
     try {
+      const typedEditor = editor as unknown as EditorWithFontFamily;
       if (fontValue === '') {
-        (editor as any).removeStyles({ fontFamily: '' });
+        typedEditor.removeStyles({ fontFamily: '' });
       } else {
-        (editor as any).addStyles({ fontFamily: fontValue });
+        typedEditor.addStyles({ fontFamily: fontValue });
       }
       editor.focus();
     } catch (error) {
@@ -60,7 +82,7 @@ export const FontFamilyButton = () => {
     }
   };
 
-  if (!Components) {
+  if (!Components || isFileBlock) {
     return null;
   }
 

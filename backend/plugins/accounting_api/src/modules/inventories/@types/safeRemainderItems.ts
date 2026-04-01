@@ -14,7 +14,7 @@ export interface ISafeRemainderItem {
   trInfo: {
     unitCost?: number;
     isSale?: boolean;
-    salePrice?: number;
+    unitPrice?: number;
   };
 }
 

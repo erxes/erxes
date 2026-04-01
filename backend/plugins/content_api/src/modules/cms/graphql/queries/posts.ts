@@ -27,26 +27,23 @@ class PostQueryResolver extends BaseQueryResolver {
   /**
    * Cms post
    */
+
   async cmsPost(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
     const { _id, slug, language, clientPortalId } = args;
 
-    if (!_id && !slug) {
-      return null;
-    }
+    if (!_id && !slug) return null;
 
-    let query: any = {};
-    if (slug) {
-      query = { slug, clientPortalId };
-    } else if (_id) {
-      query = { _id };
-    }
+    const query = slug ? { slug, clientPortalId } : { _id };
 
+    // clientPortalId must be passed explicitly — admin queries have no
+    // clientPortal in context, so the base resolver cannot fall back to it.
     return this.getItemWithTranslation(
       models.Posts,
       query,
       language,
       FIELD_MAPPINGS.POST,
+      clientPortalId,
     );
   }
 
@@ -59,24 +56,26 @@ class PostQueryResolver extends BaseQueryResolver {
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+
     const { dateField, dateFrom, dateTo } = args;
     if (dateField && (dateFrom || dateTo)) {
       if (
-        dateField === 'createdAt' ||
-        dateField === 'updatedAt' ||
-        dateField === 'scheduledDate'
+        ['createdAt', 'updatedAt', 'scheduledDate', 'publishedDate'].includes(
+          dateField,
+        )
       ) {
-        const existingConditions =
+        const existing =
           query[dateField] && typeof query[dateField] === 'object'
             ? query[dateField]
             : {};
         query[dateField] = {
-          ...existingConditions,
+          ...existing,
           ...(dateFrom ? { $gte: dateFrom } : {}),
           ...(dateTo ? { $lte: dateTo } : {}),
         };
       }
     }
+
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Posts,
       query,
@@ -92,9 +91,9 @@ class PostQueryResolver extends BaseQueryResolver {
     args: any,
     context: IContext,
   ): Promise<any> {
-    const { postId } = args;
+    const { objectId, type = 'post' } = args;
     const { models } = context;
-    return models.Translations.find({ postId });
+    return models.Translations.find({ objectId, type });
   }
 
   async cpPosts(_parent: any, args: any, context: IContext): Promise<any> {
@@ -105,9 +104,7 @@ class PostQueryResolver extends BaseQueryResolver {
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    if (webId) {
-      (query as any).webId = webId;
-    }
+    if (webId) (query as any).webId = webId;
 
     const { list } = await this.getListWithTranslations(
       models.Posts,
@@ -127,9 +124,7 @@ class PostQueryResolver extends BaseQueryResolver {
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    if (webId) {
-      (query as any).webId = webId;
-    }
+    if (webId) (query as any).webId = webId;
 
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Posts,
@@ -169,22 +164,16 @@ class PostQueryResolver extends BaseQueryResolver {
     const { clientPortal, models } = context;
     const { _id, slug, language } = args;
 
-    if (!_id && !slug) {
-      return null;
-    }
+    if (!_id && !slug) return null;
 
-    let query: any = {};
-    if (slug) {
-      query = { slug, clientPortalId: clientPortal._id };
-    } else if (_id) {
-      query = { _id };
-    }
+    const query = slug ? { slug, clientPortalId: clientPortal._id } : { _id };
 
     return this.getItemWithTranslation(
       models.Posts,
       query,
       language,
       FIELD_MAPPINGS.POST,
+      clientPortal._id,
     );
   }
 }

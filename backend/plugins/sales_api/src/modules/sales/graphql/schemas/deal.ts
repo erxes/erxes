@@ -69,7 +69,6 @@ const queryParams = `
   resolvedDayBetween:[Int]
   relationType: String
   relationId: String
-  webId: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -132,8 +131,6 @@ export const types = `
     products: [Product]
     productsData: JSON
     paymentsData: JSON
-
-    webId: String
 
     cursor: String
   }
@@ -236,4 +233,8 @@ export const mutations = `
   dealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
+
+  cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
+  cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
+
 `;

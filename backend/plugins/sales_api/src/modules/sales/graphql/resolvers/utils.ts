@@ -331,28 +331,25 @@ export const changeItemStatus = async (
   user: any,
   {
     item,
+    oldDeal,
     status,
     processId,
     stage,
   }: {
     item: any;
+    oldDeal?: IDealDocument;
     status: string;
     processId: string;
     stage: IStageDocument;
   },
 ) => {
   if (status === 'archived') {
-    // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-    //   salesPipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     processId,
-    //     action: "itemRemove",
-    //     data: {
-    //       item,
-    //       oldStageId: item.stageId,
-    //     },
-    //   },
-    // });
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: item,
+      oldDeal,
+      pipelineId: stage.pipelineId,
+    });
 
     return;
   }

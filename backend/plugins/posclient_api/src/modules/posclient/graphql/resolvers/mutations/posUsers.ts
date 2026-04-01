@@ -37,7 +37,6 @@ const posUserMutations = {
     };
 
     const user = await models.PosUsers.createUser(doc);
-    console.log('user', user);
 
     return 'success';
   },

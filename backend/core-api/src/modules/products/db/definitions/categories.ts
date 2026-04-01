@@ -42,7 +42,6 @@ export const productCategorySchema = schemaWrapper(
         type: [{ id: String, groupId: String, fieldId: String, title: String }],
         optional: true,
       },
-      webId: { type: String, optional: true, label: 'Web ID' },
     },
     {
       timestamps: true,

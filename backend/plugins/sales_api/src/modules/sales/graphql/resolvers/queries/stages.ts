@@ -45,7 +45,16 @@ export const stageQueries: Record<string, Resolver> = {
       filter.$or = [
         { visibility: { $in: ['public', null] } },
         {
-          $and: [{ visibility: 'private' }, { memberIds: { $in: [user._id] } }],
+          $and: [
+            { visibility: 'private' },
+            {
+              $or: [
+                { memberIds: { $in: [user._id] } },
+                { canMoveMemberIds: { $in: [user._id] } },
+                { canEditMemberIds: { $in: [user._id] } },
+              ],
+            },
+          ],
         },
       ];
 
@@ -105,7 +114,16 @@ export const stageQueries: Record<string, Resolver> = {
       filter.$or = [
         { visibility: { $in: ['public', null] } },
         {
-          $and: [{ visibility: 'private' }, { memberIds: { $in: [user._id] } }],
+          $and: [
+            { visibility: 'private' },
+            {
+              $or: [
+                { memberIds: { $in: [user._id] } },
+                { canMoveMemberIds: { $in: [user._id] } },
+                { canEditMemberIds: { $in: [user._id] } },
+              ],
+            },
+          ],
         },
       ];
 
@@ -182,8 +200,6 @@ export const stageQueries: Record<string, Resolver> = {
     return models.Stages.countDocuments(filter);
   },
 };
-
-// moduleRequireLogin(stageQueries);
 
 stageQueries.cpSalesStages.wrapperConfig = {
   forClientPortal: true,

@@ -81,8 +81,10 @@ export const userMutations: Record<string, Resolver> = {
   async usersResetMemberPassword(
     _parent: undefined,
     args: { _id: string; newPassword: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersResetPassword');
+
     return models.Users.resetMemberPassword(args);
   },
 
@@ -100,8 +102,16 @@ export const userMutations: Record<string, Resolver> = {
   /*
    * Update user
    */
-  async usersEdit(_parent: undefined, args: IUsersEdit, { models }: IContext) {
+  async usersEdit(
+    _parent: undefined,
+    args: IUsersEdit,
+    { user, models, checkPermission }: IContext,
+  ) {
     const { _id, ...doc } = args;
+
+    if (user._id !== _id) {
+      await checkPermission('teamMembersUpdate', _id);
+    }
 
     let updatedDoc = doc;
 
@@ -173,8 +183,10 @@ export const userMutations: Record<string, Resolver> = {
   async usersSetActiveStatus(
     _parent: undefined,
     { _id }: { _id: string },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersRemove');
+
     if (user._id === _id) {
       throw new Error('You can not delete yourself');
     }
@@ -197,8 +209,10 @@ export const userMutations: Record<string, Resolver> = {
         password: string;
       }>;
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersInvite');
+
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
 

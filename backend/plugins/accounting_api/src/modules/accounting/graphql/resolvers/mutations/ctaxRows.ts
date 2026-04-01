@@ -1,18 +1,13 @@
-import { IContext } from "~/connectionResolvers";
-import { ICtaxRow } from "@/accounting/@types/ctaxRow";
+import { IContext } from '~/connectionResolvers';
+import { ICtaxRow } from '@/accounting/@types/ctaxRow';
 
 const ctaxRowsMutations = {
   /**
    * Creates a new account category
    * @param {Object} doc Account category document
    */
-  async ctaxRowsAdd(
-    _root,
-    doc: ICtaxRow,
-    { models }: IContext,
-  ) {
-    const ctaxRow =
-      await models.CtaxRows.createCtaxRow(doc);
+  async ctaxRowsAdd(_root, doc: ICtaxRow, { models }: IContext) {
+    const ctaxRow = await models.CtaxRows.createCtaxRow(doc);
 
     return ctaxRow;
   },
@@ -30,10 +25,7 @@ const ctaxRowsMutations = {
     await models.CtaxRows.getCtaxRow({
       _id,
     });
-    const updated = await models.CtaxRows.updateCtaxRow(
-      _id,
-      doc,
-    );
+    const updated = await models.CtaxRows.updateCtaxRow(_id, doc);
     return updated;
   },
 
@@ -47,16 +39,12 @@ const ctaxRowsMutations = {
     { models }: IContext,
   ) {
     await models.CtaxRows.find({
-      _id: { $in: ctaxRowIds }
+      _id: { $in: ctaxRowIds },
     }).lean();
     const removed = await models.CtaxRows.removeCtaxRows(ctaxRowIds);
 
     return removed;
   },
 };
-
-// checkPermission(ctaxRowsMutations, 'ctaxRowsAdd', 'manageCtaxRows');
-// checkPermission(ctaxRowsMutations, 'ctaxRowsEdit', 'manageCtaxRows');
-// checkPermission(ctaxRowsMutations, 'ctaxRowsRemove', 'manageCtaxRows');
 
 export default ctaxRowsMutations;

@@ -33,7 +33,7 @@ const resolvers = {
         subdomain,
 
         pluginName: 'core',
-        module: 'company',
+        module: 'companies',
         action: 'findOne',
         input: { _id: order.customerId },
       });
@@ -68,7 +68,7 @@ const resolvers = {
       return {
         _id: user._id,
         code: user.code,
-        primaryPhone: (user.details && user.details.operatorPhone) || '',
+        primaryPhone: user.details?.operatorPhone || '',
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         primaryEmail: user.email,
         lastName: user.username,
@@ -107,7 +107,7 @@ const resolvers = {
       return true;
     }
     const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
-    if (!erkhetConfig || !erkhetConfig.apiToken) {
+    if (!erkhetConfig?.apiToken) {
       return true;
     }
     return order.syncedErkhet;
@@ -134,14 +134,15 @@ const resolvers = {
       return null;
     }
 
-    return await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'findOne',
       input: { _id: order.convertDealId },
     });
+    return response?.data;
   },
 
   async dealLink(order: IPosOrderDocument, _, { subdomain }: IContext) {
@@ -149,14 +150,15 @@ const resolvers = {
       return null;
     }
 
-    return await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'getLink',
       input: { _id: order.convertDealId, type: 'deal' },
     });
+    return response?.data;
   },
 };
 

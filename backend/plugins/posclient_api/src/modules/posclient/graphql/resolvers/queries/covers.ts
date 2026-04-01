@@ -11,8 +11,8 @@ const coverQueries = {
       selector.userId = userId;
     }
 
-    if (!config.adminIds.includes(posUser?._id || '')) {
-      selector.userId = posUser?._id;
+    if (posUser && !(config.adminIds || []).includes(posUser._id)) {
+      selector.userId = posUser._id;
     }
 
     const dateQry: any = {};
@@ -89,6 +89,34 @@ const coverQueries = {
     }
 
     return result;
+  },
+  async posCovers(_root, params, { models, config }: IContext) {
+    const selector: any = { posToken: config.token };
+
+    const { startDate, endDate, userId } = params;
+
+    if (userId) {
+      selector.userId = userId;
+    }
+
+    const dateQry: any = {};
+
+    if (startDate) {
+      dateQry.$gte = getPureDate(startDate);
+    }
+
+    if (endDate) {
+      dateQry.$lte = getPureDate(endDate);
+    }
+
+    if (Object.keys(dateQry).length) {
+      selector.endDate = dateQry;
+    }
+
+    return paginate(
+      models.Covers.find(selector).sort({ createdAt: -1 }).lean(),
+      { ...params },
+    );
   },
 };
 

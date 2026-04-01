@@ -9,6 +9,14 @@ export const types = `
     fontMono: String
   }
 
+  type WebDeploymentResult {
+    status: String!
+    deploymentUrl: String
+    domains: [String]
+    webname: String!
+    errorReason: String
+  }
+
   type Integrations {
     googleAnalytics: String
     facebookPixel: String
@@ -40,6 +48,7 @@ export const types = `
     integrations: Integrations
     environmentVariables: [EnvironmentVariable]
     projectId: String
+    vercelProjectId: String
     lastDeploymentId: String
     lastDeploymentUrl: String
     createdAt: Date
@@ -115,7 +124,7 @@ export const queries = `
 
   cpGetWebDetail(_id: String!): Web
   cpGetDomains(_id: String!): JSON
-  cpGetDeploymentEvents(_id: String!): JSON
+  cpGetDeploymentEvents(_id: String!): WebDeploymentResult
 `;
 
 export const mutations = `

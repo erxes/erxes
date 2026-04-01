@@ -52,7 +52,7 @@ interface ImapConversationDetailResponse {
 ===================== */
 
 const formatEmails = (emails?: EmailAddress[]) => {
-  if (!emails || !emails.length) return '';
+  if (!emails?.length) return '';
   return emails.map((e) => e.email).join(', ');
 };
 

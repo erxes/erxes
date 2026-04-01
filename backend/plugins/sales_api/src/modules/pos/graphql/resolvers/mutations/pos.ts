@@ -129,7 +129,7 @@ const posMutations = {
       });
     }
 
-    if (bulkOps && bulkOps.length) {
+    if (bulkOps?.length) {
       await models.PosSlots.bulkWrite(bulkOps);
     }
 
@@ -142,9 +142,5 @@ const posMutations = {
     return updatedSlots;
   },
 };
-
-// checkPermission(posMutations, 'posAdd', 'managePos');
-// checkPermission(posMutations, 'posEdit', 'managePos');
-// checkPermission(posMutations, 'posRemove', 'managePos');
 
 export default posMutations;

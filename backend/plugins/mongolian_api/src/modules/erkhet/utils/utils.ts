@@ -45,7 +45,7 @@ export const sendCardInfo = async (subdomain, deal, config, value) => {
   await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
-    module: 'deals',
+    module: 'deal',
     method: 'mutation',
     action: 'updateOne',
     input: {
@@ -58,7 +58,7 @@ export const sendCardInfo = async (subdomain, deal, config, value) => {
   await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
-    module: 'deals',
+    module: 'deal',
     method: 'mutation',
     action: 'updateOne',
     input: {

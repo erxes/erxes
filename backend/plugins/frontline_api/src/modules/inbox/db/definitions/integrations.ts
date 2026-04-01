@@ -6,7 +6,7 @@ import {
   LEAD_SUCCESS_ACTIONS,
   MESSENGER_DATA_AVAILABILITY,
 } from './constants';
-import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
+import { schemaWrapper } from 'erxes-api-shared/utils';
 
 export interface IAttachment {
   name: string;
@@ -289,6 +289,7 @@ export const integrationSchema = schemaWrapper(
     _id: { type: String, label: '_id' },
     createdUserId: { type: String, label: 'Created by' },
     channelId: { type: String, label: 'Channel id' },
+    brandId: { type: String, label: 'Brand id' },
     kind: {
       type: String,
       label: 'Kind',

@@ -3,9 +3,10 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 
 import { IBranchDocument } from '@/bms/@types/branch';
 import { IElementCategoryDocument } from '@/bms/@types/element';
+import { IElementTranslationDocument } from './modules/bms/@types/elementTranslation';
 import { IItineraryDocument } from '@/bms/@types/itinerary';
 import { IOrderDocument } from '@/bms/@types/order';
-import { ITourDocument } from '@/bms/@types/tour';
+import { ITourCategoryDocument, ITourDocument } from '@/bms/@types/tour';
 import { IBranchModel, loadBranchClass } from '@/bms/db/models/Branch';
 import {
   IElementCategoryModel,
@@ -14,9 +15,19 @@ import {
   loadElementClass,
 } from '@/bms/db/models/Element';
 
+import {
+  IElementTranslationModel,
+  loadElementTranslationClass,
+} from '@/bms/db/models/ElementTranslation';
+
 import { IItineraryModel, loadItineraryClass } from '@/bms/db/models/Itinerary';
 import { IOrderModel, loadOrderClass } from '@/bms/db/models/Order';
-import { ITourModel, loadTourClass } from '@/bms/db/models/Tour';
+import {
+  IBmsTourCategoryModel,
+  ITourModel,
+  loadTourCategoryClass as loadBmsTourCategoryClass,
+  loadTourClass,
+} from '@/bms/db/models/Tour';
 import { IAvailabilityDocument } from '@/ota/@types/availabilities';
 import { IOTABookingDocument } from '@/ota/@types/bookings';
 import { IOTAHotelDocument } from '@/ota/@types/hotels';
@@ -66,8 +77,10 @@ import { IConfigDocument } from '@/pms/@types/configs';
 export interface IModels {
   Elements: IElementModel;
   ElementCategories: IElementCategoryModel;
+  ElementTranslations: IElementTranslationModel;
   Itineraries: IItineraryModel;
   Tours: ITourModel;
+  BmsTourCategories: IBmsTourCategoryModel;
   Orders: IOrderModel;
   Branches: IBranchModel;
 
@@ -106,6 +119,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IElementCategoryModel
   >('bm_element_categories', loadElementCategoryClass(models));
 
+  models.ElementTranslations = db.model<
+    IElementTranslationDocument,
+    IElementTranslationModel
+  >('bm_element_translations', loadElementTranslationClass(models));
+
   models.Itineraries = db.model<IItineraryDocument, IItineraryModel>(
     'bm_itinerary',
     loadItineraryClass(models),
@@ -115,6 +133,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'bm_tours',
     loadTourClass(models),
   );
+
+  models.BmsTourCategories = db.model<
+    ITourCategoryDocument,
+    IBmsTourCategoryModel
+  >('bm_tour_categories', loadBmsTourCategoryClass(models));
 
   models.Orders = db.model<IOrderDocument, IOrderModel>(
     'bm_orders',

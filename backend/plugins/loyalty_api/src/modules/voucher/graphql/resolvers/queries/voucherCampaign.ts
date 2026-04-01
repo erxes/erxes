@@ -42,6 +42,8 @@ const generateFilter = async (
 
   if (status) {
     filter.status = status;
+  } else {
+    filter.status = { $ne: CAMPAIGN_STATUS.TRASH };
   }
 
   return filter;

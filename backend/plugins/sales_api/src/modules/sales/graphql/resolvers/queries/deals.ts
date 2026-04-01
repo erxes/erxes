@@ -12,10 +12,6 @@ import {
   getItemList,
 } from '~/modules/sales/utils';
 import {
-  checkPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
-import {
   getNextMonth,
   getToday,
   regexSearchText,
@@ -90,7 +86,6 @@ export const generateFilter = async (
     closeDateStartDate,
     closeDateEndDate,
     source,
-    webId,
   } = params;
   Object.assign(
     filter,
@@ -523,9 +518,7 @@ export const generateFilter = async (
   if (number) {
     filter.number = { $regex: `${number}`, $options: 'mui' };
   }
-  if (webId) {
-    (filter as any).webId = webId;
-  }
+
   if (vendorCustomerIds?.length > 0) {
     const cards = await sendTRPCMessage({
       subdomain,
@@ -1006,9 +999,6 @@ export const dealQueries: Record<string, Resolver> = {
 
   //   async checkDiscount() {}
 };
-
-// moduleRequireLogin(dealQueries);
-// checkPermission(dealQueries, 'deals', 'showDeals');
 
 dealQueries.cpDeals.wrapperConfig = {
   forClientPortal: true,

@@ -58,7 +58,7 @@ const AddSafeRemainderForm = ({
   };
 
   const onError = (error: any) => {
-    console.log(error);
+    return {};
   };
 
   return (

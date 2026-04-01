@@ -1,75 +1,93 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import { BaseQueryResolver, FIELD_MAPPINGS } from '@/cms/utils/base-resolvers';
 
-export const webPageQueries: Record<string, Resolver> = {
-  async cpWebPages(
-    _parent: unknown,
-    args: any,
-    { models, clientPortal }: IContext,
-  ) {
-    const { webId, searchValue } = args;
+class WebPageQueryResolver extends BaseQueryResolver {
+  async cpWebPages(_parent: any, args: any, context: IContext) {
+    const { models, clientPortal } = context;
+    const { webId, searchValue, language } = args;
 
     if (!webId) throw new Error('webId is required');
-
+    const orderBy = args.orderBy || { createdAt: -1 };
+    const clientPortalId = clientPortal?._id;
+    
     const query: any = { webId };
+    if (clientPortalId) query.clientPortalId = clientPortalId;
+    if (searchValue) query.name = { $regex: searchValue, $options: 'i' };
 
-    if (clientPortal?._id) {
-      query.clientPortalId = clientPortal._id;
-    }
+    const { list } = await this.getListWithTranslations(
+      models.WebPages,
+      query,
+      { ...args, clientPortalId, language, orderBy },
+      FIELD_MAPPINGS.PAGE,
+      'webPage',
+    );
 
-    if (searchValue) {
-      query.name = { $regex: searchValue, $options: 'i' };
-    }
+    return list;
+  }
 
-    return models.WebPages.find(query).sort({ name: 1 }).lean();
-  },
-
-  async cpWebPageList(
-    _parent: unknown,
-    args: any,
-    { models, clientPortal }: IContext,
-  ) {
-    const { webId, searchValue } = args;
+  async cpWebPageList(_parent: any, args: any, context: IContext) {
+    const { models, clientPortal } = context;
+    const { webId, searchValue, language } = args;
 
     if (!webId) throw new Error('webId is required');
+    const orderBy = args.orderBy || { createdAt: -1 };
+
+    const clientPortalId = clientPortal?._id;
 
     const query: any = { webId };
+    if (clientPortalId) query.clientPortalId = clientPortalId;
+    if (searchValue) query.name = { $regex: searchValue, $options: 'i' };
 
-    if (clientPortal?._id) {
-      query.clientPortalId = clientPortal._id;
-    }
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+      models.WebPages,
+      query,
+      { ...args, clientPortalId, language, orderBy },
+      FIELD_MAPPINGS.PAGE,
+      'webPage',
+    );
 
-    if (searchValue) {
-      query.name = { $regex: searchValue, $options: 'i' };
-    }
+    return { pages: list, totalCount, pageInfo };
+  }
 
-    const pages = await models.WebPages.find(query).sort({ name: 1 }).lean();
-    const totalCount = await models.WebPages.countDocuments(query);
+  async cpWebPage(_parent: any, args: any, context: IContext) {
+    const { models, clientPortal } = context;
+    const { _id, slug, webId, language } = args;
 
-    return { pages, totalCount, pageInfo: null };
-  },
+    if (slug && !webId)
+      throw new Error('webId is required when querying by slug');
 
-  async cpWebPage(
-    _parent: unknown,
-    args: any,
-    { models, clientPortal }: IContext,
-  ) {
-    const { _id, slug, webId } = args;
-
-    if (!_id && !slug) return null;
+    const clientPortalId = clientPortal?._id;
 
     const query: any = {};
-
-    if (clientPortal?._id) {
-      query.clientPortalId = clientPortal._id;
-    }
-
+    if (clientPortalId) query.clientPortalId = clientPortalId;
     if (slug) {
-      return models.WebPages.findOne({ ...query, slug, webId }).lean();
+      query.slug = slug;
+      query.webId = webId;
+    } else {
+      query._id = _id;
     }
 
-    return models.WebPages.findOne({ ...query, _id }).lean();
-  },
+    return this.getItemWithTranslation(
+      models.WebPages,
+      query,
+      language,
+      FIELD_MAPPINGS.PAGE,
+      clientPortalId,
+      'webPage',
+    );
+  }
+}
+
+export const webPageQueries: Record<string, Resolver> = {
+  cpWebPages: (_parent: any, args: any, context: IContext) =>
+    new WebPageQueryResolver(context).cpWebPages(_parent, args, context),
+
+  cpWebPageList: (_parent: any, args: any, context: IContext) =>
+    new WebPageQueryResolver(context).cpWebPageList(_parent, args, context),
+
+  cpWebPage: (_parent: any, args: any, context: IContext) =>
+    new WebPageQueryResolver(context).cpWebPage(_parent, args, context),
 };
 
 webPageQueries.cpWebPages.wrapperConfig = { forClientPortal: true };

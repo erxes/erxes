@@ -16,6 +16,8 @@ const generateFilter = (params: IAssignmentCampaignParams) => {
 
   if (params.status) {
     filter.status = params.status;
+  } else {
+    filter.status = { $ne: CAMPAIGN_STATUS.TRASH };
   }
 
   return filter;
@@ -27,7 +29,8 @@ export const assignmentCampaignQueries = {
     params: IAssignmentCampaignParams,
     { models }: IContext,
   ) {
-    const filter: FilterQuery<IAssignmentCampaignDocument> = generateFilter(params);
+    const filter: FilterQuery<IAssignmentCampaignDocument> =
+      generateFilter(params);
 
     return cursorPaginate({
       model: models.AssignmentCampaigns,

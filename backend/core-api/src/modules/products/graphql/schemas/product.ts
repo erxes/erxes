@@ -14,7 +14,6 @@ export const types = `
     barcodeDescription: String
     unitPrice: Float
     categoryId: String
-    webId: String
     propertiesData: JSON
     createdAt: Date
     tagIds: [String]
@@ -33,7 +32,7 @@ export const types = `
     pdfAttachment: PdfAttachment
 
     cursor: String
-    remainders: JSON
+    inventories: JSON
     discounts: JSON
 
     remainder: JSON
@@ -78,7 +77,6 @@ const queryParams = `
   groupedSimilarity: String,
   image: String,
   brand: String,
-  webId: String,
 
   branchId: String,
   departmentId: String,

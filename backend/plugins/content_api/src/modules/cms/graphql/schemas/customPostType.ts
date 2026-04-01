@@ -32,7 +32,8 @@ export const types = `
 
     enabledPageIds: [String]
     enabledCategoryIds: [String]
-
+    enabledPostIds: [String]
+    
     fields: JSON
   }
 
@@ -64,6 +65,7 @@ export const inputs = `
     customPostTypeIds: [String]
     enabledPageIds: [String]
     enabledCategoryIds: [String]
+    enabledPostIds: [String]
     fields: JSON
   }
 `;
@@ -74,11 +76,11 @@ export const queries = `
   cmsCustomPostType(_id: String): CustomPostType
 
   cmsCustomFieldGroupList(clientPortalId: String!, searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): CustomFieldGroupResponse
-  cmsCustomFieldGroups(clientPortalId: String!, pageId: String, categoryId: String, postType: String, searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): [CustomFieldGroup]
+  cmsCustomFieldGroups(clientPortalId: String!, pageId: String, categoryId: String, postType: String, postId: String, searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): [CustomFieldGroup]
   cmsCustomFieldGroup(_id: String): CustomFieldGroup
 
   cpCustomPostTypes(searchValue: String): [CustomPostType]
-  cpCustomFieldGroups(searchValue: String, pageId: String, categoryId: String, postType: String): [CustomFieldGroup]
+  cpCustomFieldGroups(searchValue: String, pageId: String, categoryId: String, postType: String, postId: String): [CustomFieldGroup]
 `;
 
 export const mutations = `

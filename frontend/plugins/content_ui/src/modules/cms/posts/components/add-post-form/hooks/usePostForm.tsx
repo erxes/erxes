@@ -23,10 +23,12 @@ interface PostFormData {
   thumbnail?: any | null;
   gallery?: string[];
   video?: string | null;
+  videoUrl?: string;
   audio?: string | null;
   documents?: string[];
   attachments?: string[];
   pdf?: string | null;
+  publishDate?: Date | null;
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
@@ -39,7 +41,7 @@ export const usePostForm = (editingPost?: any) => {
   const [defaultLangData, setDefaultLangData] = useState<{
     title: string;
     content: string;
-    description: string;
+    excerpt: string;
     customFieldsData: any[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
@@ -60,10 +62,12 @@ export const usePostForm = (editingPost?: any) => {
       thumbnail: null,
       gallery: [],
       video: null,
+      videoUrl: '',
       audio: null,
       documents: [],
       attachments: [],
       pdf: null,
+      publishDate: null,
       scheduledDate: null,
       autoArchiveDate: null,
       enableAutoArchive: false,
@@ -91,7 +95,7 @@ export const usePostForm = (editingPost?: any) => {
   const fullPost = (fullPostData?.cmsPost as any) || editingPost;
 
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
-    variables: { postId: editingPost?._id },
+    variables: { objectId: editingPost?._id, type: 'post' },
     skip: !editingPost?._id,
     fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: false,
@@ -134,8 +138,9 @@ export const usePostForm = (editingPost?: any) => {
         seoDescription: fullPost.seoDescription || '',
         thumbnail: fullPost.thumbnail || null,
         gallery: (fullPost.images || []).map((i: any) => i.url).filter(Boolean),
-        video: (fullPost.video && fullPost.video.url) || fullPost.video || null,
-        audio: (fullPost.audio && fullPost.audio.url) || fullPost.audio || null,
+        video: fullPost.video?.url || fullPost.video || null,
+        videoUrl: fullPost.videoUrl || '',
+        audio: fullPost.audio?.url || fullPost.audio || null,
         documents: (fullPost.documents || [])
           .map((d: any) => d.url)
           .filter(Boolean),
@@ -143,6 +148,7 @@ export const usePostForm = (editingPost?: any) => {
           .map((a: any) => a.url)
           .filter(Boolean),
         pdf: fullPost.pdf || null,
+        publishDate: toDate(fullPost.publishedDate) || null,
         scheduledDate: toDate(fullPost.scheduledDate) || null,
         autoArchiveDate: toDate(fullPost.autoArchiveDate) || null,
         enableAutoArchive: !!fullPost.autoArchiveDate,
