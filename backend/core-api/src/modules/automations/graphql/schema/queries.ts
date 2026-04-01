@@ -59,8 +59,8 @@ const queries = `
   automationConstants: JSON
   automationBotsConstants:JSON
   automationsAiAgents(kind:String):JSON
-  automationsAiAgentDetail:JSON
-  getTrainingStatus(agentId: String!): TrainingProgress!
+  automationsAiAgentDetail(_id:String):JSON
+  automationsAiAgentHealth(agentId: String!): AiAgentHealth!
   getAutomationWebhookEndpoint(_id:String!,waitEventActionId:String):String
   getAutomationExecutionDetail(executionId: String!): AutomationHistory
   automationEmailTemplates(${emailTemplateParams}): AutomationEmailTemplatesListResponse

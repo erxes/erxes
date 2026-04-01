@@ -1,15 +1,17 @@
-import { UploadDropzone } from '@/automations/components/settings/components/agents/components/DropFilesZone';
-import { FileGrid } from '@/automations/components/settings/components/agents/components/FilesList';
+import { AiAgentConnectionForm } from '@/automations/components/settings/components/agents/components/form/AiAgentConnectionForm';
+import { AiAgentContextForm } from '@/automations/components/settings/components/agents/components/form/AiAgentContextForm';
 import { AiAgentGeneralForm } from '@/automations/components/settings/components/agents/components/form/AiAgentGeneralForm';
-import { AutomationAiAgentTrainingWrapper } from '@/automations/components/settings/components/agents/components/form/AutomationAiAgentTrainingWrapper';
-import { AI_AGENT_KINDS } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
+import { AiAgentRuntimeForm } from '@/automations/components/settings/components/agents/components/form/AiAgentRuntimeForm';
+import { AutomationAiAgentHealthSection } from '@/automations/components/settings/components/agents/components/form/AutomationAiAgentHealthSection';
+import { getAiAgentKind } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
 import { AiAgentInput } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
 import {
-  aiAgentFormSchema,
+  buildAiAgentFormSchema,
+  normalizeAiAgentFormValues,
   TAiAgentForm,
 } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Card, Form, Tabs, toast } from 'erxes-ui';
+import { Button, Card, Tabs, toast } from 'erxes-ui';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Link } from 'react-router';
 
@@ -21,109 +23,89 @@ export const AutomationAiAgentDetail = ({
   handleSave: (input: AiAgentInput) => Promise<any>;
 }) => {
   const form = useForm<TAiAgentForm>({
-    resolver: zodResolver(aiAgentFormSchema),
-    values: {
-      ...detail,
-    },
+    resolver: zodResolver(
+      buildAiAgentFormSchema({ requireApiKey: !detail?._id }),
+    ),
+    values: normalizeAiAgentFormValues(detail),
   });
 
-  const { img, label } =
-    AI_AGENT_KINDS.find(({ type }) => type === detail?.provider) || {};
+  const provider = form.watch('connection.provider');
+  const model = form.watch('connection.model');
+  const kind = getAiAgentKind(provider);
+  const Icon = kind.icon;
 
   return (
-    <div className="h-full w-full flex flex-col">
-      <div className="bg-sidebar py-2 px-4 border-b">
-        <Card className="p-3 flex flex-col gap-2 rounded-lg w-48">
-          <div className="flex gap-2 mb-2 items-center">
-            <div className="size-8 rounded overflow-hidden shadow-sm bg-background">
-              <img
-                src={img}
-                alt={detail?.provider}
-                className="w-full h-full object-contain p-1"
-              />
+    <div className="flex h-full w-full flex-col">
+      <div className="border-b bg-sidebar px-4 py-3">
+        <Card className="w-full max-w-sm rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-lg border bg-background">
+              <Icon className="size-5 text-primary" />
             </div>
-            <h6 className="font-semibold text-sm self-center">{label}</h6>
+            <div className="space-y-1">
+              <h6 className="text-sm font-semibold">{kind.label}</h6>
+              <p className="text-xs text-muted-foreground">
+                {model || 'Model not configured yet'}
+              </p>
+            </div>
           </div>
         </Card>
       </div>
-      <div className="flex flex-col flex-1  px-4 pb-4">
+
+      <div className="flex flex-1 flex-col px-4 pb-4">
         <FormProvider {...form}>
-          <Tabs defaultValue="general" className="flex-1">
+          <Tabs defaultValue="general" className="flex flex-1 flex-col">
             <Tabs.List>
-              <Tabs.Trigger className="w-1/3" value="general">
+              <Tabs.Trigger className="w-1/4" value="general">
                 General
               </Tabs.Trigger>
-              <Tabs.Trigger className="w-1/3" value="files">
-                Files
+              <Tabs.Trigger className="w-1/4" value="connection">
+                Connection
               </Tabs.Trigger>
-              <Tabs.Trigger className="w-1/3" value="training">
-                Training
+              <Tabs.Trigger className="w-1/4" value="context">
+                Context
+              </Tabs.Trigger>
+              <Tabs.Trigger className="w-1/4" value="health">
+                Health
               </Tabs.Trigger>
             </Tabs.List>
-            <Tabs.Content value="general" className="flex flex-col gap-2">
-              <AiAgentGeneralForm />
-            </Tabs.Content>
-            <Tabs.Content value="files" className="px-6 py-4">
-              <Form.Field
-                control={form.control}
-                name="files"
-                render={({ field }) => (
-                  <UploadDropzone
-                    onFilesUploaded={(files) => {
-                      const newFiles = files.map(
-                        ({ key, name, size, type, uploadedAt }) => ({
-                          id: Math.random().toString(36).substr(2, 9),
-                          key,
-                          name,
-                          size,
-                          type,
-                          uploadedAt: uploadedAt.toISOString(),
-                        }),
-                      );
 
-                      field.onChange([...(field.value || []), ...newFiles]);
-                    }}
-                  />
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="files"
-                render={({ field }) => (
-                  <Form.Item className="pt-4">
-                    <Form.Label>Uploaded Files</Form.Label>
-                    <Form.Control className="">
-                      <FileGrid
-                        files={field.value}
-                        onFileDelete={(fileId) =>
-                          field.onChange(
-                            field.value.filter(({ id }) => fileId !== id),
-                          )
-                        }
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+            <Tabs.Content value="general" className="pt-4">
+              <Card className="p-4">
+                <AiAgentGeneralForm />
+              </Card>
             </Tabs.Content>
+
             <Tabs.Content
-              value="training"
-              className="flex flex-col h-full py-2"
+              value="connection"
+              className="grid gap-4 pt-4 lg:grid-cols-2"
             >
-              <AutomationAiAgentTrainingWrapper agentId={detail?._id} />
+              <Card className="p-4">
+                <AiAgentConnectionForm />
+              </Card>
+              <Card className="p-4">
+                <AiAgentRuntimeForm />
+              </Card>
+            </Tabs.Content>
+
+            <Tabs.Content value="context" className="pt-4">
+              <AiAgentContextForm />
+            </Tabs.Content>
+
+            <Tabs.Content value="health" className="pt-4">
+              <AutomationAiAgentHealthSection agentId={detail?._id} />
             </Tabs.Content>
           </Tabs>
-          <div className="flex justify-end pt-4 gap-2">
-            <Link to={`/settings/automations/agents`}>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Link to="/settings/automations/agents">
               <Button variant="secondary">Back</Button>
             </Link>
             <Button
-              onClick={form.handleSubmit(handleSave, (error) => {
+              onClick={form.handleSubmit(handleSave, () => {
                 toast({
                   title: 'Invalid form',
-                  description: JSON.stringify(error),
+                  description: 'Please review the highlighted fields.',
                   variant: 'destructive',
                 });
               })}

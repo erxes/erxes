@@ -1,11 +1,58 @@
 import { Schema } from 'mongoose';
 import { nanoid } from 'nanoid';
 
-const aiAgentFilesSchema = new Schema(
+export interface IAiAgentFile {
+  id: string;
+  key: string;
+  name: string;
+  size?: number;
+  type?: string;
+  uploadedAt?: Date | string;
+}
+
+export interface IAiAgentConnectionConfig {
+  apiKey: string;
+  baseUrl?: string;
+  headers?: Record<string, string>;
+  [key: string]: any;
+}
+
+export interface IAiAgentConnection {
+  provider: string;
+  model: string;
+  config: IAiAgentConnectionConfig;
+}
+
+export interface IAiAgentRuntime {
+  temperature: number;
+  maxTokens: number;
+  timeoutMs: number;
+}
+
+export interface IAiAgentContext {
+  systemPrompt: string;
+  files: IAiAgentFile[];
+}
+
+export interface IAiAgent {
+  name: string;
+  description: string;
+  connection: IAiAgentConnection;
+  runtime: IAiAgentRuntime;
+  context: IAiAgentContext;
+}
+
+export interface AiAgentDocument extends IAiAgent {
+  _id: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+const aiAgentFileSchema = new Schema<IAiAgentFile>(
   {
-    id: { type: String },
-    key: { type: String },
-    name: { type: String },
+    id: { type: String, required: true },
+    key: { type: String, required: true },
+    name: { type: String, required: true },
     size: { type: Number },
     type: { type: String },
     uploadedAt: { type: Date },
@@ -13,40 +60,62 @@ const aiAgentFilesSchema = new Schema(
   { _id: false },
 );
 
-interface AiAgent {
-  name: string;
-  description: string;
-  provider: string;
-  prompt: string;
-  instructions: string;
-  files: {
-    id: string;
-    key: string;
-    name: string;
-    size: string;
-    type: string;
-    uploadedAt: string;
-  }[];
-  config: any;
-}
+const aiAgentConnectionSchema = new Schema<IAiAgentConnection>(
+  {
+    provider: {
+      type: String,
+      required: true,
+      enum: ['openai-compatible'],
+    },
+    model: { type: String, required: true },
+    config: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  { _id: false },
+);
 
-export interface AiAgentDocument extends AiAgent {
-  _id: string;
-}
+const aiAgentRuntimeSchema = new Schema<IAiAgentRuntime>(
+  {
+    temperature: { type: Number, default: 0.2 },
+    maxTokens: { type: Number, default: 500 },
+    timeoutMs: { type: Number, default: 15000 },
+  },
+  { _id: false },
+);
 
-export const aiAgentSchema = new Schema(
+const aiAgentContextSchema = new Schema<IAiAgentContext>(
+  {
+    systemPrompt: { type: String, default: '' },
+    files: {
+      type: [aiAgentFileSchema],
+      default: () => [],
+    },
+  },
+  { _id: false },
+);
+
+export const aiAgentSchema = new Schema<AiAgentDocument>(
   {
     _id: {
       type: String,
       default: () => nanoid(),
     },
-    name: { type: String },
-    description: { type: String },
-    provider: { type: String },
-    prompt: { type: String },
-    instructions: { type: String },
-    files: { type: [aiAgentFilesSchema] },
-    config: { type: Object },
+    name: { type: String, required: true, trim: true },
+    description: { type: String, default: '' },
+    connection: {
+      type: aiAgentConnectionSchema,
+      required: true,
+    },
+    runtime: {
+      type: aiAgentRuntimeSchema,
+      default: () => ({}),
+    },
+    context: {
+      type: aiAgentContextSchema,
+      default: () => ({}),
+    },
   },
   { timestamps: true },
 );

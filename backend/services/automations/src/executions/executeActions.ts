@@ -143,6 +143,6 @@ export const executeActions = async (
     triggerType,
     execution,
     actionsMap,
-    action.nextActionId,
+    execAction.nextActionId,
   );
 };

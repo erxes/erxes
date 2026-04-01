@@ -15,12 +15,13 @@ export const DirectMessageEmptyState = ({
       <div className="space-y-1">
         <p className="text-sm font-medium">No direct message conditions yet</p>
         <p className="text-xs text-muted-foreground">
-          Add your first condition to match incoming message keywords.
+          Leave this empty to trigger on any direct text message, or add
+          conditions to match specific keywords.
         </p>
       </div>
 
       <Button className="mt-4" onClick={onAddFirstCondition}>
-        Add first condition
+        Add optional condition
       </Button>
     </div>
   );

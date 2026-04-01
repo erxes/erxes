@@ -3,9 +3,9 @@ import { Button, Card } from 'erxes-ui';
 interface UploadedFile {
   id: string;
   name: string;
-  size: number;
-  type: string;
-  uploadedAt: string;
+  size?: number;
+  type?: string;
+  uploadedAt?: string;
 }
 
 interface FileGridProps {
@@ -24,7 +24,7 @@ export function FileGrid({ files = [], onFileDelete }: FileGridProps) {
     );
   };
 
-  const getFileIcon = (type: string) => {
+  const getFileIcon = (type = '') => {
     if (type.includes('pdf')) {
       return (
         <svg
@@ -102,10 +102,12 @@ export function FileGrid({ files = [], onFileDelete }: FileGridProps) {
               {file.name}
             </h4>
             <p className="text-xs text-muted-foreground">
-              {formatFileSize(file.size)}
+              {formatFileSize(file.size || 0)}
             </p>
             <p className="text-xs text-muted-foreground">
-              {new Date(file.uploadedAt).toLocaleDateString()}
+              {file.uploadedAt
+                ? new Date(file.uploadedAt).toLocaleDateString()
+                : 'No date'}
             </p>
           </div>
         </Card>

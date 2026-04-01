@@ -2,12 +2,43 @@ import {
   AUTOMATION_STATUSES,
   IAutomation,
 } from 'erxes-api-shared/core-modules';
-import { sendWorkerMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { sanitizeAiAgent } from './utils/aiAgent';
 
 export interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
+
+const MASKED_SECRET_VALUE = '********';
+
+const mergeAiAgentConnectionSecrets = (currentAgent: any, doc: any) => {
+  if (!doc?.connection) {
+    return doc;
+  }
+
+  const incomingApiKey = doc.connection?.config?.apiKey;
+  const shouldPreserveApiKey =
+    incomingApiKey === '' ||
+    incomingApiKey === undefined ||
+    incomingApiKey === MASKED_SECRET_VALUE;
+
+  if (!shouldPreserveApiKey) {
+    return doc;
+  }
+
+  return {
+    ...doc,
+    connection: {
+      ...(currentAgent?.connection || {}),
+      ...doc.connection,
+      config: {
+        ...(currentAgent?.connection?.config || {}),
+        ...(doc.connection?.config || {}),
+        apiKey: currentAgent?.connection?.config?.apiKey,
+      },
+    },
+  };
+};
 
 export const automationMutations = {
   /**
@@ -115,41 +146,25 @@ export const automationMutations = {
   },
 
   async automationsAiAgentAdd(_root, doc, { models }: IContext) {
-    return await models.AiAgents.create(doc);
+    const agent = await models.AiAgents.create(doc);
+    return sanitizeAiAgent(agent);
   },
   async automationsAiAgentEdit(_root, { _id, ...doc }, { models }: IContext) {
-    return await models.AiAgents.updateOne({ _id }, { $set: { ...doc } });
-  },
+    const currentAgent = await models.AiAgents.findOne({ _id });
 
-  async startAiTraining(_root, { agentId }, { subdomain }: IContext) {
-    await sendWorkerMessage({
-      pluginName: 'automations',
-      queueName: 'aiAgent',
-      jobName: 'trainAiAgent',
-      subdomain,
-      data: { agentId },
-    });
-    return await sendWorkerMessage({
-      pluginName: 'automations',
-      queueName: 'aiAgent',
-      jobName: 'trainAiAgent',
-      subdomain,
-      data: { agentId },
-    });
-  },
+    if (!currentAgent) {
+      throw new Error('AI agent not found');
+    }
 
-  async generateAgentMessage(
-    _root,
-    { agentId, question },
-    { subdomain }: IContext,
-  ) {
-    return await sendWorkerMessage({
-      pluginName: 'automations',
-      queueName: 'aiAgent',
-      jobName: 'generateText',
-      subdomain,
-      data: { agentId, question },
-    });
+    const mergedDoc = mergeAiAgentConnectionSecrets(currentAgent, doc);
+
+    await models.AiAgents.updateOne(
+      { _id },
+      { $set: { ...mergedDoc } },
+      { runValidators: true },
+    );
+
+    return sanitizeAiAgent(await models.AiAgents.findOne({ _id }));
   },
 
   /**

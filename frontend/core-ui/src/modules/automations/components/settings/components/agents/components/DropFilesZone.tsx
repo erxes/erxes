@@ -1,7 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Card, cn, useUpload } from 'erxes-ui';
 import type React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useId, useState } from 'react';
 
 type FileUploadType = {
   key: string;
@@ -17,7 +17,8 @@ interface UploadDropzoneProps {
 
 export function UploadDropzone({ onFilesUploaded }: UploadDropzoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
-  const { isLoading, upload } = useUpload();
+  const { upload } = useUpload();
+  const inputId = useId();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -39,7 +40,7 @@ export function UploadDropzone({ onFilesUploaded }: UploadDropzoneProps) {
         files,
         afterUpload: ({ fileInfo, response }) => {
           const { name, size, type } = fileInfo;
-          // onFilesUploaded({ name, size, type });
+
           uploaded.push({
             name,
             size,
@@ -50,7 +51,6 @@ export function UploadDropzone({ onFilesUploaded }: UploadDropzoneProps) {
 
           remaining -= 1;
           if (remaining === 0) {
-            // all done
             onFilesUploaded(uploaded);
           }
         },
@@ -58,30 +58,28 @@ export function UploadDropzone({ onFilesUploaded }: UploadDropzoneProps) {
     }
   };
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragOver(false);
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
 
-      onUploadFiles(e.dataTransfer.files);
-    },
-    [upload],
-  );
+    onUploadFiles(e.dataTransfer.files);
+  }, []);
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const fileList = e.target.files;
+
       if (fileList && fileList.length > 0) {
         onUploadFiles(fileList);
       }
     },
-    [onFilesUploaded],
+    [],
   );
 
   return (
     <Card
       className={cn(
-        'border-2 border-dashed transition-colors duration-200 cursor-pointer',
+        'cursor-pointer border-2 border-dashed transition-colors duration-200',
         isDragOver
           ? 'border-primary bg-primary/5'
           : 'border-muted-foreground/25 hover:border-muted-foreground/50',
@@ -91,9 +89,9 @@ export function UploadDropzone({ onFilesUploaded }: UploadDropzoneProps) {
       onDrop={handleDrop}
     >
       <div className="p-12 text-center">
-        <div className="mx-auto w-16 h-16 mb-4 rounded-full bg-muted flex items-center justify-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
           <svg
-            className="w-8 h-8 text-muted-foreground"
+            className="h-8 w-8 text-muted-foreground"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -107,27 +105,27 @@ export function UploadDropzone({ onFilesUploaded }: UploadDropzoneProps) {
             />
           </svg>
         </div>
-        <h3 className="text-lg font-medium mb-2">Upload Training Files</h3>
-        <p className="text-muted-foreground mb-4">
-          Drag and drop your files here, or click to browse
+        <h3 className="mb-2 text-lg font-medium">Upload Context Files</h3>
+        <p className="mb-4 text-muted-foreground">
+          Drag markdown or text files here, or click to browse
         </p>
         <input
           type="file"
           multiple
           onChange={handleFileSelect}
           className="hidden"
-          id="file-upload"
-          accept=".txt,.pdf,.doc,.docx,.json,.csv"
+          id={inputId}
+          accept=".md,.markdown,.txt,text/markdown,text/plain"
         />
         <label
-          htmlFor="file-upload"
-          className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors cursor-pointer"
+          htmlFor={inputId}
+          className="inline-flex cursor-pointer items-center rounded-md bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90"
         >
           <IconPlus />
           Choose Files
         </label>
-        <p className="text-xs text-muted-foreground mt-2">
-          Supported formats: TXT, PDF, DOC, DOCX, JSON, CSV
+        <p className="mt-2 text-xs text-muted-foreground">
+          Supported formats: MD, MARKDOWN, TXT
         </p>
       </div>
     </Card>

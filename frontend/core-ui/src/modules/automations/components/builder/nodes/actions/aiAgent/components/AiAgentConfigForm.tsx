@@ -1,4 +1,5 @@
 import { AiAgentObjectBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectBuilder';
+import { AiAgentInputMappingFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentInputMappingFields';
 import { AiAgentTopicBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentTopicBuilder';
 import { AI_AGENT_NODE_GOAL_TYPES } from '@/automations/components/builder/nodes/actions/aiAgent/constants/aiAgentConfigForm';
 import {
@@ -12,7 +13,10 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Select, Textarea } from 'erxes-ui';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Link } from 'react-router';
-import { TAutomationActionProps, useFormValidationErrorHandler } from 'ui-modules';
+import {
+  TAutomationActionProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
 
 export const AIAgentConfigForm = ({
   currentAction,
@@ -23,7 +27,14 @@ export const AIAgentConfigForm = ({
   });
   const form = useForm<TAiAgentConfigForm>({
     resolver: zodResolver(aiAgentConfigFormSchema),
-    defaultValues: { ...(currentAction?.config || {}) },
+    defaultValues: {
+      inputMapping: {
+        source: 'trigger',
+        path: '',
+        customValue: '',
+      },
+      ...(currentAction?.config || {}),
+    },
   });
   const { automationsAiAgents } = useAiAgents();
 
@@ -93,15 +104,22 @@ export const AIAgentConfigForm = ({
           }}
         />
 
-        {config?.goalType === 'generateObject' && <AiAgentObjectBuilder />}
-        {config?.goalType === 'classifyTopic' && <AiAgentTopicBuilder />}
+        <AiAgentInputMappingFields />
+
+        {config?.goalType === 'classification' && <AiAgentObjectBuilder />}
+        {config?.goalType === 'splitTopic' && <AiAgentTopicBuilder />}
         {config?.goalType === 'generateText' && (
           <Form.Field
             name="prompt"
             control={control}
             render={({ field }) => (
               <Form.Item>
+                <Form.Label>Instruction Prompt</Form.Label>
                 <Textarea placeholder="Enter prompt" {...field} />
+                <Form.Description>
+                  Define how the AI should write the final response text for
+                  this action.
+                </Form.Description>
                 <Form.Message />
               </Form.Item>
             )}

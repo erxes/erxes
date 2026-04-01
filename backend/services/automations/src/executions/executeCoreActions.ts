@@ -1,4 +1,5 @@
 import { executeEmailAction } from './actions/emailAction/executeEmailAction';
+import { executeAiAgentAction } from './actions/executeAiAgentAction';
 import { executeDelayAction } from './actions/executeDelayAction';
 import { executeIfCondition } from './actions/executeIfCondition';
 import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
@@ -93,6 +94,16 @@ export const executeCoreActions = async (
       target: execution.target,
       action,
     });
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.AI_AGENT) {
+    const aiResponse = await executeAiAgentAction(subdomain, execution, action);
+
+    if (aiResponse?.nextActionId) {
+      execAction.nextActionId = aiResponse.nextActionId;
+    }
+
+    actionResponse = aiResponse?.result ?? aiResponse;
   }
   return { actionResponse, shouldBreak };
 };

@@ -6,16 +6,16 @@ export const AiAgentNodeContent = (
   props: NodeContentComponentProps<TAiAgentConfigForm>,
 ) => {
   const { goalType } = props.config || {};
-  if (goalType === 'classifyTopic') {
+  if (goalType === 'splitTopic') {
     return <AiAgentClassifyTopic {...props} />;
   }
 
-  if (goalType === 'generateObject') {
-    return <div>Generate Object</div>;
+  if (goalType === 'classification') {
+    return <AiAgentClassification {...props} />;
   }
 
   if (goalType === 'generateText') {
-    return <div>Generate Text</div>;
+    return <AiAgentGenerateText {...props} />;
   }
 
   return null;
@@ -30,7 +30,7 @@ const AiAgentClassifyTopic = ({
   });
   const { topics = [] } = (config || {}) as Extract<
     TAiAgentConfigForm,
-    { goalType: 'classifyTopic' }
+    { goalType: 'splitTopic' }
   >;
   return topics.map(({ id, topicName }) => (
     <div
@@ -42,4 +42,50 @@ const AiAgentClassifyTopic = ({
       <OptionConnectHandle optionalId={id} />
     </div>
   ));
+};
+
+const AiAgentClassification = ({
+  config,
+}: NodeContentComponentProps<TAiAgentConfigForm>) => {
+  const { objectFields = [] } = (config || {}) as Extract<
+    TAiAgentConfigForm,
+    { goalType: 'classification' }
+  >;
+
+  if (!objectFields.length) {
+    return <div>Classification</div>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2 p-2">
+      {objectFields.slice(0, 3).map(({ fieldName }) => (
+        <div
+          key={fieldName}
+          className="rounded-xs bg-background p-2 text-xs font-semibold shadow"
+        >
+          {fieldName}
+        </div>
+      ))}
+      {objectFields.length > 3 ? (
+        <div className="rounded-xs bg-background p-2 text-xs font-semibold shadow">
+          +{objectFields.length - 3} more
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+const AiAgentGenerateText = ({
+  config,
+}: NodeContentComponentProps<TAiAgentConfigForm>) => {
+  const { prompt = '' } = (config || {}) as Extract<
+    TAiAgentConfigForm,
+    { goalType: 'generateText' }
+  >;
+
+  return (
+    <div className="line-clamp-3 p-2 text-xs text-muted-foreground">
+      {prompt || 'Generate text'}
+    </div>
+  );
 };

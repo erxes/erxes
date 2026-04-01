@@ -58,6 +58,25 @@ export type IAutomationsBotsConfig = {
   totalCountQueryName: string;
 };
 
+export type TAiContextHistoryItem = {
+  type?: string;
+  role?: 'customer' | 'agent' | 'bot' | 'system' | 'user' | 'assistant';
+  text?: string;
+  createdAt?: string;
+  meta?: Record<string, unknown>;
+};
+
+export type TAiContext = {
+  version: 1;
+  input?: {
+    text?: string;
+    id?: string;
+    createdAt?: string;
+  };
+  history?: TAiContextHistoryItem[];
+  facts?: Record<string, unknown>;
+};
+
 type IAutomationTriggersActionsConfig =
   | {
       triggers: IAutomationsTriggerConfig[];
@@ -101,6 +120,19 @@ export interface AutomationProducers {
     args: z.infer<typeof AutomationBaseInput>,
     context: IAutomationContext,
   ) => Promise<Array<TAutomationAdditionalAttribute>>;
+
+  generateAiContext?: (
+    args: {
+      subdomain: string;
+      data: {
+        moduleName: string;
+        collectionType?: string;
+        triggerType: string;
+        target: Record<string, any>;
+      };
+    },
+    context: IAutomationContext,
+  ) => Promise<TAiContext | null>;
 
   replacePlaceHolders?: (
     args: z.infer<typeof ReplacePlaceholdersInput>,
@@ -226,6 +258,7 @@ export enum TAutomationProducers {
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
   GET_ADDITIONAL_ATTRIBUTES = 'getAdditionalAttributes',
   SET_PROPERTIES = 'setProperties',
+  GENERATE_AI_CONTEXT = 'generateAiContext',
 }
 
 export enum TAutomationActionFolks {

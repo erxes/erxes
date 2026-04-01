@@ -105,6 +105,13 @@ export const SetPropertiesInputData = z.object({
   collectionType: z.string(),
 });
 
+export const GenerateAiContextInputData = z.object({
+  moduleName: z.string(),
+  collectionType: z.string().optional(),
+  triggerType: z.string(),
+  target: z.record(z.any()),
+});
+
 export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
@@ -115,6 +122,10 @@ export const ReplacePlaceholdersInput = AutomationBaseInput.extend({
 
 export const SetPropertiesInput = AutomationBaseInput.extend({
   data: SetPropertiesInputData,
+});
+
+export const GenerateAiContextInput = AutomationBaseInput.extend({
+  data: GenerateAiContextInputData,
 });
 
 export type TAutomationProducersInput = {
@@ -130,5 +141,8 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.SET_PROPERTIES]: z.infer<typeof SetPropertiesInputData>;
   [TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES]: z.infer<
     typeof AutomationBaseInput
+  >;
+  [TAutomationProducers.GENERATE_AI_CONTEXT]: z.infer<
+    typeof GenerateAiContextInputData
   >;
 };

@@ -12,6 +12,7 @@ import {
 import {
   AutomationBaseInput,
   CheckCustomTriggerInput,
+  GenerateAiContextInput,
   ReceiveActionsInput,
   ReplacePlaceholdersInput,
   SetPropertiesInput,
@@ -31,6 +32,7 @@ export const startAutomations = async (
     checkCustomTrigger,
     replacePlaceHolders,
     getAdditionalAttributes,
+    generateAiContext,
   } = config || {};
 
   const automationProcedures: Partial<
@@ -59,6 +61,17 @@ export const startAutomations = async (
             ctx,
           ),
         );
+  }
+
+  if (generateAiContext) {
+    automationProcedures[TAutomationProducers.GENERATE_AI_CONTEXT] = t.procedure
+      .input(GenerateAiContextInput)
+      .mutation(async ({ ctx, input }) =>
+        generateAiContext(
+          { subdomain: input.subdomain, data: input.data },
+          ctx,
+        ),
+      );
   }
 
   if (replacePlaceHolders) {

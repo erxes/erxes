@@ -137,16 +137,13 @@ export const AUTOMATION_ACTIONS = [
     label: 'Wait event',
     description: 'Delay until event is triggered',
   },
-
-  // TODO: Uncomment this when we have a way to embed files
-
-  // {
-  //   type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
-  //   icon: 'IconAi',
-  //   label: 'Ai Agent',
-  //   description:
-  //     'Handle workflow conversations by topic using AI agents with embedded knowledge',
-  // },
+  {
+    type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
+    icon: 'IconAi',
+    label: 'AI Agent',
+    description:
+      'Use a configured AI agent to generate text, route topics, or classify structured data.',
+  },
 ];
 
 export const AUTOMATION_TRIGGERS = [

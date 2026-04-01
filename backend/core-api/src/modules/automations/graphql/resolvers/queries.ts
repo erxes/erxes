@@ -16,9 +16,11 @@ import {
   getEnv,
   getPlugin,
   getPlugins,
+  sendWorkerMessage,
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 
 export interface IListArgs extends ICursorPaginateParams {
   status: string;
@@ -347,8 +349,9 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution =
-      await models.AutomationExecutions.findById(executionId).lean();
+    const execution = await models.AutomationExecutions.findById(
+      executionId,
+    ).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }
@@ -373,30 +376,34 @@ export const automationQueries = {
   },
 
   async automationsAiAgents(_root, { kind }, { models }: IContext) {
-    return await models.AiAgents.find(kind ? { provider: kind } : {});
+    const agents = await models.AiAgents.find(
+      kind ? { 'connection.provider': kind } : {},
+    );
+
+    return sanitizeAiAgents(agents as any[]);
   },
 
-  async automationsAiAgentDetail(_root, _, { models }: IContext) {
-    return await models.AiAgents.findOne({});
+  async automationsAiAgentDetail(
+    _root,
+    { _id }: { _id?: string },
+    { models }: IContext,
+  ) {
+    return sanitizeAiAgent(await models.AiAgents.findOne(_id ? { _id } : {}));
   },
 
-  async getTrainingStatus(_root, { agentId }, {}: IContext) {
-    const agent = await this.models.AiAgents.findById(agentId);
-    if (!agent) {
-      throw new Error('AI Agent not found');
-    }
-
-    const files = agent.files || [];
-    const embeddedFiles = await this.models.AiEmbeddings.find({
-      fileId: { $in: files.map(({ id }) => id) },
+  async automationsAiAgentHealth(
+    _root,
+    { agentId }: { agentId: string },
+    { subdomain }: IContext,
+  ) {
+    return await sendWorkerMessage({
+      pluginName: 'automations',
+      queueName: 'aiAgent',
+      jobName: 'checkAiAgentHealth',
+      subdomain,
+      data: { agentId },
+      timeout: 10000,
     });
-
-    return {
-      agentId,
-      totalFiles: files.length,
-      processedFiles: embeddedFiles.length,
-      status: embeddedFiles.length === files.length ? 'completed' : 'pending',
-    };
   },
 
   /**
