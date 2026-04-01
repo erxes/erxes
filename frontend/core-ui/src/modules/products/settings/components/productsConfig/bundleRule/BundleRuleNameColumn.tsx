@@ -8,6 +8,7 @@ import {
 import { useState, type FC } from 'react';
 import { BundleRuleForm } from './BundleRuleForm';
 import { IBundleRule } from './types';
+import { Can } from 'ui-modules';
 
 export const BundleRuleNameColumnCell: FC<CellContext<IBundleRule, unknown>> = (
   props,
@@ -18,11 +19,13 @@ export const BundleRuleNameColumnCell: FC<CellContext<IBundleRule, unknown>> = (
   return (
     <RecordTableInlineCell>
       <Sheet open={open} onOpenChange={setOpen} modal>
-        <Sheet.Trigger asChild>
-          <Badge variant="secondary" className="cursor-pointer">
-            <TextOverflowTooltip value={props.getValue() as string} />
-          </Badge>
-        </Sheet.Trigger>
+        <Can action="bundleRulesManage">
+          <Sheet.Trigger asChild>
+            <Badge variant="secondary" className="cursor-pointer">
+              <TextOverflowTooltip value={props.getValue() as string} />
+            </Badge>
+          </Sheet.Trigger>
+        </Can>
         <Sheet.View className="p-0 sm:max-w-lg">
           <BundleRuleForm
             bundleRule={bundleRule}

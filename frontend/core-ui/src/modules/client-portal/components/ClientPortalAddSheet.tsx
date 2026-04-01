@@ -21,6 +21,7 @@ import { ClientPortalHotKeyScope } from '@/client-portal/types/clientPortal';
 import { SubmitHandler } from 'react-hook-form';
 import { useCreateClientPortal } from '@/client-portal/hooks/useCreateClientPortal';
 import { useNavigate } from 'react-router-dom';
+import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateClientPortalSheet = () => {
   const { toast } = useToast();
@@ -46,11 +47,17 @@ export const CreateClientPortalSheet = () => {
     setHotkeyScope(ClientPortalHotKeyScope.ClientPortalSettingsPage);
     _setOpen(false);
   };
+  const { hasActionPermission } = usePermissionCheck();
+  const canManageClientPortal = hasActionPermission('clientPortalManage');
 
   useScopedHotkeys(
     `c`,
-    () => onOpen(),
+    () => {
+      if (!canManageClientPortal) return;
+      onOpen();
+    },
     ClientPortalHotKeyScope.ClientPortalSettingsPage,
+    [canManageClientPortal],
   );
   useScopedHotkeys(
     `esc`,
@@ -77,13 +84,15 @@ export const CreateClientPortalSheet = () => {
 
   return (
     <Sheet open={_open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Create client portal
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="clientPortalManage">
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus />
+            Create client portal
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View className="p-0">
         <Form {...methods}>
           <form

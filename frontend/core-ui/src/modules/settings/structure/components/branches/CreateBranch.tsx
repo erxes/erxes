@@ -16,7 +16,7 @@ import { BranchForm } from './BranchForm';
 import { useBranchForm } from '../../hooks/useBranchForm';
 import { SubmitHandler } from 'react-hook-form';
 import { useBranchAdd } from '../../hooks/useBranchActions';
-import { ApolloError } from '@apollo/client';
+import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateBranch = () => {
   const {
@@ -28,6 +28,8 @@ export const CreateBranch = () => {
   const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canManageBranches = isLoaded && hasActionPermission('branchesManage');
 
   const onOpen = () => {
     setOpen(true);
@@ -39,7 +41,14 @@ export const CreateBranch = () => {
     setOpen(false);
   };
 
-  useScopedHotkeys(`c`, () => onOpen(), BranchHotKeyScope.BranchSettingsPage);
+  useScopedHotkeys(
+    `c`,
+    () => {
+      if (!canManageBranches) return;
+      onOpen();
+    },
+    BranchHotKeyScope.BranchSettingsPage,
+  );
   useScopedHotkeys(`esc`, () => onClose(), BranchHotKeyScope.BranchAddSheet);
 
   const submitHandler: SubmitHandler<TBranchForm> = React.useCallback(
@@ -67,12 +76,14 @@ export const CreateBranch = () => {
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus /> Create Branch
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="branchesManage">
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus /> Create Branch
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {
