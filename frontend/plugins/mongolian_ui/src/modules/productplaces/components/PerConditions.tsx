@@ -1,4 +1,4 @@
-import { Button, Label, Select } from 'erxes-ui';
+import { Button, Select } from 'erxes-ui';
 import SelectBranches from '../selects/SelectBranches';
 import SelectDepartments from '../selects/SelectDepartments';
 import SelectProductCategories from '../selects/SelectProductCategories';
@@ -29,7 +29,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
         {/* LEFT */}
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label>Product Category</Label>
+            <label className="text-sm font-medium">Product Category</label>
             <SelectProductCategories
               value={condition.productCategoryIds ?? []}
               onChange={(ids) => onChangeConfig('productCategoryIds', ids)}
@@ -37,7 +37,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Exclude categories</Label>
+            <label className="text-sm font-medium">Exclude categories</label>
             <SelectProductCategories
               value={condition.excludeCategoryIds ?? []}
               onChange={(ids) => onChangeConfig('excludeCategoryIds', ids)}
@@ -45,7 +45,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Product Tags</Label>
+            <label className="text-sm font-medium">Product Tags</label>
             <SelectProductTags
               value={condition.productTagIds ?? []}
               onChange={(ids) => onChangeConfig('productTagIds', ids)}
@@ -53,7 +53,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Exclude tags</Label>
+            <label className="text-sm font-medium">Exclude tags</label>
             <SelectProductTags
               value={condition.excludeTagIds ?? []}
               onChange={(ids) => onChangeConfig('excludeTagIds', ids)}
@@ -61,7 +61,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Exclude products</Label>
+            <label className="text-sm font-medium">Exclude products</label>
             <SelectProducts
               value={condition.excludeProductIds ?? []}
               onChange={(ids) => onChangeConfig('excludeProductIds', ids)}
@@ -69,7 +69,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Segment</Label>
+            <label className="text-sm font-medium">Segment</label>
             <SelectSegments
               contentTypes={['core:product']}
               value={condition.segmentIds?.[0] || undefined}
@@ -81,7 +81,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
         {/* RIGHT */}
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label>Low Count</Label>
+            <label className="text-sm font-medium">Low Count</label>
             <input
               type="number"
               className="w-full p-2 border rounded"
@@ -91,7 +91,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Great Count</Label>
+            <label className="text-sm font-medium">Great Count</label>
             <input
               type="number"
               className="w-full p-2 border rounded"
@@ -101,7 +101,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Low Unit Price</Label>
+            <label className="text-sm font-medium">Low Unit Price</label>
             <input
               type="number"
               className="w-full p-2 border rounded"
@@ -111,7 +111,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Great Unit Price</Label>
+            <label className="text-sm font-medium">Great Unit Price</label>
             <input
               type="number"
               className="w-full p-2 border rounded"
@@ -121,7 +121,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Sub uom type</Label>
+            <label className="text-sm font-medium">Sub uom type</label>
             <Select
               value={condition.subUomType ?? ''}
               onValueChange={(v) =>
@@ -135,7 +135,9 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               <Select.Content>
                 <Select.Item value={CLEAR_VALUE}>Not use</Select.Item>
                 <Select.Item value="lt">Low than count</Select.Item>
-                <Select.Item value="gte">Greater, equal than count</Select.Item>
+                <Select.Item value="gte">
+                  Greater, equal than count
+                </Select.Item>
               </Select.Content>
             </Select>
           </div>
@@ -146,7 +148,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
       <div className="rounded border p-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <Label>Set branch</Label>
+            <label className="text-sm font-medium">Set branch</label>
             <SelectBranches
               value={condition.branchId || ''}
               onChange={(branchId) => onChangeConfig('branchId', branchId)}
@@ -155,7 +157,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <Label>Set department</Label>
+            <label className="text-sm font-medium">Set department</label>
             <SelectDepartments
               value={condition.departmentId || ''}
               onChange={(departmentId) =>
@@ -181,3 +183,4 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
 };
 
 export default PerConditions;
+

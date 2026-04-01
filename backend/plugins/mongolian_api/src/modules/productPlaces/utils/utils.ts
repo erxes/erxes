@@ -186,7 +186,7 @@ export const checkCondition = async (
 
     if (
       !(condition.excludeProductIds || []).includes(product._id) &&
-      condition.calcedCatIds.includes(product.categoryId)
+      product?.categoryId && condition.calcedCatIds.includes(product.categoryId)
     ) {
       categoryRes = true;
     }
@@ -195,16 +195,22 @@ export const checkCondition = async (
   if (!categoryRes) return false;
 
   if (condition.productTagIds?.length) {
-    tagRes = false;
-    const product = productById[pdata.productId];
+  tagRes = false;
+  const product = productById[pdata.productId];
 
-    if (
-      !(condition.excludeProductIds || []).includes(product._id) &&
-      _.intersection(condition.calcedTagIds, product.tagIds).length
-    ) {
-      tagRes = true;
-    }
+  // 🔥 FORCE fetch tags from pdata fallback if missing
+  const productTagIds =
+    product?.tagIds ||
+    pdata?.tagIds || // sometimes exists
+    [];
+
+  if (
+    !(condition.excludeProductIds || []).includes(product?._id) &&
+    _.intersection(condition.calcedTagIds, productTagIds).length > 0
+  ) {
+    tagRes = true;
   }
+}
 
   if (!tagRes) return false;
 

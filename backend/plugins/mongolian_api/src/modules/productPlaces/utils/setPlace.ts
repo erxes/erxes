@@ -11,9 +11,10 @@ export const setPlace = async (
   processId,
 ) => {
   if (!config.conditions?.length) {
+    
     return productsData;
   }
-
+ 
   const pdatas = productsData;
 
   const conditions = config.conditions.filter(
@@ -66,7 +67,12 @@ export const setPlace = async (
         condition,
         productById,
       );
-
+       console.log('🔥 CHECK CONDITION:', {
+      productId: pdata.productId,
+      matches,
+      condition,
+      product: productById[pdata.productId],
+    });
       if (matches) {
         pdata.branchId = condition.branchId;
         pdata.departmentId = condition.departmentId;
@@ -102,6 +108,6 @@ export const setPlace = async (
     } else {
     }
   } catch (error) {}
-
+  console.log('🔥 FINAL PDATAS:', JSON.stringify(pdatas, null, 2));
   return pdatas;
 };

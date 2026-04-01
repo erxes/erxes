@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { Spinner } from 'erxes-ui';
+import { Spinner, Form } from 'erxes-ui';
+import { useForm } from 'react-hook-form';
 
 import type {
-  MNConfigQueryResponse,
   MNConfigsCreateMutationResponse,
   MNConfigsUpdateMutationResponse,
   MNConfigsRemoveMutationResponse,
 } from '../types';
 
-import { MN_CONFIG, MN_CONFIGS, STAGES_QUERY } from '../graphql/clientQueries';
+import { MN_CONFIG, MN_CONFIGS } from '../graphql/clientQueries';
 import {
   MN_CONFIGS_CREATE,
   MN_CONFIGS_UPDATE,
@@ -37,6 +37,9 @@ const SettingsContainer = ({
   subId,
   multiple = false,
 }: Props) => {
+
+  const form = useForm();
+
   const { data, loading, error, refetch } = useQuery(
     multiple ? MN_CONFIGS : MN_CONFIG,
     {
@@ -50,20 +53,20 @@ const SettingsContainer = ({
 
   const [createConfig] =
     useMutation<MNConfigsCreateMutationResponse>(MN_CONFIGS_CREATE);
+
   const [updateConfig] =
     useMutation<MNConfigsUpdateMutationResponse>(MN_CONFIGS_UPDATE);
+
   const [removeConfig] =
     useMutation<MNConfigsRemoveMutationResponse>(MN_CONFIGS_REMOVE);
 
-  /**
-   * Normalize config(s) into the format expected by the component
-   * and include the raw subId for stage selection in the form.
-   */
   const normalizedConfigs = useMemo(() => {
     if (multiple) {
       const rawList = data?.mnConfigs || [];
+
       return rawList.map((raw: any) => {
         let normalized;
+
         if (configCode === 'dealsProductsDataPlaces') {
           normalized = normalizePlaceConfig(raw);
         } else if (configCode === 'dealsProductsDataSplit') {
@@ -73,34 +76,40 @@ const SettingsContainer = ({
         } else {
           normalized = normalizeConfig(raw);
         }
+
         return {
-          _id: raw._id,
-          subId: raw.subId, // include subId for stage selection
-          ...normalized,
-        };
-      });
-    } else {
-      const raw = data?.mnConfig;
-      if (!raw?.value) return [];
-      let normalized;
-      if (configCode === 'dealsProductsDataPlaces') {
-        normalized = normalizePlaceConfig(raw);
-      } else if (configCode === 'dealsProductsDataSplit') {
-        normalized = normalizeSplitConfig(raw);
-      } else if (configCode === 'dealsProductsDataPrint') {
-        normalized = normalizePrintConfig(raw);
-      } else {
-        normalized = normalizeConfig(raw);
-      }
-      return [
-        {
           _id: raw._id,
           subId: raw.subId,
           ...normalized,
-        },
-      ];
+        };
+      });
     }
+
+    const raw = data?.mnConfig;
+
+    if (!raw?.value) return [];
+
+    let normalized;
+
+    if (configCode === 'dealsProductsDataPlaces') {
+      normalized = normalizePlaceConfig(raw);
+    } else if (configCode === 'dealsProductsDataSplit') {
+      normalized = normalizeSplitConfig(raw);
+    } else if (configCode === 'dealsProductsDataPrint') {
+      normalized = normalizePrintConfig(raw);
+    } else {
+      normalized = normalizeConfig(raw);
+    }
+
+    return [
+      {
+        _id: raw._id,
+        subId: raw.subId,
+        ...normalized,
+      },
+    ];
   }, [data, configCode, multiple]);
+
 
   if (loading) {
     return (
@@ -118,15 +127,10 @@ const SettingsContainer = ({
     );
   }
 
-  /**
-   * SAVE (create or update)
-   * Accepts an optional formSubId that overrides any stageId inside config.
-   */
   const save = async (config: Record<string, any>, formSubId?: string) => {
     const { _id, ...rest } = config;
     const value = denormalizeConfig(rest);
 
-    // Priority: formSubId > rest.stageId > prop subId
     const finalSubId = formSubId ?? rest.stageId ?? subId ?? '';
 
     if (_id) {
@@ -151,24 +155,27 @@ const SettingsContainer = ({
     return true;
   };
 
-  /**
-   * DELETE by id
-   */
+
   const remove = async (id: string) => {
     if (!id) return;
+
     await removeConfig({
       variables: { _id: id },
     });
+
     await refetch();
   };
 
+
   return (
-    <Component
-      configs={normalizedConfigs}
-      save={save}
-      delete={remove}
-      loading={loading}
-    />
+    <Form {...form}>
+      <Component
+        configs={normalizedConfigs}
+        save={save}
+        delete={remove}
+        loading={loading}
+      />
+    </Form>
   );
 };
 

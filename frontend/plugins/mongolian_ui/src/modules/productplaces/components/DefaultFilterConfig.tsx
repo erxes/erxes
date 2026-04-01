@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Label } from 'erxes-ui';
+import { Button } from 'erxes-ui';
 import SelectSegments from '../selects/SelectSegments';
 import SelectUsers from '../selects/SelectUsers';
 
@@ -31,7 +31,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
   delete: deleteConfig,
 }) => {
   const [filters, setFilters] = useState<FilterConfig[]>([]);
-  // sync from backend config
+
   useEffect(() => {
     const incoming = Array.isArray(config?.filters) ? config.filters : [];
     setFilters(
@@ -140,7 +140,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
                 key={index}
                 className="bg-white rounded-xl border p-6 shadow-sm space-y-6"
               >
-                {/* Filter Header */}
+                {/* Header */}
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-base">{filter.title}</h3>
 
@@ -157,7 +157,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
                 {/* Title + Segment */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Title</Label>
+                    <label className="text-sm font-medium">Title</label>
                     <input
                       className="w-full rounded-md border px-3 py-2"
                       value={filter.title}
@@ -169,7 +169,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Segment</Label>
+                    <label className="text-sm font-medium">Segment</label>
                     <SelectSegments
                       contentTypes={SEGMENT_CONTENT_TYPES}
                       value={filter.segmentId}
@@ -182,7 +182,9 @@ const DefaultFilterConfig: React.FC<Props> = ({
 
                 {/* Users */}
                 <div className="space-y-3">
-                  <Label>Assigned Users</Label>
+                  <label className="text-sm font-medium">
+                    Assigned Users
+                  </label>
 
                   <div className="flex gap-3 items-center">
                     <div className="flex-1">
@@ -239,3 +241,4 @@ const DefaultFilterConfig: React.FC<Props> = ({
 };
 
 export default DefaultFilterConfig;
+

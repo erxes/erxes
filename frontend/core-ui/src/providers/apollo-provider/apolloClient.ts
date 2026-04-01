@@ -44,7 +44,6 @@ const httpLinkWithMiddleware = from([errorLink, authLink, httpLink]);
 
 // Subscription config
 const wsUrl = REACT_APP_API_URL.replace(/^http/, 'ws') + '/graphql';
-console.log('🔥 WebSocket URL:', wsUrl);
 export const wsLink = new GraphQLWsLink(
   createClient({
     url: wsUrl,
@@ -70,7 +69,6 @@ const link = split(
   wsLink,
   httpLinkWithMiddleware,
 );
-console.log('🔥 Apollo Client link:', link);
 const typePolicies = {
   customers: {
     keyFields: ['_id'],

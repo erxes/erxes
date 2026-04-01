@@ -9,6 +9,7 @@ export const handlePlace = async (
   userId,
   processId,
 ) => {
+  console.log('🔥 handlePlace CALLED');
   const products = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -18,6 +19,7 @@ export const handlePlace = async (
     input: {
       query: { _id: { $in: productsData.map((p) => p.productId) } },
       limit: productsData.length,
+      withTags: true,
     },
     defaultValue: [],
   });

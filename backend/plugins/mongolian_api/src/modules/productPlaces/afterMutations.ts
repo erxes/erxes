@@ -8,7 +8,6 @@ import { handlePrint } from './handlers/handlePrint';
 import { getMnConfigs } from './utils/utils';
 
 export default {
-  'sales:deal': ['update'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
