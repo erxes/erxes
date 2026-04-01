@@ -38,7 +38,7 @@ export const FormPreview = () => {
     }
   }, [formContent.steps]);
 
-  if (!formContent || !formContent.steps) {
+  if (!formContent?.steps) {
     return (
       <div className="p-5">
         <InfoCard title={formGeneral.title}>
@@ -80,7 +80,7 @@ export const FormPreview = () => {
     Object.entries(steps).map(([stepId, step]) => {
       const formSchema: Record<string, z.ZodType> = {};
       step.fields.forEach((field) => {
-        if (!field || !field.type) return;
+        if (!field?.type) return;
 
         if (field.type === 'text' || field.type === 'textarea') {
           formSchema[field.id] = z.string();
@@ -104,7 +104,7 @@ export const FormPreview = () => {
     Object.entries(formContent.steps).map(([stepId, step]) => {
       const stepDefaultValues: Record<string, any> = {};
       step.fields.forEach((field) => {
-        if (!field || !field.type) return;
+        if (!field?.type) return;
         if (
           field.type === 'text' ||
           field.type === 'textarea' ||

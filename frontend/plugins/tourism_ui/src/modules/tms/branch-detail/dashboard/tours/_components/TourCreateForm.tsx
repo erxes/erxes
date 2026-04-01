@@ -241,17 +241,24 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
         const primaryStartDate = selectedDates[0];
 
         if (selectedDates.length > 0) {
+          const isMulti = values.isGroupTour && selectedDates.length > 1;
+
           await Promise.all(
-            selectedDates.map((selectedDate) => {
+            selectedDates.map((selectedDate, idx) => {
               const computedEndDate = calculateEndDate(
                 selectedDate,
                 values.duration,
               );
 
+              const refNumber = isMulti
+                ? `${restValues.refNumber}-${String(idx + 1).padStart(2, '0')}`
+                : restValues.refNumber;
+
               return createTour({
                 variables: {
                   branchId,
                   ...restValues,
+                  refNumber,
                   pricingOptions: normalizedPricingOptions,
                   dateType: 'fixed',
                   startDate: selectedDate,

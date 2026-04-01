@@ -278,9 +278,9 @@ export const automationQueries = {
 
     for (const pluginName of plugins) {
       const plugin = await getPlugin(pluginName);
-      const meta = plugin.config?.meta || {};
+      const meta = plugin.config?.meta ?? {};
 
-      if (meta && meta.automations && meta.automations.constants) {
+      if (meta?.automations?.constants) {
         const pluginConstants = meta.automations.constants || {};
         const { triggers = [], actions = [] } =
           pluginConstants as AutomationConstants;

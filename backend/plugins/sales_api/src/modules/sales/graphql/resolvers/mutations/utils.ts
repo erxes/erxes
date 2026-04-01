@@ -32,7 +32,7 @@ export const addDeal = async ({
 
   const extendedDoc = {
     ...doc,
-    modifiedBy: user && user._id,
+    modifiedBy: user?._id,
     userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection: models.Deals,
@@ -215,7 +215,7 @@ export const editDeal = async ({
   await sendNotifications(models, subdomain, notificationDoc);
 
   // exclude [null]
-  if (doc.tagIds && doc.tagIds.length) {
+  if (doc.tagIds?.length) {
     doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 

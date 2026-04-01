@@ -53,7 +53,7 @@ export const DatePicker = ({
     }
 
     setIsOpen(false);
-    onChange && onChange(selectedDate);
+    onChange?.(selectedDate);
   };
 
   return (

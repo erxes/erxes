@@ -140,33 +140,41 @@ export const setSafeRemItems = async (
           remainderId: safeRemainder._id,
           productId: product._id,
         },
-        update: {
-          $set: {
-            preCount: newInfo.remainder,
-            cost: newInfo.cost,
-            modifiedAt: new Date(),
-            modifiedBy: userId,
-            order,
-            count: {
-              $cond: [
-                {
-                  $and: [
-                    { $eq: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW] },
-                    { $eq: ['$preCount', '$count'] },
-                  ],
-                },
-                newInfo.remainder,
-                '$count',
-              ],
-            },
-          },
-          $setOnInsert: {
-            remainderId: safeRemainder._id,
-            productId: product._id,
-            status: SAFE_REMAINDER_ITEM_STATUSES.NEW,
-            uom: product.uom,
-          },
-        },
+        update: [
+          {
+            $set: {
+              _id: { $ifNull: ['$_id', nanoid()] },
+              remainderId: { $ifNull: ['$remainderId', safeRemainder._id] },
+              productId: { $ifNull: ['$productId', product._id] },
+              status: { $ifNull: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW] },
+              uom: { $ifNull: ['$uom', product.uom] },
+
+              preCount: newInfo.remainder,
+              cost: newInfo.cost,
+              modifiedAt: new Date(),
+              modifiedBy: userId,
+              order,
+
+              count: {
+                $cond: [
+                  {
+                    $or: [
+                      { $not: [{ $ifNull: ['$count', false] }] },
+                      {
+                        $and: [
+                          { $eq: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW] },
+                          { $eq: ['$preCount', '$count'] }
+                        ]
+                      }
+                    ]
+                  },
+                  newInfo.remainder,
+                  '$count'
+                ]
+              }
+            }
+          }
+        ],
         upsert: true,
       },
     });

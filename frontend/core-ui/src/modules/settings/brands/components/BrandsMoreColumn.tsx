@@ -1,12 +1,11 @@
-import { Cell } from '@tanstack/react-table';
-import { RecordTable, useQueryState, useConfirm, useToast } from 'erxes-ui';
-import { Popover, Command, Combobox } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable, useConfirm, useQueryState, useToast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { IBrand } from '../types';
-import { renderingBrandDetailAtom } from '../state';
-import { useBrandsRemove } from '../hooks/useBrandsRemove';
 import { Can } from 'ui-modules';
+import { useBrandsRemove } from '../hooks/useBrandsRemove';
+import { renderingBrandDetailAtom } from '../state';
+import { IBrand } from '../types';
 
 export const BrandsMoreColumnCell = ({
   cell,

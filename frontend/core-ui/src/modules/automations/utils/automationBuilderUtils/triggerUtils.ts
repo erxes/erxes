@@ -33,9 +33,9 @@ export const getTriggerOfAction = (
 
   for (const { id, nextActionId, type, config } of actions) {
     // Handle folks connections
-    const folks = (actionFolks || {})[type] || [];
+    const folks = actionFolks?.[type] || [];
     for (const folk of folks) {
-      const folkActionId = (config || {})[folk.key];
+      const folkActionId = config?.[folk.key];
       // Validate that folkActionId is actually a valid action ID
       if (folkActionId && actionIdSet.has(folkActionId)) {
         const parents = reverseMap.get(folkActionId) || [];

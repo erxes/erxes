@@ -228,7 +228,7 @@ export const createExportBatchProcessor = (
           } else {
             cursor = String(nextIndex);
           }
-        } else if (lastItem && lastItem._id) {
+        } else if (lastItem?._id) {
           cursor = lastItem._id;
           // If batch is smaller than BATCH_SIZE, we've reached the end
           if (batch.length < BATCH_SIZE) {

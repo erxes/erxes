@@ -78,7 +78,7 @@ export const useTours = (
     limit: TOURS_PER_PAGE,
   };
 
-  const { data, loading, fetchMore } = useQuery(GET_TOURS, {
+  const { data, loading, error, fetchMore } = useQuery(GET_TOURS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables,
@@ -122,6 +122,7 @@ export const useTours = (
 
   return {
     loading,
+    error,
     tours,
     totalCount,
     pageInfo,

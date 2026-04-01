@@ -1,15 +1,15 @@
-import { Cell } from '@tanstack/react-table';
-import { RecordTable, useConfirm, useToast } from 'erxes-ui';
+import { useClientPortalRemove } from '@/client-portal/hooks/useClientPortalRemove';
 import { IClientPortal } from '@/client-portal/types/clientPortal';
-import { Popover, Command, Combobox } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
 import {
   SettingsPath,
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { useClientPortalRemove } from '@/client-portal/hooks/useClientPortalRemove';
 import { Can } from 'ui-modules';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
+import { Link } from 'react-router-dom';
 
 export const ClientPortalMoreColumnCell = ({
   cell,

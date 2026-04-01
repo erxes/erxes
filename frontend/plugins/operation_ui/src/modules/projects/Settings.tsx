@@ -1,11 +1,10 @@
-import { Suspense } from 'react';
-import { Routes, Route } from 'react-router';
-import { SettingsHeader } from 'ui-modules';
-import { Button, PageContainer } from 'erxes-ui';
 import { IconClipboard } from '@tabler/icons-react';
+import { Button, PageContainer } from 'erxes-ui';
+import { Suspense } from 'react';
+import { Route, Routes } from 'react-router';
 import { Outlet } from 'react-router-dom';
+import { SettingsHeader, TagProvider, TagsGroupsAddButtons } from 'ui-modules';
 import { ProjectsTagsPage } from '~/pages/ProjectsTagsPage';
-import { TagProvider, TagsGroupsAddButtons } from 'ui-modules';
 
 const ProjectsSettings = () => {
   return (
