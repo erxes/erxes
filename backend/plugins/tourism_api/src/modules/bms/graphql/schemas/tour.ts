@@ -164,6 +164,7 @@ export const queries = `
   cpBmsTourDetail(_id:String!,branchId: String): Tour
   cpBmToursGroup(branchId:String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS, webId: String): GroupTour
   cpBmToursGroupDetail(groupCode:String,status: String): GroupTourItem
+  cpBmsOrders( tourId:String, customerId:String ,branchId: String, ${GQL_CURSOR_PARAM_DEFS}):BmsOrderListResponse
 `;
 
 const params = `
@@ -215,4 +216,8 @@ export const mutations = `
   bmsOrderAdd(order:BmsOrderInput): BmsOrder
   bmsOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder
   bmsOrderRemove(ids:[String]): JSON
+
+  cpBmsOrderAdd(order:BmsOrderInput): BmsOrder
+  cpBmsOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder
+  cpBmsOrderRemove(ids:[String]): JSON
 `;
