@@ -44,7 +44,6 @@ export interface IMonpayConfig {
   accountId: string;
 }
 
-
 export interface ITokiInvoice {
   invoice_code: string;
   sender_invoice_no: string;
