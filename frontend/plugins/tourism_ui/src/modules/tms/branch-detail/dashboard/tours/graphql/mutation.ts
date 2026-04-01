@@ -10,8 +10,11 @@ export const CREATE_TOUR = gql`
     $groupCode: String
     $content: String
     $itineraryId: String
+    $dateType: DATE_TYPE
     $startDate: Date
     $endDate: Date
+    $availableFrom: Date
+    $availableTo: Date
     $groupSize: Int
     $duration: Int
     $cost: Float
@@ -23,11 +26,13 @@ export const CREATE_TOUR = gql`
     $info5: String
     $images: [String]
     $imageThumbnail: String
+    $attachment: AttachmentInput
     $advancePercent: Float
     $advanceCheck: Boolean
     $joinPercent: Float
     $personCost: JSON
     $categoryIds: [String]
+    $pricingOptions: [PricingOptionInput]
   ) {
     bmsTourAdd(
       branchId: $branchId
@@ -38,8 +43,11 @@ export const CREATE_TOUR = gql`
       groupCode: $groupCode
       content: $content
       itineraryId: $itineraryId
+      dateType: $dateType
       startDate: $startDate
       endDate: $endDate
+      availableFrom: $availableFrom
+      availableTo: $availableTo
       groupSize: $groupSize
       duration: $duration
       cost: $cost
@@ -51,11 +59,13 @@ export const CREATE_TOUR = gql`
       info5: $info5
       images: $images
       imageThumbnail: $imageThumbnail
+      attachment: $attachment
       advancePercent: $advancePercent
       advanceCheck: $advanceCheck
       joinPercent: $joinPercent
       personCost: $personCost
       categoryIds: $categoryIds
+      pricingOptions: $pricingOptions
     ) {
       _id
     }
@@ -69,8 +79,11 @@ export const EDIT_TOUR = gql`
     $name: String
     $content: String
     $itineraryId: String
+    $dateType: DATE_TYPE
     $startDate: Date
     $endDate: Date
+    $availableFrom: Date
+    $availableTo: Date
     $groupSize: Int
     $duration: Int
     $advancePercent: Float
@@ -88,7 +101,9 @@ export const EDIT_TOUR = gql`
     $personCost: JSON
     $images: [String]
     $imageThumbnail: String
+    $attachment: AttachmentInput
     $categoryIds: [String]
+    $pricingOptions: [PricingOptionInput]
   ) {
     bmsTourEdit(
       _id: $id
@@ -96,8 +111,11 @@ export const EDIT_TOUR = gql`
       name: $name
       content: $content
       itineraryId: $itineraryId
+      dateType: $dateType
       startDate: $startDate
       endDate: $endDate
+      availableFrom: $availableFrom
+      availableTo: $availableTo
       groupSize: $groupSize
       duration: $duration
       advancePercent: $advancePercent
@@ -115,7 +133,9 @@ export const EDIT_TOUR = gql`
       personCost: $personCost
       images: $images
       imageThumbnail: $imageThumbnail
+      attachment: $attachment
       categoryIds: $categoryIds
+      pricingOptions: $pricingOptions
     ) {
       _id
     }
@@ -125,5 +145,25 @@ export const EDIT_TOUR = gql`
 export const REMOVE_TOUR = gql`
   mutation BmsTourRemove($ids: [String]) {
     bmsTourRemove(ids: $ids)
+  }
+`;
+
+export const EDIT_TOUR_ORDER = gql`
+  mutation BmsOrderEdit($id: String!, $order: BmsOrderInput) {
+    bmsOrderEdit(_id: $id, order: $order) {
+      _id
+      branchId
+      customerId
+      tourId
+      amount
+      status
+      note
+      numberOfPeople
+      type
+      additionalCustomers
+      isChild
+      parent
+      createdAt
+    }
   }
 `;

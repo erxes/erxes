@@ -15,7 +15,7 @@ import {
   initCustomField,
 } from '@/products/utils';
 import { IModels } from '~/connectionResolvers';
-import { generateProductActivityLogs } from '../../utils/activityLogs';
+import { generateProductUpdateActivityLogs } from '../../meta/activity-log';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -170,7 +170,7 @@ export const loadProductClass = (
           currentDocument: updatedProduct,
           prevDocument: product,
         });
-        generateProductActivityLogs(
+        generateProductUpdateActivityLogs(
           product,
           updatedProduct,
           models,
@@ -394,7 +394,7 @@ export const loadProductClass = (
      * Check product barcode
      */
     static fixBarcodes(barcodes?, variants?) {
-      if (barcodes && barcodes.length) {
+      if (barcodes?.length) {
         barcodes = barcodes
           .filter((bc) => bc)
           .map((bc) => bc.replace(/\s/g, '').replace(/_/g, ''));

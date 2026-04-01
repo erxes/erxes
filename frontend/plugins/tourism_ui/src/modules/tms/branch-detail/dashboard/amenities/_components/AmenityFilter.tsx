@@ -1,5 +1,6 @@
 import { Combobox, Command, Filter } from 'erxes-ui';
 import { AMENITIES_CURSOR_SESSION_KEY } from '../constants/amenityCursorSessionKey';
+import { AmenityTotalCount } from './AmenityTotalCount';
 
 const AmenityFilterPopover = () => {
   return (
@@ -32,6 +33,7 @@ export const AmenityFilter = () => {
       <Filter.Bar>
         <AmenityFilterPopover />
         <Filter.SearchValueBarItem />
+        <AmenityTotalCount />
       </Filter.Bar>
     </Filter>
   );

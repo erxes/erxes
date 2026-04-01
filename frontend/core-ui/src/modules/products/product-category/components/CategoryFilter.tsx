@@ -1,6 +1,7 @@
 import { IconSearch } from '@tabler/icons-react';
 import { Combobox, Command, Filter } from 'erxes-ui';
 import { CategoryHotKeyScope } from '../types/CategoryHotKeyScope';
+import { CategoryTotalCount } from './CategoryTotalCount';
 
 export const CategoryFilter = () => {
   return (

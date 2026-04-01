@@ -4,6 +4,10 @@ export { CategoryEditSheet } from './_components/CategoryEditSheet';
 export { CategoryCommandBar } from './_components/CategoryCommandBar';
 export { CategoryFilter } from './_components/CategoryFilter';
 export { categoryColumns } from './_components/CategoryColumns';
+export {
+  CategoryMoreColumn,
+  categoryMoreColumn,
+} from './_components/CategoryMoreCell';
 
 export { useCategories } from './hooks/useCategories';
 export { useCreateCategory } from './hooks/useCreateCategory';

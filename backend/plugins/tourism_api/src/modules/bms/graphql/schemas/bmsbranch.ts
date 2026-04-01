@@ -12,6 +12,8 @@ const commonFields = `
   erxesAppToken: String
   permissionConfig: JSON
   uiOptions: JSON
+  language: String
+  languages: [String]
 `;
 
 export const types = `

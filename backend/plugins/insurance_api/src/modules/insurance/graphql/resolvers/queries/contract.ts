@@ -131,8 +131,7 @@ export const contractQueries = {
         'vendor customer insuranceType insuranceProduct coveredRisks.risk',
       );
 
-      if (!contract || !contract.insuranceProduct || !contract.insuranceType)
-        return null;
+      if (!contract?.insuranceProduct || !contract?.insuranceType) return null;
 
       return {
         ...contract.toObject(),
@@ -195,8 +194,7 @@ export const contractQueries = {
         'vendor customer insuranceType insuranceProduct coveredRisks.risk',
       );
 
-      if (!contract || !contract.insuranceProduct || !contract.insuranceType)
-        return null;
+      if (!contract?.insuranceProduct || !contract?.insuranceType) return null;
 
       return {
         ...contract.toObject(),
@@ -370,7 +368,7 @@ export const contractQueries = {
         vendor: vendorUser.vendor,
       }).populate('vendor customer insuranceType insuranceProduct');
 
-      if (!contract || !contract.insuranceType) return null;
+      if (!contract?.insuranceType) return null;
 
       return contract;
     },

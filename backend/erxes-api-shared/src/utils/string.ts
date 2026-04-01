@@ -66,7 +66,12 @@ export const splitStr = async (
 
   const regex = new RegExp(String.raw`.{1,${size}}(\s|$)`, 'g');
 
-  return cleanStr.match(regex) || [];
+  const matches: string[] = [];
+  let match;
+  while ((match = regex.exec(cleanStr)) !== null) {
+    matches.push(match[0]);
+  }
+  return matches;
 };
 
 /**

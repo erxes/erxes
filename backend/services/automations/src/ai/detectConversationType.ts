@@ -1,4 +1,4 @@
-import { generateTextCF } from '@/ai/generateTextCF';
+import { generateTextCF } from './generateTextCF';
 
 export async function detectConversationType(
   question: string,

@@ -28,6 +28,7 @@ interface UsePosItemsListReturn {
     startCursor: null;
     endCursor: null;
   };
+  variables: ReturnType<typeof usePosItemsVariables>;
 }
 
 export const usePosItemsVariables = (options: UsePosItemsListOptions = {}) => {
@@ -115,8 +116,8 @@ export const usePosItemsList = (
     [data?.posOrderRecords],
   );
   const totalCount = useMemo(
-    () => data?.posOrderRecords?.totalCount || 0,
-    [data?.posOrderRecords?.totalCount],
+    () => data?.posOrderRecordsCount || 0,
+    [data?.posOrderRecordsCount],
   );
 
   const handleFetchMore = useCallback(() => {
@@ -137,14 +138,14 @@ export const usePosItemsList = (
             ...(prev.posOrderRecords || []),
             ...fetchMoreResult.posOrderRecords,
           ],
-          totalCount: fetchMoreResult.posOrderRecords.totalCount,
+          posOrderRecordsCount:
+            fetchMoreResult.posOrderRecordsCount ?? prev.posOrderRecordsCount,
         };
       },
     });
   }, [posItemList.length, fetchMore, data?.posOrderRecords]);
 
   useEffect(() => {
-    if (!totalCount) return;
     setPosItemsTotalCount(totalCount);
   }, [totalCount, setPosItemsTotalCount]);
 
@@ -159,5 +160,6 @@ export const usePosItemsList = (
       startCursor: null,
       endCursor: null,
     },
+    variables,
   };
 };

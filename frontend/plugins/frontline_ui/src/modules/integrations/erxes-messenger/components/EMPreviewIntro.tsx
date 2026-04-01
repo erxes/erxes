@@ -12,7 +12,6 @@ import {
   Input,
   Label,
   PhoneInput,
-  Popover,
   readImage,
   Tabs,
 } from 'erxes-ui';

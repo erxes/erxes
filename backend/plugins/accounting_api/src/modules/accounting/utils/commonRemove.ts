@@ -8,7 +8,7 @@ export const commonRemove = async (
   tr: ITransaction,
 ) => {
   const handler = getJournalHandler(tr.journal);
-  if (!handler) throw new Error(`Unsupported journal: ${tr.journal}`);
+  if (!handler) return;
 
   await handler(models, subdomain, tr);
 };
@@ -50,7 +50,7 @@ async function handleInvIncome(
     method: 'mutation',
     pluginName: 'core',
     module: 'products',
-    action: 'increaseRemainders',
+    action: 'increaseInventories',
     input: {
       branchId: tr?.branchId,
       departmentId: tr?.departmentId,

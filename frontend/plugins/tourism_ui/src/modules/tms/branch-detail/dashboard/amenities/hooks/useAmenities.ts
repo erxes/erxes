@@ -10,6 +10,9 @@ import {
 import { GET_AMENITIES } from '../graphql/queries';
 import { AMENITIES_CURSOR_SESSION_KEY } from '../constants/amenityCursorSessionKey';
 import { IAmenity } from '../types/amenity';
+import { useEffect } from 'react';
+import { useSetAtom } from 'jotai';
+import { amenityTotalCountAtom } from '../states/amenityCounts';
 
 const AMENITIES_PER_PAGE = 30;
 
@@ -55,6 +58,12 @@ export const useAmenities = (
   });
 
   const { list: amenities, totalCount, pageInfo } = data?.bmsElements || {};
+
+  const setAmenityTotalCount = useSetAtom(amenityTotalCountAtom);
+
+  useEffect(() => {
+    setAmenityTotalCount(totalCount);
+  }, [totalCount, setAmenityTotalCount]);
 
   const handleFetchMore = ({
     direction,

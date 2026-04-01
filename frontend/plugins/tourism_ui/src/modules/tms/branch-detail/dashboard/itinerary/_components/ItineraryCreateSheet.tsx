@@ -1,5 +1,5 @@
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Form, Sheet, useToast, Tabs } from 'erxes-ui';
+import { IconChevronDown, IconPlus } from '@tabler/icons-react';
+import { Button, Collapsible, Form, Sheet, useToast, Tabs } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,13 +11,15 @@ import {
 
 import {
   ItineraryNameField,
-  ItineraryColorField,
+  ItineraryContentField,
+  ItineraryImageField,
   ItineraryGuideCostField,
   ItineraryDriverCostField,
   ItineraryFoodCostField,
   ItineraryGasCostField,
   ItineraryGuideCostExtraField,
   ItineraryPersonCostField,
+  ItineraryColorField,
 } from './ItineraryFormFields';
 import { useCreateItinerary } from '../hooks/useCreateItinerary';
 import { ItineraryBuilder } from '../itinerary-builder';
@@ -41,6 +43,7 @@ export const ItineraryCreateSheet = ({
 }: ItineraryCreateSheetProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>('build');
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
 
   const { toast } = useToast();
   const { createItinerary, loading } = useCreateItinerary();
@@ -64,8 +67,10 @@ export const ItineraryCreateSheet = ({
     reValidateMode: 'onChange',
     defaultValues: {
       name: '',
+      color: '#4F46E5',
+      content: '',
       duration: 1,
-      color: '#000000',
+      images: [],
       totalCost: 0,
       groupDays: [],
       guideCost: 0,
@@ -81,6 +86,7 @@ export const ItineraryCreateSheet = ({
     if (!value) {
       form.reset();
       setCurrentStep('build');
+      setShowMoreOptions(false);
     }
 
     if (isControlled) {
@@ -92,7 +98,7 @@ export const ItineraryCreateSheet = ({
 
   const stepFields: Record<Step, (keyof ItineraryCreateFormType)[]> = {
     build: ['groupDays'],
-    info: ['name', 'color'],
+    info: ['name'],
   };
 
   const handleNextStep = async () => {
@@ -168,8 +174,10 @@ export const ItineraryCreateSheet = ({
         variables: {
           branchId,
           name: values.name,
-          duration: totalDays,
           color: values.color,
+          content: values.content,
+          duration: totalDays,
+          images: values.images?.slice(0, 1) || [],
           totalCost,
           groupDays: transformedGroupDays,
           guideCost: values.guideCost,
@@ -247,32 +255,63 @@ export const ItineraryCreateSheet = ({
 
                 <Tabs.Content value="info" className="overflow-y-auto p-3">
                   <div className="space-y-4 w-full">
-                    <div className="grid grid-cols-10 gap-4 pb-4 border-b border-muted">
-                      <div className="col-span-2">
+                    <div className="flex gap-4 items-end">
+                      <div className="w-[20%]">
                         <ItineraryColorField control={form.control} />
                       </div>
-
-                      <div className="col-span-8">
+                      <div className="w-[80%]">
                         <ItineraryNameField control={form.control} />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <ItineraryGuideCostField control={form.control} />
-                      <ItineraryDriverCostField control={form.control} />
-                    </div>
+                    <ItineraryContentField control={form.control} />
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <ItineraryFoodCostField control={form.control} />
-                      <ItineraryGasCostField control={form.control} />
-                    </div>
+                    <ItineraryImageField control={form.control} />
 
-                    <ItineraryGuideCostExtraField control={form.control} />
+                    <Collapsible
+                      open={showMoreOptions}
+                      onOpenChange={setShowMoreOptions}
+                      className="flex flex-col items-center my-5"
+                    >
+                      <Collapsible.Content className="order-1 pt-4 space-y-4 w-full">
+                        <div className="grid grid-cols-2 gap-4">
+                          <ItineraryGuideCostField control={form.control} />
+                          <ItineraryDriverCostField control={form.control} />
+                        </div>
 
-                    <ItineraryPersonCostField
-                      control={form.control}
-                      duration={form.watch('groupDays')?.length || 1}
-                    />
+                        <div className="grid grid-cols-2 gap-4">
+                          <ItineraryFoodCostField control={form.control} />
+                          <ItineraryGasCostField control={form.control} />
+                        </div>
+
+                        <ItineraryGuideCostExtraField control={form.control} />
+
+                        <ItineraryPersonCostField
+                          control={form.control}
+                          duration={form.watch('groupDays')?.length || 1}
+                        />
+                      </Collapsible.Content>
+
+                      <Collapsible.Trigger asChild>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="group"
+                          size="sm"
+                        >
+                          {showMoreOptions
+                            ? 'Hide more options'
+                            : 'Show more options'}
+                          <IconChevronDown
+                            size={12}
+                            strokeWidth={2}
+                            className={`transition-transform ${
+                              showMoreOptions ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </Button>
+                      </Collapsible.Trigger>
+                    </Collapsible>
                   </div>
                 </Tabs.Content>
               </Tabs>

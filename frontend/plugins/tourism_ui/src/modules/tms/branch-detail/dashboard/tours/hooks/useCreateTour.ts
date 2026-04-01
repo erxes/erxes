@@ -25,8 +25,11 @@ export interface ICreateTourVariables {
   status?: string;
   groupCode?: string;
   itineraryId?: string;
+  dateType?: 'fixed' | 'flexible';
   startDate?: Date;
   endDate?: Date;
+  availableFrom?: Date;
+  availableTo?: Date;
   groupSize?: number;
   duration?: number;
   cost?: number;
@@ -38,10 +41,22 @@ export interface ICreateTourVariables {
   info5?: string;
   images?: string[];
   imageThumbnail?: string;
+  attachment?: { url: string; name: string; type: string; size: number } | null;
   advancePercent?: number;
   advanceCheck?: boolean;
   joinPercent?: number;
   personCost?: Record<string, any>;
+  categoryIds?: string[];
+  pricingOptions?: Array<{
+    title: string;
+    minPersons: number;
+    maxPersons?: number;
+    pricePerPerson: number;
+    accommodationType?: string;
+    domesticFlightPerPerson?: number;
+    singleSupplement?: number;
+    note?: string;
+  }>;
 }
 
 export const useCreateTour = () => {

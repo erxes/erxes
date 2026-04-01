@@ -5,8 +5,8 @@ import { insuranceContractSchema } from '@/insurance/db/definitions/contract';
 
 export type IContractModel = Model<IContractDocument>;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const loadContractClass = (_models: IModels) => {
-  void _models;
   class Contract {}
 
   insuranceContractSchema.loadClass(Contract);

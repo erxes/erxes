@@ -3,6 +3,7 @@ import { ApolloError } from '@apollo/client';
 import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, useConfirm, useToast } from 'erxes-ui';
+import { Can } from 'ui-modules';
 
 export const BroadcastSetLive = ({
   broadcastId,
@@ -16,37 +17,39 @@ export const BroadcastSetLive = ({
 
   const { toast } = useToast();
   return (
-    <Button
-      variant="secondary"
-      className="text-success"
-      onClick={() =>
-        confirm({
-          message: `Are you sure you want to set this broadcast live?`,
-        }).then(() => {
-          setBroadcastLive(broadcastId, {
-            onError: (e: ApolloError) => {
-              toast({
-                title: 'Error',
-                description: e.message,
-                variant: 'destructive',
-              });
-            },
-            onCompleted: () => {
-              rows.forEach((row) => {
-                row.toggleSelected(false);
-              });
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Succesfully set live',
-              });
-            },
-          });
-        })
-      }
-    >
-      <IconPlayerPlayFilled />
-      Live
-    </Button>
+    <Can action="broadcastUpdate">
+      <Button
+        variant="secondary"
+        className="text-success"
+        onClick={() =>
+          confirm({
+            message: `Are you sure you want to set this broadcast live?`,
+          }).then(() => {
+            setBroadcastLive(broadcastId, {
+              onError: (e: ApolloError) => {
+                toast({
+                  title: 'Error',
+                  description: e.message,
+                  variant: 'destructive',
+                });
+              },
+              onCompleted: () => {
+                rows.forEach((row) => {
+                  row.toggleSelected(false);
+                });
+                toast({
+                  title: 'Success',
+                  variant: 'success',
+                  description: 'Succesfully set live',
+                });
+              },
+            });
+          })
+        }
+      >
+        <IconPlayerPlayFilled />
+        Live
+      </Button>
+    </Can>
   );
 };

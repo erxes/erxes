@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 import { ITour } from '../types/tour';
 import { ICategory } from '../../category';
+import { tourMoreColumn } from './TourMoreCell';
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
@@ -35,9 +36,11 @@ const formatDate = (value?: string) => {
 export const TourColumns = (
   categories: ICategory[],
   onEdit?: (tourId: string) => void,
+  branchId?: string,
 ): ColumnDef<ITour>[] => {
   return [
     RecordTable.checkboxColumn as ColumnDef<ITour>,
+    tourMoreColumn(onEdit, branchId),
     {
       id: 'name',
       accessorKey: 'name',
@@ -129,11 +132,16 @@ export const TourColumns = (
       header: () => (
         <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
       ),
-      cell: ({ cell }: { cell: any }) => (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
-        </RecordTableInlineCell>
-      ),
+      cell: ({ row }: { row: any }) => {
+        const tour = row.original as ITour;
+        const dateValue =
+          tour.dateType === 'flexible' ? tour.availableFrom : tour.startDate;
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={formatDate(dateValue)} />
+          </RecordTableInlineCell>
+        );
+      },
       size: 140,
     },
     {
@@ -142,11 +150,16 @@ export const TourColumns = (
       header: () => (
         <RecordTable.InlineHead icon={IconCalendar} label="End Date" />
       ),
-      cell: ({ cell }: { cell: any }) => (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
-        </RecordTableInlineCell>
-      ),
+      cell: ({ row }: { row: any }) => {
+        const tour = row.original as ITour;
+        const dateValue =
+          tour.dateType === 'flexible' ? tour.availableTo : tour.endDate;
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={formatDate(dateValue)} />
+          </RecordTableInlineCell>
+        );
+      },
       size: 140,
     },
     {

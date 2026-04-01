@@ -1,4 +1,4 @@
-import { executeActions } from '@/executions/executeActions';
+import { executeActions } from './executeActions';
 import {
   IAutomationAction,
   IAutomationActionsMap,

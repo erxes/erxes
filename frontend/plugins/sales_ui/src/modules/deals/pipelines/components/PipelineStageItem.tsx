@@ -3,7 +3,7 @@ import {
   PROBABILITY_DEAL,
   VISIBILITIES,
 } from '@/deals/constants/stages';
-import { Checkbox, Form, Input, Select, Tooltip } from 'erxes-ui';
+import { Checkbox, Form, Input, Label, Select, Tooltip } from 'erxes-ui';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -202,7 +202,7 @@ const PipelineStageItem = (props: Props) => {
             </div>
             {showExtraFields && (
               <div className="flex flex-wrap justify-between gap-3 mt-2">
-                <Form.Item className="flex-1">
+                <Form.Item className="flex-1 min-w-[150px]">
                   <Form.Label>Code</Form.Label>
                   <Form.Control>
                     <Controller
@@ -221,7 +221,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1">
+                <Form.Item className="flex-1 min-w-[150px]">
                   <Form.Label>Age</Form.Label>
                   <Form.Control>
                     <Controller
@@ -234,9 +234,13 @@ const PipelineStageItem = (props: Props) => {
                           placeholder="Enter age"
                           className="input"
                           type="number"
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ''
+                                ? 0
+                                : Number(e.target.value),
+                            );
+                          }}
                         />
                       )}
                     />
@@ -244,7 +248,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1">
+                <Form.Item className="flex-1 min-w-[150px]">
                   <Form.Label>Can move members</Form.Label>
                   <Form.Control>
                     <Controller
@@ -263,7 +267,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1">
+                <Form.Item className="flex-1 min-w-[150px]">
                   <Form.Label>Can edit members</Form.Label>
                   <Form.Control>
                     <Controller
@@ -281,21 +285,25 @@ const PipelineStageItem = (props: Props) => {
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
-
-                <Form.Item className="flex flex-row items-center justify-center space-x-3 space-y-0">
+                <Form.Item className="flex-1 min-w-[150px] flex items-center justify-start gap-2 my-auto">
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.defaultTick`}
                       control={control}
-                      defaultValue={stage?.defaultTick || false}
+                      defaultValue={stage?.defaultTick ?? false}
                       render={({ field }) => (
                         <Checkbox
+                          id={`defaultTick-${index}`}
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          className="m-0"
                         />
                       )}
                     />
                   </Form.Control>
+                  <Label htmlFor={`defaultTick-${index}`}>
+                    Select products by default
+                  </Label>
                 </Form.Item>
               </div>
             )}

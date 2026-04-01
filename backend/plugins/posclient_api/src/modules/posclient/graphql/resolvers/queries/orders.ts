@@ -9,6 +9,7 @@ import { IConfig } from '~/modules/posclient/@types/configs';
 import { IContext } from '~/modules/posclient/@types/types';
 import { getCompanyInfo } from '~/modules/posclient/db/models/PutData';
 import { Resolver } from 'erxes-api-shared/core-types';
+import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 export interface ISearchParams {
   searchValue?: string;
   startDate?: Date;
@@ -149,26 +150,39 @@ const filterOrders = (params: ISearchParams, models, config) => {
 };
 
 const orderQueries: Record<string, Resolver> = {
-  async orders(_root, params: ISearchParams, { models, config }: IContext) {
+  async orders(
+    _root,
+    params: ISearchParams,
+    { models, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
     return filterOrders(params, models, config);
   },
 
   async cpCurrentOrder(
     _root,
     params: ISearchParams,
-    { models, config }: IContext,
+    { models, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     return filterOrders(params, models, config);
   },
 
-  async fullOrders(_root, params: ISearchParams, { models, config }: IContext) {
+  async fullOrders(
+    _root,
+    params: ISearchParams,
+    { models, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
     return filterOrders(params, models, config);
   },
 
   async cpFullOrders(
     _root,
     params: ISearchParams,
-    { models, config }: IContext,
+    { models, config, posUser }: IContext,
   ) {
     return filterOrders(params, models, config);
   },
@@ -176,8 +190,10 @@ const orderQueries: Record<string, Resolver> = {
   async ordersTotalCount(
     _root,
     params: ISearchParams,
-    { models, config }: IContext,
+    { models, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const filter = generateFilter(config, params);
     return await models.Orders.find({
       ...filter,
@@ -194,8 +210,10 @@ const orderQueries: Record<string, Resolver> = {
       sortField,
       sortDirection,
     }: ISearchParams,
-    { models }: IContext,
+    { models, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const filter: any = {};
 
     if (searchValue) {
@@ -223,8 +241,10 @@ const orderQueries: Record<string, Resolver> = {
   async orderDetail(
     _root,
     { _id, customerId }: { _id: string; customerId?: string },
-    { posUser, models, config }: IContext,
+    { models, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const tokenFilter = {
       $or: [{ posToken: config.token }, { subToken: config.token }],
     };
@@ -304,7 +324,13 @@ const orderQueries: Record<string, Resolver> = {
     );
   },
 
-  async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
+  async ordersCheckCompany(
+    _root,
+    { registerNumber },
+    { config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
     const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
 
     if (!checkTaxpayerUrl) {
@@ -375,15 +401,13 @@ const orderQueries: Record<string, Resolver> = {
     return info;
   },
 
-  async ordersDeliveryInfo(_root, { orderId }, { subdomain }: IContext) {
-    // const info = await sendPosMessage({
-    //   subdomain,
-    //   action: 'ordersDeliveryInfo',
-    //   data: {
-    //     orderId: orderId,
-    //   },
-    //   isRPC: true,
-    // });
+  async ordersDeliveryInfo(
+    _root,
+    { orderId },
+    { subdomain, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
     const info = await sendTRPCMessage({
       subdomain,
 

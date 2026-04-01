@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export const GET_TOURS = gql`
   query BmsTours(
     $branchId: String
+    $name: String
     $status: String
     $date_status: DATE_STATUS
     $limit: Int
@@ -16,6 +17,7 @@ export const GET_TOURS = gql`
   ) {
     bmsTours(
       branchId: $branchId
+      name: $name
       status: $status
       date_status: $date_status
       limit: $limit
@@ -32,8 +34,11 @@ export const GET_TOURS = gql`
         name
         refNumber
         groupCode
+        dateType
         startDate
         endDate
+        availableFrom
+        availableTo
         status
         date_status
         cost
@@ -49,6 +54,26 @@ export const GET_TOURS = gql`
         startCursor
         endCursor
       }
+    }
+  }
+`;
+
+export const GET_TOUR_ORDER_DETAIL = gql`
+  query BmsOrderDetail($id: String!) {
+    bmsOrderDetail(_id: $id) {
+      _id
+      branchId
+      customerId
+      tourId
+      amount
+      status
+      note
+      numberOfPeople
+      type
+      additionalCustomers
+      isChild
+      parent
+      createdAt
     }
   }
 `;
@@ -74,8 +99,11 @@ export const GET_TOUR_GROUPS = gql`
           name
           refNumber
           groupCode
+          dateType
           startDate
           endDate
+          availableFrom
+          availableTo
           status
           date_status
           cost
@@ -98,11 +126,20 @@ export const GET_TOUR_DETAIL = gql`
       content
       cost
       date_status
+      dateType
       duration
       endDate
+      availableFrom
+      availableTo
       groupSize
       imageThumbnail
       images
+      attachment {
+        url
+        name
+        type
+        size
+      }
       info1
       info2
       info3
@@ -116,6 +153,64 @@ export const GET_TOUR_DETAIL = gql`
       startDate
       status
       categoryIds
+      pricingOptions {
+        _id
+        title
+        minPersons
+        maxPersons
+        pricePerPerson
+        accommodationType
+        domesticFlightPerPerson
+        singleSupplement
+        note
+      }
+    }
+  }
+`;
+
+export const GET_TOUR_ORDERS = gql`
+  query BmsOrders(
+    $tourId: String
+    $orderBy: JSON
+    $sortMode: String
+    $aggregationPipeline: [JSON]
+    $direction: CURSOR_DIRECTION
+    $cursorMode: CURSOR_MODE
+    $cursor: String
+    $limit: Int
+  ) {
+    bmsOrders(
+      tourId: $tourId
+      orderBy: $orderBy
+      sortMode: $sortMode
+      aggregationPipeline: $aggregationPipeline
+      direction: $direction
+      cursorMode: $cursorMode
+      cursor: $cursor
+      limit: $limit
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      list {
+        _id
+        branchId
+        customerId
+        tourId
+        amount
+        status
+        note
+        numberOfPeople
+        type
+        additionalCustomers
+        isChild
+        parent
+        createdAt
+      }
     }
   }
 `;

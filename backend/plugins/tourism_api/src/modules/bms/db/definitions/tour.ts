@@ -10,6 +10,7 @@ export const tourCategorySchema = new Schema({
   code: { type: String, optional: true, label: 'code' },
   order: { type: String, optional: true, label: 'order', index: true },
   parentId: { type: String, label: 'parentId', index: true },
+  branchId: { type: String, optional: true, label: 'branchId', index: true },
   attachment: { type: Object, optional: true, label: 'attachment' },
   createdAt: {
     type: Date,
@@ -31,6 +32,50 @@ export const guideItemSchema = new Schema(
   { _id: false },
 );
 
+export const pricingOptionSchema = new Schema({
+  title: { type: String, required: true },
+
+  minPersons: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+
+  maxPersons: {
+    type: Number,
+    min: 1,
+    validate: {
+      validator(value: number) {
+        return !value || value >= this.minPersons;
+      },
+      message: 'Max persons must be greater than or equal to min persons',
+    },
+  },
+
+  pricePerPerson: {
+    type: Number,
+    required: true,
+    min: 0.01,
+  },
+
+  accommodationType: {
+    type: String,
+    set: (v: string) => v?.trim().toLowerCase(),
+  },
+
+  domesticFlightPerPerson: {
+    type: Number,
+    min: 0,
+  },
+
+  singleSupplement: {
+    type: Number,
+    min: 0,
+  },
+
+  note: { type: String },
+});
+
 export const tourSchema = new Schema({
   _id: mongooseStringRandomId,
 
@@ -47,8 +92,21 @@ export const tourSchema = new Schema({
     label: 'location',
   },
   itineraryId: { type: String, optional: true, label: 'initeraryId' },
+  dateType: {
+    type: String,
+    enum: ['fixed', 'flexible'],
+    default: 'fixed',
+    optional: true,
+    label: 'date type',
+  },
   startDate: { type: Date, optional: true, label: 'date' },
   endDate: { type: Date, optional: true, label: 'date' },
+  availableFrom: {
+    type: Date,
+    optional: true,
+    label: 'available from',
+  },
+  availableTo: { type: Date, optional: true, label: 'available to' },
   groupSize: { type: Number, optional: true, label: 'group size' },
   guides: { type: [guideItemSchema], optional: true, label: 'guides' },
   status: {
@@ -101,8 +159,41 @@ export const tourSchema = new Schema({
 
   images: { type: [String], optional: true, label: 'images' },
   imageThumbnail: { type: String, optional: true, label: 'images' },
+  attachment: { type: Object, optional: true, label: 'attachment' },
+
+  pricingOptions: {
+    type: [pricingOptionSchema],
+    required: true,
+    validate: {
+      validator: (v: (typeof pricingOptionSchema)[]) => v.length > 0,
+      message: 'At least one pricing option is required',
+    },
+  },
+
+  startingPrice: {
+    type: Number,
+  },
 });
 
+tourSchema.pre('save', function (next) {
+  if (Array.isArray(this.pricingOptions) && this.pricingOptions.length > 0) {
+    const prices = this.pricingOptions
+      .map((p: { pricePerPerson?: number }) => p.pricePerPerson)
+      .filter((price): price is number => typeof price === 'number');
+
+    if (prices.length > 0) {
+      this.startingPrice = Math.min(...prices);
+    } else {
+      this.startingPrice = undefined;
+    }
+  } else {
+    this.startingPrice = undefined;
+  }
+
+  next();
+});
+
+tourSchema.index({ startingPrice: 1 });
 tourSchema.index({ categoryIds: 1 });
 tourSchema.index({ categories: 1 });
 tourSchema.index({ tagIds: 1 });

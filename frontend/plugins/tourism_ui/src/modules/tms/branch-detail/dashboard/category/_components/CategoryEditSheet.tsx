@@ -78,6 +78,7 @@ export const CategoryEditSheet = ({
           code: values.code,
           ...(values.parentId &&
             values.parentId.trim() !== '' && { parentId: values.parentId }),
+          ...(category.branchId && { branchId: category.branchId }),
           ...(values.attachment && { attachment: values.attachment }),
         },
       });
@@ -125,7 +126,10 @@ export const CategoryEditSheet = ({
                 <div className="space-y-4">
                   <CategoryNameField control={form.control} />
                   <CategoryCodeField control={form.control} />
-                  <CategoryParentIdField control={form.control} />
+                  <CategoryParentIdField
+                    control={form.control}
+                    branchId={category.branchId}
+                  />
                   <CategoryAttachmentField control={form.control} />
                 </div>
               </div>

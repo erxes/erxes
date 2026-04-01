@@ -1,6 +1,6 @@
-import { detectConversationType } from '@/ai/detectConversationType';
-import { FileEmbeddingService } from '@/ai/fileEmbedding';
-import { IModels } from '@/connectionResolver';
+import { detectConversationType } from './detectConversationType';
+import { FileEmbeddingService } from './fileEmbedding';
+import { IModels } from '../connectionResolver';
 
 export const generateAiAgentMessage = async (
   models: IModels,

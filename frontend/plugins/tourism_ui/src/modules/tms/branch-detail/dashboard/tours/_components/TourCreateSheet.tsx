@@ -40,7 +40,7 @@ export const TourCreateSheet = ({
         </Sheet.Trigger>
       )}
 
-      <Sheet.View className="w-[800px] sm:max-w-[800px] p-0">
+      <Sheet.View className="w-[850px] sm:max-w-[850px] p-0">
         <TourCreateForm
           branchId={branchId}
           onSuccess={() => handleOpenChange(false)}

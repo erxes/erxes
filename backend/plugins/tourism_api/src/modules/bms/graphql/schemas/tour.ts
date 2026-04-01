@@ -12,6 +12,7 @@ export const types = `
     code: String
     order: String
     parentId: String
+    branchId: String
     attachment: Attachment
     tourCount: Int
     createdAt: Date
@@ -23,6 +24,21 @@ export const types = `
     scheduled
     cancelled
     unscheduled
+  }
+  enum DATE_TYPE {
+    fixed
+    flexible
+  }
+  type PricingOption {
+    _id: ID!
+    title: String!
+    minPersons: Int!
+    maxPersons: Int
+    pricePerPerson: Float!
+    accommodationType: String
+    domesticFlightPerPerson: Float
+    singleSupplement: Float
+    note: String
   }
   type Tour {
     _id: String!
@@ -36,8 +52,11 @@ export const types = `
     guides: [GuideItem]
     itineraryId: String
     itinerary: Itinerary
+    dateType: DATE_TYPE
     startDate: Date
     endDate: Date
+    availableFrom: Date
+    availableTo: Date
     groupSize: Int
     status: String
     date_status: DATE_STATUS
@@ -61,6 +80,9 @@ export const types = `
     extra: JSON
     images: [String]
     imageThumbnail: String
+    attachment: Attachment
+    pricingOptions: [PricingOption]
+    startingPrice: Float
   }
 
   type BmsOrder {
@@ -75,7 +97,8 @@ export const types = `
     type: String
     additionalCustomers: [String]
     isChild: Boolean
-    parent: String   
+    parent: String 
+    createdAt: Date
   }
 
   input BmsOrderInput {
@@ -94,6 +117,17 @@ export const types = `
   input GuideItemInput {
     guideId: String
     type: String
+    }
+  input PricingOptionInput {
+    _id: ID
+    title: String!
+    minPersons: Int!
+    maxPersons: Int
+    pricePerPerson: Float!
+    accommodationType: String
+    domesticFlightPerPerson: Float
+    singleSupplement: Float
+    note: String
   }
   type TourListResponse {
     list: [Tour]
@@ -119,8 +153,9 @@ export const queries = `
   bmsTours(branchId:String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS): TourListResponse
   bmsToursTotalCount(branchId:String): Int
   bmsTourDetail(_id:String!,branchId: String): Tour
-  bmsTourCategories(parentId:String): [TourCategory]
+  bmsTourCategories(parentId:String, name: String, branchId: String): [TourCategory]
   bmsOrders( tourId:String, customerId:String ,branchId: String, ${GQL_CURSOR_PARAM_DEFS}):BmsOrderListResponse
+  bmsOrderDetail(_id: String!): BmsOrder
   bmToursGroup(branchId:String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
   bmToursGroupDetail(groupCode:String,status: String): GroupTourItem
 
@@ -138,8 +173,11 @@ const params = `
   groupCode: String,
   content: String,
   itineraryId:String,
+  dateType: DATE_TYPE,
   startDate: Date,
   endDate: Date,
+  availableFrom: Date,
+  availableTo: Date,
   groupSize: Int,
   duration: Int,
   advancePercent: Float,
@@ -162,7 +200,9 @@ const params = `
   personCost: JSON,
   extra: JSON,
   images: [String],
-  imageThumbnail: String
+  imageThumbnail: String,
+  attachment: AttachmentInput,
+  pricingOptions: [PricingOptionInput]
 `;
 
 export const mutations = `
@@ -170,9 +210,9 @@ export const mutations = `
   bmsTourRemove(ids: [String]): JSON
   bmsTourViewCount(_id: String): JSON
   bmsTourEdit(_id:String!, ${params}): Tour
-  bmsTourCategoryAdd(name:String,code:String,parentId:String,attachment:AttachmentInput):TourCategory
+  bmsTourCategoryAdd(name:String,code:String,parentId:String,branchId:String,attachment:AttachmentInput):TourCategory
   bmsTourCategoryRemove(_id: String, ids: [String]):JSON
-  bmsTourCategoryEdit(_id: String!, name:String,code:String,parentId:String,attachment:AttachmentInput): TourCategory
+  bmsTourCategoryEdit(_id: String!, name:String,code:String,parentId:String,branchId:String,attachment:AttachmentInput): TourCategory
   bmsOrderAdd(order:BmsOrderInput): BmsOrder
   bmsOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder
   bmsOrderRemove(ids:[String]): JSON

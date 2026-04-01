@@ -23,6 +23,8 @@ import initImportExport from './meta/import-export/import';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
 
+const PLUGIN_NAME = 'core';
+
 dotenv.config();
 
 const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
@@ -104,7 +106,7 @@ httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
 
   await joinErxesGateway({
-    name: 'core',
+    name: PLUGIN_NAME,
     port,
     hasSubscriptions: true,
     meta,
@@ -120,7 +122,7 @@ process.stdin.resume(); // so the program will not close instantly
 
 async function leaveServiceDiscovery() {
   try {
-    await leaveErxesGateway('core', port);
+    await leaveErxesGateway(PLUGIN_NAME, port);
     console.log('Left from service discovery');
   } catch (e) {
     console.error(e);
