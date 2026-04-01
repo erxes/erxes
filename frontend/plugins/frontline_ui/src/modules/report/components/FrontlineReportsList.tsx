@@ -1,38 +1,37 @@
-import { useState, useMemo, Suspense } from 'react';
+import { INTEGRATIONS } from '@/integrations/constants/integrations';
+import { useConversationClosed } from '@/report/hooks/useConversationClose';
+import { useConversationOpen } from '@/report/hooks/useConversationOpen';
+import { useConversationSources } from '@/report/hooks/useConversationSource';
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   DragEndEvent,
   DragOverEvent,
   DragOverlay,
   DragStartEvent,
   KeyboardSensor,
   PointerSensor,
+  useDroppable,
   useSensor,
   useSensors,
-  useDroppable,
 } from '@dnd-kit/core';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { getPluginAssetsUrl, Tooltip, Skeleton } from 'erxes-ui';
 import {
+  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  arrayMove,
 } from '@dnd-kit/sortable';
-import { InfoCard, ScrollArea } from 'erxes-ui';
-import { useConversationOpen } from '@/report/hooks/useConversationOpen';
-import { useConversationClosed } from '@/report/hooks/useConversationClose';
-import { useConversationSources } from '@/report/hooks/useConversationSource';
-import { ReportsViewSkeleton } from './ReportsView';
-import { getTopSource } from '../utils';
-import { INTEGRATIONS } from '@/integrations/constants/integrations';
+import { getPluginAssetsUrl, InfoCard, ScrollArea, Skeleton, Tooltip } from 'erxes-ui';
+import { Suspense, useMemo, useState } from 'react';
 import {
-  reportComponents,
   DEFAULT_CARD_CONFIGS,
-  ReportComponentProps,
   ReportCardConfig,
+  ReportComponentProps,
+  reportComponents,
 } from '../types/component-registry';
+import { getTopSource } from '../utils';
+import { ReportsViewSkeleton } from './ReportsView';
 
 interface CardConfig {
   id: string;

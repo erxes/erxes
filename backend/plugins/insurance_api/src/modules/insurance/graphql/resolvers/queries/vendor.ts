@@ -11,7 +11,7 @@ export const vendorQueries = {
       return vendors.map((vendor: any) => ({
         ...vendor.toObject(),
         offeredProducts: vendor.offeredProducts.filter(
-          (vp: any) => vp.product != null && vp.product.insuranceType != null,
+          (vp: any) => vp.product?.insuranceType != null,
         ),
       }));
     },
@@ -34,7 +34,7 @@ export const vendorQueries = {
       return {
         ...vendor.toObject(),
         offeredProducts: vendor.offeredProducts.filter(
-          (vp: any) => vp.product != null && vp.product.insuranceType != null,
+          (vp: any) => vp.product?.insuranceType != null,
         ),
       };
     },
@@ -62,7 +62,7 @@ export const vendorQueries = {
       return {
         ...vendor.toObject(),
         offeredProducts: vendor.offeredProducts.filter(
-          (vp: any) => vp.product != null && vp.product.insuranceType != null,
+          (vp: any) => vp.product?.insuranceType != null,
         ),
       };
     },

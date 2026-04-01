@@ -8,6 +8,7 @@ import {
 import { IProductRule } from './types';
 import { useState } from 'react';
 import { ProductRuleForm } from './ProductRuleForm';
+import { Can } from 'ui-modules';
 
 const ProductRuleNameColumnCell = (
   props: CellContext<IProductRule, unknown>,
@@ -18,11 +19,13 @@ const ProductRuleNameColumnCell = (
   return (
     <RecordTableInlineCell>
       <Sheet open={open} onOpenChange={setOpen} modal>
-        <Sheet.Trigger asChild>
-          <Badge variant="secondary" className="cursor-pointer">
-            <TextOverflowTooltip value={props.getValue() as string} />
-          </Badge>
-        </Sheet.Trigger>
+        <Can action="productRulesManage">
+          <Sheet.Trigger asChild>
+            <Badge variant="secondary" className="cursor-pointer">
+              <TextOverflowTooltip value={props.getValue() as string} />
+            </Badge>
+          </Sheet.Trigger>
+        </Can>
         <Sheet.View className="p-0 sm:max-w-lg">
           <ProductRuleForm
             productRule={productRule}

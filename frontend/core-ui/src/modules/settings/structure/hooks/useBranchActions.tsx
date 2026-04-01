@@ -34,8 +34,7 @@ export function useBranchAdd(
         const existingData = cache.readQuery<BranchData>({
           query: GET_BRANCHES_LIST,
         });
-        if (!existingData || !existingData.branchesMain || !data?.branchesAdd)
-          return;
+        if (!existingData?.branchesMain || !data?.branchesAdd) return;
 
         cache.writeQuery<BranchData>({
           query: GET_BRANCHES_LIST,
@@ -72,8 +71,7 @@ export function useBranchEdit(
         const existingData = cache.readQuery<BranchData>({
           query: GET_BRANCHES_LIST,
         });
-        if (!existingData || !existingData.branchesMain || !data?.branchesEdit)
-          return;
+        if (!existingData?.branchesMain || !data?.branchesEdit) return;
 
         cache.writeQuery<BranchData>({
           query: GET_BRANCHES_LIST,

@@ -1,5 +1,6 @@
 import { Document } from 'mongoose';
 import { ActivityLogInput } from '..';
+import { logActivityLogError } from './activityLog/utils';
 
 export interface NormalizedChange {
   field: string; // details.firstName
@@ -407,178 +408,200 @@ export async function buildBulkActivities(
   ) => void,
   commonActivityData: Record<string, any>,
 ): Promise<BulkActivityResult[]> {
-  const {
-    field,
-    getFieldLabel,
-    getContextNames,
-    activityTypeMap = {},
-    actionTypeMap = {},
-    getActivityType,
-    getActionType,
-  } = config;
-
   const activities: BulkActivityResult[] = [];
+  try {
+    const {
+      field,
+      getFieldLabel,
+      getContextNames,
+      activityTypeMap = {},
+      actionTypeMap = {},
+      getActivityType,
+      getActionType,
+    } = config;
 
-  const {
-    array: arrayActivityType = 'assignment',
-    fieldChange: fieldChangeActivityType = 'field_changed',
-  } = activityTypeMap;
+    const {
+      array: arrayActivityType = 'assignment',
+      fieldChange: fieldChangeActivityType = 'field_changed',
+    } = activityTypeMap;
 
-  const {
-    added: addedAction = 'assigned',
-    removed: removedAction = 'unassigned',
-    update: updateAction = 'update',
-  } = actionTypeMap;
+    const {
+      added: addedAction = 'assigned',
+      removed: removedAction = 'unassigned',
+      update: updateAction = 'update',
+    } = actionTypeMap;
 
-  const matchingChangeKey = Object.keys(changes).find((key) =>
-    matchesFieldPattern(key, field),
-  );
+    const matchingChangeKey = Object.keys(changes).find((key) =>
+      matchesFieldPattern(key, field),
+    );
 
-  if (!matchingChangeKey) {
-    return activities;
-  }
-  for (const target of prevTargets) {
-    const prevValue = target[field];
-    const currentValue = changes[matchingChangeKey];
+    if (!matchingChangeKey) {
+      return activities;
+    }
 
-    if (Array.isArray(prevValue) || Array.isArray(currentValue)) {
-      const prevIds = Array.isArray(prevValue) ? prevValue : [];
-      const currentIds = Array.isArray(currentValue) ? currentValue : [];
+    for (const target of prevTargets) {
+      try {
+        const prevValue = target[field];
+        const currentValue = changes[matchingChangeKey];
 
-      const added = currentIds.filter((id: string) => !prevIds.includes(id));
-      const removed = prevIds.filter((id: string) => !currentIds.includes(id));
+        if (Array.isArray(prevValue) || Array.isArray(currentValue)) {
+          const prevIds = Array.isArray(prevValue) ? prevValue : [];
+          const currentIds = Array.isArray(currentValue) ? currentValue : [];
 
-      if (added.length > 0) {
-        const activityType = getActivityType
-          ? await getActivityType(field, true)
-          : arrayActivityType;
-        const actionType = getActionType
-          ? await getActionType(field, 'added')
-          : addedAction;
-        let contextText = '';
-        let contextData: string[] = [];
+          const added = currentIds.filter(
+            (id: string) => !prevIds.includes(id),
+          );
+          const removed = prevIds.filter(
+            (id: string) => !currentIds.includes(id),
+          );
 
-        let description = `${actionType}`;
-        if (getContextNames) {
-          const contextNames = await getContextNames(added);
-          const labels = Array.isArray(contextNames)
-            ? contextNames
-            : [contextNames].filter(Boolean);
+          if (added.length > 0) {
+            const activityType = getActivityType
+              ? await getActivityType(field, true)
+              : arrayActivityType;
+            const actionType = getActionType
+              ? await getActionType(field, 'added')
+              : addedAction;
+            let contextText = '';
+            let contextData: string[] = [];
 
-          contextText = labels.join(', ');
-          contextData = labels;
-          description = contextText
-            ? `${actionType} to ${contextText}`
-            : `${actionType}`;
-        }
+            let description = `${actionType}`;
+            if (getContextNames) {
+              const contextNames = await getContextNames(added);
+              const labels = Array.isArray(contextNames)
+                ? contextNames
+                : [contextNames].filter(Boolean);
 
-        activities.push({
-          activityType,
-          action: {
-            type: actionType,
-            description,
-          },
-          context: {
-            text: contextText,
-            data: contextData,
-          },
-          metadata: {
-            field,
-            entityLabel: field.replace(/Ids$/, '').toLowerCase(),
-          },
-          changes: { added },
-          target: {
-            _id: target._id,
-          },
-        });
-      }
+              contextText = labels.join(', ');
+              contextData = labels;
+              description = contextText
+                ? `${actionType} to ${contextText}`
+                : `${actionType}`;
+            }
 
-      if (removed.length > 0) {
-        const activityType = getActivityType
-          ? await getActivityType(field, true)
-          : arrayActivityType;
-        const actionType = getActionType
-          ? await getActionType(field, 'removed')
-          : removedAction;
-        let contextText = '';
-        let contextData: string[] = [];
+            activities.push({
+              activityType,
+              action: {
+                type: actionType,
+                description,
+              },
+              context: {
+                text: contextText,
+                data: contextData,
+              },
+              metadata: {
+                field,
+                entityLabel: field.replace(/Ids$/, '').toLowerCase(),
+              },
+              changes: { added },
+              target: {
+                _id: target._id,
+              },
+            });
+          }
 
-        let description = `${actionType}`;
-        if (getContextNames) {
-          const contextNames = await getContextNames(removed);
-          const labels = Array.isArray(contextNames)
-            ? contextNames
-            : [contextNames].filter(Boolean);
+          if (removed.length > 0) {
+            const activityType = getActivityType
+              ? await getActivityType(field, true)
+              : arrayActivityType;
+            const actionType = getActionType
+              ? await getActionType(field, 'removed')
+              : removedAction;
+            let contextText = '';
+            let contextData: string[] = [];
 
-          contextText = labels.join(', ');
-          contextData = labels;
-          description = contextText
-            ? `${actionType} from ${contextText}`
-            : `${actionType}`;
-        }
+            let description = `${actionType}`;
+            if (getContextNames) {
+              const contextNames = await getContextNames(removed);
+              const labels = Array.isArray(contextNames)
+                ? contextNames
+                : [contextNames].filter(Boolean);
 
-        activities.push({
-          activityType,
-          action: {
-            type: actionType,
-            description,
-          },
-          context: {
-            text: contextText,
-            data: contextData,
-          },
-          metadata: {
-            field,
-            entityLabel: field.replace(/Ids$/, '').toLowerCase(),
-          },
-          changes: { removed },
-          target: {
-            _id: target._id,
-          },
-        });
-      }
-    } else {
-      if (prevValue !== currentValue) {
-        const activityType = getActivityType
-          ? await getActivityType(field, false)
-          : fieldChangeActivityType;
-        const actionType = getActionType
-          ? await getActionType(field, 'update')
-          : updateAction;
+              contextText = labels.join(', ');
+              contextData = labels;
+              description = contextText
+                ? `${actionType} from ${contextText}`
+                : `${actionType}`;
+            }
 
-        let description = `${field} changed from ${prevValue} to ${currentValue}`;
-        if (getFieldLabel) {
-          const fieldLabel = await getFieldLabel(field, {
-            current: currentValue,
-            prev: prevValue,
+            activities.push({
+              activityType,
+              action: {
+                type: actionType,
+                description,
+              },
+              context: {
+                text: contextText,
+                data: contextData,
+              },
+              metadata: {
+                field,
+                entityLabel: field.replace(/Ids$/, '').toLowerCase(),
+              },
+              changes: { removed },
+              target: {
+                _id: target._id,
+              },
+            });
+          }
+        } else if (prevValue !== currentValue) {
+          const activityType = getActivityType
+            ? await getActivityType(field, false)
+            : fieldChangeActivityType;
+          const actionType = getActionType
+            ? await getActionType(field, 'update')
+            : updateAction;
+
+          let description = `${field} changed from ${prevValue} to ${currentValue}`;
+          if (getFieldLabel) {
+            const fieldLabel = await getFieldLabel(field, {
+              current: currentValue,
+              prev: prevValue,
+            });
+            description = `${actionType} ${fieldLabel} to ${currentValue}`;
+          }
+
+          activities.push({
+            activityType,
+            action: {
+              type: actionType,
+              description,
+            },
+            changes: {
+              prev: prevValue,
+              current: currentValue,
+            },
+            target: {
+              _id: target._id,
+            },
           });
-          description = `${actionType} ${fieldLabel} to ${currentValue}`;
         }
-
-        activities.push({
-          activityType,
-          action: {
-            type: actionType,
-            description,
-          },
-          changes: {
-            prev: prevValue,
-            current: currentValue,
-          },
-          target: {
-            _id: target._id,
-          },
+      } catch (error) {
+        logActivityLogError('buildBulkActivities target', error, {
+          targetId: target?._id,
         });
       }
     }
-  }
 
-  createActivityLog(
-    activities.map((activity) => ({
-      ...activity,
-      ...commonActivityData,
-    })),
-  );
+    if (activities.length > 0) {
+      try {
+        createActivityLog(
+          activities.map((activity) => ({
+            ...activity,
+            ...commonActivityData,
+          })),
+        );
+      } catch (error) {
+        logActivityLogError('buildBulkActivities dispatch', error, {
+          field: config.field,
+        });
+      }
+    }
+  } catch (error) {
+    logActivityLogError('buildBulkActivities', error, {
+      field: config?.field,
+    });
+  }
 
   return activities;
 }
@@ -588,23 +611,45 @@ export async function buildActivities(
   currentDoc: any | Document<any>,
   activityRegistry: ActivityRule[],
 ) {
-  const prevPlain =
-    typeof (prevDoc as any)?.toObject === 'function'
-      ? (prevDoc as any).toObject()
-      : prevDoc;
-
-  const currentPlain =
-    typeof (currentDoc as any)?.toObject === 'function'
-      ? (currentDoc as any).toObject()
-      : currentDoc;
-
-  const changes = normalizeDiffs(prevPlain, currentPlain);
   const activities: ActivityLogPayload[] = [];
+  let changes: NormalizedChange[] = [];
+
+  try {
+    const prevPlain =
+      typeof (prevDoc as any)?.toObject === 'function'
+        ? (prevDoc as any).toObject()
+        : prevDoc;
+
+    const currentPlain =
+      typeof (currentDoc as any)?.toObject === 'function'
+        ? (currentDoc as any).toObject()
+        : currentDoc;
+
+    changes = normalizeDiffs(prevPlain, currentPlain);
+  } catch (error) {
+    logActivityLogError('buildActivities setup', error, {
+      targetId: currentDoc?._id ?? prevDoc?._id,
+    });
+    return activities;
+  }
 
   for (const change of changes) {
     for (const rule of activityRegistry) {
-      if (rule.match(change)) {
-        activities.push(...(await rule.build(change)));
+      try {
+        if (!rule.match(change)) {
+          continue;
+        }
+
+        const result = await rule.build(change);
+
+        if (Array.isArray(result) && result.length > 0) {
+          activities.push(...result);
+        }
+      } catch (error) {
+        logActivityLogError('buildActivities change', error, {
+          field: change.field,
+          targetId: currentDoc?._id ?? prevDoc?._id,
+        });
       }
     }
   }

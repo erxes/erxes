@@ -1,22 +1,24 @@
-import { useChannelsForm } from '../../../hooks/useChannelsForm';
-import { useChannelAdd } from '../../../hooks/useChannelAdd';
-import { ChannelHotKeyScope, TChannelForm } from '../../../types';
-import { SubmitHandler } from 'react-hook-form';
-import React, { useState } from 'react';
+import { ChannelForm } from '@/channels/components/settings/channels-list/ChannelForm';
+import { channelCreateSheetOpenState } from '@/channels/states';
+import { IconPlus } from '@tabler/icons-react';
 import {
+  Button,
   Form,
+  Kbd,
+  Sheet,
   Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
-import { Sheet, Button, Kbd } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { ChannelForm } from '@/channels/components/settings/channels-list/ChannelForm';
-import { useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { channelCreateSheetOpenState } from '@/channels/states';
+import React from 'react';
+import { SubmitHandler } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { useChannelAdd } from '../../../hooks/useChannelAdd';
+import { useChannelsForm } from '../../../hooks/useChannelsForm';
+import { ChannelHotKeyScope, TChannelForm } from '../../../types';
 
 type Props = {
   isIconOnly?: boolean;

@@ -43,7 +43,7 @@ router.get('/initial-setup', async (req: Request, res: Response) => {
   if (VERSION && VERSION === 'os') {
     const orgWhiteLabel = await models.OrgWhiteLabel.getOrgWhiteLabel();
 
-    if (orgWhiteLabel && orgWhiteLabel.enabled) {
+    if (orgWhiteLabel?.enabled) {
       organizationInfo = {
         ...organizationInfo,
         ...orgWhiteLabel,

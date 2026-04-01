@@ -10,12 +10,7 @@ export const checkCodeMask = (category?: IProductCategory, code?: string) => {
     return false;
   }
 
-  if (
-    !category ||
-    !category.maskType ||
-    !category.mask ||
-    !category.mask.values
-  ) {
+  if (!category?.maskType || !category?.mask?.values) {
     return true;
   }
 
@@ -334,5 +329,5 @@ export const getSimilaritiesProductsCount = async (models, filter, params) => {
     { $group: { _id: {}, count: { $sum: 1 } } },
   ]);
 
-  return ((groupedData || [])[0] || {}).count || 0;
+  return groupedData?.[0]?.count ?? 0;
 };

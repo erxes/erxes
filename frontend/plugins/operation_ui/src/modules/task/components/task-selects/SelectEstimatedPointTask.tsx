@@ -75,7 +75,7 @@ export const SelectEstimatedPointProvider = ({
     onValueChange?.(estimate);
   };
 
-  if (!estimateChoices || !estimateChoices?.length) {
+  if (!estimateChoices?.length) {
     if (variant === SelectTriggerVariant.CARD) {
       return (
         <Badge variant="secondary" className="opacity-50">
