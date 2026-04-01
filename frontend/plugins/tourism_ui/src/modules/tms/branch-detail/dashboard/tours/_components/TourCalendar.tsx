@@ -16,6 +16,7 @@ import { TourEditForm } from './TourEditForm';
 import { TourCalendarRowActions } from './TourCalendarRowActions';
 import { useRemoveTours } from '../hooks/useRemoveTours';
 import { ITour } from '../types/tour';
+import type { TourSideTab } from './TourOrdersSidePanel';
 
 interface TourCalendarProps {
   branchId: string;
@@ -97,12 +98,13 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue: 'delete' };
-  const { tours, loading } = useTours({
+  const { tours, loading, error } = useTours({
     variables: { branchId },
   });
   const { removeTours } = useRemoveTours();
   const [editTourId, setEditTourId] = useState<string | null>(null);
   const [deletingTourId, setDeletingTourId] = useState<string | null>(null);
+  const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
 
   const minYear = 2025;
 
@@ -172,6 +174,7 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
 
   const handleCloseEdit = () => {
     setEditTourId(null);
+    setSideTab(null);
   };
 
   const handleDelete = (tourId: string, tourName?: string) => {
@@ -207,11 +210,11 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
   };
 
   return (
-    <div className="flex overflow-hidden flex-col rounded-md border bg-sidebar">
-      <div className="flex gap-2 justify-between items-center px-4 py-2 border-b bg-sidebar">
+    <div className="flex flex-col overflow-hidden border rounded-md bg-sidebar">
+      <div className="flex items-center justify-between gap-2 px-4 py-2 border-b bg-sidebar">
         <div className="text-sm font-medium">Tours calendar</div>
 
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
@@ -255,8 +258,8 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
       </div>
 
       {showEmptyMonthMessage ? (
-        <div className="flex justify-center items-center px-6 py-10 bg-background">
-          <div className="inline-flex flex-1 justify-center items-center px-4 py-3 max-w-xl text-sm text-center rounded-md border border-dashed bg-background text-muted-foreground">
+        <div className="flex items-center justify-center px-6 py-10 bg-background">
+          <div className="inline-flex items-center justify-center flex-1 max-w-xl px-4 py-3 text-sm text-center border border-dashed rounded-md bg-background text-muted-foreground">
             No tours start in {monthLabel} {currentYear}.
           </div>
         </div>
@@ -264,7 +267,7 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
         <ScrollArea className="h-full bg-background" type="hover">
           <div className="min-w-max bg-background">
             <div
-              className="grid sticky top-0 z-30 text-xs border-b bg-background text-muted-foreground"
+              className="sticky top-0 z-30 grid text-xs border-b bg-background text-muted-foreground"
               style={{
                 gridTemplateColumns: `220px repeat(${days.length}, 80px)`,
               }}
@@ -301,13 +304,19 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
 
             <div className="divide-y bg-background">
               {loading && (
-                <div className="flex justify-center items-center py-10">
+                <div className="flex items-center justify-center py-10">
                   <Spinner />
                 </div>
               )}
 
-              {!loading && (!tours || tours.length === 0) && (
-                <div className="flex justify-center items-center py-10 text-sm text-muted-foreground">
+              {!loading && error && (
+                <div className="flex items-center justify-center py-10 text-sm text-destructive">
+                  {error.message || 'Failed to load tours'}
+                </div>
+              )}
+
+              {!loading && !error && (!tours || tours.length === 0) && (
+                <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
                   No tours to display
                 </div>
               )}
@@ -319,7 +328,7 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
                     gridTemplateColumns: `220px repeat(${days.length}, 80px)`,
                   }}
                 >
-                  <div className="flex isolate sticky left-0 z-20 gap-2 justify-between items-center px-3 py-2 text-sm border-r bg-background hover:bg-muted/40">
+                  <div className="sticky left-0 z-20 flex items-center justify-between gap-2 px-3 py-2 text-sm border-r isolate bg-background hover:bg-muted/40">
                     <span className="px-1 truncate rounded hover:bg-muted/40">
                       {tour.name || '-'}
                     </span>
@@ -357,12 +366,20 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
       )}
 
       <Sheet open={!!editTourId} onOpenChange={handleCloseEdit}>
-        <Sheet.View className="w-[800px] sm:max-w-[800px] p-0">
+        <Sheet.View
+          className={`p-0 transition-all duration-200 ${
+            sideTab
+              ? 'w-[1220px] sm:max-w-[1220px]'
+              : 'w-[900px] sm:max-w-[900px]'
+          }`}
+        >
           {editTourId && (
             <TourEditForm
               tourId={editTourId}
               branchId={branchId}
               onSuccess={handleCloseEdit}
+              sideTab={sideTab}
+              onSideTabChange={setSideTab}
             />
           )}
         </Sheet.View>
