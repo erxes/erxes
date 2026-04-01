@@ -17,8 +17,9 @@ import {
 } from '../utils';
 import { addDeal, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const dealMutations = {
+export const dealMutations: Record<string, Resolver> = {
   /**
    * Creates a new deal
    */
@@ -30,10 +31,26 @@ export const dealMutations = {
     return await addDeal({ models, subdomain, user, doc });
   },
 
+  async cpDealsAdd(
+    _root,
+    doc: IDeal & { processId: string; aboveItemId: string },
+    { user, models, subdomain }: IContext,
+  ) {
+    return await addDeal({ models, subdomain, user, doc });
+  },
+
   /**
    * Edits a deal
    */
   async dealsEdit(
+    _root,
+    { _id, processId, ...doc }: IDealDocument & { processId: string },
+    { user, models, subdomain }: IContext,
+  ) {
+    return await editDeal({ models, subdomain, _id, processId, doc, user });
+  },
+
+  async cpDealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
     { user, models, subdomain }: IContext,
@@ -480,3 +497,12 @@ export const dealMutations = {
     };
   },
 };
+
+
+dealMutations.cpDealsEdit.wrapperConfig={
+  forClientPortal:true,
+}
+
+dealMutations.cpDealsAdd.wrapperConfig={
+  forClientPortal:true,
+}

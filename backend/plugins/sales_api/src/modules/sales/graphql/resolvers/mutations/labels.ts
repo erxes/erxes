@@ -1,12 +1,24 @@
 import { IContext } from '~/connectionResolvers';
 import { IPipelineLabel, IPipelineLabelDocument } from '~/modules/sales/@types';
 import { subscriptionWrapper } from '../utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const pipelineLabelMutations = {
+export const pipelineLabelMutations: Record<string, Resolver> = {
   /**
    * Creates a new pipeline label
    */
   async salesPipelineLabelsAdd(
+    _root: undefined,
+    { ...doc }: IPipelineLabel,
+    { user, models }: IContext,
+  ) {
+    return await models.PipelineLabels.createPipelineLabel({
+      userId: user._id,
+      ...doc,
+    });
+  },
+
+  async cpSalesPipelineLabelsAdd(
     _root: undefined,
     { ...doc }: IPipelineLabel,
     { user, models }: IContext,
@@ -58,3 +70,7 @@ export const pipelineLabelMutations = {
     });
   },
 };
+
+pipelineLabelMutations.cpSalesPipelineLabelsAdd.wrapperConfig={
+  forClientPortal:true,
+}

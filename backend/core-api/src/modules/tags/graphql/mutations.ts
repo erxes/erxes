@@ -58,6 +58,16 @@ export const tagMutations: Record<string, Resolver> = {
     return models.Tags.removeTag(_id);
   },
 
+  async cpTagsAdd(
+    _parent: undefined,
+    doc: ITag,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('tagsCreate');
+
+    return await models.Tags.createTag(doc);
+  },
+
   /**
    * Attach a cp tag
    */
@@ -77,3 +87,7 @@ export const tagMutations: Record<string, Resolver> = {
 tagMutations.cpTagsTag.wrapperConfig = {
   forClientPortal: true,
 };
+
+tagMutations.cpTagsAdd.wrapperConfig={
+  forClientPortal:true,
+}
