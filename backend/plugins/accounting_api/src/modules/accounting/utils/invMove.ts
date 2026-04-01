@@ -7,7 +7,7 @@ import { createOrUpdateTr } from './utils';
 class InvMoveInTrs {
   private readonly models: IModels;
   private readonly trDoc: ITransaction;
-  private moveInAccount: IAccountDocument;
+  private moveInAccount?: IAccountDocument;
 
   constructor(
     models: IModels,
@@ -89,7 +89,7 @@ class InvMoveInTrs {
         unitPrice: detail.unitPrice,
 
         originType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
-        accountId: this.moveInAccount._id,
+        accountId: this.moveInAccount?._id ?? '',
         side: TR_SIDES.DEBIT
       })
     }
@@ -101,9 +101,9 @@ class InvMoveInTrs {
       details: followInDetails
     }
 
-    const inTr = await createOrUpdateTr(this.models, inTrDoc, oldFollowInTr);
+    const invMoveInTr = await createOrUpdateTr(this.models, inTrDoc, oldFollowInTr);
 
-    return [inTr]
+    return { invMoveInTr, oldFollowInTr }
   }
 }
 

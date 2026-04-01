@@ -6,8 +6,7 @@ import { InvIncomeExpenseTrs } from './invIncome';
 import InvSaleOutCostTrs from './invSale';
 import {
   createOrUpdateTr,
-  syncInProductsInventory,
-  syncOutProductsInventory,
+  syncProductsInventory,
 } from './utils';
 import InvMoveInTrs from './invMove';
 
@@ -114,7 +113,7 @@ async function handleInvIncome(
 
   const transaction = await createOrUpdateTr(models, doc, oldTr);
 
-  await syncInProductsInventory(subdomain, transaction, oldTr);
+  await syncProductsInventory(subdomain, transaction, oldTr, 1);
 
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
@@ -132,14 +131,14 @@ async function handleInvOut(
 ) {
   const mainTr = await createOrUpdateTr(models, doc, oldTr);
 
-  await syncOutProductsInventory(subdomain, mainTr, oldTr);
+  await syncProductsInventory(subdomain, mainTr, oldTr, -1);
 
   return { mainTr, otherTrs: [] };
 }
 
 async function handleInvMove(
   models: IModels,
-  _subdomain: string,
+  subdomain: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
@@ -147,9 +146,12 @@ async function handleInvMove(
   await invMoveInTrsClass.checkValidation();
 
   const transaction = await createOrUpdateTr(models, doc, oldTr);
-  const otherTrs = await collect(await invMoveInTrsClass.doTrs(transaction));
+  const { invMoveInTr, oldFollowInTr } = await invMoveInTrsClass.doTrs(transaction);
 
-  return { mainTr: transaction, otherTrs };
+  syncProductsInventory(subdomain, transaction, oldTr, -1)
+  syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1)
+
+  return { mainTr: transaction, otherTrs: [invMoveInTr] };
 }
 
 async function handleInvSale(

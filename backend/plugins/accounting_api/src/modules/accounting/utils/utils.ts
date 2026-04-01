@@ -5,7 +5,7 @@ import {
 } from '@/accounting/@types/constants';
 import { IModels } from '~/connectionResolvers';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const createOrUpdateTr = async (
   models: IModels,
@@ -42,24 +42,30 @@ export const getSingleJournalByAccount = (
   }
 };
 
-export const syncInProductsInventory = async (
+export const syncProductsInventory = async (
   subdomain: string,
   transaction: ITransactionDocument,
   oldTr?: ITransactionDocument,
+  multiplier = 1,
 ) => {
   const countByProductId: { [productId: string]: number } = {};
+
+  // 1 transaction ni adilhan product buhii detailtai baij boloh
   transaction?.details.forEach((det) => {
-    countByProductId[det.productId ?? ''] = det.count ?? 0;
+    countByProductId[det.productId ?? ''] = fixNum((countByProductId[det.productId ?? ''] ?? 0) + (det.count ?? 0), 4);
   });
 
   if (
     !oldTr?._id ||
-    (transaction.branchId === oldTr?.branchId &&
-      transaction.departmentId === oldTr?.departmentId)
+    (
+      transaction.branchId === oldTr?.branchId &&
+      transaction.departmentId === oldTr?.departmentId
+    )
   ) {
+    // huuchin baival shineer tsootsoolsnoo buuruulj baina
     oldTr?.details.forEach((det) => {
       countByProductId[det.productId ?? ''] =
-        (countByProductId[det.productId ?? ''] ?? 0) - 1 * (det.count ?? 0);
+        fixNum((countByProductId[det.productId ?? ''] ?? 0) - (det.count ?? 0), 4);
     });
 
     sendTRPCMessage({
@@ -71,113 +77,59 @@ export const syncInProductsInventory = async (
       input: {
         branchId: transaction.branchId,
         departmentId: transaction.departmentId,
-        productsInfo: Object.keys(countByProductId).map((productId) => ({
-          productId,
-          diffCount: countByProductId[productId],
-        })),
+        productsInfo: Object.keys(countByProductId)
+          .filter((productId) => countByProductId[productId])
+          .map((productId) => ({
+            productId,
+            diffCount: multiplier * countByProductId[productId],
+          })),
       },
     });
-  } else {
-    sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'increaseInventories',
-      input: {
-        branchId: oldTr?.branchId,
-        departmentId: oldTr?.departmentId,
-        productsInfo: oldTr?.details?.map((det) => ({
-          productId: det.productId,
-          diffCount: -1 * (det.count ?? 0),
-        })),
-      },
-    });
-
-    sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'increaseInventories',
-      input: {
-        branchId: transaction.branchId,
-        departmentId: transaction.departmentId,
-        productsInfo: Object.keys(countByProductId).map((productId) => ({
-          productId,
-          diffCount: countByProductId[productId],
-        })),
-      },
-    });
+    return;
   }
-};
 
-export const syncOutProductsInventory = async (
-  subdomain: string,
-  transaction: ITransactionDocument,
-  oldTr?: ITransactionDocument,
-) => {
-  const countByProductId: { [productId: string]: number } = {};
-  transaction?.details.forEach((det) => {
-    countByProductId[det.productId ?? ''] = det.count ?? 0;
+  // huuchin detailseer uldegdel hasna
+  const countByProductIdOld: { [productId: string]: number } = {};
+
+  // 1 transaction ni adilhan product buhii detailtai baij boloh
+  oldTr?.details.forEach((det) => {
+    countByProductIdOld[det.productId ?? ''] = fixNum((countByProductIdOld[det.productId ?? ''] ?? 0) + (det.count ?? 0), 4);
   });
 
-  if (
-    !oldTr?._id ||
-    (transaction.branchId === oldTr?.branchId &&
-      transaction.departmentId === oldTr?.departmentId)
-  ) {
-    oldTr?.details.forEach((det) => {
-      countByProductId[det.productId ?? ''] =
-        (countByProductId[det.productId ?? ''] ?? 0) - 1 * (det.count ?? 0);
-    });
-
-    sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'increaseInventories',
-      input: {
-        branchId: transaction.branchId,
-        departmentId: transaction.departmentId,
-        productsInfo: Object.keys(countByProductId).map((productId) => ({
+  sendTRPCMessage({
+    subdomain,
+    method: 'mutation',
+    pluginName: 'core',
+    module: 'products',
+    action: 'increaseInventories',
+    input: {
+      branchId: oldTr?.branchId,
+      departmentId: oldTr?.departmentId,
+      productsInfo: Object.keys(countByProductIdOld)
+        .filter((productId) => countByProductIdOld[productId])
+        .map((productId) => ({
           productId,
-          diffCount: countByProductId[productId],
+          diffCount: -1 * multiplier * countByProductIdOld[productId],
         })),
-      },
-    });
-  } else {
-    sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'increaseInventories',
-      input: {
-        branchId: oldTr?.branchId,
-        departmentId: oldTr?.departmentId,
-        productsInfo: oldTr?.details?.map((det) => ({
-          productId: det.productId,
-          diffCount: -1 * (det.count ?? 0),
-        })),
-      },
-    });
+    },
+  });
 
-    sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'increaseInventories',
-      input: {
-        branchId: transaction.branchId,
-        departmentId: transaction.departmentId,
-        productsInfo: Object.keys(countByProductId).map((productId) => ({
+  // ehend tootsolsonoor shine detailseer uldegdel nemne
+  sendTRPCMessage({
+    subdomain,
+    method: 'mutation',
+    pluginName: 'core',
+    module: 'products',
+    action: 'increaseInventories',
+    input: {
+      branchId: transaction.branchId,
+      departmentId: transaction.departmentId,
+      productsInfo: Object.keys(countByProductId)
+        .filter((productId) => countByProductId[productId])
+        .map((productId) => ({
           productId,
-          diffCount: countByProductId[productId],
+          diffCount: multiplier * countByProductId[productId],
         })),
-      },
-    });
-  }
+    },
+  });
 };
