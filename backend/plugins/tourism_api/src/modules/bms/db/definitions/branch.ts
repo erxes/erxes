@@ -14,6 +14,8 @@ export const branchSchema = new Schema({
   token: { type: String, label: 'token' },
   uiOptions: { type: Object, label: 'UI Options' },
   erxesAppToken: { type: String, label: 'Erxes App token' },
+  language: { type: String, label: 'Main language', optional: true },
+  languages: { type: [String], label: 'Languages', optional: true },
   permissionConfig: {
     type: Object,
     optional: true,

@@ -1,5 +1,4 @@
-import { Sidebar } from 'erxes-ui';
-import { useQueryState } from 'erxes-ui';
+import { Sidebar, useQueryState } from 'erxes-ui';
 
 export const MemberDetailSidebar = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');

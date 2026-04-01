@@ -291,7 +291,7 @@ class QueueStateManager {
     const isInWaiting = queue.waiting.some(
       (call) => call.callerid === callerId,
     );
-    const isCallUp = event.state && event.state.toLowerCase().includes('up');
+    const isCallUp = event.state?.toLowerCase().includes('up');
 
     if (isCallUp && isInWaiting) {
       // Move from waiting to talking

@@ -30,10 +30,10 @@ export const ElementRecordTable = ({ branchId }: { branchId: string }) => {
 
   return (
     <RecordTable.Provider
-      columns={elementColumns(getCategoryNamesByIds)}
+      columns={elementColumns(getCategoryNamesByIds, branchId)}
       data={elements || []}
       className="h-full"
-      stickyColumns={['checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'name']}
     >
       <ElementCommandBar />
       <RecordTable.CursorProvider

@@ -7,7 +7,7 @@ import {
 } from '../../utils';
 
 export const checkLogin = (user?: IUserDocument) => {
-  if (!user || !user._id) {
+  if (!user?._id) {
     throw new Error('Login required');
   }
 };

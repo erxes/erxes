@@ -1,4 +1,4 @@
-import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getSubdomain } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { IProductReviewDocument } from '~/modules/ecommerce/@types/productReview';
 import { IWishlistDocument } from './@types/wishlist';

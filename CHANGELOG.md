@@ -1,5 +1,89 @@
 
 
+## [3.0.9](https://github.com/erxes/erxes/compare/3.0.8...3.0.9) (2026-04-01)
+
+
+### Bug Fixes
+
+* **accounting:** census bug, syncdeal config ([#7353](https://github.com/erxes/erxes/issues/7353)) ([abfc64e](https://github.com/erxes/erxes/commit/abfc64e0a4be13005dab69cce26a908bc6d21185))
+* **core-ui:** truncate permission group text ([#7361](https://github.com/erxes/erxes/issues/7361)) ([08a3684](https://github.com/erxes/erxes/commit/08a3684379baea6c8efee07ff226082120d756bb))
+* fix duplicated import ([d5f53e5](https://github.com/erxes/erxes/commit/d5f53e5f811286611bac09b0f6917304d1ada1bf))
+* **posclient:** pos choose config is public ([1963dc1](https://github.com/erxes/erxes/commit/1963dc1da3eeceed8183e889e15f09ed801805da))
+* products remainder improve ([#7344](https://github.com/erxes/erxes/issues/7344)) ([aa94f10](https://github.com/erxes/erxes/commit/aa94f10bfdc8db7818e8776930c993559e086587))
+* remove activity header ([7dbb2ee](https://github.com/erxes/erxes/commit/7dbb2ee723e4a17a685886d860c0e2078f4d1564))
+* sonar resolve frontend/module/logs ([#7341](https://github.com/erxes/erxes/issues/7341)) ([6c9f4b7](https://github.com/erxes/erxes/commit/6c9f4b761475748855ee7ff1f5600c05adc809a2))
+
+
+### Features
+
+* add branchId to tour categories ([#7346](https://github.com/erxes/erxes/issues/7346)) ([572e0d0](https://github.com/erxes/erxes/commit/572e0d0dc3fbafaa5ac1b42d36e951840a48b3ae))
+* add logging for collectionType in checkCustomTrigger ([22c12bf](https://github.com/erxes/erxes/commit/22c12bf1f160a0911ea775cc09817eede2804019))
+* **core-ui:** guard core actions with can ([485a44d](https://github.com/erxes/erxes/commit/485a44d6a1ac61d8686e722a7224d12378770a14))
+* implement Facebook bot health notification system and update notification types ([#7349](https://github.com/erxes/erxes/issues/7349)) ([90c8410](https://github.com/erxes/erxes/commit/90c84107fcf9597145a0bd57abc8b38af9a0a484))
+* **logs:** enhance log detail view and add new filters ([#7357](https://github.com/erxes/erxes/issues/7357)) ([918916d](https://github.com/erxes/erxes/commit/918916d0432b29b4b00818d4772b61515892ab01))
+* **tms:** improve tourism components and layout ([#7350](https://github.com/erxes/erxes/issues/7350)) ([4f9cd48](https://github.com/erxes/erxes/commit/4f9cd489434d9c1db5ccbc1348062a121fc13e70))
+* update checkCustomTrigger to log arguments and return false ([4c42eb1](https://github.com/erxes/erxes/commit/4c42eb196f337da0580b42a73801ea62c328df56))
+
+
+### Performance Improvements
+
+* remove activity from contact overview ([de25831](https://github.com/erxes/erxes/commit/de258317124d47d5953a063baa79e869191a9ead))
+
+# Changelog
+
+## [3.0.8](https://github.com/erxes/erxes/compare/3.0.7...3.0.8) (2026-03-30)
+
+
+### Bug Fixes
+
+* posProducts pagination bug ([#7200](https://github.com/erxes/erxes/issues/7200)) ([47c8a0e](https://github.com/erxes/erxes/commit/47c8a0ee00b024c2617333dd574ab2de420789c2))
+
+
+### Features
+
+* implement health check and verification for Facebook bots ([#7339](https://github.com/erxes/erxes/issues/7339)) ([b92d558](https://github.com/erxes/erxes/commit/b92d5584d71cfa815b70699bc4ca272d94585a66))
+
+## [3.0.7](https://github.com/erxes/erxes/compare/3.0.6...3.0.7) (2026-03-30)
+
+
+### Bug Fixes
+
+* census detail improvement ([#7329](https://github.com/erxes/erxes/issues/7329)) ([87ce0e9](https://github.com/erxes/erxes/commit/87ce0e9f10ad17fd3eb7a776248009c5ee0c8c27))
+* resolve pdf image not displaying issue ([#7324](https://github.com/erxes/erxes/issues/7324)) ([87edaec](https://github.com/erxes/erxes/commit/87edaeca6950ee4776f1ddae094059d86f0e6d35))
+* show fallback text in BroadcastSettingsVerifiedEmail when no search query ([faa9082](https://github.com/erxes/erxes/commit/faa9082c210dce10cd362dbad3c65a073b3454b0))
+
+
+### Features
+
+* frontline ticket report and export ([d3a4ea5](https://github.com/erxes/erxes/commit/d3a4ea58f25bed2b76ae3fcfbd545c98d08469b3))
+* **pdf:** use itinerary color instead of branch primarycolor ([#7334](https://github.com/erxes/erxes/issues/7334)) ([b41a792](https://github.com/erxes/erxes/commit/b41a7923efc0d7e8d803fe6d412590f9d223bcda))
+* **tour:** add attachment field to form and apply improvements ([#7330](https://github.com/erxes/erxes/issues/7330)) ([2ab20f8](https://github.com/erxes/erxes/commit/2ab20f88e65c6aa1f00f28a1bf24f92446708380))
+* **tour:** add itinerary color field ([#7333](https://github.com/erxes/erxes/issues/7333)) ([238cbc4](https://github.com/erxes/erxes/commit/238cbc4e3b4879efcce48bfd058448cbe6042319))
+* **tour:** add mongolian cyrillic support in pdf export ([#7332](https://github.com/erxes/erxes/issues/7332)) ([3e96a27](https://github.com/erxes/erxes/commit/3e96a273aaa5a538f07605f3320a4fa2b29658c0))
+* **tour:** add variable to elements ([#7335](https://github.com/erxes/erxes/issues/7335)) ([e284433](https://github.com/erxes/erxes/commit/e284433846c8349a90d45a16cacece98155659dd))
+* **validation:** prevent duplicates in tour, itinerary, elements and amenities ([#7338](https://github.com/erxes/erxes/issues/7338)) ([f212452](https://github.com/erxes/erxes/commit/f212452c4c16d019bdf806df531840b2cf55140b))
+
+## [3.0.6](https://github.com/erxes/erxes/compare/3.0.5...3.0.6) (2026-03-27)
+
+
+### Bug Fixes
+
+* allow unicode letters in sanitizeKey ([95965b3](https://github.com/erxes/erxes/commit/95965b37e44abb289d8e7a6d1fbc057f77b0cd93))
+* handle optional customer ID in buildCustomerTarget function ([1de6dc4](https://github.com/erxes/erxes/commit/1de6dc41f0d6ab15e69047d352cff973b73ffa6c))
+* loyalty improve ([#7303](https://github.com/erxes/erxes/issues/7303)) ([6f83af2](https://github.com/erxes/erxes/commit/6f83af20378280354edb843d85e1ec23acf3a448))
+* restore broadcast, template, and import/export routes ([68bd7aa](https://github.com/erxes/erxes/commit/68bd7aa07969bae72d0e0eac59bcd333e4835d07))
+* show uploaded image on editor ([#7320](https://github.com/erxes/erxes/issues/7320)) ([7131f00](https://github.com/erxes/erxes/commit/7131f00a8f1f9e96d96e2556d87102af3b52c4bd))
+* sonar resolve be/erxes-api-shared/utils ([#7299](https://github.com/erxes/erxes/issues/7299)) ([703a9b7](https://github.com/erxes/erxes/commit/703a9b779611b79b1e0482be8edf741aee00c5f3))
+* sonar resolve be/frontline/modules/inbox/graphql/resolvers/mutations ([#7301](https://github.com/erxes/erxes/issues/7301)) ([45acdd1](https://github.com/erxes/erxes/commit/45acdd13896b1249844a0b21dd7b2572044011e5))
+
+
+### Features
+
+* **core:** guard contact actions with can ([#7282](https://github.com/erxes/erxes/issues/7282)) ([c04c76f](https://github.com/erxes/erxes/commit/c04c76f61cf0eff73ed03d9a792724b563dc5205))
+* enhance sales deal overview, activity logs, and configurable record-table columns ([#7315](https://github.com/erxes/erxes/issues/7315)) ([07f1f74](https://github.com/erxes/erxes/commit/07f1f74fc3d3f17465904eab0a7564c65ecf62a4))
+* lang switcher in detail page, no content indicator ([#7296](https://github.com/erxes/erxes/issues/7296)) ([74ecf3c](https://github.com/erxes/erxes/commit/74ecf3cf46b342402ffcbe6a57133606a0adb4e8))
+* **tms:** add language fields and remove preview page from create form ([#7283](https://github.com/erxes/erxes/issues/7283)) ([7698e6a](https://github.com/erxes/erxes/commit/7698e6aefe544e4b3a4ed54317002a3a1114717b))
+
 ## [3.0.5](https://github.com/erxes/erxes/compare/3.0.4...3.0.5) (2026-03-25)
 
 ## [3.0.4](https://github.com/erxes/erxes/compare/3.0.3...3.0.4) (2026-03-25)

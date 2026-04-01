@@ -14,6 +14,13 @@ export const types = `
     description: String
     status: String    
 
+    incomeRule: JSON
+    incomeTrId: String
+    outRule: JSON
+    outTrId: String
+    saleRule: JSON
+    saleTrId: String
+
     createdAt: Date
     createdBy: String
     modifiedAt: Date

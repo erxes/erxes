@@ -1,8 +1,7 @@
-import { RecordTable } from 'erxes-ui';
-import { useClientPortalUsers } from '@/contacts/client-portal-users/hooks/useClientPortalUsers';
 import { clientPortalUserColumns } from '@/contacts/client-portal-users/components/ClientPortalUserColumns';
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
-import { Label } from 'erxes-ui';
+import { useClientPortalUsers } from '@/contacts/client-portal-users/hooks/useClientPortalUsers';
+import { Label, RecordTable } from 'erxes-ui';
 
 export const ClientPortalUsersRecordTable = () => {
   const {

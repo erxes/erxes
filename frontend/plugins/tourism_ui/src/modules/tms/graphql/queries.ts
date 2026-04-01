@@ -31,6 +31,8 @@ export const GET_BRANCH_LIST = gql`
         erxesAppToken
         permissionConfig
         uiOptions
+        language
+        languages
       }
       totalCount
       pageInfo {
@@ -57,6 +59,8 @@ export const BRANCH_LIST_DETAIL = gql`
       erxesAppToken
       permissionConfig
       uiOptions
+      language
+      languages
     }
   }
 `;

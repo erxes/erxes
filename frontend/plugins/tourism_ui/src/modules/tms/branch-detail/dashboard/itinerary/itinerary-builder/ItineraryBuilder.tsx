@@ -32,6 +32,7 @@ export const ItineraryBuilder = ({
     handleDragEnd,
     handleDrop,
     handleRemoveElement,
+    handleReorderElements,
     handleAddDay,
     handleRemoveDay,
   } = useItineraryBuilder({ setValue, watch });
@@ -103,6 +104,7 @@ export const ItineraryBuilder = ({
           availableAmenities={amenities}
           getDayElements={getDayElements}
           onRemoveElement={handleRemoveElement}
+          onReorderElements={handleReorderElements}
           onDrop={handleDrop}
           isDragging={isDragging}
         />

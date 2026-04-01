@@ -16,12 +16,15 @@ import {
 } from 'erxes-ui';
 import { IElement } from '../types/element';
 import { ElementEditSheet } from './ElementEditSheet';
+import { elementMoreColumn } from './ElementMoreCell';
 
 export const elementColumns = (
   getCategoryNamesByIds: (ids: string[]) => string[],
+  branchId?: string,
 ): ColumnDef<IElement>[] => {
   return [
     RecordTable.checkboxColumn as ColumnDef<IElement>,
+    elementMoreColumn(branchId),
     {
       id: 'name',
       accessorKey: 'name',
