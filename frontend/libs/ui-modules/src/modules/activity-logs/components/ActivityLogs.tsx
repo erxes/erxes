@@ -76,16 +76,6 @@ const ActivityLogsWrapper = ({ children }: { children: React.ReactNode }) => {
   return <div className="flex flex-col w-full flex-auto px-6">{children}</div>;
 };
 
-const ActivityLogsHeader = ({ children }: { children?: React.ReactNode }) => {
-  return (
-    <div className="w-full p-2">
-      {children || <h4 className="text-sm font-medium">Activity</h4>}
-    </div>
-  );
-};
-
-ActivityLogsHeader.displayName = 'ActivityLogsHeader';
-
 const ActivityLogsContent = ({ emptyMessage }: { emptyMessage?: string }) => {
   return (
     <div className="flex flex-col flex-1 w-full p-2">
@@ -131,7 +121,6 @@ const ActivityLogsLegacy = ({
       options={options}
     >
       <ActivityLogsWrapper>
-        <ActivityLogsHeader />
         <ActivityLogsContent emptyMessage={emptyMessage} />
       </ActivityLogsWrapper>
     </ActivityLogsRoot>
@@ -141,7 +130,6 @@ const ActivityLogsLegacy = ({
 export const ActivityLogs = Object.assign(ActivityLogsLegacy, {
   Root: ActivityLogsRoot,
   Wrapper: ActivityLogsWrapper,
-  Header: ActivityLogsHeader,
   Content: ActivityLogsContent,
   List: ActivityLogList,
   Row: ActivityLogRow,

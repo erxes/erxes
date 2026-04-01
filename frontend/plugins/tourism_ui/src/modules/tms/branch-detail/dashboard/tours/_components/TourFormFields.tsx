@@ -10,6 +10,7 @@ import {
   Button,
   Textarea,
   Label,
+  Badge,
 } from 'erxes-ui';
 import { TourCreateFormType } from '../constants/formSchema';
 import {
@@ -19,10 +20,13 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
 import { ImageUploadGrid } from '../../../components';
 import { SelectTourCategory } from './SelectTourCategory';
 import { toOptionalString, toOptionalNumber } from '../utils/fieldConverters';
+import { LANGUAGES } from '@/tms/constants/languages';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 export const TourNameField = ({
   control,
@@ -325,7 +329,7 @@ export const TourAdvanceCheckField = ({
       control={control}
       name="advanceCheck"
       render={({ field }) => (
-        <Form.Item className="flex gap-2 items-center">
+        <Form.Item className="flex items-center gap-2">
           <Form.Control>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
           </Form.Control>
@@ -485,7 +489,7 @@ export const TourImageThumbnailField = ({
                 }
               >
                 {!field.value && (
-                  <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
                     {isLoading ? (
                       <span>Uploading...</span>
                     ) : (
@@ -498,7 +502,7 @@ export const TourImageThumbnailField = ({
                 )}
 
                 {field.value && (
-                  <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
+                  <div className="absolute inset-0 flex items-center justify-center transition bg-black/0 group-hover:bg-black/30">
                     <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 group-hover:opacity-100 bg-black/70">
                       Change image
                     </span>
@@ -510,7 +514,7 @@ export const TourImageThumbnailField = ({
                 <Upload.RemoveButton
                   size="sm"
                   variant="destructive"
-                  className="absolute top-2 right-2 shadow opacity-0 group-hover:opacity-100"
+                  className="absolute shadow opacity-0 top-2 right-2 group-hover:opacity-100"
                 >
                   <IconTrash size={14} />
                 </Upload.RemoveButton>
@@ -601,7 +605,7 @@ export const TourAttachmentsField = ({
                 className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
               >
                 {!field.value ? (
-                  <div className="flex gap-2 justify-center items-center w-full text-sm text-muted-foreground">
+                  <div className="flex items-center justify-center w-full gap-2 text-sm text-muted-foreground">
                     {isLoading ? (
                       <span>Uploading...</span>
                     ) : (
@@ -612,7 +616,7 @@ export const TourAttachmentsField = ({
                     )}
                   </div>
                 ) : (
-                  <div className="flex gap-2 items-center px-1 w-full">
+                  <div className="flex items-center w-full gap-2 px-1">
                     <IconFileText
                       size={18}
                       className="shrink-0 text-muted-foreground"
@@ -626,7 +630,7 @@ export const TourAttachmentsField = ({
                 <Upload.RemoveButton
                   size="sm"
                   variant="destructive"
-                  className="absolute right-2 top-1/2 shadow opacity-0 -translate-y-1/2 group-hover:opacity-100"
+                  className="absolute -translate-y-1/2 shadow opacity-0 right-2 top-1/2 group-hover:opacity-100"
                 >
                   <IconTrash size={14} />
                 </Upload.RemoveButton>
@@ -654,6 +658,9 @@ const TourPricingOptionsFieldContent = ({
 }: {
   control: Control<any>;
 }) => {
+  const lang = useAtomValue(activeLangAtom);
+  const symbol = LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'pricingOptions',
@@ -680,7 +687,7 @@ const TourPricingOptionsFieldContent = ({
 
   return (
     <Form.Item className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <Form.Label>Pricing Options</Form.Label>
           <Form.Description>
@@ -700,11 +707,14 @@ const TourPricingOptionsFieldContent = ({
         {fields.map((field, index) => (
           <div
             key={field.id}
-            className="p-4 space-y-3 rounded-lg border bg-card"
+            className="p-4 space-y-3 border rounded-lg bg-card"
           >
-            <div className="flex justify-between items-start">
-              <Label>
-                Package: <Label className="text-black">{index + 1}</Label>
+            <div className="flex items-start justify-between">
+              <Label className="flex items-center gap-2">
+                Package:
+                <Badge variant="secondary" className="px-2 py-0.5 font-medium">
+                  {index + 1}
+                </Badge>
               </Label>
               <Button
                 type="button"
@@ -815,13 +825,19 @@ const TourPricingOptionsFieldContent = ({
                       Price per Person{' '}
                       <span className="text-destructive">*</span>
                     </Form.Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      {...field}
-                      placeholder="0.00"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                        {symbol}
+                      </span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        {...field}
+                        placeholder="0.00"
+                        className="pl-7"
+                      />
+                    </div>
                     <Form.Message>{fieldState.error?.message}</Form.Message>
                   </div>
                 )}
@@ -839,15 +855,21 @@ const TourPricingOptionsFieldContent = ({
                     >
                       Domestic Flight
                     </Form.Label>
-                    <Input
-                      type="number"
-                      {...field}
-                      value={field.value ?? ''}
-                      onChange={(e) =>
-                        field.onChange(toOptionalNumber(e.target.value))
-                      }
-                      placeholder="0.00"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                        {symbol}
+                      </span>
+                      <Input
+                        type="number"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(toOptionalNumber(e.target.value))
+                        }
+                        placeholder="0.00"
+                        className="pl-7"
+                      />
+                    </div>
                     <Form.Message>{fieldState.error?.message}</Form.Message>
                   </div>
                 )}
@@ -863,15 +885,21 @@ const TourPricingOptionsFieldContent = ({
                     >
                       Single Supplement
                     </Form.Label>
-                    <Input
-                      type="number"
-                      {...field}
-                      value={field.value ?? ''}
-                      onChange={(e) =>
-                        field.onChange(toOptionalNumber(e.target.value))
-                      }
-                      placeholder="0.00"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                        {symbol}
+                      </span>
+                      <Input
+                        type="number"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(toOptionalNumber(e.target.value))
+                        }
+                        placeholder="0.00"
+                        className="pl-7"
+                      />
+                    </div>
                     <Form.Message>{fieldState.error?.message}</Form.Message>
                   </div>
                 )}
