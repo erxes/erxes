@@ -1,12 +1,9 @@
 import { posTrpcRouter } from '@/pos/trpc/pos';
 import { dealTrpcRouter } from '@/sales/trpc/deal';
-
 import { initTRPC } from '@trpc/server';
-
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { z } from 'zod';
-import { generateSalesFields } from '~/modules/sales/fieldUtils';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 

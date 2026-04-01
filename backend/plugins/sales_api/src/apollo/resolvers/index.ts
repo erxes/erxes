@@ -8,12 +8,12 @@ const cr = customResolvers as any;
 const resolvers: any = {
   Mutation: {
     ...mutations,
-    ...(cr.Mutation || {}), // safe
+    ...cr.Mutation, // safe
   },
 
   Query: {
     ...queries,
-    ...(cr.Query || {}),
+    ...cr.Query,
   },
 
   ...apolloCustomScalars,
