@@ -8,7 +8,14 @@ import { useClientPortalRemove } from '@/client-portal/hooks/useClientPortalRemo
 import { Can } from 'ui-modules';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
 import { Link } from 'react-router-dom';
 
 export const ClientPortalMoreColumnCell = ({
