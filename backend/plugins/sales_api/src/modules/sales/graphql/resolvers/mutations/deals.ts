@@ -88,8 +88,8 @@ export const dealMutations = {
 
     const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
 
-   // Do not call mongolian plugin directly from sales.
-   // Instead, emit an event (via logs) that will be handled by afterProcess.
+    // Do not call mongolian plugin directly from sales.
+    // Instead, emit an event (via logs) that will be handled by afterProcess.
 
     await itemMover(models, user._id, item, destinationStageId);
 

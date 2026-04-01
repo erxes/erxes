@@ -62,11 +62,13 @@ const PlaceConfig: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { data, loading: queryLoading } =
-    useQuery<MnConfigsQueryResponse>(MN_CONFIGS, {
+  const { data, loading: queryLoading } = useQuery<MnConfigsQueryResponse>(
+    MN_CONFIGS,
+    {
       variables: { code: 'dealsProductsDataPlaces' },
       fetchPolicy: 'network-only',
-    });
+    },
+  );
 
   const [createConfig] = useMutation(MN_CONFIGS_CREATE);
   const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
@@ -186,13 +188,11 @@ const PlaceConfig: React.FC = () => {
     setFormData(emptyForm);
   };
 
-  if (queryLoading && savedConfigs.length === 0)
-    return <div>Loading...</div>;
+  if (queryLoading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
     <div className="w-full flex justify-center overflow-y-auto">
       <div className="w-full max-w-5xl px-6 py-6 space-y-8">
-
         {/* ✅ REPLACED HEADER */}
         <ConfigHeader
           title="Product Places Config"
@@ -266,9 +266,7 @@ const PlaceConfig: React.FC = () => {
               Delete
             </Button>
           )}
-          <Button onClick={handleSave}>
-            {loading ? 'Saving...' : 'Save'}
-          </Button>
+          <Button onClick={handleSave}>{loading ? 'Saving...' : 'Save'}</Button>
         </div>
       </div>
     </div>

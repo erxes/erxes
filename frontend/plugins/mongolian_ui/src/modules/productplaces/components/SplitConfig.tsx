@@ -89,10 +89,7 @@ const SplitConfig: React.FC = () => {
   return (
     <div className="w-full h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
-        <ConfigHeader
-          title="Split Configuration"
-          onNew={handleNew}
-        />
+        <ConfigHeader title="Split Configuration" onNew={handleNew} />
         <SavedConfigsList
           configs={savedConfigs}
           activeIndex={activeIndex}
@@ -198,4 +195,3 @@ const SplitConfig: React.FC = () => {
 };
 
 export default SplitConfig;
-

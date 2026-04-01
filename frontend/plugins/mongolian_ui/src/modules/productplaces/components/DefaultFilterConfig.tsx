@@ -182,9 +182,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
 
                 {/* Users */}
                 <div className="space-y-3">
-                  <label className="text-sm font-medium">
-                    Assigned Users
-                  </label>
+                  <label className="text-sm font-medium">Assigned Users</label>
 
                   <div className="flex gap-3 items-center">
                     <div className="flex-1">
@@ -241,4 +239,3 @@ const DefaultFilterConfig: React.FC<Props> = ({
 };
 
 export default DefaultFilterConfig;
-

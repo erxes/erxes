@@ -37,7 +37,6 @@ const SettingsContainer = ({
   subId,
   multiple = false,
 }: Props) => {
-
   const form = useForm();
 
   const { data, loading, error, refetch } = useQuery(
@@ -110,7 +109,6 @@ const SettingsContainer = ({
     ];
   }, [data, configCode, multiple]);
 
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -155,7 +153,6 @@ const SettingsContainer = ({
     return true;
   };
 
-
   const remove = async (id: string) => {
     if (!id) return;
 
@@ -165,7 +162,6 @@ const SettingsContainer = ({
 
     await refetch();
   };
-
 
   return (
     <Form {...form}>

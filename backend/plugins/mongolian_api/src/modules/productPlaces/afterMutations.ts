@@ -7,8 +7,7 @@ import { handlePricing } from './handlers/handlePricing';
 import { handlePrint } from './handlers/handlePrint';
 import { getMnConfigs } from './utils/utils';
 
-export default {
-};
+export default {};
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;

@@ -56,11 +56,13 @@ const PrintConfig: React.FC = () => {
   const [formData, setFormData] = useState<PrintConfigData>(emptyForm);
   const [loading, setLoading] = useState(false);
 
-  const { data, loading: queryLoading } =
-    useQuery<MnConfigsQueryResponse>(MN_CONFIGS, {
+  const { data, loading: queryLoading } = useQuery<MnConfigsQueryResponse>(
+    MN_CONFIGS,
+    {
       variables: { code: 'dealsProductsDataPrint' },
       fetchPolicy: 'network-only',
-    });
+    },
+  );
 
   const [createConfig] = useMutation(MN_CONFIGS_CREATE);
   const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
@@ -123,9 +125,7 @@ const PrintConfig: React.FC = () => {
   const updateCondition = (id: string, updated: Condition) => {
     setFormData((prev) => ({
       ...prev,
-      conditions: prev.conditions.map((c) =>
-        c.id === id ? updated : c,
-      ),
+      conditions: prev.conditions.map((c) => (c.id === id ? updated : c)),
     }));
   };
 
@@ -178,7 +178,6 @@ const PrintConfig: React.FC = () => {
   return (
     <div className="w-full h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
-
         {/* ✅ HEADER (reused) */}
         <ConfigHeader
           title="Print Configuration"
@@ -248,9 +247,7 @@ const PrintConfig: React.FC = () => {
               Delete
             </Button>
           )}
-          <Button onClick={handleSave}>
-            {loading ? 'Saving...' : 'Save'}
-          </Button>
+          <Button onClick={handleSave}>{loading ? 'Saving...' : 'Save'}</Button>
         </div>
       </div>
     </div>

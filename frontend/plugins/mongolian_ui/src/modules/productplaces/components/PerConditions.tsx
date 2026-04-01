@@ -135,9 +135,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               <Select.Content>
                 <Select.Item value={CLEAR_VALUE}>Not use</Select.Item>
                 <Select.Item value="lt">Low than count</Select.Item>
-                <Select.Item value="gte">
-                  Greater, equal than count
-                </Select.Item>
+                <Select.Item value="gte">Greater, equal than count</Select.Item>
               </Select.Content>
             </Select>
           </div>
@@ -183,4 +181,3 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
 };
 
 export default PerConditions;
-
