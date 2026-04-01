@@ -59,17 +59,13 @@ interface ReadFileQuery {
 
 router.get(
   '/read-file',
-  readLimiter as any,
-  async (
-    req: Request<never, never, never, ReadFileQuery>,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  readLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
     try {
-      const { key, inline, name, width = 0 } = req.query || {};
+      const { key, inline, name, width = 0 } = (req.query || {}) as ReadFileQuery;
 
       const stringKey = Array.isArray(key) ? key[0] : key;
 
