@@ -17,8 +17,9 @@ import {
 } from '../utils';
 import { addDeal, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const dealMutations = {
+export const dealMutations: Record<string, Resolver> = {
   /**
    * Creates a new deal
    */
@@ -30,10 +31,26 @@ export const dealMutations = {
     return await addDeal({ models, subdomain, user, doc });
   },
 
+  async cpDealsAdd(
+    _root,
+    doc: IDeal & { processId: string; aboveItemId: string },
+    { user, models, subdomain }: IContext,
+  ) {
+    return await addDeal({ models, subdomain, user, doc });
+  },
+
   /**
    * Edits a deal
    */
   async dealsEdit(
+    _root,
+    { _id, processId, ...doc }: IDealDocument & { processId: string },
+    { user, models, subdomain }: IContext,
+  ) {
+    return await editDeal({ models, subdomain, _id, processId, doc, user });
+  },
+
+  async cpDealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
     { user, models, subdomain }: IContext,
@@ -106,11 +123,7 @@ export const dealMutations = {
   /**
    * Remove deal
    */
-  async dealsRemove(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  async dealsRemove(_root, { _id }: { _id: string }, { models }: IContext) {
     const item = await models.Deals.findOne({ _id });
 
     if (!item) {
@@ -189,7 +202,9 @@ export const dealMutations = {
     const customerIds = await getCustomerIds(subdomain, _id);
 
     await createRelations(subdomain, {
-      dealId: clone._id, companyIds, customerIds
+      dealId: clone._id,
+      companyIds,
+      customerIds,
     });
 
     await copyChecklists(models, {
@@ -236,7 +251,7 @@ export const dealMutations = {
           oldDeal: { ...item, status: SALES_STATUSES.ARCHIVED },
         },
       });
-    })
+    });
 
     return 'ok';
   },
@@ -287,7 +302,7 @@ export const dealMutations = {
     // undefenid or null then true
     const tickUsed = !(stage.defaultTick === false);
     const addDocs = (docs || []).map(
-      (doc) => ({ ...doc, tickUsed } as IProductData),
+      (doc) => ({ ...doc, tickUsed }) as IProductData,
     );
     const productsData: IProductData[] = (deal.productsData || []).concat(
       addDocs,
@@ -360,8 +375,8 @@ export const dealMutations = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
-      data._id === dataId ? { ...doc } : data,
+    const productsData: IProductData[] = (deal.productsData || []).map(
+      (data) => (data._id === dataId ? { ...doc } : data),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -479,4 +494,12 @@ export const dealMutations = {
       productsData,
     };
   },
+};
+
+dealMutations.cpDealsEdit.wrapperConfig = {
+  forClientPortal: true,
+};
+
+dealMutations.cpDealsAdd.wrapperConfig = {
+  forClientPortal: true,
 };
