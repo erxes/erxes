@@ -72,35 +72,6 @@ export function useDepartmentEdit(
   const { toast } = useToast();
   const [handleEdit, { loading, error }] = useMutation(EDIT_DEPARTMENT, {
     ...options,
-    update: (cache: ApolloCache<any>, { data }) => {
-      try {
-        const existingData = cache.readQuery<DepartmentData>({
-          query: GET_DEPARTMENTS_LIST,
-        });
-        if (
-          !existingData ||
-          !existingData.departmentsMain ||
-          !data?.departmentsEdit
-        )
-          return;
-
-        cache.writeQuery<DepartmentData>({
-          query: GET_DEPARTMENTS_LIST,
-          data: {
-            departmentsMain: {
-              ...existingData.departmentsMain,
-              list: [
-                data.departmentsEdit,
-                ...existingData.departmentsMain.list,
-              ],
-              totalCount: existingData.departmentsMain.totalCount + 1,
-            },
-          },
-        });
-      } catch (e) {
-        // Silently handle cache update errors
-      }
-    },
   });
 
   return {

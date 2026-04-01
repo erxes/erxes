@@ -63,28 +63,6 @@ export function useUnitEdit(options?: MutationHookOptions<AddUnitResult, any>) {
   const { toast } = useToast();
   const [handleEdit, { loading, error }] = useMutation(EDIT_UNIT, {
     ...options,
-    update: (cache: ApolloCache<any>, { data }) => {
-      try {
-        const existingData = cache.readQuery<UnitData>({
-          query: GET_UNITS_LIST,
-        });
-        if (!existingData || !existingData.unitsMain || !data?.unitsEdit)
-          return;
-
-        cache.writeQuery<UnitData>({
-          query: GET_UNITS_LIST,
-          data: {
-            unitsMain: {
-              ...existingData.unitsMain,
-              list: [data.unitsEdit, ...existingData.unitsMain.list],
-              totalCount: existingData.unitsMain.totalCount + 1,
-            },
-          },
-        });
-      } catch (e) {
-        // Silently handle cache update errors
-      }
-    },
   });
 
   return {

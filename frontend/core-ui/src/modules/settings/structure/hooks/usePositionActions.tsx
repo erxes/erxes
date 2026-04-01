@@ -68,32 +68,6 @@ export function usePositionEdit(
   const { toast } = useToast();
   const [handleEdit, { loading, error }] = useMutation(EDIT_POSITION, {
     ...options,
-    update: (cache: ApolloCache<any>, { data }) => {
-      try {
-        const existingData = cache.readQuery<PositionData>({
-          query: GET_POSITIONS_LIST,
-        });
-        if (
-          !existingData ||
-          !existingData.positionsMain ||
-          !data?.positionsEdit
-        )
-          return;
-
-        cache.writeQuery<PositionData>({
-          query: GET_POSITIONS_LIST,
-          data: {
-            positionsMain: {
-              ...existingData.positionsMain,
-              list: [data.positionsEdit, ...existingData.positionsMain.list],
-              totalCount: existingData.positionsMain.totalCount + 1,
-            },
-          },
-        });
-      } catch (e) {
-        // Silently handle cache update errors
-      }
-    },
   });
 
   return {
