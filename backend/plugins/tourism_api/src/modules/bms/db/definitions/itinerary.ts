@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { PAYMENT_STATUS_TYPES } from '@/bms/constants';
+import { getEnum } from '~/modules/bms/utils/utils';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const locationSchema = new Schema(
