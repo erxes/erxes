@@ -59,7 +59,7 @@ interface ReadFileQuery {
 
 router.get(
   '/read-file',
-  readLimiter,
+  readLimiter as any,
   async (
     req: Request<never, never, never, ReadFileQuery>,
     res: Response,
