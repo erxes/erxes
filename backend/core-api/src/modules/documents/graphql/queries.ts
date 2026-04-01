@@ -98,7 +98,7 @@ export const documentQueries = {
     for (const serviceName of services) {
       const service = await getPlugin(serviceName);
       const meta = service.config.meta || {};
-      if (meta && meta.documents) {
+      if (meta?.documents) {
         const types = meta.documents.types || [];
 
         for (const type of types) {

@@ -89,20 +89,19 @@ const SelectModuleCommand = () => {
     <Command shouldFilter={false}>
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {modules &&
-          modules.map((module) => (
-            <Command.Item
-              key={module.name}
+        {modules?.map((module) => (
+          <Command.Item
+            key={module.name}
+            value={module.name}
+            onSelect={() => onSelect(module)}
+          >
+            <TextOverflowTooltip
               value={module.name}
-              onSelect={() => onSelect(module)}
-            >
-              <TextOverflowTooltip
-                value={module.name}
-                className="flex-auto w-auto font-medium"
-              />
-              <Combobox.Check checked={selectedModuleName === module.name} />
-            </Command.Item>
-          ))}
+              className="flex-auto w-auto font-medium"
+            />
+            <Combobox.Check checked={selectedModuleName === module.name} />
+          </Command.Item>
+        ))}
       </Command.List>
     </Command>
   );

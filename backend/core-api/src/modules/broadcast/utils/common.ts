@@ -302,7 +302,7 @@ export const getEditorAttributeUtil = async (subdomain: string) => {
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  const editor: any = await new EditorAttributeUtil(
+  const editor: any = new EditorAttributeUtil(
     `${DOMAIN}/gateway/pl:core`,
     services,
     subdomain,
@@ -398,7 +398,7 @@ export const timeCheckScheduledBroadcast = async (
   scheduleDate?: IScheduleDateDocument,
 ) => {
   const isValidScheduledBroadcast =
-    scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime;
+    scheduleDate?.type === 'pre' && scheduleDate?.dateTime;
   // Check for pre scheduled engages
 
   if (isValidScheduledBroadcast) {

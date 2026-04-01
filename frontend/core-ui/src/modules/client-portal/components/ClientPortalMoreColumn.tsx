@@ -4,9 +4,18 @@ import {
   SettingsPath,
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
+import { useClientPortalRemove } from '@/client-portal/hooks/useClientPortalRemove';
+import { Can } from 'ui-modules';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
 import { Link } from 'react-router-dom';
 
 export const ClientPortalMoreColumnCell = ({
@@ -51,9 +60,11 @@ export const ClientPortalMoreColumnCell = ({
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
+      <Can action="clientPortalManage">
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+      </Can>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>

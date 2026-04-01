@@ -94,9 +94,7 @@ export const NotificationItem = ({
 
 const NotificationIcon = ({ contentType }: { contentType: string }) => {
   const pluginName = contentType?.split(':')[0] || '';
-  const pluginMetaData = (useAtomValue(pluginsConfigState) || {})[
-    pluginName + '_ui'
-  ];
+  const pluginMetaData = useAtomValue(pluginsConfigState)?.[pluginName + '_ui'];
   if (pluginName === 'core') {
     return <OrgLogoIcon className="size-5 text-primary" />;
   }

@@ -42,7 +42,7 @@ const TagsFilterBar = ({ tagType }: { tagType?: string }) => {
   const [tags, setTags] = useQueryState<string[]>('tags');
   const [open, setOpen] = useState(false);
 
-  if (!tags || !tags.length) {
+  if (!tags?.length) {
     return null;
   }
 

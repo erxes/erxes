@@ -22,7 +22,7 @@ export async function loginWithCredentials(
   const query = buildUserQuery(undefined, email, phone, clientPortal._id);
   const user = await models.CPUser.findOne(query);
 
-  if (!user || !user.password) {
+  if (!user?.password) {
     throw new AuthenticationError('Invalid login');
   }
 

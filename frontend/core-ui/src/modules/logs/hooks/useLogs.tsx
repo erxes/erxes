@@ -1,4 +1,4 @@
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   mergeCursorData,
@@ -15,51 +15,37 @@ import { LOGS_MAIN_LIST } from '../graphql/logQueries';
 import { LogsMainListQueryResponse } from '../types';
 
 const LOGS_PER_PAGE = 20;
-const getParamsObject = (searchParams: URLSearchParams) => {
-  const entries = Array.from(searchParams.entries());
-  const result = Object.fromEntries(entries);
-  return result;
+const parseSearchParamValue = (value: string | null) => {
+  if (!value) {
+    return null;
+  }
+
+  const trimmedValue = value.trim();
+
+  if (!(trimmedValue.startsWith('{') || trimmedValue.startsWith('['))) {
+    return value;
+  }
+
+  try {
+    return JSON.parse(trimmedValue);
+  } catch {
+    return value;
+  }
 };
 
-const generateFilters = (searchParams: URLSearchParams) => {
+const getParamsObject = (searchParams: URLSearchParams) => {
+  return Array.from(searchParams.entries()).reduce<Record<string, any>>(
+    (acc, [key, value]) => {
+      acc[key] = parseSearchParamValue(value);
+      return acc;
+    },
+    {},
+  );
+};
+
+const generatePayloadFilters = (searchParams: URLSearchParams) => {
   const queryParams = getParamsObject(searchParams);
-
   const filters: any = {};
-
-  if (queryParams.status) {
-    filters.status = {
-      value: queryParams.status,
-      operator: queryParams.statusOperator,
-    };
-  }
-
-  if (queryParams.source) {
-    filters.source = {
-      value: queryParams.source,
-      operator: queryParams.sourceOperator || undefined,
-    };
-  }
-
-  if (queryParams.action) {
-    filters.action = {
-      value: queryParams.action,
-      operator: queryParams.actionOperator || undefined,
-    };
-  }
-
-  if (queryParams.userIds && queryParams.userIds.length > 0) {
-    filters.userIds = {
-      value: queryParams.userIds,
-      operator: queryParams.userIdsOperator || undefined,
-    };
-  }
-
-  if (queryParams.createdAt) {
-    filters.createdAt = {
-      value: parseDateRangeFromString(queryParams.createdAt)?.from,
-      operator: queryParams.createdAtOperator || undefined,
-    };
-  }
 
   const queryParamsKeys = Object.keys(queryParams);
   const customFilters = queryParamsKeys.filter(
@@ -71,7 +57,12 @@ const generateFilters = (searchParams: URLSearchParams) => {
       if (!customFilter?.includes(`Operator`)) {
         const value = (queryParams as any)[customFilter];
         const operator = (queryParams as any)[`${customFilter}Operator`];
-        filters[`payload.${customFilter}`] = {
+
+        if (value === null || value === undefined || value === '') {
+          continue;
+        }
+
+        filters[customFilter] = {
           value,
           operator,
         };
@@ -80,6 +71,48 @@ const generateFilters = (searchParams: URLSearchParams) => {
   }
 
   return filters;
+};
+
+const normalizeUserIds = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (value) {
+    return [value];
+  }
+
+  return undefined;
+};
+
+const generateVariables = (searchParams: URLSearchParams) => {
+  const queryParams = getParamsObject(searchParams);
+  const createdAtRange =
+    typeof queryParams.createdAt === 'string'
+      ? parseDateRangeFromString(queryParams.createdAt)
+      : undefined;
+  const userIds = normalizeUserIds(queryParams.userIds);
+
+  return {
+    status:
+      typeof queryParams.status === 'string' ? queryParams.status : undefined,
+    source:
+      typeof queryParams.source === 'string' ? queryParams.source : undefined,
+    action:
+      typeof queryParams.action === 'string' ? queryParams.action : undefined,
+    userIds,
+    contentType:
+      typeof queryParams.contentType === 'string'
+        ? queryParams.contentType
+        : undefined,
+    documentId:
+      typeof queryParams.docId === 'string'
+        ? queryParams.docId.trim() || undefined
+        : undefined,
+    createdAtFrom: createdAtRange?.from,
+    createdAtTo: createdAtRange?.to,
+    filters: generatePayloadFilters(searchParams),
+  };
 };
 
 export const useLogs = () => {
@@ -91,9 +124,9 @@ export const useLogs = () => {
   const { data, loading, error, fetchMore } =
     useQuery<LogsMainListQueryResponse>(LOGS_MAIN_LIST, {
       variables: {
-        filters: generateFilters(searchParams),
         cursor: cursor ?? undefined,
         limit: LOGS_PER_PAGE,
+        ...generateVariables(searchParams),
       },
     });
 

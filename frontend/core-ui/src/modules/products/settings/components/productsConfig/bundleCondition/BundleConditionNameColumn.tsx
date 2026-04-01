@@ -8,9 +8,10 @@ import {
 import { useState } from 'react';
 import { BundleConditionForm } from './BundleConditionForm';
 import { IBundleCondition } from './types';
+import { Can } from 'ui-modules';
 
 export const BundleConditionNameColumnCell = (
-  props: CellContext<IBundleCondition, unknown>
+  props: CellContext<IBundleCondition, unknown>,
 ) => {
   const bundleCondition = props.row.original;
   const [open, setOpen] = useState(false);
@@ -18,11 +19,13 @@ export const BundleConditionNameColumnCell = (
   return (
     <RecordTableInlineCell>
       <Sheet open={open} onOpenChange={setOpen} modal>
-        <Sheet.Trigger asChild>
-          <Badge variant="secondary" className="cursor-pointer">
-            <TextOverflowTooltip value={props.getValue() as string} />
-          </Badge>
-        </Sheet.Trigger>
+        <Can action="bundleConditionsManage">
+          <Sheet.Trigger asChild>
+            <Badge variant="secondary" className="cursor-pointer">
+              <TextOverflowTooltip value={props.getValue() as string} />
+            </Badge>
+          </Sheet.Trigger>
+        </Can>
         <Sheet.View className="p-0 sm:max-w-lg">
           <BundleConditionForm
             bundleCondition={bundleCondition}

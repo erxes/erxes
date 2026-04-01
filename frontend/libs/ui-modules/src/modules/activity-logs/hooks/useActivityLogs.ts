@@ -45,6 +45,8 @@ export const useActivityLogs = (
   const { data, loading, error, refetch, subscribeToMore, fetchMore } =
     useQuery<ActivityLogsQueryData>(ACTIVITY_LOGS, {
       ...options,
+      fetchPolicy: options?.fetchPolicy ?? 'cache-and-network',
+      nextFetchPolicy: options?.nextFetchPolicy ?? 'cache-first',
       variables: {
         targetId,
         targetType,

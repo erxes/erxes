@@ -23,43 +23,47 @@ export const CustomersCommandBar = () => {
         <CommandBar.Value>
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
-        <Separator.Inline />
-        <TagsSelect
-          type="core:customer"
-          mode="multiple"
-          variant="secondary"
-          className="shadow-none"
-          value={
-            intersection(
-              table
-                .getFilteredSelectedRowModel()
-                .rows.map((row) => row.original.tagIds),
-            ) || []
-          }
-          targetIds={customerIds}
-          options={(newSelectedTagIds) => ({
-            update: (cache) => {
-              customerIds.forEach((customerId) => {
-                cache.modify({
-                  id: cache.identify({
-                    __typename: 'Customer',
-                    _id: customerId,
-                  }),
-                  fields: {
-                    tagIds: () => newSelectedTagIds,
-                  },
-                });
-              });
-            },
-            onError: (e: ApolloError) => {
-              toast({
-                title: 'Error',
-                description: e.message,
-                variant: 'destructive',
-              });
-            },
-          })}
-        />
+        <Can action="tagsTag">
+          <>
+            <Separator.Inline />
+            <TagsSelect
+              type="core:customer"
+              mode="multiple"
+              variant="secondary"
+              className="shadow-none"
+              value={
+                intersection(
+                  table
+                    .getFilteredSelectedRowModel()
+                    .rows.map((row) => row.original.tagIds),
+                ) || []
+              }
+              targetIds={customerIds}
+              options={(newSelectedTagIds) => ({
+                update: (cache) => {
+                  customerIds.forEach((customerId) => {
+                    cache.modify({
+                      id: cache.identify({
+                        __typename: 'Customer',
+                        _id: customerId,
+                      }),
+                      fields: {
+                        tagIds: () => newSelectedTagIds,
+                      },
+                    });
+                  });
+                },
+                onError: (e: ApolloError) => {
+                  toast({
+                    title: 'Error',
+                    description: e.message,
+                    variant: 'destructive',
+                  });
+                },
+              })}
+            />
+          </>
+        </Can>
         <Separator.Inline />
         <Export
           pluginName="core"
