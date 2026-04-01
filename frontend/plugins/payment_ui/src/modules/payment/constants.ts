@@ -98,6 +98,16 @@ export const PAYMENT_KINDS = {
         { key: 'secretKey', label: 'Secret key', type: 'password', validation: { type: 'minLength', value: 1 } },
       ],
   },
+  [PaymentKind.TOKI]: {
+    name: 'Toki',
+    description: 'Connect your Toki merchant account.',
+    active: true,
+    fields: [
+        { key: 'tokiMerchanId', label: 'Merchant ID', validation: { type: 'minLength', value: 1 } },
+        { key: 'tokiUsername', label: 'Username', validation: { type: 'minLength', value: 1 } },
+        { key: 'tokiPassword', label: 'Password', type: 'password', validation: { type: 'minLength', value: 1 } },
+      ],
+  },
   // TODO: Add Khanbank after khanbank plugin is ready
   // [PaymentKind.KAHNBANK]: {
   //   name: 'Khanbank',
