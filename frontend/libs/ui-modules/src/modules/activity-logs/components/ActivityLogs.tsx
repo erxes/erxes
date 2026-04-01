@@ -49,7 +49,7 @@ const ActivityLogsRoot = ({
     options,
   );
 
-  if (loading) {
+  if (loading && activityLogs.length === 0) {
     return <ActivityLogLoading />;
   }
 
