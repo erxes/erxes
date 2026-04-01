@@ -4,7 +4,6 @@ import {
   SettingsPath,
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
-import { useClientPortalRemove } from '@/client-portal/hooks/useClientPortalRemove';
 import { Can } from 'ui-modules';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
