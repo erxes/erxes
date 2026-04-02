@@ -1,10 +1,12 @@
 import { Separator } from 'erxes-ui';
 
+interface OutgoinWebhookLabeledSeparatorProps {
+  readonly children: React.ReactNode;
+}
+
 export function OutgoinWebhookLabeledSeparator({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: Readonly<OutgoinWebhookLabeledSeparatorProps>) {
   return (
     <div className="relative flex items-center">
       <Separator className="flex-1" />
