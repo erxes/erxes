@@ -21,7 +21,7 @@ export const appRouter = t.router({
           collectionName: z.string(),
         }),
       )
-      .query(async ({ input }) => {
+      .query(({ input }) => {
         const { moduleName, collectionName } = input;
 
         if (moduleName === 'pos' && collectionName === 'posItems') {
@@ -56,9 +56,20 @@ export const appRouter = t.router({
         const { moduleName, collectionName } = input;
 
         if (moduleName === 'pos' && collectionName === 'posItems') {
-          const items = await (models as any).PosItems.find().lean();
+          const MAX_EXPORT = 10000;
 
-          return items.map((item: any) => ({
+          const items = await models.PosOrders.aggregate([
+            { $unwind: '$items' },
+            { $limit: MAX_EXPORT },
+            {
+              $project: {
+                number: '$items.number',
+                createdAt: '$createdAt',
+              },
+            },
+          ]);
+
+          return items.map((item: { number?: string; createdAt?: Date }) => ({
             number: item.number,
             createdAt: item.createdAt,
           }));

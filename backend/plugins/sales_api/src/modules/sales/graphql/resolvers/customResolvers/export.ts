@@ -31,9 +31,16 @@ const exportResolvers: Record<string, Resolver> = {
     if (moduleName === 'pos' && collectionName === 'posItems') {
       const MAX_EXPORT = 10000;
 
-      const items: PosItem[] = await models.PosItems.find()
-        .limit(MAX_EXPORT)
-        .lean();
+      const items: PosItem[] = await models.PosOrders.aggregate([
+        { $unwind: '$items' },
+        { $limit: MAX_EXPORT },
+        {
+          $project: {
+            number: '$items.number',
+            createdAt: '$createdAt',
+          },
+        },
+      ]);
 
       return items.map((item) => ({
         number: item.number,
