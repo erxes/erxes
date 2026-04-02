@@ -139,7 +139,7 @@ export const PAYMENTS = {
   toki: {
     title: 'Toki',
     kind: 'toki',
-    apiUrl: 'https://staging-api.toki.mn',
+    apiUrl: 'http://ms-api.toki.mn',
     actions: {
       getToken: 'third-party-service/v1/auth/token',
       invoice: 'third-party-service/v1/payment-request/merchant-qr',
