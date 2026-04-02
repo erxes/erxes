@@ -49,7 +49,7 @@ export const PageCustomFieldsSection = ({
           </Button>
         </Collapsible.Trigger>
         <Collapsible.Content className="pt-4">
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1">
             {(group.fields || []).map((field) => (
               <Form.Field
                 key={field._id}

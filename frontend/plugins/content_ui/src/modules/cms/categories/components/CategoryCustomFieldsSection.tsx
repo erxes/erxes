@@ -45,7 +45,7 @@ export const CategoryCustomFieldsSection = <
           </Button>
         </Collapsible.Trigger>
         <Collapsible.Content className="pt-4">
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1">
             {(group.fields || []).map((field) => {
               const fieldName = `customFields.${field._id}` as FieldPath<T>;
               const error =
