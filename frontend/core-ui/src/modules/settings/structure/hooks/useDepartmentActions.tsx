@@ -47,7 +47,7 @@ export function useDepartmentAdd(
             },
           },
         });
-      } catch (e) {
+      } catch {
         // Silently handle cache update errors
       }
     },
@@ -87,7 +87,7 @@ export function useDepartmentEdit(
             },
           },
         });
-      } catch (e) {
+      } catch {
         // Silently handle cache update errors
       }
     },

@@ -46,7 +46,7 @@ export function useBranchAdd(
             },
           },
         });
-      } catch (e) {
+      } catch {
         // Silently handle cache update errors
       }
     },
@@ -83,7 +83,7 @@ export function useBranchEdit(
             },
           },
         });
-      } catch (e) {
+      } catch {
         // Silently handle cache update errors
       }
     },
