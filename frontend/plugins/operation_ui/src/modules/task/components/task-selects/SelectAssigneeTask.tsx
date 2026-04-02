@@ -287,7 +287,7 @@ const SelectTeamMemberContent = ({
             !excludeIds?.find((excludeId) => excludeId === user._id),
         )
       : [currentUser, ...users].filter(
-          (user) => !members.find((member) => member._id === user._id),
+          (user) => !members.some((member) => member._id === user._id),
         );
 
   return (
@@ -339,7 +339,7 @@ const SelectAssigneeFilterView = ({
       <SelectAssigneeProvider
         mode="single"
         value={
-          assignee === 'no-assignee' ? 'no-assignee' : (assignee ?? undefined)
+          assignee === 'no-assignee' ? 'no-assignee' : assignee ?? undefined
         }
         onValueChange={(value) => {
           setAssignee(value === null ? 'no-assignee' : (value as string));
