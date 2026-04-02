@@ -14,7 +14,7 @@ export { useCreateElement } from './hooks/useCreateElement';
 export { useEditElement } from './hooks/useEditElement';
 export { useRemoveElements } from './hooks/useRemoveElements';
 
-export type { IElement } from './types/element';
+export type { IElement, IElementTranslation } from './types/element';
 export type { ElementCreateFormType } from './constants/formSchema';
 
 export { ELEMENTS_CURSOR_SESSION_KEY } from './constants/elementCursorSessionKey';

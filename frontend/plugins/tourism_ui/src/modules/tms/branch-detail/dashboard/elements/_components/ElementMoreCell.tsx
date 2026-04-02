@@ -16,10 +16,14 @@ import { ElementDuplicate } from './ElementDuplicate';
 
 interface ElementMoreCellProps extends CellContext<IElement, unknown> {
   branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
 }
 
 export const ElementMoreColumn = ({
   branchId,
+  branchLanguages,
+  mainLanguage,
   ...props
 }: ElementMoreCellProps) => {
   const element = props.row.original;
@@ -90,6 +94,8 @@ export const ElementMoreColumn = ({
       </Popover>
       <ElementEditSheet
         element={element}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
         open={editOpen}
         onOpenChange={setEditOpen}
         showTrigger={false}
@@ -98,8 +104,19 @@ export const ElementMoreColumn = ({
   );
 };
 
-export const elementMoreColumn = (branchId?: string): ColumnDef<IElement> => ({
+export const elementMoreColumn = (
+  branchId?: string,
+  branchLanguages?: string[],
+  mainLanguage?: string,
+): ColumnDef<IElement> => ({
   id: 'more',
-  cell: (props) => <ElementMoreColumn {...props} branchId={branchId} />,
+  cell: (props) => (
+    <ElementMoreColumn
+      {...props}
+      branchId={branchId}
+      branchLanguages={branchLanguages}
+      mainLanguage={mainLanguage}
+    />
+  ),
   size: 33,
 });

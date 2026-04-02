@@ -1,20 +1,40 @@
-import { Control } from 'react-hook-form';
+import { Control, FieldPathByValue } from 'react-hook-form';
 import { Form, Input, Editor } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { ElementCreateFormType } from '../constants/formSchema';
+import { LANGUAGES } from '@/tms/constants/languages';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+
+type ElementTextFieldPath = FieldPathByValue<
+  ElementCreateFormType,
+  string | undefined
+>;
+
+interface ElementNameFieldProps {
+  control: Control<ElementCreateFormType>;
+  name?: ElementTextFieldPath;
+  labelSuffix?: string;
+}
+
+interface ElementNoteFieldProps {
+  control: Control<ElementCreateFormType>;
+  name?: ElementTextFieldPath;
+  labelSuffix?: string;
+}
 
 export const ElementNameField = ({
   control,
-}: {
-  control: Control<ElementCreateFormType>;
-}) => {
+  name = 'name',
+  labelSuffix = '',
+}: ElementNameFieldProps) => {
   return (
     <Form.Field
       control={control}
-      name="name"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name <span className="text-destructive">*</span>
+            Name<span className="text-primary">{labelSuffix}</span> <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input placeholder="Element name" {...field} />
@@ -28,21 +48,22 @@ export const ElementNameField = ({
 
 export const ElementNoteField = ({
   control,
-}: {
-  control: Control<ElementCreateFormType>;
-}) => {
+  name = 'note',
+  labelSuffix = '',
+}: ElementNoteFieldProps) => {
   return (
     <Form.Field
       control={control}
-      name="note"
+      name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Note</Form.Label>
+          <Form.Label>Note<span className="text-primary">{labelSuffix}</span></Form.Label>
           <Form.Description>
             Not visible for clients and agents.
           </Form.Description>
           <Form.Control>
             <Editor
+              key={name}
               initialContent={field.value}
               onChange={field.onChange}
               isHTML
@@ -101,18 +122,29 @@ export const ElementDurationField = ({
 
 export const ElementCostField = ({
   control,
+  name = 'cost',
+  currencySymbol,
 }: {
   control: Control<ElementCreateFormType>;
+  name?: any;
+  currencySymbol?: string;
 }) => {
+  const lang = useAtomValue(activeLangAtom);
+  const symbol = currencySymbol ?? (LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$');
   return (
     <Form.Field
       control={control}
-      name="cost"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Cost</Form.Label>
           <Form.Control>
-            <Input type="number" step="0.01" placeholder="0.00" {...field} />
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                {symbol}
+              </span>
+              <Input type="number" step="0.01" placeholder="0.00" className="pl-7" {...field} />
+            </div>
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
