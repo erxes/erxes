@@ -81,7 +81,9 @@ export const AutomationAiAgentDetail = ({
               className="grid gap-4 pt-4 lg:grid-cols-2"
             >
               <Card className="p-4">
-                <AiAgentConnectionForm />
+                <AiAgentConnectionForm
+                  existingApiKeyMask={detail?.connection?.config?.apiKey}
+                />
               </Card>
               <Card className="p-4">
                 <AiAgentRuntimeForm />

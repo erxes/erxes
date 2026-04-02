@@ -1,8 +1,21 @@
 import { UploadDropzone } from '@/automations/components/settings/components/agents/components/DropFilesZone';
-import { FileGrid } from '@/automations/components/settings/components/agents/components/FilesList';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Card, Form, Textarea } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+
+const AI_AGENT_UI_LIMITS = {
+  maxFiles: 10,
+  maxSingleFileBytes: 50_000,
+  maxTotalContextBytes: 200_000,
+} as const;
+
+const formatBytes = (bytes: number) => {
+  if (bytes >= 1000) {
+    return `${Math.round(bytes / 1000)} KB`;
+  }
+
+  return `${bytes} B`;
+};
 
 export const AiAgentContextForm = () => {
   const { control } = useFormContext<TAiAgentForm>();
@@ -41,40 +54,40 @@ export const AiAgentContextForm = () => {
               Attach markdown or plain text files that should be passed to the
               external AI provider as runtime knowledge.
             </p>
+            <p className="text-xs text-muted-foreground">
+              Limits: up to {AI_AGENT_UI_LIMITS.maxFiles} files,{' '}
+              {formatBytes(AI_AGENT_UI_LIMITS.maxSingleFileBytes)} per file,{' '}
+              {formatBytes(AI_AGENT_UI_LIMITS.maxTotalContextBytes)} total.
+            </p>
           </div>
 
           <Form.Field
             control={control}
             name="context.files"
             render={({ field }) => (
-              <UploadDropzone
-                onFilesUploaded={(files) => {
-                  const newFiles = files.map(
-                    ({ key, name, size, type, uploadedAt }) => ({
-                      id: Math.random().toString(36).slice(2, 11),
-                      key,
-                      name,
-                      size,
-                      type,
-                      uploadedAt: uploadedAt.toISOString(),
-                    }),
-                  );
-
-                  field.onChange([...(field.value || []), ...newFiles]);
-                }}
-              />
-            )}
-          />
-
-          <Form.Field
-            control={control}
-            name="context.files"
-            render={({ field }) => (
               <Form.Item>
-                <Form.Label>Attached Files</Form.Label>
                 <Form.Control>
-                  <FileGrid
+                  <UploadDropzone
                     files={field.value || []}
+                    maxFiles={AI_AGENT_UI_LIMITS.maxFiles}
+                    maxSingleFileBytes={
+                      AI_AGENT_UI_LIMITS.maxSingleFileBytes
+                    }
+                    maxTotalContextBytes={
+                      AI_AGENT_UI_LIMITS.maxTotalContextBytes
+                    }
+                    onFilesUploaded={(files) => {
+                      const newFiles = files.map(({ key, name, size, type, uploadedAt }) => ({
+                        id: Math.random().toString(36).slice(2, 11),
+                        key,
+                        name,
+                        size,
+                        type,
+                        uploadedAt: uploadedAt.toISOString(),
+                      }));
+
+                      field.onChange([...(field.value || []), ...newFiles]);
+                    }}
                     onFileDelete={(fileId) =>
                       field.onChange(
                         (field.value || []).filter(({ id }) => fileId !== id),
@@ -83,8 +96,8 @@ export const AiAgentContextForm = () => {
                   />
                 </Form.Control>
                 <Form.Description>
-                  Keep files focused and compact so health checks stay green and
-                  the provider responds quickly.
+                  Keep files focused and compact so health checks stay green,
+                  prompts stay small, and the provider responds quickly.
                 </Form.Description>
                 <Form.Message />
               </Form.Item>

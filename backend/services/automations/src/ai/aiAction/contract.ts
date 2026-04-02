@@ -47,6 +47,35 @@ const optionalConnectSchema = z.object({
   optionalConnectId: z.string().optional(),
 });
 
+const aiActionMemoryReadSchema = z.object({
+  enabled: z.boolean().default(false),
+  namespace: z.string().min(1).default('main'),
+});
+
+const aiActionMemoryWriteSchema = z.object({
+  enabled: z.boolean().default(false),
+  namespace: z.string().min(1).default('main'),
+  key: z.string().min(1).default('lastResult'),
+  resultPath: z.string().default(''),
+  mode: z.enum(['replace', 'merge']).default('replace'),
+  ttlMinutes: z.number().int().min(5).max(10080).default(1440),
+});
+
+const aiActionMemorySchema = z.object({
+  read: aiActionMemoryReadSchema.default({
+    enabled: false,
+    namespace: 'main',
+  }),
+  write: aiActionMemoryWriteSchema.default({
+    enabled: false,
+    namespace: 'main',
+    key: 'lastResult',
+    resultPath: '',
+    mode: 'replace',
+    ttlMinutes: 1440,
+  }),
+});
+
 const commonAiAgentConfigFormSchema = z.object({
   aiAgentId: z.string().min(1),
   inputMapping: aiActionInputMappingSchema.default({
@@ -55,6 +84,20 @@ const commonAiAgentConfigFormSchema = z.object({
     customValue: '',
   }),
   optionalConnects: z.array(optionalConnectSchema).optional().default([]),
+  memory: aiActionMemorySchema.default({
+    read: {
+      enabled: false,
+      namespace: 'main',
+    },
+    write: {
+      enabled: false,
+      namespace: 'main',
+      key: 'lastResult',
+      resultPath: '',
+      mode: 'replace',
+      ttlMinutes: 1440,
+    },
+  }),
 });
 
 export const aiAgentActionConfigSchema = z.intersection(

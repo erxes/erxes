@@ -5,6 +5,10 @@ import {
   waitingActionsToExecuteSchema,
 } from './mongo/waitingActionsToExecute';
 import {
+  automationMemorySchema,
+  IAutomationMemoryDocument,
+} from './mongo/automationMemory';
+import {
   AiAgentDocument,
   aiAgentSchema,
   automationExecutionSchema,
@@ -20,6 +24,7 @@ export interface IModels {
   Executions: Model<IAutomationExecutionDocument>;
   WaitingActions: Model<IAutomationWaitingActionDocument>;
   AiAgents: Model<AiAgentDocument>;
+  AutomationMemory: Model<IAutomationMemoryDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -49,6 +54,11 @@ export const loadClasses = (db: Connection, subdomain: string): IModels => {
     'automations_ai_agents',
     aiAgentSchema,
   );
+
+  models.AutomationMemory = db.model<
+    IAutomationMemoryDocument,
+    Model<IAutomationMemoryDocument>
+  >('automations_memory', automationMemorySchema);
 
   return models;
 };

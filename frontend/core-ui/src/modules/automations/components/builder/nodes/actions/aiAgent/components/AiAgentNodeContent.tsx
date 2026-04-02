@@ -6,19 +6,63 @@ export const AiAgentNodeContent = (
   props: NodeContentComponentProps<TAiAgentConfigForm>,
 ) => {
   const { goalType } = props.config || {};
+
   if (goalType === 'splitTopic') {
-    return <AiAgentClassifyTopic {...props} />;
+    return (
+      <>
+        <AiAgentClassifyTopic {...props} />
+        <AiAgentMemorySummary config={props.config} />
+      </>
+    );
   }
 
   if (goalType === 'classification') {
-    return <AiAgentClassification {...props} />;
+    return (
+      <>
+        <AiAgentClassification {...props} />
+        <AiAgentMemorySummary config={props.config} />
+      </>
+    );
   }
 
   if (goalType === 'generateText') {
-    return <AiAgentGenerateText {...props} />;
+    return (
+      <>
+        <AiAgentGenerateText {...props} />
+        <AiAgentMemorySummary config={props.config} />
+      </>
+    );
   }
 
   return null;
+};
+
+const AiAgentMemorySummary = ({
+  config,
+}: {
+  config?: TAiAgentConfigForm;
+}) => {
+  const readEnabled = config?.memory?.read?.enabled;
+  const writeEnabled = config?.memory?.write?.enabled;
+
+  if (!readEnabled && !writeEnabled) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2 px-2 pb-2">
+      {readEnabled ? (
+        <div className="rounded-xs bg-info/10 px-2 py-1 text-xs font-semibold text-info">
+          reads memory
+        </div>
+      ) : null}
+      {writeEnabled ? (
+        <div className="rounded-xs bg-success/10 px-2 py-1 text-xs font-semibold text-success">
+          saves {config?.memory?.write?.key || 'result'}
+        </div>
+      ) : null}
+    </div>
+  );
 };
 
 const AiAgentClassifyTopic = ({

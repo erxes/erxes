@@ -75,6 +75,9 @@ export type TAiContext = {
   };
   history?: TAiContextHistoryItem[];
   facts?: Record<string, unknown>;
+  memory?: {
+    scopeKey?: string;
+  };
 };
 
 type IAutomationTriggersActionsConfig =

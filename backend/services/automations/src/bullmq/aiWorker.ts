@@ -18,7 +18,7 @@ export const checkAiAgentHealthWorker = async (job: Job) => {
 // Worker for AI execution (automation actions)
 export const executeAiAgent = async (job: Job) => {
   const { data = {}, subdomain } = job.data;
-  const { actionConfig, inputData, aiContext } = data;
+  const { actionConfig, inputData, aiContext, memory } = data;
   const models = await generateModels(subdomain);
 
   const aiAgentId = actionConfig?.aiAgentId;
@@ -39,6 +39,7 @@ export const executeAiAgent = async (job: Job) => {
     actionConfig,
     inputData,
     aiContext,
+    memory,
   });
 };
 

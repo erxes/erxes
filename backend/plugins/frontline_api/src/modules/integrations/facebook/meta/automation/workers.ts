@@ -137,6 +137,14 @@ export const facebookAutomationWorkers = {
         botId: target.botId,
         triggerType,
       },
+      memory: {
+        scopeKey:
+          (typeof target.conversationId === 'string' &&
+            target.conversationId.trim()) ||
+          (typeof target.customerId === 'string' && target.customerId.trim()) ||
+          (typeof target._id === 'string' && target._id.trim()) ||
+          undefined,
+      },
     };
 
     if (!target.conversationId) {

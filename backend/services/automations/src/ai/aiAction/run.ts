@@ -28,12 +28,14 @@ export const runAiAction = async ({
   actionConfig,
   inputData,
   aiContext,
+  memory,
 }: {
   subdomain: string;
   agent: TAiAgentInput;
   actionConfig: unknown;
   inputData: unknown;
   aiContext?: TAiContext | null;
+  memory?: Record<string, unknown>;
 }) => {
   const parsedActionConfig = parseAiAgentActionConfig(actionConfig);
   const loadedContext = await loadAiAgentContextFiles(
@@ -53,6 +55,7 @@ export const runAiAction = async ({
       actionConfig: parsedActionConfig,
       inputData,
       aiContext,
+      memory,
     }),
   );
 

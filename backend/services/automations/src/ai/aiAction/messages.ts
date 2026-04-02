@@ -12,6 +12,14 @@ const buildContextSection = (files: TAiAgentLoadedContextFile[]) => {
   return files.map(({ name, content }) => `# ${name}\n${content}`).join('\n\n');
 };
 
+const buildMemorySection = (memory?: Record<string, unknown>) => {
+  if (!memory || !Object.keys(memory).length) {
+    return '';
+  }
+
+  return `Saved memory:\n${JSON.stringify(memory, null, 2)}`;
+};
+
 const buildUserPrompt = (
   actionConfig: TAiAgentActionConfig,
   inputText: string,
@@ -92,15 +100,18 @@ export const buildAiActionMessages = ({
   actionConfig,
   inputData,
   aiContext,
+  memory,
 }: {
   systemPrompt?: string;
   files: TAiAgentLoadedContextFile[];
   actionConfig: TAiAgentActionConfig;
   inputData: unknown;
   aiContext?: TAiContext | null;
+  memory?: Record<string, unknown>;
 }): TAiBridgeMessage[] => {
   const inputText = buildAiInputFromContext({ inputData, aiContext });
   const contextSection = buildContextSection(files);
+  const memorySection = buildMemorySection(memory);
 
   const systemContent = [
     systemPrompt?.trim() || '',
@@ -118,7 +129,9 @@ export const buildAiActionMessages = ({
     },
     {
       role: 'user',
-      content: buildUserPrompt(actionConfig, inputText),
+      content: [memorySection, buildUserPrompt(actionConfig, inputText)]
+        .filter(Boolean)
+        .join('\n\n'),
     },
   ];
 };

@@ -1,4 +1,10 @@
-import { Button, Card } from 'erxes-ui';
+import {
+  IconFileText,
+  IconMarkdown,
+  IconTrash,
+  IconTxt,
+} from '@tabler/icons-react';
+import { Button, cn } from 'erxes-ui';
 
 interface UploadedFile {
   id: string;
@@ -24,93 +30,76 @@ export function FileGrid({ files = [], onFileDelete }: FileGridProps) {
     );
   };
 
-  const getFileIcon = (type = '') => {
-    if (type.includes('pdf')) {
-      return (
-        <svg
-          className="w-8 h-8 text-red-500"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-        </svg>
-      );
+  const getFileIcon = (file: UploadedFile) => {
+    const name = file.name.toLowerCase();
+    const type = file.type || '';
+
+    if (name.endsWith('.md') || name.endsWith('.markdown')) {
+      return <IconMarkdown className="size-5 text-primary" />;
     }
-    if (type.includes('text') || type.includes('txt')) {
-      return (
-        <svg
-          className="w-8 h-8 text-blue-500"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-        </svg>
-      );
+
+    if (type.includes('text') || name.endsWith('.txt')) {
+      return <IconTxt className="size-5 text-info" />;
     }
-    if (type.includes('json')) {
-      return (
-        <svg
-          className="w-8 h-8 text-yellow-500"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M5,3H7V5H5V10A2,2 0 0,1 3,12A2,2 0 0,1 5,14V19H7V21H5C3.93,20.73 3,20.1 3,19V15A2,2 0 0,0 1,13H0V11H1A2,2 0 0,0 3,9V5C3,3.9 3.9,3 5,3M19,3A2,2 0 0,1 21,5V9A2,2 0 0,0 23,11H24V13H23A2,2 0 0,0 21,15V19A2,2 0 0,1 19,21H17V19H19V14A2,2 0 0,1 21,12A2,2 0 0,1 19,10V5H17V3H19Z" />
-        </svg>
-      );
+
+    return <IconFileText className="size-5 text-muted-foreground" />;
+  };
+
+  const formatUploadedAt = (uploadedAt?: string) => {
+    if (!uploadedAt) {
+      return null;
     }
-    return (
-      <svg
-        className="w-8 h-8 text-gray-500"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-      </svg>
-    );
+
+    const parsed = new Date(uploadedAt);
+
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+
+    return parsed.toLocaleDateString();
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-96 overflow-auto p-2 ">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       {files.map((file) => (
-        <Card key={file.id} className="p-4 hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-shrink-0">{getFileIcon(file.type)}</div>
+        <div
+          key={file.id}
+          className={cn(
+            'rounded-xl border bg-background/95 px-4 py-3 shadow-xs transition-colors',
+            'hover:border-border hover:bg-accent/20',
+          )}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted/70">
+                {getFileIcon(file)}
+              </div>
+              <div className="min-w-0 space-y-1">
+                <p className="truncate text-sm font-medium" title={file.name}>
+                  {file.name}
+                </p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span>{formatFileSize(file.size || 0)}</span>
+                  {formatUploadedAt(file.uploadedAt) && (
+                    <span>Added {formatUploadedAt(file.uploadedAt)}</span>
+                  )}
+                </div>
+              </div>
+            </div>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onFileDelete(file.id)}
-              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onFileDelete(file.id);
+              }}
+              className="h-7 w-7 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              aria-label={`Remove ${file.name}`}
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <IconTrash className="size-4" />
             </Button>
           </div>
-
-          <div className="space-y-1">
-            <h4 className="font-medium text-sm truncate" title={file.name}>
-              {file.name}
-            </h4>
-            <p className="text-xs text-muted-foreground">
-              {formatFileSize(file.size || 0)}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {file.uploadedAt
-                ? new Date(file.uploadedAt).toLocaleDateString()
-                : 'No date'}
-            </p>
-          </div>
-        </Card>
+        </div>
       ))}
     </div>
   );

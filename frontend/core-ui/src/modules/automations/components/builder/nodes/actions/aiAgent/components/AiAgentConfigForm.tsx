@@ -1,9 +1,11 @@
 import { AiAgentObjectBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectBuilder';
 import { AiAgentInputMappingFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentInputMappingFields';
+import { AiAgentMemoryFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentMemoryFields';
 import { AiAgentTopicBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentTopicBuilder';
 import { AI_AGENT_NODE_GOAL_TYPES } from '@/automations/components/builder/nodes/actions/aiAgent/constants/aiAgentConfigForm';
 import {
   aiAgentConfigFormSchema,
+  getDefaultAiAgentMemoryConfig,
   TAiAgentConfigForm,
 } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
@@ -11,6 +13,7 @@ import { useAiAgents } from '@/automations/components/settings/components/agents
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Select, Textarea } from 'erxes-ui';
+import { useEffect, useRef } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Link } from 'react-router';
 import {
@@ -33,15 +36,32 @@ export const AIAgentConfigForm = ({
         path: '',
         customValue: '',
       },
+      memory: getDefaultAiAgentMemoryConfig(currentAction?.config?.goalType),
       ...(currentAction?.config || {}),
     },
   });
   const { automationsAiAgents } = useAiAgents();
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit, setValue } = form;
   const config = useWatch<TAiAgentConfigForm>({
     control,
   });
+  const previousGoalTypeRef = useRef(currentAction?.config?.goalType);
+
+  useEffect(() => {
+    if (!config?.goalType) {
+      previousGoalTypeRef.current = config?.goalType;
+      return;
+    }
+
+    if (previousGoalTypeRef.current !== config.goalType) {
+      setValue('memory', getDefaultAiAgentMemoryConfig(config.goalType), {
+        shouldDirty: true,
+      });
+    }
+
+    previousGoalTypeRef.current = config.goalType;
+  }, [config?.goalType, setValue]);
 
   return (
     <FormProvider {...form}>
@@ -125,6 +145,8 @@ export const AIAgentConfigForm = ({
             )}
           />
         )}
+
+        <AiAgentMemoryFields />
       </AutomationConfigFormWrapper>
     </FormProvider>
   );

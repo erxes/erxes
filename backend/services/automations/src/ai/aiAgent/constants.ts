@@ -30,6 +30,6 @@ export const AI_AGENT_LIMITS = {
   maxMaxTokens: 4000,
   minTimeoutMs: 1000,
   maxTimeoutMs: 30000,
-  maxSingleFileBytes: 100_000,
-  maxTotalContextBytes: 300_000,
+  maxSingleFileBytes: 50_000,
+  maxTotalContextBytes: 200_000,
 } as const;

@@ -1,4 +1,10 @@
-import { TAiActionExecutionResult } from '../../ai';
+import {
+  loadAiActionMemory,
+  parseAiAgentActionConfig,
+  persistAiActionMemory,
+  TAiActionExecutionResult,
+} from '../../ai';
+import { generateModels } from '../../connectionResolver';
 import { sendAutomationWorkerMessage } from '../../utils/sendAutomationWorkerMessage';
 import {
   getContentType,
@@ -22,11 +28,16 @@ export const executeAiAgentAction = async (
   action: IAutomationAction,
 ): Promise<TAiAgentActionWorkerResponse> => {
   try {
+    const models = await generateModels(subdomain);
+    const parsedActionConfig = parseAiAgentActionConfig(action.config);
     const aiContext = await getAiContext(subdomain, execution);
-    const inputData = await getInputData(
+    const inputData = await getInputData(execution, parsedActionConfig.inputMapping);
+    const memory = await loadAiActionMemory({
+      models,
       execution,
-      action?.config.inputMapping,
-    );
+      actionConfig: parsedActionConfig,
+      aiContext,
+    });
 
     const response = await sendAutomationWorkerMessage<
       any,
@@ -39,10 +50,11 @@ export const executeAiAgentAction = async (
         aiAgentActionId: action.id,
         executionId: execution._id,
         actionId: action.id,
-        actionConfig: action.config,
+        actionConfig: parsedActionConfig,
         inputData,
         triggerData: execution.target,
         aiContext,
+        memory,
       },
       timeout: 30000,
     });
@@ -50,6 +62,14 @@ export const executeAiAgentAction = async (
     if (!response) {
       throw new Error('AI agent worker returned an empty response.');
     }
+
+    await persistAiActionMemory({
+      models,
+      execution,
+      actionConfig: parsedActionConfig,
+      result: response.result,
+      aiContext,
+    });
 
     return response;
   } catch (error) {

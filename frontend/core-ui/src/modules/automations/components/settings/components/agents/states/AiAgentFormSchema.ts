@@ -32,6 +32,60 @@ const baseAiAgentFormSchema = z.object({
   }),
 });
 
+const normalizeUploadedAt = (value: unknown) => {
+  if (!value) {
+    return undefined;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = new Date(value);
+
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? undefined : value.toISOString();
+  }
+
+  if (typeof value === 'number') {
+    const parsed = new Date(value);
+
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+  }
+
+  return undefined;
+};
+
+const normalizeAiAgentFiles = (files: any[] = []) =>
+  files
+    .map((file, index) => {
+      const key =
+        typeof file?.key === 'string' ? file.key.trim() : String(file?.key || '');
+      const name =
+        typeof file?.name === 'string'
+          ? file.name.trim()
+          : String(file?.name || '');
+      const fallbackId = key || name || `context-file-${index + 1}`;
+      const rawSize =
+        typeof file?.size === 'number' ? file.size : Number(file?.size);
+
+      return {
+        id:
+          typeof file?.id === 'string' && file.id.trim()
+            ? file.id.trim()
+            : fallbackId,
+        key,
+        name,
+        size: Number.isFinite(rawSize) && rawSize >= 0 ? rawSize : undefined,
+        type:
+          typeof file?.type === 'string' && file.type.trim()
+            ? file.type.trim()
+            : undefined,
+        uploadedAt: normalizeUploadedAt(file?.uploadedAt),
+      };
+    })
+    .filter((file) => file.key && file.name);
+
 export const buildAiAgentFormSchema = ({
   requireApiKey = false,
 }: {
@@ -71,6 +125,6 @@ export const normalizeAiAgentFormValues = (detail?: any): TAiAgentForm => ({
   },
   context: {
     systemPrompt: detail?.context?.systemPrompt || '',
-    files: detail?.context?.files || [],
+    files: normalizeAiAgentFiles(detail?.context?.files || []),
   },
 });
