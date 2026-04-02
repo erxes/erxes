@@ -6,7 +6,6 @@ import {
   Filter,
   Form,
   Popover,
-  useFilterContext,
   useQueryState,
 } from 'erxes-ui';
 import React, { createContext, useContext, useState } from 'react';
@@ -78,7 +77,7 @@ export const SelectActionsProvider = ({
       value={{
         actions,
         setActions,
-        actionsNames: !value ? [] : Array.isArray(value) ? value : [value],
+        actionsNames: value ? (Array.isArray(value) ? value : [value]) : [],
         onSelect,
         loading: false,
         error: null,
