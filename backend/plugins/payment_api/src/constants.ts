@@ -139,12 +139,12 @@ export const PAYMENTS = {
   toki: {
     title: 'Toki',
     kind: 'toki',
-    apiUrl: 'http://ms-api.toki.mn/',
+    apiUrl: 'https://staging-api.toki.mn',
     actions: {
-      getToken: '/third-party-service/v1/auth/token',
-      invoice: '/third-party-service/v1/payment-request/merchant-qr',
-      checkInvoice: '/third-party-service/v1/payment-request/',
-      cancelInvoice: '/third-party-service/v1/payment-request/',
+      getToken: 'third-party-service/v1/auth/token',
+      invoice: 'third-party-service/v1/payment-request/merchant-qr',
+      checkInvoice: 'third-party-service/v1/payment-request',
+      cancelInvoice: 'third-party-service/v1/payment-request',
     },
     handlerMethod: 'POST',
     acceptedCurrencies: ['MNT'],
@@ -163,6 +163,7 @@ export const PAYMENTS = {
     'golomt',
     'stripe',
     'khanbank',
+    'toki',
   ],
 };
 

@@ -111,51 +111,63 @@ export class TokiAPI extends BaseAPI {
     }
   }
 
-  async getHeaders() {
-    const token = await redis.get(`toki_token_${this.tokiMerchanId}`);
+async getHeaders() {
+  const cacheKey = `toki_token_${this.tokiMerchanId}`;
+  const token = await redis.get(cacheKey);
 
-    if (token) {
-      return {
-        Authorization: 'Bearer ' + token,
-        'Content-Type': 'application/json',
-      };
-    }
-
-    try {
-      const res = await this.request({
-        method: 'POST',
-        path: PAYMENTS.toki.actions.getToken,
-        headers: {
-          Authorization:
-            'Basic ' +
-            Buffer.from(`${this.tokiUsername}:${this.tokiPassword}`).toString(
-              'base64',
-            ),
-        },
-      }).then((r) => r.json());
-
-      // Check for errors in the response
-      if (res.error || res.code !== 200) {
-        throw new Error(res.error?.message || 'Failed to get token');
-      }
-
-      // Access token from nested data object
-      await redis.set(
-        `toki_token_${this.tokiMerchanId}`,
-        res.data.accessToken,
-        'EX',
-        3600,
-      );
-
-      return {
-        Authorization: 'Bearer ' + res.data.accessToken,
-        'Content-Type': 'application/json',
-      };
-    } catch (e) {
-      console.error('error', e);
-      throw new Error(e.message);
-    }
+  if (token) {
+    return {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
   }
+
+  const basicToken = Buffer.from(`${this.tokiUsername}:${this.tokiPassword}`).toString('base64');
+
+  if (!basicToken) {
+    throw new Error('tokiBasicToken is not configured');
+  }
+
+  console.debug('Requesting new Toki token...');
+  console.debug('Using Basic token (first 20 chars):', basicToken.substring(0, 20) + '...');
+
+  try {
+    const response = await this.request({
+      method: 'GET',
+      path: '/third-party-service/v1/auth/token',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Basic ${basicToken}`,
+      },
+
+    });
+
+    console.debug('Token endpoint status:', response.status);
+    console.debug('Token endpoint headers:', Object.fromEntries(response.headers));
+
+    const res = await response.json().catch(() => ({}));
+
+    console.debug('Token response body:', JSON.stringify(res, null, 2));
+
+    if (response.status !== 200 || res.error || !res.data?.accessToken) {
+      throw new Error(`Token request failed: ${response.status} - ${res.error?.message || JSON.stringify(res)}`);
+    }
+
+    await redis.set(cacheKey, res.data.accessToken, 'EX', 3600);
+
+    return {
+      Authorization: `Bearer ${res.data.accessToken}`,
+      'Content-Type': 'application/json',
+    };
+  } catch (e: any) {
+    console.error('Toki token acquisition failed:', e.message || e);
+    if (e.response) {
+      console.error('Response status:', e.response.status);
+      console.error('Response body:', await e.response.text().catch(() => 'unable to read'));
+    }
+    throw new Error(`Failed to get Toki access token: ${e.message}`);
+  }
+}
 
   async createInvoice(transaction: ITransactionDocument) {
     try {
