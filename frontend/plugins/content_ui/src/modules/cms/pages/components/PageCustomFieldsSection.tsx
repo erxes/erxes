@@ -34,6 +34,27 @@ interface PageCustomFieldsSectionProps {
   form: UseFormReturn<IPageFormData>;
 }
 
+const updateCustomFieldsData = (
+  currentData: CustomFieldsData,
+  fieldId: string,
+  value: CustomFieldValue,
+): CustomFieldsData => {
+  const existingIndex = currentData.findIndex(
+    (item: CustomFieldDataItem) => item.field === fieldId,
+  );
+
+  if (existingIndex >= 0) {
+    const updated = [...currentData];
+    updated[existingIndex] = {
+      field: fieldId,
+      value,
+    };
+    return updated;
+  } else {
+    return [...currentData, { field: fieldId, value }];
+  }
+};
+
 export const PageCustomFieldsSection = ({
   fieldGroups,
   form,
@@ -82,25 +103,11 @@ export const PageCustomFieldsSection = ({
                             onChange={(value) => {
                               const currentData: CustomFieldsData =
                                 controllerField.value || [];
-                              const existingIndex = currentData.findIndex(
-                                (item: CustomFieldDataItem) =>
-                                  item.field === field._id,
+                              const updated = updateCustomFieldsData(
+                                currentData,
+                                field._id,
+                                value,
                               );
-
-                              let updated;
-                              if (existingIndex >= 0) {
-                                updated = [...currentData];
-                                updated[existingIndex] = {
-                                  field: field._id,
-                                  value,
-                                };
-                              } else {
-                                updated = [
-                                  ...currentData,
-                                  { field: field._id, value },
-                                ];
-                              }
-
                               controllerField.onChange(updated);
                             }}
                           />

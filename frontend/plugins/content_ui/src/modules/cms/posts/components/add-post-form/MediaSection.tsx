@@ -130,7 +130,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => (
 
 const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
   const handleChange = (value: UploadValue) => {
-    if (value && value.url) {
+    if (value?.url) {
       field.onChange({
         url: value.url,
         name: value.fileInfo?.name || '',
@@ -146,11 +146,21 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
       : (field.value as { url: string }).url
     : null;
 
+  let thumbnailUrl: string | null = null;
+
+  if (field.value) {
+    if (typeof field.value === 'string') {
+      thumbnailUrl = field.value;
+    } else {
+      thumbnailUrl = (field.value as { url: string }).url;
+    }
+  }
+
   return (
     <>
       <div className="flex items-center gap-3">
         <Upload.Root
-          value={currentValue || ''}
+          value={thumbnailUrl || ''}
           onChange={(value) => handleChange(value as UploadValue)}
         >
           <Upload.Preview />
