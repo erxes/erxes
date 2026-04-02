@@ -37,10 +37,15 @@ export const SendEmailEmailContentBuilder = ({
 
       try {
         blocks = JSON.parse(content);
-      } catch (_error) {
+      } catch {
         blocks = await editor.tryParseHTMLToBlocks(content);
       }
-      editor.replaceBlocks(editor.document, blocks);
+
+      try {
+        editor.replaceBlocks(editor.document, blocks);
+      } catch (error) {
+        console.error('Failed to replace editor blocks:', error);
+      }
     };
 
     loadInitialContent();
@@ -48,8 +53,9 @@ export const SendEmailEmailContentBuilder = ({
 
   return (
     <>
-      <div
-        className="relative border rounded-lg p-4 min-h-[120px] bg-background cursor-pointer group"
+      <button
+        type="button"
+        className="relative border rounded-lg p-4 min-h-[120px] bg-background cursor-pointer group text-left w-full"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => setIsSheetOpen(true)}
@@ -75,7 +81,7 @@ export const SendEmailEmailContentBuilder = ({
             </Button>
           </div>
         )}
-      </div>
+      </button>
 
       <SendEmailEmailContentBuilderEditor
         contentType={contentType}
