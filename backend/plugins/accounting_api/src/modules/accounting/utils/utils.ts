@@ -42,6 +42,12 @@ export const getSingleJournalByAccount = (
   }
 };
 
+/**
+ * barimt create or update hamaarah baraanii uldegdel sync hiih
+ * @param transaction: undsen barimt
+ * @param oldTr?: huuchin baisan barimt
+ * @param multiplier: orlogo bol 1, zarlaga bol -1
+ */
 export const syncProductsInventory = async (
   subdomain: string,
   transaction: ITransactionDocument,
@@ -133,3 +139,31 @@ export const syncProductsInventory = async (
     },
   });
 };
+
+/**
+ * barimt ustgahad hamaarah baraanii uldegdel sync hiih
+ * @param transaction: ustaj bui transaction obj
+ * @param multiplier: ugiin urvuu ch gesen orlogo ustgah ni default 1
+ */
+export const removeSyncProductsInventory = async (
+  subdomain: string,
+  transaction: ITransactionDocument,
+  multiplier = 1, 
+) => {
+
+  sendTRPCMessage({
+    subdomain,
+    method: 'mutation',
+    pluginName: 'core',
+    module: 'products',
+    action: 'increaseInventories',
+    input: {
+      branchId: transaction.branchId,
+      departmentId: transaction.departmentId,
+      productsInfo: transaction.details?.map((det) => ({
+        productId: det.productId,
+        diffCount: -1 * multiplier * (det.count ?? 0),
+      })),
+    },
+  });
+}

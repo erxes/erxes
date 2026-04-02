@@ -148,19 +148,19 @@ async function handleInvMove(
   const transaction = await createOrUpdateTr(models, doc, oldTr);
   const { invMoveInTr, oldFollowInTr } = await invMoveInTrsClass.doTrs(transaction);
 
-  syncProductsInventory(subdomain, transaction, oldTr, -1)
-  syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1)
+  await syncProductsInventory(subdomain, transaction, oldTr, -1)
+  await syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1)
 
   return { mainTr: transaction, otherTrs: [invMoveInTr] };
 }
 
 async function handleInvSale(
   models: IModels,
-  _subdomain: string,
+  subdomain: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const invSaleOtherTrsClass = new InvSaleOutCostTrs(models, doc);
+  const invSaleOtherTrsClass = new InvSaleOutCostTrs(subdomain, models, doc);
   const taxTrsClass = new TaxTrs(models, doc, 'dt', false);
 
   await invSaleOtherTrsClass.checkValidation();

@@ -1,22 +1,25 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IModels } from '~/connectionResolvers';
-import { ITransaction } from '../@types/transaction';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ITransactionDocument } from '../@types/transaction';
+import { removeSyncProductsInventory } from './utils';
+import { TR_FOLLOW_TYPES } from '../@types/constants';
 
 export const commonRemove = async (
   subdomain: string,
   models: IModels,
-  tr: ITransaction,
+  transaction: ITransactionDocument,
+  followTrs?: ITransactionDocument[]
 ) => {
-  const handler = getJournalHandler(tr.journal);
+  const handler = getJournalHandler(transaction.journal);
   if (!handler) return;
 
-  await handler(models, subdomain, tr);
+  await handler(models, subdomain, transaction, followTrs);
 };
 
 function getJournalHandler(journal: string) {
   const handlers: Record<
     string,
-    (models: IModels, subdomain: string, doc: ITransaction) => Promise<void>
+    (models: IModels, subdomain: string, transaction: ITransactionDocument, followTrs?: ITransactionDocument[]) => Promise<void>
   > = {
     main: handleNone,
     cash: handleNone,
@@ -33,9 +36,10 @@ function getJournalHandler(journal: string) {
 }
 
 async function handleNone(
-  models: IModels,
+  _models: IModels,
   _subdomain: string,
-  doc: ITransaction,
+  _transaction: ITransactionDocument,
+  _followTrs?: ITransactionDocument[]
 ) {
   return;
 }
@@ -43,45 +47,42 @@ async function handleNone(
 async function handleInvIncome(
   _models: IModels,
   subdomain: string,
-  tr: ITransaction,
+  transaction: ITransactionDocument,
+  _followTrs?: ITransactionDocument[]
 ) {
-  sendTRPCMessage({
-    subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'products',
-    action: 'increaseInventories',
-    input: {
-      branchId: tr?.branchId,
-      departmentId: tr?.departmentId,
-      productsInfo: tr?.details?.map((det) => ({
-        productId: det.productId,
-        diffCount: -1 * (det.count ?? 0),
-      })),
-    },
-  });
+  removeSyncProductsInventory(subdomain, transaction, 1)
 }
 
 async function handleInvOut(
-  models: IModels,
-  _subdomain: string,
-  doc: ITransaction,
+  _models: IModels,
+  subdomain: string,
+  transaction: ITransactionDocument,
+  _followTrs?: ITransactionDocument[]
 ) {
-  return;
+  removeSyncProductsInventory(subdomain, transaction, -1)
 }
 
 async function handleInvMove(
-  models: IModels,
-  _subdomain: string,
-  doc: ITransaction,
+  _models: IModels,
+  subdomain: string,
+  transaction: ITransactionDocument,
+  followTrs?: ITransactionDocument[]
 ) {
-  return;
+  removeSyncProductsInventory(subdomain, transaction, -1);
+  const moveInTr = followTrs?.find(ftr => ftr.originId === transaction._id && ftr.originType === TR_FOLLOW_TYPES.INV_MOVE_IN);
+  if (moveInTr) {
+    removeSyncProductsInventory(subdomain, moveInTr, 1);
+  }
 }
 
 async function handleInvSale(
-  models: IModels,
-  _subdomain: string,
-  doc: ITransaction,
+  _models: IModels,
+  subdomain: string,
+  transaction: ITransactionDocument,
+  followTrs?: ITransactionDocument[]
 ) {
-  return;
+  const saleOutTr = followTrs?.find(ftr => ftr.originId === transaction._id && ftr.originType === TR_FOLLOW_TYPES.INV_SALE_OUT);
+  if (saleOutTr) {
+    removeSyncProductsInventory(subdomain, saleOutTr, -1);
+  }
 }
