@@ -194,12 +194,7 @@ const SelectCategoryContent = () => {
 
         {!loading &&
           (templateCategories || [])
-            .filter(
-              (category) =>
-                !categoryIds.some(
-                  (categoryIds) => categoryIds === category._id,
-                ),
-            )
+            .filter((category) => !categoryIds.includes(category._id))
             .map((category) => (
               <SelectCategoryCommandItem
                 key={category._id}
