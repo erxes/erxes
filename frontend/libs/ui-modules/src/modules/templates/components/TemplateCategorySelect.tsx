@@ -76,7 +76,7 @@ const SelectCategoryProvider = ({
   const categoryIds = !value ? [] : Array.isArray(value) ? value : [value];
 
   const loading = categoryIds.some(
-    (id) => !_categories.find((m) => m._id === id),
+    (id) => !_categories.some((m) => m._id === id),
   );
 
   return (
@@ -196,7 +196,7 @@ const SelectCategoryContent = () => {
           (templateCategories || [])
             .filter(
               (category) =>
-                !categoryIds.find(
+                !categoryIds.some(
                   (categoryIds) => categoryIds === category._id,
                 ),
             )
@@ -289,14 +289,14 @@ export const SelectCategoryFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'categoryId'}>
       <Filter.BarName>
         <IconCategory />
-        {label ? label : !iconOnly && 'Assigned To'}
+        {label || (!iconOnly && 'Assigned To')}
       </Filter.BarName>
       <SelectCategoryProvider
         mode={mode}
         value={categoryId || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
           if (value && value.length > 0) {
-            setAssignedTo(value as string[] | string);
+            setAssignedTo(value);
           } else {
             setAssignedTo(null);
           }
@@ -424,7 +424,7 @@ export const SelectCategoryDetail = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          {!value ? (
+          {value === null || value === undefined ? (
             <Combobox.TriggerBase className="font-medium">
               Add Owner <IconPlus />
             </Combobox.TriggerBase>
