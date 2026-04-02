@@ -339,7 +339,7 @@ const SelectAssigneeFilterView = ({
       <SelectAssigneeProvider
         mode="single"
         value={
-          assignee === 'no-assignee' ? 'no-assignee' : assignee ?? undefined
+          assignee === 'no-assignee' ? 'no-assignee' : (assignee ?? undefined)
         }
         onValueChange={(value) => {
           setAssignee(value === null ? 'no-assignee' : (value as string));
