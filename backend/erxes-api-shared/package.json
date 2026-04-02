@@ -24,7 +24,7 @@
     "@types/lodash": "^4.17.21"
   },
   "dependencies": {
-    "@apollo/server": "^4.11.3",
+    "@apollo/server": "^5.5.0",
     "@apollo/subgraph": "^2.9.3",
     "@elastic/elasticsearch": "7",
     "@sniptt/guards": "^0.2.0",
