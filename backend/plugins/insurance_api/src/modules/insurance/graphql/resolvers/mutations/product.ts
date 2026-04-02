@@ -9,11 +9,13 @@ export const productMutations = {
         additionalCoverages,
         compensationCalculations,
         deductibleConfig,
+        regionIds,
         ...rest
       } = args;
       const product = await models.Product.create({
         ...rest,
         insuranceType: insuranceTypeId,
+        regions: regionIds || [],
         coveredRisks: coveredRisks.map((cr: any) => ({
           risk: cr.riskId,
           coveragePercentage: cr.coveragePercentage,
@@ -23,7 +25,7 @@ export const productMutations = {
         deductibleConfig: deductibleConfig || undefined,
       });
       const populated = await product.populate(
-        'insuranceType coveredRisks.risk',
+        'insuranceType coveredRisks.risk regions',
       );
 
       return {
@@ -49,6 +51,7 @@ export const productMutations = {
         additionalCoverages,
         compensationCalculations,
         deductibleConfig,
+        regionIds,
       }: {
         id: string;
         name?: string;
@@ -59,6 +62,7 @@ export const productMutations = {
         additionalCoverages?: any[];
         compensationCalculations?: any[];
         deductibleConfig?: any;
+        regionIds?: string[];
       },
       { models }: IContext,
     ) => {
@@ -79,6 +83,8 @@ export const productMutations = {
         updateData.compensationCalculations = compensationCalculations;
       if (deductibleConfig !== undefined)
         updateData.deductibleConfig = deductibleConfig;
+      if (regionIds !== undefined)
+        updateData.regions = regionIds;
 
       const product = await models.Product.findByIdAndUpdate(id, updateData, {
         new: true,
@@ -87,7 +93,7 @@ export const productMutations = {
       if (!product) return null;
 
       const populated = await product.populate(
-        'insuranceType coveredRisks.risk',
+        'insuranceType coveredRisks.risk regions',
       );
 
       return {

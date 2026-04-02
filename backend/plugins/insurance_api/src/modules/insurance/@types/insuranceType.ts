@@ -17,6 +17,7 @@ export interface IAttributeDefinition {
 export interface IInsuranceType {
   name: string;
   code: string;
+  isCitizen?: boolean;
   attributes: IAttributeDefinition[];
 }
 

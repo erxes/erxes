@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
-import { IconEye } from '@tabler/icons-react';
+import { IconEye, IconPlus, IconX } from '@tabler/icons-react';
 import {
   useCreateInsuranceProduct,
   useUpdateInsuranceProduct,
@@ -49,8 +49,17 @@ export const ProductForm = ({
   });
   const [showPdfEditor, setShowPdfEditor] = useState(false);
 
+  const [pricingMode, setPricingMode] = useState<
+    'percentage' | 'baseRate' | 'dailyRate' | 'durationTiers'
+  >('percentage');
+  const [newCountry, setNewCountry] = useState('');
+
   const [durationFields, setDurationFields] = useState<
     { duration: string; percentage: number }[]
+  >([]);
+
+  const [durationTiers, setDurationTiers] = useState<
+    { minDays: number; maxDays: number; fee: number }[]
   >([]);
 
   useEffect(() => {
@@ -69,8 +78,20 @@ export const ProductForm = ({
         deductibleConfig: product.deductibleConfig || { levels: [] },
       });
 
-      const percentageByDuration = (product.pricingConfig as any)
-        ?.percentageByDuration;
+      // Detect pricing mode from existing config
+      const pc = product.pricingConfig as any;
+      if (pc?.durationTiers && pc.durationTiers.length > 0) {
+        setPricingMode('durationTiers');
+        setDurationTiers(pc.durationTiers);
+      } else if (pc?.dailyRate) {
+        setPricingMode('dailyRate');
+      } else if (pc?.baseRate) {
+        setPricingMode('baseRate');
+      } else {
+        setPricingMode('percentage');
+      }
+
+      const percentageByDuration = pc?.percentageByDuration;
       if (percentageByDuration && typeof percentageByDuration === 'object') {
         const durationEntries = Object.entries(percentageByDuration).map(
           ([duration, percentage]) => ({
@@ -94,6 +115,8 @@ export const ProductForm = ({
         deductibleConfig: { levels: [] },
       });
       setDurationFields([]);
+      setDurationTiers([]);
+      setPricingMode('percentage');
     }
   }, [product, open]);
 
@@ -436,156 +459,825 @@ export const ProductForm = ({
           </div>
 
           <div className="space-y-4">
+            {/* Pricing Mode Selector */}
             <div className="space-y-2">
-              <Label htmlFor="percentage">Base Rate (%) *</Label>
-              <Input
-                id="percentage"
-                type="number"
-                min="0"
-                step="0.1"
-                value={(formData.pricingConfig.percentage as number) || 3}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    pricingConfig: {
-                      ...formData.pricingConfig,
-                      percentage: parseFloat(e.target.value) || 3,
-                    },
-                  })
-                }
-                placeholder="3"
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Base Premium = Assessed Value × Rate
-              </p>
+              <Label>Үнийн тооцооны төрөл *</Label>
+              <Select
+                value={pricingMode}
+                onValueChange={(value: 'percentage' | 'baseRate' | 'dailyRate' | 'durationTiers') => {
+                  setPricingMode(value);
+                  if (value === 'durationTiers') {
+                    setFormData({
+                      ...formData,
+                      pricingConfig: {
+                        coverageAmount:
+                          (formData.pricingConfig.coverageAmount as number) || 20000,
+                        coverageCurrency: 'USD',
+                        durationTiers: durationTiers.length > 0 ? durationTiers : [
+                          { minDays: 1, maxDays: 7, fee: 30000 },
+                          { minDays: 8, maxDays: 15, fee: 50000 },
+                          { minDays: 16, maxDays: 30, fee: 80000 },
+                        ],
+                        region:
+                          (formData.pricingConfig.region as string) || '',
+                        regionName:
+                          (formData.pricingConfig.regionName as string) || '',
+                        regionIcon:
+                          (formData.pricingConfig.regionIcon as string) || '✈️',
+                        regionDescription:
+                          (formData.pricingConfig.regionDescription as string) || '',
+                      },
+                    });
+                    if (durationTiers.length === 0) {
+                      setDurationTiers([
+                        { minDays: 1, maxDays: 7, fee: 30000 },
+                        { minDays: 8, maxDays: 15, fee: 50000 },
+                        { minDays: 16, maxDays: 30, fee: 80000 },
+                      ]);
+                    }
+                  } else if (value === 'percentage') {
+                    setFormData({
+                      ...formData,
+                      pricingConfig: {
+                        percentage:
+                          (formData.pricingConfig.percentage as number) || 3,
+                      },
+                    });
+                  } else if (value === 'baseRate') {
+                    setFormData({
+                      ...formData,
+                      pricingConfig: {
+                        baseRate:
+                          (formData.pricingConfig.baseRate as number) || 0,
+                        region:
+                          (formData.pricingConfig.region as string) || '',
+                        regionName:
+                          (formData.pricingConfig.regionName as string) || '',
+                        regionIcon:
+                          (formData.pricingConfig.regionIcon as string) || '✈️',
+                        regionDescription:
+                          (formData.pricingConfig.regionDescription as string) ||
+                          '',
+                      },
+                    });
+                  } else if (value === 'dailyRate') {
+                    setFormData({
+                      ...formData,
+                      pricingConfig: {
+                        dailyRate:
+                          (formData.pricingConfig.dailyRate as number) || 0,
+                        region:
+                          (formData.pricingConfig.region as string) || '',
+                        regionName:
+                          (formData.pricingConfig.regionName as string) || '',
+                        regionIcon:
+                          (formData.pricingConfig.regionIcon as string) || '✈️',
+                        regionDescription:
+                          (formData.pricingConfig.regionDescription as string) ||
+                          '',
+                      },
+                    });
+                  }
+                }}
+              >
+                <Select.Trigger>
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="percentage">
+                    Хувиар (Тээврийн хэрэгсэл)
+                  </Select.Item>
+                  <Select.Item value="baseRate">
+                    Тогтмол хураамж (Аялалын даатгал)
+                  </Select.Item>
+                  <Select.Item value="dailyRate">
+                    Өдрийн тариф (Аялалын даатгал)
+                  </Select.Item>
+                  <Select.Item value="durationTiers">
+                    Хугацааны шат (Аялалын даатгал)
+                  </Select.Item>
+                </Select.Content>
+              </Select>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Rate by Duration (optional)</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setDurationFields([
-                      ...durationFields,
-                      { duration: '', percentage: 0 },
-                    ]);
-                  }}
-                >
-                  Add Duration
-                </Button>
-              </div>
-
-              {durationFields.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Click "Add Duration" to set different rates by duration
-                </p>
-              ) : (
+            {/* === PERCENTAGE MODE (Vehicle Insurance) === */}
+            {pricingMode === 'percentage' && (
+              <>
                 <div className="space-y-2">
-                  {durationFields.map((field, index) => (
-                    <div key={index} className="flex gap-2 items-end">
-                      <div className="flex-1">
-                        <Label className="text-xs">Duration (months)</Label>
-                        <Input
-                          value={field.duration}
-                          onChange={(e) => {
-                            const newFields = [...durationFields];
-                            newFields[index] = {
-                              ...newFields[index],
-                              duration: e.target.value,
-                            };
-                            setDurationFields(newFields);
+                  <Label htmlFor="percentage">Base Rate (%) *</Label>
+                  <Input
+                    id="percentage"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={(formData.pricingConfig.percentage as number) || 3}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        pricingConfig: {
+                          ...formData.pricingConfig,
+                          percentage: parseFloat(e.target.value) || 3,
+                        },
+                      })
+                    }
+                    placeholder="3"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Хураамж = Үнэлгээ × Хувь
+                  </p>
+                </div>
 
-                            const percentageByDuration: Record<string, number> =
-                              {};
-                            newFields.forEach((f) => {
-                              if (f.duration) {
-                                percentageByDuration[f.duration] = f.percentage;
-                              }
-                            });
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">
+                      Хугацааны хувь (сонголттой)
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setDurationFields([
+                          ...durationFields,
+                          { duration: '', percentage: 0 },
+                        ]);
+                      }}
+                    >
+                      Add Duration
+                    </Button>
+                  </div>
+
+                  {durationFields.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Click "Add Duration" to set different rates by duration
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {durationFields.map((field, index) => (
+                        <div key={index} className="flex gap-2 items-end">
+                          <div className="flex-1">
+                            <Label className="text-xs">Duration (months)</Label>
+                            <Input
+                              value={field.duration}
+                              onChange={(e) => {
+                                const newFields = [...durationFields];
+                                newFields[index] = {
+                                  ...newFields[index],
+                                  duration: e.target.value,
+                                };
+                                setDurationFields(newFields);
+
+                                const percentageByDuration: Record<
+                                  string,
+                                  number
+                                > = {};
+                                newFields.forEach((f) => {
+                                  if (f.duration) {
+                                    percentageByDuration[f.duration] =
+                                      f.percentage;
+                                  }
+                                });
+                                setFormData({
+                                  ...formData,
+                                  pricingConfig: {
+                                    ...formData.pricingConfig,
+                                    percentageByDuration,
+                                  },
+                                });
+                              }}
+                              placeholder="12months"
+                            />
+                          </div>
+                          <div className="w-32">
+                            <Label className="text-xs">Rate (%)</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value={field.percentage}
+                              onChange={(e) => {
+                                const newFields = [...durationFields];
+                                newFields[index] = {
+                                  ...newFields[index],
+                                  percentage: parseFloat(e.target.value) || 0,
+                                };
+                                setDurationFields(newFields);
+
+                                const percentageByDuration: Record<
+                                  string,
+                                  number
+                                > = {};
+                                newFields.forEach((f) => {
+                                  if (f.duration) {
+                                    percentageByDuration[f.duration] =
+                                      f.percentage;
+                                  }
+                                });
+                                setFormData({
+                                  ...formData,
+                                  pricingConfig: {
+                                    ...formData.pricingConfig,
+                                    percentageByDuration,
+                                  },
+                                });
+                              }}
+                              placeholder="3"
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const newFields = durationFields.filter(
+                                (_, i) => i !== index,
+                              );
+                              setDurationFields(newFields);
+
+                              const percentageByDuration: Record<
+                                string,
+                                number
+                              > = {};
+                              newFields.forEach((f) => {
+                                if (f.duration) {
+                                  percentageByDuration[f.duration] =
+                                    f.percentage;
+                                }
+                              });
+                              setFormData({
+                                ...formData,
+                                pricingConfig: {
+                                  ...formData.pricingConfig,
+                                  percentageByDuration,
+                                },
+                              });
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* === DURATION TIERS MODE (Travel - tiered by duration) === */}
+            {pricingMode === 'durationTiers' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="coverageAmount">
+                    Нөхөн олговрын хэмжээ (USD)
+                  </Label>
+                  <Input
+                    id="coverageAmount"
+                    type="number"
+                    min="0"
+                    value={
+                      (formData.pricingConfig.coverageAmount as number) || ''
+                    }
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        pricingConfig: {
+                          ...formData.pricingConfig,
+                          coverageAmount: parseFloat(e.target.value) || 0,
+                        },
+                      })
+                    }
+                    placeholder="20000"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Даатгалын нөхөн олговрын дээд хэмжээ (доллараар)
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">Хугацааны шат (₮/хүн)</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const last = durationTiers[durationTiers.length - 1];
+                        const newTier = {
+                          minDays: last ? last.maxDays + 1 : 1,
+                          maxDays: last ? last.maxDays + 15 : 7,
+                          fee: last ? last.fee + 20000 : 30000,
+                        };
+                        const updated = [...durationTiers, newTier];
+                        setDurationTiers(updated);
+                        setFormData({
+                          ...formData,
+                          pricingConfig: {
+                            ...formData.pricingConfig,
+                            durationTiers: updated,
+                          },
+                        });
+                      }}
+                    >
+                      <IconPlus size={14} />
+                      Шат нэмэх
+                    </Button>
+                  </div>
+
+                  {durationTiers.map((tier, index) => (
+                    <div key={index} className="flex gap-2 items-end">
+                      <div className="w-24">
+                        <Label className="text-xs">Эхлэх (хоног)</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={tier.minDays}
+                          onChange={(e) => {
+                            const updated = [...durationTiers];
+                            updated[index] = {
+                              ...updated[index],
+                              minDays: parseInt(e.target.value) || 1,
+                            };
+                            setDurationTiers(updated);
                             setFormData({
                               ...formData,
                               pricingConfig: {
                                 ...formData.pricingConfig,
-                                percentageByDuration,
+                                durationTiers: updated,
                               },
                             });
                           }}
-                          placeholder="12months"
                         />
                       </div>
-                      <div className="w-32">
-                        <Label className="text-xs">Rate (%)</Label>
+                      <div className="w-24">
+                        <Label className="text-xs">Дуусах (хоног)</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={tier.maxDays}
+                          onChange={(e) => {
+                            const updated = [...durationTiers];
+                            updated[index] = {
+                              ...updated[index],
+                              maxDays: parseInt(e.target.value) || 7,
+                            };
+                            setDurationTiers(updated);
+                            setFormData({
+                              ...formData,
+                              pricingConfig: {
+                                ...formData.pricingConfig,
+                                durationTiers: updated,
+                              },
+                            });
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <Label className="text-xs">Хураамж (₮)</Label>
                         <Input
                           type="number"
                           min="0"
-                          step="0.1"
-                          value={field.percentage}
+                          value={tier.fee}
                           onChange={(e) => {
-                            const newFields = [...durationFields];
-                            newFields[index] = {
-                              ...newFields[index],
-                              percentage: parseFloat(e.target.value) || 0,
+                            const updated = [...durationTiers];
+                            updated[index] = {
+                              ...updated[index],
+                              fee: parseFloat(e.target.value) || 0,
                             };
-                            setDurationFields(newFields);
-
-                            const percentageByDuration: Record<string, number> =
-                              {};
-                            newFields.forEach((f) => {
-                              if (f.duration) {
-                                percentageByDuration[f.duration] = f.percentage;
-                              }
-                            });
+                            setDurationTiers(updated);
                             setFormData({
                               ...formData,
                               pricingConfig: {
                                 ...formData.pricingConfig,
-                                percentageByDuration,
+                                durationTiers: updated,
                               },
                             });
                           }}
-                          placeholder="3"
                         />
                       </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const updated = durationTiers.filter(
+                            (_, i) => i !== index,
+                          );
+                          setDurationTiers(updated);
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              durationTiers: updated,
+                            },
+                          });
+                        }}
+                      >
+                        <IconX size={14} />
+                      </Button>
+                    </div>
+                  ))}
+
+                  <p className="text-xs text-muted-foreground">
+                    Жишээ: 1-7 хоног → 30,000₮, 8-15 хоног → 50,000₮
+                  </p>
+                </div>
+              </>
+            )}
+
+            {/* === BASE RATE MODE (Travel - fixed fee) === */}
+            {pricingMode === 'baseRate' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="baseRate">Тогтмол хураамж (₮) *</Label>
+                  <Input
+                    id="baseRate"
+                    type="number"
+                    min="0"
+                    value={(formData.pricingConfig.baseRate as number) || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        pricingConfig: {
+                          ...formData.pricingConfig,
+                          baseRate: parseFloat(e.target.value) || 0,
+                        },
+                      })
+                    }
+                    placeholder="50000"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Аялалын бүх хугацаанд нэг тогтмол хураамж
+                  </p>
+                </div>
+
+                {/* Region fields */}
+                <div className="space-y-3 border rounded-md p-3 bg-blue-50/50">
+                  <Label className="font-semibold">
+                    Бүс нутгийн тохиргоо (Travel)
+                  </Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Region ID *</Label>
+                      <Input
+                        value={
+                          (formData.pricingConfig.region as string) || ''
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              region: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="asia, schengen, worldwide..."
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Бүс нутгийн нэр *</Label>
+                      <Input
+                        value={
+                          (formData.pricingConfig.regionName as string) || ''
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              regionName: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Ази, Шенген бүс, Дэлхий нийт..."
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Icon (emoji)</Label>
+                      <Input
+                        value={
+                          (formData.pricingConfig.regionIcon as string) || ''
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              regionIcon: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="🌏"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Тайлбар</Label>
+                      <Input
+                        value={
+                          (formData.pricingConfig.regionDescription as string) ||
+                          ''
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              regionDescription: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Азийн орнууд"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Countries Management */}
+                  <div className="space-y-2 mt-3 pt-3 border-t">
+                    <Label className="text-xs font-semibold">
+                      Хамрагдах улсууд ({((formData.pricingConfig.countries as string[]) || []).length})
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newCountry}
+                        onChange={(e) => setNewCountry(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const trimmed = newCountry.trim();
+                            if (!trimmed) return;
+                            const existing = (formData.pricingConfig.countries as string[]) || [];
+                            if (existing.includes(trimmed)) return;
+                            setFormData({
+                              ...formData,
+                              pricingConfig: {
+                                ...formData.pricingConfig,
+                                countries: [...existing, trimmed],
+                              },
+                            });
+                            setNewCountry('');
+                          }
+                        }}
+                        placeholder="Улсын нэр бичээд Enter дарна"
+                        className="flex-1"
+                      />
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          const newFields = durationFields.filter(
-                            (_, i) => i !== index,
-                          );
-                          setDurationFields(newFields);
-
-                          const percentageByDuration: Record<string, number> =
-                            {};
-                          newFields.forEach((f) => {
-                            if (f.duration) {
-                              percentageByDuration[f.duration] = f.percentage;
-                            }
-                          });
+                          const trimmed = newCountry.trim();
+                          if (!trimmed) return;
+                          const existing = (formData.pricingConfig.countries as string[]) || [];
+                          if (existing.includes(trimmed)) return;
                           setFormData({
                             ...formData,
                             pricingConfig: {
                               ...formData.pricingConfig,
-                              percentageByDuration,
+                              countries: [...existing, trimmed],
                             },
                           });
+                          setNewCountry('');
                         }}
                       >
-                        Remove
+                        <IconPlus size={14} />
                       </Button>
                     </div>
-                  ))}
+                    <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
+                      {((formData.pricingConfig.countries as string[]) || []).map(
+                        (country: string, idx: number) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border rounded text-xs"
+                          >
+                            {country}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const existing = (formData.pricingConfig.countries as string[]) || [];
+                                setFormData({
+                                  ...formData,
+                                  pricingConfig: {
+                                    ...formData.pricingConfig,
+                                    countries: existing.filter((_: string, i: number) => i !== idx),
+                                  },
+                                });
+                              }}
+                              className="text-red-400 hover:text-red-600"
+                            >
+                              <IconX size={12} />
+                            </button>
+                          </span>
+                        ),
+                      )}
+                    </div>
+                    {((formData.pricingConfig.countries as string[]) || []).length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        Улс нэмэгдээгүй байна. Нэр бичээд Enter дарна уу.
+                      </p>
+                    )}
+                  </div>
                 </div>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Example: "12months", "24months", "36months", etc.
-              </p>
-            </div>
+              </>
+            )}
+
+            {/* === DAILY RATE MODE (Travel - per day) === */}
+            {pricingMode === 'dailyRate' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="dailyRate">Өдрийн тариф (₮) *</Label>
+                  <Input
+                    id="dailyRate"
+                    type="number"
+                    min="0"
+                    value={(formData.pricingConfig.dailyRate as number) || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        pricingConfig: {
+                          ...formData.pricingConfig,
+                          dailyRate: parseFloat(e.target.value) || 0,
+                        },
+                      })
+                    }
+                    placeholder="3000"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Хураамж = Өдрийн тариф × Аялалын хоног
+                  </p>
+                </div>
+
+                {/* Region fields */}
+                <div className="space-y-3 border rounded-md p-3 bg-blue-50/50">
+                  <Label className="font-semibold">
+                    Бүс нутгийн тохиргоо (Travel)
+                  </Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Region ID *</Label>
+                      <Input
+                        value={
+                          (formData.pricingConfig.region as string) || ''
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              region: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="asia, schengen, worldwide..."
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Бүс нутгийн нэр *</Label>
+                      <Input
+                        value={
+                          (formData.pricingConfig.regionName as string) || ''
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              regionName: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Ази, Шенген бүс, Дэлхий нийт..."
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Icon (emoji)</Label>
+                      <Input
+                        value={
+                          (formData.pricingConfig.regionIcon as string) || ''
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              regionIcon: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="🌏"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Тайлбар</Label>
+                      <Input
+                        value={
+                          (formData.pricingConfig.regionDescription as string) ||
+                          ''
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              regionDescription: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Азийн орнууд"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Countries Management */}
+                  <div className="space-y-2 mt-3 pt-3 border-t">
+                    <Label className="text-xs font-semibold">
+                      Хамрагдах улсууд ({((formData.pricingConfig.countries as string[]) || []).length})
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newCountry}
+                        onChange={(e) => setNewCountry(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const trimmed = newCountry.trim();
+                            if (!trimmed) return;
+                            const existing = (formData.pricingConfig.countries as string[]) || [];
+                            if (existing.includes(trimmed)) return;
+                            setFormData({
+                              ...formData,
+                              pricingConfig: {
+                                ...formData.pricingConfig,
+                                countries: [...existing, trimmed],
+                              },
+                            });
+                            setNewCountry('');
+                          }
+                        }}
+                        placeholder="Улсын нэр бичээд Enter дарна"
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const trimmed = newCountry.trim();
+                          if (!trimmed) return;
+                          const existing = (formData.pricingConfig.countries as string[]) || [];
+                          if (existing.includes(trimmed)) return;
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              countries: [...existing, trimmed],
+                            },
+                          });
+                          setNewCountry('');
+                        }}
+                      >
+                        <IconPlus size={14} />
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
+                      {((formData.pricingConfig.countries as string[]) || []).map(
+                        (country: string, idx: number) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border rounded text-xs"
+                          >
+                            {country}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const existing = (formData.pricingConfig.countries as string[]) || [];
+                                setFormData({
+                                  ...formData,
+                                  pricingConfig: {
+                                    ...formData.pricingConfig,
+                                    countries: existing.filter((_: string, i: number) => i !== idx),
+                                  },
+                                });
+                              }}
+                              className="text-red-400 hover:text-red-600"
+                            >
+                              <IconX size={12} />
+                            </button>
+                          </span>
+                        ),
+                      )}
+                    </div>
+                    {((formData.pricingConfig.countries as string[]) || []).length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        Улс нэмэгдээгүй байна. Нэр бичээд Enter дарна уу.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="space-y-4 border-t pt-4">

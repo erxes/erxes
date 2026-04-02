@@ -31,7 +31,7 @@ export const insuranceTypeMutations = {
   createInsuranceType: Object.assign(
     async (
       _parent: undefined,
-      { name, attributes }: { name: string; attributes: any[] },
+      { name, attributes, isCitizen }: { name: string; attributes: any[]; isCitizen?: boolean },
       { models, user }: IContext,
     ) => {
       // Add role check: if (user.role !== 'admin') throw ForbiddenError
@@ -40,6 +40,7 @@ export const insuranceTypeMutations = {
       return models.InsuranceType.create({
         name,
         code,
+        isCitizen: isCitizen || false,
         attributes: processedAttributes,
       });
     },
@@ -53,7 +54,8 @@ export const insuranceTypeMutations = {
         id,
         name,
         attributes,
-      }: { id: string; name?: string; attributes?: any[] },
+        isCitizen,
+      }: { id: string; name?: string; attributes?: any[]; isCitizen?: boolean },
       { models }: IContext,
     ) => {
       const updateData: any = {};
@@ -63,6 +65,9 @@ export const insuranceTypeMutations = {
       }
       if (attributes) {
         updateData.attributes = processAttributes(attributes);
+      }
+      if (isCitizen !== undefined) {
+        updateData.isCitizen = isCitizen;
       }
       return models.InsuranceType.findByIdAndUpdate(id, updateData, {
         new: true,

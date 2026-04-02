@@ -38,6 +38,11 @@ import {
   loadTemplateClass,
 } from '@/insurance/db/models/template';
 import { ITemplateDocument } from '@/insurance/@types/template';
+import { IRegionDocument } from '@/insurance/@types/region';
+import {
+  IRegionModel,
+  loadRegionClass,
+} from '@/insurance/db/models/region';
 import { dropProductCodeIndex } from '@/insurance/db/migrations/dropCodeIndex';
 
 export interface IModels {
@@ -49,6 +54,7 @@ export interface IModels {
   VendorUser: IVendorUserModel;
   Customer: ICustomerModel;
   Template: ITemplateModel;
+  Region: IRegionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -97,6 +103,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Template = db.model<ITemplateDocument, ITemplateModel>(
     'insurance_contract_templates',
     loadTemplateClass(models),
+  );
+
+  models.Region = db.model<IRegionDocument, IRegionModel>(
+    'insurance_regions',
+    loadRegionClass(models),
   );
 
   // Run migrations after all models are loaded

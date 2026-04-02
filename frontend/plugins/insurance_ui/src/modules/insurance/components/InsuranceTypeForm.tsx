@@ -22,6 +22,7 @@ export const InsuranceTypeForm = ({
 
   const [formData, setFormData] = useState({
     name: '',
+    isCitizen: false,
     attributes: [] as AttributeInput[],
   });
 
@@ -29,11 +30,13 @@ export const InsuranceTypeForm = ({
     if (insuranceType) {
       setFormData({
         name: insuranceType.name,
+        isCitizen: insuranceType.isCitizen || false,
         attributes: insuranceType.attributes || [],
       });
     } else {
       setFormData({
         name: '',
+        isCitizen: false,
         attributes: [],
       });
     }
@@ -88,6 +91,7 @@ export const InsuranceTypeForm = ({
           variables: {
             id: insuranceType.id,
             name: formData.name,
+            isCitizen: formData.isCitizen,
             attributes:
               cleanAttributes.length > 0 ? cleanAttributes : undefined,
           },
@@ -96,13 +100,14 @@ export const InsuranceTypeForm = ({
         await createInsuranceType({
           variables: {
             name: formData.name,
+            isCitizen: formData.isCitizen,
             attributes:
               cleanAttributes.length > 0 ? cleanAttributes : undefined,
           },
         });
       }
 
-      setFormData({ name: '', attributes: [] });
+      setFormData({ name: '', isCitizen: false, attributes: [] });
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
@@ -133,6 +138,24 @@ export const InsuranceTypeForm = ({
               placeholder="e.g., Travel Insurance, Auto Insurance"
               required
             />
+          </div>
+
+          <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/30">
+            <input
+              type="checkbox"
+              id="isCitizen"
+              checked={formData.isCitizen}
+              onChange={(e) =>
+                setFormData({ ...formData, isCitizen: e.target.checked })
+              }
+              className="rounded"
+            />
+            <Label htmlFor="isCitizen" className="text-sm cursor-pointer">
+              Иргэний даатгал (Citizen Insurance)
+            </Label>
+            <span className="text-xs text-muted-foreground ml-auto">
+              Идэвхжүүлбэл аялалын даатгалын форм ашиглагдана
+            </span>
           </div>
 
           <div className="space-y-3">
