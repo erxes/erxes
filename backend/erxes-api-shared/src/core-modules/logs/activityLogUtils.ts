@@ -53,6 +53,11 @@ export function normalizeDiffs(
 
   const isDate = (val: any): val is Date => val instanceof Date;
 
+  const isObjectId = (val: any): boolean =>
+    val !== null &&
+    typeof val === 'object' &&
+    typeof val.toHexString === 'function';
+
   const markVisitedPair = (prev: any, curr: any) => {
     if (
       prev === null ||
@@ -124,6 +129,20 @@ export function normalizeDiffs(
           current: curr,
           kind: 'array',
         });
+      }
+
+      return;
+    }
+
+    if (isObjectId(prev) || isObjectId(curr)) {
+      const prevStr = isObjectId(prev) ? prev.toHexString() : prev;
+      const currStr = isObjectId(curr) ? curr.toHexString() : curr;
+
+      if (!Object.is(prevStr, currStr)) {
+        const kind: NormalizedChange['kind'] =
+          prev === undefined ? 'set' : curr === undefined ? 'unset' : 'update';
+
+        changes.push({ field: path.join('.'), prev, current: curr, kind });
       }
 
       return;
@@ -255,8 +274,8 @@ export const fieldChangeRule = (
       actionLabel === 'set'
         ? `set ${normalizedFieldLabel} to ${currentValueLabel}`
         : actionLabel === 'unset'
-          ? `cleared ${normalizedFieldLabel}`
-          : `changed ${normalizedFieldLabel} from ${previousValueLabel} to ${currentValueLabel}`;
+        ? `cleared ${normalizedFieldLabel}`
+        : `changed ${normalizedFieldLabel} from ${previousValueLabel} to ${currentValueLabel}`;
 
     return [
       {
