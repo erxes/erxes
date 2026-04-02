@@ -243,7 +243,7 @@ export function PageDrawer({
   });
 
   // Create dynamic validation schema with custom fields
-  const createValidationSchema = useCallback((fieldGroups: any[]) => {
+  const createValidationSchema = useCallback((fieldGroups: FieldGroup[]) => {
     const baseSchema = pageFormSchema;
 
     // If no custom fields, return base schema

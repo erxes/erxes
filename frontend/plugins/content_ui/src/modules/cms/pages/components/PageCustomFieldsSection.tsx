@@ -7,6 +7,13 @@ import {
 } from '../../posts/CustomFieldInput';
 import { IPageFormData } from '../types/pageTypes';
 
+interface CustomFieldDataItem {
+  field: string;
+  value: CustomFieldValue;
+}
+
+interface CustomFieldsData extends Array<CustomFieldDataItem> {}
+
 export interface FieldGroup {
   _id: string;
   label: string;
@@ -49,9 +56,9 @@ export const PageCustomFieldsSection = ({
                 control={form.control}
                 name={`customFieldsData`}
                 render={({ field: formField }) => {
-                  const currentData = formField.value || [];
+                  const currentData: CustomFieldsData = formField.value || [];
                   const fieldValue = currentData.find(
-                    (item: any) => item?.field === field._id,
+                    (item: CustomFieldDataItem) => item?.field === field._id,
                   )?.value;
 
                   return (
@@ -73,9 +80,11 @@ export const PageCustomFieldsSection = ({
                             field={field}
                             value={fieldValue}
                             onChange={(value) => {
-                              const currentData = controllerField.value || [];
+                              const currentData: CustomFieldsData =
+                                controllerField.value || [];
                               const existingIndex = currentData.findIndex(
-                                (item: any) => item.field === field._id,
+                                (item: CustomFieldDataItem) =>
+                                  item.field === field._id,
                               );
 
                               let updated;

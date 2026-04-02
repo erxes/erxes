@@ -1,12 +1,7 @@
 import { Form, Upload, Button, Input } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconX } from '@tabler/icons-react';
-import {
-  UseFormReturn,
-  ControllerRenderProps,
-  FieldPath,
-  FieldValues,
-} from 'react-hook-form';
+import { UseFormReturn, ControllerRenderProps } from 'react-hook-form';
 import { GalleryUploader } from '../../GalleryUploader';
 import { DocumentsUploader } from '../../DocumentsUploader';
 import { AttachmentsUploader } from '../../AttachmentsUploader';
