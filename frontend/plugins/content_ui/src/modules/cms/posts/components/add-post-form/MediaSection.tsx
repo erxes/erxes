@@ -25,6 +25,11 @@ interface FileInfo {
   [key: string]: unknown;
 }
 
+interface UploadValue {
+  url: string;
+  fileInfo: FileInfo;
+}
+
 interface ThumbnailUploaderProps {
   field: ControllerRenderProps<MediaFormData, 'thumbnail'>;
   form: UseFormReturn<MediaFormData>;
@@ -124,7 +129,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => (
 );
 
 const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
-  const handleChange = (value: { url: string; fileInfo: FileInfo }) => {
+  const handleChange = (value: UploadValue) => {
     if (value && value.url) {
       field.onChange({
         url: value.url,
@@ -146,9 +151,7 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
       <div className="flex items-center gap-3">
         <Upload.Root
           value={currentValue || ''}
-          onChange={(value: any) =>
-            handleChange(value as { url: string; fileInfo: FileInfo })
-          }
+          onChange={(value) => handleChange(value as UploadValue)}
         >
           <Upload.Preview />
           <div className="flex flex-col items-stretch gap-2 flex-1">
