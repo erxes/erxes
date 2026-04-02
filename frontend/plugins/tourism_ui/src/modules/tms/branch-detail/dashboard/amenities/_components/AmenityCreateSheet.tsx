@@ -1,7 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -11,9 +11,17 @@ import {
 
 import { AmenityNameField, AmenityIconField } from './AmenityFormFields';
 import { useCreateAmenity } from '../hooks/useCreateAmenity';
+import { useAmenityLanguage } from '../hooks/useAmenityLanguage';
+import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_components/TourFieldLanguageSwitch';
+import {
+  buildEmptyAmenityTranslations,
+  sanitizeAmenityTranslations,
+} from '../utils/translationHelpers';
 
 interface AmenityCreateSheetProps {
   branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   showTrigger?: boolean;
@@ -21,6 +29,8 @@ interface AmenityCreateSheetProps {
 
 export const AmenityCreateSheet = ({
   branchId,
+  branchLanguages,
+  mainLanguage,
   open,
   onOpenChange,
   showTrigger = true,
@@ -46,8 +56,33 @@ export const AmenityCreateSheet = ({
     defaultValues: {
       name: '',
       icon: '',
+      translations: [],
     },
   });
+
+  const { fields } = useFieldArray({
+    control: form.control,
+    name: 'translations',
+  });
+
+  const {
+    allLanguages,
+    translationLanguages,
+    selectedLang,
+    setSelectedLang,
+    labelSuffix,
+    fieldPaths,
+  } = useAmenityLanguage({ branchLanguages, mainLanguage, fields });
+
+  useEffect(() => {
+    if (!translationLanguages.length) return;
+    const current = form.getValues('translations') || [];
+    const currentLangs = current.map((t) => t.language);
+    if (!translationLanguages.every((l) => currentLangs.includes(l))) {
+      form.setValue('translations', buildEmptyAmenityTranslations(translationLanguages));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [translationLanguages.join(',')]);
 
   const handleSubmit = async (values: AmenityCreateFormType) => {
     if (!branchId) {
@@ -64,9 +99,10 @@ export const AmenityCreateSheet = ({
         variables: {
           branchId,
           name: values.name,
-          ...(values.icon &&
-            values.icon.trim() !== '' && { icon: values.icon }),
+          ...(values.icon && values.icon.trim() !== '' && { icon: values.icon }),
           quick: true,
+          language: mainLanguage,
+          translations: sanitizeAmenityTranslations(values.translations),
         },
       });
 
@@ -106,13 +142,25 @@ export const AmenityCreateSheet = ({
           >
             <Sheet.Header>
               <Sheet.Title>Create amenity</Sheet.Title>
-              <Sheet.Close />
+              {allLanguages.length > 1 && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <TourFieldLanguageSwitch
+                    availableLanguages={allLanguages}
+                    value={selectedLang}
+                    onValueChange={setSelectedLang}
+                  />
+                </div>
+              )}
             </Sheet.Header>
 
-            <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
-              <div className="flex flex-col gap-6">
+            <Sheet.Content className="flex-1 px-6 py-4 overflow-y-auto rounded-none">
+              <div key={selectedLang} className="flex flex-col gap-6">
                 <div className="space-y-4">
-                  <AmenityNameField control={form.control} />
+                  <AmenityNameField
+                    control={form.control}
+                    name={fieldPaths.name}
+                    labelSuffix={labelSuffix}
+                  />
                   <AmenityIconField control={form.control} />
                 </div>
               </div>
@@ -127,7 +175,6 @@ export const AmenityCreateSheet = ({
               >
                 Cancel
               </Button>
-
               <Button type="submit" disabled={loading}>
                 {loading ? 'Creating...' : 'Create'}
               </Button>

@@ -1,20 +1,29 @@
-import { Control } from 'react-hook-form';
+import { Control, FieldPathByValue } from 'react-hook-form';
 import { Form, Input, IconPicker } from 'erxes-ui';
 import { AmenityCreateFormType } from '../constants/formSchema';
 
+type AmenityTextFieldPath = FieldPathByValue<AmenityCreateFormType, string | undefined>;
+
+interface AmenityNameFieldProps {
+  control: Control<AmenityCreateFormType>;
+  name?: AmenityTextFieldPath;
+  labelSuffix?: string;
+}
+
 export const AmenityNameField = ({
   control,
-}: {
-  control: Control<AmenityCreateFormType>;
-}) => {
+  name = 'name',
+  labelSuffix = '',
+}: AmenityNameFieldProps) => {
   return (
     <Form.Field
       control={control}
-      name="name"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name <span className="text-destructive">*</span>
+            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input
