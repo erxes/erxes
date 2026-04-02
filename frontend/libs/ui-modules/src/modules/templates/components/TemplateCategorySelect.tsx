@@ -260,13 +260,11 @@ export const SelectCategoryFilterView = ({
 };
 
 export const SelectCategoryFilterBar = ({
-  iconOnly,
   onValueChange,
   queryKey,
   mode = 'single',
   label,
 }: {
-  iconOnly?: boolean;
   onValueChange?: (value: string[] | string | null) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
