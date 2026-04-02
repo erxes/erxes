@@ -69,11 +69,8 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
         : customerType;
   }
 
-  if (
-    (statuses && statuses.length) ||
-    (excludeStatuses && excludeStatuses.length)
-  ) {
-    const _in = statuses && statuses.length ? { $in: statuses || [] } : {};
+  if (statuses?.length || excludeStatuses?.length) {
+    const _in = statuses?.length ? { $in: statuses || [] } : {};
     query.status = { ..._in, $nin: excludeStatuses || [] };
   }
 
@@ -127,7 +124,7 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
     query.createdAt = createdQry;
   }
 
-  if (types && types.length) {
+  if (types?.length) {
     query.type = { $in: types };
   }
 
@@ -373,7 +370,7 @@ export const posOrderRecordsQuery = async (
         order.customer = {
           _id: user._id,
           code: user.code,
-          primaryPhone: (user.details && user.details.operatorPhone) || '',
+          primaryPhone: user.details?.operatorPhone || '',
           firstName: `${user.firstName || ''} ${user.lastName || ''}`,
           primaryEmail: user.email,
           lastName: user.username,
@@ -469,7 +466,7 @@ const queries = {
     const orderDetail = order as any;
 
     for (const item of orderDetail.items || []) {
-      item.productName = (productById[item.productId] || {}).name || 'unknown';
+      item.productName = productById[item.productId]?.name || 'unknown';
     }
 
     return orderDetail;

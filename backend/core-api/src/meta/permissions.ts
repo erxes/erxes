@@ -540,6 +540,22 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'logs',
+      description: 'System log access',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'View system logs',
+          name: 'logsRead',
+          description: 'View system logs',
+        },
+      ],
+    },
+    {
       name: 'internalNotes',
       description: 'Internal note management',
       scopeField: null,
@@ -694,6 +710,12 @@ export const permissions: IPermissionConfig = {
           ],
           scope: 'all',
         },
+        {
+          plugin: 'core',
+          module: 'logs',
+          actions: ['logsRead'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -736,7 +758,8 @@ export const permissions: IPermissionConfig = {
     {
       id: 'core:viewer',
       name: 'Core Viewer',
-      description: 'Read-only access to all Core modules, with own-data mutations',
+      description:
+        'Read-only access to all Core modules, with own-data mutations',
       permissions: [
         {
           plugin: 'core',

@@ -1,10 +1,8 @@
 import {
   gatherAssociatedTypes,
   getContentType,
-  getPluginName,
   initSegmentProducers,
   splitType,
-  TAutomationProducers,
   TSegmentProducers,
 } from 'erxes-api-shared/core-modules';
 import {

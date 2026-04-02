@@ -84,6 +84,17 @@ export const GET_FACEBOOK_BOT_PROFILE = gql`
   }
 `;
 
+export const FACEBOOK_BOT_HEALTH_NOTIFICATION_DETAIL = gql`
+  query FacebookBotHealthNotificationDetail($_id: String) {
+    facebookMessengerBot(_id: $_id) {
+      _id
+      name
+      page
+      pageId
+    }
+  }
+`;
+
 export const FACEBOOK_GET_BOT_POSTS = gql`
   query FacebookGetBotPosts($botId: String) {
     facebookGetBotPosts(botId: $botId)

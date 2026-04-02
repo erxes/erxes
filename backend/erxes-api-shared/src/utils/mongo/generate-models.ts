@@ -60,7 +60,7 @@ export const createGenerateModels = <IModels>(
       }
 
       // means hostname
-      if (subdomain && subdomain.includes('.')) {
+      if (subdomain?.includes('.')) {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
 

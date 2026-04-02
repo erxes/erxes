@@ -5,7 +5,6 @@ import {
   AUTOMATION_EDIT,
 } from '@/automations/graphql/automationMutations';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
-import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { AutomationBuilderTabsType, NodeData } from '@/automations/types';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { useMutation } from '@apollo/client';

@@ -33,7 +33,7 @@ export function useUnitAdd(options?: MutationHookOptions<AddUnitResult, any>) {
         const existingData = cache.readQuery<UnitData>({
           query: GET_UNITS_LIST,
         });
-        if (!existingData || !existingData.unitsMain || !data?.unitsAdd) return;
+        if (!existingData?.unitsMain || !data?.unitsAdd) return;
 
         cache.writeQuery<UnitData>({
           query: GET_UNITS_LIST,
@@ -68,8 +68,7 @@ export function useUnitEdit(options?: MutationHookOptions<AddUnitResult, any>) {
         const existingData = cache.readQuery<UnitData>({
           query: GET_UNITS_LIST,
         });
-        if (!existingData || !existingData.unitsMain || !data?.unitsEdit)
-          return;
+        if (!existingData?.unitsMain || !data?.unitsEdit) return;
 
         cache.writeQuery<UnitData>({
           query: GET_UNITS_LIST,

@@ -69,7 +69,7 @@ export const facebookMutations = {
 
     const id = comment ? comment.comment_id : post.postId;
 
-    if (comment && comment.comment_id) {
+    if (comment?.comment_id) {
       data = {
         message: ` @[${comment.senderId}] ${content}`,
         attachment_url: attachment.url,
@@ -90,7 +90,7 @@ export const facebookMutations = {
         `${id}/comments`,
         data,
         recipientId,
-        (inboxConversation && inboxConversation.integrationId) || '',
+        inboxConversation?.integrationId ?? '',
       );
 
       await sendNotifications(subdomain, {

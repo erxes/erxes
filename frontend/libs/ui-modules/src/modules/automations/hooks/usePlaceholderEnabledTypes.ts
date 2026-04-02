@@ -30,10 +30,10 @@ export function usePlaceholderEnabledTypes({
       Object.keys(base).forEach((key) => {
         base[key] = true;
       });
-    } else if (suggestionGroups && suggestionGroups.length) {
+    } else if (suggestionGroups?.length) {
       suggestionGroups.forEach((groupName) => {
         const types = SUGGESTION_GROUPS[groupName];
-        if (types && types.length) {
+        if (types?.length) {
           types.forEach((t) => {
             base[t] = true;
           });

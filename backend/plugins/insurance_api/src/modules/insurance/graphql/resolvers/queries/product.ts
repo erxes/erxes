@@ -7,7 +7,7 @@ export const productQueries = {
         'insuranceType coveredRisks.risk',
       );
       return products
-        .filter((p: any) => p && p._id && p.insuranceType)
+        .filter((p: any) => p?._id && p.insuranceType)
         .map((p: any) => ({
           ...p.toObject(),
           coveredRisks: p.coveredRisks.filter((cr: any) => cr.risk != null),

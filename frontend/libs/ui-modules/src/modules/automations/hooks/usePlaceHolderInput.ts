@@ -68,7 +68,7 @@ export const usePlaceHolderInput = ({
   };
 
   const handleInputValueChange = (next: string) => {
-    onChange && onChange(next);
+    onChange?.(next);
   };
 
   return {

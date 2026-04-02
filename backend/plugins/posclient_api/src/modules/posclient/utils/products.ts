@@ -36,14 +36,9 @@ export const checkRemainders = async (
       update: { $set: any };
     };
   }> = [];
-  if (config.erkhetConfig && config.erkhetConfig.getRemainder) {
+  if (config.erkhetConfig?.getRemainder) {
     const configs = config.erkhetConfig;
-    if (
-      configs &&
-      configs.getRemainderApiUrl &&
-      configs.apiKey &&
-      configs.apiSecret
-    ) {
+    if (configs?.getRemainderApiUrl && configs?.apiKey && configs?.apiSecret) {
       try {
         let account = configs.account;
         let location = configs.location;
@@ -77,7 +72,7 @@ export const checkRemainders = async (
           } catch (e) {
             console.log(e.message);
           }
-          let responseByCode = {};
+          const responseByCode = {};
 
           if (account && location) {
             const accounts = account.split(',') || [];
@@ -85,7 +80,7 @@ export const checkRemainders = async (
 
             for (const acc of accounts) {
               for (const loc of locations) {
-                const resp = (jsonRes[acc] || {})[loc] || {};
+                const resp = jsonRes[acc]?.[loc] || {};
                 for (const invCode of Object.keys(resp)) {
                   if (!Object.keys(responseByCode).includes(invCode)) {
                     responseByCode[invCode] = { rem: 0, rems: [] };
@@ -105,8 +100,8 @@ export const checkRemainders = async (
           }
           const remBranchId = getRemBranchId(config, paramBranchId);
           for (const product of products) {
-            product.remainders = (responseByCode[product.code] || {}).rems;
-            product.remainder = (responseByCode[product.code] || {}).rem;
+            product.remainders = responseByCode[product.code]?.rems;
+            product.remainder = responseByCode[product.code]?.rem;
             if (config.saveRemainder) {
               if (!product.remainderByToken) {
                 product.remainderByToken = {};

@@ -73,8 +73,7 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
       >
         <div className="p-3 flex items-center justify-between border-b border-slate-200 gap-8">
           <div className="flex items-center gap-2 text-primary">
-            {beforeTitleContent &&
-              beforeTitleContent(id, AutomationNodeType.Trigger)}
+            {beforeTitleContent?.(id, AutomationNodeType.Trigger)}
             <div
               className={`size-6 rounded-full flex items-center justify-center`}
             >
