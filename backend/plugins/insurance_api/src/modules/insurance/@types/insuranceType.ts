@@ -1,6 +1,12 @@
 import { Document } from 'mongoose';
 
-export type DataType = 'string' | 'number' | 'date' | 'boolean' | 'array' | 'object';
+export type DataType =
+  | 'string'
+  | 'number'
+  | 'date'
+  | 'boolean'
+  | 'array'
+  | 'object';
 
 export interface IAttributeDefinition {
   name: string;

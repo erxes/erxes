@@ -39,10 +39,7 @@ import {
 } from '@/insurance/db/models/template';
 import { ITemplateDocument } from '@/insurance/@types/template';
 import { IRegionDocument } from '@/insurance/@types/region';
-import {
-  IRegionModel,
-  loadRegionClass,
-} from '@/insurance/db/models/region';
+import { IRegionModel, loadRegionClass } from '@/insurance/db/models/region';
 import { dropProductCodeIndex } from '@/insurance/db/migrations/dropCodeIndex';
 
 export interface IModels {

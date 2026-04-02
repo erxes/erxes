@@ -655,8 +655,7 @@ export const VendorDetailPage = () => {
                             const newTiers = [...discountTiers];
                             newTiers[index] = {
                               ...newTiers[index],
-                              discountPercent:
-                                parseFloat(e.target.value) || 0,
+                              discountPercent: parseFloat(e.target.value) || 0,
                             };
                             setDiscountTiers(newTiers);
                           }}

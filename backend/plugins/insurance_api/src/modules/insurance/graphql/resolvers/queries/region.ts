@@ -91,8 +91,14 @@ export const regionQueries = {
 
       // Calculate per-person fee based on pricing type
       let perPersonFee = 0;
-      if (pricingConfig.durationTiers && pricingConfig.durationTiers.length > 0) {
-        perPersonFee = calculateTravelTieredFee(pricingConfig.durationTiers, safeDays);
+      if (
+        pricingConfig.durationTiers &&
+        pricingConfig.durationTiers.length > 0
+      ) {
+        perPersonFee = calculateTravelTieredFee(
+          pricingConfig.durationTiers,
+          safeDays,
+        );
       } else if (pricingConfig.dailyRate) {
         perPersonFee = pricingConfig.dailyRate * safeDays;
       } else if (pricingConfig.baseRate) {

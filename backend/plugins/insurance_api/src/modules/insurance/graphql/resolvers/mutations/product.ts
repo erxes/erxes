@@ -83,8 +83,7 @@ export const productMutations = {
         updateData.compensationCalculations = compensationCalculations;
       if (deductibleConfig !== undefined)
         updateData.deductibleConfig = deductibleConfig;
-      if (regionIds !== undefined)
-        updateData.regions = regionIds;
+      if (regionIds !== undefined) updateData.regions = regionIds;
 
       const product = await models.Product.findByIdAndUpdate(id, updateData, {
         new: true,

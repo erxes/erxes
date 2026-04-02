@@ -337,8 +337,8 @@ export const InsuranceTypeForm = ({
               {creating || updating
                 ? 'Saving...'
                 : insuranceType
-                ? 'Update'
-                : 'Create'}
+                  ? 'Update'
+                  : 'Create'}
             </Button>
           </Dialog.Footer>
         </form>

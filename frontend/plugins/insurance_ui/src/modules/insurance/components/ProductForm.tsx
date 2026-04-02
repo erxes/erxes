@@ -464,28 +464,38 @@ export const ProductForm = ({
               <Label>Үнийн тооцооны төрөл *</Label>
               <Select
                 value={pricingMode}
-                onValueChange={(value: 'percentage' | 'baseRate' | 'dailyRate' | 'durationTiers') => {
+                onValueChange={(
+                  value:
+                    | 'percentage'
+                    | 'baseRate'
+                    | 'dailyRate'
+                    | 'durationTiers',
+                ) => {
                   setPricingMode(value);
                   if (value === 'durationTiers') {
                     setFormData({
                       ...formData,
                       pricingConfig: {
                         coverageAmount:
-                          (formData.pricingConfig.coverageAmount as number) || 20000,
+                          (formData.pricingConfig.coverageAmount as number) ||
+                          20000,
                         coverageCurrency: 'USD',
-                        durationTiers: durationTiers.length > 0 ? durationTiers : [
-                          { minDays: 1, maxDays: 7, fee: 30000 },
-                          { minDays: 8, maxDays: 15, fee: 50000 },
-                          { minDays: 16, maxDays: 30, fee: 80000 },
-                        ],
-                        region:
-                          (formData.pricingConfig.region as string) || '',
+                        durationTiers:
+                          durationTiers.length > 0
+                            ? durationTiers
+                            : [
+                                { minDays: 1, maxDays: 7, fee: 30000 },
+                                { minDays: 8, maxDays: 15, fee: 50000 },
+                                { minDays: 16, maxDays: 30, fee: 80000 },
+                              ],
+                        region: (formData.pricingConfig.region as string) || '',
                         regionName:
                           (formData.pricingConfig.regionName as string) || '',
                         regionIcon:
                           (formData.pricingConfig.regionIcon as string) || '✈️',
                         regionDescription:
-                          (formData.pricingConfig.regionDescription as string) || '',
+                          (formData.pricingConfig
+                            .regionDescription as string) || '',
                       },
                     });
                     if (durationTiers.length === 0) {
@@ -509,15 +519,14 @@ export const ProductForm = ({
                       pricingConfig: {
                         baseRate:
                           (formData.pricingConfig.baseRate as number) || 0,
-                        region:
-                          (formData.pricingConfig.region as string) || '',
+                        region: (formData.pricingConfig.region as string) || '',
                         regionName:
                           (formData.pricingConfig.regionName as string) || '',
                         regionIcon:
                           (formData.pricingConfig.regionIcon as string) || '✈️',
                         regionDescription:
-                          (formData.pricingConfig.regionDescription as string) ||
-                          '',
+                          (formData.pricingConfig
+                            .regionDescription as string) || '',
                       },
                     });
                   } else if (value === 'dailyRate') {
@@ -526,15 +535,14 @@ export const ProductForm = ({
                       pricingConfig: {
                         dailyRate:
                           (formData.pricingConfig.dailyRate as number) || 0,
-                        region:
-                          (formData.pricingConfig.region as string) || '',
+                        region: (formData.pricingConfig.region as string) || '',
                         regionName:
                           (formData.pricingConfig.regionName as string) || '',
                         regionIcon:
                           (formData.pricingConfig.regionIcon as string) || '✈️',
                         regionDescription:
-                          (formData.pricingConfig.regionDescription as string) ||
-                          '',
+                          (formData.pricingConfig
+                            .regionDescription as string) || '',
                       },
                     });
                   }
@@ -921,9 +929,7 @@ export const ProductForm = ({
                     <div className="space-y-1">
                       <Label className="text-xs">Region ID *</Label>
                       <Input
-                        value={
-                          (formData.pricingConfig.region as string) || ''
-                        }
+                        value={(formData.pricingConfig.region as string) || ''}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
@@ -976,8 +982,8 @@ export const ProductForm = ({
                       <Label className="text-xs">Тайлбар</Label>
                       <Input
                         value={
-                          (formData.pricingConfig.regionDescription as string) ||
-                          ''
+                          (formData.pricingConfig
+                            .regionDescription as string) || ''
                         }
                         onChange={(e) =>
                           setFormData({
@@ -996,7 +1002,12 @@ export const ProductForm = ({
                   {/* Countries Management */}
                   <div className="space-y-2 mt-3 pt-3 border-t">
                     <Label className="text-xs font-semibold">
-                      Хамрагдах улсууд ({((formData.pricingConfig.countries as string[]) || []).length})
+                      Хамрагдах улсууд (
+                      {
+                        ((formData.pricingConfig.countries as string[]) || [])
+                          .length
+                      }
+                      )
                     </Label>
                     <div className="flex gap-2">
                       <Input
@@ -1007,7 +1018,9 @@ export const ProductForm = ({
                             e.preventDefault();
                             const trimmed = newCountry.trim();
                             if (!trimmed) return;
-                            const existing = (formData.pricingConfig.countries as string[]) || [];
+                            const existing =
+                              (formData.pricingConfig.countries as string[]) ||
+                              [];
                             if (existing.includes(trimmed)) return;
                             setFormData({
                               ...formData,
@@ -1029,7 +1042,9 @@ export const ProductForm = ({
                         onClick={() => {
                           const trimmed = newCountry.trim();
                           if (!trimmed) return;
-                          const existing = (formData.pricingConfig.countries as string[]) || [];
+                          const existing =
+                            (formData.pricingConfig.countries as string[]) ||
+                            [];
                           if (existing.includes(trimmed)) return;
                           setFormData({
                             ...formData,
@@ -1045,34 +1060,39 @@ export const ProductForm = ({
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
-                      {((formData.pricingConfig.countries as string[]) || []).map(
-                        (country: string, idx: number) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border rounded text-xs"
+                      {(
+                        (formData.pricingConfig.countries as string[]) || []
+                      ).map((country: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border rounded text-xs"
+                        >
+                          {country}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const existing =
+                                (formData.pricingConfig
+                                  .countries as string[]) || [];
+                              setFormData({
+                                ...formData,
+                                pricingConfig: {
+                                  ...formData.pricingConfig,
+                                  countries: existing.filter(
+                                    (_: string, i: number) => i !== idx,
+                                  ),
+                                },
+                              });
+                            }}
+                            className="text-red-400 hover:text-red-600"
                           >
-                            {country}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const existing = (formData.pricingConfig.countries as string[]) || [];
-                                setFormData({
-                                  ...formData,
-                                  pricingConfig: {
-                                    ...formData.pricingConfig,
-                                    countries: existing.filter((_: string, i: number) => i !== idx),
-                                  },
-                                });
-                              }}
-                              className="text-red-400 hover:text-red-600"
-                            >
-                              <IconX size={12} />
-                            </button>
-                          </span>
-                        ),
-                      )}
+                            <IconX size={12} />
+                          </button>
+                        </span>
+                      ))}
                     </div>
-                    {((formData.pricingConfig.countries as string[]) || []).length === 0 && (
+                    {((formData.pricingConfig.countries as string[]) || [])
+                      .length === 0 && (
                       <p className="text-xs text-muted-foreground">
                         Улс нэмэгдээгүй байна. Нэр бичээд Enter дарна уу.
                       </p>
@@ -1118,9 +1138,7 @@ export const ProductForm = ({
                     <div className="space-y-1">
                       <Label className="text-xs">Region ID *</Label>
                       <Input
-                        value={
-                          (formData.pricingConfig.region as string) || ''
-                        }
+                        value={(formData.pricingConfig.region as string) || ''}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
@@ -1173,8 +1191,8 @@ export const ProductForm = ({
                       <Label className="text-xs">Тайлбар</Label>
                       <Input
                         value={
-                          (formData.pricingConfig.regionDescription as string) ||
-                          ''
+                          (formData.pricingConfig
+                            .regionDescription as string) || ''
                         }
                         onChange={(e) =>
                           setFormData({
@@ -1193,7 +1211,12 @@ export const ProductForm = ({
                   {/* Countries Management */}
                   <div className="space-y-2 mt-3 pt-3 border-t">
                     <Label className="text-xs font-semibold">
-                      Хамрагдах улсууд ({((formData.pricingConfig.countries as string[]) || []).length})
+                      Хамрагдах улсууд (
+                      {
+                        ((formData.pricingConfig.countries as string[]) || [])
+                          .length
+                      }
+                      )
                     </Label>
                     <div className="flex gap-2">
                       <Input
@@ -1204,7 +1227,9 @@ export const ProductForm = ({
                             e.preventDefault();
                             const trimmed = newCountry.trim();
                             if (!trimmed) return;
-                            const existing = (formData.pricingConfig.countries as string[]) || [];
+                            const existing =
+                              (formData.pricingConfig.countries as string[]) ||
+                              [];
                             if (existing.includes(trimmed)) return;
                             setFormData({
                               ...formData,
@@ -1226,7 +1251,9 @@ export const ProductForm = ({
                         onClick={() => {
                           const trimmed = newCountry.trim();
                           if (!trimmed) return;
-                          const existing = (formData.pricingConfig.countries as string[]) || [];
+                          const existing =
+                            (formData.pricingConfig.countries as string[]) ||
+                            [];
                           if (existing.includes(trimmed)) return;
                           setFormData({
                             ...formData,
@@ -1242,34 +1269,39 @@ export const ProductForm = ({
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
-                      {((formData.pricingConfig.countries as string[]) || []).map(
-                        (country: string, idx: number) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border rounded text-xs"
+                      {(
+                        (formData.pricingConfig.countries as string[]) || []
+                      ).map((country: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border rounded text-xs"
+                        >
+                          {country}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const existing =
+                                (formData.pricingConfig
+                                  .countries as string[]) || [];
+                              setFormData({
+                                ...formData,
+                                pricingConfig: {
+                                  ...formData.pricingConfig,
+                                  countries: existing.filter(
+                                    (_: string, i: number) => i !== idx,
+                                  ),
+                                },
+                              });
+                            }}
+                            className="text-red-400 hover:text-red-600"
                           >
-                            {country}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const existing = (formData.pricingConfig.countries as string[]) || [];
-                                setFormData({
-                                  ...formData,
-                                  pricingConfig: {
-                                    ...formData.pricingConfig,
-                                    countries: existing.filter((_: string, i: number) => i !== idx),
-                                  },
-                                });
-                              }}
-                              className="text-red-400 hover:text-red-600"
-                            >
-                              <IconX size={12} />
-                            </button>
-                          </span>
-                        ),
-                      )}
+                            <IconX size={12} />
+                          </button>
+                        </span>
+                      ))}
                     </div>
-                    {((formData.pricingConfig.countries as string[]) || []).length === 0 && (
+                    {((formData.pricingConfig.countries as string[]) || [])
+                      .length === 0 && (
                       <p className="text-xs text-muted-foreground">
                         Улс нэмэгдээгүй байна. Нэр бичээд Enter дарна уу.
                       </p>

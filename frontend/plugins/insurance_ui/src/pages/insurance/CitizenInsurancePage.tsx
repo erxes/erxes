@@ -103,9 +103,14 @@ export const CitizenInsurancePage = () => {
   const [paymentKind, setPaymentKind] = useState('cash');
 
   // Build a flat list of all countries from all regions
-  const allCountries = regions.reduce((acc: string[], region: InsuranceRegion) => {
-    return [...acc, ...region.countries.filter((c: string) => !acc.includes(c))];
-  }, []).sort();
+  const allCountries = regions
+    .reduce((acc: string[], region: InsuranceRegion) => {
+      return [
+        ...acc,
+        ...region.countries.filter((c: string) => !acc.includes(c)),
+      ];
+    }, [])
+    .sort();
 
   // Fetch products when destination country changes
   useEffect(() => {
@@ -116,7 +121,13 @@ export const CitizenInsurancePage = () => {
 
   // Calculate price when relevant fields change
   const recalculatePrice = useCallback(() => {
-    if (selectedProductId && vendorId && startDate && endDate && travelers.length > 0) {
+    if (
+      selectedProductId &&
+      vendorId &&
+      startDate &&
+      endDate &&
+      travelers.length > 0
+    ) {
       calculatePrice({
         productId: selectedProductId,
         vendorId,
@@ -147,14 +158,19 @@ export const CitizenInsurancePage = () => {
     setTravelers(travelers.filter((_, i) => i !== index));
   };
 
-  const updateTraveler = (index: number, field: keyof Traveler, value: string) => {
+  const updateTraveler = (
+    index: number,
+    field: keyof Traveler,
+    value: string,
+  ) => {
     const updated = [...travelers];
     updated[index] = { ...updated[index], [field]: value };
     setTravelers(updated);
   };
 
   // Validation
-  const isStep1Valid = destinationCountry && startDate && endDate && endDate > startDate;
+  const isStep1Valid =
+    destinationCountry && startDate && endDate && endDate > startDate;
   const isStep2Valid = selectedProductId && vendorId && customerId;
   const isStep3Valid = travelers.every(
     (t) =>
@@ -295,9 +311,7 @@ export const CitizenInsurancePage = () => {
                       <IconMapPin className="text-blue-600" size={32} />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold">
-                        Аялалын мэдээлэл
-                      </h2>
+                      <h2 className="text-2xl font-bold">Аялалын мэдээлэл</h2>
                       <p className="text-muted-foreground">
                         Очих улс болон аялалын хугацааг оруулна уу
                       </p>
@@ -333,9 +347,7 @@ export const CitizenInsurancePage = () => {
                       </label>
                       <DatePicker
                         value={startDate}
-                        onChange={(date) =>
-                          date && setStartDate(date as Date)
-                        }
+                        onChange={(date) => date && setStartDate(date as Date)}
                       />
                     </div>
                     <div>
@@ -345,9 +357,7 @@ export const CitizenInsurancePage = () => {
                       </label>
                       <DatePicker
                         value={endDate}
-                        onChange={(date) =>
-                          date && setEndDate(date as Date)
-                        }
+                        onChange={(date) => date && setEndDate(date as Date)}
                       />
                     </div>
                   </div>
@@ -365,10 +375,7 @@ export const CitizenInsurancePage = () => {
                   )}
 
                   <div className="flex justify-end">
-                    <Button
-                      disabled={!isStep1Valid}
-                      onClick={() => setStep(2)}
-                    >
+                    <Button disabled={!isStep1Valid} onClick={() => setStep(2)}>
                       Дараагийн алхам
                       <IconChevronRight size={16} />
                     </Button>
@@ -460,10 +467,7 @@ export const CitizenInsurancePage = () => {
                       <IconChevronLeft size={16} />
                       Өмнөх
                     </Button>
-                    <Button
-                      disabled={!isStep2Valid}
-                      onClick={() => setStep(3)}
-                    >
+                    <Button disabled={!isStep2Valid} onClick={() => setStep(3)}>
                       Дараагийн алхам
                       <IconChevronRight size={16} />
                     </Button>
@@ -479,12 +483,10 @@ export const CitizenInsurancePage = () => {
                       <IconUsers className="text-green-600" size={32} />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold">
-                        Аялагчдын мэдээлэл
-                      </h2>
+                      <h2 className="text-2xl font-bold">Аялагчдын мэдээлэл</h2>
                       <p className="text-muted-foreground">
-                        Аялагч бүрийн мэдээллийг оруулна уу (
-                        {travelers.length} аялагч)
+                        Аялагч бүрийн мэдээллийг оруулна уу ({travelers.length}{' '}
+                        аялагч)
                       </p>
                     </div>
                   </div>
@@ -495,9 +497,7 @@ export const CitizenInsurancePage = () => {
                       className="p-4 border rounded-lg bg-gray-50"
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-semibold">
-                          Аялагч #{index + 1}
-                        </h4>
+                        <h4 className="font-semibold">Аялагч #{index + 1}</h4>
                         {travelers.length > 1 && (
                           <button
                             onClick={() => removeTraveler(index)}
@@ -515,11 +515,7 @@ export const CitizenInsurancePage = () => {
                           <Input
                             value={traveler.lastName}
                             onChange={(e) =>
-                              updateTraveler(
-                                index,
-                                'lastName',
-                                e.target.value,
-                              )
+                              updateTraveler(index, 'lastName', e.target.value)
                             }
                             placeholder="Овог"
                             required
@@ -532,11 +528,7 @@ export const CitizenInsurancePage = () => {
                           <Input
                             value={traveler.firstName}
                             onChange={(e) =>
-                              updateTraveler(
-                                index,
-                                'firstName',
-                                e.target.value,
-                              )
+                              updateTraveler(index, 'firstName', e.target.value)
                             }
                             placeholder="Нэр"
                             required
@@ -662,10 +654,7 @@ export const CitizenInsurancePage = () => {
                       <IconChevronLeft size={16} />
                       Өмнөх
                     </Button>
-                    <Button
-                      disabled={!isStep3Valid}
-                      onClick={() => setStep(4)}
-                    >
+                    <Button disabled={!isStep3Valid} onClick={() => setStep(4)}>
                       Дараагийн алхам
                       <IconChevronRight size={16} />
                     </Button>
@@ -678,10 +667,7 @@ export const CitizenInsurancePage = () => {
                 <div className="space-y-6">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="p-3 bg-amber-100 rounded-lg">
-                      <IconCreditCard
-                        className="text-amber-600"
-                        size={32}
-                      />
+                      <IconCreditCard className="text-amber-600" size={32} />
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold">Төлбөр</h2>
@@ -747,8 +733,7 @@ export const CitizenInsurancePage = () => {
                         </div>
                       </div>
                       <div className="text-sm text-gray-500 mt-1">
-                        Нэг хүний дүн: {priceResult.perPerson.toLocaleString()}
-                        ₮
+                        Нэг хүний дүн: {priceResult.perPerson.toLocaleString()}₮
                       </div>
                     </div>
                   )}

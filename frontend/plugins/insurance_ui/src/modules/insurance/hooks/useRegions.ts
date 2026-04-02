@@ -32,9 +32,8 @@ export const useRegion = (id: string) => {
 };
 
 export const useProductsByCountry = () => {
-  const [fetchProducts, { data, loading, error }] = useLazyQuery(
-    PRODUCTS_BY_COUNTRY,
-  );
+  const [fetchProducts, { data, loading, error }] =
+    useLazyQuery(PRODUCTS_BY_COUNTRY);
   return {
     fetchProducts: (country: string) =>
       fetchProducts({ variables: { country } }),
@@ -91,11 +90,8 @@ export const useAddCountryToRegion = () => {
 };
 
 export const useRemoveCountryFromRegion = () => {
-  const [removeCountry, { loading }] = useMutation(
-    REMOVE_COUNTRY_FROM_REGION,
-    {
-      refetchQueries: [{ query: INSURANCE_REGIONS }],
-    },
-  );
+  const [removeCountry, { loading }] = useMutation(REMOVE_COUNTRY_FROM_REGION, {
+    refetchQueries: [{ query: INSURANCE_REGIONS }],
+  });
   return { removeCountry, loading };
 };

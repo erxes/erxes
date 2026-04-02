@@ -63,23 +63,38 @@ export function calculatePremium(
 
   // Travel insurance: duration-tiered pricing (per person per trip)
   if (pricingConfig.durationTiers && pricingConfig.durationTiers.length > 0) {
-    const startDate = insuredObject?.['Эхлэх огноо'] || insuredObject?.['Гэрээний эхлэх огноо'] || insuredObject?.travelStartDate;
-    const endDate = insuredObject?.['Дуусах огноо'] || insuredObject?.['Гэрээний дуусах огноо'] || insuredObject?.travelEndDate;
+    const startDate =
+      insuredObject?.['Эхлэх огноо'] ||
+      insuredObject?.['Гэрээний эхлэх огноо'] ||
+      insuredObject?.travelStartDate;
+    const endDate =
+      insuredObject?.['Дуусах огноо'] ||
+      insuredObject?.['Гэрээний дуусах огноо'] ||
+      insuredObject?.travelEndDate;
 
     if (startDate && endDate) {
       const days = Math.ceil(
         (new Date(endDate).getTime() - new Date(startDate).getTime()) /
           (1000 * 60 * 60 * 24),
       );
-      return calculateTravelTieredFee(pricingConfig.durationTiers, Math.max(days, 1));
+      return calculateTravelTieredFee(
+        pricingConfig.durationTiers,
+        Math.max(days, 1),
+      );
     }
     return pricingConfig.durationTiers[0]?.fee || 0;
   }
 
   // Travel insurance: daily rate × trip days
   if (pricingConfig.dailyRate) {
-    const startDate = insuredObject?.['Эхлэх огноо'] || insuredObject?.['Гэрээний эхлэх огноо'] || insuredObject?.travelStartDate;
-    const endDate = insuredObject?.['Дуусах огноо'] || insuredObject?.['Гэрээний дуусах огноо'] || insuredObject?.travelEndDate;
+    const startDate =
+      insuredObject?.['Эхлэх огноо'] ||
+      insuredObject?.['Гэрээний эхлэх огноо'] ||
+      insuredObject?.travelStartDate;
+    const endDate =
+      insuredObject?.['Дуусах огноо'] ||
+      insuredObject?.['Гэрээний дуусах огноо'] ||
+      insuredObject?.travelEndDate;
 
     if (startDate && endDate) {
       const days = Math.ceil(

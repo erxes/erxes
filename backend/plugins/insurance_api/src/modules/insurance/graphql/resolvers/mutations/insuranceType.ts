@@ -31,7 +31,11 @@ export const insuranceTypeMutations = {
   createInsuranceType: Object.assign(
     async (
       _parent: undefined,
-      { name, attributes, isCitizen }: { name: string; attributes: any[]; isCitizen?: boolean },
+      {
+        name,
+        attributes,
+        isCitizen,
+      }: { name: string; attributes: any[]; isCitizen?: boolean },
       { models, user }: IContext,
     ) => {
       // Add role check: if (user.role !== 'admin') throw ForbiddenError

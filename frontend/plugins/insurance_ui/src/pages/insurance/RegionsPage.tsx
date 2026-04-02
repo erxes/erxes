@@ -123,10 +123,7 @@ export const RegionsPage = () => {
     setNewCountry('');
   };
 
-  const handleRemoveCountry = async (
-    regionId: string,
-    country: string,
-  ) => {
+  const handleRemoveCountry = async (regionId: string, country: string) => {
     const confirmed = window.confirm(
       `"${country}"-г энэ бүс нутгаас хасах уу?`,
     );
@@ -326,8 +323,7 @@ export const RegionsPage = () => {
                       value={newCountry}
                       onChange={(e) => setNewCountry(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter')
-                          handleAddCountry(region.id);
+                        if (e.key === 'Enter') handleAddCountry(region.id);
                       }}
                       className="px-3 py-1.5 border rounded-lg text-sm flex-1"
                     />
