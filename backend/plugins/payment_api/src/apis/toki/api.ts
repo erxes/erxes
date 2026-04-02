@@ -24,7 +24,7 @@ export const tokiCallbackHandler = async (models: IModels, data: any) => {
   }
 
   // Validate merchantId and amount match original request
-  if (payment.config.tokiMerchanId !== merchantId) {
+  if (payment.config.tokiMerchantId !== merchantId) {
     throw new Error('Merchant ID mismatch');
   }
 
@@ -53,20 +53,20 @@ export const tokiCallbackHandler = async (models: IModels, data: any) => {
 
     return models.Transactions.getTransaction({ _id: transaction._id });
   } catch (e) {
-    throw new Error(e.message);
+    throw new Error(`Toki payment verification failed: ${e.message}`);
   }
 };
 
 export interface ITokiConfig {
-  tokiMerchanId: string;
+  tokiMerchantId: string;
   tokiUsername: string;
   tokiPassword: string;
 }
 
 export class TokiAPI extends BaseAPI {
-  private tokiMerchanId: string;
+  private tokiMerchantId: string;
   private tokiUsername: string;
-  private tokiPassword: any;
+  private tokiPassword: string;
 
   private domain?: string;
 
@@ -75,7 +75,7 @@ export class TokiAPI extends BaseAPI {
 
     this.tokiPassword = config.tokiPassword;
     this.tokiUsername = config.tokiUsername;
-    this.tokiMerchanId = config.tokiMerchanId;
+    this.tokiMerchantId = config.tokiMerchantId;
     this.domain = domain;
     this.apiUrl = PAYMENTS.toki.apiUrl;
   }
@@ -88,14 +88,14 @@ export class TokiAPI extends BaseAPI {
         headers: {
           Authorization:
             'Basic ' +
-            Buffer.from(`${this.tokiMerchanId}:${this.tokiUsername}`).toString(
+            Buffer.from(`${this.tokiUsername}:${this.tokiPassword}`).toString(
               'base64',
             ),
         },
       }).then((r) => r.json());
 
       if (res.error) {
-        if (res.error === 'NO_CREDENDIALS') {
+        if (res.error === 'NO_CREDENTIALS') {
           throw new Error(
             'Invalid credentials!!! Please check your credentials',
           );
@@ -112,7 +112,7 @@ export class TokiAPI extends BaseAPI {
   }
 
 async getHeaders() {
-  const cacheKey = `toki_token_${this.tokiMerchanId}`;
+  const cacheKey = `toki_token_${this.tokiMerchantId}`;
   const token = await redis.get(cacheKey);
 
   if (token) {
@@ -177,7 +177,7 @@ async getHeaders() {
         orderId: transaction.id, // Must be 24 characters or less
         amount: transaction.amount,
         notes: transaction.description || 'Payment',
-        merchantId: this.tokiMerchanId, // From config
+        merchantId: this.tokiMerchantId, // From config
       };
 
       const res = await this.request({

@@ -208,7 +208,7 @@ export const PAYMENT_KINDS = {
     active: true,
     fields: [
       {
-        key: 'tokiMerchanId',
+        key: 'tokiMerchantId',
         label: 'Merchant ID',
         validation: { type: 'minLength', value: 1 },
       },
