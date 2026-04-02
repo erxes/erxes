@@ -52,12 +52,6 @@ interface CmsCategoriesResponse {
   };
 }
 
-interface CmsCustomFieldGroupsResponse {
-  cmsCustomFieldGroupList: {
-    list: CustomFieldGroup[];
-  };
-}
-
 interface CategoryFormData {
   name: string;
   slug: string;

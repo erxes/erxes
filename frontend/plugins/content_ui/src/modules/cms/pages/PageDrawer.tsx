@@ -5,6 +5,9 @@ import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { CustomFieldValue } from '../posts/CustomFieldInput';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { pageFormSchema } from '../constants/pageFormSchema';
 import { useEditPage } from './hooks/useEditPage';
 import { useAddPage } from './hooks/useAddPage';
 import { IPage, IPageDrawerProps, IPageFormData } from './types/pageTypes';
@@ -239,6 +242,96 @@ export function PageDrawer({
     resetKey: clientPortalId,
   });
 
+  // Create dynamic validation schema with custom fields
+  const createValidationSchema = useCallback((fieldGroups: any[]) => {
+    const baseSchema = pageFormSchema;
+
+    // If no custom fields, return base schema
+    if (!fieldGroups.length) return baseSchema;
+
+    // Create individual field validations for required custom fields
+    const customFieldShape: Record<string, z.ZodTypeAny> = {};
+
+    for (const group of fieldGroups) {
+      for (const field of group.fields || []) {
+        if (field.isRequired) {
+          customFieldShape[field._id] = z.custom<CustomFieldValue>(
+            (value) => {
+              if (!value) return false;
+              if (typeof value === 'string' && value.trim() === '')
+                return false;
+              if (Array.isArray(value) && value.length === 0) return false;
+              return true;
+            },
+            { message: `${field.label} is required` },
+          );
+        }
+      }
+    }
+
+    // Create a schema that validates the entire customFieldsData array
+    const customFieldsValidation = z
+      .array(
+        z.object({
+          field: z.string(),
+          value: z.custom<CustomFieldValue>(),
+        }),
+      )
+      .superRefine((data, ctx) => {
+        // Check each required field has a valid value
+        for (const group of fieldGroups) {
+          for (const field of group.fields || []) {
+            if (field.isRequired) {
+              const fieldValue = data.find(
+                (item) => item.field === field._id,
+              )?.value;
+
+              if (!fieldValue) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} is required`,
+                  path: ['customFieldsData'],
+                });
+              } else if (
+                typeof fieldValue === 'string' &&
+                fieldValue.trim() === ''
+              ) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} cannot be empty`,
+                  path: ['customFieldsData'],
+                });
+              } else if (Array.isArray(fieldValue) && fieldValue.length === 0) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} requires at least one selection`,
+                  path: ['customFieldsData'],
+                });
+              }
+            }
+          }
+        }
+      });
+
+    return baseSchema.extend({
+      customFieldsData: customFieldsValidation.optional(),
+    });
+  }, []);
+
+  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: {
+      clientPortalId,
+    },
+    skip: !clientPortalId,
+  });
+
+  const fieldGroups: FieldGroup[] = (
+    customFieldsData?.cmsCustomFieldGroupList?.list || []
+  ).filter(
+    (group: FieldGroup) =>
+      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
+  );
+
   const form = useForm<IPageFormData>({
     defaultValues: {
       name: '',
@@ -254,57 +347,8 @@ export function PageDrawer({
       attachments: [],
       customFieldsData: [],
     },
+    resolver: zodResolver(createValidationSchema(fieldGroups)),
   });
-
-  // Custom fields functionality
-  const updateCustomFieldValue = useCallback(
-    (fieldId: string, value: CustomFieldValue) => {
-      const currentData = form.getValues('customFieldsData') || [];
-      const existingIndex = currentData.findIndex(
-        (item) => item.field === fieldId,
-      );
-
-      let updated;
-      if (existingIndex >= 0) {
-        updated = [...currentData];
-        updated[existingIndex] = { field: fieldId, value };
-      } else {
-        updated = [...currentData, { field: fieldId, value }];
-      }
-
-      form.setValue('customFieldsData', updated, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: false,
-      });
-    },
-    [form],
-  );
-
-  const getCustomFieldValue = useCallback(
-    (fieldId: string): CustomFieldValue => {
-      const currentData = form.watch('customFieldsData') || [];
-      const item = currentData.find((item) => item.field === fieldId);
-      return item?.value ?? '';
-    },
-    [form],
-  );
-
-  // Fetch custom field groups
-  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
-    variables: {
-      clientPortalId,
-    },
-    fetchPolicy: 'cache-first',
-    skip: !clientPortalId,
-  });
-
-  const fieldGroups: FieldGroup[] = (
-    customFieldsData?.cmsCustomFieldGroupList?.list || []
-  ).filter(
-    (group: FieldGroup) =>
-      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
-  );
 
   const { editPage, loading: savingEdit } = useEditPage();
   const { addPage, loading: savingAdd } = useAddPage();
@@ -678,8 +722,7 @@ export function PageDrawer({
               {fieldGroups.length > 0 && (
                 <PageCustomFieldsSection
                   fieldGroups={fieldGroups}
-                  getCustomFieldValue={getCustomFieldValue}
-                  updateCustomFieldValue={updateCustomFieldValue}
+                  form={form}
                 />
               )}
             </div>

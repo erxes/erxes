@@ -11,25 +11,28 @@ import { GalleryUploader } from '../../GalleryUploader';
 import { DocumentsUploader } from '../../DocumentsUploader';
 import { AttachmentsUploader } from '../../AttachmentsUploader';
 
+type MediaFormData = {
+  thumbnail?: string | { url: string; name: string };
+  gallery?: string[];
+  videoUrl?: string;
+  documents?: string[];
+  attachments?: string[];
+};
+
 interface MediaSectionProps {
-  form: UseFormReturn<FieldValues>;
+  form: UseFormReturn<MediaFormData>;
+}
+
+interface FileInfo {
+  name: string;
+  size?: number;
+  type?: string;
+  [key: string]: unknown;
 }
 
 interface ThumbnailUploaderProps {
-  field: ControllerRenderProps<FieldValues, FieldPath<FieldValues>>;
-  form: UseFormReturn<FieldValues>;
-}
-
-interface UploadValue {
-  url: string;
-  fileInfo?: {
-    name: string;
-  };
-}
-
-interface ThumbnailData {
-  url: string;
-  name?: string;
+  field: ControllerRenderProps<MediaFormData, 'thumbnail'>;
+  form: UseFormReturn<MediaFormData>;
 }
 
 export const MediaSection = ({ form }: MediaSectionProps) => (
@@ -126,7 +129,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => (
 );
 
 const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
-  const handleChange = (value: { url: string; fileInfo: any }) => {
+  const handleChange = (value: { url: string; fileInfo: FileInfo }) => {
     if (value && value.url) {
       field.onChange({
         url: value.url,
@@ -137,12 +140,20 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
     }
   };
 
+  const currentValue = field.value
+    ? typeof field.value === 'string'
+      ? field.value
+      : (field.value as { url: string }).url
+    : null;
+
   return (
     <>
       <div className="flex items-center gap-3">
         <Upload.Root
-          value={field.value as string}
-          onChange={handleChange as any}
+          value={currentValue || ''}
+          onChange={(value: any) =>
+            handleChange(value as { url: string; fileInfo: FileInfo })
+          }
         >
           <Upload.Preview />
           <div className="flex flex-col items-stretch gap-2 flex-1">
@@ -165,9 +176,12 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
           <div className="relative">
             <img
               src={readImage(
-                typeof form.watch('thumbnail') === 'string'
-                  ? form.watch('thumbnail')
-                  : (form.watch('thumbnail') as { url: string })?.url || '',
+                (() => {
+                  const thumbnail = form.watch('thumbnail');
+                  return typeof thumbnail === 'string'
+                    ? thumbnail
+                    : (thumbnail as { url: string })?.url || '';
+                })(),
               )}
               alt="Featured preview"
               className="w-full h-32 object-cover rounded border"
@@ -179,7 +193,7 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                form.setValue('thumbnail', null);
+                field.onChange(null);
               }}
             >
               <IconX size={12} />
