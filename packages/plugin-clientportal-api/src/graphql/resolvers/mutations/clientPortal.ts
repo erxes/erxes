@@ -350,12 +350,12 @@ const clientPortalMutations = {
       }
     );
 
-    const data = (await response.json()) as any;
+    const { data = {} } = ((await response.json()) || {}) as any;
 
-    console.log("Toki user data:", JSON.stringify(data));
-    const age = data?.data?.age ?? data?.age;
+    const isAdult = data?.isAdult;
+    console.log("Toki user legal age check result:", { isAdult });
 
-    return age >= 21;
+    return Boolean(isAdult);
   }
 };
 
