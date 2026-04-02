@@ -53,19 +53,12 @@ export const SendEmailEmailContentBuilder = ({
 
   return (
     <>
-      <div
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         className="relative border rounded-lg p-4 min-h-[120px] bg-background cursor-pointer group text-left w-full"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => setIsSheetOpen(true)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setIsSheetOpen(true);
-          }
-        }}
       >
         <BlockEditorReadOnly
           content={content}
@@ -88,7 +81,7 @@ export const SendEmailEmailContentBuilder = ({
             </Button>
           </div>
         )}
-      </div>
+      </button>
 
       <SendEmailEmailContentBuilderEditor
         contentType={contentType}
