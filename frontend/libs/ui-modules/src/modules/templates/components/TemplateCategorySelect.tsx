@@ -22,6 +22,7 @@ import { useDebounce } from 'use-debounce';
 import { useTemplateCategories } from '../hooks/useTemplateCategories';
 import { TemplateCategory } from '../types';
 import { TemplateCategoriesInline } from './TemplateCategoryInline';
+import { t } from 'i18next';
 
 const SelectCategoryProvider = ({
   children,
@@ -284,7 +285,7 @@ export const SelectCategoryFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'categoryId'}>
       <Filter.BarName>
         <IconCategory />
-        {label || (!iconOnly && 'Assigned To')}
+        {label || t('Category')}
       </Filter.BarName>
       <SelectCategoryProvider
         mode={mode}
