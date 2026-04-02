@@ -52,7 +52,10 @@ export const SelectActionsProvider = ({
   const [actions, setActions] = useState<IPermissionAction[]>([]);
   const isSingleMode = mode === 'single';
 
-  const actionsNames = value ? (Array.isArray(value) ? value : [value]) : [];
+  let actionsNames: string[] = [];
+  if (value) {
+    actionsNames = Array.isArray(value) ? value : [value];
+  }
 
   const onSelect = (action: IPermissionAction) => {
     if (!action) {
