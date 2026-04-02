@@ -27,7 +27,10 @@ export class BaseAPI {
         requestOptions.headers['Content-Type'] = 'application/json';
       }
 
-      console.debug(`Making request to ${this.apiUrl}/${path} with options:`, requestOptions);
+      console.debug(
+        `Making request to ${this.apiUrl}/${path} with options:`,
+        requestOptions,
+      );
       const res = await fetch(
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,
