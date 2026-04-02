@@ -1,11 +1,38 @@
 import { Form, Upload, Button, Input } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconX } from '@tabler/icons-react';
+import {
+  UseFormReturn,
+  ControllerRenderProps,
+  FieldPath,
+  FieldValues,
+} from 'react-hook-form';
 import { GalleryUploader } from '../../GalleryUploader';
 import { DocumentsUploader } from '../../DocumentsUploader';
 import { AttachmentsUploader } from '../../AttachmentsUploader';
 
-export const MediaSection = ({ form }: { form: any }) => (
+interface MediaSectionProps {
+  form: UseFormReturn<FieldValues>;
+}
+
+interface ThumbnailUploaderProps {
+  field: ControllerRenderProps<FieldValues, FieldPath<FieldValues>>;
+  form: UseFormReturn<FieldValues>;
+}
+
+interface UploadValue {
+  url: string;
+  fileInfo?: {
+    name: string;
+  };
+}
+
+interface ThumbnailData {
+  url: string;
+  name?: string;
+}
+
+export const MediaSection = ({ form }: MediaSectionProps) => (
   <div>
     <div className="mt-1 space-y-4">
       <div className="text-sm font-medium">Media</div>
@@ -98,16 +125,7 @@ export const MediaSection = ({ form }: { form: any }) => (
   </div>
 );
 
-const ThumbnailUploader = ({
-  field,
-  form,
-}: {
-  field: { value: any; onChange: (value: any) => void };
-  form: {
-    watch: (field: string) => any;
-    setValue: (field: string, value: any) => void;
-  };
-}) => {
+const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
   const handleChange = (value: { url: string; fileInfo: any }) => {
     if (value && value.url) {
       field.onChange({
@@ -123,11 +141,7 @@ const ThumbnailUploader = ({
     <>
       <div className="flex items-center gap-3">
         <Upload.Root
-          value={
-            typeof field.value === 'string'
-              ? field.value
-              : (field.value as { url: string; name?: string })?.url || ''
-          }
+          value={field.value as string}
           onChange={handleChange as any}
         >
           <Upload.Preview />

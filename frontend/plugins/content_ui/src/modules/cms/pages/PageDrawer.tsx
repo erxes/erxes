@@ -1,6 +1,5 @@
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Form, ScrollArea, toast } from 'erxes-ui';
-import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
@@ -9,8 +8,7 @@ import { CustomFieldValue } from '../posts/CustomFieldInput';
 import { useEditPage } from './hooks/useEditPage';
 import { useAddPage } from './hooks/useAddPage';
 import { IPage, IPageDrawerProps, IPageFormData } from './types/pageTypes';
-import { CONTENT_CMS_LIST } from '../graphql/queries';
-import { CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
+import { CONTENT_CMS_LIST, CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import {
   useCmsTranslation,
   TranslationData,

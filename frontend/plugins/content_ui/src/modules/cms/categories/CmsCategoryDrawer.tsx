@@ -2,6 +2,7 @@ import { useMutation, useQuery, useApolloClient } from '@apollo/client';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
 import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CMS_CATEGORIES,
   CMS_CATEGORIES_ADD,
@@ -12,7 +13,11 @@ import {
   CategoryCustomFieldsSection,
   FieldGroup,
 } from './components/CategoryCustomFieldsSection';
-import { CustomFieldValue } from '../posts/CustomFieldInput';
+import { CustomFieldValue, FieldDefinition } from '../posts/CustomFieldInput';
+import {
+  createCategoryFormSchema,
+  CategoryFormType,
+} from '../constants/categoryFormSchema';
 
 interface Category {
   _id: string;
@@ -23,14 +28,34 @@ interface Category {
   description?: string;
   parentId?: string;
   status?: 'active' | 'inactive';
+  customFieldsData?: { field: string; value?: CustomFieldValue }[];
 }
 
 interface CmsCategoryDrawerProps {
   category?: Partial<Category>;
   isOpen: boolean;
-  onClose: () => void;
+  onClose: () => Promise<void>;
   clientPortalId: string;
   onRefetch?: () => void;
+}
+
+interface CustomFieldGroup {
+  _id: string;
+  label: string;
+  customPostTypeIds?: string[];
+  fields?: FieldDefinition[];
+}
+
+interface CmsCategoriesResponse {
+  cmsCategories: {
+    list: Category[];
+  };
+}
+
+interface CmsCustomFieldGroupsResponse {
+  cmsCustomFieldGroupList: {
+    list: CustomFieldGroup[];
+  };
 }
 
 interface CategoryFormData {
@@ -39,7 +64,8 @@ interface CategoryFormData {
   description?: string;
   parentId?: string;
   status: 'active' | 'inactive';
-  customFieldsData?: { field: string; value: any }[];
+  customFieldsData?: { field: string; value?: CustomFieldValue }[];
+  [key: `customFields.${string}`]: CustomFieldValue | undefined; // Allow dynamic custom field properties
 }
 
 export function CmsCategoryDrawer({
@@ -64,7 +90,29 @@ export function CmsCategoryDrawer({
       .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
   };
 
-  const form = useForm<CategoryFormData>({
+  // Fetch custom field groups first to create schema
+  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: {
+      clientPortalId,
+    },
+    fetchPolicy: 'cache-first',
+    skip: !isOpen,
+  });
+
+  const fieldGroups: FieldGroup[] = (
+    customFieldsData?.cmsCustomFieldGroupList?.list || []
+  ).filter(
+    (group: CustomFieldGroup) =>
+      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
+  );
+
+  // Create dynamic schema with custom field validations
+  const schema = createCategoryFormSchema(
+    fieldGroups.flatMap((group: FieldGroup) => group.fields || []),
+  );
+
+  const form = useForm<CategoryFormType>({
+    resolver: zodResolver(schema),
     defaultValues: {
       name: '',
       slug: '',
@@ -82,8 +130,8 @@ export function CmsCategoryDrawer({
         slug: category.slug || '',
         description: category.description || '',
         parentId: category.parentId || undefined,
-        status: (category.status as any) || 'active',
-        customFieldsData: (category as any).customFieldsData || [],
+        status: category.status || 'active',
+        customFieldsData: category.customFieldsData || [],
       });
       setIsSlugManuallyEdited(false);
     } else if (isOpen) {
@@ -144,7 +192,7 @@ export function CmsCategoryDrawer({
       form.setValue('customFieldsData', updated, {
         shouldDirty: true,
         shouldTouch: true,
-        shouldValidate: false,
+        shouldValidate: true,
       });
     },
     [form],
@@ -159,26 +207,10 @@ export function CmsCategoryDrawer({
     [form],
   );
 
-  // Fetch custom field groups
-  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
-    variables: {
-      clientPortalId,
-    },
-    fetchPolicy: 'cache-first',
-    skip: !isOpen,
-  });
-
-  const fieldGroups = (
-    customFieldsData?.cmsCustomFieldGroupList?.list || []
-  ).filter(
-    (group: any) =>
-      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
-  );
-
   const [addCategory, { loading: adding }] = useMutation(CMS_CATEGORIES_ADD, {
     onCompleted: (data) => {
       // Update cache to automatically refresh all components using CMS_CATEGORIES query
-      const existingCategories = client.readQuery({
+      const existingCategories = client.readQuery<CmsCategoriesResponse>({
         query: CMS_CATEGORIES,
         variables: { clientPortalId, limit: 100 },
       });
@@ -219,14 +251,14 @@ export function CmsCategoryDrawer({
     {
       onCompleted: (data) => {
         // Update cache to automatically refresh all components using CMS_CATEGORIES query
-        const existingCategories = client.readQuery({
+        const existingCategories = client.readQuery<CmsCategoriesResponse>({
           query: CMS_CATEGORIES,
           variables: { clientPortalId, limit: 100 },
         });
 
         if (existingCategories && data?.cmsCategoriesEdit) {
           const updatedList = existingCategories.cmsCategories.list.map(
-            (cat: any) =>
+            (cat: Category) =>
               cat._id === data.cmsCategoriesEdit._id
                 ? data.cmsCategoriesEdit
                 : cat,
@@ -394,6 +426,7 @@ export function CmsCategoryDrawer({
                 fieldGroups={fieldGroups}
                 getCustomFieldValue={getCustomFieldValue}
                 updateCustomFieldValue={updateCustomFieldValue}
+                form={form}
               />
             )}
 
@@ -407,8 +440,8 @@ export function CmsCategoryDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create Category'}
+                  ? 'Save Changes'
+                  : 'Create Category'}
               </Button>
             </div>
           </form>

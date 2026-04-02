@@ -4,9 +4,30 @@ interface ManualInlineContent {
   styles: Record<string, boolean>;
 }
 
+interface BaseBlockProps {
+  textColor: string;
+  backgroundColor: string;
+  textAlignment: string;
+}
+
+interface ParagraphBlockProps extends BaseBlockProps {}
+
+interface HeadingBlockProps extends BaseBlockProps {
+  level: number;
+}
+
+interface ImageBlockProps extends BaseBlockProps {
+  url: string;
+  name: string;
+  caption: string;
+  showPreview: boolean;
+}
+
+type BlockProps = ParagraphBlockProps | HeadingBlockProps | ImageBlockProps;
+
 export interface AttachmentInput {
   url: string;
-  name?: string;
+  name: string;
   type?: string;
   size?: number;
   duration?: number;
@@ -15,7 +36,7 @@ export interface AttachmentInput {
 export interface Block {
   id: string;
   type: string;
-  props?: Record<string, any>;
+  props?: BlockProps;
   content: ManualInlineContent[];
   children: Block[];
 }
@@ -23,9 +44,9 @@ export interface Block {
 interface ManualBlock {
   id: string;
   type: string;
-  props?: Record<string, any>;
+  props?: BlockProps;
   content: ManualInlineContent[];
-  children: Block[];
+  children: ManualBlock[];
 }
 
 const emptyParagraph = (): Block => ({
@@ -85,13 +106,14 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
           id: crypto.randomUUID(),
           type: 'image',
           props: {
+            textColor: 'default',
             backgroundColor: 'default',
             textAlignment: 'left',
             url,
             name: '',
             caption: '',
             showPreview: true,
-          },
+          } as ImageBlockProps,
           content: [],
           children: [],
         });
@@ -106,13 +128,14 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
           id: crypto.randomUUID(),
           type: 'image',
           props: {
+            textColor: 'default',
             backgroundColor: 'default',
             textAlignment: 'left',
             url: img.src,
             name: '',
             caption,
             showPreview: true,
-          },
+          } as ImageBlockProps,
           content: [],
           children: [],
         });
@@ -123,13 +146,13 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
       if (!textContent.trim()) return;
 
       const blockType = tag.match(/^h[1-6]$/) ? 'heading' : 'paragraph';
-      const props: Record<string, any> = {
+      const props: BlockProps = {
         textColor: 'default',
         backgroundColor: 'default',
         textAlignment: 'left',
       };
       if (blockType === 'heading') {
-        props.level = Number.parseInt(tag.charAt(1));
+        (props as HeadingBlockProps).level = Number.parseInt(tag.charAt(1));
       }
 
       blocks.push({
@@ -163,15 +186,22 @@ export const formatInitialContent = (content?: string): string | undefined => {
   return JSON.stringify(blocks);
 };
 
-export const makeAttachmentFromUrl = (url?: string | null) => {
+export const makeAttachmentFromUrl = (
+  url?: string | null,
+): { url: string; name: string } | undefined => {
   if (!url) return undefined;
   const name = url.split('/').pop() || 'file';
   return { url, name };
 };
 
 export const normalizeAttachment = (
-  value: AttachmentInput | string | null | undefined,
-) => {
+  value:
+    | AttachmentInput
+    | { url: string; name?: string; type?: string }
+    | string
+    | null
+    | undefined,
+): AttachmentInput | undefined => {
   if (!value) return undefined;
   if (typeof value === 'string') {
     return makeAttachmentFromUrl(value);
@@ -186,14 +216,16 @@ export const normalizeAttachment = (
     url,
     name,
     type: value.type,
-    size: value.size,
-    duration: value.duration,
+    size: (value as AttachmentInput).size,
+    duration: (value as AttachmentInput).duration,
   };
 };
 
-export const makeAttachmentArrayFromUrls = (urls?: (string | null)[]) => {
+export const makeAttachmentArrayFromUrls = (
+  urls?: (string | null)[],
+): AttachmentInput[] => {
   return (urls || [])
     .filter(Boolean)
     .map((u) => makeAttachmentFromUrl(u as string))
-    .filter(Boolean) as { url: string; name: string }[];
+    .filter(Boolean) as AttachmentInput[];
 };

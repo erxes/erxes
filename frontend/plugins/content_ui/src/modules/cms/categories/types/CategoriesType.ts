@@ -31,5 +31,5 @@ export interface PostCategoryInput {
   status?: string;
   parentId?: string;
   clientPortalId?: string;
-  customFieldsData?: { field: string; value: any }[];
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
 }
