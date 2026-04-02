@@ -8,19 +8,26 @@ export const pageFormSchema = z.object({
   parentId: z.string().optional(),
   status: z.enum(['active', 'inactive']),
   clientPortalId: z.string().min(1, 'Client portal ID is required'),
-  thumbnail: z.object({
-    url: z.string(),
-    name: z.string(),
-    type: z.string().optional(),
-  }).nullable().optional(),
+  thumbnail: z
+    .object({
+      url: z.string(),
+      name: z.string(),
+      type: z.string().optional(),
+    })
+    .nullable()
+    .optional(),
   gallery: z.array(z.string()).optional(),
   videoUrl: z.string().optional(),
   documents: z.array(z.string()).optional(),
   attachments: z.array(z.string()).optional(),
-  customFieldsData: z.array(z.object({
-    field: z.string(),
-    value: z.custom<CustomFieldValue>(),
-  })).optional(),
+  customFieldsData: z
+    .array(
+      z.object({
+        field: z.string(),
+        value: z.custom<CustomFieldValue>(),
+      }),
+    )
+    .optional(),
 });
 
 export type PageFormType = z.infer<typeof pageFormSchema>;
