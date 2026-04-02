@@ -1,11 +1,22 @@
 import { PagesNavigation } from './PagesNavigation';
 import { PageHeader } from 'ui-modules';
+import { HeaderLanguageTabs } from '../../shared/HeaderLanguageTabs';
 
-export const PagesHeader = ({ children }: React.PropsWithChildren) => {
+interface PagesHeaderProps {
+  onLanguageChange?: (lang: string) => void;
+}
+
+export const PagesHeader = ({
+  children,
+  onLanguageChange,
+}: React.PropsWithChildren<PagesHeaderProps>) => {
   return (
     <PageHeader>
       <PagesNavigation />
-      <PageHeader.End>{children}</PageHeader.End>
+      <PageHeader.End>
+        <HeaderLanguageTabs onLanguageChange={onLanguageChange} />
+        {children}
+      </PageHeader.End>
     </PageHeader>
   );
 };

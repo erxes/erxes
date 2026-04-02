@@ -5,30 +5,24 @@ export interface IVoucher {
   startDate: string;
   endDate: string;
   status: string;
-  type: string;
-  amount: number;
-  createdBy: {
-    email: string;
-    details: {
-      firstName?: string;
-      fullName?: string;
-      lastName?: string;
-      avatar?: string;
-      middleName?: string;
-      shortName?: string;
-    };
-  };
-  updatedBy: {
-    email: string;
-    details: {
-      avatar?: string;
-      firstName?: string;
-      fullName?: string;
-      lastName?: string;
-      shortName?: string;
-      middleName?: string;
-    };
+  voucherType: string;
+  kind: string;
+  value?: number;
+  buyScore?: number;
+  bonusProductId?: string;
+  bonusCount?: number;
+  spinCampaignId?: string;
+  spinCount?: number;
+  lotteryCount?: number;
+  restrictions?: {
+    minimumSpend?: number;
+    maximumSpend?: number;
+    categoryIds?: string[];
+    excludeCategoryIds?: string[];
+    productIds?: string[];
+    excludeProductIds?: string[];
+    tag?: string;
+    orExcludeTag?: string;
   };
   conditions: any;
-  kind: string;
 }

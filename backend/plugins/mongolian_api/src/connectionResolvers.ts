@@ -25,7 +25,7 @@ import {
   IConfigModel,
   loadConfigClass,
 } from './modules/configs/db/models/Configs';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { IExchangeRateDocument } from '@/exchangeRates/@types/exchangeRate';
 import {
   IExchangeRateModel,
@@ -49,20 +49,17 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
-  eventDispatcher: (
-    pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ) => EventDispatcherReturn,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+  const mongolianEventHandlers = eventHandlers('mongolian');
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'mongolian_configs',
     loadConfigClass(
       models,
       subdomain,
-      eventDispatcher('mongolian', 'configs', 'mongolian_configs'),
+      mongolianEventHandlers('configs', 'mongolian_configs'),
     ),
   );
 

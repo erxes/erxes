@@ -44,7 +44,7 @@ export const AmenityIconField = ({
           <Form.Control>
             <IconPicker
               value={field.value}
-              onChange={field.onChange}
+              onValueChange={field.onChange}
               className="w-[42px] border bg-background"
             />
           </Form.Control>

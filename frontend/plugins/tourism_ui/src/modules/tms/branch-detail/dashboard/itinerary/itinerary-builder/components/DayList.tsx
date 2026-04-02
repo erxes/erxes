@@ -14,6 +14,7 @@ interface DayListProps {
   availableAmenities: IAmenity[];
   getDayElements: (dayIndex: number) => IElement[];
   onRemoveElement: (dayIndex: number, elementId: string) => void;
+  onReorderElements: (dayIndex: number, reorderedElementIds: string[]) => void;
   onDrop: (dayIndex: number) => void;
   isDragging: boolean;
 }
@@ -26,12 +27,13 @@ export const DayList = ({
   availableAmenities,
   getDayElements,
   onRemoveElement,
+  onReorderElements,
   onDrop,
   isDragging,
 }: DayListProps) => {
   return (
     <div className="flex overflow-y-auto flex-col flex-1 p-3 space-y-4 min-h-0">
-      {days.map((day, index) => {
+      {days.map((_, index) => {
         const elements = getDayElements(index);
 
         return (
@@ -53,6 +55,12 @@ export const DayList = ({
               availableAmenities={availableAmenities}
               droppedElements={elements}
               onRemoveElement={(elementId) => onRemoveElement(index, elementId)}
+              onReorderElements={(reordered) =>
+                onReorderElements(
+                  index,
+                  reordered.map((el) => el._id),
+                )
+              }
             />
           </div>
         );

@@ -18,21 +18,28 @@ export const useFbMessengerMessageContext = () => {
     );
   }
 
-  const { previousMessage, nextMessage, userId, customerId, createdAt } =
-    context;
+  const {
+    previousMessage,
+    nextMessage,
+    userId,
+    customerId,
+    createdAt,
+    botData,
+  } = context;
+  const isOutgoing = !!userId || !!botData?.length;
 
   const checkHasSibling = (message?: IFacebookConversationMessage) => {
     if (!message) {
       return false;
     }
 
-    const isClient = !userId;
+    const isMessageOutgoing = !!message.userId || !!message.botData?.length;
 
-    if (isClient) {
-      return message.customerId === customerId;
+    if (!isOutgoing) {
+      return !isMessageOutgoing && message.customerId === customerId;
     }
 
-    return message.userId === userId;
+    return isMessageOutgoing;
   };
 
   const checkTimeDifference = (createdAt: string, compareDate: string) => {

@@ -32,7 +32,7 @@ export const addDeal = async ({
 
   const extendedDoc = {
     ...doc,
-    modifiedBy: user && user._id,
+    modifiedBy: user?._id,
     userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection: models.Deals,
@@ -195,6 +195,7 @@ export const editDeal = async ({
     // order notification
     await changeItemStatus(models, user, {
       item: updatedItem,
+      oldDeal,
       status: activityAction,
       processId,
       stage,
@@ -214,16 +215,23 @@ export const editDeal = async ({
   await sendNotifications(models, subdomain, notificationDoc);
 
   // exclude [null]
-  if (doc.tagIds && doc.tagIds.length) {
+  if (doc.tagIds?.length) {
     doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 
-  await subscriptionWrapper(models, {
-    action: 'update',
-    deal: updatedItem,
-    oldDeal,
-    pipelineId: stage.pipelineId,
-  });
+  const transitionedToArchived =
+    doc.status === 'archived' &&
+    !!oldDeal.status &&
+    oldDeal.status !== doc.status;
+
+  if (!transitionedToArchived) {
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: updatedItem,
+      oldDeal,
+      pipelineId: stage.pipelineId,
+    });
+  }
 
   // await doScoreCampaign(subdomain, models, _id, updatedItem);
 

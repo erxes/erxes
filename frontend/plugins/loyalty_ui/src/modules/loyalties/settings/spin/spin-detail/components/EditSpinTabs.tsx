@@ -46,7 +46,7 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
       awards: data.awards?.map((award) => ({
         name: award.name,
         voucherCampaignId: award.voucherCampaignId,
-        probablity: award.probablity,
+        probability: award.probability,
       })),
     };
 

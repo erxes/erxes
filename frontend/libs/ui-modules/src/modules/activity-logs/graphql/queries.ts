@@ -10,12 +10,14 @@ export const ACTIVITY_LOGS = gql`
     $targetType: String
     $targetId: String!
     $action: String
+    $variant: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     activityLogs(
       targetType: $targetType
       targetId: $targetId
       action: $action
+      variant: $variant
       ${GQL_CURSOR_PARAMS}
     ) {
       list {

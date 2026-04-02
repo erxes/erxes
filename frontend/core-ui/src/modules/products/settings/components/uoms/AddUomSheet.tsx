@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UomForm } from './UomForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
+import { Can, usePermissionCheck } from 'ui-modules';
 
 export const AddUomSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -30,8 +31,18 @@ export const AddUomSheet = () => {
     setOpen(false);
     goBackToPreviousHotkeyScope();
   };
+  const { hasActionPermission } = usePermissionCheck();
+  const canManageUoms = hasActionPermission('uomsManage');
 
-  useScopedHotkeys(`c`, () => onOpen(), ProductHotKeyScope.ProductsPage);
+  useScopedHotkeys(
+    `c`,
+    () => {
+      if (!canManageUoms) return;
+      onOpen();
+    },
+    ProductHotKeyScope.ProductsPage,
+    [canManageUoms],
+  );
 
   return (
     <Sheet
@@ -39,13 +50,15 @@ export const AddUomSheet = () => {
       open={open}
       modal
     >
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add-uom')}
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="uomsManage">
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus />
+            {t('add-uom')}
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {

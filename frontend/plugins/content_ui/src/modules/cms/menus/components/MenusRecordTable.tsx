@@ -1,6 +1,6 @@
 import { RecordTable } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
-import { createMenusColumns } from './MenusColumn';
+import { useMenusColumns } from './MenusColumn';
 import { MenusCommandBar } from './menus-command-bar/MenusCommandBar';
 import { useMenus } from '../hooks/useMenus';
 import { CMS_MENU_REMOVE } from '../../graphql/queries';
@@ -26,7 +26,7 @@ export const MenusRecordTable = ({
     refetch();
   };
 
-  const columns = createMenusColumns(onEdit, refetch);
+  const columns = useMenusColumns(onEdit, refetch);
 
   return (
     <RecordTable.Provider

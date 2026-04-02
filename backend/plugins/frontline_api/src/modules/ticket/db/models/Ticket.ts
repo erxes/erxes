@@ -92,7 +92,7 @@ export const loadTicketClass = (models: IModels) => {
 
       const status = await models.Status.getStatus(doc.statusId);
 
-      if (status && status.pipelineId) {
+      if (status?.pipelineId) {
         doc.pipelineId = status.pipelineId;
       }
 
@@ -228,14 +228,11 @@ export const loadTicketClass = (models: IModels) => {
         new: true,
       });
 
-      if (
-        detail &&
-        detail.subscribedUserIds &&
-        detail.subscribedUserIds.length > 0
-      ) {
-        const userIds = detail.subscribedUserIds.filter(
-          (id) => id !== userId && id !== doc.assigneeId,
-        );
+      if (detail?.subscribedUserIds?.length) {
+        const userIds =
+          detail.subscribedUserIds.filter(
+            (id) => id !== userId && id !== doc.assigneeId,
+          ) || [];
         await createNotifications({
           contentType: 'ticket',
           contentTypeId: detail._id,

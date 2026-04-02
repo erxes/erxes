@@ -82,7 +82,7 @@ const acceptCall = async (
         : e.message,
     );
   }
-  if (!customer || !customer.erxesApiId) {
+  if (!customer?.erxesApiId) {
     customer = await getOrCreateCustomer(models, subdomain, {
       inboxIntegrationId: integration.inboxId,
       primaryPhone: params.customerPhone,

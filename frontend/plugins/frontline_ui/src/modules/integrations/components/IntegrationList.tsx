@@ -1,5 +1,4 @@
-import { IconSearch } from '@tabler/icons-react';
-import { Card, Command, getPluginAssetsUrl, Input, Skeleton } from 'erxes-ui';
+import { Card, Command, getPluginAssetsUrl, Skeleton } from 'erxes-ui';
 import { INTEGRATIONS } from '../constants/integrations';
 import { Link, useParams } from 'react-router-dom';
 import { IntegrationLogo } from './IntegrationLogo';

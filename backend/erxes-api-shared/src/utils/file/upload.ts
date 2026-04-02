@@ -1,7 +1,6 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 import { Storage } from '@google-cloud/storage';
 import AWS from 'aws-sdk';
-import { fileTypeFromBuffer } from 'file-type/core';
 import FormData from 'form-data';
 import * as fs from 'fs';
 import fetch from 'node-fetch';
@@ -418,7 +417,8 @@ const uploadToCloudflare = async (
     readConfigValue(configs, 'CLOUDFLARE_USE_CDN', ''),
   );
 
-  const detectedType = await fileTypeFromBuffer(fs.readFileSync(filePath));
+  const { fileTypeFromBuffer } = await import('file-type');
+  const detectedType = await fileTypeFromBuffer(new Uint8Array(fs.readFileSync(filePath)));
 
   let adjustedFileName = fileName;
   if (path.extname(fileName).toLowerCase() === '.jfif') {

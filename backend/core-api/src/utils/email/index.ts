@@ -165,7 +165,7 @@ export const sendEmail = async (
     } else if (
       !defaultTemplate ||
       !defaultTemplateType ||
-      (defaultTemplateType && defaultTemplateType.toString() === 'simple')
+      defaultTemplateType?.toString() === 'simple'
     ) {
       html = await applyTemplate(data, 'base');
     } else if (defaultTemplate) {
@@ -209,7 +209,7 @@ export const sendEmail = async (
 
       headers = {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
-        EmailDeliveryId: emailDelivery && emailDelivery._id,
+        EmailDeliveryId: emailDelivery?._id,
       };
     }
 

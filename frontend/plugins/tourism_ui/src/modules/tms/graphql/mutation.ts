@@ -10,6 +10,8 @@ export const CREATE_BRANCH = gql`
     $erxesAppToken: String
     $permissionConfig: JSON
     $uiOptions: JSON
+    $language: String
+    $languages: [String]
   ) {
     bmsBranchAdd(
       name: $name
@@ -20,6 +22,8 @@ export const CREATE_BRANCH = gql`
       erxesAppToken: $erxesAppToken
       permissionConfig: $permissionConfig
       uiOptions: $uiOptions
+      language: $language
+      languages: $languages
     ) {
       _id
     }
@@ -37,6 +41,8 @@ export const EDIT_BRANCH = gql`
     $erxesAppToken: String
     $permissionConfig: JSON
     $uiOptions: JSON
+    $language: String
+    $languages: [String]
   ) {
     bmsBranchEdit(
       _id: $id
@@ -48,6 +54,8 @@ export const EDIT_BRANCH = gql`
       erxesAppToken: $erxesAppToken
       permissionConfig: $permissionConfig
       uiOptions: $uiOptions
+      language: $language
+      languages: $languages
     ) {
       _id
     }

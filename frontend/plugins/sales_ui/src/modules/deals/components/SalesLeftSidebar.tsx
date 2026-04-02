@@ -20,12 +20,7 @@ export const SalesLeftSidebar = () => {
   const { boards, loading } = useBoards();
 
   useEffect(() => {
-    if (
-      !selectedBoardId &&
-      lastBoard &&
-      lastBoard.pipelines &&
-      lastBoard.pipelines.length > 0
-    ) {
+    if (!selectedBoardId && lastBoard?.pipelines?.length) {
       setSelectedBoardId(lastBoard._id);
       setSelectedPipelineId(lastBoard.pipelines[0]._id);
     }

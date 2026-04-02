@@ -5,6 +5,8 @@ export const TmsFormSchema = z.object({
   color: z.string().min(1, 'Color is required'),
   logo: z.string().optional().default(''),
   favIcon: z.string().optional().default(''),
+  language: z.array(z.string()).optional().default([]),
+  mainLanguage: z.string().optional().default(''),
   generalManager: z
     .array(z.string())
     .min(1, 'At least one general manager is required')

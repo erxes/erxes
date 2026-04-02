@@ -1,5 +1,4 @@
-import { Sidebar } from 'erxes-ui';
-import { useQueryState } from 'erxes-ui';
+import { Sidebar, useQueryState } from 'erxes-ui';
 
 export const ContactSidebar = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -9,7 +8,7 @@ export const ContactSidebar = () => {
         <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
-            {['overview', 'properties'].map((tab) => (
+            {['overview', 'properties', 'activity'].map((tab) => (
               <Sidebar.MenuItem key={tab}>
                 <Sidebar.MenuButton
                   isActive={

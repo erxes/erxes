@@ -1,8 +1,7 @@
 import { ApolloError } from '@apollo/client';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
-import { Export, TagsSelect } from 'ui-modules';
+import { Can, Export, TagsSelect } from 'ui-modules';
 import { CompaniesDelete } from './CompaniesDelete';
-import { CompaniesMerge } from './CompaniesMerge';
 
 export const CompaniesCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -18,44 +17,48 @@ export const CompaniesCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <Can action="tagsTag">
+          <>
+            <Separator.Inline />
+            <TagsSelect
+              mode="multiple"
+              variant="secondary"
+              className="shadow-none"
+              value={
+                intersection(
+                  table
+                    .getFilteredSelectedRowModel()
+                    .rows.map((row) => row.original.tagIds),
+                ) || []
+              }
+              type="core:company"
+              targetIds={companyIds}
+              options={(newSelectedTagIds) => ({
+                update: (cache) => {
+                  companyIds.forEach((companyId) => {
+                    cache.modify({
+                      id: cache.identify({
+                        __typename: 'Company',
+                        _id: companyId,
+                      }),
+                      fields: {
+                        tagIds: () => newSelectedTagIds,
+                      },
+                    });
+                  });
+                },
+                onError: (e: ApolloError) => {
+                  toast({
+                    title: 'Error',
+                    description: e.message,
+                    variant: 'destructive',
+                  });
+                },
+              })}
+            />
+          </>
+        </Can>
         <Separator.Inline />
-        <TagsSelect
-          mode="multiple"
-          variant="secondary"
-          className="shadow-none"
-          value={
-            intersection(
-              table
-                .getFilteredSelectedRowModel()
-                .rows.map((row) => row.original.tagIds),
-            ) || []
-          }
-          type="core:company"
-          targetIds={companyIds}
-          options={(newSelectedTagIds) => ({
-            update: (cache) => {
-              companyIds.forEach((companyId) => {
-                cache.modify({
-                  id: cache.identify({
-                    __typename: 'Company',
-                    _id: companyId,
-                  }),
-                  fields: {
-                    tagIds: () => newSelectedTagIds,
-                  },
-                });
-              });
-            },
-            onError: (e: ApolloError) => {
-              toast({
-                title: 'Error',
-                description: e.message,
-                variant: 'destructive',
-              });
-            },
-          })}
-        />
-        <Separator.Inline/>
         <Export
           pluginName="core"
           moduleName="contact"
@@ -63,7 +66,6 @@ export const CompaniesCommandBar = () => {
           buttonVariant="secondary"
           ids={companyIds}
         />
-        <Separator.Inline />
         {/* <CompaniesMerge
           companies={table
             .getFilteredSelectedRowModel()
@@ -72,7 +74,12 @@ export const CompaniesCommandBar = () => {
           rows={selectedRows} 
         /> */}
         {/* <Separator.Inline /> */}
-        <CompaniesDelete companyIds={companyIds} rows={selectedRows} />
+        <Can action="contactsDelete">
+          <>
+            <Separator.Inline />
+            <CompaniesDelete companyIds={companyIds} rows={selectedRows} />
+          </>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

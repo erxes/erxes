@@ -48,6 +48,7 @@ export const types = `
     integrations: Integrations
     environmentVariables: [EnvironmentVariable]
     projectId: String
+    vercelProjectId: String
     lastDeploymentId: String
     lastDeploymentUrl: String
     createdAt: Date

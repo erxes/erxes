@@ -71,9 +71,22 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     size: 100,
   },
   {
+    id: 'count_before_10',
+    accessorKey: 'counts.0',
+    header: () => <RecordTable.InlineHead label="<10" />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 50,
+  },
+  {
     id: 'count_10',
-    accessorKey: 'counts.10',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="10" />,
+    accessorKey: 'counts.1',
+    header: () => <RecordTable.InlineHead label="10" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -85,8 +98,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_11',
-    accessorKey: 'counts.11',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="11" />,
+    accessorKey: 'counts.2',
+    header: () => <RecordTable.InlineHead label="11" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -98,8 +111,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_12',
-    accessorKey: 'counts.12',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="12" />,
+    accessorKey: 'counts.3',
+    header: () => <RecordTable.InlineHead label="12" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -111,8 +124,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_13',
-    accessorKey: 'counts.13',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="13" />,
+    accessorKey: 'counts.4',
+    header: () => <RecordTable.InlineHead label="13" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -124,8 +137,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_14',
-    accessorKey: 'counts.14',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="14" />,
+    accessorKey: 'counts.5',
+    header: () => <RecordTable.InlineHead label="14" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -137,8 +150,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_15',
-    accessorKey: 'counts.15',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="15" />,
+    accessorKey: 'counts.6',
+    header: () => <RecordTable.InlineHead label="15" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -150,8 +163,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_16',
-    accessorKey: 'counts.16',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="16" />,
+    accessorKey: 'counts.7',
+    header: () => <RecordTable.InlineHead label="16" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -163,8 +176,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_17',
-    accessorKey: 'counts.17',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="17" />,
+    accessorKey: 'counts.8',
+    header: () => <RecordTable.InlineHead label="17" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -176,8 +189,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_18',
-    accessorKey: 'counts.18',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="18" />,
+    accessorKey: 'counts.9',
+    header: () => <RecordTable.InlineHead label="18" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -189,8 +202,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_19',
-    accessorKey: 'counts.19',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="19" />,
+    accessorKey: 'counts.10',
+    header: () => <RecordTable.InlineHead label="19" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -202,8 +215,8 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_20',
-    accessorKey: 'counts.20',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="20" />,
+    accessorKey: 'counts.11',
+    header: () => <RecordTable.InlineHead label="20" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -215,8 +228,21 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'count_21',
-    accessorKey: 'counts.21',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="21" />,
+    accessorKey: 'counts.12',
+    header: () => <RecordTable.InlineHead label="21" />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 50,
+  },
+  {
+    id: 'count_after_21',
+    accessorKey: 'counts.13',
+    header: () => <RecordTable.InlineHead label="21<" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

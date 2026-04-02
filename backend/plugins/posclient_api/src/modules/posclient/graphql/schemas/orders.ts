@@ -241,7 +241,6 @@ export const queries = `
   cpFullOrders(${ordersQueryParams}): [Order]
   cpOrderDetail(_id: String!, customerId: String): OrderDetail
   cpOrderItemDetail(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
-  cpInvoices(customerId: String, page: Int, perPage: Int, sortField: String, sortDirection: Int): [Order]
   cpAddresses(orderId: String!): JSON
   cpOrdersCheckCompany(registerNumber: String!): JSON
 `;

@@ -128,9 +128,9 @@ export const CreateBranchForm = () => {
 
 export function SelectBranchCreateContainer({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const { setNewBranchName } = useSelectBranchesContext();
   return (
     <div className="overflow-auto">
