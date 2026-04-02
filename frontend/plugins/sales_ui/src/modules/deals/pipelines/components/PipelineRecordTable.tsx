@@ -175,15 +175,15 @@ export const pipelinesColumns: ColumnDef<
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [open, setOpen] = React.useState<boolean>(false);
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [_name, setName] = React.useState<string>(name);
+      const [localName, setName] = React.useState<string>(name);
 
       const onSave = () => {
-        if (name !== _name) {
+        if (name !== localName) {
           pipelineEdit({
             variables: {
               id: _id,
               type: type,
-              name: _name,
+              name: localName,
             },
           });
         }
@@ -214,7 +214,7 @@ export const pipelinesColumns: ColumnDef<
             </RecordTableTree.Trigger>
           </RecordTableInlineCell.Trigger>
           <RecordTableInlineCell.Content>
-            <Input value={_name} onChange={onChange} disabled={loading} />
+            <Input value={localName} onChange={onChange} disabled={loading} />
           </RecordTableInlineCell.Content>
         </Popover>
       );
