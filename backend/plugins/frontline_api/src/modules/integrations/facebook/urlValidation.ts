@@ -17,12 +17,21 @@ const PRIVATE_IP_PATTERNS: ReadonlyArray<RegExp> = [
   /^::1$/,
   /^fc00:/i,
   /^fe80:/i,
-  /^::ffff:(127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|169\.254\.|0\.)/i,
 ];
+
+function extractIPv4FromMappedIPv6(ip: string): string | null {
+  const match = ip.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+  if (!match) return null;
+
+  const hi = parseInt(match[1], 16);
+  const lo = parseInt(match[2], 16);
+  return `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
+}
 
 function isPrivateIp(hostname: string): boolean {
   const bare = hostname.replace(/^\[|\]$/g, '');
-  return PRIVATE_IP_PATTERNS.some((pattern) => pattern.test(bare));
+  const target = extractIPv4FromMappedIPv6(bare) ?? bare;
+  return PRIVATE_IP_PATTERNS.some((pattern) => pattern.test(target));
 }
 
 function isAllowedFacebookHost(hostname: string): boolean {
