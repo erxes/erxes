@@ -182,7 +182,7 @@ const archivedDealsParams = `
  `;
 
 export const queries = `
-  checkDiscount(_id: String!,products:[SalesProductField], couponCode: String, voucherId: String):JSON
+  checkDiscount(_id: String!,products:[SalesProductField!]!, couponCode: String, voucherId: String):JSON
   
   deals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
