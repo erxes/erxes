@@ -287,7 +287,7 @@ const SelectTeamMemberContent = ({
             !excludeIds?.find((excludeId) => excludeId === user._id),
         )
       : [currentUser, ...users].filter(
-          (user) => !members.find((member) => member._id === user._id),
+          (user) => !members.some((member) => member._id === user._id),
         );
 
   return (
