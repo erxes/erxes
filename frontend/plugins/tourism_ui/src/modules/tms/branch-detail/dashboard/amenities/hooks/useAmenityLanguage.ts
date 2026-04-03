@@ -8,6 +8,10 @@ interface UseAmenityLanguageOptions {
   fields: UseFieldArrayReturn<AmenityCreateFormType, 'translations'>['fields'];
 }
 
+type FieldPaths = {
+  name: 'name' | `translations.${number}.name`;
+};
+
 export const useAmenityLanguage = ({
   branchLanguages,
   mainLanguage,
@@ -54,14 +58,12 @@ export const useAmenityLanguage = ({
   );
   const labelSuffix = effectiveLang ? ` (${effectiveLang})` : '';
 
-  const namePath =
-    isMainLang || translationIndex < 0
-      ? 'name'
-      : (`translations.${translationIndex}.name` as const);
-
-  const fieldPaths = {
-    name: namePath,
-  } as { name: any };
+  const fieldPaths: FieldPaths = {
+    name:
+      isMainLang || translationIndex < 0
+        ? 'name'
+        : `translations.${translationIndex}.name`,
+  };
 
   return {
     allLanguages,

@@ -9,6 +9,12 @@ interface UseElementLanguageOptions {
   fields: UseFieldArrayReturn<ElementCreateFormType, 'translations'>['fields'];
 }
 
+type FieldPaths = {
+  name: 'name' | `translations.${number}.name`;
+  note: 'note' | `translations.${number}.note`;
+  cost: 'cost' | `translations.${number}.cost`;
+};
+
 export const useElementLanguage = ({
   branchLanguages,
   mainLanguage,
@@ -21,7 +27,6 @@ export const useElementLanguage = ({
         : mainLanguage
           ? [mainLanguage]
           : [];
-    // Ensure mainLanguage is always present and first
     if (mainLanguage && !base.includes(mainLanguage)) {
       return [mainLanguage, ...base];
     }
@@ -62,20 +67,20 @@ export const useElementLanguage = ({
 
   const labelSuffix = effectiveLang ? ` (${effectiveLang})` : '';
 
-  const fieldPaths = {
+  const fieldPaths: FieldPaths = {
     name:
       isMainLang || translationIndex < 0
         ? 'name'
-        : (`translations.${translationIndex}.name` as const),
+        : `translations.${translationIndex}.name`,
     note:
       isMainLang || translationIndex < 0
         ? 'note'
-        : (`translations.${translationIndex}.note` as const),
+        : `translations.${translationIndex}.note`,
     cost:
       isMainLang || translationIndex < 0
         ? 'cost'
-        : (`translations.${translationIndex}.cost` as const),
-  } as { name: any; note: any; cost: any };
+        : `translations.${translationIndex}.cost`,
+  };
 
   return {
     allLanguages,
