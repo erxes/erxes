@@ -10,6 +10,11 @@ type ElementTextFieldPath = FieldPathByValue<
   string | undefined
 >;
 
+type ElementNumberFieldPath = FieldPathByValue<
+  ElementCreateFormType,
+  number | undefined
+>;
+
 interface ElementNameFieldProps {
   control: Control<ElementCreateFormType>;
   name?: ElementTextFieldPath;
@@ -129,7 +134,7 @@ export const ElementCostField = ({
   currencySymbol,
 }: {
   control: Control<ElementCreateFormType>;
-  name?: any;
+  name?: ElementNumberFieldPath;
   currencySymbol?: string;
 }) => {
   const lang = useAtomValue(activeLangAtom);

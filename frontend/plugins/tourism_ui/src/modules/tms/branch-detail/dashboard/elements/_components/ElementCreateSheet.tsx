@@ -80,6 +80,8 @@ export const ElementCreateSheet = ({
     fieldPaths,
   } = useElementLanguage({ branchLanguages, mainLanguage, fields });
 
+  const resolvedPrimaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
+
   useEffect(() => {
     if (!translationLanguages.length) return;
     const current = form.getValues('translations') || [];
@@ -102,7 +104,7 @@ export const ElementCreateSheet = ({
           'Please enter values for the main language before creating.',
         variant: 'destructive',
       });
-      setSelectedLang(mainLanguage || allLanguages[0] || '');
+      setSelectedLang(resolvedPrimaryLanguage);
     }
   };
 
@@ -127,7 +129,7 @@ export const ElementCreateSheet = ({
           cost: values.cost,
           categories: values.categories,
           quick: false,
-          language: mainLanguage,
+          language: resolvedPrimaryLanguage,
           translations: sanitizeTranslations(values.translations),
         },
       });
@@ -142,7 +144,7 @@ export const ElementCreateSheet = ({
         categories: [],
         translations: buildEmptyTranslations(translationLanguages),
       });
-      setSelectedLang(mainLanguage || allLanguages[0] || '');
+      setSelectedLang(resolvedPrimaryLanguage);
       handleOpenChange(false);
     } catch (error) {
       toast({

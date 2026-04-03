@@ -14,15 +14,19 @@ export const useElementLanguage = ({
   mainLanguage,
   fields,
 }: UseElementLanguageOptions) => {
-  const allLanguages = useMemo(
-    () =>
+  const allLanguages = useMemo(() => {
+    const base =
       branchLanguages && branchLanguages.length > 0
         ? branchLanguages
         : mainLanguage
           ? [mainLanguage]
-          : [],
-    [branchLanguages, mainLanguage],
-  );
+          : [];
+    // Ensure mainLanguage is always present and first
+    if (mainLanguage && !base.includes(mainLanguage)) {
+      return [mainLanguage, ...base];
+    }
+    return base;
+  }, [branchLanguages, mainLanguage]);
 
   const primaryLanguage = useMemo(
     () => mainLanguage ?? allLanguages[0] ?? '',
