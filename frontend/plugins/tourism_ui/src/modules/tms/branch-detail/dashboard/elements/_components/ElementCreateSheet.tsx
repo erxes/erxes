@@ -90,6 +90,19 @@ export const ElementCreateSheet = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [translationLanguages.join(',')]);
 
+  const onInvalid = () => {
+    const nameValue = form.getValues('name');
+    if (!nameValue?.trim()) {
+      toast({
+        title: 'Error',
+        description:
+          'Please enter values for the main language before creating.',
+        variant: 'destructive',
+      });
+      setSelectedLang(mainLanguage || allLanguages[0] || '');
+    }
+  };
+
   const handleSubmit = async (values: ElementCreateFormType) => {
     if (!branchId) {
       toast({
@@ -145,7 +158,7 @@ export const ElementCreateSheet = ({
           <form
             onSubmit={(e) => {
               e.stopPropagation();
-              form.handleSubmit(handleSubmit)(e);
+              form.handleSubmit(handleSubmit, onInvalid)(e);
             }}
             className="flex flex-col h-full"
           >

@@ -84,6 +84,19 @@ export const AmenityCreateSheet = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [translationLanguages.join(',')]);
 
+  const onInvalid = () => {
+    const nameValue = form.getValues('name');
+    if (!nameValue?.trim()) {
+      toast({
+        title: 'Error',
+        description:
+          'Please enter values for the main language before creating.',
+        variant: 'destructive',
+      });
+      setSelectedLang(mainLanguage || allLanguages[0] || '');
+    }
+  };
+
   const handleSubmit = async (values: AmenityCreateFormType) => {
     if (!branchId) {
       toast({
@@ -137,7 +150,7 @@ export const AmenityCreateSheet = ({
       <Sheet.View className="w-[400px] sm:max-w-[400px] p-0">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={form.handleSubmit(handleSubmit, onInvalid)}
             className="flex flex-col h-full"
           >
             <Sheet.Header>

@@ -2,11 +2,11 @@ import { IconBox } from '@tabler/icons-react';
 import { Breadcrumb, Button, Select, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useMemo, useEffect } from 'react';
-import { useSetAtom } from 'jotai';
+import { useMemo } from 'react';
 
 import { BranchDetailView } from '@/tms/branch-detail/components/BranchDetailView';
 import { useBranchDetailPage } from '@/tms/branch-detail/hooks/useBranchDetailPage';
+import { useActiveLang } from '@/tms/branch-detail/hooks/useActiveLang';
 import { LANGUAGES } from '@/tms/constants/languages';
 
 import { TourCreateSheet } from '@/tms/branch-detail/dashboard/tours/_components/TourCreateSheet';
@@ -14,7 +14,6 @@ import { ItineraryCreateSheet } from '@/tms/branch-detail/dashboard/itinerary';
 import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements';
 import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities';
 import { CategoryCreateSheet } from '@/tms/branch-detail/dashboard/category';
-import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 type ActiveTab = 'tour' | 'category' | 'itinerary' | 'elements' | 'amenities';
 
@@ -35,7 +34,7 @@ const CREATE_SHEET_MAP: Record<ActiveTab, (branchId: string) => JSX.Element> = {
 };
 
 export const BranchDetailIndexPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const {
     branchId,
@@ -58,41 +57,41 @@ export const BranchDetailIndexPage = () => {
       .filter((lang): lang is NonNullable<typeof lang> => lang != null);
   }, [selectedBranch?.languages]);
 
-  const activeLanguage =
-    searchParams.get('lang') || selectedBranch?.language || availableLanguages[0]?.value || '';
+  const availableLangCodes = useMemo(
+    () => availableLanguages.map((l) => l.value),
+    [availableLanguages],
+  );
 
-  const setActiveLang = useSetAtom(activeLangAtom);
-
-  useEffect(() => {
-    setActiveLang(activeLanguage);
-  }, [activeLanguage, setActiveLang]);
-
-  useEffect(() => {
-    if (!branchId) return;
-
-    const defaultLang = selectedBranch?.language || availableLanguages[0]?.value;
-    if (!searchParams.get('lang')) {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        if (defaultLang) next.set('lang', defaultLang);
-        return next;
-      });
-      setActiveLang(defaultLang || '');
-    }
-  }, [branchId, selectedBranch?.language, availableLanguages, searchParams, setSearchParams, setActiveLang]);
+  const { activeLang, setActiveLang } = useActiveLang({
+    branchId,
+    mainLanguage: selectedBranch?.language,
+    availableLanguages: availableLangCodes,
+  });
 
   const onSelectLanguage = (lang: string) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set('lang', lang);
-      return next;
-    });
-
     setActiveLang(lang);
   };
 
   const renderCreateSheet = () => {
     if (!branchId) return null;
+    if (activeTab === 'elements') {
+      return (
+        <ElementCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
+    if (activeTab === 'amenities') {
+      return (
+        <AmenityCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
     return CREATE_SHEET_MAP[activeTab]?.(branchId) ?? null;
   };
 
@@ -138,7 +137,7 @@ export const BranchDetailIndexPage = () => {
 
               <Breadcrumb.Item>
                 {availableLanguages.length > 0 ? (
-                  <Select value={activeLanguage} onValueChange={onSelectLanguage}>
+                  <Select value={activeLang} onValueChange={onSelectLanguage}>
                     <Select.Trigger className="w-[180px]">
                       <Select.Value placeholder="Select language" />
                     </Select.Trigger>
