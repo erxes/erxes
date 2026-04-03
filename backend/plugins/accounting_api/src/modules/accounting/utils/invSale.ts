@@ -170,7 +170,7 @@ class InvSaleOutCostTrs {
       oldFollowCostTr,
     );
 
-    syncProductsInventory(this.subdomain, outTr, oldFollowOutTr, -1)
+    syncProductsInventory(this.subdomain, outTr, oldFollowOutTr, -1);
     return [outTr, costTr];
   }
 }

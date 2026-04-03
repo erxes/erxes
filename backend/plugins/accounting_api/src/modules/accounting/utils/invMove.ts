@@ -1,7 +1,16 @@
 import { IModels } from '~/connectionResolvers';
 import { IAccountDocument } from '../@types/account';
-import { JOURNALS, TR_DETAIL_FOLLOW_TYPES, TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
-import { ITransaction, ITransactionDocument, ITrDetail } from '../@types/transaction';
+import {
+  JOURNALS,
+  TR_DETAIL_FOLLOW_TYPES,
+  TR_FOLLOW_TYPES,
+  TR_SIDES,
+} from '../@types/constants';
+import {
+  ITransaction,
+  ITransactionDocument,
+  ITrDetail,
+} from '../@types/transaction';
 import { createOrUpdateTr } from './utils';
 
 class InvMoveInTrs {
@@ -9,29 +18,29 @@ class InvMoveInTrs {
   private readonly trDoc: ITransaction;
   private moveInAccount?: IAccountDocument;
 
-  constructor(
-    models: IModels,
-    trDoc: ITransaction
-  ) {
+  constructor(models: IModels, trDoc: ITransaction) {
     this.models = models;
     this.trDoc = trDoc;
   }
 
   public async checkValidation() {
-    const { moveInAccountId, moveInBranchId, moveInDepartmentId } = this.trDoc.followInfos;
+    const { moveInAccountId, moveInBranchId, moveInDepartmentId } =
+      this.trDoc.followInfos;
 
     if (!moveInBranchId || !moveInDepartmentId) {
-      throw new Error('Must fill move in branch and department')
+      throw new Error('Must fill move in branch and department');
     }
 
     if (!moveInAccountId) {
-      throw new Error('Must fill move in Account')
+      throw new Error('Must fill move in Account');
     }
 
-    const moveInAccount = await this.models.Accounts.findOne({ _id: moveInAccountId }).lean();
+    const moveInAccount = await this.models.Accounts.findOne({
+      _id: moveInAccountId,
+    }).lean();
 
     if (!moveInAccount?._id) {
-      throw new Error('Not found move in Account')
+      throw new Error('Not found move in Account');
     }
 
     this.moveInAccount = moveInAccount;
@@ -47,7 +56,9 @@ class InvMoveInTrs {
     }
 
     const oldTr = oldTrs.shift();
-    await this.models.Transactions.deleteMany({ _id: { $in: oldTrs.map(otr => otr._id) } });
+    await this.models.Transactions.deleteMany({
+      _id: { $in: oldTrs.map((otr) => otr._id) },
+    });
     return oldTr;
   }
 
@@ -55,8 +66,11 @@ class InvMoveInTrs {
     const { details } = transaction;
 
     const oldFollowInTrs = await this.models.Transactions.find({
-      originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_MOVE_IN
-    }).sort({ createdAt: -1 }).lean();
+      originId: transaction._id,
+      originType: TR_FOLLOW_TYPES.INV_MOVE_IN,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
     const oldFollowInTr = await this.cleanFollowTrs(oldFollowInTrs);
 
@@ -71,13 +85,15 @@ class InvMoveInTrs {
       departmentId: this.trDoc.followInfos.moveInDepartmentId,
       customerType: transaction.customerType,
       customerId: transaction.customerId,
-      details: []
-    }
+      details: [],
+    };
 
     const followInDetails: ITrDetail[] = [];
 
     for (const detail of details) {
-      const oldInDetail = oldFollowInTr?.details.find(oldDet => oldDet.originId === detail._id);
+      const oldInDetail = oldFollowInTr?.details.find(
+        (oldDet) => oldDet.originId === detail._id,
+      );
 
       followInDetails.push({
         ...oldInDetail,
@@ -90,20 +106,24 @@ class InvMoveInTrs {
 
         originType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
         accountId: this.moveInAccount?._id ?? '',
-        side: TR_SIDES.DEBIT
-      })
+        side: TR_SIDES.DEBIT,
+      });
     }
 
     const inTrDoc: ITransaction = {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_MOVE_IN,
       journal: JOURNALS.INV_MOVE_IN,
-      details: followInDetails
-    }
+      details: followInDetails,
+    };
 
-    const invMoveInTr = await createOrUpdateTr(this.models, inTrDoc, oldFollowInTr);
+    const invMoveInTr = await createOrUpdateTr(
+      this.models,
+      inTrDoc,
+      oldFollowInTr,
+    );
 
-    return { invMoveInTr, oldFollowInTr }
+    return { invMoveInTr, oldFollowInTr };
   }
 }
 
