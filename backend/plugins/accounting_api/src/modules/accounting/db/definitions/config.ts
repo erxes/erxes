@@ -6,7 +6,8 @@ import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 export const configSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
-    code: { // type
+    code: {
+      // type
       type: String,
       label: 'Code',
       index: true,
@@ -20,12 +21,11 @@ export const configSchema = schemaWrapper(
       type: Object,
       label: 'Value',
     },
-  })
+  }),
 );
 
 configSchema.index({ code: 1, subId: 1 }, { unique: true });
 
-
 // VAT_RULE: string; '' = bagtsan, 'add' = undsen unedeer nemj tootsoh,
 // MainCurrency: string; main currency in country
-// 
+//
