@@ -62,9 +62,17 @@ app.options('*', cors(corsOptions));
 app.use(router);
 
 const fileLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  keyGenerator: (req) => req.ip || 'unknown',
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many requests from this IP, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {

@@ -23,6 +23,7 @@ import multer from 'multer';
 import tmp from 'tmp';
 import path from 'path';
 import fs from 'fs';
+import rateLimit from 'express-rate-limit';
 
 interface UploadStatus {
   id: string;
@@ -35,6 +36,48 @@ interface UploadStatus {
 
 const router: Router = Router();
 
+const readLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  keyGenerator: (req) => req.ip || 'unknown',
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many read-file requests, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  keyGenerator: (req) => req.ip || 'unknown',
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many upload requests, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const chunkLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  keyGenerator: (req) => req.ip || 'unknown',
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many chunk upload requests, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
 interface ReadFileQuery {
@@ -46,16 +89,13 @@ interface ReadFileQuery {
 
 router.get(
   '/read-file',
-  async (
-    req: Request<never, never, never, ReadFileQuery>,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  readLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
     try {
-      const { key, inline, name, width = 0 } = req.query || {};
+      const { key, inline, name, width = 0 } = (req.query || {}) as ReadFileQuery;
 
       const stringKey = Array.isArray(key) ? key[0] : key;
 
@@ -95,7 +135,7 @@ router.get(
   },
 );
 
-router.post('/upload-file', async (req: Request, res: Response) => {
+router.post('/upload-file', uploadLimiter, async (req: Request, res: Response) => {
   const subdomain = getSubdomain(req);
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
@@ -156,7 +196,7 @@ router.post('/upload-file', async (req: Request, res: Response) => {
   });
 });
 
-router.post('/delete-file', async (req: Request, res: Response) => {
+router.post('/delete-file', uploadLimiter, async (req: Request, res: Response) => {
   // require login
   if (!req.headers.userid) {
     return res.end('forbidden');
@@ -203,7 +243,7 @@ const chunkStore = new Map<
 >();
 
 // 1. Initialize chunked upload
-router.post('/upload-chunked/init', (req, res) => {
+router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
   const { fileName, fileSize, totalChunks } = req.body;
   const uploadId = crypto.randomUUID();
 
@@ -221,13 +261,14 @@ router.post('/upload-chunked/init', (req, res) => {
 // 2. Upload a chunk
 router.post(
   '/upload-chunked/chunk',
+  chunkLimiter,
   upload.single('chunk'),
-  async (req: any, res: any) => {
+  async (req: Request, res: Response) => {
     const subdomain = getSubdomain(req);
     const domain = DOMAIN.replace('<subdomain>', subdomain);
     const models = await generateModels(subdomain);
     const { uploadId, chunkIndex } = req.body;
-    const file = req.file;
+    const file = (req as Request & { file?: { path: string; mimetype: string; originalname: string; size: number } }).file;
 
     if (!file || !uploadId || chunkIndex === undefined) {
       return res.status(400).json({ error: 'Missing data' });
@@ -307,7 +348,7 @@ router.post(
             progress: 80,
           });
 
-          const response: any = await uploadFile(
+          const response = await uploadFile(
             `${domain}/gateway`,
             {
               path: finalPath,
@@ -345,12 +386,12 @@ router.post(
           } catch {
             console.error('Failed to remove chunk directory:', chunkDir);
           }
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error('Final merge/upload failed:', err);
           uploadStore.set(uploadId, {
             id: uploadId,
             status: 'failed',
-            error: err.message || 'Processing failed',
+            error: err instanceof Error ? err.message : 'Processing failed',
             fileName: uploadInfo.fileName,
           });
         }
