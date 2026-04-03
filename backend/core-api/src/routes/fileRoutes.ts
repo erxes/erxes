@@ -38,14 +38,41 @@ const router: Router = Router();
 
 const readLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
-  message: 'Too many requests from this IP, please try again later.',
+  max: 1000,
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many read-file requests, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 50,
-  message: 'Too many upload requests from this IP, please try again later.',
+  max: 200,
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many upload requests, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const chunkLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many chunk upload requests, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
@@ -166,7 +193,7 @@ router.post('/upload-file', uploadLimiter, async (req: Request, res: Response) =
   });
 });
 
-router.post('/delete-file', async (req: Request, res: Response) => {
+router.post('/delete-file', uploadLimiter, async (req: Request, res: Response) => {
   // require login
   if (!req.headers.userid) {
     return res.end('forbidden');
@@ -231,7 +258,7 @@ router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
 // 2. Upload a chunk
 router.post(
   '/upload-chunked/chunk',
-  uploadLimiter,
+  chunkLimiter,
   upload.single('chunk'),
   async (req: any, res: any) => {
     const subdomain = getSubdomain(req);
