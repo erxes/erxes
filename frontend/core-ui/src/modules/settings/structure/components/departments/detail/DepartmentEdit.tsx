@@ -8,13 +8,14 @@ import { useDepartmentEdit } from '@/settings/structure/hooks/useDepartmentActio
 import { useDepartmentForm } from '@/settings/structure/hooks/useDepartmentForm';
 import { TDepartmentForm } from '@/settings/structure/types/department';
 import { DepartmentForm } from '../DepartmentForm';
+import { Can } from 'ui-modules';
 
 export const DepartmentEdit = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('department_id');
 
-  const { departmentDetail, loading } = useDepartmentDetailsById({
+  const { departmentDetail } = useDepartmentDetailsById({
     variables: {
       id,
     },
@@ -44,7 +45,11 @@ export const DepartmentEdit = () => {
           ...data,
         },
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Department updated successfully',
+          });
           methods.reset();
           setOpen(null);
         },
@@ -62,9 +67,11 @@ export const DepartmentEdit = () => {
   useEffect(() => {
     if (departmentDetail) {
       const { __typename, _id, ...rest } = departmentDetail;
+      void __typename;
+      void _id;
       reset(rest);
     }
-  }, [departmentDetail]);
+  }, [departmentDetail, reset]);
 
   return (
     <Sheet
@@ -95,9 +102,11 @@ export const DepartmentEdit = () => {
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Spinner /> : 'Save'}
-              </Button>
+              <Can action="departmentsManage">
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? <Spinner /> : 'Save'}
+                </Button>
+              </Can>
             </Sheet.Footer>
           </form>
         </Form>

@@ -19,7 +19,7 @@ export const useAddVatRow = () => {
           query: GET_VATS,
           variables: VAT_ROW_DEFAULT_VARIABLES,
         });
-        if (!existingData || !existingData.vatRows) return;
+        if (!existingData?.vatRows) return;
 
         cache.writeQuery({
           query: GET_VATS,

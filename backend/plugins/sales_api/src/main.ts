@@ -1,9 +1,14 @@
-import { startPlugin } from 'erxes-api-shared/utils';
 import { appRouter } from './trpc/init-trpc';
-import resolvers from './apollo/resolvers';
-import { typeDefs } from './apollo/typeDefs';
+import automations from './meta/automations';
 import { generateModels } from './connectionResolvers';
+import resolvers from './apollo/resolvers';
 import { router } from './routes';
+import segments from './meta/segments';
+import { startPlugin } from 'erxes-api-shared/utils';
+import { afterProcess } from '~/meta/afterProcess';
+import { typeDefs } from './apollo/typeDefs';
+import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
+import { notifications } from './meta/notifications';
 
 startPlugin({
   name: 'sales',
@@ -13,7 +18,6 @@ startPlugin({
     resolvers,
   }),
   expressRouter: router,
-
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
@@ -23,9 +27,10 @@ startPlugin({
       : 'subscription.ts',
   ),
   apolloServerContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.models = models;
+    context.loaders = createLoaders(subdomain, models);
 
     return context;
   },
@@ -43,22 +48,18 @@ startPlugin({
     // await initMQWorkers(redis);
   },
   meta: {
-    notificationModules: [
-      {
-        name: 'deals',
-        description: 'Deals',
-        icon: 'IconChecklist',
-        types: [
-          { name: 'dealAssignee', text: 'Deal assignee' },
-          { name: 'dealStatus', text: 'Deal status changed' },
-        ],
-      },
-      {
-        name: 'note',
-        description: 'Note',
-        icon: 'IconNote',
-        types: [{ name: 'note', text: 'Mentioned in note' }],
-      },
-    ],
+    automations,
+    segments,
+    tags: { types: [{ type: 'deal', description: 'Sales' }] },
+    properties: {
+      types: [
+        {
+          description: 'Sales pipelines',
+          type: 'deal',
+        },
+      ],
+    },
+    notifications,
+    afterProcess,
   },
 });

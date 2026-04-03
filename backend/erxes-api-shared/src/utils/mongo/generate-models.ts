@@ -1,84 +1,68 @@
-import mongoose from 'mongoose';
+import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
+import mongoose, { Connection } from 'mongoose';
 import {
   coreModelOrganizations,
   getSaasCoreConnection,
 } from '../saas/saas-mongo-connection';
-import { isEnabled } from '../service-discovery';
-import { checkServiceRunning, getEnv, getSubdomain } from '../utils';
-import { startChangeStreams } from './change-stream';
+import { getEnv, getSubdomain } from '../utils';
 import { connect } from './mongo-connection';
+import type { ScopedEventHandlers } from '../../core-modules/common/eventHandlers/types';
 
-const initializeModels = async <IModels>(
-  connection: mongoose.Connection,
+const returnGeneratedModels = async <IModels>(
+  connection: Connection,
   loadClasses: (
     db: mongoose.Connection,
     subdomain: string,
+    eventHandlers?: ScopedEventHandlers,
   ) => IModels | Promise<IModels>,
   subdomain: string,
-  logIgnoreOptions?: {
-    ignoreChangeStream?: boolean;
-    ignoreModels?: string[];
-  },
+  context?: Record<string, any>,
 ) => {
-  const models = await loadClasses(connection, subdomain);
-  if (
-    !logIgnoreOptions?.ignoreChangeStream &&
-    (await checkServiceRunning('logs'))
-  ) {
-    startChangeStreams(models as any, subdomain, logIgnoreOptions);
-  }
-
-  return models;
+  const eventHandlers = createScopedEventHandlers(subdomain, context);
+  return await loadClasses(connection, subdomain, eventHandlers);
 };
 
 export const createGenerateModels = <IModels>(
   loadClasses: (
     db: mongoose.Connection,
     subdomain: string,
+    eventHandlers?: ScopedEventHandlers,
   ) => IModels | Promise<IModels>,
-  logIgnoreOptions?: {
-    ignoreChangeStream?: boolean;
-    ignoreModels?: string[];
-  },
-): ((hostnameOrSubdomain: string) => Promise<IModels>) => {
+): ((
+  hostnameOrSubdomain: string,
+  context?: Record<string, any>,
+) => Promise<IModels>) => {
   const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
 
   connect();
 
   if (VERSION && VERSION !== 'saas') {
-    const models: IModels | null = null;
     return async function genereteModels(
       hostnameOrSubdomain: string,
+      context?: Record<string, any>,
     ): Promise<IModels> {
-      if (models) {
-        return models;
-      }
-
-      return initializeModels(
+      return await returnGeneratedModels(
         mongoose.connection,
         loadClasses,
         hostnameOrSubdomain,
-        logIgnoreOptions,
+        context,
       );
     };
   } else {
     return async function genereteModels(
       hostnameOrSubdomain = '',
+      context?: Record<string, any>,
     ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
-
-      console.log(subdomain, 'subdomain1');
 
       if (!subdomain) {
         throw new Error(`Subdomain is \`${subdomain}\``);
       }
 
       // means hostname
-      if (subdomain && subdomain.includes('.')) {
+      if (subdomain?.includes('.')) {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
-
-      console.log(subdomain, 'subdomain2');
 
       await getSaasCoreConnection();
 
@@ -102,11 +86,11 @@ export const createGenerateModels = <IModels>(
         noListener: true,
       });
 
-      return initializeModels(
+      return await returnGeneratedModels(
         tenantCon,
         loadClasses,
         subdomain,
-        logIgnoreOptions,
+        context,
       );
     };
   }

@@ -3,15 +3,7 @@ import {
   IconCalendarEventFilled,
   IconCaretLeftRight,
 } from '@tabler/icons-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Separator,
-  Sheet,
-  SheetClose,
-  Spinner,
-} from 'erxes-ui';
+import { Badge, Button, Card, Separator, Sheet, Spinner } from 'erxes-ui';
 import { format } from 'date-fns';
 import { MembersInline } from 'ui-modules';
 import { PriorityBadge } from '@/operation/components/PriorityInline';

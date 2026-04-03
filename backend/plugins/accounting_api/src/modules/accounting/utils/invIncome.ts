@@ -8,7 +8,7 @@ export const InvIncomeExpenseTrs = async (
   models: IModels,
   transaction: ITransactionDocument,
 ) => {
-  const oldFollowTrs = await models.Transactions.find({ originId: transaction._id, followType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE }).lean();
+  const oldFollowTrs = await models.Transactions.find({ originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE }).lean();
 
   const matchedIds: string[] = [];
   const expenseInfos = transaction.extraData?.invIncomeExpenses || [];
@@ -25,7 +25,7 @@ export const InvIncomeExpenseTrs = async (
       ptrId: transaction.ptrId,
       parentId: transaction.parentId,
       originId: transaction._id,
-      followType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE,
+      originType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE,
       originSubId: expenseInfo._id,
       number: transaction.number,
       date: transaction.date,
@@ -58,6 +58,6 @@ export const InvIncomeExpenseTrs = async (
   }
 
   return await models.Transactions.find({
-    originId: transaction._id, followType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE
+    originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE
   }).lean();
 }

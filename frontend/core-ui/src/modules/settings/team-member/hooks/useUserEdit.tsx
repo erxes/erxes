@@ -53,7 +53,7 @@ export const useUsersDetailEdit = () => {
 export const useUserEdit = () => {
   const { toast } = useToast();
   const [_usersEdit, { loading }] = useMutation(mutations.USERS_INLINE_EDIT, {
-    onCompleted: () => toast({ title: 'Updated' }),
+    onCompleted: () => toast({ title: 'Updated', variant: 'success' }),
     onError(error) {
       toast({
         title: 'Error',
@@ -72,7 +72,7 @@ export const useUserEdit = () => {
           id: cache.identify(usersEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field];
+              fields[field] = () => variables?.[field];
               return fields;
             },
             {},
@@ -87,6 +87,15 @@ export const useUserEdit = () => {
   return { usersEdit, loading };
 };
 
+export const useUserCustomFieldEdit = () => {
+  const { usersEdit, loading: usersEditLoading } = useUserEdit();
+  return {
+    mutate: (variables: { _id: string } & Record<string, unknown>) =>
+      usersEdit({ variables }),
+    loading: usersEditLoading,
+  };
+};
+
 export const useUsersStatusEdit = () => {
   const { toast } = useToast();
   const [editStatus, { loading }] = useMutation(
@@ -97,7 +106,7 @@ export const useUsersStatusEdit = () => {
     editStatus({
       ...options,
       variables,
-      onCompleted: () => toast({ title: 'Updated' }),
+      onCompleted: () => toast({ title: 'Updated', variant: 'success' }),
       onError(error) {
         toast({
           title: 'Error',

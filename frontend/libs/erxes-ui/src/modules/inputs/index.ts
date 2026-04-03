@@ -5,3 +5,4 @@ export * from './components/CurrencyField';
 export * from './components/SexField';
 export * from './components/TimezoneSelect';
 export * from './components/LanguageSelect';
+export * from './components/NumberField';

@@ -9,7 +9,7 @@ import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mu
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   checkIsBot,
-  triggerFacebookAutomation,
+  triggerFacebookMessageAutomation,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 
 export const receiveMessage = async (
@@ -19,9 +19,6 @@ export const receiveMessage = async (
   activity: Activity,
 ) => {
   try {
-    console.log(activity, 'activity');
-    console.log(integration, 'integration');
-
     debugFacebook(
       `Received message: ${activity.text} from ${activity.from.id}`,
     );
@@ -52,6 +49,19 @@ export const receiveMessage = async (
       message.payload = message.quick_reply.payload;
     }
 
+    const referral = message?.referral || postback?.referral;
+    const isOpenThreadEvent = referral?.type === 'OPEN_THREAD';
+
+    if (isOpenThreadEvent) {
+      adData = {
+        source: referral.source,
+        type: referral.type,
+        adId: referral.ad_id,
+        postId: referral.ads_context_data?.post_id,
+        pageId,
+      };
+    }
+
     const customer = await getOrCreateCustomer(
       models,
       subdomain,
@@ -59,7 +69,6 @@ export const receiveMessage = async (
       userId,
       kind,
     );
-    console.log(customer, 'customer');
     if (!customer) {
       throw new Error('Customer not found');
     }
@@ -127,8 +136,6 @@ export const receiveMessage = async (
         data,
       );
 
-      console.log(apiConversationResponse, 'apiConversationResponse');
-
       if (apiConversationResponse.status === 'success') {
         conversation.erxesApiId = apiConversationResponse.data._id;
 
@@ -150,11 +157,12 @@ export const receiveMessage = async (
         mid: mid,
       },
     );
+
     if (!conversationMessage) {
       try {
         const created = await models.FacebookConversationMessages.create({
           conversationId: conversation._id,
-          mid: mid,
+          mid,
           createdAt: timestamp,
           content: text,
           customerId: customer.erxesApiId,
@@ -186,7 +194,7 @@ export const receiveMessage = async (
 
         conversationMessage = created;
 
-        await triggerFacebookAutomation(subdomain, {
+        triggerFacebookMessageAutomation(subdomain, {
           conversationMessage: conversationMessage.toObject(),
           payload: message?.payload,
           adData,

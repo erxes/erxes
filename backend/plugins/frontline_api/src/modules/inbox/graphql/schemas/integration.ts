@@ -39,11 +39,7 @@ export const types = `
     departments: [CloudflareCallDataDepartment]
     isReceiveWebCall: Boolean
   }
-    type Form {
-      _id: String
-      title: String
-      code: String
-    }
+
   type Integration @key(fields: "_id") {
    _id: String!
     kind: String!
@@ -54,10 +50,10 @@ export const types = `
     tagIds: [String]
     createdAt: Date
     tags: [Tag]
-
+    brandId: String
     leadData: JSON
     messengerData: JSON
-    ticketData: JSON
+    ticketConfigId: JSON
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -87,7 +83,6 @@ export const types = `
     total: Int
     byTag: JSON
     byChannel: JSON
-    byBrand: JSON
     byKind: JSON
     byStatus: JSON
   }
@@ -152,10 +147,7 @@ export const types = `
   }
 
   input MessengerUiOptions {
-    color: String
-    wallpaper: String
     logo: String
-    textColor: String
     primary: ColorDefinitionInput
   }
 
@@ -206,7 +198,6 @@ export const queries = `
 export const mutations = `
   integrationsCreateMessengerOnboarding(
     channelId: String!,
-    brandName: String!,
     languageCode: String
     color: String
     logo:String
@@ -216,8 +207,8 @@ export const mutations = `
   integrationsEditMessengerOnboarding(
     _id: String!,
     channelId: String!,
-    brandName: String!,
     languageCode: String
+    brandId: String!
     color: String
     logo:String
   ): Integration
@@ -226,11 +217,13 @@ export const mutations = `
     channelId: String!,
     name: String!,
     languageCode: String
+    brandId: String!
     ): Integration
 
   integrationsEditMessengerIntegration(
     _id: String!,
     channelId: String!,
+    brandId: String!
     name: String!,
     languageCode: String
   ): Integration
@@ -238,7 +231,8 @@ export const mutations = `
   integrationsSaveMessengerAppearanceData(
     _id: String!,
     channelId: String!,
-    uiOptions: MessengerUiOptions): Integration
+    uiOptions: MessengerUiOptions,
+    brandId: String!): Integration
 
   integrationsSaveMessengerColorTheme(
     _id: String!,
@@ -248,6 +242,7 @@ export const mutations = `
   integrationsSaveMessengerConfigs(
     _id: String!,
     channelId: String!,
+    brandId: String!,
     messengerData: IntegrationMessengerData,
     callData: IntegrationCallData
     ): Integration
@@ -257,9 +252,10 @@ export const mutations = `
     channelId: String!,
     name: String!,
     accountId: String,
+    brandId: String!,
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, channelId: String, details: JSON): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, channelId: String, brandId: String, details: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!, kind: String): JSON
@@ -280,4 +276,8 @@ export const mutations = `
     channelId: String
   ): Integration
   integrationsCopyLeadIntegration(_id: String!): Integration
+
+  integrationsSaveMessengerTicketData(
+    _id: String!,
+    configId: String!): Integration
 `;

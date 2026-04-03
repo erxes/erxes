@@ -17,9 +17,9 @@ export const getCommonPinningStyles = (
 
   return {
     boxShadow: isLastLeftPinnedColumn
-      ? '-4px 0 4px -4px hsl(var(--muted-foreground)) inset'
+      ? '-4px 0 4px -4px var(--muted-foreground) inset'
       : isFirstRightPinnedColumn
-      ? '4px 0 4px -4px hsl(var(--muted-foreground)) inset'
+      ? '4px 0 4px -4px var(--muted-foreground) inset'
       : undefined,
     left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
     right: isPinned === 'right' ? `${column.getAfter('right')}px` : undefined,
@@ -30,5 +30,5 @@ export const getCommonPinningStyles = (
 export const getCommonPinningClassName = (column: Column<Product>) => {
   const isPinned = column.getIsPinned();
 
-  return cn(isPinned ? 'sticky z-[1]' : 'relative');
+  return cn(isPinned ? 'sticky z-1' : 'relative');
 };

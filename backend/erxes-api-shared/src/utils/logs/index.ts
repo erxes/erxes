@@ -1,8 +1,13 @@
 import { checkServiceRunning } from '../utils';
 import { ILogDoc } from '../../core-types';
-import { createMQWorkerWithListeners, sendWorkerQueue } from '../mq-worker';
-import { redis } from '../redis';
+import { sendWorkerQueue } from '../mq-worker';
 import { initializePluginConfig } from '../service-discovery';
+import { Express } from 'express';
+import * as trpcExpress from '@trpc/server/adapters/express';
+import { initTRPC } from '@trpc/server';
+import { createTRPCContext } from '../trpc';
+import { nanoid } from 'nanoid';
+import { z } from 'zod';
 
 export const logHandler = async (
   resolver: () => Promise<any> | any,
@@ -33,7 +38,9 @@ export const logHandler = async (
       durationMs: durationMs,
     };
     logDoc.status = 'success';
-    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc);
+    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc, {
+      removeOnComplete: true,
+    });
 
     return result;
   } catch (error) {
@@ -45,7 +52,9 @@ export const logHandler = async (
 
     logDoc.payload = { ...payload, ...onError, error: errorDetails };
     logDoc.status = 'failed';
-    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc);
+    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc, {
+      removeOnComplete: true,
+    });
 
     throw error;
   }
@@ -104,82 +113,125 @@ export type TAfterProcessRule = {
 
 export interface AfterProcessConfigs {
   rules: IAfterProcessRule[];
-  onAfterMutation?: (
+  afterMutation?: (
     context: IContext,
-    args: { mutationName: string; args: { [key: string]: any }; result: any },
-  ) => void;
-  onAfterAuth?: (
+    args: { data: { mutationName: string; args: { [key: string]: any }; result: any, userId?: string } },
+  ) => void | Promise<void>;
+  afterAuth?: (
     context: IContext,
     args: { userId: string; email: string; result: string },
   ) => void;
-  onAfterApiRequest?: (context: IContext, args: any) => void;
-  onDocumentUpdated?: <TDocument = any>(
+  afterApiRequest?: (context: IContext, args: any) => void;
+  afterDocumentUpdated?: <TDocument = any>(
     context: IContext,
     args: {
-      contentType: string;
-      fullDocument: TDocument;
-      prevDocument: TDocument;
-      updateDescription: {
-        updatedFields: { [key: string]: any };
-        removedFields: string[];
-      };
+      data: {
+        collectionName: string,
+        docId: string,
+        prevDocument?: any,
+        currentDocument?: any,
+        updateDescription: {
+          added: { [key: string]: any };
+          updated: { [key: string]: any };
+          removed: string[];
+        };
+        userId: string;
+        processId: string;
+        contentType: string;
+      }
     },
   ) => void;
-  onDocumentCreated?: <TDocument = any>(
+  afterDocumentCreated?: <TDocument = any>(
     context: IContext,
     args: {
-      contentType: string;
-      fullDocument: TDocument;
+      data: {
+        collectionName: string,
+        docId: string,
+        currentDocument?: any,
+        userId: string;
+        processId: string;
+        contentType: string;
+      }
     },
   ) => void;
 }
 
+export interface AfterProcessModuleConfig<TModels = any> {
+  rules: IAfterProcessRule[];
+  createdDocument?: Record<
+    string,
+    (models: TModels, data: any) => Promise<void>
+  >;
+  updatedDocument?: Record<
+    string,
+    (subdomain: string, models: TModels, data: any) => Promise<void>
+  >;
+  afterMutation?: Record<string, (subdomain: string, models: TModels, data: any) => Promise<void>>;
+}
+
+export interface AfterProcessModules<TModels = any> {
+  [moduleName: string]: AfterProcessModuleConfig<TModels>;
+}
+
 export const startAfterProcess = async (
+  app: Express,
   pluginName: string,
   config: AfterProcessConfigs,
 ) => {
   await initializePluginConfig(pluginName, 'afterProcess', config);
 
-  return new Promise<void>((resolve, reject) => {
-    try {
-      createMQWorkerWithListeners(
-        pluginName,
-        'afterProcess',
-        async ({ name, id, data: jobData }) => {
-          try {
-            const {
-              subdomain,
-              data: { processId, ...data },
-            } = jobData;
+  const t = initTRPC.context<IContext>().create();
 
-            if (!subdomain) {
-              throw new Error('You should provide subdomain on message');
-            }
+  const {
+    afterMutation,
+    afterAuth,
+    afterApiRequest,
+    afterDocumentUpdated,
+    afterDocumentCreated,
+  } = config || {};
 
-            const resolverName = name as keyof AfterProcessConfigs;
+  const routes: Record<string, any> = {};
 
-            if (
-              !(name in config) ||
-              typeof config[resolverName] !== 'function'
-            ) {
-              throw new Error(`Automations method ${name} not registered`);
-            }
+  if (afterMutation) {
+    routes.afterMutation = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => afterMutation(ctx, input));
+  }
 
-            const resolver = config[resolverName];
+  if (afterAuth) {
+    routes.afterAuth = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => afterAuth(ctx, input));
+  }
 
-            resolver({ subdomain, processId }, data);
-          } catch (error: any) {
-            console.error(`Error processing job ${id}: ${error.message}`);
-            throw error;
-          }
-        },
-        redis,
-        () => {
-          resolve();
-        },
-      );
-    } catch (error) {
-      reject(error);
-    }
+  if (afterApiRequest) {
+    routes.afterApiRequest = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => afterApiRequest(ctx, input));
+  }
+
+  if (afterDocumentUpdated) {
+    routes.afterDocumentUpdated = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => afterDocumentUpdated(ctx, input));
+  }
+
+  if (afterDocumentCreated) {
+    routes.afterDocumentCreated = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => afterDocumentCreated(ctx, input));
+  }
+
+  const afterProcessRouter = t.router(routes);
+
+  const trpcMiddleware = trpcExpress.createExpressMiddleware({
+    router: afterProcessRouter,
+    createContext: createTRPCContext(async (_subdomain, context) => {
+      const processId = nanoid(12);
+      context.processId = processId;
+      return context;
+    }),
   });
+
+  app.use('/afterProcess', trpcMiddleware);
 };

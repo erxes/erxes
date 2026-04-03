@@ -12,8 +12,8 @@ const commonFields = `
   erxesAppToken: String
   permissionConfig: JSON
   uiOptions: JSON
-  user1Ids: [String]
-  user2Ids: [String]
+  language: String
+  languages: [String]
 `;
 
 export const types = `
@@ -28,8 +28,8 @@ export const types = `
     userId: String
     user: User
     ${commonFields}
-    user1s: [User]
-    user2s: [User]
+    managers: [User]
+    generalManagers: [User]
   }
 
   type BmsBranchListResponse {
@@ -40,9 +40,12 @@ export const types = `
 `;
 
 export const queries = `
-  bmsBranchList(page: Int, perPage: Int, sortField: String, sortDirection: Int): [BmsBranch]
-  bmsBranches(${GQL_CURSOR_PARAM_DEFS}): BmsBranchListResponse
+  bmsBranches(page: Int, perPage: Int, sortField: String, sortDirection: Int): [BmsBranch]
+  bmsBranchList(${GQL_CURSOR_PARAM_DEFS}): BmsBranchListResponse
   bmsBranchDetail(_id: String!): BmsBranch
+  cpBmsBranches(page: Int, perPage: Int, sortField: String, sortDirection: Int): [BmsBranch]
+  cpBmsBranchList(${GQL_CURSOR_PARAM_DEFS}): BmsBranchListResponse
+  cpBmsBranchDetail(_id: String!): BmsBranch
 `;
 
 export const mutations = `

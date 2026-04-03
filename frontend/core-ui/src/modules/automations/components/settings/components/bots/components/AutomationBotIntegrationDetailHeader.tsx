@@ -1,7 +1,6 @@
 import { useAutomationBotTotalCount } from '@/automations/components/settings/components/bots/hooks/useAutomationBots';
 import { IAutomationBot } from '@/automations/components/settings/components/bots/types/automationBots';
-import { IconPlus } from '@tabler/icons-react';
-import { Button, cn, getPluginAssetsUrl, Sheet, Spinner } from 'erxes-ui';
+import { cn, getPluginAssetsUrl, Spinner } from 'erxes-ui';
 
 export const AutomationBotIntegrationDetailHeader = ({
   botIntegrationConstant,

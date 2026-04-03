@@ -1,0 +1,168 @@
+import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
+import { tagGroupsAtomFamily } from '@/settings/tags/states/tagGroupsAtom';
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
+import {
+  IconArrowMoveRight,
+  IconCaretRightFilled,
+  IconCirclesFilled,
+  IconDots,
+  IconPlus,
+  IconTransform,
+  IconTrash,
+} from '@tabler/icons-react';
+import {
+  Button,
+  cn,
+  Combobox,
+  Command,
+  Popover,
+  PopoverScoped,
+  useQueryState,
+} from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useState } from 'react';
+import { Can, ITag, useTagEdit, useTagRemove } from 'ui-modules';
+
+export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
+  const [menuContent, setMenuContent] = useState<'main' | 'groupSelect'>(
+    'main',
+  );
+  const [open, setOpen] = useState(false);
+  const { editTag } = useTagEdit();
+  const { removeTag } = useTagRemove();
+  const setAddingTag = useSetAtom(addingTagAtom);
+  const [type] = useQueryState<string>('tagType');
+  const tagGroupsFiltered = useAtomValue(tagGroupsAtomFamily(type)).filter(
+    (group) => group._id !== tag._id,
+  );
+  const triggerActions = tag.isGroup
+    ? ['tagsCreate', 'tagsUpdate', 'tagsDelete']
+    : ['tagsUpdate', 'tagsDelete'];
+
+  return (
+    <PopoverScoped
+      scope={SettingsHotKeyScope.TagsInput}
+      open={open}
+      onOpenChange={(open) => {
+        setOpen(open);
+        setMenuContent('main');
+      }}
+    >
+      <Can actions={triggerActions}>
+        <Popover.Trigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => e.stopPropagation()}
+            className={cn(
+              'absolute left-3 opacity-0 group-hover:opacity-100  ',
+              open && 'opacity-100 bg-accent-foreground/10',
+            )}
+          >
+            <IconDots />
+          </Button>
+        </Popover.Trigger>
+      </Can>
+      <Combobox.Content
+        sideOffset={6}
+        onClick={(e) => e.stopPropagation()}
+        className="min-w-50 w-min"
+      >
+        {menuContent === 'main' && (
+          <Command>
+            <Command.Input />
+            <Combobox.Empty />
+            <Command.List className="[&>div>div]:cursor-pointer">
+              <Can action="tagsUpdate">
+                <Command.Item
+                  onSelect={() => {
+                    editTag({
+                      variables: {
+                        id: tag._id,
+                        isGroup: !tag.isGroup,
+                      },
+                      optimisticResponse: {
+                        tagsEdit: { ...tag, isGroup: !tag.isGroup },
+                      },
+                    });
+                  }}
+                >
+                  <IconTransform />
+                  Convert to {tag.isGroup ? 'tag' : 'group'}
+                </Command.Item>
+              </Can>
+              {tag.isGroup ? (
+                <Can action="tagsCreate">
+                  <Command.Item
+                    onSelect={() => {
+                      setAddingTag({ parentId: tag._id, isGroup: false });
+                      setOpen(false);
+                    }}
+                  >
+                    <IconPlus />
+                    Add tag to group
+                  </Command.Item>
+                </Can>
+              ) : (
+                <Can action="tagsUpdate">
+                  <Command.Item onSelect={() => setMenuContent('groupSelect')}>
+                    <IconArrowMoveRight />
+                    {!tag.parentId ? 'Move to group' : 'Change group'}
+                    <IconCaretRightFilled className="size-5 absolute right-1 text-accent-foreground" />
+                  </Command.Item>
+                </Can>
+              )}
+              <Can action="tagsDelete">
+                <Command.Item
+                  className="text-destructive"
+                  onSelect={() => removeTag(tag._id)}
+                >
+                  <IconTrash />
+                  Delete
+                </Command.Item>
+              </Can>
+            </Command.List>
+          </Command>
+        )}
+        {menuContent === 'groupSelect' && (
+          <Command>
+            <Command.Input
+              variant="secondary"
+              focusOnMount
+              placeholder="Search tag groups"
+            />
+            <Command.Empty>No groups found</Command.Empty>
+            <Command.List className="[&>div>div]:cursor-pointer">
+              <Can action="tagsUpdate">
+                <>
+                  {tagGroupsFiltered.map((group) => (
+                    <Command.Item
+                      key={group._id}
+                      onSelect={() => {
+                        editTag({
+                          variables: {
+                            id: tag._id,
+                            parentId: group._id,
+                          },
+                          optimisticResponse: {
+                            tagsEdit: { ...tag, parentId: group._id },
+                          },
+                        });
+                      }}
+                    >
+                      <IconCirclesFilled
+                        className="size-3"
+                        style={{ color: group.colorCode }}
+                      ></IconCirclesFilled>
+                      {group.name}
+                    </Command.Item>
+                  ))}
+                </>
+              </Can>
+            </Command.List>
+          </Command>
+        )}
+      </Combobox.Content>
+    </PopoverScoped>
+  );
+};

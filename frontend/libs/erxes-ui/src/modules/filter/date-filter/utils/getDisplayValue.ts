@@ -27,13 +27,13 @@ export const getDisplayValue = (value: string) => {
 
   if (value.includes('quarter')) {
     const [year] = value.split('-');
-    const quarterNumber = parseInt(value.split('quarter')[1]);
+    const quarterNumber = Number.parseInt(value.split('quarter')[1]);
     return `${year} Q${quarterNumber}`;
   }
 
   if (value.includes('half')) {
     const [year] = value.split('-');
-    const halfNumber = parseInt(value.split('half')[1]);
+    const halfNumber = Number.parseInt(value.split('half')[1]);
     return `${year} H${halfNumber}`;
   }
 

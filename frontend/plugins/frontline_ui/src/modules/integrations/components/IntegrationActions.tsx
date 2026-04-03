@@ -1,7 +1,6 @@
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
-import { Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import { IntegrationType } from '@/types/Integration';
-import { lazy } from 'react';
 
 const FacebookPostTrigger = lazy(() =>
   import('@/integrations/facebook/components/FacebookPostTrigger').then(

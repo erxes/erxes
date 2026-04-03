@@ -1,0 +1,175 @@
+import { ITrRecord } from '@/accounting/@types/transaction';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
+
+export default {
+  __resolveReference: async ({ _id }, { models }: IContext) => {
+    return await models.Transactions.findOne({ _id });
+  },
+
+  async followTrs(transaction: ITrRecord, _, { models }: IContext) {
+    return await models.Transactions.find({
+      originId: transaction._id,
+    }).lean();
+  },
+
+  async vatRow(transaction: ITrRecord, _, { models }: IContext) {
+    if (!transaction.vatRowId) {
+      return;
+    }
+
+    return await models.VatRows.findOne({ _id: transaction.vatRowId });
+  },
+
+  async ctaxRow(transaction: ITrRecord, _, { models }: IContext) {
+    if (!transaction.ctaxRowId) {
+      return;
+    }
+
+    return await models.CtaxRows.findOne({ _id: transaction.ctaxRowId });
+  },
+
+  async branch(transaction: ITrRecord) {
+    if (!transaction.branchId) {
+      return;
+    }
+
+    return {
+      __typename: 'Branch',
+      _id: transaction.branchId,
+    };
+  },
+
+  async department(transaction: ITrRecord) {
+    if (!transaction.departmentId) {
+      return;
+    }
+
+    return {
+      __typename: 'Department',
+      _id: transaction.departmentId,
+    };
+  },
+
+  async customer(
+    transaction: ITrRecord,
+    _params,
+    { subdomain }: IContext,
+  ) {
+    if (!transaction.customerId) {
+      return null;
+    }
+
+    if (transaction.customerType === 'visitor') {
+      return null;
+    }
+
+    if (transaction.customerType === 'company') {
+      const company = await sendTRPCMessage({
+        subdomain,
+
+        method: 'query',
+        pluginName: 'core',
+        module: 'company',
+        action: 'findOne',
+        input: { query: { _id: transaction.customerId } },
+        defaultValue: {},
+      });
+
+      if (!company?._id) {
+        return null;
+      }
+
+      return {
+        _id: company._id,
+        code: company.code,
+        primaryPhone: company.primaryPhone,
+        primaryEmail: company.primaryEmail,
+        firstName: company.primaryName,
+        lastName: '',
+      };
+    }
+
+    if (transaction.customerType === 'user') {
+      const user = await sendTRPCMessage({
+        subdomain,
+
+        method: 'query',
+        pluginName: 'core',
+        module: 'users',
+        action: 'findOne',
+        input: { query: { _id: transaction.customerId } },
+        defaultValue: {},
+      });
+
+      if (!user?._id) {
+        return null;
+      }
+
+      return {
+        _id: user._id,
+        code: user.code,
+        primaryPhone: user.details?.operatorPhone ?? '',
+        primaryEmail: user.email ?? '',
+        firstName: `${user.firstName || ''} ${user.lastName || ''}`,
+        lastName: user.username,
+      };
+    }
+
+    const customer = await sendTRPCMessage({
+      subdomain,
+
+      method: 'query',
+      pluginName: 'core',
+      module: 'customer',
+      action: 'findOne',
+      input: { query: { _id: transaction.customerId } },
+      defaultValue: {},
+    });
+
+    if (!customer?._id) {
+      return null;
+    }
+
+    return {
+      _id: customer._id,
+      code: customer.code,
+      primaryPhone: customer.primaryPhone,
+      primaryEmail: customer.primaryEmail,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+    };
+  },
+
+  assignedUsers(transaction: ITrRecord) {
+    if (!transaction.assignedUserIds?.length) {
+      return;
+    }
+
+    return transaction.assignedUserIds.map((aui) => ({
+      __typename: 'User',
+      _id: aui,
+    }));
+  },
+
+  async ptrInfo(transaction: ITrRecord, _, { models }: IContext) {
+    const perPtrTrs = await models.Transactions.find(
+      { ptrId: transaction.ptrId },
+      {
+        sumCt: 1,
+        sumDt: 1,
+        journal: 1,
+      },
+    ).lean();
+
+    const debit = perPtrTrs.reduce((sum, tr) => (tr.sumDt ?? 0) + sum, 0);
+    const credit = perPtrTrs.reduce((sum, tr) => (tr.sumCt ?? 0) + sum, 0);
+    return {
+      len: perPtrTrs.length,
+      activeLen: perPtrTrs.filter((tr) => !tr.originId).length,
+      status: perPtrTrs[0].ptrStatus,
+      diff: Math.abs(debit - credit),
+      value: Math.max(debit, credit),
+    };
+  },
+};

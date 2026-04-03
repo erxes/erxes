@@ -4,6 +4,7 @@ import {
   IProductsConfigDocument,
 } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 
 export interface IProductsConfigModel extends Model<IProductsConfigDocument> {
@@ -17,7 +18,11 @@ export interface IProductsConfigModel extends Model<IProductsConfigDocument> {
   }: IProductsConfig): Promise<IProductsConfigDocument>;
 }
 
-export const loadProductsConfigClass = (models: IModels) => {
+export const loadProductsConfigClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class ProductsConfig {
     /*
      * Get a Config
@@ -50,10 +55,25 @@ export const loadProductsConfigClass = (models: IModels) => {
           { $set: { value } },
         );
 
-        return await models.ProductsConfigs.findOne({ _id: obj._id });
+        const updated = await models.ProductsConfigs.findOne({ _id: obj._id });
+        if (updated) {
+          sendDbEventLog({
+            action: 'update',
+            docId: updated._id,
+            currentDocument: updated.toObject(),
+            prevDocument: obj.toObject(),
+          });
+        }
+        return updated;
       }
 
-      return await models.ProductsConfigs.create({ code, value });
+      const newConfig = await models.ProductsConfigs.create({ code, value });
+      sendDbEventLog({
+        action: 'create',
+        docId: newConfig._id,
+        currentDocument: newConfig.toObject(),
+      });
+      return newConfig;
     }
   }
 

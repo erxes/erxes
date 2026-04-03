@@ -12,12 +12,15 @@ import {
 import { IconCheck } from '@tabler/icons-react';
 import { useSearchParams } from 'react-router';
 
+type FilterOperatorOption = (typeof COMMON_FILTER_BAR_OPERATORS)[number];
+type FilterOperatorOptions = FilterOperatorOption[];
+
 const getFieldLableOperator = ({
   operator = 'eq',
   fields,
 }: {
   operator?: string | null;
-  fields: { value: string; label: string }[];
+  fields: FilterOperatorOptions;
 }) => {
   return fields.find(({ value }) => value === operator)?.label;
 };
@@ -25,26 +28,18 @@ const getFieldLableOperator = ({
 export const LogRecordTableFilterBarOperator = ({
   fieldName,
 }: {
-  fieldName: 'status' | 'source' | 'action' | 'userIds' | 'createdAt';
+  fieldName: string;
 }) => {
   const [searchParams] = useSearchParams();
-  const [queries, setQueries] = useMultiQueryState<{
-    statusOperator: string;
-    sourceOperator: string;
-    actionOperator: string;
-    userIdsOperator: string;
-    createdAtOperator: string;
-  }>([
-    'statusOperator',
-    'sourceOperator',
-    'actionOperator',
-    'userIdsOperator',
-    'createdAtOperator',
+  const [, setQueries] = useMultiQueryState<Record<string, string>>([
+    `${fieldName}Operator`,
   ]);
 
   const operator = searchParams.get(`${fieldName}Operator`) || undefined;
   const fields =
-    LOG_FILTER_BAR_OPERATORS[fieldName] || COMMON_FILTER_BAR_OPERATORS;
+    (LOG_FILTER_BAR_OPERATORS as Record<string, FilterOperatorOptions>)[
+      fieldName
+    ] || COMMON_FILTER_BAR_OPERATORS;
 
   return (
     <Popover>

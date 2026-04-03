@@ -46,7 +46,7 @@ export const AddTransaction = ({
       }}
     >
       <DropdownMenu.Trigger asChild>{children}</DropdownMenu.Trigger>
-      <DropdownMenu.Content className="min-w-[--radix-dropdown-menu-trigger-width]">
+      <DropdownMenu.Content className="min-w-(--radix-dropdown-menu-trigger-width)">
         <DropdownMenu.Label>Ерөнхий</DropdownMenu.Label>
         <AddTransactionItem
           journal={TrJournalEnum.MAIN}
@@ -102,17 +102,15 @@ export const AddTransaction = ({
         >
           Хангамжийн зарлага
         </AddTransactionItem>
-        {
-          !inForm && (
-            <AddTransactionItem
-              journal={TrJournalEnum.INV_MOVE}
-              onClick={onClick}
-              inForm={inForm}
-            >
-              Дотоод хөдөлгөөн
-            </AddTransactionItem>
-          )
-        }
+        {!inForm && (
+          <AddTransactionItem
+            journal={TrJournalEnum.INV_MOVE}
+            onClick={onClick}
+            inForm={inForm}
+          >
+            Дотоод хөдөлгөөн
+          </AddTransactionItem>
+        )}
         <AddTransactionItem
           journal={TrJournalEnum.INV_SALE}
           onClick={onClick}
@@ -159,7 +157,7 @@ const AddTransactionItem = ({
     );
   }
   return (
-    <DropdownMenu.Item onClick={() => onClick && onClick(journal)}>
+    <DropdownMenu.Item onClick={() => onClick?.(journal)}>
       {children}
     </DropdownMenu.Item>
   );

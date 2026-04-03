@@ -1,6 +1,6 @@
-import { getPureDate } from "erxes-api-shared/utils";
-import { IContext } from "~/connectionResolvers";
-import { paginate } from "./orders";
+import { getPureDate } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
+import { paginate } from './orders';
 
 const generateFilterQuery = async (models, params) => {
   const query: any = {};
@@ -56,8 +56,5 @@ const coverQueries = {
     return models.Covers.getCover(_id);
   },
 };
-
-// checkPermission(coverQueries, 'posCovers', 'showCovers');
-// checkPermission(coverQueries, 'posCoversCount', 'showCovers');
 
 export default coverQueries;

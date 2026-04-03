@@ -88,7 +88,7 @@ export const MilestoneFields = ({
                     type="text"
                     placeholder="Milestone name"
                     autoFocus
-                    className="bg-transparent outline-none border-none focus:ring-0 focus:outline-none w-full"
+                    className="bg-transparent outline-hidden border-none focus:ring-0 focus:outline-hidden w-full"
                   />
                 </Form.Item>
               )}

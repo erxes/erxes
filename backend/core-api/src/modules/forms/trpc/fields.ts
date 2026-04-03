@@ -2,13 +2,12 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 
 import { CoreTRPCContext } from '~/init-trpc';
+import { fieldsCombinedByContentType } from '~/modules/forms/utils';
 import {
   generateContactsFields,
   generateFieldsUsers,
-  generateFormFields,
   generateProductsFields,
 } from '../fields/utils';
-import { fieldsCombinedByContentType } from '~/modules/forms/utils';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -22,11 +21,67 @@ export const fieldsTrpcRouter = t.router({
         return await models.Fields.find(query, projection).sort(sort).lean();
       }),
     findOne: t.procedure
-      .input(z.object({ _id: z.string() }))
+      .input(
+        z.object({
+          _id: z.string().optional(),
+          query: z.record(z.any()).optional(),
+        }),
+      )
       .query(async ({ ctx, input }) => {
-        const { _id } = input;
+        const { _id, query } = input;
         const { models } = ctx;
-        return await models.Fields.findOne({ _id });
+        return await models.Fields.findOne(query || { _id });
+      }),
+    create: t.procedure
+      .input(z.record(z.any()))
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const order = await models.Fields.findOne({
+          contentType: input.contentType,
+        })
+          .sort({ order: -1 })
+          .lean()
+          .then((f) => (f?.order || 0) + 10);
+        return await models.Fields.create({
+          ...input,
+          order,
+          isDefinedByErxes: false,
+        });
+      }),
+    updateOne: t.procedure
+      .input(
+        z.object({ selector: z.record(z.any()), modifier: z.record(z.any()) }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { selector, modifier } = input;
+        const { models } = ctx;
+        return await models.Fields.updateOne(selector, modifier);
+      }),
+    prepareCustomFieldsData: t.procedure
+      .input(z.array(z.object({ field: z.string(), value: z.any() })))
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const result: any[] = [];
+        for (const item of input) {
+          const { field: fieldId, value } = item;
+          const fieldDoc = await models.Fields.findOne({ _id: fieldId }).lean();
+          const extra: any = {};
+          if (fieldDoc) {
+            const { type, validation } = fieldDoc as any;
+            if (
+              type === 'number' ||
+              (type === 'input' && validation === 'number')
+            ) {
+              extra.numberValue = Number(value);
+            } else if (['text', 'textarea', 'input'].includes(type || '')) {
+              extra.stringValue = String(value);
+            } else if (type === 'date') {
+              extra.dateValue = value;
+            }
+          }
+          result.push({ field: fieldId, value, ...extra });
+        }
+        return result;
       }),
     updateMany: t.procedure
       .input(
@@ -38,32 +93,14 @@ export const fieldsTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         const { selector, modifier } = input;
+        return await models.Customers.updateMany(selector, modifier);
       }),
 
-    generateTypedItem: t.procedure
-      .input(
-        z.object({
-          field: z.string(),
-          value: z.string(),
-          type: z.string(),
-          validation: z.string(),
-        }),
-      )
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const { field, validation, value, type } = input;
-
-        return await models.Fields.generateTypedItem(
-          field,
-          value,
-          type,
-          validation,
-        );
-      }),
     getFieldList: t.procedure
       .input(
         z.object({
           moduleType: z.string(),
+          collectionType: z.string().optional(),
           segmentId: z.string().optional(),
           usageType: z.string().optional(),
           config: z.record(z.any()).optional(),
@@ -72,48 +109,16 @@ export const fieldsTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const { subdomain } = ctx;
         const { moduleType } = input;
-
         switch (moduleType) {
-          case 'lead':
-            return generateContactsFields({ subdomain, data: input });
-          case 'customer':
-            return generateContactsFields({ subdomain, data: input });
-
-          case 'company':
+          case 'contact':
             return generateContactsFields({ subdomain, data: input });
 
           case 'product':
             return generateProductsFields({ subdomain, data: input });
 
-          case 'form_submission':
-            return generateFormFields({ subdomain, data: input });
-
           default:
             return generateFieldsUsers({ subdomain, data: input });
         }
-      }),
-    prepareCustomFieldsData: t.procedure
-      .input(
-        z.array(
-          z.object({
-            field: z.string(),
-            value: z.any(),
-            extraValue: z.string().optional(),
-          }),
-        ),
-      )
-
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        return await models.Fields.prepareCustomFieldsData(
-          input.map((item) => {
-            return {
-              field: item.field,
-              value: item.value ?? '',
-              extraValue: item.extraValue,
-            };
-          }),
-        );
       }),
     fieldsCombinedByContentType: t.procedure
       .input(
@@ -129,6 +134,14 @@ export const fieldsTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const { subdomain, models } = ctx;
         return await fieldsCombinedByContentType(models, subdomain, input);
+      }),
+    validateFieldValues: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { data } = input;
+        const { models } = ctx;
+
+        return await models.Fields.validateFieldValues(data);
       }),
   }),
 });

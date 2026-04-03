@@ -1,11 +1,24 @@
 import { IContext } from '~/connectionResolvers';
 import { IPipelineLabel, IPipelineLabelDocument } from '~/modules/sales/@types';
+import { subscriptionWrapper } from '../utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const pipelineLabelMutations = {
+export const pipelineLabelMutations: Record<string, Resolver> = {
   /**
    * Creates a new pipeline label
    */
   async salesPipelineLabelsAdd(
+    _root: undefined,
+    { ...doc }: IPipelineLabel,
+    { user, models }: IContext,
+  ) {
+    return await models.PipelineLabels.createPipelineLabel({
+      userId: user._id,
+      ...doc,
+    });
+  },
+
+  async cpSalesPipelineLabelsAdd(
     _root: undefined,
     { ...doc }: IPipelineLabel,
     { user, models }: IContext,
@@ -46,6 +59,21 @@ export const pipelineLabelMutations = {
     { targetId, labelIds }: { targetId: string; labelIds: string[] },
     { models }: IContext,
   ) {
-    return models.PipelineLabels.labelsLabel(targetId, labelIds);
+    const { oldDeal, deal } = await models.PipelineLabels.labelObject({
+      dealId: targetId,
+      labelIds,
+    });
+    const stage = await models.Stages.getStage(deal.stageId);
+
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal,
+      oldDeal,
+      pipelineId: stage.pipelineId,
+    });
   },
+};
+
+pipelineLabelMutations.cpSalesPipelineLabelsAdd.wrapperConfig = {
+  forClientPortal: true,
 };

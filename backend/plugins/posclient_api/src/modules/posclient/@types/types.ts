@@ -1,10 +1,14 @@
-import { IUserDocument, IAttachment } from 'erxes-api-shared/core-types';
+import {
+  IUserDocument,
+  IAttachment,
+  IMainContext,
+} from 'erxes-api-shared/core-types';
 import * as express from 'express';
 import { IModels } from '~/connectionResolvers';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 
-export interface IContext {
+export interface IContext extends IMainContext {
   res: express.Response;
   requestInfo: any;
   user: IUserDocument;

@@ -1,6 +1,6 @@
 import { followTrDocsState } from '../states/trStates';
 import { IconGavel, IconTrashX } from '@tabler/icons-react';
-import { ITransaction } from '@/transactions/types/Transaction';
+import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
 import { TR_SIDES } from '../../types/constants';
 import { useAtomValue } from 'jotai';
@@ -16,15 +16,17 @@ import {
 
 const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
   trDocs?.forEach((tr) => {
-    if (!(tr?.details && tr?.details[0])) {
+    if (!tr?.details?.[0]) {
       return;
     }
 
-    if (tr?.details[0]?.side === TR_SIDES.DEBIT) {
-      sumDebit += tr?.details[0]?.amount ?? 0;
-    } else {
-      sumCredit += tr?.details[0]?.amount ?? 0;
-    }
+    tr.details?.forEach((det: ITrDetail) => {
+      if (det?.side === TR_SIDES.DEBIT) {
+        sumDebit += det.amount ?? 0;
+      } else {
+        sumCredit += det.amount ?? 0;
+      }
+    });
   });
   return [sumDebit, sumCredit];
 };
@@ -90,7 +92,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
           <CurrencyFormatedDisplay
             currencyValue={{
               currencyCode: CurrencyCode.MNT,
-              amountMicros: (sumCredit - sumDebit),
+              amountMicros: sumCredit - sumDebit,
             }}
           />
         </span>

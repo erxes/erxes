@@ -7,6 +7,6 @@ export type IDocumentType = {
 export type DocumentFilterState = {
   searchValue: string | null;
   createdAt: string | null;
-  assignedTo: string | string[] | null;
+  createdBy: string | string[] | null;
   contentType: string | null;
 };

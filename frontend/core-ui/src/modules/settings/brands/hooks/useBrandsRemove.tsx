@@ -5,7 +5,8 @@ import { useToast } from 'erxes-ui';
 export const useBrandsRemove = () => {
   const { toast } = useToast();
   const [brandsRemove, { loading, error }] = useMutation(REMOVE_BRANDS, {
-    onCompleted: () => toast({ title: 'Removed successfully!' }),
+    onCompleted: () =>
+      toast({ title: 'Removed successfully!', variant: 'success' }),
     refetchQueries: ['Brands'],
   });
   return {

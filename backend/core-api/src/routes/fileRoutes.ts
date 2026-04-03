@@ -18,6 +18,20 @@ import {
   uploadFile,
 } from '~/utils/file';
 import { readFileRequest } from '~/utils/file/read';
+import crypto from 'crypto';
+import multer from 'multer';
+import tmp from 'tmp';
+import path from 'path';
+import fs from 'fs';
+
+interface UploadStatus {
+  id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  key?: string;
+  error?: string;
+  fileName?: string;
+  progress?: number;
+}
 
 const router: Router = Router();
 
@@ -85,7 +99,6 @@ router.post('/upload-file', async (req: Request, res: Response) => {
   const subdomain = getSubdomain(req);
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
-  console.log('uploaded file...');
   const maxHeight = Number(req.query.maxHeight);
   const maxWidth = Number(req.query.maxWidth);
 
@@ -93,27 +106,21 @@ router.post('/upload-file', async (req: Request, res: Response) => {
     uploadDir: os.tmpdir(),
     keepExtensions: true,
   });
-  console.log('1...');
 
   form.parse(req, async (error, _fields, files) => {
-    console.log('2...');
-
     if (error) {
       return res
         .status(400)
         .send(`File upload parsing error: ${error.message}`);
     }
-    console.log('3...');
 
     const uploaded = files.file || files.upload;
 
     const file = Array.isArray(uploaded) ? uploaded[0] : uploaded;
-    console.log('4...');
 
     if (!file?.filepath || !isValidPath(file.filepath)) {
       return res.status(400).send('Invalid or unsafe file path');
     }
-    console.log('5...');
 
     const mimetype = file?.mimetype;
 
@@ -122,24 +129,17 @@ router.post('/upload-file', async (req: Request, res: Response) => {
         .status(400)
         .send('One or more files have unrecognized MIME type');
     }
-    console.log('6...');
 
     let processedFile = file;
 
     if (isImage(mimetype) && maxHeight && maxWidth) {
       processedFile = await resizeImage(file, maxWidth, maxHeight);
     }
-    console.log('7...');
 
     const status = await checkFile(models, processedFile, req.headers.source);
-    console.log('8...');
-
     if (status !== 'ok') {
-      console.log('9...');
-
       return res.status(400).send(status);
     }
-    console.log('10...');
 
     try {
       const result = await uploadFile(
@@ -148,12 +148,9 @@ router.post('/upload-file', async (req: Request, res: Response) => {
         !!files.upload,
         models,
       );
-      console.log('11...');
 
       res.send(result);
     } catch (e) {
-      console.log('12...');
-
       return res.status(500).send(filterXSS(e.message));
     }
   });
@@ -178,5 +175,172 @@ router.post('/delete-file', async (req: Request, res: Response) => {
 
   return res.status(500).send(status);
 });
+
+// chunked upload for large files
+
+const tmpDir = tmp.dirSync({ unsafeCleanup: true });
+
+const upload = multer({
+  dest: tmpDir.name,
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+  fileFilter: (_req, file, cb) => {
+    // Check the file type (MIME type)
+    cb(null, true); // Accept the file
+  },
+});
+
+const uploadStore = new Map<string, UploadStatus>();
+
+const chunkStore = new Map<
+  string,
+  {
+    chunks: Set<number>;
+    totalChunks: number;
+    fileName: string;
+    fileSize: number;
+    uploadId: string;
+  }
+>();
+
+// 1. Initialize chunked upload
+router.post('/upload-chunked/init', (req, res) => {
+  const { fileName, fileSize, totalChunks } = req.body;
+  const uploadId = crypto.randomUUID();
+
+  chunkStore.set(uploadId, {
+    chunks: new Set(),
+    totalChunks: Number(totalChunks),
+    fileName,
+    fileSize: Number(fileSize),
+    uploadId,
+  });
+
+  res.json({ uploadId });
+});
+
+// 2. Upload a chunk
+router.post(
+  '/upload-chunked/chunk',
+  upload.single('chunk'),
+  async (req: any, res: any) => {
+    const subdomain = getSubdomain(req);
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
+    const models = await generateModels(subdomain);
+    const { uploadId, chunkIndex } = req.body;
+    const file = req.file;
+
+    if (!file || !uploadId || chunkIndex === undefined) {
+      return res.status(400).json({ error: 'Missing data' });
+    }
+
+    const uploadInfo = chunkStore.get(uploadId);
+    if (!uploadInfo) {
+      return res
+        .status(404)
+        .json({ error: 'Upload session expired or invalid' });
+    }
+
+    // Save chunk
+    const chunkDir = path.join(tmpDir.name, uploadId);
+    if (!fs.existsSync(chunkDir)) fs.mkdirSync(chunkDir, { recursive: true });
+    const chunkPath = path.join(chunkDir, `chunk-${chunkIndex}`);
+    fs.renameSync(file.path, chunkPath);
+
+    // Mark chunk as received
+    uploadInfo.chunks.add(Number(chunkIndex));
+    chunkStore.set(uploadId, uploadInfo); // ← IMPORTANT: persist the Set update
+
+    res.json({
+      success: true,
+      received: uploadInfo.chunks.size,
+      total: uploadInfo.totalChunks,
+    });
+
+    // ←←← CRITICAL: Trigger merge OUTSIDE the request/response cycle
+    // This runs even if the client disconnects or another instance gets the request
+    if (uploadInfo.chunks.size === uploadInfo.totalChunks) {
+      setImmediate(async () => {
+        try {
+          // Re-read latest state (in case of race)
+          const latestInfo = chunkStore.get(uploadId);
+          if (!latestInfo || latestInfo.chunks.size < latestInfo.totalChunks)
+            return;
+
+          // Merge chunks
+          const finalPath = path.join(tmpDir.name, `${uploadId}-final`);
+          const writeStream = fs.createWriteStream(finalPath);
+          for (let i = 0; i < latestInfo.totalChunks; i++) {
+            const cp = path.join(chunkDir, `chunk-${i}`);
+            if (fs.existsSync(cp)) {
+              writeStream.write(fs.readFileSync(cp));
+              fs.unlinkSync(cp);
+            }
+          }
+          writeStream.end();
+
+          await new Promise<void>((resolve, reject) => {
+            writeStream.on('finish', () => resolve());
+            writeStream.on('error', (err) => reject(err));
+          });
+
+          // ←←← STATUS UPDATE – THIS MUST RUN
+          uploadStore.set(uploadId, {
+            id: uploadId,
+            status: 'processing',
+            fileName: latestInfo.fileName,
+            progress: 80,
+          });
+
+          const response: any = await uploadFile(
+            `${domain}/gateway`,
+            {
+              path: finalPath,
+              originalname: latestInfo.fileName,
+              mimetype: file.mimetype,
+              type: file.mimetype,
+              size: latestInfo.fileSize,
+              name: file.originalname,
+            },
+            false,
+            models,
+          );
+
+          uploadStore.set(uploadId, {
+            id: uploadId,
+            status: 'completed',
+            key: response,
+            fileName: latestInfo.fileName,
+            progress: 100,
+          });
+
+          setTimeout(() => {
+            uploadStore.delete(uploadId);
+            chunkStore.delete(uploadId);
+          }, 5 * 60 * 1000);
+
+          // Cleanup
+          try {
+            fs.unlinkSync(finalPath);
+          } catch {
+            console.error('Failed to unlink final file:', finalPath);
+          }
+          try {
+            fs.rmdirSync(chunkDir, { recursive: true });
+          } catch {
+            console.error('Failed to remove chunk directory:', chunkDir);
+          }
+        } catch (err: any) {
+          console.error('Final merge/upload failed:', err);
+          uploadStore.set(uploadId, {
+            id: uploadId,
+            status: 'failed',
+            error: err.message || 'Processing failed',
+            fileName: uploadInfo.fileName,
+          });
+        }
+      });
+    }
+  },
+);
 
 export { router };

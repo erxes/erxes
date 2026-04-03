@@ -22,7 +22,7 @@ export const configSchema = new Schema({
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
   updateConfigs(configsMap): Promise<void>;
-  createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
+  createOrUpdateConfig({ code, value }: IConfig): Promise<IConfigDocument>;
 }
 
 export const loadConfigClass = (models: IModels) => {

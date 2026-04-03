@@ -1,11 +1,22 @@
+import { getAutomationColumns } from '@/automations/components/list/AutomationColumns';
+import { AutomationRecordTableFilters } from '@/automations/components/list/filters/AutomationRecordTableFilters';
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
+import { AutomationsRecordTableContent } from '@/automations/components/list/AutomationsRecordTableContent';
+import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
-import { Breadcrumb, Button, RecordTable, Separator, Spinner } from 'erxes-ui';
-import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
-
-import { automationColumns } from './AutomationColumns';
-import { AutomationRecordTableFilters } from './AutomationRecordTableFilters';
+import {
+  Breadcrumb,
+  Button,
+  Separator,
+  Spinner,
+  Kbd,
+  useScopedHotkeys,
+} from 'erxes-ui';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AutomationsHotKeyScope } from '@/automations/types';
+import { Link, useNavigate } from 'react-router-dom';
+import { Can, PageHeader, usePermissionCheck } from 'ui-modules';
 
 export const AutomationsRecordTable = () => {
   const {
@@ -17,6 +28,22 @@ export const AutomationsRecordTable = () => {
     hasPreviousPage,
   } = useAutomationsRecordTable();
 
+  const { t } = useTranslation('automations');
+  const columns = useMemo(() => getAutomationColumns(t), [t]);
+  const navigate = useNavigate();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canCreateAutomation =
+    isLoaded && hasActionPermission('automationsCreate');
+
+  useScopedHotkeys(
+    `c`,
+    () => {
+      if (!canCreateAutomation) return;
+      navigate('/automations/create');
+    },
+    AutomationsHotKeyScope.AutomationsPage,
+    [canCreateAutomation, navigate],
+  );
   if (loading) {
     return <Spinner />;
   }
@@ -30,7 +57,7 @@ export const AutomationsRecordTable = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconAffiliate />
-                  Automations
+                  {t('automations')}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -41,42 +68,32 @@ export const AutomationsRecordTable = () => {
           <Button variant="outline" asChild>
             <Link to="/settings/automations">
               <IconSettings />
-              Go to settings
+              {t('go-to-settings')}
             </Link>
           </Button>
-          <Button asChild>
-            <Link to={'/automations/create'}>Add</Link>
-          </Button>
+          <Can action="automationsCreate">
+            <Button asChild>
+              <Link to={'/automations/create'}>
+                {t('create')}
+                <Kbd>C</Kbd>
+              </Link>
+            </Button>
+          </Can>
         </PageHeader.End>
       </PageHeader>
       <AutomationRecordTableFilters loading={loading} totalCount={totalCount} />
-      <RecordTable.Provider
-        columns={automationColumns}
-        data={list}
-        stickyColumns={['more', 'checkbox', 'avatar', 'name']}
-        className="m-3"
-      >
-        <RecordTable.CursorProvider
+      {list.length === 0 ? (
+        <AutomationsRecordTableEmptyState />
+      ) : (
+        <AutomationsRecordTableContent
+          columns={columns}
+          list={list}
+          loading={loading}
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
-          dataLength={list?.length}
-          sessionKey="automations_cursor"
-        >
-          <RecordTable className="w-full">
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              {loading && <RecordTable.RowSkeleton rows={40} />}
-              <RecordTable.RowList />
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.CursorProvider>
-      </RecordTable.Provider>
+          handleFetchMore={handleFetchMore}
+        />
+      )}
     </>
   );
 };

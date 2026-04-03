@@ -7,6 +7,17 @@ export default {
   },
 
   async account(trDetail: ITrDetail, _, { models }: IContext) {
-    return await models.Accounts.getAccount({ _id: trDetail.accountId });
+    return await models.Accounts.findOne({ _id: trDetail.accountId }).lean();
+  },
+
+  async product(trDetail: ITrDetail) {
+    if (!trDetail.productId) {
+      return;
+    }
+
+    return {
+      __typename: 'Product',
+      _id: trDetail.productId,
+    };
   },
 };

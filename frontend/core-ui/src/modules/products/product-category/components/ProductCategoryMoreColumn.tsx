@@ -2,11 +2,14 @@ import { CellContext } from '@tanstack/react-table';
 import { IProductCategory } from '@/products/types/productTypes';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
-import { RecordTable } from 'erxes-ui';
-import { renderingCategoryDetailAtom } from '../states/ProductCategory';
+import { RecordTable, Popover, Command, Combobox } from 'erxes-ui';
+import { renderingCategoryDetailAtom } from '@/products/product-category/states/ProductCategory';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { CategoriesDelete } from '@/products/product-category/components/product-command-bar/delete/CategoryDelete';
+import { Can } from 'ui-modules';
 
 export const CategoryMoreColumnCell = (
-  props: CellContext<IProductCategory & { hasChildren: boolean }, unknown>
+  props: CellContext<IProductCategory & { hasChildren: boolean }, unknown>,
 ) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const setRenderingCategoryDetail = useSetAtom(renderingCategoryDetailAtom);
@@ -18,14 +21,41 @@ export const CategoryMoreColumnCell = (
     setSearchParams(newSearchParams);
   };
 
+  const handleEdit = () => {
+    setOpen(_id);
+    setRenderingCategoryDetail(false);
+  };
+
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setOpen(_id);
-        setRenderingCategoryDetail(false);
-      }}
-    />
+    <Popover>
+      <Can action="productCategoriesManage">
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+      </Can>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit className="w-4 h-4" />
+              Edit
+            </Command.Item>
+            <CategoriesDelete categoryIds={_id}>
+              {({ onClick, disabled }) => (
+                <Command.Item
+                  value="delete"
+                  onSelect={onClick}
+                  disabled={disabled}
+                >
+                  <IconTrash className="w-4 h-4" />
+                  Delete
+                </Command.Item>
+              )}
+            </CategoriesDelete>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 

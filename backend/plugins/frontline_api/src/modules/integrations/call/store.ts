@@ -9,7 +9,8 @@ import {
 import { IOrignalCallCdr } from '@/integrations/call/@types/cdrs';
 import { ICallCustomer } from '@/integrations/call/@types/customers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -57,11 +58,17 @@ export const getOrCreateCustomer = async (
       };
       const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
 
-      if (apiCustomerResponse.status === 'success') {
-        if (customer) {
+      if (apiCustomerResponse?.status === 'success') {
+        if (customer && apiCustomerResponse.data?._id) {
           customer.erxesApiId = apiCustomerResponse.data._id;
           customer.status = 'completed';
           await customer.save();
+        } else {
+          throw new Error(
+            `API success but no customer ID returned: ${JSON.stringify(
+              apiCustomerResponse,
+            )}`,
+          );
         }
       } else {
         throw new Error(
@@ -71,6 +78,54 @@ export const getOrCreateCustomer = async (
     } catch (e: any) {
       await models.CallCustomers.deleteOne({ _id: customer?._id });
       throw new Error(`Failed to sync with API: ${e.stack || e.message || e}`);
+    }
+  }
+  if (customer?.erxesApiId) {
+    const coreCustomer = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'findOne',
+      input: {
+        query: { _id: customer.erxesApiId },
+      },
+    });
+    if (coreCustomer?._id) {
+      await sendTRPCMessage({
+        subdomain,
+
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'customers',
+        action: 'updateCustomer',
+        input: {
+          _id: coreCustomer._id,
+          doc: {
+            primaryPhone,
+          },
+        },
+      });
+    }
+    if (!coreCustomer) {
+      const newCustomer = await sendTRPCMessage({
+        subdomain,
+
+        pluginName: 'core',
+        method: 'mutation', // this is a mutation, not a query
+        module: 'customers',
+        action: 'createCustomer',
+        input: {
+          doc: {
+            primaryPhone,
+            state: 'customer',
+          },
+        },
+      });
+      if (newCustomer?._id) {
+        customer.erxesApiId = newCustomer._id;
+        await customer.save();
+      }
     }
   }
   return customer;
@@ -134,7 +189,7 @@ export const getOrCreateCdr = async (
 
       let conversationId = '';
 
-      if (existingConversation && existingConversation.conversationId) {
+      if (existingConversation?.conversationId) {
         // Use existing conversation
         conversationId = existingConversation.conversationId;
       }
@@ -167,15 +222,17 @@ export const getOrCreateCdr = async (
         );
       }
 
+      const cdrMessage = {
+        ...createdCdr?.toObject(),
+        conversationId: createdCdr.conversationId,
+      };
+
       await graphqlPubsub.publish(
         `conversationMessageInserted:${createdCdr.conversationId}`,
-        {
-          conversationMessageInserted: {
-            ...createdCdr?.toObject(),
-            conversationId: createdCdr.conversationId,
-          },
-        },
+        { conversationMessageInserted: cdrMessage },
       );
+
+      await pConversationClientMessageInserted(subdomain, cdrMessage);
 
       await saveRecordUrl(createdCdr, models, inboxId, subdomain);
     } catch (error) {

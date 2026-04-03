@@ -3,6 +3,7 @@ import { Form, Select, MultipleSelector } from 'erxes-ui';
 import { FILE_SYSTEM_TYPES } from '@/settings/file-upload/constants/serviceData';
 import { UseFormReturn } from 'react-hook-form';
 import { UploadConfigFormT } from '@/settings/file-upload/types';
+import { useTranslation } from 'react-i18next';
 
 export function FileUploadMainFields({
   form,
@@ -11,6 +12,10 @@ export function FileUploadMainFields({
   form: UseFormReturn<UploadConfigFormT>;
   fileMimeTypesOptions: any[];
 }) {
+  const { t } = useTranslation('settings',{
+    keyPrefix : ('file-upload')
+  });
+
   return (
     <div className="grid grid-cols-1 gap-4">
       <Form.Item className="w-full">
@@ -19,7 +24,7 @@ export function FileUploadMainFields({
           control={form.control}
           render={({ field }: { field: any }) => (
             <div className="space-y-2">
-              <Form.Label>Upload File Types</Form.Label>
+              <Form.Label>{t('upload-file-types')}</Form.Label>
               <MultipleSelector
                 {...field}
                 options={fileMimeTypesOptions}
@@ -41,7 +46,7 @@ export function FileUploadMainFields({
           control={form.control}
           render={({ field }: { field: any }) => (
             <div className="space-y-2">
-              <Form.Label>Upload File Types of Widget</Form.Label>
+              <Form.Label>{t('upload-file-types-of-widget')}</Form.Label>
               <MultipleSelector
                 {...field}
                 options={fileMimeTypesOptions}
@@ -62,7 +67,7 @@ export function FileUploadMainFields({
         name="FILE_SYSTEM_PUBLIC"
         render={({ field }: { field: any }) => (
           <Form.Item>
-            <Form.Label>Bucket file system type</Form.Label>
+            <Form.Label>{t('bucket-file-system-type')}</Form.Label>
             <Form.Control>
               <Select
                 name={field.name}

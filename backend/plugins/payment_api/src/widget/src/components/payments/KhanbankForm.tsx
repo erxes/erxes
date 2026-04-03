@@ -17,13 +17,13 @@ const LabelInputRow = ({
     <label className='text-sm mb-1 block'>{label}</label>
     <div className='flex items-center gap-2 w-full'>
       <Input
-        className='w-full border rounded-lg flex-grow'
+        className='w-full border rounded-lg grow'
         value={value}
         readOnly
       />
       <button
         onClick={onCopy}
-        className='ml-2 w-10 h-10 flex-shrink-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-lg'
+        className='ml-2 w-10 h-10 shrink-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-lg'
       >
         <img
           src={`${apiDomain}/pl:payment/static/images/copy.svg`}

@@ -12,6 +12,7 @@ import { Button, Form, Spinner, useToast } from 'erxes-ui';
 import { useEffect } from 'react';
 import { SubmitHandler } from 'react-hook-form';
 import { useSwitchLanguage } from '~/i18n';
+import { useTranslation } from 'react-i18next';
 
 const GeneralSettings = () => {
   const { languages } = useSwitchLanguage();
@@ -22,17 +23,17 @@ const GeneralSettings = () => {
     handleLanguage,
   } = useGeneralSettingsForms();
   const { configs, updateConfig, loading, isLoading } = useConfig();
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'general',
+  });
 
   const updateCurrency = (data: TGeneralSettingsProps) => {
     const updatedConfigs = {
       // start with all existing configs
-      ...configs.reduce(
-        (acc: Record<string, any>, config: TConfig) => {
-          acc[config.code] = config.value;
-          return acc;
-        },
-        {} as Record<string, any>,
-      ),
+      ...configs.reduce((acc: Record<string, any>, config: TConfig) => {
+        acc[config.code] = config.value;
+        return acc;
+      }, {} as Record<string, any>),
       // override/add with new data
       ...data,
     };
@@ -46,6 +47,7 @@ const GeneralSettings = () => {
     handleLanguage(data.languageCode).then(() => {
       toast({
         title: 'Updated successfully',
+        variant: 'success',
         description: `Language switched to (${data.languageCode})`,
       });
     });
@@ -65,7 +67,9 @@ const GeneralSettings = () => {
       methods.setValue('dealCurrency', currencies?.value);
       methods.setValue('mainCurrency', mainCurrency?.value);
 
-      timezone && methods.setValue('TIMEZONE', timezone?.value);
+      if (timezone) {
+        methods.setValue('TIMEZONE', timezone?.value);
+      }
     }
   }, [configs, methods]);
 
@@ -86,7 +90,7 @@ const GeneralSettings = () => {
             languages.some((lng) => lang.value === lng),
           )}
           placeholder="Languages"
-          label="Language"
+          label= {t('language')}
         />
         <SelectMainCurrency />
         <SelectCurrency />
@@ -95,7 +99,7 @@ const GeneralSettings = () => {
           {isLoading ? (
             <Spinner className="stroke-white/90 w-4 h-4" />
           ) : (
-            'Update'
+            t('update')
           )}
         </Button>
       </form>

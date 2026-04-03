@@ -14,7 +14,7 @@ export function useBrandsAdd(
       cache.updateQuery<IBrandData>(
         { query: GET_BRANDS, variables },
         (existingData) => {
-          if (!existingData || !existingData.brands.list) return existingData;
+          if (!existingData?.brands?.list) return existingData;
 
           return {
             brands: {

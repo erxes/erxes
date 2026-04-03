@@ -1,4 +1,4 @@
-export const ACC_TRS__PER_PAGE = 20;
+export const ACC_TRS__PER_PAGE = 30;
 
 export enum TrJournalEnum {
   MAIN = 'main',
@@ -6,33 +6,42 @@ export enum TrJournalEnum {
   BANK = 'bank',
   RECEIVABLE = 'receivable',
   PAYABLE = 'payable',
-  INVENTORY = 'inventory',
-  FIXED_ASSET = 'fixedAsset',
+  EXCHANGE_DIFF = 'exchangeDiff',
   TAX = 'tax',
+
   INV_INCOME = 'invIncome',
   INV_OUT = 'invOut',
-
+  
   INV_MOVE = 'invMove',
   INV_MOVE_IN = 'invMoveIn',
-
+  
   INV_SALE = 'invSale',
   INV_SALE_OUT = 'invSaleOut',
   INV_SALE_COST = 'invSaleCost',
+
+  FIXED_ASSET = 'fixedAsset',
 }
 
 export const TR_JOURNAL_LABELS = {
-  [TrJournalEnum.MAIN]: 'Main',
-  [TrJournalEnum.CASH]: 'Cash',
-  [TrJournalEnum.BANK]: 'Bank',
-  [TrJournalEnum.RECEIVABLE]: 'Receivable',
-  [TrJournalEnum.PAYABLE]: 'Payable',
-  [TrJournalEnum.INVENTORY]: 'Inventory',
+  [TrJournalEnum.MAIN]: 'Ерөнхий',
+  [TrJournalEnum.TAX]: 'Татвар',
+  [TrJournalEnum.CASH]: 'Касс',
+  [TrJournalEnum.BANK]: 'Харилцах',
+  [TrJournalEnum.RECEIVABLE]: 'Авлага',
+  [TrJournalEnum.PAYABLE]: 'Өглөг',
+  [TrJournalEnum.EXCHANGE_DIFF]: 'Ханшийн зөрүү',
+
+  [TrJournalEnum.INV_INCOME]: 'Барааны орлого',
+  [TrJournalEnum.INV_OUT]: 'Барааны зарлага',
+  
+  [TrJournalEnum.INV_MOVE]: 'Дотоод хөдөлгөөн',
+  [TrJournalEnum.INV_MOVE_IN]: 'Дот.Хөд орлого',
+
+  [TrJournalEnum.INV_SALE]: 'Борлуулалт',
+  [TrJournalEnum.INV_SALE_OUT]: 'Борлуулалт-зарлага',
+  [TrJournalEnum.INV_SALE_COST]: 'Борлуулалт-ББӨ',
+
   [TrJournalEnum.FIXED_ASSET]: 'Fixed Asset',
-  [TrJournalEnum.TAX]: 'Tax',
-  [TrJournalEnum.INV_INCOME]: 'Inventory Income',
-  [TrJournalEnum.INV_OUT]: 'Inventory Out',
-  [TrJournalEnum.INV_MOVE]: 'Inventory Move',
-  [TrJournalEnum.INV_SALE]: 'Inventory Sale',
 };
 
 export const TR_PERFECT_JOURNALS = [

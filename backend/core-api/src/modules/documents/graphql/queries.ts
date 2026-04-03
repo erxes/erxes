@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import {
   cursorPaginate,
   getPlugin,
@@ -81,10 +80,10 @@ export const documentQueries = {
 
   documentsDetail: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Documents.findOne({ _id });
+    return await models.Documents.getDocument({ _id });
   },
 
   documentsTypes: async () => {
@@ -99,7 +98,7 @@ export const documentQueries = {
     for (const serviceName of services) {
       const service = await getPlugin(serviceName);
       const meta = service.config.meta || {};
-      if (meta && meta.documents) {
+      if (meta?.documents) {
         const types = meta.documents.types || [];
 
         for (const type of types) {
@@ -168,5 +167,3 @@ export const documentQueries = {
     });
   },
 };
-
-checkPermission(documentQueries, 'documents', 'showDocuments');

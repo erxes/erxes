@@ -1,14 +1,11 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
-
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
 import {
   LOGIN_WITH_GOOGLE,
   LOGIN_WITH_MAGIC_LINK,
 } from '@/auth/login/grahpql/mutations/login';
 import { useApolloClient, useMutation } from '@apollo/client';
-import { FormType, toast } from 'erxes-ui';
+import { toast } from 'erxes-ui';
 import {
   magicLinkFormSchema,
   MagicLinkFormType,
@@ -40,17 +37,13 @@ export const useLoginMagicLink = () => {
       },
       onError: ({ message }) => {
         const isInvalidLogin = message.includes('Invalid login');
-        const toastData = {
-          title: 'Something went wrong',
-          description: message,
-        };
-
-        if (isInvalidLogin) {
-          toastData.title = 'Invalid login';
-          toastData.description =
-            'The email address or password you entered is incorrect.';
-        }
-        toast(toastData);
+        toast({
+          title: isInvalidLogin ? 'Invalid login' : 'Something went wrong',
+          description: isInvalidLogin
+            ? 'The email address or password you entered is incorrect.'
+            : message,
+          variant: 'destructive',
+        });
       },
     });
   };
@@ -58,7 +51,7 @@ export const useLoginMagicLink = () => {
   const onGoogleLogin = () =>
     loginWithGoogle({
       onCompleted: (data) => {
-        if (data && data.loginWithGoogle) {
+        if (data?.loginWithGoogle) {
           try {
             const url = new URL(data.loginWithGoogle);
             if (url.protocol === 'https:' || url.protocol === 'http:') {
@@ -70,12 +63,17 @@ export const useLoginMagicLink = () => {
             toast({
               title: 'Something went wrong',
               description: 'Invalid redirect URL received',
+              variant: 'destructive',
             });
           }
         }
       },
       onError: ({ message }) => {
-        toast({ title: 'Something went wrong', description: message });
+        toast({
+          title: 'Something went wrong',
+          description: message,
+          variant: 'destructive',
+        });
       },
     });
 

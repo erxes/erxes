@@ -1,0 +1,18 @@
+export const TAG_DEFAULT_COLORS = {
+  red: '#dc2626',
+  orange: '#f97316',
+  amber: '#f59e0b',
+  yellow: '#eab308',
+  lime: '#84cc16',
+  green: '#16a34a',
+  emerald: '#059669',
+  cyan: '#06b6d4',
+  sky: '#0ea5e9',
+  blue: '#2563eb',
+  indigo: '#4f46e5',
+  violet: '#7c3aed',
+  purple: '#9333ea',
+  fuchsia: '#c026d3',
+  pink: '#db2777',
+  rose: '#e11d48',
+};

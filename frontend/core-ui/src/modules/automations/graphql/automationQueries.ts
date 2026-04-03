@@ -1,23 +1,14 @@
-import {
-  GQL_PAGE_INFO,
-  GQL_CURSOR_PARAM_DEFS,
-  GQL_CURSOR_PARAMS,
-} from 'erxes-ui';
 import { gql } from '@apollo/client';
-
-const COMMON_USER_FIELDS = `
-      _id
-      username
-      email
-      details {
-        fullName
-        avatar
-        shortName
-        firstName
-        middleName
-        lastName
-      }
-`;
+import { GQL_PAGE_INFO } from 'erxes-ui';
+import {
+  AUTOMATION_ACTION_FIELDS,
+  AUTOMATION_HISTORIES_PARAMS,
+  AUTOMATION_HISTORIES_PARAMS_DEFS,
+  AUTOMATION_MAIN_LIST_PARAMS,
+  AUTOMATION_MAIN_LIST_PARAMS_DEFS,
+  AUTOMATION_TRIGGER_FIELDS,
+  COMMON_USER_FIELDS,
+} from './graphqlConstants';
 
 export const AUTOMATION_CONSTANTS = gql`
   query automationConstants {
@@ -36,30 +27,18 @@ query AutomationDetail($id: String!) {
     createdBy
     updatedBy
     triggers {
-      id
-      type
-      style
-      config
-      icon
-      label
-      description
-      position
-      workflowId
-      actionId
-      isCustom
-      count
+      ${AUTOMATION_TRIGGER_FIELDS}
     }
     actions {
+      ${AUTOMATION_ACTION_FIELDS}
+    }
+    workflows {
       id
-      type
-      style
-      config
-      icon
-      label
+      automationId
+      name
       description
+      config
       position
-      workflowId
-      nextActionId
     }
     createdUser {
       ${COMMON_USER_FIELDS}
@@ -72,59 +51,61 @@ query AutomationDetail($id: String!) {
 `;
 
 export const AUTOMATIONS_MAIN_LIST = gql`
-query AutomationsMain($page: Int, $perPage: Int, $ids: [String], $excludeIds: Boolean, $searchValue: String, $sortField: String, $sortDirection: Int, $status: String, $tagIds: [String]) {
-  automationsMain(page: $page, perPage: $perPage, ids: $ids, excludeIds: $excludeIds, searchValue: $searchValue, sortField: $sortField, sortDirection: $sortDirection, status: $status, tagIds: $tagIds) {
-    list {
-      _id
-      name
-      status
-      createdAt
-      updatedAt
-      createdBy
-      updatedBy
-      tagIds
-      triggers { id }
-      actions { id }
-      createdUser {
-        ${COMMON_USER_FIELDS}
+  query AutomationsMain(${AUTOMATION_MAIN_LIST_PARAMS}) {
+    automationsMain(${AUTOMATION_MAIN_LIST_PARAMS_DEFS}) {
+      list {
+        _id
+        name
+        status
+        createdAt
+        updatedAt
+        createdBy
+        updatedBy
+        tagIds
+        triggers { id }
+        actions { id }
+        createdUser {
+          ${COMMON_USER_FIELDS}
+        }
+        updatedUser {
+          ${COMMON_USER_FIELDS}
+        }
       }
-      updatedUser {
-        ${COMMON_USER_FIELDS}
-      }
-    }
-    totalCount
-    pageInfo {
-      hasNextPage
-      hasPreviousPage
-      startCursor
-      endCursor
+      ${GQL_PAGE_INFO}
     }
   }
-}
 `;
 
 export const AUTOMATION_HISTORIES = gql`
-query AutomationHistories($automationId: String!,${GQL_CURSOR_PARAM_DEFS}, $page: Int, $perPage: Int, $status: String, $triggerId: String, $triggerType: String, $beginDate: Date, $endDate: Date, $targetId: String, $targetIds: [String], $triggerTypes: [String], $ids: [String]) {
-  automationHistories(automationId: $automationId,${GQL_CURSOR_PARAMS}, page: $page, perPage: $perPage, status: $status, triggerId: $triggerId, triggerType: $triggerType, beginDate: $beginDate, endDate: $endDate, targetId: $targetId, targetIds: $targetIds, triggerTypes: $triggerTypes, ids: $ids) {
-    list {
-      _id
-      createdAt
-      modifiedAt
-      automationId
-      triggerId
-      triggerType
-      triggerConfig
-      nextActionId
-      targetId
-      target
-      status
-      description
-      actions
-      startWaitingDate
-      waitingActionId
+  query AutomationHistories(${AUTOMATION_HISTORIES_PARAMS}) {
+    automationHistories(${AUTOMATION_HISTORIES_PARAMS_DEFS}) {
+      list {
+        _id
+        createdAt
+        modifiedAt
+        automationId
+        triggerId
+        triggerType
+        triggerConfig
+        nextActionId
+        targetId
+        target
+        status
+        description
+        actions
+        startWaitingDate
+        waitingActionId
+      }
+       ${GQL_PAGE_INFO}
     }
-    totalCount
-     ${GQL_PAGE_INFO}
   }
-}
+`;
+
+export const GET_AUTOMATION_WEBHOOK_ENDPOINT = gql`
+  query GetAutomationWebhookEndpoint($id: String!, $waitEventActionId: String) {
+    getAutomationWebhookEndpoint(
+      _id: $id
+      waitEventActionId: $waitEventActionId
+    )
+  }
 `;

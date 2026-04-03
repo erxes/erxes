@@ -2,7 +2,7 @@ import { IStatusDocument, IStatus } from '@/ticket/@types/status';
 import { statusSchema } from '@/ticket/db/definitions/status';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { generateDefaultStatuses } from '@/ticket/utils';
+import { generateDefaultStatuses } from '~/modules/ticket/utils/ticket';
 
 export interface IStatusModel extends Model<IStatusDocument> {
   getStatus(_id: string): Promise<IStatusDocument>;

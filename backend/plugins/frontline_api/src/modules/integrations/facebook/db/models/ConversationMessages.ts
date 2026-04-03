@@ -6,9 +6,101 @@ import {
   IFacebookConversationMessage,
   IFacebookConversationMessageDocument,
 } from '@/integrations/facebook/@types/conversationMessages';
+import { pConversationClientMessageInserted } from '~/modules/inbox/graphql/resolvers/mutations/widget';
+import { TBotData } from '../../meta/automation/types/automationTypes';
 
-export interface IFacebookConversationMessageModel
-  extends Model<IFacebookConversationMessageDocument> {
+interface IAddFacebookConversationBotMessage {
+  conversationId: string;
+  botId: string;
+  botData: TBotData[];
+  mid: string;
+  conversationErxesApiId: string;
+}
+
+const hasMeaningfulHtml = (value: string = '') => {
+  return stripHtml(value).result.trim().length > 0;
+};
+
+const wrapParagraph = (value: string = '') => {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return '';
+  }
+
+  return `<p>${trimmedValue}</p>`;
+};
+
+const extractBotMessageContent = (botData: TBotData[] = []) => {
+  const parts: string[] = [];
+
+  for (const item of botData) {
+    if (item.type === 'text') {
+      if (hasMeaningfulHtml(item.text)) {
+        parts.push(item.text);
+      }
+
+      continue;
+    }
+
+    if (item.type === 'button_template') {
+      if (hasMeaningfulHtml(item.text)) {
+        parts.push(item.text);
+      }
+
+      const buttonTitles = item.buttons
+        .map(({ title }) => title?.trim())
+        .filter(Boolean);
+
+      if (buttonTitles.length) {
+        parts.push(wrapParagraph(buttonTitles.join(', ')));
+      }
+
+      continue;
+    }
+
+    if (item.type === 'quick_replies') {
+      if (hasMeaningfulHtml(item.text)) {
+        parts.push(item.text);
+      }
+
+      const quickReplyTitles = item.quick_replies
+        .map(({ title }) => title?.trim())
+        .filter(Boolean);
+
+      if (quickReplyTitles.length) {
+        parts.push(wrapParagraph(quickReplyTitles.join(', ')));
+      }
+
+      continue;
+    }
+
+    if (item.type === 'carousel') {
+      for (const element of item.elements) {
+        parts.push(wrapParagraph(element.title));
+        parts.push(wrapParagraph(element.subtitle));
+
+        const buttonTitles = element.buttons
+          .map(({ title }) => title?.trim())
+          .filter(Boolean);
+
+        if (buttonTitles.length) {
+          parts.push(wrapParagraph(buttonTitles.join(', ')));
+        }
+      }
+
+      continue;
+    }
+
+    if (item.type === 'file' && item.url) {
+      parts.push(wrapParagraph(item.url));
+    }
+  }
+
+  return parts.filter(Boolean).join('');
+};
+
+export interface IFacebookConversationMessageModel extends Model<IFacebookConversationMessageDocument> {
   getMessage(_id: string): Promise<IFacebookConversationMessageDocument>;
   createMessage(
     doc: IFacebookConversationMessage,
@@ -17,12 +109,23 @@ export interface IFacebookConversationMessageModel
     doc: IFacebookConversationMessage,
     userId?: string,
   ): Promise<IFacebookConversationMessageDocument>;
+
+  addBotMessage(
+    subdomain: string,
+    {
+      conversationId,
+      botId,
+      botData,
+      mid,
+      conversationErxesApiId,
+    }: IAddFacebookConversationBotMessage,
+  ): Promise<IFacebookConversationMessageDocument>;
 }
 
 export const loadFacebookConversationMessageClass = (models: IModels) => {
   class Message {
     /**
-     * Retreives message
+     * Retrieves message
      */
     public static async getMessage(_id: string) {
       const message = await models.FacebookConversationMessages.findOne({
@@ -78,6 +181,36 @@ export const loadFacebookConversationMessageClass = (models: IModels) => {
       }
 
       return this.createMessage({ ...doc, userId });
+    }
+
+    public static async addBotMessage(
+      subdomain: string,
+      {
+        conversationId,
+        botId,
+        botData,
+        mid,
+        conversationErxesApiId,
+      }: IAddFacebookConversationBotMessage,
+    ) {
+      const content = extractBotMessageContent(botData);
+
+      const conversationMessage =
+        await models.FacebookConversationMessages.addMessage({
+          conversationId,
+          content,
+          internal: false,
+          mid,
+          botId,
+          botData,
+          fromBot: true,
+        });
+
+      pConversationClientMessageInserted(subdomain, {
+        ...conversationMessage,
+        conversationId: conversationErxesApiId,
+      });
+      return conversationMessage;
     }
   }
 

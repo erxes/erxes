@@ -1,4 +1,7 @@
-import { DEFAULT_LANGUAGE } from '@/integrations/erxes-messenger/constants/emStatesDefaultValues';
+import {
+  DEFAULT_COLORS,
+  DEFAULT_LANGUAGE,
+} from '@/integrations/erxes-messenger/constants/emStatesDefaultValues';
 import {
   erxesMessengerSetupAppearanceAtom,
   erxesMessengerSetupConfigAtom,
@@ -27,22 +30,45 @@ export const erxesMessengerSetSetupAtom = atom(
     try {
       // Set appearance
       const appearance = {
-        brandColor: payload?.uiOptions?.color,
-        textColor: payload?.uiOptions?.textColor,
+        primary: {
+          DEFAULT:
+            payload?.uiOptions?.primary?.DEFAULT || DEFAULT_COLORS.PRIMARY,
+          foreground:
+            payload?.uiOptions?.primary?.foreground ||
+            DEFAULT_COLORS.FOREGROUND,
+        },
         logo: payload?.uiOptions?.logo,
       };
       set(erxesMessengerSetupAppearanceAtom, appearance);
 
       // Set config
+      const channelId =
+        payload?.channel?._id ||
+        payload?.channels?.map((channel) => channel._id)?.[0] ||
+        '';
       const config = {
         name: payload?.name || '',
-        brandId: payload?.brandId || '',
-        languageCode: payload?.languageCode || DEFAULT_LANGUAGE,
-        channelId: payload?.channels?.map((channel) => channel._id)?.[0] || '',
+        channelId,
+        brandId: payload?.brandId,
+        ticketConfigId: payload?.ticketConfigId,
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,
-          persistentMenus: payload?.messengerData?.persistentMenus,
-          generate: payload?.messengerData?.botCheck,
+          persistentMenu: (payload?.messengerData?.persistentMenus || []).map(
+            (menu: {
+              _id?: string;
+              name?: string;
+              text?: string;
+              type?: string;
+              link?: string;
+            }) => ({
+              text: menu.text ?? menu.name ?? '',
+              type: (menu.type === 'link' ? 'link' : 'button') as
+                | 'button'
+                | 'link',
+              link: menu.link ?? '',
+            }),
+          ),
+          botCheck: payload?.messengerData?.botCheck,
         },
       };
 
@@ -57,11 +83,11 @@ export const erxesMessengerSetSetupAtom = atom(
       const greetings = {
         supporterIds: payload?.messengerData?.supporterIds,
         title:
-          (payload?.messengerData?.messages || {})[
+          payload?.messengerData?.messages?.[
             payload?.languageCode || DEFAULT_LANGUAGE
           ]?.greetings?.title || '',
         message:
-          (payload?.messengerData?.messages || {})[
+          payload?.messengerData?.messages?.[
             payload?.languageCode || DEFAULT_LANGUAGE
           ]?.greetings?.message || '',
         links: greetingLinks,
@@ -110,13 +136,14 @@ export const erxesMessengerSetSetupAtom = atom(
       set(erxesMessengerSetupSettingsAtom, settings);
 
       // Set intro messages
-      const messages = (payload?.messengerData?.messages || {})[
-        payload?.languageCode || DEFAULT_LANGUAGE
-      ];
+      const messages =
+        payload?.messengerData?.messages?.[
+          payload?.languageCode || DEFAULT_LANGUAGE
+        ];
       const intro = {
         welcome: messages?.welcome ?? '',
         away: messages?.away ?? '',
-        thankyou: messages?.thank ?? '',
+        thank: messages?.thank ?? '',
       };
       set(erxesMessengerSetupIntroAtom, intro);
       set(settedIntegrationDetailAtom, true);

@@ -80,7 +80,7 @@ const callsMutations = {
     const history = await models.CallHistory.findOne({
       _id,
     });
-    if (history && history.callStatus === 'active') {
+    if (history?.callStatus === 'active') {
       let callStatus = doc.callStatus;
       if (doc.transferredCallStatus) {
         callStatus = 'transferred';
@@ -192,7 +192,7 @@ const callsMutations = {
         let customer = await models.CallCustomers.findOne({
           primaryPhone: doc.customerPhone,
         });
-        if (!customer || !customer.erxesApiId) {
+        if (!customer?.erxesApiId) {
           customer = await getOrCreateCustomer(models, subdomain, doc);
         }
 
@@ -237,7 +237,7 @@ const callsMutations = {
       } finally {
         if (lock) {
           try {
-            await lock.unlock();
+            await lock?.unlock();
           } catch (unlockError) {
             console.error('Failed to release lock:', unlockError);
           }

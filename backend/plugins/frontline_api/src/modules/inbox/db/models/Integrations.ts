@@ -1,23 +1,22 @@
-import moment from 'moment-timezone';
-
-import { Model, Query } from 'mongoose';
-
-import { IModels } from '~/connectionResolvers';
 import {
   IIntegration,
   IIntegrationDocument,
   ILeadData,
   IMessengerData,
   IUiOptions,
-  ITicketData,
 } from '@/inbox/@types/integrations';
 import { integrationSchema } from '@/inbox/db/definitions/integrations';
+import moment from 'moment-timezone';
+import { Model, Query } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
+
 export interface IMessengerIntegration {
   kind: string;
   name: string;
   integrationId: string;
   languageCode: string;
   channelId: string;
+  brandId: string;
 }
 
 export interface IExternalIntegrationParams {
@@ -40,8 +39,11 @@ interface IIntegrationBasicInfo {
 const getHourAndMinute = (timeString: string) => {
   const normalized = timeString.toLowerCase().trim();
   const colon = normalized.indexOf(':');
-  let hour = parseInt(normalized.substring(0, colon), 10);
-  const minute = parseInt(normalized.substring(colon + 1, colon + 3), 10);
+  let hour = Number.parseInt(normalized.substring(0, colon), 10);
+  const minute = Number.parseInt(
+    normalized.substring(colon + 1, colon + 3),
+    10,
+  );
 
   const isPM = normalized.includes('pm');
   const isAM = normalized.includes('am');
@@ -101,7 +103,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   ): Promise<IIntegrationDocument>;
   integrationsSaveMessengerTicketData(
     _id: string,
-    doc: ITicketData,
+    configId: string,
   ): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(
     _id: string,
@@ -127,7 +129,8 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     doc: IExternalIntegrationParams,
     userId: string,
   ): Promise<IIntegrationDocument>;
-  removeIntegration(_id: string): void;
+  removeIntegration(_id: string): Promise<void>;
+  removeIntegrations(_ids: string[]): Promise<void>;
   updateBasicInfo(
     _id: string,
     doc: IIntegrationBasicInfo,
@@ -159,7 +162,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
 export const loadClass = (models: IModels, subdomain: string) => {
   class Integration {
     /**
-     * Retreives integration
+     * Retrieves integration
      */
     public static async getIntegration(doc: any) {
       const integration = await models.Integrations.findOne(doc);
@@ -290,25 +293,23 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static async integrationsSaveMessengerTicketData(
       _id: string,
-      {
-        ticketLabel,
-        ticketToggle,
-        ticketStageId,
-        ticketPipelineId,
-        ticketBoardId,
-      }: ITicketData,
+      configId: string,
     ) {
+      const integration = await models.Integrations.findOne({
+        _id: _id,
+      });
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+      const config = await models.TicketConfig.findOne({ _id: configId });
+      if (!config) {
+        throw new Error('Config not found');
+      }
       const result = await models.Integrations.updateOne(
         { _id },
         {
           $set: {
-            ticketData: {
-              ticketLabel,
-              ticketToggle,
-              ticketStageId,
-              ticketPipelineId,
-              ticketBoardId,
-            },
+            ticketConfigId: configId,
           },
         },
         { runValidators: true },
@@ -381,7 +382,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
       userId: string,
     ): Promise<IIntegrationDocument> {
       return models.Integrations.createIntegration(
-        { ...doc, channelId: doc.channelId || '' },
+        {
+          ...doc,
+          channelId: doc.channelId || '',
+          brandId: doc.brandId || '',
+        },
         userId,
       );
     }
@@ -420,6 +425,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async removeIntegration(_id: string) {
       return models.Integrations.deleteMany({ _id });
+    }
+
+    public static async removeIntegrations(_ids: string[]) {
+      return models.Integrations.deleteMany({ _id: { $in: _ids } });
     }
 
     public static async updateBasicInfo(

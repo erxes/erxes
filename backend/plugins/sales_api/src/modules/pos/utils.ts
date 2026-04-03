@@ -3,13 +3,13 @@ import {
   isEnabled,
   redis,
   sendTRPCMessage,
-  sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
 export const getConfig = async (
   subdomain: string,
@@ -92,7 +92,7 @@ export const getBranchesUtil = async (
         pos: allowPos,
       });
 
-      if (response && response.healthy === 'ok') {
+      if (response?.healthy === 'ok') {
         healthyBranchIds.push(allowPos.branchId);
       }
     }
@@ -211,11 +211,7 @@ const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
 
-  if (
-    afterMutations['pos:order'] &&
-    afterMutations['pos:order']['synced'] &&
-    afterMutations['pos:order']['synced'].length
-  ) {
+  if (afterMutations['pos:order']?.['synced']?.length) {
     const user = await sendTRPCMessage({
       subdomain,
 
@@ -354,35 +350,29 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     //   },
     //   "stringValue": "106.93628311157227,47.920138551642026"
     // }
-    dealsData.customFieldsData = [
-      {
-        field: deliveryConfig.mapCustomField.replace('customFieldsData.', ''),
-        locationValue: {
-          type: 'Point',
-          coordinates: [
-            marker.longitude || marker.lng,
-            marker.latitude || marker.lat,
-          ],
-        },
-        value: {
-          lat: marker.latitude || marker.lat,
-          lng: marker.longitude || marker.lng,
-          description: 'location',
-        },
-        stringValue: `${marker.longitude || marker.lng},${
-          marker.latitude || marker.lat
-        }`,
+
+    const field = deliveryConfig.mapCustomField.replace(
+      'customFieldsData.',
+      '',
+    );
+
+    dealsData.propertiesData = {
+      [field]: {
+        type: 'Point',
+        coordinates: [
+          marker.longitude || marker.lng,
+          marker.latitude || marker.lat,
+        ],
       },
-    ];
+    };
   }
 
-  if ((doneOrder.deliveryInfo || {}).dealId) {
-    const deal = await sendTRPCMessage({
+  if (doneOrder.deliveryInfo?.dealId) {
+    const response = await sendTRPCMessage({
       subdomain,
-
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'updateOne',
       input: {
         selector: { _id: doneOrder.deliveryInfo.dealId },
@@ -390,35 +380,33 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       },
     });
 
+    const deal = response?.data;
+
     await sendTRPCMessage({
       subdomain,
-
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
-      action: 'salesPipelinesChanged',
+      module: 'deal',
+      action: 'subscriptionWrapper',
       input: {
+        action: 'update',
+        deal,
         pipelineId: deliveryConfig.pipelineId,
-        action: 'itemUpdate',
-        data: {
-          item: deal,
-          destinationStageId: deliveryConfig.stageId,
-        },
       },
     });
   } else {
-    const deal = await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'create',
       input: {
         ...dealsData,
       },
     });
-
+    const deal = response?.data;
     if (
       doneOrder.customerId &&
       deal._id &&
@@ -426,16 +414,21 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     ) {
       await sendTRPCMessage({
         subdomain,
-
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformities',
-        action: 'addConformity',
+        module: 'relation',
+        action: 'createRelation',
         input: {
-          mainType: 'deal',
-          mainTypeId: deal._id,
-          relType: doneOrder.customerType || 'customer',
-          relTypeId: doneOrder.customerId,
+          entities: [
+            {
+              contentType: 'sales:deal',
+              contentId: deal._id,
+            },
+            {
+              contentType: `core:${doneOrder.customerType || 'customer'}`,
+              contentId: doneOrder.customerId,
+            },
+          ],
         },
       });
     }
@@ -445,15 +438,12 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
-      action: 'salesPipelinesChanged',
+      module: 'deal',
+      action: 'subscriptionWrapper',
       input: {
+        action: 'create',
+        deal,
         pipelineId: deliveryConfig.pipelineId,
-        action: 'itemAdd',
-        data: {
-          item: deal,
-          destinationStageId: deliveryConfig.stageId,
-        },
       },
     });
 
@@ -545,7 +535,7 @@ const createDealPerOrder = async ({
       (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId,
   );
 
-  if (currentCardsConfig && currentCardsConfig.stageId) {
+  if (currentCardsConfig?.stageId) {
     const paymentsData: any = {};
     if (newOrder.cashAmount) {
       paymentsData.cash = {
@@ -573,12 +563,12 @@ const createDealPerOrder = async ({
       };
     }
 
-    const cardDeal = await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'create',
       input: {
         name: `Cards: ${newOrder.number}`,
@@ -598,20 +588,26 @@ const createDealPerOrder = async ({
         paymentsData,
       },
     });
+    const cardDeal = response?.data;
 
     if (newOrder.customerId && cardDeal._id) {
       await sendTRPCMessage({
         subdomain,
-
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformities',
-        action: 'addConformity',
+        module: 'relation',
+        action: 'createRelation',
         input: {
-          mainType: 'deal',
-          mainTypeId: cardDeal._id,
-          relType: newOrder.customerType || 'customer',
-          relTypeId: newOrder.customerId,
+          entities: [
+            {
+              contentType: 'sales:deal',
+              contentId: cardDeal._id,
+            },
+            {
+              contentType: `core:${newOrder.customerType || 'customer'}`,
+              contentId: newOrder.customerId,
+            },
+          ],
         },
       });
     }
@@ -620,15 +616,12 @@ const createDealPerOrder = async ({
 
       method: 'mutation',
       pluginName: 'sales',
-      module: 'deals',
-      action: 'salesPipelinesChanged',
+      module: 'deal',
+      action: 'subscriptionWrapper',
       input: {
+        action: 'create',
+        deal: cardDeal,
         pipelineId: currentCardsConfig.pipelineId,
-        action: 'itemAdd',
-        data: {
-          item: cardDeal,
-          destinationStageId: currentCardsConfig.stageId,
-        },
       },
     });
 
@@ -643,7 +636,7 @@ const createDealPerOrder = async ({
 };
 
 const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
-  if (!(pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet)) {
+  if (!pos.erkhetConfig?.isSyncErkhet) {
     return;
   }
   let resp;
@@ -658,8 +651,8 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
       subdomain,
 
       method: 'mutation',
-      pluginName: 'coreintegration',
-      module: 'syncerkhet',
+      pluginName: 'mongolian',
+      module: 'erkhet',
       action: 'returnOrder',
       input: {
         pos,
@@ -672,8 +665,8 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
       subdomain,
 
       method: 'mutation',
-      pluginName: 'coreintegration',
-      module: 'syncerkhet',
+      pluginName: 'mongolian',
+      module: 'erkhet',
       action: 'toOrder',
       input: {
         pos,
@@ -693,119 +686,6 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
       { _id: newOrder._id },
       { $set: { syncErkhetInfo: txt } },
     );
-  }
-};
-
-const syncInventoriesRem = async ({
-  subdomain,
-  newOrder,
-  oldBranchId,
-  pos,
-}) => {
-  if (!(pos.checkRemainder && newOrder.departmentId)) {
-    return;
-  }
-
-  let multiplier = 1;
-  if (newOrder.status === 'return') {
-    multiplier = -1;
-  }
-
-  if (newOrder.isPre) {
-    if (!newOrder.paidDate) {
-      if (
-        newOrder.branchId &&
-        (!oldBranchId || oldBranchId !== newOrder.branchId)
-      ) {
-        await sendTRPCMessage({
-          subdomain,
-
-          method: 'mutation',
-          pluginName: 'accounting',
-          module: 'remainders',
-          action: 'updateMany',
-          input: {
-            branchId: newOrder.branchId,
-            departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map((item) => ({
-              productId: item.productId,
-              uom: item.uom,
-              diffSoonOut: item.count * multiplier,
-            })),
-          },
-        });
-      }
-
-      if (oldBranchId && oldBranchId !== newOrder.branchId) {
-        await sendTRPCMessage({
-          subdomain,
-
-          method: 'mutation',
-          pluginName: 'accounting',
-          module: 'remainders',
-          action: 'updateMany',
-          input: {
-            branchId: oldBranchId,
-            departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map((item) => ({
-              productId: item.productId,
-              uom: item.uom,
-              diffSoonOut: -1 * item.count * multiplier,
-            })),
-          },
-        });
-      }
-
-      return;
-    }
-  }
-  // ene doorhuudiig bas paidDate shalgah tuhai bodoh
-  // jich bas jururiin salbariin zb bodoh, neg salbar deer l zaragdaj baiga avch salbar deer zuvhun tur hadgalah
-  // ene ni techstore bas adil baina
-
-  if (
-    newOrder.branchId &&
-    (!oldBranchId || oldBranchId !== newOrder.branchId)
-  ) {
-    await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'accounting',
-      module: 'remainders',
-      action: 'updateMany',
-      input: {
-        branchId: newOrder.branchId,
-        departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map((item) => ({
-          productId: item.productId,
-          uom: item.uom,
-          diffCount: -1 * item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? -1 * item.count * multiplier : 0,
-        })),
-      },
-    });
-  }
-
-  if (oldBranchId && oldBranchId !== newOrder.branchId) {
-    await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'accounting',
-      module: 'remainders',
-      action: 'updateMany',
-      input: {
-        branchId: oldBranchId,
-        departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map((item) => ({
-          productId: item.productId,
-          uom: item.uom,
-          diffCount: item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? item.count * multiplier : 0,
-        })),
-      },
-    });
   }
 };
 
@@ -831,12 +711,11 @@ export const syncOrderFromClient = async ({
 
   if (await isEnabled('ebarimt')) {
     for (const response of responses || []) {
-      if (response && response._id) {
+      if (response?._id) {
         await sendTRPCMessage({
           subdomain,
-
           method: 'mutation',
-          pluginName: 'coreintegration',
+          pluginName: 'mongolian',
           module: 'putresponses',
           action: 'createOrUpdate',
           input: { _id: response._id, doc: { ...response, posToken } },
@@ -871,9 +750,9 @@ export const syncOrderFromClient = async ({
   if (newOrder.paidDate) {
     if (newOrder.customerId && (await checkServiceRunning('automations'))) {
       try {
-        sendWorkerQueue('automations', 'trigger').add('trigger', {
-          subdomain,
-          data: { type: 'pos:posOrder', targets: [newOrder] },
+        sendAutomationTrigger(subdomain, {
+          type: 'pos:posOrder',
+          targets: [newOrder],
         });
       } catch (e) {
         console.log(subdomain, e.message);
@@ -931,9 +810,8 @@ export const syncOrderFromClient = async ({
 
     // change branch and before another pos synced then remove from befort sync
     if (
-      oldOrder &&
-      oldOrder.subBranchId &&
-      newOrder.subBranchId !== oldOrder.subBranchId
+      oldOrder?.subBranchId &&
+      newOrder.subBranchId !== oldOrder?.subBranchId
     ) {
       const toCancelPos = await models.Pos.findOne({
         branchId: oldOrder.subBranchId,
@@ -960,18 +838,18 @@ export const syncOrderFromClient = async ({
       console.log(subdomain, e.message);
     }
 
-    try {
-      await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
-    } catch (e) {
-      console.log(subdomain, e.message);
-    }
+    // try {
+    //   await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+    // } catch (e) {
+    //   console.log(subdomain, e.message);
+    // }
   }
 
   const syncedResponseIds = (
     (await sendTRPCMessage({
       subdomain,
 
-      pluginName: 'coreintegration',
+      pluginName: 'mongolian',
       module: 'putresponses',
       action: 'find',
       input: {
@@ -1073,7 +951,7 @@ export const calcProductsTaxRule = async (
       (await sendTRPCMessage({
         subdomain,
 
-        pluginName: 'coreintegration',
+        pluginName: 'mongolian',
         module: 'productRules',
         action: 'find',
         input: { _id: { $in: config.reverseVatRules } },
@@ -1086,7 +964,7 @@ export const calcProductsTaxRule = async (
       (await sendTRPCMessage({
         subdomain,
 
-        pluginName: 'coreintegration',
+        pluginName: 'mongolian',
         module: 'productRules',
         action: 'find',
         input: { _id: { $in: config.reverseCtaxRules } },

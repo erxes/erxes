@@ -8,13 +8,14 @@ import { BranchForm } from '../BranchForm';
 import { SubmitHandler } from 'react-hook-form';
 import { TBranchForm } from '@/settings/structure/types/branch';
 import { useBranchEdit } from '@/settings/structure/hooks/useBranchActions';
+import { Can } from 'ui-modules';
 
-export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
+export const BranchEdit = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('branch_id');
 
-  const { branchDetail, loading } = useBranchDetailsById({
+  const { branchDetail } = useBranchDetailsById({
     variables: {
       id,
     },
@@ -44,7 +45,11 @@ export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
           ...data,
         },
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Branch updated successfully',
+          });
           methods.reset();
           setOpen(null);
         },
@@ -62,9 +67,11 @@ export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
   useEffect(() => {
     if (branchDetail) {
       const { __typename, _id, ...rest } = branchDetail;
+      void __typename;
+      void _id;
       reset(rest);
     }
-  }, [branchDetail]);
+  }, [branchDetail, reset]);
 
   return (
     <Sheet
@@ -95,9 +102,11 @@ export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Spinner /> : 'Save'}
-              </Button>
+              <Can action="branchesManage">
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? <Spinner /> : 'Save'}
+                </Button>
+              </Can>
             </Sheet.Footer>
           </form>
         </Form>

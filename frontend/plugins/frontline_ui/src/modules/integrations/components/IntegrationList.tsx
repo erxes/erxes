@@ -1,5 +1,4 @@
-import { IconSearch } from '@tabler/icons-react';
-import { Card, Command, getPluginAssetsUrl, Input, Skeleton } from 'erxes-ui';
+import { Card, Command, getPluginAssetsUrl, Skeleton } from 'erxes-ui';
 import { INTEGRATIONS } from '../constants/integrations';
 import { Link, useParams } from 'react-router-dom';
 import { IntegrationLogo } from './IntegrationLogo';
@@ -8,19 +7,11 @@ import { gql, useQuery } from '@apollo/client';
 
 export const IntegrationList = () => {
   return (
-    <Command className='h-auto'>
-      {/* <div className="relative m-1 mb-8">
-        <Command.Primitive.Input placeholder="Search integrations" asChild>
-          <Input className="pl-8" placeholder="Search integrations" />
-        </Command.Primitive.Input>
-        <div className="absolute left-2 top-1/2 -translate-y-1/2">
-          <IconSearch className="size-4 text-accent-foreground" />
-        </div>
-      </div> */}
-      <Command.List className="p-0">
+    <Command className="h-auto">
+      <Command.List>
         <Command.Group
           heading="Integrations"
-          className="[&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:mb-1.5 pb-8"
+          className="**:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:mb-1.5 pb-8"
         >
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(INTEGRATIONS).map(

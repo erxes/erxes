@@ -7,7 +7,7 @@ import {
 } from '@/posclient/db/definitions/constants';
 
 import { IDoc } from '@/posclient/db/models/PutData';
-
+import { Resolver } from 'erxes-api-shared/core-types';
 import {
   checkCouponCode,
   checkOrderAmount,
@@ -27,6 +27,7 @@ import {
   graphqlPubsub,
   getPureDate,
   sendTRPCMessage,
+  markResolvers,
 } from 'erxes-api-shared/utils';
 import { IContext, IOrderInput } from '@/posclient/@types/types';
 import { IConfig, IConfigDocument } from '~/modules/posclient/@types/configs';
@@ -36,6 +37,8 @@ import { IOrderItemInput } from '~/modules/posclient/@types/types';
 import { checkSlotStatus } from '~/modules/posclient/utils/slots';
 import { IModels } from '~/connectionResolvers';
 import { prepareSettlePayment } from '~/modules/posclient/utils';
+import { debugError } from '~/modules/posclient/debugError';
+import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 
 interface IPaymentBase {
   billType: string;
@@ -73,9 +76,8 @@ export interface IOrderChangeParams {
 
 const getTaxInfo = (config: IConfig) => {
   return {
-    hasVat: (config.ebarimtConfig && config.ebarimtConfig.hasVat) || false,
-    hasCitytax:
-      (config.ebarimtConfig && config.ebarimtConfig?.hasCitytax) || false,
+    hasVat: config.ebarimtConfig?.hasVat || false,
+    hasCitytax: config.ebarimtConfig?.hasCitytax || false,
   };
 };
 
@@ -84,7 +86,7 @@ export const getStatus = (config, buttonType, doc, order?) => {
     return ORDER_STATUSES.PENDING;
   }
 
-  if (!(config && config.kitchenScreen && config.kitchenScreen.isActive)) {
+  if (!config?.kitchenScreen?.isActive) {
     return ORDER_STATUSES.COMPLETE;
   }
 
@@ -119,7 +121,7 @@ export const getStatus = (config, buttonType, doc, order?) => {
     return ORDER_STATUSES.COMPLETE;
   }
 
-  if (type === 'paid' && (!order || !order.paidDate)) {
+  if (type === 'paid' && !order?.paidDate) {
     return ORDER_STATUSES.PENDING;
   }
 
@@ -170,16 +172,6 @@ export const ordersAdd = async (
   },
 ) => {
   const { totalAmount, type, customerId, customerType, branchId, isPre } = doc;
-  if (!posUser && !doc.customerId && customerType !== 'visitor') {
-    throw new Error('order has not owner');
-  }
-
-  if (
-    posUser &&
-    ![...config.adminIds, ...config.cashierIds].includes(posUser._id)
-  ) {
-    throw new Error('Please logout and reLogin');
-  }
 
   await validateOrder(subdomain, models, config, doc);
 
@@ -194,7 +186,7 @@ export const ordersAdd = async (
   };
 
   try {
-    let preparedDoc = await prepareOrderDoc(
+    const preparedDoc = await prepareOrderDoc(
       subdomain,
       doc,
       config,
@@ -305,7 +297,7 @@ const ordersEdit = async (
 
   await cleanOrderItems(doc._id, doc.items, models);
 
-  let preparedDoc = await prepareOrderDoc(
+  const preparedDoc = await prepareOrderDoc(
     subdomain,
     doc,
     config,
@@ -317,10 +309,10 @@ const ordersEdit = async (
 
   await updateOrderItems(doc._id, preparedDoc.items, models);
 
-  let status = getStatus(config, doc.buttonType, doc, order);
-  let saleStatus = getSaleStatus(config, doc, preparedDoc);
+  const status = getStatus(config, doc.buttonType, doc, order);
+  const saleStatus = getSaleStatus(config, doc, preparedDoc);
 
-  // dont change isPre
+  // don't change isPre
   const updatedOrder = await models.Orders.updateOrder(doc._id, {
     deliveryInfo: doc.deliveryInfo,
     branchId: config.branchId || doc.branchId,
@@ -399,79 +391,181 @@ const getItemInput = (item) => {
   };
 };
 
-const orderMutations: Record<string, any> = {
+const QR_MENU_ACTIVE_ORDER_STATUSES = [
+  ORDER_STATUSES.NEW,
+  ORDER_STATUSES.DOING,
+  ORDER_STATUSES.DONE,
+  ORDER_STATUSES.COMPLETE,
+  ORDER_STATUSES.REDOING,
+  ORDER_STATUSES.PENDING,
+];
+
+type OrderMutationCtx = {
+  posUser?: IPosUserDocument;
+  config: IConfigDocument;
+  models: IModels;
+  subdomain: string;
+};
+
+async function findOpenQrMenuOrderForSlot(
+  models: IModels,
+  config: IConfigDocument,
+  slotCode: string,
+) {
+  return models.Orders.findOne({
+    $or: [{ posToken: config.token }, { subToken: config.token }],
+    paidDate: { $exists: false },
+    status: { $in: QR_MENU_ACTIVE_ORDER_STATUSES },
+    origin: 'qrMenu',
+    slotCode,
+    isSingle: { $ne: true },
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+}
+
+async function tryMergeQrMenuIntoExistingSlotOrder(
+  doc: IOrderInput,
+  ctx: OrderMutationCtx,
+) {
+  if (!(doc.origin === 'qrMenu' && doc.isSingle === false && doc.slotCode)) {
+    return null;
+  }
+
+  if (doc.deviceId) {
+    doc.items = doc.items.map((i) => ({
+      ...i,
+      byDevice: { [doc.deviceId || '']: i.count },
+    }));
+  }
+
+  const slotInSameOrder = await findOpenQrMenuOrderForSlot(
+    ctx.models,
+    ctx.config,
+    doc.slotCode,
+  );
+
+  if (!slotInSameOrder?._id) {
+    return null;
+  }
+
+  const items: IOrderItemInput[] = (
+    await ctx.models.OrderItems.find({ orderId: slotInSameOrder._id }).lean()
+  ).map((item) => ({ ...getItemInput(item) }));
+
+  for (const newItem of doc.items || []) {
+    const duplicatedItem = items.find(
+      (i) =>
+        i.productId === newItem.productId &&
+        Boolean(i.isPackage) === Boolean(newItem.isPackage) &&
+        Boolean(i.isTake) === Boolean(newItem.isTake),
+    );
+
+    if (duplicatedItem) {
+      duplicatedItem.count += newItem.count;
+
+      duplicatedItem.byDevice = {
+        ...(duplicatedItem.byDevice || {}),
+        [doc.deviceId || '']:
+          (duplicatedItem.byDevice?.[doc.deviceId || ''] ?? 0) + newItem.count,
+      };
+    } else {
+      items.push({
+        ...getItemInput(newItem),
+        byDevice: { [doc.deviceId || '']: newItem.count },
+      });
+    }
+  }
+
+  return ordersEdit({ ...doc, ...slotInSameOrder, items }, ctx);
+}
+
+async function cancelPosOrder(models: IModels, _id: string) {
+  const order = await models.Orders.getOrder(_id);
+
+  checkOrderStatus(order);
+
+  if (
+    order.mobileAmount ||
+    (order.paidAmounts || []).filter(
+      (pa) => pa.info && Object.keys(pa.info).length,
+    ).length > 0
+  ) {
+    throw new Error('Card payment exists for this order');
+  }
+
+  if (
+    order.isPre &&
+    (order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
+  ) {
+    throw new Error('Cannot cancel cause PreOrder added payment');
+  }
+
+  if (order.synced === true) {
+    throw new Error('Order is already synced to erxes');
+  }
+
+  await models.OrderItems.deleteMany({ orderId: _id });
+
+  return models.Orders.deleteOne({ _id });
+}
+
+async function applyOrderSaleStatusChange(
+  models: IModels,
+  _id: string,
+  saleStatus: string,
+) {
+  const oldOrder = await models.Orders.getOrder(_id);
+
+  await models.Orders.updateOrder(_id, {
+    ...oldOrder,
+    saleStatus,
+    modifiedAt: new Date(),
+  });
+
+  return models.Orders.getOrder(_id);
+}
+
+const orderMutations: Record<string, Resolver> = {
   async ordersAdd(
     _root,
     doc: IOrderInput,
     { posUser, config, models, subdomain }: IContext,
   ) {
-    if (doc.origin === 'qrMenu' && doc.isSingle === false && doc.slotCode) {
-      if (doc.deviceId) {
-        doc.items = doc.items.map((i) => ({
-          ...i,
-          byDevice: { [doc.deviceId || '']: i.count },
-        }));
-      }
-      const slotInSameOrder = await models.Orders.findOne({
-        $or: [{ posToken: config.token }, { subToken: config.token }],
-        paidDate: { $exists: false },
-        status: {
-          $in: [
-            ORDER_STATUSES.NEW,
-            ORDER_STATUSES.DOING,
-            ORDER_STATUSES.DONE,
-            ORDER_STATUSES.COMPLETE,
-            ORDER_STATUSES.REDOING,
-            ORDER_STATUSES.PENDING,
-          ],
-        },
-        origin: 'qrMenu',
-        slotCode: doc.slotCode,
-        isSingle: { $ne: true },
-      })
-        .sort({ createdAt: -1 })
-        .lean();
+    assertPosUser(posUser);
 
-      if (slotInSameOrder?._id) {
-        const items: IOrderItemInput[] = (
-          await models.OrderItems.find({ orderId: slotInSameOrder._id }).lean()
-        ).map((item) => ({ ...getItemInput(item) }));
-
-        for (const newItem of doc.items || []) {
-          const duplicatedItem = items.find(
-            (i) =>
-              i.productId === newItem.productId &&
-              Boolean(i.isPackage) === Boolean(newItem.isPackage) &&
-              Boolean(i.isTake) === Boolean(newItem.isTake),
-          );
-
-          if (duplicatedItem) {
-            duplicatedItem.count += newItem.count;
-
-            duplicatedItem.byDevice = {
-              ...(duplicatedItem.byDevice || {}),
-              [doc.deviceId || '']:
-                ((duplicatedItem.byDevice || {})[doc.deviceId || ''] || 0) +
-                newItem.count,
-            };
-          } else {
-            items.push({
-              ...getItemInput(newItem),
-              byDevice: { [doc.deviceId || '']: newItem.count },
-            });
-          }
-        }
-
-        return ordersEdit(
-          { ...doc, ...slotInSameOrder, items },
-          { posUser, config, models, subdomain },
-        );
-      }
+    const merged = await tryMergeQrMenuIntoExistingSlotOrder(doc, {
+      posUser,
+      config,
+      models,
+      subdomain,
+    });
+    if (merged) {
+      return merged;
     }
+
     return ordersAdd(doc, { posUser, config, models, subdomain });
   },
 
-  async ordersEdit(
+  async cpOrdersAdd(
+    _root,
+    doc: IOrderInput,
+    { posUser, config, models, subdomain }: IContext,
+  ) {
+    const merged = await tryMergeQrMenuIntoExistingSlotOrder(doc, {
+      posUser,
+      config,
+      models,
+      subdomain,
+    });
+    if (merged) {
+      return merged;
+    }
+
+    return ordersAdd(doc, { posUser, config, models, subdomain });
+  },
+
+  async cpOrdersEdit(
     _root,
     doc: IOrderEditParams,
     { posUser, config, models, subdomain }: IContext,
@@ -479,11 +573,23 @@ const orderMutations: Record<string, any> = {
     return ordersEdit(doc, { posUser, config, models, subdomain });
   },
 
+  async ordersEdit(
+    _root,
+    doc: IOrderEditParams,
+    { posUser, config, models, subdomain }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    return ordersEdit(doc, { posUser, config, models, subdomain });
+  },
+
   async orderChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, subdomain, config }: IContext,
+    { models, subdomain, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const oldOrder = await models.Orders.getOrder(_id);
 
     const order = await models.Orders.updateOrder(_id, {
@@ -523,24 +629,20 @@ const orderMutations: Record<string, any> = {
       order.customerId
     ) {
       try {
-        // sendPosMessage({
-        //   subdomain,
-        //   action: 'createOrUpdateOrders',
-        //   data: { action: 'statusToDone', order, posToken: config.token },
-        // });
         await sendTRPCMessage({
           subdomain,
-
-          method: 'query',
-          pluginName: 'createOrUpdateOrders',
+          method: 'mutation',
+          pluginName: 'sales',
           module: 'pos',
-          action: 'covers.confirm',
+          action: 'createOrUpdateOrders',
           input: {
             query: { action: 'statusToDone', order, posToken: config.token },
           },
           defaultValue: {},
         });
-      } catch (e) {}
+      } catch (e) {
+        console.error('Error confirming cover:', e);
+      }
     }
     return await models.Orders.getOrder(_id);
   },
@@ -548,24 +650,28 @@ const orderMutations: Record<string, any> = {
   async orderChangeSaleStatus(
     _root,
     { _id, saleStatus }: { _id: string; saleStatus: string },
-    { models, subdomain, config }: IContext,
+    { models, posUser, config }: IContext,
   ) {
-    const oldOrder = await models.Orders.getOrder(_id);
+    assertPosUser(posUser);
 
-    await models.Orders.updateOrder(_id, {
-      ...oldOrder,
-      saleStatus,
-      modifiedAt: new Date(),
-    });
+    return applyOrderSaleStatusChange(models, _id, saleStatus);
+  },
 
-    return await models.Orders.getOrder(_id);
+  async cpOrderChangeSaleStatus(
+    _root,
+    { _id, saleStatus }: { _id: string; saleStatus: string },
+    { models }: IContext,
+  ) {
+    return applyOrderSaleStatusChange(models, _id, saleStatus);
   },
 
   async ordersChange(
     _root,
     params: IOrderChangeParams,
-    { models, config, subdomain }: IContext,
+    { models, config, subdomain, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     // after paid then edit order some field
     // if online, update branch
     // update dueDate
@@ -610,35 +716,19 @@ const orderMutations: Record<string, any> = {
 
     if (changedOrder.paidDate || changedOrder.isPre) {
       try {
-        // sendPosMessage({
-        //   subdomain,
-        //   action: 'createOrUpdateOrders',
-        //   data: {
-        //     posToken: config.token,
-        //     action: 'makePayment',
-        //     order,
-        //     items: await models.OrderItems.find({
-        //       orderId: params._id,
-        //     }).lean(),
-        //   },
-        // });
-
         await sendTRPCMessage({
           subdomain,
-
-          method: 'query',
+          method: 'mutation',
           pluginName: 'sales',
           module: 'pos',
           action: 'createOrUpdateOrders',
           input: {
-            query: {
-              posToken: config.token,
-              action: 'makePayment',
-              order,
-              items: await models.OrderItems.find({
-                orderId: params._id,
-              }).lean(),
-            },
+            posToken: config.token,
+            action: 'makePayment',
+            order,
+            items: await models.OrderItems.find({
+              orderId: params._id,
+            }).lean(),
           },
           defaultValue: {},
         });
@@ -651,8 +741,10 @@ const orderMutations: Record<string, any> = {
   async orderItemChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, config }: IContext,
+    { models, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const oldOrderItem = await models.OrderItems.getOrderItem(_id);
 
     await models.OrderItems.updateOrderItem(_id, { ...oldOrderItem, status });
@@ -675,6 +767,8 @@ const orderMutations: Record<string, any> = {
     { _id, doc }: IPaymentParams,
     { config, models, subdomain, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     let order = await models.Orders.getOrder(_id);
 
     checkOrderStatus(order);
@@ -701,9 +795,7 @@ const orderMutations: Record<string, any> = {
         doc.registerNumber || order.registerNumber,
       );
 
-      let response;
-
-      response = await models.PutResponses.putData(
+      const response = await models.PutResponses.putData(
         { ...ebarimtData },
         ebarimtConfig,
         config.token,
@@ -745,32 +837,18 @@ const orderMutations: Record<string, any> = {
       });
 
       try {
-        // sendPosMessage({
-        //   subdomain,
-        //   action: 'createOrUpdateOrders',
-        //   data: {
-        //     posToken: config.token,
-        //     action: 'makePayment',
-        //     responses: ebarimtResponses,
-        //     order,
-        //     items,
-        //   },
-        // });
         await sendTRPCMessage({
           subdomain,
-
-          method: 'query',
+          method: 'mutation',
           pluginName: 'sales',
           module: 'pos',
           action: 'createOrUpdateOrders',
           input: {
-            query: {
-              posToken: config.token,
-              action: 'makePayment',
-              responses: ebarimtResponses,
-              order,
-              items,
-            },
+            posToken: config.token,
+            action: 'makePayment',
+            responses: ebarimtResponses,
+            order,
+            items,
           },
           defaultValue: {},
         });
@@ -797,8 +875,10 @@ const orderMutations: Record<string, any> = {
       cashAmount?: number;
       paidAmounts?: IPaidAmount[];
     },
-    { models, config, subdomain }: IContext,
+    { models, config, subdomain, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const order = await models.Orders.getOrder(_id);
 
     const amount =
@@ -842,32 +922,18 @@ const orderMutations: Record<string, any> = {
       }
 
       try {
-        // sendPosMessage({
-        //   subdomain,
-        //   action: 'createOrUpdateOrders',
-        //   data: {
-        //     posToken: config.token,
-        //     action: 'makePayment',
-        //     order,
-        //     items,
-        //   },
-        // });
         await sendTRPCMessage({
           subdomain,
-
-          method: 'query',
+          method: 'mutation',
           pluginName: 'sales',
           module: 'pos',
           action: 'createOrUpdateOrders',
           input: {
-            query: {
-              posToken: config.token,
-              action: 'makePayment',
-              order,
-              items,
-            },
+            posToken: config.token,
+            action: 'makePayment',
+            order,
+            items,
           },
-          defaultValue: {},
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -877,34 +943,14 @@ const orderMutations: Record<string, any> = {
     return newOrder;
   },
 
-  async ordersCancel(_root, { _id }, { models }: IContext) {
-    const order = await models.Orders.getOrder(_id);
+  async ordersCancel(_root, { _id }, { models, posUser, config }: IContext) {
+    assertPosUser(posUser);
 
-    checkOrderStatus(order);
+    return cancelPosOrder(models, _id);
+  },
 
-    if (
-      order.mobileAmount ||
-      (order.paidAmounts || []).filter(
-        (pa) => pa.info && Object.keys(pa.info).length,
-      ).length > 0
-    ) {
-      throw new Error('Card payment exists for this order');
-    }
-
-    if (
-      order.isPre &&
-      (order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
-    ) {
-      throw new Error('Cannot cancel cause PreOrder added payment');
-    }
-
-    if (order.synced === true) {
-      throw new Error('Order is already synced to erxes');
-    }
-
-    await models.OrderItems.deleteMany({ orderId: _id });
-
-    return models.Orders.deleteOne({ _id });
+  async cpOrdersCancel(_root, { _id }, { models }: IContext) {
+    return cancelPosOrder(models, _id);
   },
 
   /**
@@ -917,7 +963,9 @@ const orderMutations: Record<string, any> = {
     { _id, billType, registerNumber }: ISettlePaymentParams,
     { config, models, subdomain, posUser }: IContext,
   ) {
-    let order = await models.Orders.getOrder(_id);
+    assertPosUser(posUser);
+
+    const order = await models.Orders.getOrder(_id);
 
     if (!ORDER_TYPES.SALES.includes(order.type || '')) {
       throw new Error(
@@ -944,6 +992,8 @@ const orderMutations: Record<string, any> = {
     params,
     { models, subdomain, posUser, config }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const order = await models.Orders.getOrder(params._id);
     if (!order.branchId) {
       throw new Error(`First choose orders branch`);
@@ -959,15 +1009,8 @@ const orderMutations: Record<string, any> = {
     }
 
     if (order.convertDealId) {
-      // const deal = await sendSalesMessage({
-      //   subdomain,
-      //   action: 'deals.findOne',
-      //   data: { _id: order.convertDealId },
-      //   isRPC: true,
-      // });
       const deal = await sendTRPCMessage({
         subdomain,
-
         pluginName: 'sales',
         module: 'deal',
         action: 'findOne',
@@ -985,7 +1028,7 @@ const orderMutations: Record<string, any> = {
           defaultValue: null,
         });
 
-        throw new Error(`Already converted: ${dealLink}`);
+        throw new Error(`Already converted: ${dealLink?.data || ''}`);
       }
     }
 
@@ -1033,20 +1076,11 @@ const orderMutations: Record<string, any> = {
         },
       ];
     }
-
-    // const deal = await sendSalesMessage({
-    //   subdomain,
-    //   action: 'deals.create',
-    //   data: dealData,
-    //   isRPC: true,
-    //   defaultValue: {},
-    // });
     const deal = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'sales',
       module: 'deal',
-      action: 'createItem',
+      action: 'create',
       input: dealData,
       defaultValue: null,
     });
@@ -1067,17 +1101,25 @@ const orderMutations: Record<string, any> = {
         //   },
         //   isRPC: true,
         // });
+
+        // conformity to relation
         await sendTRPCMessage({
           subdomain,
-
+          method: 'mutation',
           pluginName: 'core',
-          module: 'conformity',
-          action: 'addConformity',
+          module: 'relation',
+          action: 'createRelation',
           input: {
-            mainType: 'deal',
-            mainTypeId: deal._id,
-            relType: order.customerType || 'customer',
-            relTypeId: order.customerId,
+            entities: [
+              {
+                contentType: 'sales:deal',
+                contentId: deal._id,
+              },
+              {
+                contentType: `core:${order.customerType || 'customer'}`,
+                contentId: order.customerId,
+              },
+            ],
           },
           defaultValue: null,
         });
@@ -1094,38 +1136,39 @@ const orderMutations: Record<string, any> = {
   async afterFormSubmit(
     _root,
     { _id, conversationId }: { _id: string; conversationId: string },
-    { models, subdomain, config }: IContext,
+    { models, subdomain, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const order = await models.Orders.getOrder(_id);
 
-    // await sendInboxMessage({
-    //   subdomain,
-    //   action: 'createOnlyMessage',
-    //   data: {
-    //     conversationId,
-    //     internal: true,
-    //     customerId:
-    //       order.customerType || 'customer' === 'customer'
-    //         ? order.customerId
-    //         : '',
-    //     userId:
-    //       (config.adminIds && config.adminIds.length && config.adminIds[0]) ||
-    //       (config.cashierIds && config.cashierIds[0]) ||
-    //       '',
-    //     content: `
-    //       Pos order:
-    //         paid link:
-    //         <a href="/pos-orders?posId=${config.posId}&search=${order.number}">
-    //           ${order.number}
-    //         </a> <br />
-    //         posclient link:
-    //         <a href="${config.pdomain ?? '/'}?orderId=${order._id}">
-    //           ${order.number}
-    //         </a> <br />
-    //     `,
-    //   },
-    //   isRPC: true,
-    // });
+    await sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'frontline',
+      module: 'inbox',
+      action: 'createOnlyMessage',
+      input: {
+        conversationId,
+        internal: true,
+        customerId:
+          (order.customerType || 'customer') === 'customer'
+            ? order.customerId
+            : '',
+        userId: config.adminIds?.[0] || config.cashierIds?.[0] || '',
+        content: `
+          Pos order:
+            paid link:
+            <a href="/pos-orders?posId=${config.posId}&search=${order.number}">
+              ${order.number}
+            </a> <br />
+            posclient link:
+            <a href="${config.pdomain ?? '/'}?orderId=${order._id}">
+              ${order.number}
+            </a> <br />
+        `,
+      },
+    });
   },
 
   async ordersFinish(
@@ -1133,6 +1176,8 @@ const orderMutations: Record<string, any> = {
     doc: IOrderInput & { _id?: string },
     { config, models, subdomain, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     if (!ORDER_TYPES.OUT.includes(doc.type || '')) {
       throw new Error(
         'Зөвхөн зарлагадах төрөлтэй захиалгыг л шууд хаах боломжтой',
@@ -1203,30 +1248,17 @@ const orderMutations: Record<string, any> = {
       });
 
       try {
-        // sendPosMessage({
-        //   subdomain,
-        //   action: 'createOrUpdateOrders',
-        //   data: {
-        //     posToken: config.token,
-        //     action: 'makePayment',
-        //     order,
-        //     items,
-        //   },
-        // });
         await sendTRPCMessage({
           subdomain,
-
-          method: 'query',
+          method: 'mutation',
           pluginName: 'sales',
           module: 'pos',
           action: 'createOrUpdateOrders',
           input: {
-            query: {
-              posToken: config.token,
-              action: 'makePayment',
-              order,
-              items,
-            },
+            posToken: config.token,
+            action: 'makePayment',
+            order,
+            items,
           },
           defaultValue: {},
         });
@@ -1255,13 +1287,15 @@ const orderMutations: Record<string, any> = {
     },
     { subdomain, models, posUser, config }: IContext,
   ) {
+    assertPosUser(posUser);
+
     if (!posUser?._id || !config.adminIds.includes(posUser._id)) {
       throw new Error('Order return admin required');
     }
 
     let order = await models.Orders.getOrder(_id);
 
-    if (order.returnInfo && order.returnInfo.returnAt) {
+    if (order.returnInfo?.returnAt) {
       throw new Error('Order is already returned');
     }
 
@@ -1350,32 +1384,18 @@ const orderMutations: Record<string, any> = {
     });
 
     try {
-      // sendPosMessage({
-      //   subdomain,
-      //   action: 'createOrUpdateOrders',
-      //   data: {
-      //     posToken: config.token,
-      //     action: 'makePayment',
-      //     responses: returnResponses,
-      //     order,
-      //     items: await models.OrderItems.find({ orderId: _id }).lean(),
-      //   },
-      // });
       await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
+        method: 'mutation',
         pluginName: 'sales',
         module: 'pos',
         action: 'createOrUpdateOrders',
         input: {
-          query: {
-            posToken: config.token,
-            action: 'makePayment',
-            responses: returnResponses,
-            order,
-            items: await models.OrderItems.find({ orderId: _id }).lean(),
-          },
+          posToken: config.token,
+          action: 'makePayment',
+          responses: returnResponses,
+          order,
+          items: await models.OrderItems.find({ orderId: _id }).lean(),
         },
         defaultValue: {},
       });
@@ -1386,8 +1406,26 @@ const orderMutations: Record<string, any> = {
     return models.Orders.findOne({ _id: order._id });
   },
 };
-function debugError(arg0: string) {
-  throw new Error('Function not implemented.');
-}
 
+markResolvers(orderMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
+
+orderMutations.cpOrdersAdd.wrapperConfig = {
+  forClientPortal: true,
+};
+
+orderMutations.cpOrdersEdit.wrapperConfig = {
+  forClientPortal: true,
+};
+
+orderMutations.cpOrderChangeSaleStatus.wrapperConfig = {
+  forClientPortal: true,
+};
+
+orderMutations.cpOrdersCancel.wrapperConfig = {
+  forClientPortal: true,
+};
 export default orderMutations;

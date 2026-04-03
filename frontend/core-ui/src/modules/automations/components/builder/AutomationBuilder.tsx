@@ -7,24 +7,23 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Tabs, useMultiQueryState } from 'erxes-ui';
-import { AutomationBuilderDnDProvider } from '../../context/AutomationBuilderDnDProvider';
-import { AutomationBuilderHeader } from './AutomationBuilderHeader';
-import { AutomationBuilderSidebar } from './sidebar/components/AutomationBuilderSidebar';
+import { AutomationBuilderDnDProvider } from '@/automations/context/AutomationBuilderDnDProvider';
 
-import { InspectorPanel } from '@/automations/components/builder/InspectorPanel';
+import { AutomationBuilderWorkspace } from '@/automations/components/builder/AutomationBuilderWorkspace';
 import { AutomationProvider } from '@/automations/context/AutomationProvider';
 import {
   automationBuilderActiveTabState,
   automationBuilderSiderbarOpenState,
 } from '@/automations/states/automationState';
+import { deepCleanNulls } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import {
   automationBuilderFormSchema,
   TAutomationBuilderForm,
-} from '@/automations/utils/AutomationFormDefinitions';
+} from '@/automations/utils/automationFormDefinitions';
 import { useAtom } from 'jotai';
-import { AutomationBuilderTabsType, IAutomation } from '../../types';
-import { deepCleanNulls } from '../../utils/automationBuilderUtils';
-import { AutomationHistories } from './history/components/AutomationHistories';
+import { AutomationBuilderTabsType, IAutomation } from '@/automations/types';
+import { AutomationBuilderHeader } from '@/automations/components/builder/header/AutomationBuilderHeader';
+import { AutomationHistories } from '@/automations/components/builder/history/components/AutomationHistories';
 
 type AutomationBuilderProps = {
   detail?: IAutomation;
@@ -67,15 +66,13 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
                   value="builder"
                   className="flex-1 h-full relative"
                 >
-                  {/* <AutomationBuilderCanvas /> */}
-                  <InspectorPanel />
-                  <AutomationBuilderSidebar />
+                  <AutomationBuilderWorkspace />
                 </Tabs.Content>
               )}
               {activeTab === 'history' && (
                 <Tabs.Content
                   value="history"
-                  className="flex-1 flex flex-col h-full"
+                  className="flex-1 flex flex-col min-h-0"
                 >
                   <AutomationHistories />
                 </Tabs.Content>

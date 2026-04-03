@@ -18,7 +18,7 @@ export default async function posUserMiddleware(
       // verify user token and retrieve stored user information
       const { user }: any = jwt.verify(
         token,
-        process.env.JWT_TOKEN_SECRET || '',
+        process.env.JWT_TOKEN_SECRET || 'SECRET',
       );
 
       // save user in request

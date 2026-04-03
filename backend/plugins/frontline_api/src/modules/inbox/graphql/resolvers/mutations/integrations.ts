@@ -1,28 +1,31 @@
+import { IChannelDocument } from '@/channel/@types/channel';
 import {
+  IArchiveParams,
   IIntegration,
   IMessengerData,
-  IUiOptions,
-  ITicketData,
   IOnboardingParamsEdit,
-  IArchiveParams,
+  IUiOptions,
 } from '@/inbox/@types/integrations';
-import { IContext } from '~/connectionResolvers';
 import { IExternalIntegrationParams } from '@/inbox/db/models/Integrations';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { getUniqueValue } from 'erxes-api-shared/utils';
-import {
-  facebookUpdateIntegrations,
-  facebookRemoveIntegrations,
-  facebookRemoveAccount,
-  facebookRepairIntegrations,
-  facebookCreateIntegrations,
-} from '@/integrations/facebook/messageBroker';
 import {
   callCreateIntegration,
   callRemoveIntergration,
   callUpdateIntegration,
 } from '@/integrations/call/messageBroker';
-import { IChannelDocument } from '@/channel/@types/channel';
+import {
+  imapCreateIntegration,
+  imapUpdateIntegration,
+  imapRemoveIntegrations,
+} from '~/modules/integrations/imap/messageBroker';
+import {
+  facebookCreateIntegrations,
+  facebookRemoveAccount,
+  facebookRemoveIntegrations,
+  facebookRepairIntegrations,
+  facebookUpdateIntegrations,
+} from '@/integrations/facebook/messageBroker';
+import { getUniqueValue, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
 interface IntegrationParams {
   integrationId: string;
@@ -59,6 +62,8 @@ export const sendCreateIntegration = async (
         return await facebookCreateIntegrations({ subdomain, data });
       case 'calls':
         return await callCreateIntegration({ subdomain, data });
+      case 'imap':
+        return await imapCreateIntegration({ subdomain, data });
 
       case 'instagram':
         // TODO: Implement Instagram integration
@@ -91,6 +96,8 @@ export const sendUpdateIntegration = async (
         return await callUpdateIntegration({ subdomain, data });
       case 'instagram':
         break;
+      case 'imap':
+        return await imapUpdateIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -118,6 +125,8 @@ export const sendRemoveIntegration = async (
         return await callRemoveIntergration({ subdomain, data });
       case 'instagram':
         break;
+      case 'imap':
+        return await imapRemoveIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -214,17 +223,7 @@ export const integrationMutations = {
       name: 'Default channel',
     })) as IChannelDocument;
 
-    if (!channel) {
-      channel = await models.Channels.createChannel({
-        channelDoc: { name: 'Default channel' },
-        adminId: user._id,
-        memberIds: [],
-      });
-      await models.ChannelMembers.create({
-        channelId: channel._id,
-        memberId: user._id,
-      });
-    } else {
+    if (channel) {
       const isMember = await models.ChannelMembers.exists({
         channelId: channel._id,
         memberId: user._id,
@@ -236,6 +235,16 @@ export const integrationMutations = {
           memberId: user._id,
         });
       }
+    } else {
+      channel = await models.Channels.createChannel({
+        channelDoc: { name: 'Default channel' },
+        adminId: user._id,
+        memberIds: [],
+      });
+      await models.ChannelMembers.create({
+        channelId: channel._id,
+        memberId: user._id,
+      });
     }
 
     const integrationDocs = {
@@ -292,7 +301,7 @@ export const integrationMutations = {
       integrationDocs,
     );
 
-    const uiOptions = { logo: fields.logo, color: fields.color };
+    const uiOptions = { logo: fields.logo, primary: fields.primary };
 
     return await models.Integrations.saveMessengerAppearanceData(
       updated._id,
@@ -334,9 +343,16 @@ export const integrationMutations = {
    */
   async integrationsSaveMessengerAppearanceData(
     _root,
-    { _id, uiOptions }: { _id: string; uiOptions: IUiOptions },
+    {
+      _id,
+      uiOptions,
+      brandId,
+    }: { _id: string; uiOptions: IUiOptions; brandId: string },
     { models }: IContext,
   ) {
+    if (brandId) {
+      await models.Integrations.updateOne({ _id }, { $set: { brandId } });
+    }
     return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
@@ -348,9 +364,18 @@ export const integrationMutations = {
     {
       _id,
       messengerData,
-    }: { _id: string; messengerData: IMessengerData; callData: any },
+      brandId,
+    }: {
+      _id: string;
+      messengerData: IMessengerData;
+      callData: any;
+      brandId: string;
+    },
     { models }: IContext,
   ) {
+    if (brandId) {
+      await models.Integrations.updateOne({ _id }, { $set: { brandId } });
+    }
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
@@ -456,7 +481,7 @@ export const integrationMutations = {
 
   async integrationsEditCommonFields(
     _root,
-    { _id, name, details, channelId },
+    { _id, name, details, channelId, brandId },
     { models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
@@ -471,7 +496,13 @@ export const integrationMutations = {
     }
     await models.Integrations.updateOne(
       { _id },
-      { $set: { ...doc, ...(channelId && { channelId }) } },
+      {
+        $set: {
+          ...doc,
+          ...(channelId && { channelId }),
+          ...(brandId && { brandId }),
+        },
+      },
     );
 
     const updated = await models.Integrations.getIntegration({ _id });
@@ -613,12 +644,12 @@ export const integrationMutations = {
 
   async integrationsSaveMessengerTicketData(
     _root,
-    { _id, ticketData }: { _id: string; ticketData: ITicketData },
+    { _id, configId }: { _id: string; configId: string },
     { models }: IContext,
   ) {
     return models.Integrations.integrationsSaveMessengerTicketData(
       _id,
-      ticketData,
+      configId,
     );
   },
 };

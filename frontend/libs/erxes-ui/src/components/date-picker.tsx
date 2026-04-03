@@ -6,7 +6,7 @@ import React from 'react';
 import { cn } from '../lib/utils';
 import dayjs from 'dayjs';
 
-type DatePickerProps = {
+export type DatePickerProps = {
   value: Date | Date[] | undefined;
   onChange: (date: Date | Date[] | undefined) => void;
   placeholder?: string;
@@ -53,7 +53,7 @@ export const DatePicker = ({
     }
 
     setIsOpen(false);
-    onChange && onChange(selectedDate);
+    onChange?.(selectedDate);
   };
 
   return (
@@ -61,24 +61,30 @@ export const DatePicker = ({
       <Popover.Trigger asChild={true}>
         <Combobox.Trigger
           variant={variant}
-          disabled={Boolean(disabled)}
+          disabled={typeof disabled === 'boolean' ? disabled : false}
           className={cn(
-            !value && 'text-muted-foreground',
-            Boolean(disabled) && 'cursor-not-allowed opacity-50',
+            !value && 'text-accent-foreground',
+            typeof disabled === 'boolean' &&
+              disabled &&
+              'cursor-not-allowed opacity-50',
             className,
           )}
         >
           {renderButtonContent()}
         </Combobox.Trigger>
       </Popover.Trigger>
-      <Popover.Content className="w-auto p-0">
+      <Popover.Content className="p-0 w-auto">
         <Calendar
           {...props}
-          disabled={(date: Date) =>
-            withPresent
-              ? date > new Date() || date < new Date('1900-01-01')
-              : Boolean(disabled)
-          }
+          disabled={(date: Date) => {
+            if (withPresent) {
+              return date > new Date() || date < new Date('1900-01-01');
+            }
+            if (typeof disabled === 'function') {
+              return disabled(date);
+            }
+            return Boolean(disabled);
+          }}
           mode={mode}
           selected={value as any}
           onSelect={handleDateChange}

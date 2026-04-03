@@ -13,31 +13,49 @@ import { AppPath } from '@/types/paths/AppPath';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
 import { ComponentsRoutes } from '../components/ComponentsRoutes';
 
+import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
+import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
 import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
-import { ProductsRoutes } from '@/app/components/ProductsRoutes';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { OrganizationProvider } from '@/organization/providers/OrganizationProvider';
-import { useVersion } from 'ui-modules';
+import { useAtomValue } from 'jotai';
 import { lazy } from 'react';
+import { currentUserState, useVersion } from 'ui-modules';
 import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
+import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 import { Providers } from '~/providers';
-import { DocumentsRoutes } from '../components/DocumentsRoutes';
+import { ImportExportRoutes } from '../components/ImportExportRoutes';
+import { TemplateRoutes } from '../components/TemplateRoutes';
 
+const UserConfirmInvitationPage = lazy(
+  () => import('~/pages/auth/UserConfirmInvitationPage'),
+);
 const LoginPage = lazy(() => import('~/pages/auth/LoginPage'));
 const ResetPasswordPage = lazy(() => import('~/pages/auth/ResetPasswordPage'));
 const CreateOwnerPage = lazy(
   () => import('~/pages/organization/CreateOwnerPage'),
 );
 
+const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
+  const currentUser = useAtomValue(currentUserState);
+
+  if (currentUser && !currentUser?.isOnboarded) {
+    return <Navigate to={AppPath.MainOnboarding} replace />;
+  }
+
+  return <>{children}</>;
+};
+
 export const useCreateAppRouter = () => {
   const isOS = useVersion();
-
   return createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Providers />} loader={async () => null}>
+        <Route path={AppPath.MainOnboarding} element={<MainOnboardingPage />} />
         <Route path={AppPath.CreateOwner} element={<CreateOwnerPage />} />
         <Route element={<OrganizationProvider />}>
           <Route path={AppPath.Login} element={<LoginPage />} />
@@ -46,9 +64,18 @@ export const useCreateAppRouter = () => {
             element={<ForgotPasswordPage />}
           />
           <Route path={AppPath.ResetPassword} element={<ResetPasswordPage />} />
-
+          <Route
+            path={AppPath.ConfirmInvitation}
+            element={<UserConfirmInvitationPage />}
+          />
           <Route element={<UserProvider />}>
-            <Route element={<DefaultLayout />}>
+            <Route
+              element={
+                <OnboardingGuard>
+                  <DefaultLayout />
+                </OnboardingGuard>
+              }
+            >
               <Route
                 path={AppPath.Index}
                 element={<Navigate to={AppPath.MyInbox} />}
@@ -59,31 +86,32 @@ export const useCreateAppRouter = () => {
                 element={<SettingsRoutes />}
               />
 
-              {isOS && (
-                <Route
-                  path={AppPath.ProductsCatchAll}
-                  element={<ProductsRoutes />}
-                />
-              )}
-
               <Route
                 path={AppPath.ContactsCatchAll}
-                element={<ContactsRoutes />}
+                element={
+                  <PermissionRouteGuard module="contacts">
+                    <ContactsRoutes />
+                  </PermissionRouteGuard>
+                }
               />
 
-              {isOS && (
-                <Route
-                  path={AppPath.SegmentsCatchAll}
-                  element={<SegmentRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.SegmentsCatchAll}
+                element={
+                  <PermissionRouteGuard module="segments">
+                    <SegmentRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
 
-              {isOS && (
-                <Route
-                  path={AppPath.AutomationsCatchAll}
-                  element={<AutomationRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.AutomationsCatchAll}
+                element={
+                  <PermissionRouteGuard module="automations">
+                    <AutomationRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
 
               {isOS && (
                 <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
@@ -92,9 +120,34 @@ export const useCreateAppRouter = () => {
               {isOS && (
                 <Route
                   path={AppPath.DocumentsCatchAll}
-                  element={<DocumentsRoutes />}
+                  element={
+                    <PermissionRouteGuard module="documents">
+                      <DocumentsRoutes />
+                    </PermissionRouteGuard>
+                  }
                 />
               )}
+
+              <Route
+                path={AppPath.BroadcastsCatchAll}
+                element={
+                  <PermissionRouteGuard module="broadcasts">
+                    <BroadcastRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
+
+              {isOS && (
+                <Route
+                  path={AppPath.TemplatesCatchAll}
+                  element={<TemplateRoutes />}
+                />
+              )}
+
+              <Route
+                path={AppPath.ImportExportCatchAll}
+                element={<ImportExportRoutes />}
+              />
 
               <Route
                 path={AppPath.MyInboxCatchAll}
@@ -113,7 +166,7 @@ export const useCreateAppRouter = () => {
           </Route>
         </Route>
 
-        <Route path={AppPath.NotFoundWildcard} element={<NotFoundPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>,
     ),
   );
