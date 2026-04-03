@@ -83,7 +83,11 @@ export const AmenityEditSheet = ({
       icon: amenity.icon || '',
       translations: buildTranslationsFromAmenity(amenity, translationLanguages),
     });
-    setSelectedLang(mainLanguage || allLanguages[0] || '');
+    // Preserve active lang if valid for this branch; fall back to primary
+    const resolvedPrimary = mainLanguage || allLanguages[0] || '';
+    setSelectedLang((prev) =>
+      allLanguages.includes(prev) ? prev : resolvedPrimary,
+    );
   }, [
     amenity,
     translationLanguages,

@@ -95,11 +95,17 @@ export const ElementEditSheet = ({
       categories: element.categories || [],
       translations: buildTranslationsFromElement(element, translationLanguages),
     });
-    setSelectedLang(resolvedPrimaryLanguage);
+    // Preserve active lang if valid for this branch; fall back to primary
+    const resolvedPrimary = mainLanguage || allLanguages[0] || '';
+    setSelectedLang((prev) =>
+      allLanguages.includes(prev) ? prev : resolvedPrimary,
+    );
   }, [
     element,
     translationLanguages,
     resolvedPrimaryLanguage,
+    mainLanguage,
+    allLanguages,
     form,
     setSelectedLang,
   ]);

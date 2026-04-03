@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useAtomValue } from 'jotai';
 import { UseFieldArrayReturn } from 'react-hook-form';
 import { LANGUAGES } from '@/tms/constants/languages';
 import { ElementCreateFormType } from '../constants/formSchema';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 interface UseElementLanguageOptions {
   branchLanguages?: string[];
@@ -43,7 +45,13 @@ export const useElementLanguage = ({
     [allLanguages, primaryLanguage],
   );
 
-  const [selectedLang, setSelectedLang] = useState(primaryLanguage);
+  const activeLang = useAtomValue(activeLangAtom);
+
+  const [selectedLang, setSelectedLang] = useState(() => {
+    const stored = activeLang;
+    if (stored && allLanguages.includes(stored)) return stored;
+    return primaryLanguage;
+  });
 
   useEffect(() => {
     if (primaryLanguage && !selectedLang) {

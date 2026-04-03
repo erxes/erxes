@@ -23,18 +23,25 @@ export const useActiveLang = ({
   const [activeLang, setActiveLang] = useAtom(activeLangAtom);
   const initializedBranchRef = useRef<string | undefined>(undefined);
 
-  // Initialize language when branch changes or on first mount
+  // Initialize language when branch changes or on first mount.
+  // Prefer the persisted atom value if it is valid for this branch,
+  // otherwise fall back to mainLanguage → first available language.
   useEffect(() => {
     if (!branchId) return;
     if (initializedBranchRef.current === branchId) return;
 
-    const defaultLang = mainLanguage || availableLanguages[0] || '';
+    const storedIsValid =
+      activeLang && availableLanguages.includes(activeLang);
 
-    if (defaultLang) {
-      setActiveLang(defaultLang);
+    const langToUse = storedIsValid
+      ? activeLang
+      : mainLanguage || availableLanguages[0] || '';
+
+    if (langToUse) {
+      setActiveLang(langToUse);
       initializedBranchRef.current = branchId;
     }
-  }, [branchId, mainLanguage, availableLanguages, setActiveLang]);
+  }, [branchId, mainLanguage, availableLanguages, activeLang, setActiveLang]);
 
   // If the active language is not in the available list, fall back
   const effectiveLang =
