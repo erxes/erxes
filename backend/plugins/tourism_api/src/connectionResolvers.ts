@@ -5,6 +5,7 @@ import { IBranchDocument } from '@/bms/@types/branch';
 import { IElementCategoryDocument } from '@/bms/@types/element';
 import { IElementTranslationDocument } from './modules/bms/@types/elementTranslation';
 import { IItineraryDocument } from '@/bms/@types/itinerary';
+import { IItineraryTranslationDocument } from '@/bms/@types/itineraryTranslation';
 import { IOrderDocument } from '@/bms/@types/order';
 import { ITourCategoryDocument, ITourDocument } from '@/bms/@types/tour';
 import { IBranchModel, loadBranchClass } from '@/bms/db/models/Branch';
@@ -19,6 +20,11 @@ import {
   IElementTranslationModel,
   loadElementTranslationClass,
 } from '@/bms/db/models/ElementTranslation';
+
+import {
+  IItineraryTranslationModel,
+  loadItineraryTranslationClass,
+} from '@/bms/db/models/ItineraryTranslation';
 
 import { IItineraryModel, loadItineraryClass } from '@/bms/db/models/Itinerary';
 import { IOrderModel, loadOrderClass } from '@/bms/db/models/Order';
@@ -79,6 +85,7 @@ export interface IModels {
   ElementCategories: IElementCategoryModel;
   ElementTranslations: IElementTranslationModel;
   Itineraries: IItineraryModel;
+  ItineraryTranslations: IItineraryTranslationModel;
   Tours: ITourModel;
   BmsTourCategories: IBmsTourCategoryModel;
   Orders: IOrderModel;
@@ -128,6 +135,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'bm_itinerary',
     loadItineraryClass(models),
   );
+
+  models.ItineraryTranslations = db.model<
+    IItineraryTranslationDocument,
+    IItineraryTranslationModel
+  >('bm_itinerary_translations', loadItineraryTranslationClass(models));
 
   models.Tours = db.model<ITourDocument, ITourModel>(
     'bm_tours',

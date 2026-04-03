@@ -15,6 +15,48 @@ export const types = `
     elements: [ElementItem]
     elementsQuick: [ElementItem]
   }
+
+  input DayItemTranslationInput {
+    day: Int!
+    title: String
+    content: String
+  }
+
+  input BmsItineraryTranslationInput {
+    objectId: String
+    language: String!
+    name: String
+    content: String
+    foodCost: Float
+    gasCost: Float
+    driverCost: Float
+    guideCost: Float
+    guideCostExtra: Float
+    groupDays: [DayItemTranslationInput]
+  }
+
+  type ItineraryTranslationDayItem {
+    day: Int
+    title: String
+    content: String
+  }
+
+  type ItineraryTranslation {
+    _id: String!
+    objectId: String!
+    language: String!
+    name: String
+    content: String
+    foodCost: Float
+    gasCost: Float
+    driverCost: Float
+    guideCost: Float
+    guideCostExtra: Float
+    groupDays: [ItineraryTranslationDayItem]
+    createdAt: Date
+    updatedAt: Date
+  }
+
   type Itinerary {
     _id: String!
     branchId: String
@@ -39,6 +81,7 @@ export const types = `
     createdAt: Date
     modifiedAt: Date
     tours: [Tour]
+    translations: [ItineraryTranslation]
   }
   input ElementItemInput {
     elementId: String
@@ -67,8 +110,8 @@ export const types = `
 `;
 
 export const queries = `
-  bmsItineraries( ${GQL_CURSOR_PARAM_DEFS},branchId: String, name: String): ItineraryListResponse
-  bmsItineraryDetail(_id:String!, branchId: String): Itinerary
+  bmsItineraries( ${GQL_CURSOR_PARAM_DEFS},branchId: String, name: String, language: String): ItineraryListResponse
+  bmsItineraryDetail(_id:String!, branchId: String, language: String): Itinerary
 `;
 
 const params = `
@@ -88,7 +131,8 @@ const params = `
   driverCost: Float,
   guideCost:Float,
   guideCostExtra:Float,
-  extra: JSON
+  extra: JSON,
+  translations: [BmsItineraryTranslationInput]
 `;
 
 export const mutations = `

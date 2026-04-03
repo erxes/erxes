@@ -15,9 +15,58 @@ export const ELEMENT_FIELD_MAPPINGS: Record<string, string> = {
 export const ITINERARY_FIELD_MAPPINGS: Record<string, string> = {
   name: 'name',
   content: 'content',
+  foodCost: 'foodCost',
+  gasCost: 'gasCost',
+  driverCost: 'driverCost',
+  guideCost: 'guideCost',
+  guideCostExtra: 'guideCostExtra',
 };
 
 // Add more mappings here as new models get translation support
+
+// ---------------------------------------------------------------------------
+// Custom merge helper for itinerary groupDays
+// ---------------------------------------------------------------------------
+
+/**
+ * Optional callback that receives the item (after scalar field overlay) and the
+ * raw translation document and can apply additional merging logic.
+ */
+export type TranslationCustomMerge<T> = (item: T, translation: any) => T;
+
+/**
+ * Merges per-day title/content from an itinerary translation into the original
+ * groupDays array, matching days by their `day` number.
+ */
+export function mergeItineraryGroupDays<T extends { groupDays?: any[] }>(
+  item: T,
+  translation: any,
+): T {
+  if (
+    !Array.isArray(translation?.groupDays) ||
+    !translation.groupDays.length ||
+    !Array.isArray((item as any).groupDays)
+  ) {
+    return item;
+  }
+
+  const tDayMap: Record<number, any> = {};
+  for (const d of translation.groupDays) {
+    tDayMap[d.day] = d;
+  }
+
+  const mergedDays = (item as any).groupDays.map((day: any) => {
+    const t = tDayMap[day.day];
+    if (!t) return day;
+    return {
+      ...day,
+      ...(t.title ? { title: t.title } : {}),
+      ...(t.content ? { content: t.content } : {}),
+    };
+  });
+
+  return { ...item, groupDays: mergedDays };
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -54,25 +103,31 @@ export function applyTranslationToItem<T extends { _id: string }>(
   item: T,
   translation: any,
   fieldMappings: Record<string, string>,
+  customMerge?: TranslationCustomMerge<T>,
 ): T {
   if (!translation) return item;
 
-  const result = { ...item };
+  let result: any = { ...item };
 
   for (const [itemField, translationField] of Object.entries(fieldMappings)) {
     const value = translation[translationField];
     if (value !== undefined && value !== null && value !== '') {
-      (result as any)[itemField] = value;
+      result[itemField] = value;
     }
   }
 
-  return result;
+  if (customMerge) {
+    result = customMerge(result as T, translation);
+  }
+
+  return result as T;
 }
 
 function applyTranslationsToList<T extends { _id: string }>(
   items: T[],
   translations: any[],
   fieldMappings: Record<string, string>,
+  customMerge?: TranslationCustomMerge<T>,
 ): T[] {
   if (!translations.length) return items;
 
@@ -80,7 +135,7 @@ function applyTranslationsToList<T extends { _id: string }>(
 
   return items.map((item) => {
     const translation = translationMap[String(item._id)];
-    return applyTranslationToItem(item, translation, fieldMappings);
+    return applyTranslationToItem(item, translation, fieldMappings, customMerge);
   });
 }
 
@@ -125,6 +180,7 @@ export async function getBmsListWithTranslations<T extends { _id: string }>(
   query: any,
   args: BmsListQueryArgs,
   fieldMappings: Record<string, string>,
+  customMerge?: TranslationCustomMerge<T>,
 ): Promise<{ list: T[]; totalCount: number; pageInfo: any }> {
   const params = { ...args };
   if (args.sortField && !args.orderBy) {
@@ -158,6 +214,7 @@ export async function getBmsListWithTranslations<T extends { _id: string }>(
     list,
     translations,
     fieldMappings,
+    customMerge,
   );
 
   return { list: translatedList, totalCount, pageInfo };
@@ -174,6 +231,7 @@ export async function getBmsItemWithTranslation<T extends { _id: string }>(
   language: string | undefined,
   fieldMappings: Record<string, string>,
   branchId?: string,
+  customMerge?: TranslationCustomMerge<T>,
 ): Promise<T | null> {
   const item = (await model.findOne(query).lean()) as T | null;
   if (!item) return null;
@@ -187,5 +245,5 @@ export async function getBmsItemWithTranslation<T extends { _id: string }>(
     .findOne({ objectId: String(item._id), language })
     .lean();
 
-  return applyTranslationToItem(item, translation, fieldMappings);
+  return applyTranslationToItem(item, translation, fieldMappings, customMerge);
 }
