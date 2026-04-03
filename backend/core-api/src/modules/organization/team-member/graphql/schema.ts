@@ -30,6 +30,7 @@ export const types = `
   input InvitationEntry {
     email: String
     password: String
+    permissionGroupIds: [String!]
   }
 
   enum UserChatStatus{
@@ -187,7 +188,7 @@ export const mutations = `
   usersEdit(_id: String!, ${commonParams}): User
   usersChangePassword(currentPassword: String!, newPassword: String!): User
   usersSetActiveStatus(_id: String!): User
-  usersInvite(entries: [InvitationEntry]): Boolean
+  usersInvite(entries: [InvitationEntry!]!): Boolean
   usersResendInvitation(email: String!): String
   usersConfirmInvitation(token: String): String
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
