@@ -53,15 +53,18 @@ export const useElementLanguage = ({
   const labelSuffix = effectiveLang ? ` (${effectiveLang})` : '';
 
   const fieldPaths = {
-    name: isMainLang || translationIndex < 0
-      ? 'name'
-      : (`translations.${translationIndex}.name` as const),
-    note: isMainLang || translationIndex < 0
-      ? 'note'
-      : (`translations.${translationIndex}.note` as const),
-    cost: isMainLang || translationIndex < 0
-      ? 'cost'
-      : (`translations.${translationIndex}.cost` as const),
+    name:
+      isMainLang || translationIndex < 0
+        ? 'name'
+        : (`translations.${translationIndex}.name` as const),
+    note:
+      isMainLang || translationIndex < 0
+        ? 'note'
+        : (`translations.${translationIndex}.note` as const),
+    cost:
+      isMainLang || translationIndex < 0
+        ? 'cost'
+        : (`translations.${translationIndex}.cost` as const),
   } as { name: any; note: any; cost: any };
 
   return {

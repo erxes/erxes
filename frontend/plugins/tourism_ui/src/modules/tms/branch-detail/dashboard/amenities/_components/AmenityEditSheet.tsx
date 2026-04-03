@@ -84,7 +84,14 @@ export const AmenityEditSheet = ({
       translations: buildTranslationsFromAmenity(amenity, translationLanguages),
     });
     setSelectedLang(mainLanguage || allLanguages[0] || '');
-  }, [amenity, translationLanguages, mainLanguage, allLanguages, form, setSelectedLang]);
+  }, [
+    amenity,
+    translationLanguages,
+    mainLanguage,
+    allLanguages,
+    form,
+    setSelectedLang,
+  ]);
 
   const handleSubmit = async (values: AmenityCreateFormType) => {
     try {

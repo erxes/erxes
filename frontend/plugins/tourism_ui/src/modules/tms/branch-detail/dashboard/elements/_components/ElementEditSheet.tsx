@@ -94,7 +94,14 @@ export const ElementEditSheet = ({
       translations: buildTranslationsFromElement(element, translationLanguages),
     });
     setSelectedLang(mainLanguage || allLanguages[0] || '');
-  }, [element, translationLanguages, mainLanguage, allLanguages, form, setSelectedLang]);
+  }, [
+    element,
+    translationLanguages,
+    mainLanguage,
+    allLanguages,
+    form,
+    setSelectedLang,
+  ]);
 
   const handleSubmit = async (values: ElementCreateFormType) => {
     try {
