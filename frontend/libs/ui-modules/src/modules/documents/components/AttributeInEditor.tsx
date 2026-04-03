@@ -51,9 +51,9 @@ const AttributeInEditor = ({
 };
 
 interface AttributeMenuProps extends SlashMenuProps {
-  items: DefaultReactSuggestionItem[];
-  attributes?: Attribute[];
-  loading?: boolean;
+  readonly items: DefaultReactSuggestionItem[];
+  readonly attributes?: Attribute[];
+  readonly loading?: boolean;
 }
 
 function AttributeMenu({
@@ -153,11 +153,11 @@ const AttributeMenuWrapper = (props: AttributeMenuWrapperProps) => {
 };
 
 interface AttributeMenuItemProps {
-  onClick: () => void;
-  isSelected: boolean;
-  index: number;
-  text: string;
-  attribute?: Attribute;
+  readonly onClick: () => void;
+  readonly isSelected: boolean;
+  readonly index: number;
+  readonly text: string;
+  readonly attribute?: Attribute;
 }
 
 function AttributeMenuItem({
