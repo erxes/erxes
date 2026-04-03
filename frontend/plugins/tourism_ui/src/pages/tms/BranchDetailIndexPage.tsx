@@ -133,28 +133,26 @@ export const BranchDetailIndexPage = () => {
                 </Select>
               </Breadcrumb.Item>
 
-              <Breadcrumb.Separator />
+              {availableLanguages.length > 0 && (
+                <>
+                  <Breadcrumb.Separator />
 
-              <Breadcrumb.Item>
-                {availableLanguages.length > 0 ? (
-                  <Select value={activeLang} onValueChange={onSelectLanguage}>
-                    <Select.Trigger className="w-[180px]">
-                      <Select.Value placeholder="Select language" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {availableLanguages.map((lang) => (
-                        <Select.Item key={lang.value} value={lang.value}>
-                          {lang.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                ) : (
-                  <span className="text-sm text-muted-foreground">
-                    No languages available
-                  </span>
-                )}
-              </Breadcrumb.Item>
+                  <Breadcrumb.Item>
+                    <Select value={activeLang} onValueChange={onSelectLanguage}>
+                      <Select.Trigger className="w-[180px]">
+                        <Select.Value placeholder="Select language" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {availableLanguages.map((lang) => (
+                          <Select.Item key={lang.value} value={lang.value}>
+                            {lang.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Breadcrumb.Item>
+                </>
+              )}
             </Breadcrumb.List>
           </Breadcrumb>
 
