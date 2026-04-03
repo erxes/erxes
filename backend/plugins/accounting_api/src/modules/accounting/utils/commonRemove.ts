@@ -50,7 +50,7 @@ async function handleInvIncome(
   transaction: ITransactionDocument,
   _followTrs?: ITransactionDocument[]
 ) {
-  removeSyncProductsInventory(subdomain, transaction, 1)
+  await removeSyncProductsInventory(subdomain, transaction, 1)
 }
 
 async function handleInvOut(
@@ -59,7 +59,7 @@ async function handleInvOut(
   transaction: ITransactionDocument,
   _followTrs?: ITransactionDocument[]
 ) {
-  removeSyncProductsInventory(subdomain, transaction, -1)
+  await removeSyncProductsInventory(subdomain, transaction, -1)
 }
 
 async function handleInvMove(
@@ -68,10 +68,10 @@ async function handleInvMove(
   transaction: ITransactionDocument,
   followTrs?: ITransactionDocument[]
 ) {
-  removeSyncProductsInventory(subdomain, transaction, -1);
+  await removeSyncProductsInventory(subdomain, transaction, -1);
   const moveInTr = followTrs?.find(ftr => ftr.originId === transaction._id && ftr.originType === TR_FOLLOW_TYPES.INV_MOVE_IN);
   if (moveInTr) {
-    removeSyncProductsInventory(subdomain, moveInTr, 1);
+    await removeSyncProductsInventory(subdomain, moveInTr, 1);
   }
 }
 
@@ -83,6 +83,6 @@ async function handleInvSale(
 ) {
   const saleOutTr = followTrs?.find(ftr => ftr.originId === transaction._id && ftr.originType === TR_FOLLOW_TYPES.INV_SALE_OUT);
   if (saleOutTr) {
-    removeSyncProductsInventory(subdomain, saleOutTr, -1);
+    await removeSyncProductsInventory(subdomain, saleOutTr, -1);
   }
 }

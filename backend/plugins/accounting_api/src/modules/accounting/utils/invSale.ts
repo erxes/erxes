@@ -21,7 +21,7 @@ class InvSaleOutCostTrs {
   private readonly trDoc: ITransaction;
   private outAccount?: IAccountDocument;
   private costAccount?: IAccountDocument;
-  private subdomain: string;
+  private readonly subdomain: string;
 
   constructor(subdomain: string, models: IModels, trDoc: ITransaction) {
     this.models = models;
@@ -170,7 +170,7 @@ class InvSaleOutCostTrs {
       oldFollowCostTr,
     );
 
-    syncProductsInventory(this.subdomain, outTr, oldFollowOutTr, -1)
+    await syncProductsInventory(this.subdomain, outTr, oldFollowOutTr, -1)
     return [outTr, costTr];
   }
 }

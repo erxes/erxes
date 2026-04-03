@@ -10,7 +10,6 @@ export const configSchema = schemaWrapper(
       type: String,
       label: 'Code',
       index: true,
-      unique: false
     },
     subId: {
       type: String,

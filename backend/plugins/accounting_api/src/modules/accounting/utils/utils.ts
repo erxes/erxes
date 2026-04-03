@@ -150,7 +150,6 @@ export const removeSyncProductsInventory = async (
   transaction: ITransactionDocument,
   multiplier = 1, 
 ) => {
-
   sendTRPCMessage({
     subdomain,
     method: 'mutation',
