@@ -15,17 +15,25 @@ const PRIVATE_IP_PATTERNS: ReadonlyArray<RegExp> = [
   /^169\.254\./,
   /^0\./,
   /^::1$/,
-  /^fc00:/i,
+  /^f[cd]00:/i,
   /^fe80:/i,
 ];
 
-/** Converts hex-normalized IPv4-mapped IPv6 (e.g. ::ffff:7f00:1) to dotted IPv4. */
+/** Converts IPv4-mapped IPv6 to dotted IPv4.
+ *  Handles both hex form (::ffff:7f00:1) and dotted-quad form (::ffff:127.0.0.1). */
 function extractIPv4FromMappedIPv6(ip: string): string | null {
-  const match = ip.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
-  if (!match) return null;
+  // Dotted-quad form: ::ffff:127.0.0.1
+  const dottedMatch = ip.match(
+    /^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i,
+  );
+  if (dottedMatch) return dottedMatch[1];
 
-  const hi = parseInt(match[1], 16);
-  const lo = parseInt(match[2], 16);
+  // Hex form: ::ffff:7f00:1
+  const hexMatch = ip.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+  if (!hexMatch) return null;
+
+  const hi = parseInt(hexMatch[1], 16);
+  const lo = parseInt(hexMatch[2], 16);
   return `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
 }
 
