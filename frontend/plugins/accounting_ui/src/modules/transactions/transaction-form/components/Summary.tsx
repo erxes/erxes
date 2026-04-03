@@ -55,11 +55,9 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
         cancelLabel: 'Cancel',
       },
     }).then(() => {
-      removeTransactions({
-        variables: {
-          parentId,
-        },
-      });
+      if (parentId) {
+        removeTransactions(parentId);
+      }
     });
 
   return (
