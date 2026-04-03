@@ -17,6 +17,7 @@ const ErxesLink = ({
       Component={Link}
       href={env.NEXT_PUBLIC_SERVER_DOMAIN + href}
       target="_blank"
+      rel="noopener noreferrer"
     >
       {children}
     </SettingsButton>

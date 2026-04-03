@@ -14,10 +14,10 @@ export const urlify = (text: string) => {
 
   return text.replace(urlRegex, (url) => {
     if (url.startsWith('http')) {
-      return `<a href="${url}" target="_blank">${url}</a>`;
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
     }
 
-    return `<a href="http://${url}" target="_blank">${url}</a>`;
+    return `<a href="http://${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
   });
 };
 

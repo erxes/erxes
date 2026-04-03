@@ -129,6 +129,7 @@ export function FormInstallScript({
             <Button>
               <Link
                 target="_blank"
+                rel="noopener noreferrer"
                 to={`/settings/frontline/forms/form-preview?inPreview=true&formId=${formId}`}
               >
                 Preview Form

@@ -57,7 +57,7 @@ export const PreviewToolbar = ({ path }: { path?: string }) => {
           <>
             <Separator.Inline />
             <Button variant="ghost" asChild title="Open in New Tab">
-              <Link to={path} target="_blank">
+              <Link to={path} target="_blank" rel="noopener noreferrer">
                 <span>Open in New Tab</span>
                 <IconWindowMaximize className="h-3.5 w-3.5" />
               </Link>

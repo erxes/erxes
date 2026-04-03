@@ -38,7 +38,7 @@ export const AutomationHistoryResultName = ({
     const link = getLink?.(target);
     return (
       <Button asChild variant="link">
-        <Link target="_blank" to={link || '#'}>
+        <Link target="_blank" rel="noopener noreferrer" to={link || '#'}>
           {name || 'Empty'}
         </Link>
       </Button>
