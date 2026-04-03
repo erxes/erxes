@@ -18,8 +18,6 @@ import {
   CartesianGrid,
   Cell,
   Legend,
-  Line,
-  LineChart,
   Pie,
   PieChart,
   PolarAngleAxis,
@@ -67,7 +65,7 @@ export const ConversationResponse = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationResponseProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const id = title.toLowerCase().replaceAll(' ', '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
   const [sourceFilter, setSourceFilter] = useAtom(
@@ -93,7 +91,7 @@ export const ConversationResponse = ({
         ...filters,
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        source: sourceFilter === 'all' ? undefined : sourceFilter,
         callStatus:
           sourceFilter === 'calls' && callStatusFilter !== 'all'
             ? callStatusFilter
