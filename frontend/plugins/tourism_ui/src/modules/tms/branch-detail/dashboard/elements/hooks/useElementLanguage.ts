@@ -24,23 +24,26 @@ export const useElementLanguage = ({
     [branchLanguages, mainLanguage],
   );
 
-  const translationLanguages = useMemo(
-    () => allLanguages.filter((l) => l !== mainLanguage),
-    [allLanguages, mainLanguage],
+  const primaryLanguage = useMemo(
+    () => mainLanguage ?? allLanguages[0] ?? '',
+    [mainLanguage, allLanguages],
   );
 
-  const [selectedLang, setSelectedLang] = useState(
-    mainLanguage || allLanguages[0] || '',
+  const translationLanguages = useMemo(
+    () => allLanguages.filter((l) => l !== primaryLanguage),
+    [allLanguages, primaryLanguage],
   );
+
+  const [selectedLang, setSelectedLang] = useState(primaryLanguage);
 
   useEffect(() => {
-    if (mainLanguage && !selectedLang) {
-      setSelectedLang(mainLanguage);
+    if (primaryLanguage && !selectedLang) {
+      setSelectedLang(primaryLanguage);
     }
-  }, [mainLanguage, selectedLang]);
+  }, [primaryLanguage, selectedLang]);
 
-  const effectiveLang = selectedLang || mainLanguage || allLanguages[0] || '';
-  const isMainLang = !mainLanguage || effectiveLang === mainLanguage;
+  const effectiveLang = selectedLang || primaryLanguage;
+  const isMainLang = effectiveLang === primaryLanguage;
   const translationIndex = fields.findIndex(
     (f) => f.language === effectiveLang,
   );
@@ -50,13 +53,13 @@ export const useElementLanguage = ({
   const labelSuffix = effectiveLang ? ` (${effectiveLang})` : '';
 
   const fieldPaths = {
-    name: isMainLang
+    name: isMainLang || translationIndex < 0
       ? 'name'
       : (`translations.${translationIndex}.name` as const),
-    note: isMainLang
+    note: isMainLang || translationIndex < 0
       ? 'note'
       : (`translations.${translationIndex}.note` as const),
-    cost: isMainLang
+    cost: isMainLang || translationIndex < 0
       ? 'cost'
       : (`translations.${translationIndex}.cost` as const),
   } as { name: any; note: any; cost: any };

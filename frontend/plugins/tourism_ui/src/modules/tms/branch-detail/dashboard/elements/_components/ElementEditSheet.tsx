@@ -94,8 +94,7 @@ export const ElementEditSheet = ({
       translations: buildTranslationsFromElement(element, translationLanguages),
     });
     setSelectedLang(mainLanguage || allLanguages[0] || '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [element]);
+  }, [element, translationLanguages, mainLanguage, allLanguages, form, setSelectedLang]);
 
   const handleSubmit = async (values: ElementCreateFormType) => {
     try {

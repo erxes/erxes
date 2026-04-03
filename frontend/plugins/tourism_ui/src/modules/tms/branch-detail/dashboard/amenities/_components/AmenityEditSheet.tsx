@@ -84,8 +84,7 @@ export const AmenityEditSheet = ({
       translations: buildTranslationsFromAmenity(amenity, translationLanguages),
     });
     setSelectedLang(mainLanguage || allLanguages[0] || '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amenity]);
+  }, [amenity, translationLanguages, mainLanguage, allLanguages, form, setSelectedLang]);
 
   const handleSubmit = async (values: AmenityCreateFormType) => {
     try {

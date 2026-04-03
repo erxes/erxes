@@ -42,6 +42,13 @@ export const useActiveLang = ({
       ? activeLang
       : mainLanguage || availableLanguages[0] || '';
 
+  // Sync atom back when it holds a stale/invalid value not in availableLanguages
+  useEffect(() => {
+    if (effectiveLang && activeLang !== effectiveLang) {
+      setActiveLang(effectiveLang);
+    }
+  }, [effectiveLang, activeLang, setActiveLang]);
+
   return {
     activeLang: effectiveLang,
     setActiveLang,
