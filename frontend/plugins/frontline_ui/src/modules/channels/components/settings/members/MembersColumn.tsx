@@ -58,7 +58,9 @@ const columns: () => ColumnDef<
     cell: ({ row }) => {
       return (
         <RecordTableInlineCell>
-          <MembersInline.Provider members={row.original.member ? [row.original.member] : []}>
+          <MembersInline.Provider
+            members={row.original.member ? [row.original.member] : []}
+          >
             <span className="w-full flex gap-2 items-center">
               <span className="[1lh] flex items-center">
                 <MembersInline.Avatar />
