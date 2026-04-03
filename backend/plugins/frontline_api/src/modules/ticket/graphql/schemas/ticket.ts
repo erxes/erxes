@@ -104,7 +104,6 @@ const createTicketParams = `
   state: String
   attachments: [AttachmentInput]
   companyIds: [String]
-  propertiesData: JSON
   customerFieldData: JSON
 `;
 
@@ -123,7 +122,6 @@ const updateTicketParams = `
   startDate: Date
   targetDate: Date
   isSubscribed: Boolean
-  propertiesData: JSON
   state: String
   attachments: [AttachmentInput]
   companyIds: [String]
