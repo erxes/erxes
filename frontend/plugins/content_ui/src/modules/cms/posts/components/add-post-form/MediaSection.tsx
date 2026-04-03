@@ -140,12 +140,6 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
     }
   };
 
-  const currentValue = field.value
-    ? typeof field.value === 'string'
-      ? field.value
-      : (field.value as { url: string }).url
-    : null;
-
   let thumbnailUrl: string | null = null;
 
   if (field.value) {

@@ -55,6 +55,42 @@ const updateCustomFieldsData = (
   }
 };
 
+const getFieldValue = (
+  currentData: CustomFieldsData,
+  fieldId: string,
+): CustomFieldValue | undefined => {
+  return currentData.find((item: CustomFieldDataItem) => item.field === fieldId)
+    ?.value;
+};
+
+interface CustomFieldControllerProps {
+  field: FieldDefinition;
+  fieldValue: CustomFieldValue | undefined;
+  form: UseFormReturn<IPageFormData>;
+}
+
+const CustomFieldController = ({
+  field,
+  fieldValue,
+  form,
+}: CustomFieldControllerProps) => (
+  <Controller
+    control={form.control}
+    name={`customFieldsData`}
+    render={({ field: controllerField }) => (
+      <CustomFieldInput
+        field={field}
+        value={fieldValue}
+        onChange={(value) => {
+          const currentData: CustomFieldsData = controllerField.value || [];
+          const updated = updateCustomFieldsData(currentData, field._id, value);
+          controllerField.onChange(updated);
+        }}
+      />
+    )}
+  />
+);
+
 export const PageCustomFieldsSection = ({
   fieldGroups,
   form,
@@ -78,9 +114,7 @@ export const PageCustomFieldsSection = ({
                 name={`customFieldsData`}
                 render={({ field: formField }) => {
                   const currentData: CustomFieldsData = formField.value || [];
-                  const fieldValue = currentData.find(
-                    (item: CustomFieldDataItem) => item?.field === field._id,
-                  )?.value;
+                  const fieldValue = getFieldValue(currentData, field._id);
 
                   return (
                     <div className="flex flex-col gap-2">
@@ -93,25 +127,10 @@ export const PageCustomFieldsSection = ({
                           <span className="text-destructive ml-1">*</span>
                         )}
                       </Form.Label>
-                      <Controller
-                        control={form.control}
-                        name={`customFieldsData`}
-                        render={({ field: controllerField }) => (
-                          <CustomFieldInput
-                            field={field}
-                            value={fieldValue}
-                            onChange={(value) => {
-                              const currentData: CustomFieldsData =
-                                controllerField.value || [];
-                              const updated = updateCustomFieldsData(
-                                currentData,
-                                field._id,
-                                value,
-                              );
-                              controllerField.onChange(updated);
-                            }}
-                          />
-                        )}
+                      <CustomFieldController
+                        field={field}
+                        fieldValue={fieldValue}
+                        form={form}
                       />
                       <Form.Message />
                     </div>
