@@ -53,6 +53,7 @@ function getJournalHandler(journal: string) {
     invOut: handleInvOut,
     invMove: handleInvMove,
     invSale: handleInvSale,
+    invSaleReturn: handleInvSaleReturn,
   };
 
   return handlers[journal];
@@ -153,6 +154,27 @@ async function handleInvMove(
 }
 
 async function handleInvSale(
+  models: IModels,
+  subdomain: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) {
+  const invSaleOtherTrsClass = new InvSaleOutCostTrs(subdomain, models, doc);
+  const taxTrsClass = new TaxTrs(models, doc, 'dt', false);
+
+  await invSaleOtherTrsClass.checkValidation();
+  await taxTrsClass.checkTaxValidation();
+
+  const transaction = await createOrUpdateTr(models, doc, oldTr);
+  const otherTrs = [
+    ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
+    ...(await collect(await invSaleOtherTrsClass.doTrs(transaction))),
+  ];
+
+  return { mainTr: transaction, otherTrs };
+}
+
+async function handleInvSaleReturn(
   models: IModels,
   subdomain: string,
   doc: ITransaction,

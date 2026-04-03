@@ -235,6 +235,26 @@ export const transactionInvSaleSchema = z.object({
     ...invDetailSchema.shape,
   })),
 });
+
+export const transactionInvSaleReturnSchema = z.object({
+  journal: z.literal(TrJournalEnum.INV_SALE_RETURN),
+  ...baseTransactionSchema.shape,
+}).extend({
+  customerId: undefed(z.string()),
+  branchId: z.string(),
+  departmentId: z.string(),
+  followInfos: z.object({
+    saleOutAccountId: z.string(),
+    saleCostAccountId: z.string(),
+  }),
+  followExtras: undefed(z.object({
+    saleOutAccount: undefed(z.object({ ...accountSchema.shape })),
+    saleCostAccount: undefed(z.object({ ...accountSchema.shape }))
+  })),
+  details: z.array(z.object({
+    ...invDetailSchema.shape,
+  })),
+});
 //#endregion Inventories
 
 export const trDocSchema = z
@@ -249,6 +269,7 @@ export const trDocSchema = z
     transactionInvOutSchema,
     transactionInvMoveSchema,
     transactionInvSaleSchema,
+    transactionInvSaleReturnSchema,
 
     transactionTaxSchema,
   ])

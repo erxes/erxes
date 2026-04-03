@@ -118,9 +118,14 @@ export const AddTransaction = ({
         >
           Борлуулалт
         </AddTransactionItem>
-        <AddTransactionItem disabled>
-          Борлуулалт (ажил үйлчилгээ)
+        <AddTransactionItem
+          journal={TrJournalEnum.INV_SALE_RETURN}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Борлуулалт буцаалт
         </AddTransactionItem>
+        
         <DropdownMenu.Label>Үндсэн хөрөнгө</DropdownMenu.Label>
         <AddTransactionItem disabled>Орлого</AddTransactionItem>
         <AddTransactionItem disabled>Акт</AddTransactionItem>

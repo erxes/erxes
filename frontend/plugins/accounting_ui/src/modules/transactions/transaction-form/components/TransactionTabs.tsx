@@ -17,6 +17,7 @@ import { InvIncomeForm } from './forms/InvIncomeForm';
 import { InvMoveForm } from './forms/InvMoveForm';
 import { InvOutForm } from './forms/InvOutForm';
 import { InvSaleForm } from './forms/InvSaleForm';
+import { InvSaleReturnForm } from './forms/InvSaleReturnForm';
 import { MainJournalForm } from './forms/MainJournalForm';
 import { PayableTransaction } from './forms/PayableForm';
 import { ReceivableTransaction } from './forms/ReceivableForm';
@@ -51,6 +52,8 @@ const TransactionForm = ({
     return <InvMoveForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.INV_SALE)
     return <InvSaleForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.INV_SALE_RETURN)
+    return <InvSaleReturnForm form={form} index={index} />;
   return null;
 };
 

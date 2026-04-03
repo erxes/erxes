@@ -19,6 +19,8 @@ export enum TrJournalEnum {
   INV_SALE_OUT = 'invSaleOut',
   INV_SALE_COST = 'invSaleCost',
 
+  INV_SALE_RETURN = 'invSaleReturn',
+
   FIXED_ASSET = 'fixedAsset',
 }
 
@@ -40,6 +42,8 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.INV_SALE]: 'Борлуулалт',
   [TrJournalEnum.INV_SALE_OUT]: 'Борлуулалт-зарлага',
   [TrJournalEnum.INV_SALE_COST]: 'Борлуулалт-ББӨ',
+  
+  [TrJournalEnum.INV_SALE_RETURN]: 'Борлуулалт Буцаалт',
 
   [TrJournalEnum.FIXED_ASSET]: 'Fixed Asset',
 };
