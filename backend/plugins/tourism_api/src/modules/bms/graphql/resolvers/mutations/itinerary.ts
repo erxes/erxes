@@ -25,11 +25,7 @@ const itineraryMutations = {
     if (!itinerary || !itinerary._id) {
       throw new Error('Failed to create itinerary.');
     }
-    await saveItineraryTranslations(
-      models,
-      itinerary._id,
-      translations ?? [],
-    );
+    await saveItineraryTranslations(models, itinerary._id, translations ?? []);
     return itinerary;
   },
 

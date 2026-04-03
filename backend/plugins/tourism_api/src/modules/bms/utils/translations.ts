@@ -135,7 +135,12 @@ function applyTranslationsToList<T extends { _id: string }>(
 
   return items.map((item) => {
     const translation = translationMap[String(item._id)];
-    return applyTranslationToItem(item, translation, fieldMappings, customMerge);
+    return applyTranslationToItem(
+      item,
+      translation,
+      fieldMappings,
+      customMerge,
+    );
   });
 }
 
