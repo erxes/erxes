@@ -133,7 +133,16 @@ export const ElementCreateSheet = ({
       });
 
       toast({ title: 'Success', description: 'Element created successfully' });
-      form.reset();
+      form.reset({
+        name: '',
+        note: '',
+        startTime: '',
+        duration: 0,
+        cost: 0,
+        categories: [],
+        translations: buildEmptyTranslations(translationLanguages),
+      });
+      setSelectedLang(mainLanguage || allLanguages[0] || '');
       handleOpenChange(false);
     } catch (error) {
       toast({

@@ -38,8 +38,10 @@ export const useAmenityLanguage = ({
   useEffect(() => {
     if (primaryLanguage && !selectedLang) {
       setSelectedLang(primaryLanguage);
+    } else if (selectedLang && allLanguages.length > 0 && !allLanguages.includes(selectedLang)) {
+      setSelectedLang(primaryLanguage);
     }
-  }, [primaryLanguage, selectedLang]);
+  }, [primaryLanguage, selectedLang, allLanguages]);
 
   const effectiveLang = selectedLang || primaryLanguage;
   const isMainLang = effectiveLang === primaryLanguage;

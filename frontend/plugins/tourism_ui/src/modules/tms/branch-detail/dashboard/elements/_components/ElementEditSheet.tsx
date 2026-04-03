@@ -83,6 +83,8 @@ export const ElementEditSheet = ({
     fieldPaths,
   } = useElementLanguage({ branchLanguages, mainLanguage, fields });
 
+  const resolvedPrimaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
+
   useEffect(() => {
     form.reset({
       name: element.name || '',
@@ -93,12 +95,11 @@ export const ElementEditSheet = ({
       categories: element.categories || [],
       translations: buildTranslationsFromElement(element, translationLanguages),
     });
-    setSelectedLang(mainLanguage || allLanguages[0] || '');
+    setSelectedLang(resolvedPrimaryLanguage);
   }, [
     element,
     translationLanguages,
-    mainLanguage,
-    allLanguages,
+    resolvedPrimaryLanguage,
     form,
     setSelectedLang,
   ]);
@@ -115,7 +116,7 @@ export const ElementEditSheet = ({
           cost: values.cost,
           categories: values.categories,
           quick: false,
-          language: mainLanguage,
+          language: resolvedPrimaryLanguage,
           translations: sanitizeTranslations(values.translations),
         },
       });

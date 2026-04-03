@@ -128,7 +128,12 @@ export const AmenityCreateSheet = ({
         description: 'Amenity created successfully',
       });
 
-      form.reset();
+      form.reset({
+        name: '',
+        icon: '',
+        translations: buildEmptyAmenityTranslations(translationLanguages),
+      });
+      setSelectedLang(mainLanguage || allLanguages[0] || '');
       handleOpenChange(false);
     } catch (error) {
       toast({
