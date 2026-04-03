@@ -94,9 +94,7 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
   const updateCondition = (id: string, updated: PlaceConditionUI) => {
     setFormData((prev) => ({
       ...prev,
-      conditions: prev.conditions.map((c) =>
-        c.id === id ? updated : c,
-      ),
+      conditions: prev.conditions.map((c) => (c.id === id ? updated : c)),
     }));
   };
 
@@ -124,7 +122,7 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
 
   const handleDeleteUI = () => {
     if (activeIndex === null) return;
-    if (!window.confirm('Remove this config from list?')) return;
+    if (!globalThis.confirm('Remove this config from list?')) return;
 
     setSavedConfigs((prev) => prev.filter((_, i) => i !== activeIndex));
     setActiveIndex(null);
@@ -155,9 +153,10 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
             <h3 className="font-medium">Saved configs</h3>
 
             {savedConfigs.map((cfg, i) => (
-              <div
+              <button
                 key={i}
-                className={`cursor-pointer p-2 rounded border
+                type="button"
+                className={`cursor-pointer p-2 rounded border w-full text-left
                   ${i === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
                 onClick={() => setActiveIndex(i)}
               >
@@ -165,7 +164,7 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
                 <div className="text-xs text-gray-500">
                   Stage: {cfg.stageId || '—'}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
