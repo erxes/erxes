@@ -32,49 +32,54 @@ export const guideItemSchema = new Schema(
   { _id: false },
 );
 
-export const pricingOptionSchema = new Schema({
-  title: { type: String, required: true },
+export const pricingOptionSchema = new Schema(
+  {
+    _id: { type: String, required: true },
 
-  minPersons: {
-    type: Number,
-    required: true,
-    min: 1,
-  },
+    title: { type: String, required: true },
 
-  maxPersons: {
-    type: Number,
-    min: 1,
-    validate: {
-      validator(value: number) {
-        return !value || value >= this.minPersons;
-      },
-      message: 'Max persons must be greater than or equal to min persons',
+    minPersons: {
+      type: Number,
+      required: true,
+      min: 1,
     },
-  },
 
-  pricePerPerson: {
-    type: Number,
-    required: true,
-    min: 0.01,
-  },
+    maxPersons: {
+      type: Number,
+      min: 1,
+      validate: {
+        validator(value: number) {
+          return !value || value >= this.minPersons;
+        },
+        message: 'Max persons must be greater than or equal to min persons',
+      },
+    },
 
-  accommodationType: {
-    type: String,
-    set: (v: string) => v?.trim().toLowerCase(),
-  },
+    pricePerPerson: {
+      type: Number,
+      required: true,
+      min: 0.01,
+    },
 
-  domesticFlightPerPerson: {
-    type: Number,
-    min: 0,
-  },
+    accommodationType: {
+      type: String,
+      set: (v: string) => v?.trim().toLowerCase(),
+    },
 
-  singleSupplement: {
-    type: Number,
-    min: 0,
-  },
+    domesticFlightPerPerson: {
+      type: Number,
+      min: 0,
+    },
 
-  note: { type: String },
-});
+    singleSupplement: {
+      type: Number,
+      min: 0,
+    },
+
+    note: { type: String },
+  },
+  { _id: false },
+);
 
 export const tourSchema = new Schema({
   _id: mongooseStringRandomId,
