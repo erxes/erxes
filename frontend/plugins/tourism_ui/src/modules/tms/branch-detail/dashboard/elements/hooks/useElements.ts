@@ -25,6 +25,7 @@ interface ElementsQueryVariables {
   orderBy?: Record<string, number>;
   cursorMode?: string;
   sortMode?: string;
+  language?: string;
 }
 
 export const useElements = (
@@ -55,6 +56,7 @@ export const useElements = (
     ...options,
     skip: options?.skip,
     variables,
+    fetchPolicy: 'cache-and-network',
   });
 
   const {

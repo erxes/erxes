@@ -1,5 +1,22 @@
 
 
+## [3.0.10](https://github.com/erxes/erxes/compare/3.0.9...3.0.10) (2026-04-03)
+
+
+### Bug Fixes
+
+* **accounting:** improve remainders ([#7379](https://github.com/erxes/erxes/issues/7379)) ([3c73f18](https://github.com/erxes/erxes/commit/3c73f184a798edcfe55e45abc2fbbd4cc0dc465d))
+* **posclient:** clean graphql ([1ab47da](https://github.com/erxes/erxes/commit/1ab47dada0920491dc4ee9cd2a71f306fb14556c))
+
+
+### Features
+
+* add custom field in page and cat, remove audio and video field … ([#7358](https://github.com/erxes/erxes/issues/7358)) ([9d600d3](https://github.com/erxes/erxes/commit/9d600d369de997bf02ecf9c5540f46f7da693388))
+* add per-module access control to relation widget side tabs ([0700e3d](https://github.com/erxes/erxes/commit/0700e3de89a9021d3e2529a1cbe771540c05f8f2))
+* implement translation support for amenities and elements ([#7378](https://github.com/erxes/erxes/issues/7378)) ([e1c10c9](https://github.com/erxes/erxes/commit/e1c10c9b018a9b65328d6dbba571f87ae645af8c))
+* **payment:** introduce toki as payment option ([#7363](https://github.com/erxes/erxes/issues/7363)) ([0bec208](https://github.com/erxes/erxes/commit/0bec208d3af6d183213aa12b8f58ce1c5ecc1ad5))
+* **sales:** add checkDiscount query in 3.0 with loyalties integration ([#7368](https://github.com/erxes/erxes/issues/7368)) ([cce538c](https://github.com/erxes/erxes/commit/cce538c2905de1f02b64a69a98396945132087b6))
+
 ## [3.0.9](https://github.com/erxes/erxes/compare/3.0.8...3.0.9) (2026-04-01)
 
 

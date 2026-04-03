@@ -30,6 +30,8 @@ export interface ITicket {
   isSubscribed?: boolean;
   propertiesData?: IPropertyField;
   attachments?: IAttachment[];
+  companyIds?: string[];
+  customerFieldData?: any;
 }
 
 export interface ITicketUpdate extends ITicket {
