@@ -30,6 +30,8 @@ export const types = `
     propertiesData: JSON
     state: String
     attachments: [Attachment]
+    companyIds: [String]
+    customerFieldData: JSON
   }
   type RemoveResponse {
     ok: Int!
@@ -101,6 +103,9 @@ const createTicketParams = `
   assigneeId: String
   state: String
   attachments: [AttachmentInput]
+  companyIds: [String]
+  propertiesData: JSON
+  customerFieldData: JSON
 `;
 
 const updateTicketParams = `
@@ -121,6 +126,8 @@ const updateTicketParams = `
   propertiesData: JSON
   state: String
   attachments: [AttachmentInput]
+  companyIds: [String]
+  customerFieldData: JSON
 `;
 
 export const queries = `
