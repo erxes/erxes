@@ -39,7 +39,11 @@ export const useElementLanguage = ({
   useEffect(() => {
     if (primaryLanguage && !selectedLang) {
       setSelectedLang(primaryLanguage);
-    } else if (selectedLang && allLanguages.length > 0 && !allLanguages.includes(selectedLang)) {
+    } else if (
+      selectedLang &&
+      allLanguages.length > 0 &&
+      !allLanguages.includes(selectedLang)
+    ) {
       setSelectedLang(primaryLanguage);
     }
   }, [primaryLanguage, selectedLang, allLanguages]);
