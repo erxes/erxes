@@ -21,12 +21,10 @@ export const deparmentQueries = {
     const pipeline: any[] = [{ $match: filter }, { $sort: { order: 1 } }];
 
     if (params?.ids?.length) {
-      pipeline.push({
-        $addFields: {
-          __order: { $indexOfArray: [params.ids, '$_id'] },
-        },
-      });
-      pipeline.push({ $sort: { __order: 1 } });
+      pipeline.push(
+        { $addFields: { __order: { $indexOfArray: [params.ids, '$_id'] } } },
+        { $sort: { __order: 1 } },
+      );
     }
     return models.Departments.aggregate(pipeline);
   },

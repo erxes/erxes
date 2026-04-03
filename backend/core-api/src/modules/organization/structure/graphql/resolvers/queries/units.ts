@@ -7,7 +7,7 @@ import {
 
 // Escapes regex special characters to prevent injection
 function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 export const unitsQueries = {

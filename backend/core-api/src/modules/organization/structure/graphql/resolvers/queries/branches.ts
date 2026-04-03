@@ -9,7 +9,7 @@ import { generateFilters } from './utils';
 export const branchsQueries = {
   async branches(
     _parent: undefined,
-    params: any & { searchValue?: string },
+    params: any,
     { models, user }: IContext,
   ) {
     const filter = await generateFilters({
@@ -21,12 +21,14 @@ export const branchsQueries = {
     const pipeline: any[] = [{ $match: filter }, { $sort: { order: 1 } }];
 
     if (params?.ids?.length) {
-      pipeline.push({
-        $addFields: {
-          __order: { $indexOfArray: [params.ids, '$_id'] },
+      pipeline.push(
+        {
+          $addFields: {
+            __order: { $indexOfArray: [params.ids, '$_id'] },
+          },
         },
-      });
-      pipeline.push({ $sort: { __order: 1 } });
+        { $sort: { __order: 1 } },
+      );
     }
 
     return models.Branches.aggregate(pipeline);
