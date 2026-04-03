@@ -7,11 +7,6 @@ export const OutgoingWebhookNodeContent = ({
 }: NodeContentComponentProps<TOutgoingWebhookForm>) => {
   const { url, method } = config || {};
   return (
-    <>
-      <AutomationNodeMetaInfoRow
-        fieldName="URL"
-        content={`${method}: ${url}`}
-      />
-    </>
+    <AutomationNodeMetaInfoRow fieldName="URL" content={`${method}: ${url}`} />
   );
 };

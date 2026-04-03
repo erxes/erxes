@@ -94,7 +94,7 @@ export const OutgoingWebhookOptions = () => {
               value={field.value}
               onChange={(e) => {
                 const value = e.currentTarget.value;
-                field.onChange(!value ? undefined : Number(value));
+                field.onChange(value === '' ? undefined : Number(value));
               }}
               type="number"
               min="0"
@@ -117,7 +117,7 @@ export const OutgoingWebhookOptions = () => {
               value={field.value}
               onChange={(e) => {
                 const value = e.currentTarget.value;
-                field.onChange(!value ? undefined : Number(value));
+                field.onChange(value === '' ? undefined : Number(value));
               }}
               type="number"
               min="100"
@@ -176,7 +176,7 @@ export const OutgoingWebhookOptions = () => {
                   value={field.value}
                   onChange={(e) => {
                     const value = e.currentTarget.value;
-                    field.onChange(!value ? undefined : Number(value));
+                    field.onChange(value === '' ? undefined : Number(value));
                   }}
                   type="number"
                   placeholder="8080"
