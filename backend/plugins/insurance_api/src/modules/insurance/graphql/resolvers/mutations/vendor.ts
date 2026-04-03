@@ -37,10 +37,12 @@ export const vendorMutations = {
         vendorId,
         productId,
         pricingOverride,
+        discountTiers,
       }: {
         vendorId: string;
         productId: string;
         pricingOverride?: any;
+        discountTiers?: any[];
       },
       { models }: IContext,
     ) => {
@@ -48,7 +50,11 @@ export const vendorMutations = {
         vendorId,
         {
           $push: {
-            offeredProducts: { product: productId, pricingOverride },
+            offeredProducts: {
+              product: productId,
+              pricingOverride,
+              discountTiers: discountTiers || [],
+            },
           },
         },
         { new: true },

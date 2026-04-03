@@ -55,6 +55,9 @@ export const VendorDetailPage = () => {
     { duration: string; percentage: number }[]
   >([]);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [discountTiers, setDiscountTiers] = useState<
+    { minTravelers: number; discountPercent: number }[]
+  >([]);
 
   const handleEdit = (user: VendorUser) => {
     setEditingUser(user);
@@ -121,6 +124,17 @@ export const VendorDetailPage = () => {
       setVendorDurationFields([]);
     }
 
+    if (vp.discountTiers && vp.discountTiers.length > 0) {
+      setDiscountTiers(
+        vp.discountTiers.map((t: any) => ({
+          minTravelers: t.minTravelers,
+          discountPercent: t.discountPercent,
+        })),
+      );
+    } else {
+      setDiscountTiers([]);
+    }
+
     setIsProductDialogOpen(true);
   };
 
@@ -160,6 +174,10 @@ export const VendorDetailPage = () => {
           vendorId: id!,
           productId: selectedProductId,
           pricingOverride,
+          discountTiers:
+            discountTiers.length > 0
+              ? discountTiers.filter((t) => t.minTravelers > 0)
+              : undefined,
         },
       });
 
@@ -174,6 +192,7 @@ export const VendorDetailPage = () => {
     setSelectedProductId('');
     setVendorPercentage(undefined);
     setVendorDurationFields([]);
+    setDiscountTiers([]);
     setEditingProduct(null);
   };
 
@@ -283,6 +302,17 @@ export const VendorDetailPage = () => {
                           {vp.pricingOverride?.percentage && (
                             <p className="text-xs text-muted-foreground">
                               Rate: {vp.pricingOverride.percentage}%
+                            </p>
+                          )}
+                          {vp.discountTiers && vp.discountTiers.length > 0 && (
+                            <p className="text-xs text-green-600">
+                              Хөнгөлөлт:{' '}
+                              {vp.discountTiers
+                                .map(
+                                  (t: any) =>
+                                    `${t.minTravelers}+ хүн → ${t.discountPercent}%`,
+                                )
+                                .join(', ')}
                             </p>
                           )}
                         </div>
@@ -564,6 +594,92 @@ export const VendorDetailPage = () => {
               <p className="text-xs text-muted-foreground">
                 Example: "12months", "24months", etc. Duration-specific rates
                 for this vendor.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">
+                  Хөнгөлөлтийн шат (Аялалын даатгал)
+                </Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setDiscountTiers([
+                      ...discountTiers,
+                      { minTravelers: 5, discountPercent: 10 },
+                    ]);
+                  }}
+                >
+                  Add Tier
+                </Button>
+              </div>
+
+              {discountTiers.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Аялалын даатгалд олон аялагч бол хөнгөлөлт тооцох. "Add Tier"
+                  дарна уу.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {discountTiers.map((tier, index) => (
+                    <div key={index} className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <Label className="text-xs">Хүний тоо (≥)</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={tier.minTravelers}
+                          onChange={(e) => {
+                            const newTiers = [...discountTiers];
+                            newTiers[index] = {
+                              ...newTiers[index],
+                              minTravelers: parseInt(e.target.value) || 0,
+                            };
+                            setDiscountTiers(newTiers);
+                          }}
+                          placeholder="5"
+                        />
+                      </div>
+                      <div className="w-32">
+                        <Label className="text-xs">Хөнгөлөлт (%)</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.5"
+                          value={tier.discountPercent}
+                          onChange={(e) => {
+                            const newTiers = [...discountTiers];
+                            newTiers[index] = {
+                              ...newTiers[index],
+                              discountPercent: parseFloat(e.target.value) || 0,
+                            };
+                            setDiscountTiers(newTiers);
+                          }}
+                          placeholder="10"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setDiscountTiers(
+                            discountTiers.filter((_, i) => i !== index),
+                          );
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Жишээ: 5+ хүн → 10%, 10+ хүн → 15%
               </p>
             </div>
           </div>

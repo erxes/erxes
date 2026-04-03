@@ -101,18 +101,19 @@ export const contractQueries = {
           ];
         }
 
-        const contracts = await models.Contract.find(query).populate(
-          'vendor customer insuranceType insuranceProduct coveredRisks.risk',
-        );
-
-        return contracts
-          .filter(
-            (c: any) => c.insuranceProduct != null && c.insuranceType != null,
+        const contracts = await models.Contract.find(query)
+          .select(
+            'contractNumber vendor customer insuranceProduct insuranceType chargedAmount startDate endDate paymentStatus',
           )
-          .map((c: any) => ({
-            ...c.toObject(),
-            coveredRisks: c.coveredRisks.filter((cr: any) => cr.risk != null),
-          }));
+          .populate([
+            { path: 'vendor', select: '_id name' },
+            { path: 'customer', select: '_id firstName lastName' },
+            { path: 'insuranceProduct', select: '_id name' },
+          ]);
+
+        return contracts.filter(
+          (c: any) => c.insuranceProduct != null && c.insuranceType != null,
+        );
       } catch (e: any) {
         console.error('contracts query error:', e.message);
         return [];
@@ -217,7 +218,7 @@ export const contractQueries = {
         startDate,
         sortDirection,
         sortField,
-        vendorUserId,
+        vendorUserId: _vendorUserId,
         categoryId,
       }: {
         page?: number;

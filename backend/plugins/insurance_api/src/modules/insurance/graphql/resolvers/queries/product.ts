@@ -4,7 +4,7 @@ export const productQueries = {
   insuranceProducts: Object.assign(
     async (_parent: undefined, _args: any, { models }: IContext) => {
       const products = await models.Product.find({}).populate(
-        'insuranceType coveredRisks.risk',
+        'insuranceType coveredRisks.risk regions',
       );
       return products
         .filter((p: any) => p?._id && p.insuranceType)
@@ -23,7 +23,7 @@ export const productQueries = {
       { models }: IContext,
     ) => {
       const product = await models.Product.findById(id).populate(
-        'insuranceType coveredRisks.risk',
+        'insuranceType coveredRisks.risk regions',
       );
 
       if (!product) return null;
@@ -44,7 +44,7 @@ export const productQueries = {
     ) => {
       const products = await models.Product.find({
         insuranceType: typeId,
-      }).populate('insuranceType coveredRisks.risk');
+      }).populate('insuranceType coveredRisks.risk regions');
 
       return products.map((p: any) => ({
         ...p.toObject(),
