@@ -25,6 +25,7 @@ const config: ModuleFederationConfig = {
       './src/widgets/notifications/NotificationRemoteEntries.tsx',
     './relationWidget': './src/widgets/RelationWidget.tsx',
     './floatingWidget': './src/widgets/FloatingWidget.tsx',
+    './subNavigation': './src/modules/SubNavigation.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

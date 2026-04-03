@@ -21,6 +21,7 @@ const config: ModuleFederationConfig = {
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
     './notificationWidget':
       './src/widgets/notifications/NotificationsWidgets.tsx',
+    './subNavigation': './src/modules/SubNavigation.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
