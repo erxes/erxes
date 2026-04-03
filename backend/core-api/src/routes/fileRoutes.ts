@@ -84,7 +84,7 @@ interface ReadFileQuery {
   key?: string;
   inline?: string;
   name?: string;
-  width?: number;
+  width?: string;
 }
 
 router.get(
@@ -95,7 +95,8 @@ router.get(
     const models = await generateModels(subdomain);
 
     try {
-      const { key, inline, name, width = 0 } = (req.query || {}) as ReadFileQuery;
+      const { key, inline, name, width } = (req.query || {}) as ReadFileQuery;
+      const parsedWidth = Number(width ?? 0);
 
       const stringKey = Array.isArray(key) ? key[0] : key;
 
@@ -108,7 +109,7 @@ router.get(
       const response = await readFileRequest({
         key: sanitizedKey,
         models,
-        width,
+        width: parsedWidth,
       });
 
       if (inline && inline === 'true') {
@@ -274,7 +275,14 @@ router.post(
       return res.status(400).json({ error: 'Missing data' });
     }
 
-    const uploadInfo = chunkStore.get(uploadId);
+    const safeUploadId = String(uploadId).replace(/[^a-zA-Z0-9\-]/g, '');
+    const safeChunkIndex = Number(chunkIndex);
+
+    if (!safeUploadId || isNaN(safeChunkIndex) || safeChunkIndex < 0) {
+      return res.status(400).json({ error: 'Invalid upload ID or chunk index' });
+    }
+
+    const uploadInfo = chunkStore.get(safeUploadId);
     if (!uploadInfo) {
       return res
         .status(404)
@@ -282,14 +290,14 @@ router.post(
     }
 
     // Save chunk
-    const chunkDir = path.join(tmpDir.name, uploadId);
+    const chunkDir = path.join(tmpDir.name, safeUploadId);
     if (!fs.existsSync(chunkDir)) fs.mkdirSync(chunkDir, { recursive: true });
-    const chunkPath = path.join(chunkDir, `chunk-${chunkIndex}`);
+    const chunkPath = path.join(chunkDir, `chunk-${safeChunkIndex}`);
     fs.renameSync(file.path, chunkPath);
 
     // Mark chunk as received
-    uploadInfo.chunks.add(Number(chunkIndex));
-    chunkStore.set(uploadId, uploadInfo); // ← IMPORTANT: persist the Set update
+    uploadInfo.chunks.add(safeChunkIndex);
+    chunkStore.set(safeUploadId, uploadInfo); // ← IMPORTANT: persist the Set update
 
     res.json({
       success: true,
@@ -303,12 +311,12 @@ router.post(
       setImmediate(async () => {
         try {
           // Re-read latest state (in case of race)
-          const latestInfo = chunkStore.get(uploadId);
+          const latestInfo = chunkStore.get(safeUploadId);
           if (!latestInfo || latestInfo.chunks.size < latestInfo.totalChunks)
             return;
 
           // Merge chunks
-          const finalPath = path.join(tmpDir.name, `${uploadId}-final`);
+          const finalPath = path.join(tmpDir.name, `${safeUploadId}-final`);
           const writeStream = fs.createWriteStream(finalPath);
           for (let i = 0; i < latestInfo.totalChunks; i++) {
             const cp = path.join(chunkDir, `chunk-${i}`);
@@ -325,8 +333,8 @@ router.post(
           });
 
           // ←←← STATUS UPDATE – THIS MUST RUN
-          uploadStore.set(uploadId, {
-            id: uploadId,
+          uploadStore.set(safeUploadId, {
+            id: safeUploadId,
             status: 'processing',
             fileName: latestInfo.fileName,
             progress: 80,
@@ -346,8 +354,8 @@ router.post(
             models,
           );
 
-          uploadStore.set(uploadId, {
-            id: uploadId,
+          uploadStore.set(safeUploadId, {
+            id: safeUploadId,
             status: 'completed',
             key: response,
             fileName: latestInfo.fileName,
@@ -355,8 +363,8 @@ router.post(
           });
 
           setTimeout(() => {
-            uploadStore.delete(uploadId);
-            chunkStore.delete(uploadId);
+            uploadStore.delete(safeUploadId);
+            chunkStore.delete(safeUploadId);
           }, 5 * 60 * 1000);
 
           // Cleanup
@@ -372,8 +380,8 @@ router.post(
           }
         } catch (err: unknown) {
           console.error('Final merge/upload failed:', err);
-          uploadStore.set(uploadId, {
-            id: uploadId,
+          uploadStore.set(safeUploadId, {
+            id: safeUploadId,
             status: 'failed',
             error: err instanceof Error ? err.message : 'Processing failed',
             fileName: uploadInfo.fileName,
@@ -381,6 +389,8 @@ router.post(
         }
       });
     }
+
+    return;
   },
 );
 
