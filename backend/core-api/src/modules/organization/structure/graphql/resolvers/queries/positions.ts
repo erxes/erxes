@@ -7,11 +7,7 @@ import { IContext } from '~/connectionResolvers';
 import { generateFilters } from './utils';
 
 export const positionQueries = {
-  async positions(
-    _parent: undefined,
-    params: any,
-    { models, user }: IContext,
-  ) {
+  async positions(_parent: undefined, params: any, { models, user }: IContext) {
     const filter = await generateFilters({
       models,
       user,
