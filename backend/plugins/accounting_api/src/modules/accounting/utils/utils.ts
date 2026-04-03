@@ -58,20 +58,23 @@ export const syncProductsInventory = async (
 
   // 1 transaction ni adilhan product buhii detailtai baij boloh
   transaction?.details.forEach((det) => {
-    countByProductId[det.productId ?? ''] = fixNum((countByProductId[det.productId ?? ''] ?? 0) + (det.count ?? 0), 4);
+    countByProductId[det.productId ?? ''] = fixNum(
+      (countByProductId[det.productId ?? ''] ?? 0) + (det.count ?? 0),
+      4,
+    );
   });
 
   if (
     !oldTr?._id ||
-    (
-      transaction.branchId === oldTr?.branchId &&
-      transaction.departmentId === oldTr?.departmentId
-    )
+    (transaction.branchId === oldTr?.branchId &&
+      transaction.departmentId === oldTr?.departmentId)
   ) {
     // huuchin baival shineer tsootsoolsnoo buuruulj baina
     oldTr?.details.forEach((det) => {
-      countByProductId[det.productId ?? ''] =
-        fixNum((countByProductId[det.productId ?? ''] ?? 0) - (det.count ?? 0), 4);
+      countByProductId[det.productId ?? ''] = fixNum(
+        (countByProductId[det.productId ?? ''] ?? 0) - (det.count ?? 0),
+        4,
+      );
     });
 
     sendTRPCMessage({
@@ -99,7 +102,10 @@ export const syncProductsInventory = async (
 
   // 1 transaction ni adilhan product buhii detailtai baij boloh
   oldTr?.details.forEach((det) => {
-    countByProductIdOld[det.productId ?? ''] = fixNum((countByProductIdOld[det.productId ?? ''] ?? 0) + (det.count ?? 0), 4);
+    countByProductIdOld[det.productId ?? ''] = fixNum(
+      (countByProductIdOld[det.productId ?? ''] ?? 0) + (det.count ?? 0),
+      4,
+    );
   });
 
   sendTRPCMessage({
@@ -148,7 +154,7 @@ export const syncProductsInventory = async (
 export const removeSyncProductsInventory = async (
   subdomain: string,
   transaction: ITransactionDocument,
-  multiplier = 1, 
+  multiplier = 1,
 ) => {
   sendTRPCMessage({
     subdomain,
@@ -165,4 +171,4 @@ export const removeSyncProductsInventory = async (
       })),
     },
   });
-}
+};

@@ -8,7 +8,7 @@ export const commonRemove = async (
   subdomain: string,
   models: IModels,
   transaction: ITransactionDocument,
-  followTrs?: ITransactionDocument[]
+  followTrs?: ITransactionDocument[],
 ) => {
   const handler = getJournalHandler(transaction.journal);
   if (!handler) return;
@@ -19,7 +19,12 @@ export const commonRemove = async (
 function getJournalHandler(journal: string) {
   const handlers: Record<
     string,
-    (models: IModels, subdomain: string, transaction: ITransactionDocument, followTrs?: ITransactionDocument[]) => Promise<void>
+    (
+      models: IModels,
+      subdomain: string,
+      transaction: ITransactionDocument,
+      followTrs?: ITransactionDocument[],
+    ) => Promise<void>
   > = {
     main: handleNone,
     cash: handleNone,
@@ -39,7 +44,7 @@ async function handleNone(
   _models: IModels,
   _subdomain: string,
   _transaction: ITransactionDocument,
-  _followTrs?: ITransactionDocument[]
+  _followTrs?: ITransactionDocument[],
 ) {
   return;
 }
@@ -48,28 +53,32 @@ async function handleInvIncome(
   _models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
-  _followTrs?: ITransactionDocument[]
+  _followTrs?: ITransactionDocument[],
 ) {
-  await removeSyncProductsInventory(subdomain, transaction, 1)
+  await removeSyncProductsInventory(subdomain, transaction, 1);
 }
 
 async function handleInvOut(
   _models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
-  _followTrs?: ITransactionDocument[]
+  _followTrs?: ITransactionDocument[],
 ) {
-  await removeSyncProductsInventory(subdomain, transaction, -1)
+  await removeSyncProductsInventory(subdomain, transaction, -1);
 }
 
 async function handleInvMove(
   _models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
-  followTrs?: ITransactionDocument[]
+  followTrs?: ITransactionDocument[],
 ) {
   await removeSyncProductsInventory(subdomain, transaction, -1);
-  const moveInTr = followTrs?.find(ftr => ftr.originId === transaction._id && ftr.originType === TR_FOLLOW_TYPES.INV_MOVE_IN);
+  const moveInTr = followTrs?.find(
+    (ftr) =>
+      ftr.originId === transaction._id &&
+      ftr.originType === TR_FOLLOW_TYPES.INV_MOVE_IN,
+  );
   if (moveInTr) {
     await removeSyncProductsInventory(subdomain, moveInTr, 1);
   }
@@ -79,9 +88,13 @@ async function handleInvSale(
   _models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
-  followTrs?: ITransactionDocument[]
+  followTrs?: ITransactionDocument[],
 ) {
-  const saleOutTr = followTrs?.find(ftr => ftr.originId === transaction._id && ftr.originType === TR_FOLLOW_TYPES.INV_SALE_OUT);
+  const saleOutTr = followTrs?.find(
+    (ftr) =>
+      ftr.originId === transaction._id &&
+      ftr.originType === TR_FOLLOW_TYPES.INV_SALE_OUT,
+  );
   if (saleOutTr) {
     await removeSyncProductsInventory(subdomain, saleOutTr, -1);
   }
