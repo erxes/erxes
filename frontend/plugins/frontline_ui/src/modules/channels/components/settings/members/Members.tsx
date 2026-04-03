@@ -1,6 +1,5 @@
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { RecordTable, RecordTableTree, Spinner } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { AddMembers } from './AddMembers';
 import { MemberCommandBar } from './MemberCommandBar';
@@ -9,10 +8,9 @@ import columns from './MembersColumn';
 export function Members() {
   const { id: channelId } = useParams<{ id: string }>();
   const { members, loading } = useGetChannelMembers({ channelIds: channelId });
-  const { t } = useTranslation('members');
 
   if (loading) {
-    return <Spinner />;
+    return <Spinner containerClassName="py-32" />;
   }
 
   return (
@@ -23,7 +21,7 @@ export function Members() {
       </div>
       <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
         <RecordTable.Provider
-          columns={columns(t)}
+          columns={columns()}
           data={members || []}
           stickyColumns={['more', 'checkbox', 'name']}
           className="mt-1.5"
