@@ -275,7 +275,7 @@ router.post(
       return res.status(400).json({ error: 'Missing data' });
     }
 
-    const safeUploadId = String(uploadId).replace(/[^a-zA-Z0-9\-]/g, '');
+    const safeUploadId = String(uploadId).replace(/[^a-zA-Z0-9-]/g, '');
     const safeChunkIndex = Number(chunkIndex);
 
     if (!safeUploadId || isNaN(safeChunkIndex) || safeChunkIndex < 0) {
@@ -390,7 +390,7 @@ router.post(
       });
     }
 
-    return;
+    return null;
   },
 );
 
