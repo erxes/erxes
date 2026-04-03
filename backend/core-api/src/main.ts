@@ -61,10 +61,19 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(router);
 
+const getClientIp = (req: express.Request): string => {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) {
+    const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
+    return parts[parts.length - 1].trim();
+  }
+  return req.ip || 'unknown';
+};
+
 const fileLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 500,
-  keyGenerator: (req) => req.ip || 'unknown',
+  keyGenerator: getClientIp,
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',

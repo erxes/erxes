@@ -30,6 +30,7 @@ export async function applyProxiesCoreless(app: Express) {
       pathRewrite: { '^/graphql': '/' },
       target: `http://127.0.0.1:${apolloRouterPort}`,
       agent: proxyAgent, // ← ADD THIS
+      xfwd: true,
       on: {
         proxyReq,
       },
@@ -49,6 +50,7 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
       target:
         NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
       agent: proxyAgent, // ← ADD THIS
+      xfwd: true,
       on: {
         proxyReq,
       },

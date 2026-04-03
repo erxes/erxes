@@ -36,10 +36,19 @@ interface UploadStatus {
 
 const router: Router = Router();
 
+const getClientIp = (req: Request): string => {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) {
+    const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
+    return parts[parts.length - 1].trim();
+  }
+  return req.ip || 'unknown';
+};
+
 const readLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
-  keyGenerator: (req) => req.ip || 'unknown',
+  keyGenerator: getClientIp,
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
@@ -53,7 +62,7 @@ const readLimiter = rateLimit({
 const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
-  keyGenerator: (req) => req.ip || 'unknown',
+  keyGenerator: getClientIp,
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
@@ -67,7 +76,7 @@ const uploadLimiter = rateLimit({
 const chunkLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
-  keyGenerator: (req) => req.ip || 'unknown',
+  keyGenerator: getClientIp,
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
