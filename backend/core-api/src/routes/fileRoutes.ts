@@ -39,6 +39,7 @@ const router: Router = Router();
 const readLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
+  keyGenerator: (req) => req.ip || 'unknown',
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
@@ -52,6 +53,7 @@ const readLimiter = rateLimit({
 const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
+  keyGenerator: (req) => req.ip || 'unknown',
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
@@ -65,6 +67,7 @@ const uploadLimiter = rateLimit({
 const chunkLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
+  keyGenerator: (req) => req.ip || 'unknown',
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
@@ -260,12 +263,12 @@ router.post(
   '/upload-chunked/chunk',
   chunkLimiter,
   upload.single('chunk'),
-  async (req: any, res: any) => {
+  async (req: Request, res: Response) => {
     const subdomain = getSubdomain(req);
     const domain = DOMAIN.replace('<subdomain>', subdomain);
     const models = await generateModels(subdomain);
     const { uploadId, chunkIndex } = req.body;
-    const file = req.file;
+    const file = (req as Request & { file?: { path: string; mimetype: string; originalname: string; size: number } }).file;
 
     if (!file || !uploadId || chunkIndex === undefined) {
       return res.status(400).json({ error: 'Missing data' });
@@ -329,7 +332,7 @@ router.post(
             progress: 80,
           });
 
-          const response: any = await uploadFile(
+          const response = await uploadFile(
             `${domain}/gateway`,
             {
               path: finalPath,
@@ -367,12 +370,12 @@ router.post(
           } catch {
             console.error('Failed to remove chunk directory:', chunkDir);
           }
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error('Final merge/upload failed:', err);
           uploadStore.set(uploadId, {
             id: uploadId,
             status: 'failed',
-            error: err.message || 'Processing failed',
+            error: err instanceof Error ? err.message : 'Processing failed',
             fileName: uploadInfo.fileName,
           });
         }

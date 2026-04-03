@@ -34,8 +34,6 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
 
-app.set('trust proxy', 1);
-
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
@@ -66,6 +64,7 @@ app.use(router);
 const fileLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 500,
+  keyGenerator: (req) => req.ip || 'unknown',
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
