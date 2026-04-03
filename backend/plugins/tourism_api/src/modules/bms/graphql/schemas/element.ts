@@ -51,6 +51,7 @@ export const types = `
     itineraryId: String
     location: BMSLocation
     branchId: String
+    language: String
     createdAt: Date
     modifiedAt: Date
     additionalInfo: JSON
@@ -101,6 +102,7 @@ const elementParams = `
   quick: Boolean
   orderCheck: Boolean
   branchId: String
+  language: String
   icon: String
   visibleName: Boolean
   additionalInfo: JSON

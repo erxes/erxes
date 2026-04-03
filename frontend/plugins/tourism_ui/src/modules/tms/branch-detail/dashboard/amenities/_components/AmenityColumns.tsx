@@ -17,9 +17,13 @@ import { IAmenity } from '../types/amenity';
 import { AmenityEditSheet } from './AmenityEditSheet';
 import { amenityMoreColumn } from './AmenityMoreCell';
 
-export const amenityColumns = (branchId?: string): ColumnDef<IAmenity>[] => [
+export const amenityColumns = (
+  branchId?: string,
+  branchLanguages?: string[],
+  mainLanguage?: string,
+): ColumnDef<IAmenity>[] => [
   RecordTable.checkboxColumn as ColumnDef<IAmenity>,
-  amenityMoreColumn(branchId),
+  amenityMoreColumn(branchId, branchLanguages, mainLanguage),
   {
     id: 'icon',
     accessorKey: 'icon',
@@ -52,7 +56,12 @@ export const amenityColumns = (branchId?: string): ColumnDef<IAmenity>[] => [
       const amenity = row.original as IAmenity;
       return (
         <RecordTableInlineCell>
-          <AmenityEditSheet amenity={amenity} showTrigger={false}>
+          <AmenityEditSheet
+            amenity={amenity}
+            showTrigger={false}
+            branchLanguages={branchLanguages}
+            mainLanguage={mainLanguage}
+          >
             <Badge
               variant="secondary"
               className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
