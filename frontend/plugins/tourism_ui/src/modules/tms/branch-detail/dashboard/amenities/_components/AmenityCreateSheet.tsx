@@ -79,7 +79,10 @@ export const AmenityCreateSheet = ({
     const current = form.getValues('translations') || [];
     const currentLangs = current.map((t) => t.language);
     if (!translationLanguages.every((l) => currentLangs.includes(l))) {
-      form.setValue('translations', buildEmptyAmenityTranslations(translationLanguages));
+      form.setValue(
+        'translations',
+        buildEmptyAmenityTranslations(translationLanguages),
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [translationLanguages.join(',')]);
@@ -112,7 +115,8 @@ export const AmenityCreateSheet = ({
         variables: {
           branchId,
           name: values.name,
-          ...(values.icon && values.icon.trim() !== '' && { icon: values.icon }),
+          ...(values.icon &&
+            values.icon.trim() !== '' && { icon: values.icon }),
           quick: true,
           language: mainLanguage,
           translations: sanitizeAmenityTranslations(values.translations),

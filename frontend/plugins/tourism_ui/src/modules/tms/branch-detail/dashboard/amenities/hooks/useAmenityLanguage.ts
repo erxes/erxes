@@ -40,7 +40,9 @@ export const useAmenityLanguage = ({
 
   const effectiveLang = selectedLang || mainLanguage || allLanguages[0] || '';
   const isMainLang = !mainLanguage || effectiveLang === mainLanguage;
-  const translationIndex = fields.findIndex((f) => f.language === effectiveLang);
+  const translationIndex = fields.findIndex(
+    (f) => f.language === effectiveLang,
+  );
   const labelSuffix = effectiveLang ? ` (${effectiveLang})` : '';
 
   const namePath = isMainLang

@@ -93,7 +93,8 @@ export const AmenityEditSheet = ({
         variables: {
           id: amenity._id,
           name: values.name,
-          ...(values.icon && values.icon.trim() !== '' && { icon: values.icon }),
+          ...(values.icon &&
+            values.icon.trim() !== '' && { icon: values.icon }),
           quick: true,
           language: mainLanguage,
           translations: sanitizeAmenityTranslations(values.translations),

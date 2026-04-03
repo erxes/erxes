@@ -28,8 +28,7 @@ export const useActiveLang = ({
     if (!branchId) return;
     if (initializedBranchRef.current === branchId) return;
 
-    const defaultLang =
-      mainLanguage || availableLanguages[0] || '';
+    const defaultLang = mainLanguage || availableLanguages[0] || '';
 
     if (defaultLang) {
       setActiveLang(defaultLang);

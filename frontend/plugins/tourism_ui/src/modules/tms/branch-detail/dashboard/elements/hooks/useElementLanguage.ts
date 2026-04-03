@@ -41,7 +41,9 @@ export const useElementLanguage = ({
 
   const effectiveLang = selectedLang || mainLanguage || allLanguages[0] || '';
   const isMainLang = !mainLanguage || effectiveLang === mainLanguage;
-  const translationIndex = fields.findIndex((f) => f.language === effectiveLang);
+  const translationIndex = fields.findIndex(
+    (f) => f.language === effectiveLang,
+  );
   const currencySymbol =
     LANGUAGES.find((l) => l.value === effectiveLang)?.symbol ?? '$';
 

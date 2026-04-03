@@ -85,7 +85,10 @@ export const ElementCreateSheet = ({
     const current = form.getValues('translations') || [];
     const currentLangs = current.map((t) => t.language);
     if (!translationLanguages.every((l) => currentLangs.includes(l))) {
-      form.setValue('translations', buildEmptyTranslations(translationLanguages));
+      form.setValue(
+        'translations',
+        buildEmptyTranslations(translationLanguages),
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [translationLanguages.join(',')]);

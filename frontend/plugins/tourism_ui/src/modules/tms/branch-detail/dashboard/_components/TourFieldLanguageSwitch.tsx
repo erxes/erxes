@@ -21,10 +21,7 @@ export const TourFieldLanguageSwitch = ({
   return (
     <Select value={value} onValueChange={onValueChange}>
       <Select.Trigger className="h-8 min-w-40">
-        <Select.Value
-          placeholder="Select language"
-          className="text-xs"
-        >
+        <Select.Value placeholder="Select language" className="text-xs">
           {selected?.label || value}
         </Select.Value>
       </Select.Trigger>

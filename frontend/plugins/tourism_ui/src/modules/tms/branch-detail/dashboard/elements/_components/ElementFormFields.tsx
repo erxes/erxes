@@ -34,7 +34,8 @@ export const ElementNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name<span className="text-primary">{labelSuffix}</span> <span className="text-destructive">*</span>
+            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input placeholder="Element name" {...field} />
@@ -57,7 +58,9 @@ export const ElementNoteField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Note<span className="text-primary">{labelSuffix}</span></Form.Label>
+          <Form.Label>
+            Note<span className="text-primary">{labelSuffix}</span>
+          </Form.Label>
           <Form.Description>
             Not visible for clients and agents.
           </Form.Description>
@@ -130,7 +133,8 @@ export const ElementCostField = ({
   currencySymbol?: string;
 }) => {
   const lang = useAtomValue(activeLangAtom);
-  const symbol = currencySymbol ?? (LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$');
+  const symbol =
+    currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
   return (
     <Form.Field
       control={control}
@@ -143,7 +147,13 @@ export const ElementCostField = ({
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
                 {symbol}
               </span>
-              <Input type="number" step="0.01" placeholder="0.00" className="pl-7" {...field} />
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="pl-7"
+                {...field}
+              />
             </div>
           </Form.Control>
           <Form.Message className="text-destructive" />

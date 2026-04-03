@@ -2,7 +2,10 @@ import { Control, FieldPathByValue } from 'react-hook-form';
 import { Form, Input, IconPicker } from 'erxes-ui';
 import { AmenityCreateFormType } from '../constants/formSchema';
 
-type AmenityTextFieldPath = FieldPathByValue<AmenityCreateFormType, string | undefined>;
+type AmenityTextFieldPath = FieldPathByValue<
+  AmenityCreateFormType,
+  string | undefined
+>;
 
 interface AmenityNameFieldProps {
   control: Control<AmenityCreateFormType>;

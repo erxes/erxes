@@ -37,8 +37,7 @@ export const sanitizeTranslations = (
       language: t.language,
       name: t.name || undefined,
       note: t.note || undefined,
-      cost:
-        t.cost !== undefined && !Number.isNaN(t.cost) ? t.cost : undefined,
+      cost: t.cost !== undefined && !Number.isNaN(t.cost) ? t.cost : undefined,
     }));
 
   return cleaned.length ? cleaned : undefined;

@@ -52,7 +52,12 @@ export const ElementRecordTable = ({
 
   return (
     <RecordTable.Provider
-      columns={elementColumns(getCategoryNamesByIds, branchId, branchLanguages, mainLanguage)}
+      columns={elementColumns(
+        getCategoryNamesByIds,
+        branchId,
+        branchLanguages,
+        mainLanguage,
+      )}
       data={elements || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
