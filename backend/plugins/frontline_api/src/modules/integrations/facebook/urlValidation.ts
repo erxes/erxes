@@ -19,6 +19,7 @@ const PRIVATE_IP_PATTERNS: ReadonlyArray<RegExp> = [
   /^fe80:/i,
 ];
 
+/** Converts hex-normalized IPv4-mapped IPv6 (e.g. ::ffff:7f00:1) to dotted IPv4. */
 function extractIPv4FromMappedIPv6(ip: string): string | null {
   const match = ip.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
   if (!match) return null;
@@ -28,25 +29,32 @@ function extractIPv4FromMappedIPv6(ip: string): string | null {
   return `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
 }
 
+/** Checks whether a hostname is a private or reserved IP address. */
 function isPrivateIp(hostname: string): boolean {
   const bare = hostname.replace(/^\[|\]$/g, '');
   const target = extractIPv4FromMappedIPv6(bare) ?? bare;
   return PRIVATE_IP_PATTERNS.some((pattern) => pattern.test(target));
 }
 
+/** Checks whether a hostname belongs to a known Facebook CDN domain. */
 function isAllowedFacebookHost(hostname: string): boolean {
   return ALLOWED_FACEBOOK_HOSTNAME_PATTERNS.some((pattern) =>
     pattern.test(hostname.toLowerCase()),
   );
 }
 
+/**
+ * Validates that a URL is safe to fetch server-side.
+ * Enforces HTTPS-only, Facebook CDN hostname allowlist, and private IP blocking.
+ * @throws {Error} if the URL fails any validation check
+ */
 export function validateMediaUrl(url: string): void {
   let parsed: URL;
 
   try {
     parsed = new URL(url);
   } catch {
-    throw new Error(`Invalid URL: unable to parse`);
+    throw new Error('Invalid URL: unable to parse');
   }
 
   if (parsed.protocol !== 'https:') {
