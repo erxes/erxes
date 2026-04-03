@@ -37,7 +37,7 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
           productsData={deal.productsData || ([] as IProductData[])}
           dealId={deal._id}
           refetch={refetch}
-          tickUsed={deal.stage?.defaultTick === false ? false : true}
+          tickUsed={deal.stage?.defaultTick !== false}
         />
       )}
 

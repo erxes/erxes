@@ -144,7 +144,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     accessorKey: 'tickUsed',
     header: () => <RecordTable.InlineHead label="Tick used" />,
     cell: ({ cell }) => {
-      const value = !!cell.getValue() as boolean;
+      const value = !!cell.getValue();
       return (
         <CheckInputField
           value={value}
@@ -160,7 +160,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     accessorKey: 'isVatApplied',
     header: () => <RecordTable.InlineHead label="Vat applied" />,
     cell: ({ cell }) => {
-      const value = !!cell.getValue() as boolean;
+      const value = !!cell.getValue();
       return (
         <CheckInputField
           value={value}

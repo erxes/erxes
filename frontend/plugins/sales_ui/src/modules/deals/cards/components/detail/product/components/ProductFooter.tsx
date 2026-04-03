@@ -115,8 +115,8 @@ const ProductFooter = ({
   };
 
   const parseFormattedNumber = (value: string): number => {
-    const parsed = Number.parseInt(value.replace(/,/g, ''), 10);
-    return isNaN(parsed) ? 0 : parsed;
+    const parsed = Number.parseInt(value.replaceAll(',', ''), 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
   };
 
   const currencies = Object.keys({ ...total, ...discount, ...tax });
@@ -138,7 +138,7 @@ const ProductFooter = ({
                   value={Math.round(discount[currency]?.percent || 0)}
                   onChange={(e) => {
                     const val = Number.parseInt(e.target.value, 10);
-                    if (!isNaN(val) && val >= 0 && val <= 100) {
+                    if (!Number.isNaN(val) && val >= 0 && val <= 100) {
                       handlePercentChange(currency, val, 'discount');
                     }
                   }}
@@ -170,7 +170,7 @@ const ProductFooter = ({
                   value={Math.round(tax[currency]?.percent || 0)}
                   onChange={(e) => {
                     const val = Number.parseInt(e.target.value, 10);
-                    if (!isNaN(val) && val >= 0 && val <= 100) {
+                    if (!Number.isNaN(val) && val >= 0 && val <= 100) {
                       handlePercentChange(currency, val, 'tax');
                     }
                   }}
