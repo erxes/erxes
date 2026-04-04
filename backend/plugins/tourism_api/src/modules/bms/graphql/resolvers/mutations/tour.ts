@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { ITour, IPricingOption } from '@/bms/@types/tour';
+import { ITour, IPricingOption, ITourCategory } from '@/bms/@types/tour';
 
 const validateTranslationPricingOptions = (
   pricingOptions: IPricingOption[] = [],
@@ -20,6 +20,20 @@ const validateTranslationPricingOptions = (
       }
     }
   }
+};
+
+const saveTourCategoryTranslations = async (
+  models: IContext['models'],
+  objectId: string,
+  translations: any[],
+) => {
+  if (!Array.isArray(translations) || translations.length === 0) return;
+ 
+  await Promise.all(
+    translations.map((t) =>
+      models.TourCategoryTranslations.upsertTranslation({ ...t, objectId }),
+    ),
+  );
 };
 
 const saveTourTranslations = async (
@@ -84,12 +98,24 @@ const tourMutations = {
     return ids;
   },
 
-  bmsTourCategoryAdd: async (_root, doc, { models }: IContext) => {
-    return models.BmsTourCategories.createTourCategory(doc);
+  bmsTourCategoryAdd: async (
+    _root,
+    { translations, ...doc }: { translations?: any[] } & ITourCategory,
+    { models }: IContext,
+  ) => {
+    const category = await models.BmsTourCategories.createTourCategory(doc as any);
+    await saveTourCategoryTranslations(models, category._id, translations ?? []);
+    return category;
   },
 
-  bmsTourCategoryEdit: async (_root, { _id, ...doc }, { models }: IContext) => {
-    return models.BmsTourCategories.updateTourCategory(_id, doc as any);
+  bmsTourCategoryEdit: async (
+    _root,
+    { _id, translations, ...doc }: { _id: string; translations?: any[] } & ITourCategory,
+    { models }: IContext,
+  ) => {
+    const category = await models.BmsTourCategories.updateTourCategory(_id, doc as any);
+    await saveTourCategoryTranslations(models, _id, translations ?? []);
+    return category;
   },
 
   bmsTourCategoryRemove: async (
@@ -98,7 +124,30 @@ const tourMutations = {
     { models }: IContext,
   ) => {
     const removeIds = ids?.length ? ids : _id ? [_id] : [];
+    await Promise.all(
+      removeIds.map((id) =>
+        models.TourCategoryTranslations.deleteTranslationsForObject(id),
+      ),
+    );
     return models.BmsTourCategories.removeTourCategory(removeIds);
+  },
+
+  bmsTourCategoryTranslationUpsert: async (
+    _root,
+    { input }: { input: any },
+    { models }: IContext,
+  ) => {
+    const category = await models.BmsTourCategories.findOne({ _id: input.objectId });
+    if (!category) throw new Error('Tour category not found');
+    return models.TourCategoryTranslations.upsertTranslation(input);
+  },
+   
+  bmsTourCategoryTranslationDelete: async (
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return models.TourCategoryTranslations.deleteTranslation(_id);
   },
 
   // Standalone — edit just a translation without touching the tour

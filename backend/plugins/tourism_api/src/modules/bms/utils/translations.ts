@@ -23,6 +23,10 @@ export const ITINERARY_FIELD_MAPPINGS: Record<string, string> = {
   guideCostExtra: 'guideCostExtra',
 };
 
+export const TOUR_CATEGORY_FIELD_MAPPINGS: Record<string, string> = {
+  name: 'name',
+};
+
 export const TOUR_FIELD_MAPPINGS: Record<string, string> = {
   name: 'name',
   refNumber: 'refNumber',

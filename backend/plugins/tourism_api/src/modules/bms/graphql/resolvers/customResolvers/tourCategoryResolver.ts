@@ -15,10 +15,8 @@ const collectCategoryIds = async (
     ).lean();
 
     const nextLevelIds: string[] = [];
-
     for (const child of children) {
       const childId = String(child._id);
-
       if (!visited.has(childId)) {
         visited.add(childId);
         nextLevelIds.push(childId);
@@ -35,6 +33,7 @@ const tourCategory = {
   attachment(category: ITourCategoryDocument) {
     return category.attachment || null;
   },
+
   async tourCount(
     category: ITourCategoryDocument,
     _args,
@@ -49,6 +48,16 @@ const tourCategory = {
         { categoryId: { $in: categoryIds } },
       ],
     });
+  },
+
+  async translations(
+    category: any,
+    { language }: { language?: string },
+    { models }: IContext,
+  ) {
+    const query: any = { objectId: category._id };
+    if (language) query.language = language;
+    return models.TourCategoryTranslations.find(query).lean();
   },
 };
 
