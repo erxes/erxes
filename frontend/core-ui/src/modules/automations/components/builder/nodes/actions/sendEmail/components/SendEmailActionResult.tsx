@@ -1,7 +1,7 @@
 import { useSendEmailActionResult } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailActionResult';
 import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { IconEye } from '@tabler/icons-react';
-import { Badge, Button, Dialog, Popover, Tooltip } from 'erxes-ui';
+import { Badge, Button, Dialog, Popover } from 'erxes-ui';
 
 export const AutomationSendEmailActionResult = ({
   result,
