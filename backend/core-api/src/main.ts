@@ -68,7 +68,7 @@ const fileLimiter = rateLimit({
     const xff = req.headers['x-forwarded-for'];
     if (xff) {
       const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
-      return parts[0].trim();
+      return parts[parts.length - 1].trim();
     }
     return req.ip || 'unknown';
   },

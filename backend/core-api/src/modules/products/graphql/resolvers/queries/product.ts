@@ -368,12 +368,13 @@ export const productQueries: Record<string, Resolver> = {
     const product: IProductDocument = await models.Products.getProduct({ _id });
 
     if (groupedSimilarity === 'config') {
-      const getRegex = (str) => {
+      /** Converts a similarity mask character into a matching regex. */
+      const getRegex = (str: string): RegExp => {
         return ['*', '.', '_'].includes(str)
           ? new RegExp(
               `^${escapeRegExp(str)
-                .replace(/\\\*/g, '.')
-                .replace(/_/g, '.')}.*`,
+                .replaceAll(/\\\*/g, '.')
+                .replaceAll(/_/g, '.')}.*`,
               'igu',
             )
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');

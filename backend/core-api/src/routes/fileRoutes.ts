@@ -37,12 +37,16 @@ interface IUploadStatus {
 
 const router: Router = Router();
 
-/** Extracts the real client IP from X-Forwarded-For header, falling back to req.ip. */
+/**
+ * Extracts the real client IP from X-Forwarded-For header, falling back to req.ip.
+ * Reads the rightmost entry because the gateway appends (not prepends) the real IP,
+ * so leftmost values are attacker-controllable via a forged XFF header.
+ */
 const getClientIp = (req: Request): string => {
   const xff = req.headers['x-forwarded-for'];
   if (xff) {
     const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
-    return parts[0].trim();
+    return parts[parts.length - 1].trim();
   }
   return req.ip || 'unknown';
 };
@@ -250,8 +254,25 @@ const chunkStore = new Map<
     fileName: string;
     fileSize: number;
     uploadId: string;
+    createdAt: number;
   }
 >();
+
+/** Evict abandoned upload sessions older than 30 minutes to prevent memory leaks. */
+const CHUNK_SESSION_TTL = 30 * 60 * 1000;
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, info] of chunkStore.entries()) {
+    if (now - info.createdAt > CHUNK_SESSION_TTL) {
+      chunkStore.delete(id);
+      uploadStore.delete(id);
+      const staleDir = path.join(tmpDir.name, info.uploadId);
+      try {
+        fs.rmSync(staleDir, { recursive: true, force: true });
+      } catch { /* already cleaned up */ }
+    }
+  }
+}, 5 * 60 * 1000).unref();
 
 /** Initialize a chunked upload session, returning a server-generated uploadId. */
 router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
@@ -279,9 +300,11 @@ router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
     fileName,
     fileSize: parsedSize,
     uploadId,
+    createdAt: Date.now(),
   });
 
   res.json({ uploadId });
+  return null;
 });
 
 /** Receive a single chunk; once all chunks arrive, merge and upload the final file. */
@@ -300,7 +323,7 @@ router.post(
       return res.status(400).json({ error: 'Missing data' });
     }
 
-    const safeUploadId = String(uploadId).replace(/[^a-zA-Z0-9-]/g, '');
+    const safeUploadId = String(uploadId).replaceAll(/[^a-zA-Z0-9-]/g, '');
     const safeChunkIndex = Number(chunkIndex);
 
     if (!safeUploadId || isNaN(safeChunkIndex) || safeChunkIndex < 0) {
@@ -312,6 +335,10 @@ router.post(
       return res
         .status(404)
         .json({ error: 'Upload session expired or invalid' });
+    }
+
+    if (safeChunkIndex >= uploadInfo.totalChunks) {
+      return res.status(400).json({ error: 'Chunk index out of range' });
     }
 
     /**
@@ -428,7 +455,7 @@ router.post(
  * then switches to uploadStore once merging/uploading begins.
  */
 router.get('/upload-chunked/status/:uploadId', (req, res) => {
-  const safeId = String(req.params.uploadId).replace(/[^a-zA-Z0-9-]/g, '');
+  const safeId = String(req.params.uploadId).replaceAll(/[^a-zA-Z0-9-]/g, '');
   const status = uploadStore.get(safeId);
 
   if (!status) {
