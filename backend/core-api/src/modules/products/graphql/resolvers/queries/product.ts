@@ -371,9 +371,8 @@ export const productQueries: Record<string, Resolver> = {
       const getRegex = (str) => {
         return ['*', '.', '_'].includes(str)
           ? new RegExp(
-              `^${str
-                .replace(/\./g, '\\.')
-                .replace(/\*/g, '.')
+              `^${escapeRegExp(str)
+                .replace(/\\\*/g, '.')
                 .replace(/_/g, '.')}.*`,
               'igu',
             )

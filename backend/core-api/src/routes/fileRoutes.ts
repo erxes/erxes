@@ -25,7 +25,8 @@ import path from 'path';
 import fs from 'fs';
 import rateLimit from 'express-rate-limit';
 
-interface UploadStatus {
+/** Tracks the lifecycle of a chunked file upload through processing stages. */
+interface IUploadStatus {
   id: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   key?: string;
@@ -36,60 +37,44 @@ interface UploadStatus {
 
 const router: Router = Router();
 
+/** Extracts the real client IP from X-Forwarded-For header, falling back to req.ip. */
 const getClientIp = (req: Request): string => {
   const xff = req.headers['x-forwarded-for'];
   if (xff) {
     const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
-    return parts[parts.length - 1].trim();
+    return parts[0].trim();
   }
   return req.ip || 'unknown';
 };
 
-const readLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 1000,
-  keyGenerator: getClientIp,
-  handler: (_req, res) => {
-    res.status(429).json({
-      errorCode: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many read-file requests, please try again later.',
-    });
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+/**
+ * Creates a rate limiter with shared defaults (15-min window, JSON error envelope).
+ * @param max - Maximum requests per window per IP.
+ * @param message - Human-readable message returned in the 429 response body.
+ */
+const createLimiter = (max: number, message: string) =>
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max,
+    keyGenerator: getClientIp,
+    handler: (_req, res) => {
+      res.status(429).json({
+        errorCode: 'RATE_LIMIT_EXCEEDED',
+        message,
+      });
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
 
-const uploadLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 200,
-  keyGenerator: getClientIp,
-  handler: (_req, res) => {
-    res.status(429).json({
-      errorCode: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many upload requests, please try again later.',
-    });
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-const chunkLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 1000,
-  keyGenerator: getClientIp,
-  handler: (_req, res) => {
-    res.status(429).json({
-      errorCode: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many chunk upload requests, please try again later.',
-    });
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+const readLimiter = createLimiter(1000, 'Too many read-file requests, please try again later.');
+const uploadLimiter = createLimiter(200, 'Too many upload requests, please try again later.');
+const chunkLimiter = createLimiter(1000, 'Too many chunk upload requests, please try again later.');
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-interface ReadFileQuery {
+/** Query parameters accepted by the /read-file endpoint. */
+interface IReadFileQuery {
   key?: string;
   inline?: string;
   name?: string;
@@ -104,8 +89,12 @@ router.get(
     const models = await generateModels(subdomain);
 
     try {
-      const { key, inline, name, width } = (req.query || {}) as ReadFileQuery;
+      const { key, inline, name, width } = (req.query || {}) as IReadFileQuery;
       const parsedWidth = Number(width ?? 0);
+
+      if (!Number.isFinite(parsedWidth) || parsedWidth < 0) {
+        return res.status(400).send('Invalid width');
+      }
 
       const stringKey = Array.isArray(key) ? key[0] : key;
 
@@ -200,8 +189,9 @@ router.post('/upload-file', uploadLimiter, async (req: Request, res: Response) =
       );
 
       res.send(result);
-    } catch (e) {
-      return res.status(500).send(filterXSS(e.message));
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Upload failed';
+      return res.status(500).send(filterXSS(message));
     }
   });
 });
@@ -239,7 +229,7 @@ const upload = multer({
   },
 });
 
-const uploadStore = new Map<string, UploadStatus>();
+const uploadStore = new Map<string, IUploadStatus>();
 
 const chunkStore = new Map<
   string,
@@ -255,13 +245,28 @@ const chunkStore = new Map<
 // 1. Initialize chunked upload
 router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
   const { fileName, fileSize, totalChunks } = req.body;
+
+  const parsedSize = Number(fileSize);
+  const parsedChunks = Number(totalChunks);
+
+  if (
+    !fileName ||
+    typeof fileName !== 'string' ||
+    !Number.isFinite(parsedSize) ||
+    parsedSize <= 0 ||
+    !Number.isInteger(parsedChunks) ||
+    parsedChunks <= 0
+  ) {
+    return res.status(400).json({ error: 'Missing or invalid required fields: fileName, fileSize, totalChunks' });
+  }
+
   const uploadId = crypto.randomUUID();
 
   chunkStore.set(uploadId, {
     chunks: new Set(),
-    totalChunks: Number(totalChunks),
+    totalChunks: parsedChunks,
     fileName,
-    fileSize: Number(fileSize),
+    fileSize: parsedSize,
     uploadId,
   });
 
@@ -383,7 +388,7 @@ router.post(
             console.error('Failed to unlink final file:', finalPath);
           }
           try {
-            fs.rmdirSync(chunkDir, { recursive: true });
+            fs.rmSync(chunkDir, { recursive: true, force: true });
           } catch {
             console.error('Failed to remove chunk directory:', chunkDir);
           }
