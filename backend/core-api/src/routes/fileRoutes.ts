@@ -216,8 +216,11 @@ router.post('/delete-file', uploadLimiter, async (req: Request, res: Response) =
   return res.status(500).send(status);
 });
 
-// chunked upload for large files
-
+/**
+ * Chunked upload for large files.
+ * Flow: POST /init -> POST /chunk (repeated) -> GET /status/:id (polling).
+ * Chunks are stored in a temp directory and merged once all arrive.
+ */
 const tmpDir = tmp.dirSync({ unsafeCleanup: true });
 
 const upload = multer({
@@ -229,8 +232,16 @@ const upload = multer({
   },
 });
 
+/**
+ * In-memory store tracking upload status through processing/completed/failed.
+ * Polled by GET /upload-chunked/status/:uploadId. Entries auto-expire after 5 min.
+ */
 const uploadStore = new Map<string, IUploadStatus>();
 
+/**
+ * Tracks which chunks have been received for each in-progress upload session.
+ * Keyed by server-generated UUID from /upload-chunked/init.
+ */
 const chunkStore = new Map<
   string,
   {
@@ -242,7 +253,7 @@ const chunkStore = new Map<
   }
 >();
 
-// 1. Initialize chunked upload
+/** Initialize a chunked upload session, returning a server-generated uploadId. */
 router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
   const { fileName, fileSize, totalChunks } = req.body;
 
@@ -273,7 +284,7 @@ router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
   res.json({ uploadId });
 });
 
-// 2. Upload a chunk
+/** Receive a single chunk; once all chunks arrive, merge and upload the final file. */
 router.post(
   '/upload-chunked/chunk',
   chunkLimiter,
@@ -303,15 +314,20 @@ router.post(
         .json({ error: 'Upload session expired or invalid' });
     }
 
-    // Save chunk
-    const chunkDir = path.join(tmpDir.name, safeUploadId);
+    /**
+     * Use the server-generated UUID stored in chunkStore rather than the
+     * sanitized user input (`safeUploadId`) for all filesystem paths.
+     * This prevents path-traversal attacks even if sanitization is bypassed.
+     */
+    const trustedId = uploadInfo.uploadId;
+
+    const chunkDir = path.join(tmpDir.name, trustedId);
     if (!fs.existsSync(chunkDir)) fs.mkdirSync(chunkDir, { recursive: true });
     const chunkPath = path.join(chunkDir, `chunk-${safeChunkIndex}`);
     fs.renameSync(file.path, chunkPath);
 
-    // Mark chunk as received
     uploadInfo.chunks.add(safeChunkIndex);
-    chunkStore.set(safeUploadId, uploadInfo); // ← IMPORTANT: persist the Set update
+    chunkStore.set(trustedId, uploadInfo);
 
     res.json({
       success: true,
@@ -319,18 +335,18 @@ router.post(
       total: uploadInfo.totalChunks,
     });
 
-    // ←←← CRITICAL: Trigger merge OUTSIDE the request/response cycle
-    // This runs even if the client disconnects or another instance gets the request
+    /**
+     * Once all chunks arrive, merge them into a single file and upload
+     * via `setImmediate` so the 200 response is sent before the heavy I/O.
+     */
     if (uploadInfo.chunks.size === uploadInfo.totalChunks) {
       setImmediate(async () => {
         try {
-          // Re-read latest state (in case of race)
-          const latestInfo = chunkStore.get(safeUploadId);
+          const latestInfo = chunkStore.get(trustedId);
           if (!latestInfo || latestInfo.chunks.size < latestInfo.totalChunks)
             return;
 
-          // Merge chunks
-          const finalPath = path.join(tmpDir.name, `${safeUploadId}-final`);
+          const finalPath = path.join(tmpDir.name, `${trustedId}-final`);
           const writeStream = fs.createWriteStream(finalPath);
           for (let i = 0; i < latestInfo.totalChunks; i++) {
             const cp = path.join(chunkDir, `chunk-${i}`);
@@ -346,9 +362,8 @@ router.post(
             writeStream.on('error', (err) => reject(err));
           });
 
-          // ←←← STATUS UPDATE – THIS MUST RUN
-          uploadStore.set(safeUploadId, {
-            id: safeUploadId,
+          uploadStore.set(trustedId, {
+            id: trustedId,
             status: 'processing',
             fileName: latestInfo.fileName,
             progress: 80,
@@ -368,8 +383,8 @@ router.post(
             models,
           );
 
-          uploadStore.set(safeUploadId, {
-            id: safeUploadId,
+          uploadStore.set(trustedId, {
+            id: trustedId,
             status: 'completed',
             key: response,
             fileName: latestInfo.fileName,
@@ -377,11 +392,10 @@ router.post(
           });
 
           setTimeout(() => {
-            uploadStore.delete(safeUploadId);
-            chunkStore.delete(safeUploadId);
+            uploadStore.delete(trustedId);
+            chunkStore.delete(trustedId);
           }, 5 * 60 * 1000);
 
-          // Cleanup
           try {
             fs.unlinkSync(finalPath);
           } catch {
@@ -394,8 +408,8 @@ router.post(
           }
         } catch (err: unknown) {
           console.error('Final merge/upload failed:', err);
-          uploadStore.set(safeUploadId, {
-            id: safeUploadId,
+          uploadStore.set(trustedId, {
+            id: trustedId,
             status: 'failed',
             error: err instanceof Error ? err.message : 'Processing failed',
             fileName: uploadInfo.fileName,
@@ -407,5 +421,29 @@ router.post(
     return null;
   },
 );
+
+/**
+ * Poll the current status of a chunked upload.
+ * Returns progress from chunkStore while chunks are still arriving,
+ * then switches to uploadStore once merging/uploading begins.
+ */
+router.get('/upload-chunked/status/:uploadId', (req, res) => {
+  const safeId = String(req.params.uploadId).replace(/[^a-zA-Z0-9-]/g, '');
+  const status = uploadStore.get(safeId);
+
+  if (!status) {
+    const pending = chunkStore.get(safeId);
+    if (pending) {
+      return res.json({
+        id: safeId,
+        status: 'pending',
+        progress: Math.round((pending.chunks.size / pending.totalChunks) * 70),
+      });
+    }
+    return res.status(404).json({ error: 'Upload not found' });
+  }
+
+  return res.json(status);
+});
 
 export { router };
