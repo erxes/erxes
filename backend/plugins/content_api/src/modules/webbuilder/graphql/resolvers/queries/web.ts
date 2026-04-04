@@ -140,6 +140,11 @@ export const webQueries: Record<string, Resolver> = {
       errorReason,
     };
   },
+
+  async cpGetWebActivityLogs(_root, { webId }, { models }: IContext) {
+    return models.WebActivityLogs.getLogsForWeb(webId);
+  },
+
 };
 
 webQueries.cpGetWebDetail.wrapperConfig = {
@@ -151,5 +156,8 @@ webQueries.cpGetDomains.wrapperConfig = {
 };
 
 webQueries.cpGetDeploymentEvents.wrapperConfig = {
+  forClientPortal: true,
+};
+webQueries.cpGetWebActivityLogs.wrapperConfig = {
   forClientPortal: true,
 };
