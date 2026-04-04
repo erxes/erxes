@@ -23,7 +23,7 @@ export const proxyReq = (proxyReq, req: any) => {
   fixRequestBody(proxyReq, req);
 };
 
-export async function applyProxiesCoreless(app: Express) {
+export function applyProxiesCoreless(app: Express) {
   app.use(
     '^/graphql',
     createProxyMiddleware({
