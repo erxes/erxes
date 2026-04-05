@@ -181,7 +181,11 @@ async function handleInvSaleReturn(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const invSaleReturnOtherTrsClass = new InvSaleReturnOutCostTrs(subdomain, models, doc);
+  const invSaleReturnOtherTrsClass = new InvSaleReturnOutCostTrs(
+    subdomain,
+    models,
+    doc,
+  );
   const taxTrsClass = new TaxTrs(models, doc, 'ct', false);
 
   await invSaleReturnOtherTrsClass.checkValidation();

@@ -132,4 +132,4 @@ export const trsQueryParamTypes: { [key: string]: string } = {
   endUpdatedDate: 'Date',
   startCreatedDate: 'Date',
   endCreatedDate: 'Date',
-}
+};

@@ -4,13 +4,19 @@ import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { AddTransaction } from '../../components/AddTransaction';
-import { TR_JOURNAL_LABELS, TR_PERFECT_JOURNALS, TR_SIDES, TrJournalEnum } from '../../types/constants';
-import { JOURNALS_BY_JOURNAL } from '../contants/defaultValues';
-import { activeJournalState, followTrDocsState, isPerfectState } from '../states/trStates';
 import {
-  ITransactionGroupForm,
-  TTrDoc,
-} from '../types/JournalForms';
+  TR_JOURNAL_LABELS,
+  TR_PERFECT_JOURNALS,
+  TR_SIDES,
+  TrJournalEnum,
+} from '../../types/constants';
+import { JOURNALS_BY_JOURNAL } from '../contants/defaultValues';
+import {
+  activeJournalState,
+  followTrDocsState,
+  isPerfectState,
+} from '../states/trStates';
+import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
 import { BankTransaction } from './forms/BankForm';
 import { CashTransaction } from './forms/CashForm';
 import { InvIncomeForm } from './forms/InvIncomeForm';
@@ -57,7 +63,7 @@ const TransactionForm = ({
   return null;
 };
 
-const ErrorTip = ({ index, errors }: { index: number, errors?: any }) => {
+const ErrorTip = ({ index, errors }: { index: number; errors?: any }) => {
   if (!errors?.trDocs?.length || !errors.trDocs[index]) {
     return null;
   }
@@ -65,7 +71,7 @@ const ErrorTip = ({ index, errors }: { index: number, errors?: any }) => {
   const errs = errors.trDocs[index];
 
   // Recursive renderer
-  const renderErrors = (obj: any, parentKey = ""): JSX.Element[] => {
+  const renderErrors = (obj: any, parentKey = ''): JSX.Element[] => {
     const items: JSX.Element[] = [];
 
     for (const key in obj) {
@@ -77,21 +83,22 @@ const ErrorTip = ({ index, errors }: { index: number, errors?: any }) => {
           items.push(
             <React.Fragment key={`${fullKey}[${idx}]`}>
               {renderErrors(item, `${fullKey}[${idx}]`)}
-            </React.Fragment>
+            </React.Fragment>,
           );
         });
-      } else if (typeof val === "object" && val !== null) {
+      } else if (typeof val === 'object' && val !== null) {
         if (val.message) {
           items.push(
             <li key={fullKey}>
-              <span className="font-medium text-red-400">{fullKey}</span>: {val.message}
-            </li>
+              <span className="font-medium text-red-400">{fullKey}</span>:{' '}
+              {val.message}
+            </li>,
           );
         } else {
           items.push(
             <React.Fragment key={fullKey}>
               {renderErrors(val, fullKey)}
-            </React.Fragment>
+            </React.Fragment>,
           );
         }
       }
@@ -114,7 +121,7 @@ const ErrorTip = ({ index, errors }: { index: number, errors?: any }) => {
       </Tooltip.Content>
     </Tooltip>
   );
-}
+};
 
 export const TransactionsTabsList = ({
   form,
@@ -134,18 +141,18 @@ export const TransactionsTabsList = ({
     },
   });
 
-  const journals = fields.map(f => f.journal);
+  const journals = fields.map((f) => f.journal);
 
   useEffect(() => {
-    const foundPJournals = journals.filter(j => TR_PERFECT_JOURNALS.includes(j));
+    const foundPJournals = journals.filter((j) =>
+      TR_PERFECT_JOURNALS.includes(j),
+    );
 
     if (foundPJournals.length) {
-      setIsPerfect(true)
+      setIsPerfect(true);
     } else {
-      setIsPerfect(false)
+      setIsPerfect(false);
     }
-
-
   }, [journals]);
 
   const followTrDocs = useAtomValue(followTrDocsState);
@@ -172,14 +179,19 @@ export const TransactionsTabsList = ({
       customerId: likeTrDoc.customerId,
       departmentId: likeTrDoc.departmentId,
       journal: selectedJournal,
-      details: [{
-        ...fields[0].details,
-        side: diff > 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
-        amount: Math.abs(diff)
-      }]
+      details: [
+        {
+          ...fields[0].details,
+          side: diff > 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
+          amount: Math.abs(diff),
+        },
+      ],
     };
 
-    const newJournal = JOURNALS_BY_JOURNAL(selectedJournal, fakeTrDoc as any) as TTrDoc;
+    const newJournal = JOURNALS_BY_JOURNAL(
+      selectedJournal,
+      fakeTrDoc as any,
+    ) as TTrDoc;
     append(newJournal);
     setActiveJournal(fields.length.toString());
   };
@@ -196,7 +208,10 @@ export const TransactionsTabsList = ({
             <Tabs.Trigger
               key={field.fieldId}
               value={index.toString()}
-              className={cn(index.toString() === activeJournal && "font-bold", "capitalize py-1 gap-2 pr-1 h-8")}
+              className={cn(
+                index.toString() === activeJournal && 'font-bold',
+                'capitalize py-1 gap-2 pr-1 h-8',
+              )}
               asChild
             >
               <div>
@@ -217,18 +232,19 @@ export const TransactionsTabsList = ({
           <Tabs.Trigger
             key={'tBalance'}
             value={'tBalance'}
-            className={cn('tBalance' === activeJournal && "font-bold", "capitalize py-1 gap-2 pr-1 h-8")}
+            className={cn(
+              'tBalance' === activeJournal && 'font-bold',
+              'capitalize py-1 gap-2 pr-1 h-8',
+            )}
             asChild
           >
             <div>{'T Balance'}</div>
           </Tabs.Trigger>
 
           {!isPerfect && (
-            <div className='inline-flex items-center justify-center rounded-sm px-3 text-sm font-medium hover:bg-accent capitalize py-1 gap-2 pr-1 h-8'>
+            <div className="inline-flex items-center justify-center rounded-sm px-3 text-sm font-medium hover:bg-accent capitalize py-1 gap-2 pr-1 h-8">
               <AddTransaction inForm onClick={handleAddTransaction}>
-                <div>
-                  {'+ New Transaction'}
-                </div>
+                <div>{'+ New Transaction'}</div>
               </AddTransaction>
             </div>
           )}
@@ -245,11 +261,7 @@ export const TransactionsTabsList = ({
           <TransactionForm form={form} field={field} index={index} />
         </Tabs.Content>
       ))}
-      <Tabs.Content
-        key={'tBalance'}
-        value={'tBalance'}
-        className="mt-6"
-      >
+      <Tabs.Content key={'tBalance'} value={'tBalance'} className="mt-6">
         <TBalance form={form} />
       </Tabs.Content>
     </Tabs>

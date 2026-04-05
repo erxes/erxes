@@ -45,9 +45,10 @@ export const AddDetailRowButton = ({
         Add Empty Row
       </Button>
       <SelectProductsBulk
-        productIds={preDetails
-          .map(det => det.productId ?? '')
-          .filter(prodId => !!prodId) || []
+        productIds={
+          preDetails
+            .map((det) => det.productId ?? '')
+            .filter((prodId) => !!prodId) || []
         }
         onSelect={(productIds) => {
           append(

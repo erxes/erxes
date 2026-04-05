@@ -125,7 +125,7 @@ export const AddTransaction = ({
         >
           Борлуулалт буцаалт
         </AddTransactionItem>
-        
+
         <DropdownMenu.Label>Үндсэн хөрөнгө</DropdownMenu.Label>
         <AddTransactionItem disabled>Орлого</AddTransactionItem>
         <AddTransactionItem disabled>Акт</AddTransactionItem>

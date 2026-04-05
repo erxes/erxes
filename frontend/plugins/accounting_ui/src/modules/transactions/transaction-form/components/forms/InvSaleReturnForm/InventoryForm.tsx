@@ -1,8 +1,16 @@
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
-import { Checkbox, RecordTableHotkeyProvider, Table, useSetHotkeyScope } from 'erxes-ui';
+import {
+  Checkbox,
+  RecordTableHotkeyProvider,
+  Table,
+  useSetHotkeyScope,
+} from 'erxes-ui';
 import { useEffect, useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
-import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TInvSaleJournal,
+} from '../../../types/JournalForms';
 import { AddDetailRowButton } from './AddInventoryRow';
 import { InventoryRow } from './InventoryRow';
 import { RemoveButton } from './RemoveButton';
@@ -11,7 +19,7 @@ import { ITrDetail } from '~/modules/transactions/types/Transaction';
 export const InventoryForm = ({
   form,
   journalIndex,
-  replaceDetails
+  replaceDetails,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
@@ -24,11 +32,11 @@ export const InventoryForm = ({
 
   useEffect(() => {
     if (replaceDetails) {
-      replace(replaceDetails as any[])
+      replace(replaceDetails as any[]);
     }
-  }, [replaceDetails, replace])
+  }, [replaceDetails, replace]);
 
-  const setHotkeyScope = useSetHotkeyScope()
+  const setHotkeyScope = useSetHotkeyScope();
 
   const tableRef = useRef<HTMLTableElement>(null);
 
@@ -45,7 +53,9 @@ export const InventoryForm = ({
       <Table
         className="mt-5 p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar"
         ref={tableRef}
-        onClickCapture={() => setHotkeyScope(AccountingHotkeyScope.TransactionFormPage)}
+        onClickCapture={() =>
+          setHotkeyScope(AccountingHotkeyScope.TransactionFormPage)
+        }
       >
         <InventoryTableHeader form={form} journalIndex={journalIndex} />
         <Table.Body className="overflow-hidden">
@@ -92,10 +102,10 @@ const InventoryTableHeader = ({
   return (
     <Table.Header>
       <Table.Row>
-        <Table.Head className='w-10'>
+        <Table.Head className="w-10">
           <div className="flex items-center justify-center">
             <Checkbox
-              checked={!trDoc.details.filter(d => !d.checked).length}
+              checked={!trDoc.details.filter((d) => !d.checked).length}
               onCheckedChange={(checked) => {
                 trDoc.details.forEach((_d, ind) => {
                   form.setValue(
