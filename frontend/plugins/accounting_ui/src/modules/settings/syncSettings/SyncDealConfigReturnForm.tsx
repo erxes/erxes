@@ -213,7 +213,7 @@ export const SyncDealReturnConfigForm = ({
             </Form.Item>
           )}
         />
-        
+
         <Form.Field
           control={form.control}
           name="hasVat"

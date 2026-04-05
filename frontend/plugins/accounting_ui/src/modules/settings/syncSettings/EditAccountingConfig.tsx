@@ -8,12 +8,23 @@ import { useAtomValue } from 'jotai';
 import { accountingConfigDetailAtom } from '../states/accountingConfigState';
 import { SettingsRuleByCode } from './AddEditConfigRules';
 
-export const EditAccountingConfig = ({ code }: { code: ACCOUNTING_SETTINGS_CODES }) => {
+export const EditAccountingConfig = ({
+  code,
+}: {
+  code: ACCOUNTING_SETTINGS_CODES;
+}) => {
   const [open, setOpen] = useQueryState<string>('configId');
 
   return (
-    <Dialog open={open !== null && open !== ''} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog title="Edit Sync Config" description="Edit an config" className='max-w-4xl'>
+    <Dialog
+      open={open !== null && open !== ''}
+      onOpenChange={() => setOpen(null)}
+    >
+      <AccountingDialog
+        title="Edit Sync Config"
+        description="Edit an config"
+        className="max-w-4xl"
+      >
         <EditAccountingConfigForm code={code} />
       </AccountingDialog>
     </Dialog>
@@ -23,15 +34,17 @@ export const EditAccountingConfig = ({ code }: { code: ACCOUNTING_SETTINGS_CODES
 export const EditAccountingConfigForm = ({
   code,
 }: {
-  code: ACCOUNTING_SETTINGS_CODES,
+  code: ACCOUNTING_SETTINGS_CODES;
 }) => {
   const rule = SettingsRuleByCode[code];
-  const [configId, setConfigId] = useQueryState('configId', { defaultValue: '' });
+  const [configId, setConfigId] = useQueryState('configId', {
+    defaultValue: '',
+  });
   const configValueDetail = useAtomValue(accountingConfigDetailAtom);
 
   const { editConfig, loading: editLoading } = useAccountingConfigEdit({
     onCompleted: () => {
-      setConfigId('')
+      setConfigId('');
       form.reset();
     },
   });
@@ -59,17 +72,13 @@ export const EditAccountingConfigForm = ({
     const newData = { ...initialData, ...data };
 
     editConfig({
-      id: configId ?? "",
+      id: configId ?? '',
       subId: data[subIdFieldName],
       value: newData,
     });
   };
 
   return (
-    <FormComponent
-      form={form}
-      onSubmit={handleSubmit}
-      loading={editLoading}
-    />
+    <FormComponent form={form} onSubmit={handleSubmit} loading={editLoading} />
   );
 };

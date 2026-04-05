@@ -6,13 +6,19 @@ import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { useAccountingConfigAdd } from '../hooks/useAccountingConfigAdd';
 import { SettingsRuleByCode } from './AddEditConfigRules';
 
-export const AddAccountingConfig = ({ code }: { code: ACCOUNTING_SETTINGS_CODES }) => {
+export const AddAccountingConfig = ({
+  code,
+}: {
+  code: ACCOUNTING_SETTINGS_CODES;
+}) => {
   const [open, setOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen} >
-      <Dialog.Trigger asChild >
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
         <Button>
-          <IconPlus />Add Config</Button >
+          <IconPlus />
+          Add Config
+        </Button>
       </Dialog.Trigger>
       <Dialog.ContentCombined
         title="Add Config"
@@ -21,18 +27,19 @@ export const AddAccountingConfig = ({ code }: { code: ACCOUNTING_SETTINGS_CODES 
       >
         <AddAccountingConfigForm code={code} setOpen={setOpen} />
       </Dialog.ContentCombined>
-    </Dialog >
+    </Dialog>
   );
 };
 
 export const AddAccountingConfigForm = ({
-  code, setOpen
+  code,
+  setOpen,
 }: {
-  code: ACCOUNTING_SETTINGS_CODES,
-  setOpen: (open: boolean) => void
+  code: ACCOUNTING_SETTINGS_CODES;
+  setOpen: (open: boolean) => void;
 }) => {
   const rule = SettingsRuleByCode[code];
-  const form = useForm<any>({ defaultValues: {}, });
+  const form = useForm<any>({ defaultValues: {} });
 
   const { addConfig, loading } = useAccountingConfigAdd({
     onCompleted: () => {
@@ -56,5 +63,4 @@ export const AddAccountingConfigForm = ({
   };
 
   return <FormComponent form={form} onSubmit={onSubmit} loading={loading} />;
-
 };
