@@ -1,31 +1,10 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Dialog } from 'erxes-ui';
 import { useState } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { useAccountingConfigAdd } from '../hooks/useAccountingConfigAdd';
-import { SyncDealConfigForm } from './SyncDealConfigForm';
-import { SyncOrderConfigForm } from './SyncOrderConfigFrom';
-
-type SettingsRule = {
-  subIdFieldName: string;
-  FormComponent: React.ComponentType<{
-    form: UseFormReturn<any>;
-    onSubmit: (data: any) => void;
-    loading: boolean;
-  }>;
-};
-
-const settingsRuleByCode: Record<ACCOUNTING_SETTINGS_CODES, SettingsRule> = {
-  syncDeal: {
-    subIdFieldName: 'stageId',
-    FormComponent: SyncDealConfigForm,
-  },
-  syncOrder: {
-    subIdFieldName: 'posId',
-    FormComponent: SyncOrderConfigForm,
-  },
-};
+import { SettingsRuleByCode } from './AddEditConfigRules';
 
 export const AddAccountingConfig = ({ code }: { code: ACCOUNTING_SETTINGS_CODES }) => {
   const [open, setOpen] = useState(false);
@@ -52,7 +31,7 @@ export const AddAccountingConfigForm = ({
   code: ACCOUNTING_SETTINGS_CODES,
   setOpen: (open: boolean) => void
 }) => {
-  const rule = settingsRuleByCode[code];
+  const rule = SettingsRuleByCode[code];
   const form = useForm<any>({ defaultValues: {}, });
 
   const { addConfig, loading } = useAccountingConfigAdd({
@@ -66,7 +45,7 @@ export const AddAccountingConfigForm = ({
     return <div>Unknown config type </div>;
   }
 
-  const { subIdFieldName, FormComponent } = settingsRuleByCode[code] || {};
+  const { subIdFieldName, FormComponent } = SettingsRuleByCode[code] || {};
 
   const onSubmit = (data: any) => {
     addConfig({

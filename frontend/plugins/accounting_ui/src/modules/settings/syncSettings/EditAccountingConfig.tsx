@@ -1,33 +1,12 @@
 import { Dialog, useQueryState } from 'erxes-ui';
 import { AccountingDialog } from '@/layout/components/Dialog';
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
-import { SyncDealConfigForm } from './SyncDealConfigForm';
-import { SyncOrderConfigForm } from './SyncOrderConfigFrom';
 import { useAccountingConfigEdit } from '../hooks/useAccountingConfigEdit';
 import { useAtomValue } from 'jotai';
 import { accountingConfigDetailAtom } from '../states/accountingConfigState';
-
-type SettingsRule = {
-  subIdFieldName: string;
-  FormComponent: React.ComponentType<{
-    form: UseFormReturn<any>;
-    onSubmit: (data: any) => void;
-    loading: boolean;
-  }>;
-};
-
-const settingsRuleByCode: Record<ACCOUNTING_SETTINGS_CODES, SettingsRule> = {
-  syncDeal: {
-    subIdFieldName: 'stageId',
-    FormComponent: SyncDealConfigForm,
-  },
-  syncOrder: {
-    subIdFieldName: 'posId',
-    FormComponent: SyncOrderConfigForm,
-  },
-};
+import { SettingsRuleByCode } from './AddEditConfigRules';
 
 export const EditAccountingConfig = ({ code }: { code: ACCOUNTING_SETTINGS_CODES }) => {
   const [open, setOpen] = useQueryState<string>('configId');
@@ -46,7 +25,7 @@ export const EditAccountingConfigForm = ({
 }: {
   code: ACCOUNTING_SETTINGS_CODES,
 }) => {
-  const rule = settingsRuleByCode[code];
+  const rule = SettingsRuleByCode[code];
   const [configId, setConfigId] = useQueryState('configId', { defaultValue: '' });
   const configValueDetail = useAtomValue(accountingConfigDetailAtom);
 
@@ -73,7 +52,7 @@ export const EditAccountingConfigForm = ({
     return <div>Unknown config type </div>;
   }
 
-  const { subIdFieldName, FormComponent } = settingsRuleByCode[code] || {};
+  const { subIdFieldName, FormComponent } = SettingsRuleByCode[code] || {};
 
   const handleSubmit = (data: any) => {
     const initialData = { ...configValueDetail };
