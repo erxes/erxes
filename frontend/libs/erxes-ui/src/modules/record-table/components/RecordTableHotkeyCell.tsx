@@ -11,58 +11,71 @@ export const RecordTableHotKeyControl = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof Slot.Root> & {
     rowId: string;
     rowIndex: number;
+    colIndex?: number;
   }
->(({ rowId, rowIndex, className, onClickCapture, ...props }, ref) => {
-  const controlRef = useRef<HTMLTableCellElement>(null);
-  const [isFocused, setIsFocused] = useState(false);
-  const { activeCell, setActiveRow, setActiveCell } = useRecordTableHotkey();
-
-  const innerButton = controlRef.current?.querySelector('button');
-  const colIndex = controlRef.current?.cellIndex;
-
-  useHotkeys(
-    Key.Enter,
-    () => {
-      innerButton?.click();
-    },
+>(
+  (
     {
-      enabled: isFocused,
+      rowId,
+      rowIndex,
+      colIndex: colIndexProp,
+      className,
+      onClickCapture,
+      ...props
     },
-  );
+    ref,
+  ) => {
+    const controlRef = useRef<HTMLTableCellElement>(null);
+    const [isFocused, setIsFocused] = useState(false);
+    const { activeCell, setActiveRow, setActiveCell } = useRecordTableHotkey();
 
-  const handleFocus = (focused: boolean) => {
-    setIsFocused(focused);
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-  };
+    const innerButton = controlRef.current?.querySelector('button');
+    const colIndex = colIndexProp ?? controlRef.current?.cellIndex;
 
-  useEffect(() => {
-    const isActive = activeCell[0] === rowIndex && activeCell[1] === colIndex;
-    if (isActive) {
-      handleFocus(true);
-      setActiveRow(rowId);
-    }
-    isFocused && handleFocus(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCell]);
+    useHotkeys(
+      Key.Enter,
+      () => {
+        innerButton?.click();
+      },
+      {
+        enabled: isFocused,
+      },
+    );
 
-  return (
-    <Slot.Root
-      ref={mergeRefs([ref, controlRef])}
-      {...props}
-      onClickCapture={() => {
-        setIsFocused(true);
+    const handleFocus = (focused: boolean) => {
+      setIsFocused(focused);
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    };
+
+    useEffect(() => {
+      const isActive = activeCell[0] === rowIndex && activeCell[1] === colIndex;
+      if (isActive) {
+        handleFocus(true);
         setActiveRow(rowId);
-        setActiveCell([rowIndex, colIndex || 0]);
-      }}
-      className={cn(
-        isFocused &&
-          '*:outline-solid *:outline-1 *:outline-primary *:rounded *:outline-offset-0',
-        className,
-      )}
-    />
-  );
-});
+      }
+      isFocused && handleFocus(false);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeCell]);
+
+    return (
+      <Slot.Root
+        ref={mergeRefs([ref, controlRef])}
+        {...props}
+        onClickCapture={() => {
+          setIsFocused(true);
+          setActiveRow(rowId);
+          setActiveCell([rowIndex, colIndex || 0]);
+        }}
+        className={cn(
+          isFocused &&
+            '*:outline-solid *:outline-1 *:outline-primary *:rounded *:outline-offset-0',
+          className,
+        )}
+      />
+    );
+  },
+);
 
 RecordTableHotKeyControl.displayName = 'RecordTableHotKeyControl';
