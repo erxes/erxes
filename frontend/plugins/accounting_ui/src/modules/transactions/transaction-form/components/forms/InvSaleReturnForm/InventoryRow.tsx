@@ -51,7 +51,7 @@ export const InventoryRow = ({
   const initOutAccountId = useRef(trDoc.followInfos?.saleOutAccountId);
   const initBranchId = useRef(trDoc.branchId);
   const initDepartmentId = useRef(trDoc.departmentId);
-  const [unitCost, setUnitCost] = useState(followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.originType === 'invSaleOut')?.details.find(fd => fd.originId === detail._id)?.unitPrice ?? 0)
+  const [unitCost, setUnitCost] = useState(followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnOut')?.details.find(fd => fd.originId === detail._id)?.unitPrice ?? 0)
 
   const getFieldName = (name: string) => {
     return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
@@ -61,12 +61,12 @@ export const InventoryRow = ({
     const currOut = followTrDocs.find(
       (ftr) =>
         ftr.originId === trDoc._id &&
-        ftr.originType === 'invSaleOut'
+        ftr.originType === 'invSaleReturnOut'
     );
     const currCost = followTrDocs.find(
       (ftr) =>
         ftr.originId === trDoc._id &&
-        ftr.originType === 'invSaleCost'
+        ftr.originType === 'invSaleReturnCost'
     );
 
     const ptrId = currOut?.ptrId || currCost?.ptrId || getTempId();
@@ -82,7 +82,7 @@ export const InventoryRow = ({
       ...commonFollowTr,
       _id: currOut?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_OUT,
-      originType: 'invSaleOut',
+      originType: 'invSaleReturnOut',
       details: (trDoc.details || []).map((saleDetail) => {
         const curOutDetail = currOut?.details.find(outDetail => outDetail.originId === saleDetail._id);
 
@@ -108,7 +108,7 @@ export const InventoryRow = ({
       ...commonFollowTr,
       _id: currCost?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_COST,
-      originType: 'invSaleCost',
+      originType: 'invSaleReturnCost',
       details: (trDoc.details || []).map((saleDetail) => {
         const curCostDetail = currCost?.details.find(costDetail => costDetail.originId === saleDetail._id);
 
@@ -134,7 +134,7 @@ export const InventoryRow = ({
         (ftr) =>
           !(
             ftr.originId === trDoc._id &&
-            ['invSaleOut', 'invSaleCost'].includes(ftr.originType || '')
+            ['invSaleReturnOut', 'invSaleReturnCost'].includes(ftr.originType || '')
           )
       ),
       invOutTr,

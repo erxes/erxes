@@ -85,6 +85,8 @@ export const JOURNALS = {
   INV_SALE_COST: 'invSaleCost',
   INV_SALE_OUT: 'invSaleOut',
   INV_SALE_RETURN: 'invSaleReturn',
+  INV_SALE_RETURN_COST: 'invSaleReturnCost',
+  INV_SALE_RETURN_OUT: 'invSaleReturnOut',
   INV_IN_RETURN: 'invInReturn',
   INV_JUSTIFY: 'invJustify',
   INV_CONVERT: 'invConvert',
@@ -95,7 +97,7 @@ export const JOURNALS = {
     'invIncome', 'invOut',
     'invMove', 'invMoveIn',
     'invSale', 'invSaleOut', 'invSaleCost',
-    'invSaleReturn',
+    'invSaleReturn', 'invSaleReturnOut', 'invSaleReturnCost',
     'inv_cost', 'inv_adjust', 'inv_convert',
     'inv_in_return', 'inv_sale_return',
     'expense', 'tax', 'exchangeDiff'
@@ -106,11 +108,12 @@ export const JOURNALS = {
     'invOut',
     'invMove',
     'invMoveIn',
+    'invSaleOut',
+    'invSaleReturnOut',
+
     'invJustify',
     'invConvert',
     'invInReturn',
-    'invSaleReturn',
-    'invSaleOut'
   ],
 }
 
@@ -121,8 +124,15 @@ export const TR_FOLLOW_TYPES = {
   INV_INCOME_EXPENSE: 'invIncomeExpense',
   INV_SALE_OUT: 'invSaleOut',
   INV_SALE_COST: 'invSaleCost',
+  INV_SALE_RETURN_OUT: 'invSaleReturnOut',
+  INV_SALE_RETURN_COST: 'invSaleReturnCost',
   INV_MOVE_IN: 'invMoveIn',
-  ALL: ['vat', 'ctax', 'exchangeDiff', 'invIncomeExpense', 'invSaleOut', 'invSaleCost', 'invMoveIn']
+  ALL: [
+    'vat', 'ctax', 'exchangeDiff', 'invIncomeExpense',
+    'invSaleOut', 'invSaleCost',
+    'invSaleReturnOut', 'invSaleReturnCost',
+    'invMoveIn',
+  ]
 }
 
 export const TR_DETAIL_FOLLOW_TYPES = {

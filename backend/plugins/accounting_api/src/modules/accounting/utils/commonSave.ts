@@ -6,6 +6,7 @@ import { InvIncomeExpenseTrs } from './invIncome';
 import InvSaleOutCostTrs from './invSale';
 import { createOrUpdateTr, syncProductsInventory } from './utils';
 import InvMoveInTrs from './invMove';
+import InvSaleReturnOutCostTrs from './invSaleReturn';
 
 export const commonSave = async (
   subdomain: string,
@@ -180,16 +181,16 @@ async function handleInvSaleReturn(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const invSaleOtherTrsClass = new InvSaleOutCostTrs(subdomain, models, doc);
-  const taxTrsClass = new TaxTrs(models, doc, 'dt', false);
+  const invSaleReturnOtherTrsClass = new InvSaleReturnOutCostTrs(subdomain, models, doc);
+  const taxTrsClass = new TaxTrs(models, doc, 'ct', false);
 
-  await invSaleOtherTrsClass.checkValidation();
+  await invSaleReturnOtherTrsClass.checkValidation();
   await taxTrsClass.checkTaxValidation();
 
   const transaction = await createOrUpdateTr(models, doc, oldTr);
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
-    ...(await collect(await invSaleOtherTrsClass.doTrs(transaction))),
+    ...(await collect(await invSaleReturnOtherTrsClass.doTrs(transaction))),
   ];
 
   return { mainTr: transaction, otherTrs };

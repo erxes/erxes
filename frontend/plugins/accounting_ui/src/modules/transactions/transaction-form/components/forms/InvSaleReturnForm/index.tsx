@@ -45,7 +45,7 @@ export const InvSaleReturnForm = ({
 
     setFollowTrDocs((followTrDocs || []).map((ftr) => (
       ftr.originId === trDoc._id &&
-      ftr.originType === 'invSaleOut'
+      ftr.originType === 'invSaleReturnOut'
     ) && {
       ...ftr,
       details: ftr.details.map(ftrd => ({
@@ -62,7 +62,7 @@ export const InvSaleReturnForm = ({
 
     setFollowTrDocs((followTrDocs || []).map((ftr) => (
       ftr.originId === trDoc._id &&
-      ftr.originType === 'invSaleCost'
+      ftr.originType === 'invSaleReturnCost'
     ) && {
       ...ftr,
       details: ftr.details.map(ftrd => ({
@@ -95,7 +95,6 @@ export const InvSaleReturnForm = ({
       })
       setReplaceDetails(details as ITrDetail[])
     }
-
   }
 
   return (

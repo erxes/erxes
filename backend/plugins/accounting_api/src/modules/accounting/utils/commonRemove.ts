@@ -110,9 +110,9 @@ async function handleInvSaleReturn(
   const saleOutTr = followTrs?.find(
     (ftr) =>
       ftr.originId === transaction._id &&
-      ftr.originType === TR_FOLLOW_TYPES.INV_SALE_OUT,
+      ftr.originType === TR_FOLLOW_TYPES.INV_SALE_RETURN_OUT,
   );
   if (saleOutTr) {
-    await removeSyncProductsInventory(subdomain, saleOutTr, -1);
+    await removeSyncProductsInventory(subdomain, saleOutTr, 1);
   }
 }
