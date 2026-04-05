@@ -2,9 +2,9 @@ import { TR_SIDES } from '@/transactions/types/constants';
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
+import { SelectProductsBulk } from 'ui-modules';
 import { ITransactionGroupForm, TInvDetail } from '../../../types/JournalForms';
 import { getTempId } from '../../utils';
-import { SelectProductsBulk } from 'ui-modules';
 
 export const AddDetailRowButton = ({
   append,
@@ -16,12 +16,6 @@ export const AddDetailRowButton = ({
   append: (detail: TInvDetail | TInvDetail[]) => void;
 }) => {
   const { control } = form;
-  const productIds = useWatch({
-    control,
-    name: `trDocs.${journalIndex}.details`,
-  })
-    .map((detail) => detail.productId || '')
-    .filter((productId) => !!productId);
 
   const preDetails = useWatch({
     control,
@@ -51,7 +45,10 @@ export const AddDetailRowButton = ({
         Add Empty Row
       </Button>
       <SelectProductsBulk
-        productIds={productIds}
+        productIds={preDetails
+          .map(det => det.productId ?? '')
+          .filter(prodId => !!prodId) || []
+        }
         onSelect={(productIds) => {
           append(
             productIds.map((productId) => ({
