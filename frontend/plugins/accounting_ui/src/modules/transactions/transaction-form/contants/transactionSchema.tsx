@@ -244,10 +244,12 @@ export const transactionInvSaleReturnSchema = z.object({
   branchId: z.string(),
   departmentId: z.string(),
   followInfos: z.object({
+    saleTransactionId: undefed(z.string()),
     saleOutAccountId: z.string(),
     saleCostAccountId: z.string(),
   }),
   followExtras: undefed(z.object({
+    saleTransaction: undefed(z.object({ ...transactionInvSaleSchema.shape })),
     saleOutAccount: undefed(z.object({ ...accountSchema.shape })),
     saleCostAccount: undefed(z.object({ ...accountSchema.shape }))
   })),

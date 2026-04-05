@@ -1,7 +1,11 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { AccountKind, IAccount, JournalEnum } from '@/settings/account/types/Account';
-import { Form } from 'erxes-ui';
-import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
+import { IconBookDownload } from '@tabler/icons-react';
+import { Button, Form } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { useWatch } from 'react-hook-form';
+import { followTrDocsState } from '../../../states/trStates';
+import { ITransactionGroupForm, TInvSaleJournal, TInvSaleReturnJournal } from '../../../types/JournalForms';
 import {
   AccountField,
   AssignToField,
@@ -13,9 +17,11 @@ import { CtaxForm } from '../../helpers/CtaxForm';
 import { CustomerFields } from '../../helpers/CustomerFields';
 import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
-import { useAtom } from 'jotai';
-import { followTrDocsState } from '../../../states/trStates';
-import { useWatch } from 'react-hook-form';
+import { SelectSaleSheet } from './SelectSaleSheet';
+import { ITransaction, ITrDetail } from '~/modules/transactions/types/Transaction';
+import { CustomerType } from 'ui-modules';
+import { TR_SIDES } from '~/modules/transactions/types/constants';
+import { useState } from 'react';
 
 export const InvSaleReturnForm = ({
   form,
@@ -27,10 +33,10 @@ export const InvSaleReturnForm = ({
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${index}`,
-  }) as TInvSaleJournal;
+  }) as TInvSaleReturnJournal;
 
   const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
-
+  const [replaceDetails, setReplaceDetails] = useState<ITrDetail[]>(trDoc.details as any[]);
   const onChangeOutAccount = (account: IAccount) => {
     form.setValue(
       `trDocs.${index}.followExtras.saleOutAccount`,
@@ -65,9 +71,55 @@ export const InvSaleReturnForm = ({
     } || ftr));
   };
 
+  const onChangeSaleTr = (saleTrId: string, saleTr?: ITransaction) => {
+    if (saleTr) {
+      const sale: TInvSaleJournal = saleTr as TInvSaleJournal;
+      const details = sale.details.map((saleDet) => ({
+        ...saleDet,
+        side: TR_SIDES.DEBIT,
+      }));
+
+      form.setValue(`trDocs.${index}`, {
+        ...trDoc,
+        customerType: sale?.customerType as CustomerType,
+        customerId: sale.customerId,
+        followInfos: { ...trDoc.followInfos, ...sale.followInfos, saleTransactionId: saleTrId },
+        branchId: sale.branchId,
+        departmentId: sale.departmentId,
+        hasVat: sale.hasVat,
+        hasCtax: sale.hasCtax,
+        details
+      }, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+      setReplaceDetails(details as ITrDetail[])
+    }
+
+  }
+
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+        <CustomerFields form={form} index={index} />
+        <DescriptionField form={form} index={index} />
+        <AssignToField form={form} index={index} />
+        <SelectSaleSheet
+          saleTrId={trDoc.followInfos?.saleTransactionId || ''}
+          onSelect={onChangeSaleTr}
+        >
+          <Form.Item>
+            <Form.Label>Sale Transaction</Form.Label>
+            <Form.Control>
+              <Button variant="ghost" className="">
+                <IconBookDownload />
+                {trDoc.followInfos?.saleTransactionId || 'Select Sale Transaction'}
+              </Button>
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+
+        </SelectSaleSheet>
         <AccountField
           form={form}
           index={index}
@@ -75,11 +127,8 @@ export const InvSaleReturnForm = ({
           allDetails={true}
           labelTxt='Sale Account'
         />
-        <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
         <DepartmentField form={form} index={index} />
-        <AssignToField form={form} index={index} />
-        <DescriptionField form={form} index={index} />
         <Form.Field
           control={form.control}
           name={`trDocs.${index}.followInfos.saleOutAccountId`}
@@ -123,6 +172,7 @@ export const InvSaleReturnForm = ({
       <InventoryForm
         form={form}
         journalIndex={index}
+        replaceDetails={replaceDetails}
       />
     </>
   );

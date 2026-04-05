@@ -219,22 +219,22 @@ export const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (doc?: ITransaction): Part
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_SALE_RETURN,
-    details: !doc?.details.length ? [{
-      ...trDetailWrapper(),
-      side: TR_SIDES.CREDIT,
-      productId: '',
-      count: 0,
-      unitPrice: 0,
-      amount: 0,
-    }] : doc?.details.map(det => ({
+    details: doc?.details.length ? doc?.details.map(det => ({
       ...trDetailWrapper(det),
-      side: TR_SIDES.CREDIT,
+      side: TR_SIDES.DEBIT,
       productId: det.productId || '',
       product: det.product,
       count: det.count ?? 0,
       unitPrice: det.unitPrice ?? 0,
       amount: det.amount ?? 0,
-    }))
+    })) : [{
+      ...trDetailWrapper(),
+      side: TR_SIDES.DEBIT,
+      productId: '',
+      count: 0,
+      unitPrice: 0,
+      amount: 0,
+    }]
   }
 };
 

@@ -2,6 +2,7 @@ import { IAccount } from '@/settings/account/types/Account';
 import { CustomerType, IBranch, IDepartment, IProduct } from 'ui-modules';
 import { IVatRow } from '@/settings/vat/types/VatRow';
 import { ICtaxRow } from '@/settings/ctax/types/CtaxRow';
+import { TrJournalEnum } from './constants';
 
 export interface ITrDetail {
   _id?: string;
@@ -37,7 +38,7 @@ interface ICommontTr {
   ptrId?: string;
   parentId?: string;
   number?: string;
-  journal: string;
+  journal: TrJournalEnum;
   ptrStatus?: string;
   originId?: string;
   originType?: string;

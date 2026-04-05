@@ -1,23 +1,33 @@
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import { Checkbox, RecordTableHotkeyProvider, Table, useSetHotkeyScope } from 'erxes-ui';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
 import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
 import { AddDetailRowButton } from './AddInventoryRow';
 import { InventoryRow } from './InventoryRow';
 import { RemoveButton } from './RemoveButton';
+import { ITrDetail } from '~/modules/transactions/types/Transaction';
 
 export const InventoryForm = ({
   form,
   journalIndex,
+  replaceDetails
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
+  replaceDetails: ITrDetail[];
 }) => {
-  const { fields, append } = useFieldArray({
+  const { fields, append, replace } = useFieldArray({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
   });
+
+  useEffect(() => {
+    if (replaceDetails) {
+      replace(replaceDetails as any[])
+    }
+  }, [replaceDetails, replace])
+
   const setHotkeyScope = useSetHotkeyScope()
 
   const tableRef = useRef<HTMLTableElement>(null);
