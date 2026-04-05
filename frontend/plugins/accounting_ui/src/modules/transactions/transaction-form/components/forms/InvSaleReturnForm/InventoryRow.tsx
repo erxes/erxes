@@ -21,7 +21,10 @@ import { useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
 import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
 import { followTrDocsState, taxPercentsState } from '../../../states/trStates';
-import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TInvSaleJournal,
+} from '../../../types/JournalForms';
 import { fixSumDtCt, getTempId } from '../../utils';
 
 export const InventoryRow = ({
@@ -51,7 +54,14 @@ export const InventoryRow = ({
   const initOutAccountId = useRef(trDoc.followInfos?.saleOutAccountId);
   const initBranchId = useRef(trDoc.branchId);
   const initDepartmentId = useRef(trDoc.departmentId);
-  const [unitCost, setUnitCost] = useState(followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnOut')?.details.find(fd => fd.originId === detail._id)?.unitPrice ?? 0)
+  const [unitCost, setUnitCost] = useState(
+    followTrDocs
+      .find(
+        (ftr) =>
+          ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnOut',
+      )
+      ?.details.find((fd) => fd.originId === detail._id)?.unitPrice ?? 0,
+  );
 
   const getFieldName = (name: string) => {
     return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
@@ -60,13 +70,11 @@ export const InventoryRow = ({
   useEffect(() => {
     const currOut = followTrDocs.find(
       (ftr) =>
-        ftr.originId === trDoc._id &&
-        ftr.originType === 'invSaleReturnOut'
+        ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnOut',
     );
     const currCost = followTrDocs.find(
       (ftr) =>
-        ftr.originId === trDoc._id &&
-        ftr.originType === 'invSaleReturnCost'
+        ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnCost',
     );
 
     const ptrId = currOut?.ptrId || currCost?.ptrId || getTempId();
@@ -75,7 +83,7 @@ export const InventoryRow = ({
       originId: trDoc._id,
       ptrId,
       parentId: trDoc.parentId,
-    }
+    };
 
     const invOutTr: ITransaction = fixSumDtCt({
       ...currOut,
@@ -84,7 +92,9 @@ export const InventoryRow = ({
       journal: TrJournalEnum.INV_SALE_OUT,
       originType: 'invSaleReturnOut',
       details: (trDoc.details || []).map((saleDetail) => {
-        const curOutDetail = currOut?.details.find(outDetail => outDetail.originId === saleDetail._id);
+        const curOutDetail = currOut?.details.find(
+          (outDetail) => outDetail.originId === saleDetail._id,
+        );
 
         if (!curOutDetail || saleDetail._id === detail._id) {
           return {
@@ -97,7 +107,7 @@ export const InventoryRow = ({
             unitPrice: unitCost,
             count: detail.count,
             amount: fixNum(unitCost * (detail.count ?? 0)),
-          } as ITrDetail
+          } as ITrDetail;
         }
         return curOutDetail;
       }),
@@ -110,7 +120,9 @@ export const InventoryRow = ({
       journal: TrJournalEnum.INV_SALE_COST,
       originType: 'invSaleReturnCost',
       details: (trDoc.details || []).map((saleDetail) => {
-        const curCostDetail = currCost?.details.find(costDetail => costDetail.originId === saleDetail._id);
+        const curCostDetail = currCost?.details.find(
+          (costDetail) => costDetail.originId === saleDetail._id,
+        );
 
         if (!curCostDetail || saleDetail._id === detail._id) {
           return {
@@ -123,19 +135,21 @@ export const InventoryRow = ({
             unitPrice: unitCost,
             count: detail.count,
             amount: fixNum(unitCost * (detail.count ?? 0)),
-          } as ITrDetail
+          } as ITrDetail;
         }
         return curCostDetail;
       }),
-    })
+    });
 
     setFollowTrDocs([
       ...(followTrDocs || []).filter(
         (ftr) =>
           !(
             ftr.originId === trDoc._id &&
-            ['invSaleReturnOut', 'invSaleReturnCost'].includes(ftr.originType || '')
-          )
+            ['invSaleReturnOut', 'invSaleReturnCost'].includes(
+              ftr.originType || '',
+            )
+          ),
       ),
       invOutTr,
       invCostTr,

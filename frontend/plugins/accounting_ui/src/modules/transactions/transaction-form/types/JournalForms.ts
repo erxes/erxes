@@ -18,7 +18,7 @@ import {
 } from '../contants/transactionSchema';
 
 export type TAddTransactionGroup = z.infer<typeof transactionGroupSchema>;
-export type TTrDoc = z.infer<typeof trDocSchema>
+export type TTrDoc = z.infer<typeof trDocSchema>;
 
 export type TMainJournal = z.infer<typeof transactionMainSchema>;
 export type TCashJournal = z.infer<typeof transactionCashSchema>;
@@ -31,7 +31,9 @@ export type TInvIncomeJournal = z.infer<typeof transactionInvIncomeSchema>;
 export type TInvOutJournal = z.infer<typeof transactionInvOutSchema>;
 export type TInvMoveJournal = z.infer<typeof transactionInvMoveSchema>;
 export type TInvSaleJournal = z.infer<typeof transactionInvSaleSchema>;
-export type TInvSaleReturnJournal = z.infer<typeof transactionInvSaleReturnSchema>;
+export type TInvSaleReturnJournal = z.infer<
+  typeof transactionInvSaleReturnSchema
+>;
 export type TInvDetail = z.infer<typeof invDetailSchema>;
 
 export type ITransactionGroupForm = UseFormReturn<TAddTransactionGroup>;

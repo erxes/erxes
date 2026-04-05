@@ -1,13 +1,29 @@
-import { Button, cn, EnumCursorDirection, ScrollArea, Separator, Sheet, Spinner, Tooltip } from "erxes-ui";
-import { useEffect, useState } from "react";
-import { ITransaction } from "~/modules/transactions/types/Transaction";
+import {
+  Button,
+  cn,
+  EnumCursorDirection,
+  ScrollArea,
+  Separator,
+  Sheet,
+  Spinner,
+  Tooltip,
+} from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { ITransaction } from '~/modules/transactions/types/Transaction';
 import { useInView } from 'react-intersection-observer';
-import { IconCheck, IconPlus } from "@tabler/icons-react";
-import { useTransactions } from "~/modules/transactions/hooks/useTransactions";
-import { useDebounce } from "use-debounce";
-import { TrJournalEnum } from "~/modules/transactions/types/constants";
-import { useOneTrDetail } from "../../../hooks/useOneTrDetail";
-import { CompaniesInline, CustomersInline, MembersInline, ProductsInline, SelectBranchesInlineCell, SelectDepartmentsInlineCell } from "ui-modules";
+import { IconCheck, IconPlus } from '@tabler/icons-react';
+import { useTransactions } from '~/modules/transactions/hooks/useTransactions';
+import { useDebounce } from 'use-debounce';
+import { TrJournalEnum } from '~/modules/transactions/types/constants';
+import { useOneTrDetail } from '../../../hooks/useOneTrDetail';
+import {
+  CompaniesInline,
+  CustomersInline,
+  MembersInline,
+  ProductsInline,
+  SelectBranchesInlineCell,
+  SelectDepartmentsInlineCell,
+} from 'ui-modules';
 
 interface SelectProductsProps {
   onSelect: (saleTrId: string, saleTr?: ITransaction) => void;
@@ -25,17 +41,14 @@ export const SelectSaleSheet = ({
   const [selectedTr, setSelectedTr] = useState<ITransaction>();
 
   const sumbitSelect = () => {
-    onSelect(
-      selectedTrId,
-      selectedTr,
-    );
+    onSelect(selectedTrId, selectedTr);
     setOpen(false);
   };
 
   const handleSelect = (tr: ITransaction | undefined) => {
-    setSelectedTrId(tr?._id || '')
-    setSelectedTr(tr)
-  }
+    setSelectedTrId(tr?._id || '');
+    setSelectedTr(tr);
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -56,7 +69,6 @@ export const SelectSaleSheet = ({
             selectedTrId={selectedTrId}
             setSelectedTr={handleSelect}
           ></SelectedTrDetail>
-
         </Sheet.Content>
         <Sheet.Footer className="sm:justify-between">
           <div className="flex gap-2 items-center">
@@ -75,7 +87,7 @@ export const SelectSaleSheet = ({
 
 const TransactionList = ({
   selectedTrId,
-  setSelectedTr
+  setSelectedTr,
 }: {
   selectedTrId: string;
   setSelectedTr: (tr: ITransaction | undefined) => void;
@@ -99,18 +111,15 @@ const TransactionList = ({
   });
 
   const { ref: bottomRef } = useInView({
-    onChange: (inView) => inView && handleFetchMore({ direction: EnumCursorDirection.FORWARD }),
+    onChange: (inView) =>
+      inView && handleFetchMore({ direction: EnumCursorDirection.FORWARD }),
   });
 
   return (
     <div className="flex overflow-hidden flex-col border-r">
       <div className="p-4">
-        <div className="flex gap-4 justify-between items-center">
-          filter
-        </div>
-        <div className="mt-4 text-xs text-accent-foreground">
-          results
-        </div>
+        <div className="flex gap-4 justify-between items-center">filter</div>
+        <div className="mt-4 text-xs text-accent-foreground">results</div>
       </div>
       <Separator />
       <ScrollArea>
@@ -156,21 +165,21 @@ const TransactionList = ({
         </div>
       </ScrollArea>
     </div>
-  )
-}
+  );
+};
 
 const SelectedTrDetail = ({
   selectedTrId,
-  setSelectedTr
+  setSelectedTr,
 }: {
-  selectedTrId?: string,
+  selectedTrId?: string;
   setSelectedTr: (tr: ITransaction | undefined) => void;
 }) => {
   const [trDetail, setTrDetail] = useState<ITransaction | undefined>();
 
   const { transaction, loading } = useOneTrDetail({
     variables: { _id: selectedTrId },
-    skip: !selectedTrId
+    skip: !selectedTrId,
   });
 
   useEffect(() => {
@@ -180,17 +189,11 @@ const SelectedTrDetail = ({
   }, [transaction, loading]);
 
   if (!selectedTrId) {
-    return (
-      <>
-        Empty select transaction
-      </>
-    )
+    return <>Empty select transaction</>;
   }
 
   if (!trDetail || loading) {
-    return (
-      <Spinner />
-    )
+    return <Spinner />;
   }
 
   return (
@@ -204,33 +207,79 @@ const SelectedTrDetail = ({
       </Button>
 
       <div className="flex flex-col gap-1 p-4">
-        <div className="px-3 mb-1 text-xs text-accent-foreground">Selected:</div>
-        <div className="px-3 mb-1 text-xs text-accent-foreground">Date: <span>{`${trDetail.date}`}</span></div>
-        <div className="px-3 mb-1 text-xs text-accent-foreground">Number: <span>{`${trDetail.number}`}</span></div>
-        <div className="px-3 mb-1 text-xs text-accent-foreground">CustomerType: <span>{`${trDetail.customerType}`}</span></div>
+        <div className="px-3 mb-1 text-xs text-accent-foreground">
+          Selected:
+        </div>
+        <div className="px-3 mb-1 text-xs text-accent-foreground">
+          Date: <span>{`${trDetail.date}`}</span>
+        </div>
+        <div className="px-3 mb-1 text-xs text-accent-foreground">
+          Number: <span>{`${trDetail.number}`}</span>
+        </div>
+        <div className="px-3 mb-1 text-xs text-accent-foreground">
+          CustomerType: <span>{`${trDetail.customerType}`}</span>
+        </div>
 
-        {trDetail.customerType === 'company' && <div className="px-3 mb-1 text-xs text-accent-foreground">Company: <span><CompaniesInline companyIds={[trDetail.customerId || '']} /></span></div>}
-        {trDetail.customerType === 'customer' && <div className="px-3 mb-1 text-xs text-accent-foreground">Company: <span><CustomersInline customerIds={[trDetail.customerId || '']} /></span></div>}
-        {trDetail.customerType === 'user' && <div className="px-3 mb-1 text-xs text-accent-foreground">Member: <span><MembersInline memberIds={[trDetail.customerId || '']} /></span></div>}
+        {trDetail.customerType === 'company' && (
+          <div className="px-3 mb-1 text-xs text-accent-foreground">
+            Company:{' '}
+            <span>
+              <CompaniesInline companyIds={[trDetail.customerId || '']} />
+            </span>
+          </div>
+        )}
+        {trDetail.customerType === 'customer' && (
+          <div className="px-3 mb-1 text-xs text-accent-foreground">
+            Company:{' '}
+            <span>
+              <CustomersInline customerIds={[trDetail.customerId || '']} />
+            </span>
+          </div>
+        )}
+        {trDetail.customerType === 'user' && (
+          <div className="px-3 mb-1 text-xs text-accent-foreground">
+            Member:{' '}
+            <span>
+              <MembersInline memberIds={[trDetail.customerId || '']} />
+            </span>
+          </div>
+        )}
 
-        <div className="px-3 mb-1 text-xs text-accent-foreground">Branch: <span><SelectBranchesInlineCell branchIds={[trDetail.branchId || '']} /></span></div>
-        <div className="px-3 mb-1 text-xs text-accent-foreground">Department: <span><SelectDepartmentsInlineCell departmentIds={[trDetail.departmentId || '']} /></span></div>
+        <div className="px-3 mb-1 text-xs text-accent-foreground">
+          Branch:{' '}
+          <span>
+            <SelectBranchesInlineCell branchIds={[trDetail.branchId || '']} />
+          </span>
+        </div>
+        <div className="px-3 mb-1 text-xs text-accent-foreground">
+          Department:{' '}
+          <span>
+            <SelectDepartmentsInlineCell
+              departmentIds={[trDetail.departmentId || '']}
+            />
+          </span>
+        </div>
 
-        {trDetail.hasVat && <div className="px-3 mb-1 text-xs text-accent-foreground">Vat: <span>{`${trDetail.hasVat}`}</span></div>}
-        {trDetail.hasCtax && <div className="px-3 mb-1 text-xs text-accent-foreground">Ctax: <span>{`${trDetail.hasCtax}`}</span></div>}
+        {trDetail.hasVat && (
+          <div className="px-3 mb-1 text-xs text-accent-foreground">
+            Vat: <span>{`${trDetail.hasVat}`}</span>
+          </div>
+        )}
+        {trDetail.hasCtax && (
+          <div className="px-3 mb-1 text-xs text-accent-foreground">
+            Ctax: <span>{`${trDetail.hasCtax}`}</span>
+          </div>
+        )}
 
         <ul>
-          {trDetail.details.map(det => (
+          {trDetail.details.map((det) => (
             <li key={det._id}>
-              <ProductsInline
-                productIds={[det.productId || '']}
-              />
+              <ProductsInline productIds={[det.productId || '']} />
               {` | ${det.count} | ${det.amount}`}
             </li>
           ))}
         </ul>
-
       </div>
     </ScrollArea>
   );
-}
+};

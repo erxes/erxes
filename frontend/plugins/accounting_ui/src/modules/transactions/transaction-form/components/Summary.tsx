@@ -58,7 +58,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
       },
     }).then(() => {
       if (!parentId) {
-        const pathname = "/accounting/main";
+        const pathname = '/accounting/main';
         return navigate(pathname);
       }
       removeTransactions({

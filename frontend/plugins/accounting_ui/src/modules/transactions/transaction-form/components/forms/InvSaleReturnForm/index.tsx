@@ -1,11 +1,19 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { AccountKind, IAccount, JournalEnum } from '@/settings/account/types/Account';
+import {
+  AccountKind,
+  IAccount,
+  JournalEnum,
+} from '@/settings/account/types/Account';
 import { IconBookDownload } from '@tabler/icons-react';
 import { Button, Form } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useWatch } from 'react-hook-form';
 import { followTrDocsState } from '../../../states/trStates';
-import { ITransactionGroupForm, TInvSaleJournal, TInvSaleReturnJournal } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TInvSaleJournal,
+  TInvSaleReturnJournal,
+} from '../../../types/JournalForms';
 import {
   AccountField,
   AssignToField,
@@ -18,7 +26,10 @@ import { CustomerFields } from '../../helpers/CustomerFields';
 import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
 import { SelectSaleSheet } from './SelectSaleSheet';
-import { ITransaction, ITrDetail } from '~/modules/transactions/types/Transaction';
+import {
+  ITransaction,
+  ITrDetail,
+} from '~/modules/transactions/types/Transaction';
 import { CustomerType } from 'ui-modules';
 import { TR_SIDES } from '~/modules/transactions/types/constants';
 import { useState } from 'react';
@@ -36,39 +47,47 @@ export const InvSaleReturnForm = ({
   }) as TInvSaleReturnJournal;
 
   const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
-  const [replaceDetails, setReplaceDetails] = useState<ITrDetail[]>(trDoc.details as any[]);
+  const [replaceDetails, setReplaceDetails] = useState<ITrDetail[]>(
+    trDoc.details as any[],
+  );
   const onChangeOutAccount = (account: IAccount) => {
-    form.setValue(
-      `trDocs.${index}.followExtras.saleOutAccount`,
-      account,
-    );
+    form.setValue(`trDocs.${index}.followExtras.saleOutAccount`, account);
 
-    setFollowTrDocs((followTrDocs || []).map((ftr) => (
-      ftr.originId === trDoc._id &&
-      ftr.originType === 'invSaleReturnOut'
-    ) && {
-      ...ftr,
-      details: ftr.details.map(ftrd => ({
-        ...ftrd, account, accountId: account._id
-      }))
-    } || ftr));
+    setFollowTrDocs(
+      (followTrDocs || []).map(
+        (ftr) =>
+          (ftr.originId === trDoc._id &&
+            ftr.originType === 'invSaleReturnOut' && {
+              ...ftr,
+              details: ftr.details.map((ftrd) => ({
+                ...ftrd,
+                account,
+                accountId: account._id,
+              })),
+            }) ||
+          ftr,
+      ),
+    );
   };
 
   const onChangeCostAccount = (account: IAccount) => {
-    form.setValue(
-      `trDocs.${index}.followExtras.saleCostAccount`,
-      account,
-    );
+    form.setValue(`trDocs.${index}.followExtras.saleCostAccount`, account);
 
-    setFollowTrDocs((followTrDocs || []).map((ftr) => (
-      ftr.originId === trDoc._id &&
-      ftr.originType === 'invSaleReturnCost'
-    ) && {
-      ...ftr,
-      details: ftr.details.map(ftrd => ({
-        ...ftrd, account, accountId: account._id
-      }))
-    } || ftr));
+    setFollowTrDocs(
+      (followTrDocs || []).map(
+        (ftr) =>
+          (ftr.originId === trDoc._id &&
+            ftr.originType === 'invSaleReturnCost' && {
+              ...ftr,
+              details: ftr.details.map((ftrd) => ({
+                ...ftrd,
+                account,
+                accountId: account._id,
+              })),
+            }) ||
+          ftr,
+      ),
+    );
   };
 
   const onChangeSaleTr = (saleTrId: string, saleTr?: ITransaction) => {
@@ -79,23 +98,31 @@ export const InvSaleReturnForm = ({
         side: TR_SIDES.DEBIT,
       }));
 
-      form.setValue(`trDocs.${index}`, {
-        ...trDoc,
-        customerType: sale?.customerType as CustomerType,
-        customerId: sale.customerId,
-        followInfos: { ...trDoc.followInfos, ...sale.followInfos, saleTransactionId: saleTrId },
-        branchId: sale.branchId,
-        departmentId: sale.departmentId,
-        hasVat: sale.hasVat,
-        hasCtax: sale.hasCtax,
-        details
-      }, {
-        shouldDirty: true,
-        shouldValidate: true,
-      })
-      setReplaceDetails(details as ITrDetail[])
+      form.setValue(
+        `trDocs.${index}`,
+        {
+          ...trDoc,
+          customerType: sale?.customerType as CustomerType,
+          customerId: sale.customerId,
+          followInfos: {
+            ...trDoc.followInfos,
+            ...sale.followInfos,
+            saleTransactionId: saleTrId,
+          },
+          branchId: sale.branchId,
+          departmentId: sale.departmentId,
+          hasVat: sale.hasVat,
+          hasCtax: sale.hasCtax,
+          details,
+        },
+        {
+          shouldDirty: true,
+          shouldValidate: true,
+        },
+      );
+      setReplaceDetails(details as ITrDetail[]);
     }
-  }
+  };
 
   return (
     <>
@@ -112,19 +139,22 @@ export const InvSaleReturnForm = ({
             <Form.Control>
               <Button variant="ghost" className="">
                 <IconBookDownload />
-                {trDoc.followInfos?.saleTransactionId || 'Select Sale Transaction'}
+                {trDoc.followInfos?.saleTransactionId ||
+                  'Select Sale Transaction'}
               </Button>
             </Form.Control>
             <Form.Message />
           </Form.Item>
-
         </SelectSaleSheet>
         <AccountField
           form={form}
           index={index}
-          filter={{ journals: [JournalEnum.INV_FOLLOW], kind: AccountKind.PASSIVE }}
+          filter={{
+            journals: [JournalEnum.INV_FOLLOW],
+            kind: AccountKind.PASSIVE,
+          }}
           allDetails={true}
-          labelTxt='Sale Account'
+          labelTxt="Sale Account"
         />
         <BranchField form={form} index={index} />
         <DepartmentField form={form} index={index} />
@@ -156,7 +186,10 @@ export const InvSaleReturnForm = ({
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.INV_FOLLOW], kind: AccountKind.ACTIVE }}
+                  defaultFilter={{
+                    journals: [JournalEnum.INV_FOLLOW],
+                    kind: AccountKind.ACTIVE,
+                  }}
                   onCallback={(account) => onChangeCostAccount(account)}
                 />
               </Form.Control>
@@ -164,8 +197,18 @@ export const InvSaleReturnForm = ({
             </Form.Item>
           )}
         />
-        <VatForm form={form} journalIndex={index} isWithTax={false} isSameSide={true} />
-        <CtaxForm form={form} journalIndex={index} isWithTax={false} isSameSide={true} />
+        <VatForm
+          form={form}
+          journalIndex={index}
+          isWithTax={false}
+          isSameSide={true}
+        />
+        <CtaxForm
+          form={form}
+          journalIndex={index}
+          isWithTax={false}
+          isSameSide={true}
+        />
       </div>
 
       <InventoryForm
@@ -176,4 +219,3 @@ export const InvSaleReturnForm = ({
     </>
   );
 };
-
