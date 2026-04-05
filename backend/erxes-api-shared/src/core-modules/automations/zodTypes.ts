@@ -95,6 +95,13 @@ export const ReplacePlaceholdersInputData = z.object({
     .optional(),
 });
 
+export const ResolveOutputPathsInputData = z.object({
+  nodeType: z.string(),
+  source: z.record(z.any()),
+  paths: z.array(z.string()),
+  defaultValue: z.any().optional(),
+});
+
 export const SetPropertiesInputData = z.object({
   moduleName: z.string(),
   triggerType: z.string(),
@@ -120,6 +127,10 @@ export const ReplacePlaceholdersInput = AutomationBaseInput.extend({
   data: ReplacePlaceholdersInputData,
 });
 
+export const ResolveOutputPathsInput = AutomationBaseInput.extend({
+  data: ResolveOutputPathsInputData,
+});
+
 export const SetPropertiesInput = AutomationBaseInput.extend({
   data: SetPropertiesInputData,
 });
@@ -137,6 +148,9 @@ export type TAutomationProducersInput = {
   >;
   [TAutomationProducers.REPLACE_PLACEHOLDERS]: z.infer<
     typeof ReplacePlaceholdersInputData
+  >;
+  [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<
+    typeof ResolveOutputPathsInputData
   >;
   [TAutomationProducers.SET_PROPERTIES]: z.infer<typeof SetPropertiesInputData>;
   [TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES]: z.infer<

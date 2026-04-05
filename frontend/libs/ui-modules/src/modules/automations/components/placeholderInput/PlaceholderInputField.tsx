@@ -17,12 +17,37 @@ type PlaceholderInputFieldProps = {
   ) => void;
   isDisabled?: boolean;
   readOnly?: boolean;
+  isDragActive?: boolean;
+  onDragOver?: (
+    e: React.DragEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
+  onDragLeave?: (
+    e: React.DragEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
+  onDrop?: (
+    e: React.DragEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
 };
 
 export const PlaceholderInputField = forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   PlaceholderInputFieldProps
->(({ value, onChange, onKeyDown, onBlur, onFocus, isDisabled }, ref) => {
+>(
+  (
+    {
+      value,
+      onChange,
+      onKeyDown,
+      onBlur,
+      onFocus,
+      isDisabled,
+      isDragActive,
+      onDragOver,
+      onDragLeave,
+      onDrop,
+    },
+    ref,
+  ) => {
   const { enabledTypes, inputVariant, suggestions } =
     usePlaceholderInputContext();
   const placeholderText = useMemo(() => {
@@ -42,8 +67,11 @@ export const PlaceholderInputField = forwardRef<
         onBlur={onBlur}
         onFocus={onFocus}
         placeholder={placeholderText}
-        className="pr-10"
+        className={`pr-10 ${isDragActive ? 'border-primary ring-primary/20 ring-2' : ''}`}
         disabled={isDisabled}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
       />
     );
   }
@@ -57,8 +85,11 @@ export const PlaceholderInputField = forwardRef<
       onBlur={onBlur}
       onFocus={onFocus}
       placeholder={placeholderText}
-      className="pr-10"
+      className={`pr-10 ${isDragActive ? 'border-primary ring-primary/20 ring-2' : ''}`}
       disabled={isDisabled}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
     />
   );
 });

@@ -43,6 +43,24 @@ type AutomationQueryParams = {
 interface AutomationContextType {
   awaitingToConnectNodeId?: string;
   setAwaitingToConnectNodeId: Dispatch<SetStateAction<string>>;
+  selectedNode: {
+    id: string;
+    type: string;
+    nodeType: AutomationNodeType;
+    label: string;
+    icon?: string;
+  } | null;
+  setSelectedNode: Dispatch<
+    SetStateAction<
+      {
+        id: string;
+        type: string;
+        nodeType: AutomationNodeType;
+        label: string;
+        icon?: string;
+      } | null
+    >
+  >;
   queryParams: QueryValues<AutomationQueryParams>;
   setQueryParams: (values: QueryValues<AutomationQueryParams>) => void;
   triggersConst: IAutomationsTriggerConfigConstants[];
@@ -67,6 +85,13 @@ export const AutomationProvider = ({
   children: React.ReactNode;
 }) => {
   const [awaitingToConnectNodeId, setAwaitingToConnectNodeId] = useState('');
+  const [selectedNode, setSelectedNode] = useState<{
+    id: string;
+    type: string;
+    nodeType: AutomationNodeType;
+    label: string;
+    icon?: string;
+  } | null>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance<
     Node<NodeData>,
     Edge<EdgeProps>
@@ -123,6 +148,26 @@ export const AutomationProvider = ({
     }
   }, [data, cached]);
 
+  useEffect(() => {
+    if (!queryParams.activeNodeId || !reactFlowInstance) {
+      return;
+    }
+
+    const activeNode = reactFlowInstance.getNode(queryParams.activeNodeId);
+
+    if (!activeNode?.data?.type) {
+      return;
+    }
+
+    setSelectedNode({
+      id: activeNode.id,
+      type: activeNode.data.type,
+      nodeType: activeNode.data.nodeType,
+      label: activeNode.data.label,
+      icon: activeNode.data.icon,
+    });
+  }, [queryParams.activeNodeId, reactFlowInstance]);
+
   const clear = () => setCached(null);
 
   return (
@@ -130,6 +175,8 @@ export const AutomationProvider = ({
       value={{
         awaitingToConnectNodeId,
         setAwaitingToConnectNodeId,
+        selectedNode,
+        setSelectedNode,
         queryParams,
         setQueryParams,
         triggersConst,

@@ -8,3 +8,4 @@ export * from './hooks/useAttributes';
 export * from './components/AutomationRemoteEntryWrapper';
 export * from './components/AutomationNodeMetaInfoRow';
 export * from './hooks/useFormValidationErrorHandler';
+export * from './utils/automationVariableDragUtils';

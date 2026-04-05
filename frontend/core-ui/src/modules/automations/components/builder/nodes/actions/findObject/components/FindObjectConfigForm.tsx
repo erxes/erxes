@@ -101,6 +101,7 @@ export const FindObjectConfigForm = ({
                   isDisabled={!propertyField || !propertyType}
                   value={field.value ?? ''}
                   onChange={field.onChange}
+                  disabled={{ attribute: true }}
                 />
                 <Form.Message />
               </Form.Item>

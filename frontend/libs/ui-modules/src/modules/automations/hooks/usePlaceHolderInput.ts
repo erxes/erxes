@@ -7,6 +7,7 @@ import { useSuggestionMaps } from './useSuggestionMaps';
 export const usePlaceHolderInput = ({
   variant = 'fixed',
   enabled,
+  disabled,
   suggestionGroups,
   enableAll = false,
   ref,
@@ -24,6 +25,7 @@ export const usePlaceHolderInput = ({
 
   const { enabledTypes } = usePlaceholderEnabledTypes({
     enabled,
+    disabled,
     suggestionGroups,
     enableAll,
     extraSuggestionConfigs,

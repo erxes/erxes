@@ -61,6 +61,7 @@ export const SendEmailConfigForm = ({
                       <PlaceholderInput
                         propertyType={contentType || ''}
                         {...field}
+                        disabled={{ attribute: true }}
                         enabled={{
                           attribute: true,
                           call_user: true,
@@ -103,6 +104,7 @@ export const SendEmailConfigForm = ({
                 <PlaceholderInput
                   propertyType={contentType || ''}
                   {...field}
+                  disabled={{ attribute: true }}
                   enabled={{
                     attribute: true,
                     call_user: true,
@@ -126,6 +128,7 @@ export const SendEmailConfigForm = ({
                   <PlaceholderInput
                     propertyType={contentType || ''}
                     {...field}
+                    disabled={{ attribute: true }}
                     enabled={{
                       attribute: true,
                       call_user: true,
@@ -151,7 +154,11 @@ export const SendEmailConfigForm = ({
               <Form.Label>
                 Subject<span className="text-destructive">*</span>
               </Form.Label>
-              <PlaceholderInput propertyType={contentType || ''} {...field} />
+              <PlaceholderInput
+                propertyType={contentType || ''}
+                disabled={{ attribute: true }}
+                {...field}
+              />
             </Form.Item>
           )}
         />

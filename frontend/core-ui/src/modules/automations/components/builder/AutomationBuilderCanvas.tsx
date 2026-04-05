@@ -19,6 +19,7 @@ export const AutomationBuilderCanvas = () => {
     onConnect,
     onDrop,
     isValidConnection,
+    onNodeClick,
     onNodeDoubleClick,
     onDragOver,
     setReactFlowInstance,
@@ -37,6 +38,7 @@ export const AutomationBuilderCanvas = () => {
         onConnect={onConnect}
         onDrop={onDrop}
         isValidConnection={isValidConnection}
+        onNodeClick={onNodeClick}
         onNodeDoubleClick={onNodeDoubleClick}
         onInit={setReactFlowInstance}
         onDragOver={onDragOver}

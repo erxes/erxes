@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import { PlaceholderInputProvider } from '../../contexts/PlaceholderInputContext';
 import { usePlaceHolderInput } from '../../hooks/usePlaceHolderInput';
 import { usePlaceHolderInputChildren } from '../../hooks/usePlaceHolderInputChildren';
+import { useAutomationVariableDrop } from '../../hooks/useAutomationVariableDrop';
 import { usePlaceHolderInputTriggerDetection } from '../../hooks/usePlaceholderInputDetection';
 import { PlaceholderInputProps } from '../../types/placeholderInputTypes';
 import { PlaceholderInputField } from './PlaceholderInputField';
@@ -22,6 +23,7 @@ const PlaceholderInputRoot = forwardRef<
       popoverPosition = 'bottom',
       variant,
       children,
+      disabled,
       ...props
     },
     ref,
@@ -44,6 +46,7 @@ const PlaceholderInputRoot = forwardRef<
       suggestionTypeByTriggerMap,
     } = usePlaceHolderInput({
       ...props,
+      disabled,
       ref,
       selectionType,
       value,
@@ -62,15 +65,28 @@ const PlaceholderInputRoot = forwardRef<
       value,
       onChange,
       inputRef,
+      isSelectionPopoverOpen,
+      setIsSelectionPopoverOpen,
       enabledTypes,
       suggestionTypeByTriggerMap,
       allowOnlyTriggers: props.placeholderConfig?.allowOnlyTriggers,
       placeholderConfig: props.placeholderConfig,
+      suggestionPopoverRef,
     });
 
     const { headerElement, otherChildren } = usePlaceHolderInputChildren({
       children,
       variant,
+    });
+    const {
+      isDragActive,
+      handleDragOver,
+      handleDragLeave,
+      handleDrop,
+    } = useAutomationVariableDrop({
+      value,
+      onChange,
+      inputRef,
     });
 
     const contextValue = {
@@ -108,6 +124,10 @@ const PlaceholderInputRoot = forwardRef<
               onBlur={handleInputBlur}
               onFocus={handleInputFocus}
               isDisabled={isDisabled}
+              isDragActive={isDragActive}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
             />
 
             <PlaceholderInputSuggestionPopover

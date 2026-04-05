@@ -5,10 +5,12 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { Express } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
+import { coreAutomationConstants } from './constants';
 import { getItems, getRelatedValue } from './utils';
 
 export const initAutomation = (app: Express) =>
   startAutomations(app, 'core', {
+    constants: coreAutomationConstants,
     replacePlaceHolders: async ({ subdomain, data }) => {
       const { target, config, relatedValueProps } = data || {};
       const models = await generateModels(subdomain);

@@ -14,16 +14,32 @@ import {
   CheckCustomTriggerInput,
   GenerateAiContextInput,
   ReceiveActionsInput,
+  TAutomationProducersInput,
+  ResolveOutputPathsInput,
   ReplacePlaceholdersInput,
   SetPropertiesInput,
 } from './zodTypes';
+import {
+  buildRuntimeOutputsIndex,
+  normalizeAutomationConstantsForTransport,
+  resolveOutputValues,
+} from './outputResolvers';
 
 export const startAutomations = async (
   app: Express,
   pluginName: string,
   config: AutomationConfigs,
 ) => {
-  await initializePluginConfig(pluginName, 'automations', config);
+  const runtimeOutputs = buildRuntimeOutputsIndex(pluginName, config.constants);
+  const transportConfig = {
+    ...config,
+    constants: normalizeAutomationConstantsForTransport(
+      pluginName,
+      config.constants,
+    ),
+  };
+
+  await initializePluginConfig(pluginName, 'automations', transportConfig);
   const t = initTRPC.context<IAutomationContext>().create();
 
   const {
@@ -31,6 +47,7 @@ export const startAutomations = async (
     setProperties,
     checkCustomTrigger,
     replacePlaceHolders,
+    resolveOutputPaths,
     getAdditionalAttributes,
     generateAiContext,
   } = config || {};
@@ -79,6 +96,41 @@ export const startAutomations = async (
       t.procedure
         .input(ReplacePlaceholdersInput)
         .mutation(async ({ ctx, input }) => replacePlaceHolders(input, ctx));
+  }
+
+  const runtimeResolveOutputPaths =
+    resolveOutputPaths ||
+    (Object.keys(runtimeOutputs).length
+      ? async ({
+          subdomain,
+          data,
+        }: {
+          subdomain: string;
+          data: TAutomationProducersInput[TAutomationProducers.RESOLVE_OUTPUT_PATHS];
+        }) => {
+          const definition = runtimeOutputs[data.nodeType];
+
+          if (!definition) {
+            return {};
+          }
+
+          return resolveOutputValues({
+            definition,
+            subdomain,
+            source: data.source || {},
+            paths: data.paths || [],
+            defaultValue: data.defaultValue,
+          });
+        }
+      : undefined);
+
+  if (runtimeResolveOutputPaths) {
+    automationProcedures[TAutomationProducers.RESOLVE_OUTPUT_PATHS] =
+      t.procedure
+        .input(ResolveOutputPathsInput)
+        .mutation(async ({ ctx, input }) =>
+          runtimeResolveOutputPaths(input, ctx),
+        );
   }
 
   if (checkCustomTrigger) {
