@@ -36,7 +36,7 @@ export const DepartmentEdit = () => {
     }
     setSearchParams(newSearchParams);
   };
-  const submitHandler: SubmitHandler<TDepartmentForm> = async (data) => {
+  const submitHandler: SubmitHandler<TDepartmentForm> = (data) => {
     handleEdit({
       variables: {
         ...data,

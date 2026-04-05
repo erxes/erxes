@@ -37,7 +37,7 @@ export const PositionEdit = () => {
     }
     setSearchParams(newSearchParams);
   };
-  const submitHandler: SubmitHandler<TPositionForm> = async (data) => {
+  const submitHandler: SubmitHandler<TPositionForm> = (data) => {
     handleEdit({
       variables: {
         ...data,

@@ -14,7 +14,7 @@ export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
 
   const id = searchParams.get('branch_id');
 
-  const { branchDetail, loading } = useBranchDetailsById({
+  const { branchDetail } = useBranchDetailsById({
     variables: {
       id,
     },
@@ -36,7 +36,7 @@ export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
     }
     setSearchParams(newSearchParams);
   };
-  const submitHandler: SubmitHandler<TBranchForm> = async (data) => {
+  const submitHandler: SubmitHandler<TBranchForm> = (data) => {
     handleEdit({
       variables: {
         ...data,

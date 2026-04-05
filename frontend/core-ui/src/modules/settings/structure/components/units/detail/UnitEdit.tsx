@@ -36,7 +36,7 @@ export const UnitEdit = () => {
     }
     setSearchParams(newSearchParams);
   };
-  const submitHandler: SubmitHandler<TUnitForm> = async (data) => {
+  const submitHandler: SubmitHandler<TUnitForm> = (data) => {
     handleEdit({
       variables: {
         ...data,
