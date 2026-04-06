@@ -25,7 +25,7 @@ export const ticketMutations = {
       // clean custom field values
       params.propertiesData = await sendTRPCMessage({
         subdomain,
-  
+
         pluginName: 'core',
         method: 'mutation',
         module: 'fields',

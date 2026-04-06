@@ -76,7 +76,7 @@ export const contentCmsCategoryQueries: Record<string, Resolver> = {
   cmsCategories: resolver.cmsCategories.bind(resolver),
   cmsCategory: resolver.cmsCategory.bind(resolver),
   cpCategories: resolver.cpCategories.bind(resolver),
-}; 
+};
 
 contentCmsCategoryQueries.cpCategories.wrapperConfig = {
   forClientPortal: true,
