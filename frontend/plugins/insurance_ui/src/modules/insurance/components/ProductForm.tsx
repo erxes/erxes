@@ -6,6 +6,7 @@ import {
   useUpdateInsuranceProduct,
   useInsuranceTypes,
   useRiskTypes,
+  useRegions,
 } from '../hooks';
 import { InsuranceProduct } from '../types';
 import { getDefaultPdfTemplate } from '~/utils/contractPdfGenerator';
@@ -23,6 +24,7 @@ const RegionFields = ({
   onFieldChange,
   newCountry,
   setNewCountry,
+  regions,
 }: {
   pricingConfig: Record<
     string,
@@ -31,8 +33,18 @@ const RegionFields = ({
   onFieldChange: (field: string, value: unknown) => void;
   newCountry: string;
   setNewCountry: (v: string) => void;
+  regions: { id: string; name: string; countries: string[] }[];
 }) => {
   const countries = (pricingConfig.countries as string[]) || [];
+  const selectedRegionId = (pricingConfig.region as string) || '';
+
+  const handleRegionSelect = (regionId: string) => {
+    const region = regions.find((r) => r.id === regionId);
+    if (!region) return;
+    onFieldChange('region', region.id);
+    onFieldChange('regionName', region.name);
+    onFieldChange('countries', region.countries);
+  };
 
   const addCountry = (name: string) => {
     const trimmed = name.trim();
@@ -44,23 +56,28 @@ const RegionFields = ({
   return (
     <div className="space-y-3 border rounded-md p-3 bg-blue-50/50">
       <Label className="font-semibold">Бүс нутгийн тохиргоо (Travel)</Label>
+
+      {/* Region selector from DB */}
+      <div className="space-y-1">
+        <Label className="text-xs">Бүс нутаг сонгох *</Label>
+        <Select
+          value={selectedRegionId}
+          onValueChange={handleRegionSelect}
+        >
+          <Select.Trigger>
+            <Select.Value placeholder="Бүс нутаг сонгоно уу" />
+          </Select.Trigger>
+          <Select.Content>
+            {regions.map((r) => (
+              <Select.Item key={r.id} value={r.id}>
+                {r.name} ({r.countries.length} улс)
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <Label className="text-xs">Region ID *</Label>
-          <Input
-            value={(pricingConfig.region as string) || ''}
-            onChange={(e) => onFieldChange('region', e.target.value)}
-            placeholder="asia, schengen, worldwide..."
-          />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs">Бүс нутгийн нэр *</Label>
-          <Input
-            value={(pricingConfig.regionName as string) || ''}
-            onChange={(e) => onFieldChange('regionName', e.target.value)}
-            placeholder="Ази, Шенген бүс, Дэлхий нийт..."
-          />
-        </div>
         <div className="space-y-1">
           <Label className="text-xs">Icon (emoji)</Label>
           <Input
@@ -80,9 +97,14 @@ const RegionFields = ({
       </div>
 
       <div className="space-y-2 mt-3 pt-3 border-t">
-        <Label className="text-xs font-semibold">
-          Хамрагдах улсууд ({countries.length})
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-xs font-semibold">
+            Хамрагдах улсууд ({countries.length})
+          </Label>
+          <span className="text-xs text-muted-foreground">
+            Гараар нэмж/хасаж болно
+          </span>
+        </div>
         <div className="flex gap-2">
           <Input
             value={newCountry}
@@ -129,7 +151,7 @@ const RegionFields = ({
         </div>
         {countries.length === 0 && (
           <p className="text-xs text-muted-foreground">
-            Улс нэмэгдээгүй байна. Нэр бичээд Enter дарна уу.
+            Бүс нутаг сонгоход улсууд автоматаар нэмэгдэнэ.
           </p>
         )}
       </div>
@@ -149,6 +171,7 @@ export const ProductForm = ({
     useUpdateInsuranceProduct();
   const { insuranceTypes, loading: typesLoading } = useInsuranceTypes();
   const { riskTypes, loading: risksLoading } = useRiskTypes();
+  const { regions } = useRegions();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -992,6 +1015,7 @@ export const ProductForm = ({
                   onFieldChange={handlePricingFieldChange}
                   newCountry={newCountry}
                   setNewCountry={setNewCountry}
+                  regions={regions}
                 />
               </>
             )}
@@ -1025,6 +1049,7 @@ export const ProductForm = ({
                   onFieldChange={handlePricingFieldChange}
                   newCountry={newCountry}
                   setNewCountry={setNewCountry}
+                  regions={regions}
                 />
               </>
             )}

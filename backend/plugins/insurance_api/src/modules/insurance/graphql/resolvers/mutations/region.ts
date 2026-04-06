@@ -193,7 +193,7 @@ const SEED_REGIONS = [
 export const regionMutations = {
   seedInsuranceRegions: Object.assign(
     async (_parent: undefined, _args: unknown, { models }: IContext) => {
-      const results = [];
+      const results: any[] = [];
 
       for (const region of SEED_REGIONS) {
         const existing = await models.Region.findOne({ name: region.name });
