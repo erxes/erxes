@@ -8,7 +8,7 @@ export const CREATE_CATEGORY = gql`
     $branchId: String
     $attachment: AttachmentInput
     $language: String
-    $translations: [BmsTourCategoryTranslationInput]
+    $translations: [TourCategoryTranslationInput]
   ) {
     bmsTourCategoryAdd(
       name: $name
@@ -33,7 +33,7 @@ export const EDIT_CATEGORY = gql`
     $branchId: String
     $attachment: AttachmentInput
     $language: String
-    $translations: [BmsTourCategoryTranslationInput]
+    $translations: [TourCategoryTranslationInput]
   ) {
     bmsTourCategoryEdit(
       _id: $id

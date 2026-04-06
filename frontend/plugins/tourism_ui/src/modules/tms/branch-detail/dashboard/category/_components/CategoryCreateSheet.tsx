@@ -164,7 +164,7 @@ export const CategoryCreateSheet = ({
             <Sheet.Header>
               <Sheet.Title>Create category</Sheet.Title>
               {allLanguages.length > 1 && (
-                <div className="flex items-center gap-2 ml-auto">
+                <div className="flex gap-2 items-center ml-auto">
                   <TourFieldLanguageSwitch
                     availableLanguages={allLanguages}
                     value={selectedLang}
@@ -186,6 +186,7 @@ export const CategoryCreateSheet = ({
                   <CategoryParentIdField
                     control={form.control}
                     branchId={branchId}
+                    language={selectedLang}
                   />
                   <CategoryAttachmentField control={form.control} />
                 </div>

@@ -71,9 +71,11 @@ export const CategoryCodeField = ({
 export const CategoryParentIdField = ({
   control,
   branchId,
+  language,
 }: {
   control: Control<CategoryCreateFormType>;
   branchId?: string;
+  language?: string;
 }) => {
   return (
     <Form.Field
@@ -87,6 +89,7 @@ export const CategoryParentIdField = ({
               selected={field.value}
               onSelect={field.onChange}
               branchId={branchId}
+              language={language}
             />
           </Form.Control>
           <Form.Message className="text-destructive" />

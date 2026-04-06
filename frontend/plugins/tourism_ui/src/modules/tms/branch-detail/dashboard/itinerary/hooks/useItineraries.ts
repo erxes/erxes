@@ -56,6 +56,7 @@ export const useItineraries = (
     ...options,
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables,
+    fetchPolicy: 'cache-and-network',
   });
 
   const {

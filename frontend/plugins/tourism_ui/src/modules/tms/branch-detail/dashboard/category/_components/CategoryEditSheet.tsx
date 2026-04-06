@@ -96,7 +96,6 @@ export const CategoryEditSheet = ({
         translationLanguages,
       ),
     });
-    // Preserve active lang if valid for this branch; fall back to primary
     const resolvedPrimary = mainLanguage || allLanguages[0] || '';
     setSelectedLang((prev) =>
       allLanguages.includes(prev) ? prev : resolvedPrimary,
@@ -162,7 +161,7 @@ export const CategoryEditSheet = ({
             <Sheet.Header>
               <Sheet.Title>Edit category</Sheet.Title>
               {allLanguages.length > 1 && (
-                <div className="flex items-center gap-2 ml-auto">
+                <div className="flex gap-2 items-center ml-auto">
                   <TourFieldLanguageSwitch
                     availableLanguages={allLanguages}
                     value={selectedLang}
@@ -184,6 +183,7 @@ export const CategoryEditSheet = ({
                   <CategoryParentIdField
                     control={form.control}
                     branchId={category.branchId}
+                    language={selectedLang}
                   />
                   <CategoryAttachmentField control={form.control} />
                 </div>

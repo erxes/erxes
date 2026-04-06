@@ -25,6 +25,7 @@ export const types = `
     branchId: String
     attachment: Attachment
     tourCount: Int
+    language: String
     createdAt: Date
     modifiedAt: Date
     translations(language: String): [TourCategoryTranslation]
@@ -238,6 +239,7 @@ const categoryParams = `
   parentId: String
   branchId: String
   attachment: AttachmentInput
+  language: String
   translations: [TourCategoryTranslationInput]
 `;
 

@@ -34,8 +34,8 @@ export const useItineraryLanguage = ({
       branchLanguages && branchLanguages.length > 0
         ? branchLanguages
         : mainLanguage
-          ? [mainLanguage]
-          : [];
+        ? [mainLanguage]
+        : [];
     if (mainLanguage && !base.includes(mainLanguage)) {
       return [mainLanguage, ...base];
     }
@@ -61,7 +61,9 @@ export const useItineraryLanguage = ({
   });
 
   useEffect(() => {
-    if (primaryLanguage && !selectedLang) {
+    if (activeLang && allLanguages.includes(activeLang)) {
+      setSelectedLang(activeLang);
+    } else if (primaryLanguage && !selectedLang) {
       setSelectedLang(primaryLanguage);
     } else if (
       selectedLang &&
@@ -70,7 +72,7 @@ export const useItineraryLanguage = ({
     ) {
       setSelectedLang(primaryLanguage);
     }
-  }, [primaryLanguage, selectedLang, allLanguages]);
+  }, [activeLang, primaryLanguage, selectedLang, allLanguages]);
 
   const effectiveLang = selectedLang || primaryLanguage;
   const isMainLang = effectiveLang === primaryLanguage;
