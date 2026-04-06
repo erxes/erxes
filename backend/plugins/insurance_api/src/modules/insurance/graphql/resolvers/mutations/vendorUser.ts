@@ -66,7 +66,10 @@ export const vendorUserMutations = {
 
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) {
-      const existing = await models.VendorUser.findOne({ email, _id: { $ne: id } });
+      const existing = await models.VendorUser.findOne({
+        email,
+        _id: { $ne: id },
+      });
       if (existing) {
         throw new Error('A vendor user with this email already exists');
       }

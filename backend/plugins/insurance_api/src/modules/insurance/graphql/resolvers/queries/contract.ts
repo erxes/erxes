@@ -289,8 +289,18 @@ export const contractQueries = {
         if (filters.customerName) {
           const customers = await models.Customer.find({
             $or: [
-              { firstName: { $regex: escapeRegex(filters.customerName), $options: 'i' } },
-              { lastName: { $regex: escapeRegex(filters.customerName), $options: 'i' } },
+              {
+                firstName: {
+                  $regex: escapeRegex(filters.customerName),
+                  $options: 'i',
+                },
+              },
+              {
+                lastName: {
+                  $regex: escapeRegex(filters.customerName),
+                  $options: 'i',
+                },
+              },
             ],
           }).select('_id');
           if (customers.length > 0) {

@@ -23,9 +23,7 @@ export const Widgets = ({
 
   if (contracts.length === 0) {
     return (
-      <div className="p-4 text-sm text-gray-400">
-        Даатгалын гэрээ байхгүй
-      </div>
+      <div className="p-4 text-sm text-gray-400">Даатгалын гэрээ байхгүй</div>
     );
   }
 
@@ -48,7 +46,9 @@ export const Widgets = ({
                   : 'bg-yellow-100 text-yellow-700'
               }`}
             >
-              {contract.paymentStatus === 'paid' ? 'Төлөгдсөн' : 'Хүлээгдэж буй'}
+              {contract.paymentStatus === 'paid'
+                ? 'Төлөгдсөн'
+                : 'Хүлээгдэж буй'}
             </span>
           </div>
           <div className="text-gray-500">

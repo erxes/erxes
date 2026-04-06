@@ -103,5 +103,4 @@ export const vendorMutations = {
     },
     { wrapperConfig: { skipPermission: true } },
   ),
-
 };

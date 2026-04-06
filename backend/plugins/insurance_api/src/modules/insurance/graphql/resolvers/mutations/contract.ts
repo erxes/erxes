@@ -161,7 +161,12 @@ export const contractMutations = {
       }
 
       // Validate payment status
-      const validStatuses = ['pending', 'paid', 'cancelled', 'refunded'] as const;
+      const validStatuses = [
+        'pending',
+        'paid',
+        'cancelled',
+        'refunded',
+      ] as const;
       if (!validStatuses.includes(paymentStatus as any)) {
         throw new Error(
           `Invalid payment status. Must be one of: ${validStatuses.join(', ')}`,
@@ -219,7 +224,12 @@ export const contractMutations = {
 
       // Update payment status if provided
       if (paymentStatus) {
-        const validStatuses = ['pending', 'paid', 'cancelled', 'refunded'] as const;
+        const validStatuses = [
+          'pending',
+          'paid',
+          'cancelled',
+          'refunded',
+        ] as const;
         if (!validStatuses.includes(paymentStatus as any)) {
           throw new Error(
             `Invalid payment status. Must be one of: ${validStatuses.join(
