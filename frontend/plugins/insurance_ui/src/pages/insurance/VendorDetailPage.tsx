@@ -126,10 +126,12 @@ export const VendorDetailPage = () => {
 
     if (vp.discountTiers && vp.discountTiers.length > 0) {
       setDiscountTiers(
-        vp.discountTiers.map((t: { minTravelers: number; discountPercent: number }) => ({
-          minTravelers: t.minTravelers,
-          discountPercent: t.discountPercent,
-        })),
+        vp.discountTiers.map(
+          (t: { minTravelers: number; discountPercent: number }) => ({
+            minTravelers: t.minTravelers,
+            discountPercent: t.discountPercent,
+          }),
+        ),
       );
     } else {
       setDiscountTiers([]);
@@ -309,7 +311,10 @@ export const VendorDetailPage = () => {
                               Хөнгөлөлт:{' '}
                               {vp.discountTiers
                                 .map(
-                                  (t: { minTravelers: number; discountPercent: number }) =>
+                                  (t: {
+                                    minTravelers: number;
+                                    discountPercent: number;
+                                  }) =>
                                     `${t.minTravelers}+ хүн → ${t.discountPercent}%`,
                                 )
                                 .join(', ')}
@@ -619,13 +624,16 @@ export const VendorDetailPage = () => {
 
               {discountTiers.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Аялалын даатгалд олон аялагч бол хөнгөлөлт тооцох. &quot;Add Tier&quot;
-                  дарна уу.
+                  Аялалын даатгалд олон аялагч бол хөнгөлөлт тооцох. &quot;Add
+                  Tier&quot; дарна уу.
                 </p>
               ) : (
                 <div className="space-y-2">
                   {discountTiers.map((tier) => (
-                    <div key={tier.minTravelers} className="flex gap-2 items-end">
+                    <div
+                      key={tier.minTravelers}
+                      className="flex gap-2 items-end"
+                    >
                       <div className="flex-1">
                         <Label className="text-xs">Хүний тоо (≥)</Label>
                         <Input
