@@ -59,6 +59,9 @@ export const types = `
     title: String
     note: String
     accommodationType: String
+    pricePerPerson: Float
+    domesticFlightPerPerson: Float
+    singleSupplement: Float
   }
 
   type TourTranslation {
@@ -83,6 +86,9 @@ export const types = `
     title: String
     note: String
     accommodationType: String
+    pricePerPerson: Float
+    domesticFlightPerPerson: Float
+    singleSupplement: Float
   }
 
   input TourTranslationInput {

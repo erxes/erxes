@@ -1,5 +1,5 @@
 import { Form, Sheet, Button, Tabs, useToast } from 'erxes-ui';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo } from 'react';
@@ -7,6 +7,13 @@ import { nanoid } from 'nanoid';
 
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
 import { useCreateTour } from '../hooks/useCreateTour';
+import { useTourLanguage } from '../hooks/useTourLanguage';
+import { TourFieldLanguageSwitch } from '../../_components/TourFieldLanguageSwitch';
+import {
+  buildEmptyTourTranslations,
+  sanitizeTourTranslations,
+  syncTranslationPricingOptions,
+} from '../utils/translationHelpers';
 
 import {
   TourCreateFormSchema,
@@ -39,6 +46,8 @@ import {
 
 interface Props {
   branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
   onSuccess?: () => void;
 }
 
@@ -74,7 +83,7 @@ const getDateStatus = (
   return isSameDay(startDate, new Date()) ? 'running' : 'scheduled';
 };
 
-export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
+export const TourCreateForm = ({ branchId, branchLanguages, mainLanguage, onSuccess }: Props) => {
   const { toast } = useToast();
   const { createTour, loading } = useCreateTour();
 
@@ -105,6 +114,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
       guides: [],
       pricingOptions: [
         {
+          _id: nanoid(8),
           title: '',
           minPersons: 1,
           maxPersons: undefined,
@@ -115,8 +125,58 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
           note: '',
         },
       ],
+      translations: [],
     },
   });
+
+  const { fields: translationFields } = useFieldArray({
+    control: form.control,
+    name: 'translations',
+  });
+
+  const {
+    allLanguages,
+    translationLanguages,
+    selectedLang,
+    setSelectedLang,
+    isMainLang,
+    translationIndex,
+    labelSuffix,
+    fieldPaths,
+  } = useTourLanguage({ branchLanguages, mainLanguage, fields: translationFields });
+
+  const resolvedPrimaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
+
+  useEffect(() => {
+    if (!translationLanguages.length) return;
+    const current = form.getValues('translations') || [];
+    const currentLangs = current.map((t) => t.language);
+    const pricingOptionIds = (form.getValues('pricingOptions') || []).map((p) => p._id);
+    if (!translationLanguages.every((l) => currentLangs.includes(l))) {
+      form.setValue(
+        'translations',
+        buildEmptyTourTranslations(translationLanguages, pricingOptionIds),
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [translationLanguages.join(',')]);
+
+  const watchedPricingOptions = useWatch({
+    control: form.control,
+    name: 'pricingOptions',
+  });
+
+  useEffect(() => {
+    if (!translationLanguages.length) return;
+    const pricingOptionIds = (watchedPricingOptions || []).map((p) => p._id).filter(Boolean);
+    if (!pricingOptionIds.length) return;
+    const current = form.getValues('translations');
+    const synced = syncTranslationPricingOptions(current, pricingOptionIds);
+    if (synced !== current) {
+      form.setValue('translations', synced || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedPricingOptions?.map((p) => p._id).join(','), translationLanguages.join(',')]);
 
   const itineraryId = useWatch({
     control: form.control,
@@ -198,6 +258,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
         isFlexibleDate: _isFlexibleDate,
         isGroupTour: _isGroupTour,
         pricingOptions,
+        translations,
         ...restValues
       } = values;
 
@@ -209,6 +270,8 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
           ? opt.accommodationType.trim().toLowerCase()
           : opt.accommodationType,
       }));
+
+      const sanitizedTranslations = sanitizeTourTranslations(translations);
 
       const groupCode = nanoid(8);
 
@@ -225,6 +288,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
             endDate: undefined,
             date_status: 'unscheduled',
             groupCode,
+            translations: sanitizedTranslations,
           },
         });
       } else {
@@ -267,6 +331,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
                   availableTo: undefined,
                   date_status: getDateStatus(selectedDate),
                   groupCode,
+                  translations: sanitizedTranslations,
                 },
               });
             }),
@@ -288,6 +353,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
               availableTo: undefined,
               date_status: getDateStatus(primaryStartDate),
               groupCode,
+              translations: sanitizedTranslations,
             },
           });
         }
@@ -310,23 +376,44 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
     }
   };
 
+  const onInvalid = () => {
+    const nameValue = form.getValues('name');
+    if (!nameValue?.trim()) {
+      toast({
+        title: 'Error',
+        description:
+          'Please enter values for the main language before creating.',
+        variant: 'destructive',
+      });
+      setSelectedLang(resolvedPrimaryLanguage);
+    }
+  };
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit, onInvalid)}
         className="flex flex-col h-full"
       >
         <Sheet.Header>
           <Sheet.Title>Create tour</Sheet.Title>
-          <Sheet.Close />
+          {allLanguages.length > 1 && (
+            <div className="flex items-center gap-2 ml-auto">
+              <TourFieldLanguageSwitch
+                availableLanguages={allLanguages}
+                value={selectedLang}
+                onValueChange={setSelectedLang}
+              />
+            </div>
+          )}
         </Sheet.Header>
 
-        <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
-          <div className="flex flex-col gap-6">
+        <Sheet.Content className="flex-1 px-6 py-4 overflow-y-auto rounded-none">
+          <div key={selectedLang} className="flex flex-col gap-6">
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <TourNameField control={form.control} />
-                <TourRefNumberField control={form.control} />
+                <TourNameField control={form.control} name={fieldPaths.name} labelSuffix={labelSuffix} />
+                <TourRefNumberField control={form.control} name={fieldPaths.refNumber} labelSuffix={labelSuffix} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -334,12 +421,13 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
                 <TourItineraryIdField
                   control={form.control}
                   branchId={branchId}
+                  language={selectedLang}
                 />
               </div>
 
-              <TourCategoryField control={form.control} branchId={branchId} />
+              <TourCategoryField control={form.control} branchId={branchId} language={selectedLang} />
 
-              <TourDescriptionField control={form.control} />
+              <TourDescriptionField control={form.control} name={fieldPaths.content} labelSuffix={labelSuffix} />
             </div>
 
             <div className="flex items-center">
@@ -366,7 +454,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
               <div className="flex-1 border-t" />
             </div>
 
-            <TourPricingOptionsField control={form.control} />
+            <TourPricingOptionsField control={form.control} translationIndex={isMainLang ? undefined : translationIndex} labelSuffix={labelSuffix} />
 
             {hideFields && (
               <div className="pt-4 space-y-4 border-t">
@@ -393,7 +481,7 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
 
             <div className="pt-4 space-y-4">
               <Tabs defaultValue="info1" className="w-full">
-                <Tabs.List className="grid grid-cols-5 w-full">
+                <Tabs.List className="grid w-full grid-cols-5">
                   <Tabs.Trigger value="info1">Included</Tabs.Trigger>
                   <Tabs.Trigger value="info2">Not Included</Tabs.Trigger>
                   <Tabs.Trigger value="info3">Highlights</Tabs.Trigger>
@@ -404,23 +492,23 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
                 </Tabs.List>
 
                 <Tabs.Content value="info1" className="pt-4">
-                  <TourInfo1Field control={form.control} />
+                  <TourInfo1Field control={form.control} name={fieldPaths.info1} />
                 </Tabs.Content>
 
                 <Tabs.Content value="info2" className="pt-4">
-                  <TourInfo2Field control={form.control} />
+                  <TourInfo2Field control={form.control} name={fieldPaths.info2} />
                 </Tabs.Content>
 
                 <Tabs.Content value="info3" className="pt-4">
-                  <TourInfo3Field control={form.control} />
+                  <TourInfo3Field control={form.control} name={fieldPaths.info3} />
                 </Tabs.Content>
 
                 <Tabs.Content value="info4" className="pt-4">
-                  <TourInfo4Field control={form.control} />
+                  <TourInfo4Field control={form.control} name={fieldPaths.info4} />
                 </Tabs.Content>
 
                 <Tabs.Content value="info5" className="pt-4">
-                  <TourInfo5Field control={form.control} />
+                  <TourInfo5Field control={form.control} name={fieldPaths.info5} />
                 </Tabs.Content>
               </Tabs>
             </div>

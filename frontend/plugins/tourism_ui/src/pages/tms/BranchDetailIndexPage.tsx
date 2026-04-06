@@ -25,12 +25,6 @@ const VALID_TABS = new Set<ActiveTab>([
   'amenities',
 ]);
 
-const CREATE_SHEET_MAP: Partial<
-  Record<ActiveTab, (branchId: string) => JSX.Element>
-> = {
-  tour: (branchId) => <TourCreateSheet branchId={branchId} />,
-};
-
 export const BranchDetailIndexPage = () => {
   const [searchParams] = useSearchParams();
 
@@ -72,6 +66,16 @@ export const BranchDetailIndexPage = () => {
 
   const renderCreateSheet = () => {
     if (!branchId) return null;
+
+    if (activeTab === 'tour') {
+      return (
+        <TourCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
     if (activeTab === 'itinerary') {
       return (
         <ItineraryCreateSheet
@@ -108,7 +112,8 @@ export const BranchDetailIndexPage = () => {
         />
       );
     }
-    return CREATE_SHEET_MAP[activeTab]?.(branchId) ?? null;
+
+    return null;
   };
 
   return (
