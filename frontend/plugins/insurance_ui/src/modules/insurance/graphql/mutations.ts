@@ -273,6 +273,14 @@ export const REMOVE_COUNTRY_FROM_REGION = gql`
   }
 `;
 
+export const SEED_INSURANCE_REGIONS = gql`
+  mutation SeedInsuranceRegions {
+    seedInsuranceRegions {
+      ${insuranceRegionFields}
+    }
+  }
+`;
+
 export default {
   CREATE_RISK_TYPE,
   UPDATE_RISK_TYPE,
@@ -300,4 +308,5 @@ export default {
   DELETE_INSURANCE_REGION,
   ADD_COUNTRY_TO_REGION,
   REMOVE_COUNTRY_FROM_REGION,
+  SEED_INSURANCE_REGIONS,
 };

@@ -6,20 +6,80 @@ import {
   IconX,
   IconCheck,
   IconAlertTriangle,
+  IconDatabaseImport,
 } from '@tabler/icons-react';
+import { useMutation } from '@apollo/client';
 import {
   useRegions,
   useCreateRegion,
   useUpdateRegion,
   useDeleteRegion,
 } from '~/modules/insurance/hooks';
+import { SEED_INSURANCE_REGIONS } from '~/modules/insurance/graphql/mutations';
+import { INSURANCE_REGIONS } from '~/modules/insurance/graphql/queries';
 import type { InsuranceRegion } from '~/modules/insurance/types';
+
+const FLAG_MAP: Record<string, string> = {
+  'Австрали': '🇦🇺', 'Австри': '🇦🇹', 'Азербайжан': '🇦🇿', 'Албани': '🇦🇱',
+  'Алжир': '🇩🇿', 'АНУ': '🇺🇸', 'Ангол': '🇦🇴', 'Андорра': '🇦🇩',
+  'Антигуа ба Барбуда': '🇦🇬', 'Аргентин': '🇦🇷', 'Армени': '🇦🇲',
+  'Афганистан': '🇦🇫', 'Африк': '🇿🇦', 'Балба': '🇧🇭', 'Бангладеш': '🇧🇩',
+  'Барбадос': '🇧🇧', 'Бахам': '🇧🇸', 'Бахрейн': '🇧🇭', 'Беларусь': '🇧🇾',
+  'Бельги': '🇧🇪', 'Белиз': '🇧🇿', 'Бенин': '🇧🇯', 'Болгар': '🇧🇬',
+  'Боливи': '🇧🇴', 'Босни-Херцеговин': '🇧🇦', 'Ботсвана': '🇧🇼',
+  'Бразил': '🇧🇷', 'Британи': '🇬🇧', 'Бруней': '🇧🇳', 'Бурунди': '🇧🇮',
+  'Бутан': '🇧🇹', 'Вануату': '🇻🇺', 'Ватикан': '🇻🇦', 'Венесуэл': '🇻🇪',
+  'Вьетнам': '🇻🇳', 'Габон': '🇬🇦', 'Гайана': '🇬🇾', 'Гамби': '🇬🇲',
+  'Гана': '🇬🇭', 'Гватемал': '🇬🇹', 'Гвиней': '🇬🇳', 'Гвиней-Бисау': '🇬🇼',
+  'Герман': '🇩🇪', 'Грек': '🇬🇷', 'Гренада': '🇬🇩', 'Гүрж': '🇬🇪',
+  'Дани': '🇩🇰', 'Доминик': '🇩🇲', 'Доминикан': '🇩🇴', 'Египет': '🇪🇬',
+  'Жибути': '🇩🇯', 'Замби': '🇿🇲', 'Зимбабве': '🇿🇼', 'Зүүн Тимор': '🇹🇱',
+  'Индонез': '🇮🇩', 'Иран': '🇮🇷', 'Ирланд': '🇮🇪', 'Исланд': '🇮🇸',
+  'Испани': '🇪🇸', 'Итали': '🇮🇹', 'Йордан': '🇯🇴', 'Кабо-Верде': '🇨🇻',
+  'Казахстан': '🇰🇿', 'Камбож': '🇰🇭', 'Канад': '🇨🇦', 'Катар': '🇶🇦',
+  'Кени': '🇰🇪', 'Кипр': '🇨🇾', 'Киргиз': '🇰🇬', 'Кирибати': '🇰🇮',
+  'Коморос': '🇰🇲', 'Коста-Рика': '🇨🇷', 'Куба': '🇨🇺', 'Кувейт': '🇰🇼',
+  'Лаос': '🇱🇦', 'Латви': '🇱🇻', 'Лесото': '🇱🇸', 'Либери': '🇱🇷',
+  'Ливан': '🇱🇧', 'Ливи': '🇱🇾', 'Лихтенштайн': '🇱🇮', 'Литва': '🇱🇹',
+  'Люксембург': '🇱🇺', 'Маврики': '🇲🇺', 'Мавритани': '🇲🇷',
+  'Мадагаскар': '🇲🇬', 'Малави': '🇲🇼', 'Малайз': '🇲🇾', 'Мальдив': '🇲🇻',
+  'Мальта': '🇲🇹', 'Марокко': '🇲🇦', 'Маршаллын Арлууд': '🇲🇭',
+  'Микронез': '🇫🇲', 'Мозамбик': '🇲🇿', 'Молдова': '🇲🇩', 'Монако': '🇲🇨',
+  'Монгол': '🇲🇳', 'Монтенегро': '🇲🇪', 'Намиби': '🇳🇦', 'Науру': '🇳🇷',
+  'Нидерланд': '🇳🇱', 'Нижер': '🇳🇪', 'Никарагуа': '🇳🇮', 'Норвеги': '🇳🇴',
+  'Оман': '🇴🇲', 'Өмнөд Судан': '🇸🇸', 'Палау': '🇵🇼', 'Панам': '🇵🇦',
+  'Папуа Шинэ Гвиней': '🇵🇬', 'Парагвай': '🇵🇾', 'Перу': '🇵🇪',
+  'Польш': '🇵🇱', 'Португал': '🇵🇹', 'Руанда': '🇷🇼', 'Румын': '🇷🇴',
+  'Самоа': '🇼🇸', 'Сан Марино': '🇸🇲', 'Сан-Томе ба Принсипи': '🇸🇹',
+  'Саудын Араб': '🇸🇦', 'Сейшелийн арлууд': '🇸🇨', 'Сенегал': '🇸🇳',
+  'Сент-Винсент ба Гренадин': '🇻🇨', 'Сент Кристофер ба Невис': '🇰🇳',
+  'Сент Люсиа': '🇱🇨', 'Серби': '🇷🇸', 'Сингапур': '🇸🇬', 'Словак': '🇸🇰',
+  'Словени': '🇸🇮', 'Соломоны Арлууд': '🇸🇧', 'Солонгос': '🇰🇷',
+  'Суринам': '🇸🇷', 'Сьерра Леон': '🇸🇱', 'Тажикистан': '🇹🇯',
+  'Тайланд': '🇹🇭', 'Танзани': '🇹🇿', 'Того': '🇹🇬', 'Тонга': '🇹🇴',
+  'Төв Африк': '🇨🇫', 'Тринидад ба Тобаго': '🇹🇹', 'Тувалу': '🇹🇻',
+  'Тунис': '🇹🇳', 'Турк': '🇹🇷', 'Туркменистан': '🇹🇲', 'Уганда': '🇺🇬',
+  'Узбекистан': '🇺🇿', 'Умард Македон': '🇲🇰', 'Унгар': '🇭🇺',
+  'Уругвай': '🇺🇾', 'Фижи': '🇫🇯', 'Филиппин': '🇵🇭', 'Финланд': '🇫🇮',
+  'Франц': '🇫🇷', 'Хондурас': '🇭🇳', 'Хорват': '🇭🇷', 'Хятад': '🇨🇳',
+  'Чад': '🇹🇩', 'Чех': '🇨🇿', 'Чили': '🇨🇱', 'Швед': '🇸🇪',
+  'Швейцар': '🇨🇭', 'Шинэ Зеланд': '🇳🇿', 'Шри Ланка': '🇱🇰',
+  'Эквадор': '🇪🇨', 'Экваторын Гвиней': '🇬🇶', 'Эль Сальвадор': '🇸🇻',
+  'Эмират': '🇦🇪', 'Энэтхэг': '🇮🇳', 'Эритрей': '🇪🇷', 'Эсватини': '🇸🇿',
+  'Эстони': '🇪🇪', 'Ямайка': '🇯🇲', 'Япон': '🇯🇵',
+};
+
+const getFlag = (country: string) => FLAG_MAP[country] || '🏳️';
 
 export const RegionsPage = () => {
   const { regions, loading } = useRegions();
   const { createRegion } = useCreateRegion();
   const { updateRegion } = useUpdateRegion();
   const { deleteRegion } = useDeleteRegion();
+  const [seedRegions, { loading: seeding }] = useMutation(
+    SEED_INSURANCE_REGIONS,
+    { refetchQueries: [{ query: INSURANCE_REGIONS }] },
+  );
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -149,9 +209,20 @@ export const RegionsPage = () => {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto h-full overflow-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Бүс нутгууд (Regions)</h1>
+        <div className="flex gap-2">
+        <button
+          onClick={async () => {
+            await seedRegions();
+          }}
+          disabled={seeding}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+        >
+          <IconDatabaseImport size={18} />
+          {seeding ? 'Оруулж байна...' : 'Seed data оруулах'}
+        </button>
         <button
           onClick={() => {
             setShowCreateForm(true);
@@ -164,6 +235,7 @@ export const RegionsPage = () => {
           <IconPlus size={18} />
           Бүс нутаг нэмэх
         </button>
+        </div>
       </div>
 
       {showCreateForm && (
@@ -295,7 +367,7 @@ export const RegionsPage = () => {
                       key={country}
                       className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
                     >
-                      {country}
+                      {getFlag(country)} {country}
                       {editCountriesId === region.id && (
                         <button
                           onClick={() =>

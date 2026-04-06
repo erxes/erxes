@@ -186,6 +186,7 @@ export const ProductForm = ({
     }[],
     compensationCalculations: [] as { name: string; methodologies: string[] }[],
     deductibleConfig: { levels: [] as string[] },
+    regionIds: [] as string[],
   });
   const [showPdfEditor, setShowPdfEditor] = useState(false);
 
@@ -257,6 +258,7 @@ export const ProductForm = ({
         additionalCoverages: product.additionalCoverages || [],
         compensationCalculations: product.compensationCalculations || [],
         deductibleConfig: product.deductibleConfig || { levels: [] },
+        regionIds: product.regions?.map((r: any) => r.id) || [],
       });
 
       // Detect pricing mode from existing config
@@ -297,9 +299,11 @@ export const ProductForm = ({
         additionalCoverages: [],
         compensationCalculations: [],
         deductibleConfig: { levels: [] },
+        regionIds: [],
       });
       setDurationFields([]);
       setDurationTiers([]);
+      setFormulas([]);
       setPricingMode('percentage');
     }
   }, [product, open]);
@@ -360,6 +364,7 @@ export const ProductForm = ({
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
             pdfContent: formData.pdfContent || null,
+            regionIds: formData.regionIds,
             additionalCoverages:
               formData.additionalCoverages.length > 0
                 ? formData.additionalCoverages
@@ -382,6 +387,7 @@ export const ProductForm = ({
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
             pdfContent: formData.pdfContent || null,
+            regionIds: formData.regionIds,
             additionalCoverages:
               formData.additionalCoverages.length > 0
                 ? formData.additionalCoverages
@@ -464,6 +470,51 @@ export const ProductForm = ({
                   )}
                 </Select.Content>
               </Select>
+            </div>
+          )}
+
+          {/* Region Selection - only for citizen/travel insurance */}
+          {insuranceTypes.find((t) =>
+            t.id === (product?.insuranceType?.id || formData.insuranceTypeId),
+          )?.isCitizen && (
+            <div className="space-y-2">
+              <Label>Бүс нутаг сонгох</Label>
+              <div className="flex flex-wrap gap-2">
+                {regions.map((r) => {
+                  const isSelected = formData.regionIds.includes(r.id);
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => {
+                        const newIds = isSelected
+                          ? formData.regionIds.filter((id) => id !== r.id)
+                          : [...formData.regionIds, r.id];
+                        setFormData({ ...formData, regionIds: newIds });
+                      }}
+                      className={`px-3 py-1.5 rounded-md border text-sm transition-colors ${
+                        isSelected
+                          ? 'bg-purple-600 text-white border-purple-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-purple-400'
+                      }`}
+                    >
+                      {r.name}
+                      <span className="ml-1 text-xs opacity-70">
+                        ({r.countries.length})
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {formData.regionIds.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {formData.regionIds.length} бүс нутаг сонгогдсон —{' '}
+                  {regions
+                    .filter((r) => formData.regionIds.includes(r.id))
+                    .reduce((sum, r) => sum + r.countries.length, 0)}{' '}
+                  улс хамрагдана
+                </p>
+              )}
             </div>
           )}
 
@@ -698,7 +749,13 @@ export const ProductForm = ({
                       },
                     });
                   } else if (value === 'formula') {
-                    const defaultFormulas = regions.map((r) => ({
+                    const selectedRegions =
+                      formData.regionIds.length > 0
+                        ? regions.filter((r) =>
+                            formData.regionIds.includes(r.id),
+                          )
+                        : regions;
+                    const defaultFormulas = selectedRegions.map((r) => ({
                       regionId: r.id,
                       regionName: r.name,
                       slope21: 0,

@@ -11,6 +11,7 @@ export const productQueries = {
         .map((p: any) => ({
           ...p.toObject(),
           coveredRisks: p.coveredRisks.filter((cr: any) => cr.risk != null),
+          regions: (p.regions || []).filter((r: any) => r != null && r.name),
         }));
     },
     { wrapperConfig: { skipPermission: true } },
@@ -31,6 +32,7 @@ export const productQueries = {
       return {
         ...product.toObject(),
         coveredRisks: product.coveredRisks.filter((cr: any) => cr.risk != null),
+        regions: (product.regions || []).filter((r: any) => r != null && r.name),
       };
     },
     { wrapperConfig: { skipPermission: true } },
@@ -49,6 +51,7 @@ export const productQueries = {
       return products.map((p: any) => ({
         ...p.toObject(),
         coveredRisks: p.coveredRisks.filter((cr: any) => cr.risk != null),
+        regions: (p.regions || []).filter((r: any) => r != null && r.name),
       }));
     },
     { wrapperConfig: { skipPermission: true } },
