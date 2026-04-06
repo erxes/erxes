@@ -24,7 +24,10 @@ const RegionFields = ({
   newCountry,
   setNewCountry,
 }: {
-  pricingConfig: Record<string, number | string | string[] | Record<string, number>>;
+  pricingConfig: Record<
+    string,
+    number | string | string[] | Record<string, number>
+  >;
   onFieldChange: (field: string, value: unknown) => void;
   newCountry: string;
   setNewCountry: (v: string) => void;
@@ -178,7 +181,9 @@ export const ProductForm = ({
     });
   };
 
-  const updateDurationTiers = (updated: { minDays: number; maxDays: number; fee: number }[]) => {
+  const updateDurationTiers = (
+    updated: { minDays: number; maxDays: number; fee: number }[],
+  ) => {
     setDurationTiers(updated);
     setFormData({
       ...formData,
@@ -186,7 +191,9 @@ export const ProductForm = ({
     });
   };
 
-  const syncPercentageByDuration = (fields: { duration: string; percentage: number }[]) => {
+  const syncPercentageByDuration = (
+    fields: { duration: string; percentage: number }[],
+  ) => {
     const percentageByDuration: Record<string, number> = {};
     fields.forEach((f) => {
       if (f.duration) percentageByDuration[f.duration] = f.percentage;
@@ -766,14 +773,20 @@ export const ProductForm = ({
                   ) : (
                     <div className="space-y-2">
                       {durationFields.map((field, index) => (
-                        <div key={field.duration || `dur-${index}`} className="flex gap-2 items-end">
+                        <div
+                          key={field.duration || `dur-${index}`}
+                          className="flex gap-2 items-end"
+                        >
                           <div className="flex-1">
                             <Label className="text-xs">Duration (months)</Label>
                             <Input
                               value={field.duration}
                               onChange={(e) => {
                                 const newFields = [...durationFields];
-                                newFields[index] = { ...newFields[index], duration: e.target.value };
+                                newFields[index] = {
+                                  ...newFields[index],
+                                  duration: e.target.value,
+                                };
                                 setDurationFields(newFields);
                                 syncPercentageByDuration(newFields);
                               }}
@@ -789,7 +802,10 @@ export const ProductForm = ({
                               value={field.percentage}
                               onChange={(e) => {
                                 const newFields = [...durationFields];
-                                newFields[index] = { ...newFields[index], percentage: parseFloat(e.target.value) || 0 };
+                                newFields[index] = {
+                                  ...newFields[index],
+                                  percentage: parseFloat(e.target.value) || 0,
+                                };
                                 setDurationFields(newFields);
                                 syncPercentageByDuration(newFields);
                               }}
@@ -801,7 +817,9 @@ export const ProductForm = ({
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              const newFields = durationFields.filter((_, i) => i !== index);
+                              const newFields = durationFields.filter(
+                                (_, i) => i !== index,
+                              );
                               setDurationFields(newFields);
                               syncPercentageByDuration(newFields);
                             }}
@@ -989,7 +1007,10 @@ export const ProductForm = ({
                     min="0"
                     value={(formData.pricingConfig.dailyRate as number) || ''}
                     onChange={(e) =>
-                      handlePricingFieldChange('dailyRate', parseFloat(e.target.value) || 0)
+                      handlePricingFieldChange(
+                        'dailyRate',
+                        parseFloat(e.target.value) || 0,
+                      )
                     }
                     placeholder="3000"
                     required
