@@ -29,7 +29,7 @@ export const SettingSyncDealTable = () => {
   );
 };
 
-const LinkCell = ({ row, field }: { row: any, field: string }) => {
+const LinkCell = ({ row, field }: { row: any; field: string }) => {
   const [, setOpen] = useQueryState('configId', { defaultValue: '' });
   const setAccountDetail = useSetAtom(accountingConfigDetailAtom);
   return (
@@ -42,7 +42,7 @@ const LinkCell = ({ row, field }: { row: any, field: string }) => {
       {row.original?.[field]}
     </RecordTableInlineCell>
   );
-}
+};
 
 export const columns: ColumnDef<IConfig>[] = [
   RecordTable.checkboxColumn as ColumnDef<IConfig>,
@@ -51,7 +51,7 @@ export const columns: ColumnDef<IConfig>[] = [
     accessorKey: 'code',
     header: () => <RecordTable.InlineHead label="Code" />,
     cell: ({ cell }) => {
-      return <LinkCell row={cell.row} field={'code'} />
+      return <LinkCell row={cell.row} field={'code'} />;
     },
     size: 250,
   },
@@ -60,7 +60,7 @@ export const columns: ColumnDef<IConfig>[] = [
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead label="Title" />,
     cell: ({ cell }) => {
-      return <LinkCell row={cell.row} field={'title'} />
+      return <LinkCell row={cell.row} field={'title'} />;
     },
   },
   {

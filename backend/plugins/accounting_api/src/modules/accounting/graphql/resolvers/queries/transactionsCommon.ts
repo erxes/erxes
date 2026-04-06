@@ -268,10 +268,10 @@ const generateFilter = async (
   }
 
   if (customerType) {
-    filter.customerType = customerType
+    filter.customerType = customerType;
   }
   if (customerId) {
-    filter.customerId = customerId
+    filter.customerId = customerId;
   }
 
   if (currency) {
