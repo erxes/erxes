@@ -11,6 +11,7 @@ import {
   getBmsItemWithTranslation,
   TOUR_FIELD_MAPPINGS,
   applyTourTranslation,
+  TOUR_CATEGORY_FIELD_MAPPINGS,
 } from '@/bms/utils/translations';
 
 function buildDateSelector(
@@ -240,9 +241,13 @@ const tourQueries: Record<string, Resolver> = {
     );
   },
 
-  bmsTourCategories(_root, { parentId, name, branchId }, { models }: IContext) {
+  bmsTourCategories: async (
+    _root,
+    { parentId, name, branchId, language },
+    { models }: IContext,
+  ) => {
     const selector: any = {};
-
+   
     if (parentId) {
       selector.parentId = parentId;
     } else if (parentId === null) {
@@ -250,8 +255,23 @@ const tourQueries: Record<string, Resolver> = {
     }
     if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     if (branchId) selector.branchId = branchId;
-
-    return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });
+   
+    // No language — return raw sorted list
+    if (!language) {
+      return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });
+    }
+   
+    // With language — overlay translations
+    const { list } = await getBmsListWithTranslations(
+      models,
+      models.BmsTourCategories,
+      models.TourCategoryTranslations,
+      selector,
+      { branchId, language, orderBy: { order: 1, name: 1 } },
+      TOUR_CATEGORY_FIELD_MAPPINGS,
+    );
+   
+    return list;
   },
 
   cpBmsTourDetail(
