@@ -191,7 +191,7 @@ export const TransactionsTabsList = ({
     const newJournal = JOURNALS_BY_JOURNAL(
       selectedJournal,
       fakeTrDoc as any,
-    ) as TTrDoc;
+    );
     append(newJournal);
     setActiveJournal(fields.length.toString());
   };

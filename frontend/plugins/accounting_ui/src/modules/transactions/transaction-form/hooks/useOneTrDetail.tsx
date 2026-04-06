@@ -13,7 +13,7 @@ export const useOneTrDetail = (options?: OperationVariables) => {
   const transactions = data?.accTransactionDetail;
 
   return {
-    transaction: transactions?.find((tr) => tr._id),
+    transaction: transactions?.find((tr) => tr._id === options?.variables?._id),
     loading,
     error,
   };

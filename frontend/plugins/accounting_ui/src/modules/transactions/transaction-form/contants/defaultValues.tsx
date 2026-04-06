@@ -14,9 +14,10 @@ import {
   TPayableJournal,
   TReceivableJournal,
   TTaxJournal,
+  TTrDoc,
 } from '../types/JournalForms';
 
-const trDataWrapper = (doc?: ITransaction) => {
+const trDataWrapper = (doc?: Partial<ITransaction>) => {
   return {
     ...doc,
     _id: doc?._id ?? getTempId(),
@@ -36,7 +37,7 @@ const trDetailWrapper = (detail?: ITrDetail) => {
   };
 };
 
-export const DEFAULT_VAT_VALUES = (doc?: ITransaction) => {
+export const DEFAULT_VAT_VALUES = (doc?: Partial<ITransaction>) => {
   return {
     hasVat: doc?.hasVat ?? false,
     isHandleVat: doc?.isHandleVat ?? false,
@@ -45,7 +46,7 @@ export const DEFAULT_VAT_VALUES = (doc?: ITransaction) => {
   };
 };
 
-export const DEFAULT_CTAX_VALUES = (doc?: ITransaction) => {
+export const DEFAULT_CTAX_VALUES = (doc?: Partial<ITransaction>) => {
   return {
     hasCtax: doc?.hasCtax ?? false,
     isHandleCtax: doc?.isHandleCtax ?? false,
@@ -54,21 +55,21 @@ export const DEFAULT_CTAX_VALUES = (doc?: ITransaction) => {
 };
 
 export const MAIN_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TMainJournal> => {
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.MAIN,
     details: [
       {
-        ...trDetailWrapper(doc?.details[0]),
+        ...trDetailWrapper(doc?.details?.[0]),
       },
     ],
   };
 };
 
 export const CASH_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TCashJournal> => {
   return {
     ...trDataWrapper(doc),
@@ -77,14 +78,14 @@ export const CASH_JOURNAL_DEFAULT_VALUES = (
     ...DEFAULT_CTAX_VALUES(doc),
     details: [
       {
-        ...trDetailWrapper(doc?.details[0]),
+        ...trDetailWrapper(doc?.details?.[0]),
       },
     ],
   };
 };
 
 export const BANK_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TBankJournal> => {
   return {
     ...trDataWrapper(doc),
@@ -93,14 +94,14 @@ export const BANK_JOURNAL_DEFAULT_VALUES = (
     ...DEFAULT_CTAX_VALUES(doc),
     details: [
       {
-        ...trDetailWrapper(doc?.details[0]),
+        ...trDetailWrapper(doc?.details?.[0]),
       },
     ],
   };
 };
 
 export const RECEIVABLE_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TReceivableJournal> => {
   return {
     ...trDataWrapper(doc),
@@ -109,14 +110,14 @@ export const RECEIVABLE_JOURNAL_DEFAULT_VALUES = (
     ...DEFAULT_CTAX_VALUES(doc),
     details: [
       {
-        ...trDetailWrapper(doc?.details[0]),
+        ...trDetailWrapper(doc?.details?.[0]),
       },
     ],
   };
 };
 
 export const PAYABLE_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TPayableJournal> => {
   return {
     ...trDataWrapper(doc),
@@ -125,177 +126,177 @@ export const PAYABLE_JOURNAL_DEFAULT_VALUES = (
     ...DEFAULT_CTAX_VALUES(doc),
     details: [
       {
-        ...trDetailWrapper(doc?.details[0]),
+        ...trDetailWrapper(doc?.details?.[0]),
       },
     ],
   };
 };
 
 export const TAX_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TTaxJournal> => {
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.TAX,
     details: [
       {
-        ...trDetailWrapper(doc?.details[0]),
+        ...trDetailWrapper(doc?.details?.[0]),
       },
     ],
   };
 };
 
 export const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TInvIncomeJournal> => {
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_INCOME,
     ...DEFAULT_VAT_VALUES(doc),
     ...DEFAULT_CTAX_VALUES(doc),
-    details: !doc?.details.length
+    details: !doc?.details?.length
       ? [
-          {
-            ...trDetailWrapper(),
-            side: TR_SIDES.DEBIT,
-            productId: '',
-            count: 0,
-            unitPrice: 0,
-            amount: 0,
-          },
-        ]
-      : doc?.details.map((det) => ({
-          ...trDetailWrapper(det),
+        {
+          ...trDetailWrapper(),
           side: TR_SIDES.DEBIT,
-          productId: det.productId || '',
-          product: det.product,
-          count: det.count ?? 0,
-          unitPrice: det.unitPrice ?? 0,
-          amount: det.amount ?? 0,
-        })),
+          productId: '',
+          count: 0,
+          unitPrice: 0,
+          amount: 0,
+        },
+      ]
+      : doc?.details.map((det) => ({
+        ...trDetailWrapper(det),
+        side: TR_SIDES.DEBIT,
+        productId: det.productId || '',
+        product: det.product,
+        count: det.count ?? 0,
+        unitPrice: det.unitPrice ?? 0,
+        amount: det.amount ?? 0,
+      })),
   };
 };
 
 export const INV_OUT_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TInvOutJournal> => {
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_OUT,
-    details: !doc?.details.length
+    details: !doc?.details?.length
       ? [
-          {
-            ...trDetailWrapper(),
-            side: TR_SIDES.CREDIT,
-            productId: '',
-            count: 0,
-            unitPrice: 0,
-            amount: 0,
-          },
-        ]
-      : doc?.details.map((det) => ({
-          ...trDetailWrapper(det),
+        {
+          ...trDetailWrapper(),
           side: TR_SIDES.CREDIT,
-          productId: det.productId || '',
-          product: det.product,
-          count: det.count ?? 0,
-          unitPrice: det.unitPrice ?? 0,
-          amount: det.amount ?? 0,
-        })),
+          productId: '',
+          count: 0,
+          unitPrice: 0,
+          amount: 0,
+        },
+      ]
+      : doc?.details.map((det) => ({
+        ...trDetailWrapper(det),
+        side: TR_SIDES.CREDIT,
+        productId: det.productId || '',
+        product: det.product,
+        count: det.count ?? 0,
+        unitPrice: det.unitPrice ?? 0,
+        amount: det.amount ?? 0,
+      })),
   };
 };
 
 export const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TInvMoveJournal> => {
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_MOVE,
-    details: !doc?.details.length
+    details: !doc?.details?.length
       ? [
-          {
-            ...trDetailWrapper(),
-            side: TR_SIDES.CREDIT,
-            productId: '',
-            count: 0,
-            unitPrice: 0,
-            amount: 0,
-          },
-        ]
-      : doc?.details.map((det) => ({
-          ...trDetailWrapper(det),
+        {
+          ...trDetailWrapper(),
           side: TR_SIDES.CREDIT,
-          productId: det.productId || '',
-          product: det.product,
-          count: det.count ?? 0,
-          unitPrice: det.unitPrice ?? 0,
-          amount: det.amount ?? 0,
-        })),
+          productId: '',
+          count: 0,
+          unitPrice: 0,
+          amount: 0,
+        },
+      ]
+      : doc?.details.map((det) => ({
+        ...trDetailWrapper(det),
+        side: TR_SIDES.CREDIT,
+        productId: det.productId || '',
+        product: det.product,
+        count: det.count ?? 0,
+        unitPrice: det.unitPrice ?? 0,
+        amount: det.amount ?? 0,
+      })),
   };
 };
 
 export const INV_SALE_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TInvSaleJournal> => {
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_SALE,
-    details: !doc?.details.length
+    details: !doc?.details?.length
       ? [
-          {
-            ...trDetailWrapper(),
-            side: TR_SIDES.CREDIT,
-            productId: '',
-            count: 0,
-            unitPrice: 0,
-            amount: 0,
-          },
-        ]
-      : doc?.details.map((det) => ({
-          ...trDetailWrapper(det),
+        {
+          ...trDetailWrapper(),
           side: TR_SIDES.CREDIT,
-          productId: det.productId || '',
-          product: det.product,
-          count: det.count ?? 0,
-          unitPrice: det.unitPrice ?? 0,
-          amount: det.amount ?? 0,
-        })),
+          productId: '',
+          count: 0,
+          unitPrice: 0,
+          amount: 0,
+        },
+      ]
+      : doc?.details.map((det) => ({
+        ...trDetailWrapper(det),
+        side: TR_SIDES.CREDIT,
+        productId: det.productId || '',
+        product: det.product,
+        count: det.count ?? 0,
+        unitPrice: det.unitPrice ?? 0,
+        amount: det.amount ?? 0,
+      })),
   };
 };
 
 export const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
-  doc?: ITransaction,
+  doc?: Partial<ITransaction>,
 ): Partial<TInvSaleReturnJournal> => {
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_SALE_RETURN,
-    details: doc?.details.length
+    details: doc?.details?.length
       ? doc?.details.map((det) => ({
-          ...trDetailWrapper(det),
-          side: TR_SIDES.DEBIT,
-          productId: det.productId || '',
-          product: det.product,
-          count: det.count ?? 0,
-          unitPrice: det.unitPrice ?? 0,
-          amount: det.amount ?? 0,
-        }))
+        ...trDetailWrapper(det),
+        side: TR_SIDES.DEBIT,
+        productId: det.productId || '',
+        product: det.product,
+        count: det.count ?? 0,
+        unitPrice: det.unitPrice ?? 0,
+        amount: det.amount ?? 0,
+      }))
       : [
-          {
-            ...trDetailWrapper(),
-            side: TR_SIDES.DEBIT,
-            productId: '',
-            count: 0,
-            unitPrice: 0,
-            amount: 0,
-          },
-        ],
+        {
+          ...trDetailWrapper(),
+          side: TR_SIDES.DEBIT,
+          productId: '',
+          count: 0,
+          unitPrice: 0,
+          amount: 0,
+        },
+      ],
   };
 };
 
 export const JOURNALS_BY_JOURNAL = (
   journal: string,
-  doc?: ITransaction | any,
-) => {
+  doc?: Partial<ITransaction>,
+): TTrDoc => {
   if (!doc) {
     doc = {
       details: [] as ITrDetail[],
@@ -306,35 +307,48 @@ export const JOURNALS_BY_JOURNAL = (
     doc._id = getTempId();
   }
 
+  let result;
+
   switch (journal) {
     case TrJournalEnum.CASH:
-      return CASH_JOURNAL_DEFAULT_VALUES(doc);
+      result = CASH_JOURNAL_DEFAULT_VALUES(doc);
+      break;
 
     case TrJournalEnum.BANK:
-      return BANK_JOURNAL_DEFAULT_VALUES(doc);
+      result = BANK_JOURNAL_DEFAULT_VALUES(doc);
+      break;
 
     case TrJournalEnum.RECEIVABLE:
-      return RECEIVABLE_JOURNAL_DEFAULT_VALUES(doc);
+      result = RECEIVABLE_JOURNAL_DEFAULT_VALUES(doc);
+      break;
 
     case TrJournalEnum.PAYABLE:
-      return PAYABLE_JOURNAL_DEFAULT_VALUES(doc);
+      result = PAYABLE_JOURNAL_DEFAULT_VALUES(doc);
+      break;
 
     case TrJournalEnum.INV_INCOME:
-      return INV_INCOME_JOURNAL_DEFAULT_VALUES(doc);
+      result = INV_INCOME_JOURNAL_DEFAULT_VALUES(doc);
+      break;
 
     case TrJournalEnum.INV_OUT:
-      return INV_OUT_JOURNAL_DEFAULT_VALUES(doc);
+      result = INV_OUT_JOURNAL_DEFAULT_VALUES(doc);
+      break;
 
     case TrJournalEnum.INV_MOVE:
-      return INV_MOVE_JOURNAL_DEFAULT_VALUES(doc);
+      result = INV_MOVE_JOURNAL_DEFAULT_VALUES(doc);
+      break;
 
     case TrJournalEnum.INV_SALE:
-      return INV_SALE_JOURNAL_DEFAULT_VALUES(doc);
+      result = INV_SALE_JOURNAL_DEFAULT_VALUES(doc);
+      break;
 
     case TrJournalEnum.INV_SALE_RETURN:
-      return INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES(doc);
+      result = INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES(doc);
+      break;
 
     default: // MAIN
-      return MAIN_JOURNAL_DEFAULT_VALUES(doc);
+      result = MAIN_JOURNAL_DEFAULT_VALUES(doc);
+      break;
   }
+  return result as TTrDoc
 };

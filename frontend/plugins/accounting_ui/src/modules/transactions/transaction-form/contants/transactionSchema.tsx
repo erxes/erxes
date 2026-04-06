@@ -189,7 +189,7 @@ export const transactionInvIncomeSchema = z
         ...invDetailSchema.shape,
       }),
     ),
-    extraData: z.object({
+    extraData: undefed(z.object({
       invIncomeExpenses: z
         .array(
           z.object({
@@ -201,7 +201,7 @@ export const transactionInvIncomeSchema = z
           }),
         )
         .min(0),
-    }),
+    })),
   });
 
 export const transactionInvOutSchema = z

@@ -20,6 +20,8 @@ export enum TrJournalEnum {
   INV_SALE_COST = 'invSaleCost',
 
   INV_SALE_RETURN = 'invSaleReturn',
+  INV_SALE_RETURN_OUT = 'invSaleReturnOut',
+  INV_SALE_RETURN_COST = 'invSaleReturnCost',
 
   FIXED_ASSET = 'fixedAsset',
 }

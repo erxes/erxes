@@ -89,7 +89,7 @@ export const InventoryRow = ({
       ...currOut,
       ...commonFollowTr,
       _id: currOut?._id || getTempId(),
-      journal: TrJournalEnum.INV_SALE_OUT,
+      journal: TrJournalEnum.INV_SALE_RETURN_OUT,
       originType: 'invSaleReturnOut',
       details: (trDoc.details || []).map((saleDetail) => {
         const curOutDetail = currOut?.details.find(
@@ -117,7 +117,7 @@ export const InventoryRow = ({
       ...currCost,
       ...commonFollowTr,
       _id: currCost?._id || getTempId(),
-      journal: TrJournalEnum.INV_SALE_COST,
+      journal: TrJournalEnum.INV_SALE_RETURN_COST,
       originType: 'invSaleReturnCost',
       details: (trDoc.details || []).map((saleDetail) => {
         const curCostDetail = currCost?.details.find(

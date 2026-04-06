@@ -17,8 +17,6 @@ import { UseFormReturn, useWatch } from 'react-hook-form';
 import {
   BoardSelect,
   PipelineSelect,
-  SelectBranches,
-  SelectDepartments,
   StageSelect,
 } from 'ui-modules';
 import { z } from 'zod';
@@ -72,24 +70,6 @@ export const SyncDealReturnConfigForm = ({
     name: `pipelineId`,
   });
 
-  const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(
-    gql`
-      query SalesPipelineDetail($_id: String!) {
-        salesPipelineDetail(_id: $_id) {
-          _id
-          name
-          paymentIds
-          paymentTypes
-        }
-      }
-    `,
-    {
-      variables: { _id: pipelineId },
-      skip: !pipelineId, // pipelineId байхгүй үед асуухгүй
-      fetchPolicy: 'network-only', // заавал backend-ээс авна
-    },
-  );
-
   useEffect(() => {
     form.setValue('pipelineId', '');
   }, [boardId, form]);
@@ -97,16 +77,6 @@ export const SyncDealReturnConfigForm = ({
   useEffect(() => {
     form.setValue('stageId', '');
   }, [pipelineId, form]);
-
-  useEffect(() => {
-    if (pipelineId) {
-      pipelineRefetch({ _id: pipelineId });
-    }
-  }, [pipelineId, pipelineRefetch]);
-
-  // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: any[] =
-    pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
 
   return (
     <Form {...form}>
