@@ -20,10 +20,10 @@ type EventPayload = {
   docIds?: string | string[];
   docId?: string;
   action?: string;
-  fullDocument?: any;
-  prevDocument?: any;
-  currentDocument?: any;
-  updateDescription?: Record<string, any>;
+  fullDocument?: unknown;
+  prevDocument?: unknown;
+  currentDocument?: unknown;
+  updateDescription?: Record<string, unknown>;
   processId?: string;
   userId?: string;
   contentType?: string;
@@ -33,20 +33,41 @@ type BulkEventPayload = {
   action: typeof LOG_ACTIONS.UPDATE_MANY | typeof LOG_ACTIONS.BULK_WRITE;
   docIds: string[];
   collectionName: string;
-  updateDescription?: Record<string, any>;
+  updateDescription?: Record<string, unknown>;
   processId?: string;
   userId?: string;
   contentType?: string;
 };
 
+const getCollectionType = (contentType?: string, collectionName?: string) => {
+  if (contentType) {
+    const [, , collectionType = ''] = contentType.replace(':', '.').split('.');
+
+    if (collectionType) {
+      return collectionType;
+    }
+  }
+
+  return collectionName || '';
+};
+
+const withCollectionType = (
+  payload: Record<string, unknown>,
+  contentType?: string,
+  collectionName?: string,
+) => ({
+  ...payload,
+  collectionType: getCollectionType(contentType, collectionName),
+});
+
 const createLogDocument = async (
   Logs: Model<ILogDocument>,
-  collectionName: string,
   docId: string,
   action: string,
-  payload: any,
+  payload: Record<string, unknown>,
   processId?: string,
   userId?: string,
+  contentType?: string,
 ) => {
   return await Logs.create({
     action,
@@ -57,17 +78,18 @@ const createLogDocument = async (
     processId,
     userId,
     createdAt: new Date(),
+    contentType,
   });
 };
 
 const createLogDocumentsBatch = async (
   Logs: Model<ILogDocument>,
-  collectionName: string,
   docIds: string[],
   action: string,
-  payload: any,
+  payload: Record<string, unknown>,
   processId?: string,
   userId?: string,
+  contentType?: string,
 ) => {
   const logDocuments = docIds.map((docId) => ({
     action,
@@ -78,6 +100,7 @@ const createLogDocumentsBatch = async (
     processId,
     userId,
     createdAt: new Date(),
+    contentType,
   }));
 
   return await Logs.insertMany(logDocuments);
@@ -98,12 +121,12 @@ const handleCreate = async (
 
   return await createLogDocument(
     Logs,
-    payload.collectionName,
     payload.docId,
     LOG_ACTIONS.CREATE,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, payload.collectionName),
     payload.processId,
     payload.userId,
+    payload.contentType,
   );
 };
 
@@ -122,12 +145,12 @@ const handleUpdate = async (
 
   return await createLogDocument(
     Logs,
-    payload.collectionName,
     payload.docId,
     LOG_ACTIONS.UPDATE,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, payload.collectionName),
     payload.processId,
     payload.userId,
+    payload.contentType,
   );
 };
 
@@ -145,12 +168,12 @@ const handleDelete = async (
 
   return await createLogDocument(
     Logs,
-    payload.collectionName,
     payload.docId,
     LOG_ACTIONS.DELETE,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, payload.collectionName),
     payload.processId,
     payload.userId,
+    payload.contentType,
   );
 };
 
@@ -176,12 +199,12 @@ const handleUpdateMany = async (
     for (const batch of batches) {
       const batchResult = await createLogDocumentsBatch(
         Logs,
-        collectionName,
         batch,
         LOG_ACTIONS.UPDATE_MANY,
-        logPayload,
+        withCollectionType(logPayload, payload.contentType, collectionName),
         processId,
         userId,
+        payload.contentType,
       );
       results.push(...batchResult);
     }
@@ -190,12 +213,12 @@ const handleUpdateMany = async (
 
   return await createLogDocumentsBatch(
     Logs,
-    collectionName,
     docIds,
     LOG_ACTIONS.UPDATE_MANY,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, collectionName),
     processId,
     userId,
+    payload.contentType,
   );
 };
 
@@ -221,12 +244,12 @@ const handleBulkWrite = async (
     for (const batch of batches) {
       const batchResult = await createLogDocumentsBatch(
         Logs,
-        collectionName,
         batch,
         LOG_ACTIONS.BULK_WRITE,
-        logPayload,
+        withCollectionType(logPayload, payload.contentType, collectionName),
         processId,
         userId,
+        payload.contentType,
       );
       results.push(...batchResult);
     }
@@ -235,12 +258,12 @@ const handleBulkWrite = async (
 
   return await createLogDocumentsBatch(
     Logs,
-    collectionName,
     docIds,
     LOG_ACTIONS.BULK_WRITE,
-    logPayload,
+    withCollectionType(logPayload, payload.contentType, collectionName),
     processId,
     userId,
+    payload.contentType,
   );
 };
 

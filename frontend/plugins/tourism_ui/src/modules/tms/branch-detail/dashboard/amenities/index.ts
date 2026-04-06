@@ -4,6 +4,10 @@ export { AmenityEditSheet } from './_components/AmenityEditSheet';
 export { AmenityCommandBar } from './_components/AmenityCommandBar';
 export { AmenityFilter } from './_components/AmenityFilter';
 export { amenityColumns } from './_components/AmenityColumns';
+export {
+  AmenityMoreColumn,
+  amenityMoreColumn,
+} from './_components/AmenityMoreCell';
 
 export { useAmenities } from './hooks/useAmenities';
 export { useCreateAmenity } from './hooks/useCreateAmenity';

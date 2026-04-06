@@ -114,16 +114,14 @@ export const AUTOMATION_ACTIONS = [
     type: AUTOMATION_CORE_ACTIONS.SET_PROPERTY,
     icon: 'IconFlask',
     label: 'Manage properties',
-    description:
-      'Update existing default or custom properties for Contacts, Companies, Cards, Conversations',
+    description: 'Update record properties.',
     allowTargetFromActions: true,
   },
   {
     type: AUTOMATION_CORE_ACTIONS.DELAY,
     icon: 'IconHourglass',
     label: 'Delay',
-    description:
-      'Delay the next action with a timeframe, a specific event or activity',
+    description: 'Delay the next action.',
   },
   {
     type: AUTOMATION_CORE_ACTIONS.SEND_EMAIL,

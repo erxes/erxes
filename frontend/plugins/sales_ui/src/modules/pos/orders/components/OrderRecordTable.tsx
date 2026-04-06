@@ -1,13 +1,12 @@
-import { RecordTable } from 'erxes-ui';
 import {
   firstOrderColumns,
-  secondOrderColumns,
   generateOtherPaymentColumns,
+  secondOrderColumns,
 } from '@/pos/orders/components/OrderColumns';
 import { useOrdersList } from '@/pos/orders/hooks/UseOrderList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { RecordTable, Spinner } from 'erxes-ui';
 import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
-import { Spinner } from 'erxes-ui';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { ordersList, handleFetchMore, loading, pageInfo } = useOrdersList({
@@ -21,11 +20,13 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
     ...generateOtherPaymentColumns(posOrdersSummary),
     ...secondOrderColumns,
   ];
+  const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;
 
   return (
     <RecordTable.Provider
+      key={columnsKey}
       columns={allColumns}
       data={ordersList || []}
       className="m-3"

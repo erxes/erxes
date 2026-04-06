@@ -1,5 +1,5 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
-import { AutomationNodeType, NodeData } from '@/automations/types';
+import { AutomationNodeType } from '@/automations/types';
 import {
   ConnectionLineComponentProps,
   InternalNode,

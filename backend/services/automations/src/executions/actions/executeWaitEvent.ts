@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
-import { setExecutionWaitAction } from '@/bullmq/actionHandlerWorker/setWait';
-import { generateModels } from '@/connectionResolver';
-import { TAutomationWaitEventConfig } from '@/types';
+import { setExecutionWaitAction } from '../../bullmq/actionHandlerWorker/setWait';
+import { generateModels } from '../../connectionResolver';
+import { TAutomationWaitEventConfig } from '../../types';
 import {
   AUTOMATION_EXECUTION_STATUS,
   EXECUTE_WAIT_TYPES,
@@ -80,7 +80,7 @@ export const executeWaitEvent = async (
   if (targetType === 'action' && targetTypeId && segmentId) {
     const { actions = [] } = execution || {};
     const actionExecution = getLastActionExecution(actions, targetTypeId);
-    if (!actionExecution || !actionExecution?.result) {
+    if (!actionExecution?.result) {
       throw new Error(
         `Action execution not found for action ID: ${targetTypeId}. The action must be executed before it can be used in a wait event.`,
       );

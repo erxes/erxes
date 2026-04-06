@@ -1,9 +1,6 @@
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
-import {
-  createEventDispatcher,
-  EventDispatcherReturn,
-} from 'erxes-api-shared/core-modules';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import mongoose from 'mongoose';
 
 import {
@@ -107,22 +104,15 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
-  eventDispatcher: (
-    pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ) => EventDispatcherReturn,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+  const salesEventHandlers = eventHandlers('sales');
 
   // Board model with event dispatcher
   models.Boards = db.model<IBoardDocument, IBoardModel>(
     'sales_boards',
-    loadBoardClass(
-      models,
-      subdomain,
-      eventDispatcher('sales', 'sales', 'boards'),
-    ),
+    loadBoardClass(models, subdomain, salesEventHandlers('sales', 'boards')),
   );
 
   // Pipeline model with event dispatcher
@@ -131,28 +121,20 @@ export const loadClasses = (
     loadPipelineClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'sales', 'pipelines'),
+      salesEventHandlers('sales', 'pipelines'),
     ),
   );
 
   // Stage model with event dispatcher
   models.Stages = db.model<IStageDocument, IStageModel>(
     'sales_stages',
-    loadStageClass(
-      models,
-      subdomain,
-      eventDispatcher('sales', 'sales', 'stages'),
-    ),
+    loadStageClass(models, subdomain, salesEventHandlers('sales', 'stages')),
   );
 
   // Deal model with event dispatcher
   models.Deals = db.model<IDealDocument, IDealModel>(
     'deals',
-    loadDealClass(
-      models,
-      subdomain,
-      eventDispatcher('sales', 'sales', 'deals'),
-    ),
+    loadDealClass(models, subdomain, salesEventHandlers('sales', 'deals')),
   );
 
   // Checklist model with event dispatcher
@@ -161,7 +143,7 @@ export const loadClasses = (
     loadCheckListClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'sales', 'checklists'),
+      salesEventHandlers('sales', 'checklists'),
     ),
   );
 
@@ -171,7 +153,7 @@ export const loadClasses = (
     loadCheckListItemClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'sales', 'checklistItems'),
+      salesEventHandlers('sales', 'checklistItems'),
     ),
   );
 
@@ -181,7 +163,7 @@ export const loadClasses = (
     loadPipelineLabelClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'sales', 'pipelineLabels'),
+      salesEventHandlers('sales', 'pipelineLabels'),
     ),
   );
 

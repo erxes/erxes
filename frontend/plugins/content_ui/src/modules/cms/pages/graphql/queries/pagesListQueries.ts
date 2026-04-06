@@ -49,6 +49,9 @@ export const PAGE_LIST = gql`
         }
         createdUserId
         updatedAt
+        translations {
+          language
+        }
         __typename
       }
       __typename

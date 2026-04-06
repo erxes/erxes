@@ -1,13 +1,19 @@
 import { FocusSheet, SideMenuContext } from 'erxes-ui';
-import { useRelationWidget } from '../widget-provider/context/widgetContext';
+import {
+  useRelationWidget,
+  WidgetAccessProp,
+} from '../widget-provider/context/widgetContext';
+import { resolveAccess } from '../utils';
 
 export const RelationWidgetSideTabs = ({
   contentId,
   contentType,
+  access = 'write',
   hookOptions,
 }: {
   contentId: string;
   contentType: string;
+  access?: WidgetAccessProp;
   hookOptions?: {
     hiddenPlugins?: string[];
     hiddenModules?: string[];
@@ -29,6 +35,7 @@ export const RelationWidgetSideTabs = ({
               pluginName={module.pluginName}
               contentId={contentId}
               contentType={contentType}
+              access={resolveAccess(access, module.name)}
             />
           </SideMenuContext.Provider>
         </FocusSheet.SideContent>

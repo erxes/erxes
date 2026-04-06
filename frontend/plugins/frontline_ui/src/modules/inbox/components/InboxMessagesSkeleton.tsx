@@ -1,6 +1,5 @@
 import { Skeleton } from 'erxes-ui';
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const InboxMessagesSkeleton = ({
   isFetched,

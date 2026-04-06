@@ -1,4 +1,4 @@
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
@@ -95,20 +95,17 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
-  eventDispatcher: (
-    pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ) => EventDispatcherReturn,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+  const accountingEventHandlers = eventHandlers('accounting');
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'accountings_configs',
     loadConfigClass(
       models,
       subdomain,
-      eventDispatcher('accounting', 'accounting', 'accountings_configs'),
+      accountingEventHandlers('accounting', 'accountings_configs'),
     ),
   );
 
@@ -117,7 +114,7 @@ export const loadClasses = (
     loadAccountClass(
       models,
       subdomain,
-      eventDispatcher('accounting', 'accounting', 'accounts'),
+      accountingEventHandlers('accounting', 'accounts'),
     ),
   );
 
@@ -129,7 +126,7 @@ export const loadClasses = (
     loadAccountCategoryClass(
       models,
       subdomain,
-      eventDispatcher('accounting', 'accounting', 'account_categories'),
+      accountingEventHandlers('accounting', 'account_categories'),
     ),
   );
 

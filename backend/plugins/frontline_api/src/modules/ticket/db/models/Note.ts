@@ -3,7 +3,7 @@ import { INote, INoteDocument } from '@/ticket/@types/note';
 import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+
 export interface INoteModel extends Model<INoteDocument> {
   getNote(_id: string): Promise<INoteDocument>;
   getNotes(filter: FilterQuery<INoteDocument>): Promise<INoteDocument[]>;

@@ -37,6 +37,7 @@ export interface AddCouponVariables {
   numberOfCodes?: number;
   postfixUppercase?: string;
   usageLimit?: number;
+  staticCode?: string;
 }
 
 export const useAddCoupon = () => {

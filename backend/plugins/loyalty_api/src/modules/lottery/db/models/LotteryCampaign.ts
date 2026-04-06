@@ -102,7 +102,9 @@ export const loadLotteryCampaignClass = (models: IModels) => {
       const campaignIds = [...atLotteryIds, ...atVoucherIds];
 
       const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
-      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const deleteCampaignIds = ids.filter(
+        (id) => !usedCampaignIds.includes(id),
+      );
       const now = new Date();
 
       await models.LotteryCampaigns.updateMany(
@@ -179,9 +181,8 @@ export const loadLotteryCampaignClass = (models: IModels) => {
       );
 
       const filter = { campaignId, status: LOTTERY_STATUS.NEW };
-      const lotteriesCount = await models.Lotteries.find(
-        filter,
-      ).countDocuments();
+      const lotteriesCount =
+        await models.Lotteries.find(filter).countDocuments();
 
       const random = Math.floor(randomBetween(0, lotteriesCount));
 
@@ -217,9 +218,8 @@ export const loadLotteryCampaignClass = (models: IModels) => {
         formatNumber: new RegExp(`^${afterChars}.*`, 'g'),
       };
 
-      const fitLotteriesCount = await models.Lotteries.find(
-        filter,
-      ).countDocuments();
+      const fitLotteriesCount =
+        await models.Lotteries.find(filter).countDocuments();
 
       if (fitLotteriesCount === 1) {
         const luckyLottery = (await models.Lotteries.findOne(filter)) || {};

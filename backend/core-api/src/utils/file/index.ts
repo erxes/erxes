@@ -137,10 +137,7 @@ export const checkFile = async (
     models,
   );
 
-  if (
-    !(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime)) &&
-    !defaultMimeTypes.includes(mime)
-  ) {
+  if (!UPLOAD_FILE_TYPES?.includes(mime) && !defaultMimeTypes.includes(mime)) {
     return 'Invalid configured file type';
   }
 

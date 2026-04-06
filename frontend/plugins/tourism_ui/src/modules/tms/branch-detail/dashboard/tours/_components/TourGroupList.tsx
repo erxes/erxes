@@ -1,20 +1,28 @@
 import { getCoreRowModel, Row, TableOptions } from '@tanstack/react-table';
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { useMemo } from 'react';
-import { RecordTable, RecordTableTree } from 'erxes-ui';
+import { useMemo, useState } from 'react';
+import { RecordTable, RecordTableTree, Sheet } from 'erxes-ui';
 import { useTourGroups } from '../hooks/useTourGroups';
 import { TourCreateSheet } from './TourCreateSheet';
 import { TourCommandBar } from './TourCommandBar';
 import { GroupedTourColumns, TourGroupRow } from './TourGroupColumns';
 import { flattenGroups } from './TourGroupUtils';
+import { TourEditForm } from './TourEditForm';
+import { TourSideTab } from './TourOrdersSidePanel';
 
 export const TourGroupList = ({ branchId }: { branchId: string }) => {
   const { groups, loading, total } = useTourGroups({
     variables: { branchId },
   });
 
+  const [editTourId, setEditTourId] = useState<string | null>(null);
+  const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
+
   const groupedTours = useMemo(() => flattenGroups(groups), [groups]);
-  const columns = useMemo(() => GroupedTourColumns(), []);
+  const columns = useMemo(
+    () => GroupedTourColumns({ onEdit: (id) => setEditTourId(id) }),
+    [],
+  );
   const tableOptions: TableOptions<TourGroupRow> = useMemo(
     () => ({
       data: groupedTours,
@@ -53,6 +61,36 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
         </RecordTable.Scroll>
       </RecordTableTree>
       <TourCommandBar />
+      <Sheet
+        open={!!editTourId}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditTourId(null);
+            setSideTab(null);
+          }
+        }}
+      >
+        <Sheet.View
+          className={`p-0 transition-all duration-200 ${
+            sideTab
+              ? 'w-[1220px] sm:max-w-[1220px]'
+              : 'w-[900px] sm:max-w-[900px]'
+          }`}
+        >
+          {editTourId && (
+            <TourEditForm
+              tourId={editTourId}
+              branchId={branchId}
+              onSuccess={() => {
+                setEditTourId(null);
+                setSideTab(null);
+              }}
+              sideTab={sideTab}
+              onSideTabChange={setSideTab}
+            />
+          )}
+        </Sheet.View>
+      </Sheet>
     </RecordTable.Provider>
   );
 };

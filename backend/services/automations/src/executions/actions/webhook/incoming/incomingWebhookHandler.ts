@@ -1,8 +1,8 @@
-import { generateModels } from '@/connectionResolver';
-import { validateAgainstSchema } from '@/executions/actions/webhook/incoming/bodyValidator';
-import { validateSecurity } from '@/executions/actions/webhook/incoming/utils';
-import { executeActions } from '@/executions/executeActions';
-import { getActionsMap } from '@/utils/utils';
+import { generateModels } from '../../../../connectionResolver';
+import { validateAgainstSchema } from './bodyValidator';
+import { validateSecurity } from './utils';
+import { executeActions } from '../../../executeActions';
+import { getActionsMap } from '../../../../utils/utils';
 import {
   AUTOMATION_CORE_TRIGGER_TYPES,
   AUTOMATION_EXECUTION_STATUS,

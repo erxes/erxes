@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { IProductRule } from './types';
 import { useProductRulesRemove } from '@/products/settings/hooks/useProductRulesRemove';
 import { ProductRuleForm } from './ProductRuleForm';
+import { Can } from 'ui-modules';
 
 export const ProductRuleMoreColumn = (
   props: CellContext<IProductRule, unknown>,
@@ -49,9 +50,11 @@ export const ProductRuleMoreColumn = (
   return (
     <>
       <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
+        <Can action="productRulesManage">
+          <Popover.Trigger asChild>
+            <RecordTable.MoreButton className="w-full h-full" />
+          </Popover.Trigger>
+        </Can>
         <Combobox.Content>
           <Command shouldFilter={false}>
             <Command.List>

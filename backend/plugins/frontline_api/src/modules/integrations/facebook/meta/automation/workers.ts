@@ -16,7 +16,7 @@ import {
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
-import { generateModels, IModels } from '~/connectionResolvers';
+import { IModels } from '~/connectionResolvers';
 
 const getItems = async (
   subdomain: string,

@@ -1,4 +1,5 @@
 import ConnectionLine from '@/automations/components/builder/edges/connectionLine';
+import { AutomationBuilderCanvasDragOverlay } from '@/automations/components/builder/AutomationBuilderCanvasDragOverlay';
 import { edgeTypes } from '@/automations/components/builder/edges/edgeTypesRegistry';
 import { nodeTypes } from '@/automations/components/builder/nodes/nodeTypesRegistry';
 import { AutomationBuilderSidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebar';
@@ -24,7 +25,7 @@ export const AutomationBuilderCanvas = () => {
   } = useReactFlowEditor();
 
   return (
-    <div className="h-full flex-1" ref={reactFlowWrapper}>
+    <div className="relative h-full flex-1" ref={reactFlowWrapper}>
       <ReactFlow
         ref={editorWrapper}
         nodes={nodes}
@@ -49,6 +50,7 @@ export const AutomationBuilderCanvas = () => {
         <Background />
         <MiniMap pannable position="top-left" zoomable />
       </ReactFlow>
+      <AutomationBuilderCanvasDragOverlay />
       <AutomationBuilderSidebar />
     </div>
   );

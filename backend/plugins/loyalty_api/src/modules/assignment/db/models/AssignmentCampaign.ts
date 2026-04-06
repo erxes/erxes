@@ -8,8 +8,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
 
-export interface IAssignmentCampaignModel
-  extends Model<IAssignmentCampaignDocument> {
+export interface IAssignmentCampaignModel extends Model<IAssignmentCampaignDocument> {
   getAssignmentCampaign(_id: string): Promise<IAssignmentCampaignDocument>;
   createAssignmentCampaign(
     doc: IAssignmentCampaign,
@@ -98,7 +97,9 @@ export const loadAssignmentCampaignClass = (models: IModels) => {
       const campaignIds = [...atAssignmentIds];
 
       const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
-      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const deleteCampaignIds = ids.filter(
+        (id) => !usedCampaignIds.includes(id),
+      );
       const now = new Date();
 
       await models.AssignmentCampaigns.updateMany(
