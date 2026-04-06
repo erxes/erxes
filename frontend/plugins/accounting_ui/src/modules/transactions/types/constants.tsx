@@ -45,7 +45,9 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.INV_SALE_OUT]: 'Борлуулалт-зарлага',
   [TrJournalEnum.INV_SALE_COST]: 'Борлуулалт-ББӨ',
 
-  [TrJournalEnum.INV_SALE_RETURN]: 'Борлуулалт Буцаалт',
+  [TrJournalEnum.INV_SALE_RETURN]: 'Борлуулалтын Буцаалт',
+  [TrJournalEnum.INV_SALE_RETURN_OUT]: 'Б.Буцаалт-зарлага',
+  [TrJournalEnum.INV_SALE_RETURN_COST]: 'Б.Буцаалт-ББӨ',
 
   [TrJournalEnum.FIXED_ASSET]: 'Fixed Asset',
 };
