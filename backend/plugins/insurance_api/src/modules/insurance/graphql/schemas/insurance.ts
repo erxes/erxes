@@ -381,6 +381,7 @@ export const mutations = `
   generateContractPDF(contractId: ID!): ContractPDFResult!
   saveContractPDF(contractId: ID!, pdfContent: String!): InsuranceContract!
 
+  seedInsuranceRegions: [InsuranceRegion!]!
   createInsuranceRegion(name: String!, countries: [String!]!): InsuranceRegion!
   updateInsuranceRegion(id: ID!, name: String, countries: [String!]): InsuranceRegion!
   deleteInsuranceRegion(id: ID!): Boolean!
