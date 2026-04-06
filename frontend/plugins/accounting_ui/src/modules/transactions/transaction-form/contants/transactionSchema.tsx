@@ -189,19 +189,21 @@ export const transactionInvIncomeSchema = z
         ...invDetailSchema.shape,
       }),
     ),
-    extraData: undefed(z.object({
-      invIncomeExpenses: z
-        .array(
-          z.object({
-            _id: z.string(),
-            title: z.string(),
-            rule: z.string(),
-            amount: z.number().min(0),
-            accountId: undefed(z.string()),
-          }),
-        )
-        .min(0),
-    })),
+    extraData: undefed(
+      z.object({
+        invIncomeExpenses: z
+          .array(
+            z.object({
+              _id: z.string(),
+              title: z.string(),
+              rule: z.string(),
+              amount: z.number().min(0),
+              accountId: undefed(z.string()),
+            }),
+          )
+          .min(0),
+      }),
+    ),
   });
 
 export const transactionInvOutSchema = z

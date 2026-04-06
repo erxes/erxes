@@ -14,11 +14,7 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
-import {
-  BoardSelect,
-  PipelineSelect,
-  StageSelect,
-} from 'ui-modules';
+import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 import { z } from 'zod';
 
 const configFormSchema = z.object({

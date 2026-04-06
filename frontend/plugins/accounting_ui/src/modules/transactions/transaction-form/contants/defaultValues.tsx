@@ -156,24 +156,24 @@ export const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
     ...DEFAULT_CTAX_VALUES(doc),
     details: !doc?.details?.length
       ? [
-        {
-          ...trDetailWrapper(),
-          side: TR_SIDES.DEBIT,
-          productId: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ]
+          {
+            ...trDetailWrapper(),
+            side: TR_SIDES.DEBIT,
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ]
       : doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        side: TR_SIDES.DEBIT,
-        productId: det.productId || '',
-        product: det.product,
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      })),
+          ...trDetailWrapper(det),
+          side: TR_SIDES.DEBIT,
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        })),
   };
 };
 
@@ -185,24 +185,24 @@ export const INV_OUT_JOURNAL_DEFAULT_VALUES = (
     journal: TrJournalEnum.INV_OUT,
     details: !doc?.details?.length
       ? [
-        {
-          ...trDetailWrapper(),
-          side: TR_SIDES.CREDIT,
-          productId: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ]
+          {
+            ...trDetailWrapper(),
+            side: TR_SIDES.CREDIT,
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ]
       : doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        side: TR_SIDES.CREDIT,
-        productId: det.productId || '',
-        product: det.product,
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      })),
+          ...trDetailWrapper(det),
+          side: TR_SIDES.CREDIT,
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        })),
   };
 };
 
@@ -214,24 +214,24 @@ export const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
     journal: TrJournalEnum.INV_MOVE,
     details: !doc?.details?.length
       ? [
-        {
-          ...trDetailWrapper(),
-          side: TR_SIDES.CREDIT,
-          productId: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ]
+          {
+            ...trDetailWrapper(),
+            side: TR_SIDES.CREDIT,
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ]
       : doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        side: TR_SIDES.CREDIT,
-        productId: det.productId || '',
-        product: det.product,
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      })),
+          ...trDetailWrapper(det),
+          side: TR_SIDES.CREDIT,
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        })),
   };
 };
 
@@ -243,24 +243,24 @@ export const INV_SALE_JOURNAL_DEFAULT_VALUES = (
     journal: TrJournalEnum.INV_SALE,
     details: !doc?.details?.length
       ? [
-        {
-          ...trDetailWrapper(),
-          side: TR_SIDES.CREDIT,
-          productId: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ]
+          {
+            ...trDetailWrapper(),
+            side: TR_SIDES.CREDIT,
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ]
       : doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        side: TR_SIDES.CREDIT,
-        productId: det.productId || '',
-        product: det.product,
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      })),
+          ...trDetailWrapper(det),
+          side: TR_SIDES.CREDIT,
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        })),
   };
 };
 
@@ -272,24 +272,24 @@ export const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
     journal: TrJournalEnum.INV_SALE_RETURN,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        side: TR_SIDES.DEBIT,
-        productId: det.productId || '',
-        product: det.product,
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      }))
-      : [
-        {
-          ...trDetailWrapper(),
+          ...trDetailWrapper(det),
           side: TR_SIDES.DEBIT,
-          productId: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ],
+          productId: det.productId || '',
+          product: det.product,
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+        }))
+      : [
+          {
+            ...trDetailWrapper(),
+            side: TR_SIDES.DEBIT,
+            productId: '',
+            count: 0,
+            unitPrice: 0,
+            amount: 0,
+          },
+        ],
   };
 };
 
@@ -350,5 +350,5 @@ export const JOURNALS_BY_JOURNAL = (
       result = MAIN_JOURNAL_DEFAULT_VALUES(doc);
       break;
   }
-  return result as TTrDoc
+  return result as TTrDoc;
 };
