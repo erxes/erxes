@@ -474,8 +474,9 @@ export const ProductForm = ({
           )}
 
           {/* Region Selection - only for citizen/travel insurance */}
-          {insuranceTypes.find((t) =>
-            t.id === (product?.insuranceType?.id || formData.insuranceTypeId),
+          {insuranceTypes.find(
+            (t) =>
+              t.id === (product?.insuranceType?.id || formData.insuranceTypeId),
           )?.isCitizen && (
             <div className="space-y-2">
               <Label>Бүс нутаг сонгох</Label>

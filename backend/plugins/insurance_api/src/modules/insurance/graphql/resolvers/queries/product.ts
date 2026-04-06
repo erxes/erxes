@@ -32,7 +32,9 @@ export const productQueries = {
       return {
         ...product.toObject(),
         coveredRisks: product.coveredRisks.filter((cr: any) => cr.risk != null),
-        regions: (product.regions || []).filter((r: any) => r != null && r.name),
+        regions: (product.regions || []).filter(
+          (r: any) => r != null && r.name,
+        ),
       };
     },
     { wrapperConfig: { skipPermission: true } },

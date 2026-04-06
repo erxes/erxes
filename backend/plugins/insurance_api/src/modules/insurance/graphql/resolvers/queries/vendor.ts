@@ -5,7 +5,11 @@ export const vendorQueries = {
     async (_parent: undefined, _args: any, { models }: IContext) => {
       const vendors = await models.Vendor.find({}).populate({
         path: 'offeredProducts.product',
-        populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }, { path: 'regions' }],
+        populate: [
+          { path: 'insuranceType' },
+          { path: 'coveredRisks.risk' },
+          { path: 'regions' },
+        ],
       });
 
       return vendors.map((vendor: any) => ({
@@ -13,11 +17,15 @@ export const vendorQueries = {
         offeredProducts: vendor.offeredProducts
           .filter((vp: any) => vp.product?.insuranceType != null)
           .map((vp: any) => ({
-            ...vp.toObject ? vp.toObject() : vp,
-            product: vp.product ? {
-              ...vp.product.toObject ? vp.product.toObject() : vp.product,
-              regions: (vp.product.regions || []).filter((r: any) => r != null && r.name),
-            } : vp.product,
+            ...(vp.toObject ? vp.toObject() : vp),
+            product: vp.product
+              ? {
+                  ...(vp.product.toObject ? vp.product.toObject() : vp.product),
+                  regions: (vp.product.regions || []).filter(
+                    (r: any) => r != null && r.name,
+                  ),
+                }
+              : vp.product,
           })),
       }));
     },
@@ -32,7 +40,11 @@ export const vendorQueries = {
     ) => {
       const vendor = await models.Vendor.findById(id).populate({
         path: 'offeredProducts.product',
-        populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }, { path: 'regions' }],
+        populate: [
+          { path: 'insuranceType' },
+          { path: 'coveredRisks.risk' },
+          { path: 'regions' },
+        ],
       });
 
       if (!vendor) return null;
@@ -42,11 +54,15 @@ export const vendorQueries = {
         offeredProducts: vendor.offeredProducts
           .filter((vp: any) => vp.product?.insuranceType != null)
           .map((vp: any) => ({
-            ...vp.toObject ? vp.toObject() : vp,
-            product: vp.product ? {
-              ...vp.product.toObject ? vp.product.toObject() : vp.product,
-              regions: (vp.product.regions || []).filter((r: any) => r != null && r.name),
-            } : vp.product,
+            ...(vp.toObject ? vp.toObject() : vp),
+            product: vp.product
+              ? {
+                  ...(vp.product.toObject ? vp.product.toObject() : vp.product),
+                  regions: (vp.product.regions || []).filter(
+                    (r: any) => r != null && r.name,
+                  ),
+                }
+              : vp.product,
           })),
       };
     },
@@ -66,7 +82,11 @@ export const vendorQueries = {
       if (!vendorUser) throw new Error('Vendor user not found');
       const vendor = await models.Vendor.findById(vendorUser.vendor).populate({
         path: 'offeredProducts.product',
-        populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }, { path: 'regions' }],
+        populate: [
+          { path: 'insuranceType' },
+          { path: 'coveredRisks.risk' },
+          { path: 'regions' },
+        ],
       });
 
       if (!vendor) return null;
@@ -76,11 +96,15 @@ export const vendorQueries = {
         offeredProducts: vendor.offeredProducts
           .filter((vp: any) => vp.product?.insuranceType != null)
           .map((vp: any) => ({
-            ...vp.toObject ? vp.toObject() : vp,
-            product: vp.product ? {
-              ...vp.product.toObject ? vp.product.toObject() : vp.product,
-              regions: (vp.product.regions || []).filter((r: any) => r != null && r.name),
-            } : vp.product,
+            ...(vp.toObject ? vp.toObject() : vp),
+            product: vp.product
+              ? {
+                  ...(vp.product.toObject ? vp.product.toObject() : vp.product),
+                  regions: (vp.product.regions || []).filter(
+                    (r: any) => r != null && r.name,
+                  ),
+                }
+              : vp.product,
           })),
       };
     },
