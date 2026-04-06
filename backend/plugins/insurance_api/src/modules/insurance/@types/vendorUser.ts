@@ -6,7 +6,7 @@ export interface IVendorUser {
   phone?: string;
   password: string;
   vendor: string;
-  role: 'user';
+  role: 'user' | 'admin' | 'manager';
 }
 
 export interface IVendorUserDocument extends IVendorUser, Document {

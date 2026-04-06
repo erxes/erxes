@@ -5,14 +5,28 @@ export const vendorQueries = {
     async (_parent: undefined, _args: any, { models }: IContext) => {
       const vendors = await models.Vendor.find({}).populate({
         path: 'offeredProducts.product',
-        populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
+        populate: [
+          { path: 'insuranceType' },
+          { path: 'coveredRisks.risk' },
+          { path: 'regions' },
+        ],
       });
 
       return vendors.map((vendor: any) => ({
         ...vendor.toObject(),
-        offeredProducts: vendor.offeredProducts.filter(
-          (vp: any) => vp.product?.insuranceType != null,
-        ),
+        offeredProducts: vendor.offeredProducts
+          .filter((vp: any) => vp.product?.insuranceType != null)
+          .map((vp: any) => ({
+            ...(vp.toObject ? vp.toObject() : vp),
+            product: vp.product
+              ? {
+                  ...(vp.product.toObject ? vp.product.toObject() : vp.product),
+                  regions: (vp.product.regions || []).filter(
+                    (r: any) => r != null && r.name,
+                  ),
+                }
+              : vp.product,
+          })),
       }));
     },
     { wrapperConfig: { skipPermission: true } },
@@ -26,16 +40,30 @@ export const vendorQueries = {
     ) => {
       const vendor = await models.Vendor.findById(id).populate({
         path: 'offeredProducts.product',
-        populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
+        populate: [
+          { path: 'insuranceType' },
+          { path: 'coveredRisks.risk' },
+          { path: 'regions' },
+        ],
       });
 
       if (!vendor) return null;
 
       return {
         ...vendor.toObject(),
-        offeredProducts: vendor.offeredProducts.filter(
-          (vp: any) => vp.product?.insuranceType != null,
-        ),
+        offeredProducts: vendor.offeredProducts
+          .filter((vp: any) => vp.product?.insuranceType != null)
+          .map((vp: any) => ({
+            ...(vp.toObject ? vp.toObject() : vp),
+            product: vp.product
+              ? {
+                  ...(vp.product.toObject ? vp.product.toObject() : vp.product),
+                  regions: (vp.product.regions || []).filter(
+                    (r: any) => r != null && r.name,
+                  ),
+                }
+              : vp.product,
+          })),
       };
     },
     { wrapperConfig: { skipPermission: true } },
@@ -54,16 +82,30 @@ export const vendorQueries = {
       if (!vendorUser) throw new Error('Vendor user not found');
       const vendor = await models.Vendor.findById(vendorUser.vendor).populate({
         path: 'offeredProducts.product',
-        populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
+        populate: [
+          { path: 'insuranceType' },
+          { path: 'coveredRisks.risk' },
+          { path: 'regions' },
+        ],
       });
 
       if (!vendor) return null;
 
       return {
         ...vendor.toObject(),
-        offeredProducts: vendor.offeredProducts.filter(
-          (vp: any) => vp.product?.insuranceType != null,
-        ),
+        offeredProducts: vendor.offeredProducts
+          .filter((vp: any) => vp.product?.insuranceType != null)
+          .map((vp: any) => ({
+            ...(vp.toObject ? vp.toObject() : vp),
+            product: vp.product
+              ? {
+                  ...(vp.product.toObject ? vp.product.toObject() : vp.product),
+                  regions: (vp.product.regions || []).filter(
+                    (r: any) => r != null && r.name,
+                  ),
+                }
+              : vp.product,
+          })),
       };
     },
     { wrapperConfig: { skipPermission: true } },
