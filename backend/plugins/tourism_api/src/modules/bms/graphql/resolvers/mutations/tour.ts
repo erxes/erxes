@@ -6,9 +6,7 @@ const validateTranslationPricingOptions = (
   translations: any[] = [],
 ) => {
   const validOptionIds = new Set(
-    pricingOptions
-      .map((p) => p?._id)
-      .filter((id): id is string => Boolean(id)),
+    pricingOptions.map((p) => p?._id).filter((id): id is string => Boolean(id)),
   );
 
   for (const translation of translations) {
@@ -28,7 +26,7 @@ const saveTourCategoryTranslations = async (
   translations: any[],
 ) => {
   if (!Array.isArray(translations) || translations.length === 0) return;
- 
+
   await Promise.all(
     translations.map((t) =>
       models.TourCategoryTranslations.upsertTranslation({ ...t, objectId }),
@@ -56,7 +54,10 @@ const tourMutations = {
     { translations, ...doc }: { translations?: any[] } & ITour,
     { user, models }: IContext,
   ) => {
-    validateTranslationPricingOptions(doc.pricingOptions || [], translations ?? []);
+    validateTranslationPricingOptions(
+      doc.pricingOptions || [],
+      translations ?? [],
+    );
 
     const tour = await models.Tours.createTour(doc, user);
     await saveTourTranslations(models, tour._id, translations ?? []);
@@ -65,13 +66,18 @@ const tourMutations = {
 
   bmsTourEdit: async (
     _root,
-    { _id, translations, ...doc }: { _id: string; translations?: any[] } & Partial<ITour>,
+    {
+      _id,
+      translations,
+      ...doc
+    }: { _id: string; translations?: any[] } & Partial<ITour>,
     { models }: IContext,
   ) => {
     const existingTour = await models.Tours.findOne({ _id });
     if (!existingTour) throw new Error('Tour not found');
 
-    const finalPricingOptions = doc.pricingOptions ?? existingTour.pricingOptions ?? [];
+    const finalPricingOptions =
+      doc.pricingOptions ?? existingTour.pricingOptions ?? [];
     validateTranslationPricingOptions(finalPricingOptions, translations ?? []);
 
     const tour = await models.Tours.updateTour(_id, doc as ITour);
@@ -103,17 +109,30 @@ const tourMutations = {
     { translations, ...doc }: { translations?: any[] } & ITourCategory,
     { models }: IContext,
   ) => {
-    const category = await models.BmsTourCategories.createTourCategory(doc as any);
-    await saveTourCategoryTranslations(models, category._id, translations ?? []);
+    const category = await models.BmsTourCategories.createTourCategory(
+      doc as any,
+    );
+    await saveTourCategoryTranslations(
+      models,
+      category._id,
+      translations ?? [],
+    );
     return category;
   },
 
   bmsTourCategoryEdit: async (
     _root,
-    { _id, translations, ...doc }: { _id: string; translations?: any[] } & ITourCategory,
+    {
+      _id,
+      translations,
+      ...doc
+    }: { _id: string; translations?: any[] } & ITourCategory,
     { models }: IContext,
   ) => {
-    const category = await models.BmsTourCategories.updateTourCategory(_id, doc as any);
+    const category = await models.BmsTourCategories.updateTourCategory(
+      _id,
+      doc as any,
+    );
     await saveTourCategoryTranslations(models, _id, translations ?? []);
     return category;
   },
@@ -137,11 +156,13 @@ const tourMutations = {
     { input }: { input: any },
     { models }: IContext,
   ) => {
-    const category = await models.BmsTourCategories.findOne({ _id: input.objectId });
+    const category = await models.BmsTourCategories.findOne({
+      _id: input.objectId,
+    });
     if (!category) throw new Error('Tour category not found');
     return models.TourCategoryTranslations.upsertTranslation(input);
   },
-   
+
   bmsTourCategoryTranslationDelete: async (
     _root,
     { _id }: { _id: string },

@@ -123,13 +123,19 @@ const tourQueries: Record<string, Resolver> = {
     const selector: Record<string, any> = {};
 
     const selectedCategoryIds = mergeCategoryFilterIds({ categoryIds, tags });
-    const expandedCategoryIds = await buildSubCategoryIds(models, selectedCategoryIds);
+    const expandedCategoryIds = await buildSubCategoryIds(
+      models,
+      selectedCategoryIds,
+    );
 
     if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     if (status) selector.status = status;
     if (branchId) selector.branchId = branchId;
 
-    applyCategoryFilters(selector, expandedCategoryIds.length ? expandedCategoryIds : undefined);
+    applyCategoryFilters(
+      selector,
+      expandedCategoryIds.length ? expandedCategoryIds : undefined,
+    );
 
     if (innerDate) {
       selector.startDate = { $lte: innerDate };
@@ -184,14 +190,20 @@ const tourQueries: Record<string, Resolver> = {
     const selector: Record<string, any> = {};
 
     const selectedCategoryIds = mergeCategoryFilterIds({ categoryIds, tags });
-    const expandedCategoryIds = await buildSubCategoryIds(models, selectedCategoryIds);
+    const expandedCategoryIds = await buildSubCategoryIds(
+      models,
+      selectedCategoryIds,
+    );
 
     if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     if (status) selector.status = status;
     if (branchId) selector.branchId = branchId;
     if (webId) selector.webId = webId;
 
-    applyCategoryFilters(selector, expandedCategoryIds.length ? expandedCategoryIds : undefined);
+    applyCategoryFilters(
+      selector,
+      expandedCategoryIds.length ? expandedCategoryIds : undefined,
+    );
 
     if (innerDate) {
       selector.startDate = { $lte: innerDate };
@@ -247,7 +259,7 @@ const tourQueries: Record<string, Resolver> = {
     { models }: IContext,
   ) => {
     const selector: any = {};
-   
+
     if (parentId) {
       selector.parentId = parentId;
     } else if (parentId === null) {
@@ -255,12 +267,15 @@ const tourQueries: Record<string, Resolver> = {
     }
     if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     if (branchId) selector.branchId = branchId;
-   
+
     // No language — return raw sorted list
     if (!language) {
-      return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });
+      return models.BmsTourCategories.find(selector).sort({
+        order: 1,
+        name: 1,
+      });
     }
-   
+
     // With language — overlay translations
     const { list } = await getBmsListWithTranslations(
       models,
@@ -270,7 +285,7 @@ const tourQueries: Record<string, Resolver> = {
       { branchId, language, orderBy: { order: 1, name: 1 } },
       TOUR_CATEGORY_FIELD_MAPPINGS,
     );
-   
+
     return list;
   },
 
@@ -313,22 +328,40 @@ const tourQueries: Record<string, Resolver> = {
     const selector: any = {};
 
     const selectedCategoryIds = mergeCategoryFilterIds({ categoryIds, tags });
-    const expandedCategoryIds = await buildSubCategoryIds(models, selectedCategoryIds);
+    const expandedCategoryIds = await buildSubCategoryIds(
+      models,
+      selectedCategoryIds,
+    );
 
     if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     if (status) selector.status = status;
     if (branchId) selector.branchId = branchId;
 
-    applyCategoryFilters(selector, expandedCategoryIds.length ? expandedCategoryIds : undefined);
+    applyCategoryFilters(
+      selector,
+      expandedCategoryIds.length ? expandedCategoryIds : undefined,
+    );
 
     if (innerDate) {
       selector.startDate = { $lte: innerDate };
       selector.endDate = { $gte: innerDate };
     }
-    if (startDate2) { if (!selector.startDate) selector.startDate = {}; selector.startDate['$lte'] = startDate2; }
-    if (startDate1) { if (!selector.startDate) selector.startDate = {}; selector.startDate['$gte'] = startDate1; }
-    if (endDate2) { if (!selector.endDate) selector.endDate = {}; selector.endDate['$lte'] = endDate2; }
-    if (endDate1) { if (!selector.endDate) selector.endDate = {}; selector.endDate['$gte'] = endDate1; }
+    if (startDate2) {
+      if (!selector.startDate) selector.startDate = {};
+      selector.startDate['$lte'] = startDate2;
+    }
+    if (startDate1) {
+      if (!selector.startDate) selector.startDate = {};
+      selector.startDate['$gte'] = startDate1;
+    }
+    if (endDate2) {
+      if (!selector.endDate) selector.endDate = {};
+      selector.endDate['$lte'] = endDate2;
+    }
+    if (endDate1) {
+      if (!selector.endDate) selector.endDate = {};
+      selector.endDate['$gte'] = endDate1;
+    }
     if (groupCode) selector.groupCode = groupCode;
     if (date_status) selector.date_status = date_status;
 
@@ -375,23 +408,41 @@ const tourQueries: Record<string, Resolver> = {
     const selector: any = {};
 
     const selectedCategoryIds = mergeCategoryFilterIds({ categoryIds, tags });
-    const expandedCategoryIds = await buildSubCategoryIds(models, selectedCategoryIds);
+    const expandedCategoryIds = await buildSubCategoryIds(
+      models,
+      selectedCategoryIds,
+    );
 
     if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
     if (status) selector.status = status;
     if (branchId) selector.branchId = branchId;
     if (webId) selector.webId = webId;
 
-    applyCategoryFilters(selector, expandedCategoryIds.length ? expandedCategoryIds : undefined);
+    applyCategoryFilters(
+      selector,
+      expandedCategoryIds.length ? expandedCategoryIds : undefined,
+    );
 
     if (innerDate) {
       selector.startDate = { $lte: innerDate };
       selector.endDate = { $gte: innerDate };
     }
-    if (startDate2) { if (!selector.startDate) selector.startDate = {}; selector.startDate['$lte'] = startDate2; }
-    if (startDate1) { if (!selector.startDate) selector.startDate = {}; selector.startDate['$gte'] = startDate1; }
-    if (endDate2) { if (!selector.endDate) selector.endDate = {}; selector.endDate['$lte'] = endDate2; }
-    if (endDate1) { if (!selector.endDate) selector.endDate = {}; selector.endDate['$gte'] = endDate1; }
+    if (startDate2) {
+      if (!selector.startDate) selector.startDate = {};
+      selector.startDate['$lte'] = startDate2;
+    }
+    if (startDate1) {
+      if (!selector.startDate) selector.startDate = {};
+      selector.startDate['$gte'] = startDate1;
+    }
+    if (endDate2) {
+      if (!selector.endDate) selector.endDate = {};
+      selector.endDate['$lte'] = endDate2;
+    }
+    if (endDate1) {
+      if (!selector.endDate) selector.endDate = {};
+      selector.endDate['$gte'] = endDate1;
+    }
     if (groupCode) selector.groupCode = groupCode;
     if (date_status) selector.date_status = date_status;
 
@@ -420,7 +471,11 @@ const tourQueries: Record<string, Resolver> = {
     return { _id: groupCode, items: list };
   },
 
-  async cpBmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
+  async cpBmToursGroupDetail(
+    _root,
+    { groupCode, status },
+    { models }: IContext,
+  ) {
     const list = await models.Tours.find({ groupCode, status });
     return { _id: groupCode, items: list };
   },

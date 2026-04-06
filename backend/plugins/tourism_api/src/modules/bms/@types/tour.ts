@@ -12,7 +12,7 @@ export type DateType = 'fixed' | 'flexible';
 
 export interface IPricingOption {
   _id: string;
-  title: string;  
+  title: string;
   minPersons: number;
   maxPersons?: number;
   pricePerPerson: number;

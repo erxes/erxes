@@ -7,8 +7,7 @@ export interface ITourCategoryTranslation {
 }
 
 export interface ITourCategoryTranslationDocument
-  extends ITourCategoryTranslation,
-    Document {
+  extends ITourCategoryTranslation, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

@@ -6,8 +6,7 @@ import {
 } from '@/bms/@types/tourCategoryTranslation';
 import { tourCategoryTranslationSchema } from '@/bms/db/definitions/tourCategoryTranslation';
 
-export interface ITourCategoryTranslationModel
-  extends Model<ITourCategoryTranslationDocument> {
+export interface ITourCategoryTranslationModel extends Model<ITourCategoryTranslationDocument> {
   upsertTranslation(
     doc: ITourCategoryTranslation,
   ): Promise<ITourCategoryTranslationDocument>;

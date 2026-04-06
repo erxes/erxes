@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface IPricingOptionTranslation {
-  optionId: string;  // matches pricingOption._id in the tour
+  optionId: string; // matches pricingOption._id in the tour
   title?: string;
   note?: string;
   accommodationType?: string;
@@ -21,9 +21,7 @@ export interface ITourTranslation {
   pricingOptions?: IPricingOptionTranslation[];
 }
 
-export interface ITourTranslationDocument
-  extends ITourTranslation,
-    Document {
+export interface ITourTranslationDocument extends ITourTranslation, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
