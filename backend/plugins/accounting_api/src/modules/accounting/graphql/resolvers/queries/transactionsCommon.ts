@@ -23,6 +23,8 @@ interface IQueryParams {
   searchValue?: string;
   number?: string;
   ptrStatus: string;
+  customerType?: string;
+  customerId?: string;
 
   accountIds?: string[];
   accountKind?: string;
@@ -128,6 +130,8 @@ const generateFilter = async (
     number,
     journal,
     journals,
+    customerType,
+    customerId,
     brandId,
     branchId,
     departmentId,
@@ -261,6 +265,13 @@ const generateFilter = async (
     });
 
     filter.departmentId = { $in: departments.map((item) => item._id) };
+  }
+
+  if (customerType) {
+    filter.customerType = customerType
+  }
+  if (customerId) {
+    filter.customerId = customerId
   }
 
   if (currency) {

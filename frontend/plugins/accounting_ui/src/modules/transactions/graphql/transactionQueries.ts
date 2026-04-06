@@ -133,6 +133,9 @@ const trsFilterParamDefs = `
   $searchValue: String,
   $number: String,
 
+  $customerType: String,
+  $customerId: String,
+
   $accountIds: [String],
   $accountKind: String,
   $accountExcludeIds: Boolean,
@@ -177,6 +180,8 @@ const trsFilterParams = `
   status: $status,
   searchValue: $searchValue,
   number: $number,
+  customerType: $customerType,
+  customerId: $customerId,
 
   accountIds: $accountIds,
   accountKind: $accountKind,

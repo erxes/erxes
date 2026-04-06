@@ -1,12 +1,15 @@
 import {
   Button,
+  Select,
   cn,
   EnumCursorDirection,
+  Input,
   ScrollArea,
   Separator,
   Sheet,
   Spinner,
   Tooltip,
+  DatePicker,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
@@ -19,10 +22,14 @@ import { useOneTrDetail } from '../../../hooks/useOneTrDetail';
 import {
   CompaniesInline,
   CustomersInline,
+  CustomerType,
   MembersInline,
   ProductsInline,
   SelectBranchesInlineCell,
+  SelectCompany,
+  SelectCustomer,
   SelectDepartmentsInlineCell,
+  SelectMember,
 } from 'ui-modules';
 
 interface SelectProductsProps {
@@ -118,8 +125,80 @@ const TransactionList = ({
   return (
     <div className="flex overflow-hidden flex-col border-r">
       <div className="p-4">
-        <div className="flex gap-4 justify-between items-center">filter</div>
-        <div className="mt-4 text-xs text-accent-foreground">results</div>
+        <div className="flex gap-4 justify-between items-center">
+          <div className="flex gap-3 items-center">
+            <Select
+              value={customerType}
+              onValueChange={(value) => setCustomerType(value)}
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Select Customer Type" />
+              </Select.Trigger>
+              <Select.Content>
+                {Object.values(CustomerType).map((type) => (
+                  <Select.Item key={type} value={type}>
+                    {type}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          </div>
+          {customerType === 'customer' && (
+            <SelectCustomer
+              mode="single"
+              value={customerId || ''}
+              onValueChange={(value) => {
+                setCustomerId(value as string);
+              }}
+            />
+          )}
+          {customerType === 'company' && (
+            <SelectCompany
+              mode="single"
+              value={customerId || ''}
+              onValueChange={(value) => {
+                setCustomerId(value as string);
+              }}
+            />
+          )}
+          {customerType === 'user' && (
+            <SelectMember
+              mode="single"
+              value={customerId || ''}
+              onValueChange={(value) => {
+                setCustomerId(value as string);
+              }}
+            />
+          )}
+        </div>
+        <div className="flex gap-4 justify-between items-center pt-2">
+          <div className="flex flex-1 gap-6 items-center">
+            <Input
+              placeholder="Search products"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-1 gap-4 items-center">
+            <DatePicker
+              value={startDate}
+              onChange={(date) => setStartDate(date as Date)}
+              format="YYYY-MM-DD"
+              className="h-8 flex w-full"
+            />
+          </div>
+          <div className="flex flex-1 gap-4 items-center">
+            <DatePicker
+              value={endDate}
+              onChange={(date) => setEndDate(date as Date)}
+              format="YYYY-MM-DD"
+              className="h-8 flex w-full"
+            />
+          </div>
+        </div>
+        <div className="mt-4 text-xs text-accent-foreground">
+          {totalCount} results
+        </div>
       </div>
       <Separator />
       <ScrollArea>
@@ -157,7 +236,7 @@ const TransactionList = ({
               <div className="flex gap-2 items-center px-2 h-8" ref={bottomRef}>
                 <Spinner containerClassName="flex-none" />
                 <span className="animate-pulse text-accent-foreground">
-                  Loading more products...
+                  Loading more transactions...
                 </span>
               </div>
             )}

@@ -253,7 +253,7 @@ export const InventoryRow = ({
     setTaxAmounts({ unitPriceWithTax, amountWithTax });
 
     form.setValue(
-      getFieldName('unitPrice') as any,
+      getFieldName('unitPrice'),
       (unitPriceWithTax / (100 + rowPercent)) * 100,
     );
   };

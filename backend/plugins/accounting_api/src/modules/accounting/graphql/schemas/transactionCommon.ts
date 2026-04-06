@@ -158,6 +158,8 @@ const trsQueryParams = `
   searchValue: String,
   number: String,
   ptrStatus: String,
+  customerType: String,
+  customerId: String,
 
   accountIds: [String],
   accountKind: String,
