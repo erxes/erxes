@@ -8,9 +8,9 @@ import { accountingConfigDetailAtom } from '../states/accountingConfigState';
 import { IConfig } from '../types/Config';
 import { EditAccountingConfig } from './EditAccountingConfig';
 
-export const SettingSyncDealTable = () => {
+export const SettingSyncDealReturnTable = () => {
   const { configs } = useAccountingConfigs({
-    variables: { code: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL },
+    variables: { code: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN },
   });
   return (
     <RecordTable.Provider
@@ -24,7 +24,7 @@ export const SettingSyncDealTable = () => {
           <RecordTable.RowList />
         </RecordTable.Body>
       </RecordTable>
-      <EditAccountingConfig code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL} />
+      <EditAccountingConfig code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN} />
     </RecordTable.Provider>
   );
 };
