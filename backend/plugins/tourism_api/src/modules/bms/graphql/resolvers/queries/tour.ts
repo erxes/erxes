@@ -6,6 +6,13 @@ import {
   TourListResponse,
 } from '@/bms/@types/tour';
 import { Resolver } from 'erxes-api-shared/core-types';
+import {
+  getBmsListWithTranslations,
+  getBmsItemWithTranslation,
+  TOUR_FIELD_MAPPINGS,
+  applyTourTranslation,
+  TOUR_CATEGORY_FIELD_MAPPINGS,
+} from '@/bms/utils/translations';
 
 function buildDateSelector(
   selector: Record<string, any>,
@@ -76,7 +83,6 @@ const applyCategoryFilters = (
 
   selector.$or = [
     { categoryIds: { $in: categoryIds } },
-    // Backward compatibility with old fields
     { categories: { $in: categoryIds } },
     { tagIds: { $in: categoryIds } },
     { categoryId: { $in: categoryIds } },
@@ -104,13 +110,14 @@ const tourQueries: Record<string, Resolver> = {
       status,
       innerDate,
       branchId,
+      language,
       startDate1,
       endDate1,
       startDate2,
       endDate2,
       date_status,
       ...params
-    }: TourFilterParams,
+    }: TourFilterParams & { language?: string },
     { models }: IContext,
   ): Promise<TourListResponse> {
     const selector: Record<string, any> = {};
@@ -120,37 +127,34 @@ const tourQueries: Record<string, Resolver> = {
       models,
       selectedCategoryIds,
     );
-    if (name) {
-      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
-    }
-    if (status) {
-      selector.status = status;
-    }
-    if (branchId) {
-      selector.branchId = branchId;
-    }
+
+    if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    if (status) selector.status = status;
+    if (branchId) selector.branchId = branchId;
+
     applyCategoryFilters(
       selector,
       expandedCategoryIds.length ? expandedCategoryIds : undefined,
     );
+
     if (innerDate) {
       selector.startDate = { $lte: innerDate };
       selector.endDate = { $gte: innerDate };
     }
-    if (date_status) {
-      selector.date_status = date_status;
-    }
+    if (date_status) selector.date_status = date_status;
 
     buildDateSelector(selector, 'startDate', startDate1, startDate2);
     buildDateSelector(selector, 'endDate', endDate1, endDate2);
 
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.Tours,
-      params,
-      query: selector,
-    });
-
-    return { list, totalCount, pageInfo };
+    return getBmsListWithTranslations(
+      models,
+      models.Tours,
+      models.TourTranslations,
+      selector,
+      { ...params, branchId, language },
+      TOUR_FIELD_MAPPINGS,
+      applyTourTranslation,
+    );
   },
 
   bmsToursTotalCount(
@@ -159,11 +163,7 @@ const tourQueries: Record<string, Resolver> = {
     { models }: IContext,
   ): Promise<number> {
     const selector: Record<string, any> = {};
-
-    if (branchId) {
-      selector.branchId = branchId;
-    }
-
+    if (branchId) selector.branchId = branchId;
     return models.Tours.countDocuments(selector);
   },
 
@@ -177,13 +177,14 @@ const tourQueries: Record<string, Resolver> = {
       innerDate,
       branchId,
       webId,
+      language,
       startDate1,
       endDate1,
       startDate2,
       endDate2,
       date_status,
       ...params
-    }: TourFilterParams,
+    }: TourFilterParams & { language?: string },
     { models }: IContext,
   ): Promise<TourListResponse> {
     const selector: Record<string, any> = {};
@@ -193,40 +194,35 @@ const tourQueries: Record<string, Resolver> = {
       models,
       selectedCategoryIds,
     );
-    if (name) {
-      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
-    }
-    if (status) {
-      selector.status = status;
-    }
-    if (branchId) {
-      selector.branchId = branchId;
-    }
-    if (webId) {
-      selector.webId = webId;
-    }
+
+    if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    if (status) selector.status = status;
+    if (branchId) selector.branchId = branchId;
+    if (webId) selector.webId = webId;
+
     applyCategoryFilters(
       selector,
       expandedCategoryIds.length ? expandedCategoryIds : undefined,
     );
+
     if (innerDate) {
       selector.startDate = { $lte: innerDate };
       selector.endDate = { $gte: innerDate };
     }
-    if (date_status) {
-      selector.date_status = date_status;
-    }
+    if (date_status) selector.date_status = date_status;
 
     buildDateSelector(selector, 'startDate', startDate1, startDate2);
     buildDateSelector(selector, 'endDate', endDate1, endDate2);
 
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.Tours,
-      params,
-      query: selector,
-    });
-
-    return { list, totalCount, pageInfo };
+    return getBmsListWithTranslations(
+      models,
+      models.Tours,
+      models.TourTranslations,
+      selector,
+      { ...params, branchId, language },
+      TOUR_FIELD_MAPPINGS,
+      applyTourTranslation,
+    );
   },
 
   cpBmsToursTotalCount(
@@ -235,26 +231,33 @@ const tourQueries: Record<string, Resolver> = {
     { models }: IContext,
   ): Promise<number> {
     const selector: Record<string, any> = {};
-
-    if (branchId) {
-      selector.branchId = branchId;
-    }
-    if (webId) {
-      selector.webId = webId;
-    }
-
+    if (branchId) selector.branchId = branchId;
+    if (webId) selector.webId = webId;
     return models.Tours.countDocuments(selector);
   },
 
   bmsTourDetail(
     _root: any,
-    { _id }: { _id: string },
+    { _id, language }: { _id: string; language?: string },
     { models }: IContext,
   ): Promise<ITourDocument | null> {
-    return models.Tours.findById(_id);
+    return getBmsItemWithTranslation(
+      models,
+      models.Tours,
+      models.TourTranslations,
+      { _id },
+      language,
+      TOUR_FIELD_MAPPINGS,
+      undefined,
+      applyTourTranslation,
+    );
   },
 
-  bmsTourCategories(_root, { parentId, name, branchId }, { models }: IContext) {
+  bmsTourCategories: async (
+    _root,
+    { parentId, name, branchId, language },
+    { models }: IContext,
+  ) => {
     const selector: any = {};
 
     if (parentId) {
@@ -262,24 +265,45 @@ const tourQueries: Record<string, Resolver> = {
     } else if (parentId === null) {
       selector.parentId = null;
     }
+    if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    if (branchId) selector.branchId = branchId;
 
-    if (name) {
-      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    // No language — return raw sorted list
+    if (!language) {
+      return models.BmsTourCategories.find(selector).sort({
+        order: 1,
+        name: 1,
+      });
     }
 
-    if (branchId) {
-      selector.branchId = branchId;
-    }
+    // With language — overlay translations
+    const { list } = await getBmsListWithTranslations(
+      models,
+      models.BmsTourCategories,
+      models.TourCategoryTranslations,
+      selector,
+      { branchId, language, orderBy: { order: 1, name: 1 } },
+      TOUR_CATEGORY_FIELD_MAPPINGS,
+    );
 
-    return models.BmsTourCategories.find(selector).sort({ order: 1, name: 1 });
+    return list;
   },
 
   cpBmsTourDetail(
     _root: any,
-    { _id }: { _id: string },
+    { _id, language }: { _id: string; language?: string },
     { models }: IContext,
   ): Promise<ITourDocument | null> {
-    return models.Tours.findById(_id);
+    return getBmsItemWithTranslation(
+      models,
+      models.Tours,
+      models.TourTranslations,
+      { _id },
+      language,
+      TOUR_FIELD_MAPPINGS,
+      undefined,
+      applyTourTranslation,
+    );
   },
 
   async bmToursGroup(
@@ -308,25 +332,20 @@ const tourQueries: Record<string, Resolver> = {
       models,
       selectedCategoryIds,
     );
-    if (name) {
-      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
-    }
-    if (status) {
-      selector.status = status;
-    }
-    if (branchId) {
-      selector.branchId = branchId;
-    }
+
+    if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    if (status) selector.status = status;
+    if (branchId) selector.branchId = branchId;
+
     applyCategoryFilters(
       selector,
       expandedCategoryIds.length ? expandedCategoryIds : undefined,
     );
-    if (innerDate) {
-      const dateToCheck = innerDate;
-      selector.startDate = { $lte: dateToCheck };
-      selector.endDate = { $gte: dateToCheck };
-    }
 
+    if (innerDate) {
+      selector.startDate = { $lte: innerDate };
+      selector.endDate = { $gte: innerDate };
+    }
     if (startDate2) {
       if (!selector.startDate) selector.startDate = {};
       selector.startDate['$lte'] = startDate2;
@@ -335,7 +354,6 @@ const tourQueries: Record<string, Resolver> = {
       if (!selector.startDate) selector.startDate = {};
       selector.startDate['$gte'] = startDate1;
     }
-
     if (endDate2) {
       if (!selector.endDate) selector.endDate = {};
       selector.endDate['$lte'] = endDate2;
@@ -344,12 +362,8 @@ const tourQueries: Record<string, Resolver> = {
       if (!selector.endDate) selector.endDate = {};
       selector.endDate['$gte'] = endDate1;
     }
-    if (groupCode) {
-      selector.groupCode = groupCode;
-    }
-    if (date_status) {
-      selector.date_status = date_status;
-    }
+    if (groupCode) selector.groupCode = groupCode;
+    if (date_status) selector.date_status = date_status;
 
     const total = await models.Tours.find({
       ...selector,
@@ -358,22 +372,17 @@ const tourQueries: Record<string, Resolver> = {
 
     const group = await models.Tours.aggregate([
       {
-        $match: {
-          ...selector,
-          groupCode: { $nin: [null, ''] }, // Exclude null and empty strings
-        },
+        $match: { ...selector, groupCode: { $nin: [null, ''] } },
       },
       {
         $group: {
-          _id: '$groupCode', // group by category
-          items: { $push: '$$ROOT' }, // push full documents into an array
+          _id: '$groupCode',
+          items: { $push: '$$ROOT' },
         },
       },
     ]);
-    return {
-      list: [...group],
-      total,
-    };
+
+    return { list: [...group], total };
   },
 
   async cpBmToursGroup(
@@ -403,28 +412,21 @@ const tourQueries: Record<string, Resolver> = {
       models,
       selectedCategoryIds,
     );
-    if (name) {
-      selector.name = { $regex: escapeRegExp(name), $options: 'i' };
-    }
-    if (status) {
-      selector.status = status;
-    }
-    if (branchId) {
-      selector.branchId = branchId;
-    }
-    if (webId) {
-      selector.webId = webId;
-    }
+
+    if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    if (status) selector.status = status;
+    if (branchId) selector.branchId = branchId;
+    if (webId) selector.webId = webId;
+
     applyCategoryFilters(
       selector,
       expandedCategoryIds.length ? expandedCategoryIds : undefined,
     );
-    if (innerDate) {
-      const dateToCheck = innerDate;
-      selector.startDate = { $lte: dateToCheck };
-      selector.endDate = { $gte: dateToCheck };
-    }
 
+    if (innerDate) {
+      selector.startDate = { $lte: innerDate };
+      selector.endDate = { $gte: innerDate };
+    }
     if (startDate2) {
       if (!selector.startDate) selector.startDate = {};
       selector.startDate['$lte'] = startDate2;
@@ -433,7 +435,6 @@ const tourQueries: Record<string, Resolver> = {
       if (!selector.startDate) selector.startDate = {};
       selector.startDate['$gte'] = startDate1;
     }
-
     if (endDate2) {
       if (!selector.endDate) selector.endDate = {};
       selector.endDate['$lte'] = endDate2;
@@ -442,12 +443,8 @@ const tourQueries: Record<string, Resolver> = {
       if (!selector.endDate) selector.endDate = {};
       selector.endDate['$gte'] = endDate1;
     }
-    if (groupCode) {
-      selector.groupCode = groupCode;
-    }
-    if (date_status) {
-      selector.date_status = date_status;
-    }
+    if (groupCode) selector.groupCode = groupCode;
+    if (date_status) selector.date_status = date_status;
 
     const total = await models.Tours.find({
       ...selector,
@@ -456,30 +453,21 @@ const tourQueries: Record<string, Resolver> = {
 
     const group = await models.Tours.aggregate([
       {
-        $match: {
-          ...selector,
-          groupCode: { $nin: [null, ''] }, // Exclude null and empty strings
-        },
+        $match: { ...selector, groupCode: { $nin: [null, ''] } },
       },
       {
         $group: {
-          _id: '$groupCode', // group by category
-          items: { $push: '$$ROOT' }, // push full documents into an array
+          _id: '$groupCode',
+          items: { $push: '$$ROOT' },
         },
       },
     ]);
-    return {
-      list: [...group],
-      total,
-    };
+
+    return { list: [...group], total };
   },
 
   async bmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
-    const list = await models.Tours.find({
-      groupCode: groupCode,
-      status: status,
-    });
-
+    const list = await models.Tours.find({ groupCode, status });
     return { _id: groupCode, items: list };
   },
 
@@ -488,29 +476,15 @@ const tourQueries: Record<string, Resolver> = {
     { groupCode, status },
     { models }: IContext,
   ) {
-    const list = await models.Tours.find({
-      groupCode: groupCode,
-      status: status,
-    });
-
+    const list = await models.Tours.find({ groupCode, status });
     return { _id: groupCode, items: list };
   },
 };
 
 export default tourQueries;
 
-tourQueries.cpBmsTours.wrapperConfig = {
-  forClientPortal: true,
-};
-tourQueries.cpBmsToursTotalCount.wrapperConfig = {
-  forClientPortal: true,
-};
-tourQueries.cpBmsTourDetail.wrapperConfig = {
-  forClientPortal: true,
-};
-tourQueries.cpBmToursGroup.wrapperConfig = {
-  forClientPortal: true,
-};
-tourQueries.cpBmToursGroupDetail.wrapperConfig = {
-  forClientPortal: true,
-};
+tourQueries.cpBmsTours.wrapperConfig = { forClientPortal: true };
+tourQueries.cpBmsToursTotalCount.wrapperConfig = { forClientPortal: true };
+tourQueries.cpBmsTourDetail.wrapperConfig = { forClientPortal: true };
+tourQueries.cpBmToursGroup.wrapperConfig = { forClientPortal: true };
+tourQueries.cpBmToursGroupDetail.wrapperConfig = { forClientPortal: true };

@@ -15,20 +15,33 @@ export const ELEMENT_FIELD_MAPPINGS: Record<string, string> = {
 export const ITINERARY_FIELD_MAPPINGS: Record<string, string> = {
   name: 'name',
   content: 'content',
+  foodCost: 'foodCost',
+  personCost: 'personCost',
+  gasCost: 'gasCost',
+  driverCost: 'driverCost',
+  guideCost: 'guideCost',
+  guideCostExtra: 'guideCostExtra',
 };
 
-// Add more mappings here as new models get translation support
+export const TOUR_CATEGORY_FIELD_MAPPINGS: Record<string, string> = {
+  name: 'name',
+};
+
+export const TOUR_FIELD_MAPPINGS: Record<string, string> = {
+  name: 'name',
+  refNumber: 'refNumber',
+  content: 'content',
+  info1: 'info1',
+  info2: 'info2',
+  info3: 'info3',
+  info4: 'info4',
+  info5: 'info5',
+};
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Skip translation when:
- *  - branchId or language is missing
- *  - requested language matches the branch's configured default language
- *    (the document is already stored in that language)
- */
 export async function shouldSkipTranslation(
   models: IModels,
   branchId: string,
@@ -69,10 +82,108 @@ export function applyTranslationToItem<T extends { _id: string }>(
   return result;
 }
 
+/**
+ * Overlay groupDays translations onto an itinerary.
+ * Matches by day number.
+ */
+export function applyGroupDaysTranslation<T extends { _id: string }>(
+  item: T,
+  translation: any,
+): T {
+  if (!translation?.groupDays?.length) return item;
+
+  const existingDays: any[] = (item as any).groupDays ?? [];
+  if (!existingDays.length) return item;
+
+  const dayTranslationMap: Record<number, any> = translation.groupDays.reduce(
+    (acc: any, dt: any) => {
+      acc[dt.day] = dt;
+      return acc;
+    },
+    {},
+  );
+
+  const translatedDays = existingDays.map((day) => {
+    const dt = dayTranslationMap[day.day];
+    if (!dt) return day;
+    return {
+      ...day,
+      ...(dt.title ? { title: dt.title } : {}),
+      ...(dt.content ? { content: dt.content } : {}),
+    };
+  });
+
+  return { ...(item as any), groupDays: translatedDays };
+}
+
+/**
+ * Overlay pricingOptions translations onto a tour.
+ * Matches by optionId.
+ */
+export function applyPricingOptionsTranslation<T extends { _id: string }>(
+  item: T,
+  translation: any,
+): T {
+  if (!translation?.pricingOptions?.length) return item;
+
+  const existingOptions: any[] = (item as any).pricingOptions ?? [];
+  if (!existingOptions.length) return item;
+
+  const optionTranslationMap: Record<string, any> =
+    translation.pricingOptions.reduce((acc: any, pt: any) => {
+      acc[String(pt.optionId)] = pt;
+      return acc;
+    }, {});
+
+  const translatedOptions = existingOptions.map((option) => {
+    const pt = optionTranslationMap[String(option._id)];
+    if (!pt) return option;
+    return {
+      ...option,
+      ...(pt.title ? { title: pt.title } : {}),
+      ...(pt.note ? { note: pt.note } : {}),
+      ...(pt.accommodationType
+        ? { accommodationType: pt.accommodationType }
+        : {}),
+    };
+  });
+
+  return { ...(item as any), pricingOptions: translatedOptions };
+}
+
+/**
+ * Apply flat field mappings + groupDays for itineraries.
+ */
+export function applyItineraryTranslation<T extends { _id: string }>(
+  item: T,
+  translation: any,
+): T {
+  let result = applyTranslationToItem(
+    item,
+    translation,
+    ITINERARY_FIELD_MAPPINGS,
+  );
+  result = applyGroupDaysTranslation(result, translation);
+  return result;
+}
+
+/**
+ * Apply flat field mappings + pricingOptions for tours.
+ */
+export function applyTourTranslation<T extends { _id: string }>(
+  item: T,
+  translation: any,
+): T {
+  let result = applyTranslationToItem(item, translation, TOUR_FIELD_MAPPINGS);
+  result = applyPricingOptionsTranslation(result, translation);
+  return result;
+}
+
 function applyTranslationsToList<T extends { _id: string }>(
   items: T[],
   translations: any[],
   fieldMappings: Record<string, string>,
+  applyFn?: (item: T, translation: any) => T,
 ): T[] {
   if (!translations.length) return items;
 
@@ -80,7 +191,10 @@ function applyTranslationsToList<T extends { _id: string }>(
 
   return items.map((item) => {
     const translation = translationMap[String(item._id)];
-    return applyTranslationToItem(item, translation, fieldMappings);
+    if (!translation) return item;
+    return applyFn
+      ? applyFn(item, translation)
+      : applyTranslationToItem(item, translation, fieldMappings);
   });
 }
 
@@ -101,23 +215,6 @@ export interface BmsListQueryArgs {
 // Public API
 // ---------------------------------------------------------------------------
 
-/**
- * Paginated list with translation overlay — works for any BMS model.
- *
- * @param models           - Full models object (needed to look up branch language)
- * @param model            - Mongoose model to query  (e.g. models.Elements)
- * @param translationModel - Corresponding translation model (e.g. models.ElementTranslations)
- * @param query            - MongoDB filter
- * @param args             - Query args: language, branchId, pagination, sort
- * @param fieldMappings    - Map of document field → translation field
- *
- * @example
- *   // Elements
- *   getBmsListWithTranslations(models, models.Elements, models.ElementTranslations, query, args, ELEMENT_FIELD_MAPPINGS)
- *
- *   // Itineraries
- *   getBmsListWithTranslations(models, models.Itineraries, models.ItineraryTranslations, query, args, ITINERARY_FIELD_MAPPINGS)
- */
 export async function getBmsListWithTranslations<T extends { _id: string }>(
   models: IModels,
   model: any,
@@ -125,6 +222,7 @@ export async function getBmsListWithTranslations<T extends { _id: string }>(
   query: any,
   args: BmsListQueryArgs,
   fieldMappings: Record<string, string>,
+  applyFn?: (item: T, translation: any) => T,
 ): Promise<{ list: T[]; totalCount: number; pageInfo: any }> {
   const params = { ...args };
   if (args.sortField && !args.orderBy) {
@@ -158,14 +256,12 @@ export async function getBmsListWithTranslations<T extends { _id: string }>(
     list,
     translations,
     fieldMappings,
+    applyFn,
   );
 
   return { list: translatedList, totalCount, pageInfo };
 }
 
-/**
- * Generic single-item fetch with translation overlay.
- */
 export async function getBmsItemWithTranslation<T extends { _id: string }>(
   models: IModels,
   model: any,
@@ -174,6 +270,7 @@ export async function getBmsItemWithTranslation<T extends { _id: string }>(
   language: string | undefined,
   fieldMappings: Record<string, string>,
   branchId?: string,
+  applyFn?: (item: T, translation: any) => T,
 ): Promise<T | null> {
   const item = (await model.findOne(query).lean()) as T | null;
   if (!item) return null;
@@ -187,5 +284,9 @@ export async function getBmsItemWithTranslation<T extends { _id: string }>(
     .findOne({ objectId: String(item._id), language })
     .lean();
 
-  return applyTranslationToItem(item, translation, fieldMappings);
+  if (!translation) return item;
+
+  return applyFn
+    ? applyFn(item, translation)
+    : applyTranslationToItem(item, translation, fieldMappings);
 }
