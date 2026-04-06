@@ -60,10 +60,7 @@ const RegionFields = ({
       {/* Region selector from DB */}
       <div className="space-y-1">
         <Label className="text-xs">Бүс нутаг сонгох *</Label>
-        <Select
-          value={selectedRegionId}
-          onValueChange={handleRegionSelect}
-        >
+        <Select value={selectedRegionId} onValueChange={handleRegionSelect}>
           <Select.Trigger>
             <Select.Value placeholder="Бүс нутаг сонгоно уу" />
           </Select.Trigger>
