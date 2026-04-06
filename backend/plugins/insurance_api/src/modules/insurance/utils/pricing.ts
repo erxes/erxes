@@ -63,9 +63,9 @@ export function calculateTravelTieredFee(
 export interface ITravelFormula {
   regionId: string;
   regionName: string;
-  slope21: number;       // 'a' for ≤21 days
-  intercept21: number;   // 'b' for ≤21 days
-  slope21plus: number;   // 'a' for >21 days
+  slope21: number; // 'a' for ≤21 days
+  intercept21: number; // 'b' for ≤21 days
+  slope21plus: number; // 'a' for >21 days
   intercept21plus: number; // 'b' for >21 days
 }
 
@@ -101,13 +101,10 @@ export function calculatePremium(
   // Travel insurance: formula-based pricing (y = ax + b)
   if (pricingConfig.formulas && pricingConfig.formulas.length > 0) {
     const regionName =
-      insuredObject?.['Аялах бүс нутаг'] ||
-      insuredObject?.['Бүс нутаг'] ||
-      '';
+      insuredObject?.['Аялах бүс нутаг'] || insuredObject?.['Бүс нутаг'] || '';
 
     const startDate =
-      insuredObject?.['Эхлэх огноо'] ||
-      insuredObject?.['Гэрээний эхлэх огноо'];
+      insuredObject?.['Эхлэх огноо'] || insuredObject?.['Гэрээний эхлэх огноо'];
     const endDate =
       insuredObject?.['Дуусах огноо'] ||
       insuredObject?.['Гэрээний дуусах огноо'];

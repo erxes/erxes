@@ -738,14 +738,16 @@ export const ProductForm = ({
                       slope21plus: 0,
                       intercept21plus: 0,
                     }));
-                    const existing = formulas.length > 0 ? formulas : defaultFormulas;
+                    const existing =
+                      formulas.length > 0 ? formulas : defaultFormulas;
                     setFormulas(existing);
                     setFormData({
                       ...formData,
                       pricingConfig: {
                         formulas: existing,
                         coverageAmount:
-                          (formData.pricingConfig.coverageAmount as number) || 20000,
+                          (formData.pricingConfig.coverageAmount as number) ||
+                          20000,
                         coverageCurrency: 'USD',
                       },
                     });
@@ -1012,8 +1014,8 @@ export const ProductForm = ({
                   ))}
 
                   <p className="text-xs text-muted-foreground">
-                    Жишээ: Asia ≤21 хоног, y=0.7x+1.9 → 10 хоног = 0.7×10+1.9
-                    = 8.9 мянган₮ = 8,900₮
+                    Жишээ: Asia ≤21 хоног, y=0.7x+1.9 → 10 хоног = 0.7×10+1.9 =
+                    8.9 мянган₮ = 8,900₮
                   </p>
                 </div>
               </>
