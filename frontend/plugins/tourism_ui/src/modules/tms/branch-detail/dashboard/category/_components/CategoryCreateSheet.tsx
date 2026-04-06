@@ -1,7 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -16,9 +16,17 @@ import {
   CategoryCodeField,
 } from './CategoryFormFields';
 import { useCreateCategory } from '../hooks/useCreateCategory';
+import { useCategoryLanguage } from '../hooks/useCategoryLanguage';
+import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_components/TourFieldLanguageSwitch';
+import {
+  buildEmptyCategoryTranslations,
+  sanitizeCategoryTranslations,
+} from '../utils/translationHelpers';
 
 interface CategoryCreateSheetProps {
   branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   showTrigger?: boolean;
@@ -26,6 +34,8 @@ interface CategoryCreateSheetProps {
 
 export const CategoryCreateSheet = ({
   branchId,
+  branchLanguages,
+  mainLanguage,
   open,
   onOpenChange,
   showTrigger = true,
@@ -52,8 +62,49 @@ export const CategoryCreateSheet = ({
       name: '',
       code: '',
       parentId: '',
+      translations: [],
     },
   });
+
+  const { fields } = useFieldArray({
+    control: form.control,
+    name: 'translations',
+  });
+
+  const {
+    allLanguages,
+    translationLanguages,
+    selectedLang,
+    setSelectedLang,
+    labelSuffix,
+    fieldPaths,
+  } = useCategoryLanguage({ branchLanguages, mainLanguage, fields });
+
+  useEffect(() => {
+    if (!translationLanguages.length) return;
+    const current = form.getValues('translations') || [];
+    const currentLangs = current.map((t) => t.language);
+    if (!translationLanguages.every((l) => currentLangs.includes(l))) {
+      form.setValue(
+        'translations',
+        buildEmptyCategoryTranslations(translationLanguages),
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [translationLanguages.join(',')]);
+
+  const onInvalid = () => {
+    const nameValue = form.getValues('name');
+    if (!nameValue?.trim()) {
+      toast({
+        title: 'Error',
+        description:
+          'Please enter values for the main language before creating.',
+        variant: 'destructive',
+      });
+      setSelectedLang(mainLanguage || allLanguages[0] || '');
+    }
+  };
 
   const handleSubmit = async (values: CategoryCreateFormType) => {
     try {
@@ -65,6 +116,8 @@ export const CategoryCreateSheet = ({
             values.parentId.trim() !== '' && { parentId: values.parentId }),
           ...(branchId && { branchId }),
           ...(values.attachment && { attachment: values.attachment }),
+          language: mainLanguage,
+          translations: sanitizeCategoryTranslations(values.translations),
         },
       });
 
@@ -73,7 +126,13 @@ export const CategoryCreateSheet = ({
         description: 'Category created successfully',
       });
 
-      form.reset();
+      form.reset({
+        name: '',
+        code: '',
+        parentId: '',
+        translations: buildEmptyCategoryTranslations(translationLanguages),
+      });
+      setSelectedLang(mainLanguage || allLanguages[0] || '');
       handleOpenChange(false);
     } catch (error) {
       toast({
@@ -99,18 +158,30 @@ export const CategoryCreateSheet = ({
       <Sheet.View className="w-[400px] sm:max-w-[400px] p-0">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={form.handleSubmit(handleSubmit, onInvalid)}
             className="flex flex-col h-full"
           >
             <Sheet.Header>
               <Sheet.Title>Create category</Sheet.Title>
-              <Sheet.Close />
+              {allLanguages.length > 1 && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <TourFieldLanguageSwitch
+                    availableLanguages={allLanguages}
+                    value={selectedLang}
+                    onValueChange={setSelectedLang}
+                  />
+                </div>
+              )}
             </Sheet.Header>
 
             <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
-              <div className="flex flex-col gap-6">
+              <div key={selectedLang} className="flex flex-col gap-6">
                 <div className="space-y-4">
-                  <CategoryNameField control={form.control} />
+                  <CategoryNameField
+                    control={form.control}
+                    name={fieldPaths.name}
+                    labelSuffix={labelSuffix}
+                  />
                   <CategoryCodeField control={form.control} />
                   <CategoryParentIdField
                     control={form.control}

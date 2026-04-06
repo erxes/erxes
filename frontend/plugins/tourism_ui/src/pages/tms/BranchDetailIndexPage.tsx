@@ -29,7 +29,6 @@ const CREATE_SHEET_MAP: Partial<
   Record<ActiveTab, (branchId: string) => JSX.Element>
 > = {
   tour: (branchId) => <TourCreateSheet branchId={branchId} />,
-  category: (branchId) => <CategoryCreateSheet branchId={branchId} />,
 };
 
 export const BranchDetailIndexPage = () => {
@@ -94,6 +93,15 @@ export const BranchDetailIndexPage = () => {
     if (activeTab === 'amenities') {
       return (
         <AmenityCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
+    if (activeTab === 'category') {
+      return (
+        <CategoryCreateSheet
           branchId={branchId}
           branchLanguages={selectedBranch?.languages}
           mainLanguage={selectedBranch?.language}

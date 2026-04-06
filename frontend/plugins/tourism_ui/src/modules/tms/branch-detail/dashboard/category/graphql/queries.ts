@@ -1,8 +1,18 @@
 import { gql } from '@apollo/client';
 
 export const GET_CATEGORIES = gql`
-  query BmsTourCategories($parentId: String, $name: String, $branchId: String) {
-    bmsTourCategories(parentId: $parentId, name: $name, branchId: $branchId) {
+  query BmsTourCategories(
+    $parentId: String
+    $name: String
+    $branchId: String
+    $language: String
+  ) {
+    bmsTourCategories(
+      parentId: $parentId
+      name: $name
+      branchId: $branchId
+      language: $language
+    ) {
       _id
       name
       code
@@ -10,6 +20,12 @@ export const GET_CATEGORIES = gql`
       branchId
       order
       tourCount
+      language
+      translations {
+        _id
+        language
+        name
+      }
       createdAt
       modifiedAt
       attachment {
