@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { GET_ITINERARY_DETAIL } from '../graphql/queries';
+import { IItineraryTranslation } from '../types/itinerary';
 
 export interface IItineraryDetail {
   _id: string;
@@ -26,6 +27,7 @@ export interface IItineraryDetail {
   modifiedAt?: string;
   content?: string;
   color?: string;
+  translations?: IItineraryTranslation[];
 }
 
 interface ItineraryDetailResponse {

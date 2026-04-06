@@ -15,6 +15,10 @@ interface ItineraryBuilderProps {
   amenities: IAmenity[];
   branchId?: string;
   isEditMode?: boolean;
+  labelSuffix?: string;
+  currencySymbol?: string;
+  mainLanguage?: string;
+  branchLanguages?: string[];
 }
 
 export const ItineraryBuilder = ({
@@ -25,6 +29,10 @@ export const ItineraryBuilder = ({
   amenities,
   branchId,
   isEditMode = false,
+  labelSuffix,
+  currencySymbol,
+  mainLanguage,
+  branchLanguages,
 }: ItineraryBuilderProps) => {
   const {
     isDragging,
@@ -85,13 +93,15 @@ export const ItineraryBuilder = ({
   const days = Array.from({ length: groupDays?.length || 0 }, (_, i) => i);
 
   return (
-    <div className="flex overflow-hidden h-full rounded-lg border bg-background">
-      <div className="overflow-hidden h-full min-h-0 border-r flex-4">
+    <div className="flex h-full overflow-hidden border rounded-lg bg-background">
+      <div className="h-full min-h-0 overflow-hidden border-r flex-4">
         <ElementsPanel
           elements={elements}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           branchId={branchId}
+          mainLanguage={mainLanguage}
+          branchLanguages={branchLanguages}
         />
       </div>
 
@@ -107,6 +117,8 @@ export const ItineraryBuilder = ({
           onReorderElements={handleReorderElements}
           onDrop={handleDrop}
           isDragging={isDragging}
+          labelSuffix={labelSuffix}
+          currencySymbol={currencySymbol}
         />
       </div>
     </div>
