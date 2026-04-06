@@ -1,7 +1,11 @@
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 
 const httpLink = new HttpLink({
-  uri: 'http://localhost:8000/graphql',
+  uri:
+    (typeof window !== 'undefined' &&
+      localStorage.getItem('insurance_api_endpoint')) ||
+    process.env.REACT_APP_API_URL ||
+    '/graphql',
   credentials: 'include',
 });
 

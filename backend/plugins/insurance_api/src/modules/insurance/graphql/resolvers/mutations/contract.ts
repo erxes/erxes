@@ -6,18 +6,30 @@ const generateContractNumber = async (models: any): Promise<string> => {
   const date = new Date();
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
+  const base = `${prefix}${year}${month}`;
 
-  const lastContract = await models.Contract.findOne({
-    contractNumber: new RegExp(`^${prefix}${year}${month}`),
-  }).sort({ contractNumber: -1 });
+  const maxRetries = 5;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const lastContract = await models.Contract.findOne({
+      contractNumber: new RegExp(`^${base}`),
+    }).sort({ contractNumber: -1 });
 
-  let sequence = 1;
-  if (lastContract?.contractNumber) {
-    const lastSequence = parseInt(lastContract.contractNumber.slice(-4));
-    sequence = lastSequence + 1;
+    let sequence = 1;
+    if (lastContract?.contractNumber) {
+      const lastSequence = parseInt(lastContract.contractNumber.slice(-4));
+      sequence = lastSequence + 1;
+    }
+
+    const contractNumber = `${base}${String(sequence).padStart(4, '0')}`;
+
+    const exists = await models.Contract.findOne({ contractNumber });
+    if (!exists) {
+      return contractNumber;
+    }
   }
 
-  return `${prefix}${year}${month}${String(sequence).padStart(4, '0')}`;
+  // Fallback: use timestamp suffix
+  return `${base}${Date.now().toString().slice(-6)}`;
 };
 
 export const contractMutations = {
@@ -149,7 +161,7 @@ export const contractMutations = {
       }
 
       // Validate payment status
-      const validStatuses = ['pending', 'paid', 'cancelled'] as const;
+      const validStatuses = ['pending', 'paid', 'cancelled', 'refunded'] as const;
       if (!validStatuses.includes(paymentStatus as any)) {
         throw new Error(
           `Invalid payment status. Must be one of: ${validStatuses.join(', ')}`,
@@ -159,7 +171,8 @@ export const contractMutations = {
       contract.paymentStatus = paymentStatus as
         | 'pending'
         | 'paid'
-        | 'cancelled';
+        | 'cancelled'
+        | 'refunded';
       await contract.save();
 
       return contract.populate(
@@ -206,7 +219,7 @@ export const contractMutations = {
 
       // Update payment status if provided
       if (paymentStatus) {
-        const validStatuses = ['pending', 'paid', 'cancelled'] as const;
+        const validStatuses = ['pending', 'paid', 'cancelled', 'refunded'] as const;
         if (!validStatuses.includes(paymentStatus as any)) {
           throw new Error(
             `Invalid payment status. Must be one of: ${validStatuses.join(
@@ -217,7 +230,8 @@ export const contractMutations = {
         contract.paymentStatus = paymentStatus as
           | 'pending'
           | 'paid'
-          | 'cancelled';
+          | 'cancelled'
+          | 'refunded';
       }
 
       await contract.save();

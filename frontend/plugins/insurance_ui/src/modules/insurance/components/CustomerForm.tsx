@@ -129,12 +129,12 @@ export const CustomerForm = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">Last Name *</Label>
+              <Label htmlFor="lastName">Last Name *</Label>
               <Input
-                id="firstName"
-                value={formData.firstName}
+                id="lastName"
+                value={formData.lastName}
                 onChange={(e) =>
-                  setFormData({ ...formData, firstName: e.target.value })
+                  setFormData({ ...formData, lastName: e.target.value })
                 }
                 placeholder="Last name"
                 required
@@ -142,12 +142,12 @@ export const CustomerForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lastName">First Name *</Label>
+              <Label htmlFor="firstName">First Name *</Label>
               <Input
-                id="lastName"
-                value={formData.lastName}
+                id="firstName"
+                value={formData.firstName}
                 onChange={(e) =>
-                  setFormData({ ...formData, lastName: e.target.value })
+                  setFormData({ ...formData, firstName: e.target.value })
                 }
                 placeholder="First name"
                 required

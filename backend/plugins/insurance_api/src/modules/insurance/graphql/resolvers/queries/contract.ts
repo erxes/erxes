@@ -255,7 +255,7 @@ export const contractQueries = {
       if (filters) {
         if (filters.contractNumber) {
           query.contractNumber = {
-            $regex: filters.contractNumber,
+            $regex: escapeRegex(filters.contractNumber),
             $options: 'i',
           };
         }
@@ -275,7 +275,7 @@ export const contractQueries = {
         if (filters.customerRegistration) {
           const customers = await models.Customer.find({
             registrationNumber: {
-              $regex: filters.customerRegistration,
+              $regex: escapeRegex(filters.customerRegistration),
               $options: 'i',
             },
           }).select('_id');
@@ -289,8 +289,8 @@ export const contractQueries = {
         if (filters.customerName) {
           const customers = await models.Customer.find({
             $or: [
-              { firstName: { $regex: filters.customerName, $options: 'i' } },
-              { lastName: { $regex: filters.customerName, $options: 'i' } },
+              { firstName: { $regex: escapeRegex(filters.customerName), $options: 'i' } },
+              { lastName: { $regex: escapeRegex(filters.customerName), $options: 'i' } },
             ],
           }).select('_id');
           if (customers.length > 0) {
@@ -302,14 +302,14 @@ export const contractQueries = {
 
         if (filters.plateNumber) {
           query['insuredObject.Улсын дугаар'] = {
-            $regex: filters.plateNumber,
+            $regex: escapeRegex(filters.plateNumber),
             $options: 'i',
           };
         }
 
         if (filters.vehicleMark) {
           query['insuredObject.Тээврийн хэрэгслийн марк'] = {
-            $regex: filters.vehicleMark,
+            $regex: escapeRegex(filters.vehicleMark),
             $options: 'i',
           };
         }

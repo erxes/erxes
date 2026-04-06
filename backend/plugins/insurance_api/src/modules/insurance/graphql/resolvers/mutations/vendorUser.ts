@@ -65,7 +65,13 @@ export const vendorUserMutations = {
     const updateData: any = {};
 
     if (name !== undefined) updateData.name = name;
-    if (email !== undefined) updateData.email = email;
+    if (email !== undefined) {
+      const existing = await models.VendorUser.findOne({ email, _id: { $ne: id } });
+      if (existing) {
+        throw new Error('A vendor user with this email already exists');
+      }
+      updateData.email = email;
+    }
     if (phone !== undefined) updateData.phone = phone;
     if (role !== undefined) updateData.role = role;
 
@@ -114,6 +120,10 @@ export const vendorUserMutations = {
 
       if (!secret) {
         throw new Error('JWT token secret is not defined');
+      }
+
+      if (!vendorUser.vendor) {
+        throw new Error('Vendor not found for this user');
       }
 
       const token = jwt.sign(

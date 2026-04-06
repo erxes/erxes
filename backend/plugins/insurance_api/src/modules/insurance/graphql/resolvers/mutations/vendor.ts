@@ -104,29 +104,4 @@ export const vendorMutations = {
     { wrapperConfig: { skipPermission: true } },
   ),
 
-  createVendorUser: Object.assign(
-    async (
-      _parent: undefined,
-      {
-        username,
-        password,
-        vendorId,
-        role,
-      }: {
-        username: string;
-        password: string;
-        vendorId: string;
-        role?: string;
-      },
-      { models }: IContext,
-    ) => {
-      return models.VendorUser.create({
-        username,
-        password,
-        vendor: vendorId,
-        role,
-      });
-    },
-    { wrapperConfig: { skipPermission: true } },
-  ),
 };

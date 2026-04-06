@@ -360,7 +360,7 @@ export const mutations = `
   updateCustomer(id: ID!, input: InsuranceCustomerInput): InsuranceCustomer!
   deleteCustomer(id: ID!): Boolean!
 
-  createInsuranceContract(vendorId: ID!, customerId: ID!, productId: ID!, insuredObject: JSON!, startDate: Date!, endDate: Date!, paymentKind: String!): InsuranceContract!
+  createInsuranceContract(vendorId: ID!, customerId: ID!, productId: ID!, insuredObject: JSON!, startDate: Date!, endDate: Date!, paymentKind: String!, chargedAmount: Float): InsuranceContract!
   updateContractPaymentStatus(contractId: ID!, paymentStatus: String!): InsuranceContract!
   updateContract(contractId: ID!, customerId: ID!, insuredObject: JSON, paymentStatus: String): InsuranceContract!
 

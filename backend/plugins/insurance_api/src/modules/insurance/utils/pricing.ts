@@ -61,6 +61,12 @@ export function calculatePremium(
 ): number {
   if (!pricingConfig) return 0;
 
+  // Travel insurance: if insuredObject already has pre-calculated total, use it
+  const preCalculatedTotal = insuredObject?.['Нийт хураамж'];
+  if (preCalculatedTotal && preCalculatedTotal > 0) {
+    return preCalculatedTotal;
+  }
+
   // Travel insurance: duration-tiered pricing (per person per trip)
   if (pricingConfig.durationTiers && pricingConfig.durationTiers.length > 0) {
     const startDate =
@@ -77,10 +83,16 @@ export function calculatePremium(
         (new Date(endDate).getTime() - new Date(startDate).getTime()) /
           (1000 * 60 * 60 * 24),
       );
-      return calculateTravelTieredFee(
+      const perPersonFee = calculateTravelTieredFee(
         pricingConfig.durationTiers,
         Math.max(days, 1),
       );
+      // Parse traveler count from insuredObject
+      const travelerText = insuredObject?.['Аялагчид'] || '';
+      const travelerCount = travelerText
+        ? travelerText.split('\n').filter((l: string) => l.trim()).length
+        : 1;
+      return perPersonFee * Math.max(travelerCount, 1);
     }
     return pricingConfig.durationTiers[0]?.fee || 0;
   }
