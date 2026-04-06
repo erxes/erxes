@@ -52,18 +52,18 @@ class CategoryQueryResolver extends BaseQueryResolver {
   }
 
   async cpCategories(_parent: any, args: any, context: IContext): Promise<any> {
-    const { models, clientPortal } = context;
-    const { language } = args;
+    const { models } = context;
+    const { language, clientPortalId } = args;
 
     const query: any = {
-      clientPortalId: clientPortal._id,
+      clientPortalId,
       status: 'active',
     };
 
     const { list } = await this.getListWithTranslations(
       models.Categories,
       query,
-      { ...args, clientPortalId: clientPortal._id, language },
+      { ...args, clientPortalId, language },
       FIELD_MAPPINGS.CATEGORY,
     );
 
@@ -76,7 +76,7 @@ export const contentCmsCategoryQueries: Record<string, Resolver> = {
   cmsCategories: resolver.cmsCategories.bind(resolver),
   cmsCategory: resolver.cmsCategory.bind(resolver),
   cpCategories: resolver.cpCategories.bind(resolver),
-};
+}; 
 
 contentCmsCategoryQueries.cpCategories.wrapperConfig = {
   forClientPortal: true,

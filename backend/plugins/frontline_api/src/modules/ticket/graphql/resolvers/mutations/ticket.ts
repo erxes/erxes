@@ -1,5 +1,5 @@
 import { ITicketUpdate } from '~/modules/ticket/@types/ticket';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 
@@ -19,6 +19,20 @@ export const ticketMutations = {
 
     if (pipelineId) {
       await permissionValidator.validatePipelineAccess(pipelineId, user);
+    }
+
+    if (params.propertiesData) {
+      // clean custom field values
+      params.propertiesData = await sendTRPCMessage({
+        subdomain,
+  
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'fields',
+        action: 'validateFieldValues',
+        input: params.propertiesData,
+        defaultValue: {},
+      });
     }
 
     const ticket = await models.Ticket.addTicket(params, user._id, subdomain);
