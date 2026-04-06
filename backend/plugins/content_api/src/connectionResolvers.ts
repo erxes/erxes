@@ -42,7 +42,10 @@ import {
   loadWebPageClass,
 } from '@/webbuilder/db/models/WebPage';
 import { IWebPageDocument } from '@/webbuilder/@types/webPage';
-import { IWebActivityLogModel, loadWebActivityLogClass } from '@/webbuilder/db/models/WebActivityLog';
+import {
+  IWebActivityLogModel,
+  loadWebActivityLogClass,
+} from '@/webbuilder/db/models/WebActivityLog';
 import { IWebActivityLogDocument } from './modules/webbuilder/@types/webActivityLog';
 export interface IModels {
   CMS: ICMSModel;
@@ -124,10 +127,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadWebPageClass(models),
   );
 
-  models.WebActivityLogs = db.model<IWebActivityLogDocument, IWebActivityLogModel>(
-    'web_activity_logs',
-    loadWebActivityLogClass(models),
-  );
+  models.WebActivityLogs = db.model<
+    IWebActivityLogDocument,
+    IWebActivityLogModel
+  >('web_activity_logs', loadWebActivityLogClass(models));
 
   return models;
 };

@@ -144,7 +144,6 @@ export const webQueries: Record<string, Resolver> = {
   async cpGetWebActivityLogs(_root, { webId }, { models }: IContext) {
     return models.WebActivityLogs.getLogsForWeb(webId);
   },
-
 };
 
 webQueries.cpGetWebDetail.wrapperConfig = {

@@ -1,6 +1,9 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { IWebActivityLog, IWebActivityLogDocument } from '@/webbuilder/@types/webActivityLog';
+import {
+  IWebActivityLog,
+  IWebActivityLogDocument,
+} from '@/webbuilder/@types/webActivityLog';
 import { webActivityLogSchema } from '../definitions/webActivityLog';
 
 export interface IWebActivityLogModel extends Model<IWebActivityLogDocument> {

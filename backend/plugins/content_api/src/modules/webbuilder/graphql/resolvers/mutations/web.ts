@@ -73,9 +73,9 @@ export const webBuilderMutations: Record<string, Resolver> = {
     { models, user }: IContext,
   ) {
     const oldWeb = await models.Web.findOne({ _id }).lean();
-  
+
     const updated = await models.Web.updateWeb(_id, doc);
-  
+
     if (oldWeb) {
       const changes = diffWeb(oldWeb, doc);
       if (changes.length > 0) {
@@ -88,7 +88,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
         });
       }
     }
-  
+
     return updated;
   },
 
@@ -105,18 +105,18 @@ export const webBuilderMutations: Record<string, Resolver> = {
       _id,
       clientPortalId: clientPortal?._id,
     });
-  
+
     if (!web) throw new Error('Web not found');
-  
+
     const { clientPortalId: _ignoredClientPortalId, ...restDoc } = doc;
-  
+
     const updatedDoc = {
       ...restDoc,
       clientPortalId: clientPortal?._id,
     };
-  
+
     const updated = await models.Web.updateWeb(_id, updatedDoc);
-  
+
     const changes = diffWeb(web.toObject(), restDoc);
     if (changes.length > 0) {
       await models.WebActivityLogs.createLog({
@@ -127,7 +127,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
         createdAt: new Date(),
       });
     }
-  
+
     return updated;
   },
 
