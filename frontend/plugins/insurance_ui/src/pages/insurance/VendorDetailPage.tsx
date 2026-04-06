@@ -126,7 +126,7 @@ export const VendorDetailPage = () => {
 
     if (vp.discountTiers && vp.discountTiers.length > 0) {
       setDiscountTiers(
-        vp.discountTiers.map((t: any) => ({
+        vp.discountTiers.map((t: { minTravelers: number; discountPercent: number }) => ({
           minTravelers: t.minTravelers,
           discountPercent: t.discountPercent,
         })),
@@ -309,7 +309,7 @@ export const VendorDetailPage = () => {
                               Хөнгөлөлт:{' '}
                               {vp.discountTiers
                                 .map(
-                                  (t: any) =>
+                                  (t: { minTravelers: number; discountPercent: number }) =>
                                     `${t.minTravelers}+ хүн → ${t.discountPercent}%`,
                                 )
                                 .join(', ')}
@@ -539,8 +539,8 @@ export const VendorDetailPage = () => {
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {vendorDurationFields.map((field, index) => (
-                    <div key={index} className="flex gap-2 items-end">
+                  {vendorDurationFields.map((field) => (
+                    <div key={field.key} className="flex gap-2 items-end">
                       <div className="flex-1">
                         <Label className="text-xs">Duration</Label>
                         <Input
@@ -619,13 +619,13 @@ export const VendorDetailPage = () => {
 
               {discountTiers.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Аялалын даатгалд олон аялагч бол хөнгөлөлт тооцох. "Add Tier"
+                  Аялалын даатгалд олон аялагч бол хөнгөлөлт тооцох. &quot;Add Tier&quot;
                   дарна уу.
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {discountTiers.map((tier, index) => (
-                    <div key={index} className="flex gap-2 items-end">
+                  {discountTiers.map((tier) => (
+                    <div key={tier.minTravelers} className="flex gap-2 items-end">
                       <div className="flex-1">
                         <Label className="text-xs">Хүний тоо (≥)</Label>
                         <Input

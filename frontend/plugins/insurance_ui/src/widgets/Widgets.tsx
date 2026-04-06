@@ -2,11 +2,9 @@ import { useQuery } from '@apollo/client';
 import { CONTRACTS } from '../modules/insurance/graphql/queries';
 
 export const Widgets = ({
-  module,
   contentId,
-  contentType,
 }: {
-  module: any;
+  module: unknown;
   contentId: string;
   contentType: string;
 }) => {
@@ -32,7 +30,7 @@ export const Widgets = ({
       <h3 className="text-sm font-semibold text-gray-700">
         Даатгалын гэрээнүүд ({contracts.length})
       </h3>
-      {contracts.map((contract: any) => (
+      {contracts.map((contract: { id: string; contractNumber: string; paymentStatus: string; chargedAmount: number }) => (
         <div
           key={contract.id}
           className="p-3 border rounded-lg text-sm space-y-1"
