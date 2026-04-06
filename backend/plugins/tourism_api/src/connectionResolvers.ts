@@ -21,6 +21,17 @@ import {
 } from '@/bms/db/models/ElementTranslation';
 
 import { IItineraryModel, loadItineraryClass } from '@/bms/db/models/Itinerary';
+import {
+  IItineraryTranslationModel,
+  loadItineraryTranslationClass,
+} from '@/bms/db/models/ItineraryTranslation';
+import { IItineraryTranslationDocument } from './modules/bms/@types/itineraryTranslation';
+import { ITourTranslationDocument } from './modules/bms/@types/tourTranslation';
+import {
+  ITourTranslationModel,
+  loadTourTranslationClass,
+} from '@/bms/db/models/TourTranslation';
+
 import { IOrderModel, loadOrderClass } from '@/bms/db/models/Order';
 import {
   IBmsTourCategoryModel,
@@ -73,14 +84,22 @@ import {
 } from '@/pms/@types/cleanings';
 import mongoose from 'mongoose';
 import { IConfigDocument } from '@/pms/@types/configs';
+import {
+  ITourCategoryTranslationModel,
+  loadTourCategoryTranslationClass,
+} from './modules/bms/db/models/TourCategoryTranslation';
+import { ITourCategoryTranslationDocument } from './modules/bms/@types/tourCategoryTranslation';
 
 export interface IModels {
   Elements: IElementModel;
   ElementCategories: IElementCategoryModel;
   ElementTranslations: IElementTranslationModel;
   Itineraries: IItineraryModel;
+  ItineraryTranslations: IItineraryTranslationModel;
   Tours: ITourModel;
   BmsTourCategories: IBmsTourCategoryModel;
+  TourTranslations: ITourTranslationModel;
+  TourCategoryTranslations: ITourCategoryTranslationModel;
   Orders: IOrderModel;
   Branches: IBranchModel;
 
@@ -129,15 +148,30 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadItineraryClass(models),
   );
 
+  models.ItineraryTranslations = db.model<
+    IItineraryTranslationDocument,
+    IItineraryTranslationModel
+  >('bm_itinerary_translations', loadItineraryTranslationClass(models));
+
   models.Tours = db.model<ITourDocument, ITourModel>(
     'bm_tours',
     loadTourClass(models),
   );
 
+  models.TourTranslations = db.model<
+    ITourTranslationDocument,
+    ITourTranslationModel
+  >('bm_tour_translations', loadTourTranslationClass(models));
+
   models.BmsTourCategories = db.model<
     ITourCategoryDocument,
     IBmsTourCategoryModel
   >('bm_tour_categories', loadBmsTourCategoryClass(models));
+
+  models.TourCategoryTranslations = db.model<
+    ITourCategoryTranslationDocument,
+    ITourCategoryTranslationModel
+  >('bm_tour_category_translations', loadTourCategoryTranslationClass(models));
 
   models.Orders = db.model<IOrderDocument, IOrderModel>(
     'bm_orders',

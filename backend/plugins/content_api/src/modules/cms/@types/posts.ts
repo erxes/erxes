@@ -36,6 +36,7 @@ export interface IPostCategoryDocument extends IPostCategory, Document {
 export interface IPost {
   clientPortalId: string;
   webId?: string;
+  count?: number;
   title: string;
   slug: string;
   content?: string;
