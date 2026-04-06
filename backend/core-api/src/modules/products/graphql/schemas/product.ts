@@ -116,6 +116,7 @@ export const queries = `
     sortField: String,
     sortDirection: Int,
   ): [Product]
+  cpProductDetail(_id: String): Product
 `;
 
 export const mutationParams = `
