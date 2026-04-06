@@ -190,9 +190,20 @@ export const ProductForm = ({
   const [showPdfEditor, setShowPdfEditor] = useState(false);
 
   const [pricingMode, setPricingMode] = useState<
-    'percentage' | 'baseRate' | 'dailyRate' | 'durationTiers'
+    'percentage' | 'baseRate' | 'dailyRate' | 'durationTiers' | 'formula'
   >('percentage');
   const [newCountry, setNewCountry] = useState('');
+
+  const [formulas, setFormulas] = useState<
+    {
+      regionId: string;
+      regionName: string;
+      slope21: number;
+      intercept21: number;
+      slope21plus: number;
+      intercept21plus: number;
+    }[]
+  >([]);
 
   const handlePricingFieldChange = (field: string, value: unknown) => {
     setFormData({
@@ -250,7 +261,10 @@ export const ProductForm = ({
 
       // Detect pricing mode from existing config
       const pc = product.pricingConfig as any;
-      if (pc?.durationTiers && pc.durationTiers.length > 0) {
+      if (pc?.formulas && pc.formulas.length > 0) {
+        setPricingMode('formula');
+        setFormulas(pc.formulas);
+      } else if (pc?.durationTiers && pc.durationTiers.length > 0) {
         setPricingMode('durationTiers');
         setDurationTiers(pc.durationTiers);
       } else if (pc?.dailyRate) {
@@ -715,6 +729,26 @@ export const ProductForm = ({
                             .regionDescription as string) || '',
                       },
                     });
+                  } else if (value === 'formula') {
+                    const defaultFormulas = regions.map((r) => ({
+                      regionId: r.id,
+                      regionName: r.name,
+                      slope21: 0,
+                      intercept21: 0,
+                      slope21plus: 0,
+                      intercept21plus: 0,
+                    }));
+                    const existing = formulas.length > 0 ? formulas : defaultFormulas;
+                    setFormulas(existing);
+                    setFormData({
+                      ...formData,
+                      pricingConfig: {
+                        formulas: existing,
+                        coverageAmount:
+                          (formData.pricingConfig.coverageAmount as number) || 20000,
+                        coverageCurrency: 'USD',
+                      },
+                    });
                   }
                 }}
               >
@@ -733,6 +767,9 @@ export const ProductForm = ({
                   </Select.Item>
                   <Select.Item value="durationTiers">
                     Хугацааны шат (Аялалын даатгал)
+                  </Select.Item>
+                  <Select.Item value="formula">
+                    Томъёо y=ax+b (Гадаад зорчигч)
                   </Select.Item>
                 </Select.Content>
               </Select>
@@ -850,6 +887,134 @@ export const ProductForm = ({
                       ))}
                     </div>
                   )}
+                </div>
+              </>
+            )}
+
+            {/* === FORMULA MODE (Travel - y = ax + b) === */}
+            {pricingMode === 'formula' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="coverageAmount">
+                    Нөхөн олговрын хэмжээ (USD)
+                  </Label>
+                  <Input
+                    id="coverageAmount"
+                    type="number"
+                    min="0"
+                    value={
+                      (formData.pricingConfig.coverageAmount as number) || ''
+                    }
+                    onChange={(e) =>
+                      handlePricingFieldChange(
+                        'coverageAmount',
+                        parseFloat(e.target.value) || 0,
+                      )
+                    }
+                    placeholder="20000"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">
+                      Бүс нутгийн томъёо (y = ax + b, мянган ₮)
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    x = аялалын хоног, y = хураамж (мянган ₮)
+                  </p>
+
+                  {/* Header */}
+                  <div className="grid grid-cols-[1fr_1fr_1fr] gap-2 text-xs font-semibold text-center border-b pb-2">
+                    <div>Бүс нутаг</div>
+                    <div>≤21 хоног</div>
+                    <div>&gt;21 хоног</div>
+                  </div>
+
+                  {formulas.map((f, idx) => (
+                    <div
+                      key={f.regionId || `formula-${idx}`}
+                      className="grid grid-cols-[1fr_1fr_1fr] gap-2 items-center border-b pb-2"
+                    >
+                      <div className="text-sm font-medium truncate">
+                        {f.regionName}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs">
+                        <span>y=</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          className="w-16 h-7 text-xs"
+                          value={f.slope21}
+                          onChange={(e) => {
+                            const updated = [...formulas];
+                            updated[idx] = {
+                              ...updated[idx],
+                              slope21: parseFloat(e.target.value) || 0,
+                            };
+                            setFormulas(updated);
+                            handlePricingFieldChange('formulas', updated);
+                          }}
+                        />
+                        <span>x+</span>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          className="w-16 h-7 text-xs"
+                          value={f.intercept21}
+                          onChange={(e) => {
+                            const updated = [...formulas];
+                            updated[idx] = {
+                              ...updated[idx],
+                              intercept21: parseFloat(e.target.value) || 0,
+                            };
+                            setFormulas(updated);
+                            handlePricingFieldChange('formulas', updated);
+                          }}
+                        />
+                      </div>
+                      <div className="flex items-center gap-1 text-xs">
+                        <span>y=</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          className="w-16 h-7 text-xs"
+                          value={f.slope21plus}
+                          onChange={(e) => {
+                            const updated = [...formulas];
+                            updated[idx] = {
+                              ...updated[idx],
+                              slope21plus: parseFloat(e.target.value) || 0,
+                            };
+                            setFormulas(updated);
+                            handlePricingFieldChange('formulas', updated);
+                          }}
+                        />
+                        <span>x+</span>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          className="w-16 h-7 text-xs"
+                          value={f.intercept21plus}
+                          onChange={(e) => {
+                            const updated = [...formulas];
+                            updated[idx] = {
+                              ...updated[idx],
+                              intercept21plus: parseFloat(e.target.value) || 0,
+                            };
+                            setFormulas(updated);
+                            handlePricingFieldChange('formulas', updated);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  <p className="text-xs text-muted-foreground">
+                    Жишээ: Asia ≤21 хоног, y=0.7x+1.9 → 10 хоног = 0.7×10+1.9
+                    = 8.9 мянган₮ = 8,900₮
+                  </p>
                 </div>
               </>
             )}

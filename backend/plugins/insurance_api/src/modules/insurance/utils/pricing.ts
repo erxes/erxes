@@ -55,6 +55,37 @@ export function calculateTravelTieredFee(
   return 0;
 }
 
+/**
+ * Formula-based travel insurance pricing: y = ax + b
+ * where x = days, y = fee (in thousands ₮)
+ * Each formula has two ranges: ≤21 days and >21 days
+ */
+export interface ITravelFormula {
+  regionId: string;
+  regionName: string;
+  slope21: number;       // 'a' for ≤21 days
+  intercept21: number;   // 'b' for ≤21 days
+  slope21plus: number;   // 'a' for >21 days
+  intercept21plus: number; // 'b' for >21 days
+}
+
+export function calculateFormulaFee(
+  formula: ITravelFormula,
+  days: number,
+): number {
+  const safeDays = Math.max(days, 1);
+  let fee: number;
+
+  if (safeDays <= 21) {
+    fee = formula.slope21 * safeDays + formula.intercept21;
+  } else {
+    fee = formula.slope21plus * safeDays + formula.intercept21plus;
+  }
+
+  // Fee is in thousands ₮, convert and round
+  return Math.round(fee * 1000);
+}
+
 export function calculatePremium(
   pricingConfig: any,
   insuredObject: any,
@@ -65,6 +96,50 @@ export function calculatePremium(
   const preCalculatedTotal = insuredObject?.['Нийт хураамж'];
   if (preCalculatedTotal && preCalculatedTotal > 0) {
     return preCalculatedTotal;
+  }
+
+  // Travel insurance: formula-based pricing (y = ax + b)
+  if (pricingConfig.formulas && pricingConfig.formulas.length > 0) {
+    const regionName =
+      insuredObject?.['Аялах бүс нутаг'] ||
+      insuredObject?.['Бүс нутаг'] ||
+      '';
+
+    const startDate =
+      insuredObject?.['Эхлэх огноо'] ||
+      insuredObject?.['Гэрээний эхлэх огноо'];
+    const endDate =
+      insuredObject?.['Дуусах огноо'] ||
+      insuredObject?.['Гэрээний дуусах огноо'];
+
+    if (startDate && endDate) {
+      const days = Math.ceil(
+        (new Date(endDate).getTime() - new Date(startDate).getTime()) /
+          (1000 * 60 * 60 * 24),
+      );
+
+      // Find matching formula by region name
+      let formula = pricingConfig.formulas.find(
+        (f: ITravelFormula) =>
+          f.regionName === regionName || f.regionId === regionName,
+      );
+
+      // Fallback to first formula if no region match
+      if (!formula) formula = pricingConfig.formulas[0];
+
+      const perPersonFee = calculateFormulaFee(formula, days);
+
+      // Calculate traveler count
+      const travelerText = insuredObject?.['Аялагчид'] || '';
+      const travelerCount = travelerText
+        ? travelerText.split('\n').filter((l: string) => l.trim()).length
+        : 1;
+
+      return perPersonFee * Math.max(travelerCount, 1);
+    }
+
+    // No dates, use 1 day as default
+    return calculateFormulaFee(pricingConfig.formulas[0], 1);
   }
 
   // Travel insurance: duration-tiered pricing (per person per trip)
