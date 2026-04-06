@@ -11,6 +11,7 @@ import InvSaleReturnOutCostTrs from './invSaleReturn';
 export const commonSave = async (
   subdomain: string,
   models: IModels,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) => {
@@ -21,7 +22,7 @@ export const commonSave = async (
   const handler = getJournalHandler(doc.journal);
   if (!handler) throw new Error(`Unsupported journal: ${doc.journal}`);
 
-  const { mainTr, otherTrs } = await handler(models, subdomain, doc, oldTr);
+  const { mainTr, otherTrs } = await handler(models, subdomain, userId, doc, oldTr);
 
   if (!mainTr) throw new Error('main transaction not found');
 
@@ -38,6 +39,7 @@ function getJournalHandler(journal: string) {
     (
       models: IModels,
       subdomain: string,
+      userId: string,
       doc: ITransaction,
       oldTr?: ITransactionDocument,
     ) => Promise<{
@@ -63,21 +65,23 @@ function getJournalHandler(journal: string) {
 async function handleMain(
   models: IModels,
   _subdomain: string,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const mainTr = await createOrUpdateTr(models, doc, oldTr);
+  const mainTr = await createOrUpdateTr(models, userId, doc, oldTr);
   return { mainTr, otherTrs: [] };
 }
 
 async function handleSingleTr(
   models: IModels,
   subdomain: string,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
   const detail = doc.details[0] || {};
-  const currencyTrClass = new CurrencyTr(models, subdomain, doc);
+  const currencyTrClass = new CurrencyTr(models, userId, subdomain, doc);
   const taxTrsClass = new TaxTrs(
     models,
     doc,
@@ -90,6 +94,7 @@ async function handleSingleTr(
 
   const transaction = await createOrUpdateTr(
     models,
+    userId,
     await currencyTrClass.cleanDoc(), // ...doc
     oldTr,
   );
@@ -104,13 +109,14 @@ async function handleSingleTr(
 async function handleInvIncome(
   models: IModels,
   subdomain: string,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
   const taxTrsClass = new TaxTrs(models, doc, 'dt', false);
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, doc, oldTr);
+  const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
 
   await syncProductsInventory(subdomain, transaction, oldTr, 1);
 
@@ -125,10 +131,11 @@ async function handleInvIncome(
 async function handleInvOut(
   models: IModels,
   subdomain: string,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const mainTr = await createOrUpdateTr(models, doc, oldTr);
+  const mainTr = await createOrUpdateTr(models, userId, doc, oldTr);
 
   await syncProductsInventory(subdomain, mainTr, oldTr, -1);
 
@@ -138,13 +145,14 @@ async function handleInvOut(
 async function handleInvMove(
   models: IModels,
   subdomain: string,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
   const invMoveInTrsClass = new InvMoveInTrs(models, doc);
   await invMoveInTrsClass.checkValidation();
 
-  const transaction = await createOrUpdateTr(models, doc, oldTr);
+  const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
   const { invMoveInTr, oldFollowInTr } =
     await invMoveInTrsClass.doTrs(transaction);
 
@@ -157,6 +165,7 @@ async function handleInvMove(
 async function handleInvSale(
   models: IModels,
   subdomain: string,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
@@ -166,7 +175,7 @@ async function handleInvSale(
   await invSaleOtherTrsClass.checkValidation();
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, doc, oldTr);
+  const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await invSaleOtherTrsClass.doTrs(transaction))),
@@ -178,6 +187,7 @@ async function handleInvSale(
 async function handleInvSaleReturn(
   models: IModels,
   subdomain: string,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
@@ -191,7 +201,7 @@ async function handleInvSaleReturn(
   await invSaleReturnOtherTrsClass.checkValidation();
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, doc, oldTr);
+  const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await invSaleReturnOtherTrsClass.doTrs(transaction))),

@@ -41,7 +41,7 @@ const getJournal = async (models: IModels, payConfig: { accountId: string }, amo
   }
 }
 
-export const dealToTrs = async ({
+export const dealToReturnTrs = async ({
   subdomain, models, userId, deal, config
 }: {
   subdomain: string,
