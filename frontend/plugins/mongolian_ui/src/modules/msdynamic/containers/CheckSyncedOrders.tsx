@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom'; 
+import { useLocation } from 'react-router-dom';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
 import { queries, mutations } from '../graphql';
-
-
 
 const generateParams = (queryParams: any) => ({
   paidStartDate: queryParams.paidStartDate,
@@ -33,9 +31,7 @@ const POS_LIST_QUERY = gql(`
 const CheckSyncedOrdersContainer = () => {
   const location = useLocation();
 
-  const queryParams = Object.fromEntries(
-    new URLSearchParams(location.search)
-  );
+  const queryParams = Object.fromEntries(new URLSearchParams(location.search));
 
   const [unSyncedOrderIds, setUnSyncedOrderIds] = useState<string[]>([]);
   const [syncedOrderInfos, setSyncedOrderInfos] = useState<any>({});

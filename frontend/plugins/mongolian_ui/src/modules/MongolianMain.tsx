@@ -17,7 +17,6 @@ import { SyncHistoryListPage } from '~/pages/msdynamic/SyncHistoryPage';
 import { PosOrderDetailsPage } from '~/pages/msdynamic/PosOrderDetailsPage';
 import MsdynamicLayout from '~/pages/msdynamic/MsdynamicLayout';
 
-
 const MongolianMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -42,21 +41,21 @@ const MongolianMain = () => {
 
         {/* MSDYNAMIC */}
         <Route path="msdynamic" element={<MsdynamicLayout />}>
-  <Route index element={<Navigate to="sync-history" replace />} />
+          <Route index element={<Navigate to="sync-history" replace />} />
 
-  <Route path="sync-history" element={<SyncHistoryListPage />} />
-  <Route path="synced-orders" element={<CheckSyncedOrdersPage />} />
+          <Route path="sync-history" element={<SyncHistoryListPage />} />
+          <Route path="synced-orders" element={<CheckSyncedOrdersPage />} />
 
-  <Route path="customers" element={<CustomersPage />} />
-  <Route path="products" element={<InventoryProductsPage />} />
-  <Route path="categories" element={<InventoryCategoryPage />} />
-  <Route path="prices" element={<InventoryPricePage />} />
+          <Route path="customers" element={<CustomersPage />} />
+          <Route path="products" element={<InventoryProductsPage />} />
+          <Route path="categories" element={<InventoryCategoryPage />} />
+          <Route path="prices" element={<InventoryPricePage />} />
 
-  <Route
-    path="pos-order-detail/:id"
-    element={<PosOrderDetailsPage />}
-  />
-</Route>
+          <Route
+            path="pos-order-detail/:id"
+            element={<PosOrderDetailsPage />}
+          />
+        </Route>
       </Routes>
     </Suspense>
   );

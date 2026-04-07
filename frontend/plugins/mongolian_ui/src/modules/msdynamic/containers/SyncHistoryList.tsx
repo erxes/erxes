@@ -24,9 +24,7 @@ const generateParams = (queryParams: any) => {
 const SyncHistoryListContainer = () => {
   const location = useLocation();
 
-  const queryParams = Object.fromEntries(
-    new URLSearchParams(location.search)
-  );
+  const queryParams = Object.fromEntries(new URLSearchParams(location.search));
 
   const variables = generateParams(queryParams);
 

@@ -8,7 +8,7 @@ export const CheckSyncedOrdersPage = () => {
 
   return (
     <>
-      <CheckSyncedOrdersContainer/>
+      <CheckSyncedOrdersContainer />
     </>
   );
 };
