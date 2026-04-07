@@ -54,7 +54,10 @@ export const DayForm = ({
 
         <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground">
-            day cost: <span className="font-semibold">{dayCost} {currencySymbol}</span>
+            day cost:{' '}
+            <span className="font-semibold">
+              {dayCost} {currencySymbol}
+            </span>
           </span>
 
           {dayIndex > 0 && (
@@ -77,7 +80,8 @@ export const DayForm = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Day Title<span className="text-primary">{labelSuffix}</span> <span className="text-destructive">*</span>
+              Day Title<span className="text-primary">{labelSuffix}</span>{' '}
+              <span className="text-destructive">*</span>
             </Form.Label>
 
             <Form.Control>
@@ -127,7 +131,10 @@ export const DayForm = ({
         name={`${daysFieldPathPrefix}.${dayIndex}.${dayDescriptionKey}`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description for customers<span className="text-primary">{labelSuffix}</span></Form.Label>
+            <Form.Label>
+              Description for customers
+              <span className="text-primary">{labelSuffix}</span>
+            </Form.Label>
 
             <Form.Control>
               <Editor

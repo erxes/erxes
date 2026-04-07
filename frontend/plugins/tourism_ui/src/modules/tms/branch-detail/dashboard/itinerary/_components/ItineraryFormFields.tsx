@@ -59,7 +59,11 @@ export const ItineraryNameField = ({
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input placeholder="Itinerary name" {...field} value={field.value || ''} />
+            <Input
+              placeholder="Itinerary name"
+              {...field}
+              value={field.value || ''}
+            />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -107,7 +111,9 @@ export const ItineraryContentField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Content<span className="text-primary">{labelSuffix}</span></Form.Label>
+          <Form.Label>
+            Content<span className="text-primary">{labelSuffix}</span>
+          </Form.Label>
           <Form.Control>
             <Editor
               initialContent={field.value}

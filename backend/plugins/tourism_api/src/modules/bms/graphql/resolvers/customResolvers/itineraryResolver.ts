@@ -23,7 +23,9 @@ const item = {
         );
 
         if (!alreadyExists) {
-          const original = await models.Itineraries.findOne({ _id: itinerary._id })
+          const original = await models.Itineraries.findOne({
+            _id: itinerary._id,
+          })
             .select('name')
             .lean();
 

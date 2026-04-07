@@ -130,12 +130,20 @@ export const ItineraryEditSheet = ({
   } = useItineraryLanguage({ branchLanguages, mainLanguage });
 
   const { elements: elementsData = [] } = useElements({
-    variables: { branchId, quick: false, language: selectedLang || mainLanguage },
+    variables: {
+      branchId,
+      quick: false,
+      language: selectedLang || mainLanguage,
+    },
     skip: !branchId,
   });
 
   const { amenities: amenitiesData = [] } = useAmenities({
-    variables: { branchId, quick: true, language: selectedLang || mainLanguage },
+    variables: {
+      branchId,
+      quick: true,
+      language: selectedLang || mainLanguage,
+    },
     skip: !branchId,
   });
 

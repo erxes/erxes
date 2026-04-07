@@ -57,7 +57,8 @@ const tourCategory = {
   ) {
     const query: any = { objectId: category._id };
     if (language) query.language = language;
-    const translations = await models.TourCategoryTranslations.find(query).lean();
+    const translations =
+      await models.TourCategoryTranslations.find(query).lean();
 
     // Include the main language value so the frontend always has every language
     if (category.branchId) {
@@ -71,7 +72,9 @@ const tourCategory = {
         );
 
         if (!alreadyExists) {
-          const original = await models.BmsTourCategories.findOne({ _id: category._id })
+          const original = await models.BmsTourCategories.findOne({
+            _id: category._id,
+          })
             .select('name')
             .lean();
 

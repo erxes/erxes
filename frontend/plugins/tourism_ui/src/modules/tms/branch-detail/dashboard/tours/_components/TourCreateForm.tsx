@@ -15,10 +15,7 @@ import {
   syncTranslationPricingOptions,
 } from '../utils/translationHelpers';
 
-import {
-  TourCreateFormSchema,
-  TourFormValues,
-} from '../constants/formSchema';
+import { TourCreateFormSchema, TourFormValues } from '../constants/formSchema';
 
 import {
   TourDescriptionField,
