@@ -11,7 +11,7 @@ class TaxTrs {
   private doc: ITransaction;
   private side: 'dt' | 'ct';
   private isWithTax: boolean;
-  private userId: string;
+  private readonly userId: string;
 
   private vatAccountId?: string;
   private ctaxAccountId?: string;

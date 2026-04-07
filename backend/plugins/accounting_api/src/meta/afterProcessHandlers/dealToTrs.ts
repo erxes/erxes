@@ -2,7 +2,6 @@ import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import {
-  ACCOUNT_JOURNALS,
   JOURNALS,
   TR_SIDES,
 } from '~/modules/accounting/@types/constants';
@@ -10,47 +9,7 @@ import {
   ITransaction,
   ITransactionDocument,
 } from '~/modules/accounting/@types/transaction';
-
-const getJournal = async (
-  models: IModels,
-  payConfig: { accountId: string },
-  amount: number,
-) => {
-  const { accountId } = payConfig;
-  const account = await models.Accounts.findOne({ _id: accountId }).lean();
-
-  if (!account) {
-    return;
-  }
-
-  let journal: string = ACCOUNT_JOURNALS.MAIN;
-  switch (account.journal) {
-    case ACCOUNT_JOURNALS.CASH:
-      journal = JOURNALS.CASH;
-      break;
-    case ACCOUNT_JOURNALS.BANK:
-      journal = JOURNALS.BANK;
-      break;
-    case ACCOUNT_JOURNALS.DEBT:
-      journal = (amount > 0 && JOURNALS.RECEIVABLE) || JOURNALS.PAYABLE;
-      break;
-  }
-
-  let side = TR_SIDES.DEBIT;
-  let lastAmount = amount;
-
-  if (amount < 0) {
-    lastAmount = -1 * amount;
-    side = TR_SIDES.CREDIT;
-  }
-
-  return {
-    journal,
-    accountId,
-    side,
-    lastAmount,
-  };
-};
+import { getJournal } from './utils';
 
 export const dealToTrs = async ({
   subdomain,

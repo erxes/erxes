@@ -87,7 +87,7 @@ async function handleSingleTr(
   oldTr?: ITransactionDocument,
 ) {
   const detail = doc.details[0] || {};
-  const currencyTrClass = new CurrencyTr(models, userId, subdomain, doc);
+  const currencyTrClass = new CurrencyTr(models, subdomain, userId, doc);
   const taxTrsClass = new TaxTrs(
     models,
     userId,
