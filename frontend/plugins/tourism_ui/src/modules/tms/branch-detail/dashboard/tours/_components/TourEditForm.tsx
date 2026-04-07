@@ -17,10 +17,7 @@ import {
   resolveMainLanguageName,
 } from '../utils/translationHelpers';
 
-import {
-  TourCreateFormSchema,
-  TourFormValues,
-} from '../constants/formSchema';
+import { TourCreateFormSchema, TourFormValues } from '../constants/formSchema';
 
 import {
   TourDescriptionField,
@@ -332,8 +329,8 @@ export const TourEditForm = ({
         endDate: isFlexible
           ? undefined
           : normalizedStartDate && values.duration
-          ? calculateEndDate(normalizedStartDate, values.duration)
-          : undefined,
+            ? calculateEndDate(normalizedStartDate, values.duration)
+            : undefined,
         availableFrom: isFlexible ? values.availableFrom : undefined,
         availableTo: isFlexible ? values.availableTo : undefined,
         dateStatus: isFlexible

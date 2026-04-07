@@ -259,7 +259,7 @@ const tourQueries: Record<string, Resolver> = {
     { models }: IContext,
   ) => {
     const selector: any = {};
-   
+
     if (parentId) {
       selector.parentId = parentId;
     } else if (parentId === null) {

@@ -1,4 +1,7 @@
-import { TourFormValues, TourTranslationFormValue } from '../constants/formSchema';
+import {
+  TourFormValues,
+  TourTranslationFormValue,
+} from '../constants/formSchema';
 
 export interface ITourTranslationInput {
   language: string;
@@ -77,9 +80,7 @@ export const buildTranslationsFromTour = (
   const pricingOptionIds = (tour.pricingOptions || []).map((p) => p._id);
 
   return translationLanguages.map((lang) => {
-    const existing = (tour.translations || []).find(
-      (t) => t.language === lang,
-    );
+    const existing = (tour.translations || []).find((t) => t.language === lang);
 
     const pricingOptions = pricingOptionIds.map((optionId) => {
       const existingOpt = (existing?.pricingOptions || []).find(
@@ -126,7 +127,13 @@ export const sanitizeTourTranslations = (
         t.info4 ||
         t.info5 ||
         (t.pricingOptions || []).some(
-          (p) => p.title || p.accommodationType || p.note || typeof p.pricePerPerson === 'number' || typeof p.domesticFlightPerPerson === 'number' || typeof p.singleSupplement === 'number',
+          (p) =>
+            p.title ||
+            p.accommodationType ||
+            p.note ||
+            typeof p.pricePerPerson === 'number' ||
+            typeof p.domesticFlightPerPerson === 'number' ||
+            typeof p.singleSupplement === 'number',
         ),
     )
     .map((t) => ({
@@ -140,15 +147,30 @@ export const sanitizeTourTranslations = (
       info4: t.info4 || undefined,
       info5: t.info5 || undefined,
       pricingOptions: (t.pricingOptions || [])
-        .filter((p) => p.title || p.accommodationType || p.note || typeof p.pricePerPerson === 'number' || typeof p.domesticFlightPerPerson === 'number' || typeof p.singleSupplement === 'number')
+        .filter(
+          (p) =>
+            p.title ||
+            p.accommodationType ||
+            p.note ||
+            typeof p.pricePerPerson === 'number' ||
+            typeof p.domesticFlightPerPerson === 'number' ||
+            typeof p.singleSupplement === 'number',
+        )
         .map((p) => ({
           optionId: p.optionId,
           title: p.title || undefined,
           accommodationType: p.accommodationType || undefined,
           note: p.note || undefined,
-          pricePerPerson: typeof p.pricePerPerson === 'number' ? p.pricePerPerson : undefined,
-          domesticFlightPerPerson: typeof p.domesticFlightPerPerson === 'number' ? p.domesticFlightPerPerson : undefined,
-          singleSupplement: typeof p.singleSupplement === 'number' ? p.singleSupplement : undefined,
+          pricePerPerson:
+            typeof p.pricePerPerson === 'number' ? p.pricePerPerson : undefined,
+          domesticFlightPerPerson:
+            typeof p.domesticFlightPerPerson === 'number'
+              ? p.domesticFlightPerPerson
+              : undefined,
+          singleSupplement:
+            typeof p.singleSupplement === 'number'
+              ? p.singleSupplement
+              : undefined,
         })),
     }));
 
@@ -168,7 +190,17 @@ export const syncTranslationPricingOptions = (
 
     const syncedOptions = pricingOptionIds.map((optionId) => {
       const existing = existingMap.get(optionId);
-      return existing || { optionId, title: '', accommodationType: '', note: '', pricePerPerson: '', domesticFlightPerPerson: '', singleSupplement: '' };
+      return (
+        existing || {
+          optionId,
+          title: '',
+          accommodationType: '',
+          note: '',
+          pricePerPerson: '',
+          domesticFlightPerPerson: '',
+          singleSupplement: '',
+        }
+      );
     });
 
     return { ...t, pricingOptions: syncedOptions };
@@ -185,7 +217,11 @@ export const syncTranslationPricingOptions = (
  * Fallback chain: translations[mainLang] → tour.name → ''
  */
 export const resolveMainLanguageName = (
-  tour: { name?: string; language?: string; translations?: Array<{ language: string; name?: string }> },
+  tour: {
+    name?: string;
+    language?: string;
+    translations?: Array<{ language: string; name?: string }>;
+  },
   mainLanguage: string | undefined,
 ): string => {
   const effectiveLang = mainLanguage || tour.language;

@@ -20,8 +20,8 @@ export const useCategoryLanguage = ({
       branchLanguages && branchLanguages.length > 0
         ? branchLanguages
         : mainLanguage
-        ? [mainLanguage]
-        : [];
+          ? [mainLanguage]
+          : [];
     if (mainLanguage && !base.includes(mainLanguage)) {
       return [mainLanguage, ...base];
     }

@@ -1,4 +1,9 @@
-import { Control, FieldPath, FieldPathByValue, useFieldArray } from 'react-hook-form';
+import {
+  Control,
+  FieldPath,
+  FieldPathByValue,
+  useFieldArray,
+} from 'react-hook-form';
 import {
   Form,
   Input,
@@ -29,10 +34,7 @@ import { toOptionalString, toOptionalNumber } from '../utils/fieldConverters';
 import { LANGUAGES } from '@/tms/constants/languages';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
-type TourTextFieldPath = FieldPathByValue<
-  TourFormValues,
-  string | undefined
->;
+type TourTextFieldPath = FieldPathByValue<TourFormValues, string | undefined>;
 
 interface TourTextFieldProps {
   control: Control<TourFormValues>;
@@ -52,7 +54,8 @@ export const TourNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name<span className='text-primary'>{labelSuffix}</span> <span className="text-destructive">*</span>
+            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input placeholder="Tour name" {...field} />
@@ -76,7 +79,8 @@ export const TourRefNumberField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Ref Number<span className='text-primary'>{labelSuffix}</span>  <span className="text-destructive">*</span>
+            Ref Number<span className="text-primary">{labelSuffix}</span>{' '}
+            <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input placeholder="Ref number" {...field} />
@@ -144,7 +148,9 @@ export const TourDescriptionField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Content<span className='text-primary'>{labelSuffix}</span> </Form.Label>
+          <Form.Label>
+            Content<span className="text-primary">{labelSuffix}</span>{' '}
+          </Form.Label>
           <Form.Control>
             <Editor
               initialContent={field.value}
@@ -765,7 +771,9 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      Package Title<span className='text-primary'>{labelSuffix}</span>  <span className="text-destructive">*</span>
+                      Package Title
+                      <span className="text-primary">{labelSuffix}</span>{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <Input
                       {...field}
@@ -829,7 +837,8 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      Accommodation Type<span className='text-primary'>{labelSuffix}</span> 
+                      Accommodation Type
+                      <span className="text-primary">{labelSuffix}</span>
                     </Form.Label>
                     <Input
                       {...field}
@@ -852,7 +861,7 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      Price per Person {' '}
+                      Price per Person{' '}
                       <span className="text-destructive">*</span>
                     </Form.Label>
                     <div className="relative">
@@ -948,7 +957,7 @@ const TourPricingOptionsFieldContent = ({
                   <Form.Label
                     className={fieldState.error ? 'text-destructive' : ''}
                   >
-                    Note<span className='text-primary'>{labelSuffix}</span> 
+                    Note<span className="text-primary">{labelSuffix}</span>
                   </Form.Label>
                   <Textarea
                     {...field}
@@ -980,5 +989,12 @@ export const TourPricingOptionsField = ({
   labelSuffix?: string;
   currencySymbol?: string;
 }) => {
-  return <TourPricingOptionsFieldContent control={control} translationIndex={translationIndex} labelSuffix={labelSuffix} currencySymbol={currencySymbol} />;
+  return (
+    <TourPricingOptionsFieldContent
+      control={control}
+      translationIndex={translationIndex}
+      labelSuffix={labelSuffix}
+      currencySymbol={currencySymbol}
+    />
+  );
 };

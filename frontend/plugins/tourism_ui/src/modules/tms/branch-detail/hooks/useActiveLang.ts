@@ -30,8 +30,7 @@ export const useActiveLang = ({
     if (!branchId) return;
     if (initializedBranchRef.current === branchId) return;
 
-    const storedIsValid =
-      activeLang && availableLanguages.includes(activeLang);
+    const storedIsValid = activeLang && availableLanguages.includes(activeLang);
 
     const langToUse = storedIsValid
       ? activeLang

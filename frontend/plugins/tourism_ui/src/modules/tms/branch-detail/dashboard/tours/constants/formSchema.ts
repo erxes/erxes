@@ -245,10 +245,15 @@ export type PricingOptionTranslationFormValue = {
   singleSupplement?: number | string;
 };
 
-type InferredTranslation = NonNullable<TourCreateFormType['translations']>[number];
+type InferredTranslation = NonNullable<
+  TourCreateFormType['translations']
+>[number];
 
 /** Widened translation type for form state (allows `''` in pricing numerics). */
-export type TourTranslationFormValue = Omit<InferredTranslation, 'pricingOptions'> & {
+export type TourTranslationFormValue = Omit<
+  InferredTranslation,
+  'pricingOptions'
+> & {
   pricingOptions?: PricingOptionTranslationFormValue[];
 };
 
