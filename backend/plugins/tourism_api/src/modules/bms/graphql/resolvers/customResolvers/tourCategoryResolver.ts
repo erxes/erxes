@@ -67,7 +67,7 @@ const tourCategory = {
       const mainLang = branch?.language;
       if (mainLang) {
         const alreadyExists = translations.some(
-          (t: any) => t.language === mainLang,
+          (t: { language: string }) => t.language === mainLang,
         );
 
         if (!alreadyExists) {
@@ -81,7 +81,7 @@ const tourCategory = {
               objectId: category._id,
               language: mainLang,
               name: original.name,
-            } as any);
+            } as unknown as (typeof translations)[number]);
           }
         }
       }

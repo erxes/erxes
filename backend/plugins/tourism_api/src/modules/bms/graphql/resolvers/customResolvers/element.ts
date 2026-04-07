@@ -17,7 +17,7 @@ const element = {
     const mainLang = element.language;
     if (mainLang) {
       const alreadyExists = translations.some(
-        (t: any) => t.language === mainLang,
+        (t: { language: string }) => t.language === mainLang,
       );
 
       if (!alreadyExists) {
@@ -33,7 +33,7 @@ const element = {
             objectId: element._id,
             language: mainLang,
             name: original.name,
-          } as any);
+          } as unknown as (typeof translations)[number]);
         }
       }
     }

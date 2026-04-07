@@ -66,7 +66,7 @@ const item = {
     const mainLang = touritem.language;
     if (mainLang) {
       const alreadyExists = translations.some(
-        (t: any) => t.language === mainLang,
+        (t: { language: string }) => t.language === mainLang,
       );
 
       if (!alreadyExists) {
@@ -80,7 +80,7 @@ const item = {
             objectId: touritem._id,
             language: mainLang,
             name: original.name,
-          } as any);
+          } as unknown as (typeof translations)[number]);
         }
       }
     }
