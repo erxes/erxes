@@ -10,7 +10,15 @@ import { flattenGroups } from './TourGroupUtils';
 import { TourEditForm } from './TourEditForm';
 import { TourSideTab } from './TourOrdersSidePanel';
 
-export const TourGroupList = ({ branchId }: { branchId: string }) => {
+export const TourGroupList = ({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}) => {
   const { groups, loading, total } = useTourGroups({
     variables: { branchId },
   });
@@ -34,7 +42,13 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
   );
 
   if (!loading && total === 0) {
-    return <EmptyState branchId={branchId} />;
+    return (
+      <EmptyState
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
+    );
   }
 
   return (
@@ -81,6 +95,8 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
             <TourEditForm
               tourId={editTourId}
               branchId={branchId}
+              branchLanguages={branchLanguages}
+              mainLanguage={mainLanguage}
               onSuccess={() => {
                 setEditTourId(null);
                 setSideTab(null);
@@ -95,7 +111,15 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
   );
 };
 
-function EmptyState({ branchId }: { branchId: string }) {
+function EmptyState({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}) {
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
       <IconShoppingCartX
@@ -109,7 +133,11 @@ function EmptyState({ branchId }: { branchId: string }) {
       <p className="mb-4 text-md text-muted-foreground">
         Tours with a group code will appear here.
       </p>
-      <TourCreateSheet branchId={branchId} />
+      <TourCreateSheet
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
     </div>
   );
 }

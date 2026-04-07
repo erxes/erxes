@@ -1,6 +1,8 @@
 import { IconMapRoute } from '@tabler/icons-react';
 import { RecordTable, Sheet } from 'erxes-ui';
 import { useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { TourCreateSheet } from './TourCreateSheet';
 import { TourEditForm } from './TourEditForm';
 import { TourColumns } from './TourColumns';
@@ -10,12 +12,23 @@ import { TourCommandBar } from './TourCommandBar';
 import { useCategories } from '../../category/hooks/useCategories';
 import type { TourSideTab } from './TourOrdersSidePanel';
 
-export const TourRecordTable = ({ branchId }: { branchId: string }) => {
+export const TourRecordTable = ({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}) => {
   const [editTourId, setEditTourId] = useState<string | null>(null);
   const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
 
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
+
   const { tours, handleFetchMore, loading, pageInfo, totalCount } = useTours({
-    variables: { branchId },
+    variables: { branchId, language },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -32,7 +45,13 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
     }
   };
   if (!loading && (totalCount ?? 0) === 0) {
-    return <EmptyStateRow branchId={branchId} />;
+    return (
+      <EmptyStateRow
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
+    );
   }
 
   return (
@@ -78,6 +97,8 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
             <TourEditForm
               tourId={editTourId}
               branchId={branchId}
+              branchLanguages={branchLanguages}
+              mainLanguage={mainLanguage}
               onSuccess={() => handleCloseEdit(false)}
               sideTab={sideTab}
               onSideTabChange={setSideTab}
@@ -89,7 +110,15 @@ export const TourRecordTable = ({ branchId }: { branchId: string }) => {
   );
 };
 
-function EmptyStateRow({ branchId }: { branchId: string }) {
+function EmptyStateRow({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconMapRoute size={64} stroke={1.5} className="text-muted-foreground" />
@@ -99,7 +128,11 @@ function EmptyStateRow({ branchId }: { branchId: string }) {
       <p className="max-w-sm text-sm text-muted-foreground">
         Create your first tour to get started.
       </p>
-      <TourCreateSheet branchId={branchId} />
+      <TourCreateSheet
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
     </div>
   );
 }

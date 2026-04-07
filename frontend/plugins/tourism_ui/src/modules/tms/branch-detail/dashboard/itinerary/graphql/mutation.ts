@@ -16,6 +16,7 @@ export const CREATE_ITINERARY = gql`
     $guideCostExtra: Float
     $content: String
     $color: String
+    $translations: [ItineraryTranslationInput]
   ) {
     bmsItineraryAdd(
       groupDays: $groupDays
@@ -32,6 +33,7 @@ export const CREATE_ITINERARY = gql`
       guideCostExtra: $guideCostExtra
       content: $content
       color: $color
+      translations: $translations
     ) {
       _id
     }
@@ -55,6 +57,7 @@ export const EDIT_ITINERARY = gql`
     $guideCostExtra: Float
     $content: String
     $color: String
+    $translations: [ItineraryTranslationInput]
   ) {
     bmsItineraryEdit(
       _id: $id
@@ -72,6 +75,7 @@ export const EDIT_ITINERARY = gql`
       guideCostExtra: $guideCostExtra
       content: $content
       color: $color
+      translations: $translations
     ) {
       _id
     }

@@ -14,8 +14,9 @@ export { useCreateCategory } from './hooks/useCreateCategory';
 export { useEditCategory } from './hooks/useEditCategory';
 export { useDeleteCategory } from './hooks/useDeleteCategory';
 export { useCategoryDetail } from './hooks/useCategoryDetail';
+export { useCategoryLanguage } from './hooks/useCategoryLanguage';
 
-export type { ICategory } from './types/category';
+export type { ICategory, ICategoryTranslation } from './types/category';
 export type { CategoryCreateFormType } from './constants/formSchema';
 
 export { CATEGORIES_CURSOR_SESSION_KEY } from './constants/categoryCursorSessionKey';

@@ -3,21 +3,26 @@ import { useAtomValue } from 'jotai';
 import { LANGUAGES } from '@/tms/constants/languages';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
-interface UseElementLanguageOptions {
+interface UseTourLanguageOptions {
   branchLanguages?: string[];
   mainLanguage?: string;
 }
 
 type FieldPaths = {
   name: 'name' | `translations.${number}.name`;
-  note: 'note' | `translations.${number}.note`;
-  cost: 'cost' | `translations.${number}.cost`;
+  refNumber: 'refNumber' | `translations.${number}.refNumber`;
+  content: 'content' | `translations.${number}.content`;
+  info1: 'info1' | `translations.${number}.info1`;
+  info2: 'info2' | `translations.${number}.info2`;
+  info3: 'info3' | `translations.${number}.info3`;
+  info4: 'info4' | `translations.${number}.info4`;
+  info5: 'info5' | `translations.${number}.info5`;
 };
 
-export const useElementLanguage = ({
+export const useTourLanguage = ({
   branchLanguages,
   mainLanguage,
-}: UseElementLanguageOptions) => {
+}: UseTourLanguageOptions) => {
   const allLanguages = useMemo(() => {
     const base =
       branchLanguages && branchLanguages.length > 0
@@ -74,14 +79,34 @@ export const useElementLanguage = ({
       isMainLang || translationIndex < 0
         ? 'name'
         : `translations.${translationIndex}.name`,
-    note:
+    refNumber:
       isMainLang || translationIndex < 0
-        ? 'note'
-        : `translations.${translationIndex}.note`,
-    cost:
+        ? 'refNumber'
+        : `translations.${translationIndex}.refNumber`,
+    content:
       isMainLang || translationIndex < 0
-        ? 'cost'
-        : `translations.${translationIndex}.cost`,
+        ? 'content'
+        : `translations.${translationIndex}.content`,
+    info1:
+      isMainLang || translationIndex < 0
+        ? 'info1'
+        : `translations.${translationIndex}.info1`,
+    info2:
+      isMainLang || translationIndex < 0
+        ? 'info2'
+        : `translations.${translationIndex}.info2`,
+    info3:
+      isMainLang || translationIndex < 0
+        ? 'info3'
+        : `translations.${translationIndex}.info3`,
+    info4:
+      isMainLang || translationIndex < 0
+        ? 'info4'
+        : `translations.${translationIndex}.info4`,
+    info5:
+      isMainLang || translationIndex < 0
+        ? 'info5'
+        : `translations.${translationIndex}.info5`,
   };
 
   return {
@@ -90,6 +115,7 @@ export const useElementLanguage = ({
     selectedLang: effectiveLang,
     setSelectedLang,
     isMainLang,
+    translationIndex,
     labelSuffix,
     currencySymbol,
     fieldPaths,

@@ -65,7 +65,7 @@ export const ElementCreateSheet = ({
     },
   });
 
-  const { fields } = useFieldArray({
+  useFieldArray({
     control: form.control,
     name: 'translations',
   });
@@ -78,7 +78,7 @@ export const ElementCreateSheet = ({
     labelSuffix,
     currencySymbol,
     fieldPaths,
-  } = useElementLanguage({ branchLanguages, mainLanguage, fields });
+  } = useElementLanguage({ branchLanguages, mainLanguage });
 
   const resolvedPrimaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
 
@@ -193,6 +193,7 @@ export const ElementCreateSheet = ({
               <div key={selectedLang} className="flex flex-col gap-6">
                 <div className="space-y-4">
                   <ElementNameField
+                    key={fieldPaths.name}
                     control={form.control}
                     name={fieldPaths.name}
                     labelSuffix={labelSuffix}
@@ -201,6 +202,7 @@ export const ElementCreateSheet = ({
                     <ElementStartTimeField control={form.control} />
                     <ElementDurationField control={form.control} />
                     <ElementCostField
+                      key={fieldPaths.cost}
                       control={form.control}
                       name={fieldPaths.cost}
                       currencySymbol={currencySymbol}
@@ -211,6 +213,7 @@ export const ElementCreateSheet = ({
                 <div className="space-y-4">
                   <SelectElementCategories control={form.control} />
                   <ElementNoteField
+                    key={fieldPaths.note}
                     control={form.control}
                     name={fieldPaths.note}
                     labelSuffix={labelSuffix}

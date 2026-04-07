@@ -17,6 +17,10 @@ interface DayListProps {
   onReorderElements: (dayIndex: number, reorderedElementIds: string[]) => void;
   onDrop: (dayIndex: number) => void;
   isDragging: boolean;
+  labelSuffix?: string;
+  currencySymbol?: string;
+  daysFieldPathPrefix?: string;
+  dayDescriptionKey?: string;
 }
 
 export const DayList = ({
@@ -30,9 +34,13 @@ export const DayList = ({
   onReorderElements,
   onDrop,
   isDragging,
+  labelSuffix,
+  currencySymbol,
+  daysFieldPathPrefix,
+  dayDescriptionKey,
 }: DayListProps) => {
   return (
-    <div className="flex overflow-y-auto flex-col flex-1 p-3 space-y-4 min-h-0">
+    <div className="flex flex-col flex-1 min-h-0 p-3 space-y-4 overflow-y-auto">
       {days.map((_, index) => {
         const elements = getDayElements(index);
 
@@ -61,6 +69,10 @@ export const DayList = ({
                   reordered.map((el) => el._id),
                 )
               }
+              labelSuffix={labelSuffix}
+              currencySymbol={currencySymbol}
+              daysFieldPathPrefix={daysFieldPathPrefix}
+              dayDescriptionKey={dayDescriptionKey}
             />
           </div>
         );
@@ -71,7 +83,7 @@ export const DayList = ({
           type="button"
           variant="outline"
           onClick={onAddDay}
-          className="flex gap-2 items-center w-full"
+          className="flex items-center w-full gap-2"
         >
           <IconPlus size={18} />
           Add Day
