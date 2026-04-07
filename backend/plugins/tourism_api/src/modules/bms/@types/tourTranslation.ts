@@ -5,6 +5,9 @@ export interface IPricingOptionTranslation {
   title?: string;
   note?: string;
   accommodationType?: string;
+  pricePerPerson?: number;
+  domesticFlightPerPerson?: number;
+  singleSupplement?: number;
 }
 
 export interface ITourTranslation {

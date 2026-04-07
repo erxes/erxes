@@ -25,14 +25,6 @@ const VALID_TABS = new Set<ActiveTab>([
   'amenities',
 ]);
 
-const CREATE_SHEET_MAP: Record<ActiveTab, (branchId: string) => JSX.Element> = {
-  tour: (branchId) => <TourCreateSheet branchId={branchId} />,
-  category: (branchId) => <CategoryCreateSheet branchId={branchId} />,
-  itinerary: (branchId) => <ItineraryCreateSheet branchId={branchId} />,
-  elements: (branchId) => <ElementCreateSheet branchId={branchId} />,
-  amenities: (branchId) => <AmenityCreateSheet branchId={branchId} />,
-};
-
 export const BranchDetailIndexPage = () => {
   const [searchParams] = useSearchParams();
 
@@ -74,6 +66,25 @@ export const BranchDetailIndexPage = () => {
 
   const renderCreateSheet = () => {
     if (!branchId) return null;
+
+    if (activeTab === 'tour') {
+      return (
+        <TourCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
+    if (activeTab === 'itinerary') {
+      return (
+        <ItineraryCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
     if (activeTab === 'elements') {
       return (
         <ElementCreateSheet
@@ -92,7 +103,17 @@ export const BranchDetailIndexPage = () => {
         />
       );
     }
-    return CREATE_SHEET_MAP[activeTab]?.(branchId) ?? null;
+    if (activeTab === 'category') {
+      return (
+        <CategoryCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -133,28 +154,26 @@ export const BranchDetailIndexPage = () => {
                 </Select>
               </Breadcrumb.Item>
 
-              <Breadcrumb.Separator />
+              {availableLanguages.length > 0 && (
+                <>
+                  <Breadcrumb.Separator />
 
-              <Breadcrumb.Item>
-                {availableLanguages.length > 0 ? (
-                  <Select value={activeLang} onValueChange={onSelectLanguage}>
-                    <Select.Trigger className="w-[180px]">
-                      <Select.Value placeholder="Select language" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {availableLanguages.map((lang) => (
-                        <Select.Item key={lang.value} value={lang.value}>
-                          {lang.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                ) : (
-                  <span className="text-sm text-muted-foreground">
-                    No languages available
-                  </span>
-                )}
-              </Breadcrumb.Item>
+                  <Breadcrumb.Item>
+                    <Select value={activeLang} onValueChange={onSelectLanguage}>
+                      <Select.Trigger className="w-[180px]">
+                        <Select.Value placeholder="Select language" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {availableLanguages.map((lang) => (
+                          <Select.Item key={lang.value} value={lang.value}>
+                            {lang.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Breadcrumb.Item>
+                </>
+              )}
             </Breadcrumb.List>
           </Breadcrumb>
 
