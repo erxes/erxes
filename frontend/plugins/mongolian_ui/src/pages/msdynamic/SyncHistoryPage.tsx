@@ -8,8 +8,7 @@ export const SyncHistoryListPage = () => {
 
   return (
     <>
-      <MsdynamicTopNav />
-      <SyncHistoryListContainer queryParams={queryParams} />
+      <SyncHistoryListContainer />
     </>
   );
 };

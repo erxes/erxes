@@ -1,11 +1,7 @@
-import React from 'react';
 import { gql, useQuery } from '@apollo/client';
+import { useLocation } from 'react-router-dom';
 import SyncHistoryList from '../components/SyncHistoryList';
 import { queries } from '../graphql';
-
-type Props = {
-  queryParams: any;
-};
 
 const generateParams = (queryParams: any) => {
   return {
@@ -25,7 +21,13 @@ const generateParams = (queryParams: any) => {
   };
 };
 
-const SyncHistoryListContainer = ({ queryParams }: Props) => {
+const SyncHistoryListContainer = () => {
+  const location = useLocation();
+
+  const queryParams = Object.fromEntries(
+    new URLSearchParams(location.search)
+  );
+
   const variables = generateParams(queryParams);
 
   const { data: historiesData, loading: historiesLoading } = useQuery(

@@ -8,7 +8,6 @@ export const InventoryPricePage = () => {
 
   return (
     <>
-      <MsdynamicTopNav />
       <InventoryPriceContainer queryParams={queryParams} />
     </>
   );

@@ -8,7 +8,6 @@ export const CustomersPage = () => {
 
   return (
     <>
-      <MsdynamicTopNav />
       <CustomersContainer queryParams={queryParams} />
     </>
   );

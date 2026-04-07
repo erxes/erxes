@@ -1,33 +1,45 @@
-import { NavLink } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const links = [
-  { name: 'Sync History', path: '/mongolian/msdynamic/sync-history' },
-  { name: 'Check Orders', path: '/mongolian/msdynamic/synced-orders' },
-  { name: 'Check Categories', path: '/mongolian/msdynamic/categories' },
-  { name: 'Check Products', path: '/mongolian/msdynamic/products' },
-  { name: 'Check Price', path: '/mongolian/msdynamic/prices' },
-  { name: 'Check Customers', path: '/mongolian/msdynamic/customers' },
+const tabs = [
+  { label: 'Sync History', value: 'sync-history' },
+  { label: 'Check Orders', value: 'synced-orders' },
+  { label: 'Check Categories', value: 'categories' },
+  { label: 'Check Products', value: 'products' },
+  { label: 'Check Price', value: 'prices' },
+  { label: 'Check Customers', value: 'customers' },
 ];
 
 const MsdynamicTopNav = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const currentPath = location.pathname;
+
   return (
-    <div className="border-b bg-background px-6">
-      <div className="flex gap-6 h-12 items-center text-sm">
-        {links.map((link) => (
-          <NavLink
-            key={link.path}
-            to={link.path}
-            className={({ isActive }) =>
-              `pb-3 border-b-2 ${
-                isActive
-                  ? 'border-primary text-primary font-medium'
-                  : 'border-transparent text-muted-foreground'
-              }`
-            }
-          >
-            {link.name}
-          </NavLink>
-        ))}
+    <div style={{ borderBottom: '1px solid #e5e7eb', marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 24, padding: '0 20px' }}>
+        {tabs.map((tab) => {
+          const isActive = currentPath.includes(tab.value);
+
+          return (
+            <div
+              key={tab.value}
+              onClick={() => navigate(`/mongolian/msdynamic/${tab.value}`)}
+              style={{
+                cursor: 'pointer',
+                padding: '12px 0',
+                fontWeight: isActive ? 600 : 500,
+                color: isActive ? '#5c6ac4' : '#6b7280',
+                borderBottom: isActive
+                  ? '2px solid #5c6ac4'
+                  : '2px solid transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tab.label}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

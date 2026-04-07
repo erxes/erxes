@@ -17,6 +17,7 @@ type Props = {
   unSyncedOrderIds: string[];
   syncedOrderInfos: any;
   toSendMsdOrders: (orderIds: string[]) => void;
+  posList: any[];
 };
 
 const CheckSyncedOrders = ({

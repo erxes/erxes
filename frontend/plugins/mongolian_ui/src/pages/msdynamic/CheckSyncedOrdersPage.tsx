@@ -8,8 +8,7 @@ export const CheckSyncedOrdersPage = () => {
 
   return (
     <>
-      <MsdynamicTopNav />
-      <CheckSyncedOrdersContainer queryParams={queryParams} />
+      <CheckSyncedOrdersContainer/>
     </>
   );
 };

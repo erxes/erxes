@@ -9,7 +9,6 @@ export const PosOrderDetailsPage = () => {
 
   return (
     <>
-      <MsdynamicTopNav />
       <PosOrderDetailContainer order={{ _id: id }} />
     </>
   );
