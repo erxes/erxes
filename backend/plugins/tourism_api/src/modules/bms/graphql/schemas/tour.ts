@@ -221,14 +221,14 @@ export const queries = `
   bmsTourCategories(parentId: String, name: String, branchId: String, language: String): [TourCategory]
   bmsOrders(tourId: String, customerId: String, branchId: String, ${GQL_CURSOR_PARAM_DEFS}): BmsOrderListResponse
   bmsOrderDetail(_id: String!): BmsOrder
-  bmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS): GroupTour
-  bmToursGroupDetail(groupCode: String, status: String): GroupTourItem
+  bmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, language: String): GroupTour
+  bmToursGroupDetail(groupCode: String, status: String, language: String): GroupTourItem
 
   cpBmsTours(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, webId: String, language: String): TourListResponse
   cpBmsToursTotalCount(branchId: String, webId: String): Int
   cpBmsTourDetail(_id: String!, branchId: String, language: String): Tour
-  cpBmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, webId: String): GroupTour
-  cpBmToursGroupDetail(groupCode: String, status: String): GroupTourItem
+  cpBmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, webId: String, language: String): GroupTour
+  cpBmToursGroupDetail(groupCode: String, status: String, language: String): GroupTourItem
   cpBmsOrders(tourId: String, customerId: String, branchId: String, ${GQL_CURSOR_PARAM_DEFS}): BmsOrderListResponse
 `;
 

@@ -12,6 +12,7 @@ import {
   TOUR_FIELD_MAPPINGS,
   applyTourTranslation,
   TOUR_CATEGORY_FIELD_MAPPINGS,
+  shouldSkipTranslation,
 } from '@/bms/utils/translations';
 
 function buildDateSelector(
@@ -99,6 +100,41 @@ const mergeCategoryFilterIds = ({
   const merged = [...(categoryIds || []), ...(tags || [])].filter(Boolean);
   return merged.length ? [...new Set(merged)] : undefined;
 };
+
+async function applyTranslationsToTours(
+  models: IContext['models'],
+  tours: any[],
+  language?: string,
+  branchId?: string,
+) {
+  if (!language || !tours.length || !branchId) {
+    return tours;
+  }
+
+  const skip = await shouldSkipTranslation(models, branchId, language);
+
+  if (skip) {
+    return tours;
+  }
+
+  const translations = await models.TourTranslations.find({
+    objectId: { $in: tours.map((tour) => String(tour._id)) },
+    language,
+  }).lean();
+
+  const translationMap = new Map(
+    translations.map((translation) => [
+      String(translation.objectId),
+      translation,
+    ]),
+  );
+
+  return tours.map((tour) => {
+    const translation = translationMap.get(String(tour._id));
+
+    return translation ? applyTourTranslation(tour, translation) : tour;
+  });
+}
 
 const tourQueries: Record<string, Resolver> = {
   async bmsTours(
@@ -315,6 +351,7 @@ const tourQueries: Record<string, Resolver> = {
       status,
       innerDate,
       branchId,
+      language,
       startDate1,
       endDate1,
       startDate2,
@@ -382,7 +419,20 @@ const tourQueries: Record<string, Resolver> = {
       },
     ]);
 
-    return { list: [...group], total };
+    return {
+      list: await Promise.all(
+        group.map(async (item) => ({
+          ...item,
+          items: await applyTranslationsToTours(
+            models,
+            item.items || [],
+            language,
+            branchId,
+          ),
+        })),
+      ),
+      total,
+    };
   },
 
   async cpBmToursGroup(
@@ -395,6 +445,7 @@ const tourQueries: Record<string, Resolver> = {
       innerDate,
       branchId,
       webId,
+      language,
       startDate1,
       endDate1,
       startDate2,
@@ -463,21 +514,68 @@ const tourQueries: Record<string, Resolver> = {
       },
     ]);
 
-    return { list: [...group], total };
+    return {
+      list: await Promise.all(
+        group.map(async (item) => ({
+          ...item,
+          items: await applyTranslationsToTours(
+            models,
+            item.items || [],
+            language,
+            branchId,
+          ),
+        })),
+      ),
+      total,
+    };
   },
 
-  async bmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
+  async bmToursGroupDetail(
+    _root,
+    { groupCode, status, language },
+    { models }: IContext,
+  ) {
     const list = await models.Tours.find({ groupCode, status });
-    return { _id: groupCode, items: list };
+    const translatedItems = await Promise.all(
+      list.map((tour) =>
+        getBmsItemWithTranslation(
+          models,
+          models.Tours,
+          models.TourTranslations,
+          { _id: tour._id },
+          language,
+          TOUR_FIELD_MAPPINGS,
+          undefined,
+          applyTourTranslation,
+        ),
+      ),
+    );
+
+    return { _id: groupCode, items: translatedItems.filter(Boolean) };
   },
 
   async cpBmToursGroupDetail(
     _root,
-    { groupCode, status },
+    { groupCode, status, language },
     { models }: IContext,
   ) {
     const list = await models.Tours.find({ groupCode, status });
-    return { _id: groupCode, items: list };
+    const translatedItems = await Promise.all(
+      list.map((tour) =>
+        getBmsItemWithTranslation(
+          models,
+          models.Tours,
+          models.TourTranslations,
+          { _id: tour._id },
+          language,
+          TOUR_FIELD_MAPPINGS,
+          undefined,
+          applyTourTranslation,
+        ),
+      ),
+    );
+
+    return { _id: groupCode, items: translatedItems.filter(Boolean) };
   },
 };
 
