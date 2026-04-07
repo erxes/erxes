@@ -180,7 +180,7 @@ export const AmenityCreateSheet = ({
             <Sheet.Header>
               <Sheet.Title>Create amenity</Sheet.Title>
               {allLanguages.length > 1 && (
-                <div className="flex gap-2 items-center ml-auto">
+                <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
                     availableLanguages={allLanguages}
                     value={selectedLang}
@@ -190,8 +190,8 @@ export const AmenityCreateSheet = ({
               )}
             </Sheet.Header>
 
-            <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
-              <div className="flex flex-col gap-6">
+            <Sheet.Content className="flex-1 px-6 py-4 overflow-y-auto rounded-none">
+              <div key={selectedLang} className="flex flex-col gap-6">
                 <div className="space-y-4">
                   <AmenityNameField
                     key={fieldPaths.name}

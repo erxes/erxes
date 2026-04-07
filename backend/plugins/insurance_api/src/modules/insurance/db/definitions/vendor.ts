@@ -17,6 +17,20 @@ export const vendorSchema = new Schema(
         pricingOverride: {
           type: mongoose.Schema.Types.Mixed,
         },
+        discountTiers: [
+          {
+            minTravelers: {
+              type: Number,
+              required: true,
+            },
+            discountPercent: {
+              type: Number,
+              required: true,
+              min: 0,
+              max: 100,
+            },
+          },
+        ],
         templateId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'insurance_contract_templates',

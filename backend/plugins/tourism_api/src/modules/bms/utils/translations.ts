@@ -142,7 +142,9 @@ export function applyPricingOptionsTranslation<T extends { _id: string }>(
       ...option,
       ...(pt.title ? { title: pt.title } : {}),
       ...(pt.note ? { note: pt.note } : {}),
-      ...(pt.accommodationType ? { accommodationType: pt.accommodationType } : {}),
+      ...(pt.accommodationType
+        ? { accommodationType: pt.accommodationType }
+        : {}),
     };
   });
 
@@ -156,7 +158,11 @@ export function applyItineraryTranslation<T extends { _id: string }>(
   item: T,
   translation: any,
 ): T {
-  let result = applyTranslationToItem(item, translation, ITINERARY_FIELD_MAPPINGS);
+  let result = applyTranslationToItem(
+    item,
+    translation,
+    ITINERARY_FIELD_MAPPINGS,
+  );
   result = applyGroupDaysTranslation(result, translation);
   return result;
 }

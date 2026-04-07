@@ -28,10 +28,17 @@ const itineraryMutations = {
 
   bmsItineraryEdit: async (
     _root,
-    { _id, translations, ...doc }: { _id: string; translations?: any[] } & Partial<IItinerary>,
+    {
+      _id,
+      translations,
+      ...doc
+    }: { _id: string; translations?: any[] } & Partial<IItinerary>,
     { models }: IContext,
   ) => {
-    const itinerary = await models.Itineraries.updateItinerary(_id, doc as IItinerary);
+    const itinerary = await models.Itineraries.updateItinerary(
+      _id,
+      doc as IItinerary,
+    );
     await saveItineraryTranslations(models, _id, translations ?? []);
     return itinerary;
   },

@@ -6,8 +6,7 @@ import {
 } from '@/bms/@types/itineraryTranslation';
 import { itineraryTranslationSchema } from '@/bms/db/definitions/itineraryTranslation';
 
-export interface IItineraryTranslationModel
-  extends Model<IItineraryTranslationDocument> {
+export interface IItineraryTranslationModel extends Model<IItineraryTranslationDocument> {
   upsertTranslation(
     doc: IItineraryTranslation,
   ): Promise<IItineraryTranslationDocument>;

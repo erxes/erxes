@@ -29,6 +29,7 @@ export const types = `
           _id: String!
           type: String
           webId: String
+          count: Int
           customPostType: CustomPostType
           authorKind: PostAuthorKind
           authorId: String

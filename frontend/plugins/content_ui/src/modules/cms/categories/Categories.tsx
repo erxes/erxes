@@ -112,25 +112,5 @@ export function Categories() {
         onRefetch={refetch}
       />
     </PageContainer>
-    // <div>
-    //   <CategoriesSidebar />
-    //   <CategoriesRecordTable
-    //     key={refetchTrigger}
-    //     clientPortalId={websiteId || ''}
-    //     onEdit={handleEditCategory}
-    //     onRemove={handleRemoveCategory}
-    //     onBulkDelete={handleBulkDelete}
-    //   />
-    //   <CmsCategoryDrawer
-    //     category={selectedCategory}
-    //     isOpen={drawerOpen}
-    //     onClose={() => {
-    //       setDrawerOpen(false);
-    //       setSelectedCategory(undefined);
-    //     }}
-    //     clientPortalId={websiteId || ''}
-    //     onRefetch={refetch}
-    //   />
-    // </div>
   );
 }

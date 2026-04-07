@@ -6,8 +6,7 @@ import {
 } from '@/bms/@types/tourTranslation';
 import { tourTranslationSchema } from '@/bms/db/definitions/tourTranslation';
 
-export interface ITourTranslationModel
-  extends Model<ITourTranslationDocument> {
+export interface ITourTranslationModel extends Model<ITourTranslationDocument> {
   upsertTranslation(doc: ITourTranslation): Promise<ITourTranslationDocument>;
   deleteTranslation(_id: string): Promise<ITourTranslationDocument | null>;
   deleteTranslationsForObject(objectId: string): Promise<void>;

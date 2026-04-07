@@ -23,8 +23,7 @@ export interface IItineraryTranslation {
 }
 
 export interface IItineraryTranslationDocument
-  extends IItineraryTranslation,
-    Document {
+  extends IItineraryTranslation, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
