@@ -17,7 +17,7 @@ export const FORM_FIELD_TYPES = [
   { value: 'select', label: 'Select', icon: <IconChevronDown /> },
   { value: 'textarea', label: 'Textarea', icon: <IconTextScan2 /> },
   { value: 'check', label: 'Checkbox', icon: <IconSquareCheck /> },
-  { value: 'radio', label: 'Radio Button', icon: <IconCircleCheck /> },
+  { value: 'radio', label: 'Radio Group', icon: <IconCircleCheck /> },
 ];
 
 export type FormFieldType = (typeof FORM_FIELD_TYPES)[number];

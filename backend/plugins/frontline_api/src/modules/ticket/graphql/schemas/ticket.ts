@@ -102,6 +102,7 @@ const createTicketParams = `
   targetDate: Date
   assigneeId: String
   state: String
+  propertiesData: JSON
   attachments: [AttachmentInput]
   companyIds: [String]
   customerFieldData: JSON

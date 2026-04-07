@@ -13,6 +13,7 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
+import { useNavigate } from 'react-router-dom';
 
 const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
   trDocs?.forEach((tr) => {
@@ -38,6 +39,7 @@ export const sumDtAndCt = (trDocs: TTrDoc[], followTrDocs: ITransaction[]) => {
 };
 
 export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
+  const navigate = useNavigate();
   const { trDocs } = useWatch({ control: form.control });
   const followTrDocs = useAtomValue(followTrDocsState);
   const [parentId] = useQueryState<string>('parentId');
@@ -55,6 +57,10 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
         cancelLabel: 'Cancel',
       },
     }).then(() => {
+      if (!parentId) {
+        const pathname = '/accounting/main';
+        return navigate(pathname);
+      }
       removeTransactions({
         variables: {
           parentId,

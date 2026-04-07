@@ -6,6 +6,7 @@ import {
   addDomain,
   removeProject,
 } from '~/modules/webbuilder/utils/utils';
+import { diffWeb } from '~/modules/webbuilder/utils/diffWeb';
 
 export const webBuilderMutations: Record<string, Resolver> = {
   async createWeb(_root, { doc }: { doc: IWeb }, { models }: IContext) {
@@ -69,9 +70,26 @@ export const webBuilderMutations: Record<string, Resolver> = {
   async editWeb(
     _root,
     { _id, doc }: { _id: string; doc: IWeb },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
-    return models.Web.updateWeb(_id, doc);
+    const oldWeb = await models.Web.findOne({ _id }).lean();
+
+    const updated = await models.Web.updateWeb(_id, doc);
+
+    if (oldWeb) {
+      const changes = diffWeb(oldWeb, doc);
+      if (changes.length > 0) {
+        await models.WebActivityLogs.createLog({
+          webId: _id,
+          userId: user?._id,
+          action: 'updated',
+          changes,
+          createdAt: new Date(),
+        });
+      }
+    }
+
+    return updated;
   },
 
   async removeWeb(_root, { _id }: { _id: string }, { models }: IContext) {
@@ -81,7 +99,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
   async cpEditWeb(
     _root,
     { _id, doc }: { _id: string; doc: IWeb },
-    { models, clientPortal }: IContext,
+    { models, clientPortal, user }: IContext,
   ) {
     const web = await models.Web.findOne({
       _id,
@@ -92,10 +110,25 @@ export const webBuilderMutations: Record<string, Resolver> = {
 
     const { clientPortalId: _ignoredClientPortalId, ...restDoc } = doc;
 
-    return models.Web.updateWeb(_id, {
+    const updatedDoc = {
       ...restDoc,
       clientPortalId: clientPortal?._id,
-    });
+    };
+
+    const updated = await models.Web.updateWeb(_id, updatedDoc);
+
+    const changes = diffWeb(web.toObject(), restDoc);
+    if (changes.length > 0) {
+      await models.WebActivityLogs.createLog({
+        webId: _id,
+        userId: user?._id,
+        action: 'updated',
+        changes,
+        createdAt: new Date(),
+      });
+    }
+
+    return updated;
   },
 
   async cpRemoveWeb(_root, { _id }: { _id: string }, { models }: IContext) {

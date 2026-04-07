@@ -21,7 +21,7 @@ export function loadWebPageClass(models: IModels) {
     };
 
     public static createPage = async (doc: IWebPage) => {
-      if (doc.name) {
+      if (doc.name && !doc.slug) {
         const baseSlug = doc.slug || slugify(doc.name, { lower: true });
         doc.slug = await generateUniqueSlug(
           models.WebPages,
@@ -44,7 +44,7 @@ export function loadWebPageClass(models: IModels) {
     };
 
     public static updatePage = async (_id: string, doc: IWebPage) => {
-      if (doc.name) {
+      if (doc.name && !doc.slug) {
         const baseSlug = doc.slug || slugify(doc.name, { lower: true });
         doc.slug = await generateUniqueSlug(
           models.WebPages,

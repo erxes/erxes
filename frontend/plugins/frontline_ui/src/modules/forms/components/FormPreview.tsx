@@ -8,6 +8,7 @@ import {
   Form,
   InfoCard,
   Input,
+  RadioGroup,
   readImage,
   Select,
   Textarea,
@@ -92,7 +93,7 @@ export const FormPreview = () => {
           formSchema[field.id] = z.date();
         } else if (field.type === 'boolean') {
           formSchema[field.id] = z.boolean();
-        } else if (field.type === 'select') {
+        } else if (field.type === 'select' || field.type === 'radio') {
           formSchema[field.id] = z.string();
         }
       });
@@ -109,7 +110,8 @@ export const FormPreview = () => {
           field.type === 'text' ||
           field.type === 'textarea' ||
           field.type === 'email' ||
-          field.type === 'select'
+          field.type === 'select' ||
+          field.type === 'radio'
         ) {
           stepDefaultValues[field.id] = '';
         } else if (field.type === 'number') {
@@ -294,6 +296,40 @@ export const FormPreviewContent = ({
                                 })}
                               </Select.Content>
                             </Select>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'radio') {
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <Form.Control>
+                              <RadioGroup
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                className="flex flex-col gap-2"
+                              >
+                                {erxesField.options.map((option) => {
+                                  if (!option) return null;
+                                  return (
+                                    <label
+                                      key={option}
+                                      className="flex items-center gap-2 cursor-pointer"
+                                    >
+                                      <RadioGroup.Item value={option} />
+                                      <span className="text-sm">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </RadioGroup>
+                            </Form.Control>
                             {erxesField.description && (
                               <Form.Description>
                                 {erxesField.description}

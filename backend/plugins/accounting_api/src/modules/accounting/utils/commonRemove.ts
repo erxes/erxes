@@ -35,6 +35,7 @@ function getJournalHandler(journal: string) {
     invOut: handleInvOut,
     invMove: handleInvMove,
     invSale: handleInvSale,
+    invSaleReturn: handleInvSaleReturn,
   };
 
   return handlers[journal];
@@ -97,5 +98,21 @@ async function handleInvSale(
   );
   if (saleOutTr) {
     await removeSyncProductsInventory(subdomain, saleOutTr, -1);
+  }
+}
+
+async function handleInvSaleReturn(
+  _models: IModels,
+  subdomain: string,
+  transaction: ITransactionDocument,
+  followTrs?: ITransactionDocument[],
+) {
+  const saleOutTr = followTrs?.find(
+    (ftr) =>
+      ftr.originId === transaction._id &&
+      ftr.originType === TR_FOLLOW_TYPES.INV_SALE_RETURN_OUT,
+  );
+  if (saleOutTr) {
+    await removeSyncProductsInventory(subdomain, saleOutTr, 1);
   }
 }

@@ -1,5 +1,9 @@
 import { gql } from '@apollo/client';
-import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS, GQL_PAGE_INFO } from 'erxes-ui';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_CURSOR_PARAMS,
+  GQL_PAGE_INFO,
+} from 'erxes-ui';
 
 export const commonTrDetailFields = `
   _id
@@ -133,6 +137,9 @@ const trsFilterParamDefs = `
   $searchValue: String,
   $number: String,
 
+  $customerType: String,
+  $customerId: String,
+
   $accountIds: [String],
   $accountKind: String,
   $accountExcludeIds: Boolean,
@@ -177,6 +184,8 @@ const trsFilterParams = `
   status: $status,
   searchValue: $searchValue,
   number: $number,
+  customerType: $customerType,
+  customerId: $customerId,
 
   accountIds: $accountIds,
   accountKind: $accountKind,
