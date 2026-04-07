@@ -196,6 +196,23 @@ export const userMutations: Record<string, Resolver> = {
     return updatedUser;
   },
 
+  async teamMembersRemove(
+    _parent: undefined,
+    { _ids }: { _ids: string[] },
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersRemove');
+
+    for (const _id of _ids) {
+      if (user._id === _id) {
+        throw new Error('You can not delete yourself');
+      }
+      await models.Users.setUserActiveOrInactive(_id);
+    }
+
+    return true;
+  },
+
   /*
    * Invites users to team members
    */

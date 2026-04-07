@@ -83,10 +83,7 @@ export const CustomersCommandBar = () => {
         <Can action="contactsDelete">
           <>
             <Separator.Inline />
-            <CustomersDelete
-              customerIds={customerIds}
-              rows={table.getFilteredSelectedRowModel().rows}
-            />
+            <CustomersDelete customerIds={customerIds} />
           </>
         </Can>
       </CommandBar.Bar>
