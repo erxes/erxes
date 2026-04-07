@@ -246,7 +246,6 @@ export const dealToTrs = async ({
     }
   }
 
-
   if (oldTrs.length) {
     // borluulalt zasagdah uyed butsaalt burtgegdsen bol tseverleh
     const returnTrs = await models.Transactions.find({ contentType, contentId, preTrId: saleTrDoc._id, journal: JOURNALS.INV_SALE_RETURN }).lean();

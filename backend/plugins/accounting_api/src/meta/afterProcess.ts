@@ -48,7 +48,7 @@ export const afterProcess: AfterProcessConfigs = {
             await dealToTrs({ subdomain, models, userId, deal: currentDocument, config: configSale });
           }
           if (configReturn?.stageId === currentStageId) {
-            await dealToReturnTrs({ subdomain, models, userId, deal: currentDocument, config: configSale });
+            await dealToReturnTrs({ subdomain, models, userId, deal: currentDocument, config: configReturn });
           }
         }
       }

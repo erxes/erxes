@@ -1,7 +1,7 @@
 import { fixNum } from "erxes-api-shared/utils"
 import { nanoid } from "nanoid"
 import { IModels } from "~/connectionResolvers"
-import { ACCOUNT_JOURNALS, JOURNALS, TR_SIDES } from "~/modules/accounting/@types/constants"
+import { ACCOUNT_JOURNALS, JOURNALS, TR_FOLLOW_TYPES, TR_SIDES } from "~/modules/accounting/@types/constants"
 import { ITransaction, ITransactionDocument } from "~/modules/accounting/@types/transaction"
 
 const getJournal = async (models: IModels, payConfig: { accountId: string }, amount: number) => {
@@ -25,12 +25,12 @@ const getJournal = async (models: IModels, payConfig: { accountId: string }, amo
       break;
   }
 
-  let side = TR_SIDES.DEBIT
+  let side = TR_SIDES.CREDIT
   let lastAmount = amount;
 
   if (amount < 0) {
     lastAmount = -1 * amount;
-    side = TR_SIDES.CREDIT;
+    side = TR_SIDES.DEBIT;
   }
 
   return {
@@ -70,10 +70,11 @@ export const dealToReturnTrs = async ({
     if (config.dateRule === 'syncedDateOrNow') {
       date = oldTrs[0].date;
     }
-    const oldSaleTr = oldTrs.find(otr => otr.journal === JOURNALS.INV_SALE);
-    mainId = oldSaleTr?._id || mainId;
-    ptrId = oldSaleTr?.ptrId || ptrId;
-    parentId = oldSaleTr?.parentId || parentId;
+
+    const oldReturnTr = oldTrs[0];
+    mainId = oldReturnTr?._id || mainId;
+    ptrId = oldReturnTr?.ptrId || ptrId;
+    parentId = oldReturnTr?.parentId || parentId;
   }
 
   const firstSaleTr = await models.Transactions.findOne({ contentType, contentId, journal: JOURNALS.INV_SALE }).lean();
@@ -120,17 +121,6 @@ export const dealToReturnTrs = async ({
     details: []
   };
 
-  let taxPercent = 0;
-  if (firstSaleTr.hasVat) {
-    const vatRow = await models.VatRows.getVatRow({ _id: firstSaleTr.vatRowId });
-    taxPercent += fixNum((vatRow?.percent ?? 0));
-  }
-
-  if (firstSaleTr.hasCtax) {
-    const ctaxRow = await models.VatRows.getVatRow({ _id: firstSaleTr.ctaxRowId });
-    taxPercent += fixNum((ctaxRow?.percent ?? 0));
-  }
-
   let totalAmount = 0;
   for (const detail of firstSaleTr.details) {
     totalAmount += detail.amount;
@@ -138,6 +128,11 @@ export const dealToReturnTrs = async ({
       ...detail,
       side: TR_SIDES.DEBIT,
     });
+  }
+  
+  const followTaxTrs = await models.Transactions.find({originId: firstSaleTr._id, originType: {$in: [TR_FOLLOW_TYPES.VAT, TR_FOLLOW_TYPES.CTAX]}});
+  for(const taxTr of followTaxTrs) {
+    totalAmount += taxTr.details?.[0]?.amount ?? 0;
   }
 
   const paymentTrs: ITransaction[] = [];

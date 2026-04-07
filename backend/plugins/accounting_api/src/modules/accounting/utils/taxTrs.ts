@@ -12,6 +12,7 @@ class TaxTrs {
   private doc: ITransaction;
   private side: 'dt' | 'ct';
   private isWithTax: boolean;
+  private userId: string;
 
   private vatAccountId?: string;
   private ctaxAccountId?: string;
@@ -25,12 +26,13 @@ class TaxTrs {
   private sumCt = 0;
 
   constructor(
-    models: IModels, doc: ITransaction, side: 'dt' | 'ct', isWithTax?: boolean
+    models: IModels, userId: string, doc: ITransaction, side: 'dt' | 'ct', isWithTax?: boolean
   ) {
     this.models = models;
     this.doc = doc;
     this.side = side;
     this.isWithTax = isWithTax ?? false;
+    this.userId = userId;
   }
 
   private initTaxValues = async () => {
@@ -194,7 +196,7 @@ class TaxTrs {
       await this.models.Transactions.deleteMany({ _id: { $in: oldFollowVatTrs.slice(1).map(tr => tr._id) } });
     }
 
-    const vatTr = await createOrUpdateTr(this.models, {
+    const vatTr = await createOrUpdateTr(this.models, this.userId, {
       ...this.vatTrDoc,
       originId: transaction._id,
       originType: TR_FOLLOW_TYPES.VAT,
@@ -227,7 +229,7 @@ class TaxTrs {
       await this.models.Transactions.deleteMany({ _id: { $in: oldFollowCtaxTrs.slice(1).map(tr => tr._id) } });
     }
 
-    const ctaxTr = await createOrUpdateTr(this.models, {
+    const ctaxTr = await createOrUpdateTr(this.models, this.userId, {
       ...this.ctaxTrDoc,
       originId: transaction._id,
       originType: TR_FOLLOW_TYPES.CTAX,

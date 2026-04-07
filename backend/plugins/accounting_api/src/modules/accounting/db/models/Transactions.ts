@@ -32,7 +32,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   ): Promise<ITransactionDocument[]>;
   updatePTransaction(
     parentId: string,
-    doc: ITransaction[],
+    docs: (ITransaction & { _id?: string })[],
     userId: string,
   ): Promise<ITransactionDocument[]>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;

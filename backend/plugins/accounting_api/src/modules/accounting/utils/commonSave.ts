@@ -22,7 +22,7 @@ export const commonSave = async (
   const handler = getJournalHandler(doc.journal);
   if (!handler) throw new Error(`Unsupported journal: ${doc.journal}`);
 
-  const { mainTr, otherTrs } = await handler(models, subdomain, userId, doc, oldTr);
+  const { mainTr, otherTrs } = await handler(subdomain, models, userId, doc, oldTr);
 
   if (!mainTr) throw new Error('main transaction not found');
 
@@ -37,8 +37,8 @@ function getJournalHandler(journal: string) {
   const handlers: Record<
     string,
     (
-      models: IModels,
       subdomain: string,
+      models: IModels,
       userId: string,
       doc: ITransaction,
       oldTr?: ITransactionDocument,
@@ -63,8 +63,8 @@ function getJournalHandler(journal: string) {
 }
 
 async function handleMain(
-  models: IModels,
   _subdomain: string,
+  models: IModels,
   userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
@@ -74,8 +74,8 @@ async function handleMain(
 }
 
 async function handleSingleTr(
-  models: IModels,
   subdomain: string,
+  models: IModels,
   userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
@@ -84,6 +84,7 @@ async function handleSingleTr(
   const currencyTrClass = new CurrencyTr(models, userId, subdomain, doc);
   const taxTrsClass = new TaxTrs(
     models,
+    userId,
     doc,
     detail.side === 'dt' ? 'ct' : 'dt',
     true,
@@ -107,13 +108,13 @@ async function handleSingleTr(
 }
 
 async function handleInvIncome(
-  models: IModels,
   subdomain: string,
+  models: IModels,
   userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const taxTrsClass = new TaxTrs(models, doc, 'dt', false);
+  const taxTrsClass = new TaxTrs(models, userId, doc, 'dt', false);
   await taxTrsClass.checkTaxValidation();
 
   const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
@@ -122,15 +123,15 @@ async function handleInvIncome(
 
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
-    ...(await collect(await InvIncomeExpenseTrs(models, transaction))),
+    ...(await collect(await InvIncomeExpenseTrs(models, userId, transaction))),
   ];
 
   return { mainTr: transaction, otherTrs };
 }
 
 async function handleInvOut(
-  models: IModels,
   subdomain: string,
+  models: IModels,
   userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
@@ -143,13 +144,13 @@ async function handleInvOut(
 }
 
 async function handleInvMove(
-  models: IModels,
   subdomain: string,
+  models: IModels,
   userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const invMoveInTrsClass = new InvMoveInTrs(models, doc);
+  const invMoveInTrsClass = new InvMoveInTrs(models, userId, doc);
   await invMoveInTrsClass.checkValidation();
 
   const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
@@ -163,14 +164,14 @@ async function handleInvMove(
 }
 
 async function handleInvSale(
-  models: IModels,
   subdomain: string,
+  models: IModels,
   userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const invSaleOtherTrsClass = new InvSaleOutCostTrs(subdomain, models, doc);
-  const taxTrsClass = new TaxTrs(models, doc, 'dt', false);
+  const invSaleOtherTrsClass = new InvSaleOutCostTrs(subdomain, models, userId, doc);
+  const taxTrsClass = new TaxTrs(models, userId, doc, 'ct', false);
 
   await invSaleOtherTrsClass.checkValidation();
   await taxTrsClass.checkTaxValidation();
@@ -185,8 +186,8 @@ async function handleInvSale(
 }
 
 async function handleInvSaleReturn(
-  models: IModels,
   subdomain: string,
+  models: IModels,
   userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
@@ -194,9 +195,10 @@ async function handleInvSaleReturn(
   const invSaleReturnOtherTrsClass = new InvSaleReturnOutCostTrs(
     subdomain,
     models,
+    userId,
     doc,
   );
-  const taxTrsClass = new TaxTrs(models, doc, 'ct', false);
+  const taxTrsClass = new TaxTrs(models, userId, doc, 'dt', false);
 
   await invSaleReturnOtherTrsClass.checkValidation();
   await taxTrsClass.checkTaxValidation();

@@ -6,6 +6,7 @@ import { getSingleJournalByAccount } from './utils';
 
 export const InvIncomeExpenseTrs = async (
   models: IModels,
+  userId: string,
   transaction: ITransactionDocument,
 ) => {
   const oldFollowTrs = await models.Transactions.find({ originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE }).lean();
@@ -46,9 +47,9 @@ export const InvIncomeExpenseTrs = async (
     const oldTr = oldFollowTrs.find(oftr => oftr.originSubId === expenseInfo._id);
     if (oldTr) {
       matchedIds.push(oldTr._id);
-      await models.Transactions.updateTransaction(oldTr._id, followTrDoc);
+      await models.Transactions.updateTransaction(oldTr._id, followTrDoc, userId);
     } else {
-      await models.Transactions.createTransaction(followTrDoc);
+      await models.Transactions.createTransaction(followTrDoc, userId);
     }
   }
 
