@@ -1,10 +1,7 @@
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
-import {
-  JOURNALS,
-  TR_SIDES,
-} from '~/modules/accounting/@types/constants';
+import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
 import {
   ITransaction,
   ITransactionDocument,

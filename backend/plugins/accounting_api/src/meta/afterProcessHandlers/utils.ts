@@ -1,11 +1,15 @@
-import { IModels } from "~/connectionResolvers";
-import { ACCOUNT_JOURNALS, JOURNALS, TR_SIDES } from "~/modules/accounting/@types/constants";
+import { IModels } from '~/connectionResolvers';
+import {
+  ACCOUNT_JOURNALS,
+  JOURNALS,
+  TR_SIDES,
+} from '~/modules/accounting/@types/constants';
 
 export const getJournal = async (
   models: IModels,
   payConfig: { accountId: string },
   amount: number,
-  isReturn = false
+  isReturn = false,
 ) => {
   const { accountId } = payConfig;
   const account = await models.Accounts.findOne({ _id: accountId }).lean();
