@@ -1,13 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { UseFieldArrayReturn } from 'react-hook-form';
-import { CategoryCreateFormType } from '../constants/formSchema';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 interface UseCategoryLanguageOptions {
   branchLanguages?: string[];
   mainLanguage?: string;
-  fields: UseFieldArrayReturn<CategoryCreateFormType, 'translations'>['fields'];
 }
 
 type FieldPaths = {
@@ -17,15 +14,14 @@ type FieldPaths = {
 export const useCategoryLanguage = ({
   branchLanguages,
   mainLanguage,
-  fields,
 }: UseCategoryLanguageOptions) => {
   const allLanguages = useMemo(() => {
     const base =
       branchLanguages && branchLanguages.length > 0
         ? branchLanguages
         : mainLanguage
-          ? [mainLanguage]
-          : [];
+        ? [mainLanguage]
+        : [];
     if (mainLanguage && !base.includes(mainLanguage)) {
       return [mainLanguage, ...base];
     }
@@ -64,9 +60,7 @@ export const useCategoryLanguage = ({
 
   const effectiveLang = selectedLang || primaryLanguage;
   const isMainLang = effectiveLang === primaryLanguage;
-  const translationIndex = fields.findIndex(
-    (f) => f.language === effectiveLang,
-  );
+  const translationIndex = translationLanguages.indexOf(effectiveLang);
   const labelSuffix = effectiveLang ? ` (${effectiveLang})` : '';
 
   const fieldPaths: FieldPaths = {

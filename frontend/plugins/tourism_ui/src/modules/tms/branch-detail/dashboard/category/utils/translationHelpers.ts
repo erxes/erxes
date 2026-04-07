@@ -36,3 +36,26 @@ export const sanitizeCategoryTranslations = (
 
   return cleaned.length ? cleaned : undefined;
 };
+
+/**
+ * Returns the main-language name for form initialization.
+ *
+ * The backend always includes the main language entry in `translations`,
+ * so we look it up there first. This works regardless of whether the
+ * list query swapped `category.name` to another language.
+ *
+ * Fallback chain: translations[mainLang] → category.name → ''
+ */
+export const resolveMainLanguageName = (
+  category: ICategory,
+  mainLanguage: string | undefined,
+): string => {
+  const effectiveLang = mainLanguage || category.language;
+  if (!effectiveLang) return category.name || '';
+
+  const mainTranslation = category.translations?.find(
+    (t) => t.language === effectiveLang,
+  );
+
+  return mainTranslation?.name || category.name || '';
+};

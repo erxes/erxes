@@ -66,7 +66,7 @@ export const CategoryCreateSheet = ({
     },
   });
 
-  const { fields } = useFieldArray({
+  useFieldArray({
     control: form.control,
     name: 'translations',
   });
@@ -78,7 +78,7 @@ export const CategoryCreateSheet = ({
     setSelectedLang,
     labelSuffix,
     fieldPaths,
-  } = useCategoryLanguage({ branchLanguages, mainLanguage, fields });
+  } = useCategoryLanguage({ branchLanguages, mainLanguage });
 
   useEffect(() => {
     if (!translationLanguages.length) return;
@@ -175,9 +175,10 @@ export const CategoryCreateSheet = ({
             </Sheet.Header>
 
             <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
-              <div key={selectedLang} className="flex flex-col gap-6">
+              <div className="flex flex-col gap-6">
                 <div className="space-y-4">
                   <CategoryNameField
+                    key={fieldPaths.name}
                     control={form.control}
                     name={fieldPaths.name}
                     labelSuffix={labelSuffix}

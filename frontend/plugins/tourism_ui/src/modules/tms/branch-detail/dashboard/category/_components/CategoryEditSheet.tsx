@@ -22,6 +22,7 @@ import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_componen
 import {
   buildTranslationsFromCategory,
   sanitizeCategoryTranslations,
+  resolveMainLanguageName,
 } from '../utils/translationHelpers';
 
 interface CategoryEditSheetProps {
@@ -63,7 +64,7 @@ export const CategoryEditSheet = ({
   const form = useForm<CategoryCreateFormType>({
     resolver: zodResolver(CategoryCreateFormSchema),
     defaultValues: {
-      name: category.name || '',
+      name: resolveMainLanguageName(category, mainLanguage),
       code: category.code || '',
       parentId: category.parentId || '',
       attachment: normalizedAttachment,
@@ -71,7 +72,7 @@ export const CategoryEditSheet = ({
     },
   });
 
-  const { fields } = useFieldArray({
+  useFieldArray({
     control: form.control,
     name: 'translations',
   });
@@ -83,11 +84,11 @@ export const CategoryEditSheet = ({
     setSelectedLang,
     labelSuffix,
     fieldPaths,
-  } = useCategoryLanguage({ branchLanguages, mainLanguage, fields });
+  } = useCategoryLanguage({ branchLanguages, mainLanguage });
 
   useEffect(() => {
     form.reset({
-      name: category.name || '',
+      name: resolveMainLanguageName(category, mainLanguage),
       code: category.code || '',
       parentId: category.parentId || '',
       attachment: category.attachment ?? undefined,
@@ -172,9 +173,10 @@ export const CategoryEditSheet = ({
             </Sheet.Header>
 
             <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
-              <div key={selectedLang} className="flex flex-col gap-6">
+              <div className="flex flex-col gap-6">
                 <div className="space-y-4">
                   <CategoryNameField
+                    key={fieldPaths.name}
                     control={form.control}
                     name={fieldPaths.name}
                     labelSuffix={labelSuffix}
