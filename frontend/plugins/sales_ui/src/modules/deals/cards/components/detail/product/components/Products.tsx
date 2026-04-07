@@ -28,25 +28,24 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
           >
             Payments
           </Tabs.Trigger>
+
         </Tabs.List>
+        <Tabs.Content value='product'>
+          <ProductsList
+            products={deal.products || ([] as IProduct[])}
+            productsData={deal.productsData || ([] as IProductData[])}
+            dealId={deal._id}
+            refetch={refetch}
+            tickUsed={deal.stage?.defaultTick === false ? false : true}
+          />
+        </Tabs.Content>
+        <Tabs.Content value='payment'>
+          <div className="mt-3 w-[85%] min-w-0">
+            <ProductsPayment deal={deal} refetch={refetch} />
+          </div>
+        </Tabs.Content>
       </Tabs>
-
-      {activeTab === 'product' && (
-        <ProductsList
-          products={deal.products || ([] as IProduct[])}
-          productsData={deal.productsData || ([] as IProductData[])}
-          dealId={deal._id}
-          refetch={refetch}
-          tickUsed={deal.stage?.defaultTick === false ? false : true}
-        />
-      )}
-
-      {activeTab === 'payment' && (
-        <div className="mt-3 w-[85%] min-w-0">
-          <ProductsPayment deal={deal} refetch={refetch} />
-        </div>
-      )}
-    </div>
+    </div >
   );
 };
 

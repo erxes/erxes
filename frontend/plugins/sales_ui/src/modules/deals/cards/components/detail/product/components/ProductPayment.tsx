@@ -154,13 +154,12 @@ const ProductsPayment = ({
             Change
           </span>
           <div
-            className={`font-semibold text-lg flex ${
-              Object.values(changeAmounts).some((amount) => amount > 0)
-                ? 'text-green-500'
-                : Object.values(changeAmounts).some((amount) => amount < 0)
+            className={`font-semibold text-lg flex ${Object.values(changeAmounts).some((amount) => amount > 0)
+              ? 'text-green-500'
+              : Object.values(changeAmounts).some((amount) => amount < 0)
                 ? 'text-red-500'
                 : ''
-            }`}
+              }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
             {renderTotals(changeAmounts)}
@@ -169,11 +168,11 @@ const ProductsPayment = ({
       </div>
       <div className="w-full items-center justify-center">
         <div className="flex items-center gap-2 py-2 w-full justify-center">
-          <p className="w-28 font-medium text-sm text-muted-foreground uppercase">
-            CASH
-          </p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 w-[300px]">
+          <div className="flex w-full justify-between items-center">
+            <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
+              CASH
+            </p>
+            <div className="flex flex-1 items-center">
               <Input
                 type="text"
                 inputMode="numeric"
@@ -186,7 +185,7 @@ const ProductsPayment = ({
                 placeholder="Type amount"
               />
             </div>
-            <div className="w-[300px]">
+            <div className="flex flex-1 items-center">
               <CurrencyField.SelectCurrency
                 value={
                   (paymentsData['cash']?.currency as CurrencyCode) ||
@@ -196,14 +195,14 @@ const ProductsPayment = ({
                 variant="ghost"
                 className="w-full justify-end"
               />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => fillRemaining('cash')}
+              >
+                <IconCircleCheck className="w-5 h-5" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => fillRemaining('cash')}
-            >
-              <IconCircleCheck className="w-5 h-5" />
-            </Button>
           </div>
         </div>
         {deal.pipeline?.paymentTypes?.map((paymentType, index) => (
@@ -211,11 +210,11 @@ const ProductsPayment = ({
             key={index}
             className="flex items-center gap-2 py-2 w-full justify-center"
           >
-            <p className="w-28 font-medium text-sm text-muted-foreground uppercase">
-              {paymentType.type}
-            </p>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 w-[300px]">
+            <div className="flex w-full justify-between items-center">
+              <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
+                {paymentType.type}
+              </p>
+              <div className="flex flex-1 items-center">
                 <Input
                   type="text"
                   inputMode="numeric"
@@ -234,7 +233,7 @@ const ProductsPayment = ({
                   placeholder="Type amount"
                 />
               </div>
-              <div className="w-[300px]">
+              <div className="flex flex-1 items-center">
                 <CurrencyField.SelectCurrency
                   value={
                     (paymentsData[paymentType.type]
@@ -247,14 +246,14 @@ const ProductsPayment = ({
                   variant="ghost"
                   className="w-full justify-end"
                 />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => fillRemaining(paymentType.type)}
+                >
+                  <IconCircleCheck className="w-5 h-5" />
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => fillRemaining(paymentType.type)}
-              >
-                <IconCircleCheck className="w-5 h-5" />
-              </Button>
             </div>
           </div>
         ))}
