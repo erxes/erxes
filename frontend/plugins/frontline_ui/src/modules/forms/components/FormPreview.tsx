@@ -95,6 +95,8 @@ export const FormPreview = () => {
           formSchema[field.id] = z.boolean();
         } else if (field.type === 'select' || field.type === 'radio') {
           formSchema[field.id] = z.string();
+        } else if (field.type === 'check') {
+          formSchema[field.id] = z.array(z.string());
         }
       });
       return [stepId, z.object(formSchema)];
@@ -120,6 +122,8 @@ export const FormPreview = () => {
           stepDefaultValues[field.id] = new Date();
         } else if (field.type === 'boolean') {
           stepDefaultValues[field.id] = false;
+        } else if (field.type === 'check') {
+          stepDefaultValues[field.id] = [];
         }
       });
       return [stepId, stepDefaultValues];
@@ -330,6 +334,45 @@ export const FormPreviewContent = ({
                                 })}
                               </RadioGroup>
                             </Form.Control>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'check') {
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <div className="flex flex-col gap-2">
+                              {erxesField.options.map((option) => {
+                                if (!option) return null;
+                                const checked = (field.value as string[]).includes(option);
+                                return (
+                                  <label
+                                    key={option}
+                                    className="flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <Checkbox
+                                      checked={checked}
+                                      onCheckedChange={(isChecked) => {
+                                        const current = field.value as string[];
+                                        field.onChange(
+                                          isChecked
+                                            ? [...current, option]
+                                            : current.filter((v) => v !== option),
+                                        );
+                                      }}
+                                    />
+                                    <span className="text-sm">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
                             {erxesField.description && (
                               <Form.Description>
                                 {erxesField.description}
