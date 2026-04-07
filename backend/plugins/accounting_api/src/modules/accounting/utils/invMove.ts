@@ -17,10 +17,12 @@ class InvMoveInTrs {
   private readonly models: IModels;
   private readonly trDoc: ITransaction;
   private moveInAccount?: IAccountDocument;
+  private readonly userId: string;
 
-  constructor(models: IModels, trDoc: ITransaction) {
+  constructor(models: IModels, userId: string, trDoc: ITransaction) {
     this.models = models;
     this.trDoc = trDoc;
+    this.userId = userId;
   }
 
   public async checkValidation() {
@@ -119,6 +121,7 @@ class InvMoveInTrs {
 
     const invMoveInTr = await createOrUpdateTr(
       this.models,
+      this.userId,
       inTrDoc,
       oldFollowInTr,
     );
