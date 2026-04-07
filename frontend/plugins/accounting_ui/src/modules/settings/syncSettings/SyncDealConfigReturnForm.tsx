@@ -13,9 +13,11 @@ const configFormSchema = z.object({
   stageId: z.string(),
   returnType: z.enum(['fullTr', 'onlySale', 'delete']),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
-  defaultPayment: z.object({
-    accountId: z.string(),
-  }).nullable(),
+  defaultPayment: z
+    .object({
+      accountId: z.string(),
+    })
+    .nullable(),
 });
 
 type ConfigFormValues = z.infer<typeof configFormSchema>;
