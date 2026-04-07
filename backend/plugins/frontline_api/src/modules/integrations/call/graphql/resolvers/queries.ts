@@ -107,7 +107,7 @@ const callQueries = {
         isAddExtention: false,
       },
       user,
-    )) as any;
+    ));
 
     if (queueData?.response) {
       const { account } = queueData.response;
@@ -161,7 +161,7 @@ const callQueries = {
         isAddExtention: false,
       },
       user,
-    )) as any;
+    ));
 
     if (!queueData.ok) {
       throw new Error(`HTTP error! Status: ${queueData.status}`);
@@ -234,6 +234,7 @@ const callQueries = {
         return [];
       }
     } catch (error) {
+      console.log(error);
       const stats = await models.CallQueueStatistics.find({ integrationId });
       if (stats) {
         return stats;
@@ -275,7 +276,7 @@ const callQueries = {
         isAddExtention: false,
       },
       user,
-    )) as any;
+    ));
 
     if (queueData?.response) {
       const { CallQueueMembersMessage } = queueData.response;
@@ -521,6 +522,7 @@ const callQueries = {
 
       return null;
     } catch (error) {
+      console.log(error);
       throw new Error('Failed to retrieve call history details');
     }
   },
