@@ -15,7 +15,7 @@ const configFormSchema = z.object({
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
   defaultPayment: z.object({
     accountId: z.string(),
-  }),
+  }).nullable(),
 });
 
 type ConfigFormValues = z.infer<typeof configFormSchema>;

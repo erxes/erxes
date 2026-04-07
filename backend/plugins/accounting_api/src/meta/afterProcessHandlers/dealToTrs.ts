@@ -39,7 +39,7 @@ export const dealToTrs = async ({
   };
 }) => {
   const activeProductsData = deal.productsData?.filter((pd) => pd.tickUsed);
-  if (!activeProductsData.length) {
+  if (!activeProductsData?.length) {
     return;
   }
 
