@@ -18,6 +18,7 @@ export interface IElement {
   cost?: number;
   categories?: string[];
   quick?: boolean;
+  language?: string;
   createdAt?: string;
   modifiedAt?: string;
   translations?: IElementTranslation[];

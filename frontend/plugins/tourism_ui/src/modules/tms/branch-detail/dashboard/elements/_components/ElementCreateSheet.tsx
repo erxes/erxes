@@ -65,7 +65,7 @@ export const ElementCreateSheet = ({
     },
   });
 
-  const { fields } = useFieldArray({
+  useFieldArray({
     control: form.control,
     name: 'translations',
   });
@@ -78,7 +78,7 @@ export const ElementCreateSheet = ({
     labelSuffix,
     currencySymbol,
     fieldPaths,
-  } = useElementLanguage({ branchLanguages, mainLanguage, fields });
+  } = useElementLanguage({ branchLanguages, mainLanguage });
 
   const resolvedPrimaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
 
@@ -179,7 +179,7 @@ export const ElementCreateSheet = ({
             <Sheet.Header>
               <Sheet.Title>Create element</Sheet.Title>
               {allLanguages.length > 1 && (
-                <div className="flex items-center gap-2 ml-auto">
+                <div className="flex gap-2 items-center ml-auto">
                   <TourFieldLanguageSwitch
                     availableLanguages={allLanguages}
                     value={selectedLang}
@@ -189,10 +189,11 @@ export const ElementCreateSheet = ({
               )}
             </Sheet.Header>
 
-            <Sheet.Content className="flex-1 px-6 py-4 overflow-y-auto rounded-none">
-              <div key={selectedLang} className="flex flex-col gap-6">
+            <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
+              <div className="flex flex-col gap-6">
                 <div className="space-y-4">
                   <ElementNameField
+                    key={fieldPaths.name}
                     control={form.control}
                     name={fieldPaths.name}
                     labelSuffix={labelSuffix}
@@ -201,6 +202,7 @@ export const ElementCreateSheet = ({
                     <ElementStartTimeField control={form.control} />
                     <ElementDurationField control={form.control} />
                     <ElementCostField
+                      key={fieldPaths.cost}
                       control={form.control}
                       name={fieldPaths.cost}
                       currencySymbol={currencySymbol}
@@ -211,6 +213,7 @@ export const ElementCreateSheet = ({
                 <div className="space-y-4">
                   <SelectElementCategories control={form.control} />
                   <ElementNoteField
+                    key={fieldPaths.note}
                     control={form.control}
                     name={fieldPaths.note}
                     labelSuffix={labelSuffix}
