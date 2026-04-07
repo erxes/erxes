@@ -42,6 +42,21 @@ export const types = `
         totalCount: Int
         pageInfo: PageInfo
   }
+
+  type AiSuggestedField {
+    label: String!
+    code: String!
+    type: String!
+    description: String
+    isRequired: Boolean
+    options: [String]
+  }
+
+  type AiFieldSuggestionResult {
+    groupLabelSuggestion: String
+    customPostTypeSuggestion: String
+    fields: [AiSuggestedField]
+  }
   
 `;
 
@@ -91,4 +106,6 @@ export const mutations = `
   cmsCustomFieldGroupsAdd(input: CustomFieldGroupInput!): CustomFieldGroup
   cmsCustomFieldGroupsEdit(_id: String!, input: CustomFieldGroupInput!): CustomFieldGroup
   cmsCustomFieldGroupsRemove(_id: String!): JSON
+
+  cmsAiSuggestFields(prompt: String!, clientPortalId: String): AiFieldSuggestionResult
 `;

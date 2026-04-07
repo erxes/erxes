@@ -5,6 +5,7 @@ import { contentCmsCategoryMutations } from '@/cms/graphql/mutations/category';
 import contentCmsMenuMutations from '@/cms/graphql/mutations/menu';
 import contentCmsPageMutations from '@/cms/graphql/mutations/page';
 import customPostTypeMutations from '@/cms/graphql/mutations/customPostType';
+import aiSuggestFieldsMutations from '@/cms/graphql/mutations/aiSuggestFields';
 import translationMutations from '@/cms/graphql/mutations/translation';
 import { webBuilderMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/web';
 import { webPageMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/webPage';
@@ -18,6 +19,7 @@ export const mutations = {
   ...contentCmsMenuMutations,
   ...contentCmsPageMutations,
   ...customPostTypeMutations,
+  ...aiSuggestFieldsMutations,
   ...translationMutations,
   ...webPageMutations,
 };

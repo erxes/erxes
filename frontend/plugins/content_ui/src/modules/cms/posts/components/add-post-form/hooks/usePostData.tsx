@@ -70,12 +70,21 @@ export const usePostData = (websiteId: string, selectedType?: string) => {
 
   const fieldGroups = (
     fieldGroupsData?.cmsCustomFieldGroupList?.list || []
-  ).filter(
-    (group: any) =>
-      !group.customPostTypeIds ||
-      group.customPostTypeIds.length === 0 ||
-      group.customPostTypeIds.includes(selectedType),
-  );
+  ).filter((group: any) => {
+    const customPostTypeIds = group.customPostTypeIds || [];
+
+    if (!selectedType) {
+      return false;
+    }
+
+    if (selectedType === 'post') {
+      return (
+        customPostTypeIds.length === 0 || customPostTypeIds.includes('post')
+      );
+    }
+
+    return customPostTypeIds.includes(selectedType);
+  });
 
   return {
     categories,

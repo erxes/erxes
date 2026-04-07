@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import slugify from 'slugify';
 
 import {
   ICustomFieldGroup,
@@ -67,18 +68,28 @@ export interface ICustomFieldGroupModel extends Model<ICustomFieldGroupDocument>
   toggleStatus: (id: string) => Promise<ICustomFieldGroupDocument>;
 }
 
+const buildFieldGroupCode = (code?: string, label?: string) => {
+  const source = code?.trim() || label?.trim() || 'field_group';
+
+  return slugify(source, {
+    lower: true,
+    replacement: '_',
+    strict: true,
+    trim: true,
+  });
+};
+
 export const loadCustomFieldGroupClass = (models: IModels) => {
   class CustomFieldGroups {
     public static createFieldGroup = async (data: ICustomFieldGroup) => {
-      if (data.code) {
-        const uniqueCode = await generateUniqueSlug(
-          models.CustomFieldGroups,
-          data.clientPortalId,
-          'code',
-          data.code,
-        );
-        data.code = uniqueCode;
-      }
+      const uniqueCode = await generateUniqueSlug(
+        models.CustomFieldGroups,
+        data.clientPortalId,
+        'code',
+        buildFieldGroupCode(data.code, data.label),
+      );
+      data.code = uniqueCode;
+
       const count = await models.CustomFieldGroups.countDocuments({
         clientPortalId: data.clientPortalId,
         label: data.label,
@@ -107,7 +118,15 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
           model: models.CustomFieldGroups,
           clientPortalId,
           field: 'code',
-          baseSlug: data.code,
+          baseSlug: buildFieldGroupCode(data.code),
+          excludeId: id,
+        });
+      } else if (!existingGroup.code) {
+        data.code = await generateUniqueSlugForUpdate({
+          model: models.CustomFieldGroups,
+          clientPortalId,
+          field: 'code',
+          baseSlug: buildFieldGroupCode(data.code, data.label || existingGroup.label),
           excludeId: id,
         });
       }

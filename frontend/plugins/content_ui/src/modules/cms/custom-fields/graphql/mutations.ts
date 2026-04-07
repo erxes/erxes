@@ -46,3 +46,20 @@ export const CMS_CUSTOM_FIELD_GROUP_REMOVE = gql`
     cmsCustomFieldGroupsRemove(_id: $_id)
   }
 `;
+
+export const CMS_AI_SUGGEST_FIELDS = gql`
+  mutation CmsAiSuggestFields($prompt: String!, $clientPortalId: String) {
+    cmsAiSuggestFields(prompt: $prompt, clientPortalId: $clientPortalId) {
+      groupLabelSuggestion
+      customPostTypeSuggestion
+      fields {
+        label
+        code
+        type
+        description
+        isRequired
+        options
+      }
+    }
+  }
+`;

@@ -6,10 +6,10 @@ import {
   toast,
   PageContainer,
 } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
+import { IconPlus, IconSparkles } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
 import { CmsSidebar } from '../shared/CmsSidebar';
@@ -19,12 +19,33 @@ import { useCustomFieldGroups } from './hooks/useCustomFieldGroups';
 import { FieldGroupDrawer } from './components/field-group-drawer/FieldGroupDrawer';
 import { FieldDrawer } from './components/field-drawer/FieldDrawer';
 import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
-import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
+import {
+  CMS_CUSTOM_POST_TYPE_ADD,
+  CMS_CUSTOM_POST_TYPES,
+} from '../graphql/queries';
+import { AiFieldSuggester } from './components/AiFieldSuggester';
+
+const generateCode = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/(^_|_$)/g, '') || 'custom_type';
+
+const generatePluralLabel = (value: string) => {
+  const normalized = value.trim();
+
+  if (!normalized) {
+    return 'Custom Types';
+  }
+
+  return normalized.endsWith('s') ? normalized : `${normalized}s`;
+};
 
 export function CustomFields() {
   const { websiteId } = useParams();
   const [isGroupDrawerOpen, setIsGroupDrawerOpen] = useState(false);
   const [isFieldDrawerOpen, setIsFieldDrawerOpen] = useState(false);
+  const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<ICustomFieldGroup | null>(
     null,
   );
@@ -37,12 +58,41 @@ export function CustomFields() {
   const { groups, loading, refetch, addGroup, editGroup, removeGroup } =
     useCustomFieldGroups(websiteId);
 
-  const { data: customTypesData } = useQuery(CMS_CUSTOM_POST_TYPES, {
-    variables: { clientPortalId: websiteId },
-    skip: !websiteId,
-  });
+  const { data: customTypesData, refetch: refetchCustomTypes } = useQuery(
+    CMS_CUSTOM_POST_TYPES,
+    {
+      variables: { clientPortalId: websiteId },
+      skip: !websiteId,
+    },
+  );
+
+  const [addCustomPostType] = useMutation(CMS_CUSTOM_POST_TYPE_ADD);
 
   const customTypes = customTypesData?.cmsCustomPostTypes || [];
+
+  const createCustomPostType = async (suggestion?: string | null) => {
+    const normalizedLabel = suggestion?.trim();
+
+    if (!normalizedLabel || !websiteId) {
+      return null;
+    }
+
+    const result = await addCustomPostType({
+      variables: {
+        input: {
+          clientPortalId: websiteId,
+          label: normalizedLabel,
+          pluralLabel: generatePluralLabel(normalizedLabel),
+          code: generateCode(normalizedLabel),
+          description: `AI-generated custom post type for ${normalizedLabel}`,
+        },
+      },
+    });
+
+    await refetchCustomTypes();
+
+    return result.data?.cmsCustomPostTypesAdd?._id || null;
+  };
 
   const handleGroupSubmit = (data: any) => {
     const input = {
@@ -54,18 +104,9 @@ export function CustomFields() {
     };
 
     if (editingGroup) {
-      editGroup({
-        variables: {
-          _id: editingGroup._id,
-          input,
-        },
-      });
+      editGroup({ variables: { _id: editingGroup._id, input } });
     } else {
-      addGroup({
-        variables: {
-          input,
-        },
-      });
+      addGroup({ variables: { input } });
     }
     setIsGroupDrawerOpen(false);
     setEditingGroup(null);
@@ -92,15 +133,12 @@ export function CustomFields() {
     const currentFields = Array.isArray(latestGroup.fields)
       ? latestGroup.fields
       : [];
-    let updatedFields;
 
-    if (editingField) {
-      updatedFields = currentFields.map((f: any) =>
-        f._id === editingField._id ? newField : f,
-      );
-    } else {
-      updatedFields = [...currentFields, newField];
-    }
+    const updatedFields = editingField
+      ? currentFields.map((f: any) =>
+          f._id === editingField._id ? newField : f,
+        )
+      : [...currentFields, newField];
 
     editGroup({
       variables: {
@@ -119,13 +157,65 @@ export function CustomFields() {
         });
         setIsFieldDrawerOpen(false);
         setEditingField(null);
+
         const result = await refetch();
-        if (result.data?.cmsCustomFieldGroupList?.list) {
-          const updatedGroup = result.data.cmsCustomFieldGroupList.list.find(
+        const updatedList = result.data?.cmsCustomFieldGroupList?.list;
+
+        if (updatedList) {
+          const updatedGroup = updatedList.find(
             (g: ICustomFieldGroup) => g._id === latestGroup._id,
           );
-          if (updatedGroup) {
-            setSelectedGroup(updatedGroup);
+          if (updatedGroup) setSelectedGroup(updatedGroup);
+        }
+      },
+    });
+  };
+
+  const handleAiAcceptFields = async (
+    aiFields: Array<{
+      label: string;
+      code: string;
+      type: string;
+      description?: string;
+      isRequired: boolean;
+      options: string[];
+    }>,
+    groupLabel: string,
+    customPostTypeSuggestion?: string | null,
+  ) => {
+    const customPostTypeId = await createCustomPostType(
+      customPostTypeSuggestion,
+    );
+
+    const newFields = aiFields.map((f) => ({
+      _id: `field_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      ...f,
+    }));
+
+    addGroup({
+      variables: {
+        input: {
+          label: groupLabel,
+          clientPortalId: websiteId || '',
+          customPostTypeIds: customPostTypeId ? [customPostTypeId] : [],
+          fields: newFields,
+        },
+      },
+      onCompleted: async () => {
+        toast({
+          title: 'Group created!',
+          description: `"${groupLabel}" created with ${newFields.length} field${newFields.length === 1 ? '' : 's'}${customPostTypeSuggestion ? ` and a new custom post type "${customPostTypeSuggestion}"` : ''}.`,
+        });
+
+        const result = await refetch();
+        const updatedList = result.data?.cmsCustomFieldGroupList?.list;
+
+        if (updatedList) {
+          const createdGroup = updatedList.find(
+            (g: ICustomFieldGroup) => g.label === groupLabel,
+          );
+          if (createdGroup) {
+            setSelectedGroup(createdGroup);
           }
         }
       },
@@ -153,45 +243,60 @@ export function CustomFields() {
 
   const handleDeleteField = (fieldId: string) => {
     if (!selectedGroup) return;
-    confirm({
-      message: 'Are you sure you want to delete this field?',
-    }).then(async () => {
-      const latestGroup =
-        groups.find((g) => g._id === selectedGroup._id) || selectedGroup;
-      const currentFields = Array.isArray(latestGroup.fields)
-        ? latestGroup.fields
-        : [];
-      const updatedFields = currentFields.filter((f: any) => f._id !== fieldId);
 
-      editGroup({
-        variables: {
-          _id: latestGroup._id,
-          input: {
-            label: latestGroup.label,
-            clientPortalId: websiteId || '',
-            customPostTypeIds: latestGroup.customPostTypeIds || [],
-            fields: updatedFields,
+    confirm({ message: 'Are you sure you want to delete this field?' }).then(
+      async () => {
+        const latestGroup =
+          groups.find((g) => g._id === selectedGroup._id) || selectedGroup;
+
+        const currentFields = Array.isArray(latestGroup.fields)
+          ? latestGroup.fields
+          : [];
+
+        const updatedFields = currentFields.filter(
+          (f: any) => f._id !== fieldId,
+        );
+
+        editGroup({
+          variables: {
+            _id: latestGroup._id,
+            input: {
+              label: latestGroup.label,
+              clientPortalId: websiteId || '',
+              customPostTypeIds: latestGroup.customPostTypeIds || [],
+              fields: updatedFields,
+            },
           },
-        },
-        onCompleted: async () => {
-          toast({ title: 'Success', description: 'Field deleted!' });
-          const result = await refetch();
-          if (result.data?.cmsCustomFieldGroupList?.list) {
-            const updatedGroup = result.data.cmsCustomFieldGroupList.list.find(
-              (g: ICustomFieldGroup) => g._id === latestGroup._id,
-            );
-            if (updatedGroup) {
-              setSelectedGroup(updatedGroup);
+          onCompleted: async () => {
+            toast({ title: 'Success', description: 'Field deleted!' });
+
+            const result = await refetch();
+            const updatedList = result.data?.cmsCustomFieldGroupList?.list;
+
+            if (updatedList) {
+              const updatedGroup = updatedList.find(
+                (g: ICustomFieldGroup) => g._id === latestGroup._id,
+              );
+              if (updatedGroup) setSelectedGroup(updatedGroup);
             }
-          }
-        },
-      });
-    });
+          },
+        });
+      },
+    );
   };
 
   return (
     <PageContainer>
       <CustomFieldsHeader>
+        <Button
+          variant="outline"
+          onClick={() => setIsAiDrawerOpen(true)}
+          className="border-violet-300 text-violet-700 hover:bg-violet-50 hover:border-violet-400"
+        >
+          <IconSparkles className="w-4 h-4 mr-2" />
+          Generate with AI
+        </Button>
+
         <Button
           onClick={() => {
             setEditingGroup(null);
@@ -202,13 +307,13 @@ export function CustomFields() {
           Add Group
         </Button>
       </CustomFieldsHeader>
+
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="p-6">
               <div className="max-w-4xl mx-auto">
-                {/* Table Header */}
                 <Table>
                   <Table.Header>
                     <Table.Row>
@@ -219,7 +324,6 @@ export function CustomFields() {
                   </Table.Header>
                 </Table>
 
-                {/* Groups List */}
                 {loading ? (
                   <div className="py-12 text-center">
                     <Spinner />
@@ -229,16 +333,26 @@ export function CustomFields() {
                     <p className="text-muted-foreground mb-4">
                       No field groups yet
                     </p>
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setEditingGroup(null);
-                        setIsGroupDrawerOpen(true);
-                      }}
-                    >
-                      <IconPlus className="w-4 h-4 mr-2" />
-                      Create First Group
-                    </Button>
+                    <div className="flex justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        className="border-violet-300 text-violet-700 hover:bg-violet-50"
+                        onClick={() => setIsAiDrawerOpen(true)}
+                      >
+                        <IconSparkles className="w-4 h-4 mr-2" />
+                        Generate with AI
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setEditingGroup(null);
+                          setIsGroupDrawerOpen(true);
+                        }}
+                      >
+                        <IconPlus className="w-4 h-4 mr-2" />
+                        Create Manually
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2 mt-2">
@@ -286,6 +400,13 @@ export function CustomFields() {
         }}
         onSubmit={handleFieldSubmit}
         editingField={editingField}
+      />
+
+      <AiFieldSuggester
+        isOpen={isAiDrawerOpen}
+        onClose={() => setIsAiDrawerOpen(false)}
+        websiteId={websiteId || ''}
+        onAcceptFields={handleAiAcceptFields}
       />
     </PageContainer>
   );
