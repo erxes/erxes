@@ -138,7 +138,7 @@ export const dealToReturnTrs = async ({
       models,
       config.defaultPayment,
       totalAmount,
-      true
+      true,
     );
 
     if (payResp) {
@@ -161,7 +161,7 @@ export const dealToReturnTrs = async ({
             _id: nanoid(),
             accountId,
             side,
-            amount: fixNum(lastAmount,4),
+            amount: fixNum(lastAmount, 4),
           },
         ],
       });
