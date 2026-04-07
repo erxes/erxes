@@ -24,7 +24,12 @@ class InvSaleOutCostTrs {
   private readonly subdomain: string;
   private readonly userId: string;
 
-  constructor(subdomain: string, models: IModels, userId: string, trDoc: ITransaction) {
+  constructor(
+    subdomain: string,
+    models: IModels,
+    userId: string,
+    trDoc: ITransaction,
+  ) {
     this.models = models;
     this.trDoc = trDoc;
     this.subdomain = subdomain;
@@ -165,7 +170,12 @@ class InvSaleOutCostTrs {
       details: followCostDetails,
     };
 
-    const outTr = await createOrUpdateTr(this.models, this.userId, outTrDoc, oldFollowOutTr);
+    const outTr = await createOrUpdateTr(
+      this.models,
+      this.userId,
+      outTrDoc,
+      oldFollowOutTr,
+    );
     const costTr = await createOrUpdateTr(
       this.models,
       this.userId,

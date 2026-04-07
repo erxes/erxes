@@ -22,7 +22,7 @@ class InvMoveInTrs {
   constructor(models: IModels, userId: string, trDoc: ITransaction) {
     this.models = models;
     this.trDoc = trDoc;
-    this.userId = userId
+    this.userId = userId;
   }
 
   public async checkValidation() {

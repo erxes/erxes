@@ -1,13 +1,6 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
-import {
-  Button,
-  Dialog,
-  Form,
-  Input,
-  Select,
-  Spinner,
-} from 'erxes-ui';
+import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
@@ -180,7 +173,6 @@ export const SyncDealReturnConfigForm = ({
             </Form.Item>
           )}
         />
-
 
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>

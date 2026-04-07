@@ -15,7 +15,12 @@ export default class CurrencyTr {
   private currencyDiffTrDoc?: ITransaction;
   private spotRate?: any;
 
-  constructor(models: IModels, subdomain: string, userId: string, doc: ITransaction) {
+  constructor(
+    models: IModels,
+    subdomain: string,
+    userId: string,
+    doc: ITransaction,
+  ) {
     this.subdomain = subdomain;
     this.models = models;
     this.doc = doc;

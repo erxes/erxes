@@ -20,7 +20,10 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     _ids: string[],
     ptrId?: string,
   ): Promise<ITransactionDocument[]>;
-  createTransaction(doc: ITransaction, userId: string): Promise<ITransactionDocument>;
+  createTransaction(
+    doc: ITransaction,
+    userId: string,
+  ): Promise<ITransactionDocument>;
   updateTransaction(
     _id: string,
     doc: ITransaction,
@@ -135,7 +138,11 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     /**
      * Update transaction
      */
-    public static async updateTransaction(_id: string, doc: ITransaction, userId: string) {
+    public static async updateTransaction(
+      _id: string,
+      doc: ITransaction,
+      userId: string,
+    ) {
       const oldTr = await models.Transactions.getTransaction({ _id });
 
       doc.fullDate = getFullDate(doc.date);

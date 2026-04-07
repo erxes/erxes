@@ -14,7 +14,11 @@ export const createOrUpdateTr = async (
   oldTr?: ITransactionDocument,
 ): Promise<ITransactionDocument> => {
   if (oldTr?._id) {
-    return await models.Transactions.updateTransaction(oldTr._id, { ...doc }, userId);
+    return await models.Transactions.updateTransaction(
+      oldTr._id,
+      { ...doc },
+      userId,
+    );
   }
 
   return await models.Transactions.createTransaction({ ...doc }, userId);

@@ -1,10 +1,21 @@
-import { fixNum, sendTRPCMessage } from "erxes-api-shared/utils"
-import { nanoid } from "nanoid"
-import { IModels } from "~/connectionResolvers"
-import { ACCOUNT_JOURNALS, JOURNALS, TR_SIDES } from "~/modules/accounting/@types/constants"
-import { ITransaction, ITransactionDocument } from "~/modules/accounting/@types/transaction"
+import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { nanoid } from 'nanoid';
+import { IModels } from '~/connectionResolvers';
+import {
+  ACCOUNT_JOURNALS,
+  JOURNALS,
+  TR_SIDES,
+} from '~/modules/accounting/@types/constants';
+import {
+  ITransaction,
+  ITransactionDocument,
+} from '~/modules/accounting/@types/transaction';
 
-const getJournal = async (models: IModels, payConfig: { accountId: string }, amount: number) => {
+const getJournal = async (
+  models: IModels,
+  payConfig: { accountId: string },
+  amount: number,
+) => {
   const { accountId } = payConfig;
   const account = await models.Accounts.findOne({ _id: accountId }).lean();
 
@@ -21,11 +32,11 @@ const getJournal = async (models: IModels, payConfig: { accountId: string }, amo
       journal = JOURNALS.BANK;
       break;
     case ACCOUNT_JOURNALS.DEBT:
-      journal = amount > 0 && JOURNALS.RECEIVABLE || JOURNALS.PAYABLE;
+      journal = (amount > 0 && JOURNALS.RECEIVABLE) || JOURNALS.PAYABLE;
       break;
   }
 
-  let side = TR_SIDES.DEBIT
+  let side = TR_SIDES.DEBIT;
   let lastAmount = amount;
 
   if (amount < 0) {
@@ -37,39 +48,43 @@ const getJournal = async (models: IModels, payConfig: { accountId: string }, amo
     journal,
     accountId,
     side,
-    lastAmount
-  }
-}
+    lastAmount,
+  };
+};
 
 export const dealToTrs = async ({
-  subdomain, models, userId, deal, config
+  subdomain,
+  models,
+  userId,
+  deal,
+  config,
 }: {
-  subdomain: string,
-  models: IModels,
-  userId: string,
-  deal: any,
+  subdomain: string;
+  models: IModels;
+  userId: string;
+  deal: any;
   config: {
-    dateRule: 'alwaysNow' | 'syncedDateOrNow',
-    saleAccountId: string,
-    saleOutAccountId: string,
-    saleCostAccountId: string,
-    branchId: string,
-    departmentId: string,
-    hasVat: boolean,
-    hasCtax: boolean,
-    vatRowId: string,
-    ctaxRowId: string,
-    payments: Record<string, { accountId: string }>,
-    defaultPayment: { accountId: string },
-    defaultNegPayment: { accountId: string },
-  }
+    dateRule: 'alwaysNow' | 'syncedDateOrNow';
+    saleAccountId: string;
+    saleOutAccountId: string;
+    saleCostAccountId: string;
+    branchId: string;
+    departmentId: string;
+    hasVat: boolean;
+    hasCtax: boolean;
+    vatRowId: string;
+    ctaxRowId: string;
+    payments: Record<string, { accountId: string }>;
+    defaultPayment: { accountId: string };
+    defaultNegPayment: { accountId: string };
+  };
 }) => {
-  const activeProductsData = deal.productsData?.filter(pd => pd.tickUsed);
+  const activeProductsData = deal.productsData?.filter((pd) => pd.tickUsed);
   if (!activeProductsData.length) {
     return;
   }
 
-  let date = new Date;
+  let date = new Date();
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
@@ -77,10 +92,18 @@ export const dealToTrs = async ({
 
   const [contentType, contentId] = ['sales:deal', deal._id];
 
-  const oldTrs = await models.Transactions.find({ contentType, contentId, journal: JOURNALS.INV_SALE }).lean();
+  const oldTrs = await models.Transactions.find({
+    contentType,
+    contentId,
+    journal: JOURNALS.INV_SALE,
+  }).lean();
   if (oldTrs?.length) {
-    const parentIds = [...new Set(oldTrs.map(otr => otr.parentId))];
-    oldOtherTrs = await models.Transactions.find({ parentId: { $in: parentIds }, originId: { $in: [null, ''] }, contentId: { $in: [null, ''] } }).lean();
+    const parentIds = [...new Set(oldTrs.map((otr) => otr.parentId))];
+    oldOtherTrs = await models.Transactions.find({
+      parentId: { $in: parentIds },
+      originId: { $in: [null, ''] },
+      contentId: { $in: [null, ''] },
+    }).lean();
     if (config.dateRule === 'syncedDateOrNow') {
       date = oldTrs[0].date;
     }
@@ -106,7 +129,7 @@ export const dealToTrs = async ({
 
     contentType,
     contentId,
-    details: []
+    details: [],
   };
 
   const companyIds = await sendTRPCMessage({
@@ -117,9 +140,9 @@ export const dealToTrs = async ({
     input: {
       contentType,
       contentId,
-      relatedContentType: 'core:company'
+      relatedContentType: 'core:company',
     },
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (companyIds?.length) {
@@ -134,9 +157,9 @@ export const dealToTrs = async ({
       input: {
         contentType,
         contentId,
-        relatedContentType: 'core:customer'
+        relatedContentType: 'core:customer',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     saleTrDoc.customerType = 'customer';
@@ -146,22 +169,25 @@ export const dealToTrs = async ({
   let taxPercent = 0;
   if (config.hasVat && config.vatRowId) {
     const vatRow = await models.VatRows.getVatRow({ _id: config.vatRowId });
-    taxPercent += fixNum((vatRow?.percent ?? 0));
-    saleTrDoc.hasVat = config.hasVat
-    saleTrDoc.vatRowId = config.vatRowId
+    taxPercent += fixNum(vatRow?.percent ?? 0);
+    saleTrDoc.hasVat = config.hasVat;
+    saleTrDoc.vatRowId = config.vatRowId;
   }
 
   if (config.hasCtax && config.ctaxRowId) {
     const ctaxRow = await models.VatRows.getVatRow({ _id: config.ctaxRowId });
-    taxPercent += fixNum((ctaxRow?.percent ?? 0));
-    saleTrDoc.hasCtax = config.hasCtax
-    saleTrDoc.ctaxRowId = config.ctaxRowId
+    taxPercent += fixNum(ctaxRow?.percent ?? 0);
+    saleTrDoc.hasCtax = config.hasCtax;
+    saleTrDoc.ctaxRowId = config.ctaxRowId;
   }
 
   let diffAmount = 0;
   for (const productData of activeProductsData) {
     diffAmount = diffAmount + productData.amount;
-    const taxAmount = fixNum((productData.amount * taxPercent) / (100 + taxPercent), 8);
+    const taxAmount = fixNum(
+      (productData.amount * taxPercent) / (100 + taxPercent),
+      8,
+    );
     const amount = fixNum(productData.amount - taxAmount, 8);
 
     saleTrDoc.details.push({
@@ -173,11 +199,11 @@ export const dealToTrs = async ({
 
       productId: productData.productId,
       count: productData.quantity,
-      unitPrice: productData.unitPrice
-    })
+      unitPrice: productData.unitPrice,
+    });
   }
 
-  const paymentTrs: ITransaction[] = []
+  const paymentTrs: ITransaction[] = [];
   for (const payKey of Object.keys(deal.paymentsData || {})) {
     const { amount, currency } = deal.paymentsData[payKey];
     const payConfig = config.payments[payKey];
@@ -190,7 +216,7 @@ export const dealToTrs = async ({
       continue;
     }
 
-    const { side, accountId, lastAmount, journal } = payResp
+    const { side, accountId, lastAmount, journal } = payResp;
     diffAmount = diffAmount - amount;
     paymentTrs.push({
       _id: nanoid(),
@@ -204,21 +230,23 @@ export const dealToTrs = async ({
       customerId: saleTrDoc.customerId,
       contentType,
       contentId,
-      details: [{
-        _id: nanoid(),
-        accountId,
-        side,
-        amount: lastAmount,
-        currency,
-      }]
-    })
+      details: [
+        {
+          _id: nanoid(),
+          accountId,
+          side,
+          amount: lastAmount,
+          currency,
+        },
+      ],
+    });
   }
 
   if (diffAmount < -0.005 || diffAmount > 0.005) {
     const payResp = await getJournal(
       models,
-      diffAmount > 0 && config.defaultPayment || config.defaultNegPayment,
-      diffAmount
+      (diffAmount > 0 && config.defaultPayment) || config.defaultNegPayment,
+      diffAmount,
     );
 
     if (payResp) {
@@ -236,27 +264,43 @@ export const dealToTrs = async ({
         customerId: saleTrDoc.customerId,
         contentType,
         contentId,
-        details: [{
-          _id: nanoid(),
-          accountId,
-          side,
-          amount: lastAmount,
-        }]
-      })
+        details: [
+          {
+            _id: nanoid(),
+            accountId,
+            side,
+            amount: lastAmount,
+          },
+        ],
+      });
     }
   }
 
   if (oldTrs.length) {
     // borluulalt zasagdah uyed butsaalt burtgegdsen bol tseverleh
-    const returnTrs = await models.Transactions.find({ contentType, contentId, preTrId: saleTrDoc._id, journal: JOURNALS.INV_SALE_RETURN }).lean();
+    const returnTrs = await models.Transactions.find({
+      contentType,
+      contentId,
+      preTrId: saleTrDoc._id,
+      journal: JOURNALS.INV_SALE_RETURN,
+    }).lean();
     if (returnTrs?.length) {
       for (const returnTr of returnTrs) {
-        await models.Transactions.removePTransaction({ parentId: returnTr.parentId });
+        await models.Transactions.removePTransaction({
+          parentId: returnTr.parentId,
+        });
       }
     }
 
-    await models.Transactions.updatePTransaction(parentId, [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);
+    await models.Transactions.updatePTransaction(
+      parentId,
+      [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      userId,
+    );
   } else {
-    await models.Transactions.createPTransaction([{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);
+    await models.Transactions.createPTransaction(
+      [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      userId,
+    );
   }
-}
+};

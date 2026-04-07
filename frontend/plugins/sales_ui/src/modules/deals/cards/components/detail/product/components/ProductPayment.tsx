@@ -154,12 +154,13 @@ const ProductsPayment = ({
             Change
           </span>
           <div
-            className={`font-semibold text-lg flex ${Object.values(changeAmounts).some((amount) => amount > 0)
-              ? 'text-green-500'
-              : Object.values(changeAmounts).some((amount) => amount < 0)
-                ? 'text-red-500'
-                : ''
-              }`}
+            className={`font-semibold text-lg flex ${
+              Object.values(changeAmounts).some((amount) => amount > 0)
+                ? 'text-green-500'
+                : Object.values(changeAmounts).some((amount) => amount < 0)
+                  ? 'text-red-500'
+                  : ''
+            }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
             {renderTotals(changeAmounts)}

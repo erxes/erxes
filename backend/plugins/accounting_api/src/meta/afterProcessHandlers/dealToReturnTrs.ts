@@ -1,10 +1,22 @@
-import { fixNum } from "erxes-api-shared/utils"
-import { nanoid } from "nanoid"
-import { IModels } from "~/connectionResolvers"
-import { ACCOUNT_JOURNALS, JOURNALS, TR_FOLLOW_TYPES, TR_SIDES } from "~/modules/accounting/@types/constants"
-import { ITransaction, ITransactionDocument } from "~/modules/accounting/@types/transaction"
+import { fixNum } from 'erxes-api-shared/utils';
+import { nanoid } from 'nanoid';
+import { IModels } from '~/connectionResolvers';
+import {
+  ACCOUNT_JOURNALS,
+  JOURNALS,
+  TR_FOLLOW_TYPES,
+  TR_SIDES,
+} from '~/modules/accounting/@types/constants';
+import {
+  ITransaction,
+  ITransactionDocument,
+} from '~/modules/accounting/@types/transaction';
 
-const getJournal = async (models: IModels, payConfig: { accountId: string }, amount: number) => {
+const getJournal = async (
+  models: IModels,
+  payConfig: { accountId: string },
+  amount: number,
+) => {
   const { accountId } = payConfig;
   const account = await models.Accounts.findOne({ _id: accountId }).lean();
 
@@ -21,11 +33,11 @@ const getJournal = async (models: IModels, payConfig: { accountId: string }, amo
       journal = JOURNALS.BANK;
       break;
     case ACCOUNT_JOURNALS.DEBT:
-      journal = amount > 0 && JOURNALS.RECEIVABLE || JOURNALS.PAYABLE;
+      journal = (amount > 0 && JOURNALS.RECEIVABLE) || JOURNALS.PAYABLE;
       break;
   }
 
-  let side = TR_SIDES.CREDIT
+  let side = TR_SIDES.CREDIT;
   let lastAmount = amount;
 
   if (amount < 0) {
@@ -37,25 +49,29 @@ const getJournal = async (models: IModels, payConfig: { accountId: string }, amo
     journal,
     accountId,
     side,
-    lastAmount
-  }
-}
+    lastAmount,
+  };
+};
 
 export const dealToReturnTrs = async ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  subdomain, models, userId, deal, config
+  subdomain,
+  models,
+  userId,
+  deal,
+  config,
 }: {
-  subdomain: string,
-  models: IModels,
-  userId: string,
-  deal: any,
+  subdomain: string;
+  models: IModels;
+  userId: string;
+  deal: any;
   config: {
-    dateRule: 'alwaysNow' | 'syncedDateOrNow',
-    defaultPayment: { accountId: string },
-    returnType: 'delete' | 'fullTr' | 'onlySale'
-  }
+    dateRule: 'alwaysNow' | 'syncedDateOrNow';
+    defaultPayment: { accountId: string };
+    returnType: 'delete' | 'fullTr' | 'onlySale';
+  };
 }) => {
-  let date = new Date;
+  let date = new Date();
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
@@ -63,10 +79,18 @@ export const dealToReturnTrs = async ({
 
   const [contentType, contentId] = ['sales:deal', deal._id];
 
-  const oldTrs = await models.Transactions.find({ contentType, contentId, journal: JOURNALS.INV_SALE_RETURN }).lean();
+  const oldTrs = await models.Transactions.find({
+    contentType,
+    contentId,
+    journal: JOURNALS.INV_SALE_RETURN,
+  }).lean();
   if (oldTrs.length) {
-    const parentIds = [...new Set(oldTrs.map(otr => otr.parentId))];
-    oldOtherTrs = await models.Transactions.find({ parentId: { $in: parentIds }, originId: { $in: [null, ''] }, contentId: { $in: [null, ''] } }).lean();
+    const parentIds = [...new Set(oldTrs.map((otr) => otr.parentId))];
+    oldOtherTrs = await models.Transactions.find({
+      parentId: { $in: parentIds },
+      originId: { $in: [null, ''] },
+      contentId: { $in: [null, ''] },
+    }).lean();
     if (config.dateRule === 'syncedDateOrNow') {
       date = oldTrs[0].date;
     }
@@ -77,16 +101,26 @@ export const dealToReturnTrs = async ({
     parentId = oldReturnTr?.parentId || parentId;
   }
 
-  const firstSaleTr = await models.Transactions.findOne({ contentType, contentId, journal: JOURNALS.INV_SALE }).lean();
+  const firstSaleTr = await models.Transactions.findOne({
+    contentType,
+    contentId,
+    journal: JOURNALS.INV_SALE,
+  }).lean();
 
   if (!firstSaleTr) {
-    console.log('No sales receipt was found, so no return receipt is required.');
+    console.log(
+      'No sales receipt was found, so no return receipt is required.',
+    );
     return;
   }
 
   if (config.returnType === 'delete') {
     // davtah shaardlagagui, gehdeee yamar negen bugaar hogorson borluulalt uldeehgui geseneer davtav
-    const allFirstSaleTrs = await models.Transactions.find({ contentType, contentId, journal: JOURNALS.INV_SALE }).lean();
+    const allFirstSaleTrs = await models.Transactions.find({
+      contentType,
+      contentId,
+      journal: JOURNALS.INV_SALE,
+    }).lean();
     for (const tr of allFirstSaleTrs) {
       await models.Transactions.removePTransaction({ parentId: tr.parentId });
     }
@@ -118,7 +152,7 @@ export const dealToReturnTrs = async ({
     hasCtax: firstSaleTr.hasCtax,
     ctaxRowId: firstSaleTr.ctaxRowId,
 
-    details: []
+    details: [],
   };
 
   let totalAmount = 0;
@@ -129,9 +163,12 @@ export const dealToReturnTrs = async ({
       side: TR_SIDES.DEBIT,
     });
   }
-  
-  const followTaxTrs = await models.Transactions.find({originId: firstSaleTr._id, originType: {$in: [TR_FOLLOW_TYPES.VAT, TR_FOLLOW_TYPES.CTAX]}});
-  for(const taxTr of followTaxTrs) {
+
+  const followTaxTrs = await models.Transactions.find({
+    originId: firstSaleTr._id,
+    originType: { $in: [TR_FOLLOW_TYPES.VAT, TR_FOLLOW_TYPES.CTAX] },
+  });
+  for (const taxTr of followTaxTrs) {
     totalAmount += taxTr.details?.[0]?.amount ?? 0;
   }
 
@@ -141,7 +178,7 @@ export const dealToReturnTrs = async ({
     const payResp = await getJournal(
       models,
       config.defaultPayment,
-      totalAmount
+      totalAmount,
     );
 
     if (payResp) {
@@ -159,19 +196,28 @@ export const dealToReturnTrs = async ({
         customerId: firstSaleTr.customerId,
         contentType,
         contentId,
-        details: [{
-          _id: nanoid(),
-          accountId,
-          side,
-          amount: lastAmount,
-        }]
-      })
+        details: [
+          {
+            _id: nanoid(),
+            accountId,
+            side,
+            amount: lastAmount,
+          },
+        ],
+      });
     }
   }
 
   if (oldTrs.length) {
-    await models.Transactions.updatePTransaction(parentId, [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);
+    await models.Transactions.updatePTransaction(
+      parentId,
+      [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      userId,
+    );
   } else {
-    await models.Transactions.createPTransaction([{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);
+    await models.Transactions.createPTransaction(
+      [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      userId,
+    );
   }
-}
+};

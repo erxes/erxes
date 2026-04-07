@@ -60,7 +60,9 @@ export const columns: ColumnDef<IConfig>[] = [
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead label="Title" />,
     cell: ({ cell }) => {
-      return <LinkCell row={cell.row} renderVal={cell.row.original?.value?.title} />;
+      return (
+        <LinkCell row={cell.row} renderVal={cell.row.original?.value?.title} />
+      );
     },
   },
   {

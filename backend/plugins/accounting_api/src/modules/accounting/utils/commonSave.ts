@@ -22,7 +22,13 @@ export const commonSave = async (
   const handler = getJournalHandler(doc.journal);
   if (!handler) throw new Error(`Unsupported journal: ${doc.journal}`);
 
-  const { mainTr, otherTrs } = await handler(subdomain, models, userId, doc, oldTr);
+  const { mainTr, otherTrs } = await handler(
+    subdomain,
+    models,
+    userId,
+    doc,
+    oldTr,
+  );
 
   if (!mainTr) throw new Error('main transaction not found');
 
@@ -170,7 +176,12 @@ async function handleInvSale(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const invSaleOtherTrsClass = new InvSaleOutCostTrs(subdomain, models, userId, doc);
+  const invSaleOtherTrsClass = new InvSaleOutCostTrs(
+    subdomain,
+    models,
+    userId,
+    doc,
+  );
   const taxTrsClass = new TaxTrs(models, userId, doc, 'ct', false);
 
   await invSaleOtherTrsClass.checkValidation();

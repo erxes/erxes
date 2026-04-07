@@ -47,22 +47,24 @@ const LinkCell = ({ row, renderVal }: { row: any; renderVal: string }) => {
 export const columns: ColumnDef<IConfig>[] = [
   RecordTable.checkboxColumn as ColumnDef<IConfig>,
   {
-      id: 'code',
-      accessorKey: 'code',
-      header: () => <RecordTable.InlineHead label="Code" />,
-      cell: ({ cell }) => {
-        return <LinkCell row={cell.row} renderVal={cell.row.original?.code} />;
-      },
-      size: 250,
+    id: 'code',
+    accessorKey: 'code',
+    header: () => <RecordTable.InlineHead label="Code" />,
+    cell: ({ cell }) => {
+      return <LinkCell row={cell.row} renderVal={cell.row.original?.code} />;
     },
-    {
-      id: 'title',
-      accessorKey: 'title',
-      header: () => <RecordTable.InlineHead label="Title" />,
-      cell: ({ cell }) => {
-        return <LinkCell row={cell.row} renderVal={cell.row.original?.value?.title} />;
-      },
+    size: 250,
+  },
+  {
+    id: 'title',
+    accessorKey: 'title',
+    header: () => <RecordTable.InlineHead label="Title" />,
+    cell: ({ cell }) => {
+      return (
+        <LinkCell row={cell.row} renderVal={cell.row.original?.value?.title} />
+      );
     },
+  },
   {
     id: 'board',
     accessorKey: 'board',
