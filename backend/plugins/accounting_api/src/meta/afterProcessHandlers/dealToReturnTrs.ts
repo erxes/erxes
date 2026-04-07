@@ -1,4 +1,4 @@
-import { fixNum, sendTRPCMessage } from "erxes-api-shared/utils"
+import { fixNum } from "erxes-api-shared/utils"
 import { nanoid } from "nanoid"
 import { IModels } from "~/connectionResolvers"
 import { ACCOUNT_JOURNALS, JOURNALS, TR_SIDES } from "~/modules/accounting/@types/constants"
@@ -42,6 +42,7 @@ const getJournal = async (models: IModels, payConfig: { accountId: string }, amo
 }
 
 export const dealToReturnTrs = async ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   subdomain, models, userId, deal, config
 }: {
   subdomain: string,
@@ -50,25 +51,10 @@ export const dealToReturnTrs = async ({
   deal: any,
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow',
-    saleAccountId: string,
-    saleOutAccountId: string,
-    saleCostAccountId: string,
-    branchId: string,
-    departmentId: string,
-    hasVat: boolean,
-    hasCtax: boolean,
-    vatRowId: string,
-    ctaxRowId: string,
-    payments: Record<string, { accountId: string }>,
     defaultPayment: { accountId: string },
-    defaultNegPayment: { accountId: string },
+    returnType: 'delete' | 'fullTr' | 'onlySale'
   }
 }) => {
-  const activeProductsData = deal.productsData?.filter(pd => pd.tickUsed);
-  if (!activeProductsData.length) {
-    return;
-  }
-
   let date = new Date;
   let mainId = nanoid();
   let ptrId = nanoid();
@@ -77,7 +63,7 @@ export const dealToReturnTrs = async ({
 
   const [contentType, contentId] = ['sales:deal', deal._id];
 
-  const oldTrs = await models.Transactions.find({ contentType, contentId }).lean();
+  const oldTrs = await models.Transactions.find({ contentType, contentId, journal: JOURNALS.INV_SALE_RETURN }).lean();
   if (oldTrs.length) {
     const parentIds = [...new Set(oldTrs.map(otr => otr.parentId))];
     oldOtherTrs = await models.Transactions.find({ parentId: { $in: parentIds }, originId: { $in: [null, ''] }, contentId: { $in: [null, ''] } }).lean();
@@ -90,135 +76,77 @@ export const dealToReturnTrs = async ({
     parentId = oldSaleTr?.parentId || parentId;
   }
 
-  const saleTrDoc: ITransaction = {
+  const firstSaleTr = await models.Transactions.findOne({ contentType, contentId, journal: JOURNALS.INV_SALE }).lean();
+
+  if (!firstSaleTr) {
+    console.log('No sales receipt was found, so no return receipt is required.');
+    return;
+  }
+
+  if (config.returnType === 'delete') {
+    // davtah shaardlagagui, gehdeee yamar negen bugaar hogorson borluulalt uldeehgui geseneer davtav
+    const allFirstSaleTrs = await models.Transactions.find({ contentType, contentId, journal: JOURNALS.INV_SALE }).lean();
+    for (const tr of allFirstSaleTrs) {
+      await models.Transactions.removePTransaction({ parentId: tr.parentId });
+    }
+    return;
+  }
+
+  const returnTrDoc: ITransaction = {
     _id: mainId,
     ptrId,
     parentId,
     date,
-    journal: JOURNALS.INV_SALE,
+    journal: JOURNALS.INV_SALE_RETURN,
     followInfos: {
-      saleOutAccountId: config.saleOutAccountId,
-      saleCostAccountId: config.saleCostAccountId,
+      ...firstSaleTr.followInfos,
+      saleTransactionId: firstSaleTr._id,
     },
-    branchId: deal.branchId || config.branchId,
-    departmentId: deal.departmentId || config.departmentId,
+    branchId: firstSaleTr.branchId,
+    departmentId: firstSaleTr.departmentId,
     assignedUserIds: deal.assignedUserIds,
+    customerType: firstSaleTr.customerType,
+    customerId: firstSaleTr.customerId,
 
+    preTrId: firstSaleTr?._id,
     contentType,
     contentId,
+
+    hasVat: firstSaleTr.hasVat,
+    vatRowId: firstSaleTr.vatRowId,
+    hasCtax: firstSaleTr.hasCtax,
+    ctaxRowId: firstSaleTr.ctaxRowId,
+
     details: []
   };
 
-  const companyIds = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType,
-      contentId,
-      relatedContentType: 'core:company'
-    },
-    defaultValue: []
-  });
-
-  if (companyIds?.length) {
-    saleTrDoc.customerType = 'company';
-    saleTrDoc.customerId = companyIds[0];
-  } else {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType,
-        contentId,
-        relatedContentType: 'core:customer'
-      },
-      defaultValue: []
-    });
-
-    saleTrDoc.customerType = 'customer';
-    saleTrDoc.customerId = customerIds[0];
-  }
-
   let taxPercent = 0;
-  if (config.hasVat && config.vatRowId) {
-    const vatRow = await models.VatRows.getVatRow({ _id: config.vatRowId });
+  if (firstSaleTr.hasVat) {
+    const vatRow = await models.VatRows.getVatRow({ _id: firstSaleTr.vatRowId });
     taxPercent += fixNum((vatRow?.percent ?? 0));
-    saleTrDoc.hasVat = config.hasVat
-    saleTrDoc.vatRowId = config.vatRowId
   }
 
-  if (config.hasCtax && config.ctaxRowId) {
-    const ctaxRow = await models.VatRows.getVatRow({ _id: config.ctaxRowId });
+  if (firstSaleTr.hasCtax) {
+    const ctaxRow = await models.VatRows.getVatRow({ _id: firstSaleTr.ctaxRowId });
     taxPercent += fixNum((ctaxRow?.percent ?? 0));
-    saleTrDoc.hasCtax = config.hasCtax
-    saleTrDoc.ctaxRowId = config.ctaxRowId
   }
 
-  let diffAmount = 0;
-  for (const productData of activeProductsData) {
-    diffAmount = diffAmount + productData.amount;
-    const taxAmount = fixNum((productData.amount * taxPercent) / (100 + taxPercent), 8);
-    const amount = fixNum(productData.amount - taxAmount, 8);
-
-    saleTrDoc.details.push({
-      _id: nanoid(),
-      accountId: config.saleAccountId,
-      side: TR_SIDES.CREDIT,
-      amount,
-      currency: productData.currency,
-
-      productId: productData.productId,
-      count: productData.quantity,
-      unitPrice: productData.unitPrice
-    })
+  let totalAmount = 0;
+  for (const detail of firstSaleTr.details) {
+    totalAmount += detail.amount;
+    returnTrDoc.details.push({
+      ...detail,
+      side: TR_SIDES.DEBIT,
+    });
   }
 
-  const paymentTrs: ITransaction[] = []
-  for (const payKey of Object.keys(deal.paymentsData || {})) {
-    const { amount, currency } = deal.paymentsData[payKey];
-    const payConfig = config.payments[payKey];
-    if (!payConfig) {
-      continue;
-    }
+  const paymentTrs: ITransaction[] = [];
 
-    const payResp = await getJournal(models, payConfig, amount);
-    if (!payResp) {
-      continue;
-    }
-
-    const { side, accountId, lastAmount, journal } = payResp
-    diffAmount = diffAmount - amount;
-    paymentTrs.push({
-      _id: nanoid(),
-      ptrId,
-      parentId,
-      date,
-      journal,
-      branchId: deal.branchId || config.branchId,
-      departmentId: deal.departmentId || config.departmentId,
-      customerType: saleTrDoc.customerType,
-      customerId: saleTrDoc.customerId,
-      contentType,
-      contentId,
-      details: [{
-        _id: nanoid(),
-        accountId,
-        side,
-        amount: lastAmount,
-        currency,
-      }]
-    })
-  }
-
-  if (diffAmount < -0.005 || diffAmount > 0.005) {
+  if (config.defaultPayment) {
     const payResp = await getJournal(
       models,
-      diffAmount > 0 && config.defaultPayment || config.defaultNegPayment,
-      diffAmount
+      config.defaultPayment,
+      totalAmount
     );
 
     if (payResp) {
@@ -230,10 +158,10 @@ export const dealToReturnTrs = async ({
         parentId,
         date,
         journal,
-        branchId: saleTrDoc.branchId,
-        departmentId: saleTrDoc.departmentId,
-        customerType: saleTrDoc.customerType,
-        customerId: saleTrDoc.customerId,
+        branchId: firstSaleTr.branchId,
+        departmentId: firstSaleTr.departmentId,
+        customerType: firstSaleTr.customerType,
+        customerId: firstSaleTr.customerId,
         contentType,
         contentId,
         details: [{
@@ -247,8 +175,8 @@ export const dealToReturnTrs = async ({
   }
 
   if (oldTrs.length) {
-    await models.Transactions.updatePTransaction(parentId, [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);
+    await models.Transactions.updatePTransaction(parentId, [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);
   } else {
-    await models.Transactions.createPTransaction([{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);
+    await models.Transactions.createPTransaction([{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);
   }
 }

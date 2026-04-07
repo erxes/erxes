@@ -1,4 +1,3 @@
-import { IUserDocument } from 'erxes-api-shared/core-types';
 import { getFullDate } from 'erxes-api-shared/utils';
 import { Model, connection } from 'mongoose';
 import { nanoid } from 'nanoid';

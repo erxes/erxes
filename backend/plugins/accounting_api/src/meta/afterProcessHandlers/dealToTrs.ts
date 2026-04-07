@@ -77,14 +77,14 @@ export const dealToTrs = async ({
 
   const [contentType, contentId] = ['sales:deal', deal._id];
 
-  const oldTrs = await models.Transactions.find({ contentType, contentId }).lean();
-  if (oldTrs.length) {
+  const oldTrs = await models.Transactions.find({ contentType, contentId, journal: JOURNALS.INV_SALE }).lean();
+  if (oldTrs?.length) {
     const parentIds = [...new Set(oldTrs.map(otr => otr.parentId))];
     oldOtherTrs = await models.Transactions.find({ parentId: { $in: parentIds }, originId: { $in: [null, ''] }, contentId: { $in: [null, ''] } }).lean();
     if (config.dateRule === 'syncedDateOrNow') {
       date = oldTrs[0].date;
     }
-    const oldSaleTr = oldTrs.find(otr => otr.journal === JOURNALS.INV_SALE);
+    const oldSaleTr = oldTrs[0];
     mainId = oldSaleTr?._id || mainId;
     ptrId = oldSaleTr?.ptrId || ptrId;
     parentId = oldSaleTr?.parentId || parentId;
@@ -246,7 +246,16 @@ export const dealToTrs = async ({
     }
   }
 
+
   if (oldTrs.length) {
+    // borluulalt zasagdah uyed butsaalt burtgegdsen bol tseverleh
+    const returnTrs = await models.Transactions.find({ contentType, contentId, preTrId: saleTrDoc._id, journal: JOURNALS.INV_SALE_RETURN }).lean();
+    if (returnTrs?.length) {
+      for (const returnTr of returnTrs) {
+        await models.Transactions.removePTransaction({ parentId: returnTr.parentId });
+      }
+    }
+
     await models.Transactions.updatePTransaction(parentId, [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);
   } else {
     await models.Transactions.createPTransaction([{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs], userId);

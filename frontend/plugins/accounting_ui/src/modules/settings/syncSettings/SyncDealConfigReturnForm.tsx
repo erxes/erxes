@@ -1,10 +1,7 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
-import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
-import { SelectVat } from '@/settings/vat/components/SelectVatRow';
 import {
   Button,
-  Checkbox,
   Dialog,
   Form,
   Input,
@@ -21,25 +18,9 @@ const configFormSchema = z.object({
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
   stageId: z.string(),
+  returnType: z.enum(['fullTr', 'onlySale', 'delete']),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
-  saleAccountId: z.string(),
-  saleOutAccountId: z.string(),
-  saleCostAccountId: z.string(),
-  branchId: z.string(),
-  departmentId: z.string(),
-  hasVat: z.boolean(),
-  vatRowId: z.string(),
-  hasCtax: z.boolean(),
-  ctaxRowId: z.string(),
-  payments: z.record(
-    z.object({
-      accountId: z.string(),
-    }),
-  ),
   defaultPayment: z.object({
-    accountId: z.string(),
-  }),
-  defaultNegPayment: z.object({
     accountId: z.string(),
   }),
 });
@@ -115,6 +96,27 @@ export const SyncDealReturnConfigForm = ({
         />
         <Form.Field
           control={form.control}
+          name="returnType"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Return Type</Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="fullTr">Full Transaction</Select.Item>
+                    <Select.Item value="onlySale">Only Sale</Select.Item>
+                    <Select.Item value="delete">Delete</Select.Item>
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
           name="boardId"
           render={({ field }) => (
             <Form.Item className="col-start-1">
@@ -158,10 +160,10 @@ export const SyncDealReturnConfigForm = ({
         />
         <Form.Field
           control={form.control}
-          name="defaultNegPayment.accountId"
+          name="defaultPayment.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Default Negative Payment Account</Form.Label>
+              <Form.Label>Default Return Payment Account</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -179,76 +181,6 @@ export const SyncDealReturnConfigForm = ({
           )}
         />
 
-        <Form.Field
-          control={form.control}
-          name="hasVat"
-          render={({ field }) => (
-            <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
-              <Form.Label>Has VAT</Form.Label>
-              <Form.Control>
-                <Checkbox
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        {useWatch({
-          control: form.control,
-          name: `hasVat`,
-        }) && (
-          <Form.Field
-            control={form.control}
-            name="vatRowId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Vat Row</Form.Label>
-                <Form.Control>
-                  <SelectVat
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-        )}
-        <Form.Field
-          control={form.control}
-          name="hasCtax"
-          render={({ field }) => (
-            <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
-              <Form.Label>Has CTAX</Form.Label>
-              <Form.Control>
-                <Checkbox
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        {useWatch({
-          control: form.control,
-          name: `hasCtax`,
-        }) && (
-          <Form.Field
-            control={form.control}
-            name="ctaxRowId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Ctax Row</Form.Label>
-                <Form.Control>
-                  <SelectCtax
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-        )}
 
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>
