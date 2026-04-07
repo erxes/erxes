@@ -127,6 +127,7 @@ export const preImportProducts = async (
     try {
       await models.ProductCategories.removeProductCategory(catId);
     } catch (_e) {
+      console.log(_e);
       await models.ProductCategories.updateOne(
         { _id: catId },
         { $set: { status: PRODUCT_CATEGORY_STATUSES.DISABLED } },
@@ -329,7 +330,7 @@ export const receiveProduct = async (models: IModels, data) => {
         'core',
       )}/read-file`;
       info.attachment.url =
-        info.attachment.url.indexOf('http') === -1
+        info.attachment.url.includes('http') === -1
           ? `${FILE_PATH}?key=${info.attachment.url}`
           : info.attachment.url;
     }

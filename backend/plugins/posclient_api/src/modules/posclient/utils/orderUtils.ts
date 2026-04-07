@@ -149,7 +149,7 @@ export const validateOrder = async (
   }
 
   if (
-    products.find((product) => product?.type === PRODUCT_TYPES.SUBSCRIPTION) &&
+    products.some((product) => product?.type === PRODUCT_TYPES.SUBSCRIPTION) &&
     !doc?.customerId
   ) {
     throw new Error(
@@ -437,7 +437,6 @@ const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
       }
     }
   }
-  return;
 };
 
 const checkPrices = async (subdomain, preparedDoc, config, posUser) => {
@@ -487,7 +486,7 @@ export const prepareOrderDoc = async (
   let subscriptionInfo;
 
   if (
-    products.find((product) => product?.type === PRODUCT_TYPES.SUBSCRIPTION)
+    products.some((product) => product?.type === PRODUCT_TYPES.SUBSCRIPTION)
   ) {
     subscriptionUoms = await sendTRPCMessage({
       subdomain,
@@ -511,14 +510,14 @@ export const prepareOrderDoc = async (
       ).toFixed(2),
     );
 
-    item.unitPrice = isNaN(fixedUnitPrice) ? 0 : fixedUnitPrice;
+    item.unitPrice = Number.isNaN(fixedUnitPrice) ? 0 : fixedUnitPrice;
     doc.totalAmount += (item.count || 0) * fixedUnitPrice;
 
     let startDate;
 
     if (
       productsOfId[item.productId]?.type === PRODUCT_TYPES.SUBSCRIPTION &&
-      subscriptionUoms.find(
+      subscriptionUoms.some(
         (uom) => uom.code === productsOfId[item.productId]?.uom,
       )
     ) {
