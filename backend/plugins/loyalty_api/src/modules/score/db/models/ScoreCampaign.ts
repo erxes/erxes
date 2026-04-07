@@ -70,7 +70,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       return await models.ScoreCampaigns.create({
         ...doc,
-        createdUserId: user._id,
+        createdUserId: user?._id,
       });
     }
 
@@ -82,7 +82,9 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       const scoreCampaign = await this.getScoreCampaign(_id);
 
       if (
+        !!scoreCampaign?.fieldId &&
         !!scoreCampaign?.ownerType &&
+        !!doc.ownerType &&
         scoreCampaign.ownerType !== doc.ownerType
       ) {
         throw new Error(

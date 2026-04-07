@@ -18,8 +18,6 @@ import {
   TourNameField,
   TourRefNumberField,
   TourStatusField,
-  TourCostField,
-  TourPersonCostField,
   TourDurationField,
   TourGroupSizeField,
   TourInfo1Field,
@@ -34,7 +32,9 @@ import {
   TourCategoryField,
   TourImageThumbnailField,
   TourImagesField,
+  TourAttachmentsField,
   TourDateSchedulingField,
+  TourPricingOptionsField,
 } from './TourFormFields';
 
 interface Props {
@@ -47,23 +47,7 @@ interface Itinerary {
   duration?: number;
 }
 
-const normalizePersonCost = (personCost?: TourCreateFormType['personCost']) => {
-  return Object.entries(personCost ?? {}).reduce<Record<string, number>>(
-    (acc, [range, price]) => {
-      const normalizedRange = range.trim();
-      const normalizedPrice = Number(price);
-
-      if (!normalizedRange || Number.isNaN(normalizedPrice)) {
-        return acc;
-      }
-
-      acc[normalizedRange] = normalizedPrice;
-
-      return acc;
-    },
-    {},
-  );
-};
+const hideFields = false;
 
 const sortDates = (dates: Date[]) =>
   [...dates].sort((a, b) => a.getTime() - b.getTime());
@@ -103,9 +87,10 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
       content: '',
       itineraryId: '',
       categoryIds: [],
-      cost: 0,
       duration: 0,
       groupSize: 0,
+      isFlexibleDate: false,
+      isGroupTour: false,
       advanceCheck: false,
       advancePercent: 0,
       joinPercent: 0,
@@ -116,8 +101,20 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
       info5: '',
       images: [],
       imageThumbnail: '',
+      attachment: null,
       guides: [],
-      personCost: {},
+      pricingOptions: [
+        {
+          title: '',
+          minPersons: 1,
+          maxPersons: undefined,
+          pricePerPerson: 0,
+          accommodationType: '',
+          domesticFlightPerPerson: undefined,
+          singleSupplement: undefined,
+          note: '',
+        },
+      ],
     },
   });
 
@@ -183,74 +180,122 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
       return;
     }
 
-    try {
-      const personCost = normalizePersonCost(values.personCost);
+    if (!values.pricingOptions || values.pricingOptions.length === 0) {
+      toast({
+        title: 'Error',
+        description: 'At least one pricing option is required',
+        variant: 'destructive',
+      });
+      return;
+    }
 
+    try {
       const {
         startDate: _startDate,
         endDate: _endDate,
+        availableFrom: _availableFrom,
+        availableTo: _availableTo,
+        isFlexibleDate: _isFlexibleDate,
+        isGroupTour: _isGroupTour,
+        pricingOptions,
         ...restValues
       } = values;
 
-      const normalizedStartDates = values.startDate
-        ? Array.isArray(values.startDate)
-          ? sortDates(values.startDate)
-          : [values.startDate]
-        : [];
+      const isFlexible = values.isFlexibleDate;
 
-      const selectedDates = values.isGroupTour
-        ? normalizedStartDates
-        : normalizedStartDates.slice(0, 1);
-
-      const primaryStartDate = selectedDates[0];
+      const normalizedPricingOptions = pricingOptions.map((opt) => ({
+        ...opt,
+        accommodationType: opt.accommodationType
+          ? opt.accommodationType.trim().toLowerCase()
+          : opt.accommodationType,
+      }));
 
       const groupCode = nanoid(8);
 
-      if (selectedDates.length > 0) {
-        for (const selectedDate of selectedDates) {
-          const computedEndDate = calculateEndDate(
-            selectedDate,
-            values.duration,
+      if (isFlexible) {
+        await createTour({
+          variables: {
+            branchId,
+            ...restValues,
+            pricingOptions: normalizedPricingOptions,
+            dateType: 'flexible',
+            availableFrom: values.availableFrom,
+            availableTo: values.availableTo,
+            startDate: undefined,
+            endDate: undefined,
+            date_status: 'unscheduled',
+            groupCode,
+          },
+        });
+      } else {
+        const normalizedStartDates = values.startDate
+          ? Array.isArray(values.startDate)
+            ? sortDates(values.startDate)
+            : [values.startDate]
+          : [];
+
+        const selectedDates = values.isGroupTour
+          ? normalizedStartDates
+          : normalizedStartDates.slice(0, 1);
+
+        const primaryStartDate = selectedDates[0];
+
+        if (selectedDates.length > 0) {
+          const isMulti = values.isGroupTour && selectedDates.length > 1;
+
+          await Promise.all(
+            selectedDates.map((selectedDate, idx) => {
+              const computedEndDate = calculateEndDate(
+                selectedDate,
+                values.duration,
+              );
+
+              const refNumber = isMulti
+                ? `${restValues.refNumber}-${String(idx + 1).padStart(2, '0')}`
+                : restValues.refNumber;
+
+              return createTour({
+                variables: {
+                  branchId,
+                  ...restValues,
+                  refNumber,
+                  pricingOptions: normalizedPricingOptions,
+                  dateType: 'fixed',
+                  startDate: selectedDate,
+                  endDate: computedEndDate,
+                  availableFrom: undefined,
+                  availableTo: undefined,
+                  date_status: getDateStatus(selectedDate),
+                  groupCode,
+                },
+              });
+            }),
           );
+        } else {
+          const computedEndDate = primaryStartDate
+            ? calculateEndDate(primaryStartDate, values.duration)
+            : undefined;
 
           await createTour({
             variables: {
               branchId,
               ...restValues,
-              dateType: values.isFlexibleDate ? 'flexible' : 'fixed',
-              startDate: selectedDate,
+              pricingOptions: normalizedPricingOptions,
+              dateType: 'fixed',
+              startDate: primaryStartDate,
               endDate: computedEndDate,
-              date_status: getDateStatus(selectedDate),
+              availableFrom: undefined,
+              availableTo: undefined,
+              date_status: getDateStatus(primaryStartDate),
               groupCode,
-              personCost,
             },
           });
         }
-      } else {
-        const computedEndDate = primaryStartDate
-          ? calculateEndDate(primaryStartDate, values.duration)
-          : undefined;
-
-        await createTour({
-          variables: {
-            branchId,
-            ...restValues,
-            dateType: values.isFlexibleDate ? 'flexible' : 'fixed',
-            startDate: primaryStartDate,
-            endDate: computedEndDate,
-            date_status: getDateStatus(primaryStartDate),
-            groupCode,
-            personCost,
-          },
-        });
       }
 
       toast({
         title: 'Success',
-        description:
-          selectedDates.length > 1
-            ? `${selectedDates.length} tours created successfully`
-            : 'Tour created successfully',
+        description: 'Tour created successfully',
       });
 
       form.reset();
@@ -292,38 +337,61 @@ export const TourCreateForm = ({ branchId, onSuccess }: Props) => {
                 />
               </div>
 
-              <TourCategoryField control={form.control} />
+              <TourCategoryField control={form.control} branchId={branchId} />
 
               <TourDescriptionField control={form.control} />
             </div>
 
-            <div className="pt-4 space-y-4 border-t">
-              <div className="grid grid-cols-3 gap-4">
+            <div className="flex items-center">
+              <div className="flex-1 border-t" />
+              <Form.Label className="mx-2">Duration Info</Form.Label>
+              <div className="flex-1 border-t" />
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <TourDurationField control={form.control} />
                 <TourGroupSizeField control={form.control} />
-                <TourCostField control={form.control} />
               </div>
 
-              <TourDateSchedulingField control={form.control} />
-
-              <TourPersonCostField control={form.control} />
+              <TourDateSchedulingField
+                control={form.control}
+                setValue={form.setValue}
+              />
             </div>
 
-            <div className="pt-4 space-y-4 border-t">
-              <TourAdvanceCheckField control={form.control} />
+            <div className="flex items-center">
+              <div className="flex-1 border-t" />
+              <Form.Label className="mx-2">Pricing Info</Form.Label>
+              <div className="flex-1 border-t" />
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <TourAdvancePercentField control={form.control} />
-                <TourJoinPercentField control={form.control} />
+            <TourPricingOptionsField control={form.control} />
+
+            {hideFields && (
+              <div className="pt-4 space-y-4 border-t">
+                <TourAdvanceCheckField control={form.control} />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <TourAdvancePercentField control={form.control} />
+                  <TourJoinPercentField control={form.control} />
+                </div>
               </div>
+            )}
+
+            <div className="flex items-center">
+              <div className="flex-1 border-t" />
+              <Form.Label className="mx-2">More Info</Form.Label>
+              <div className="flex-1 border-t" />
             </div>
 
-            <div className="pt-4 space-y-4 border-t">
+            <div className="space-y-4">
               <TourImageThumbnailField control={form.control} />
               <TourImagesField control={form.control} />
+              <TourAttachmentsField control={form.control} />
             </div>
 
-            <div className="pt-4 space-y-4 border-t">
+            <div className="pt-4 space-y-4">
               <Tabs defaultValue="info1" className="w-full">
                 <Tabs.List className="grid grid-cols-5 w-full">
                   <Tabs.Trigger value="info1">Included</Tabs.Trigger>

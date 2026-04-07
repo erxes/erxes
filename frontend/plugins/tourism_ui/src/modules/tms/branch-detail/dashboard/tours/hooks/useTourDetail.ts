@@ -1,6 +1,18 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TOUR_DETAIL } from '../graphql/queries';
 
+export interface IPricingOption {
+  _id: string;
+  title: string;
+  minPersons: number;
+  maxPersons?: number;
+  pricePerPerson: number;
+  accommodationType?: string;
+  domesticFlightPerPerson?: number;
+  singleSupplement?: number;
+  note?: string;
+}
+
 export interface ITourDetail {
   _id: string;
   advanceCheck?: boolean;
@@ -22,6 +34,12 @@ export interface ITourDetail {
   groupSize?: number;
   imageThumbnail?: string;
   images?: string[];
+  attachment?: {
+    url: string;
+    name: string;
+    type: string;
+    size: number;
+  } | null;
   info1?: string;
   info2?: string;
   info3?: string;
@@ -34,6 +52,7 @@ export interface ITourDetail {
   refNumber?: string;
   startDate?: string;
   status?: string;
+  pricingOptions?: IPricingOption[];
 }
 
 type TourDetailQueryVariables = {

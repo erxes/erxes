@@ -1,7 +1,7 @@
-import { FileEmbeddingService } from '@/ai/fileEmbedding';
-import { generateAiAgentMessage } from '@/ai/generateAiAgentMessage';
-import { generateModels } from '@/connectionResolver';
-import { TAiAgentConfigForm } from '@/types/aiAgentAction';
+import { FileEmbeddingService } from '../ai/fileEmbedding';
+import { generateAiAgentMessage } from '../ai/generateAiAgentMessage';
+import { generateModels } from '../connectionResolver';
+import { TAiAgentConfigForm } from '../types/aiAgentAction';
 import { Job } from 'bullmq';
 import { AUTOMATION_EXECUTION_STATUS } from 'erxes-api-shared/core-modules';
 import { getEnv, sanitizeKey } from 'erxes-api-shared/utils';

@@ -1,14 +1,13 @@
 import { IconEdit } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
   ElementCreateFormSchema,
   ElementCreateFormType,
 } from '../constants/formSchema';
-
 import {
   ElementNameField,
   ElementNoteField,
@@ -16,13 +15,20 @@ import {
   ElementDurationField,
   ElementCostField,
 } from './ElementFormFields';
-
 import { SelectElementCategories } from './SelectElementCategories';
+import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_components/TourFieldLanguageSwitch';
 import { useEditElement } from '../hooks/useEditElement';
+import { useElementLanguage } from '../hooks/useElementLanguage';
 import { IElement } from '../types/element';
+import {
+  buildTranslationsFromElement,
+  sanitizeTranslations,
+} from '../utils/translationHelpers';
 
 interface ElementEditSheetProps {
   element: IElement;
+  branchLanguages?: string[];
+  mainLanguage?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   showTrigger?: boolean;
@@ -31,15 +37,15 @@ interface ElementEditSheetProps {
 
 export const ElementEditSheet = ({
   element,
+  branchLanguages,
+  mainLanguage,
   open,
   onOpenChange,
   showTrigger = true,
   children,
 }: ElementEditSheetProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
-
-  const isControlled = typeof open === 'boolean';
-  const sheetOpen = isControlled ? open : internalOpen;
+  const sheetOpen = typeof open === 'boolean' ? open : internalOpen;
 
   const handleOpenChange = (value: boolean) => {
     if (onOpenChange) onOpenChange(value);
@@ -58,9 +64,26 @@ export const ElementEditSheet = ({
       duration: element.duration || 0,
       cost: element.cost || 0,
       categories: element.categories || [],
-      quick: element.quick || false,
+      translations: [],
     },
   });
+
+  const { fields } = useFieldArray({
+    control: form.control,
+    name: 'translations',
+  });
+
+  const {
+    allLanguages,
+    translationLanguages,
+    selectedLang,
+    setSelectedLang,
+    labelSuffix,
+    currencySymbol,
+    fieldPaths,
+  } = useElementLanguage({ branchLanguages, mainLanguage, fields });
+
+  const resolvedPrimaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
 
   useEffect(() => {
     form.reset({
@@ -70,8 +93,16 @@ export const ElementEditSheet = ({
       duration: element.duration || 0,
       cost: element.cost || 0,
       categories: element.categories || [],
+      translations: buildTranslationsFromElement(element, translationLanguages),
     });
-  }, [element, form]);
+    setSelectedLang(resolvedPrimaryLanguage);
+  }, [
+    element,
+    translationLanguages,
+    resolvedPrimaryLanguage,
+    form,
+    setSelectedLang,
+  ]);
 
   const handleSubmit = async (values: ElementCreateFormType) => {
     try {
@@ -85,14 +116,12 @@ export const ElementEditSheet = ({
           cost: values.cost,
           categories: values.categories,
           quick: false,
+          language: resolvedPrimaryLanguage,
+          translations: sanitizeTranslations(values.translations),
         },
       });
 
-      toast({
-        title: 'Success',
-        description: 'Element updated successfully',
-      });
-
+      toast({ title: 'Success', description: 'Element updated successfully' });
       handleOpenChange(false);
     } catch (error) {
       toast({
@@ -113,7 +142,6 @@ export const ElementEditSheet = ({
           </Button>
         </Sheet.Trigger>
       )}
-
       {children && <Sheet.Trigger asChild>{children}</Sheet.Trigger>}
 
       <Sheet.View className="w-[600px] sm:max-w-[600px] p-0">
@@ -127,24 +155,43 @@ export const ElementEditSheet = ({
           >
             <Sheet.Header>
               <Sheet.Title>Edit element</Sheet.Title>
-              <Sheet.Close />
+              {allLanguages.length > 1 && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <TourFieldLanguageSwitch
+                    availableLanguages={allLanguages}
+                    value={selectedLang}
+                    onValueChange={setSelectedLang}
+                  />
+                </div>
+              )}
             </Sheet.Header>
 
-            <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
-              <div className="flex flex-col gap-6">
+            <Sheet.Content className="flex-1 px-6 py-4 overflow-y-auto rounded-none">
+              <div key={selectedLang} className="flex flex-col gap-6">
                 <div className="space-y-4">
-                  <ElementNameField control={form.control} />
-
+                  <ElementNameField
+                    control={form.control}
+                    name={fieldPaths.name}
+                    labelSuffix={labelSuffix}
+                  />
                   <div className="grid grid-cols-3 gap-4">
                     <ElementStartTimeField control={form.control} />
                     <ElementDurationField control={form.control} />
-                    <ElementCostField control={form.control} />
+                    <ElementCostField
+                      control={form.control}
+                      name={fieldPaths.cost}
+                      currencySymbol={currencySymbol}
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <SelectElementCategories control={form.control} />
-                  <ElementNoteField control={form.control} />
+                  <ElementNoteField
+                    control={form.control}
+                    name={fieldPaths.note}
+                    labelSuffix={labelSuffix}
+                  />
                 </div>
               </div>
             </Sheet.Content>
@@ -158,7 +205,6 @@ export const ElementEditSheet = ({
               >
                 Cancel
               </Button>
-
               <Button type="submit" disabled={loading}>
                 {loading ? 'Updating...' : 'Update'}
               </Button>

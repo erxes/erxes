@@ -1,83 +1,69 @@
-# ═══════════════════════════════════════════════════════════
-# Stage 1: Build TypeScript source
-# Needs devDeps (nx, tsc) — this stage is fully discarded
-# ═══════════════════════════════════════════════════════════
-FROM --platform=linux/amd64 node:22-bookworm-slim AS builder
-WORKDIR /app
-RUN npm install -g pnpm@9
+# Base image for building
+FROM --platform=linux/amd64 node:22-bookworm AS build
 
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
-COPY backend/gateway/package.json backend/gateway/
-COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
-# Full install (devDeps needed for nx + tsc)
+WORKDIR /app
+
+# Copy root files
+COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./tsconfig.base.json ./nx.json /app/
+
+# Copy service-specific package.json files
+COPY ./backend/gateway/package.json /app/backend/gateway/
+COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
+
+# Install pnpm and dependencies
+RUN npm install -g pnpm
 RUN pnpm install
 
-# Copy only what's needed to compile
-COPY backend/gateway backend/gateway
-COPY backend/erxes-api-shared backend/erxes-api-shared
+# Copy source files
+COPY ./backend/gateway /app/backend/gateway
+COPY ./backend/erxes-api-shared /app/backend/erxes-api-shared
 
-# Build: compiles TS → dist/, also runs copy-files.js which copies
-# apollo-router/dummy/ and apollo-router/rhai/ into dist/
+WORKDIR /app/backend/gateway
+
+# Disable Nx daemon (not needed in CI/builds)
 ENV NX_DAEMON=false
-RUN npx nx build:packageJson gateway && npx nx build gateway
 
-# ═══════════════════════════════════════════════════════════
-# Stage 2: Apollo tools + isolated production deployment
-# Rover only runs here (build-time) — NOT included in runtime
-# ═══════════════════════════════════════════════════════════
-FROM --platform=linux/amd64 node:22-bookworm-slim AS deployer
+# Build project
+RUN npx nx build:packageJson gateway
+RUN npx nx build gateway
+
+# Final image
+FROM --platform=linux/amd64 node:22-bookworm AS gateway
+
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-RUN npm install -g pnpm@9
 
-# Minimal root — prevents installing frontend/build-tool deps
-COPY pnpm-workspace.yaml pnpm-lock.yaml ./
-RUN echo '{"name":"erxes","version":"1.0.0","private":true}' > package.json
-COPY backend/gateway/package.json backend/gateway/
-COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
+# Install required packages
+RUN apt-get update && apt-get install -y curl ca-certificates
 
-# Copy compiled dist from builder (includes dummy/ and rhai/ copied by copy-files.js)
-COPY --from=builder /app/backend/gateway/dist backend/gateway/dist
-COPY backend/erxes-api-shared/dist backend/erxes-api-shared/dist
-COPY backend/erxes-api-shared/utils backend/erxes-api-shared/utils
-COPY backend/erxes-api-shared/core-types backend/erxes-api-shared/core-types
-COPY backend/erxes-api-shared/core-modules backend/erxes-api-shared/core-modules
+# Copy built app from build stage
+COPY --chown=1000:1000 --from=build /app /app
 
-# Install only gateway's production deps (~25 from erxes-api-shared, not 159 from root)
-RUN pnpm install --prod
+# Install pnpm
+RUN npm install -g pnpm
 
-# Run rover supergraph compose (build-time only — generates initial supergraph SDL)
-# Rover is removed after use so it doesn't bloat the deployment
+# Set PNPM env
 ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN pnpm add -g @apollo/rover@0.22.0 \
-    && rover supergraph compose \
-         --config /app/backend/gateway/dist/src/apollo-router/dummy/supergraph.yaml \
-         --elv2-license=accept \
-    && pnpm remove -g @apollo/rover \
-    && pnpm store prune
 
-# Download Apollo Router binary into dist/ (needed at runtime — started as subprocess)
-RUN mkdir -p /app/backend/gateway/dist/src/apollo-router/temp \
-    && cd /app/backend/gateway/dist/src/apollo-router/temp \
+# Install Rover CLI for composing supergraph
+RUN apt-get update -y \
+    && apt-get install -y curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && pnpm add -g @apollo/rover@0.22.0 \
+    && pnpm cache clean \
+    && rover supergraph compose --config /app/backend/gateway/src/apollo-router/dummy/supergraph.yaml --elv2-license=accept
+
+# Create Apollo Router folder
+RUN mkdir -p /app/backend/gateway/dist/src/apollo-router/temp 
+
+# Download Apollo Router binary safely
+RUN cd /app/backend/gateway/dist/src/apollo-router/temp \
+    && export VERSION=v1.59.2 \
     && curl -sSL https://router.apollo.dev/download/nix/v1.59.2 | sh
 
-# Create isolated deployment:
-# /app/release/ = dist/ + node_modules/ (only ~25 prod deps, erxes-api-shared bundled in)
-# The Apollo Router binary in dist/src/apollo-router/temp/ is included automatically
-RUN pnpm --filter=./backend/gateway deploy --prod --legacy /app/release
-
-# ═══════════════════════════════════════════════════════════
-# Stage 3: Minimal runtime
-# No pnpm, no Rover, no source files, no devDeps, no frontend
-# ═══════════════════════════════════════════════════════════
-FROM --platform=linux/amd64 node:22-bookworm-slim
-WORKDIR /app
-
-COPY --from=deployer /app/release .
+WORKDIR /app/backend/gateway/dist
 
 ENV NODE_ENV=production
 
-WORKDIR /app/dist
+# Start app
 CMD ["node", "src/main.js"]

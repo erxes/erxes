@@ -112,6 +112,9 @@ export const POSTS_LIST = gql`
         }
         customFieldsData
         customFieldsMap
+        translations {
+          language
+        }
         tags {
           _id
           clientPortalId

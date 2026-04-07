@@ -1,5 +1,6 @@
 import { IReportFilters } from '@/reports/@types/reportFilters';
 import { IModels } from '~/connectionResolvers';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const sourceMap: Record<string, string> = {
   'facebook-messenger': 'facebook-messenger',
@@ -273,7 +274,34 @@ export function normalizeDateField(field: string) {
   };
 }
 
-export function buildDateGroupPipeline(field: string) {
+export function buildDateGroupPipeline(field: string, frequency?: string) {
+  const freq = frequency?.toLowerCase();
+
+  let groupId: any;
+  if (freq === 'year') {
+    groupId = { $dateToString: { format: '%Y', date: '$__date' } };
+  } else if (freq === 'month') {
+    groupId = { $dateToString: { format: '%Y-%m', date: '$__date' } };
+  } else if (freq === 'week') {
+    groupId = {
+      $concat: [
+        { $toString: { $isoWeekYear: '$__date' } },
+        '-W',
+        {
+          $toString: {
+            $cond: [
+              { $lt: [{ $isoWeek: '$__date' }, 10] },
+              { $concat: ['0', { $toString: { $isoWeek: '$__date' } }] },
+              { $toString: { $isoWeek: '$__date' } },
+            ],
+          },
+        },
+      ],
+    };
+  } else {
+    groupId = { $dateToString: { format: '%Y-%m-%d', date: '$__date' } };
+  }
+
   return [
     {
       $addFields: {
@@ -282,12 +310,7 @@ export function buildDateGroupPipeline(field: string) {
     },
     {
       $group: {
-        _id: {
-          $dateToString: {
-            format: '%Y-%m-%d',
-            date: '$__date',
-          },
-        },
+        _id: groupId,
         count: { $sum: 1 },
       },
     },
@@ -308,9 +331,20 @@ export function buildConversationMatch(filters: IReportFilters) {
 
 export function buildTicketMatch(filters: IReportFilters) {
   const match: Record<string, unknown> = { type: 'ticket' };
+  const andConditions: Record<string, unknown>[] = [];
 
   if (filters.status) {
     match.statusId = filters.status;
+  }
+
+  if (filters.state) {
+    if (filters.state === 'active') {
+      andConditions.push({
+        $or: [{ state: 'active' }, { state: { $exists: false } }],
+      });
+    } else {
+      match.state = filters.state;
+    }
   }
 
   if (filters.channelIds?.length) {
@@ -321,43 +355,117 @@ export function buildTicketMatch(filters: IReportFilters) {
     match.assigneeId = { $in: filters.memberIds };
   }
 
+  if (filters.pipelineIds?.length) {
+    match.pipelineId = { $in: filters.pipelineIds };
+  }
+
+  if (filters.tagIds?.length) {
+    match.tagIds = { $in: filters.tagIds };
+  }
+
+  if (filters.priority?.length) {
+    const hasPriorityZero = filters.priority.includes(0);
+    if (hasPriorityZero) {
+      andConditions.push({
+        $or: [
+          { priority: { $in: filters.priority } },
+          { priority: { $exists: false } },
+        ],
+      });
+    } else {
+      match.priority = { $in: filters.priority };
+    }
+  }
+
+  if (filters.branchIds?.length) {
+    match.branchId = { $in: filters.branchIds };
+  }
+
+  if (filters.startDate) {
+    match.startDate = { $gte: new Date(filters.startDate) };
+  }
+
+  if (filters.targetDate) {
+    match.targetDate = { $lte: new Date(filters.targetDate) };
+  }
+
   Object.assign(match, buildDateMatch(filters, 'createdAt'));
+
+  if (andConditions.length) {
+    match.$and = andConditions;
+  }
 
   return match;
 }
 
-export const buildTicketPipeline = async (filters: IReportFilters) => {
+export const buildTicketPipeline = async (
+  filters: IReportFilters,
+  subdomain: string,
+) => {
   const pipeline: any[] = [];
   const match = buildTicketMatch(filters);
 
-  if (Object.keys(match).length > 1) {
-    pipeline.push({ $match: match });
+  if (filters.customerIds?.length || filters.companyIds?.length) {
+    const ticketIdSets: Set<string>[] = [];
+
+    if (filters.customerIds?.length) {
+      const relatedTicketIds: string[] = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'relation',
+        action: 'filterRelationIds',
+        input: {
+          contentType: 'core:customer',
+          contentIds: filters.customerIds,
+          relatedContentType: 'frontline:ticket',
+        },
+        defaultValue: [],
+      });
+      ticketIdSets.push(new Set(relatedTicketIds));
+    }
+
+    if (filters.companyIds?.length) {
+      const relatedTicketIds: string[] = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'relation',
+        action: 'filterRelationIds',
+        input: {
+          contentType: 'core:company',
+          contentIds: filters.companyIds,
+          relatedContentType: 'frontline:ticket',
+        },
+        defaultValue: [],
+      });
+      ticketIdSets.push(new Set(relatedTicketIds));
+    }
+
+    // Intersect all sets to get tickets matching ALL contact filters
+    let filteredIds: string[] = [];
+    if (ticketIdSets.length === 1) {
+      filteredIds = [...ticketIdSets[0]];
+    } else if (ticketIdSets.length > 1) {
+      filteredIds = [...ticketIdSets[0]].filter((id) =>
+        ticketIdSets.every((s) => s.has(id)),
+      );
+    }
+
+    if (!filteredIds.length) {
+      match._id = { $in: [] };
+    } else {
+      match._id = { $in: filteredIds };
+    }
   }
 
-  if (filters.limit) {
-    pipeline.push({ $skip: filters.limit }, { $limit: filters.limit });
-  }
+  pipeline.push({ $match: match });
 
   return pipeline;
 };
 
 export function buildTicketTagMatch(filters: IReportFilters) {
-  const match: any = {
-    type: 'ticket',
-    tagIds: { $exists: true, $ne: [] },
-  };
-
-  if (filters.status) {
-    match.statusId = filters.status;
-  }
-
-  if (filters.channelIds?.length) {
-    match.channelId = { $in: filters.channelIds };
-  }
-
-  if (filters.memberIds?.length) {
-    match.assigneeId = { $in: filters.memberIds };
-  }
-
+  const match = buildTicketMatch(filters) as any;
+  match.tagIds = { $exists: true, $ne: [] };
   return match;
 }

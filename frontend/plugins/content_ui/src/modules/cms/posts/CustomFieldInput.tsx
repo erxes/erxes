@@ -52,7 +52,7 @@ export const CustomFieldInput = ({
             placeholder={
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
-            rows={3}
+            rows={10}
             value={value || ''}
             onChange={(e) => onChange(e.target.value)}
             className="w-full resize-none"

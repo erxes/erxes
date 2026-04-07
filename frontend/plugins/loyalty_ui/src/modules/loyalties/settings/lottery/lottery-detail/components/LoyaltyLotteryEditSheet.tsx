@@ -40,12 +40,12 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
       title: '',
       status: 'active',
       buyScore: 0,
-
+      numberFormat: '',
       awards: [
         {
           name: '',
           voucherCampaignId: '',
-          probablity: 0,
+          count: 0,
         },
       ],
     },
@@ -66,15 +66,12 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
         endDate: lotteryDetail.endDate
           ? new Date(lotteryDetail.endDate)
           : undefined,
-        buyScore: lotteryDetail.buyScore || 0,
+        buyScore: lotteryDetail.buyScore ?? 0,
+        numberFormat: lotteryDetail.numberFormat || '',
 
-        awards: lotteryDetail.awards || [
-          {
-            name: lotteryDetail.awards?.name || '',
-            voucherCampaignId: lotteryDetail.awards?.voucherCampaignId || '',
-            probablity: lotteryDetail.awards?.probablity || 0,
-          },
-        ],
+        awards: lotteryDetail.awards?.length
+          ? lotteryDetail.awards
+          : [{ name: '', voucherCampaignId: '', count: 0 }],
       });
     }
   }, [lotteryDetail, editLotteryId, form]);
@@ -122,7 +119,7 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
         </Sheet.Trigger>
       )}
       <Sheet.View
-        className="sm:max-w-2xl p-0"
+        className="sm:max-w-3xl p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}

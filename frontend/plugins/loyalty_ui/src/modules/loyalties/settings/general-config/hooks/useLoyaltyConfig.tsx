@@ -63,8 +63,10 @@ export const useLoyaltyConfig = () => {
     await updateConfig({
       variables: {
         configsMap: {
-          LoyaltyRatioCurrency: formData.loyaltyRatioCurrency,
-          ShareScoreFee: formData.feeForScoreSharing,
+          LOYALTY: {
+            LoyaltyRatioCurrency: formData.loyaltyRatioCurrency,
+            ShareScoreFee: formData.feeForScoreSharing,
+          },
         },
       },
     });

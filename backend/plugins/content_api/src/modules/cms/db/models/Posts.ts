@@ -31,6 +31,22 @@ const prepareExcerpt = (content: string) => {
 
 export const loadPostClass = (models: IModels) => {
   class Posts {
+    public static getNextPostCount = async (clientPortalId: string) => {
+      const latestPostWithCount = await models.Posts.findOne({
+        clientPortalId,
+        count: { $exists: true },
+      })
+        .sort({ count: -1 })
+        .select({ count: 1 })
+        .lean();
+
+      if (typeof latestPostWithCount?.count === 'number') {
+        return latestPostWithCount.count + 1;
+      }
+
+      return models.Posts.countDocuments({ clientPortalId });
+    };
+
     public static async generateUniqueSlug(
       title: string,
       attempt = 0,
@@ -75,6 +91,10 @@ export const loadPostClass = (models: IModels) => {
 
       if (doc.status === 'published') {
         doc.publishedDate = new Date();
+      }
+
+      if (doc.count === undefined) {
+        doc.count = await this.getNextPostCount(doc.clientPortalId);
       }
 
       return models.Posts.create(doc);

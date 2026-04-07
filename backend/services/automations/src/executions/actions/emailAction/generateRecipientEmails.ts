@@ -1,4 +1,4 @@
-import { generateAttributesFromPlaceholders } from '@/utils/utils';
+import { generateAttributesFromPlaceholders } from '../../../utils/utils';
 import { splitType, TAutomationProducers } from 'erxes-api-shared/core-modules';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 import { extractValidEmails } from './utils';

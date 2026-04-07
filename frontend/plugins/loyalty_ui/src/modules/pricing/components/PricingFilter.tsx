@@ -340,10 +340,10 @@ const DateFilterView = () => {
 
   const parsedDate = date ? dayjs(date, 'YYYY-MM-DD HH:mm') : null;
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    parsedDate && parsedDate.isValid() ? parsedDate.toDate() : undefined,
+    parsedDate?.isValid() ? parsedDate.toDate() : undefined,
   );
   const [selectedTime, setSelectedTime] = useState<Time | null>(
-    parsedDate && parsedDate.isValid()
+    parsedDate?.isValid()
       ? new Time(parsedDate.hour(), parsedDate.minute())
       : new Time(0, 0),
   );

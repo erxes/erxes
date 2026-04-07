@@ -2,7 +2,6 @@ import { NOTIFICATIONS } from '@/notification/graphql/notificationsQueries';
 import { NOTIFICATION_SUBSCRIPTION } from '@/notification/graphql/notificationSubscriptions';
 import { useNotificationFilters } from '@/notification/hooks/useNotificationFilters';
 import { refetchNewNotificationsState } from '@/notification/states/notificationState';
-import { INotification } from '@/notification/types/notifications';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
@@ -12,12 +11,12 @@ import {
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect } from 'react';
-import { currentUserState } from 'ui-modules';
+import { currentUserState, TNotification } from 'ui-modules';
 
 const NOTIFICATIONS_LIMIT = 24;
 
 export const useNotifications = (
-  options?: QueryHookOptions<ICursorListResponse<INotification>>,
+  options?: QueryHookOptions<ICursorListResponse<TNotification>>,
 ) => {
   const filters = useNotificationFilters();
   const currentUser = useAtomValue(currentUserState);
@@ -26,7 +25,7 @@ export const useNotifications = (
   );
 
   const { data, loading, fetchMore, subscribeToMore, refetch } = useQuery<
-    ICursorListResponse<INotification>
+    ICursorListResponse<TNotification>
   >(NOTIFICATIONS, {
     fetchPolicy: 'cache-and-network',
     ...options,

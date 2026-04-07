@@ -1,8 +1,7 @@
-import { ITicket } from '@/ticket/types';
-import { useQuery } from '@apollo/client';
 import { GET_TICKET } from '@/ticket/graphql/queries/getTicket';
 import { TICKET_CHANGED } from '@/ticket/graphql/subscriptions/ticketChanged';
-import { QueryHookOptions } from '@apollo/client';
+import { ITicket } from '@/ticket/types';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useEffect } from 'react';
 
 interface IGetTicketQueryResponse {

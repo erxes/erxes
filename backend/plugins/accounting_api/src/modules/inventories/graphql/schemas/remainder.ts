@@ -27,6 +27,7 @@ export const types = `
     category: ProductCategory
     categoryId: String
     remainder: Float
+    cost: Float
     soonIn: Float
     soonOut: Float
     unitPrice: Float

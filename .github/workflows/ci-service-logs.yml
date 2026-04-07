@@ -34,8 +34,11 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Set environment variables
         run: |
@@ -48,6 +51,7 @@ jobs:
       - name: Build logs-service
         run: pnpm nx build logs-service
 
+      # Buildx setup
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 

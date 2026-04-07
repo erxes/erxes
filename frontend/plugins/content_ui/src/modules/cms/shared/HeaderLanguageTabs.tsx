@@ -6,7 +6,13 @@ import { CONTENT_CMS_LIST } from '../graphql/queries';
 import { useParams } from 'react-router-dom';
 import { cmsLanguageAtom } from './states/cmsLanguageState';
 
-export const HeaderLanguageTabs = () => {
+interface HeaderLanguageTabsProps {
+  onLanguageChange?: (lang: string) => void;
+}
+
+export const HeaderLanguageTabs = ({
+  onLanguageChange,
+}: HeaderLanguageTabsProps = {}) => {
   const { websiteId } = useParams();
   const [selectedLanguage, setSelectedLanguage] = useAtom(cmsLanguageAtom);
 
@@ -41,6 +47,13 @@ export const HeaderLanguageTabs = () => {
 
   const activeLanguage = selectedLanguage || defaultLanguage;
 
+  const handleClick = (lang: string) => {
+    setSelectedLanguage(lang);
+    if (onLanguageChange) {
+      onLanguageChange(lang);
+    }
+  };
+
   return (
     <div className="inline-flex items-center rounded-md border bg-background p-1 gap-1">
       {availableLanguages.map((lang: string) => (
@@ -49,7 +62,7 @@ export const HeaderLanguageTabs = () => {
           type="button"
           variant={activeLanguage === lang ? 'default' : 'ghost'}
           size="sm"
-          onClick={() => setSelectedLanguage(lang)}
+          onClick={() => handleClick(lang)}
           className="h-8"
         >
           {lang.toUpperCase()}

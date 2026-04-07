@@ -11,7 +11,6 @@ import {
   ActivityLogs,
   AddInternalNote,
   FieldsInDetail,
-  internalNoteCustomActivity,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { CustomerDetailGeneral } from './CustomerDetailGeneral';
@@ -59,18 +58,6 @@ export const CustomerDetail = () => {
               >
                 <Tabs.Content value="overview">
                   <CustomerDetailFields />
-                  {!!customerDetail?._id && (
-                    <div className="flex flex-col mb-12">
-                      <ActivityLogs
-                        targetId={customerDetail?._id || ''}
-                        customActivities={[internalNoteCustomActivity]}
-                      />
-                      <AddInternalNote
-                        contentTypeId={customerDetail._id}
-                        contentType="core:customer"
-                      />
-                    </div>
-                  )}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail
@@ -79,6 +66,26 @@ export const CustomerDetail = () => {
                     mutateHook={useCustomerCustomFieldEdit}
                     id={customerDetail?._id || ''}
                   />
+                </Tabs.Content>
+                <Tabs.Content
+                  value="activity"
+                  className="h-full flex flex-1 min-h-0 flex-col"
+                >
+                  <div className="flex-1 min-h-0 overflow-y-auto">
+                    <ActivityLogs
+                      targetId={customerDetail?._id || ''}
+                      variant="backward"
+                    />
+                  </div>
+
+                  {!!customerDetail?._id && (
+                    <div className="shrink-0 px-6 pb-6 pt-4">
+                      <AddInternalNote
+                        contentTypeId={customerDetail._id}
+                        contentType="core:customer"
+                      />
+                    </div>
+                  )}
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

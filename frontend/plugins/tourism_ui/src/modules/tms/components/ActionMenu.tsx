@@ -4,7 +4,6 @@ import {
   IconCopy,
   IconTrash,
   IconChevronDown,
-  IconWorld,
 } from '@tabler/icons-react';
 import { Popover, Spinner } from 'erxes-ui';
 
@@ -12,7 +11,6 @@ interface ActionMenuProps {
   onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
-  onVisitWebsite?: () => void;
   duplicateLoading: boolean;
 }
 
@@ -27,7 +25,6 @@ export const ActionMenu = ({
   onEdit,
   onDuplicate,
   onDelete,
-  onVisitWebsite,
   duplicateLoading,
 }: ActionMenuProps) => {
   const dropdownItems: DropdownItem[] = [
@@ -46,15 +43,6 @@ export const ActionMenu = ({
       onClick: () => onDuplicate(),
       disabled: duplicateLoading,
     },
-    ...(onVisitWebsite
-      ? [
-          {
-            label: 'Open website',
-            icon: <IconWorld size={16} stroke={1.5} />,
-            onClick: onVisitWebsite,
-          },
-        ]
-      : []),
     {
       label: 'Delete',
       icon: <IconTrash size={16} stroke={1.5} />,

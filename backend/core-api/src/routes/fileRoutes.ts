@@ -233,6 +233,16 @@ router.post(
       return res.status(400).json({ error: 'Missing data' });
     }
 
+    const chunkIndexNum = Number(chunkIndex);
+    if (!Number.isInteger(chunkIndexNum) || chunkIndexNum < 0) {
+      return res.status(400).json({ error: 'Invalid chunkIndex' });
+    }
+
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(uploadId)) {
+      return res.status(400).json({ error: 'Invalid uploadId' });
+    }
+
     const uploadInfo = chunkStore.get(uploadId);
     if (!uploadInfo) {
       return res
@@ -243,7 +253,13 @@ router.post(
     // Save chunk
     const chunkDir = path.join(tmpDir.name, uploadId);
     if (!fs.existsSync(chunkDir)) fs.mkdirSync(chunkDir, { recursive: true });
-    const chunkPath = path.join(chunkDir, `chunk-${chunkIndex}`);
+    const chunkPath = path.join(chunkDir, `chunk-${chunkIndexNum}`);
+
+    // Ensure resolved path stays within the temp directory
+    if (!path.resolve(chunkPath).startsWith(path.resolve(tmpDir.name) + path.sep)) {
+      return res.status(400).json({ error: 'Invalid path' });
+    }
+
     fs.renameSync(file.path, chunkPath);
 
     // Mark chunk as received

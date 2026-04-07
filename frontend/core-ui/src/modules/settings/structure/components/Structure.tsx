@@ -13,7 +13,7 @@ import {
 } from '../hooks/useStructureDetails';
 import { useStructureDetailsForm } from '../hooks/useStructureDetailsForm';
 import { useEffect } from 'react';
-import { SelectMember } from 'ui-modules';
+import { Can, SelectMember } from 'ui-modules';
 
 export const Structure = () => {
   const { structureDetail } = useStructureDetails();
@@ -177,13 +177,15 @@ export const Structure = () => {
                   </Form.Item>
                 )}
               /> */}
-              <Button
-                disabled={loading || isLoading}
-                className="w-1/2 ml-auto col-start-2"
-                type="submit"
-              >
-                Update
-              </Button>
+              <Can action="structuresManage">
+                <Button
+                  disabled={loading || isLoading}
+                  className="w-1/2 ml-auto col-start-2"
+                  type="submit"
+                >
+                  Update
+                </Button>
+              </Can>
             </form>
           </Form>
         </div>

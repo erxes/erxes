@@ -90,7 +90,7 @@ export const SpinAddCampaignCoreFields: React.FC<
                 />
                 <Form.Field
                   control={form.control}
-                  name={`awards.${index}.probablity`}
+                  name={`awards.${index}.probability`}
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Probablity</Form.Label>
@@ -125,7 +125,7 @@ export const SpinAddCampaignCoreFields: React.FC<
           onClick={() =>
             append({
               name: '',
-              probablity: 0,
+              probability: 0,
               voucherCampaignId: '',
             })
           }

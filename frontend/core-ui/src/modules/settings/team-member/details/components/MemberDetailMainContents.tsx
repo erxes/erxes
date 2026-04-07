@@ -5,6 +5,7 @@ import { ActivityLogs, FieldsInDetail } from 'ui-modules';
 import { useUserDetail } from '../../hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '../../hooks/useUserEdit';
 import { MembersPermissions } from './MembersPermissions';
+import { memberCustomActivities } from './MemberActivityRows';
 
 export const MemberDetailMainContents = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -36,7 +37,10 @@ export const MemberDetailMainContents = () => {
           />
         </Tabs.Content>
         <Tabs.Content value="activity">
-          <ActivityLogs targetId={userDetail?._id || ''} />
+          <ActivityLogs
+            targetId={userDetail?._id || ''}
+            customActivities={memberCustomActivities}
+          />
         </Tabs.Content>
       </ScrollArea>
     </Tabs>

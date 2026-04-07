@@ -52,6 +52,7 @@ export const loadWebClass = (models: IModels) => {
     public static async removeWeb(_id: string): Promise<IWebDocument> {
       const deleted = await models.Web.findOneAndDelete({ _id }).exec();
       if (!deleted) throw new Error('Web not found');
+      await models.WebPages.deleteMany({ webId: _id });
       return deleted;
     }
   }

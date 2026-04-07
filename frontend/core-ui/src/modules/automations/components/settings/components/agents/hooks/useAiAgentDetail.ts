@@ -58,7 +58,7 @@ export function useAiAgentDetail() {
         });
       },
     });
-    return (res?.data || {})[responseFieldName];
+    return res?.data?.[responseFieldName];
   };
 
   return {

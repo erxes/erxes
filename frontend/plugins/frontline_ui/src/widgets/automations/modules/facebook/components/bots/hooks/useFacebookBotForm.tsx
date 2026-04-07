@@ -1,4 +1,8 @@
-import { FACEBOOK_BOT_DETAIL } from '@/integrations/facebook/graphql/queries/facebookBots';
+import {
+  FACEBOOK_BOT_DETAIL,
+  FACEBOOK_BOTS_LIST,
+} from '@/integrations/facebook/graphql/queries/facebookBots';
+import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { resetFacebookAddStateAtom } from '@/integrations/facebook/states/facebookStates';
 import { useMutation, useQuery } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
@@ -27,6 +31,38 @@ export const useFacebookBotSave = () => {
     };
     save({
       variables,
+      update: (cache, { data }) => {
+        const savedBot = facebookBotId
+          ? data?.facebookMessengerUpdateBot
+          : data?.facebookMessengerAddBot;
+
+        if (!savedBot) {
+          return;
+        }
+
+        cache.updateQuery<{ facebookMessengerBots: IFacebookBot[] }>(
+          {
+            query: FACEBOOK_BOTS_LIST,
+          },
+          (current) => {
+            if (!current?.facebookMessengerBots) {
+              return { facebookMessengerBots: [savedBot] };
+            }
+
+            const exists = current.facebookMessengerBots.some(
+              (bot) => bot._id === savedBot._id,
+            );
+
+            return {
+              facebookMessengerBots: exists
+                ? current.facebookMessengerBots.map((bot) =>
+                    bot._id === savedBot._id ? savedBot : bot,
+                  )
+                : [savedBot, ...current.facebookMessengerBots],
+            };
+          },
+        );
+      },
       onCompleted: () => {
         toast({
           title: 'Save successful',

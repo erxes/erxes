@@ -8,14 +8,16 @@ const safeRemainderItemMutations = {
       _id: string;
       status?: string;
       remainder: number;
+      trInfo?: any;
     },
     { models, user }: IContext,
   ) {
-    const { _id, status, remainder } = params;
+    const { _id, status, remainder, trInfo } = params;
 
     const doc = {
       count: remainder,
       status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
+      trInfo,
     };
 
     return await models.SafeRemainderItems.updateItem(_id, doc, user._id);

@@ -1,5 +1,6 @@
 import { Document } from 'mongoose';
 import { ActivityLogInput } from '..';
+import { logActivityLogError } from './activityLog/utils';
 
 export interface NormalizedChange {
   field: string; // details.firstName
@@ -14,6 +15,11 @@ interface ActivityLogPayload {
     type: string;
     description: string;
   };
+  context?: {
+    text?: string;
+    data?: any;
+  };
+  metadata?: Record<string, any>;
   changes: {
     prev?: any;
     current?: any;
@@ -28,35 +34,95 @@ export function normalizeDiffs(
 ): NormalizedChange[] {
   const changes: NormalizedChange[] = [];
 
-  const visited = new WeakSet<object>();
+  const visitedPairs = new WeakMap<object, WeakSet<object>>();
 
-  const isPlainObject = (val: any): val is Record<string, any> =>
-    val !== null && typeof val === 'object' && !Array.isArray(val);
+  const isPlainObject = (val: any): val is Record<string, any> => {
+    if (val === null || typeof val !== 'object' || Array.isArray(val)) {
+      return false;
+    }
+
+    const proto = Object.getPrototypeOf(val);
+    return proto === Object.prototype || proto === null;
+  };
+
+  const isEmptyLikeScalar = (val: any) =>
+    val === undefined || val === null || val === '';
+
+  const isEquivalentEmptyValue = (prev: any, curr: any) =>
+    isEmptyLikeScalar(prev) && isEmptyLikeScalar(curr);
+
+  const isDate = (val: any): val is Date => val instanceof Date;
+
+  const isObjectId = (val: any): boolean =>
+    val !== null &&
+    typeof val === 'object' &&
+    typeof val.toHexString === 'function';
+
+  const markVisitedPair = (prev: any, curr: any) => {
+    if (
+      prev === null ||
+      curr === null ||
+      typeof prev !== 'object' ||
+      typeof curr !== 'object'
+    ) {
+      return false;
+    }
+
+    let seen = visitedPairs.get(prev);
+    if (!seen) {
+      seen = new WeakSet<object>();
+      visitedPairs.set(prev, seen);
+    }
+
+    if (seen.has(curr)) {
+      return true;
+    }
+
+    seen.add(curr);
+    return false;
+  };
+
+  const areArraysShallowEqual = (prevArr: any[], currArr: any[]) => {
+    if (prevArr.length !== currArr.length) {
+      return false;
+    }
+
+    for (let i = 0; i < prevArr.length; i++) {
+      const a = prevArr[i];
+      const b = currArr[i];
+
+      if (Object.is(a, b)) {
+        continue;
+      }
+
+      if (isDate(a) && isDate(b) && a.getTime() === b.getTime()) {
+        continue;
+      }
+
+      return false;
+    }
+
+    return true;
+  };
 
   function walk(prev: any, curr: any, path: string[]): void {
-    // Same reference → skip
-    if (prev === curr) return;
-
-    // Cycle protection
-    if (isPlainObject(prev)) {
-      if (visited.has(prev)) return;
-      visited.add(prev);
-    }
-    if (isPlainObject(curr)) {
-      if (visited.has(curr)) return;
-      visited.add(curr);
+    if (Object.is(prev, curr)) {
+      return;
     }
 
-    // Arrays → atomic diff with deep equality check
+    if (isEquivalentEmptyValue(prev, curr)) {
+      return;
+    }
+
+    if (markVisitedPair(prev, curr)) {
+      return;
+    }
+
     if (Array.isArray(prev) || Array.isArray(curr)) {
       const prevArr = Array.isArray(prev) ? prev : [];
       const currArr = Array.isArray(curr) ? curr : [];
 
-      const sameLength = prevArr.length === currArr.length;
-      const sameItems =
-        sameLength && prevArr.every((v, i) => Object.is(v, currArr[i]));
-
-      if (!sameItems) {
+      if (!areArraysShallowEqual(prevArr, currArr)) {
         changes.push({
           field: path.join('.'),
           prev,
@@ -64,20 +130,58 @@ export function normalizeDiffs(
           kind: 'array',
         });
       }
+
       return;
     }
 
-    // Both plain objects → recurse
+    if (isObjectId(prev) || isObjectId(curr)) {
+      const prevStr = isObjectId(prev) ? prev.toHexString() : prev;
+      const currStr = isObjectId(curr) ? curr.toHexString() : curr;
+
+      if (!Object.is(prevStr, currStr)) {
+        const kind: NormalizedChange['kind'] =
+          prev === undefined ? 'set' : curr === undefined ? 'unset' : 'update';
+
+        changes.push({ field: path.join('.'), prev, current: curr, kind });
+      }
+
+      return;
+    }
+
+    if (isDate(prev) || isDate(curr)) {
+      const prevTime = isDate(prev) ? prev.getTime() : prev;
+      const currTime = isDate(curr) ? curr.getTime() : curr;
+
+      if (!Object.is(prevTime, currTime)) {
+        let kind: NormalizedChange['kind'] = 'update';
+
+        if (prev === undefined && curr !== undefined) {
+          kind = 'set';
+        } else if (prev !== undefined && curr === undefined) {
+          kind = 'unset';
+        }
+
+        changes.push({
+          field: path.join('.'),
+          prev,
+          current: curr,
+          kind,
+        });
+      }
+
+      return;
+    }
+
     if (isPlainObject(prev) && isPlainObject(curr)) {
       const keys = new Set([...Object.keys(prev), ...Object.keys(curr)]);
 
       for (const key of keys) {
         walk(prev[key], curr[key], [...path, key]);
       }
+
       return;
     }
 
-    // Primitive / terminal value
     let kind: NormalizedChange['kind'] = 'update';
 
     if (prev === undefined && curr !== undefined) {
@@ -143,18 +247,57 @@ export const fieldChangeRule = (
     const valueLabel = getValueLabel
       ? await getValueLabel(current)
       : current || 'unknown';
-    const description = `${actionLabel} ${fieldLabel} to ${valueLabel}`;
+    const normalizedFieldLabel = String(fieldLabel || field).toLowerCase();
+    const formatDescriptionValue = (value: any) => {
+      if (value === null || value === undefined || value === '') {
+        return 'empty';
+      }
+
+      if (typeof value === 'boolean') {
+        return value ? 'yes' : 'no';
+      }
+
+      if (Array.isArray(value)) {
+        return value.length ? value.join(', ') : 'empty';
+      }
+
+      if (typeof value === 'object') {
+        return JSON.stringify(value);
+      }
+
+      return String(value);
+    };
+
+    const previousValueLabel = formatDescriptionValue(prev);
+    const currentValueLabel = formatDescriptionValue(current);
+    const description =
+      actionLabel === 'set'
+        ? `set ${normalizedFieldLabel} to ${currentValueLabel}`
+        : actionLabel === 'unset'
+        ? `cleared ${normalizedFieldLabel}`
+        : `changed ${normalizedFieldLabel} from ${previousValueLabel} to ${currentValueLabel}`;
 
     return [
       {
-        activityType: 'field_change',
+        activityType: 'field_changed',
         action: {
           type: actionLabel,
           description,
         },
+        metadata: {
+          field,
+          fieldLabel,
+          valueLabel,
+          previousValueLabel,
+          currentValueLabel,
+        },
         changes: {
-          prev,
-          current,
+          prev: {
+            [field]: prev,
+          },
+          current: {
+            [field]: current,
+          },
         },
       },
     ];
@@ -184,11 +327,24 @@ export const assignmentRule = (
 
     if (added.length) {
       const contextNames = await getContextNames(added);
+      const labels = Array.isArray(contextNames)
+        ? contextNames
+        : [contextNames].filter(Boolean);
       payloads.push({
         activityType: 'assignment',
         action: {
           type: addedAction,
-          description: `${addedAction} to ${contextNames}`,
+          description: `${addedAction} ${field
+            .replace(/Ids$/, '')
+            .toLowerCase()}`,
+        },
+        context: {
+          text: labels.join(', '),
+          data: labels,
+        },
+        metadata: {
+          field,
+          entityLabel: field.replace(/Ids$/, '').toLowerCase(),
         },
         changes: { added },
       });
@@ -196,12 +352,25 @@ export const assignmentRule = (
 
     if (removed.length) {
       const contextNames = await getContextNames(removed);
+      const labels = Array.isArray(contextNames)
+        ? contextNames
+        : [contextNames].filter(Boolean);
 
       payloads.push({
         activityType: 'assignment',
         action: {
           type: removedAction,
-          description: `${removedAction} from ${contextNames}`,
+          description: `${removedAction} ${field
+            .replace(/Ids$/, '')
+            .toLowerCase()}`,
+        },
+        context: {
+          text: labels.join(', '),
+          data: labels,
+        },
+        metadata: {
+          field,
+          entityLabel: field.replace(/Ids$/, '').toLowerCase(),
         },
         changes: { removed },
       });
@@ -258,144 +427,200 @@ export async function buildBulkActivities(
   ) => void,
   commonActivityData: Record<string, any>,
 ): Promise<BulkActivityResult[]> {
-  const {
-    field,
-    getFieldLabel,
-    getContextNames,
-    activityTypeMap = {},
-    actionTypeMap = {},
-    getActivityType,
-    getActionType,
-  } = config;
-
   const activities: BulkActivityResult[] = [];
+  try {
+    const {
+      field,
+      getFieldLabel,
+      getContextNames,
+      activityTypeMap = {},
+      actionTypeMap = {},
+      getActivityType,
+      getActionType,
+    } = config;
 
-  const {
-    array: arrayActivityType = 'assignment',
-    fieldChange: fieldChangeActivityType = 'field_change',
-  } = activityTypeMap;
+    const {
+      array: arrayActivityType = 'assignment',
+      fieldChange: fieldChangeActivityType = 'field_changed',
+    } = activityTypeMap;
 
-  const {
-    added: addedAction = 'assigned',
-    removed: removedAction = 'unassigned',
-    update: updateAction = 'update',
-  } = actionTypeMap;
+    const {
+      added: addedAction = 'assigned',
+      removed: removedAction = 'unassigned',
+      update: updateAction = 'update',
+    } = actionTypeMap;
 
-  const matchingChangeKey = Object.keys(changes).find((key) =>
-    matchesFieldPattern(key, field),
-  );
+    const matchingChangeKey = Object.keys(changes).find((key) =>
+      matchesFieldPattern(key, field),
+    );
 
-  if (!matchingChangeKey) {
-    return activities;
-  }
-  for (const target of prevTargets) {
-    const prevValue = target[field];
-    const currentValue = changes[matchingChangeKey];
+    if (!matchingChangeKey) {
+      return activities;
+    }
 
-    if (Array.isArray(prevValue) || Array.isArray(currentValue)) {
-      const prevIds = Array.isArray(prevValue) ? prevValue : [];
-      const currentIds = Array.isArray(currentValue) ? currentValue : [];
+    for (const target of prevTargets) {
+      try {
+        const prevValue = target[field];
+        const currentValue = changes[matchingChangeKey];
 
-      const added = currentIds.filter((id: string) => !prevIds.includes(id));
-      const removed = prevIds.filter((id: string) => !currentIds.includes(id));
+        if (Array.isArray(prevValue) || Array.isArray(currentValue)) {
+          const prevIds = Array.isArray(prevValue) ? prevValue : [];
+          const currentIds = Array.isArray(currentValue) ? currentValue : [];
 
-      if (added.length > 0) {
-        const activityType = getActivityType
-          ? await getActivityType(field, true)
-          : arrayActivityType;
-        const actionType = getActionType
-          ? await getActionType(field, 'added')
-          : addedAction;
+          const added = currentIds.filter(
+            (id: string) => !prevIds.includes(id),
+          );
+          const removed = prevIds.filter(
+            (id: string) => !currentIds.includes(id),
+          );
 
-        let description = `${actionType}`;
-        if (getContextNames) {
-          const contextNames = await getContextNames(added);
+          if (added.length > 0) {
+            const activityType = getActivityType
+              ? await getActivityType(field, true)
+              : arrayActivityType;
+            const actionType = getActionType
+              ? await getActionType(field, 'added')
+              : addedAction;
+            let contextText = '';
+            let contextData: string[] = [];
 
-          description = `${actionType} to ${contextNames}`;
-        }
+            let description = `${actionType}`;
+            if (getContextNames) {
+              const contextNames = await getContextNames(added);
+              const labels = Array.isArray(contextNames)
+                ? contextNames
+                : [contextNames].filter(Boolean);
 
-        activities.push({
-          activityType,
-          action: {
-            type: actionType,
-            description,
-          },
-          changes: { added },
-          target: {
-            _id: target._id,
-          },
-        });
-      }
+              contextText = labels.join(', ');
+              contextData = labels;
+              description = contextText
+                ? `${actionType} to ${contextText}`
+                : `${actionType}`;
+            }
 
-      if (removed.length > 0) {
-        const activityType = getActivityType
-          ? await getActivityType(field, true)
-          : arrayActivityType;
-        const actionType = getActionType
-          ? await getActionType(field, 'removed')
-          : removedAction;
+            activities.push({
+              activityType,
+              action: {
+                type: actionType,
+                description,
+              },
+              context: {
+                text: contextText,
+                data: contextData,
+              },
+              metadata: {
+                field,
+                entityLabel: field.replace(/Ids$/, '').toLowerCase(),
+              },
+              changes: { added },
+              target: {
+                _id: target._id,
+              },
+            });
+          }
 
-        let description = `${actionType}`;
-        if (getContextNames) {
-          const contextNames = await getContextNames(removed);
+          if (removed.length > 0) {
+            const activityType = getActivityType
+              ? await getActivityType(field, true)
+              : arrayActivityType;
+            const actionType = getActionType
+              ? await getActionType(field, 'removed')
+              : removedAction;
+            let contextText = '';
+            let contextData: string[] = [];
 
-          description = `${actionType} from ${contextNames}`;
-        }
+            let description = `${actionType}`;
+            if (getContextNames) {
+              const contextNames = await getContextNames(removed);
+              const labels = Array.isArray(contextNames)
+                ? contextNames
+                : [contextNames].filter(Boolean);
 
-        activities.push({
-          activityType,
-          action: {
-            type: actionType,
-            description,
-          },
-          changes: { removed },
-          target: {
-            _id: target._id,
-          },
-        });
-      }
-    } else {
-      if (prevValue !== currentValue) {
-        const activityType = getActivityType
-          ? await getActivityType(field, false)
-          : fieldChangeActivityType;
-        const actionType = getActionType
-          ? await getActionType(field, 'update')
-          : updateAction;
+              contextText = labels.join(', ');
+              contextData = labels;
+              description = contextText
+                ? `${actionType} from ${contextText}`
+                : `${actionType}`;
+            }
 
-        let description = `${field} changed from ${prevValue} to ${currentValue}`;
-        if (getFieldLabel) {
-          const fieldLabel = await getFieldLabel(field, {
-            current: currentValue,
-            prev: prevValue,
+            activities.push({
+              activityType,
+              action: {
+                type: actionType,
+                description,
+              },
+              context: {
+                text: contextText,
+                data: contextData,
+              },
+              metadata: {
+                field,
+                entityLabel: field.replace(/Ids$/, '').toLowerCase(),
+              },
+              changes: { removed },
+              target: {
+                _id: target._id,
+              },
+            });
+          }
+        } else if (prevValue !== currentValue) {
+          const activityType = getActivityType
+            ? await getActivityType(field, false)
+            : fieldChangeActivityType;
+          const actionType = getActionType
+            ? await getActionType(field, 'update')
+            : updateAction;
+
+          let description = `${field} changed from ${prevValue} to ${currentValue}`;
+          if (getFieldLabel) {
+            const fieldLabel = await getFieldLabel(field, {
+              current: currentValue,
+              prev: prevValue,
+            });
+            description = `${actionType} ${fieldLabel} to ${currentValue}`;
+          }
+
+          activities.push({
+            activityType,
+            action: {
+              type: actionType,
+              description,
+            },
+            changes: {
+              prev: prevValue,
+              current: currentValue,
+            },
+            target: {
+              _id: target._id,
+            },
           });
-          description = `${actionType} ${fieldLabel} to ${currentValue}`;
         }
-
-        activities.push({
-          activityType,
-          action: {
-            type: actionType,
-            description,
-          },
-          changes: {
-            prev: prevValue,
-            current: currentValue,
-          },
-          target: {
-            _id: target._id,
-          },
+      } catch (error) {
+        logActivityLogError('buildBulkActivities target', error, {
+          targetId: target?._id,
         });
       }
     }
-  }
 
-  createActivityLog(
-    activities.map((activity) => ({
-      ...activity,
-      ...commonActivityData,
-    })),
-  );
+    if (activities.length > 0) {
+      try {
+        createActivityLog(
+          activities.map((activity) => ({
+            ...activity,
+            ...commonActivityData,
+          })),
+        );
+      } catch (error) {
+        logActivityLogError('buildBulkActivities dispatch', error, {
+          field: config.field,
+        });
+      }
+    }
+  } catch (error) {
+    logActivityLogError('buildBulkActivities', error, {
+      field: config?.field,
+    });
+  }
 
   return activities;
 }
@@ -405,23 +630,45 @@ export async function buildActivities(
   currentDoc: any | Document<any>,
   activityRegistry: ActivityRule[],
 ) {
-  const prevPlain =
-    typeof (prevDoc as any)?.toObject === 'function'
-      ? (prevDoc as any).toObject()
-      : prevDoc;
-
-  const currentPlain =
-    typeof (currentDoc as any)?.toObject === 'function'
-      ? (currentDoc as any).toObject()
-      : currentDoc;
-
-  const changes = normalizeDiffs(prevPlain, currentPlain);
   const activities: ActivityLogPayload[] = [];
+  let changes: NormalizedChange[] = [];
+
+  try {
+    const prevPlain =
+      typeof (prevDoc as any)?.toObject === 'function'
+        ? (prevDoc as any).toObject()
+        : prevDoc;
+
+    const currentPlain =
+      typeof (currentDoc as any)?.toObject === 'function'
+        ? (currentDoc as any).toObject()
+        : currentDoc;
+
+    changes = normalizeDiffs(prevPlain, currentPlain);
+  } catch (error) {
+    logActivityLogError('buildActivities setup', error, {
+      targetId: currentDoc?._id ?? prevDoc?._id,
+    });
+    return activities;
+  }
 
   for (const change of changes) {
     for (const rule of activityRegistry) {
-      if (rule.match(change)) {
-        activities.push(...(await rule.build(change)));
+      try {
+        if (!rule.match(change)) {
+          continue;
+        }
+
+        const result = await rule.build(change);
+
+        if (Array.isArray(result) && result.length > 0) {
+          activities.push(...result);
+        }
+      } catch (error) {
+        logActivityLogError('buildActivities change', error, {
+          field: change.field,
+          targetId: currentDoc?._id ?? prevDoc?._id,
+        });
       }
     }
   }

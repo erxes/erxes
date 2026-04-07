@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_AMENITIES = gql`
-  query BmsElements(
+  query BmsAmenities(
     $branchId: String
     $name: String
     $limit: Int
@@ -11,6 +11,7 @@ export const GET_AMENITIES = gql`
     $orderBy: JSON
     $sortMode: String
     $quick: Boolean
+    $language: String
   ) {
     bmsElements(
       branchId: $branchId
@@ -22,12 +23,19 @@ export const GET_AMENITIES = gql`
       orderBy: $orderBy
       sortMode: $sortMode
       quick: $quick
+      language: $language
     ) {
       list {
         _id
         name
         icon
         quick
+        language
+        translations {
+          _id
+          language
+          name
+        }
         createdAt
         modifiedAt
       }
