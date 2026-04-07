@@ -101,18 +101,19 @@ export const contractQueries = {
           ];
         }
 
-        const contracts = await models.Contract.find(query).populate(
-          'vendor customer insuranceType insuranceProduct coveredRisks.risk',
-        );
-
-        return contracts
-          .filter(
-            (c: any) => c.insuranceProduct != null && c.insuranceType != null,
+        const contracts = await models.Contract.find(query)
+          .select(
+            'contractNumber vendor customer insuranceProduct insuranceType chargedAmount startDate endDate paymentStatus',
           )
-          .map((c: any) => ({
-            ...c.toObject(),
-            coveredRisks: c.coveredRisks.filter((cr: any) => cr.risk != null),
-          }));
+          .populate([
+            { path: 'vendor', select: '_id name' },
+            { path: 'customer', select: '_id firstName lastName' },
+            { path: 'insuranceProduct', select: '_id name' },
+          ]);
+
+        return contracts.filter(
+          (c: any) => c.insuranceProduct != null && c.insuranceType != null,
+        );
       } catch (e: any) {
         console.error('contracts query error:', e.message);
         return [];
@@ -131,8 +132,7 @@ export const contractQueries = {
         'vendor customer insuranceType insuranceProduct coveredRisks.risk',
       );
 
-      if (!contract || !contract.insuranceProduct || !contract.insuranceType)
-        return null;
+      if (!contract?.insuranceProduct || !contract?.insuranceType) return null;
 
       return {
         ...contract.toObject(),
@@ -195,8 +195,7 @@ export const contractQueries = {
         'vendor customer insuranceType insuranceProduct coveredRisks.risk',
       );
 
-      if (!contract || !contract.insuranceProduct || !contract.insuranceType)
-        return null;
+      if (!contract?.insuranceProduct || !contract?.insuranceType) return null;
 
       return {
         ...contract.toObject(),
@@ -219,7 +218,7 @@ export const contractQueries = {
         startDate,
         sortDirection,
         sortField,
-        vendorUserId,
+        vendorUserId: _vendorUserId,
         categoryId,
       }: {
         page?: number;
@@ -256,7 +255,7 @@ export const contractQueries = {
       if (filters) {
         if (filters.contractNumber) {
           query.contractNumber = {
-            $regex: filters.contractNumber,
+            $regex: escapeRegex(filters.contractNumber),
             $options: 'i',
           };
         }
@@ -276,7 +275,7 @@ export const contractQueries = {
         if (filters.customerRegistration) {
           const customers = await models.Customer.find({
             registrationNumber: {
-              $regex: filters.customerRegistration,
+              $regex: escapeRegex(filters.customerRegistration),
               $options: 'i',
             },
           }).select('_id');
@@ -290,8 +289,18 @@ export const contractQueries = {
         if (filters.customerName) {
           const customers = await models.Customer.find({
             $or: [
-              { firstName: { $regex: filters.customerName, $options: 'i' } },
-              { lastName: { $regex: filters.customerName, $options: 'i' } },
+              {
+                firstName: {
+                  $regex: escapeRegex(filters.customerName),
+                  $options: 'i',
+                },
+              },
+              {
+                lastName: {
+                  $regex: escapeRegex(filters.customerName),
+                  $options: 'i',
+                },
+              },
             ],
           }).select('_id');
           if (customers.length > 0) {
@@ -303,14 +312,14 @@ export const contractQueries = {
 
         if (filters.plateNumber) {
           query['insuredObject.Улсын дугаар'] = {
-            $regex: filters.plateNumber,
+            $regex: escapeRegex(filters.plateNumber),
             $options: 'i',
           };
         }
 
         if (filters.vehicleMark) {
           query['insuredObject.Тээврийн хэрэгслийн марк'] = {
-            $regex: filters.vehicleMark,
+            $regex: escapeRegex(filters.vehicleMark),
             $options: 'i',
           };
         }
@@ -370,7 +379,7 @@ export const contractQueries = {
         vendor: vendorUser.vendor,
       }).populate('vendor customer insuranceType insuranceProduct');
 
-      if (!contract || !contract.insuranceType) return null;
+      if (!contract?.insuranceType) return null;
 
       return contract;
     },

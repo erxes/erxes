@@ -17,6 +17,8 @@ const posCommonFields = `
   adminIds: [String]
   cashierIds: [String]
   paymentIds: [String]
+  serviceCharge: Float
+  serviceChargeApplicableProductId: String
   paymentTypes: [JSON]
   isOnline: Boolean
   onServer: Boolean

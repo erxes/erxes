@@ -1,18 +1,16 @@
-import { Link, useParams } from 'react-router-dom';
-import { Button } from 'erxes-ui';
-import { IconCircles } from '@tabler/icons-react';
-import { Separator } from 'erxes-ui';
-import { useIsMatchingLocation } from 'erxes-ui';
-import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelDetailBreadcrumb';
-import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
-import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/components/PipelineConfigBreadcrumb';
-import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
-import { TicketStatusesBreadcrumb } from '@/status/components/TicketStatusesBreadcrumb';
-import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/ResponseDetailBreadcrumb';
 import { FormDetailsBreadcrumb } from '@/forms/components/FormDetailsBreadcrumb';
 import { FormsCreateButton } from '@/forms/components/form-page/forms-create';
+import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
+import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/components/PipelineConfigBreadcrumb';
 import { PipelinePermissionsBreadcrumb } from '@/pipelines/components/permissions/components/PipelinePermissionsBreadcrumb';
+import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/ResponseDetailBreadcrumb';
+import { TicketStatusesBreadcrumb } from '@/status/components/TicketStatusesBreadcrumb';
+import { FrontlinePaths } from '@/types/FrontlinePaths';
+import { IconCircles } from '@tabler/icons-react';
+import { Button, Separator, useIsMatchingLocation } from 'erxes-ui';
+import { Link, useParams } from 'react-router-dom';
+import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
 
 export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(

@@ -20,13 +20,13 @@ export const PagesRecordTable = ({
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const columns = usePagesColumns(onEditPage, refetch);
+  const columns = usePagesColumns(onEditPage, refetch, pages);
 
   return (
     <RecordTable.Provider
       columns={columns}
       data={pages || []}
-      className="m-3"
+      className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTable.CursorProvider

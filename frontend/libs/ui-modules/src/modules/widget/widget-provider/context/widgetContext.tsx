@@ -2,6 +2,10 @@ import { createContext, useContext } from 'react';
 import { Icon } from '@tabler/icons-react';
 import { REACT_APP_HIDE_CORE_MODULES } from 'erxes-ui';
 
+export type WidgetAccessMap = Record<string, 'read' | 'write'>;
+
+export type WidgetAccessProp = 'read' | 'write' | WidgetAccessMap;
+
 export interface IRelationWidgetProps {
   module: string;
   pluginName: string;
@@ -9,6 +13,7 @@ export interface IRelationWidgetProps {
   contentType: string;
   customerId?: string;
   companyId?: string;
+  access?: 'read' | 'write';
 }
 
 export interface IRelationModules {

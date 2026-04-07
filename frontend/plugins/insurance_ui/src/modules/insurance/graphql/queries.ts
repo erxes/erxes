@@ -12,6 +12,7 @@ export const riskTypeFields = `
 export const insuranceTypeFields = `
   id
   name
+  isCitizen
   attributes {
     name
     dataType
@@ -25,11 +26,22 @@ export const insuranceTypeFields = `
   updatedAt
 `;
 
+export const insuranceRegionFields = `
+  id
+  name
+  countries
+  createdAt
+  updatedAt
+`;
+
 export const insuranceProductFields = `
   id
   name
   insuranceType {
     ${insuranceTypeFields}
+  }
+  regions {
+    ${insuranceRegionFields}
   }
   coveredRisks {
     risk {
@@ -63,6 +75,10 @@ export const insuranceVendorFields = `
       ${insuranceProductFields}
     }
     pricingOverride
+    discountTiers {
+      minTravelers
+      discountPercent
+    }
   }
   createdAt
   updatedAt
@@ -290,6 +306,55 @@ export const VENDOR_CONTRACT = gql`
   }
 `;
 
+export const INSURANCE_REGIONS = gql`
+  query InsuranceRegions {
+    insuranceRegions {
+      ${insuranceRegionFields}
+    }
+  }
+`;
+
+export const INSURANCE_REGION = gql`
+  query InsuranceRegion($id: ID!) {
+    insuranceRegion(id: $id) {
+      ${insuranceRegionFields}
+    }
+  }
+`;
+
+export const PRODUCTS_BY_COUNTRY = gql`
+  query ProductsByCountry($country: String!) {
+    productsByCountry(country: $country) {
+      ${insuranceProductFields}
+    }
+  }
+`;
+
+export const CALCULATE_TRAVEL_PRICE = gql`
+  query CalculateTravelPrice(
+    $productId: ID!
+    $vendorId: ID!
+    $startDate: Date!
+    $endDate: Date!
+    $travelerCount: Int!
+  ) {
+    calculateTravelPrice(
+      productId: $productId
+      vendorId: $vendorId
+      startDate: $startDate
+      endDate: $endDate
+      travelerCount: $travelerCount
+    ) {
+      perPerson
+      total
+      discountPercent
+      days
+      travelerCount
+      dailyRate
+    }
+  }
+`;
+
 export default {
   RISK_TYPES,
   RISK_TYPE,
@@ -308,4 +373,8 @@ export default {
   CONTRACT,
   VENDOR_CONTRACTS,
   VENDOR_CONTRACT,
+  INSURANCE_REGIONS,
+  INSURANCE_REGION,
+  PRODUCTS_BY_COUNTRY,
+  CALCULATE_TRAVEL_PRICE,
 };

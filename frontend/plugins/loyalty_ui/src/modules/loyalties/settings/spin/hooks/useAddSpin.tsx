@@ -20,7 +20,7 @@ export interface AddSpinVariables {
   awards?: Array<{
     name?: string;
     voucherCampaignId?: string;
-    probablity?: string;
+    probability?: number;
   }>;
 }
 

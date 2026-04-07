@@ -13,7 +13,7 @@ export const cpTicketMutations: Record<string, Resolver> = {
     params: ITicketUpdate,
     { models, subdomain, cpUser, clientPortal }: IContext,
   ) => {
-    const userId = cpUser.erxesCustomerId || cpUser._id || clientPortal._id;
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || clientPortal?._id;
 
     const ticket = await models.Ticket.addTicket(
       params,
@@ -74,6 +74,5 @@ export const cpTicketMutations: Record<string, Resolver> = {
 markResolvers(cpTicketMutations, {
   wrapperConfig: {
     forClientPortal: true,
-    cpUserRequired: true,
   },
 });

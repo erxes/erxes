@@ -17,9 +17,9 @@ import {
 } from '../utils';
 import { addDeal, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const dealMutations = {
+export const dealMutations: Record<string, Resolver> = {
   /**
    * Creates a new deal
    */
@@ -31,10 +31,26 @@ export const dealMutations = {
     return await addDeal({ models, subdomain, user, doc });
   },
 
+  async cpDealsAdd(
+    _root,
+    doc: IDeal & { processId: string; aboveItemId: string },
+    { user, models, subdomain }: IContext,
+  ) {
+    return await addDeal({ models, subdomain, user, doc });
+  },
+
   /**
    * Edits a deal
    */
   async dealsEdit(
+    _root,
+    { _id, processId, ...doc }: IDealDocument & { processId: string },
+    { user, models, subdomain }: IContext,
+  ) {
+    return await editDeal({ models, subdomain, _id, processId, doc, user });
+  },
+
+  async cpDealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
     { user, models, subdomain }: IContext,
@@ -377,40 +393,24 @@ export const dealMutations = {
         deal.productsData,
       );
 
-    await models.Deals.updateOne(
-      { _id: dealId },
-      {
-        $set: {
-          productsData,
-          assignedUserIds,
-          ...(await getTotalAmounts(productsData)),
+    const updatedItem =
+      (await models.Deals.findOneAndUpdate(
+        { _id: dealId },
+        {
+          $set: {
+            productsData,
+            assignedUserIds,
+            ...(await getTotalAmounts(productsData)),
+          },
         },
-      },
-    );
+        { new: true },
+      )) || ({} as any);
 
-    // const stage = await models.Stages.getStage(deal.stageId);
-    // const updatedItem =
-    //   (await models.Deals.findOne({ _id: dealId })) || ({} as any);
-
-    // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-    //   salesPipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     processId,
-    //     action: 'itemUpdate',
-    //     data: {
-    //       item: {
-    //         ...updatedItem,
-    //         ...(await itemResolver(
-    //           models,
-    //           subdomain,
-    //           user,
-    //           'deal',
-    //           updatedItem,
-    //         )),
-    //       },
-    //     },
-    //   },
-    // });
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: updatedItem,
+      oldDeal: deal,
+    });
 
     graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
       salesProductsDataChanged: {
@@ -458,39 +458,23 @@ export const dealMutations = {
       (data) => !data._id || !dataIds.includes(data._id),
     );
 
-    await models.Deals.updateOne(
-      { _id: dealId },
-      {
-        $set: {
-          productsData,
-          ...(await getTotalAmounts(productsData)),
+    const updatedItem =
+      (await models.Deals.findOneAndUpdate(
+        { _id: dealId },
+        {
+          $set: {
+            productsData,
+            ...(await getTotalAmounts(productsData)),
+          },
         },
-      },
-    );
+        { new: true },
+      )) || ({} as any);
 
-    // const stage = await models.Stages.getStage(deal.stageId);
-    // const updatedItem =
-    //   (await models.Deals.findOne({ _id: dealId })) || ({} as any);
-
-    // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-    //   salesPipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     processId,
-    //     action: 'itemUpdate',
-    //     data: {
-    //       item: {
-    //         ...updatedItem,
-    //         ...(await itemResolver(
-    //           models,
-    //           subdomain,
-    //           user,
-    //           'deal',
-    //           updatedItem,
-    //         )),
-    //       },
-    //     },
-    //   },
-    // });
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: updatedItem,
+      oldDeal: deal,
+    });
 
     graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
       salesProductsDataChanged: {
@@ -509,4 +493,12 @@ export const dealMutations = {
       productsData,
     };
   },
+};
+
+dealMutations.cpDealsEdit.wrapperConfig = {
+  forClientPortal: true,
+};
+
+dealMutations.cpDealsAdd.wrapperConfig = {
+  forClientPortal: true,
 };

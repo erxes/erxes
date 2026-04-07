@@ -89,5 +89,10 @@ export const CONFIG: IUIConfig = {
       icon: IconSandbox,
       path: 'mongolian/product-places',
     },
+    {
+      name: 'exchange-rates',
+      icon: IconSandbox,
+      path: 'mongolian/exchange-rates',
+    },
   ],
 };

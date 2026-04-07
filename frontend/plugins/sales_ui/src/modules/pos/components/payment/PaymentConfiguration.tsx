@@ -25,18 +25,17 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
   const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (!posDetail || initializedRef.current) {
-      return;
-    }
+    if (!posDetail || initializedRef.current) return;
 
-    setPaymentIds(posDetail.paymentIds || []);
-    setErxesAppToken(posDetail.erxesAppToken || '');
+    setPaymentIds(posDetail.paymentIds ?? []);
+    setErxesAppToken(posDetail.erxesAppToken ?? '');
+
     setHasChanges(false);
     initializedRef.current = true;
   }, [posDetail]);
 
   const handlePaymentChange = (value: string[] | string | null) => {
-    setPaymentIds(Array.isArray(value) ? value : value && [value] || []);
+    setPaymentIds(Array.isArray(value) ? value : value ? [value] : []);
     setHasChanges(true);
   };
 
@@ -63,6 +62,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
         title: 'Success',
         description: 'Payment configuration saved successfully',
       });
+
       setHasChanges(false);
     } catch {
       toast({
@@ -112,7 +112,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
       )}
 
       {isFieldVisible('appToken', posType) && (
-        <div className="space-y-2">
+        <div className="flex-1 space-y-2">
           <Label>ERXES APP TOKEN:</Label>
           <Input
             type="text"

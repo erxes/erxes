@@ -35,12 +35,7 @@ export function useDepartmentAdd(
         const existingData = cache.readQuery<DepartmentData>({
           query: GET_DEPARTMENTS_LIST,
         });
-        if (
-          !existingData ||
-          !existingData.departmentsMain ||
-          !data?.departmentsAdd
-        )
-          return;
+        if (!existingData?.departmentsMain || !data?.departmentsAdd) return;
 
         cache.writeQuery<DepartmentData>({
           query: GET_DEPARTMENTS_LIST,
@@ -77,12 +72,7 @@ export function useDepartmentEdit(
         const existingData = cache.readQuery<DepartmentData>({
           query: GET_DEPARTMENTS_LIST,
         });
-        if (
-          !existingData ||
-          !existingData.departmentsMain ||
-          !data?.departmentsEdit
-        )
-          return;
+        if (!existingData?.departmentsMain || !data?.departmentsEdit) return;
 
         cache.writeQuery<DepartmentData>({
           query: GET_DEPARTMENTS_LIST,

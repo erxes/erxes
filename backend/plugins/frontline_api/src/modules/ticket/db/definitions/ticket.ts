@@ -1,11 +1,13 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
+import { attachmentSchema } from 'erxes-api-shared/core-modules';
 
 export const ticketSchema = new Schema(
   {
     _id: mongooseStringRandomId,
     name: { type: String },
     channelId: { type: String },
+    stageId: { type: String },
     pipelineId: {
       type: String,
       label: 'pipelineId',
@@ -27,7 +29,7 @@ export const ticketSchema = new Schema(
     priority: { type: Number, label: 'Priority', default: 0 },
     assigneeId: { type: String, label: 'Assignee' },
     createdBy: { type: String, label: 'Created By' },
-    attachments: [{ filename: String, url: String }],
+    attachments: { type: [attachmentSchema], label: 'Attachments' },
     labelIds: { type: [String], label: 'Label IDs' },
     tagIds: { type: [String], label: 'Tag IDs' },
     userId: { type: String, label: 'userId' },
@@ -45,6 +47,12 @@ export const ticketSchema = new Schema(
       type: Schema.Types.Mixed,
       optional: true,
       label: 'Properties data',
+    },
+    companyIds: { type: [String], label: 'Company IDs' },
+    customerFieldData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Customer field data',
     },
   },
   {

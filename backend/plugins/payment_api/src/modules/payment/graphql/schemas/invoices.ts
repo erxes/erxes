@@ -69,6 +69,7 @@ export const mutations = `
   invoicesRemove(_ids: [String]!): String
 
   cpInvoiceCreate(input: InvoiceInput!): Invoice
+  cpInvoicesCheck(_id:String!): String
 `;
 
 const cursorParams = `
@@ -92,4 +93,7 @@ export const queries = `
   invoicesTotalCount(${queryParams}): invoicesTotalCount
   invoiceDetail(_id: String!): Invoice
   invoiceDetailByContent(contentType: String!, contentTypeId: String!): [Invoice]
+
+  cpInvoices(${queryParams}): InvoicesListResponse
+  cpInvoiceDetail(_id: String!): Invoice
 `;

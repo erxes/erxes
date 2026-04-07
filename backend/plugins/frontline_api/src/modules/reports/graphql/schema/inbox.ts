@@ -5,6 +5,7 @@ export const types = `
     toDate: String
     status: String
     source: String
+    callStatus: String
     limit: Int
     page: Int
     channelIds: [String]
@@ -59,11 +60,19 @@ export const types = `
     messageCount: Int
   }
 
+  type ConversationMemberProgress {
+    assigneeId: String!
+    new: Int!
+    open: Int!
+    closed: Int!
+    resolved: Int!
+  }
+
 `;
 
 export const queries = `
   conversationProgressChart(customerId:String!):JSON
-  conversationMemberProgress(customerId:String!):JSON
+  conversationMemberProgress(customerId:String!):[ConversationMemberProgress]
   conversationSourceProgress(customerId:String!):JSON
   conversationTagProgress(customerId:String!):JSON
   reportConversationOpenDate(filters: ConversationReportFilter): [ConversationDateStat]

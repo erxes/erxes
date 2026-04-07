@@ -61,9 +61,15 @@ export const types = `
   }
 
   type UserPermission {
+    plugin: String
     module: String!
     actions: [String]!
     scope: String!
+  }
+
+  type CurrentUserPermissionsResult {
+    permissions: [UserPermission]!
+    pluginsWithPermissions: [String]!
   }
 
   type CustomPermission {
@@ -80,7 +86,7 @@ export const queries = `
   permissionDefaultGroups: [DefaultPermissionGroup]
   permissionGroups: [PermissionGroup]
   permissionGroupDetail(id: String!): PermissionGroup
-  currentUserPermissions: [UserPermission]
+  currentUserPermissions: CurrentUserPermissionsResult
 `;
 
 export const mutations = `

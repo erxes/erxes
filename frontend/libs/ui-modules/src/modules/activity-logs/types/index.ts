@@ -25,7 +25,8 @@ export interface TActivityLog<TTarget = any, TContext = any> {
   contextType: string;
   context: TActivityEntity<TContext>;
   action: {
-    action: string;
+    action?: string;
+    type?: string;
     description: string;
   };
   changes?: any;

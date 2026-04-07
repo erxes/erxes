@@ -72,7 +72,7 @@ export const useOrdersVariables = (options: UseOrdersListOptions = {}) => {
   const [number] = useQueryState<string>('number');
   return {
     perPage: POS_PER_PAGE,
-    ...(posId && { posId }),
+    posId: posId !== undefined ? posId : pos || undefined,
     search: (() => {
       const searchParts = [];
       if (searchValue) searchParts.push(searchValue);
@@ -81,7 +81,6 @@ export const useOrdersVariables = (options: UseOrdersListOptions = {}) => {
     })(),
     customerId: customer || company || undefined,
     userId: user || undefined,
-    posId: pos || undefined,
     types: types && types !== 'all' ? [types] : undefined,
     statuses: status && status !== 'all' ? [status] : undefined,
     excludeStatuses:

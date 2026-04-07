@@ -1,10 +1,10 @@
-import { executeEmailAction } from '@/executions/actions/emailAction/executeEmailAction';
-import { executeDelayAction } from '@/executions/actions/executeDelayAction';
-import { executeIfCondition } from '@/executions/actions/executeIfCondition';
-import { executeSetPropertyAction } from '@/executions/actions/executeSetPropertyAction';
-import { executeWaitEvent } from '@/executions/actions/executeWaitEvent';
-import { executeOutgoingWebhook } from '@/executions/actions/webhook/outgoing/outgoingWebhook';
-import { executeFindObjectAction } from '@/executions/executeFindObjectAction';
+import { executeEmailAction } from './actions/emailAction/executeEmailAction';
+import { executeDelayAction } from './actions/executeDelayAction';
+import { executeIfCondition } from './actions/executeIfCondition';
+import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
+import { executeWaitEvent } from './actions/executeWaitEvent';
+import { executeOutgoingWebhook } from './actions/webhook/outgoing/outgoingWebhook';
+import { executeFindObjectAction } from './executeFindObjectAction';
 import {
   AUTOMATION_CORE_ACTIONS,
   IAutomationAction,

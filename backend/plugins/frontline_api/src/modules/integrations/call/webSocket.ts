@@ -182,11 +182,11 @@ class QueueStateManager {
     const callerid = event.callerid;
     const calleeid = event.calleeid;
     const callerchannel = event.callerchannel;
-    const calleechannel = event.calleechannel;
+    // const calleechannel = event.calleechannel;
 
-    // Remove from both waiting and talking lists
-    const beforeWaiting = queue.waiting.length;
-    const beforeTalking = queue.talking.length;
+    // // Remove from both waiting and talking lists
+    // const beforeWaiting = queue.waiting.length;
+    // const beforeTalking = queue.talking.length;
 
     // Filter out the call from waiting list
     queue.waiting = queue.waiting.filter((call) => {
@@ -202,8 +202,8 @@ class QueueStateManager {
       );
     });
 
-    const afterWaiting = queue.waiting.length;
-    const afterTalking = queue.talking.length;
+    // const afterWaiting = queue.waiting.length;
+    // const afterTalking = queue.talking.length;
 
     // console.log(`Call hangup: ${callerid} -> ${calleeid}`);
     // console.log(
@@ -291,7 +291,7 @@ class QueueStateManager {
     const isInWaiting = queue.waiting.some(
       (call) => call.callerid === callerId,
     );
-    const isCallUp = event.state && event.state.toLowerCase().includes('up');
+    const isCallUp = event.state?.toLowerCase().includes('up');
 
     if (isCallUp && isInWaiting) {
       // Move from waiting to talking
@@ -317,8 +317,8 @@ class QueueStateManager {
     callerId?: string,
     calleeid?: string,
   ): void {
-    const beforeWaiting = queue.waiting.length;
-    const beforeTalking = queue.talking.length;
+    // const beforeWaiting = queue.waiting.length;
+    // const beforeTalking = queue.talking.length;
 
     const channelFilter = (call: QueueCall) =>
       call.callerid !== callerId &&
@@ -343,7 +343,7 @@ class QueueStateManager {
 
 // Event Processing
 class EventProcessor {
-  constructor(private stateManager: QueueStateManager) { }
+  constructor(private stateManager: QueueStateManager) {}
 
   async processEvent(eventData: any): Promise<string[]> {
     const updatedQueues: Set<string> = new Set();
@@ -451,7 +451,7 @@ class PBXWebSocketClient {
   constructor(
     private stateManager: QueueStateManager,
     private eventProcessor: EventProcessor,
-  ) { }
+  ) {}
 
   async initialize(): Promise<void> {
     this.queues = await this.loadQueuesFromDB();

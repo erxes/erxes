@@ -1,7 +1,6 @@
 import { PAYMENTS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
 import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 
 interface IParam {
@@ -124,9 +123,6 @@ const queries: Record<string, Resolver> = {
     return api.getDistricts(args.cityCode);
   },
 };
-
-requireLogin(queries, 'payments');
-checkPermission(queries, 'payments', 'showPayments', []);
 
 export default queries;
 

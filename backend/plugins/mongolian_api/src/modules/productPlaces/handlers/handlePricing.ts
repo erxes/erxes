@@ -77,7 +77,7 @@ export const handlePricing = async (subdomain, deal, productsData) => {
       subdomain,
       pluginName: 'sales',
       module: 'deal',
-      action: 'editItem',
+      action: 'updateOne',
       method: 'mutation',
       input: {
         selector: { _id: deal._id },

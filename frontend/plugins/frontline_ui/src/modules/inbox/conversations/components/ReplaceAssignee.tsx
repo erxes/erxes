@@ -1,5 +1,3 @@
-import { IconReplaceUser } from '@tabler/icons-react';
-import { Button, Popover } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import { useAtom } from 'jotai';
 import { selectConversationsState } from '../states/selectConversationsState';

@@ -1,0 +1,477 @@
+import { useMemo } from 'react';
+import { Button, Form, Input, Sheet, Spinner, useToast } from 'erxes-ui';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useCreateTour } from '../hooks/useCreateTour';
+import { useTourDetail, ITourDetail } from '../hooks/useTourDetail';
+import { RHFDatePicker } from './RHFDatePicker';
+
+const stripTypename = <T extends Record<string, any>>(
+  obj: T,
+): Omit<T, '__typename'> => {
+  const { __typename, ...rest } = obj as any;
+  return rest;
+};
+
+const isSameDay = (left: Date, right: Date) =>
+  left.getFullYear() === right.getFullYear() &&
+  left.getMonth() === right.getMonth() &&
+  left.getDate() === right.getDate();
+
+const getDateStatus = (
+  startDate?: Date,
+): 'scheduled' | 'unscheduled' | 'running' => {
+  if (!startDate) {
+    return 'unscheduled';
+  }
+  return isSameDay(startDate, new Date()) ? 'running' : 'scheduled';
+};
+
+const calculateEndDate = (startDate: Date, duration?: number) => {
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + Number(duration || 0));
+  return endDate;
+};
+
+const FixedFormSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  refNumber: z.string().min(1, 'Ref number is required'),
+  startDate: z.coerce.date({ required_error: 'Start date is required' }),
+});
+
+const FlexibleFormSchema = z
+  .object({
+    name: z.string().min(1, 'Name is required'),
+    refNumber: z.string().min(1, 'Ref number is required'),
+    availableFrom: z.coerce.date({
+      required_error: 'Available from is required',
+    }),
+    availableTo: z.coerce.date({ required_error: 'Available to is required' }),
+  })
+  .refine((data) => data.availableFrom < data.availableTo, {
+    message: 'Available from must be before available to',
+    path: ['availableTo'],
+  });
+
+type FixedFormType = z.infer<typeof FixedFormSchema>;
+type FlexibleFormType = z.infer<typeof FlexibleFormSchema>;
+
+interface TourDuplicateSheetProps {
+  tourId: string;
+  dateType?: 'fixed' | 'flexible';
+  branchId?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const TourDuplicateSheet = ({
+  tourId,
+  dateType,
+  branchId,
+  open,
+  onOpenChange,
+}: TourDuplicateSheetProps) => {
+  const { tourDetail, loading: detailLoading } = useTourDetail({
+    variables: { id: tourId },
+    skip: !open,
+  });
+
+  if (!open) return null;
+
+  if (detailLoading || !tourDetail) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <Sheet.View className="w-[400px] sm:max-w-[400px] p-0">
+          <Sheet.Header>
+            <Sheet.Title>Duplicate tour</Sheet.Title>
+            <Sheet.Close />
+          </Sheet.Header>
+          <Sheet.Content className="flex justify-center items-center py-12">
+            <Spinner />
+          </Sheet.Content>
+        </Sheet.View>
+      </Sheet>
+    );
+  }
+
+  const isFlexible = dateType === 'flexible';
+
+  return isFlexible ? (
+    <FlexibleDuplicateSheet
+      tour={tourDetail}
+      branchId={branchId}
+      open={open}
+      onOpenChange={onOpenChange}
+    />
+  ) : (
+    <FixedDuplicateSheet
+      tour={tourDetail}
+      branchId={branchId}
+      open={open}
+      onOpenChange={onOpenChange}
+    />
+  );
+};
+
+interface InnerSheetProps {
+  tour: ITourDetail;
+  branchId?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const FixedDuplicateSheet = ({
+  tour,
+  branchId,
+  open,
+  onOpenChange,
+}: InnerSheetProps) => {
+  const { createTour, loading } = useCreateTour();
+  const { toast } = useToast();
+  const today = useMemo(() => new Date(), []);
+
+  const form = useForm<FixedFormType>({
+    resolver: zodResolver(FixedFormSchema),
+    defaultValues: {
+      name: `${tour.name || ''} (copy)`,
+      refNumber: `${tour.refNumber || ''}-copy`,
+      startDate: tour.startDate ? new Date(tour.startDate) : undefined,
+    },
+  });
+
+  const handleSubmit = async (values: FixedFormType) => {
+    if (!branchId) {
+      toast({
+        title: 'Error',
+        description: 'Branch not selected — cannot duplicate tour',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const computedEndDate = calculateEndDate(values.startDate, tour.duration);
+
+    createTour({
+      variables: {
+        branchId,
+        name: values.name,
+        refNumber: values.refNumber,
+        date_status: getDateStatus(values.startDate),
+        status: tour.status,
+        dateType: 'fixed',
+        startDate: values.startDate,
+        endDate: computedEndDate,
+        availableFrom: undefined,
+        availableTo: undefined,
+        cost: tour.cost,
+        categoryIds: tour.categoryIds,
+        content: tour.content,
+        itineraryId: tour.itineraryId,
+        imageThumbnail: tour.imageThumbnail,
+        images: tour.images,
+        attachment: tour.attachment
+          ? stripTypename(tour.attachment)
+          : tour.attachment,
+        duration: tour.duration,
+        groupSize: tour.groupSize,
+        advancePercent: tour.advancePercent,
+        advanceCheck: tour.advanceCheck,
+        joinPercent: tour.joinPercent,
+        info1: tour.info1,
+        info2: tour.info2,
+        info3: tour.info3,
+        info4: tour.info4,
+        info5: tour.info5,
+        personCost: tour.personCost,
+        pricingOptions: tour.pricingOptions?.map(({ _id: _, ...opt }) =>
+          stripTypename(opt),
+        ),
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          variant: 'success',
+          description: 'Tour duplicated successfully',
+        });
+        onOpenChange(false);
+        form.reset();
+      },
+      onError: (e: any) => {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet.View className="w-[400px] sm:max-w-[400px] p-0">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="flex flex-col h-full"
+          >
+            <Sheet.Header>
+              <Sheet.Title>Duplicate tour</Sheet.Title>
+              <Sheet.Close />
+            </Sheet.Header>
+
+            <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
+              <div className="flex flex-col gap-4">
+                <Form.Field
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Name</Form.Label>
+                      <Form.Control>
+                        <Input placeholder="Enter name" {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="refNumber"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Ref number</Form.Label>
+                      <Form.Control>
+                        <Input placeholder="Enter ref number" {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="startDate"
+                  render={() => (
+                    <Form.Item>
+                      <Form.Label>Start date</Form.Label>
+                      <Form.Control>
+                        <RHFDatePicker
+                          control={form.control}
+                          name="startDate"
+                          fromDate={today}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+            </Sheet.Content>
+
+            <Sheet.Footer className="bg-background">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loading}
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Duplicating...' : 'Duplicate'}
+              </Button>
+            </Sheet.Footer>
+          </form>
+        </Form>
+      </Sheet.View>
+    </Sheet>
+  );
+};
+
+const FlexibleDuplicateSheet = ({
+  tour,
+  branchId,
+  open,
+  onOpenChange,
+}: InnerSheetProps) => {
+  const { createTour, loading } = useCreateTour();
+  const { toast } = useToast();
+  const today = useMemo(() => new Date(), []);
+
+  const form = useForm<FlexibleFormType>({
+    resolver: zodResolver(FlexibleFormSchema),
+    defaultValues: {
+      name: `${tour.name || ''} (copy)`,
+      refNumber: `${tour.refNumber || ''}-copy`,
+      availableFrom: tour.availableFrom
+        ? new Date(tour.availableFrom)
+        : undefined,
+      availableTo: tour.availableTo ? new Date(tour.availableTo) : undefined,
+    },
+  });
+
+  const handleSubmit = async (values: FlexibleFormType) => {
+    if (!branchId) {
+      toast({
+        title: 'Error',
+        description: 'Branch not selected — cannot duplicate tour',
+        variant: 'destructive',
+      });
+      return;
+    }
+    createTour({
+      variables: {
+        branchId,
+        name: values.name,
+        refNumber: values.refNumber,
+        date_status: 'unscheduled',
+        status: tour.status,
+        dateType: 'flexible',
+        startDate: undefined,
+        endDate: undefined,
+        availableFrom: values.availableFrom,
+        availableTo: values.availableTo,
+        cost: tour.cost,
+        categoryIds: tour.categoryIds,
+        content: tour.content,
+        itineraryId: tour.itineraryId,
+        imageThumbnail: tour.imageThumbnail,
+        images: tour.images,
+        attachment: tour.attachment
+          ? stripTypename(tour.attachment)
+          : tour.attachment,
+        duration: tour.duration,
+        groupSize: tour.groupSize,
+        advancePercent: tour.advancePercent,
+        advanceCheck: tour.advanceCheck,
+        joinPercent: tour.joinPercent,
+        info1: tour.info1,
+        info2: tour.info2,
+        info3: tour.info3,
+        info4: tour.info4,
+        info5: tour.info5,
+        personCost: tour.personCost,
+        pricingOptions: tour.pricingOptions?.map(({ _id: _, ...opt }) =>
+          stripTypename(opt),
+        ),
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          variant: 'success',
+          description: 'Tour duplicated successfully',
+        });
+        onOpenChange(false);
+        form.reset();
+      },
+      onError: (e: any) => {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet.View className="w-[400px] sm:max-w-[400px] p-0">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="flex flex-col h-full"
+          >
+            <Sheet.Header>
+              <Sheet.Title>Duplicate tour</Sheet.Title>
+              <Sheet.Close />
+            </Sheet.Header>
+
+            <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
+              <div className="flex flex-col gap-4">
+                <Form.Field
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Name</Form.Label>
+                      <Form.Control>
+                        <Input placeholder="Enter name" {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="refNumber"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Ref number</Form.Label>
+                      <Form.Control>
+                        <Input placeholder="Enter ref number" {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="availableFrom"
+                  render={() => (
+                    <Form.Item>
+                      <Form.Label>Available from</Form.Label>
+                      <Form.Control>
+                        <RHFDatePicker
+                          control={form.control}
+                          name="availableFrom"
+                          fromDate={today}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="availableTo"
+                  render={() => (
+                    <Form.Item>
+                      <Form.Label>Available to</Form.Label>
+                      <Form.Control>
+                        <RHFDatePicker
+                          control={form.control}
+                          name="availableTo"
+                          fromDate={today}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+            </Sheet.Content>
+
+            <Sheet.Footer className="bg-background">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loading}
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Duplicating...' : 'Duplicate'}
+              </Button>
+            </Sheet.Footer>
+          </form>
+        </Form>
+      </Sheet.View>
+    </Sheet>
+  );
+};

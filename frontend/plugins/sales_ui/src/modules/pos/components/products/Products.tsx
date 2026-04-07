@@ -6,6 +6,7 @@ import { InitialProductCategories } from '@/pos/components/products/InitialProdu
 import { KioskExcludeProducts } from '@/pos/components/products/KioskExcludeProducts';
 import { ProductAndCategoryMapping } from '@/pos/components/products/ProductAndCategoryMapping';
 import { RemainderConfigs } from '@/pos/components/products/RemainderConfigs';
+import { ServiceCharge } from '@/pos/components/products/ServiceCharge';
 import { isFieldVisible } from '@/pos/constants';
 
 interface ProductsProps {
@@ -42,22 +43,24 @@ const Products: React.FC<ProductsProps> = ({ posId, posType }) => {
         </InfoCard>
       )}
 
-      {hasMoreOptions && (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={toggleMore}
-          className="flex gap-1 items-center text-muted-foreground"
-        >
-          {showMore ? (
-            <IconChevronUp size={16} />
-          ) : (
-            <IconChevronDown size={16} />
-          )}
-          {showMore ? 'Hide more options' : 'More options'}
-        </Button>
-      )}
+      <div className="flex justify-center">
+        {hasMoreOptions && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={toggleMore}
+            className="flex gap-1 items-center text-muted-foreground"
+          >
+            {showMore ? (
+              <IconChevronUp size={16} />
+            ) : (
+              <IconChevronDown size={16} />
+            )}
+            {showMore ? 'Hide more options' : 'More options'}
+          </Button>
+        )}
+      </div>
 
       {(!isRestaurant || showMore) && (
         <>
@@ -81,6 +84,14 @@ const Products: React.FC<ProductsProps> = ({ posId, posType }) => {
             <InfoCard title="Remainder configs">
               <InfoCard.Content>
                 <RemainderConfigs posId={posId} />
+              </InfoCard.Content>
+            </InfoCard>
+          )}
+
+          {isFieldVisible('serviceCharge', posType) && (
+            <InfoCard title="Service charge">
+              <InfoCard.Content>
+                <ServiceCharge posId={posId} />
               </InfoCard.Content>
             </InfoCard>
           )}

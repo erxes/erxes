@@ -12,10 +12,6 @@ import {
   getItemList,
 } from '~/modules/sales/utils';
 import {
-  checkPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
-import {
   getNextMonth,
   getToday,
   regexSearchText,
@@ -1001,11 +997,79 @@ export const dealQueries: Record<string, Resolver> = {
     return checkItemPermByUser(models, subdomain, user, deal);
   },
 
-  //   async checkDiscount() {}
-};
+  async checkDiscount(
+    _root,
+    {
+      _id,
+      products,
+    }: {
+      _id: string;
+      products: Array<{
+        productId: string;
+        quantity: number;
+        unitPrice?: number;
+      }>;
+    },
+    { subdomain }: IContext,
+  ) {
+    const getOwner = async (): Promise<{
+      ownerId?: string;
+      ownerType?: 'customer' | 'company';
+    }> => {
+      const getRelation = async (
+        contentType: 'core:customer' | 'core:company',
+      ) => {
+        const ids = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'relation',
+          action: 'getRelationIds',
+          input: {
+            contentType,
+            relatedContentType: 'sales:deal',
+            contentId: _id,
+          },
+          defaultValue: [],
+        });
 
-// moduleRequireLogin(dealQueries);
-// checkPermission(dealQueries, 'deals', 'showDeals');
+        return ids?.[0];
+      };
+
+      const customerId = await getRelation('core:customer');
+      if (customerId) {
+        return { ownerId: customerId, ownerType: 'customer' };
+      }
+
+      const companyId = await getRelation('core:company');
+      if (companyId) {
+        return { ownerId: companyId, ownerType: 'company' };
+      }
+
+      return {};
+    };
+
+    const { ownerId, ownerType } = await getOwner();
+
+    if (!ownerId) {
+      return {};
+    }
+
+    const result = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalties',
+      module: 'loyalties',
+      action: 'checkLoyalties',
+      input: {
+        ownerType,
+        ownerId,
+        products,
+      },
+      defaultValue: {},
+    });
+
+    return result || {};
+  },
+};
 
 dealQueries.cpDeals.wrapperConfig = {
   forClientPortal: true,

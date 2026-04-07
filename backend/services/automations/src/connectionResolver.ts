@@ -3,7 +3,7 @@ import { Connection, Model } from 'mongoose';
 import {
   IAutomationWaitingActionDocument,
   waitingActionsToExecuteSchema,
-} from '@/mongo/waitingActionsToExecute';
+} from './mongo/waitingActionsToExecute';
 import {
   AiAgentDocument,
   aiAgentSchema,

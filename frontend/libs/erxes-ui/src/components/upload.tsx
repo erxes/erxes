@@ -152,7 +152,7 @@ const UploadPreview = React.forwardRef<
           files,
 
           afterUpload: ({ response, fileInfo }) => {
-            onChange && onChange({ url: response, ...fileInfo });
+            onChange?.({ url: response, ...fileInfo });
 
             finishedFilesCountRef.current += 1;
             onUploadProgress?.();

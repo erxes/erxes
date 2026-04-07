@@ -18,6 +18,7 @@ export const GET_INTEGRATION_DETAIL = gql`
         _id
         name
       }
+      brandId
       departmentIds
       details
       facebookPage

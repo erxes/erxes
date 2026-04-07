@@ -1,11 +1,7 @@
-import { IContext } from "~/connectionResolvers";
-import { CTAX_ROW_STATUS } from "@/accounting/@types/ctaxRow";
+import { IContext } from '~/connectionResolvers';
+import { CTAX_ROW_STATUS } from '@/accounting/@types/ctaxRow';
 
-const generateFilterCat = async ({
-  kinds,
-  searchValue,
-  status,
-}) => {
+const generateFilterCat = async ({ kinds, searchValue, status }) => {
   const filter: any = {};
   filter.status = { $nin: [CTAX_ROW_STATUS.DELETED] };
 
@@ -26,21 +22,19 @@ const generateFilterCat = async ({
 };
 
 const ctaxRowQueries = {
-  async ctaxRows(
-    _root,
-    { kinds, searchValue, status },
-    { models }: IContext,
-  ) {
+  async ctaxRows(_root, { kinds, searchValue, status }, { models }: IContext) {
     const filter = await generateFilterCat({
       kinds,
       status,
-      searchValue
+      searchValue,
     });
 
     const sortParams: any = { number: 1 };
 
-    return await models.CtaxRows.find(filter).sort(sortParams)
-      .collation({ locale: "en", numericOrdering: true }).lean();
+    return await models.CtaxRows.find(filter)
+      .sort(sortParams)
+      .collation({ locale: 'en', numericOrdering: true })
+      .lean();
   },
 
   async ctaxRowsCount(
@@ -60,7 +54,5 @@ const ctaxRowQueries = {
     return models.CtaxRows.findOne({ _id }).lean();
   },
 };
-
-// checkPermission(ctaxRowQueries, 'ctaxRows', 'showCtaxRows', []);
 
 export default ctaxRowQueries;

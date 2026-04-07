@@ -7,10 +7,21 @@ import {
   DatePicker,
 } from 'erxes-ui';
 
+export interface FieldDefinition {
+  _id: string;
+  type: string;
+  label: string;
+  placeholder?: string;
+  options?: string[];
+  isRequired?: boolean;
+}
+
+export type CustomFieldValue = string | boolean | string[] | null | undefined;
+
 interface CustomFieldInputProps {
-  field: any;
-  value: any;
-  onChange: (value: any) => void;
+  field: FieldDefinition;
+  value: CustomFieldValue;
+  onChange: (value: string | boolean | string[]) => void;
 }
 
 export const CustomFieldInput = ({
@@ -41,7 +52,7 @@ export const CustomFieldInput = ({
             placeholder={
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
-            rows={3}
+            rows={10}
             value={value || ''}
             onChange={(e) => onChange(e.target.value)}
             className="w-full resize-none"
@@ -134,7 +145,7 @@ export const CustomFieldInput = ({
         }));
         return (
           <MultipleSelector
-            value={multiOptions.filter((o: any) =>
+            value={multiOptions.filter((o: { value: string }) =>
               selectedValues.includes(o.value),
             )}
             options={multiOptions}
@@ -143,7 +154,9 @@ export const CustomFieldInput = ({
             }
             hidePlaceholderWhenSelected
             emptyIndicator="No options"
-            onChange={(opts: any[]) => onChange(opts.map((o) => o.value))}
+            onChange={(opts: { value: string }[]) =>
+              onChange(opts.map((o) => o.value))
+            }
           />
         );
       }

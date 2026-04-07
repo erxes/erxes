@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button, Label } from 'erxes-ui';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
-import { SelectCategory, SelectProduct } from 'ui-modules';
+import { SelectProduct } from 'ui-modules';
+import { SelectCategory } from '@/pos/hooks/SelectCategory';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { nanoid } from 'nanoid';
 
@@ -58,15 +59,21 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
   );
 
   const handleCategorySelect = useCallback(
-    (categoryId: string) => {
-      updateField('categoryIds', [categoryId]);
+    (value: string | string[]) => {
+      updateField(
+        'categoryIds',
+        (Array.isArray(value) ? value : value ? [value] : []) as string[],
+      );
     },
     [updateField],
   );
 
   const handleExcludeCategorySelect = useCallback(
-    (categoryId: string) => {
-      updateField('excludedCategoryIds', [categoryId]);
+    (value: string | string[]) => {
+      updateField(
+        'excludedCategoryIds',
+        (Array.isArray(value) ? value : value ? [value] : []) as string[],
+      );
     },
     [updateField],
   );
@@ -95,8 +102,10 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
       <div className="space-y-2">
         <Label>PRODUCT CATEGORY</Label>
         <SelectCategory
-          selected={formState.categoryIds[0] ?? ''}
-          onSelect={handleCategorySelect}
+          mode="multiple"
+          value={formState.categoryIds}
+          onValueChange={handleCategorySelect}
+          placeholder="Select product categories"
         />
       </div>
 
@@ -116,8 +125,10 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
           <div className="space-y-2">
             <Label>EXCLUDE PRODUCT CATEGORY</Label>
             <SelectCategory
-              selected={formState.excludedCategoryIds[0] ?? ''}
-              onSelect={handleExcludeCategorySelect}
+              mode="multiple"
+              value={formState.excludedCategoryIds}
+              onValueChange={handleExcludeCategorySelect}
+              placeholder="Select product categories to exclude"
             />
           </div>
 

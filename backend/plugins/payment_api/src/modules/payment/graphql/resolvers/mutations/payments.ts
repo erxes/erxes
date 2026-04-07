@@ -5,7 +5,6 @@ import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api';
 import { PocketAPI } from '~/apis/pocket/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import ErxesPayment from '~/apis/ErxesPayment';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { extractErrorMessage } from '~/utils/extractErrorMessage';
 
 function resolveDomain(subdomain: string) {
@@ -169,13 +168,5 @@ const mutations = {
     return await models.PaymentMethods.updatePayment(_id, doc);
   },
 };
-
-requireLogin(mutations, 'paymentAdd');
-requireLogin(mutations, 'paymentEdit');
-requireLogin(mutations, 'paymentRemove');
-
-checkPermission(mutations, 'paymentAdd', 'paymentAdd', []);
-checkPermission(mutations, 'paymentEdit', 'paymentEdit', []);
-checkPermission(mutations, 'paymentRemove', 'paymentRemove', []);
 
 export default mutations;

@@ -40,7 +40,7 @@ export const TextField = React.forwardRef<
         setIsOpen(false);
         return;
       }
-      onSave && onSave(editingValue);
+      onSave?.(editingValue);
       setIsOpen(false);
     };
 
