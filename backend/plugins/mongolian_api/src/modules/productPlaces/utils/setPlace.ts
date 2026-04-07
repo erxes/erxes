@@ -14,50 +14,48 @@ export const setPlace = async (
     return productsData;
   }
 
-  const pdatas = productsData;
+  // Avoid mutating original data
+  const pdatas = productsData.map((p) => ({ ...p }));
 
-  const conditions = config.conditions.filter(
-    (c) => c.branchId || c.departmentId,
+  //  Clone conditions to avoid side effects
+  const conditions = config.conditions
+    .filter((c) => c.branchId || c.departmentId)
+    .map((c) => ({ ...c }));
+
+  // Pre-calculate category & tag conditions (parallelized)
+  await Promise.all(
+    conditions.map(async (condition) => {
+      // Categories
+      if (condition.productCategoryIds?.length) {
+        const [includeCatIds, excludeCatIds] = await Promise.all([
+          getChildCategories(subdomain, condition.productCategoryIds),
+          getChildCategories(subdomain, condition.excludeCategoryIds ?? []),
+        ]);
+
+        condition.calcedCatIds = includeCatIds.filter(
+          (c) => !excludeCatIds.includes(c),
+        );
+      } else {
+        condition.calcedCatIds = [];
+      }
+
+      // Tags
+      if (condition.productTagIds?.length) {
+        const [includeTagIds, excludeTagIds] = await Promise.all([
+          getChildTags(subdomain, condition.productTagIds),
+          getChildTags(subdomain, condition.excludeTagIds ?? []),
+        ]);
+
+        condition.calcedTagIds = includeTagIds.filter(
+          (c) => !excludeTagIds.includes(c),
+        );
+      } else {
+        condition.calcedTagIds = [];
+      }
+    }),
   );
 
-  for (const condition of conditions) {
-    if (condition.productCategoryIds?.length) {
-      const includeCatIds = await getChildCategories(
-        subdomain,
-        condition.productCategoryIds,
-      );
-
-      const excludeCatIds = await getChildCategories(
-        subdomain,
-        condition.excludeCategoryIds ?? [],
-      );
-
-      condition.calcedCatIds = includeCatIds.filter(
-        (c) => !excludeCatIds.includes(c),
-      );
-    } else {
-      condition.calcedCatIds = [];
-    }
-
-    if (condition.productTagIds?.length) {
-      const includeTagIds = await getChildTags(
-        subdomain,
-        condition.productTagIds,
-      );
-
-      const excludeTagIds = await getChildTags(
-        subdomain,
-        condition.excludeTagIds ?? [],
-      );
-
-      condition.calcedTagIds = includeTagIds.filter(
-        (c) => !excludeTagIds.includes(c),
-      );
-    } else {
-      condition.calcedTagIds = [];
-    }
-  }
-
+  //  Apply conditions to products
   for (const pdata of pdatas) {
     for (const condition of conditions) {
       const matches = await checkCondition(
@@ -66,26 +64,31 @@ export const setPlace = async (
         condition,
         productById,
       );
-      console.log('🔥 CHECK CONDITION:', {
-        productId: pdata.productId,
-        matches,
-        condition,
-        product: productById[pdata.productId],
-      });
+
+      // Optional debug logging (safe)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('🔥 CHECK CONDITION:', {
+          productId: pdata.productId,
+          matches,
+          condition,
+        });
+      }
+
       if (matches) {
         pdata.branchId = condition.branchId;
         pdata.departmentId = condition.departmentId;
-
         break;
       }
     }
   }
 
+  // Collect unique IDs
   const branchIds = [...new Set(pdatas.map((p) => p.branchId).filter(Boolean))];
   const departmentIds = [
     ...new Set(pdatas.map((p) => p.departmentId).filter(Boolean)),
   ];
 
+  // Safe API call with proper error handling
   try {
     const result = await sendTRPCMessage({
       subdomain,
@@ -104,9 +107,15 @@ export const setPlace = async (
     });
 
     if (result?.status === 'error') {
-    } else {
+      console.error('Failed to update deal:', result);
+      // Optional: throw if this should break flow
+      // throw new Error(result.message || 'Deal update failed');
     }
-  } catch (error) {}
-  console.log('🔥 FINAL PDATAS:', JSON.stringify(pdatas, null, 2));
+  } catch (error) {
+    console.error('setPlace error:', error);
+    // Optional: rethrow if upstream needs to handle it
+    // throw error;
+  }
+
   return pdatas;
 };

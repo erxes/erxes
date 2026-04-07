@@ -25,10 +25,11 @@ const SavedConfigsList: React.FC<Props> = ({
 
       <div className="space-y-3">
         {configs.map((cfg, index) => (
-          <div
+          <button
             key={cfg._id || index}
+            type="button"
             onClick={() => onSelect(index)}
-            className={`cursor-pointer rounded-lg border p-4 transition ${
+            className={`w-full text-left rounded-lg border p-4 transition ${
               index === activeIndex
                 ? 'border-primary bg-primary/5'
                 : 'hover:bg-muted/40'
@@ -41,7 +42,7 @@ const SavedConfigsList: React.FC<Props> = ({
             <div className="text-xs text-muted-foreground mt-1">
               Stage: {cfg.stageId || '—'}
             </div>
-          </div>
+          </button>
         ))}
       </div>
     </div>
