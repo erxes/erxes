@@ -13,9 +13,28 @@ import { ICategory } from '../types/category';
 import { useDeleteCategory } from '../hooks/useDeleteCategory';
 import { CategoryEditSheet } from './CategoryEditSheet';
 
+export const categoryMoreColumn = (
+  branchLanguages?: string[],
+  mainLanguage?: string,
+): ColumnDef<ICategory & { hasChildren: boolean }> => ({
+  id: 'more',
+  cell: (props) => (
+    <CategoryMoreColumn
+      {...props}
+      branchLanguages={branchLanguages}
+      mainLanguage={mainLanguage}
+    />
+  ),
+  size: 33,
+});
+
 export const CategoryMoreColumn = (
-  props: CellContext<ICategory & { hasChildren: boolean }, unknown>,
+  props: CellContext<ICategory & { hasChildren: boolean }, unknown> & {
+    branchLanguages?: string[];
+    mainLanguage?: string;
+  },
 ) => {
+  const { branchLanguages, mainLanguage } = props;
   const category = props.row.original;
   const [editOpen, setEditOpen] = useState(false);
   const { confirm } = useConfirm();
@@ -82,18 +101,12 @@ export const CategoryMoreColumn = (
       </Popover>
       <CategoryEditSheet
         category={category}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
         open={editOpen}
         onOpenChange={setEditOpen}
         showTrigger={false}
       />
     </>
   );
-};
-
-export const categoryMoreColumn: ColumnDef<
-  ICategory & { hasChildren: boolean }
-> = {
-  id: 'more',
-  cell: CategoryMoreColumn,
-  size: 33,
 };

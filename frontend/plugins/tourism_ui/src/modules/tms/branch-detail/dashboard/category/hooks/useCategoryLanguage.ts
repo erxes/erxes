@@ -1,23 +1,20 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { LANGUAGES } from '@/tms/constants/languages';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
-interface UseElementLanguageOptions {
+interface UseCategoryLanguageOptions {
   branchLanguages?: string[];
   mainLanguage?: string;
 }
 
 type FieldPaths = {
   name: 'name' | `translations.${number}.name`;
-  note: 'note' | `translations.${number}.note`;
-  cost: 'cost' | `translations.${number}.cost`;
 };
 
-export const useElementLanguage = ({
+export const useCategoryLanguage = ({
   branchLanguages,
   mainLanguage,
-}: UseElementLanguageOptions) => {
+}: UseCategoryLanguageOptions) => {
   const allLanguages = useMemo(() => {
     const base =
       branchLanguages && branchLanguages.length > 0
@@ -64,9 +61,6 @@ export const useElementLanguage = ({
   const effectiveLang = selectedLang || primaryLanguage;
   const isMainLang = effectiveLang === primaryLanguage;
   const translationIndex = translationLanguages.indexOf(effectiveLang);
-  const currencySymbol =
-    LANGUAGES.find((l) => l.value === effectiveLang)?.symbol ?? '$';
-
   const labelSuffix = effectiveLang ? ` (${effectiveLang})` : '';
 
   const fieldPaths: FieldPaths = {
@@ -74,14 +68,6 @@ export const useElementLanguage = ({
       isMainLang || translationIndex < 0
         ? 'name'
         : `translations.${translationIndex}.name`,
-    note:
-      isMainLang || translationIndex < 0
-        ? 'note'
-        : `translations.${translationIndex}.note`,
-    cost:
-      isMainLang || translationIndex < 0
-        ? 'cost'
-        : `translations.${translationIndex}.cost`,
   };
 
   return {
@@ -91,7 +77,6 @@ export const useElementLanguage = ({
     setSelectedLang,
     isMainLang,
     labelSuffix,
-    currencySymbol,
     fieldPaths,
   };
 };

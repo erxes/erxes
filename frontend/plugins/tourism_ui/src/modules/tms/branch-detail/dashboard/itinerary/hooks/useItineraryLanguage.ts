@@ -3,21 +3,27 @@ import { useAtomValue } from 'jotai';
 import { LANGUAGES } from '@/tms/constants/languages';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
-interface UseElementLanguageOptions {
+interface UseItineraryLanguageOptions {
   branchLanguages?: string[];
   mainLanguage?: string;
 }
 
 type FieldPaths = {
   name: 'name' | `translations.${number}.name`;
-  note: 'note' | `translations.${number}.note`;
-  cost: 'cost' | `translations.${number}.cost`;
+  content: 'content' | `translations.${number}.content`;
+  foodCost: 'foodCost' | `translations.${number}.foodCost`;
+  gasCost: 'gasCost' | `translations.${number}.gasCost`;
+  driverCost: 'driverCost' | `translations.${number}.driverCost`;
+  guideCost: 'guideCost' | `translations.${number}.guideCost`;
+  guideCostExtra: 'guideCostExtra' | `translations.${number}.guideCostExtra`;
+  daysFieldPathPrefix: 'groupDays' | `translations.${number}.groupDays`;
+  dayDescriptionKey: 'description' | 'content';
 };
 
-export const useElementLanguage = ({
+export const useItineraryLanguage = ({
   branchLanguages,
   mainLanguage,
-}: UseElementLanguageOptions) => {
+}: UseItineraryLanguageOptions) => {
   const allLanguages = useMemo(() => {
     const base =
       branchLanguages && branchLanguages.length > 0
@@ -74,14 +80,36 @@ export const useElementLanguage = ({
       isMainLang || translationIndex < 0
         ? 'name'
         : `translations.${translationIndex}.name`,
-    note:
+    content:
       isMainLang || translationIndex < 0
-        ? 'note'
-        : `translations.${translationIndex}.note`,
-    cost:
+        ? 'content'
+        : `translations.${translationIndex}.content`,
+    foodCost:
       isMainLang || translationIndex < 0
-        ? 'cost'
-        : `translations.${translationIndex}.cost`,
+        ? 'foodCost'
+        : `translations.${translationIndex}.foodCost`,
+    gasCost:
+      isMainLang || translationIndex < 0
+        ? 'gasCost'
+        : `translations.${translationIndex}.gasCost`,
+    driverCost:
+      isMainLang || translationIndex < 0
+        ? 'driverCost'
+        : `translations.${translationIndex}.driverCost`,
+    guideCost:
+      isMainLang || translationIndex < 0
+        ? 'guideCost'
+        : `translations.${translationIndex}.guideCost`,
+    guideCostExtra:
+      isMainLang || translationIndex < 0
+        ? 'guideCostExtra'
+        : `translations.${translationIndex}.guideCostExtra`,
+    daysFieldPathPrefix:
+      isMainLang || translationIndex < 0
+        ? 'groupDays'
+        : `translations.${translationIndex}.groupDays`,
+    dayDescriptionKey:
+      isMainLang || translationIndex < 0 ? 'description' : 'content',
   };
 
   return {

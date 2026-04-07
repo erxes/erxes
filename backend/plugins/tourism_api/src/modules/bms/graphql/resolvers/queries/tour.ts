@@ -285,7 +285,6 @@ const tourQueries: Record<string, Resolver> = {
       { branchId, language, orderBy: { order: 1, name: 1 } },
       TOUR_CATEGORY_FIELD_MAPPINGS,
     );
-
     return list;
   },
 

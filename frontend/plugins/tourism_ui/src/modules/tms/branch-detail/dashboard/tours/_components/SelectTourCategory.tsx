@@ -22,6 +22,7 @@ interface SelectTourCategoryProps {
   onValueChange?: (value: string[]) => void;
   placeholder?: string;
   branchId?: string;
+  language?: string;
 }
 
 export const SelectTourCategory = ({
@@ -29,11 +30,12 @@ export const SelectTourCategory = ({
   onValueChange,
   placeholder = 'Select categories',
   branchId,
+  language,
 }: SelectTourCategoryProps) => {
   const [open, setOpen] = useState(false);
 
   const { categories, loading } = useCategories({
-    variables: { branchId },
+    variables: { branchId, language },
   });
 
   const handleToggle = (categoryId: string) => {
