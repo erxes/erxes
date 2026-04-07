@@ -38,6 +38,7 @@ export const GET_ELEMENTS = gql`
         note
         quick
         startTime
+        language
         modifiedAt
         translations {
           _id

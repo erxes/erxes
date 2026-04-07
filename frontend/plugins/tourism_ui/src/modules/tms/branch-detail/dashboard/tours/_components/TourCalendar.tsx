@@ -10,7 +10,9 @@ import {
 } from 'erxes-ui';
 import { cn } from 'erxes-ui/lib';
 import { useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { useTours } from '../hooks/useTours';
 import { TourEditForm } from './TourEditForm';
 import { TourCalendarRowActions } from './TourCalendarRowActions';
@@ -20,6 +22,8 @@ import type { TourSideTab } from './TourOrdersSidePanel';
 
 interface TourCalendarProps {
   branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
 }
 
 interface CalendarDay {
@@ -94,12 +98,20 @@ function isDateInRange(date: Date, start?: string, end?: string) {
   return current >= startTime && current <= endTime;
 }
 
-export const TourCalendar = ({ branchId }: TourCalendarProps) => {
+export const TourCalendar = ({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: TourCalendarProps) => {
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue: 'delete' };
+
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
+
   const { tours, loading, error } = useTours({
-    variables: { branchId },
+    variables: { branchId, language },
   });
   const { removeTours } = useRemoveTours();
   const [editTourId, setEditTourId] = useState<string | null>(null);
@@ -377,6 +389,8 @@ export const TourCalendar = ({ branchId }: TourCalendarProps) => {
             <TourEditForm
               tourId={editTourId}
               branchId={branchId}
+              branchLanguages={branchLanguages}
+              mainLanguage={mainLanguage}
               onSuccess={handleCloseEdit}
               sideTab={sideTab}
               onSideTabChange={setSideTab}

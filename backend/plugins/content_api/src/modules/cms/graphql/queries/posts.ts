@@ -1,9 +1,80 @@
 import { BaseQueryResolver, FIELD_MAPPINGS } from '@/cms/utils/base-resolvers';
+import {
+  CMS_DEFAULT_POST_URL_FIELD,
+  CMS_POST_URL_FIELDS,
+  CMSPostUrlField,
+} from '@/cms/@types/cms';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 
 class PostQueryResolver extends BaseQueryResolver {
+  private async getPostUrlField(
+    clientPortalId: string,
+    models: IContext['models'],
+  ): Promise<CMSPostUrlField> {
+    const cms = await models.CMS.findOne({ clientPortalId })
+      .select({ postUrlField: 1 })
+      .lean();
+
+    if (
+      cms?.postUrlField &&
+      CMS_POST_URL_FIELDS.includes(cms.postUrlField as CMSPostUrlField)
+    ) {
+      return cms.postUrlField as CMSPostUrlField;
+    }
+
+    return CMS_DEFAULT_POST_URL_FIELD;
+  }
+
+  private async buildPostLookupQuery(
+    args: {
+      _id?: string;
+      slug?: string;
+      identifier?: string;
+      clientPortalId?: string;
+    },
+    models: IContext['models'],
+  ) {
+    const { _id, slug, identifier, clientPortalId } = args;
+
+    if (_id) {
+      return clientPortalId ? { _id, clientPortalId } : { _id };
+    }
+
+    if (slug) {
+      if (!clientPortalId) {
+        throw new Error('clientPortalId is required when querying by slug');
+      }
+
+      return { slug, clientPortalId };
+    }
+
+    if (!identifier) {
+      return null;
+    }
+
+    if (!clientPortalId) {
+      throw new Error(
+        'clientPortalId is required when querying by configured post URL',
+      );
+    }
+
+    const postUrlField = await this.getPostUrlField(clientPortalId, models);
+
+    if (postUrlField === 'count') {
+      const count = Number(identifier);
+
+      if (Number.isNaN(count)) {
+        return null;
+      }
+
+      return { count, clientPortalId };
+    }
+
+    return { [postUrlField]: identifier, clientPortalId };
+  }
+
   /**
    * Cms posts
    */
@@ -30,11 +101,14 @@ class PostQueryResolver extends BaseQueryResolver {
 
   async cmsPost(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
-    const { _id, slug, language, clientPortalId } = args;
+    const { _id, slug, identifier, language, clientPortalId } = args;
 
-    if (!_id && !slug) return null;
+    const query = await this.buildPostLookupQuery(
+      { _id, slug, identifier, clientPortalId },
+      models,
+    );
 
-    const query = slug ? { slug, clientPortalId } : { _id };
+    if (!query) return null;
 
     // clientPortalId must be passed explicitly — admin queries have no
     // clientPortal in context, so the base resolver cannot fall back to it.
@@ -162,11 +236,14 @@ class PostQueryResolver extends BaseQueryResolver {
 
   async cpPost(_parent: any, args: any, context: IContext): Promise<any> {
     const { clientPortal, models } = context;
-    const { _id, slug, language } = args;
+    const { _id, slug, identifier, language } = args;
 
-    if (!_id && !slug) return null;
+    const query = await this.buildPostLookupQuery(
+      { _id, slug, identifier, clientPortalId: clientPortal._id },
+      models,
+    );
 
-    const query = slug ? { slug, clientPortalId: clientPortal._id } : { _id };
+    if (!query) return null;
 
     return this.getItemWithTranslation(
       models.Posts,

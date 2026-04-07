@@ -1,4 +1,3 @@
-import { IUserDocument } from 'erxes-api-shared/core-types';
 import { getFullDate } from 'erxes-api-shared/utils';
 import { Model, connection } from 'mongoose';
 import { nanoid } from 'nanoid';
@@ -21,7 +20,10 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     _ids: string[],
     ptrId?: string,
   ): Promise<ITransactionDocument[]>;
-  createTransaction(doc: ITransaction, userId: string): Promise<ITransactionDocument>;
+  createTransaction(
+    doc: ITransaction,
+    userId: string,
+  ): Promise<ITransactionDocument>;
   updateTransaction(
     _id: string,
     doc: ITransaction,
@@ -33,7 +35,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   ): Promise<ITransactionDocument[]>;
   updatePTransaction(
     parentId: string,
-    doc: ITransaction[],
+    docs: (ITransaction & { _id?: string })[],
     userId: string,
   ): Promise<ITransactionDocument[]>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
@@ -136,7 +138,11 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     /**
      * Update transaction
      */
-    public static async updateTransaction(_id: string, doc: ITransaction, userId: string) {
+    public static async updateTransaction(
+      _id: string,
+      doc: ITransaction,
+      userId: string,
+    ) {
       const oldTr = await models.Transactions.getTransaction({ _id });
 
       doc.fullDate = getFullDate(doc.date);

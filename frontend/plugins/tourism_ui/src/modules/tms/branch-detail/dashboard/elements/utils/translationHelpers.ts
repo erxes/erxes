@@ -42,3 +42,26 @@ export const sanitizeTranslations = (
 
   return cleaned.length ? cleaned : undefined;
 };
+
+/**
+ * Returns the main-language name for form initialization.
+ *
+ * The backend always includes the main language entry in `translations`,
+ * so we look it up there first. This works regardless of whether the
+ * list query swapped `element.name` to another language.
+ *
+ * Fallback chain: translations[mainLang] → element.name → ''
+ */
+export const resolveMainLanguageName = (
+  element: IElement,
+  mainLanguage: string | undefined,
+): string => {
+  const effectiveLang = mainLanguage || element.language;
+  if (!effectiveLang) return element.name || '';
+
+  const mainTranslation = element.translations?.find(
+    (t) => t.language === effectiveLang,
+  );
+
+  return mainTranslation?.name || element.name || '';
+};

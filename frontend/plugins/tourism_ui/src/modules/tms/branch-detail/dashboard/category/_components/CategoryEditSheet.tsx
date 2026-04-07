@@ -1,7 +1,7 @@
 import { IconEdit } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -17,9 +17,18 @@ import {
 } from './CategoryFormFields';
 import { useEditCategory } from '../hooks/useEditCategory';
 import { ICategory } from '../types/category';
+import { useCategoryLanguage } from '../hooks/useCategoryLanguage';
+import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_components/TourFieldLanguageSwitch';
+import {
+  buildTranslationsFromCategory,
+  sanitizeCategoryTranslations,
+  resolveMainLanguageName,
+} from '../utils/translationHelpers';
 
 interface CategoryEditSheetProps {
   category: ICategory;
+  branchLanguages?: string[];
+  mainLanguage?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   showTrigger?: boolean;
@@ -28,6 +37,8 @@ interface CategoryEditSheetProps {
 
 export const CategoryEditSheet = ({
   category,
+  branchLanguages,
+  mainLanguage,
   open,
   onOpenChange,
   showTrigger = true,
@@ -53,21 +64,51 @@ export const CategoryEditSheet = ({
   const form = useForm<CategoryCreateFormType>({
     resolver: zodResolver(CategoryCreateFormSchema),
     defaultValues: {
-      name: category.name || '',
+      name: resolveMainLanguageName(category, mainLanguage),
       code: category.code || '',
       parentId: category.parentId || '',
       attachment: normalizedAttachment,
+      translations: [],
     },
   });
 
+  useFieldArray({
+    control: form.control,
+    name: 'translations',
+  });
+
+  const {
+    allLanguages,
+    translationLanguages,
+    selectedLang,
+    setSelectedLang,
+    labelSuffix,
+    fieldPaths,
+  } = useCategoryLanguage({ branchLanguages, mainLanguage });
+
   useEffect(() => {
     form.reset({
-      name: category.name || '',
+      name: resolveMainLanguageName(category, mainLanguage),
       code: category.code || '',
       parentId: category.parentId || '',
       attachment: category.attachment ?? undefined,
+      translations: buildTranslationsFromCategory(
+        category,
+        translationLanguages,
+      ),
     });
-  }, [category, form]);
+    const resolvedPrimary = mainLanguage || allLanguages[0] || '';
+    setSelectedLang((prev) =>
+      allLanguages.includes(prev) ? prev : resolvedPrimary,
+    );
+  }, [
+    category,
+    translationLanguages,
+    mainLanguage,
+    allLanguages,
+    form,
+    setSelectedLang,
+  ]);
 
   const handleSubmit = async (values: CategoryCreateFormType) => {
     try {
@@ -80,6 +121,8 @@ export const CategoryEditSheet = ({
             values.parentId.trim() !== '' && { parentId: values.parentId }),
           ...(category.branchId && { branchId: category.branchId }),
           ...(values.attachment && { attachment: values.attachment }),
+          language: mainLanguage,
+          translations: sanitizeCategoryTranslations(values.translations),
         },
       });
 
@@ -118,17 +161,31 @@ export const CategoryEditSheet = ({
           >
             <Sheet.Header>
               <Sheet.Title>Edit category</Sheet.Title>
-              <Sheet.Close />
+              {allLanguages.length > 1 && (
+                <div className="flex gap-2 items-center ml-auto">
+                  <TourFieldLanguageSwitch
+                    availableLanguages={allLanguages}
+                    value={selectedLang}
+                    onValueChange={setSelectedLang}
+                  />
+                </div>
+              )}
             </Sheet.Header>
 
             <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
               <div className="flex flex-col gap-6">
                 <div className="space-y-4">
-                  <CategoryNameField control={form.control} />
+                  <CategoryNameField
+                    key={fieldPaths.name}
+                    control={form.control}
+                    name={fieldPaths.name}
+                    labelSuffix={labelSuffix}
+                  />
                   <CategoryCodeField control={form.control} />
                   <CategoryParentIdField
                     control={form.control}
                     branchId={category.branchId}
+                    language={selectedLang}
                   />
                   <CategoryAttachmentField control={form.control} />
                 </div>
