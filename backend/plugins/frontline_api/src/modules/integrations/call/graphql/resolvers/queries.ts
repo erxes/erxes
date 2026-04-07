@@ -85,7 +85,7 @@ const callQueries = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -107,7 +107,7 @@ const callQueries = {
         isAddExtention: false,
       },
       user,
-    ));
+    );
 
     if (queueData?.response) {
       const { account } = queueData.response;
@@ -143,7 +143,7 @@ const callQueries = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -161,7 +161,7 @@ const callQueries = {
         isAddExtention: false,
       },
       user,
-    ));
+    );
 
     if (!queueData.ok) {
       throw new Error(`HTTP error! Status: ${queueData.status}`);
@@ -258,7 +258,7 @@ const callQueries = {
     { integrationId, queue },
     { models, user }: IContext,
   ) {
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -276,7 +276,7 @@ const callQueries = {
         isAddExtention: false,
       },
       user,
-    ));
+    );
 
     if (queueData?.response) {
       const { CallQueueMembersMessage } = queueData.response;

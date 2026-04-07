@@ -307,7 +307,7 @@ const callsMutations = {
 
     const extensionNumber = operator?.gsUsername || '1001';
 
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -326,7 +326,7 @@ const callsMutations = {
         isAddExtention: false,
       },
       user,
-    ));
+    );
 
     if (queueData?.response) {
       const { need_apply } = queueData.response;
