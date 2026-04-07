@@ -20,6 +20,8 @@ interface DayFormProps {
   onReorderElements: (reorderedElements: IElement[]) => void;
   labelSuffix?: string;
   currencySymbol?: string;
+  daysFieldPathPrefix?: string;
+  dayDescriptionKey?: string;
 }
 
 export const DayForm = ({
@@ -32,6 +34,8 @@ export const DayForm = ({
   onReorderElements,
   labelSuffix = '',
   currencySymbol = '$',
+  daysFieldPathPrefix = 'groupDays',
+  dayDescriptionKey = 'description',
 }: DayFormProps) => {
   const dayCost = useMemo(() => {
     return droppedElements.reduce((sum, el) => sum + (el.cost || 0), 0);
@@ -69,7 +73,7 @@ export const DayForm = ({
 
       <Form.Field
         control={control}
-        name={`groupDays.${dayIndex}.title`}
+        name={`${daysFieldPathPrefix}.${dayIndex}.title`}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
@@ -120,7 +124,7 @@ export const DayForm = ({
 
       <Form.Field
         control={control}
-        name={`groupDays.${dayIndex}.description`}
+        name={`${daysFieldPathPrefix}.${dayIndex}.${dayDescriptionKey}`}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>Description for customers<span className="text-primary">{labelSuffix}</span></Form.Label>

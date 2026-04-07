@@ -36,10 +36,32 @@ import { useItineraryLanguage } from '../hooks/useItineraryLanguage';
 import {
   buildTranslationsFromItinerary,
   sanitizeTranslations,
+  resolveMainLanguageName,
 } from '../utils/translationHelpers';
 import { ItineraryBuilder } from '../itinerary-builder';
 import { useElements } from '../../elements/hooks/useElements';
 import { useAmenities } from '../../amenities/hooks/useAmenities';
+
+const extractFirstError = (errors: Record<string, any>): string => {
+  for (const value of Object.values(errors)) {
+    if (value?.message && typeof value.message === 'string') {
+      return value.message;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (item) {
+          const nested = extractFirstError(item);
+          if (nested) return nested;
+        }
+      }
+    }
+    if (typeof value === 'object' && value !== null && !value.message) {
+      const nested = extractFirstError(value);
+      if (nested) return nested;
+    }
+  }
+  return 'Please check the form for errors.';
+};
 
 interface ItineraryEditSheetProps {
   itineraryId?: string;
@@ -92,7 +114,7 @@ export const ItineraryEditSheet = ({
     },
   });
 
-  const { fields } = useFieldArray({
+  useFieldArray({
     control: form.control,
     name: 'translations',
   });
@@ -105,7 +127,7 @@ export const ItineraryEditSheet = ({
     labelSuffix,
     currencySymbol,
     fieldPaths,
-  } = useItineraryLanguage({ branchLanguages, mainLanguage, fields });
+  } = useItineraryLanguage({ branchLanguages, mainLanguage });
 
   const { elements: elementsData = [] } = useElements({
     variables: { branchId, quick: false, language: selectedLang || mainLanguage },
@@ -131,7 +153,7 @@ export const ItineraryEditSheet = ({
       }));
 
       form.reset({
-        name: itinerary.name || '',
+        name: resolveMainLanguageName(itinerary as any, mainLanguage),
         color: itinerary.color || '#4F46E5',
         content: itinerary.content || '',
         duration: itinerary.duration || 1,
@@ -186,7 +208,7 @@ export const ItineraryEditSheet = ({
     setCurrentStep('info');
   };
 
-  const onInvalid = () => {
+  const onInvalid = (errors: Record<string, any>) => {
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
@@ -196,6 +218,16 @@ export const ItineraryEditSheet = ({
         variant: 'destructive',
       });
       setSelectedLang(mainLanguage || allLanguages[0] || '');
+      return;
+    }
+
+    const firstError = extractFirstError(errors);
+    if (firstError) {
+      toast({
+        title: 'Validation Error',
+        description: firstError,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -335,6 +367,7 @@ export const ItineraryEditSheet = ({
                     className="flex-1 p-3 overflow-hidden"
                   >
                     <ItineraryBuilder
+                      key={selectedLang}
                       control={form.control}
                       setValue={form.setValue}
                       watch={form.watch}
@@ -346,6 +379,8 @@ export const ItineraryEditSheet = ({
                       currencySymbol={currencySymbol}
                       mainLanguage={mainLanguage}
                       branchLanguages={branchLanguages}
+                      daysFieldPathPrefix={fieldPaths.daysFieldPathPrefix}
+                      dayDescriptionKey={fieldPaths.dayDescriptionKey}
                     />
                   </Tabs.Content>
 

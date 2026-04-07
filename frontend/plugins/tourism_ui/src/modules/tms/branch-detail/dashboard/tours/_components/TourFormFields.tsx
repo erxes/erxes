@@ -12,7 +12,7 @@ import {
   Label,
   Badge,
 } from 'erxes-ui';
-import { TourCreateFormType } from '../constants/formSchema';
+import { TourFormValues } from '../constants/formSchema';
 import {
   IconPlus,
   IconTrash,
@@ -30,12 +30,12 @@ import { LANGUAGES } from '@/tms/constants/languages';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 type TourTextFieldPath = FieldPathByValue<
-  TourCreateFormType,
+  TourFormValues,
   string | undefined
 >;
 
 interface TourTextFieldProps {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
   name?: TourTextFieldPath;
   labelSuffix?: string;
 }
@@ -96,7 +96,7 @@ const TOUR_STATUS_OPTIONS = [
 export const TourStatusField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -162,7 +162,7 @@ export const TourDescriptionField = ({
 export const TourDurationField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -184,7 +184,7 @@ export const TourDurationField = ({
 export const TourGroupSizeField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -329,7 +329,7 @@ export const TourInfo5Field = ({
 export const TourAdvanceCheckField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -352,7 +352,7 @@ export const TourAdvanceCheckField = ({
 export const TourAdvancePercentField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -374,7 +374,7 @@ export const TourAdvancePercentField = ({
 export const TourJoinPercentField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -398,7 +398,7 @@ export const TourItineraryIdField = ({
   branchId,
   language,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
   branchId?: string;
   language?: string;
 }) => {
@@ -432,7 +432,7 @@ export const TourCategoryField = ({
   branchId,
   language,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
   branchId?: string;
   language?: string;
 }) => {
@@ -462,7 +462,7 @@ export const TourCategoryField = ({
 export const TourImageThumbnailField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -554,7 +554,7 @@ const MAX_IMAGES = 10;
 export const TourImagesField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -582,7 +582,7 @@ export const TourImagesField = ({
 export const TourAttachmentsField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -670,13 +670,16 @@ const TourPricingOptionsFieldContent = ({
   control,
   translationIndex,
   labelSuffix = '',
+  currencySymbol,
 }: {
   control: Control<any>;
   translationIndex?: number;
   labelSuffix?: string;
+  currencySymbol?: string;
 }) => {
   const lang = useAtomValue(activeLangAtom);
-  const symbol = LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
+  const symbol =
+    currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
   const isTranslation = translationIndex !== undefined && translationIndex >= 0;
 
   const { fields, append, remove } = useFieldArray({
@@ -706,9 +709,9 @@ const TourPricingOptionsFieldContent = ({
 
   const getFieldName = (index: number, field: string) => {
     if (isTranslation) {
-      return `translations.${translationIndex}.pricingOptions.${index}.${field}` as FieldPath<TourCreateFormType>;
+      return `translations.${translationIndex}.pricingOptions.${index}.${field}` as FieldPath<TourFormValues>;
     }
-    return `pricingOptions.${index}.${field}` as FieldPath<TourCreateFormType>;
+    return `pricingOptions.${index}.${field}` as FieldPath<TourFormValues>;
   };
 
   return (
@@ -970,10 +973,12 @@ export const TourPricingOptionsField = ({
   control,
   translationIndex,
   labelSuffix,
+  currencySymbol,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
   translationIndex?: number;
   labelSuffix?: string;
+  currencySymbol?: string;
 }) => {
-  return <TourPricingOptionsFieldContent control={control} translationIndex={translationIndex} labelSuffix={labelSuffix} />;
+  return <TourPricingOptionsFieldContent control={control} translationIndex={translationIndex} labelSuffix={labelSuffix} currencySymbol={currencySymbol} />;
 };

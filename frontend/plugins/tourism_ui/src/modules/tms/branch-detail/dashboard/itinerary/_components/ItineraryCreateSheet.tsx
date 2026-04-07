@@ -32,6 +32,27 @@ import { ItineraryBuilder } from '../itinerary-builder';
 import { useElements } from '../../elements/hooks/useElements';
 import { useAmenities } from '../../amenities/hooks/useAmenities';
 
+const extractFirstError = (errors: Record<string, any>): string => {
+  for (const value of Object.values(errors)) {
+    if (value?.message && typeof value.message === 'string') {
+      return value.message;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (item) {
+          const nested = extractFirstError(item);
+          if (nested) return nested;
+        }
+      }
+    }
+    if (typeof value === 'object' && value !== null && !value.message) {
+      const nested = extractFirstError(value);
+      if (nested) return nested;
+    }
+  }
+  return 'Please check the form for errors.';
+};
+
 interface ItineraryCreateSheetProps {
   branchId?: string;
   branchLanguages?: string[];
@@ -83,7 +104,7 @@ export const ItineraryCreateSheet = ({
     },
   });
 
-  const { fields } = useFieldArray({
+  useFieldArray({
     control: form.control,
     name: 'translations',
   });
@@ -96,7 +117,7 @@ export const ItineraryCreateSheet = ({
     labelSuffix,
     currencySymbol,
     fieldPaths,
-  } = useItineraryLanguage({ branchLanguages, mainLanguage, fields });
+  } = useItineraryLanguage({ branchLanguages, mainLanguage });
 
   const { elements: elementsData = [] } = useElements({
     variables: { branchId, quick: false, language: selectedLang || mainLanguage },
@@ -151,7 +172,7 @@ export const ItineraryCreateSheet = ({
     setCurrentStep('info');
   };
 
-  const onInvalid = () => {
+  const onInvalid = (errors: Record<string, any>) => {
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
@@ -161,6 +182,16 @@ export const ItineraryCreateSheet = ({
         variant: 'destructive',
       });
       setSelectedLang(mainLanguage || allLanguages[0] || '');
+      return;
+    }
+
+    const firstError = extractFirstError(errors);
+    if (firstError) {
+      toast({
+        title: 'Validation Error',
+        description: firstError,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -298,13 +329,14 @@ export const ItineraryCreateSheet = ({
               )}
             </Sheet.Header>
 
-            <Sheet.Content className="overflow-hidden flex-1 p-0">
+            <Sheet.Content className="flex-1 p-0 overflow-hidden">
               <Tabs value={currentStep} className="flex flex-col h-full">
                 <Tabs.Content
                   value="build"
-                  className="overflow-hidden flex-1 p-3"
+                  className="flex-1 p-3 overflow-hidden"
                 >
                   <ItineraryBuilder
+                    key={selectedLang}
                     control={form.control}
                     setValue={form.setValue}
                     watch={form.watch}
@@ -315,12 +347,14 @@ export const ItineraryCreateSheet = ({
                     currencySymbol={currencySymbol}
                     mainLanguage={mainLanguage}
                     branchLanguages={branchLanguages}
+                    daysFieldPathPrefix={fieldPaths.daysFieldPathPrefix}
+                    dayDescriptionKey={fieldPaths.dayDescriptionKey}
                   />
                 </Tabs.Content>
 
-                <Tabs.Content value="info" className="overflow-y-auto p-3">
-                  <div key={selectedLang} className="space-y-4 w-full">
-                    <div className="flex gap-4 items-end">
+                <Tabs.Content value="info" className="p-3 overflow-y-auto">
+                  <div key={selectedLang} className="w-full space-y-4">
+                    <div className="flex items-end gap-4">
                       <div className="w-[20%]">
                         <ItineraryColorField control={form.control} />
                       </div>
@@ -346,7 +380,7 @@ export const ItineraryCreateSheet = ({
                       onOpenChange={setShowMoreOptions}
                       className="flex flex-col items-center my-5"
                     >
-                      <Collapsible.Content className="order-1 pt-4 space-y-4 w-full">
+                      <Collapsible.Content className="order-1 w-full pt-4 space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <ItineraryGuideCostField
                             control={form.control}

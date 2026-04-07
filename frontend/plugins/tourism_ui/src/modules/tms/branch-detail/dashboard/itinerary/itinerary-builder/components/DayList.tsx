@@ -19,6 +19,8 @@ interface DayListProps {
   isDragging: boolean;
   labelSuffix?: string;
   currencySymbol?: string;
+  daysFieldPathPrefix?: string;
+  dayDescriptionKey?: string;
 }
 
 export const DayList = ({
@@ -34,6 +36,8 @@ export const DayList = ({
   isDragging,
   labelSuffix,
   currencySymbol,
+  daysFieldPathPrefix,
+  dayDescriptionKey,
 }: DayListProps) => {
   return (
     <div className="flex flex-col flex-1 min-h-0 p-3 space-y-4 overflow-y-auto">
@@ -67,6 +71,8 @@ export const DayList = ({
               }
               labelSuffix={labelSuffix}
               currencySymbol={currencySymbol}
+              daysFieldPathPrefix={daysFieldPathPrefix}
+              dayDescriptionKey={dayDescriptionKey}
             />
           </div>
         );

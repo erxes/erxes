@@ -1,17 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { UseFieldArrayReturn } from 'react-hook-form';
 import { LANGUAGES } from '@/tms/constants/languages';
-import { ItineraryCreateFormType } from '../constants/formSchema';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 interface UseItineraryLanguageOptions {
   branchLanguages?: string[];
   mainLanguage?: string;
-  fields: UseFieldArrayReturn<
-    ItineraryCreateFormType,
-    'translations'
-  >['fields'];
 }
 
 type FieldPaths = {
@@ -22,12 +16,13 @@ type FieldPaths = {
   driverCost: 'driverCost' | `translations.${number}.driverCost`;
   guideCost: 'guideCost' | `translations.${number}.guideCost`;
   guideCostExtra: 'guideCostExtra' | `translations.${number}.guideCostExtra`;
+  daysFieldPathPrefix: 'groupDays' | `translations.${number}.groupDays`;
+  dayDescriptionKey: 'description' | 'content';
 };
 
 export const useItineraryLanguage = ({
   branchLanguages,
   mainLanguage,
-  fields,
 }: UseItineraryLanguageOptions) => {
   const allLanguages = useMemo(() => {
     const base =
@@ -61,9 +56,7 @@ export const useItineraryLanguage = ({
   });
 
   useEffect(() => {
-    if (activeLang && allLanguages.includes(activeLang)) {
-      setSelectedLang(activeLang);
-    } else if (primaryLanguage && !selectedLang) {
+    if (primaryLanguage && !selectedLang) {
       setSelectedLang(primaryLanguage);
     } else if (
       selectedLang &&
@@ -72,13 +65,11 @@ export const useItineraryLanguage = ({
     ) {
       setSelectedLang(primaryLanguage);
     }
-  }, [activeLang, primaryLanguage, selectedLang, allLanguages]);
+  }, [primaryLanguage, selectedLang, allLanguages]);
 
   const effectiveLang = selectedLang || primaryLanguage;
   const isMainLang = effectiveLang === primaryLanguage;
-  const translationIndex = fields.findIndex(
-    (f) => f.language === effectiveLang,
-  );
+  const translationIndex = translationLanguages.indexOf(effectiveLang);
   const currencySymbol =
     LANGUAGES.find((l) => l.value === effectiveLang)?.symbol ?? '$';
 
@@ -113,6 +104,12 @@ export const useItineraryLanguage = ({
       isMainLang || translationIndex < 0
         ? 'guideCostExtra'
         : `translations.${translationIndex}.guideCostExtra`,
+    daysFieldPathPrefix:
+      isMainLang || translationIndex < 0
+        ? 'groupDays'
+        : `translations.${translationIndex}.groupDays`,
+    dayDescriptionKey:
+      isMainLang || translationIndex < 0 ? 'description' : 'content',
   };
 
   return {

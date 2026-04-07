@@ -229,3 +229,30 @@ export const TourCreateFormSchema = z
   );
 
 export type TourCreateFormType = z.infer<typeof TourCreateFormSchema>;
+
+/**
+ * Form-level translation pricing type – allows `''` (empty string)
+ * so React Hook Form can track the field as "set but empty".
+ * Zod `optionalNumber` converts `''` → `undefined` on validation.
+ */
+export type PricingOptionTranslationFormValue = {
+  optionId: string;
+  title?: string;
+  accommodationType?: string;
+  note?: string;
+  pricePerPerson?: number | string;
+  domesticFlightPerPerson?: number | string;
+  singleSupplement?: number | string;
+};
+
+type InferredTranslation = NonNullable<TourCreateFormType['translations']>[number];
+
+/** Widened translation type for form state (allows `''` in pricing numerics). */
+export type TourTranslationFormValue = Omit<InferredTranslation, 'pricingOptions'> & {
+  pricingOptions?: PricingOptionTranslationFormValue[];
+};
+
+/** Form values type – same as `TourCreateFormType` but translations allow `''` in pricing numerics. */
+export type TourFormValues = Omit<TourCreateFormType, 'translations'> & {
+  translations?: TourTranslationFormValue[];
+};

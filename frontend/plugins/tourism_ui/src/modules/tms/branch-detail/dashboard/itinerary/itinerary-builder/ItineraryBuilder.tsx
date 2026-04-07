@@ -19,6 +19,8 @@ interface ItineraryBuilderProps {
   currencySymbol?: string;
   mainLanguage?: string;
   branchLanguages?: string[];
+  daysFieldPathPrefix?: string;
+  dayDescriptionKey?: string;
 }
 
 export const ItineraryBuilder = ({
@@ -33,6 +35,8 @@ export const ItineraryBuilder = ({
   currencySymbol,
   mainLanguage,
   branchLanguages,
+  daysFieldPathPrefix,
+  dayDescriptionKey,
 }: ItineraryBuilderProps) => {
   const {
     isDragging,
@@ -119,6 +123,8 @@ export const ItineraryBuilder = ({
           isDragging={isDragging}
           labelSuffix={labelSuffix}
           currencySymbol={currencySymbol}
+          daysFieldPathPrefix={daysFieldPathPrefix}
+          dayDescriptionKey={dayDescriptionKey}
         />
       </div>
     </div>

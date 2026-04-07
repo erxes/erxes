@@ -21,7 +21,7 @@ const DayItemSchema = z.object({
 });
 
 const GroupDayTranslationSchema = z.object({
-  day: z.number(),
+  day: z.number().optional(),
   title: z.string().optional(),
   content: z.string().optional(),
 });

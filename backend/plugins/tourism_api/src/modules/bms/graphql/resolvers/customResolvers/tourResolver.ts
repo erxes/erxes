@@ -60,7 +60,32 @@ const item = {
   ) {
     const query: any = { objectId: touritem._id };
     if (language) query.language = language;
-    return models.TourTranslations.find(query).lean();
+    const translations = await models.TourTranslations.find(query).lean();
+
+    // Include the main language value so the frontend always has every language
+    const mainLang = touritem.language;
+    if (mainLang) {
+      const alreadyExists = translations.some(
+        (t: any) => t.language === mainLang,
+      );
+
+      if (!alreadyExists) {
+        const original = await models.Tours.findOne({ _id: touritem._id })
+          .select('name')
+          .lean();
+
+        if (original?.name) {
+          translations.unshift({
+            _id: `${touritem._id}_${mainLang}`,
+            objectId: touritem._id,
+            language: mainLang,
+            name: original.name,
+          } as any);
+        }
+      }
+    }
+
+    return translations;
   },
 };
 

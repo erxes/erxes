@@ -1,14 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { UseFieldArrayReturn } from 'react-hook-form';
 import { LANGUAGES } from '@/tms/constants/languages';
-import { TourCreateFormType } from '../constants/formSchema';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 interface UseTourLanguageOptions {
   branchLanguages?: string[];
   mainLanguage?: string;
-  fields: UseFieldArrayReturn<TourCreateFormType, 'translations'>['fields'];
 }
 
 type FieldPaths = {
@@ -25,15 +22,14 @@ type FieldPaths = {
 export const useTourLanguage = ({
   branchLanguages,
   mainLanguage,
-  fields,
 }: UseTourLanguageOptions) => {
   const allLanguages = useMemo(() => {
     const base =
       branchLanguages && branchLanguages.length > 0
         ? branchLanguages
         : mainLanguage
-          ? [mainLanguage]
-          : [];
+        ? [mainLanguage]
+        : [];
     if (mainLanguage && !base.includes(mainLanguage)) {
       return [mainLanguage, ...base];
     }
@@ -72,9 +68,7 @@ export const useTourLanguage = ({
 
   const effectiveLang = selectedLang || primaryLanguage;
   const isMainLang = effectiveLang === primaryLanguage;
-  const translationIndex = fields.findIndex(
-    (f) => f.language === effectiveLang,
-  );
+  const translationIndex = translationLanguages.indexOf(effectiveLang);
   const currencySymbol =
     LANGUAGES.find((l) => l.value === effectiveLang)?.symbol ?? '$';
 

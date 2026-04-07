@@ -78,8 +78,38 @@ export const sanitizeTranslations = (
           ? t.guideCostExtra
           : undefined,
       groupDays:
-        t.groupDays && t.groupDays.length > 0 ? t.groupDays : undefined,
+        t.groupDays && t.groupDays.length > 0
+          ? t.groupDays
+              .map((gd, idx) => ({
+                day: gd.day ?? idx + 1,
+                title: gd.title || undefined,
+                content: gd.content || undefined,
+              }))
+              .filter((gd) => gd.title || gd.content)
+          : undefined,
     }));
 
   return cleaned.length ? cleaned : undefined;
+};
+
+/**
+ * Returns the main-language name for form initialization.
+ *
+ * The backend always includes the main language entry in `translations`,
+ * so we look it up there first. This works regardless of whether the
+ * list query swapped `itinerary.name` to another language.
+ *
+ * Fallback chain: translations[mainLang] → itinerary.name → ''
+ */
+export const resolveMainLanguageName = (
+  itinerary: IItinerary,
+  mainLanguage: string | undefined,
+): string => {
+  if (!mainLanguage) return itinerary.name || '';
+
+  const mainTranslation = itinerary.translations?.find(
+    (t) => t.language === mainLanguage,
+  );
+
+  return mainTranslation?.name || itinerary.name || '';
 };
