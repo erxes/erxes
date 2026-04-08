@@ -160,7 +160,8 @@ export const TourEditForm = ({
     branchLanguages,
     mainLanguage,
   });
-  const resolvedPrimaryLanguage = tourDetail?.language ?? mainLanguage ?? allLanguages[0] ?? '';
+  const resolvedPrimaryLanguage =
+    tourDetail?.language ?? mainLanguage ?? allLanguages[0] ?? '';
 
   const watchedPricingOptions = useWatch({
     control: form.control,

@@ -135,7 +135,15 @@ export const ItineraryDuplicateSheet = ({
       });
       setSelectedLang(resolvedPrimaryLanguage);
     }
-  }, [open, primaryName, reset, sourceItinerary, translationLanguages, setSelectedLang, resolvedPrimaryLanguage]);
+  }, [
+    open,
+    primaryName,
+    reset,
+    sourceItinerary,
+    translationLanguages,
+    setSelectedLang,
+    resolvedPrimaryLanguage,
+  ]);
 
   if (open && detailLoading) {
     return (
@@ -193,7 +201,8 @@ export const ItineraryDuplicateSheet = ({
       onError: (e: unknown) => {
         toast({
           title: 'Error',
-          description: e instanceof Error ? e.message : 'Failed to duplicate itinerary',
+          description:
+            e instanceof Error ? e.message : 'Failed to duplicate itinerary',
           variant: 'destructive',
         });
       },

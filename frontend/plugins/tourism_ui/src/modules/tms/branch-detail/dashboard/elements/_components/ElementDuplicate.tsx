@@ -94,7 +94,8 @@ export const ElementDuplicate = ({
           onError: (e: unknown) => {
             toast({
               title: 'Error',
-              description: e instanceof Error ? e.message : 'Failed to duplicate element',
+              description:
+                e instanceof Error ? e.message : 'Failed to duplicate element',
               variant: 'destructive',
             });
           },
@@ -102,7 +103,8 @@ export const ElementDuplicate = ({
       } catch (e: unknown) {
         toast({
           title: 'Error',
-          description: e instanceof Error ? e.message : 'Failed to load element detail',
+          description:
+            e instanceof Error ? e.message : 'Failed to load element detail',
           variant: 'destructive',
         });
       }
