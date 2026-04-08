@@ -7,62 +7,55 @@ export const OutgoingWebhookAuth = () => {
   const { control } = useFormContext<TOutgoingWebhookForm>();
 
   return (
-    <>
-      <div className="space-y-4">
-        <Form.Field
-          control={control}
-          name="auth"
-          render={({ field }) => {
-            const { value: authObj, onChange } = field;
+    <div className="space-y-4">
+      <Form.Field
+        control={control}
+        name="auth"
+        render={({ field }) => {
+          const { value: authObj, onChange } = field;
 
-            return (
-              <Form.Item>
-                <Form.Label>Authentication</Form.Label>
-                <Select
-                  defaultValue="none"
-                  value={authObj?.type}
-                  onValueChange={(value) =>
-                    onChange({ ...authObj, type: value })
-                  }
-                >
-                  <Select.Trigger>
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Item value="none">None</Select.Item>
-                    <Select.Item value="basic">Basic Auth</Select.Item>
-                    <Select.Item value="bearer">Bearer Token Auth</Select.Item>
-                    <Select.Item value="jwt">JWT Bearer</Select.Item>
-                  </Select.Content>
-                </Select>
+          return (
+            <Form.Item>
+              <Form.Label>Authentication</Form.Label>
+              <Select
+                defaultValue="none"
+                value={authObj?.type}
+                onValueChange={(value) => onChange({ ...authObj, type: value })}
+              >
+                <Select.Trigger>
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="none">None</Select.Item>
+                  <Select.Item value="basic">Basic Auth</Select.Item>
+                  <Select.Item value="bearer">Bearer Token Auth</Select.Item>
+                  <Select.Item value="jwt">JWT Bearer</Select.Item>
+                </Select.Content>
+              </Select>
 
-                {authObj?.type === 'basic' && (
-                  <OutgoingWebhookBasicType
-                    authObj={authObj}
-                    onChange={onChange}
-                  />
-                )}
+              {authObj?.type === 'basic' && (
+                <OutgoingWebhookBasicType
+                  authObj={authObj}
+                  onChange={onChange}
+                />
+              )}
 
-                {authObj?.type === 'bearer' && (
-                  <OutgoingWebhookBearerType
-                    authObj={authObj}
-                    onChange={onChange}
-                  />
-                )}
+              {authObj?.type === 'bearer' && (
+                <OutgoingWebhookBearerType
+                  authObj={authObj}
+                  onChange={onChange}
+                />
+              )}
 
-                {authObj?.type === 'jwt' && (
-                  <OutgoingWebhookJWTType
-                    authObj={authObj}
-                    onChange={onChange}
-                  />
-                )}
-                <Form.Message />
-              </Form.Item>
-            );
-          }}
-        />
-      </div>
-    </>
+              {authObj?.type === 'jwt' && (
+                <OutgoingWebhookJWTType authObj={authObj} onChange={onChange} />
+              )}
+              <Form.Message />
+            </Form.Item>
+          );
+        }}
+      />
+    </div>
   );
 };
 

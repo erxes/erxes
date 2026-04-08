@@ -53,9 +53,9 @@ export function OutgoingWebhookBodyBuilder({
   onChange,
   contentType,
 }: {
-  value: string;
-  onChange: (value: string) => void;
-  contentType?: string;
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+  readonly contentType?: string;
 }) {
   const editorRef = useRef<EditorView | null>(null);
   const extensions = useMemo(() => [json(), createTheme()], []);
