@@ -73,14 +73,14 @@ const SelectCompanyProvider = ({
     const newSelectedCompanyIds = isSingleMode
       ? [company._id]
       : isSelected
-      ? multipleValue.filter((t) => t !== company._id)
-      : [...multipleValue, company._id];
+        ? multipleValue.filter((t) => t !== company._id)
+        : [...multipleValue, company._id];
 
     const newSelectedCompanies = isSingleMode
       ? [company]
       : isSelected
-      ? companies.filter((t) => t._id !== company._id)
-      : [...companies, company];
+        ? companies.filter((t) => t._id !== company._id)
+        : [...companies, company];
 
     setCompanies(newSelectedCompanies);
     onValueChange?.(isSingleMode ? company._id : newSelectedCompanyIds);
@@ -141,10 +141,7 @@ const SelectCompanyContent = () => {
         <Combobox.Empty loading={loading} error={error} />
         {!loading &&
           companiesData
-            ?.filter(
-              (company) =>
-                !companyIds.find((companyId) => companyId === company._id),
-            )
+            ?.filter((company) => !companyIds.includes(company._id))
             .map((company) => (
               <SelectCompanyCommandItem key={company._id} company={company} />
             ))}
