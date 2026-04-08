@@ -1,11 +1,5 @@
 import { useEffect } from 'react';
-import {
-  Button,
-  Form,
-  Sheet,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateItinerary } from '../hooks/useCreateItinerary';
@@ -15,10 +9,7 @@ import {
   ItineraryCreateFormSchema,
   ItineraryCreateFormType,
 } from '../constants/formSchema';
-import {
-  ItineraryColorField,
-  ItineraryNameField,
-} from './ItineraryFormFields';
+import { ItineraryColorField, ItineraryNameField } from './ItineraryFormFields';
 import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_components/TourFieldLanguageSwitch';
 import { useItineraryLanguage } from '../hooks/useItineraryLanguage';
 import {
@@ -49,18 +40,14 @@ const getPrimaryGroupDays = (
   );
 
   return itinerary.groupDays?.map((day) => {
-    const translatedDay = day.day
-      ? primaryGroupDayMap.get(day.day)
-      : undefined;
+    const translatedDay = day.day ? primaryGroupDayMap.get(day.day) : undefined;
 
     return {
       day: day.day,
       title: translatedDay?.title ?? day.title,
       content: translatedDay?.content ?? day.content,
       elements: day.elements?.map(({ __typename: _e, ...el }) => el),
-      elementsQuick: day.elementsQuick?.map(
-        ({ __typename: _eq, ...el }) => el,
-      ),
+      elementsQuick: day.elementsQuick?.map(({ __typename: _eq, ...el }) => el),
       images: day.images,
     };
   });
@@ -189,8 +176,9 @@ export const ItineraryDuplicateSheet = ({
           sourceItinerary,
           resolvedPrimaryLanguage,
         ),
-        translations:
-          duplicateTranslations?.length ? duplicateTranslations : undefined,
+        translations: duplicateTranslations?.length
+          ? duplicateTranslations
+          : undefined,
       },
       onCompleted: () => {
         toast({

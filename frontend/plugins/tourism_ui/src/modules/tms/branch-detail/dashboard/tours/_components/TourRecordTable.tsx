@@ -43,10 +43,7 @@ export const TourRecordTable = ({
     setEditTourId(tourId);
   };
 
-  const handleDuplicate = (
-    tourId: string,
-    dateType?: 'fixed' | 'flexible',
-  ) => {
+  const handleDuplicate = (tourId: string, dateType?: 'fixed' | 'flexible') => {
     setDuplicateTourId(tourId);
     setDuplicateTourDateType(dateType);
   };

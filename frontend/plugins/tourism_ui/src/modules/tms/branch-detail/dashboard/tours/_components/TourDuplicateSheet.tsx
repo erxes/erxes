@@ -78,7 +78,10 @@ const FlexibleFormSchema = z
 type FixedFormType = Omit<z.infer<typeof FixedFormSchema>, 'translations'> & {
   translations?: TourTranslationFormValue[];
 };
-type FlexibleFormType = Omit<z.infer<typeof FlexibleFormSchema>, 'translations'> & {
+type FlexibleFormType = Omit<
+  z.infer<typeof FlexibleFormSchema>,
+  'translations'
+> & {
   translations?: TourTranslationFormValue[];
 };
 
