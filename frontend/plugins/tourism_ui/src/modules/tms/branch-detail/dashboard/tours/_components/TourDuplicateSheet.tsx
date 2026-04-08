@@ -28,9 +28,9 @@ const stripTypename = <T extends Record<string, any>>(
 const duplicateNameSuffix = ' (copy)';
 const duplicateRefNumberSuffix = '-copy';
 
-const getPrimaryTourTranslation = (tour: ITourDetail) =>
+const getPrimaryTourTranslation = (tour: ITourDetail, primaryLanguage: string) =>
   tour.translations?.find(
-    (translation) => translation.language === tour.language,
+    (translation) => translation.language === primaryLanguage,
   );
 
 const isSameDay = (left: Date, right: Date) =>
@@ -193,10 +193,22 @@ const FixedDuplicateSheet = ({
   } = useTourLanguage({ branchLanguages, mainLanguage });
   const resolvedPrimaryLanguage =
     mainLanguage ?? tour.language ?? allLanguages[0] ?? '';
-  const primaryTranslation = getPrimaryTourTranslation(tour);
+  const primaryTranslation = getPrimaryTourTranslation(tour, resolvedPrimaryLanguage);
+  const normalizedPricingOptions = useMemo(
+    () =>
+      (tour.pricingOptions ?? []).map((opt) => ({
+        ...stripTypename(opt),
+        _id: opt._id || nanoid(8),
+      })),
+    [tour.pricingOptions],
+  );
   const duplicateTranslations = useMemo(
-    () => buildDuplicateTranslations(tour, translationLanguages),
-    [tour, translationLanguages],
+    () =>
+      buildDuplicateTranslations(
+        { ...tour, pricingOptions: normalizedPricingOptions },
+        translationLanguages,
+      ),
+    [tour, normalizedPricingOptions, translationLanguages],
   );
 
   const form = useForm<FixedFormType>({
@@ -279,10 +291,7 @@ const FixedDuplicateSheet = ({
         info4: primaryTranslation?.info4 ?? tour.info4,
         info5: primaryTranslation?.info5 ?? tour.info5,
         personCost: tour.personCost,
-        pricingOptions: tour.pricingOptions?.map((opt) => ({
-          ...stripTypename(opt),
-          _id: opt._id || nanoid(8),
-        })),
+        pricingOptions: normalizedPricingOptions,
         translations: sanitizeTourTranslations(values.translations),
       },
       onCompleted: () => {
@@ -294,10 +303,10 @@ const FixedDuplicateSheet = ({
         onOpenChange(false);
         form.reset();
       },
-      onError: (e: any) => {
+      onError: (e: unknown) => {
         toast({
           title: 'Error',
-          description: e.message,
+          description: e instanceof Error ? e.message : 'Failed to duplicate tour',
           variant: 'destructive',
         });
       },
@@ -417,10 +426,22 @@ const FlexibleDuplicateSheet = ({
   } = useTourLanguage({ branchLanguages, mainLanguage });
   const resolvedPrimaryLanguage =
     mainLanguage ?? tour.language ?? allLanguages[0] ?? '';
-  const primaryTranslation = getPrimaryTourTranslation(tour);
+  const primaryTranslation = getPrimaryTourTranslation(tour, resolvedPrimaryLanguage);
+  const normalizedPricingOptions = useMemo(
+    () =>
+      (tour.pricingOptions ?? []).map((opt) => ({
+        ...stripTypename(opt),
+        _id: opt._id || nanoid(8),
+      })),
+    [tour.pricingOptions],
+  );
   const duplicateTranslations = useMemo(
-    () => buildDuplicateTranslations(tour, translationLanguages),
-    [tour, translationLanguages],
+    () =>
+      buildDuplicateTranslations(
+        { ...tour, pricingOptions: normalizedPricingOptions },
+        translationLanguages,
+      ),
+    [tour, normalizedPricingOptions, translationLanguages],
   );
 
   const form = useForm<FlexibleFormType>({
@@ -508,10 +529,7 @@ const FlexibleDuplicateSheet = ({
         info4: primaryTranslation?.info4 ?? tour.info4,
         info5: primaryTranslation?.info5 ?? tour.info5,
         personCost: tour.personCost,
-        pricingOptions: tour.pricingOptions?.map((opt) => ({
-          ...stripTypename(opt),
-          _id: opt._id || nanoid(8),
-        })),
+        pricingOptions: normalizedPricingOptions,
         translations: sanitizeTourTranslations(values.translations),
       },
       onCompleted: () => {
@@ -523,10 +541,10 @@ const FlexibleDuplicateSheet = ({
         onOpenChange(false);
         form.reset();
       },
-      onError: (e: any) => {
+      onError: (e: unknown) => {
         toast({
           title: 'Error',
-          description: e.message,
+          description: e instanceof Error ? e.message : 'Failed to duplicate tour',
           variant: 'destructive',
         });
       },

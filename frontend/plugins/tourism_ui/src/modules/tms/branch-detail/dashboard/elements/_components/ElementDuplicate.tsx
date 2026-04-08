@@ -76,7 +76,11 @@ export const ElementDuplicate = ({
         const { data } = await fetchElementDetail({
           variables: { id: element._id },
         });
-        const source = data?.bmsElementDetail || element;
+
+        if (!data?.bmsElementDetail) {
+          throw new Error('Failed to load element detail');
+        }
+        const source = data.bmsElementDetail;
 
         await createElement({
           variables: buildDuplicatePayload(source),
@@ -87,18 +91,18 @@ export const ElementDuplicate = ({
               description: 'Element duplicated successfully',
             });
           },
-          onError: (e: any) => {
+          onError: (e: unknown) => {
             toast({
               title: 'Error',
-              description: e.message,
+              description: e instanceof Error ? e.message : 'Failed to duplicate element',
               variant: 'destructive',
             });
           },
         });
-      } catch (e: any) {
+      } catch (e: unknown) {
         toast({
           title: 'Error',
-          description: e.message || 'Failed to load element detail',
+          description: e instanceof Error ? e.message : 'Failed to load element detail',
           variant: 'destructive',
         });
       }

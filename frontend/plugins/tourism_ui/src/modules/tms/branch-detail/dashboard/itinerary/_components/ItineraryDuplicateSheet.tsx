@@ -133,8 +133,9 @@ export const ItineraryDuplicateSheet = ({
           translationLanguages,
         ),
       });
+      setSelectedLang(resolvedPrimaryLanguage);
     }
-  }, [open, primaryName, reset, sourceItinerary, translationLanguages]);
+  }, [open, primaryName, reset, sourceItinerary, translationLanguages, setSelectedLang, resolvedPrimaryLanguage]);
 
   if (open && detailLoading) {
     return (
@@ -189,10 +190,10 @@ export const ItineraryDuplicateSheet = ({
         onOpenChange(false);
         form.reset();
       },
-      onError: (e: any) => {
+      onError: (e: unknown) => {
         toast({
           title: 'Error',
-          description: e.message,
+          description: e instanceof Error ? e.message : 'Failed to duplicate itinerary',
           variant: 'destructive',
         });
       },
