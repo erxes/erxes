@@ -33,7 +33,7 @@ export const FieldSelect = (props: SpecificFieldProps) => {
           field={field}
           value={currentValue}
           onChange={(value) => {
-            setCurrentValue(value as string);
+            setCurrentValue(value);
             value !== currentValue && handleChange(value);
             setIsOpen(false);
           }}
@@ -64,7 +64,7 @@ export const FieldSelectContent = ({
         {options.map((o) => (
           <Command.Item
             key={o.value}
-            value={o.value as string}
+            value={o.value}
             onSelect={() => onChange(o.value)}
           >
             {o.label}
