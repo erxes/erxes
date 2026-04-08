@@ -351,7 +351,9 @@ export const FormPreviewContent = ({
                             <div className="flex flex-col gap-2">
                               {erxesField.options.map((option) => {
                                 if (!option) return null;
-                                const checked = (field.value as string[]).includes(option);
+                                const checked = (
+                                  field.value as string[]
+                                ).includes(option);
                                 return (
                                   <label
                                     key={option}
@@ -364,7 +366,9 @@ export const FormPreviewContent = ({
                                         field.onChange(
                                           isChecked
                                             ? [...current, option]
-                                            : current.filter((v) => v !== option),
+                                            : current.filter(
+                                                (v) => v !== option,
+                                              ),
                                         );
                                       }}
                                     />
