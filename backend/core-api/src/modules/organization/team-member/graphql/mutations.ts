@@ -207,7 +207,14 @@ export const userMutations: Record<string, Resolver> = {
       if (user._id === _id) {
         throw new Error('You can not delete yourself');
       }
-      await models.Users.setUserActiveOrInactive(_id);
+    }
+
+    for (const _id of _ids) {
+      const targetUser = await models.Users.findOne({ _id });
+
+      if (targetUser && targetUser.isActive !== false) {
+        await models.Users.setUserActiveOrInactive(_id);
+      }
     }
 
     return true;
