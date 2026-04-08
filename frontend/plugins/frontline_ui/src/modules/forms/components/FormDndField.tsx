@@ -2,10 +2,9 @@ import { UniqueIdentifier } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { useFormDnd } from './FormDndProvider';
 import { useMountStatus } from '../hooks/useMountStatus';
-import { Button, cn, DropdownMenu } from 'erxes-ui';
+import { Button, cn, DropdownMenu, toast } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import {
-  IconArrowsDiagonal,
   IconCheck,
   IconCalendarEvent,
   IconNumbers,
@@ -13,10 +12,16 @@ import {
   IconTextScan2,
   IconTextSize,
   IconChevronDown,
+  IconDots,
+  IconEdit,
+  IconTrash,
+  IconSquareCheck,
+  IconListCheck,
 } from '@tabler/icons-react';
 import { FORM_FIELD_TYPES } from '../constants/formFieldTypes';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
+import { useRemoveForm } from '../hooks/useRemoveForm';
 
 export const FormDndField = ({
   field,
@@ -58,14 +63,7 @@ export const FormDndField = ({
       >
         <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
         {fieldData?.label}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="ml-auto"
-          onClick={() => setOpen(true)}
-        >
-          <IconArrowsDiagonal />
-        </Button>
+        <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
       </div>
       <FormFieldDetailSheet open={open} onOpenChange={setOpen}>
         <FormFieldDetail
@@ -91,6 +89,10 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconChevronDown />;
     case 'textarea':
       return <IconTextScan2 />;
+    case 'check':
+      return <IconSquareCheck />;
+    case 'radio':
+      return <IconListCheck />;
     default:
       return <IconTextSize />;
   }
@@ -115,6 +117,45 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
             {type.label}
           </DropdownMenu.Item>
         ))}
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
+
+export const FieldContextMenu = ({
+  fieldId,
+  stepId,
+  setOpen,
+}: {
+  fieldId: UniqueIdentifier;
+  stepId: UniqueIdentifier;
+  setOpen: (open: boolean) => void;
+}) => {
+  const [_open, _setOpen] = React.useState<boolean>(false);
+  const { handleDeleteField } = useFormDnd();
+  const handleRemoveField = () => {
+    handleDeleteField(stepId, fieldId);
+  };
+
+  return (
+    <DropdownMenu open={_open} onOpenChange={_setOpen}>
+      <DropdownMenu.Trigger className="ml-auto">
+        <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+          <IconDots />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content>
+        <DropdownMenu.Item onClick={() => setOpen(true)}>
+          <IconEdit />
+          Edit attributes
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onClick={handleRemoveField}
+          className="text-destructive"
+        >
+          <IconTrash />
+          Remove Field
+        </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
   );
