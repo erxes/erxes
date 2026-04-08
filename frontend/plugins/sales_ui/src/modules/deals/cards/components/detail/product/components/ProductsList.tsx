@@ -168,7 +168,7 @@ const ProductsList = ({
   };
 
   return (
-    <div className="space-y-4 w-full lg:w-[calc(75vw-22.5rem)] md:w-[calc(75vw-22.5rem)]">
+    <div className="space-y-4 md:w-3/5">
       <Filter id="product-filter">
         <div className="flex items-center gap-4 flex-wrap">
           <Input
