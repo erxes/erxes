@@ -179,7 +179,7 @@ export const SafeRemainderDetail = () => {
 
         <Tabs.Content value={CENSUS_TABS.CENSUS.value} className="mt-6">
           <RecordTableHotkeyProvider
-            columnLength={safeRemDetailTableColumns.length} // 7 columns total
+            columnLength={2}
             rowLength={safeRemainderItems?.length || 0}
             scope={AccountingHotkeyScope.SafeRemainderPage}
           >

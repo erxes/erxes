@@ -29,22 +29,24 @@ export const RecordTableHotKeyControl = React.forwardRef<
     const [isFocused, setIsFocused] = useState(false);
     const { activeCell, setActiveRow, setActiveCell } = useRecordTableHotkey();
 
-    const innerButton = controlRef.current?.querySelector('button');
     const colIndex = colIndexProp ?? controlRef.current?.cellIndex;
 
     useHotkeys(
       Key.Enter,
-      () => {
-        innerButton?.click();
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        controlRef.current?.querySelector('button')?.click();
       },
       {
         enabled: isFocused,
+        preventDefault: true,
       },
     );
 
     const handleFocus = (focused: boolean) => {
       setIsFocused(focused);
-      if (document.activeElement instanceof HTMLElement) {
+      if (!focused && document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
     };
@@ -54,8 +56,9 @@ export const RecordTableHotKeyControl = React.forwardRef<
       if (isActive) {
         handleFocus(true);
         setActiveRow(rowId);
+      } else if (isFocused) {
+        handleFocus(false);
       }
-      isFocused && handleFocus(false);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeCell]);
 
@@ -66,7 +69,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
         onClickCapture={() => {
           setIsFocused(true);
           setActiveRow(rowId);
-          setActiveCell([rowIndex, colIndex || 0]);
+          setActiveCell([rowIndex, colIndex ?? 0]);
         }}
         className={cn(
           isFocused &&

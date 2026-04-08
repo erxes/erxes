@@ -14,8 +14,8 @@ import {
 import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
 
-const REMAINDER_COL_INDEX = 5;
-const DIFF_COL_INDEX = 6;
+const REMAINDER_COL_INDEX = 0;
+const DIFF_COL_INDEX = 1;
 
 const ProductCell = ({ row }: any) => {
   return (
