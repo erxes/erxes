@@ -18,11 +18,11 @@ export interface IAvailabilityModel extends Model<IAvailabilityDocument> {
 
 export const loadAvailabilityClass = (models: IModels) => {
   class Availabilities {
-    public static createAvailability = async (data: IAvailability) => {
+    public static readonly createAvailability = async (data: IAvailability) => {
       return models.Availabilities.create(data);
     };
 
-    public static updateAvailability = async (
+    public static readonly updateAvailability = async (
       _id: string,
       data: Partial<IAvailability>,
     ) => {
@@ -33,7 +33,7 @@ export const loadAvailabilityClass = (models: IModels) => {
       );
     };
 
-    public static deleteAvailability = async (_id: string) => {
+    public static readonly deleteAvailability = async (_id: string) => {
       return models.Availabilities.findOneAndDelete({ _id });
     };
   }
