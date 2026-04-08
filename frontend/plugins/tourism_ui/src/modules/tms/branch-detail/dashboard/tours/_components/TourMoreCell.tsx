@@ -60,29 +60,29 @@ export const TourMoreColumn = ({
   };
 
   return (
-      <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Command.Item value="edit" onSelect={handleEdit}>
-                <IconEdit className="w-4 h-4" />
-                Edit
-              </Command.Item>
-              <Command.Item value="duplicate" onSelect={handleDuplicate}>
-                <IconCopy className="w-4 h-4" />
-                Duplicate
-              </Command.Item>
-              <Command.Item value="delete" onSelect={handleDelete}>
-                <IconTrash className="w-4 h-4" />
-                Delete
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit className="w-4 h-4" />
+              Edit
+            </Command.Item>
+            <Command.Item value="duplicate" onSelect={handleDuplicate}>
+              <IconCopy className="w-4 h-4" />
+              Duplicate
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash className="w-4 h-4" />
+              Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -92,11 +92,7 @@ export const tourMoreColumn = (
 ): ColumnDef<ITour> => ({
   id: 'more',
   cell: (props) => (
-    <TourMoreColumn
-      {...props}
-      onEdit={onEdit}
-      onDuplicate={onDuplicate}
-    />
+    <TourMoreColumn {...props} onEdit={onEdit} onDuplicate={onDuplicate} />
   ),
   size: 33,
 });
