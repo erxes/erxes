@@ -20,7 +20,6 @@ type Props = {
   delete: () => void;
 };
 
-
 const normalize = (
   config: Partial<PerSplitConfig>,
   stageId: string,
@@ -105,7 +104,7 @@ const SplitConfig: React.FC<Props> = ({
   };
 
   const handleDelete = () => {
-    if (!window.confirm('Delete this split config?')) return;
+    if (!globalThis.confirm('Delete this split config?')) return;
 
     deleteConfig();
     setSavedConfigs([]);
@@ -138,10 +137,13 @@ const SplitConfig: React.FC<Props> = ({
             <h3 className="font-medium">Saved configs</h3>
 
             {savedConfigs.map((cfg, index) => (
-              <div
+              <button
                 key={`${cfg.stageId}-${index}`}
-                className={`cursor-pointer rounded px-3 py-2 border
-                  ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
+                type="button"
+                className={`cursor-pointer rounded px-3 py-2 border w-full text-left
+                  ${
+                    index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'
+                  }`}
                 onClick={() => setActiveIndex(index)}
               >
                 <div className="font-medium">
@@ -150,7 +152,7 @@ const SplitConfig: React.FC<Props> = ({
                 <div className="text-xs text-gray-500">
                   Stage: {cfg.stageId || '—'}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -208,9 +210,7 @@ const SplitConfig: React.FC<Props> = ({
                 pipelineId={localConfig.pipelineId || ''}
                 value={localConfig.stageId || ''}
                 disabled={!localConfig.pipelineId}
-                onValueChange={(stageId: string) =>
-                  update('stageId', stageId)
-                }
+                onValueChange={(stageId: string) => update('stageId', stageId)}
               />
             </div>
           </div>
