@@ -12,8 +12,10 @@ const MongolianSettings = () => {
         {/* Ebarimt */}
         <Route path="ebarimt/*" element={<EBarimtSettings />} />
         {/* Product Places */}
-        <Route path="product-places/*" element={<ProductPlacesSettings />}>
-        </Route>
+        <Route
+          path="product-places/*"
+          element={<ProductPlacesSettings />}
+        ></Route>
         <Route path="msdynamic/*" element={<MsdynamicSettingsPage />} />
         {/* default */}
         <Route index element={<Navigate to="ebarimt" replace />} />

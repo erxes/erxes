@@ -54,7 +54,7 @@ const MsdynamicSettingsPage = () => {
 
       await saveMutation({
         variables: {
-          configsMap: finalPayload, 
+          configsMap: finalPayload,
         },
       });
 
@@ -68,10 +68,7 @@ const MsdynamicSettingsPage = () => {
 
   return (
     <div className="p-6 h-full overflow-auto">
-      <GeneralSettings
-        configsMap={configsMap}
-        save={handleSave}
-      />
+      <GeneralSettings configsMap={configsMap} save={handleSave} />
     </div>
   );
 };
