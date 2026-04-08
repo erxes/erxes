@@ -1,6 +1,8 @@
+import { useLazyQuery } from '@apollo/client';
 import { useConfirm, useToast } from 'erxes-ui';
 import { useCreateElement } from '../hooks/useCreateElement';
 import { IElement } from '../types/element';
+import { GET_ELEMENT_DETAIL } from '../graphql/queries';
 
 interface ElementDuplicateProps {
   element: IElement;
@@ -19,40 +21,96 @@ export const ElementDuplicate = ({
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { createElement, loading } = useCreateElement();
+  const [fetchElementDetail, { loading: detailLoading }] = useLazyQuery<{
+    bmsElementDetail: IElement;
+  }>(GET_ELEMENT_DETAIL, {
+    fetchPolicy: 'network-only',
+  });
+  const duplicateSuffix = ' (copy)';
 
   const handleDuplicate = () => {
+    const buildDuplicatePayload = (source: IElement) => {
+      const primaryLanguage = source.language;
+      const primaryTranslation = source.translations?.find(
+        (translation) => translation.language === primaryLanguage,
+      );
+      const primaryName = primaryTranslation?.name || source.name || '';
+      const primaryNote = primaryTranslation?.note ?? source.note;
+      const primaryCost = primaryTranslation?.cost ?? source.cost;
+      const translations = source.translations
+        ?.filter((translation) => translation.language !== primaryLanguage)
+        .map((translation) => ({
+          language: translation.language,
+          name: translation.name
+            ? `${translation.name}${duplicateSuffix}`
+            : undefined,
+          note: translation.note,
+          cost: translation.cost,
+        }))
+        .filter(
+          (translation) =>
+            translation.name ||
+            translation.note ||
+            translation.cost !== undefined,
+        );
+
+      return {
+        branchId: branchId || source.branchId,
+        name: `${primaryName}${duplicateSuffix}`,
+        note: primaryNote,
+        startTime: source.startTime,
+        duration: source.duration,
+        cost: primaryCost,
+        categories: source.categories,
+        quick: source.quick,
+        language: primaryLanguage,
+        translations: translations?.length ? translations : undefined,
+      };
+    };
+
     confirm({
       message: 'Are you sure you want to duplicate this element?',
       options: { confirmationValue: 'duplicate' },
-    }).then(() => {
-      createElement({
-        variables: {
-          branchId: branchId || element.branchId,
-          name: `${element.name || ''} (copy)`,
-          note: element.note,
-          startTime: element.startTime,
-          duration: element.duration,
-          cost: element.cost,
-          categories: element.categories,
-          quick: element.quick,
-        },
-        onCompleted: () => {
-          toast({
-            title: 'Success',
-            variant: 'success',
-            description: 'Element duplicated successfully',
-          });
-        },
-        onError: (e: any) => {
-          toast({
-            title: 'Error',
-            description: e.message,
-            variant: 'destructive',
-          });
-        },
-      });
+    }).then(async () => {
+      try {
+        const { data } = await fetchElementDetail({
+          variables: { id: element._id },
+        });
+        const source = data?.bmsElementDetail || element;
+
+        await createElement({
+          variables: buildDuplicatePayload(source),
+          onCompleted: () => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: 'Element duplicated successfully',
+            });
+          },
+          onError: (e: any) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+              variant: 'destructive',
+            });
+          },
+        });
+      } catch (e: any) {
+        toast({
+          title: 'Error',
+          description: e.message || 'Failed to load element detail',
+          variant: 'destructive',
+        });
+      }
     });
   };
 
-  return <>{children({ onClick: handleDuplicate, disabled: loading })}</>;
+  return (
+    <>
+      {children({
+        onClick: handleDuplicate,
+        disabled: loading || detailLoading,
+      })}
+    </>
+  );
 };

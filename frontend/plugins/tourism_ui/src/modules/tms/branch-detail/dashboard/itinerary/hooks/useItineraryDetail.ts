@@ -5,6 +5,7 @@ import { IItineraryTranslation } from '../types/itinerary';
 export interface IItineraryDetail {
   _id: string;
   branchId?: string;
+  language?: string;
   name?: string;
   duration?: number;
   totalCost?: number;

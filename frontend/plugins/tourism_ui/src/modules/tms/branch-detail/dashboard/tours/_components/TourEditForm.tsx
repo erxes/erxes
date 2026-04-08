@@ -3,6 +3,7 @@ import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo, useState } from 'react';
+import { nanoid } from 'nanoid';
 import { TourSideTab, TourOrdersSidePanel } from './TourOrdersSidePanel';
 
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
@@ -159,6 +160,7 @@ export const TourEditForm = ({
     branchLanguages,
     mainLanguage,
   });
+  const resolvedPrimaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
 
   const watchedPricingOptions = useWatch({
     control: form.control,
@@ -304,6 +306,7 @@ export const TourEditForm = ({
 
       const normalizedPricingOptions = pricingOptions.map((opt) => ({
         ...opt,
+        _id: opt._id || nanoid(8),
         accommodationType: opt.accommodationType
           ? opt.accommodationType.trim().toLowerCase()
           : opt.accommodationType,
@@ -321,6 +324,7 @@ export const TourEditForm = ({
 
       await editTour({
         id: tourId,
+        language: resolvedPrimaryLanguage || undefined,
         ...restValues,
         pricingOptions: normalizedPricingOptions,
         translations: sanitizedTranslations,

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
 import {
@@ -11,26 +10,24 @@ import {
 } from 'erxes-ui';
 import { ITour } from '../types/tour';
 import { useRemoveTours } from '../hooks/useRemoveTours';
-import { TourDuplicateSheet } from './TourDuplicateSheet';
 
 interface TourMoreCellProps extends CellContext<ITour, unknown> {
   onEdit?: (tourId: string) => void;
-  branchId?: string;
+  onDuplicate?: (tourId: string, dateType?: 'fixed' | 'flexible') => void;
 }
 
 export const TourMoreColumn = ({
   onEdit,
-  branchId,
+  onDuplicate,
   ...props
 }: TourMoreCellProps) => {
   const tour = props.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeTours } = useRemoveTours();
-  const [duplicateOpen, setDuplicateOpen] = useState(false);
 
   const handleDuplicate = () => {
-    setDuplicateOpen(true);
+    onDuplicate?.(tour._id, tour.dateType);
   };
 
   const handleEdit = () => {
@@ -63,7 +60,6 @@ export const TourMoreColumn = ({
   };
 
   return (
-    <>
       <Popover>
         <Popover.Trigger asChild>
           <RecordTable.MoreButton className="w-full h-full" />
@@ -87,24 +83,20 @@ export const TourMoreColumn = ({
           </Command>
         </Combobox.Content>
       </Popover>
-      <TourDuplicateSheet
-        tourId={tour._id}
-        dateType={tour.dateType}
-        branchId={branchId}
-        open={duplicateOpen}
-        onOpenChange={setDuplicateOpen}
-      />
-    </>
   );
 };
 
 export const tourMoreColumn = (
   onEdit?: (tourId: string) => void,
-  branchId?: string,
+  onDuplicate?: (tourId: string, dateType?: 'fixed' | 'flexible') => void,
 ): ColumnDef<ITour> => ({
   id: 'more',
   cell: (props) => (
-    <TourMoreColumn {...props} onEdit={onEdit} branchId={branchId} />
+    <TourMoreColumn
+      {...props}
+      onEdit={onEdit}
+      onDuplicate={onDuplicate}
+    />
   ),
   size: 33,
 });
