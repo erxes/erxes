@@ -33,7 +33,7 @@ export const executeCoreActions = async (
 
   let actionResponse: any = null;
   if (actionType === AUTOMATION_CORE_ACTIONS.DELAY) {
-    await executeDelayAction(subdomain, execution, action, execAction);
+    await executeDelayAction(subdomain, execution, action);
     return { actionResponse, shouldBreak: true };
   }
 
@@ -50,7 +50,7 @@ export const executeCoreActions = async (
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.WAIT_EVENT) {
-    await executeWaitEvent(subdomain, execution, action, execAction);
+    actionResponse = await executeWaitEvent(subdomain, execution, action);
 
     return { actionResponse, shouldBreak: true };
   }

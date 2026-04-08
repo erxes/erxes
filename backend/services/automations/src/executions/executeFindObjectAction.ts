@@ -7,6 +7,7 @@ import {
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { finalizeExecAction } from './executionActionMetrics';
 
 export const executeFindObjectAction = async (
   subdomain: string,
@@ -34,6 +35,7 @@ export const executeFindObjectAction = async (
   const actionId = exists ? action.id : notExists ? action.id : undefined;
   execAction.nextActionId = actionId;
   execAction.result = { object, isExists: !!object };
+  finalizeExecAction(execAction, 'success');
   execution.actions = [...(execution.actions || []), execAction];
   execution = await execution.save();
   return executeActions(

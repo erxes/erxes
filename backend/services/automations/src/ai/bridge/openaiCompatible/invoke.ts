@@ -83,8 +83,13 @@ const formatEmptyResponseError = (
   }
 
   const finishReason = response?.choices?.[0]?.finish_reason;
+  const model = response?.model?.trim().toLowerCase() || '';
 
   if (finishReason === 'length') {
+    if (model.startsWith('gpt-5')) {
+      return 'AI provider returned no visible text because the response hit the completion token limit. GPT-5 models can spend that budget on internal reasoning first, so increase max tokens or shorten the prompt/context.';
+    }
+
     return 'AI provider returned no text because the response hit the completion token limit. Increase max tokens or shorten the prompt.';
   }
 

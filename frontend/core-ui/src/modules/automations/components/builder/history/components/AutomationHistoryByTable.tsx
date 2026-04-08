@@ -19,6 +19,31 @@ import {
   splitAutomationNodeType,
 } from 'ui-modules';
 
+const getHistoryResultErrorText = (value: unknown) => {
+  const text = stringifyAutomationHistoryValue(value);
+
+  return text || 'Action failed';
+};
+
+const formatExecutionDuration = (durationMs?: number) => {
+  if (typeof durationMs !== 'number' || durationMs < 0) {
+    return 'N/A';
+  }
+
+  if (durationMs < 1000) {
+    return `${durationMs} ms`;
+  }
+
+  if (durationMs < 60_000) {
+    return `${(durationMs / 1000).toFixed(durationMs < 10_000 ? 2 : 1)} s`;
+  }
+
+  const minutes = Math.floor(durationMs / 60_000);
+  const seconds = ((durationMs % 60_000) / 1000).toFixed(1);
+
+  return `${minutes}m ${seconds}s`;
+};
+
 const getExecutionActionResultPreview = (
   action: IAutomationHistoryAction,
 ): string => {
@@ -34,7 +59,7 @@ const getExecutionActionResultPreview = (
   const { result } = action;
 
   if (result.error) {
-    return result.error;
+    return getHistoryResultErrorText(result.error);
   }
 
   if (action.actionType === 'setProperty') {
@@ -51,7 +76,9 @@ const getExecutionActionResultPreview = (
   }
 
   if (action.actionType === 'sendEmail') {
-    return result?.response?.error || 'Sent successfully';
+    return result?.response?.error
+      ? getHistoryResultErrorText(result.response.error)
+      : 'Sent successfully';
   }
 
   if (action.actionType === 'aiAgent') {
@@ -92,7 +119,11 @@ export const ExecutionActionResult = ({
   const { result } = action;
 
   if (result.error) {
-    return result.error;
+    return (
+      <pre className="font-mono text-xs whitespace-pre-wrap break-words">
+        {getHistoryResultErrorText(result.error)}
+      </pre>
+    );
   }
 
   if (action.actionType === 'setProperty') {
@@ -109,7 +140,13 @@ export const ExecutionActionResult = ({
   }
 
   if (action.actionType === 'sendEmail') {
-    return <AutomationSendEmailActionResult result={result} />;
+    return (
+      <AutomationSendEmailActionResult
+        result={result}
+        action={action}
+        status={status}
+      />
+    );
   }
 
   const isCoreAction = isCoreAutomationActionType(
@@ -171,6 +208,7 @@ export const AutomationHistoryByTable = () => {
           <Table.Row>
             <Table.Head className="w-36!">Time</Table.Head>
             <Table.Head className="w-64!">Action Type</Table.Head>
+            <Table.Head className="w-28!">Duration</Table.Head>
             <Table.Head>Results</Table.Head>
           </Table.Row>
         </Table.Header>
@@ -183,6 +221,9 @@ export const AutomationHistoryByTable = () => {
                     <RelativeDateDisplay.Value value={createdAtValue} />
                   </Table.Cell>
                   <Table.Cell>{actionTypeLabel}</Table.Cell>
+                  <Table.Cell>
+                    {formatExecutionDuration(action.durationMs)}
+                  </Table.Cell>
                   <Table.Cell className="p-0">
                     <AutomationHistoryPopoverValue
                       className="h-10"
@@ -198,7 +239,7 @@ export const AutomationHistoryByTable = () => {
                 </Table.Row>
                 {list.length - 1 > index && (
                   <tr>
-                    <td colSpan={3} className="text-center py-2">
+                    <td colSpan={4} className="text-center py-2">
                       <div className="flex items-center justify-center">
                         <IconArrowDown />
                       </div>

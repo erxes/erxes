@@ -1,6 +1,12 @@
+import { AiAgentContextFileEditorDialog } from '@/automations/components/settings/components/agents/components/AiAgentContextFileEditorDialog';
 import { UploadDropzone } from '@/automations/components/settings/components/agents/components/DropFilesZone';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
+import {
+  getNextContextFilesAfterEdit,
+  mapUploadedContextFiles,
+} from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { Card, Form, Textarea } from 'erxes-ui';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 const AI_AGENT_UI_LIMITS = {
@@ -19,6 +25,7 @@ const formatBytes = (bytes: number) => {
 
 export const AiAgentContextForm = () => {
   const { control } = useFormContext<TAiAgentForm>();
+  const [editingFileId, setEditingFileId] = useState<string | null>(null);
 
   return (
     <div className="grid gap-4">
@@ -64,44 +71,63 @@ export const AiAgentContextForm = () => {
           <Form.Field
             control={control}
             name="context.files"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Control>
-                  <UploadDropzone
-                    files={field.value || []}
-                    maxFiles={AI_AGENT_UI_LIMITS.maxFiles}
-                    maxSingleFileBytes={
-                      AI_AGENT_UI_LIMITS.maxSingleFileBytes
-                    }
-                    maxTotalContextBytes={
-                      AI_AGENT_UI_LIMITS.maxTotalContextBytes
-                    }
-                    onFilesUploaded={(files) => {
-                      const newFiles = files.map(({ key, name, size, type, uploadedAt }) => ({
-                        id: Math.random().toString(36).slice(2, 11),
-                        key,
-                        name,
-                        size,
-                        type,
-                        uploadedAt: uploadedAt.toISOString(),
-                      }));
+            render={({ field }) => {
+              const files = field.value || [];
+              const editingFile =
+                files.find(({ id }) => id === editingFileId) || null;
 
-                      field.onChange([...(field.value || []), ...newFiles]);
+              return (
+                <Form.Item>
+                  <Form.Control>
+                    <UploadDropzone
+                      files={files}
+                      maxFiles={AI_AGENT_UI_LIMITS.maxFiles}
+                      maxSingleFileBytes={AI_AGENT_UI_LIMITS.maxSingleFileBytes}
+                      maxTotalContextBytes={
+                        AI_AGENT_UI_LIMITS.maxTotalContextBytes
+                      }
+                      onFilesUploaded={(uploadedFiles) => {
+                        field.onChange([
+                          ...files,
+                          ...mapUploadedContextFiles(uploadedFiles),
+                        ]);
+                      }}
+                      onFileDelete={(fileId) => {
+                        if (editingFileId === fileId) {
+                          setEditingFileId(null);
+                        }
+
+                        field.onChange(files.filter(({ id }) => fileId !== id));
+                      }}
+                      onFileClick={setEditingFileId}
+                    />
+                  </Form.Control>
+                  <AiAgentContextFileEditorDialog
+                    open={!!editingFile}
+                    file={editingFile}
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        setEditingFileId(null);
+                      }
                     }}
-                    onFileDelete={(fileId) =>
+                    onSave={(nextFile) => {
                       field.onChange(
-                        (field.value || []).filter(({ id }) => fileId !== id),
-                      )
-                    }
+                        getNextContextFilesAfterEdit({
+                          files,
+                          fileId: nextFile.id,
+                          uploadedFile: nextFile,
+                        }),
+                      );
+                    }}
                   />
-                </Form.Control>
-                <Form.Description>
-                  Keep files focused and compact so health checks stay green,
-                  prompts stay small, and the provider responds quickly.
-                </Form.Description>
-                <Form.Message />
-              </Form.Item>
-            )}
+                  <Form.Description>
+                    Keep files focused and compact so health checks stay green,
+                    prompts stay small, and the provider responds quickly.
+                  </Form.Description>
+                  <Form.Message />
+                </Form.Item>
+              );
+            }}
           />
         </div>
       </Card>

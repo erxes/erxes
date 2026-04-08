@@ -34,11 +34,11 @@ export const AUTOMATION_CORE_ACTIONS = {
 };
 
 export const AUTOMATION_CORE_TRIGGER_TYPES = {
-  INCOMING_WEBHOOK: 'core:incoming_webhook',
-  USER: 'core:team.user',
-  CUSTOMER: 'core:contact.customer',
-  LEAD: 'core:contact.lead',
-  COMPANY: 'core:contact.company',
+  INCOMING_WEBHOOK: 'core:webhooks.incoming',
+  USER: 'core:organization.users',
+  CUSTOMER: 'core:contacts.customers',
+  LEAD: 'core:contacts.leads',
+  COMPANY: 'core:contacts.companies',
 };
 
 export const AUTOMATION_EMAIL_RECIPIENTS_TYPES = [

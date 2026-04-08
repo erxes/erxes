@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   AutomationBaseInput,
   CheckCustomTriggerInput,
+  CheckTargetMatchInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
   ReplacePlaceholdersInput,
@@ -192,6 +193,11 @@ export interface AutomationProducers {
     context: IAutomationContext,
   ) => Promise<boolean>;
 
+  checkTargetMatch?: (
+    args: z.infer<typeof CheckTargetMatchInput>,
+    context: IAutomationContext,
+  ) => Promise<boolean>;
+
   setProperties?: (
     args: z.infer<typeof SetPropertiesInput>,
     context: IAutomationContext,
@@ -306,6 +312,7 @@ export enum TAutomationProducers {
   REPLACE_PLACEHOLDERS = 'replacePlaceHolders',
   RESOLVE_OUTPUT_PATHS = 'resolveOutputPaths',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
+  CHECK_TARGET_MATCH = 'checkTargetMatch',
   GET_ADDITIONAL_ATTRIBUTES = 'getAdditionalAttributes',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',

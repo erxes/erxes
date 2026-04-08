@@ -1,5 +1,6 @@
 import { executeCoreActions } from './executeCoreActions';
 import { executeCreateAction } from './actions/executeCreateAction';
+import { markExecActionStarted } from './executionActionMetrics';
 import { handleExecutionActionResponse } from './handleExecutionActionResponse';
 import { handleExecutionError } from './handleExecutionError';
 import {
@@ -72,6 +73,7 @@ export const executeActions = async (
     actionConfig: action.config,
     nextActionId: action.nextActionId,
   };
+  markExecActionStarted(execAction);
 
   let actionResponse: any = null;
   const actionType = action.type;
@@ -101,6 +103,7 @@ export const executeActions = async (
           coreActionResponse.actionResponse,
           execution,
           execAction,
+          'waiting',
         );
         return EXECUTION_STATUS.PAUSED;
       }
@@ -125,6 +128,7 @@ export const executeActions = async (
             createActionResponse.actionResponse,
             execution,
             execAction,
+            'waiting',
           );
           return EXECUTION_STATUS.PAUSED;
         }

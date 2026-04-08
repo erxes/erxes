@@ -57,7 +57,7 @@ export const useReactFlowEditor = () => {
     computedEdges || [],
   );
 
-  const { onNodeClick, onNodeDoubleClick } = useNodeEvents();
+  const { onNodeClick, onNodeDoubleClick, onPaneClick } = useNodeEvents();
   const { isValidConnection, onConnect, onAwaitingNodeConnection } =
     useNodeConnect();
 
@@ -143,6 +143,7 @@ export const useReactFlowEditor = () => {
     editorWrapper,
     onNodeClick,
     onNodeDoubleClick,
+    onPaneClick,
     isValidConnection,
     onDragOver,
     onNodesChange,

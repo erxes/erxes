@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { Express } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
+import { checkTargetMatch } from './checkTargetMatch';
 import { coreAutomationConstants } from './constants';
 import { getItems, getRelatedValue } from './utils';
 
@@ -25,6 +26,11 @@ export const initAutomation = (app: Express) =>
           props: relatedValueProps,
         },
       });
+    },
+    checkTargetMatch: async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return checkTargetMatch(models, data);
     },
     setProperties: async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);

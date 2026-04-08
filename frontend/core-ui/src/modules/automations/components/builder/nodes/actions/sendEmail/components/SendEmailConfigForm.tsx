@@ -14,7 +14,8 @@ export const SendEmailConfigForm = ({
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Send email Configuration',
   });
-  const { form, contentType } = useSendEmailSidebarForm(
+  const { form, contentType, availableVariableSourceNodes } =
+    useSendEmailSidebarForm(
     currentActionIndex,
     currentAction,
   );
@@ -174,6 +175,7 @@ export const SendEmailConfigForm = ({
               <SendEmailEmailContentBuilder
                 contentType={contentType}
                 content={field.value || ''}
+                variableSourceNodes={availableVariableSourceNodes}
                 onChange={field.onChange}
               />
             </Form.Item>

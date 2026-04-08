@@ -26,7 +26,7 @@ import { useEffect } from 'react';
 import { AutomationActionTargetSelector } from './content/action/AutomationActionTargetSelector';
 
 export const AutomationBuilderSidebar = () => {
-  const { awaitingToConnectNodeId } = useAutomation();
+  const { awaitingToConnectNodeId, selectedNode, queryParams } = useAutomation();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const setHotkeyScope = useSetHotkeyScope();
 
@@ -63,6 +63,11 @@ export const AutomationBuilderSidebar = () => {
   const hasSegmentFormContent =
     activeNode?.nodeType === AutomationNodeType.Trigger &&
     !activeNode?.isCustom;
+  const isEditingNode =
+    !!activeNode &&
+    (activeNode.nodeType === AutomationNodeType.Trigger ||
+      activeNode.nodeType === AutomationNodeType.Action);
+  const canShowSecondarySidebar = isEditingNode;
   const sidebarWidthClasses = hasSegmentFormContent
     ? 'min-w-md max-w-4xl w-fit'
     : 'min-w-80 max-w-2xl w-fit';
@@ -71,7 +76,7 @@ export const AutomationBuilderSidebar = () => {
     <AnimatePresence>
       {isOpenSideBar && (
         <div key="sidebar" className="absolute right-0 top-0 z-50 flex h-full">
-          {isSecondarySidebarOpen ? (
+          {isSecondarySidebarOpen && canShowSecondarySidebar ? (
             <AutomationBuilderSecondarySidebar />
           ) : null}
 
@@ -83,6 +88,7 @@ export const AutomationBuilderSidebar = () => {
           >
             <AutomationBuilderSidebarHeader
               activeNode={activeNode}
+              canShowSecondarySidebar={canShowSecondarySidebar}
               handleBack={handleBack}
               handleClose={handleClose}
               wide={hasSegmentFormContent}
@@ -107,11 +113,13 @@ export const AutomationBuilderSidebar = () => {
 
 const AutomationBuilderSidebarHeader = ({
   activeNode,
+  canShowSecondarySidebar,
   handleClose,
   handleBack,
   wide = false,
 }: {
   activeNode?: NodeData;
+  canShowSecondarySidebar: boolean;
   handleClose: () => void;
   handleBack: () => void;
   wide?: boolean;
@@ -156,7 +164,9 @@ const AutomationBuilderSidebarHeader = ({
           </div>
         </div>
         <div className="flex flex-row gap-2 self-start mt-0">
-          <AutomationBuilderSecondarySidebarToggle />
+          {canShowSecondarySidebar ? (
+            <AutomationBuilderSecondarySidebarToggle />
+          ) : null}
           <Button size="icon" variant="ghost" onClick={handleBack}>
             <IconArrowLeft />
           </Button>

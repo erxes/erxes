@@ -1,3 +1,4 @@
+import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRuntimeInfo';
 import { AiAgentObjectBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectBuilder';
 import { AiAgentInputMappingFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentInputMappingFields';
 import { AiAgentMemoryFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentMemoryFields';
@@ -13,7 +14,7 @@ import { useAiAgents } from '@/automations/components/settings/components/agents
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Select, Textarea } from 'erxes-ui';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Link } from 'react-router';
 import {
@@ -46,6 +47,11 @@ export const AIAgentConfigForm = ({
   const config = useWatch<TAiAgentConfigForm>({
     control,
   });
+  const selectedAgent = useMemo(
+    () =>
+      automationsAiAgents.find(({ _id }) => _id === config?.aiAgentId) || null,
+    [automationsAiAgents, config?.aiAgentId],
+  );
   const previousGoalTypeRef = useRef(currentAction?.config?.goalType);
 
   useEffect(() => {
@@ -137,14 +143,17 @@ export const AIAgentConfigForm = ({
                 <Form.Label>Instruction Prompt</Form.Label>
                 <Textarea placeholder="Enter prompt" {...field} />
                 <Form.Description>
-                  Define how the AI should write the final response text for
-                  this action.
+                  Describe the final artifact this action should produce. For
+                  email generation, ask for a ready-to-use email body instead
+                  of a conversational reply.
                 </Form.Description>
                 <Form.Message />
               </Form.Item>
             )}
           />
         )}
+
+        <AiAgentRuntimeInfo agent={selectedAgent} actionConfig={config} />
 
         <AiAgentMemoryFields />
       </AutomationConfigFormWrapper>

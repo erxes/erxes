@@ -80,6 +80,14 @@ export const CheckCustomTriggerInputData = z.object({
   config: z.record(z.any()),
 });
 
+export const CheckTargetMatchInputData = z.object({
+  moduleName: z.string(),
+  contentType: z.string(),
+  collectionType: z.string(),
+  targetId: z.string(),
+  selector: z.record(z.any()),
+});
+
 export const ReplacePlaceholdersInputData = z.object({
   moduleName: z.string(),
   target: z.record(z.any()),
@@ -123,6 +131,10 @@ export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
 
+export const CheckTargetMatchInput = AutomationBaseInput.extend({
+  data: CheckTargetMatchInputData,
+});
+
 export const ReplacePlaceholdersInput = AutomationBaseInput.extend({
   data: ReplacePlaceholdersInputData,
 });
@@ -145,6 +157,9 @@ export type TAutomationProducersInput = {
   >;
   [TAutomationProducers.CHECK_CUSTOM_TRIGGER]: z.infer<
     typeof CheckCustomTriggerInputData
+  >;
+  [TAutomationProducers.CHECK_TARGET_MATCH]: z.infer<
+    typeof CheckTargetMatchInputData
   >;
   [TAutomationProducers.REPLACE_PLACEHOLDERS]: z.infer<
     typeof ReplacePlaceholdersInputData

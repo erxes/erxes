@@ -35,8 +35,13 @@ export const useNodeEvents = () => {
     setQueryParams({ activeNodeId: node.id });
   };
 
+  const onPaneClick = () => {
+    setSelectedNode(null);
+  };
+
   return {
     onNodeClick,
     onNodeDoubleClick,
+    onPaneClick,
   };
 };

@@ -1,36 +1,30 @@
 import {
   IconFileText,
+  IconHistory,
   IconMarkdown,
   IconTrash,
   IconTxt,
 } from '@tabler/icons-react';
+import {
+  formatContextFileSize,
+  formatContextFileUploadedAt,
+  getContextFileVersionCount,
+  TAiAgentContextFile,
+} from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { Button, cn } from 'erxes-ui';
 
-interface UploadedFile {
-  id: string;
-  name: string;
-  size?: number;
-  type?: string;
-  uploadedAt?: string;
-}
-
 interface FileGridProps {
-  files: UploadedFile[];
+  files: TAiAgentContextFile[];
   onFileDelete: (fileId: string) => void;
+  onFileClick?: (fileId: string) => void;
 }
 
-export function FileGrid({ files = [], onFileDelete }: FileGridProps) {
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return (
-      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-    );
-  };
-
-  const getFileIcon = (file: UploadedFile) => {
+export function FileGrid({
+  files = [],
+  onFileDelete,
+  onFileClick,
+}: FileGridProps) {
+  const getFileIcon = (file: TAiAgentContextFile) => {
     const name = file.name.toLowerCase();
     const type = file.type || '';
 
@@ -45,28 +39,36 @@ export function FileGrid({ files = [], onFileDelete }: FileGridProps) {
     return <IconFileText className="size-5 text-muted-foreground" />;
   };
 
-  const formatUploadedAt = (uploadedAt?: string) => {
-    if (!uploadedAt) {
-      return null;
-    }
-
-    const parsed = new Date(uploadedAt);
-
-    if (Number.isNaN(parsed.getTime())) {
-      return null;
-    }
-
-    return parsed.toLocaleDateString();
-  };
-
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       {files.map((file) => (
         <div
           key={file.id}
+          role={onFileClick ? 'button' : undefined}
+          tabIndex={onFileClick ? 0 : undefined}
+          onClick={(event) => {
+            if (!onFileClick) {
+              return;
+            }
+
+            event.stopPropagation();
+            onFileClick(file.id);
+          }}
+          onKeyDown={(event) => {
+            if (!onFileClick) {
+              return;
+            }
+
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              event.stopPropagation();
+              onFileClick(file.id);
+            }
+          }}
           className={cn(
             'rounded-xl border bg-background/95 px-4 py-3 shadow-xs transition-colors',
             'hover:border-border hover:bg-accent/20',
+            onFileClick && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
           )}
         >
           <div className="flex items-start justify-between gap-3">
@@ -79,9 +81,17 @@ export function FileGrid({ files = [], onFileDelete }: FileGridProps) {
                   {file.name}
                 </p>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                  <span>{formatFileSize(file.size || 0)}</span>
-                  {formatUploadedAt(file.uploadedAt) && (
-                    <span>Added {formatUploadedAt(file.uploadedAt)}</span>
+                  <span>{formatContextFileSize(file.size)}</span>
+                  {formatContextFileUploadedAt(file.uploadedAt) && (
+                    <span>
+                      Added {formatContextFileUploadedAt(file.uploadedAt)}
+                    </span>
+                  )}
+                  {getContextFileVersionCount(file) > 0 && (
+                    <span className="inline-flex items-center gap-1">
+                      <IconHistory className="size-3.5" />
+                      {getContextFileVersionCount(file)} previous
+                    </span>
                   )}
                 </div>
               </div>

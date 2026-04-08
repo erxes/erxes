@@ -25,7 +25,7 @@ export const coreAutomationConstants: AutomationConstants = {
   triggers: [
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.INCOMING_WEBHOOK,
-      moduleName: 'webhook',
+      moduleName: 'webhooks',
       collectionName: 'incoming',
       icon: 'IconWebhook',
       label: 'Incoming Webhook',
@@ -36,8 +36,8 @@ export const coreAutomationConstants: AutomationConstants = {
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.USER,
-      moduleName: 'team',
-      collectionName: 'user',
+      moduleName: 'organization',
+      collectionName: 'users',
       icon: 'IconUsers',
       label: 'Team member',
       description:
@@ -46,8 +46,8 @@ export const coreAutomationConstants: AutomationConstants = {
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.CUSTOMER,
-      moduleName: 'contact',
-      collectionName: 'customer',
+      moduleName: 'contacts',
+      collectionName: 'customers',
       icon: 'IconUsersGroup',
       label: 'Customer',
       description:
@@ -56,8 +56,8 @@ export const coreAutomationConstants: AutomationConstants = {
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.LEAD,
-      moduleName: 'contact',
-      collectionName: 'lead',
+      moduleName: 'contacts',
+      collectionName: 'leads',
       icon: 'IconUsersGroup',
       label: 'Lead',
       description:
@@ -66,8 +66,8 @@ export const coreAutomationConstants: AutomationConstants = {
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.COMPANY,
-      moduleName: 'contact',
-      collectionName: 'company',
+      moduleName: 'contacts',
+      collectionName: 'companies',
       icon: 'IconBuilding',
       label: 'Company',
       description:

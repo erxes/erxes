@@ -8,6 +8,15 @@ export interface IAiAgentFile {
   size?: number;
   type?: string;
   uploadedAt?: Date | string;
+  versions?: IAiAgentFileVersion[];
+}
+
+export interface IAiAgentFileVersion {
+  key: string;
+  name: string;
+  size?: number;
+  type?: string;
+  uploadedAt?: Date | string;
 }
 
 export interface IAiAgentConnectionConfig {
@@ -48,6 +57,17 @@ export interface AiAgentDocument extends IAiAgent {
   updatedAt?: Date;
 }
 
+const aiAgentFileVersionSchema = new Schema<IAiAgentFileVersion>(
+  {
+    key: { type: String, required: true },
+    name: { type: String, required: true },
+    size: { type: Number },
+    type: { type: String },
+    uploadedAt: { type: Date },
+  },
+  { _id: false },
+);
+
 const aiAgentFileSchema = new Schema<IAiAgentFile>(
   {
     id: { type: String, required: true },
@@ -56,6 +76,10 @@ const aiAgentFileSchema = new Schema<IAiAgentFile>(
     size: { type: Number },
     type: { type: String },
     uploadedAt: { type: Date },
+    versions: {
+      type: [aiAgentFileVersionSchema],
+      default: () => [],
+    },
   },
   { _id: false },
 );

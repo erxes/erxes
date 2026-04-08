@@ -27,6 +27,7 @@ export type TOpenAiCompatibleChatCompletionChoice = {
 };
 
 export type TOpenAiCompatibleChatCompletionResponse = {
+  model?: string;
   choices?: TOpenAiCompatibleChatCompletionChoice[];
   usage?: {
     prompt_tokens?: number;

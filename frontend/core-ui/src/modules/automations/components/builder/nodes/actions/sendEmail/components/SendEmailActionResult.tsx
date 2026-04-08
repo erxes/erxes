@@ -1,15 +1,33 @@
 import { useSendEmailActionResult } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailActionResult';
+import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
+import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { IconEye } from '@tabler/icons-react';
-import { Badge, Button, Dialog, Popover, Tooltip } from 'erxes-ui';
+import { Badge, Button, Dialog, Popover } from 'erxes-ui';
 
 export const AutomationSendEmailActionResult = ({
   result,
-}: {
-  result: any;
-}) => {
+  action,
+}: ActionResultComponentProps<any>) => {
   const { getLabelColor, getLabelText } = useSendEmailActionResult();
-  const { fromEmail = '', title, response, customHtml } = result;
+  const config = (action?.actionConfig || {}) as Partial<TAutomationSendEmailConfig>;
+  const response = result?.response || {};
+  const subject = result?.title || config.subject || '';
+  const fromValue =
+    response?.from ||
+    result?.fromEmail ||
+    (config.type === 'default' ? 'COMPANY EMAIL' : config.fromEmailPlaceHolder) ||
+    '';
+  const toValue = Array.isArray(response?.toEmails) && response.toEmails.length
+    ? response.toEmails.join(', ')
+    : config.toEmailsPlaceHolders || '';
+  const ccValue = Array.isArray(response?.ccEmails) && response.ccEmails.length
+    ? response.ccEmails.join(', ')
+    : config.ccEmailsPlaceHolders || '';
+  const htmlContent = result?.customHtml || config.html || '';
+  const textContent = config.content || '';
+  const hasContent = Boolean(htmlContent || textContent);
+  const errorText = response?.error ? getLabelText(response) : '';
 
   return (
     <div className="flex flex-row gap-2 items-center justify-between w-full">
@@ -17,9 +35,7 @@ export const AutomationSendEmailActionResult = ({
         {response.error ? (
           <AutomationNodeMetaInfoRow
             fieldName="Error"
-            content={
-              <div className="text-destructive ">{getLabelText(response)}</div>
-            }
+            content={<div className="text-destructive ">{errorText}</div>}
           />
         ) : (
           'Sent successfully'
@@ -32,43 +48,48 @@ export const AutomationSendEmailActionResult = ({
           </Button>
         </Popover.Trigger>
         <Popover.Content>
-          <AutomationNodeMetaInfoRow fieldName="From" content={fromEmail} />
+          <AutomationNodeMetaInfoRow fieldName="From" content={fromValue} />
 
-          <AutomationNodeMetaInfoRow fieldName="Title" content={title} />
+          <AutomationNodeMetaInfoRow fieldName="Subject" content={subject} />
 
           <AutomationNodeMetaInfoRow
             fieldName="To"
-            content={
-              <Badge variant={getLabelColor(response)}>
-                {(response?.toEmails || []).join(', ') || ''}
-              </Badge>
-            }
+            content={toValue ? <Badge variant={getLabelColor(response)}>{toValue}</Badge> : ''}
           />
-          {response?.ccEmails?.length && (
+          {ccValue && (
             <AutomationNodeMetaInfoRow
               fieldName="CC"
               content={
                 <Badge variant={getLabelColor(response)}>
-                  {(response?.ccEmails || []).join(', ') || ''}
+                  {ccValue}
                 </Badge>
               }
             />
           )}
-          <AutomationNodeMetaInfoRow fieldName="Subject" content={title} />
           <AutomationNodeMetaInfoRow
-            fieldName="Contet"
+            fieldName="Content"
             content={
-              <Dialog>
-                <Dialog.Trigger asChild>
-                  <Button variant="ghost">
-                    See Content
-                    <IconEye />
-                  </Button>
-                </Dialog.Trigger>
-                <Dialog.Content>
-                  <div dangerouslySetInnerHTML={{ __html: customHtml || '' }} />
-                </Dialog.Content>
-              </Dialog>
+              hasContent ? (
+                <Dialog>
+                  <Dialog.Trigger asChild>
+                    <Button variant="ghost">
+                      See Content
+                      <IconEye />
+                    </Button>
+                  </Dialog.Trigger>
+                  <Dialog.Content>
+                    {htmlContent ? (
+                      <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                    ) : (
+                      <pre className="font-mono text-xs whitespace-pre-wrap break-words">
+                        {textContent}
+                      </pre>
+                    )}
+                  </Dialog.Content>
+                </Dialog>
+              ) : (
+                ''
+              )
             }
           />
         </Popover.Content>

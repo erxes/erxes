@@ -150,12 +150,14 @@ export const AutomationProvider = ({
 
   useEffect(() => {
     if (!queryParams.activeNodeId || !reactFlowInstance) {
+      setSelectedNode(null);
       return;
     }
 
     const activeNode = reactFlowInstance.getNode(queryParams.activeNodeId);
 
     if (!activeNode?.data?.type) {
+      setSelectedNode(null);
       return;
     }
 

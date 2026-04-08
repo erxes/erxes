@@ -20,18 +20,56 @@ const buildMemorySection = (memory?: Record<string, unknown>) => {
   return `Saved memory:\n${JSON.stringify(memory, null, 2)}`;
 };
 
+const buildAutomationSystemInstruction = (actionConfig: TAiAgentActionConfig) => {
+  if (actionConfig.goalType === 'generateText') {
+    return [
+      'You are an automation content generator.',
+      'Your job is to produce the exact final artifact requested by the instruction.',
+      'You are not in a live conversation unless the instruction explicitly asks for a conversational reply.',
+      'Do not ask follow-up questions, do not simulate back-and-forth, and do not invent missing facts.',
+      'Use only the provided instruction, source data, memory, and context documents.',
+      'If information is missing, stay generic rather than fabricating details.',
+      'Return only the final deliverable text with no preamble, no explanations, and no markdown code fences.',
+      'If the instruction asks for an email template, return a ready-to-use email body unless the instruction explicitly asks for a subject line or another structure.',
+      'Do not prepend labels such as "Subject:", "Body:", "Reply:", or "Here is the template:" unless explicitly requested.',
+      'Match the language requested by the instruction or clearly implied by the source data.',
+    ].join('\n');
+  }
+
+  if (actionConfig.goalType === 'splitTopic') {
+    return [
+      'You are an automation routing engine.',
+      'Your job is to choose exactly one allowed topic identifier.',
+      'Return only the topic id.',
+      'Do not explain your choice.',
+      'Do not return JSON, markdown, labels, or extra punctuation.',
+      'If none is a perfect match, return the closest valid topic id from the allowed list.',
+    ].join('\n');
+  }
+
+  return [
+    'You are an automation classification engine.',
+    'Your job is to extract structured values from the provided source data.',
+    'Return only a valid JSON object.',
+    'Use exactly the requested keys and do not add any extra keys.',
+    'If a value is missing, ambiguous, or unsupported by the source data, return null for that field.',
+    'Do not wrap the JSON in markdown code fences.',
+  ].join('\n');
+};
+
 const buildUserPrompt = (
   actionConfig: TAiAgentActionConfig,
   inputText: string,
 ) => {
   if (actionConfig.goalType === 'generateText') {
     return [
+      'Task instruction:',
       actionConfig.prompt.trim(),
       '',
-      'User input:',
+      'Source data:',
       inputText,
       '',
-      'Return only the final response text.',
+      'Return only the final deliverable text.',
     ].join('\n');
   }
 
@@ -112,21 +150,32 @@ export const buildAiActionMessages = ({
   const inputText = buildAiInputFromContext({ inputData, aiContext });
   const contextSection = buildContextSection(files);
   const memorySection = buildMemorySection(memory);
+  const automationSystemInstruction = buildAutomationSystemInstruction(
+    actionConfig,
+  );
 
-  const systemContent = [
-    systemPrompt?.trim() || '',
-    contextSection ? `Context documents:\n\n${contextSection}` : '',
-  ]
+  const systemMessages: TAiBridgeMessage[] = [];
+
+  if (automationSystemInstruction) {
+    systemMessages.push({
+      role: 'system',
+      content: automationSystemInstruction,
+    });
+  }
+
+  const systemContent = [systemPrompt?.trim() || '', contextSection ? `Context documents:\n\n${contextSection}` : '']
     .filter(Boolean)
     .join('\n\n');
 
+  systemMessages.push({
+    role: 'system',
+    content:
+      systemContent ||
+      'You are an automation AI bridge. Follow the requested output format exactly.',
+  });
+
   return [
-    {
-      role: 'system',
-      content:
-        systemContent ||
-        'You are an automation AI bridge. Follow the requested output format exactly.',
-    },
+    ...systemMessages,
     {
       role: 'user',
       content: [memorySection, buildUserPrompt(actionConfig, inputText)]

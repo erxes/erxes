@@ -5,6 +5,14 @@ import {
   AI_AGENT_SUPPORTED_PROVIDERS,
 } from './constants';
 
+const aiAgentFileVersionSchema = z.object({
+  key: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  size: z.number().int().nonnegative().optional(),
+  type: z.string().optional(),
+  uploadedAt: z.union([z.string(), z.date()]).optional(),
+});
+
 const aiAgentFileSchema = z.object({
   id: z.string().min(1),
   key: z.string().trim().min(1),
@@ -12,6 +20,7 @@ const aiAgentFileSchema = z.object({
   size: z.number().int().nonnegative().optional(),
   type: z.string().optional(),
   uploadedAt: z.union([z.string(), z.date()]).optional(),
+  versions: z.array(aiAgentFileVersionSchema).default([]),
 });
 
 const openAiCompatibleConfigSchema = z

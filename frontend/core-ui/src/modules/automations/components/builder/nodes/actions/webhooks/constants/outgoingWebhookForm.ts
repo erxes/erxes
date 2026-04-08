@@ -37,7 +37,7 @@ export const OUTGOING_WEBHOOK_FORM_DEFAULT_VALUES = {
   method: 'POST',
   url: '',
   queryParams: [],
-  body: {},
+  body: '{}',
   auth: { type: 'none' } as Extract<TOutgoingWebhookAuth, { type: 'none' }>,
   headers: [],
   options: {

@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+const aiAgentFileVersionSchema = z.object({
+  key: z.string(),
+  name: z.string(),
+  size: z.number().optional(),
+  type: z.string().optional(),
+  uploadedAt: z.string().optional(),
+});
+
 const aiAgentFileSchema = z.object({
   id: z.string(),
   key: z.string(),
@@ -7,6 +15,7 @@ const aiAgentFileSchema = z.object({
   size: z.number().optional(),
   type: z.string().optional(),
   uploadedAt: z.string().optional(),
+  versions: z.array(aiAgentFileVersionSchema).default([]),
 });
 
 const baseAiAgentFormSchema = z.object({
@@ -56,6 +65,35 @@ const normalizeUploadedAt = (value: unknown) => {
   return undefined;
 };
 
+const normalizeAiAgentFileVersions = (versions: any[] = []) =>
+  versions
+    .map((version) => {
+      const key =
+        typeof version?.key === 'string'
+          ? version.key.trim()
+          : String(version?.key || '');
+      const name =
+        typeof version?.name === 'string'
+          ? version.name.trim()
+          : String(version?.name || '');
+      const rawSize =
+        typeof version?.size === 'number'
+          ? version.size
+          : Number(version?.size);
+
+      return {
+        key,
+        name,
+        size: Number.isFinite(rawSize) && rawSize >= 0 ? rawSize : undefined,
+        type:
+          typeof version?.type === 'string' && version.type.trim()
+            ? version.type.trim()
+            : undefined,
+        uploadedAt: normalizeUploadedAt(version?.uploadedAt),
+      };
+    })
+    .filter((version) => version.key && version.name);
+
 const normalizeAiAgentFiles = (files: any[] = []) =>
   files
     .map((file, index) => {
@@ -82,6 +120,7 @@ const normalizeAiAgentFiles = (files: any[] = []) =>
             ? file.type.trim()
             : undefined,
         uploadedAt: normalizeUploadedAt(file?.uploadedAt),
+        versions: normalizeAiAgentFileVersions(file?.versions || []),
       };
     })
     .filter((file) => file.key && file.name);

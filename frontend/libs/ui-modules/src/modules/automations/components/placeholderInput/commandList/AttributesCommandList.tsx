@@ -1,5 +1,5 @@
 import { Combobox, Command } from 'erxes-ui';
-import { useAttributes } from 'ui-modules/modules/automations/hooks/useAttributes';
+import { useAttributes } from '../../../hooks/useAttributes';
 
 export const AttributesCommandList = ({
   contentType,

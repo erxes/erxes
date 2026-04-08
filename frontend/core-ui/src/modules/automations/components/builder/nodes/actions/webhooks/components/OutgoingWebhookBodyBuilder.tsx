@@ -1,10 +1,10 @@
 import { json } from '@codemirror/lang-json';
-import type { EditorView } from '@codemirror/view';
 import { EditorView as CMEditorView } from '@codemirror/view';
 import CodeMirror from '@uiw/react-codemirror';
-import { Form } from 'erxes-ui';
-import { useMemo, useRef } from 'react';
-import { Attributes } from 'ui-modules/modules/automations/components/Attributes';
+import { cn, Form } from 'erxes-ui';
+import { useMemo } from 'react';
+import { useAutomationVariableCodeMirrorDrop } from 'ui-modules';
+import { normalizeOutgoingWebhookBodyValue } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
 
 function createTheme() {
   return CMEditorView.theme({
@@ -51,54 +51,42 @@ function createTheme() {
 export function OutgoingWebhookBodyBuilder({
   value,
   onChange,
-  contentType,
 }: {
   value: string;
   onChange: (value: string) => void;
-  contentType?: string;
 }) {
-  const editorRef = useRef<EditorView | null>(null);
   const extensions = useMemo(() => [json(), createTheme()], []);
+  const normalizedValue = normalizeOutgoingWebhookBodyValue(value);
+  const { isDragActive, editorExtensions } = useAutomationVariableCodeMirrorDrop({
+    onChange,
+  });
+  const mergedExtensions = useMemo(
+    () => [...extensions, ...editorExtensions],
+    [editorExtensions, extensions],
+  );
 
-  const handleAttributeSelect = (placeholder: string) => {
-    if (!editorRef.current) return;
-
-    const view = editorRef.current;
-    const transaction = view.state.update({
-      changes: {
-        from: view.state.selection.main.from,
-        to: view.state.selection.main.to,
-        insert: placeholder,
-      },
-    });
-
-    view.dispatch(transaction);
-  };
   return (
     <Form.Item className="flex flex-col h-full">
       <Form.Message />
-      <Form.Label className="flex justify-between items-center">
-        Body
-        <Attributes
-          contentType={contentType || ''}
-          onSelect={handleAttributeSelect}
-          buttonText="Attributes"
+      <Form.Label>Body</Form.Label>
+      <div
+        className={cn(
+          'rounded-md transition-colors',
+          isDragActive ? 'ring-2 ring-primary/40 ring-offset-2' : '',
+        )}
+      >
+        <CodeMirror
+          value={normalizedValue}
+          height="30rem"
+          lang="json"
+          extensions={mergedExtensions}
+          basicSetup={{
+            highlightActiveLine: false,
+            highlightActiveLineGutter: false,
+          }}
+          onChange={(newValue) => onChange(newValue)}
         />
-      </Form.Label>
-      <CodeMirror
-        value={`${value}` || '{}'}
-        height="30rem"
-        lang="json"
-        extensions={extensions}
-        basicSetup={{
-          highlightActiveLine: false,
-          highlightActiveLineGutter: false,
-        }}
-        onChange={(newValue) => onChange(newValue)}
-        onCreateEditor={(view) => {
-          editorRef.current = view;
-        }}
-      />
+      </div>
     </Form.Item>
   );
 }

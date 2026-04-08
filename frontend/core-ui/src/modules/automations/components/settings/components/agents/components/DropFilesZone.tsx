@@ -5,26 +5,27 @@ import {
   IconUpload,
 } from '@tabler/icons-react';
 import { FileGrid } from '@/automations/components/settings/components/agents/components/FilesList';
+import { TAiAgentContextFile } from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { Button, cn, toast, useUpload } from 'erxes-ui';
 import type React from 'react';
 import { useCallback, useRef, useState } from 'react';
 
-type FileUploadType = {
-  id?: string;
+type UploadedContextFile = {
   key: string;
   name: string;
-  size: number;
-  type: string;
-  uploadedAt: Date;
+  size?: number;
+  type?: string;
+  uploadedAt?: Date;
 };
 
 interface UploadDropzoneProps {
-  files: FileUploadType[];
+  files: TAiAgentContextFile[];
   maxFiles: number;
   maxSingleFileBytes: number;
   maxTotalContextBytes: number;
-  onFilesUploaded: (file: FileUploadType[]) => void;
+  onFilesUploaded: (file: UploadedContextFile[]) => void;
   onFileDelete: (fileId: string) => void;
+  onFileClick?: (fileId: string) => void;
 }
 
 const ACCEPTED_FORMATS = ['.md', '.markdown', '.txt'] as const;
@@ -44,6 +45,7 @@ export function UploadDropzone({
   maxTotalContextBytes,
   onFilesUploaded,
   onFileDelete,
+  onFileClick,
 }: UploadDropzoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const { isLoading, upload } = useUpload();
@@ -144,7 +146,7 @@ export function UploadDropzone({
   const onUploadFiles = useCallback(
     (fileList: FileList) => {
       const validFiles = validateFiles(Array.from(fileList));
-      const uploaded: FileUploadType[] = [];
+      const uploaded: UploadedContextFile[] = [];
 
       if (validFiles && validFiles.length > 0) {
         let remaining = validFiles.length;
@@ -275,6 +277,7 @@ export function UploadDropzone({
             onFileDelete={(fileId) => {
               onFileDelete(fileId);
             }}
+            onFileClick={onFileClick}
           />
 
           {canAddMore && (

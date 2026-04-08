@@ -11,10 +11,23 @@ export interface IAutomationsEdit extends IAutomation {
 
 const MASKED_SECRET_VALUE = '********';
 
+const toPlainObject = (value: any) => {
+  if (!value) {
+    return value;
+  }
+
+  return typeof value.toObject === 'function' ? value.toObject() : value;
+};
+
 const mergeAiAgentConnectionSecrets = (currentAgent: any, doc: any) => {
   if (!doc?.connection) {
     return doc;
   }
+
+  const currentConnection = toPlainObject(currentAgent?.connection) || {};
+  const incomingConnection = toPlainObject(doc.connection) || {};
+  const currentConfig = currentConnection.config || {};
+  const incomingConfig = incomingConnection.config || {};
 
   const incomingApiKey = doc.connection?.config?.apiKey;
   const shouldPreserveApiKey =
@@ -29,12 +42,12 @@ const mergeAiAgentConnectionSecrets = (currentAgent: any, doc: any) => {
   return {
     ...doc,
     connection: {
-      ...(currentAgent?.connection || {}),
-      ...doc.connection,
+      ...currentConnection,
+      ...incomingConnection,
       config: {
-        ...(currentAgent?.connection?.config || {}),
-        ...(doc.connection?.config || {}),
-        apiKey: currentAgent?.connection?.config?.apiKey,
+        ...currentConfig,
+        ...incomingConfig,
+        apiKey: currentConfig?.apiKey,
       },
     },
   };
@@ -158,13 +171,13 @@ export const automationMutations = {
 
     const mergedDoc = mergeAiAgentConnectionSecrets(currentAgent, doc);
 
-    await models.AiAgents.updateOne(
+    const updatedAgent = await models.AiAgents.findOneAndUpdate(
       { _id },
       { $set: { ...mergedDoc } },
-      { runValidators: true },
+      { runValidators: true, new: true },
     );
 
-    return sanitizeAiAgent(await models.AiAgents.findOne({ _id }));
+    return sanitizeAiAgent(updatedAgent);
   },
 
   /**

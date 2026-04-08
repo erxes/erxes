@@ -14,12 +14,13 @@ import { Button, Form, Tabs } from 'erxes-ui';
 // @ts-ignore
 import { merge } from 'lodash';
 import { OutgoingWebhookBodyBuilder } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookBodyBuilder';
+import { normalizeOutgoingWebhookBodyValue } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
   TAutomationActionProps,
   useFormValidationErrorHandler,
 } from 'ui-modules';
-import { useActionTarget } from '../../../hooks/useActionTarget';
+import { useMemo } from 'react';
 
 export const OutgoingWebhookConfigForm = ({
   currentAction,
@@ -28,16 +29,20 @@ export const OutgoingWebhookConfigForm = ({
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Webhook Configuration',
   });
-  const { selectedActionType } = useActionTarget({
-    actionId: currentAction.id,
-    targetActionId: currentAction.targetActionId,
-  });
-  const form = useForm<TOutgoingWebhookForm>({
-    resolver: zodResolver(outgoingWebhookFormSchema),
-    defaultValues: merge(
+  const defaultValues = useMemo(() => {
+    const merged = merge(
+      {},
       OUTGOING_WEBHOOK_FORM_DEFAULT_VALUES,
       currentAction?.config || {},
-    ),
+    );
+
+    merged.body = normalizeOutgoingWebhookBodyValue(merged.body);
+
+    return merged;
+  }, [currentAction?.config]);
+  const form = useForm<TOutgoingWebhookForm>({
+    resolver: zodResolver(outgoingWebhookFormSchema),
+    defaultValues,
   });
 
   return (
@@ -103,7 +108,6 @@ export const OutgoingWebhookConfigForm = ({
                   <OutgoingWebhookBodyBuilder
                     value={field.value}
                     onChange={field.onChange}
-                    contentType={selectedActionType}
                   />
                 )}
               />

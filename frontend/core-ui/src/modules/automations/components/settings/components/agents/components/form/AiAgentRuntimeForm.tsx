@@ -1,6 +1,7 @@
+import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRuntimeInfo';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Input } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 const toNumber = (value: string) => {
   if (value === '') {
@@ -12,6 +13,9 @@ const toNumber = (value: string) => {
 
 export const AiAgentRuntimeForm = () => {
   const { control } = useFormContext<TAiAgentForm>();
+  const values = useWatch({
+    control,
+  });
 
   return (
     <div className="grid gap-4">
@@ -90,6 +94,16 @@ export const AiAgentRuntimeForm = () => {
             <Form.Message />
           </Form.Item>
         )}
+      />
+
+      <AiAgentRuntimeInfo
+        agent={{
+          connection: values?.connection,
+          runtime: values?.runtime,
+          context: values?.context,
+        }}
+        title="Agent Budget"
+        description="These limits apply to every automation action that uses this agent."
       />
     </div>
   );
