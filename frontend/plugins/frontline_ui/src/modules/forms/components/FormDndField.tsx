@@ -89,8 +89,6 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconChevronDown />;
     case 'textarea':
       return <IconTextScan2 />;
-    case 'check':
-      return <IconSquareCheck />;
     case 'radio':
       return <IconListCheck />;
     default:
