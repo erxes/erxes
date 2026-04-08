@@ -28,10 +28,10 @@ const TAGS_QUERY = gql`
 type Tag = { _id: string; name: string };
 
 type Props = {
-  value?: string[];
-  onChange: (ids: string[]) => void;
-  type?: string;
-  disabled?: boolean;
+  readonly value?: string[];
+  readonly onChange: (ids: string[]) => void;
+  readonly type?: string;
+  readonly disabled?: boolean;
 };
 
 const MULTI_VALUE = '__multi__';

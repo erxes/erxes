@@ -14,9 +14,9 @@ const PRODUCTS_QUERY = gql`
 type Product = { _id: string; name: string };
 
 type Props = {
-  value?: string[];
-  onChange: (ids: string[]) => void;
-  disabled?: boolean;
+  readonly value?: string[];
+  readonly onChange: (ids: string[]) => void;
+  readonly disabled?: boolean;
 };
 
 const MULTI_VALUE = '__multi__';

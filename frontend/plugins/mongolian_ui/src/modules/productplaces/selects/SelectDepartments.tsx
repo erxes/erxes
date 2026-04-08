@@ -31,16 +31,16 @@ type Department = {
 };
 
 type Props = {
-  value?: string;
-  onChange: (departmentId: string) => void;
+  readonly value?: string;
+  readonly onChange: (departmentId: string) => void;
 
-  ids?: string[];
-  excludeIds?: boolean;
-  searchValue?: string;
-  status?: string;
-  withoutUserFilter?: boolean;
+  readonly ids?: string[];
+  readonly excludeIds?: boolean;
+  readonly searchValue?: string;
+  readonly status?: string;
+  readonly withoutUserFilter?: boolean;
 
-  disabled?: boolean;
+  readonly disabled?: boolean;
 };
 
 export default function SelectDepartments({

@@ -44,17 +44,17 @@ type User = {
 };
 
 type Props = {
-  value?: string;
-  onChange: (userId: string) => void;
+  readonly value?: string;
+  readonly onChange: (userId: string) => void;
 
-  ids?: string[];
-  excludeIds?: boolean;
-  isAssignee?: boolean;
-  branchIds?: string[];
-  departmentIds?: string[];
+  readonly ids?: string[];
+  readonly excludeIds?: boolean;
+  readonly isAssignee?: boolean;
+  readonly branchIds?: string[];
+  readonly departmentIds?: string[];
 
-  status?: string;
-  disabled?: boolean;
+  readonly status?: string;
+  readonly disabled?: boolean;
 };
 
 export default function SelectUsers({

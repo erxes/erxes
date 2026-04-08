@@ -19,13 +19,13 @@ type Segment = {
 };
 
 type Props = {
-  value?: string;
-  onChange: (segmentId: string) => void;
+  readonly value?: string;
+  readonly onChange: (segmentId: string) => void;
 
-  contentTypes: string[];
-  config?: any;
+  readonly contentTypes: string[];
+  readonly config?: any;
 
-  disabled?: boolean;
+  readonly disabled?: boolean;
 };
 
 const CLEAR_VALUE = '__clear__';
