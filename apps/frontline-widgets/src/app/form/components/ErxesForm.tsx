@@ -5,13 +5,15 @@ import {
   Form,
   InfoCard,
   Input,
+  Label,
+  RadioGroup,
   Select,
   Switch,
   Textarea,
 } from 'erxes-ui';
-import { IFormStep } from '../types/formTypes';
+import { IFormFieldLogic, IFormStep } from '../types/formTypes';
 import { useForm } from 'react-hook-form';
-import { useErxesForm } from '../ context/erxesFormContext';
+import { useErxesForm } from '../context/erxesFormContext';
 import { ErxesSteps } from './steps';
 import { useAtom, useSetAtom } from 'jotai';
 import {
@@ -21,6 +23,55 @@ import {
 } from '../states/erxesFormStates';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+
+const checkLogic = (
+  logic: IFormFieldLogic,
+  formValues: Record<string, any>,
+): boolean => {
+  const fieldValue = formValues[logic.fieldId];
+  const logicValue = logic.logicValue;
+
+  switch (logic.logicOperator) {
+    case 'is':
+      return String(fieldValue ?? '') === String(logicValue ?? '');
+    case 'isNot':
+      return String(fieldValue ?? '') !== String(logicValue ?? '');
+    case 'contains':
+      return String(fieldValue ?? '').includes(String(logicValue ?? ''));
+    case 'doesNotContain':
+      return !String(fieldValue ?? '').includes(String(logicValue ?? ''));
+    case 'startsWith':
+      return String(fieldValue ?? '').startsWith(String(logicValue ?? ''));
+    case 'endsWith':
+      return String(fieldValue ?? '').endsWith(String(logicValue ?? ''));
+    case 'isUnknown':
+      return fieldValue === undefined || fieldValue === null || fieldValue === '';
+    case 'hasAnyValue':
+      return fieldValue !== undefined && fieldValue !== null && fieldValue !== '';
+    case 'greaterThan':
+      return Number(fieldValue) > Number(logicValue);
+    case 'lessThan':
+      return Number(fieldValue) < Number(logicValue);
+    case 'dateGreaterThan':
+      return new Date(fieldValue) > new Date(logicValue);
+    case 'dateLessThan':
+      return new Date(fieldValue) < new Date(logicValue);
+    default:
+      return true;
+  }
+};
+
+const isFieldVisible = (
+  logics: IFormFieldLogic[] | undefined,
+  logicAction: string | undefined,
+  formValues: Record<string, any>,
+): boolean => {
+  if (!logics || logics.length === 0) return true;
+
+  const allFulfilled = logics.every((logic) => checkLogic(logic, formValues));
+
+  return logicAction === 'hide' ? !allFulfilled : allFulfilled;
+};
 
 export const ErxesForm = ({
   step,
@@ -46,6 +97,8 @@ export const ErxesForm = ({
     defaultValues: defaultValue,
     resolver: zodResolver(schema),
   });
+
+  const formValues = form.watch();
 
   const handleSubmit = (values: any) => {
     setFormValues((prev) => ({ ...(prev || {}), [step.order]: values }));
@@ -74,6 +127,15 @@ export const ErxesForm = ({
           <InfoCard.Content>
             <div className="grid md:grid-cols-2 gap-4 mb-2">
               {fields.map((erxesField) => {
+                if (
+                  !isFieldVisible(
+                    erxesField.logics,
+                    erxesField.logicAction,
+                    formValues,
+                  )
+                ) {
+                  return null;
+                }
                 return (
                   <Form.Field
                     key={erxesField._id}
@@ -155,6 +217,43 @@ export const ErxesForm = ({
                                 ))}
                               </Select.Content>
                             </Select>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'radio') {
+                        return (
+                          <ErxesFormItem span={erxesField.column}>
+                            <Form.Label>{erxesField.text}</Form.Label>
+                            <Form.Control>
+                              <RadioGroup
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                {erxesField.options.map((option) => (
+                                  <div
+                                    key={option}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <RadioGroup.Item
+                                      value={option}
+                                      id={`${erxesField._id}-${option}`}
+                                    />
+                                    <Label
+                                      htmlFor={`${erxesField._id}-${option}`}
+                                    >
+                                      {option}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </Form.Control>
                             {erxesField.description && (
                               <Form.Description>
                                 {erxesField.description}
