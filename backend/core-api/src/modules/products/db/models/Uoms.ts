@@ -83,10 +83,10 @@ export const loadUomClass = (
       let response = 'deleted';
 
       for (const id of _ids) {
-        if (!uomIds.includes(id)) {
-          unUsedIds.push(id);
-        } else {
+        if (uomIds.includes(id)) {
           usedIds.push(id);
+        } else {
+          unUsedIds.push(id);
         }
       }
 
