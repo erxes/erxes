@@ -133,7 +133,7 @@ export const Item = React.memo(
               text-gray-800 font-normal text-base
               whitespace-nowrap
               transition-shadow duration-200 ease-out
-              ${!handle ? 'cursor-grab touch-manipulation' : ''}
+              ${handle ? '' : 'cursor-grab touch-manipulation'}
               ${dragging && !dragOverlay ? 'opacity-50' : 'opacity-100'}
               ${disabled ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : ''}
               ${dragOverlay ? 'cursor-default shadow-lg' : ''}
@@ -157,8 +157,8 @@ export const Item = React.memo(
             */}
             <div
               className="flex-1 pointer-events-auto"
-              {...(!handle ? listeners : undefined)}
-              tabIndex={!handle ? 0 : undefined}
+              {...(handle ? undefined : listeners)}
+              tabIndex={handle ? undefined : 0}
             >
               {value}
             </div>
