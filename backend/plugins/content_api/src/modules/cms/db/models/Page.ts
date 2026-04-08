@@ -15,13 +15,13 @@ export interface ICMSPageModel extends Model<ICMSPageDocument> {
 
 export const loadPageClass = (models: IModels) => {
   class Pages {
-    public static getPages = async (query: any) => {
+    public static readonly getPages = async (query: any) => {
       const pages = await models.Pages.find(query).sort({ name: 1 }).lean();
 
       return pages;
     };
 
-    public static createPage = async (doc: ICMSPage) => {
+    public static readonly createPage = async (doc: ICMSPage) => {
       if (doc.name) {
         const baseSlug = doc.slug || slugify(doc.name, { lower: true });
         doc.slug = await generateUniqueSlug(
@@ -44,7 +44,7 @@ export const loadPageClass = (models: IModels) => {
       return models.Pages.create(doc);
     };
 
-    public static updatePage = async (_id: string, doc: ICMSPage) => {
+    public static readonly updatePage = async (_id: string, doc: ICMSPage) => {
       const existing = await models.Pages.findOne({ _id });
 
       if (!existing) {
@@ -52,20 +52,20 @@ export const loadPageClass = (models: IModels) => {
       }
 
       if (doc.name && doc.name !== existing.name) {
-        if (!doc.slug) {
+        if (doc.slug) {
+          doc.slug = await generateUniqueSlug(
+            models.Pages,
+            doc.clientPortalId,
+            'slug',
+            doc.slug,
+          );
+        } else {
           const baseSlug = slugify(doc.name, { lower: true });
           doc.slug = await generateUniqueSlug(
             models.Pages,
             doc.clientPortalId,
             'slug',
             baseSlug,
-          );
-        } else {
-          doc.slug = await generateUniqueSlug(
-            models.Pages,
-            doc.clientPortalId,
-            'slug',
-            doc.slug,
           );
         }
       } else {
@@ -79,7 +79,7 @@ export const loadPageClass = (models: IModels) => {
       );
     };
 
-    public static deletePage = async (_id: string) => {
+    public static readonly deletePage = async (_id: string) => {
       const page = await models.Pages.findOneAndDelete({ _id: _id });
       return page;
     };

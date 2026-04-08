@@ -70,11 +70,11 @@ export const loadPostClass = (models: IModels) => {
       return baseSlug;
     }
 
-    public static getPosts = async (query: any, sort: any) => {
+    public static readonly getPosts = async (query: any, sort: any) => {
       return models.Posts.find(query).sort(sort).lean();
     };
 
-    public static createPost = async (doc: IPost) => {
+    public static readonly createPost = async (doc: IPost) => {
       if (!doc.slug && doc.title) {
         const baseSlug = slugify(doc.title, { lower: true });
         doc.slug = await generateUniqueSlug(
@@ -100,7 +100,7 @@ export const loadPostClass = (models: IModels) => {
       return models.Posts.create(doc);
     };
 
-    public static updatePost = async (_id: string, doc: IPost) => {
+    public static readonly updatePost = async (_id: string, doc: IPost) => {
       if (!doc.slug && doc.title) {
         const baseSlug = slugify(doc.title, { lower: true });
         doc.slug = await generateUniqueSlug(
@@ -130,11 +130,11 @@ export const loadPostClass = (models: IModels) => {
       return models.Posts.findOne({ _id });
     };
 
-    public static deletePost = async (_id: string) => {
+    public static readonly deletePost = async (_id: string) => {
       return models.Posts.deleteOne({ _id });
     };
 
-    public static changeStatus = async (
+    public static readonly changeStatus = async (
       _id: string,
       status: 'draft' | 'published' | 'archived' | 'scheduled',
     ) => {
@@ -150,7 +150,7 @@ export const loadPostClass = (models: IModels) => {
       return post.save();
     };
 
-    public static increaseViewCount = async (_id: string) => {
+    public static readonly increaseViewCount = async (_id: string) => {
       return models.Posts.findOneAndUpdate(
         { _id },
         { $inc: { viewCount: 1 } },
@@ -158,7 +158,7 @@ export const loadPostClass = (models: IModels) => {
       );
     };
 
-    public static toggleFeatured = async (_id: string) => {
+    public static readonly toggleFeatured = async (_id: string) => {
       const post = await models.Posts.findOne({ _id });
       if (!post) {
         throw new Error('Post not found');
