@@ -29,7 +29,7 @@ function Filter({
   const navigate = useNavigate();
   const location = useLocation() as any;
 
-  const onClickClose = paramKey => {
+  const onClickClose = (paramKey) => {
     removeParams(navigate, location, ...paramKey);
   };
 
@@ -48,7 +48,7 @@ function Filter({
   const renderFilterParam = (
     paramKey: string,
     bool: boolean,
-    customText?: string
+    customText?: string,
   ) => {
     if (!queryParams[paramKey]) {
       return null;
@@ -68,7 +68,7 @@ function Filter({
   const renderFilterWithData = (
     paramKey: string,
     type: string,
-    fields = "_id name"
+    fields = "_id name",
   ) => {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
@@ -158,11 +158,13 @@ function Filter({
         renderFilterWithData(
           "categoryId",
           "productCategory",
-          "_id, code, name"
+          "_id, code, name",
         )}
       {renderFilterParam("participating", true)}
       {renderFilterParam("unassigned", true)}
       {renderFilterParam("awaitingResponse", true, "Awaiting Response")}
+      {renderFilterParam("callAnswered", true, "Answered")}
+      {renderFilterParam("callNotAnswered", true, "Not Answered")}
       {renderFilterWithData("brandId", "brand")}
       {renderFilterParam("integrationType", false)}
       {renderFilterWithData("tag", "tag")}
@@ -186,19 +188,19 @@ function Filter({
       {renderFilterWithData(
         "assetCategoryId",
         "assetCategory",
-        "_id, code, name"
+        "_id, code, name",
       )}
       {renderFilterWithData(
         "knowledgebaseCategoryId",
         "knowledgeBaseCategory",
-        "_id, title"
+        "_id, title",
       )}
       {renderFilterWithData("assetId", "asset", "_id, code, name")}
-      {(extraFilterParams || []).map(af =>
-        renderFilterParam(af.param, af.bool, af.title || af.param)
+      {(extraFilterParams || []).map((af) =>
+        renderFilterParam(af.param, af.bool, af.title || af.param),
       )}
-      {(extraFilterWithData || []).map(af =>
-        renderFilterWithData(af.paramKey, af.type, af.fields)
+      {(extraFilterWithData || []).map((af) =>
+        renderFilterWithData(af.paramKey, af.type, af.fields),
       )}
     </Filters>
   );

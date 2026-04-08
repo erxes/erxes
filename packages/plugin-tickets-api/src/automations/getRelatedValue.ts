@@ -18,7 +18,7 @@ export const getRelatedValue = async (
   subdomain: string,
   target,
   targetKey: string,
-  relatedValueProps: any = {}
+  relatedValueProps: any = {},
 ) => {
   if (
     [
@@ -48,7 +48,7 @@ export const getRelatedValue = async (
 
   if (
     ["participatedUserIds", "assignedUserIds", "watchedUserIds"].includes(
-      targetKey
+      targetKey,
     )
   ) {
     const users = await sendCoreMessage({
@@ -72,7 +72,7 @@ export const getRelatedValue = async (
 
     return (
       users.map(
-        (user) => (user.detail && user.detail.fullName) || user.email
+        (user) => (user.detail && user.detail.fullName) || user.email,
       ) || []
     ).join(", ");
   }
@@ -150,7 +150,7 @@ export const getRelatedValue = async (
       const { key, filter } = relatedValueProps[targetKey] || {};
       return activeContacts
         .filter((contacts) =>
-          filter ? contacts[filter.key] === filter.value : contacts
+          filter ? contacts[filter.key] === filter.value : contacts,
         )
         .map((contacts) => contacts[key])
         .join(", ");
@@ -193,7 +193,7 @@ export const getRelatedValue = async (
 
   if (
     ["assignedUsers.", "watchedUsers."].some((key) =>
-      (targetKey || "").includes(key)
+      (targetKey || "").includes(key),
     )
   ) {
     // your logic here
@@ -218,8 +218,8 @@ export const getRelatedValue = async (
             subdomain,
             user,
             targetKey,
-          })
-      )
+          }),
+      ),
     );
   }
 
@@ -305,7 +305,7 @@ export const getRelatedValue = async (
     ].includes(targetKey)
   ) {
     const dateValue = targetKey[targetKey];
-    return moment(dateValue).format("YYYY-MM-DD HH:mm");
+    return moment(dateValue).add(8, "hours").format("YYYY-MM-DD HH:mm");
   }
 
   return false;
@@ -325,7 +325,7 @@ const generateCustomFieldsDataValue = async ({
   relatedValueProps: any;
 }) => {
   const customFieldData = (target?.customFieldsData || []).find(
-    ({ field }) => field === fieldId
+    ({ field }) => field === fieldId,
   );
 
   if (!customFieldData) {
@@ -370,13 +370,13 @@ const generateCustomFieldsDataValue = async ({
     return users
       .map(
         ({ details }) =>
-          `${details?.firstName || ""} ${details?.lastName || ""} ${details?.position || ""}`
+          `${details?.firstName || ""} ${details?.lastName || ""} ${details?.position || ""}`,
       )
       .filter(Boolean)
       .join(", ");
   }
   const isISODate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(
-    customFieldData?.value
+    customFieldData?.value,
   );
 
   if (
@@ -426,7 +426,7 @@ const generateCustomersFielValue = async ({
       .map((customer) =>
         customer?.primaryEmail
           ? customer?.primaryEmail
-          : (customer?.emails || [])[0]?.email
+          : (customer?.emails || [])[0]?.email,
       )
       .filter(Boolean)
       .join(", ");
@@ -436,7 +436,7 @@ const generateCustomersFielValue = async ({
       .map((customer) =>
         customer?.primaryPhone
           ? customer?.primaryPhone
-          : (customer?.phones || [])[0]?.phone
+          : (customer?.phones || [])[0]?.phone,
       )
       .filter(Boolean)
       .join(", ");
@@ -458,7 +458,7 @@ const generateCustomersFielValue = async ({
           targetKey,
           relatedValueProps: null,
         });
-      })
+      }),
     );
 
     return results.filter(Boolean).join(", ");
@@ -468,8 +468,8 @@ const generateCustomersFielValue = async ({
     .map((customer) =>
       resolvePlaceholder(
         customer,
-        targetKey.replace(new RegExp(`^${targetField}\\.`), "")
-      )
+        targetKey.replace(new RegExp(`^${targetField}\\.`), ""),
+      ),
     )
     .filter(Boolean)
     .join(", ");
@@ -581,7 +581,7 @@ const generateUserFieldValue = async ({
 
   const replacedValue = resolvePlaceholder(
     user,
-    targetKey.replace(new RegExp(`^${targetField}\\.`), "")
+    targetKey.replace(new RegExp(`^${targetField}\\.`), ""),
   );
 
   if (replacedValue) {

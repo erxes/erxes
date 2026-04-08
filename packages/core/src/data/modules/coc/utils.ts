@@ -49,7 +49,7 @@ export const countBySegment = async (
   if (source === 'engages') {
     segments = await models.Segments.find({
       name: { $exists: true },
-      contentType: 'core:lead',
+      contentType: contentType || 'core:lead',
     });
   } else {
     segments = await models.Segments.find({

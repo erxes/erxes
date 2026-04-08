@@ -32,7 +32,8 @@ const pipelineLabelMutations = {
         },
         object: pipelineLabel
       },
-      user
+      user,
+      { sendTriggerAutomationTRPC: true }
     );
 
     return pipelineLabel;
@@ -57,7 +58,8 @@ const pipelineLabelMutations = {
         newData: doc,
         object: pipelineLabel
       },
-      user
+      user,
+      { sendTriggerAutomationTRPC: true }
     );
 
     return updated;

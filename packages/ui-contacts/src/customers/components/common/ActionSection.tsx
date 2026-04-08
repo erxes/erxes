@@ -7,7 +7,7 @@ import CompaniesMerge from '../../../companies/components/detail/CompaniesMerge'
 import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import CustomerForm from '../../containers/CustomerForm';
-import CustomersMerge from '../detail/CustomersMerge';
+import CustomersMerge from '../../containers/CustomersMerge';
 import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '../../types';

@@ -2,8 +2,8 @@ import { useEffect } from "react"
 import dynamic from "next/dynamic"
 import usePrintBill from "@/modules/checkout/hooks/usePrintBill"
 import useRenderEbarimt from "@/modules/checkout/hooks/useRenderBillTypes"
-import { billTypeAtom } from "@/store/order.store"
-import { useAtom } from "jotai"
+import { billTypeAtom, orderTotalAmountAtom } from "@/store/order.store"
+import { useAtom, useAtomValue } from "jotai"
 
 import { IBillType } from "@/types/order.types"
 import { BILL_TYPES } from "@/lib/constants"
@@ -18,6 +18,7 @@ const CheckRegister: any = dynamic(() => import("./checkRegister.market"))
 
 const BillType = () => {
   const [billType, setBillType] = useAtom(billTypeAtom)
+  const totalAmount = useAtomValue(orderTotalAmountAtom)
   const { skipEbarimt, allowInnerBill } = useRenderEbarimt()
   const { printBill, loading } = usePrintBill()
 
@@ -43,17 +44,17 @@ const BillType = () => {
         disabled={skipEbarimt}
       >
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="1" id="1" disabled={skipEbarimt} />
+          <RadioGroupItem value="1" id="1" disabled={skipEbarimt || !totalAmount} />
           <Label htmlFor="1">Хувь хүн</Label>
         </div>
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="3" id="3" disabled={skipEbarimt} />
+          <RadioGroupItem value="3" id="3" disabled={skipEbarimt || !totalAmount} />
           <Label htmlFor="3">
             Байгуулга <Kbd>F10</Kbd>
           </Label>
         </div>
 
-        {showInner && (
+        {(showInner || !totalAmount) && (
           <Button
             className="h-auto self-end bg-warning px-4 py-2 font-bold hover:bg-warning/90"
             loading={loading}

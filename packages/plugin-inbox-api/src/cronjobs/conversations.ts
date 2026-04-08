@@ -1,12 +1,9 @@
-import * as moment from 'moment';
-import * as _ from 'underscore';
-import { generateModels } from '../connectionResolver';
-import {
-  sendAutomationsMessage,
-  sendCoreMessage
-} from '../messageBroker';
+import * as moment from "moment";
+import * as _ from "underscore";
+import { generateModels } from "../connectionResolver";
+import { sendAutomationsMessage, sendCoreMessage } from "../messageBroker";
 
-import { IMessageDocument } from '../models/definitions/conversationMessages';
+import { IMessageDocument } from "../models/definitions/conversationMessages";
 
 /**
  * Send conversation messages to customer
@@ -22,18 +19,18 @@ export const sendMessageEmail = async (subdomain: string) => {
   for (const conversation of conversations) {
     const customer = await sendCoreMessage({
       subdomain,
-      action: 'customers.findOne',
+      action: "customers.findOne",
       data: {
-        _id: conversation.customerId
+        _id: conversation.customerId,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     const integration = await models.Integrations.findOne({
-      _id: conversation.integrationId
+      _id: conversation.integrationId,
     });
 
-    if (!integration || integration.kind !== 'messenger') {
+    if (!integration || integration.kind !== "messenger") {
       continue;
     }
 
@@ -43,26 +40,25 @@ export const sendMessageEmail = async (subdomain: string) => {
 
     const brand = await sendCoreMessage({
       subdomain,
-      action: 'brands.findOne',
+      action: "brands.findOne",
       data: {
         query: {
-          _id: integration.brandId
-        }
+          _id: integration.brandId,
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!brand) {
       continue;
     }
 
-    // user's last non answered question
-    const question: IMessageDocument = await models.ConversationMessages.getNonAsnweredMessage(
-      conversation._id
-    );
+    // user's last non callAnswered question
+    const question: IMessageDocument =
+      await models.ConversationMessages.getNonAsnweredMessage(conversation._id);
 
     const adminMessages = await models.ConversationMessages.getAdminMessages(
-      conversation._id
+      conversation._id,
     );
 
     if (adminMessages.length < 1) {
@@ -76,17 +72,17 @@ export const sendMessageEmail = async (subdomain: string) => {
       const answer = {
         ...message,
         createdAt: new Date(
-          moment(message.createdAt).format('DD MMM YY, HH:mm')
-        )
+          moment(message.createdAt).format("DD MMM YY, HH:mm"),
+        ),
       };
 
       const usr = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
-          _id: message.userId
+          _id: message.userId,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       if (usr) {
@@ -98,7 +94,7 @@ export const sendMessageEmail = async (subdomain: string) => {
       if (message.attachments.length !== 0) {
         for (const attachment of message.attachments) {
           answer.content = answer.content.concat(
-            `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`
+            `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`,
           );
         }
       }
@@ -109,30 +105,30 @@ export const sendMessageEmail = async (subdomain: string) => {
 
     customer.name = await sendCoreMessage({
       subdomain,
-      action: 'customers.getCustomerName',
+      action: "customers.getCustomerName",
       data: customer,
-      isRPC: true
+      isRPC: true,
     });
 
     const data = {
       customer,
       question: {},
       answers,
-      brand
+      brand,
     };
 
     if (question) {
       const questionData = {
         ...question,
         createdAt: new Date(
-          moment(question.createdAt).format('DD MMM YY, HH:mm')
-        )
+          moment(question.createdAt).format("DD MMM YY, HH:mm"),
+        ),
       };
 
       if (question.attachments.length !== 0) {
         for (const attachment of question.attachments) {
-          questionData.content = (questionData.content || '').concat(
-            `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`
+          questionData.content = (questionData.content || "").concat(
+            `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`,
           );
         }
       }
@@ -146,24 +142,24 @@ export const sendMessageEmail = async (subdomain: string) => {
     const emailOptions: any = {
       toEmails: [email],
       title: `Reply from "${brand.name}"`,
-      fromEmail: emailConfig.email
+      fromEmail: emailConfig.email,
     };
 
-    if (emailConfig.type === 'custom') {
+    if (emailConfig.type === "custom") {
       emailOptions.customHtml = emailConfig.template;
       emailOptions.customHtmlData = data;
     } else {
       emailOptions.template = {
-        name: 'conversationCron',
-        data
+        name: "conversationCron",
+        data,
       };
     }
 
     // send email
     await sendCoreMessage({
       subdomain,
-      action: 'sendEmail',
-      data: emailOptions
+      action: "sendEmail",
+      data: emailOptions,
     });
 
     // mark sent messages as read
@@ -172,16 +168,16 @@ export const sendMessageEmail = async (subdomain: string) => {
 
   await sendAutomationsMessage({
     subdomain,
-    action: 'trigger',
+    action: "trigger",
     data: {
       type: `conversation`,
-      targets: [conversations]
-    }
+      targets: [conversations],
+    },
   });
 };
 
 export default {
   handle10MinutelyJob: async ({ subdomain }) => {
     await sendMessageEmail(subdomain);
-  }
+  },
 };

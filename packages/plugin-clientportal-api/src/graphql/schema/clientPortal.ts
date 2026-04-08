@@ -26,7 +26,7 @@ export const commonMutationParams = `
   branchIds: [String],
   departmentIds: [String],
 `;
-export const types = (enabledPlugins) => `
+export const types = enabledPlugins => `
 ${
   enabledPlugins.tasks
     ? `
@@ -43,7 +43,7 @@ ${
     _id: String! @external
   }
   `
-    : ''
+    : ""
 }
 
 ${
@@ -61,7 +61,7 @@ ${
     _id: String! @external
   }
     `
-    : ''
+    : ""
 }
 
 ${
@@ -80,7 +80,7 @@ ${
     _id: String! @external
   }
     `
-    : ''
+    : ""
 }
 
 ${
@@ -102,7 +102,7 @@ ${
     year: Int
   }
     `
-    : ''
+    : ""
 }
 
 
@@ -120,7 +120,7 @@ ${
     }
 
    `
-    : ''
+    : ""
 }
 
 
@@ -477,7 +477,7 @@ ${
 
 `;
 
-export const queries = (enabledPlugins) => `
+export const queries = enabledPlugins => `
   clientPortalGetConfigs(kind:BusinessPortalKind, search: String, page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain(clientPortalName: String): ClientPortal
@@ -496,7 +496,7 @@ export const queries = (enabledPlugins) => `
     clientPortalUserDeals(userId: String): [Deal]
     clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: SalesItemDate): [Deal]
    `
-      : ''
+      : ""
   }
 
   ${
@@ -507,7 +507,7 @@ export const queries = (enabledPlugins) => `
     clientPortalUserTasks(userId: String): [TasksStage]
     clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
         `
-      : ''
+      : ""
   }
 
   ${
@@ -518,7 +518,7 @@ export const queries = (enabledPlugins) => `
     clientPortalUserTickets(userId: String): [Ticket]
 
     `
-      : ''
+      : ""
   }
 
   ${
@@ -527,7 +527,7 @@ export const queries = (enabledPlugins) => `
     clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurchasesItemDate): [Purchase]
     clientPortalUserPurchases(userId: String): [Purchase]
     `
-      : ''
+      : ""
   }
 
   ${
@@ -536,11 +536,11 @@ export const queries = (enabledPlugins) => `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     clientPortalKnowledgeBaseArticles(searchValue: String,slug: String  categoryIds: [String], topicId: String, isPrivate: Boolean): [KnowledgeBaseArticle]
    `
-      : ''
+      : ""
   }
 `;
 
-export const mutations = (enabledPlugins) => `
+export const mutations = enabledPlugins => `
   clientPortalConfigUpdate (
     config: ClientPortalConfigInput!
   ): ClientPortal
@@ -551,7 +551,7 @@ export const mutations = (enabledPlugins) => `
         ${copyParams},
         ${ticketMutationParams},
         ${commonMutationParams}
-      ): ${enabledPlugins.tickets ? 'Ticket' : 'JSON'}
+      ): ${enabledPlugins.tickets ? "Ticket" : "JSON"}
 
   clientPortalRemove (_id: String!): JSON
   clientPortalCreateCard(
@@ -590,4 +590,6 @@ export const mutations = (enabledPlugins) => `
     clientPortalId: String!,
     transactionId: String!
   ): JSON
+
+  checkTokiUserLegalAge(clientPortalId:String!,token: String!): Boolean
 `;

@@ -2,10 +2,10 @@ import {
   FileUploadBox,
   FullContent,
   ImportHeader,
-  UploadText
+  UploadText,
 } from "../../styles";
 import { FlexItem, FlexPad } from "modules/common/components/step/styles";
-import { __ } from "modules/common/utils";
+import { __, getEnv } from "modules/common/utils";
 
 import { IAttachment } from "modules/common/types";
 import { IContentType } from "../../types";
@@ -45,6 +45,7 @@ class FileUpload extends React.Component<Props, {}> {
             single={true}
             defaultFileList={[]}
             onChange={onChange}
+            url={`${getEnv().REACT_APP_API_URL}/pl:workers/import-upload-file`}
           />
         </FileUploadBox>
       );

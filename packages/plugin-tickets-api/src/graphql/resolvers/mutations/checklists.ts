@@ -55,7 +55,8 @@ const checklistMutations = {
         newData: args,
         object: checklist
       },
-      user
+      user,
+      { sendTriggerAutomationTRPC: true }
     );
 
     checklistsChanged(checklist);
@@ -83,7 +84,8 @@ const checklistMutations = {
         newData: doc,
         updatedDocument: updated
       },
-      user
+      user,
+      { sendTriggerAutomationTRPC: true }
     );
 
     ticketsChecklistDetailChanged(_id);
@@ -135,7 +137,8 @@ const checklistMutations = {
         newData: args,
         object: checklistItem
       },
-      user
+      user,
+      { sendTriggerAutomationTRPC: true }
     );
 
     ticketsChecklistDetailChanged(checklistItem.checklistId);
@@ -163,7 +166,8 @@ const checklistMutations = {
         newData: doc,
         updatedDocument: updated
       },
-      user
+      user,
+      { sendTriggerAutomationTRPC: true }
     );
 
     ticketsChecklistDetailChanged(updated.checklistId);

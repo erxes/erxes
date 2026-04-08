@@ -1,4 +1,4 @@
-import { IUserDocument } from "@erxes/api-utils/src/types";
+import { ICustomField, IUserDocument } from "@erxes/api-utils/src/types";
 import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "../logUtils";
@@ -58,6 +58,16 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocuments> {
     ownerType: string,
     ownerId: string
   ): Promise<boolean>;
+
+  updateOwnerScore({
+    ownerId,
+    ownerType,
+    updatedCustomFieldsData
+  }: {
+    ownerId: string;
+    ownerType: string;
+    updatedCustomFieldsData: ICustomField[]
+  }): Promise<void>;
 }
 
 export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {

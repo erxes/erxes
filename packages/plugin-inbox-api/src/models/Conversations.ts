@@ -1,22 +1,23 @@
-import { Model } from 'mongoose';
-import { stream } from '@erxes/api-utils/src/bulkUtils';
-import { cleanHtml } from '@erxes/api-utils/src/core';
-import { CONVERSATION_STATUSES } from './definitions/constants';
+import { Model } from "mongoose";
+import { stream } from "@erxes/api-utils/src/bulkUtils";
+import { cleanHtml } from "@erxes/api-utils/src/core";
+import { CONVERSATION_STATUSES } from "./definitions/constants";
 import {
   IMessageDocument,
   IResolveAllConversationParam,
-} from './definitions/conversationMessages';
+} from "./definitions/conversationMessages";
 import {
   conversationSchema,
   IConversation,
   IConversationDocument,
-} from './definitions/conversations';
-import { IModels } from '../connectionResolver';
-import { sendCoreMessage } from '../messageBroker';
-import { putCreateLog } from '../logUtils';
-import { MODULE_NAMES } from '../constants';
-import { sendToWebhook } from '@erxes/api-utils/src';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+} from "./definitions/conversations";
+import { IModels } from "../connectionResolver";
+import { sendCoreMessage } from "../messageBroker";
+import { putCreateLog } from "../logUtils";
+import { MODULE_NAMES } from "../constants";
+import { sendToWebhook } from "@erxes/api-utils/src";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
@@ -90,7 +91,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const conversation = await models.Conversations.findOne({ _id });
 
       if (!conversation) {
-        throw new Error('Conversation not found');
+        throw new Error("Conversation not found");
       }
 
       return conversation;
@@ -104,7 +105,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const conversations = await models.Conversations.find(selector);
 
       if (conversations.length !== _ids.length) {
-        throw new Error('Conversation not found.');
+        throw new Error("Conversation not found.");
       }
 
       return { selector, conversations };
@@ -115,10 +116,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async createConversation(doc: IConversation) {
       const now = new Date();
+
       const userRelevance = await this.getUserRelevance({
         skillId: doc.skillId,
       });
-      console.log('create conve uusev');
+      console.log("create conve uusev");
+
       const result = await models.Conversations.create({
         status: CONVERSATION_STATUSES.NEW,
         ...doc,
@@ -133,8 +136,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
       await sendToWebhook({
         subdomain,
         data: {
-          action: 'create',
-          type: 'inbox:conversation',
+          action: "create",
+          type: "inbox:conversation",
           params: result,
         },
       });
@@ -168,7 +171,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       // clean custom field values
       doc.customFieldsData = await sendCoreMessage({
         subdomain,
-        action: 'fields.prepareCustomFieldsData',
+        action: "fields.prepareCustomFieldsData",
         data: doc.customFieldsData,
         isRPC: true,
       });
@@ -205,7 +208,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       const user = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
           _id: assignedUserId,
         },
@@ -253,7 +256,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const customerConversations = await models.Conversations.find({
         customerId,
         integrationId,
-        status: 'open',
+        status: "open",
       });
 
       const promises: Array<Promise<IMessageDocument>> = [];
@@ -322,7 +325,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       graphqlPubsub.publish(`conversationChanged:${_id}`, {
         conversationChanged: {
           conversationId: _id,
-          type: 'inbox:conversation',
+          type: "inbox:conversation",
         },
       });
 
@@ -432,7 +435,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
           return models.ConversationMessages.find(
             {
               engageData: { $exists: true, $ne: null },
-              'engageData.messageId': engageMessageId,
+              "engageData.messageId": engageMessageId,
             },
             { conversationId: 1, _id: 0 },
           ) as any;
@@ -481,7 +484,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       const users = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
             _id: { $in: skill.memberIds || [] },
@@ -498,12 +501,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
         return;
       }
 
-      const type = args.skillId ? 'SS' : '';
+      const type = args.skillId ? "SS" : "";
 
       return users
         .map((user) => user.code + type)
-        .filter((code) => code !== '' && code !== undefined)
-        .join('|');
+        .filter((code) => code !== "" && code !== undefined)
+        .join("|");
     }
   }
 

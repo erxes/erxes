@@ -27,6 +27,7 @@ const generateParams = ({ queryParams }: { queryParams: any }) => ({
   stageId: queryParams.stageId,
   number: queryParams.number,
   action: queryParams.action,
+  description: queryParams.description,
 });
 
 const ScoreLogsListContainer = (props: Props) => {

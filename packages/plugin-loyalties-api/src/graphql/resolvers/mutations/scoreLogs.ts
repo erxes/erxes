@@ -4,6 +4,9 @@ import { IScoreLog } from '../../../models/definitions/scoreLog';
 
 const ScoreLogMutations = {
   async changeScore(__root, doc: IScoreLog, { models }: IContext) {
+    if (!doc.description.startsWith('manual')) {
+      doc.description = `manual ${doc.description}`
+    }
     return models.ScoreLogs.changeScore(doc);
   }
 };

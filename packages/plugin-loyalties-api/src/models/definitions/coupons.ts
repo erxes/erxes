@@ -82,4 +82,5 @@ export const couponSchema = new Schema(
   { timestamps: true },
 );
 
+couponSchema.index({ 'usageLogs.ownerId': 1 });
 couponSchema.index({ campaignId: 1, code: 1 }, { unique: true });

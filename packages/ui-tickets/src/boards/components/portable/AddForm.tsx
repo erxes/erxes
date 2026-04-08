@@ -1,6 +1,5 @@
 import * as _ from "lodash";
-import React, { useState, useEffect, useCallback } from "react";
-import Select from "react-select";
+
 import {
   BoardSelectWrapper,
   FormFooter,
@@ -9,16 +8,19 @@ import {
 } from "../../styles/item";
 import { IAttachment, IField } from "@erxes/ui/src/types";
 import { IItem, IItemParams, IOptions, IStage } from "../../types";
+
 import { Alert } from "@erxes/ui/src/utils";
-import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
-import { LogicParams } from "@erxes/ui-forms/src/settings/properties/types";
-import { invalidateCache } from "../../utils";
 import BoardSelect from "../../containers/BoardSelect";
 import Button from "@erxes/ui/src/components/Button";
 import CardSelect from "./CardSelect";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import GenerateAddFormFields from "./GenerateAddFormFields";
+import { LogicParams } from "@erxes/ui-forms/src/settings/properties/types";
+import React from "react";
+import Select from "react-select";
+import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
+import { invalidateCache } from "../../utils";
 import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 
 type Props = {
@@ -30,6 +32,7 @@ type Props = {
   mailSubject?: string;
   showSelect?: boolean;
   saveItem: (doc: IItemParams, callback: (item: IItem) => void) => void;
+  fetchCards: (stageId: string, callback: (cards: any) => void) => void;
   closeModal: () => void;
   callback?: (item?: IItem) => void;
   fields: IField[];
@@ -39,486 +42,392 @@ type Props = {
   startDate?: Date;
   closeDate?: Date;
   showStageSelect?: boolean;
-  fetchCards: (stageId: string, callback: (cards: any) => void) => void;
-  isHideName?: boolean;
 };
 
-const AddForm: React.FC<Props> = ({
-  options,
-  boardId: propBoardId,
-  pipelineId: propPipelineId,
-  stageId: propStageId,
-  cardId: propCardId,
-  mailSubject,
-  showSelect,
-  saveItem,
-  closeModal,
-  callback,
-  fields: propFields,
-  refetchFields,
-  stages,
-  tagIds: propTagIds,
-  startDate: propStartDate,
-  closeDate: propCloseDate,
-  showStageSelect,
-  fetchCards,
-  isHideName: propIsHideName,
-}) => {
-  const type = options.type;
+type State = {
+  stageId: string;
+  name: string;
+  disabled: boolean;
+  boardId: string;
+  pipelineId: string;
+  cards: any;
+  cardId: string;
+  customFieldsData: any[];
+  priority?: string;
+  labelIds?: string[];
+  startDate?: Date;
+  closeDate?: Date;
+  assignedUserIds?: string[];
+  attachments?: IAttachment[];
+  description?: string;
+  tagIds?: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
+  relationData?: any;
+  isCheckUserTicket?: boolean;
+};
 
-  const [boardId, setBoardId] = useState(
-    localStorage.getItem(`${type}_boardId`) || propBoardId || "",
-  );
-  const [pipelineId, setPipelineId] = useState(
-    localStorage.getItem(`${type}_pipelineId`) || propPipelineId || "",
-  );
-  const [stageId, setStageId] = useState(
-    propStageId || localStorage.getItem(`${type}_stageId`) || "",
-  );
-  const [cardId, setCardId] = useState(propCardId || "");
-  const [name, setName] = useState(
-    localStorage.getItem(`${type}_name`) || mailSubject || "",
-  );
-  const [description, setDescription] = useState(
-    localStorage.getItem(`${type}_description`) || "",
-  );
-  const [cards, setCards] = useState<any[]>([]);
-  const [fields, setFields] = useState<IField[]>(
-    (() => {
-      const stored = localStorage.getItem(`${type}_fields`);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        } catch {}
-      }
-      return propFields || [];
-    })(),
-  );
-  const [customFieldsData, setCustomFieldsData] = useState<any[]>(
-    (() => {
-      const stored = localStorage.getItem(`${type}_customFieldsData`);
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {}
-      }
-      return [];
-    })(),
-  );
-  const [disabled, setDisabled] = useState(false);
-  const [priority, setPriority] = useState<string | undefined>(undefined);
-  const [labelIds, setLabelIds] = useState<string[] | undefined>(undefined);
-  const [assignedUserIds, setAssignedUserIds] = useState<string[] | undefined>(
-    undefined,
-  );
-  const [attachments, setAttachments] = useState<IAttachment[] | undefined>(
-    undefined,
-  );
-  const [branchIds, setBranchIds] = useState<string[] | undefined>(undefined);
-  const [departmentIds, setDepartmentIds] = useState<string[] | undefined>(
-    undefined,
-  );
-  const [isCheckUserTicket, setIsCheckUserTicket] = useState(
-    JSON.parse(localStorage.getItem(`${type}_isCheckUserTicket`) || "false"),
-  );
-  const [tagIds, setTagIds] = useState(propTagIds || []);
-  const [startDate, setStartDate] = useState<Date | undefined>(propStartDate);
-  const [closeDate, setCloseDate] = useState<Date | undefined>(propCloseDate);
-  const [relationData, setRelationData] = useState<any>({});
-  const [isHideName, setIsHideName] = useState(
-    JSON.parse(localStorage.getItem(`${type}_isHideName`) || "false"),
-  );
+class AddForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
 
-  useEffect(() => {
-    if (pipelineId) {
-      refetchFields({ pipelineId });
-    }
-  }, [pipelineId]);
+    this.state = {
+      disabled: false,
+      boardId: props.boardId || "",
+      pipelineId: props.pipelineId || "",
+      stageId: props.stageId || "",
+      cardId: props.cardId || "",
+      cards: [],
+      name:
+        localStorage.getItem(`${props.options.type}Name`) ||
+        props.mailSubject ||
+        "",
+      customFieldsData: [],
+      tagIds: props.tagIds || "",
+      startDate: props.startDate || null,
+      closeDate: props.closeDate || null,
+      isCheckUserTicket: false,
+    };
+  }
 
-  // Sync fields if prop changes
-  useEffect(() => {
-    if (propFields !== fields) setFields(propFields);
-  }, [propFields]);
-
-  // Fetch cards when stageId changes
-  useEffect(() => {
-    if (stageId) {
-      fetchCards(stageId, (cards: any) => {
-        setCards(
-          (cards || []).map((c: any) => ({
-            value: c._id,
-            label: c.name,
-          })),
-        );
-      });
-      localStorage.setItem(`${type}_stageId`, stageId);
-    }
-  }, [stageId]);
-
-  const onChangeField = useCallback(
-    <T extends keyof any>(key: T, value: any) => {
-      switch (key) {
-        case "stageId":
-          setStageId(value);
-          localStorage.setItem(`${type}_stageId`, value);
-          break;
-        case "pipelineId":
-          setPipelineId(value);
-          refetchFields({ pipelineId: value });
-          localStorage.setItem(`${type}_pipelineId`, value);
-          break;
-        case "boardId":
-          setBoardId(value);
-          localStorage.setItem(`${type}_boardId`, value);
-          break;
-        case "name":
-          setName(value);
-          localStorage.setItem(`${type}_name`, value);
-          break;
-        case "description":
-          setDescription(value);
-          localStorage.setItem(`${type}_description`, value);
-          break;
-        case "customFieldsData":
-          setCustomFieldsData(value);
-          localStorage.setItem(
-            `${type}_customFieldsData`,
-            JSON.stringify(value),
-          );
-          break;
-        case "isHideName":
-          setIsHideName(value);
-          localStorage.setItem(`${type}_isHideName`, JSON.stringify(value));
-          break;
-
-        case "isCheckUserTicket":
-          setIsCheckUserTicket(value);
-          localStorage.setItem(
-            `${type}_isCheckUserTicket`,
-            JSON.stringify(value),
-          );
-          break;
-        case "priority":
-          setPriority(value);
-          localStorage.setItem(`${type}_priority`, value);
-          break;
-        case "labelIds":
-          setLabelIds(value);
-          localStorage.setItem(`${type}_labelIds`, JSON.stringify(value));
-          break;
-        case "assignedUserIds":
-          setAssignedUserIds(value);
-          localStorage.setItem(
-            `${type}_assignedUserIds`,
-            JSON.stringify(value),
-          );
-          break;
-        case "attachments":
-          setAttachments(value);
-          localStorage.setItem(`${type}_attachments`, JSON.stringify(value));
-          break;
-        case "branchIds":
-          setBranchIds(value);
-          localStorage.setItem(`${type}_branchIds`, JSON.stringify(value));
-          break;
-        case "departmentIds":
-          setDepartmentIds(value);
-          localStorage.setItem(`${type}_departmentIds`, JSON.stringify(value));
-          break;
-        case "startDate":
-          setStartDate(value);
-          localStorage.setItem(`${type}_startDate`, value.toString());
-          break;
-        case "closeDate":
-          setCloseDate(value);
-          localStorage.setItem(`${type}_closeDate`, value.toString());
-          break;
-      }
-    },
-    [type, refetchFields],
-  );
-
-  const save = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-
-      if (!stageId) return Alert.error("No stage");
-
-      let hasCheckUserTicketField = false;
-
-      const validFields = fields.filter((field) => {
-        const logics: LogicParams[] = (field.logics || []).map((logic) => {
-          let { fieldId = "" } = logic;
-          if (fieldId.includes("customFieldsData"))
-            fieldId = fieldId.split(".")[1];
-          return {
-            fieldId,
-            operator: logic.logicOperator,
-            logicValue: logic.logicValue,
-            fieldValue: (
-              customFieldsData.find((c) => c.field === fieldId) || {}
-            ).value,
-            validation: fields.find((f) => f._id === fieldId)?.validation,
-            type: field.type,
-          };
-        });
-
-        if (checkLogic(logics)) return field;
-      });
-
-      for (const field of validFields) {
-        if (!field) continue;
-        if (field.type === "isCheckUserTicket") hasCheckUserTicketField = true;
-
-        const customField =
-          customFieldsData.find((c) => c.field === field._id) || {};
-        let alert = false;
-        if (field.isRequired) {
-          if (field.isDefinedByErxes && !(customField.value || ({} as any)))
-            alert = true;
-          if (!field.isDefinedByErxes && !customField.value) alert = true;
-          if (!_.isEmpty(customField) && field._id !== customField.field)
-            alert = false;
-          if (alert)
-            return Alert.error("Please enter or choose a required field");
+  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+    if (name === "stageId") {
+      const { fetchCards } = this.props;
+      fetchCards(String(value), (cards: any) => {
+        if (cards) {
+          this.setState({
+            cards: (cards || []).map((c) => ({ value: c._id, label: c.name })),
+          });
         }
-      }
-
-      const doc: any = {
-        name,
-        stageId,
-        customFieldsData,
-        _id: cardId,
-        priority,
-        labelIds,
-        assignedUserIds,
-        attachments,
-        branchIds,
-        departmentIds,
-        startDate,
-        closeDate,
-        description,
-        tagIds,
-        relationData,
-      };
-
-      if (hasCheckUserTicketField || isCheckUserTicket)
-        doc.isCheckUserTicket = !!isCheckUserTicket;
-
-      setDisabled(true);
-
-      saveItem(doc, (item: IItem) => {
-        setDisabled(false);
-
-        // Clear localStorage
-        const keysToRemove = [
-          `${type}_name`,
-          `${type}_stageId`,
-          `${type}_boardId`,
-          `${type}_pipelineId`,
-          `${type}_isHideName`,
-          `${type}_fields`,
-          `${type}_priority`,
-          `${type}_labelIds`,
-          `${type}_startDate`,
-          `${type}_closeDate`,
-          `${type}_assignedUserIds`,
-          `${type}_attachments`,
-          `${type}_description`,
-          `${type}_tagIds`,
-          `${type}_relationData`,
-          `${type}_departmentIds`,
-          `${type}_branchIds`,
-          `${type}_isCheckUserTicket`,
-          `${type}_customFieldsData`,
-        ];
-        keysToRemove.forEach((key) => localStorage.removeItem(key));
-        localStorage.removeItem("AddFormState");
-        localStorage.removeItem("assignedUserIds");
-
-        closeModal();
-        if (callback) callback(item);
-        invalidateCache();
       });
-    },
-    [
+    }
+
+    if (name === "pipelineId") {
+      this.props.refetchFields({ pipelineId: value });
+    }
+
+    this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
+  };
+
+  save = (e) => {
+    e.preventDefault();
+
+    const {
       stageId,
       name,
       cardId,
       priority,
       labelIds,
-      assignedUserIds,
-      attachments,
-      branchIds,
-      departmentIds,
       startDate,
       closeDate,
+      assignedUserIds,
       description,
+      attachments,
       tagIds,
       relationData,
+      departmentIds,
+      branchIds,
       isCheckUserTicket,
-      fields,
+    } = this.state;
+
+    let { customFieldsData } = this.state;
+
+    const { saveItem, closeModal, callback } = this.props;
+    let { fields } = this.props;
+
+    if (!stageId) {
+      return Alert.error("No stage");
+    }
+
+    fields = fields.filter((field) => {
+      const logics: LogicParams[] = (field.logics || []).map((logic) => {
+        let { fieldId = "" } = logic;
+
+        if (fieldId.includes("customFieldsData")) {
+          fieldId = fieldId.split(".")[1];
+        }
+
+        return {
+          fieldId,
+          operator: logic.logicOperator,
+          logicValue: logic.logicValue,
+          fieldValue: (customFieldsData.find((c) => c.field === fieldId) || {})
+            .value,
+          validation: fields.find((f) => f._id === fieldId)?.validation,
+          type: field.type,
+        };
+      });
+
+      if (checkLogic(logics)) {
+        return field;
+      }
+    });
+
+    customFieldsData = customFieldsData.filter((customField) =>
+      fields.find((field) => field._id === customField.field),
+    );
+
+    let hasCheckUserTicketField = false;
+
+    for (const field of fields) {
+      if (field.type === "isCheckUserTicket") hasCheckUserTicketField = true;
+
+      const customField =
+        customFieldsData.find((c) => c.field === field._id) || {};
+
+      if (field.isRequired) {
+        let alert = false;
+
+        if (field.isDefinedByErxes && !this.state[field.field || ""]) {
+          alert = true;
+        } else if (!field.isDefinedByErxes && !customField.value) {
+          alert = true;
+        }
+
+        // check if field is required but hidden
+        if (!_.isEmpty(customField) && field._id !== customField.field) {
+          alert = false;
+        }
+
+        if (alert) {
+          return Alert.error("Please enter or choose a required field");
+        }
+      }
+    }
+
+    const doc: any = {
+      name,
+      stageId,
       customFieldsData,
-      saveItem,
-      closeModal,
-      callback,
-      type,
-    ],
-  );
+      _id: cardId,
+    };
 
-  const onRelationsChange = useCallback(
-    (ids: string[], relationType: string) => {
-      setRelationData((prev) => ({
-        ...prev,
-        [relationType.split(":")[1]]: ids,
-      }));
-    },
-    [],
-  );
+    if (priority) {
+      doc.priority = priority;
+    }
 
-  const renderSelect = () => {
-    if (!showSelect) return null;
-    const stageValues =
-      stages?.map((stage) => ({ label: stage.name, value: stage._id })) || [];
+    if (labelIds && labelIds.length > 0) {
+      doc.labelIds = labelIds;
+    }
+
+    if (startDate) {
+      doc.startDate = startDate;
+    }
+
+    if (closeDate) {
+      doc.closeDate = closeDate;
+    }
+
+    if (assignedUserIds && assignedUserIds.length > 0) {
+      doc.assignedUserIds = assignedUserIds;
+    }
+
+    if (attachments) {
+      doc.attachments = attachments;
+    }
+
+    if (description) {
+      doc.description = description;
+    }
+
+    if (tagIds) {
+      doc.tagIds = tagIds;
+    }
+
+    if (relationData) {
+      doc.relationData = relationData;
+    }
+
+    if (branchIds) {
+      doc.branchIds = branchIds;
+    }
+
+    if (departmentIds) {
+      doc.departmentIds = departmentIds;
+    }
+
+    if (isCheckUserTicket) {
+      doc.isCheckUserTicket = isCheckUserTicket;
+    }
+
+    // before save, disable save button
+    this.setState({ disabled: true });
+
+    saveItem(doc, (item: IItem) => {
+      // after save, enable save button
+      this.setState({ disabled: false });
+
+      localStorage.removeItem(`${this.props.options.type}Name`);
+
+      closeModal();
+
+      if (callback) {
+        callback(item);
+      }
+
+      invalidateCache();
+    });
+  };
+
+  renderSelect() {
+    const { showSelect, options } = this.props;
+
+    if (!showSelect) {
+      return null;
+    }
+
+    const { stageId, pipelineId, boardId } = this.state;
+
+    const stgIdOnChange = (stgId) => this.onChangeField("stageId", stgId);
+    const plIdOnChange = (plId) => this.onChangeField("pipelineId", plId);
+    const brIdOnChange = (brId) => this.onChangeField("boardId", brId);
 
     return (
       <BoardSelectWrapper>
         <BoardSelect
-          type={type}
+          type={options.type}
           stageId={stageId}
           pipelineId={pipelineId}
           boardId={boardId}
-          onChangeStage={(id) => onChangeField("stageId", id)}
-          onChangeBoard={(id) => onChangeField("boardId", id)}
-          onChangePipeline={(id, _stages, hideName) => {
-            onChangeField("pipelineId", id);
-            onChangeField("isHideName", !!hideName);
-          }}
+          onChangeStage={stgIdOnChange}
+          onChangePipeline={plIdOnChange}
+          onChangeBoard={brIdOnChange}
         />
       </BoardSelectWrapper>
     );
+  }
+
+  onChangeCardSelect = (option) => {
+    const { cardId, name } = option;
+
+    if (cardId && cardId !== "copiedItem") {
+      this.onChangeField("name", name);
+
+      return this.onChangeField("cardId", cardId);
+    }
+
+    this.onChangeField("cardId", "");
+    this.onChangeField("name", name);
+
+    localStorage.setItem(`${this.props.options.type}Name`, name);
   };
 
-  return (
-    <form onSubmit={save}>
-      {renderSelect()}
-      {!isHideName && (
+  onChangeName = (e) => {
+    const name = (e.target as HTMLInputElement).value;
+    this.onChangeField("name", name);
+
+    localStorage.setItem(`${this.props.options.type}Name`, name);
+  };
+
+  onSelectStage = ({ value }) => {
+    this.setState({ stageId: value });
+  };
+
+  onRelationsChange = (ids: string[], relationType: string) => {
+    const { relationData = {} } = this.state;
+    const key = relationType.split(":")[1];
+
+    relationData[key] = ids;
+
+    this.setState({ relationData });
+  };
+
+  render() {
+    const { stages, showStageSelect } = this.props;
+
+    let stageValues: any;
+
+    if (stages && stages.length > 0) {
+      stageValues = (stages || []).map((stage) => ({
+        label: stage.name,
+        value: stage._id,
+      }));
+    }
+
+    const { type } = this.props.options;
+
+    return (
+      <form>
+        {this.renderSelect()}
         <HeaderRow>
           <HeaderContent>
-            <ControlLabel required>Name</ControlLabel>
-            {showSelect ? (
+            <ControlLabel required={true}>Name</ControlLabel>
+
+            {this.props.showSelect ? (
               <CardSelect
                 placeholder={`Add a new ${type} or select one`}
-                options={cards}
-                onChange={(option: any) => {
-                  if (option.cardId && option.cardId !== "copiedItem") {
-                    onChangeField("name", option.name);
-                    onChangeField("cardId", option.cardId);
-                  } else {
-                    onChangeField("cardId", "");
-                    onChangeField("name", option.name);
-                  }
-                }}
+                options={this.state.cards}
+                onChange={this.onChangeCardSelect}
                 type={type}
-                additionalValue={name}
+                additionalValue={this.state.name}
               />
             ) : (
               <FormControl
-                value={name}
-                autoFocus
+                value={this.state.name}
+                autoFocus={true}
                 placeholder="Create a new card"
-                onChange={(e) => onChangeField("name", e.target.value)}
+                onChange={this.onChangeName}
               />
             )}
           </HeaderContent>
         </HeaderRow>
-      )}
 
-      {showStageSelect && (
-        <HeaderRow>
-          <HeaderContent>
-            <ControlLabel required>Stage</ControlLabel>
-            <Select
-              placeholder="Select a stage"
-              value={stages?.find((s) => s._id === stageId) || null}
-              options={
-                stages?.map((s) => ({ label: s.name, value: s._id })) || []
-              }
-              name="stage"
-              isClearable
-              onChange={(e: any) => onChangeField("stageId", e?.value || "")}
-            />
-          </HeaderContent>
-        </HeaderRow>
-      )}
+        {showStageSelect && (
+          <HeaderRow>
+            <HeaderContent>
+              <ControlLabel required={true}>Stage</ControlLabel>
+              <Select
+                placeholder="Select a stage"
+                value={
+                  stageValues
+                    ? stageValues.find((s) => this.state.stageId === s.value)
+                    : null
+                }
+                options={stageValues}
+                name="stage"
+                isClearable={true}
+                onChange={(e) => this.onSelectStage(e)}
+              />
+            </HeaderContent>
+          </HeaderRow>
+        )}
 
-      <GenerateAddFormFields
-        object={{
-          stageId,
-          name,
-          cardId,
-          description,
-          customFieldsData,
-          priority,
-          labelIds,
-          assignedUserIds,
-          attachments,
-          branchIds,
-          departmentIds,
-          startDate,
-          closeDate,
-          tagIds,
-          relationData,
-          isCheckUserTicket,
-        }}
-        pipelineId={pipelineId}
-        onChangeField={onChangeField}
-        customFieldsData={customFieldsData}
-        fields={fields}
-      />
+        <GenerateAddFormFields
+          object={this.state}
+          pipelineId={this.state.pipelineId}
+          onChangeField={this.onChangeField}
+          customFieldsData={this.state.customFieldsData}
+          fields={this.props.fields}
+        />
 
-      <RelationForm
-        onChange={onRelationsChange}
-        contentType={`tickets:${type}`}
-        {...{
-          options,
-          boardId,
-          pipelineId,
-          stageId,
-          cardId,
-          mailSubject,
-          showSelect,
-          saveItem,
-          closeModal,
-          callback,
-          fields,
-          refetchFields,
-          stages,
-          tagIds: tagIds,
-          startDate,
-          closeDate,
-          showStageSelect,
-          fetchCards,
-          isHideName,
-        }}
-      />
+        <RelationForm
+          {...this.props}
+          onChange={this.onRelationsChange}
+          contentType={`tickets:${type}`}
+        />
 
-      <FormFooter>
-        <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
-          Close
-        </Button>
-        <Button
-          disabled={disabled}
-          btnStyle="success"
-          icon="check-circle"
-          type="submit"
-        >
-          Save
-        </Button>
-      </FormFooter>
-    </form>
-  );
-};
+        <FormFooter>
+          <Button
+            btnStyle="simple"
+            onClick={this.props.closeModal}
+            icon="times-circle"
+          >
+            Close
+          </Button>
+
+          <Button
+            disabled={this.state.disabled}
+            btnStyle="success"
+            icon="check-circle"
+            type="submit"
+            onClick={this.save}
+          >
+            Save
+          </Button>
+        </FormFooter>
+      </form>
+    );
+  }
+}
 
 export default AddForm;

@@ -19,7 +19,7 @@ export const posCommonFields = `
       fullName
     }
   }
-
+  serviceCharge
   isOnline
   onServer
   branchId
@@ -56,6 +56,7 @@ export const posCommonFields = `
 
   branchTitle
   departmentTitle
+  serviceChargeApplicableProductId
 `;
 
 const commonParamDefs = `

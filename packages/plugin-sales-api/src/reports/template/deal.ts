@@ -36,6 +36,7 @@ const DIMENSION_OPTIONS = [
   { label: "Customers", value: "customer" },
   { label: "Products", value: "product" },
   { label: "Service", value: "service" },
+  { label: 'Product Categories', value: 'productCategory' },
   { label: "Payment", value: "paymentType" },
   { label: "Boards", value: "board" },
   { label: "Pipelines", value: "pipeline" },

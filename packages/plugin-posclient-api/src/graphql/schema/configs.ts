@@ -26,6 +26,7 @@ export const types = `
     headerText: String
     hasCopy: Boolean
     hasSumQty: Boolean
+    isCleanTaxPrice: Boolean
   }
 
   type PoscCatProd {
@@ -87,6 +88,8 @@ export const types = `
     checkExcludeCategoryIds: [String]
     saveRemainder: Boolean
     banFractions: Boolean
+    serviceCharge: Float
+    serviceChargeApplicableProductId: String
   }
 `;
 

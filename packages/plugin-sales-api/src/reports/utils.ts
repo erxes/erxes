@@ -5,6 +5,8 @@ import {
 } from "@erxes/api-utils/src/serviceDiscovery";
 import * as dayjs from "dayjs";
 import * as isoWeek from "dayjs/plugin/isoWeek";
+import * as utc from "dayjs/plugin/utc";
+import * as timezone from "dayjs/plugin/timezone";
 import { IModels } from "../connectionResolver";
 import {
   sendCommonMessage,
@@ -21,6 +23,8 @@ import {
 } from "./constants";
 
 dayjs.extend(isoWeek);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const buildUnwind = ({ fields }: { fields: string[] }) => {
   return (fields || []).map((field) => ({
@@ -522,6 +526,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
   if (
     dimensions.includes("product") ||
     dimensions.includes("service") ||
+    dimensions.includes("productCategory") ||
     measures.some((m) =>
       [
         "totalAmount",
@@ -531,11 +536,8 @@ export const buildPipeline = (filter, type, matchFilter) => {
       ].includes(m)
     )
   ) {
-    pipeline.push({ $unwind: "$productsData" });
-  }
-
-  if (dimensions.includes("product") && dimensions.includes("service")) {
     pipeline.push(
+      { $unwind: "$productsData" },
       {
         $lookup: {
           from: "products",
@@ -544,7 +546,12 @@ export const buildPipeline = (filter, type, matchFilter) => {
           as: "productInfo",
         },
       },
-      { $unwind: "$productInfo" },
+      { $unwind: "$productInfo" }
+    );
+  }
+
+  if (dimensions.includes("product") && dimensions.includes("service")) {
+    pipeline.push(
       {
         $group: {
           _id: "$_id",
@@ -824,6 +831,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
     groupKeys.service = "$service";
   } else if (dimensions.includes("product") || dimensions.includes("service")) {
     groupKeys.productId = "$productsData.productId";
+  }
+
+  if (dimensions.includes("productCategory")) {
+    groupKeys.productCategoryId = "$productInfo.categoryId";
   }
 
   if (dimensions.includes("stage")) {
@@ -1263,6 +1274,22 @@ export const buildPipeline = (filter, type, matchFilter) => {
     );
   }
 
+  if (dimensions.includes("productCategory")) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: `product_categories`,
+          localField: "_id.productCategoryId",
+          foreignField: "_id",
+          as: "productCategory",
+        },
+      },
+      {
+        $unwind: "$productCategory",
+      }
+    );
+  }
+
   const addFields: any = {};
 
   if (dimensions.includes("createdBy")) {
@@ -1483,6 +1510,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
     projectionFields.itemId = "$doc._id";
     projectionFields.pipelineId = "$pipeline._id";
     projectionFields.boardId = "$board._id";
+  }
+
+  if (dimensions.includes("productCategory")) {
+    projectionFields.productCategory = "$productCategory.name";
   }
 
   pipeline.push({ $project: projectionFields });
@@ -2288,7 +2319,7 @@ export const formatData = async (data, filter, type, subdomain) => {
     ].forEach((key) => {
       if (item.hasOwnProperty(key)) {
         const date = item[key];
-        item[key] = dayjs(date).format("YYYY/MM/DD h:mm A");
+        item[key] = dayjs(date).tz("Asia/Ulaanbaatar").format("YYYY/MM/DD h:mm A");
       }
     });
 

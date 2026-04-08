@@ -2,7 +2,7 @@ import * as _ from "underscore";
 import redis from "./redis";
 import { IUserDocument } from "./types";
 import { isEnabled } from "./serviceDiscovery";
-import { sendMessage,  } from "./messageBroker";
+import { sendMessage, sendRPCMessage } from "./messageBroker";
 
 export interface ILogDataParams {
   type: string;
@@ -96,6 +96,10 @@ interface IFinalLogParams extends ILogDataParams {
   action: string;
 }
 
+export interface ILogOptions {
+  sendTriggerAutomationTRPC?: boolean;
+}
+
 export const LOG_ACTIONS = {
   CREATE: "create",
   UPDATE: "update",
@@ -106,22 +110,48 @@ export type LogDesc = {
   [key: string]: any;
 } & { name: any };
 
-export const putCreateLog = async (
+export const sendAutomationTrigger = async (
   subdomain: string,
-  params: ILogDataParams,
-  user: IUserDocument
+  data: {
+    type: string;
+    targets: any[];
+    [key: string]: any;
+  },
+  options?: ILogOptions
 ) => {
   const isAutomationsAvailable = await isEnabled("automations");
 
-  if (isAutomationsAvailable) {
-    sendMessage("automations:trigger", {
+  if (!isAutomationsAvailable) {
+    return;
+  }
+
+  if (options?.sendTriggerAutomationTRPC) {
+    return sendRPCMessage("automations:trigger", {
       subdomain,
-      data: {
-        type: `${params.type}`,
-        targets: [params.object]
-      }
+      data
     });
   }
+
+  return sendMessage("automations:trigger", {
+    subdomain,
+    data
+  });
+};
+
+export const putCreateLog = async (
+  subdomain: string,
+  params: ILogDataParams,
+  user: IUserDocument,
+  options?: ILogOptions
+) => {
+  sendAutomationTrigger(
+    subdomain,
+    {
+      type: `${params.type}`,
+      targets: [params.object]
+    },
+    options
+  );
 
   const isWebhooksAvailable = await isEnabled("webhooks");
 
@@ -147,19 +177,17 @@ export const putCreateLog = async (
 export const putUpdateLog = async (
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument
+  user: IUserDocument,
+  options?: ILogOptions
 ) => {
-  const isAutomationsAvailable = await isEnabled("automations");
-
-  if (isAutomationsAvailable) {
-    sendMessage("automations:trigger", {
-      subdomain,
-      data: {
-        type: `${params.type}`,
-        targets: [params.updatedDocument]
-      }
-    });
-  }
+  await sendAutomationTrigger(
+    subdomain,
+    {
+      type: `${params.type}`,
+      targets: [params.updatedDocument]
+    },
+    options
+  );
 
   const isWebhooksAvailable = await isEnabled("webhooks");
 
@@ -252,20 +280,21 @@ export interface IActivityLogParams {
 export const putActivityLog = async (
   subdomain: string,
   params: IActivityLogParams,
+  options?: ILogOptions
 ) => {
   const { data } = params;
-  const isAutomationsAvailable = await isEnabled('automations');
 
   try {
-    if (isAutomationsAvailable && data.target) {
-      sendMessage('automations:trigger', {
+    if (data.target) {
+      await sendAutomationTrigger(
         subdomain,
-        data: {
+        {
           type: `${data.contentType}`,
           targets: [data.target],
-          ...(data.automations || {}),
+          ...(data.automations || {})
         },
-      });
+        options
+      );
     }
 
     return sendMessage('putActivityLog', {
@@ -330,3 +359,5 @@ export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
 
   return fieldNames;
 };
+
+

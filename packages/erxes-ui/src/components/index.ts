@@ -3,6 +3,7 @@ import Bulk from './Bulk';
 import Button from './Button';
 import ButtonMutate from './ButtonMutate';
 import DateFilter from './DateFilter';
+import NewDateFilter from './NewDateFilter';
 import Editor from './editor/Editor';
 import EmptyContent from './empty/EmptyContent';
 import EmptyState from './EmptyState';
@@ -117,6 +118,7 @@ export {
   Button,
   ButtonMutate,
   DateFilter,
+  NewDateFilter,
   Editor,
   EmptyContent,
   EmptyState,

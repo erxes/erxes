@@ -41,13 +41,11 @@ export default class LeftSidebar extends React.Component<Props> {
           fieldsVisibility={fieldsVisibility}
           fields={fields}
         />
-
         <TaggerSection
           data={customer}
           type="core:customer"
           refetchQueries={taggerRefetchQueries}
         />
-
         <CustomFieldsSection customer={customer} isDetail={false} />
         <DevicePropertiesSection
           customer={customer}

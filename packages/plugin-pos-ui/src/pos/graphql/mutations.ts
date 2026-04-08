@@ -1,4 +1,4 @@
-import { posCommonFields } from './queries';
+import { posCommonFields } from "./queries";
 
 const commonFields = `
   $name: String
@@ -7,6 +7,8 @@ const commonFields = `
   $scopeBrandIds: [String]
   $pdomain: String
   $erxesAppToken: String
+  $serviceCharge: Float
+  $serviceChargeApplicableProductId: String
   $productDetails: [String]
   $adminIds: [String]
   $cashierIds: [String]
@@ -46,12 +48,14 @@ const commonVariables = `
   orderPassword: $orderPassword,
   scopeBrandIds: $scopeBrandIds,
   pdomain: $pdomain,
-  erxesAppToken: $erxesAppToken
-  productDetails: $productDetails
-  adminIds: $adminIds
-  cashierIds: $cashierIds
-  paymentIds: $paymentIds
-  paymentTypes: $paymentTypes
+  erxesAppToken: $erxesAppToken,
+  serviceCharge: $serviceCharge,
+  serviceChargeApplicableProductId: $serviceChargeApplicableProductId,
+  productDetails: $productDetails,
+  adminIds: $adminIds,
+  cashierIds: $cashierIds,
+  paymentIds: $paymentIds,
+  paymentTypes: $paymentTypes,
   isOnline: $isOnline
   onServer: $onServer
   branchId: $branchId

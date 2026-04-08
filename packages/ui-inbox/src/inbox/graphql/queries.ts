@@ -1,12 +1,14 @@
-import conversationFields from './conversationFields';
-import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
-import messageFields from './messageFields';
+import conversationFields from "./conversationFields";
+import { queries as customerQueries } from "@erxes/ui-contacts/src/customers/graphql";
+import messageFields from "./messageFields";
 
 export const paramsDef = `
   $channelId: String
   $status: String
   $unassigned: String
   $awaitingResponse: String
+  $callAnswered: String
+  $callNotAnswered: String
   $brandId: String
   $tag: String
   $integrationType: String
@@ -27,6 +29,8 @@ export const paramsValue = `
   status: $status
   unassigned: $unassigned
   awaitingResponse: $awaitingResponse
+  callAnswered: $callAnswered
+  callNotAnswered: $callNotAnswered
   brandId: $brandId
   tag: $tag
   integrationType: $integrationType
@@ -58,6 +62,7 @@ const sidebarConversations = `
       content
       status
       updatedAt
+      createdAt
       idleTime
       messageCount
       assignedUser {
@@ -411,6 +416,33 @@ const generateCustomerDetailQuery = (params) => {
   `;
 };
 
+const userConversationsByCustomerId = `
+query UserConversationsByCustomerId($customerId: String!) {
+  userConversationsByCustomerId(customerId: $customerId) {
+    assignedUser {
+      _id
+      username
+      email
+      branches {
+        address
+        __typename
+      }
+      createdAt
+      __typename
+    }
+    tags {
+      _id
+      name
+      createdAt
+      __typename
+    }
+    __typename
+    updatedAt
+    createdAt
+    _id
+  }
+}
+`;
 export default {
   conversationList,
   sidebarConversations,
@@ -437,4 +469,5 @@ export default {
   convertToInfo,
   postInfo,
   instagramPostInfo,
+  userConversationsByCustomerId,
 };

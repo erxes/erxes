@@ -13,6 +13,7 @@ import {
   sendClientPortalMessage,
   sendEngagesMessage,
   sendInboxMessage,
+  sendLoyaltiesMessage,
 } from "../../messageBroker";
 import {
   customerSchema,
@@ -600,6 +601,18 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
             ...(customerObj.customFieldsData || []),
           ];
 
+          if (customerFields?.customFieldsData?.length) {
+            for (const customFieldData of (customerFields.customFieldsData || [])) {
+              customFieldsData = customFieldsData.filter(item => {
+                if (item.field !== customFieldData.field) {
+                  return true;
+                }
+
+                return item.value === customFieldData.value;
+              });
+            }
+          }
+
           // Merging scopeBrandIds
           scopeBrandIds = [
             ...scopeBrandIds,
@@ -668,6 +681,11 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         data: { customerId: customer._id, customerIds },
       });
       await sendClientPortalMessage({
+        subdomain,
+        action: "changeCustomer",
+        data: { customerId: customer._id, customerIds },
+      });
+      await sendLoyaltiesMessage({
         subdomain,
         action: "changeCustomer",
         data: { customerId: customer._id, customerIds },

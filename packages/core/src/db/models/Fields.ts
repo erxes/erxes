@@ -651,7 +651,6 @@ export const loadGroupClass = (models: IModels) => {
     public static async checkIsDefinedByErxes(_id: string) {
       const groupObj = await models.FieldsGroups.findOne({ _id });
 
-      // Checking if the group is defined by the erxes
       if (groupObj && groupObj.isDefinedByErxes) {
         throw new Error("Cant update this group");
       }
@@ -701,8 +700,15 @@ export const loadGroupClass = (models: IModels) => {
         await this.checkCodeDuplication(doc.code);
       }
 
-      // Can not edit group that is defined by erxes
-      await this.checkIsDefinedByErxes(_id);
+      // System-defined groups only allow config (boardsPipelines / fieldVisibility) updates
+      if (group && group.isDefinedByErxes) {
+        await models.FieldsGroups.updateOne(
+          { _id },
+          { $set: { config: doc.config } },
+        );
+
+        return models.FieldsGroups.findOne({ _id });
+      }
 
       await models.FieldsGroups.updateOne({ _id }, { $set: doc });
 

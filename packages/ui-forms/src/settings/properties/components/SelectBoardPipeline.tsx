@@ -101,11 +101,16 @@ class SelectBoards extends React.Component<Props, State> {
     const item = selectItems.find(e => e._id === itemId) || {
       _id: itemId,
       boardId: "",
-      pipelineIds: []
+      pipelineIds: [],
+      pipelineNames: {}
     };
 
     // set new value
     item.pipelineIds = pipeLineIds;
+    item.pipelineNames = pipelines.reduce((acc, p) => {
+      acc[p.value] = p.label;
+      return acc;
+    }, {} as Record<string, string>);
 
     this.setState({ selectItems });
 

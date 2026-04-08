@@ -3,7 +3,8 @@ import { checkPermission } from "@erxes/api-utils/src/permissions";
 import { SortOrder } from "mongoose";
 import { IContext } from "../../../connectionResolver";
 import { ICommonParams } from "../../../models/definitions/common";
-import { CAMPAIGN_STATUS } from "../../../models/definitions/constants";
+import { CAMPAIGN_STATUS, VOUCHER_STATUS } from "../../../models/definitions/constants";
+import { sendClientPortalMessage, sendCoreMessage } from "../../../messageBroker";
 
 const generateFilter = (
   params: ICommonParams & { fromDate: string; toDate?: string }
@@ -53,11 +54,23 @@ const voucherQueries = {
   async ownerVouchers(
     _root,
     { ownerId }: { ownerId: string },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
-    const NOW = new Date();
+    const owner = await sendClientPortalMessage({
+      subdomain,
+      action: "clientPortalUsers.findOne",
+      data: { 
+        $or: [{ _id: ownerId }, { erxesCustomerId: ownerId }],
+      },
+      isRPC: true,
+      defaultValue: null
+    })
 
-    const vouchers = await models.Vouchers.find({ ownerId });
+    if (!owner) {
+      throw new Error("Owner not found");
+    }
+
+    const vouchers = await models.Vouchers.find({ ownerId: owner._id });
 
     const campaignVoucherMap = new Map<string, { voucherIds: string[] }>();
 
@@ -79,8 +92,6 @@ const voucherQueries = {
     const campaigns = await models.VoucherCampaigns.find({
       _id: { $in: campaignIds },
       status: CAMPAIGN_STATUS.ACTIVE,
-      startDate: { $lte: NOW },
-      endDate: { $gte: NOW },
     });
 
     const results: any = [];
@@ -92,8 +103,19 @@ const voucherQueries = {
       if (voucherData) {
         results.push({
           campaign,
-          count: voucherData.voucherIds.length,
-          voucherIds: voucherData.voucherIds,
+          vouchers: voucherData.voucherIds.map((id) => {
+            const v = vouchers.find((v) => v._id.toString() === id);
+
+            if (!v) return null;
+
+            return {
+              _id: v._id,
+              status: v.status,
+              ownerId: v.ownerId,
+              ownerType: v.ownerType,
+              createdAt: v.createdAt,
+            };
+          }).filter(Boolean),
         });
       }
     }

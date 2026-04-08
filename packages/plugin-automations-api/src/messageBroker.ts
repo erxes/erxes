@@ -1,102 +1,85 @@
 import type {
   MessageArgs,
-  MessageArgsOmitService,
+  MessageArgsOmitService
 } from "@erxes/api-utils/src/core";
 import {
   checkWaitingResponseAction,
-  doWaitingResponseAction,
+  doWaitingResponseAction
 } from "./actions/wait";
 import {
   consumeQueue,
-  consumeRPCQueue,
+  consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
 import { executePrevAction, receiveTrigger } from "./utils";
 
-import { debugInfo } from "@erxes/api-utils/src/debuggers";
+import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
 import { generateModels } from "./connectionResolver";
 import { playWait } from "./actions";
 import { sendMessage } from "@erxes/api-utils/src/core";
+
+const processAutomationTrigger = async (subdomain, data) => {
+  const models = await generateModels(subdomain);
+  const { type, actionType, targets, executionId } = data;
+
+  if (actionType && actionType === "waiting") {
+    await playWait(models, subdomain, data);
+    return;
+  }
+  const waitingExecution = await await checkWaitingResponseAction(
+    models,
+    type,
+    actionType,
+    targets,
+    executionId
+  );
+
+  if (waitingExecution) {
+    await doWaitingResponseAction(models, subdomain, data, waitingExecution);
+    return;
+  }
+
+  await receiveTrigger({ models, subdomain, type, targets });
+};
 
 export const setupMessageConsumers = async () => {
   consumeQueue("automations:trigger", async ({ subdomain, data }) => {
     debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
 
-    const models = await generateModels(subdomain);
-    const { type, actionType, targets, executionId } = data;
-
-    if (actionType && actionType === "waiting") {
-      await playWait(models, subdomain, data);
-      return;
-    }
-    const waitingExecution = await await checkWaitingResponseAction(
-      models,
-      type,
-      actionType,
-      targets,
-      executionId
-    );
-
-    if (waitingExecution) {
-      await doWaitingResponseAction(models, subdomain, data, waitingExecution);
-      return;
-    }
-
-    await receiveTrigger({ models, subdomain, type, targets });
+    processAutomationTrigger(subdomain, data).catch(error => {
+      debugError(error?.message || "error");
+    });
   });
 
   consumeRPCQueue("automations:trigger", async ({ subdomain, data }) => {
-    debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
+    debugInfo(`Receiving rpc data: ${JSON.stringify(data)}`);
 
-    const models = await generateModels(subdomain);
-    const { type, actionType, targets, executionId } = data;
-
-    const waitingExecution = await checkWaitingResponseAction(
-      models,
-      type,
-      actionType,
-      targets,
-      executionId
-    );
-
-    if (waitingExecution) {
-      await doWaitingResponseAction(models, subdomain, data, waitingExecution);
-      return {
-        status: "success",
-        data: "complete",
-      };
-    }
-
-    try {
-      await receiveTrigger({ models, subdomain, type, targets });
-      return {
-        status: "success",
-        data: "complete",
-      };
-    } catch (error) {
-      return {
-        status: "error",
-        errorMessage: error?.message || "error",
-      };
-    }
+    processAutomationTrigger(subdomain, data).catch(error => {
+      debugError(error?.message || "error");
+    });
+    return {
+      status: "success",
+      data: "complete"
+    };
   });
 
   consumeRPCQueue("automations:trigger.find", async ({ subdomain, data }) => {
+    console.log({ subdomain, data }, "Hell yeah");
     debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
     const models = await generateModels(subdomain);
     try {
       const result = await models.Automations.find({
         "triggers.type": data.query.triggerType,
         "triggers.config.botId": data.query.botId,
-        status: "active",
+        status: "active"
       }).lean();
       return {
         status: "success",
-        data: result,
+        data: result
       };
     } catch (error) {
       return {
         status: "error",
-        errorMessage: error?.message || "error",
+        errorMessage: error?.message || "error"
       };
     }
   });
@@ -107,7 +90,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Automations.countDocuments(query),
+      data: await models.Automations.countDocuments(query)
     };
   });
 
@@ -117,7 +100,7 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
       return {
         status: "success",
-        data: await executePrevAction(models, subdomain, data),
+        data: await executePrevAction(models, subdomain, data)
       };
     }
   );
@@ -129,7 +112,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: "success",
-        data: await models.Executions.find(data),
+        data: await models.Executions.find(data)
       };
     }
   );
@@ -139,7 +122,7 @@ export const sendCommonMessage = async (
   args: MessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };
 
@@ -148,7 +131,7 @@ export const sendCoreMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "core",
-    ...args,
+    ...args
   });
 };
 
@@ -157,6 +140,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "core",
-    ...args,
+    ...args
   });
 };

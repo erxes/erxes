@@ -20,10 +20,10 @@ const queries = {
   },
 
   async paymentsGetStripeKey(_root, args, { models }: IContext) {
-    const {_id} = args
+    const { _id } = args;
 
-    return models.PaymentMethods.getStripeKey(_id)
-  },
+    return models.PaymentMethods.getStripeKey(_id);
+  }
 };
 
 export default queries;

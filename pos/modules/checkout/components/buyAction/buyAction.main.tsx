@@ -50,7 +50,7 @@ const BuyAction = () => {
 
   const { loading, orderCU, variables } = useOrderCU(onCompleted)
 
-  const disabled = loading || !variables.totalAmount
+  const disabled = loading || variables.totalAmount === null || variables.totalAmount === undefined || variables.totalAmount === Number.NaN
 
   const disableOrder = disabled || ORDER_TYPES.OUT.includes(type)
 

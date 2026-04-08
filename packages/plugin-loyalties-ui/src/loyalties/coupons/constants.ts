@@ -29,11 +29,12 @@ export const COUPON_LIST_HEADERS = [
   },
 ];
 
-export const FILTER_OPTIONS = {
+export const FILTER_OPTIONS: Record<string, any> = {
   ownerType: [
     { label: "Customer", value: "customer" },
     { label: "Company", value: "company" },
     { label: "Team Member", value: "user" },
+    { label: "Client Portal User", value: "cpUser" },
     { label: "Unknown", value: "unknown" },
   ],
   orderType: [{ label: "Date", value: "createdAt" }],

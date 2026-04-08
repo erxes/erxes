@@ -7,14 +7,15 @@ import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { createServer } from 'http';
 import { filterXSS } from 'xss';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as multer from 'multer';
+import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 import { initApolloServer } from './apolloClient';
 import { generateErrors } from './data/modules/import/generateErrors';
+import { uploadsFolderPath } from './data/utils';
 import { initBroker } from './messageBroker';
-import {
-  pdfUploader,
-  taskChecker,
-  taskRemover,
-} from './worker/pdf/utils';
+import { pdfUploader, taskChecker, taskRemover } from './worker/pdf/utils';
 import { join, leave } from './serviceDiscovery';
 import { readFileRequest } from './worker/export/utils';
 import userMiddleware from '@erxes/api-utils/src/middlewares/user';
@@ -80,6 +81,25 @@ app.use((error, _req, res, _next) => {
 
   res.status(500).send(filterXSS(error.message));
 });
+
+const importUploadTmpDir = path.join(uploadsFolderPath, 'tmp');
+const importUpload = multer({ dest: importUploadTmpDir });
+
+app.post(
+  '/import-upload-file',
+  importUpload.single('file'),
+  routeErrorHandling(async (req: any, res: any) => {
+    await fs.promises.mkdir(uploadsFolderPath, { recursive: true });
+    await fs.promises.mkdir(importUploadTmpDir, { recursive: true });
+
+    const safeName = sanitizeFilename(req.file.originalname);
+    const finalPath = path.join(uploadsFolderPath, safeName);
+
+    await fs.promises.rename(req.file.path, finalPath);
+
+    return res.send(safeName);
+  })
+);
 
 // upload only pdf
 app.post('/upload-pdf', pdfUploader);

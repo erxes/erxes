@@ -1,6 +1,6 @@
 import { sendCommonMessage, sendCoreMessage } from "../../../messageBroker";
 
-import { checkPermission } from "@erxes/api-utils/src";
+import { checkPermission, getEnv } from "@erxes/api-utils/src";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IContext } from "../../../connectionResolver";
 import { sendTicketsMessage } from "../../../messageBroker";
@@ -30,7 +30,7 @@ const clientPortalMutations = {
         action: "widgets.createTicket",
         data: { doc },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       // Step 2: Validate the response
@@ -46,7 +46,7 @@ const clientPortalMutations = {
         paymentStatus: "unpaid",
         paymentAmount: 0,
         offeredAmount: 0,
-        hasVat: false,
+        hasVat: false
       };
       try {
         await models.ClientPortalUserCards.create(data);
@@ -64,10 +64,10 @@ const clientPortalMutations = {
             ticketStatus: ticket.status || "new",
             ticketStageId: ticket.stageId || doc.stageId,
             ticketStageName: ticket.stageName || "",
-            ticketPriority: ticket.priority || doc.priority || "normal",
+            ticketPriority: ticket.priority || doc.priority || "normal"
           },
 
-          groupId: `ticket-${ticket._id}`,
+          groupId: `ticket-${ticket._id}`
         });
       } catch (err) {
         console.error("Error creating ClientPortalUserCard:", err);
@@ -89,9 +89,9 @@ const clientPortalMutations = {
       const cpUser = await models.ClientPortalUsers.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${config?.testUserEmail}$`, "i") } },
-          { phone: { $regex: new RegExp(`^${config?.testUserPhone}$`, "i") } },
+          { phone: { $regex: new RegExp(`^${config?.testUserPhone}$`, "i") } }
         ],
-        clientPortalId: config._id,
+        clientPortalId: config._id
       });
 
       if (!cpUser) {
@@ -112,12 +112,12 @@ const clientPortalMutations = {
             notificationSettings: {
               receiveByEmail: false,
               receiveBySms: false,
-              configs: [],
-            },
+              configs: []
+            }
           };
 
           await models.ClientPortalUsers.createTestUser(subdomain, {
-            ...args,
+            ...args
           });
         }
       }
@@ -133,8 +133,8 @@ const clientPortalMutations = {
         action: "registerOnboardHistory",
         data: {
           type: "clientPortalSetup",
-          user,
-        },
+          user
+        }
       });
     }
 
@@ -147,7 +147,7 @@ const clientPortalMutations = {
         "hotel",
         "restaurant",
         "tour",
-        "blog",
+        "blog"
       ].includes(config.template)
     ) {
       sendCommonMessage({
@@ -157,8 +157,8 @@ const clientPortalMutations = {
         data: {
           clientPortalId: cp._id,
           kind: config.template,
-          createdUserId: user._id,
-        },
+          createdUserId: user._id
+        }
       });
     }
 
@@ -176,8 +176,8 @@ const clientPortalMutations = {
         serviceName: "cms",
         action: "removePages",
         data: {
-          clientPortalId: _id,
-        },
+          clientPortalId: _id
+        }
       });
     }
 
@@ -201,7 +201,7 @@ const clientPortalMutations = {
       type,
       cardId,
       cpUserIds,
-      oldCpUserIds,
+      oldCpUserIds
     }: {
       type: string;
       cardId: string;
@@ -240,8 +240,8 @@ const clientPortalMutations = {
       { _id: args._id },
       {
         $set: {
-          ...rest,
-        },
+          ...rest
+        }
       }
     );
     return models.ClientPortalUserCards.findOne({ _id: args._id });
@@ -249,10 +249,15 @@ const clientPortalMutations = {
 
   async clientPortalCheckTokiInvoice(
     _root,
-    { clientPortalId, transactionId }: { clientPortalId: string; transactionId: string },
+    {
+      clientPortalId,
+      transactionId
+    }: { clientPortalId: string; transactionId: string },
     { models }: IContext
   ) {
-    const clientPortal = await models.ClientPortals.findOne({ _id: clientPortalId });
+    const clientPortal = await models.ClientPortals.findOne({
+      _id: clientPortalId
+    });
     if (!clientPortal) {
       throw new Error("Client portal not found");
     }
@@ -261,35 +266,38 @@ const clientPortalMutations = {
       throw new Error("Toki config not found");
     }
 
-    const baseApiUrl = tokiConfig.production ? "ms-api.toki.mn" : "qams-api.toki.mn";
-   
-    const apiUrl = tokiConfig.production ? baseApiUrl : "qams-api.toki.mn";
-    const {username, password, apiKey} = tokiConfig;
+    const testApiUrl = getEnv({ name: "TOKI_TEST_API_URL" });
+    const prodApiUrl = getEnv({ name: "TOKI_PRODUCTION_API_URL" });
 
-    const authString = Buffer.from(`${username}:${password}`).toString("base64");
+    const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
+    const { username, password, apiKey } = tokiConfig;
+
+    const authString = Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    );
 
     const response = await fetch(
       `https://${apiUrl}/third-party-service/v1/auth/token`,
       {
         method: "GET",
         headers: {
-          "Accept": "application/json",
+          Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Basic ${authString}`,
-        },
+          Authorization: `Basic ${authString}`
+        }
       }
     );
 
     const contentType = response.headers.get("content-type");
-  
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Toki API Error (${response.status}): ${errorText}`);
     }
-    
+
     if (contentType && contentType.includes("application/json")) {
       const data: any = await response.json();
-      const {accessToken} = data.data;
+      const { accessToken } = data.data;
       const invoiceResponse = await fetch(
         `https://${apiUrl}/third-party-service/v1/payment-request/status?requestId=${transactionId}`,
         {
@@ -297,8 +305,8 @@ const clientPortalMutations = {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
-            "api-key": apiKey,
-          },
+            "api-key": apiKey
+          }
         }
       );
 
@@ -308,6 +316,47 @@ const clientPortalMutations = {
       throw new Error(`Expected JSON but received: ${text}`);
     }
   },
+
+  async checkTokiUserLegalAge(
+    _root,
+    { clientPortalId, token },
+    { models }: IContext
+  ) {
+    const clientPortal = await models.ClientPortals.findOne({
+      _id: clientPortalId
+    });
+    if (!clientPortal) {
+      throw new Error("Client portal not found");
+    }
+
+    const tokiConfig = clientPortal.tokiConfig;
+    if (!tokiConfig) {
+      throw new Error("Toki config not found");
+    }
+    const testApiUrl = getEnv({ name: "TOKI_TEST_API_URL" });
+    const prodApiUrl = getEnv({ name: "TOKI_PRODUCTION_API_URL" });
+
+    const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
+    const { apiKey } = tokiConfig;
+    const response = await fetch(
+      `https://${apiUrl}/third-party-service/v1/shoppy/user`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "api-key": apiKey
+        }
+      }
+    );
+
+    const { data = {} } = ((await response.json()) || {}) as any;
+
+    const isAdult = data?.isAdult;
+    console.log("Toki user legal age check result:", { isAdult });
+
+    return Boolean(isAdult);
+  }
 };
 
 checkPermission(

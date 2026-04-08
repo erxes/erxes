@@ -1,5 +1,96 @@
 # Changelog
 
+## [2.17.39](https://github.com/erxes/erxes/compare/2.17.38...2.17.39) (2026-03-27)
+
+### Features
+
+* **pos:** added isCleanTaxPrice to interface ([#7317](https://github.com/erxes/erxes/issues/7317)) ([2930f25](https://github.com/erxes/erxes/commit/2930f25686959ff672bc52be33d64d59162f1fbd))
+
+### Bug Fixes
+
+* return ([5efb33b](https://github.com/erxes/erxes/commit/5efb33bf85e9183b2b53b8dab6141b6f5e5a4206))
+
+## [2.17.38](https://github.com/erxes/erxes/compare/2.17.37...2.17.38) (2026-03-26)
+
+### Features
+
+* add labels and productCategoryInfo attribute for deal document ([a32755b](https://github.com/erxes/erxes/commit/a32755bd6d16ea2db94b5397e9ca431a68db3c46))
+* add support for automation triggers in log and checklist mutations ([3612dca](https://github.com/erxes/erxes/commit/3612dca151f0a2746fa527ffb47969f1b32d9eba))
+* core  clarify pipeline visibility logic for fields and groups ([ac1673d](https://github.com/erxes/erxes/commit/ac1673de69d716ce76ee73597eccfee4809d5ce6))
+* enhance voucher owner queries and client portal integration with voucher ([86e8049](https://github.com/erxes/erxes/commit/86e8049dcae73eb8082804d725fd12f4aef86198))
+
+### Bug Fixes
+
+* **pos:** refetch poscSlots after order cancel to update table status ([#7223](https://github.com/erxes/erxes/issues/7223)) ([caf53bb](https://github.com/erxes/erxes/commit/caf53bb3d87d2bcc1f88ecc902518d3b5acee204))
+* **print:** resolve print closing issue after printing ([#7212](https://github.com/erxes/erxes/issues/7212)) ([bb7a658](https://github.com/erxes/erxes/commit/bb7a65825e694c9b05454d7d582db472ff8b2ce3))
+* **print:** resolve print timing issue and add table number to receipt ([#7220](https://github.com/erxes/erxes/issues/7220)) ([79e80c2](https://github.com/erxes/erxes/commit/79e80c25998a16b4836e0c92a98836331f124851))
+* **ticket:** correct isCheckDepartment visibility using department intersection filter ([3cf8405](https://github.com/erxes/erxes/commit/3cf8405b408d7811fa1c798812ca19e3b0ad4463))
+* update fixDate function to accept undefined value ([24bab49](https://github.com/erxes/erxes/commit/24bab49e83a70a12cb5405b9dadaf0a27bb47751))
+
+## [2.17.37](https://github.com/erxes/erxes/compare/2.17.36...2.17.37) (2026-03-17)
+
+### Features
+
+* add product category dimension to deal reports ([a42e66e](https://github.com/erxes/erxes/commit/a42e66eef2d57812bf63bd8cbfa4d5843ac049a6))
+* insight add Call-Pro chart  ([6299f6f](https://github.com/erxes/erxes/commit/6299f6fc85a5f54598a847f6a5c2a06444ed8fb0))
+* **pos 2.0:** add service charge on pos and separate print progress ([#7168](https://github.com/erxes/erxes/issues/7168)) ([a25fb9b](https://github.com/erxes/erxes/commit/a25fb9bb92a45acb6e6adfe9f651cbcf4a0fc262))
+
+### Bug Fixes
+
+* facebook-messenger add HUMAN_AGENT tag support for replies outside 24-hour window"  ([9e6aa8a](https://github.com/erxes/erxes/commit/9e6aa8a895dd118e4df1dcc222f908bc3d05a7c9))
+
+## [2.17.36](https://github.com/erxes/erxes/compare/2.17.35...2.17.36) (2026-03-04)
+
+### Features
+
+* **inbox:** add conversation count by segment ([1275ba5](https://github.com/erxes/erxes/commit/1275ba5be18bdc5dd05cb13b2ef50005cdc2e01a))
+
+### Bug Fixes
+
+* customer merge with disabled customFields ([8a3e47a](https://github.com/erxes/erxes/commit/8a3e47abe32df7ec8f4e3d8171df87326853af74))
+
+## [2.17.35](https://github.com/erxes/erxes/compare/2.17.34...2.17.35) (2026-03-02)
+
+### Bug Fixes
+
+* cars cpCarsAdd find wrong car ([888fa0e](https://github.com/erxes/erxes/commit/888fa0e691a3edb2302263f450ff14a6e2e4e122))
+* correct import path for CustomersMerge component in ActionSection ([deac8e6](https://github.com/erxes/erxes/commit/deac8e6f6a8df4a4d58f7825c15669a7c2d3b60b))
+* filter falsy values from defaultFileList in Uploader component ([e2af595](https://github.com/erxes/erxes/commit/e2af59508355e17608385cb920f375d6ccc55548))
+* loyalty section on customer, refunded to earned ([d16abc5](https://github.com/erxes/erxes/commit/d16abc54d338af5e2dcfe8517ecf14a582347a51))
+
+## [2.17.34](https://github.com/erxes/erxes/compare/2.17.33...2.17.34) (2026-02-11)
+
+### Bug Fixes
+
+* improve import file upload handling and remove debug logs ([2d1962d](https://github.com/erxes/erxes/commit/2d1962d0bcf48b5d5f9e1bfcf1b7e2d38479f9de))
+
+## [2.17.33](https://github.com/erxes/erxes/compare/2.17.32...2.17.33) (2026-02-11)
+
+### Bug Fixes
+
+* handle loyalty owner when customers merge ([#6957](https://github.com/erxes/erxes/issues/6957)) ([3884345](https://github.com/erxes/erxes/commit/3884345ed779485bce23ea5ffa7be126f32a5526))
+* update existing attachment instead of creating duplicate in uploader ([07fe50e](https://github.com/erxes/erxes/commit/07fe50e986e28dc6351126d28e6eb3e1c64d9a71))
+
+## [2.17.32](https://github.com/erxes/erxes/compare/2.17.31...2.17.32) (2026-02-06)
+
+### Features
+
+* add erxes 2.0 inbox features  ([36b16b4](https://github.com/erxes/erxes/commit/36b16b48def95be9a706e5f641e0370084cbfcae))
+* **engages:** add response field to email logs and improve error handling ([c1ca4e1](https://github.com/erxes/erxes/commit/c1ca4e1433c57a3cc8c08d2b6bad59feecbd27a5))
+* inbox date filter and conversation call pro  refactor  ([e73cd94](https://github.com/erxes/erxes/commit/e73cd94ddcf2e22c86284841e0ceaa990ecc24a7))
+* **inbox:** add call audio and conversation history UI  ([04a8ef9](https://github.com/erxes/erxes/commit/04a8ef9c7f0fcfa075ae685f3441c871e770cff5))
+* **inbox:** date filter calendar  ([2493496](https://github.com/erxes/erxes/commit/249349666d0b18a02bf17e764da50dd73d24a320))
+
+### Bug Fixes
+
+* can't count segment count on customersCount. query and set import error on  history ([04264fd](https://github.com/erxes/erxes/commit/04264fdccfe513feb17f7e64997c65a1d8514475))
+* **date-filter:** handle UTC to local timezone correctly ([3eb79b3](https://github.com/erxes/erxes/commit/3eb79b392db0b93272a19bec2233371c7ded26fe))
+* **inbox:** resolve filter update issue  ([bedc731](https://github.com/erxes/erxes/commit/bedc731522876a8392115ae59125bd07217cdc46))
+* loyalty discount calculation in checkLoyalties for sales ([b5bc9b7](https://github.com/erxes/erxes/commit/b5bc9b7167b4fd6b7eb51777802ba925f8e68e60))
+* score log with custom description ([b5e284f](https://github.com/erxes/erxes/commit/b5e284f6f2d7f5bd675a23a53fb3b77eaeeda43a))
+* totalAmount is 0 then close this order on pos ([02398eb](https://github.com/erxes/erxes/commit/02398eb5e089a47cc28f61d51de3a9dda938428e))
+* **utils:** update API URL retrieval to use environment variables ([95b7cb2](https://github.com/erxes/erxes/commit/95b7cb24971e6bc8023d83e34b0375f8793e445c))
+
 ## [2.17.31](https://github.com/erxes/erxes/compare/2.17.30...2.17.31) (2026-01-06)
 
 ### Features

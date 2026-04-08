@@ -1087,7 +1087,6 @@ export const clientPortalUserMutations = {
 
     const response = await fetchUserFromToki(token, clientPortal);
     const { _id, phoneNo, profilePicURL, name } = response.data;
-
     const [firstName = '', lastName = ''] = name.trim().split(' ');
 
     const mobileNumber = phoneNo;
