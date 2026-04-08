@@ -196,7 +196,7 @@ export const userMutations: Record<string, Resolver> = {
     return updatedUser;
   },
 
-  async teamMembersRemove(
+  async usersSetActiveStatusBatch(
     _parent: undefined,
     { _ids }: { _ids: string[] },
     { user, models, checkPermission }: IContext,

@@ -21,7 +21,7 @@ const USERS_SET_ACTIVE_STATUS = gql`
 `;
 const TEAM_MEMBER_REMOVE = gql`
   mutation TeamMemberRemove($_ids: [String!]!) {
-    teamMembersRemove(_ids: $_ids)
+    usersSetActiveStatusBatch(_ids: $_ids)
   }
 `;
 
