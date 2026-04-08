@@ -47,7 +47,7 @@ export function usePositionAdd(
             },
           },
         });
-      } catch (e) {
+      } catch {
         // Silently handle cache update errors
       }
     },
@@ -84,7 +84,7 @@ export function usePositionEdit(
             },
           },
         });
-      } catch (e) {
+      } catch {
         // Silently handle cache update errors
       }
     },

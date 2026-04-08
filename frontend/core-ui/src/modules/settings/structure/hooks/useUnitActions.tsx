@@ -45,7 +45,7 @@ export function useUnitAdd(options?: MutationHookOptions<AddUnitResult, any>) {
             },
           },
         });
-      } catch (e) {
+      } catch {
         // Silently handle cache update errors
       }
     },
@@ -80,7 +80,7 @@ export function useUnitEdit(options?: MutationHookOptions<AddUnitResult, any>) {
             },
           },
         });
-      } catch (e) {
+      } catch {
         // Silently handle cache update errors
       }
     },
