@@ -40,9 +40,7 @@ const prepareExcerpt = (content: string) => {
     : plainTextContent;
 };
 
-const isValidReactionType = (
-  reaction: string,
-): reaction is PostReactionType =>
+const isValidReactionType = (reaction: string): reaction is PostReactionType =>
   POST_REACTION_TYPES.includes(reaction as PostReactionType);
 
 const normalizeReactions = (reactions?: string[]): PostReactionType[] => {

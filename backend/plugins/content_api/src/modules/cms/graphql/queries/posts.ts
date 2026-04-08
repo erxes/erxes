@@ -53,7 +53,9 @@ class PostQueryResolver extends BaseQueryResolver {
 
     const limit = Math.min(Math.max(args.limit || 10, 1), 100);
     const posts = await models.Posts.find(query).lean();
-    const postMap = new Map(posts.map((post: any) => [post._id.toString(), post]));
+    const postMap = new Map(
+      posts.map((post: any) => [post._id.toString(), post]),
+    );
 
     const list = recentViewCounts
       .map(({ postId, recentViewCount }) => {
@@ -75,7 +77,10 @@ class PostQueryResolver extends BaseQueryResolver {
       return list;
     }
 
-    const shouldSkip = await this.shouldSkipTranslation(clientPortalId, language);
+    const shouldSkip = await this.shouldSkipTranslation(
+      clientPortalId,
+      language,
+    );
 
     if (shouldSkip || !list.length) {
       return list;

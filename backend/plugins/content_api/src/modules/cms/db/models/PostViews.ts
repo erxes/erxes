@@ -43,12 +43,18 @@ export const loadPostViewClass = (models: IModels) => {
 
       return models.PostViews.findOneAndUpdate(
         { postId, clientPortalId, viewedAt: dayStart },
-        { $inc: { count: 1 }, $setOnInsert: { postId, clientPortalId, viewedAt: dayStart } },
+        {
+          $inc: { count: 1 },
+          $setOnInsert: { postId, clientPortalId, viewedAt: dayStart },
+        },
         { upsert: true, new: true },
       );
     }
 
-    public static async getRecentViewCounts(clientPortalId: string, since: Date) {
+    public static async getRecentViewCounts(
+      clientPortalId: string,
+      since: Date,
+    ) {
       const results = await models.PostViews.aggregate([
         {
           $match: {
