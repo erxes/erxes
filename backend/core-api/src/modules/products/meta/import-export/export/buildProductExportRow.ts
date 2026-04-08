@@ -1,4 +1,4 @@
-import { defaultContactFieldFormatter } from './utils'; 
+import { defaultContactFieldFormatter } from './utils';
 import { toPlainText } from './exportText';
 
 type Maps = {
@@ -8,10 +8,13 @@ type Maps = {
   brandMap: Map<string, string>;
 };
 
-const stripHtml = (input: string) => input.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+const stripHtml = (input: string) =>
+  input
+    .replaceAll(/<[^>]*>/g, ' ')
+    .replaceAll(/\s+/g, ' ')
+    .trim();
 
 const extractTextFromBlocks = (val: any): string => {
-
   const texts: string[] = [];
 
   const walk = (node: any) => {
@@ -32,7 +35,8 @@ const extractTextFromBlocks = (val: any): string => {
       if (Array.isArray(node.content)) walk(node.content);
       if (Array.isArray(node.children)) walk(node.children);
 
-      if (node.type === 'text' && typeof node.text === 'string') texts.push(node.text);
+      if (node.type === 'text' && typeof node.text === 'string')
+        texts.push(node.text);
 
       for (const k of Object.keys(node)) {
         if (k === 'text' || k === 'content' || k === 'children') continue;
@@ -42,7 +46,7 @@ const extractTextFromBlocks = (val: any): string => {
   };
 
   walk(val);
-  return texts.join(' ').replace(/\s+/g, ' ').trim();
+  return texts.join(' ').replaceAll(/\s+/g, ' ').trim();
 };
 
 const normalizeDescription = (value: any): string => {
@@ -55,7 +59,10 @@ const normalizeDescription = (value: any): string => {
   const str = String(value).trim();
   if (!str) return '';
 
-  if ((str.startsWith('[') && str.endsWith(']')) || (str.startsWith('{') && str.endsWith('}'))) {
+  if (
+    (str.startsWith('[') && str.endsWith(']')) ||
+    (str.startsWith('{') && str.endsWith('}'))
+  ) {
     try {
       const parsed = JSON.parse(str);
       const txt = extractTextFromBlocks(parsed);
@@ -97,10 +104,13 @@ export const buildProductExportRow = (
     : '';
 
   const tagNames = joinNames(product.tagIds || [], maps?.tagMap || new Map());
-  const brandNames = joinNames(product.scopeBrandIds || [], maps?.brandMap || new Map());
+  const brandNames = joinNames(
+    product.scopeBrandIds || [],
+    maps?.brandMap || new Map(),
+  );
 
   const allFields: Record<string, any> = {
-    _id: formatValue(product._id), 
+    _id: formatValue(product._id),
     name: formatValue(product.name),
     code: formatValue(product.code),
     unitPrice: formatValue(product.unitPrice),
@@ -114,15 +124,23 @@ export const buildProductExportRow = (
     status: formatValue(product.status),
     type: formatValue(product.type),
 
-    categoryId: formatValue(categoryName), 
+    categoryId: formatValue(categoryName),
     vendorId: formatValue(vendorName),
 
-    barcodes: formatValue(Array.isArray(product.barcodes) ? product.barcodes.join('; ') : product.barcodes),
+    barcodes: formatValue(
+      Array.isArray(product.barcodes)
+        ? product.barcodes.join('; ')
+        : product.barcodes,
+    ),
     barcodeDescription: formatValue(toPlainText(product.barcodeDescription)),
     currency: formatValue(product.currency),
 
-    createdAt: formatValue(product.createdAt ? new Date(product.createdAt) : ''),
-    updatedAt: formatValue(product.updatedAt ? new Date(product.updatedAt) : ''),
+    createdAt: formatValue(
+      product.createdAt ? new Date(product.createdAt) : '',
+    ),
+    updatedAt: formatValue(
+      product.updatedAt ? new Date(product.updatedAt) : '',
+    ),
   };
 
   if (selectedFields?.length) {
