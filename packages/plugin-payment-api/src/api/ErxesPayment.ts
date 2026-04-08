@@ -13,6 +13,7 @@ import { GolomtAPI } from './golomt/api';
 import { StripeAPI } from './stripe/api';
 import { KhanbankAPI } from './khanbank/api';
 import { getEnv } from '@erxes/api-utils/src/core';
+import { TokiAPI } from './toki/api';
 
 class ErxesPayment {
   public socialpay!: SocialPayAPI;
@@ -27,6 +28,7 @@ class ErxesPayment {
   public golomt!: GolomtAPI;
   public stripe!: StripeAPI;
   public khanbank!: KhanbankAPI;
+  public toki!: TokiAPI;
   public domain: string;
 
   private payment: any;
@@ -78,6 +80,9 @@ class ErxesPayment {
         break;
       case 'khanbank':
         this.khanbank = new KhanbankAPI(payment.config, subdomain || '');
+        break;
+      case 'toki':
+        this.toki = new TokiAPI(payment.config, this.domain);
         break;
       default:
         break;
