@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { Express } from 'express';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
-import { Agent } from 'http'; // ← ADD THIS
+import { Agent } from 'http';
 import { apolloRouterPort } from '~/apollo-router';
 import { ErxesProxyTarget } from '~/proxy/targets';
 
@@ -9,7 +9,6 @@ dotenv.config();
 
 const { NODE_ENV } = process.env;
 
-// ← ADD THIS AGENT
 const proxyAgent = new Agent({
   keepAlive: true,
   maxSockets: 100,
@@ -29,7 +28,7 @@ export function applyProxiesCoreless(app: Express) {
     createProxyMiddleware({
       pathRewrite: { '^/graphql': '/' },
       target: `http://127.0.0.1:${apolloRouterPort}`,
-      agent: proxyAgent, // ← ADD THIS
+      agent: proxyAgent,
       xfwd: true, // NOSONAR - Intentionally forwarding headers, our downstream services handle XFF securely by reading the rightmost IP
       on: {
         proxyReq,
@@ -49,7 +48,7 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
     createProxyMiddleware({
       target:
         NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
-      agent: proxyAgent, // ← ADD THIS
+      agent: proxyAgent,
       xfwd: true, // NOSONAR - Intentionally forwarding headers, our downstream services handle XFF securely by reading the rightmost IP
       on: {
         proxyReq,
