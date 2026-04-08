@@ -121,7 +121,7 @@ const generateFilter = async (
       searchValue.includes('*')
     ) {
       const codeRegex = new RegExp(
-        `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+        `^${searchValue.replaceAll('*', '.').replaceAll('_', '.')}$`,
         'igu',
       );
       codeFilter = { code: { $in: [codeRegex] } };
@@ -258,9 +258,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
       params,
     );
 
-    if (!params.orderBy) {
-      params.orderBy = { code: 1 };
-    }
+    params.orderBy ??= { code: 1 };
 
     return await cursorPaginate({
       model: models.Products,
@@ -380,8 +378,8 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         return ['*', '.', '_'].includes(str)
           ? new RegExp(
               `^${escapeRegExp(str)
-                .replace(/\\\*/g, '.')
-                .replace(/\\_/g, '.')}.*`,
+                .replaceAll(String.raw`\*`, '.')
+                .replaceAll(String.raw`\_`, '.')}.*`,
               'igu',
             )
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
@@ -402,7 +400,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
 
         if (filterFieldDef.includes('customFieldsData.')) {
           if (
-            !(product.customFieldsData || []).find(
+            !(product.customFieldsData || []).some(
               (cfd) =>
                 cfd.field === filterFieldDef.replace('customFieldsData.', '') &&
                 cfd.stringValue?.match(regexer),

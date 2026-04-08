@@ -49,7 +49,7 @@ const generateFilter = async (
   }
 
   if (meta) {
-    if (typeof meta === 'number' && !isNaN(meta)) {
+    if (typeof meta === 'number' && !Number.isNaN(meta)) {
       filter.meta = { $lte: Number(meta) };
     } else {
       filter.meta = meta;
