@@ -240,10 +240,12 @@ const FixedDuplicateSheet = ({
       return;
     }
     const computedEndDate = calculateEndDate(values.startDate, tour.duration);
+    const groupCode = nanoid(8);
 
     createTour({
       variables: {
         branchId,
+        groupCode,
         name: values.name,
         refNumber: values.refNumber,
         language: resolvedPrimaryLanguage || undefined,
@@ -467,9 +469,12 @@ const FlexibleDuplicateSheet = ({
       });
       return;
     }
+    const groupCode = nanoid(8);
+
     createTour({
       variables: {
         branchId,
+        groupCode,
         name: values.name,
         refNumber: values.refNumber,
         language: resolvedPrimaryLanguage || undefined,
