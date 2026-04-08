@@ -11,7 +11,7 @@ export interface IGuideItem {
 export type DateType = 'fixed' | 'flexible';
 
 export interface IPricingOption {
-  _id?: string;
+  _id: string;
   title: string;
   minPersons: number;
   maxPersons?: number;

@@ -18,6 +18,7 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     content: { type: String, required: true },
     language: { type: String, optional: true },
     languages: { type: [String], optional: true },
+    postUrlField: { type: String, optional: true, default: '_id' },
   },
   { timestamps: true },
 );

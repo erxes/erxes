@@ -29,6 +29,7 @@ export const types = `
           _id: String!
           type: String
           webId: String
+          count: Int
           customPostType: CustomPostType
           authorKind: PostAuthorKind
           authorId: String
@@ -159,14 +160,14 @@ const commonPostQuerySelectorPagination = `
   `;
 
 export const queries = `
-      cmsPost(_id: String, slug: String, language: String): Post
+      cmsPost(_id: String, slug: String, identifier: String, language: String, clientPortalId: String): Post
       cmsPosts(clientPortalId: String, ${commonPostQuerySelector}): [Post]
       cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList
       cmsTranslations(objectId: String, type: String): [Translation]
   
       cpPosts(language: String, webId: String, ${commonPostQuerySelector}): [Post]
       cpPostList(language: String, webId: String, ${commonPostQuerySelector}): PostList
-      cpPost(_id: String, slug: String, language: String, clientPortalId: String): Post
+      cpPost(_id: String, slug: String, identifier: String, language: String, clientPortalId: String): Post
       cpPostListWithPagination(language: String, ${commonPostQuerySelectorPagination}): PostListPagination
   `;
 

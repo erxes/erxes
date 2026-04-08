@@ -323,37 +323,47 @@ router.post(
       return res.status(400).json({ error: 'Missing data' });
     }
 
-    const safeUploadId = String(uploadId).replaceAll(/[^a-zA-Z0-9-]/g, '');
-    const safeChunkIndex = Number(chunkIndex);
-
-    if (!safeUploadId || isNaN(safeChunkIndex) || safeChunkIndex < 0) {
-      return res.status(400).json({ error: 'Invalid upload ID or chunk index' });
+    const chunkIndexNum = Number(chunkIndex);
+    if (!Number.isInteger(chunkIndexNum) || chunkIndexNum < 0) {
+      return res.status(400).json({ error: 'Invalid chunkIndex' });
     }
 
-    const uploadInfo = chunkStore.get(safeUploadId);
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(uploadId)) {
+      return res.status(400).json({ error: 'Invalid uploadId' });
+    }
+
+    const uploadInfo = chunkStore.get(uploadId);
     if (!uploadInfo) {
       return res
         .status(404)
         .json({ error: 'Upload session expired or invalid' });
     }
 
-    if (safeChunkIndex >= uploadInfo.totalChunks) {
+    if (chunkIndexNum >= uploadInfo.totalChunks) {
       return res.status(400).json({ error: 'Chunk index out of range' });
     }
 
     /**
      * Use the server-generated UUID stored in chunkStore rather than the
-     * sanitized user input (`safeUploadId`) for all filesystem paths.
+     * sanitized user input (`uploadId`) for all filesystem paths.
      * This prevents path-traversal attacks even if sanitization is bypassed.
      */
     const trustedId = uploadInfo.uploadId;
 
     const chunkDir = path.join(tmpDir.name, trustedId);
     if (!fs.existsSync(chunkDir)) fs.mkdirSync(chunkDir, { recursive: true });
-    const chunkPath = path.join(chunkDir, `chunk-${safeChunkIndex}`);
+
+    const chunkPath = path.join(chunkDir, `chunk-${chunkIndexNum}`);
+
+    // Ensure resolved path stays within the temp directory
+    if (!path.resolve(chunkPath).startsWith(path.resolve(tmpDir.name) + path.sep)) {
+      return res.status(400).json({ error: 'Invalid path' });
+    }
+
     fs.renameSync(file.path, chunkPath);
 
-    uploadInfo.chunks.add(safeChunkIndex);
+    uploadInfo.chunks.add(chunkIndexNum);
     chunkStore.set(trustedId, uploadInfo);
 
     res.json({

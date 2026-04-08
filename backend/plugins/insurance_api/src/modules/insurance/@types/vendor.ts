@@ -1,8 +1,14 @@
 import { Document } from 'mongoose';
 
+export interface IDiscountTier {
+  minTravelers: number;
+  discountPercent: number;
+}
+
 export interface IVendorOfferedProduct {
   product: string;
   pricingOverride?: any;
+  discountTiers?: IDiscountTier[];
 }
 
 export interface IVendor {

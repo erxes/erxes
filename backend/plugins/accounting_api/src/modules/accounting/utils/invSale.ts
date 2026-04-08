@@ -14,17 +14,26 @@ import {
   ITrDetail,
 } from '../@types/transaction';
 import { activeCost } from './inventories';
-import { createOrUpdateTr } from './utils';
+import { createOrUpdateTr, syncProductsInventory } from './utils';
 
 class InvSaleOutCostTrs {
   private readonly models: IModels;
   private readonly trDoc: ITransaction;
   private outAccount?: IAccountDocument;
   private costAccount?: IAccountDocument;
+  private readonly subdomain: string;
+  private readonly userId: string;
 
-  constructor(models: IModels, trDoc: ITransaction) {
+  constructor(
+    subdomain: string,
+    models: IModels,
+    userId: string,
+    trDoc: ITransaction,
+  ) {
     this.models = models;
     this.trDoc = trDoc;
+    this.subdomain = subdomain;
+    this.userId = userId;
   }
 
   public async checkValidation() {
@@ -161,13 +170,20 @@ class InvSaleOutCostTrs {
       details: followCostDetails,
     };
 
-    const outTr = await createOrUpdateTr(this.models, outTrDoc, oldFollowOutTr);
+    const outTr = await createOrUpdateTr(
+      this.models,
+      this.userId,
+      outTrDoc,
+      oldFollowOutTr,
+    );
     const costTr = await createOrUpdateTr(
       this.models,
+      this.userId,
       costTrDoc,
       oldFollowCostTr,
     );
 
+    await syncProductsInventory(this.subdomain, outTr, oldFollowOutTr, -1);
     return [outTr, costTr];
   }
 }

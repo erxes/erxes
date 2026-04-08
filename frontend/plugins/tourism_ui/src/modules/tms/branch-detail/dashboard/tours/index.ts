@@ -22,7 +22,10 @@ export { useRemoveTours } from './hooks/useRemoveTours';
 
 // Types
 export type { ITour, ITourGroup } from './types/tour';
-export type { TourCreateFormType } from './constants/formSchema';
+export type {
+  TourCreateFormType,
+  TourFormValues,
+} from './constants/formSchema';
 export type { TourGroupRow } from './_components/TourGroupColumns';
 
 // Constants

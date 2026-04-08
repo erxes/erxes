@@ -46,6 +46,12 @@ export const FORM_WIDGET_CONNECT = gql`
           pageNumber
           text
           type
+          logicAction
+          logics {
+            fieldId
+            logicOperator
+            logicValue
+          }
         }
         visibility
         leadData

@@ -14,6 +14,7 @@ export const GET_TOURS = gql`
     $sortMode: String
     $aggregationPipeline: [JSON]
     $categoryIds: [String]
+    $language: String
   ) {
     bmsTours(
       branchId: $branchId
@@ -28,6 +29,7 @@ export const GET_TOURS = gql`
       sortMode: $sortMode
       aggregationPipeline: $aggregationPipeline
       categoryIds: $categoryIds
+      language: $language
     ) {
       list {
         _id
@@ -117,8 +119,8 @@ export const GET_TOUR_GROUPS = gql`
 `;
 
 export const GET_TOUR_DETAIL = gql`
-  query BmsTourDetail($id: String!) {
-    bmsTourDetail(_id: $id) {
+  query BmsTourDetail($id: String!, $language: String) {
+    bmsTourDetail(_id: $id, language: $language) {
       _id
       advanceCheck
       advancePercent
@@ -163,6 +165,28 @@ export const GET_TOUR_DETAIL = gql`
         domesticFlightPerPerson
         singleSupplement
         note
+      }
+      translations {
+        _id
+        objectId
+        language
+        name
+        refNumber
+        content
+        info1
+        info2
+        info3
+        info4
+        info5
+        pricingOptions {
+          optionId
+          title
+          accommodationType
+          note
+          pricePerPerson
+          domesticFlightPerPerson
+          singleSupplement
+        }
       }
     }
   }

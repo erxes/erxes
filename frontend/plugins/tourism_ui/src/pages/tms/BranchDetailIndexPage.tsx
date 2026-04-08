@@ -2,11 +2,11 @@ import { IconBox } from '@tabler/icons-react';
 import { Breadcrumb, Button, Select, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useMemo, useEffect } from 'react';
-import { useSetAtom } from 'jotai';
+import { useMemo } from 'react';
 
 import { BranchDetailView } from '@/tms/branch-detail/components/BranchDetailView';
 import { useBranchDetailPage } from '@/tms/branch-detail/hooks/useBranchDetailPage';
+import { useActiveLang } from '@/tms/branch-detail/hooks/useActiveLang';
 import { LANGUAGES } from '@/tms/constants/languages';
 
 import { TourCreateSheet } from '@/tms/branch-detail/dashboard/tours/_components/TourCreateSheet';
@@ -14,7 +14,6 @@ import { ItineraryCreateSheet } from '@/tms/branch-detail/dashboard/itinerary';
 import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements';
 import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities';
 import { CategoryCreateSheet } from '@/tms/branch-detail/dashboard/category';
-import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 type ActiveTab = 'tour' | 'category' | 'itinerary' | 'elements' | 'amenities';
 
@@ -26,16 +25,8 @@ const VALID_TABS = new Set<ActiveTab>([
   'amenities',
 ]);
 
-const CREATE_SHEET_MAP: Record<ActiveTab, (branchId: string) => JSX.Element> = {
-  tour: (branchId) => <TourCreateSheet branchId={branchId} />,
-  category: (branchId) => <CategoryCreateSheet branchId={branchId} />,
-  itinerary: (branchId) => <ItineraryCreateSheet branchId={branchId} />,
-  elements: (branchId) => <ElementCreateSheet branchId={branchId} />,
-  amenities: (branchId) => <AmenityCreateSheet branchId={branchId} />,
-};
-
 export const BranchDetailIndexPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const {
     branchId,
@@ -58,46 +49,71 @@ export const BranchDetailIndexPage = () => {
       .filter((lang): lang is NonNullable<typeof lang> => lang != null);
   }, [selectedBranch?.languages]);
 
-  const activeLanguage =
-    searchParams.get('lang') ||
-    selectedBranch?.language ||
-    availableLanguages[0]?.value ||
-    '';
+  const availableLangCodes = useMemo(
+    () => availableLanguages.map((l) => l.value),
+    [availableLanguages],
+  );
 
-  const setActiveLang = useSetAtom(activeLangAtom);
-
-  useEffect(() => {
-    setActiveLang(activeLanguage);
-  }, [activeLanguage, setActiveLang]);
-
-  useEffect(() => {
-    if (!branchId) return;
-
-    const defaultLang =
-      selectedBranch?.language || availableLanguages[0]?.value;
-    if (!searchParams.get('lang')) {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        if (defaultLang) next.set('lang', defaultLang);
-        return next;
-      });
-      setActiveLang(defaultLang || '');
-    }
-  }, [branchId, selectedBranch?.language, availableLanguages, searchParams, setSearchParams, setActiveLang]);
+  const { activeLang, setActiveLang } = useActiveLang({
+    branchId,
+    mainLanguage: selectedBranch?.language,
+    availableLanguages: availableLangCodes,
+  });
 
   const onSelectLanguage = (lang: string) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set('lang', lang);
-      return next;
-    });
-
     setActiveLang(lang);
   };
 
   const renderCreateSheet = () => {
     if (!branchId) return null;
-    return CREATE_SHEET_MAP[activeTab]?.(branchId) ?? null;
+
+    if (activeTab === 'tour') {
+      return (
+        <TourCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
+    if (activeTab === 'itinerary') {
+      return (
+        <ItineraryCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
+    if (activeTab === 'elements') {
+      return (
+        <ElementCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
+    if (activeTab === 'amenities') {
+      return (
+        <AmenityCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
+    if (activeTab === 'category') {
+      return (
+        <CategoryCreateSheet
+          branchId={branchId}
+          branchLanguages={selectedBranch?.languages}
+          mainLanguage={selectedBranch?.language}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -138,31 +154,26 @@ export const BranchDetailIndexPage = () => {
                 </Select>
               </Breadcrumb.Item>
 
-              <Breadcrumb.Separator />
+              {availableLanguages.length > 0 && (
+                <>
+                  <Breadcrumb.Separator />
 
-              <Breadcrumb.Item>
-                {availableLanguages.length > 0 ? (
-                  <Select
-                    value={activeLanguage}
-                    onValueChange={onSelectLanguage}
-                  >
-                    <Select.Trigger className="w-[180px]">
-                      <Select.Value placeholder="Select language" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {availableLanguages.map((lang) => (
-                        <Select.Item key={lang.value} value={lang.value}>
-                          {lang.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                ) : (
-                  <span className="text-sm text-muted-foreground">
-                    No languages available
-                  </span>
-                )}
-              </Breadcrumb.Item>
+                  <Breadcrumb.Item>
+                    <Select value={activeLang} onValueChange={onSelectLanguage}>
+                      <Select.Trigger className="w-[180px]">
+                        <Select.Value placeholder="Select language" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {availableLanguages.map((lang) => (
+                          <Select.Item key={lang.value} value={lang.value}>
+                            {lang.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Breadcrumb.Item>
+                </>
+              )}
             </Breadcrumb.List>
           </Breadcrumb>
 

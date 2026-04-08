@@ -16,10 +16,14 @@ import { AmenityDuplicate } from './AmenityDuplicate';
 
 interface AmenityMoreCellProps extends CellContext<IAmenity, unknown> {
   branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
 }
 
 export const AmenityMoreColumn = ({
   branchId,
+  branchLanguages,
+  mainLanguage,
   ...props
 }: AmenityMoreCellProps) => {
   const amenity = props.row.original;
@@ -103,13 +107,26 @@ export const AmenityMoreColumn = ({
         open={editOpen}
         onOpenChange={setEditOpen}
         showTrigger={false}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
       />
     </>
   );
 };
 
-export const amenityMoreColumn = (branchId?: string): ColumnDef<IAmenity> => ({
+export const amenityMoreColumn = (
+  branchId?: string,
+  branchLanguages?: string[],
+  mainLanguage?: string,
+): ColumnDef<IAmenity> => ({
   id: 'more',
-  cell: (props) => <AmenityMoreColumn {...props} branchId={branchId} />,
+  cell: (props) => (
+    <AmenityMoreColumn
+      {...props}
+      branchId={branchId}
+      branchLanguages={branchLanguages}
+      mainLanguage={mainLanguage}
+    />
+  ),
   size: 33,
 });

@@ -7,6 +7,7 @@ import { customerMutations } from './customer';
 import { contractMutations } from './contract';
 import { contractPdfMutations } from './contractPdf';
 import { templateMutations } from './template';
+import { regionMutations } from './region';
 
 export const insuranceMutations = {
   ...riskTypeMutations,
@@ -18,4 +19,5 @@ export const insuranceMutations = {
   ...contractMutations,
   ...contractPdfMutations,
   ...templateMutations,
+  ...regionMutations,
 };

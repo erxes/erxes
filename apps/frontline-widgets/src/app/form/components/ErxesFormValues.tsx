@@ -1,7 +1,7 @@
 import { ErxesForm } from './ErxesForm';
 import { IFormStep } from '../types/formTypes';
 import { z } from 'zod';
-import { useErxesForm } from '../ context/erxesFormContext';
+import { useErxesForm } from '../context/erxesFormContext';
 import { useAtomValue } from 'jotai';
 import { formValuesAtom } from '../states/erxesFormStates';
 

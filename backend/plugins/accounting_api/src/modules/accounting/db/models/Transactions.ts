@@ -1,4 +1,3 @@
-import { IUserDocument } from 'erxes-api-shared/core-types';
 import { getFullDate } from 'erxes-api-shared/utils';
 import { Model, connection } from 'mongoose';
 import { nanoid } from 'nanoid';
@@ -21,20 +20,24 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     _ids: string[],
     ptrId?: string,
   ): Promise<ITransactionDocument[]>;
-  createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
-  createPTransaction(
-    docs: ITransaction[],
-    user: IUserDocument,
-  ): Promise<ITransactionDocument[]>;
-  updatePTransaction(
-    parentId: string,
-    doc: ITransaction[],
-    user: IUserDocument,
-  ): Promise<ITransactionDocument[]>;
+  createTransaction(
+    doc: ITransaction,
+    userId: string,
+  ): Promise<ITransactionDocument>;
   updateTransaction(
     _id: string,
     doc: ITransaction,
+    userId: string,
   ): Promise<ITransactionDocument>;
+  createPTransaction(
+    docs: ITransaction[],
+    userId: string,
+  ): Promise<ITransactionDocument[]>;
+  updatePTransaction(
+    parentId: string,
+    docs: (ITransaction & { _id?: string })[],
+    userId: string,
+  ): Promise<ITransactionDocument[]>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
@@ -103,7 +106,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     /**
      * Create a transaction
      */
-    public static async createTransaction(doc: ITransaction) {
+    public static async createTransaction(doc: ITransaction, userId: string) {
       if (!doc.details?.length) {
         throw new Error('Transactions not created, cause: has not details');
       }
@@ -122,6 +125,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         sumCt: doc.details
           .filter((d) => d.side === TR_SIDES.CREDIT)
           .reduce((sum, cur) => sum + cur.amount, 0),
+        createdBy: userId,
         createdAt: new Date(),
       };
 
@@ -134,7 +138,11 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     /**
      * Update transaction
      */
-    public static async updateTransaction(_id: string, doc: ITransaction) {
+    public static async updateTransaction(
+      _id: string,
+      doc: ITransaction,
+      userId: string,
+    ) {
       const oldTr = await models.Transactions.getTransaction({ _id });
 
       doc.fullDate = getFullDate(doc.date);
@@ -150,6 +158,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
             sumCt: doc.details
               .filter((d) => d.side === TR_SIDES.CREDIT)
               .reduce((sum, cur) => sum + cur.amount, 0),
+            modifiedBy: userId,
             updatedAt: new Date(),
           },
         },
@@ -176,7 +185,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
      */
     public static async createPTransaction(
       docs: ITransaction[],
-      user: IUserDocument,
+      userId: string,
     ) {
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
@@ -193,7 +202,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
           }
 
           if (!parentId) {
-            const firstTrs = await commonSave(subdomain, models, {
+            const firstTrs = await commonSave(subdomain, models, userId, {
               ...doc,
               ptrId,
             });
@@ -205,7 +214,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
               }
             }
           } else {
-            const trs = await commonSave(subdomain, models, {
+            const trs = await commonSave(subdomain, models, userId, {
               ...doc,
               ptrId,
               parentId,
@@ -242,7 +251,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     public static async updatePTransaction(
       parentId: string,
       docs: (ITransaction & { _id?: string })[],
-      user: IUserDocument,
+      userId: string,
     ) {
       const oldTrs = await models.Transactions.find({
         parentId,
@@ -286,6 +295,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
           const trs = await commonSave(
             subdomain,
             models,
+            userId,
             { ...doc, ptrId, parentId },
             oldTrs.find((ot) => ot._id === doc._id),
           );
@@ -298,7 +308,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         }
 
         for (const doc of addTrDocs) {
-          const trs = await commonSave(subdomain, models, {
+          const trs = await commonSave(subdomain, models, userId, {
             ...doc,
             ptrId,
             parentId,

@@ -33,6 +33,7 @@ export const CREATE_TOUR = gql`
     $personCost: JSON
     $categoryIds: [String]
     $pricingOptions: [PricingOptionInput]
+    $translations: [TourTranslationInput]
   ) {
     bmsTourAdd(
       branchId: $branchId
@@ -66,6 +67,7 @@ export const CREATE_TOUR = gql`
       personCost: $personCost
       categoryIds: $categoryIds
       pricingOptions: $pricingOptions
+      translations: $translations
     ) {
       _id
     }
@@ -104,6 +106,7 @@ export const EDIT_TOUR = gql`
     $attachment: AttachmentInput
     $categoryIds: [String]
     $pricingOptions: [PricingOptionInput]
+    $translations: [TourTranslationInput]
   ) {
     bmsTourEdit(
       _id: $id
@@ -136,6 +139,7 @@ export const EDIT_TOUR = gql`
       attachment: $attachment
       categoryIds: $categoryIds
       pricingOptions: $pricingOptions
+      translations: $translations
     ) {
       _id
     }

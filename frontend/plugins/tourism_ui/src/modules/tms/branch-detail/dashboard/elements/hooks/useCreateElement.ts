@@ -7,6 +7,13 @@ interface CreateElementResponse {
   };
 }
 
+export interface IElementTranslationInput {
+  language: string;
+  name?: string;
+  note?: string;
+  cost?: number;
+}
+
 export interface ICreateElementVariables {
   branchId?: string;
   name?: string;
@@ -16,6 +23,8 @@ export interface ICreateElementVariables {
   cost?: number;
   categories?: string[];
   quick?: boolean;
+  language?: string;
+  translations?: IElementTranslationInput[];
 }
 
 export const useCreateElement = () => {

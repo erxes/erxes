@@ -20,7 +20,7 @@ const transactionsMutations = {
   ) {
     const transactions = await models.Transactions.createPTransaction(
       trDocs,
-      user,
+      user._id,
     );
 
     return transactions;
@@ -40,7 +40,7 @@ const transactionsMutations = {
     const transactions = await models.Transactions.updatePTransaction(
       parentId,
       trDocs,
-      user,
+      user._id,
     );
 
     return transactions;

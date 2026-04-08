@@ -19,6 +19,7 @@ export const useIntegrationEdit = () => {
           ),
         });
       },
+      refetchQueries: ['Integrations', 'IntegrationDetail'],
     });
   };
 

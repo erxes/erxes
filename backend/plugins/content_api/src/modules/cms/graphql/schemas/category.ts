@@ -49,7 +49,7 @@ export const queries = `
     cmsCategories(clientPortalId: String, language: String, searchValue: String, status: CategoryStatus, ${GQL_CURSOR_PARAM_DEFS}, sortField: String, sortDirection: String): PostCategoryListResponse
     cmsCategory(_id: String, slug: String, language: String, clientPortalId: String): PostCategory
 
-    cpCmsCategories(language: String): [PostCategory]
+    cpCategories(clientPortalId: String, language: String): PostCategoryListResponse
 `;
 
 export const mutations = `
