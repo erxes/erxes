@@ -144,11 +144,11 @@ export const useImportUploadHandler = (
       }
   
       const disposition = response.headers.get('content-disposition') || '';
-      const match = disposition.match(/filename="(.+?)"/);
+      const match = /filename="(.+?)"/.exec(disposition);
       const filename = match?.[1] || 'import-template.csv';
   
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = globalThis.URL.createObjectURL(blob);
   
       const a = document.createElement('a');
       a.href = url;
@@ -156,7 +156,7 @@ export const useImportUploadHandler = (
       document.body.appendChild(a);
       a.click();
   
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch {
       toast({

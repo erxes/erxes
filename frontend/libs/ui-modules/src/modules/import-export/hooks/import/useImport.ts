@@ -97,6 +97,7 @@ export const useImport = (entityType?: string) => {
         startPolling(2000);
         return result.data?.importStart;
       } catch (error) {
+        console.error('Error starting import:', error);
         throw error;
       }
     },
@@ -111,6 +112,7 @@ export const useImport = (entityType?: string) => {
         });
         return result.data?.importCancel;
       } catch (error) {
+        console.error('Error canceling import:', error);
         throw error;
       }
     },
@@ -125,6 +127,7 @@ export const useImport = (entityType?: string) => {
         });
         return result.data?.importRetry;
       } catch (error) {
+        console.error('Error retrying import:', error);
         throw error;
       }
     },
@@ -139,6 +142,7 @@ export const useImport = (entityType?: string) => {
         });
         return result.data?.importResume;
       } catch (error) {
+        console.error('Error resuming import:', error);
         throw error;
       }
     },
