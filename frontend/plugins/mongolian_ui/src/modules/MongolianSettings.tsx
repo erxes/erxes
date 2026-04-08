@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import EBarimtSettings from '@/ebarimt/settings/components/EBarimtSettings';
 import ProductPlacesSettings from '~/pages/productplaces/ProductPlacesSettings';
 import ErkhetSettings from '@/erkhet-sync/settings/components/ErkhetSettings';
+import MsdynamicSettingsPage from '~/pages/msdynamic/MsdynamicSettingsPage';
 
 const MongolianSettings = () => {
   return (
@@ -13,6 +14,7 @@ const MongolianSettings = () => {
         {/* Product Places */}
         <Route path="product-places/*" element={<ProductPlacesSettings />}>
         </Route>
+        <Route path="msdynamic/*" element={<MsdynamicSettingsPage />} />
         {/* default */}
         <Route index element={<Navigate to="ebarimt" replace />} />
       </Routes>
