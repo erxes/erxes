@@ -1,10 +1,9 @@
 import {
   useBlockNoteEditor,
   useComponentsContext,
-  useEditorContentOrSelectionChange,
+  useSelectedBlocks,
 } from '@blocknote/react';
 import { IconCheck, IconPhoto } from '@tabler/icons-react';
-import { useState } from 'react';
 import {
   IMAGE_STYLE_PRESETS,
   ImageStyle,
@@ -29,26 +28,13 @@ type ImageBlock = {
 export const ImageStyleButton = () => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
-  const [selectedBlock, setSelectedBlock] = useState<ImageBlock | null>(null);
-  const [currentStyle, setCurrentStyle] = useState<ImageStyle>('normal');
-
-  useEditorContentOrSelectionChange(() => {
-    if (!editor) return;
-
-    try {
-      const block = editor.getTextCursorPosition()?.block as ImageBlock | undefined;
-
-      if (!block || block.type !== 'image') {
-        setSelectedBlock(null);
-        return;
-      }
-
-      setSelectedBlock(block);
-      setCurrentStyle(block.props?.imageStyle === 'wide' ? 'wide' : 'normal');
-    } catch {
-      setSelectedBlock(null);
-    }
-  }, editor);
+  const selectedBlocks = useSelectedBlocks(editor);
+  const selectedBlock =
+    (selectedBlocks.find((block) => block.type === 'image') as
+      | ImageBlock
+      | undefined) ?? null;
+  const currentStyle: ImageStyle =
+    selectedBlock?.props?.imageStyle === 'wide' ? 'wide' : 'normal';
 
   if (!Components || !editor || !selectedBlock) {
     return null;
