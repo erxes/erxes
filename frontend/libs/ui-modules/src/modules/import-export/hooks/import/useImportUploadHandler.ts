@@ -127,10 +127,10 @@ export const useImportUploadHandler = (
       });
       return;
     }
-  
+
     try {
       const encodedEntityType = encodeURIComponent(entityType);
-  
+
       const response = await fetch(
         `${REACT_APP_API_URL}/import-export/download-template?entityType=${encodedEntityType}`,
         {
@@ -138,24 +138,24 @@ export const useImportUploadHandler = (
           credentials: 'include',
         },
       );
-  
+
       if (!response.ok) {
         throw new Error('Failed to download template');
       }
-  
+
       const disposition = response.headers.get('content-disposition') || '';
       const match = /filename="(.+?)"/.exec(disposition);
       const filename = match?.[1] || 'import-template.csv';
-  
+
       const blob = await response.blob();
       const url = globalThis.URL.createObjectURL(blob);
-  
+
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-  
+
       globalThis.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch {
@@ -166,7 +166,6 @@ export const useImportUploadHandler = (
       });
     }
   }, [entityType, toast]);
-  
 
   return {
     isDragOver,
