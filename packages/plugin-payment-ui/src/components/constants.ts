@@ -117,7 +117,7 @@ export const PAYMENTCONFIGS = [
       { key: 'key', label: 'Key' },
       { key: 'token', label: 'Token', type: 'password' },
     ],
-    acceptedCurrencies: ['MNT']
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'Stripe',
@@ -144,6 +144,20 @@ export const PAYMENTCONFIGS = [
       { key: 'username', label: 'Username' },
       { key: 'password', label: 'Password', type: 'password' },
       { key: 'terminal', label: 'Terminal code' },
+    ],
+    acceptedCurrencies: ['MNT'],
+  },
+  {
+    name: 'Toki Pay',
+    description:
+      "Toki Pay is a payment method that allows you to receive payments in Mongolia through Toki's third-party service integration.",
+    isAvailable: true,
+    kind: 'toki',
+    logo: 'images/payments/toki.png',
+    inputs: [
+      { key: 'tokiMerchantId', label: 'Merchant ID' },
+      { key: 'tokiUsername', label: 'Username' },
+      { key: 'tokiPassword', label: 'Password', type: 'password' },
     ],
     acceptedCurrencies: ['MNT'],
   },
