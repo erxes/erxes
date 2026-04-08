@@ -88,11 +88,13 @@ export const formSetupValuesAtom = atom((get) => {
             text: field.label,
             type: field.type,
             validation: field.validation,
-            logics: field.logics?.map(({ fieldId, logicOperator, logicValue }) => ({
-              fieldId,
-              logicOperator,
-              logicValue,
-            })),
+            logics: field.logics?.map(
+              ({ fieldId, logicOperator, logicValue }) => ({
+                fieldId,
+                logicOperator,
+                logicValue,
+              }),
+            ),
             logicAction: field.logicAction,
           };
         });
