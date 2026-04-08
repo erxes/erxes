@@ -69,9 +69,7 @@ export default function SelectProductCategories({
             !selectedLabels && 'text-accent-foreground/70',
           )}
         >
-          {loading
-            ? 'Loading...'
-            : selectedLabels || 'Choose product category'}
+          {loading ? 'Loading...' : selectedLabels || 'Choose product category'}
         </span>
       </Select.Trigger>
 

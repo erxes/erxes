@@ -75,7 +75,9 @@ export default function SelectDepartments({
       disabled={disabled}
     >
       <Select.Trigger className="w-full">
-        <Select.Value placeholder={loading ? 'Loading...' : 'Choose department'} />
+        <Select.Value
+          placeholder={loading ? 'Loading...' : 'Choose department'}
+        />
       </Select.Trigger>
 
       <Select.Content>

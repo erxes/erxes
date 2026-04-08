@@ -40,7 +40,9 @@ export default function SelectProducts({
       .map((id) => products.find((p) => p._id === id)?.name || id)
       .slice(0, 2);
 
-    return value.length > 2 ? `${names.join(', ')} +${value.length - 2}` : names.join(', ');
+    return value.length > 2
+      ? `${names.join(', ')} +${value.length - 2}`
+      : names.join(', ');
   }, [value, products]);
 
   const toggle = (id: string) => {
@@ -62,7 +64,8 @@ export default function SelectProducts({
             !selectedLabel && 'text-accent-foreground/70',
           )}
         >
-          {selectedLabel || (loading ? 'Loading...' : 'Choose products to exclude')}
+          {selectedLabel ||
+            (loading ? 'Loading...' : 'Choose products to exclude')}
         </span>
       </Select.Trigger>
 
