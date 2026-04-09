@@ -43,7 +43,7 @@ const createImageLoadStats = (): ImageLoadStats => ({
 });
 
 const resolveBranchLogoKey = (branchDetail?: BranchDetailLike | null): string =>
- branchDetail?.uiOptions?.logo || '';
+  branchDetail?.uiOptions?.logo || '';
 
 const convertTrackedSingleImage = async (
   imagePath?: string,
