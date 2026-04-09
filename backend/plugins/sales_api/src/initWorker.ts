@@ -57,11 +57,10 @@ export const sendPosclientMessage = async (args: SendPosclientMessageArgs) => {
   ) {
     lastAction = `posclient:${action}_${pos.token}`;
     messageData.thirdService = true;
-    // isMQ = true;
 
     if (isRPC) {
       const response = await sendPosclientHealthCheck({ subdomain, pos });
-      if (!response || response.healthy !== 'ok') {
+      if (response?.healthy !== 'ok') {
         throw new Error('syncing error not connected posclient');
       }
     }
