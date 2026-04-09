@@ -5,9 +5,7 @@ export const InventoryProductsPage = () => {
   const location = useLocation();
   const queryParams = Object.fromEntries(new URLSearchParams(location.search));
 
-  return (
-    <InventoryProductsContainer queryParams={queryParams} />
-  );
+  return <InventoryProductsContainer queryParams={queryParams} />;
 };
 
 export default InventoryProductsPage;

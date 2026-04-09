@@ -39,13 +39,13 @@ const CheckSyncedOrdersContainer = () => {
   const variables = generateParams(queryParams);
 
   // queries
-  const {
-    data: ordersData,
-    loading: ordersLoading,
-  } = useQuery(gql(queries.checkSyncOrders), {
-    variables,
-    fetchPolicy: 'network-only',
-  });
+  const { data: ordersData, loading: ordersLoading } = useQuery(
+    gql(queries.checkSyncOrders),
+    {
+      variables,
+      fetchPolicy: 'network-only',
+    },
+  );
 
   const { data: totalData } = useQuery(gql(queries.checkSyncOrdersTotalCount), {
     variables,
