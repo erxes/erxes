@@ -274,8 +274,8 @@ export const fieldChangeRule = (
       actionLabel === 'set'
         ? `set ${normalizedFieldLabel} to ${currentValueLabel}`
         : actionLabel === 'unset'
-        ? `cleared ${normalizedFieldLabel}`
-        : `changed ${normalizedFieldLabel} from ${previousValueLabel} to ${currentValueLabel}`;
+          ? `cleared ${normalizedFieldLabel}`
+          : `changed ${normalizedFieldLabel} from ${previousValueLabel} to ${currentValueLabel}`;
 
     return [
       {
