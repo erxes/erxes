@@ -5,7 +5,7 @@ import {
 import { lazy } from 'react';
 
 const WebhooksComponents: AutomationComponentMap<AutomationNodeType.Trigger> = {
-  incoming_webhook: {
+  webhooks: {
     sidebar: lazy(() =>
       import(
         '@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookConfigForm'
