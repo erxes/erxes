@@ -19,6 +19,28 @@ const proxyAgent = new Agent({
 export const proxyReq = (proxyReq, req: any) => {
   proxyReq.setHeader('hostname', req.hostname);
   proxyReq.setHeader('userid', req.user ? req.user._id : '');
+
+  /**
+   * Manually forward client connection info instead of using the xfwd
+   * proxy option. Our downstream services handle X-Forwarded-For securely
+   * by reading the rightmost (gateway-appended) IP.
+   */
+  const existingXff = req.headers['x-forwarded-for'];
+  const clientIp =
+    req.socket?.remoteAddress || req.connection?.remoteAddress || '';
+  proxyReq.setHeader(
+    'x-forwarded-for',
+    existingXff ? `${existingXff}, ${clientIp}` : clientIp,
+  );
+  proxyReq.setHeader(
+    'x-forwarded-port',
+    String(req.socket?.localPort || req.connection?.localPort || ''),
+  );
+  proxyReq.setHeader(
+    'x-forwarded-proto',
+    req.protocol || (req.socket?.encrypted ? 'https' : 'http'),
+  );
+
   fixRequestBody(proxyReq, req);
 };
 
@@ -29,7 +51,6 @@ export function applyProxiesCoreless(app: Express) {
       pathRewrite: { '^/graphql': '/' },
       target: `http://127.0.0.1:${apolloRouterPort}`,
       agent: proxyAgent,
-      xfwd: true, // NOSONAR - Intentionally forwarding headers, our downstream services handle XFF securely by reading the rightmost IP
       on: {
         proxyReq,
       },
@@ -49,7 +70,6 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
       target:
         NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
       agent: proxyAgent,
-      xfwd: true, // NOSONAR - Intentionally forwarding headers, our downstream services handle XFF securely by reading the rightmost IP
       on: {
         proxyReq,
       },
