@@ -71,7 +71,7 @@ export const collectEmails = async (
     producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {
       moduleName,
-      target: { ...(target || {}), type: contentType },
+      target: { ...target, type: contentType },
       config: { mailPlaceHolder: mailPlaceHolder },
       relatedValueProps,
     },
