@@ -39,8 +39,9 @@ export const TourCoverPage: React.FC<TourCoverPageProps> = React.memo(
   function TourCoverPage({ tour, branch, themeColor }) {
     const primaryColor = themeColor || COLORS.primary;
     const dateLabel = buildDateLabel(tour);
+    const durationUnit = tour.duration === 1 ? 'Day' : 'Days';
     const durationLabel = tour.duration
-      ? `Duration: ${tour.duration} Days`
+      ? `Duration: ${tour.duration} ${durationUnit}`
       : '';
     const subtitle = [dateLabel, durationLabel].filter(Boolean).join(' | ');
 

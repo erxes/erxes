@@ -12,9 +12,11 @@ import {
   IconRefresh,
   IconX,
 } from '@tabler/icons-react';
+import { useAtomValue } from 'jotai';
 import { Button, Dialog, Spinner, useToast } from 'erxes-ui';
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { ItineraryEditSheet } from '../_components/ItineraryEditSheet';
 import { generateFilename } from './utils';
 import { buildItineraryPdfBlob } from './pdfBuilder';
@@ -43,6 +45,8 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   mainLanguage,
   refetchItinerary,
 }) => {
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
   const [previewOpen, setPreviewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -134,6 +138,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
             itinerary,
             branchDetail,
             branchId,
+            language,
             force,
           },
         );
@@ -178,7 +183,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
         }
       }
     },
-    [branchDetail, branchId, itinerary, revokePreviewUrl, toast],
+    [branchDetail, branchId, itinerary, language, revokePreviewUrl, toast],
   );
 
   const handleDownload = useCallback(() => {

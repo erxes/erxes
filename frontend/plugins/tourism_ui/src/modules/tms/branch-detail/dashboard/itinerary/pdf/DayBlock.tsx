@@ -68,7 +68,7 @@ export const DayBlock: React.FC<DayBlockProps> = React.memo(
 
             return (
               <Text
-                key={`paragraph-${paragraphIndex}`}
+                key={`day-${dayNumber}-paragraph-${paragraphIndex}`}
                 style={[
                   styles.dayContent,
                   ...(paragraphIndex < paragraphs.length - 1
@@ -79,14 +79,20 @@ export const DayBlock: React.FC<DayBlockProps> = React.memo(
                 {contentSegments.map((seg, i) =>
                   seg.bold ? (
                     <Text
-                      key={`${paragraphIndex}-${i}-${seg.text.slice(0, 16)}`}
+                      key={`day-${dayNumber}-paragraph-${paragraphIndex}-seg-${i}-${seg.text.slice(
+                        0,
+                        16,
+                      )}`}
                       style={styles.dayContentBold}
                     >
                       {seg.text}
                     </Text>
                   ) : (
                     <Text
-                      key={`${paragraphIndex}-${i}-${seg.text.slice(0, 16)}`}
+                      key={`day-${dayNumber}-paragraph-${paragraphIndex}-seg-${i}-${seg.text.slice(
+                        0,
+                        16,
+                      )}`}
                     >
                       {seg.text}
                     </Text>

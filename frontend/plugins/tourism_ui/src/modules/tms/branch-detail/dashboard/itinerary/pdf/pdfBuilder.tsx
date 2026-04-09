@@ -43,7 +43,7 @@ const createImageLoadStats = (): ImageLoadStats => ({
 });
 
 const resolveBranchLogoKey = (branchDetail?: BranchDetailLike | null): string =>
- branchDetail?.uiOptions?.logo || '';
+  branchDetail?.uiOptions?.logo || '';
 
 const convertTrackedSingleImage = async (
   imagePath?: string,
@@ -67,20 +67,29 @@ const convertTrackedSingleImage = async (
 export const generateItineraryPdfCacheKey = (
   itinerary: IItineraryDetail,
   branchId?: string,
-) => `${itinerary._id}:${itinerary.modifiedAt ?? Date.now()}:${branchId ?? ''}`;
+  language?: string,
+) =>
+  [
+    itinerary._id,
+    itinerary.modifiedAt || itinerary.createdAt || 'unknown-modified',
+    branchId || itinerary.branchId || '',
+    language || itinerary.language || 'default',
+  ].join(':');
 
 export const buildItineraryPdfBlob = async ({
   itinerary,
   branchDetail,
   branchId,
+  language,
   force = false,
 }: {
   itinerary: IItineraryDetail;
   branchDetail?: BranchDetailLike | null;
   branchId?: string;
+  language?: string;
   force?: boolean;
 }): Promise<BuildItineraryPdfResult> => {
-  const cacheKey = generateItineraryPdfCacheKey(itinerary, branchId);
+  const cacheKey = generateItineraryPdfCacheKey(itinerary, branchId, language);
 
   if (!force) {
     const cachedBlob = pdfBlobCache.get(cacheKey);
