@@ -28,7 +28,10 @@ const stripTypename = <T extends Record<string, any>>(
 const duplicateNameSuffix = ' (copy)';
 const duplicateRefNumberSuffix = '-copy';
 
-const getPrimaryTourTranslation = (tour: ITourDetail, primaryLanguage: string) =>
+const getPrimaryTourTranslation = (
+  tour: ITourDetail,
+  primaryLanguage: string,
+) =>
   tour.translations?.find(
     (translation) => translation.language === primaryLanguage,
   );
@@ -193,7 +196,10 @@ const FixedDuplicateSheet = ({
   } = useTourLanguage({ branchLanguages, mainLanguage });
   const resolvedPrimaryLanguage =
     mainLanguage ?? tour.language ?? allLanguages[0] ?? '';
-  const primaryTranslation = getPrimaryTourTranslation(tour, resolvedPrimaryLanguage);
+  const primaryTranslation = getPrimaryTourTranslation(
+    tour,
+    resolvedPrimaryLanguage,
+  );
   const normalizedPricingOptions = useMemo(
     () =>
       (tour.pricingOptions ?? []).map((opt) => ({
@@ -306,7 +312,8 @@ const FixedDuplicateSheet = ({
       onError: (e: unknown) => {
         toast({
           title: 'Error',
-          description: e instanceof Error ? e.message : 'Failed to duplicate tour',
+          description:
+            e instanceof Error ? e.message : 'Failed to duplicate tour',
           variant: 'destructive',
         });
       },
@@ -426,7 +433,10 @@ const FlexibleDuplicateSheet = ({
   } = useTourLanguage({ branchLanguages, mainLanguage });
   const resolvedPrimaryLanguage =
     mainLanguage ?? tour.language ?? allLanguages[0] ?? '';
-  const primaryTranslation = getPrimaryTourTranslation(tour, resolvedPrimaryLanguage);
+  const primaryTranslation = getPrimaryTourTranslation(
+    tour,
+    resolvedPrimaryLanguage,
+  );
   const normalizedPricingOptions = useMemo(
     () =>
       (tour.pricingOptions ?? []).map((opt) => ({
@@ -544,7 +554,8 @@ const FlexibleDuplicateSheet = ({
       onError: (e: unknown) => {
         toast({
           title: 'Error',
-          description: e instanceof Error ? e.message : 'Failed to duplicate tour',
+          description:
+            e instanceof Error ? e.message : 'Failed to duplicate tour',
           variant: 'destructive',
         });
       },
