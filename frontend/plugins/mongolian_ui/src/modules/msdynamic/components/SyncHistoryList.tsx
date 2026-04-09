@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { Sidebar } from 'erxes-ui/components/sidebar';
 import { Table } from 'erxes-ui/components/table';
-
+import { IconInbox } from '@tabler/icons-react';
 import SideBar from './Sidebar';
 
 type Props = {
@@ -65,10 +65,7 @@ const SyncHistoryList = ({
               </Table>
             ) : (
               <div className="flex flex-col items-center justify-center flex-1 text-muted-foreground">
-                <img
-                  src="/images/actions/8.svg"
-                  className="w-56 opacity-70 mb-4"
-                />
+                <IconInbox size={80} className="opacity-70 mb-4" />
                 <p>There is no data</p>
               </div>
             )}

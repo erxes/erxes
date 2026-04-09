@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { Sidebar } from 'erxes-ui/components/sidebar';
-
+import { IconInbox } from '@tabler/icons-react';
 import Row from './CheckSyncedOrdersRow';
 import CheckSyncedOrdersSidebar from './CheckSyncedOrdersSidebar';
 
@@ -104,10 +104,7 @@ const CheckSyncedOrders = ({
             </div>
           ) : orders.length === 0 ? (
             <div className="flex flex-col items-center justify-center flex-1 text-muted-foreground">
-              <img
-                src="/images/actions/8.svg"
-                className="w-56 opacity-70 mb-4"
-              />
+              <IconInbox size={80} className="opacity-70 mb-4" />
               <p>Empty list</p>
             </div>
           ) : (

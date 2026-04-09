@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Button } from 'erxes-ui/components/button';
-import { Card } from 'erxes-ui/components/card';
-
+import { Button, Card, Select } from 'erxes-ui/components';
 import Row from './CustomerRow';
 
 type Props = {
@@ -98,8 +96,29 @@ const Customers = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Bar */}
+      {/* ✅ FIXED TOP BAR */}
       <Card className="p-4 flex justify-end gap-4 items-center">
+        {/* Brand Select */}
+        <div className="w-64">
+          <Select
+            value={queryParams?.brandId || ''}
+            onValueChange={(value: string) => setBrand(value)}
+          >
+            <Select.Trigger>
+              <Select.Value placeholder="Choose brands" />
+            </Select.Trigger>
+
+            <Select.Content>
+              {(queryParams?.brands || []).map((b: any) => (
+                <Select.Item key={b.value} value={b.value}>
+                  {b.label}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        </div>
+
+        {/* Actions */}
         <Button onClick={toCheckCustomers}>Check</Button>
 
         {items?.matched && (
