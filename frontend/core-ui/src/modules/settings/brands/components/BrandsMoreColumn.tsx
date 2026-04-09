@@ -7,8 +7,6 @@ import { IBrand } from '../types';
 import { renderingBrandDetailAtom } from '../state';
 import { Can } from 'ui-modules';
 import { useBrandsRemove } from '../hooks/useBrandsRemove';
-import { renderingBrandDetailAtom } from '../state';
-import { IBrand } from '../types';
 
 export const BrandsMoreColumnCell = ({
   cell,
