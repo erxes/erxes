@@ -177,8 +177,12 @@ export const buildAiAgentRuntimeSummary = ({
 
   if (
     actionConfig?.goalType === 'generateText' &&
-    ['messenger', 'chat assistant', 'follow-up question', 'one question at a time']
-      .some((keyword) => normalizedSystemPrompt.includes(keyword))
+    [
+      'messenger',
+      'chat assistant',
+      'follow-up question',
+      'one question at a time',
+    ].some((keyword) => normalizedSystemPrompt.includes(keyword))
   ) {
     notes.push({
       variant: 'warning',

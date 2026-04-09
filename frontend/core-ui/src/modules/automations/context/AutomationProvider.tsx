@@ -51,15 +51,13 @@ interface AutomationContextType {
     icon?: string;
   } | null;
   setSelectedNode: Dispatch<
-    SetStateAction<
-      {
-        id: string;
-        type: string;
-        nodeType: AutomationNodeType;
-        label: string;
-        icon?: string;
-      } | null
-    >
+    SetStateAction<{
+      id: string;
+      type: string;
+      nodeType: AutomationNodeType;
+      label: string;
+      icon?: string;
+    } | null>
   >;
   queryParams: QueryValues<AutomationQueryParams>;
   setQueryParams: (values: QueryValues<AutomationQueryParams>) => void;

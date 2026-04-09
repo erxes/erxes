@@ -78,16 +78,12 @@ const PlaceholderInputRoot = forwardRef<
       children,
       variant,
     });
-    const {
-      isDragActive,
-      handleDragOver,
-      handleDragLeave,
-      handleDrop,
-    } = useAutomationVariableDrop({
-      value,
-      onChange,
-      inputRef,
-    });
+    const { isDragActive, handleDragOver, handleDragLeave, handleDrop } =
+      useAutomationVariableDrop({
+        value,
+        onChange,
+        inputRef,
+      });
 
     const contextValue = {
       enabledTypes,

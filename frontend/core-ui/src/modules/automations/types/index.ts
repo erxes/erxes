@@ -187,8 +187,9 @@ interface BaseComponentConfig<TConfig = any> {
 }
 
 // Generic action component configuration with config type parameter
-interface ActionComponentConfig<TConfig = any>
-  extends BaseComponentConfig<TConfig> {
+interface ActionComponentConfig<
+  TConfig = any,
+> extends BaseComponentConfig<TConfig> {
   sidebar?: LazyAutomationComponent<TAutomationActionProps>;
   actionResult?: LazyAutomationComponent<{
     componentType: 'historyActionResult';

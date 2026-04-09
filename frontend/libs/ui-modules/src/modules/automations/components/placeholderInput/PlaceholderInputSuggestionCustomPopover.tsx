@@ -38,9 +38,7 @@ export const PlaceholderInputSuggestionCustomPopover = ({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <div className="text-sm font-medium text-foreground">
-                {title}
-              </div>
+              <div className="text-sm font-medium text-foreground">{title}</div>
               {trigger ? (
                 <span className="rounded border bg-background px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
                   {trigger}

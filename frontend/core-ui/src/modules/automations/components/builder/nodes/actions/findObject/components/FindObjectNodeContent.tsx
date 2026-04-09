@@ -15,7 +15,9 @@ export const FindObjectNodeContent = ({
     <>
       <AutomationNodeMetaInfoRow
         fieldName="Record Type"
-        content={<span className="font-mono">{target?.label || objectType}</span>}
+        content={
+          <span className="font-mono">{target?.label || objectType}</span>
+        }
       />
       <AutomationNodeMetaInfoRow
         fieldName={lookupField || 'Value'}

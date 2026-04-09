@@ -10,20 +10,25 @@ export const AutomationSendEmailActionResult = ({
   action,
 }: ActionResultComponentProps<any>) => {
   const { getLabelColor, getLabelText } = useSendEmailActionResult();
-  const config = (action?.actionConfig || {}) as Partial<TAutomationSendEmailConfig>;
+  const config = (action?.actionConfig ||
+    {}) as Partial<TAutomationSendEmailConfig>;
   const response = result?.response || {};
   const subject = result?.title || config.subject || '';
   const fromValue =
     response?.from ||
     result?.fromEmail ||
-    (config.type === 'default' ? 'COMPANY EMAIL' : config.fromEmailPlaceHolder) ||
+    (config.type === 'default'
+      ? 'COMPANY EMAIL'
+      : config.fromEmailPlaceHolder) ||
     '';
-  const toValue = Array.isArray(response?.toEmails) && response.toEmails.length
-    ? response.toEmails.join(', ')
-    : config.toEmailsPlaceHolders || '';
-  const ccValue = Array.isArray(response?.ccEmails) && response.ccEmails.length
-    ? response.ccEmails.join(', ')
-    : config.ccEmailsPlaceHolders || '';
+  const toValue =
+    Array.isArray(response?.toEmails) && response.toEmails.length
+      ? response.toEmails.join(', ')
+      : config.toEmailsPlaceHolders || '';
+  const ccValue =
+    Array.isArray(response?.ccEmails) && response.ccEmails.length
+      ? response.ccEmails.join(', ')
+      : config.ccEmailsPlaceHolders || '';
   const htmlContent = result?.customHtml || config.html || '';
   const textContent = config.content || '';
   const hasContent = Boolean(htmlContent || textContent);
@@ -54,15 +59,19 @@ export const AutomationSendEmailActionResult = ({
 
           <AutomationNodeMetaInfoRow
             fieldName="To"
-            content={toValue ? <Badge variant={getLabelColor(response)}>{toValue}</Badge> : ''}
+            content={
+              toValue ? (
+                <Badge variant={getLabelColor(response)}>{toValue}</Badge>
+              ) : (
+                ''
+              )
+            }
           />
           {ccValue && (
             <AutomationNodeMetaInfoRow
               fieldName="CC"
               content={
-                <Badge variant={getLabelColor(response)}>
-                  {ccValue}
-                </Badge>
+                <Badge variant={getLabelColor(response)}>{ccValue}</Badge>
               }
             />
           )}

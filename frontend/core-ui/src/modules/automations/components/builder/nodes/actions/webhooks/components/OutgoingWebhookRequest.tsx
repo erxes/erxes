@@ -78,10 +78,7 @@ export const OutgoingWebhookRequest = () => {
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      onChange([
-                        ...queryParams,
-                        { name: '', value: '' },
-                      ])
+                      onChange([...queryParams, { name: '', value: '' }])
                     }
                   >
                     <IconPlus className="mr-2" />

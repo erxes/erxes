@@ -5,6 +5,9 @@ export const AutomationBuilderNodeOutputVariables = () => {
   const { sourceNode, emptyState } = useAutomationBuilderSecondarySidebar();
 
   return (
-    <AutomationVariableBrowser sourceNode={sourceNode} emptyState={emptyState} />
+    <AutomationVariableBrowser
+      sourceNode={sourceNode}
+      emptyState={emptyState}
+    />
   );
 };

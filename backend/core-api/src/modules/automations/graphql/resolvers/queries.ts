@@ -172,63 +172,74 @@ type TAutomationConstantsResponse = {
   findObjectTargetsConst: any[];
 };
 
-const getAutomationConstants = async (): Promise<TAutomationConstantsResponse> => {
-  const plugins = await getPlugins();
-  const normalizedCoreConstants = normalizeAutomationConstantsForTransport(
-    'core',
-    coreAutomationConstants,
-  );
-
-  const constants: TAutomationConstantsResponse = {
-    triggersConst: [...(normalizedCoreConstants.triggers || [])],
-    triggerTypesConst: [],
-    actionsConst: [...(normalizedCoreConstants.actions || [])],
-    findObjectTargetsConst: [...(normalizedCoreConstants.findObjectTargets || [])],
-  };
-
-  for (const pluginName of plugins) {
-    if (pluginName === 'core') {
-      continue;
-    }
-
-    const plugin = await getPlugin(pluginName);
-    const meta = plugin.config?.meta ?? {};
-
-    if (!meta?.automations?.constants) {
-      continue;
-    }
-
-    const pluginConstants = normalizeAutomationConstantsForTransport(
-      pluginName,
-      meta.automations.constants as AutomationConstants,
+const getAutomationConstants =
+  async (): Promise<TAutomationConstantsResponse> => {
+    const plugins = await getPlugins();
+    const normalizedCoreConstants = normalizeAutomationConstantsForTransport(
+      'core',
+      coreAutomationConstants,
     );
-    const { triggers = [], actions = [], findObjectTargets = [] } =
-      pluginConstants as AutomationConstants;
-    constants.findObjectTargetsConst.push(...findObjectTargets);
 
-    for (const trigger of triggers) {
-      constants.triggersConst.push({ ...trigger, pluginName });
+    const constants: TAutomationConstantsResponse = {
+      triggersConst: [...(normalizedCoreConstants.triggers || [])],
+      triggerTypesConst: [],
+      actionsConst: [...(normalizedCoreConstants.actions || [])],
+      findObjectTargetsConst: [
+        ...(normalizedCoreConstants.findObjectTargets || []),
+      ],
+    };
 
-      if (pluginName !== 'core' && trigger.moduleName && trigger.collectionName) {
-        const propertyType = `${pluginName}:${trigger.moduleName}.${trigger.collectionName}`;
-        constants.triggerTypesConst = [
-          ...new Set([...constants.triggerTypesConst, propertyType]),
-        ];
+    for (const pluginName of plugins) {
+      if (pluginName === 'core') {
+        continue;
+      }
+
+      const plugin = await getPlugin(pluginName);
+      const meta = plugin.config?.meta ?? {};
+
+      if (!meta?.automations?.constants) {
+        continue;
+      }
+
+      const pluginConstants = normalizeAutomationConstantsForTransport(
+        pluginName,
+        meta.automations.constants as AutomationConstants,
+      );
+      const {
+        triggers = [],
+        actions = [],
+        findObjectTargets = [],
+      } = pluginConstants as AutomationConstants;
+      constants.findObjectTargetsConst.push(...findObjectTargets);
+
+      for (const trigger of triggers) {
+        constants.triggersConst.push({ ...trigger, pluginName });
+
+        if (
+          pluginName !== 'core' &&
+          trigger.moduleName &&
+          trigger.collectionName
+        ) {
+          const propertyType = `${pluginName}:${trigger.moduleName}.${trigger.collectionName}`;
+          constants.triggerTypesConst = [
+            ...new Set([...constants.triggerTypesConst, propertyType]),
+          ];
+        }
+      }
+
+      for (const action of actions) {
+        constants.actionsConst.push({ ...action, pluginName });
       }
     }
 
-    for (const action of actions) {
-      constants.actionsConst.push({ ...action, pluginName });
-    }
-  }
+    constants.findObjectTargetsConst = constants.findObjectTargetsConst.filter(
+      (item, index, array) =>
+        array.findIndex((candidate) => candidate.value === item.value) ===
+        index,
+    );
 
-  constants.findObjectTargetsConst = constants.findObjectTargetsConst.filter(
-    (item, index, array) =>
-      array.findIndex((candidate) => candidate.value === item.value) === index,
-  );
-
-  return constants;
-};
+    return constants;
+  };
 
 export const automationQueries = {
   /**
@@ -334,9 +345,7 @@ export const automationQueries = {
   async automationNodeOutput(_root, { nodeType }: { nodeType: string }) {
     const { triggersConst, actionsConst } = await getAutomationConstants();
 
-    const matchedTrigger = triggersConst.find(
-      ({ type }) => type === nodeType,
-    );
+    const matchedTrigger = triggersConst.find(({ type }) => type === nodeType);
 
     if (matchedTrigger?.output) {
       return matchedTrigger.output;
@@ -372,9 +381,8 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution = await models.AutomationExecutions.findById(
-      executionId,
-    ).lean();
+    const execution =
+      await models.AutomationExecutions.findById(executionId).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }

@@ -111,7 +111,10 @@ export function usePlaceHolderInputTriggerDetection({
     const isEnabled =
       !enabledTypes || (type && enabledTypes[type as SuggestionType]);
 
-    if (dismissedTriggerContext && dismissedTriggerContext !== currentTriggerContext) {
+    if (
+      dismissedTriggerContext &&
+      dismissedTriggerContext !== currentTriggerContext
+    ) {
       setDismissedTriggerContext(null);
     }
 
@@ -159,10 +162,7 @@ export function usePlaceHolderInputTriggerDetection({
     node.addEventListener('click', handleSelectionChange);
     node.addEventListener('keyup', handleSelectionChange);
     node.addEventListener('select', handleSelectionChange);
-    document.addEventListener(
-      'selectionchange',
-      handleDocumentSelectionChange,
-    );
+    document.addEventListener('selectionchange', handleDocumentSelectionChange);
 
     return () => {
       node.removeEventListener('click', handleSelectionChange);

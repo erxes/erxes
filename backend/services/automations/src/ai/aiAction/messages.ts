@@ -20,7 +20,9 @@ const buildMemorySection = (memory?: Record<string, unknown>) => {
   return `Saved memory:\n${JSON.stringify(memory, null, 2)}`;
 };
 
-const buildAutomationSystemInstruction = (actionConfig: TAiAgentActionConfig) => {
+const buildAutomationSystemInstruction = (
+  actionConfig: TAiAgentActionConfig,
+) => {
   if (actionConfig.goalType === 'generateText') {
     return [
       'You are an automation content generator.',
@@ -150,9 +152,8 @@ export const buildAiActionMessages = ({
   const inputText = buildAiInputFromContext({ inputData, aiContext });
   const contextSection = buildContextSection(files);
   const memorySection = buildMemorySection(memory);
-  const automationSystemInstruction = buildAutomationSystemInstruction(
-    actionConfig,
-  );
+  const automationSystemInstruction =
+    buildAutomationSystemInstruction(actionConfig);
 
   const systemMessages: TAiBridgeMessage[] = [];
 
@@ -163,7 +164,10 @@ export const buildAiActionMessages = ({
     });
   }
 
-  const systemContent = [systemPrompt?.trim() || '', contextSection ? `Context documents:\n\n${contextSection}` : '']
+  const systemContent = [
+    systemPrompt?.trim() || '',
+    contextSection ? `Context documents:\n\n${contextSection}` : '',
+  ]
     .filter(Boolean)
     .join('\n\n');
 

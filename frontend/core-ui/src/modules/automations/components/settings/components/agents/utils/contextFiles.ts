@@ -139,9 +139,6 @@ export const getNextContextFilesAfterEdit = ({
       size: uploadedFile.size,
       type: uploadedFile.type,
       uploadedAt: uploadedFile.uploadedAt,
-      versions: [
-        createContextFileHistoryEntry(file),
-        ...(file.versions || []),
-      ],
+      versions: [createContextFileHistoryEntry(file), ...(file.versions || [])],
     };
   });

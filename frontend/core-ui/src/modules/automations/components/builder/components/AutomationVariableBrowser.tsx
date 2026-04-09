@@ -4,13 +4,7 @@ import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { AutomationNodeType } from '@/automations/types';
 import { useQuery } from '@apollo/client';
 import { IconInfoCircle } from '@tabler/icons-react';
-import {
-  Badge,
-  IconComponent,
-  Input,
-  Spinner,
-  cn,
-} from 'erxes-ui';
+import { Badge, IconComponent, Input, Spinner, cn } from 'erxes-ui';
 import { useDeferredValue, useEffect, useState } from 'react';
 import {
   IField,
@@ -78,10 +72,7 @@ const EmptyState = ({ text }: { text: string }) => {
   );
 };
 
-const InfoState = ({
-  title,
-  description,
-}: TAutomationVariableEmptyState) => {
+const InfoState = ({ title, description }: TAutomationVariableEmptyState) => {
   return (
     <div className="rounded-md border border-dashed bg-background px-4 py-4">
       <div className="flex items-start gap-3">
@@ -348,7 +339,10 @@ export const AutomationVariableBrowser = ({
     (variable, index, array) =>
       array.findIndex((candidate) => candidate.key === variable.key) === index,
   );
-  const mergedPropertySources = [...propertySources, ...findObjectPropertySources].filter(
+  const mergedPropertySources = [
+    ...propertySources,
+    ...findObjectPropertySources,
+  ].filter(
     (source, index, array) =>
       array.findIndex((candidate) => candidate.key === source.key) === index,
   );
@@ -385,9 +379,7 @@ export const AutomationVariableBrowser = ({
   const filteredVariables = !searchQuery
     ? mergedVariables
     : mergedVariables.filter((variable) =>
-        `${variable.label} ${variable.key}`
-          .toLowerCase()
-          .includes(searchQuery),
+        `${variable.label} ${variable.key}`.toLowerCase().includes(searchQuery),
       );
 
   if (!activeSourceNode) {
@@ -479,7 +471,9 @@ export const AutomationVariableBrowser = ({
                     ) : undefined
                   }
                   onClick={
-                    onInsertVariable ? () => onInsertVariable(payload) : undefined
+                    onInsertVariable
+                      ? () => onInsertVariable(payload)
+                      : undefined
                   }
                   onDragStart={(event) => {
                     setAutomationVariableDragData(event.dataTransfer, payload);

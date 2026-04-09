@@ -1,8 +1,6 @@
 import { IAutomationExecAction } from 'erxes-api-shared/core-modules';
 
-export const markExecActionStarted = (
-  execAction: IAutomationExecAction,
-) => {
+export const markExecActionStarted = (execAction: IAutomationExecAction) => {
   const now = new Date();
 
   execAction.createdAt = execAction.createdAt || (now as any);
