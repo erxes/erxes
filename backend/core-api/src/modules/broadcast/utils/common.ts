@@ -734,11 +734,12 @@ const sendCampaignNotification = async (
     //   );
     // });
   } catch (e) {
-    await models.Logs.create({
-      engageMessageId: groupId,
-      type: 'failure',
-      message: e.message,
-    });
+    console.log('Error sending campaign notification:', e);
+    // await models.Logs.create({
+    //   engageMessageId: groupId,
+    //   type: 'failure',
+    //   message: e.message,
+    // });
   }
 };
 
