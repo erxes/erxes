@@ -10,8 +10,9 @@ import {
 import { PAGE_LIST } from '../graphql/queries/pagesListQueries';
 import { PAGES_CURSOR_SESSION_KEY } from '../constants/pagesCursorSessionKey';
 import { IPage } from '../types/pageTypes';
-import { useSetAtom } from 'jotai';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { pagesTotalCountAtom } from '../states/pagesCounts';
+import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
 import { useEffect } from 'react';
 
 export const PAGES_PER_PAGE = 30;
@@ -34,6 +35,8 @@ export const usePagesVariables = (
       publishedDate: string;
     }>(['name', 'path', 'createdAt', 'updatedAt', 'publishedDate']);
 
+  const language = useAtomValue(cmsLanguageAtom);
+
   const { cursor } = useRecordTableCursor({
     sessionKey: PAGES_CURSOR_SESSION_KEY,
   });
@@ -41,6 +44,7 @@ export const usePagesVariables = (
   return {
     limit: PAGES_PER_PAGE,
     cursor,
+    language,
     name: name || undefined,
     path: path || undefined,
     dateFilters: {
@@ -76,6 +80,7 @@ export const usePages = (options?: QueryHookOptions) => {
       ...options?.variables,
       ...variables,
     },
+    fetchPolicy: 'network-only',
   });
 
   const { pages = [], totalCount = 0, pageInfo } = data?.cmsPageList || {};

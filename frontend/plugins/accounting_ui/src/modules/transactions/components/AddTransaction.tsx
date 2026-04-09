@@ -102,17 +102,15 @@ export const AddTransaction = ({
         >
           Хангамжийн зарлага
         </AddTransactionItem>
-        {
-          !inForm && (
-            <AddTransactionItem
-              journal={TrJournalEnum.INV_MOVE}
-              onClick={onClick}
-              inForm={inForm}
-            >
-              Дотоод хөдөлгөөн
-            </AddTransactionItem>
-          )
-        }
+        {!inForm && (
+          <AddTransactionItem
+            journal={TrJournalEnum.INV_MOVE}
+            onClick={onClick}
+            inForm={inForm}
+          >
+            Дотоод хөдөлгөөн
+          </AddTransactionItem>
+        )}
         <AddTransactionItem
           journal={TrJournalEnum.INV_SALE}
           onClick={onClick}
@@ -120,9 +118,14 @@ export const AddTransaction = ({
         >
           Борлуулалт
         </AddTransactionItem>
-        <AddTransactionItem disabled>
-          Борлуулалт (ажил үйлчилгээ)
+        <AddTransactionItem
+          journal={TrJournalEnum.INV_SALE_RETURN}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Борлуулалт буцаалт
         </AddTransactionItem>
+
         <DropdownMenu.Label>Үндсэн хөрөнгө</DropdownMenu.Label>
         <AddTransactionItem disabled>Орлого</AddTransactionItem>
         <AddTransactionItem disabled>Акт</AddTransactionItem>
@@ -159,7 +162,7 @@ const AddTransactionItem = ({
     );
   }
   return (
-    <DropdownMenu.Item onClick={() => onClick && onClick(journal)}>
+    <DropdownMenu.Item onClick={() => onClick?.(journal)}>
       {children}
     </DropdownMenu.Item>
   );

@@ -8,6 +8,7 @@ import { Document } from 'mongoose';
 export interface ITicket {
   name: string;
   channelId: string;
+  stageId: string;
   pipelineId: string;
   statusId?: string;
   description?: string;
@@ -29,6 +30,8 @@ export interface ITicket {
   isSubscribed?: boolean;
   propertiesData?: IPropertyField;
   attachments?: IAttachment[];
+  companyIds?: string[];
+  customerFieldData?: any;
 }
 
 export interface ITicketUpdate extends ITicket {

@@ -223,17 +223,7 @@ export const integrationMutations = {
       name: 'Default channel',
     })) as IChannelDocument;
 
-    if (!channel) {
-      channel = await models.Channels.createChannel({
-        channelDoc: { name: 'Default channel' },
-        adminId: user._id,
-        memberIds: [],
-      });
-      await models.ChannelMembers.create({
-        channelId: channel._id,
-        memberId: user._id,
-      });
-    } else {
+    if (channel) {
       const isMember = await models.ChannelMembers.exists({
         channelId: channel._id,
         memberId: user._id,
@@ -245,6 +235,16 @@ export const integrationMutations = {
           memberId: user._id,
         });
       }
+    } else {
+      channel = await models.Channels.createChannel({
+        channelDoc: { name: 'Default channel' },
+        adminId: user._id,
+        memberIds: [],
+      });
+      await models.ChannelMembers.create({
+        channelId: channel._id,
+        memberId: user._id,
+      });
     }
 
     const integrationDocs = {

@@ -7,12 +7,9 @@ import { useAppsRemove } from '../../hooks/useAppsRemove';
 import { useAppsRevoke } from '../../hooks/useAppsRevoke';
 import { useSetAtom } from 'jotai';
 import { editingAppAtom } from '../../state';
+import { Can } from 'ui-modules';
 
-export const AppsMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IApp, unknown>;
-}) => {
+export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
   const { _id, name, status } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -55,9 +52,11 @@ export const AppsMoreColumnCell = ({
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
+      <Can action="appsManage">
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+      </Can>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>

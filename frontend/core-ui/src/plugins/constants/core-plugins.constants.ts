@@ -72,6 +72,11 @@ export const GET_CORE_MODULES = (
       path: 'logs',
       settingsOnly: true,
     },
+    {
+      name: t('broadcasts'),
+      icon: IconBroadcast,
+      path: 'broadcasts',
+    },
   ];
 
   if (version) {
@@ -80,11 +85,6 @@ export const GET_CORE_MODULES = (
         name: t('documents'),
         icon: IconFile,
         path: 'documents',
-      },
-      {
-        name: t('broadcasts'),
-        icon: IconBroadcast,
-        path: 'broadcasts',
       },
       {
         name: t('templates'),

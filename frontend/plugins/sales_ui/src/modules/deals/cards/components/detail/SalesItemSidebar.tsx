@@ -1,5 +1,4 @@
-import { Sidebar } from 'erxes-ui';
-import { useQueryState } from 'erxes-ui';
+import { Sidebar, useQueryState } from 'erxes-ui';
 
 export const SalesItemSidebar = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -10,18 +9,25 @@ export const SalesItemSidebar = () => {
         <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
-            {['overview', 'properties', 'activityLogs'].map((tab) => (
-              <Sidebar.MenuItem key={tab}>
-                <Sidebar.MenuButton
-                  isActive={
-                    selectedTab === tab || (tab === 'overview' && !selectedTab)
-                  }
-                  onClick={() => setSelectedTab(tab)}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </Sidebar.MenuButton>
-              </Sidebar.MenuItem>
-            ))}
+            {['overview', 'properties', 'activityLogs'].map((tab) => {
+              const label =
+                tab === 'activityLogs'
+                  ? 'Activity Logs'
+                  : tab.charAt(0).toUpperCase() + tab.slice(1);
+              return (
+                <Sidebar.MenuItem key={tab}>
+                  <Sidebar.MenuButton
+                    isActive={
+                      selectedTab === tab ||
+                      (tab === 'overview' && !selectedTab)
+                    }
+                    onClick={() => setSelectedTab(tab)}
+                  >
+                    {label}
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              );
+            })}
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>

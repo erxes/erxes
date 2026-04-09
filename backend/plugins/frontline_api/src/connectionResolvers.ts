@@ -401,7 +401,7 @@ export const loadClasses = (
 
   models.FacebookBots = db.model<IFacebookBotDocument, IFacebookBotModel>(
     'facebook_messengers_bots',
-    loadFacebookBotClass(models),
+    loadFacebookBotClass(models, subdomain),
   );
   //imap models
   models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(

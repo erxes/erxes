@@ -1,4 +1,4 @@
-import { GQL_CURSOR_PARAM_DEFS } from "erxes-api-shared/utils";
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 const trDetailFields = `
   _id: String
@@ -158,6 +158,8 @@ const trsQueryParams = `
   searchValue: String,
   number: String,
   ptrStatus: String,
+  customerType: String,
+  customerId: String,
 
   accountIds: [String],
   accountKind: String,

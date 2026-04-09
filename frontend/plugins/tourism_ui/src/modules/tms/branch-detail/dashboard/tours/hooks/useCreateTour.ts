@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { CREATE_TOUR } from '../graphql/mutation';
+import { ITourTranslationInput } from '../utils/translationHelpers';
 
 interface CreateTourResponse {
   bmsTourAdd: {
@@ -13,6 +14,7 @@ interface CreateTourResponse {
 
 export interface ICreateTourVariables {
   branchId: string;
+  language?: string;
   name: string;
   refNumber: string;
   content?: string;
@@ -25,8 +27,11 @@ export interface ICreateTourVariables {
   status?: string;
   groupCode?: string;
   itineraryId?: string;
+  dateType?: 'fixed' | 'flexible';
   startDate?: Date;
   endDate?: Date;
+  availableFrom?: Date;
+  availableTo?: Date;
   groupSize?: number;
   duration?: number;
   cost?: number;
@@ -38,10 +43,24 @@ export interface ICreateTourVariables {
   info5?: string;
   images?: string[];
   imageThumbnail?: string;
+  attachment?: { url: string; name: string; type: string; size: number } | null;
   advancePercent?: number;
   advanceCheck?: boolean;
   joinPercent?: number;
   personCost?: Record<string, any>;
+  categoryIds?: string[];
+  pricingOptions?: Array<{
+    _id: string;
+    title: string;
+    minPersons: number;
+    maxPersons?: number;
+    pricePerPerson: number;
+    accommodationType?: string;
+    domesticFlightPerPerson?: number;
+    singleSupplement?: number;
+    note?: string;
+  }>;
+  translations?: ITourTranslationInput[];
 }
 
 export const useCreateTour = () => {

@@ -1,10 +1,8 @@
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { AutomationNodesType, NodeData } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Button, Dialog, IconPicker, Input } from 'erxes-ui';
 import { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
 
 type Props = {
   id: string;

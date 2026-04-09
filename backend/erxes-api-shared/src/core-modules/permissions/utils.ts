@@ -1,8 +1,13 @@
 import { IUserDocument, Resolver } from '../../core-types';
-import { getPlugins, getPlugin, sendTRPCMessage, redis } from '../../utils';
+import {
+  getPlugin,
+  sendTRPCMessage,
+  redis,
+  getActivePlugins,
+} from '../../utils';
 
 export const checkLogin = (user?: IUserDocument) => {
-  if (!user || !user._id) {
+  if (!user?._id) {
     throw new Error('Login required');
   }
 };
@@ -32,7 +37,7 @@ const applyDefaultGroupActions = async (
   actionsMap: Record<string, boolean>,
   defaultGroupIds: string[],
 ) => {
-  const plugins = await getPlugins();
+  const plugins = await getActivePlugins();
 
   for (const pluginName of plugins) {
     const plugin = await getPlugin(pluginName);

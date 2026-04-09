@@ -18,6 +18,7 @@ import { PropertySelectRelationType } from './PropertySelectRelationType';
 import { FIELD_TYPES, FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
+import { Can } from 'ui-modules';
 
 export const PropertyForm = ({
   onSubmit,
@@ -147,16 +148,18 @@ export const PropertyForm = ({
         <PropertyFormValidation form={form} />
         <PropertyFormSelectFields form={form} />
         <PropertySelectRelationType form={form} />
-        <Button type="submit" disabled={loading}>
-          {loading ? (
-            <Spinner containerClassName="flex-none" />
-          ) : isEdit ? (
-            <IconPencil />
-          ) : (
-            <IconPlus />
-          )}
-          {isEdit ? 'Update' : 'Add'} Property
-        </Button>
+        <Can action="fieldsManage">
+          <Button type="submit" disabled={loading}>
+            {loading ? (
+              <Spinner containerClassName="flex-none" />
+            ) : isEdit ? (
+              <IconPencil />
+            ) : (
+              <IconPlus />
+            )}
+            {isEdit ? 'Update' : 'Add'} Property
+          </Button>
+        </Can>
       </form>
     </Form>
   );

@@ -1,23 +1,35 @@
-import { Control } from 'react-hook-form';
+import { Control, FieldPathByValue } from 'react-hook-form';
 import { Form, Input, Upload, readImage } from 'erxes-ui';
 import { CategoryCreateFormType } from '../constants/formSchema';
 import { SelectParentCategory } from './SelectParentCategory';
 import { IconUpload, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
 
+type CategoryTextFieldPath = FieldPathByValue<
+  CategoryCreateFormType,
+  string | undefined
+>;
+
+interface CategoryNameFieldProps {
+  control: Control<CategoryCreateFormType>;
+  name?: CategoryTextFieldPath;
+  labelSuffix?: string;
+}
+
 export const CategoryNameField = ({
   control,
-}: {
-  control: Control<CategoryCreateFormType>;
-}) => {
+  name = 'name',
+  labelSuffix = '',
+}: CategoryNameFieldProps) => {
   return (
     <Form.Field
       control={control}
-      name="name"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name <span className="text-destructive">*</span>
+            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input
@@ -58,8 +70,12 @@ export const CategoryCodeField = ({
 
 export const CategoryParentIdField = ({
   control,
+  branchId,
+  language,
 }: {
   control: Control<CategoryCreateFormType>;
+  branchId?: string;
+  language?: string;
 }) => {
   return (
     <Form.Field
@@ -72,6 +88,8 @@ export const CategoryParentIdField = ({
             <SelectParentCategory
               selected={field.value}
               onSelect={field.onChange}
+              branchId={branchId}
+              language={language}
             />
           </Form.Control>
           <Form.Message className="text-destructive" />

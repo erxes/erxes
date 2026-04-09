@@ -8,15 +8,33 @@ export interface IGuideItem {
   type: string;
 }
 
+export type DateType = 'fixed' | 'flexible';
+
+export interface IPricingOption {
+  _id: string;
+  title: string;
+  minPersons: number;
+  maxPersons?: number;
+  pricePerPerson: number;
+  accommodationType?: string;
+  domesticFlightPerPerson?: number;
+  singleSupplement?: number;
+  note?: string;
+}
+
 export interface ITour {
+  language?: string;
   name: string;
   groupCode: string;
   refNumber?: string;
   content: string;
   duration: string;
   location: ILocation[];
+  dateType?: DateType;
   startDate: Date;
   endDate: Date;
+  availableFrom?: Date;
+  availableTo?: Date;
   groupSize: number;
   guides: IGuideItem[];
   status: string;
@@ -38,6 +56,9 @@ export interface ITour {
   extra?: any;
   images?: string[];
   imageThumbnail?: string;
+  attachment?: IAttachment;
+  pricingOptions?: IPricingOption[];
+  startingPrice?: number;
 }
 
 export interface ITourDocument extends ITour, Document {
@@ -52,6 +73,7 @@ export interface ITourCategory {
   code?: string;
   order?: string;
   parentId?: string;
+  branchId?: string;
   attachment?: IAttachment;
   modifiedAt?: Date;
 }

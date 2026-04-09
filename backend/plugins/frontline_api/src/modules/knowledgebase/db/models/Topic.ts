@@ -1,8 +1,7 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { ITopic, ITopicDocument } from "../../@types/topic";
-import { topicSchema } from "../definitions/topic";
-
+import { ITopic, ITopicDocument } from '../../@types/topic';
+import { topicSchema } from '../definitions/topic';
 
 export interface ITopicModel extends Model<ITopicDocument> {
   getTopic(_id: string): Promise<ITopicDocument>;
@@ -10,9 +9,9 @@ export interface ITopicModel extends Model<ITopicDocument> {
   updateDoc(
     _id: string,
     docFields: ITopic,
-    userId?: string
+    userId?: string,
   ): Promise<ITopicDocument>;
-  removeDoc(_id: string): void;
+  removeDoc(_id: string): Promise<void>;
 }
 
 export const loadTopicClass = (models: IModels) => {
@@ -36,14 +35,14 @@ export const loadTopicClass = (models: IModels) => {
         ...docFields,
         createdDate: new Date(),
         createdBy: userId,
-        modifiedDate: new Date()
+        modifiedDate: new Date(),
       });
     }
 
     public static async updateDoc(
       _id: string,
       docFields: ITopic,
-      userId?: string
+      userId?: string,
     ) {
       if (!userId) {
         throw new Error('userId must be supplied');
@@ -55,9 +54,9 @@ export const loadTopicClass = (models: IModels) => {
           $set: {
             ...docFields,
             modifiedBy: userId,
-            modifiedDate: new Date()
-          }
-        }
+            modifiedDate: new Date(),
+          },
+        },
       );
 
       return models.Topic.findOne({ _id });
@@ -71,7 +70,7 @@ export const loadTopicClass = (models: IModels) => {
       }
 
       const categories = await models.Topic.find({
-        topicId: _id
+        topicId: _id,
       });
 
       for (const category of categories) {

@@ -128,16 +128,14 @@ export const useCreateAppRouter = () => {
                 />
               )}
 
-              {isOS && (
-                <Route
-                  path={AppPath.BroadcastsCatchAll}
-                  element={
-                    <PermissionRouteGuard module="broadcast">
-                      <BroadcastRoutes />
-                    </PermissionRouteGuard>
-                  }
-                />
-              )}
+              <Route
+                path={AppPath.BroadcastsCatchAll}
+                element={
+                  <PermissionRouteGuard module="broadcasts">
+                    <BroadcastRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
 
               {isOS && (
                 <Route

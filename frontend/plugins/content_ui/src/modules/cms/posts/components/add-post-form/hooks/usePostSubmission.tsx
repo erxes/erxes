@@ -23,6 +23,9 @@ interface BlockContent {
   content?: InlineContent[];
   props?: {
     level?: number;
+    url?: string;
+    caption?: string;
+    imageStyle?: 'normal' | 'wide';
   };
 }
 
@@ -51,6 +54,7 @@ interface PostFormData {
   documents?: string[];
   attachments?: string[];
   pdf?: string | null;
+  publishDate?: Date | null;
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
@@ -93,6 +97,17 @@ interface MainFields {
   customFields: CustomField[] | undefined;
 }
 
+const escapeHtml = (str: string): string =>
+  str
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
+const getImageMaxWidth = (imageStyle: 'normal' | 'wide'): number =>
+  imageStyle === 'wide' ? 1080 : 720;
+
 const blocksToHtml = (raw: string): string => {
   try {
     const blocks = JSON.parse(raw) as BlockContent[];
@@ -107,7 +122,7 @@ const blocksToHtml = (raw: string): string => {
 
         const html = inlines
           .map((inline) => {
-            let text = inline.text ?? '';
+            let text = escapeHtml(inline.text ?? '');
 
             if (inline.styles?.bold) text = `<strong>${text}</strong>`;
             if (inline.styles?.italic) text = `<em>${text}</em>`;
@@ -126,6 +141,22 @@ const blocksToHtml = (raw: string): string => {
 
         if (block.type === 'codeBlock') {
           return `<pre><code>${html}</code></pre>`;
+        }
+
+        if (block.type === 'image') {
+          const url = block.props?.url;
+          if (!url) return '';
+          const caption = block.props?.caption || '';
+          const safeCaption = escapeHtml(caption);
+          const imageStyle =
+            block.props?.imageStyle === 'wide' ? 'wide' : 'normal';
+          const maxWidth = getImageMaxWidth(imageStyle);
+          const img = `<img src="${url}"${
+            safeCaption ? ` alt="${safeCaption}"` : ''
+          } data-image-style="${imageStyle}" class="erxes-editor-image erxes-editor-image--${imageStyle}" style="width:100%;max-width:${maxWidth}px;height:auto;display:block;margin:0 auto;" />`;
+          return caption
+            ? `<figure data-image-style="${imageStyle}" class="erxes-editor-image erxes-editor-image--${imageStyle}" style="width:100%;max-width:${maxWidth}px;margin:0 auto;">${img}<figcaption>${safeCaption}</figcaption></figure>`
+            : img;
         }
 
         return `<p>${html}</p>`;
@@ -234,6 +265,7 @@ const buildPostInput = (
     categoryIds: data.categoryIds,
     tagIds: data.tagIds,
     featured: data.featured,
+    publishedDate: data.publishDate ?? undefined,
     scheduledDate: data.scheduledDate ?? undefined,
     autoArchiveDate: data.enableAutoArchive ? data.autoArchiveDate : undefined,
     excerpt: main.excerpt,

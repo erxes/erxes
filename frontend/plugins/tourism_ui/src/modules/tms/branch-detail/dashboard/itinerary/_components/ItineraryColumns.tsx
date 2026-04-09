@@ -3,7 +3,6 @@ import {
   IconCalendarPlus,
   IconClock,
   IconLabel,
-  IconPalette,
   IconCalendarDot,
   IconCurrencyDollar,
 } from '@tabler/icons-react';
@@ -15,15 +14,42 @@ import {
   Badge,
 } from 'erxes-ui';
 import { IItinerary } from '../types/itinerary';
+import { itineraryMoreColumn } from './ItineraryMoreCell';
 
 interface ItineraryColumnsProps {
   onEditClick?: (itineraryId: string, branchId?: string) => void;
+  branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
 }
 
 export const itineraryColumns = (
   props?: ItineraryColumnsProps,
 ): ColumnDef<IItinerary>[] => [
   RecordTable.checkboxColumn as ColumnDef<IItinerary>,
+  itineraryMoreColumn(
+    props?.onEditClick,
+    props?.branchId,
+    props?.branchLanguages,
+    props?.mainLanguage,
+  ),
+  {
+    id: 'color',
+    accessorKey: 'color',
+    header: () => <RecordTable.InlineHead icon={IconLabel} label="Color" />,
+    cell: ({ cell }: { cell: any }) => {
+      const color = (cell.getValue() as string) || '#4F46E5';
+      return (
+        <RecordTableInlineCell>
+          <div
+            className="w-4 h-4 rounded-full border border-border"
+            style={{ backgroundColor: color }}
+          />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 60,
+  },
   {
     id: 'name',
     accessorKey: 'name',
@@ -58,29 +84,6 @@ export const itineraryColumns = (
       </RecordTableInlineCell>
     ),
     size: 140,
-  },
-  {
-    id: 'color',
-    accessorKey: 'color',
-    header: () => <RecordTable.InlineHead icon={IconPalette} label="Color" />,
-    cell: ({ cell }: { cell: any }) => {
-      const color = cell.getValue() as string;
-
-      return (
-        <RecordTableInlineCell>
-          {color ? (
-            <div
-              className="w-6 h-6 rounded-md border border-border"
-              style={{ backgroundColor: color }}
-              title={color}
-            />
-          ) : (
-            <span className="text-xs text-muted-foreground">—</span>
-          )}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 80,
   },
   {
     id: 'totalCost',

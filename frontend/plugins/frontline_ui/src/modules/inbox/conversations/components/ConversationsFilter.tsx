@@ -4,6 +4,7 @@ import {
   Filter,
   useMultiQueryState,
   useNonNullMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import {
@@ -16,7 +17,6 @@ import {
   IconUserX,
 } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
-import { useQueryState } from 'erxes-ui';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import {

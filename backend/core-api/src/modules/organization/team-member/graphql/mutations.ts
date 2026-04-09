@@ -105,11 +105,13 @@ export const userMutations: Record<string, Resolver> = {
   async usersEdit(
     _parent: undefined,
     args: IUsersEdit,
-    { models, checkPermission }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
-    await checkPermission('teamMembersUpdate');
-
     const { _id, ...doc } = args;
+
+    if (user._id !== _id) {
+      await checkPermission('teamMembersUpdate', _id);
+    }
 
     let updatedDoc = doc;
 

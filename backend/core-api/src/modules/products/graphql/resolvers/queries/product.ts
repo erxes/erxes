@@ -169,7 +169,7 @@ const generateFilter = async (
   if (branchId && departmentId) {
     if (minRemainder || minRemainder === 0) {
       andFilters.push({
-        [`remainders.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchId}.${departmentId}.remainder`]: {
           $exists: true,
           $gte: minRemainder,
         },
@@ -177,7 +177,7 @@ const generateFilter = async (
     }
     if (maxRemainder || maxRemainder === 0) {
       andFilters.push({
-        [`remainders.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchId}.${departmentId}.remainder`]: {
           $exists: true,
           $lte: maxRemainder,
         },
@@ -242,7 +242,7 @@ const generateFilter = async (
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
 };
 
-export const productQueries: Record<string, Resolver> = {
+export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Products list
    */
@@ -339,6 +339,14 @@ export const productQueries: Record<string, Resolver> = {
     return await models.Products.findOne({ _id }).lean();
   },
 
+  async cpProductDetail(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return await models.Products.findOne({ _id }).lean();
+  },
+
   async productsTotalCount(
     _parent: undefined,
     params: IProductParams,
@@ -371,10 +379,9 @@ export const productQueries: Record<string, Resolver> = {
       const getRegex = (str) => {
         return ['*', '.', '_'].includes(str)
           ? new RegExp(
-              `^${str
-                .replace(/\./g, '\\.')
-                .replace(/\*/g, '.')
-                .replace(/_/g, '.')}.*`,
+              `^${escapeRegExp(str)
+                .replace(/\\\*/g, '.')
+                .replace(/\\_/g, '.')}.*`,
               'igu',
             )
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
@@ -538,3 +545,8 @@ export const productQueries: Record<string, Resolver> = {
 productQueries.cpProducts.wrapperConfig = {
   forClientPortal: true,
 };
+
+productQueries.cpProductDetail.wrapperConfig = {
+  forClientPortal: true,
+};
+

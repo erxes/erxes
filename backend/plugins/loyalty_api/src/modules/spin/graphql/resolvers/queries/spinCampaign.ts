@@ -16,6 +16,8 @@ const generateFilter = (params: ISpinCampaignParams) => {
 
   if (params.status) {
     filter.status = params.status;
+  } else {
+    filter.status = { $ne: CAMPAIGN_STATUS.TRASH };
   }
 
   return filter;

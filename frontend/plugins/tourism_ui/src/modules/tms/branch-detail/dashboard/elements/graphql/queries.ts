@@ -12,6 +12,7 @@ export const GET_ELEMENTS = gql`
     $direction: CURSOR_DIRECTION
     $orderBy: JSON
     $sortMode: String
+    $language: String
   ) {
     bmsElements(
       branchId: $branchId
@@ -24,6 +25,7 @@ export const GET_ELEMENTS = gql`
       direction: $direction
       orderBy: $orderBy
       sortMode: $sortMode
+      language: $language
     ) {
       list {
         _id
@@ -36,7 +38,15 @@ export const GET_ELEMENTS = gql`
         note
         quick
         startTime
+        language
         modifiedAt
+        translations {
+          _id
+          language
+          name
+          note
+          cost
+        }
       }
       pageInfo {
         hasNextPage
@@ -45,6 +55,31 @@ export const GET_ELEMENTS = gql`
         endCursor
       }
       totalCount
+    }
+  }
+`;
+
+export const GET_ELEMENT_DETAIL = gql`
+  query BmsElementDetail($id: String!, $language: String) {
+    bmsElementDetail(_id: $id, language: $language) {
+      _id
+      branchId
+      name
+      note
+      startTime
+      duration
+      cost
+      categories
+      quick
+      icon
+      language
+      translations {
+        _id
+        language
+        name
+        note
+        cost
+      }
     }
   }
 `;

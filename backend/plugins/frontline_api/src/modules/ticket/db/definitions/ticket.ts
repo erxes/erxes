@@ -7,6 +7,7 @@ export const ticketSchema = new Schema(
     _id: mongooseStringRandomId,
     name: { type: String },
     channelId: { type: String },
+    stageId: { type: String },
     pipelineId: {
       type: String,
       label: 'pipelineId',
@@ -46,6 +47,12 @@ export const ticketSchema = new Schema(
       type: Schema.Types.Mixed,
       optional: true,
       label: 'Properties data',
+    },
+    companyIds: { type: [String], label: 'Company IDs' },
+    customerFieldData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Customer field data',
     },
   },
   {

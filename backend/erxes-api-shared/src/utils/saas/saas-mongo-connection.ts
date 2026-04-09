@@ -225,7 +225,7 @@ export const getSaasOrganizationDetail = async ({
           quantity += addon.quantity || 0;
         });
 
-      if (organization && organization.experienceId) {
+      if (organization?.experienceId) {
         const experience = await coreModelExperiences.findOne({
           _id: organization.experienceId,
         });

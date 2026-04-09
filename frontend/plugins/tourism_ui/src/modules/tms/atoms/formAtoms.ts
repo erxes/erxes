@@ -8,6 +8,8 @@ export type TmsForm = {
   color: string;
   logo: string;
   favIcon: string;
+  language: string[];
+  mainLanguage: string;
   generalManager: string[];
   managers: string[];
   payment: string[];
@@ -24,6 +26,8 @@ const DEFAULT_STORAGE_FORM: TmsFormStorage = {
   color: '#4F46E5',
   logo: '',
   favIcon: '',
+  language: [],
+  mainLanguage: '',
   generalManager: [],
   managers: [],
   payment: [],

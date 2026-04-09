@@ -8,6 +8,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useAppsRemove } from '../hooks/useAppsRemove';
+import { Can } from 'ui-modules';
 
 export const AppsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -50,11 +51,15 @@ export const AppsCommandBar = () => {
         <CommandBar.Value>
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
-        <Separator.Inline />
-        <Button variant="secondary" onClick={onRemove}>
-          <IconTrash />
-          Delete
-        </Button>
+        <Can action="appsManage">
+          <>
+            <Separator.Inline />
+            <Button variant="secondary" onClick={onRemove}>
+              <IconTrash />
+              Delete
+            </Button>
+          </>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

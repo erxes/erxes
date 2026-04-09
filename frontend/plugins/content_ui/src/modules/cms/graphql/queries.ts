@@ -11,6 +11,7 @@ export const CONTENT_CMS_LIST = gql`
       name
       languages
       language
+      postUrlField
       description
     }
   }
@@ -308,6 +309,7 @@ export const CMS_POSTS_EDIT = gql`
       tagIds
       featured
       featuredDate
+      publishedDate
       scheduledDate
       autoArchiveDate
       reactions
@@ -397,6 +399,7 @@ export const CMS_POST = gql`
       authorId
       featured
       featuredDate
+      publishedDate
       scheduledDate
       autoArchiveDate
       reactions
@@ -746,6 +749,9 @@ export const CMS_MENU_LIST = gql`
       url
       order
       target
+      translations {
+        language
+      }
       __typename
     }
   }

@@ -1,6 +1,5 @@
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { RecordTable } from 'erxes-ui';
-import { Popover, Command, Combobox } from 'erxes-ui';
+import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { IIntegrationDetail } from '../types/Integration';
 import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration';

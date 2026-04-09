@@ -95,7 +95,7 @@ export const loadCycleClass = (models: IModels) => {
         _id,
       });
 
-      if (cycle && cycle.isCompleted) {
+      if (cycle?.isCompleted) {
         throw new Error('Completed cycle cannot be updated');
       }
 

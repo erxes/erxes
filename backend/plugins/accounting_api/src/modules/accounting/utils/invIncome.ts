@@ -6,17 +6,23 @@ import { getSingleJournalByAccount } from './utils';
 
 export const InvIncomeExpenseTrs = async (
   models: IModels,
+  userId: string,
   transaction: ITransactionDocument,
 ) => {
-  const oldFollowTrs = await models.Transactions.find({ originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE }).lean();
+  const oldFollowTrs = await models.Transactions.find({
+    originId: transaction._id,
+    originType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE,
+  }).lean();
 
   const matchedIds: string[] = [];
   const expenseInfos = transaction.extraData?.invIncomeExpenses || [];
-  const withAccountExpenses = expenseInfos.filter(ei => ei.accountId);
-  const accounts = await models.Accounts.find({ _id: { $in: withAccountExpenses.map(e => e.accountId) } });
+  const withAccountExpenses = expenseInfos.filter((ei) => ei.accountId);
+  const accounts = await models.Accounts.find({
+    _id: { $in: withAccountExpenses.map((e) => e.accountId) },
+  });
 
   for (const expenseInfo of withAccountExpenses) {
-    const account = accounts.find(a => a._id === expenseInfo.accountId);
+    const account = accounts.find((a) => a._id === expenseInfo.accountId);
     if (!account) {
       continue;
     }
@@ -35,29 +41,40 @@ export const InvIncomeExpenseTrs = async (
       departmentId: transaction.departmentId,
       customerType: transaction.customerType,
       customerId: transaction.customerId,
-      details: [{
-        _id: nanoid(),
-        accountId: expenseInfo.accountId,
-        side: TR_SIDES.CREDIT,
-        amount: expenseInfo.amount ?? 0
-      }],
+      details: [
+        {
+          _id: nanoid(),
+          accountId: expenseInfo.accountId,
+          side: TR_SIDES.CREDIT,
+          amount: expenseInfo.amount ?? 0,
+        },
+      ],
     };
 
-    const oldTr = oldFollowTrs.find(oftr => oftr.originSubId === expenseInfo._id);
+    const oldTr = oldFollowTrs.find(
+      (oftr) => oftr.originSubId === expenseInfo._id,
+    );
     if (oldTr) {
       matchedIds.push(oldTr._id);
-      await models.Transactions.updateTransaction(oldTr._id, followTrDoc);
+      await models.Transactions.updateTransaction(
+        oldTr._id,
+        followTrDoc,
+        userId,
+      );
     } else {
-      await models.Transactions.createTransaction(followTrDoc);
+      await models.Transactions.createTransaction(followTrDoc, userId);
     }
   }
 
-  const removeTrIds = oldFollowTrs.filter(oftr => !matchedIds.includes(oftr._id)).map(oftr => oftr._id);
+  const removeTrIds = oldFollowTrs
+    .filter((oftr) => !matchedIds.includes(oftr._id))
+    .map((oftr) => oftr._id);
   if (removeTrIds.length) {
     await models.Transactions.deleteMany({ _id: { $in: removeTrIds } });
   }
 
   return await models.Transactions.find({
-    originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE
+    originId: transaction._id,
+    originType: TR_FOLLOW_TYPES.INV_INCOME_EXPENSE,
   }).lean();
-}
+};

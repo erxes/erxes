@@ -95,7 +95,8 @@ export const splitData = async (
   config,
   productById,
 ) => {
-  let pdatas = [...productsData];
+  let pdatas = productsData.map((p) => ({ ...p }));
+
   let calcedCatIds: string[] = [];
   let calcedTagIds: string[] = [];
 
@@ -169,12 +170,14 @@ export const splitData = async (
   await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
-    module: 'deals',
+    module: 'deal',
     action: 'updateOne',
     method: 'mutation',
     input: {
       selector: { _id: dealId },
-      modifier: { $set: { productsData: pdatas } },
+      modifier: {
+        $set: { productsData: pdatas },
+      },
     },
   });
 

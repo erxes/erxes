@@ -11,10 +11,11 @@ interface ISubUom {
   ratio: number;
 }
 
-interface IRemainder {
+interface IInventory {
   [branchId: string]: {
     [departmentId: string]: {
       remainder: number;
+      cost: number;
       soonIn: number;
       soonOut: number;
     };
@@ -63,7 +64,7 @@ export interface IProduct {
 
   pdfAttachment?: IPdfAttachment;
 
-  remainders?: IRemainder;
+  inventories?: IInventory;
   discounts?: IDiscount;
 }
 

@@ -1,9 +1,15 @@
+import { SelectPriority } from '@/operation/components/SelectPriority';
+import { SelectStatus } from '@/operation/components/SelectStatus';
+import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { SelectTeam } from '@/team/components/SelectTeam';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
+import { SelectTemplate } from '@/template/components/SelectTemplate';
+import { IOperationTemplate } from '@/template/types';
+import { useCreateTriage } from '@/triage/hooks/useCreateTriage';
+import { addTriageSchema, IAddTriage } from '@/triage/types/triage';
 import { Block } from '@blocknote/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconChevronRight } from '@tabler/icons-react';
-
 import {
   BlockEditor,
   Button,
@@ -11,6 +17,7 @@ import {
   Input,
   Separator,
   Sheet,
+  toast,
   useBlockEditor,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
@@ -18,14 +25,6 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
-import { addTriageSchema, IAddTriage } from '@/triage/types/triage';
-import { useCreateTriage } from '@/triage/hooks/useCreateTriage';
-import { SelectPriority } from '@/operation/components/SelectPriority';
-import { SelectStatus } from '@/operation/components/SelectStatus';
-import { toast } from 'erxes-ui';
-import { STATUS_TYPES } from '@/operation/components/StatusInline';
-import { SelectTemplate } from '@/template/components/SelectTemplate';
-import { IOperationTemplate } from '@/template/types';
 
 export const AddTriageForm = ({
   onComplete,

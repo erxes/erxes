@@ -26,6 +26,10 @@ export interface IChannelMemberModel extends Model<IChannelMemberDocument> {
     channelId: string,
     memberId: string,
   ): Promise<IChannelMemberDocument>;
+  removeChannelMembers(
+    channelId: string,
+    memberIds: string[],
+  ): Promise<IChannelMemberDocument>;
 }
 
 export const loadChannelMemberClass = (models: IModels) => {
@@ -88,7 +92,32 @@ export const loadChannelMemberClass = (models: IModels) => {
         throw new Error('Admin cannot be removed');
       }
 
-      return models.ChannelMembers.deleteOne({ channelId, memberId });
+      await models.ChannelMembers.deleteOne({ channelId, memberId });
+      return channelMember;
+    }
+    public static async removeChannelMembers(
+      channelId: string,
+      memberIds: string[],
+    ) {
+      const channelMembers = await models.ChannelMembers.find({
+        channelId,
+        memberId: { $in: memberIds },
+      }).lean();
+
+      if (!channelMembers.length) {
+        throw new Error('Channel members not found');
+      }
+
+      for (const channelMember of channelMembers) {
+        if (channelMember.role === ChannelMemberRoles.ADMIN) {
+          throw new Error('Admin cannot be removed');
+        }
+      }
+
+      return models.ChannelMembers.deleteMany({
+        channelId,
+        memberId: { $in: memberIds },
+      });
     }
   }
 

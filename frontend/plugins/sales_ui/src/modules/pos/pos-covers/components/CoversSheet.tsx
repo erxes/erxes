@@ -1,54 +1,104 @@
+import { IconChessKnight, IconShoppingCart, IconTag } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
-import { IconChessKnight } from '@tabler/icons-react';
 import {
-  Button,
-  Sheet,
   Form,
-  useToast,
   RecordTable,
-  TextOverflowTooltip,
   RecordTableInlineCell,
+  Sheet,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 import React from 'react';
+import { useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
-import { ColumnDef } from '@tanstack/table-core';
-import { IconTag, IconShoppingCart } from '@tabler/icons-react';
-import { TPosOrderFormData } from '../../orders/types/posOrderType';
-import { SubmitHandler, useForm } from 'react-hook-form';
 import { usePosCoversQuery } from '../detail/hook/usePosCoversQuery';
+
+const renderDetailValue = (value: unknown) => {
+  if (!value) return '';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+};
 
 const itemColumns: ColumnDef<any>[] = [
   {
-    id: 'details.paidType',
-    accessorKey: 'details.paidType',
+    id: 'type',
+    accessorKey: 'paidType',
     header: () => (
       <RecordTable.InlineHead icon={IconShoppingCart} label="Type" />
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
       </RecordTableInlineCell>
     ),
     size: 200,
   },
   {
-    id: 'details.paidSummary',
-    accessorKey: 'details.paidSummary',
+    id: 'summary',
+    accessorFn: (row) =>
+      (row?.paidSummary || []).reduce(
+        (sum: number, cur: { amount?: number }) => sum + (cur?.amount || 0),
+        0,
+      ),
     header: () => <RecordTable.InlineHead icon={IconTag} label="Summary" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell className="text-center">
-        <TextOverflowTooltip value={cell.getValue() as string} />
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
     size: 80,
   },
   {
-    id: 'details.paidSummary.amount',
-    accessorKey: 'details.paidSummary.amount',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Amount" />,
+    id: 'detail',
+    accessorKey: 'details.paidDetail',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Detail" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell className="text-right">
-        <TextOverflowTooltip value={cell.getValue() as string} />
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={renderDetailValue(cell.getValue())} />
+      </RecordTableInlineCell>
+    ),
+    size: 240,
+  },
+  {
+    id: 'kind',
+    accessorKey: 'details.paidSummary.kind',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="kind" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
+      </RecordTableInlineCell>
+    ),
+    size: 120,
+  },
+  {
+    id: 'kindOfVal',
+    accessorKey: 'details.paidSummary.kindOfVal',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="kindOfVal" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
+      </RecordTableInlineCell>
+    ),
+    size: 120,
+  },
+  {
+    id: 'value',
+    accessorKey: 'details.paidSummary.value',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Value" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
+      </RecordTableInlineCell>
+    ),
+    size: 120,
+  },
+  {
+    id: 'amount',
+    accessorKey: 'details.paidSummary.amount',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="amount" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
     size: 100,
@@ -79,55 +129,13 @@ export const PosCoversSheet = () => {
     [searchParams, setSearchParams],
   );
 
-  const { toast } = useToast();
-  const { posCovers, loading, refetch } = usePosCoversQuery(
-    posCoverId || undefined,
-  );
+  const { posCovers } = usePosCoversQuery(posCoverId || undefined);
 
-  const form = useForm<TPosOrderFormData>();
-
-  const submitHandler: SubmitHandler<TPosOrderFormData> =
-    React.useCallback(async () => {
-      if (!posCoverId) return;
-
-      try {
-        if (
-          posCovers?.status === 'returned' ||
-          posCovers?.status === 'completed'
-        ) {
-          toast({
-            title: 'Cannot modify payment',
-            description: 'This cover has been returned and cannot be modified.',
-            variant: 'destructive',
-          });
-          return;
-        }
-
-        await refetch();
-
-        toast({ title: 'Cover updated successfully', variant: 'success' });
-        updatePosCoverId('');
-      } catch (error) {
-        let errorMessage = 'Unknown error';
-        if (error instanceof Error) {
-          if (error.message.includes('Already returned')) {
-            errorMessage =
-              'This cover has been returned and payment changes are not allowed.';
-          } else if (error.message.includes('not balanced')) {
-            errorMessage = `Payments must sum to the total amount (${
-              posCovers?.totalAmount?.toLocaleString() || 0
-            }).`;
-          } else {
-            errorMessage = error.message;
-          }
-        }
-        toast({
-          title: 'Failed to update cover',
-          variant: 'destructive',
-          description: errorMessage,
-        });
-      }
-    }, [posCovers, refetch, toast, updatePosCoverId, posCoverId]);
+  const form = useForm<{ note?: string }>({
+    defaultValues: {
+      note: '',
+    },
+  });
 
   return (
     <Sheet
@@ -142,7 +150,6 @@ export const PosCoversSheet = () => {
             className="flex flex-col gap-0 size-full"
             onSubmit={(e) => {
               e.preventDefault();
-              submitHandler({} as TPosOrderFormData);
             }}
           >
             <Sheet.Header>
@@ -201,30 +208,40 @@ export const PosCoversSheet = () => {
                       {posCovers.description}
                     </span>
                   </div>
-                  {posCovers.details && posCovers.details.length > 0 && (
-                    <div className="rounded-md overflow-hidden">
-                      <RecordTable.Provider
-                        columns={itemColumns}
-                        data={posCovers.details}
-                        className="w-full"
-                      >
-                        <RecordTable>
-                          <RecordTable.Header />
-                          <RecordTable.Body>
-                            <RecordTable.RowList />
-                          </RecordTable.Body>
-                        </RecordTable>
-                      </RecordTable.Provider>
-                    </div>
-                  )}
+
+                  <div className="rounded-md overflow-hidden relative">
+                    <RecordTable.Provider
+                      columns={itemColumns}
+                      data={(posCovers.details || []).map((d: any) => ({
+                        ...d,
+                        subRows: d?.paidSummary || [],
+                      }))}
+                      className="w-full"
+                    >
+                      <RecordTable>
+                        <RecordTable.Header />
+                        <RecordTable.Body>
+                          <RecordTable.RowList />
+                        </RecordTable.Body>
+                      </RecordTable>
+                    </RecordTable.Provider>
+
+                    {(!posCovers.details || posCovers.details.length === 0) && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="flex flex-col items-center justify-center text-center">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            No payment details
+                          </h3>
+                          <p className="mt-1 text-sm text-gray-500">
+                            This cover has no payment breakdown.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </Sheet.Content>
-            <Sheet.Footer>
-              <Button type="submit" disabled={loading}>
-                Save Note
-              </Button>
-            </Sheet.Footer>
           </form>
         </Form>
       </Sheet.View>

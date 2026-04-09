@@ -1,3 +1,4 @@
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
   IChecklist,
@@ -7,24 +8,20 @@ import {
 } from '~/modules/sales/@types';
 
 const checklistsChanged = (checklist: IChecklistDocument) => {
-  //   graphqlPubsub.publish(
-  //     `salesChecklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
-  //     {
-  //       salesChecklistsChanged: {
-  //         _id: checklist._id,
-  //         contentType: checklist.contentType,
-  //         contentTypeId: checklist.contentTypeId,
-  //       },
-  //     },
-  //   );
+  graphqlPubsub.publish(
+    `salesChecklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
+    {
+      salesChecklistsChanged: checklist,
+    },
+  );
 };
 
 const checklistDetailChanged = (_id: string) => {
-  //   graphqlPubsub.publish(`salesChecklistDetailChanged:${_id}`, {
-  //     salesChecklistDetailChanged: {
-  //       _id,
-  //     },
-  //   });
+  graphqlPubsub.publish(`salesChecklistDetailChanged:${_id}`, {
+    salesChecklistDetailChanged: {
+      _id,
+    },
+  });
 };
 
 export const checklistMutations = {

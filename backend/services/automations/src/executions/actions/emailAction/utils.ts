@@ -1,5 +1,11 @@
-import { AUTOMATION_EMAIL_RECIPIENTS_TYPES } from 'erxes-api-shared/core-modules';
+import {
+  AUTOMATION_EMAIL_RECIPIENTS_TYPES,
+  splitType,
+} from 'erxes-api-shared/core-modules';
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
+
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export const getEmailRecipientTypes = async () => {
   let reciepentTypes: Array<{
@@ -70,6 +76,25 @@ export const formatFromEmail = (sender, fromUserEmail) => {
   }
 
   return null;
+};
+
+export const normalizeEmailActionPlaceholders = (
+  value: string,
+  targetType?: string,
+) => {
+  if (!value) {
+    return value;
+  }
+
+  const [, , collectionType] = targetType ? splitType(targetType) : [];
+  const scopes = ['trigger', collectionType].filter(Boolean) as string[];
+
+  return scopes.reduce((content, scope) => {
+    return content.replace(
+      new RegExp(`{{\\s*${escapeRegExp(scope)}\\.(.*?)\\s*}}`, 'g'),
+      '{{ $1 }}',
+    );
+  }, value);
 };
 
 export const setActivityLog = async ({

@@ -6,17 +6,64 @@ import {
   addDeal,
   editDeal,
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
+import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
 import {
   convertNestedDate,
   generateAmounts,
   generateProducts,
 } from '~/modules/sales/utils';
-import { createEventDispatcher } from 'erxes-api-shared/core-modules';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
+
+const publishDealSubscription = t.procedure
+  .input(z.any())
+  .mutation(async ({ ctx, input }) => {
+    const { models } = ctx;
+    const { action, deal, oldDeal, dealId, pipelineId, oldPipelineId } = input;
+
+    await subscriptionWrapper(models, {
+      action,
+      deal,
+      oldDeal,
+      dealId,
+      pipelineId,
+      oldPipelineId,
+    });
+
+    return { status: 'success' };
+  });
+
+const createDealProcedure = t.procedure
+  .input(z.any())
+  .mutation(async ({ ctx, input }) => {
+    const { models } = ctx;
+    return {
+      status: 'success',
+      data: await models.Deals.createDeal(input),
+    };
+  });
+
+const updateDealProcedure = t.procedure
+  .input(z.any())
+  .mutation(async ({ ctx, input }) => {
+    const { models } = ctx;
+    const { selector, modifier } = input;
+
+    const updateDoc =
+      modifier && Object.keys(modifier).some((key) => key.startsWith('$'))
+        ? modifier
+        : { $set: modifier };
+
+    return {
+      status: 'success',
+      data: await models.Deals.findOneAndUpdate(selector, updateDoc, {
+        new: true,
+      }),
+    };
+  });
 
 export const dealTrpcRouter = t.router({
   deal: {
@@ -173,7 +220,12 @@ export const dealTrpcRouter = t.router({
 
       const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
 
-      return models.Deals.find({ stageId: { $in: stageIds } }).distinct('_id');
+      return {
+        status: 'success',
+        data: await models.Deals.find({ stageId: { $in: stageIds } }).distinct(
+          '_id',
+        ),
+      };
     }),
 
     generateInternalNoteNotif: t.procedure
@@ -196,7 +248,10 @@ export const dealTrpcRouter = t.router({
         // sendNotificationOfItems on and deal
         notifDoc.notifOfItems = true;
 
-        return notifDoc;
+        return {
+          status: 'success',
+          data: notifDoc,
+        };
       }),
 
     notifiedUserIds: t.procedure
@@ -216,7 +271,10 @@ export const dealTrpcRouter = t.router({
 
         userIds = userIds.concat(pipeline.watchedUserIds || []);
 
-        return userIds;
+        return {
+          status: 'success',
+          data: userIds,
+        };
       }),
 
     tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
@@ -238,7 +296,10 @@ export const dealTrpcRouter = t.router({
         response = await models.Deals.find({ _id: { $in: targetIds } }).lean();
       }
 
-      return response;
+      return {
+        status: 'success',
+        data: response,
+      };
     }),
 
     getFilterParams: t.procedure
@@ -246,32 +307,34 @@ export const dealTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const { filter, userId } = input;
         const { models, subdomain } = ctx;
-        return await generateFilter(models, subdomain, userId, filter);
+        return {
+          status: 'success',
+          data: await generateFilter(models, subdomain, userId, filter),
+        };
       }),
 
     generateAmounts: t.procedure.input(z.any()).query(async ({ input }) => {
-      return generateAmounts(input);
+      return {
+        status: 'success',
+        data: generateAmounts(input),
+      };
     }),
 
     generateProducts: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { subdomain } = ctx;
-        return await generateProducts(subdomain, input);
+        return {
+          status: 'success',
+          data: await generateProducts(subdomain, input),
+        };
       }),
 
     createCommentActivityLog: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { subdomain } = ctx;
-        const {
-          dealId,
-          commentId,
-          createdBy,
-          processId,
-          userId,
-          commentContent,
-        } = input;
+        const { eventHandlers } = ctx;
+        const { dealId, commentId, createdBy, userId, commentContent } = input;
 
         if (!dealId || !commentId || !createdBy) {
           return {
@@ -280,41 +343,34 @@ export const dealTrpcRouter = t.router({
               'Missing required parameters: dealId, commentId, createdBy',
           };
         }
-
         try {
-          const dispatcher = createEventDispatcher({
-            subdomain,
-            pluginName: 'sales',
-            moduleName: 'sales',
-            collectionName: 'deals',
-            getContext: () => ({
-              subdomain,
-              processId: processId || '',
-              userId: userId || createdBy || '',
-            }),
-          });
+          const salesEventHandlers = eventHandlers('sales');
+          const { createActivityLog } = salesEventHandlers('sales', 'deals');
 
-          dispatcher.createActivityLog({
-            activityType: 'comment',
-            target: {
-              _id: dealId,
-              moduleName: 'sales',
-              collectionName: 'deals',
+          createActivityLog(
+            {
+              activityType: 'comment',
+              target: {
+                _id: dealId,
+                moduleName: 'sales',
+                collectionName: 'deals',
+              },
+              action: {
+                type: 'comment',
+                description: `Comment added from client portal ${commentContent}`,
+              },
+              changes: {
+                commentId,
+                commentedAt: new Date(),
+              },
+              metadata: {
+                dealId,
+                commentId,
+                createdBy,
+              },
             },
-            action: {
-              type: 'comment',
-              description: `Comment added from client portal ${commentContent}`,
-            },
-            changes: {
-              commentId,
-              commentedAt: new Date(),
-            },
-            metadata: {
-              dealId,
-              commentId,
-              createdBy,
-            },
-          });
+            userId || createdBy || '',
+          );
 
           return {
             status: 'success',
@@ -327,7 +383,12 @@ export const dealTrpcRouter = t.router({
           };
         }
       }),
+    subscriptionWrapper: publishDealSubscription,
+    // those create and update procedures are for system user, because of user missing
+    create: createDealProcedure,
+    updateOne: updateDealProcedure,
   },
+
   stage: {
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -360,7 +421,10 @@ export const dealTrpcRouter = t.router({
         }
       }
 
-      return pipeline;
+      return {
+        status: 'success',
+        data: pipeline,
+      };
     }),
   },
 });

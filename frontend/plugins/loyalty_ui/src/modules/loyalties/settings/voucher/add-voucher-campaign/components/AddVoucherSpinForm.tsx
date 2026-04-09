@@ -1,8 +1,9 @@
+import { useQuery } from '@apollo/client';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input, Select } from 'erxes-ui';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
-import { VOUCHER_SPIN_DATA } from '../constants/voucherSpinData';
+import { QUERY_SPIN_CAMPAIGNS } from '../../../spin/add-spin-campaign/graphql/queries/getCampaignsQuery';
 
 interface AddVoucherSpinFormProps {
   form: UseFormReturn<VoucherFormValues>;
@@ -11,6 +12,9 @@ interface AddVoucherSpinFormProps {
 export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
   form,
 }) => {
+  const { data: campaignsData } = useQuery(QUERY_SPIN_CAMPAIGNS);
+  const spinCampaigns = campaignsData?.spinCampaigns?.list || [];
+
   return (
     <div className="space-y-4 p-5">
       <Form.Field
@@ -18,19 +22,20 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
         name="spinCampaignId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Spin</Form.Label>
+            <Form.Label>Spin Campaign</Form.Label>
             <Form.Control>
               <Select onValueChange={field.onChange} value={field.value}>
                 <Select.Trigger
                   className={field.value ? '' : 'text-muted-foreground'}
                 >
-                  {VOUCHER_SPIN_DATA.find((type) => type.value === field.value)
-                    ?.label || 'Select spin'}
+                  {spinCampaigns.find(
+                    (campaign: any) => campaign._id === field.value,
+                  )?.title || 'Select spin campaign'}
                 </Select.Trigger>
                 <Select.Content>
-                  {VOUCHER_SPIN_DATA.map((option) => (
-                    <Select.Item key={option.value} value={option.value}>
-                      {option.label}
+                  {spinCampaigns.map((campaign: any) => (
+                    <Select.Item key={campaign._id} value={campaign._id}>
+                      {campaign.title}
                     </Select.Item>
                   ))}
                 </Select.Content>
@@ -48,14 +53,14 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
             <Form.Label>Spin Count</Form.Label>
             <Form.Control>
               <Input
-                type="text"
+                type="number"
                 placeholder="Enter spin count"
-                {...field}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const numValue = Number(value);
-                  field.onChange(Number.isNaN(numValue) ? 0 : numValue);
-                }}
+                value={field.value ?? ''}
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value === '' ? undefined : Number(e.target.value),
+                  )
+                }
               />
             </Form.Control>
             <Form.Message />

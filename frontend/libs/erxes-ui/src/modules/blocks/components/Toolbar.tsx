@@ -13,6 +13,7 @@ import {
   UnnestBlockButton,
 } from '@blocknote/react';
 import { FontFamilyButton } from './FontFamilyButton';
+import { ImageStyleButton } from './ImageStyleButton';
 
 export const Toolbar = () => {
   return (
@@ -21,6 +22,7 @@ export const Toolbar = () => {
         <FormattingToolbar>
           <BlockTypeSelect key={'blockTypeSelect'} />
           <FontFamilyButton key={'fontFamilyButton'} />
+          <ImageStyleButton />
           <FileCaptionButton key={'fileCaptionButton'} />
           <FileReplaceButton key={'replaceFileButton'} />
           <BasicTextStyleButton
