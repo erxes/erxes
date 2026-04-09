@@ -42,7 +42,11 @@ const stringifyScopeValue = (value: unknown): string | null => {
     return String(value);
   }
 
-  if (value && typeof value === 'object' && typeof value.toString === 'function') {
+  if (
+    value &&
+    typeof value === 'object' &&
+    typeof value.toString === 'function'
+  ) {
     const normalized = value.toString().trim();
 
     if (normalized && normalized !== '[object Object]') {
