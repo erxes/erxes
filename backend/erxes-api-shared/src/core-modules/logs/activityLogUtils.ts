@@ -209,7 +209,7 @@ export interface ActivityRule {
 }
 
 function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 function matchesFieldPattern(field: string, pattern: string): boolean {
   // Exact match
@@ -221,7 +221,7 @@ function matchesFieldPattern(field: string, pattern: string): boolean {
   if (pattern.includes('*')) {
     // Convert pattern to regex: "links.*" -> "^links\\..*$"
     const escapedPattern = escapeRegex(pattern);
-    const regexPattern = escapedPattern.replace(/\\\*/g, '.*'); // Convert * to .*
+    const regexPattern = escapedPattern.replaceAll(/\\\*/g, '.*'); // Convert * to .*
     const regex = new RegExp(`^${regexPattern}$`);
     return regex.test(field);
   }
@@ -626,8 +626,8 @@ export async function buildBulkActivities(
 }
 
 export async function buildActivities(
-  prevDoc: any | Document<any>,
-  currentDoc: any | Document<any>,
+  prevDoc: Document<any>,
+  currentDoc: Document<any>,
   activityRegistry: ActivityRule[],
 ) {
   const activities: ActivityLogPayload[] = [];
