@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom';
 import PosOrderDetailContainer from '@/msdynamic/containers/PosOrderDetail';
-import MsdynamicTopNav from '@/msdynamic/components/MsdynamicTopNav';
 
 export const PosOrderDetailsPage = () => {
   const { id } = useParams();
@@ -8,9 +7,7 @@ export const PosOrderDetailsPage = () => {
   if (!id) return null;
 
   return (
-    <>
-      <PosOrderDetailContainer order={{ _id: id }} />
-    </>
+    <PosOrderDetailContainer order={{ _id: id }} />
   );
 };
 

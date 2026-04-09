@@ -42,7 +42,6 @@ const CheckSyncedOrdersContainer = () => {
   const {
     data: ordersData,
     loading: ordersLoading,
-    refetch,
   } = useQuery(gql(queries.checkSyncOrders), {
     variables,
     fetchPolicy: 'network-only',

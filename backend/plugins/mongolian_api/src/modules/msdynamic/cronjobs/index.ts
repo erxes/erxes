@@ -11,6 +11,7 @@ export default {
         return;
       }
     } catch (e) {
+      console.log('msdynamic cron err:', e.message)
       return;
     }
 

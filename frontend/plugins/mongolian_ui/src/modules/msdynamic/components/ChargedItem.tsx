@@ -2,7 +2,7 @@ type Props = {
   item: any;
 };
 
-function ChargeItem(props: Props) {
+function ChargeItem(props: Readonly<Props>) {
   const { error, Document_No, Description, No, Quantity, Unit_Price } =
     props.item;
 

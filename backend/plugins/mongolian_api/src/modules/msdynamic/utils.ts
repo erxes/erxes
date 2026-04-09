@@ -2,7 +2,6 @@ import fetch from 'node-fetch';
 import { IModels } from '~/connectionResolvers';
 import { ISyncLogDocument } from '~/modules/msdynamic/@types/dynamic';
 import { getMsdCustomerInfo } from './utilsCustomer';
-// import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 interface ExchangeRateConfig {
@@ -146,7 +145,7 @@ export const consumeCategory = async (
     defaultValue: {},
   });
 
-  const brandIds = (productCategory || {}).scopeBrandIds || [];
+  const brandIds = productCategory?.scopeBrandIds || [];
 
   if ((action === 'update' && doc.Code) || action === 'create') {
     if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
@@ -309,7 +308,7 @@ export const dealToDynamic = async (
 
       if (!orderMsdNo) {
         const subSendData: any = {
-          Sell_to_Customer_No: custCode || config.defaultUserCode,
+          Sell_to_Customer_No: custCode ?? config.defaultUserCode,
         };
 
         const subResponseSale = await fetch(`${salesApi}${urlParam}`, {
@@ -332,20 +331,20 @@ export const dealToDynamic = async (
         customerType === 'company'
           ? msdCustomer?.No || config.defaultUserCode
           : custCode || config.defaultUserCode,
-      Sell_to_Phone_No: customer?.primaryPhone || '',
-      Sell_to_E_Mail: customer?.primaryEmail || '',
+      Sell_to_Phone_No: customer?.primaryPhone ?? '',
+      Sell_to_E_Mail: customer?.primaryEmail ?? '',
       External_Document_No: deal.number || deal.name.split(':').pop().trim(),
-      Responsibility_Center: config.responsibilityCenter || '',
-      Sync_Type: config.syncType || '',
-      Mobile_Phone_No: customer?.primaryPhone || '',
-      VAT_Bus_Posting_Group: config.vatBusPostingGroup || '',
-      Payment_Terms_Code: config.paymentTermsCode || '',
+      Responsibility_Center: config.responsibilityCenter ?? '',
+      Sync_Type: config.syncType ?? '',
+      Mobile_Phone_No: customer?.primaryPhone ?? '',
+      VAT_Bus_Posting_Group: config.vatBusPostingGroup ?? '',
+      Payment_Terms_Code: config.paymentTermsCode ?? '',
       Payment_Method_Code: config.paymentMethodCode || 'CASH',
-      Customer_Price_Group: config.customerPricingGroup || '',
+      Customer_Price_Group: config.customerPricingGroup ?? '',
       Prices_Including_VAT: true,
       BillType: config.billType || 'Receipt',
-      Location_Code: userLocationCode || config.locationCode || '',
-      Deal_Type_Code: config.dealType || 'NORMAL',
+      Location_Code: userLocationCode ?? config.locationCode ?? '',
+      Deal_Type_Code: config.dealType ?? 'NORMAL',
       Salesperson_Code: user?.employeeId ?? '',
       Sell_to_Address: sellAddress,
       Sell_to_Address_2: sellAddress2,

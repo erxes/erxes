@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-
-import { Card } from 'erxes-ui/components/card';
 import { Button } from 'erxes-ui/components/button';
 import { Input } from 'erxes-ui/components/input';
 import { Label } from 'erxes-ui/components/label';

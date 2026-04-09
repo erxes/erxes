@@ -1,10 +1,6 @@
-import fetch from 'node-fetch';
 import { IContext, generateModels } from '~/connectionResolvers';
 import {
-  consumeCategory,
   consumeInventory,
-  getExchangeRates,
-  getPrice,
   orderToDynamic,
 } from '../../../utils';
 import { consumeCustomers } from '~/modules/msdynamic/utilsCustomer';
