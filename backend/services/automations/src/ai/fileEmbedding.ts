@@ -366,7 +366,7 @@ Please analyze and respond with only the topic ID:`;
         return String(value);
       case 'number':
         const num = Number(value);
-        return isNaN(num) ? 0 : num;
+        return Number.isNaN(num) ? 0 : num;
       case 'boolean':
         if (typeof value === 'boolean') return value;
         if (typeof value === 'string') {
@@ -396,7 +396,7 @@ Please analyze and respond with only the topic ID:`;
     for (const field of objectFields) {
       // Try to find field value in the response text
       const fieldPattern = new RegExp(
-        `${field.fieldName}[\\s:]+([^\\n\\r]+)`,
+        String.raw`${field.fieldName}[\s:]+([^\n\r]+)`,
         'i',
       );
       const match = response.match(fieldPattern);
@@ -469,11 +469,11 @@ Please identify the most relevant document and provide a helpful answer based on
   private cleanDocumentContent(content: string): string {
     // Remove binary markers and XML tags
     let cleanText = content
-      .replace(/PK[^\s]*/g, '') // Remove PK markers
-      .replace(/<\?xml[^>]*>/g, '') // Remove XML declarations
-      .replace(/<[^>]*>/g, '') // Remove all XML tags
-      .replace(/[^\w\s.,!?\-()]/g, ' ') // Keep readable characters
-      .replace(/\s+/g, ' ') // Normalize whitespace
+      .replaceAll(/PK[^\s]*/g, '') // Remove PK markers
+      .replaceAll(/<\?xml[^>]*>/g, '') // Remove XML declarations
+      .replaceAll(/<[^>]*>/g, '') // Remove all XML tags
+      .replaceAll(/[^\w\s.,!?\-()]/g, ' ') // Keep readable characters
+      .replaceAll(/\s+/g, ' ') // Normalize whitespace
       .trim();
 
     // If still too much binary content, try to extract meaningful text
