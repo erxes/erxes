@@ -33,8 +33,6 @@ export const modifierWrapper = async (models: IModels, adjustInventory: IAdjustI
   if (hasObj) {
     return await models.AdjustInventories.getAdjustInventory(adjustId);
   }
-
-  return;
 }
 
 export const checkValidDate = async (models: IModels, adjustInventory: IAdjustInventory) => {
@@ -249,7 +247,7 @@ const getErrorDesc = async (subdomain: string, models: IModels, errFormat: strin
       input: { query: { _id: args.productId } }
     });
     if (product?._id) {
-      result = result.replace(/{productId}/g, `${product.code} - ${product.name}`)
+      result = result.replaceAll(/{productId}/g, `${product.code} - ${product.name}`)
     }
   }
 
@@ -257,7 +255,7 @@ const getErrorDesc = async (subdomain: string, models: IModels, errFormat: strin
     const account = await models.Accounts.findOne({ _id: args.accountId });
 
     if (account?._id) {
-      result = result.replace(/{accountId}/g, `${account.code} - ${account.name}`)
+      result = result.replaceAll(/{accountId}/g, `${account.code} - ${account.name}`)
     }
   }
 
@@ -271,7 +269,7 @@ const getErrorDesc = async (subdomain: string, models: IModels, errFormat: strin
       input: { query: { _id: args.branchId } }
     });
     if (branch?._id) {
-      result = result.replace(/{branchId}/g, `${branch.code} - ${branch.title}`)
+      result = result.replaceAll(/{branchId}/g, `${branch.code} - ${branch.title}`)
     }
   }
 
@@ -285,7 +283,7 @@ const getErrorDesc = async (subdomain: string, models: IModels, errFormat: strin
       input: { query: { _id: args.departmentId } }
     });
     if (department?._id) {
-      result = result.replace(/{departmentId}/g, `${department.code} - ${department.title}`)
+      result = result.replaceAll(/{departmentId}/g, `${department.code} - ${department.title}`)
     }
   }
   return result;

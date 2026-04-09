@@ -32,7 +32,6 @@ const canShowTr = async (models: IModels, transaction: ITransactionDocument, use
   if (!user._id) {
     return 'false'
   }
-  return;
 }
 
 export const checkPermissionTrs = async (models: IModels, transactions: ITransactionDocument[], user: IUserDocument) => {
