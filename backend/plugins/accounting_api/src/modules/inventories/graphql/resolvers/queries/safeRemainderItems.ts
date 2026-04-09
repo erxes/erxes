@@ -35,23 +35,21 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
 
   if (diffType) {
     const diffTypes = diffType.split(',');
-    let op;
-    if (diffTypes.includes('gt')) {
-      op = '>';
+    let cmpOp;
+    if (diffTypes.includes('gt') && diffTypes.includes('eq')) {
+      cmpOp = '$gte';
+    } else if (diffTypes.includes('lt') && diffTypes.includes('eq')) {
+      cmpOp = '$lte';
+    } else if (diffTypes.includes('gt')) {
+      cmpOp = '$gt';
+    } else if (diffTypes.includes('lt')) {
+      cmpOp = '$lt';
+    } else if (diffTypes.includes('eq')) {
+      cmpOp = '$eq';
     }
-    if (diffTypes.includes('lt')) {
-      op = '<';
+    if (cmpOp) {
+      query.$expr = { [cmpOp]: ['$preCount', '$count'] };
     }
-    if (op) {
-      if (diffTypes.includes('eq')) {
-        op = `${op}=`;
-      }
-    } else {
-      if (diffTypes.includes('eq')) {
-        op = `===`;
-      }
-    }
-    query.$where = `this.preCount ${op} this.count`;
   }
 
   return query;

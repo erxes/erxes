@@ -2,6 +2,100 @@ import dayjs from 'dayjs';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
+/**
+ * Safely evaluates a simple arithmetic expression string containing
+ * only numbers, +, -, *, /, parentheses, and whitespace.
+ * Returns 0 for any invalid or unsafe input.
+ */
+export const safeEvaluateArithmetic = (expr: string): number => {
+  if (typeof expr !== 'string' || !expr.trim()) {
+    return 0;
+  }
+
+  // Only allow digits, operators, parentheses, spaces, and decimal points
+  if (!/^[\d\s+\-*/().]+$/.test(expr.trim())) {
+    return 0;
+  }
+
+  let pos = 0;
+  const str = expr.trim();
+
+  const skipSpaces = (): void => {
+    while (pos < str.length && str[pos] === ' ') pos++;
+  };
+
+  const parseNumber = (): number => {
+    skipSpaces();
+    const start = pos;
+    while (
+      pos < str.length &&
+      ((str[pos] >= '0' && str[pos] <= '9') || str[pos] === '.')
+    ) {
+      pos++;
+    }
+    if (start === pos) return 0;
+    return parseFloat(str.substring(start, pos)) || 0;
+  };
+
+  const parseFactor = (): number => {
+    skipSpaces();
+    if (str[pos] === '(') {
+      pos++;
+      const result = parseExpression();
+      skipSpaces();
+      if (str[pos] === ')') pos++;
+      return result;
+    }
+    if (str[pos] === '-') {
+      pos++;
+      return -parseFactor();
+    }
+    return parseNumber();
+  };
+
+  const parseTerm = (): number => {
+    let result = parseFactor();
+    while (pos < str.length) {
+      skipSpaces();
+      if (str[pos] === '*') {
+        pos++;
+        result *= parseFactor();
+      } else if (str[pos] === '/') {
+        pos++;
+        const divisor = parseFactor();
+        result = divisor !== 0 ? result / divisor : 0;
+      } else {
+        break;
+      }
+    }
+    return result;
+  };
+
+  const parseExpression = (): number => {
+    let result = parseTerm();
+    while (pos < str.length) {
+      skipSpaces();
+      if (str[pos] === '+') {
+        pos++;
+        result += parseTerm();
+      } else if (str[pos] === '-') {
+        pos++;
+        result -= parseTerm();
+      } else {
+        break;
+      }
+    }
+    return result;
+  };
+
+  try {
+    const result = parseExpression();
+    return isFinite(result) ? result : 0;
+  } catch {
+    return 0;
+  }
+};
+
 export const resolvePlaceholderValue = (target: any, attribute: string) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 

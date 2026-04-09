@@ -47,7 +47,7 @@ function MessageButtonItem({
       <div className="flex items-center justify-between">
         {button.text}
         {button.link ? (
-          <Link to={button.link} target="_blank">
+          <Link to={button.link} target="_blank" rel="noopener noreferrer">
             <IconLink className="size-4" />
           </Link>
         ) : (

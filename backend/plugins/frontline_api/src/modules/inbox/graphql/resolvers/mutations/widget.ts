@@ -942,7 +942,7 @@ export const widgetMutations: Record<string, Resolver> = {
           VERIFY_EMAIL_TRANSLATIONS[languageCode] ||
           VERIFY_EMAIL_TRANSLATIONS.en;
 
-        finalContent += `\n<p><a href="${emailValidationUrl}" target="_blank">${text}</a></p>`;
+        finalContent += `\n<p><a href="${emailValidationUrl}" target="_blank" rel="noopener noreferrer">${text}</a></p>`;
 
         await sendTRPCMessage({
           subdomain,

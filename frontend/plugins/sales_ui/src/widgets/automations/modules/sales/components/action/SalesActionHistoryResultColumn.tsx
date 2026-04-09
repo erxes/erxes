@@ -11,6 +11,7 @@ export const SalesActionHistoryResult = ({
       <Link
         to={`/deals?boardId=${result.boardId}&pipelineId=${result.pipelineId}&salesItemId=${result.targetId}`}
         target="_blank"
+        rel="noopener noreferrer"
       >
         <Button variant="link" className="w-full">
           {result.name}
