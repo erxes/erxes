@@ -6,12 +6,12 @@ import { ITransaction, ITransactionDocument } from '../@types/transaction';
 import { IVatRow } from '../@types/vatRow';
 import { createOrUpdateTr } from './utils';
 
-
 class TaxTrs {
   private models: IModels;
   private doc: ITransaction;
   private side: 'dt' | 'ct';
   private isWithTax: boolean;
+  private readonly userId: string;
 
   private vatAccountId?: string;
   private ctaxAccountId?: string;
@@ -25,12 +25,17 @@ class TaxTrs {
   private sumCt = 0;
 
   constructor(
-    models: IModels, doc: ITransaction, side: 'dt' | 'ct', isWithTax?: boolean
+    models: IModels,
+    userId: string,
+    doc: ITransaction,
+    side: 'dt' | 'ct',
+    isWithTax?: boolean,
   ) {
     this.models = models;
     this.doc = doc;
     this.side = side;
     this.isWithTax = isWithTax ?? false;
+    this.userId = userId;
   }
 
   private initTaxValues = async () => {
@@ -41,54 +46,59 @@ class TaxTrs {
       let configKey = '';
       if (this.doc.afterVat) {
         if (this.side === 'dt') {
-          configKey = 'VatAfterReceivableAccount'
+          configKey = 'VatAfterReceivableAccount';
         } else {
-          configKey = 'VatAfterPayableAccount'
+          configKey = 'VatAfterPayableAccount';
         }
       } else {
         if (this.side === 'dt') {
-          configKey = 'VatReceivableAccount'
+          configKey = 'VatReceivableAccount';
         } else {
-          configKey = 'VatPayableAccount'
+          configKey = 'VatPayableAccount';
         }
       }
 
       this.vatAccountId = await this.models.Configs.getConfigValue(configKey);
 
       if (!this.vatAccountId) {
-        throw new Error(`must init vat account ${configKey}`)
+        throw new Error(`must init vat account ${configKey}`);
       }
 
-      this.vatRow = await this.models.VatRows.getVatRow({ _id: this.doc.vatRowId });
+      this.vatRow = await this.models.VatRows.getVatRow({
+        _id: this.doc.vatRowId,
+      });
       taxPercent += this.vatRow.percent || 0;
     }
 
     if (hasCtax && this.doc.hasCtax) {
-      this.ctaxAccountId = await this.models.Configs.getConfigValue('CtaxPayableAccount');
+      this.ctaxAccountId =
+        await this.models.Configs.getConfigValue('CtaxPayableAccount');
 
       if (!this.ctaxAccountId) {
-        throw new Error('must init ctax account id')
+        throw new Error('must init ctax account id');
       }
 
-      this.ctaxRow = await this.models.CtaxRows.getCtaxRow({ _id: this.doc.ctaxRowId });
+      this.ctaxRow = await this.models.CtaxRows.getCtaxRow({
+        _id: this.doc.ctaxRowId,
+      });
       taxPercent += this.ctaxRow.percent;
     }
 
     this.taxPercent = taxPercent;
 
     this.sumDt = this.doc.details
-      .filter(d => d.side === TR_SIDES.DEBIT)
-      .reduce((sum, cur) => sum + cur.amount, 0)
+      .filter((d) => d.side === TR_SIDES.DEBIT)
+      .reduce((sum, cur) => sum + cur.amount, 0);
 
     this.sumCt = this.doc.details
-      .filter(d => d.side === TR_SIDES.CREDIT)
-      .reduce((sum, cur) => sum + cur.amount, 0)
-  }
+      .filter((d) => d.side === TR_SIDES.CREDIT)
+      .reduce((sum, cur) => sum + cur.amount, 0);
+  };
 
   private checkVatValidation = async () => {
     const detail = this.doc.details[0];
     if (!detail) {
-      throw new Error('has not detail')
+      throw new Error('has not detail');
     }
 
     if (!this.doc.hasVat) {
@@ -96,15 +106,15 @@ class TaxTrs {
     }
 
     if (!this.doc.vatRowId && !this.doc.afterVat) {
-      throw new Error('must choose vat row')
+      throw new Error('must choose vat row');
     }
 
     const sumValue = this.sumDt + this.sumCt;
     const vatPercent = this.vatRow?.percent || 0;
 
-    const vatValue = this.isWithTax ?
-      sumValue / (100 + this.taxPercent) * vatPercent :
-      sumValue / 100 * vatPercent
+    const vatValue = this.isWithTax
+      ? (sumValue / (100 + this.taxPercent)) * vatPercent
+      : (sumValue / 100) * vatPercent;
 
     this.vatTrDoc = {
       ptrId: this.doc.ptrId,
@@ -117,21 +127,23 @@ class TaxTrs {
       departmentId: this.doc.departmentId,
       customerType: this.doc.customerType,
       customerId: this.doc.customerId,
-      details: [{
-        _id: nanoid(),
-        accountId: this.vatAccountId ?? '',
-        side: this.side,
-        amount: vatValue
-      }],
-    }
+      details: [
+        {
+          _id: nanoid(),
+          accountId: this.vatAccountId ?? '',
+          side: this.side,
+          amount: vatValue,
+        },
+      ],
+    };
 
-    return this.vatTrDoc
-  }
+    return this.vatTrDoc;
+  };
 
   private checkCtaxValidation = async () => {
     const detail = this.doc.details[0];
     if (!detail) {
-      throw new Error('has not detail')
+      throw new Error('has not detail');
     }
 
     if (!this.doc.hasCtax) {
@@ -139,15 +151,15 @@ class TaxTrs {
     }
 
     if (!this.doc.ctaxRowId) {
-      throw new Error('must choose ctax row')
+      throw new Error('must choose ctax row');
     }
 
     const sumValue = this.sumDt + this.sumCt;
     const ctaxPercent = this.ctaxRow?.percent || 0;
 
-    const ctaxValue = this.isWithTax ?
-      sumValue / (100 + this.taxPercent) * ctaxPercent :
-      sumValue / 100 * ctaxPercent
+    const ctaxValue = this.isWithTax
+      ? (sumValue / (100 + this.taxPercent)) * ctaxPercent
+      : (sumValue / 100) * ctaxPercent;
 
     if (this.side === 'ct') {
       this.ctaxTrDoc = {
@@ -161,29 +173,36 @@ class TaxTrs {
         departmentId: this.doc.departmentId,
         customerType: this.doc.customerType,
         customerId: this.doc.customerId,
-        details: [{
-          _id: nanoid(),
-          accountId: this.ctaxAccountId ?? '',
-          side: this.side,
-          amount: ctaxValue
-        }],
-      }
-      return this.ctaxTrDoc
+        details: [
+          {
+            _id: nanoid(),
+            accountId: this.ctaxAccountId ?? '',
+            side: this.side,
+            amount: ctaxValue,
+          },
+        ],
+      };
+      return this.ctaxTrDoc;
     }
-  }
+  };
 
   public checkTaxValidation = async () => {
     await this.initTaxValues();
     await this.checkVatValidation();
     await this.checkCtaxValidation();
-  }
+  };
 
   private doVatTr = async (transaction: ITransactionDocument) => {
-    const oldFollowVatTrs = await this.models.Transactions.find({ originId: transaction._id, originType: TR_FOLLOW_TYPES.VAT }).lean();
+    const oldFollowVatTrs = await this.models.Transactions.find({
+      originId: transaction._id,
+      originType: TR_FOLLOW_TYPES.VAT,
+    }).lean();
 
     if (!this.vatTrDoc) {
       if (oldFollowVatTrs.length) {
-        await this.models.Transactions.deleteMany({ _id: { $in: oldFollowVatTrs.map(tr => tr._id) } });
+        await this.models.Transactions.deleteMany({
+          _id: { $in: oldFollowVatTrs.map((tr) => tr._id) },
+        });
       }
       return;
     }
@@ -191,32 +210,47 @@ class TaxTrs {
     const oldvatTr = oldFollowVatTrs[0];
 
     if (oldFollowVatTrs.length > 1) {
-      await this.models.Transactions.deleteMany({ _id: { $in: oldFollowVatTrs.slice(1).map(tr => tr._id) } });
-    }
-
-    const vatTr = await createOrUpdateTr(this.models, {
-      ...this.vatTrDoc,
-      originId: transaction._id,
-      originType: TR_FOLLOW_TYPES.VAT,
-      parentId: transaction.parentId,
-      ptrId: transaction.ptrId
-    }, oldvatTr);
-
-    if (transaction.vatAmount !== this.vatTrDoc.details[0].amount) {
-      await this.models.Transactions.updateOne({ _id: transaction._id }, {
-        $set: { vatAmount: this.vatTrDoc.details[0].amount },
+      await this.models.Transactions.deleteMany({
+        _id: { $in: oldFollowVatTrs.slice(1).map((tr) => tr._id) },
       });
     }
 
+    const vatTr = await createOrUpdateTr(
+      this.models,
+      this.userId,
+      {
+        ...this.vatTrDoc,
+        originId: transaction._id,
+        originType: TR_FOLLOW_TYPES.VAT,
+        parentId: transaction.parentId,
+        ptrId: transaction.ptrId,
+      },
+      oldvatTr,
+    );
+
+    if (transaction.vatAmount !== this.vatTrDoc.details[0].amount) {
+      await this.models.Transactions.updateOne(
+        { _id: transaction._id },
+        {
+          $set: { vatAmount: this.vatTrDoc.details[0].amount },
+        },
+      );
+    }
+
     return vatTr;
-  }
+  };
 
   private doCtaxTr = async (transaction: ITransactionDocument) => {
-    const oldFollowCtaxTrs = await this.models.Transactions.find({ originId: transaction._id, originType: TR_FOLLOW_TYPES.CTAX }).lean();
+    const oldFollowCtaxTrs = await this.models.Transactions.find({
+      originId: transaction._id,
+      originType: TR_FOLLOW_TYPES.CTAX,
+    }).lean();
 
     if (!this.ctaxTrDoc) {
       if (oldFollowCtaxTrs.length) {
-        await this.models.Transactions.deleteMany({ _id: { $in: oldFollowCtaxTrs.map(tr => tr._id) } });
+        await this.models.Transactions.deleteMany({
+          _id: { $in: oldFollowCtaxTrs.map((tr) => tr._id) },
+        });
       }
       return;
     }
@@ -224,25 +258,35 @@ class TaxTrs {
     const oldctaxTr = oldFollowCtaxTrs[0];
 
     if (oldFollowCtaxTrs.length > 1) {
-      await this.models.Transactions.deleteMany({ _id: { $in: oldFollowCtaxTrs.slice(1).map(tr => tr._id) } });
-    }
-
-    const ctaxTr = await createOrUpdateTr(this.models, {
-      ...this.ctaxTrDoc,
-      originId: transaction._id,
-      originType: TR_FOLLOW_TYPES.CTAX,
-      parentId: transaction.parentId,
-      ptrId: transaction.ptrId
-    }, oldctaxTr);
-
-    if (transaction.ctaxAmount !== this.ctaxTrDoc.details[0].amount) {
-      await this.models.Transactions.updateOne({ _id: transaction._id }, {
-        $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
+      await this.models.Transactions.deleteMany({
+        _id: { $in: oldFollowCtaxTrs.slice(1).map((tr) => tr._id) },
       });
     }
 
+    const ctaxTr = await createOrUpdateTr(
+      this.models,
+      this.userId,
+      {
+        ...this.ctaxTrDoc,
+        originId: transaction._id,
+        originType: TR_FOLLOW_TYPES.CTAX,
+        parentId: transaction.parentId,
+        ptrId: transaction.ptrId,
+      },
+      oldctaxTr,
+    );
+
+    if (transaction.ctaxAmount !== this.ctaxTrDoc.details[0].amount) {
+      await this.models.Transactions.updateOne(
+        { _id: transaction._id },
+        {
+          $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
+        },
+      );
+    }
+
     return ctaxTr;
-  }
+  };
 
   public doTaxTrs = async (transaction) => {
     const vatTr = await this.doVatTr(transaction);
@@ -250,13 +294,13 @@ class TaxTrs {
 
     const result: ITransactionDocument[] = [];
     if (vatTr) {
-      result.push(vatTr)
+      result.push(vatTr);
     }
     if (ctaxTr) {
-      result.push(ctaxTr)
+      result.push(ctaxTr);
     }
-    return result
-  }
+    return result;
+  };
 }
 
-export default TaxTrs
+export default TaxTrs;

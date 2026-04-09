@@ -23,6 +23,7 @@ import { IElement } from '../types/element';
 import {
   buildTranslationsFromElement,
   sanitizeTranslations,
+  resolveMainLanguageName,
 } from '../utils/translationHelpers';
 
 interface ElementEditSheetProps {
@@ -58,7 +59,7 @@ export const ElementEditSheet = ({
   const form = useForm<ElementCreateFormType>({
     resolver: zodResolver(ElementCreateFormSchema),
     defaultValues: {
-      name: element.name || '',
+      name: resolveMainLanguageName(element, mainLanguage),
       note: element.note || '',
       startTime: element.startTime || '',
       duration: element.duration || 0,
@@ -68,7 +69,7 @@ export const ElementEditSheet = ({
     },
   });
 
-  const { fields } = useFieldArray({
+  useFieldArray({
     control: form.control,
     name: 'translations',
   });
@@ -81,13 +82,13 @@ export const ElementEditSheet = ({
     labelSuffix,
     currencySymbol,
     fieldPaths,
-  } = useElementLanguage({ branchLanguages, mainLanguage, fields });
+  } = useElementLanguage({ branchLanguages, mainLanguage });
 
   const resolvedPrimaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
 
   useEffect(() => {
     form.reset({
-      name: element.name || '',
+      name: resolveMainLanguageName(element, mainLanguage),
       note: element.note || '',
       startTime: element.startTime || '',
       duration: element.duration || 0,
@@ -95,11 +96,17 @@ export const ElementEditSheet = ({
       categories: element.categories || [],
       translations: buildTranslationsFromElement(element, translationLanguages),
     });
-    setSelectedLang(resolvedPrimaryLanguage);
+    // Preserve active lang if valid for this branch; fall back to primary
+    const resolvedPrimary = mainLanguage || allLanguages[0] || '';
+    setSelectedLang((prev) =>
+      allLanguages.includes(prev) ? prev : resolvedPrimary,
+    );
   }, [
     element,
     translationLanguages,
     resolvedPrimaryLanguage,
+    mainLanguage,
+    allLanguages,
     form,
     setSelectedLang,
   ]);
@@ -167,9 +174,10 @@ export const ElementEditSheet = ({
             </Sheet.Header>
 
             <Sheet.Content className="flex-1 px-6 py-4 overflow-y-auto rounded-none">
-              <div key={selectedLang} className="flex flex-col gap-6">
+              <div className="flex flex-col gap-6">
                 <div className="space-y-4">
                   <ElementNameField
+                    key={fieldPaths.name}
                     control={form.control}
                     name={fieldPaths.name}
                     labelSuffix={labelSuffix}
@@ -178,6 +186,7 @@ export const ElementEditSheet = ({
                     <ElementStartTimeField control={form.control} />
                     <ElementDurationField control={form.control} />
                     <ElementCostField
+                      key={fieldPaths.cost}
                       control={form.control}
                       name={fieldPaths.cost}
                       currencySymbol={currencySymbol}
@@ -188,6 +197,7 @@ export const ElementEditSheet = ({
                 <div className="space-y-4">
                   <SelectElementCategories control={form.control} />
                   <ElementNoteField
+                    key={fieldPaths.note}
                     control={form.control}
                     name={fieldPaths.note}
                     labelSuffix={labelSuffix}

@@ -12,6 +12,7 @@ export const tourCategorySchema = new Schema({
   parentId: { type: String, label: 'parentId', index: true },
   branchId: { type: String, optional: true, label: 'branchId', index: true },
   attachment: { type: Object, optional: true, label: 'attachment' },
+  language: { type: String, optional: true, label: 'language' },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -34,7 +35,7 @@ export const guideItemSchema = new Schema(
 
 export const pricingOptionSchema = new Schema(
   {
-    _id: { type: String, required: true },
+    _id: { type: String },
 
     title: { type: String, required: true },
 
@@ -86,6 +87,7 @@ export const tourSchema = new Schema({
 
   createdAt: { type: Date, label: 'Created at' },
   modifiedAt: { type: Date, label: 'Modified at' },
+  language: { type: String, optional: true, label: 'language' },
   refNumber: { type: String, optional: true, label: 'refnumber' },
   name: { type: String, optional: true, label: 'name' },
   groupCode: { type: String, optional: true, label: 'groupCode' },

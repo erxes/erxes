@@ -1,11 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
-import { UseFieldArrayReturn } from 'react-hook-form';
-import { AmenityCreateFormType } from '../constants/formSchema';
+import { useAtomValue } from 'jotai';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 interface UseAmenityLanguageOptions {
   branchLanguages?: string[];
   mainLanguage?: string;
-  fields: UseFieldArrayReturn<AmenityCreateFormType, 'translations'>['fields'];
 }
 
 type FieldPaths = {
@@ -15,17 +14,19 @@ type FieldPaths = {
 export const useAmenityLanguage = ({
   branchLanguages,
   mainLanguage,
-  fields,
 }: UseAmenityLanguageOptions) => {
-  const allLanguages = useMemo(
-    () =>
+  const allLanguages = useMemo(() => {
+    const base =
       branchLanguages && branchLanguages.length > 0
         ? branchLanguages
         : mainLanguage
           ? [mainLanguage]
-          : [],
-    [branchLanguages, mainLanguage],
-  );
+          : [];
+    if (mainLanguage && !base.includes(mainLanguage)) {
+      return [mainLanguage, ...base];
+    }
+    return base;
+  }, [branchLanguages, mainLanguage]);
 
   const primaryLanguage = useMemo(
     () => mainLanguage ?? allLanguages[0] ?? '',
@@ -37,7 +38,13 @@ export const useAmenityLanguage = ({
     [allLanguages, primaryLanguage],
   );
 
-  const [selectedLang, setSelectedLang] = useState(primaryLanguage);
+  const activeLang = useAtomValue(activeLangAtom);
+
+  const [selectedLang, setSelectedLang] = useState(() => {
+    const stored = activeLang;
+    if (stored && allLanguages.includes(stored)) return stored;
+    return primaryLanguage;
+  });
 
   useEffect(() => {
     if (primaryLanguage && !selectedLang) {
@@ -53,9 +60,7 @@ export const useAmenityLanguage = ({
 
   const effectiveLang = selectedLang || primaryLanguage;
   const isMainLang = effectiveLang === primaryLanguage;
-  const translationIndex = fields.findIndex(
-    (f) => f.language === effectiveLang,
-  );
+  const translationIndex = translationLanguages.indexOf(effectiveLang);
   const labelSuffix = effectiveLang ? ` (${effectiveLang})` : '';
 
   const fieldPaths: FieldPaths = {

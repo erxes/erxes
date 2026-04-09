@@ -19,13 +19,20 @@ import { itineraryMoreColumn } from './ItineraryMoreCell';
 interface ItineraryColumnsProps {
   onEditClick?: (itineraryId: string, branchId?: string) => void;
   branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
 }
 
 export const itineraryColumns = (
   props?: ItineraryColumnsProps,
 ): ColumnDef<IItinerary>[] => [
   RecordTable.checkboxColumn as ColumnDef<IItinerary>,
-  itineraryMoreColumn(props?.onEditClick, props?.branchId),
+  itineraryMoreColumn(
+    props?.onEditClick,
+    props?.branchId,
+    props?.branchLanguages,
+    props?.mainLanguage,
+  ),
   {
     id: 'color',
     accessorKey: 'color',

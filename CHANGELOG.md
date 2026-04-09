@@ -1,5 +1,26 @@
 
 
+## [3.0.11](https://github.com/erxes/erxes/compare/3.0.10...3.0.11) (2026-04-08)
+
+
+### Bug Fixes
+
+* accounting return deal and some refactors ([#7398](https://github.com/erxes/erxes/issues/7398)) ([7d93f82](https://github.com/erxes/erxes/commit/7d93f82a1dbfd7b2454d04df8883bf9d6aa9eaed))
+* **core-api:** sanitize chunkIndex and uploadId in chunked upload to prevent path traversal ([#7364](https://github.com/erxes/erxes/issues/7364)) ([37e0bc4](https://github.com/erxes/erxes/commit/37e0bc41a80b38d6a54b093995f31322479ea04a)), closes [#1063](https://github.com/erxes/erxes/issues/1063) [#1072](https://github.com/erxes/erxes/issues/1072)
+* **core-api:** use escapeRegExp before applying wildcard replacements in product similarities ([#7366](https://github.com/erxes/erxes/issues/7366)) ([539842c](https://github.com/erxes/erxes/commit/539842cbeca3b90970ec33494722dff563b62fde))
+
+
+### Features
+
+* **accounting:** inventory sale return transaction ([#7388](https://github.com/erxes/erxes/issues/7388)) ([407bed8](https://github.com/erxes/erxes/commit/407bed8c780b42625ad03517c80ed848d99af1d8))
+* add cms url options, cp categories fix, bmtoursgroup, bmtoursgr ([4f40020](https://github.com/erxes/erxes/commit/4f400208b375b0fb8f88ed56375ff7522b94061d))
+* add cpProductDetail client portal product query ([2bebb20](https://github.com/erxes/erxes/commit/2bebb208f16cf79c04564124b32eb85b52ac2526))
+* add properties ([cc372d0](https://github.com/erxes/erxes/commit/cc372d075bb86759ea6e22c9fa8ae8d63a956b9a))
+* add translations for tourism ui tms ([#7392](https://github.com/erxes/erxes/issues/7392)) ([03b64a7](https://github.com/erxes/erxes/commit/03b64a70980f3acc3dba04b562756930f416c0c3))
+* add travel insurance, regions, tiered pricing & multi-traveler support ([#7375](https://github.com/erxes/erxes/issues/7375)) ([1e73ef9](https://github.com/erxes/erxes/commit/1e73ef987e698acef8ca59f1d78e7249ad15e9ed))
+* add webbuilder logs  ([b31bbba](https://github.com/erxes/erxes/commit/b31bbba4f4fac96b62077a2ed20d4cd935f358ef))
+* **sales:** add posItems export  ([#7316](https://github.com/erxes/erxes/issues/7316)) ([7b2168e](https://github.com/erxes/erxes/commit/7b2168eb6518d02d3c931f866d791d8bdbb1863d))
+
 ## [3.0.10](https://github.com/erxes/erxes/compare/3.0.9...3.0.10) (2026-04-03)
 
 

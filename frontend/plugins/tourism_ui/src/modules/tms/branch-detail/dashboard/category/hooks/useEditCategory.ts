@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { EDIT_CATEGORY } from '../graphql/mutation';
 import { IAttachment } from '../types/category';
+import { ICategoryTranslationInput } from './useCreateCategory';
 
 interface EditCategoryResponse {
   bmsTourCategoryEdit: {
@@ -15,6 +16,8 @@ export interface IEditCategoryVariables {
   parentId?: string;
   branchId?: string;
   attachment?: IAttachment;
+  language?: string;
+  translations?: ICategoryTranslationInput[];
 }
 
 export const useEditCategory = () => {

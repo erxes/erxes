@@ -22,11 +22,18 @@ class InvSaleReturnOutCostTrs {
   private outAccount?: IAccountDocument;
   private costAccount?: IAccountDocument;
   private readonly subdomain: string;
+  private readonly userId: string;
 
-  constructor(subdomain: string, models: IModels, trDoc: ITransaction) {
+  constructor(
+    subdomain: string,
+    models: IModels,
+    userId: string,
+    trDoc: ITransaction,
+  ) {
     this.models = models;
     this.trDoc = trDoc;
     this.subdomain = subdomain;
+    this.userId = userId;
   }
 
   public async checkValidation() {
@@ -163,9 +170,15 @@ class InvSaleReturnOutCostTrs {
       details: followCostDetails,
     };
 
-    const outTr = await createOrUpdateTr(this.models, outTrDoc, oldFollowOutTr);
+    const outTr = await createOrUpdateTr(
+      this.models,
+      this.userId,
+      outTrDoc,
+      oldFollowOutTr,
+    );
     const costTr = await createOrUpdateTr(
       this.models,
+      this.userId,
       costTrDoc,
       oldFollowCostTr,
     );
