@@ -129,7 +129,9 @@ const parseDateRangeFromString = (
     const [year] = date.split('-');
     const quarterNumber = Number.parseInt(date.split('quarter')[1]);
     return {
-      from: startOfDay(new Date(Number.parseInt(year), (quarterNumber - 1) * 3, 1)),
+      from: startOfDay(
+        new Date(Number.parseInt(year), (quarterNumber - 1) * 3, 1),
+      ),
       to: endOfDay(new Date(Number.parseInt(year), quarterNumber * 3, 0)),
     };
   }
@@ -139,7 +141,9 @@ const parseDateRangeFromString = (
     const [year] = date.split('-');
     const halfNumber = Number.parseInt(date.split('half')[1]);
     return {
-      from: startOfDay(new Date(Number.parseInt(year), (halfNumber - 1) * 6, 1)),
+      from: startOfDay(
+        new Date(Number.parseInt(year), (halfNumber - 1) * 6, 1),
+      ),
       to: endOfDay(new Date(Number.parseInt(year), halfNumber * 6, 0)),
     };
   }
