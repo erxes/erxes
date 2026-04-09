@@ -9,6 +9,12 @@ interface DayBlockProps {
   index: number;
 }
 
+const splitParagraphs = (text: string): string[] =>
+  text
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
 const parseBoldSegments = (
   text: string,
 ): Array<{ text: string; bold: boolean }> => {
@@ -38,6 +44,10 @@ export const DayBlock: React.FC<DayBlockProps> = React.memo(
       () => stripHtml(groupDay.content),
       [groupDay.content],
     );
+    const paragraphs = useMemo(
+      () => splitParagraphs(plainContent),
+      [plainContent],
+    );
     const image = groupDay.base64Images?.[0];
     const dayNumber = groupDay.day ?? index + 1;
     const isImageLeft = index % 2 === 0;
@@ -50,29 +60,44 @@ export const DayBlock: React.FC<DayBlockProps> = React.memo(
       [dayNumber, groupDay.title],
     );
 
-    const contentSegments = useMemo(
-      () => parseBoldSegments(plainContent),
-      [plainContent],
-    );
-
     const contentView = useMemo(
       () => (
-        <Text style={styles.dayContent}>
-          {contentSegments.map((seg, i) =>
-            seg.bold ? (
+        <View style={styles.dayContentGroup}>
+          {paragraphs.map((paragraph, paragraphIndex) => {
+            const contentSegments = parseBoldSegments(paragraph);
+
+            return (
               <Text
-                key={`${i}-${seg.text.slice(0, 16)}`}
-                style={styles.dayContentBold}
+                key={`paragraph-${paragraphIndex}`}
+                style={[
+                  styles.dayContent,
+                  ...(paragraphIndex < paragraphs.length - 1
+                    ? [styles.dayContentParagraph]
+                    : []),
+                ]}
               >
-                {seg.text}
+                {contentSegments.map((seg, i) =>
+                  seg.bold ? (
+                    <Text
+                      key={`${paragraphIndex}-${i}-${seg.text.slice(0, 16)}`}
+                      style={styles.dayContentBold}
+                    >
+                      {seg.text}
+                    </Text>
+                  ) : (
+                    <Text
+                      key={`${paragraphIndex}-${i}-${seg.text.slice(0, 16)}`}
+                    >
+                      {seg.text}
+                    </Text>
+                  ),
+                )}
               </Text>
-            ) : (
-              <Text key={`${i}-${seg.text.slice(0, 16)}`}>{seg.text}</Text>
-            ),
-          )}
-        </Text>
+            );
+          })}
+        </View>
       ),
-      [contentSegments],
+      [paragraphs],
     );
 
     if (!image) {
