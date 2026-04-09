@@ -71,9 +71,7 @@ const escapeHtml = (str: string): string =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
-const getImageStyleFromElement = (
-  element: Element,
-): 'normal' | 'wide' => {
+const getImageStyleFromElement = (element: Element): 'normal' | 'wide' => {
   const explicitStyle =
     element.getAttribute('data-image-style') ||
     element
@@ -132,7 +130,8 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
             caption: '',
             showPreview: true,
             previewWidth:
-              (el as HTMLImageElement).width || getPresetPreviewWidth(imageStyle),
+              (el as HTMLImageElement).width ||
+              getPresetPreviewWidth(imageStyle),
             imageStyle,
           } as ImageBlockProps,
           content: [],

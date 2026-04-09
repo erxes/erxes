@@ -202,7 +202,9 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
       return {
         url: img.src || undefined,
         previewWidth:
-          img.width || IMAGE_STYLE_PRESETS[imageStyle].previewWidth || undefined,
+          img.width ||
+          IMAGE_STYLE_PRESETS[imageStyle].previewWidth ||
+          undefined,
         imageStyle,
       };
     }
@@ -216,7 +218,9 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
         url: img.src || undefined,
         caption,
         previewWidth:
-          img.width || IMAGE_STYLE_PRESETS[imageStyle].previewWidth || undefined,
+          img.width ||
+          IMAGE_STYLE_PRESETS[imageStyle].previewWidth ||
+          undefined,
         imageStyle,
       };
     }
