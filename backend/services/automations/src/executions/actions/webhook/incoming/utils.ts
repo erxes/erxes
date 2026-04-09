@@ -109,6 +109,93 @@ export const validateSecurity = async (req: express.Request, config: any) => {
   return true;
 };
 
+const normalizeWebhookTargetId = (value: unknown): string | null => {
+  if (typeof value === 'string' && value.trim()) {
+    return value.trim();
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return null;
+};
+
+const buildDeterministicWebhookTargetId = (
+  req: express.Request,
+  {
+    automationId,
+    triggerId,
+  }: {
+    automationId: string;
+    triggerId: string;
+  },
+) => {
+  const hash = crypto.createHash('sha256');
+
+  hash.update(req.method || '');
+  hash.update('\n');
+  hash.update(automationId || '');
+  hash.update('\n');
+  hash.update(triggerId || '');
+  hash.update('\n');
+  hash.update(JSON.stringify(req.query ?? {}));
+  hash.update('\n');
+  hash.update(JSON.stringify(req.body ?? {}));
+  hash.update('\n');
+  hash.update(req.get('x-webhook-signature') || '');
+
+  return hash.digest('hex').slice(0, 32);
+};
+
+export const resolveWebhookTargetId = (
+  req: express.Request,
+  {
+    automationId,
+    triggerId,
+  }: {
+    automationId: string;
+    triggerId: string;
+  },
+): string => {
+  const body = req.body ?? {};
+  const query = req.query ?? {};
+
+  const explicitTargetId =
+    normalizeWebhookTargetId(req.get('x-target-id')) ||
+    normalizeWebhookTargetId(body?.targetId) ||
+    normalizeWebhookTargetId(body?.data?.targetId) ||
+    normalizeWebhookTargetId(query?.targetId);
+
+  if (explicitTargetId) {
+    return explicitTargetId;
+  }
+
+  const requestScopedId =
+    normalizeWebhookTargetId(req.get('x-event-id')) ||
+    normalizeWebhookTargetId(req.get('x-request-id')) ||
+    normalizeWebhookTargetId(req.get('idempotency-key')) ||
+    normalizeWebhookTargetId(req.get('x-idempotency-key')) ||
+    normalizeWebhookTargetId(body?.eventId) ||
+    normalizeWebhookTargetId(body?.id) ||
+    normalizeWebhookTargetId(body?._id) ||
+    normalizeWebhookTargetId(body?.data?.id) ||
+    normalizeWebhookTargetId(query?.eventId) ||
+    normalizeWebhookTargetId(query?.id);
+
+  if (requestScopedId) {
+    return requestScopedId;
+  }
+
+  return `webhook:${automationId}:${triggerId}:${buildDeterministicWebhookTargetId(
+    req,
+    {
+      automationId,
+      triggerId,
+    },
+  )}`;
+};
+
 export function isTimestampValid(headerTs?: string, skewSeconds = 300) {
   if (!headerTs) return false;
   const tsNum = Number(headerTs) || Date.parse(headerTs);

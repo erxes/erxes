@@ -9,7 +9,6 @@ import {
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
-import { handleExecutionActionResponse } from '../handleExecutionActionResponse';
 import { getEnv } from 'erxes-api-shared/utils';
 const WAIT_EVENT_DESCRIPTION_MAP = {
   custom: 'Webhook is received',
@@ -37,7 +36,6 @@ export const executeWaitEvent = async (
   subdomain: string,
   execution: IAutomationExecutionDocument,
   action: IAutomationAction<TAutomationWaitEventConfig>,
-  execAction: IAutomationExecAction,
 ) => {
   const models = await generateModels(subdomain);
   const { targetType, segmentId, targetTypeId, webhookConfig } =
@@ -133,6 +131,7 @@ export const executeWaitEvent = async (
   execution.waitingActionId = action.id;
   execution.startWaitingDate = new Date();
   execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
+  await execution.save();
 
-  await handleExecutionActionResponse(actionResponse, execution, execAction);
+  return actionResponse;
 };

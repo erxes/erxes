@@ -102,6 +102,7 @@ export const ManagePropertyRule = ({ propertyType, index }: LocalRuleProps) => {
                 propertyType={propertyType}
                 value={field.value ?? ''}
                 onChange={field.onChange}
+                disabled={{ attribute: true }}
                 onChangeInputMode={(mode) =>
                   handleUpdate({ isExpression: mode === 'expression' })
                 }

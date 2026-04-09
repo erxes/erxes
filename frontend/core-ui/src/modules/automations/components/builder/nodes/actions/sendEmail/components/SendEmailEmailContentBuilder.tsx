@@ -1,3 +1,7 @@
+import {
+  AutomationVariableBrowser,
+  TAutomationVariableSourceNode,
+} from '@/automations/components/builder/components/AutomationVariableBrowser';
 import { EmailTemplateInEditor } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateInEditor';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { IconEdit } from '@tabler/icons-react';
@@ -5,23 +9,32 @@ import {
   BlockEditor,
   BlockEditorReadOnly,
   Button,
+  cn,
   IBlockEditor,
   Sheet,
   useBlockEditor,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { AttributeInEditor, useAttributes } from 'ui-modules';
+import {
+  AttributeInEditor,
+  insertAutomationVariableInBlockEditor,
+  TAutomationVariableDragPayload,
+  useAttributes,
+  useAutomationVariableBlockEditorDrop,
+} from 'ui-modules';
 
 interface SendEmailEmailContentBuilderProps {
   content: string;
   contentType: string;
+  variableSourceNodes: TAutomationVariableSourceNode[];
   onChange: (content: string) => void;
 }
 
 export const SendEmailEmailContentBuilder = ({
   content,
   contentType,
+  variableSourceNodes,
   onChange,
 }: SendEmailEmailContentBuilderProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -79,6 +92,7 @@ export const SendEmailEmailContentBuilder = ({
 
       <SendEmailEmailContentBuilderEditor
         contentType={contentType}
+        variableSourceNodes={variableSourceNodes}
         isSheetOpen={isSheetOpen}
         setIsSheetOpen={setIsSheetOpen}
         editor={editor}
@@ -90,18 +104,24 @@ export const SendEmailEmailContentBuilder = ({
 
 const SendEmailEmailContentBuilderEditor = ({
   contentType,
+  variableSourceNodes,
   isSheetOpen,
   setIsSheetOpen,
   editor,
   onChange,
 }: {
   contentType: string;
+  variableSourceNodes: TAutomationVariableSourceNode[];
   editor: IBlockEditor;
   isSheetOpen: boolean;
   setIsSheetOpen: (isOpen: boolean) => void;
   onChange: (content: string) => void;
 }) => {
   const { setValue } = useFormContext<TAutomationSendEmailConfig>();
+  const { isDragActive, handleDragOver, handleDragLeave, handleDrop } =
+    useAutomationVariableBlockEditorDrop({
+      editor,
+    });
   const convertToEmailHTML = async () => {
     // Converts the editor's contents from Block objects to HTML and store to state.
     const html = await editor.blocksToFullHTML(editor.document);
@@ -123,6 +143,12 @@ const SendEmailEmailContentBuilderEditor = ({
     });
     return doc.body.innerHTML;
   };
+  const handleInsertVariable = (payload: TAutomationVariableDragPayload) => {
+    insertAutomationVariableInBlockEditor({
+      editor,
+      payload,
+    });
+  };
   const onSave = async () => {
     onChange(JSON.stringify(editor.document));
     const html = await convertToEmailHTML();
@@ -142,14 +168,41 @@ const SendEmailEmailContentBuilderEditor = ({
           </div>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content>
-          <BlockEditor editor={editor}>
-            <SendEmailEmailContentBuilderAttributes
-              contentType={contentType}
-              editor={editor}
-            />
-            <EmailTemplateInEditor editor={editor} />
-          </BlockEditor>
+        <Sheet.Content className="grid min-h-0 flex-1 grid-cols-[320px_minmax(0,1fr)] overflow-hidden p-0">
+          <aside className="min-h-0 overflow-hidden border-r bg-muted/20">
+            <div className="h-full min-h-0 overflow-y-auto">
+              <AutomationVariableBrowser
+                sourceNodes={variableSourceNodes}
+                onInsertVariable={handleInsertVariable}
+                emptyState={{
+                  title: 'No variables available yet',
+                  description:
+                    'Add a trigger or an earlier action to this automation to insert variables into the email content.',
+                }}
+                sourceSectionTitle="Variable Sources"
+              />
+            </div>
+          </aside>
+
+          <div className="min-h-0 min-w-0 overflow-y-auto bg-background p-6">
+            <div
+              className={cn(
+                'rounded-xl border bg-background p-4 transition-colors',
+                isDragActive && 'border-primary bg-primary/5',
+              )}
+              onDragOverCapture={handleDragOver}
+              onDragLeaveCapture={handleDragLeave}
+              onDropCapture={handleDrop}
+            >
+              <BlockEditor editor={editor}>
+                <SendEmailEmailContentBuilderAttributes
+                  contentType={contentType}
+                  editor={editor}
+                />
+                <EmailTemplateInEditor editor={editor} />
+              </BlockEditor>
+            </div>
+          </div>
         </Sheet.Content>
         <Sheet.Footer>
           <Button variant="outline" onClick={() => setIsSheetOpen(false)}>

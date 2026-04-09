@@ -19,8 +19,11 @@ export const AutomationBuilderCanvas = () => {
     onConnect,
     onDrop,
     isValidConnection,
+    onNodeClick,
     onNodeDoubleClick,
+    onPaneClick,
     onDragOver,
+    onNodeDragStop,
     setReactFlowInstance,
   } = useReactFlowEditor();
 
@@ -37,7 +40,10 @@ export const AutomationBuilderCanvas = () => {
         onConnect={onConnect}
         onDrop={onDrop}
         isValidConnection={isValidConnection}
+        onNodeClick={onNodeClick}
         onNodeDoubleClick={onNodeDoubleClick}
+        onPaneClick={onPaneClick}
+        onNodeDragStop={onNodeDragStop}
         onInit={setReactFlowInstance}
         onDragOver={onDragOver}
         fitView

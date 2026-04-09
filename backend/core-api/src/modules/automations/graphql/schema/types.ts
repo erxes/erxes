@@ -120,18 +120,12 @@ const types = `
     ${workflowTypes}
   }
 
-  type TrainingProgress {
-    agentId: String!
-    totalFiles: Int!
-    processedFiles: Int!
-    status: String!
-    error: String
-  }
-
-  type AiAgentMessage {
-    message: String!
-    relevantFile: String
-    similarity: Float
+  type AiAgentHealth {
+    ready: Boolean!
+    checkedAt: String!
+    errors: [String!]!
+    warnings: [String!]!
+    checks: JSON
   }
 
   type AutomationEmailTemplate {
