@@ -61,5 +61,13 @@ startPlugin({
     },
     notifications,
     afterProcess,
-  },
+
+    importExport: {
+      export: {
+        configured: true,
+        hasGetExportHeaders: true,
+        hasGetExportData: true,
+      },
+    },
+  } as any,
 });

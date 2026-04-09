@@ -26,7 +26,6 @@ const saveTourCategoryTranslations = async (
   translations: any[],
 ) => {
   if (!Array.isArray(translations) || translations.length === 0) return;
-
   await Promise.all(
     translations.map((t) =>
       models.TourCategoryTranslations.upsertTranslation({ ...t, objectId }),

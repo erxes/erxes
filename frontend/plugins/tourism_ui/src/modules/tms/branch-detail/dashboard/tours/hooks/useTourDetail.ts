@@ -13,8 +13,34 @@ export interface IPricingOption {
   note?: string;
 }
 
+export interface IPricingOptionTranslation {
+  optionId: string;
+  title?: string;
+  accommodationType?: string;
+  note?: string;
+  pricePerPerson?: number;
+  domesticFlightPerPerson?: number;
+  singleSupplement?: number;
+}
+
+export interface ITourTranslation {
+  _id?: string;
+  objectId?: string;
+  language: string;
+  name?: string;
+  refNumber?: string;
+  content?: string;
+  info1?: string;
+  info2?: string;
+  info3?: string;
+  info4?: string;
+  info5?: string;
+  pricingOptions?: IPricingOptionTranslation[];
+}
+
 export interface ITourDetail {
   _id: string;
+  language?: string;
   advanceCheck?: boolean;
   advancePercent?: number;
   content?: string;
@@ -53,10 +79,12 @@ export interface ITourDetail {
   startDate?: string;
   status?: string;
   pricingOptions?: IPricingOption[];
+  translations?: ITourTranslation[];
 }
 
 type TourDetailQueryVariables = {
   id: string;
+  language?: string;
 };
 
 export const useTourDetail = (

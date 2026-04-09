@@ -1,21 +1,22 @@
-import { AfterProcessConfigs, IAfterProcessRule, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { AfterProcessConfigs, IAfterProcessRule } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { dealToTrs } from './afterProcessHandlers/dealToTrs';
+import { dealToReturnTrs } from './afterProcessHandlers/dealToReturnTrs';
 
 const allRules: IAfterProcessRule[] = [
   {
     type: 'updatedDocument',
     contentTypes: ['sales:sales.deals'],
     when: {
-      fieldsUpdated: ['stageId']
-    }
+      fieldsUpdated: ['stageId'],
+    },
   },
   {
     type: 'createdDocument',
     contentTypes: ['sales:sales.deals'],
     when: {
-      fieldsWith: ['stageId']
-    }
+      fieldsWith: ['stageId'],
+    },
   },
 ];
 
@@ -26,30 +27,63 @@ export const afterProcess: AfterProcessConfigs = {
       const { data } = input;
       const { subdomain } = ctx;
       const models = await generateModels(subdomain);
-      const { collectionName, updateDescription, userId, contentType, docId, currentDocument } = data;
+      const {
+        collectionName,
+        updateDescription,
+        userId,
+        contentType,
+        docId,
+        currentDocument,
+      } = data;
 
-      if (contentType === 'sales:sales.deals' && collectionName === 'deals' && docId) {
-        const { updated: updatedFields, added: addedFields } = updateDescription;
+      if (
+        contentType === 'sales:sales.deals' &&
+        collectionName === 'deals' &&
+        docId
+      ) {
+        const { updated: updatedFields, added: addedFields } =
+          updateDescription;
 
         const changedData = { ...addedFields, ...updatedFields };
         const changeDataStageId = changedData.stageId;
 
         if (changeDataStageId) {
-          const { prev: prevStageId, current: currentStageId } = changeDataStageId;
-          const config = await models.Configs.getConfigValue('syncDeal', currentStageId);
-          if (prevStageId !== currentStageId && config?.stageId === currentStageId) {
-            const user = await sendTRPCMessage({
+          const { prev: prevStageId, current: currentStageId } =
+            changeDataStageId;
+          const configSale = await models.Configs.getConfigValue(
+            'syncDeal',
+            currentStageId,
+          );
+          const configReturn = await models.Configs.getConfigValue(
+            'syncDealReturn',
+            currentStageId,
+          );
+
+          if (prevStageId === currentStageId) {
+            return;
+          }
+
+          if (configSale?.stageId === currentStageId) {
+            await dealToTrs({
               subdomain,
-              pluginName: 'core',
-              module: 'users',
-              action: 'findOne',
-              input: { query: { _id: userId } }
+              models,
+              userId,
+              deal: currentDocument,
+              config: configSale,
             });
-            await dealToTrs({ subdomain, models, user, deal: currentDocument, config });
+          }
+          if (configReturn?.stageId === currentStageId) {
+            await dealToReturnTrs({
+              subdomain,
+              models,
+              userId,
+              deal: currentDocument,
+              config: configReturn,
+            });
           }
         }
       }
     })();
   },
-  afterDocumentCreated: (ctx, input) => { },
+  // afterDocumentCreated: (ctx, input) => { },
 };

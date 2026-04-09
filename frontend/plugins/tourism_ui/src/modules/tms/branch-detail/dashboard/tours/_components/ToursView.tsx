@@ -70,19 +70,43 @@ export const ToursViewControl = ({ className }: ToursViewControlProps) => {
 
 interface ToursViewProps {
   branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
 }
 
-export const ToursView = ({ branchId }: ToursViewProps) => {
+export const ToursView = ({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: ToursViewProps) => {
   const [view] = useQueryState<string | undefined>('view');
   const [isGroup] = useQueryState<boolean>('isGroup');
 
   if (view === 'calendar') {
-    return <TourCalendar branchId={branchId} />;
+    return (
+      <TourCalendar
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
+    );
   }
 
   if (isGroup) {
-    return <TourGroupList branchId={branchId} />;
+    return (
+      <TourGroupList
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
+    );
   }
 
-  return <TourRecordTable branchId={branchId} />;
+  return (
+    <TourRecordTable
+      branchId={branchId}
+      branchLanguages={branchLanguages}
+      mainLanguage={mainLanguage}
+    />
+  );
 };

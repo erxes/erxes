@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useWidgetConnect } from './hooks/useWidgetConnect';
 import { hexToOklch, Skeleton } from 'erxes-ui';
 import { Container } from './components/container';
-import { ErxesFormProvider } from './ context/erxesFormContext';
+import { ErxesFormProvider } from './context/erxesFormContext';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,

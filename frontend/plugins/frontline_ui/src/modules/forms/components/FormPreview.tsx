@@ -8,6 +8,7 @@ import {
   Form,
   InfoCard,
   Input,
+  RadioGroup,
   readImage,
   Select,
   Textarea,
@@ -92,8 +93,10 @@ export const FormPreview = () => {
           formSchema[field.id] = z.date();
         } else if (field.type === 'boolean') {
           formSchema[field.id] = z.boolean();
-        } else if (field.type === 'select') {
+        } else if (field.type === 'select' || field.type === 'radio') {
           formSchema[field.id] = z.string();
+        } else if (field.type === 'check') {
+          formSchema[field.id] = z.array(z.string());
         }
       });
       return [stepId, z.object(formSchema)];
@@ -109,7 +112,8 @@ export const FormPreview = () => {
           field.type === 'text' ||
           field.type === 'textarea' ||
           field.type === 'email' ||
-          field.type === 'select'
+          field.type === 'select' ||
+          field.type === 'radio'
         ) {
           stepDefaultValues[field.id] = '';
         } else if (field.type === 'number') {
@@ -118,6 +122,8 @@ export const FormPreview = () => {
           stepDefaultValues[field.id] = new Date();
         } else if (field.type === 'boolean') {
           stepDefaultValues[field.id] = false;
+        } else if (field.type === 'check') {
+          stepDefaultValues[field.id] = [];
         }
       });
       return [stepId, stepDefaultValues];
@@ -294,6 +300,83 @@ export const FormPreviewContent = ({
                                 })}
                               </Select.Content>
                             </Select>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'radio') {
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <Form.Control>
+                              <RadioGroup
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                className="flex flex-col gap-2"
+                              >
+                                {erxesField.options.map((option) => {
+                                  if (!option) return null;
+                                  return (
+                                    <label
+                                      key={option}
+                                      className="flex items-center gap-2 cursor-pointer"
+                                    >
+                                      <RadioGroup.Item value={option} />
+                                      <span className="text-sm">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </RadioGroup>
+                            </Form.Control>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'check') {
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <div className="flex flex-col gap-2">
+                              {erxesField.options.map((option) => {
+                                if (!option) return null;
+                                const checked = (
+                                  field.value as string[]
+                                ).includes(option);
+                                return (
+                                  <label
+                                    key={option}
+                                    className="flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <Checkbox
+                                      checked={checked}
+                                      onCheckedChange={(isChecked) => {
+                                        const current = field.value as string[];
+                                        field.onChange(
+                                          isChecked
+                                            ? [...current, option]
+                                            : current.filter(
+                                                (v) => v !== option,
+                                              ),
+                                        );
+                                      }}
+                                    />
+                                    <span className="text-sm">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
                             {erxesField.description && (
                               <Form.Description>
                                 {erxesField.description}

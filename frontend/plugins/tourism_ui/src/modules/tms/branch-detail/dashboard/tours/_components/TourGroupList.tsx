@@ -1,7 +1,9 @@
 import { getCoreRowModel, Row, TableOptions } from '@tanstack/react-table';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { RecordTable, RecordTableTree, Sheet } from 'erxes-ui';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { useTourGroups } from '../hooks/useTourGroups';
 import { TourCreateSheet } from './TourCreateSheet';
 import { TourCommandBar } from './TourCommandBar';
@@ -10,9 +12,20 @@ import { flattenGroups } from './TourGroupUtils';
 import { TourEditForm } from './TourEditForm';
 import { TourSideTab } from './TourOrdersSidePanel';
 
-export const TourGroupList = ({ branchId }: { branchId: string }) => {
+export const TourGroupList = ({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}) => {
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
+
   const { groups, loading, total } = useTourGroups({
-    variables: { branchId },
+    variables: { branchId, language },
   });
 
   const [editTourId, setEditTourId] = useState<string | null>(null);
@@ -34,7 +47,13 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
   );
 
   if (!loading && total === 0) {
-    return <EmptyState branchId={branchId} />;
+    return (
+      <EmptyState
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
+    );
   }
 
   return (
@@ -81,6 +100,8 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
             <TourEditForm
               tourId={editTourId}
               branchId={branchId}
+              branchLanguages={branchLanguages}
+              mainLanguage={mainLanguage}
               onSuccess={() => {
                 setEditTourId(null);
                 setSideTab(null);
@@ -95,7 +116,15 @@ export const TourGroupList = ({ branchId }: { branchId: string }) => {
   );
 };
 
-function EmptyState({ branchId }: { branchId: string }) {
+function EmptyState({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}) {
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
       <IconShoppingCartX
@@ -109,7 +138,11 @@ function EmptyState({ branchId }: { branchId: string }) {
       <p className="mb-4 text-md text-muted-foreground">
         Tours with a group code will appear here.
       </p>
-      <TourCreateSheet branchId={branchId} />
+      <TourCreateSheet
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
     </div>
   );
 }

@@ -9,14 +9,19 @@ import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const createOrUpdateTr = async (
   models: IModels,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ): Promise<ITransactionDocument> => {
   if (oldTr?._id) {
-    return await models.Transactions.updateTransaction(oldTr._id, { ...doc });
+    return await models.Transactions.updateTransaction(
+      oldTr._id,
+      { ...doc },
+      userId,
+    );
   }
 
-  return await models.Transactions.createTransaction({ ...doc });
+  return await models.Transactions.createTransaction({ ...doc }, userId);
 };
 
 export const getSingleJournalByAccount = (
