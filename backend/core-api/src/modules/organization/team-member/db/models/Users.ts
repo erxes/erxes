@@ -1249,7 +1249,7 @@ export const loadUserMovemmentClass = (
       });
 
       const removedFromContentType = userMovements
-        .filter((movement) => !userIds?.includes(movement.userId) && movement)
+        .filter((movement) => !userIds?.includes(movement.userId))
         .map(({ createdBy, contentType, contentTypeId, userId }) => ({
           createdBy,
           contentType,
