@@ -7,7 +7,10 @@ import {
   SAFE_REMAINDER_SUBMIT,
   SAFE_REMAINDER_UNDO_TR,
 } from '../graphql/safeRemainderChange';
-import { SAFE_REMAINDER_DETAIL_QUERY, SAFE_REMAINDER_DETAILS_QUERY } from '../graphql/safeRemainderQueries';
+import {
+  SAFE_REMAINDER_DETAIL_QUERY,
+  SAFE_REMAINDER_DETAILS_QUERY,
+} from '../graphql/safeRemainderQueries';
 
 const commonOptions = (id: string, options?: any, _queryParams?: any) => {
   return {
@@ -37,7 +40,7 @@ const commonOptions = (id: string, options?: any, _queryParams?: any) => {
         query: SAFE_REMAINDER_DETAILS_QUERY,
         variables: {
           remainderId: id,
-          ...options?.variables
+          ...options?.variables,
         },
       },
     ],

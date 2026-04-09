@@ -2,11 +2,11 @@ import { useCallback, useMemo } from 'react';
 import { Control, UseFormSetValue, useController } from 'react-hook-form';
 import { Form, Switch } from 'erxes-ui';
 import { RHFDatePicker } from './RHFDatePicker';
-import { TourCreateFormType } from '../constants/formSchema';
+import { TourFormValues } from '../constants/formSchema';
 
 type Props = {
-  control: Control<TourCreateFormType>;
-  setValue: UseFormSetValue<TourCreateFormType>;
+  control: Control<TourFormValues>;
+  setValue: UseFormSetValue<TourFormValues>;
 };
 
 export const TourDateSchedulingField = ({ control, setValue }: Props) => {

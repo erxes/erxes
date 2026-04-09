@@ -42,6 +42,7 @@ export interface IWeb {
   environmentVariables?: EnvironmentVariable[];
   // deployment fields
   projectId?: string;
+  vercelProjectId?: string;
   lastDeploymentId?: string;
   lastDeploymentUrl?: string;
 }

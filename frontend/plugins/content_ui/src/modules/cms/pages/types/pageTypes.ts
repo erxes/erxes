@@ -1,3 +1,5 @@
+import { CustomFieldValue } from '../../posts/CustomFieldInput';
+
 export interface IAttachment {
   url: string;
   name?: string;
@@ -23,6 +25,7 @@ export interface IPage {
   audio?: IAttachment | null;
   documents?: IAttachment[];
   attachments?: IAttachment[];
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
   __typename?: string;
 }
 
@@ -41,11 +44,10 @@ export interface IPageFormData {
   clientPortalId: string;
   thumbnail?: { url: string; name?: string; type?: string } | null;
   gallery?: string[];
-  video?: string | null;
   videoUrl?: string;
-  audio?: string | null;
   documents?: string[];
   attachments?: string[];
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
 }
 
 export interface IPagesRecordTableProps {

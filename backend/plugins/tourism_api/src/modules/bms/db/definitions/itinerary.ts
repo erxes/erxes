@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { PAYMENT_STATUS_TYPES } from '@/bms/constants';
+import { getEnum } from '~/modules/bms/utils/utils';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const locationSchema = new Schema(
@@ -66,6 +67,7 @@ export const itinerarySchema = new Schema({
   color: { type: String, optional: true, label: 'color' },
 
   branchId: { type: String, optional: true, label: 'branchId' },
+  language: { type: String, optional: true, label: 'language' },
 
   driverCost: { type: Number, label: 'cost', optional: true },
   guideCost: { type: Number, label: 'cost', optional: true },
