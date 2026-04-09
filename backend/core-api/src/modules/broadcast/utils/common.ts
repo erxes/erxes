@@ -577,9 +577,8 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || '';
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
-  const customerFields = await editorAttributeUtil.getCustomerFields(
-    emailContent,
-  );
+  const customerFields =
+    await editorAttributeUtil.getCustomerFields(emailContent);
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
 
@@ -747,9 +746,8 @@ const sendNotifications = async (
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
 
-  const erxesCustomerIds = await models.Customers.find(
-    customersSelector,
-  ).distinct('_id');
+  const erxesCustomerIds =
+    await models.Customers.find(customersSelector).distinct('_id');
 
   const cpUserIds = await models.CPUser.find({
     clientPortalId: cpId,
