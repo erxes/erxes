@@ -1,21 +1,21 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
-import { Button } from 'erxes-ui';
-import PerConditions from './PerConditions';
-import { PlaceConditionUI } from '../types';
-import { SelectSalesBoard } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
+import { useMutation, useQuery } from '@apollo/client';
+import { Button, Label } from 'erxes-ui';
+import { useCallback, useEffect, useState } from 'react';
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
+import { SelectSalesBoard } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
-import { MN_CONFIGS } from '../graphql/clientQueries';
 import {
   MN_CONFIGS_CREATE,
-  MN_CONFIGS_UPDATE,
   MN_CONFIGS_REMOVE,
+  MN_CONFIGS_UPDATE,
 } from '../graphql/clientMutations';
+import { MN_CONFIGS } from '../graphql/clientQueries';
+import { PlaceConditionUI } from '../types';
 import {
-  objectToKeyValueArray,
   keyValueArrayToObject,
+  objectToKeyValueArray,
 } from '../utils/transformers';
+import PerConditions from './PerConditions';
 import ConfigHeader from './shared/ConfigHeader';
 import SavedConfigsList from './shared/SavedConfigsList';
 
@@ -86,10 +86,10 @@ const PlaceConfig: React.FC = () => {
   }, [data]);
 
   useEffect(() => {
-    if (activeIndex !== null) {
-      setFormData(savedConfigs[activeIndex] ?? emptyForm);
-    } else {
+    if (activeIndex === null) {
       setFormData(emptyForm);
+    } else {
+      setFormData(savedConfigs[activeIndex] ?? emptyForm);
     }
   }, [activeIndex, savedConfigs]);
 
@@ -216,7 +216,7 @@ const PlaceConfig: React.FC = () => {
 
         {/* FORM */}
         <div className="border rounded-xl p-6 bg-white space-y-6">
-          <label className="text-sm font-medium">Title</label>
+          <Label className="text-sm font-medium">Title</Label>
           <input
             className="w-full border rounded px-3 py-2"
             value={formData.title}

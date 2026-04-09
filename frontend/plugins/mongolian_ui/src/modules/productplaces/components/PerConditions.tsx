@@ -1,10 +1,10 @@
-import { Button, Select } from 'erxes-ui';
+import { Button, Label, Select } from 'erxes-ui';
 import SelectBranches from '../selects/SelectBranches';
 import SelectDepartments from '../selects/SelectDepartments';
 import SelectProductCategories from '../selects/SelectProductCategories';
-import SelectProductTags from '../selects/SelectTags';
 import SelectProducts from '../selects/SelectProducts';
 import SelectSegments from '../selects/SelectSegments';
+import SelectProductTags from '../selects/SelectTags';
 
 type Props = {
   condition: any;
@@ -29,7 +29,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
         {/* LEFT */}
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium">Product Category</label>
+            <Label className="text-sm font-medium">Product Category</Label>
             <SelectProductCategories
               value={condition.productCategoryIds ?? []}
               onChange={(ids) => onChangeConfig('productCategoryIds', ids)}
@@ -37,7 +37,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Exclude categories</label>
+            <Label className="text-sm font-medium">Exclude categories</Label>
             <SelectProductCategories
               value={condition.excludeCategoryIds ?? []}
               onChange={(ids) => onChangeConfig('excludeCategoryIds', ids)}
@@ -45,7 +45,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Product Tags</label>
+            <Label className="text-sm font-medium">Product Tags</Label>
             <SelectProductTags
               value={condition.productTagIds ?? []}
               onChange={(ids) => onChangeConfig('productTagIds', ids)}
@@ -53,7 +53,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Exclude tags</label>
+            <Label className="text-sm font-medium">Exclude tags</Label>
             <SelectProductTags
               value={condition.excludeTagIds ?? []}
               onChange={(ids) => onChangeConfig('excludeTagIds', ids)}
@@ -61,7 +61,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Exclude products</label>
+            <Label className="text-sm font-medium">Exclude products</Label>
             <SelectProducts
               value={condition.excludeProductIds ?? []}
               onChange={(ids) => onChangeConfig('excludeProductIds', ids)}
@@ -69,7 +69,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Segment</label>
+            <Label className="text-sm font-medium">Segment</Label>
             <SelectSegments
               contentTypes={['core:product']}
               value={condition.segmentIds?.[0] || undefined}
@@ -81,7 +81,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
         {/* RIGHT */}
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium">Low Count</label>
+            <Label className="text-sm font-medium">Low Count</Label>
             <input
               type="number"
               className="w-full p-2 border rounded"
@@ -91,7 +91,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Great Count</label>
+            <Label className="text-sm font-medium">Great Count</Label>
             <input
               type="number"
               className="w-full p-2 border rounded"
@@ -101,7 +101,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Low Unit Price</label>
+            <Label className="text-sm font-medium">Low Unit Price</Label>
             <input
               type="number"
               className="w-full p-2 border rounded"
@@ -111,7 +111,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Great Unit Price</label>
+            <Label className="text-sm font-medium">Great Unit Price</Label>
             <input
               type="number"
               className="w-full p-2 border rounded"
@@ -121,7 +121,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Sub uom type</label>
+            <Label className="text-sm font-medium">Sub uom type</Label>
             <Select
               value={condition.subUomType ?? ''}
               onValueChange={(v) =>
@@ -146,7 +146,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
       <div className="rounded border p-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium">Set branch</label>
+            <Label className="text-sm font-medium">Set branch</Label>
             <SelectBranches
               value={condition.branchId || ''}
               onChange={(branchId) => onChangeConfig('branchId', branchId)}
@@ -155,7 +155,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Set department</label>
+            <Label className="text-sm font-medium">Set department</Label>
             <SelectDepartments
               value={condition.departmentId || ''}
               onChange={(departmentId) =>

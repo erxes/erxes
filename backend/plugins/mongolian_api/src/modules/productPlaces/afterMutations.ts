@@ -1,10 +1,9 @@
-import crypto from 'crypto';
-import { isEnabled } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { handleSplit } from './handlers/handleSplit';
+import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { nanoid } from 'nanoid';
 import { handlePlace } from './handlers/handlePlace';
 import { handlePricing } from './handlers/handlePricing';
 import { handlePrint } from './handlers/handlePrint';
+import { handleSplit } from './handlers/handleSplit';
 import { getMnConfigs } from './utils/utils';
 
 export default {};
@@ -63,7 +62,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       productsData,
       placeConfig,
       user, // user is the user ID string
-      crypto.randomUUID(),
+      nanoid(),
     );
 
     productsData = placeResult.productsData;
@@ -89,7 +88,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
         });
 
         productById = Object.fromEntries(products.map((p) => [p._id, p]));
-      } catch (error) {}
+      } catch (error) {
+        console.log('ERROR:', error)
+      }
     } else {
       productById = {};
     }

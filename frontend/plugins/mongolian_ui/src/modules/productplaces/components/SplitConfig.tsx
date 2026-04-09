@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useQuery } from '@apollo/client';
-import { Button } from 'erxes-ui';
+import { Button, Label } from 'erxes-ui';
 import { SelectSalesBoard } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
 import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
@@ -68,10 +68,10 @@ const SplitConfig: React.FC = () => {
   }, [data]);
 
   useEffect(() => {
-    if (activeIndex !== null) {
-      setFormData(savedConfigs[activeIndex] ?? emptyForm);
-    } else {
+    if (activeIndex === null) {
       setFormData(emptyForm);
+    } else {
+      setFormData(savedConfigs[activeIndex] ?? emptyForm);
     }
   }, [activeIndex, savedConfigs]);
 
@@ -96,7 +96,7 @@ const SplitConfig: React.FC = () => {
           onSelect={setActiveIndex}
         />
         <div className="bg-white rounded-xl border p-6 space-y-4">
-          <label className="text-sm font-medium">Title</label>
+          <Label className="text-sm font-medium">Title</Label>
           <input
             className="w-full border px-3 py-2 rounded"
             value={formData.title}
@@ -105,7 +105,7 @@ const SplitConfig: React.FC = () => {
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium">Board</label>
+              <Label className="text-sm font-medium">Board</Label>
               <SelectSalesBoard
                 variant="form"
                 value={formData.boardId || ''}
@@ -114,7 +114,7 @@ const SplitConfig: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Pipeline</label>
+              <Label className="text-sm font-medium">Pipeline</Label>
               <SelectPipeline
                 variant="form"
                 boardId={formData.boardId || ''}
@@ -124,7 +124,7 @@ const SplitConfig: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Stage</label>
+              <Label className="text-sm font-medium">Stage</Label>
               <SelectStage
                 id="split-stage"
                 variant="form"
@@ -138,13 +138,13 @@ const SplitConfig: React.FC = () => {
 
         {/* CATEGORY */}
         <div className="bg-white border p-6 space-y-3">
-          <label className="text-sm font-medium">Include Categories</label>
+          <Label className="text-sm font-medium">Include Categories</Label>
           <SelectProductCategories
             value={formData.productCategoryIds}
             onChange={(v) => updateField('productCategoryIds', v)}
           />
 
-          <label className="text-sm font-medium">Exclude Categories</label>
+          <Label className="text-sm font-medium">Exclude Categories</Label>
           <SelectProductCategories
             value={formData.excludeCategoryIds}
             onChange={(v) => updateField('excludeCategoryIds', v)}
@@ -153,13 +153,13 @@ const SplitConfig: React.FC = () => {
 
         {/* TAGS */}
         <div className="bg-white border p-6 space-y-3">
-          <label className="text-sm font-medium">Include Tags</label>
+          <Label className="text-sm font-medium">Include Tags</Label>
           <SelectProductTags
             value={formData.productTagIds}
             onChange={(v) => updateField('productTagIds', v)}
           />
 
-          <label className="text-sm font-medium">Exclude Tags</label>
+          <Label className="text-sm font-medium">Exclude Tags</Label>
           <SelectProductTags
             value={formData.excludeTagIds}
             onChange={(v) => updateField('excludeTagIds', v)}
@@ -168,7 +168,7 @@ const SplitConfig: React.FC = () => {
 
         {/* PRODUCTS */}
         <div className="bg-white border p-6 space-y-3">
-          <label className="text-sm font-medium">Exclude Products</label>
+          <Label className="text-sm font-medium">Exclude Products</Label>
           <SelectProducts
             value={formData.excludeProductIds}
             onChange={(v) => updateField('excludeProductIds', v)}
@@ -177,7 +177,7 @@ const SplitConfig: React.FC = () => {
 
         {/* SEGMENT */}
         <div className="bg-white border p-6 space-y-3">
-          <label className="text-sm font-medium">Segment</label>
+          <Label className="text-sm font-medium">Segment</Label>
           <SelectSegments
             contentTypes={['core:product']}
             value={getSingle(formData.segmentIds)}

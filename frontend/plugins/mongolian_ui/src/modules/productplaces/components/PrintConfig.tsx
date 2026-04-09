@@ -1,22 +1,22 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
-import { Button } from 'erxes-ui';
+import { useMutation, useQuery } from '@apollo/client';
+import { Button, Label } from 'erxes-ui';
 import { nanoid } from 'nanoid';
-import { Condition } from '../types';
-import PerPrintConditions from './PerPrintConditions';
-import { SelectSalesBoard } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
+import { useCallback, useEffect, useState } from 'react';
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
+import { SelectSalesBoard } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
-import { MN_CONFIGS } from '../graphql/clientQueries';
 import {
   MN_CONFIGS_CREATE,
-  MN_CONFIGS_UPDATE,
   MN_CONFIGS_REMOVE,
+  MN_CONFIGS_UPDATE,
 } from '../graphql/clientMutations';
+import { MN_CONFIGS } from '../graphql/clientQueries';
+import { Condition } from '../types';
 import {
-  objectToKeyValueArray,
   keyValueArrayToObject,
+  objectToKeyValueArray,
 } from '../utils/transformers';
+import PerPrintConditions from './PerPrintConditions';
 import ConfigHeader from './shared/ConfigHeader';
 import SavedConfigsList from './shared/SavedConfigsList';
 
@@ -80,10 +80,10 @@ const PrintConfig: React.FC = () => {
   }, [data]);
 
   useEffect(() => {
-    if (activeIndex !== null) {
-      setFormData(savedConfigs[activeIndex] ?? emptyForm);
-    } else {
+    if (activeIndex === null) {
       setFormData(emptyForm);
+    } else {
+      setFormData(savedConfigs[activeIndex] ?? emptyForm);
     }
   }, [activeIndex, savedConfigs]);
 
@@ -194,21 +194,21 @@ const PrintConfig: React.FC = () => {
 
         {/* FORM */}
         <div className="bg-white border p-6 space-y-4">
-          <label className="text-sm font-medium">Title</label>
+          <Label className="text-sm font-medium">Title</Label>
           <input
             className="w-full border px-3 py-2"
             value={formData.title}
             onChange={(e) => updateField('title', e.target.value)}
           />
 
-          <label className="text-sm font-medium">Board</label>
+          <Label className="text-sm font-medium">Board</Label>
           <SelectSalesBoard
             variant="form"
             value={formData.boardId || ''}
             onValueChange={handleBoardChange}
           />
 
-          <label className="text-sm font-medium">Pipeline</label>
+          <Label className="text-sm font-medium">Pipeline</Label>
           <SelectPipeline
             variant="form"
             boardId={formData.boardId || ''}
@@ -216,7 +216,7 @@ const PrintConfig: React.FC = () => {
             onValueChange={handlePipelineChange}
           />
 
-          <label className="text-sm font-medium">Stage</label>
+          <Label className="text-sm font-medium">Stage</Label>
           <SelectStage
             id="print-stage"
             variant="form"

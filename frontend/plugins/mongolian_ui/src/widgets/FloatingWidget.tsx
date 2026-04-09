@@ -1,10 +1,7 @@
-import { useLocation } from 'react-router-dom';
 import { EbarimtRespondedPage } from '~/pages/EbarimtRespondedPage';
 import { ProductPlacesRespondedPage } from '~/pages/productplaces/ProductPlacesRespondedPage';
 
 const FloatingWidget = () => {
-  const { pathname } = useLocation();
-
   return (
     <>
       <EbarimtRespondedPage />

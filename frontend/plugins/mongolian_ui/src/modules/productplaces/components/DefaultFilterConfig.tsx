@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button } from 'erxes-ui';
+import { Button, Label } from 'erxes-ui';
 import SelectSegments from '../selects/SelectSegments';
 import SelectUsers from '../selects/SelectUsers';
 
@@ -137,7 +137,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
           <div className="space-y-6">
             {filters.map((filter, index) => (
               <div
-                key={index}
+                key={filter.title}
                 className="bg-white rounded-xl border p-6 shadow-sm space-y-6"
               >
                 {/* Header */}
@@ -157,7 +157,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
                 {/* Title + Segment */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Title</label>
+                    <Label className="text-sm font-medium">Title</Label>
                     <input
                       className="w-full rounded-md border px-3 py-2"
                       value={filter.title}
@@ -169,7 +169,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Segment</label>
+                    <Label className="text-sm font-medium">Segment</Label>
                     <SelectSegments
                       contentTypes={SEGMENT_CONTENT_TYPES}
                       value={filter.segmentId}
@@ -182,7 +182,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
 
                 {/* Users */}
                 <div className="space-y-3">
-                  <label className="text-sm font-medium">Assigned Users</label>
+                  <Label className="text-sm font-medium">Assigned Users</Label>
 
                   <div className="flex gap-3 items-center">
                     <div className="flex-1">

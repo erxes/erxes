@@ -22,7 +22,7 @@ export const afterProcess: AfterProcessConfigs = {
     const { mutationName, args, result, userId } = input?.data ?? {};
     if (!mutationName) return;
 
-    const { itemId, destinationStageId, sourceStageId } = args || {};
+    const { itemId, destinationStageId, sourceStageId,  } = args || {};
 
     if (ebarimtMutationNames.includes(mutationName)) {
       const { stageId } = result || {};
