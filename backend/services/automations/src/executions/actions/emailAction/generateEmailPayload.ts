@@ -47,10 +47,10 @@ export const generateEmailPayload = async ({
     fromUserEmail = emails[0];
   }
 
-  let replacedContent = (template?.content || '').replace(
-    new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, 'g'),
-    '{{ $1 }}',
-  );
+  let replacedContent = (template?.content || '').replaceAll(
+  new RegExp(String.raw`{{\s*${type}\s*(.*?)\s*}}`, 'g'),
+  '{{ $1 }}',
+);
 
   replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
@@ -86,6 +86,6 @@ export const generateEmailPayload = async ({
     fromEmail: formatFromEmail(sender, fromUserEmail),
     toEmails: filterOutSenderEmail(toEmails, fromUserEmail),
     ccEmails: filterOutSenderEmail(ccEmails, fromUserEmail),
-    customHtml: content.replace(/{{\s*([^}]+)\s*}}/g, '-'),
+    customHtml: content.replaceAll('{{\\s*([^}]+)\\s*}}', '-'),
   };
 };
