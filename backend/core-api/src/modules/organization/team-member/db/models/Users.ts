@@ -154,7 +154,8 @@ export const loadUserClass = (
     }
 
     public static checkPassword(password: string) {
-      if (!password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)) {
+      const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+      if (!passwordRegex.exec(password)) {
         throw new Error(
           'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters',
         );
@@ -251,7 +252,7 @@ export const loadUserClass = (
         details,
         links,
         groupIds,
-        isActive: isActive !== undefined ? isActive : true,
+        isActive: isActive ?? true,
         // hash password
         password: notUsePassword ? '' : await this.generatePassword(password),
         code: await this.generateUserCode(),
@@ -767,7 +768,7 @@ export const loadUserClass = (
         _id = user._id;
         // if refresh token is expired then force to login
       } catch (e: any) {
-        return {};
+        throw new Error('Invalid or expired refresh token');
       }
 
       const dbUser = await models.Users.getUser(_id);
@@ -1248,10 +1249,7 @@ export const loadUserMovemmentClass = (
       });
 
       const removedFromContentType = userMovements
-        .filter(
-          (movement) =>
-            !userIds?.some((userId) => userId === movement.userId) && movement,
-        )
+        .filter((movement) => !userIds?.includes(movement.userId) && movement)
         .map(({ createdBy, contentType, contentTypeId, userId }) => ({
           createdBy,
           contentType,
