@@ -21,6 +21,7 @@ export interface IPricingOption {
 
 export interface IEditTourVariables {
   id: string;
+  language?: string;
   dateStatus:
     | 'scheduled'
     | 'unscheduled'

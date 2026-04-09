@@ -23,6 +23,7 @@ export interface IPricingOption {
 }
 
 export interface ITour {
+  language?: string;
   name: string;
   groupCode: string;
   refNumber?: string;

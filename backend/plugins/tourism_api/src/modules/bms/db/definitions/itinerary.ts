@@ -67,6 +67,7 @@ export const itinerarySchema = new Schema({
   color: { type: String, optional: true, label: 'color' },
 
   branchId: { type: String, optional: true, label: 'branchId' },
+  language: { type: String, optional: true, label: 'language' },
 
   driverCost: { type: Number, label: 'cost', optional: true },
   guideCost: { type: Number, label: 'cost', optional: true },

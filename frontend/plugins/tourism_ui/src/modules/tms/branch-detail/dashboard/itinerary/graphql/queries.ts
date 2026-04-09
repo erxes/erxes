@@ -28,6 +28,7 @@ export const GET_ITINERARIES = gql`
       list {
         _id
         branchId
+        language
         name
         duration
         images
@@ -89,6 +90,7 @@ export const GET_ITINERARY_DETAIL = gql`
     bmsItineraryDetail(_id: $id, language: $language) {
       _id
       branchId
+      language
       name
       duration
       totalCost

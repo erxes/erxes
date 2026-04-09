@@ -1,7 +1,9 @@
 import { getCoreRowModel, Row, TableOptions } from '@tanstack/react-table';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { RecordTable, RecordTableTree, Sheet } from 'erxes-ui';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { useTourGroups } from '../hooks/useTourGroups';
 import { TourCreateSheet } from './TourCreateSheet';
 import { TourCommandBar } from './TourCommandBar';
@@ -19,8 +21,11 @@ export const TourGroupList = ({
   branchLanguages?: string[];
   mainLanguage?: string;
 }) => {
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
+
   const { groups, loading, total } = useTourGroups({
-    variables: { branchId },
+    variables: { branchId, language },
   });
 
   const [editTourId, setEditTourId] = useState<string | null>(null);

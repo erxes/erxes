@@ -6,6 +6,7 @@ import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { TourCreateSheet } from './TourCreateSheet';
 import { TourEditForm } from './TourEditForm';
 import { TourColumns } from './TourColumns';
+import { TourDuplicateSheet } from './TourDuplicateSheet';
 import { useTours } from '../hooks/useTours';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { TourCommandBar } from './TourCommandBar';
@@ -23,6 +24,10 @@ export const TourRecordTable = ({
 }) => {
   const [editTourId, setEditTourId] = useState<string | null>(null);
   const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
+  const [duplicateTourId, setDuplicateTourId] = useState<string | null>(null);
+  const [duplicateTourDateType, setDuplicateTourDateType] = useState<
+    'fixed' | 'flexible' | undefined
+  >(undefined);
 
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
@@ -36,6 +41,11 @@ export const TourRecordTable = ({
 
   const handleEdit = (tourId: string) => {
     setEditTourId(tourId);
+  };
+
+  const handleDuplicate = (tourId: string, dateType?: 'fixed' | 'flexible') => {
+    setDuplicateTourId(tourId);
+    setDuplicateTourDateType(dateType);
   };
 
   const handleCloseEdit = (open: boolean) => {
@@ -57,7 +67,7 @@ export const TourRecordTable = ({
   return (
     <>
       <RecordTable.Provider
-        columns={TourColumns(categories || [], handleEdit, branchId)}
+        columns={TourColumns(categories || [], handleEdit, handleDuplicate)}
         data={tours || []}
         className="h-full"
         stickyColumns={['more', 'checkbox', 'name']}
@@ -106,6 +116,23 @@ export const TourRecordTable = ({
           )}
         </Sheet.View>
       </Sheet>
+
+      {duplicateTourId && (
+        <TourDuplicateSheet
+          tourId={duplicateTourId}
+          dateType={duplicateTourDateType}
+          branchId={branchId}
+          branchLanguages={branchLanguages}
+          mainLanguage={mainLanguage}
+          open={!!duplicateTourId}
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) {
+              setDuplicateTourId(null);
+              setDuplicateTourDateType(undefined);
+            }
+          }}
+        />
+      )}
     </>
   );
 };

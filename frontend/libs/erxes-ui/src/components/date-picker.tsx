@@ -52,7 +52,9 @@ export const DatePicker = ({
       return;
     }
 
-    setIsOpen(false);
+    if (mode === 'single') {
+      setIsOpen(false);
+    }
     onChange?.(selectedDate);
   };
 
@@ -73,7 +75,7 @@ export const DatePicker = ({
           {renderButtonContent()}
         </Combobox.Trigger>
       </Popover.Trigger>
-      <Popover.Content className="p-0 w-auto">
+      <Popover.Content className="w-auto p-0">
         <Calendar
           {...props}
           disabled={(date: Date) => {
