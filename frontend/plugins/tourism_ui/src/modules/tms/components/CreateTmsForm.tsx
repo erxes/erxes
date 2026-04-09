@@ -50,6 +50,8 @@ const CreateTmsForm = ({
     generalManager,
     managers,
     payment,
+    prepaid,
+    prepaidPercent,
     token,
     otherPayments,
   } = formData;
@@ -66,6 +68,8 @@ const CreateTmsForm = ({
       generalManager: Array.isArray(generalManager) ? generalManager : [],
       managers: Array.isArray(managers) ? managers : [],
       payment: Array.isArray(payment) ? payment : [],
+      prepaid: prepaid ?? false,
+      prepaidPercent: prepaid ? prepaidPercent ?? undefined : undefined,
       token: token || '',
       otherPayments: Array.isArray(otherPayments) ? otherPayments : [],
     },
@@ -92,6 +96,8 @@ const CreateTmsForm = ({
         generalManagerIds,
         managerIds,
         paymentIds,
+        prepaid,
+        prepaidPercent,
         erxesAppToken,
         permissionConfig,
         language: mainLanguageFromDetail,
@@ -115,6 +121,8 @@ const CreateTmsForm = ({
         payment: Array.isArray(paymentIds)
           ? paymentIds.filter((id): id is string => typeof id === 'string')
           : [],
+        prepaid: prepaid ?? false,
+        prepaidPercent: prepaid ? prepaidPercent ?? undefined : undefined,
         token: erxesAppToken || '',
         otherPayments: Array.isArray(permissionConfig)
           ? permissionConfig.map((config: PermissionConfig) => ({
