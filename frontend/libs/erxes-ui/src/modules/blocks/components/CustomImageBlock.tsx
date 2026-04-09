@@ -96,6 +96,7 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
         </div>
       )}
       {!isResolving && src && (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           className={cn(
             'bn-visual-media mx-auto',
@@ -123,6 +124,7 @@ const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   if (!url) return <p>Add image</p>;
 
   const img = (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={url}
       alt={caption || name || ''}

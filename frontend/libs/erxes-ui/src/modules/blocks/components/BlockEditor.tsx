@@ -33,7 +33,7 @@ export const BlockEditor = ({
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
 
-  const getSlashMenuItems = async (query: string) => {
+  const getSlashMenuItems = (query: string) => {
     const items = getDefaultReactSlashMenuItems(editor);
     const hasImageItem = items.some((item) => item.title === 'Image');
     const hasCustomImageBlock = 'image' in editor.schema.blockSchema;
@@ -58,7 +58,7 @@ export const BlockEditor = ({
       } satisfies DefaultReactSuggestionItem);
     }
 
-    return filterSuggestionItems(items, query);
+    return Promise.resolve(filterSuggestionItems(items, query));
   };
 
   return (
