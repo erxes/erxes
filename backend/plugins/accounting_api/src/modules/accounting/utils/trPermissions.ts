@@ -1,7 +1,9 @@
-import { IUserDocument } from "erxes-api-shared/core-types";
-import { IModels } from "~/connectionResolvers";
-import { ITransactionDocument, IHiddenTransaction } from "../@types/transaction";
-
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { IModels } from '~/connectionResolvers';
+import {
+  ITransactionDocument,
+  IHiddenTransaction,
+} from '../@types/transaction';
 
 const convertToHidden = (transaction: ITransactionDocument) => {
   return {
@@ -11,59 +13,67 @@ const convertToHidden = (transaction: ITransactionDocument) => {
     ptrStatus: transaction.ptrStatus,
     originId: transaction.originId,
     originType: transaction.originType,
-    details: transaction.details.map(detail => ({
+    details: transaction.details.map((detail) => ({
       _id: detail._id,
       originId: detail.originId,
       side: detail.side,
     })),
     sumDt: transaction.sumDt,
     sumCt: transaction.sumCt,
-    permission: 'hidden'
-  } as IHiddenTransaction
-}
+    permission: 'hidden',
+  } as IHiddenTransaction;
+};
 
 const convertToWithPerm = (transaction: ITransactionDocument, perm: string) => {
   transaction.permission = perm;
-  return transaction
-}
+  return transaction;
+};
 
-const canShowTr = async (models: IModels, transaction: ITransactionDocument, user: IUserDocument) => {
+const canShowTr = async (
+  models: IModels,
+  transaction: ITransactionDocument,
+  user: IUserDocument,
+) => {
   // hidden, readOnly, update, delete|full|null
   if (!user._id) {
-    return 'false'
+    return 'false';
   }
-}
+};
 
-export const checkPermissionTrs = async (models: IModels, transactions: ITransactionDocument[], user: IUserDocument) => {
-  const originTrs = transactions.filter(tr => !tr.originId);
+export const checkPermissionTrs = async (
+  models: IModels,
+  transactions: ITransactionDocument[],
+  user: IUserDocument,
+) => {
+  const originTrs = transactions.filter((tr) => !tr.originId);
 
   const result: (ITransactionDocument | IHiddenTransaction)[] = [];
 
   for (const otr of originTrs) {
-    const permStr: string | undefined = await canShowTr(models, otr, user)
+    const permStr: string | undefined = await canShowTr(models, otr, user);
 
     if (permStr === 'hidden') {
-      result.push(convertToHidden(otr))
-      for (const atr of transactions.filter(tr => tr.originId === otr._id)) {
-        result.push(convertToHidden(atr))
+      result.push(convertToHidden(otr));
+      for (const atr of transactions.filter((tr) => tr.originId === otr._id)) {
+        result.push(convertToHidden(atr));
       }
       continue;
     }
 
     if (permStr) {
-      result.push(convertToWithPerm(otr, permStr))
-      for (const atr of transactions.filter(tr => tr.originId === otr._id)) {
-        result.push(convertToWithPerm(atr, permStr))
+      result.push(convertToWithPerm(otr, permStr));
+      for (const atr of transactions.filter((tr) => tr.originId === otr._id)) {
+        result.push(convertToWithPerm(atr, permStr));
       }
       continue;
     }
 
     // permStr in undefined || '' || null or full
-    result.push(otr)
-    for (const atr of transactions.filter(tr => tr.originId === otr._id)) {
-      result.push(atr)
+    result.push(otr);
+    for (const atr of transactions.filter((tr) => tr.originId === otr._id)) {
+      result.push(atr);
     }
   }
 
   return result;
-}
+};
