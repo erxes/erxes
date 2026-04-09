@@ -37,18 +37,18 @@ async function createPlugin() {
 
   // Convert plugin name to kebab case
   const kebabCaseName = pluginName
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .replace(/[\s_]+/g, '-')
+    .replaceAll(/([a-z])([A-Z])/g, '$1-$2')
+    .replaceAll(/[\s_]+/g, '-')
     .toLowerCase();
 
-  const PascalCaseName = pluginName.replace(/(^\w|-\w)/g, (match) =>
-    match.replace('-', '').toUpperCase(),
+  const PascalCaseName = pluginName.replaceAll(/(^\w|-\w)/g, (match) =>
+    match.replaceAll('-', '').toUpperCase(),
   );
 
   // Convert module name to kebab case
   const kebabCaseModuleName = moduleName
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .replace(/[\s_]+/g, '-')
+    .replaceAll(/([a-z])([A-Z])/g, '$1-$2')
+    .replaceAll(/[\s_]+/g, '-')
     .toLowerCase();
 
   // Create frontend plugin
@@ -592,16 +592,16 @@ export default config;
   );
 
   // Create jest.config.ts
-  const jestConfig = `/* eslint-disable */
+  const jestConfig = String.raw`
 export default {
   displayName: '${kebabCaseName}-ui',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
-    '^.+\\\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
+    '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/plugins/${kebabCaseName}_ui',
+  coverageDirectory: '../../coverage/plugins/${kebabCaseName}-ui',
 };
 `;
 
