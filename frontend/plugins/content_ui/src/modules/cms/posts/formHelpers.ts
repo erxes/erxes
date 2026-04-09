@@ -21,6 +21,8 @@ interface ImageBlockProps extends BaseBlockProps {
   name: string;
   caption: string;
   showPreview: boolean;
+  previewWidth?: number;
+  imageStyle?: 'normal' | 'wide';
 }
 
 type BlockProps = ParagraphBlockProps | HeadingBlockProps | ImageBlockProps;
@@ -69,6 +71,19 @@ const escapeHtml = (str: string): string =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+const getImageStyleFromElement = (element: Element): 'normal' | 'wide' => {
+  const explicitStyle =
+    element.getAttribute('data-image-style') ||
+    element
+      .getAttribute('class')
+      ?.match(/erxes-editor-image--(normal|wide)/)?.[1];
+
+  return explicitStyle === 'wide' ? 'wide' : 'normal';
+};
+
+const getPresetPreviewWidth = (imageStyle: 'normal' | 'wide'): number =>
+  imageStyle === 'wide' ? 1080 : 720;
+
 export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
   if (!htmlContent || htmlContent.trim() === '') {
     return [emptyParagraph()];
@@ -102,6 +117,7 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
       if (tag === 'img') {
         const url = (el as HTMLImageElement).src;
         if (!url) return;
+        const imageStyle = getImageStyleFromElement(el);
         blocks.push({
           id: crypto.randomUUID(),
           type: 'image',
@@ -113,6 +129,10 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
             name: '',
             caption: '',
             showPreview: true,
+            previewWidth:
+              (el as HTMLImageElement).width ||
+              getPresetPreviewWidth(imageStyle),
+            imageStyle,
           } as ImageBlockProps,
           content: [],
           children: [],
@@ -124,6 +144,7 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
         const img = el.querySelector('img');
         if (!img) return;
         const caption = el.querySelector('figcaption')?.textContent || '';
+        const imageStyle = getImageStyleFromElement(el);
         blocks.push({
           id: crypto.randomUUID(),
           type: 'image',
@@ -135,6 +156,8 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
             name: '',
             caption,
             showPreview: true,
+            previewWidth: img.width || getPresetPreviewWidth(imageStyle),
+            imageStyle,
           } as ImageBlockProps,
           content: [],
           children: [],

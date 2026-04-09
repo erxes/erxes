@@ -19,7 +19,7 @@ export const SettingsNavigation = () => {
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/product-places"
-            name="ProductPlace"
+            name="Product Places"
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"

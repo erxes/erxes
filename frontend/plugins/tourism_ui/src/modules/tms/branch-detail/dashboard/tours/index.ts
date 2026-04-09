@@ -11,6 +11,7 @@ export { TourDuplicateSheet } from './_components/TourDuplicateSheet';
 export { GroupedTourColumns } from './_components/TourGroupColumns';
 export { TourCalendar } from './_components/TourCalendar';
 export { ToursView, ToursViewControl } from './_components/ToursView';
+export { ExportTourPDFButton, TourPDF } from './pdf';
 
 // Hooks
 export { useTours } from './hooks/useTours';

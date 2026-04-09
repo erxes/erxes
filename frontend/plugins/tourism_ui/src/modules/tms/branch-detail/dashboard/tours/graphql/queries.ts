@@ -124,6 +124,7 @@ export const GET_TOUR_DETAIL = gql`
   query BmsTourDetail($id: String!, $language: String) {
     bmsTourDetail(_id: $id, language: $language) {
       _id
+      branchId
       language
       advanceCheck
       advancePercent
@@ -191,6 +192,8 @@ export const GET_TOUR_DETAIL = gql`
           singleSupplement
         }
       }
+      createdAt
+      modifiedAt
     }
   }
 `;

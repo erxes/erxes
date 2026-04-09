@@ -7,18 +7,18 @@ import { lazy } from 'react';
 const WebhooksComponents: AutomationComponentMap<AutomationNodeType.Trigger> = {
   webhooks: {
     sidebar: lazy(() =>
-      import(
-        '@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookConfigForm'
-      ).then((module) => ({
-        default: module.IncomingWebhookConfigForm,
-      })),
+      import('@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookConfigForm').then(
+        (module) => ({
+          default: module.IncomingWebhookConfigForm,
+        }),
+      ),
     ),
     nodeContent: lazy(() =>
-      import(
-        '@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookNodeContent'
-      ).then((module) => ({
-        default: module.IncomingWebhookNodeContent,
-      })),
+      import('@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookNodeContent').then(
+        (module) => ({
+          default: module.IncomingWebhookNodeContent,
+        }),
+      ),
     ),
   },
 };
