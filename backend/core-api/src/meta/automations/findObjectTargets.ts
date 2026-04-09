@@ -13,8 +13,15 @@ import {
 type TFindObjectTarget = {
   label: string;
   lookupFields: TAutomationFindObjectTargetDefinition['lookupFields'];
-  getCollection: (models: IModels) => any;
-  generateFilter: (field: string, value: string) => Record<string, any> | null;
+  getCollection: (models: IModels) => {
+    findOne: (
+      filter: Record<string, unknown>,
+    ) => { lean: () => Promise<Record<string, unknown> | null> };
+  };
+  generateFilter: (
+    field: string,
+    value: string,
+  ) => Record<string, unknown> | null;
   output: TAutomationFindObjectTargetDefinition['output'];
 };
 
@@ -166,11 +173,16 @@ export const buildFindObjectResult = ({
   objectType: TAutomationFindObjectType;
   field: string;
   value: string;
-  doc?: Record<string, any> | null;
+  doc?: Record<string, unknown> | null;
 }): TAutomationFindObjectResult => ({
   found: !!doc,
   objectType,
-  objectId: doc?._id,
+  objectId:
+    typeof doc?._id === 'string'
+      ? doc._id
+      : doc?._id
+        ? String(doc._id)
+        : undefined,
   object: doc || null,
   matchedBy: {
     field,

@@ -8,12 +8,18 @@ import {
   TAiAgentActionConfig,
 } from '../aiAction/contract';
 
-const getNestedValue = (obj: any, path = '') => {
+const getNestedValue = (obj: unknown, path = '') => {
   if (!path) {
     return undefined;
   }
 
-  return path.split('.').reduce((current, key) => current?.[key], obj);
+  return path.split('.').reduce<unknown>((current, key) => {
+    if (!current || typeof current !== 'object') {
+      return undefined;
+    }
+
+    return (current as Record<string, unknown>)[key];
+  }, obj);
 };
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>

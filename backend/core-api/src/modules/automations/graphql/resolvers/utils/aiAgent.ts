@@ -8,15 +8,23 @@ const SENSITIVE_KEYS = new Set([
   'password',
 ]);
 
-const toPlainObject = (value: any) => {
-  if (!value) {
+type TObjectWithToObject = {
+  toObject?: () => unknown;
+};
+
+const toPlainObject = (value: unknown) => {
+  if (!value || typeof value !== 'object') {
     return value;
   }
 
-  return typeof value.toObject === 'function' ? value.toObject() : value;
+  const candidate = value as TObjectWithToObject;
+
+  return typeof candidate.toObject === 'function'
+    ? candidate.toObject()
+    : value;
 };
 
-const maskSensitiveValue = (key: string, value: any) => {
+const maskSensitiveValue = (key: string, value: unknown) => {
   const normalizedKey = key.replace(/[_-]/g, '').toLowerCase();
 
   if (!SENSITIVE_KEYS.has(normalizedKey)) {
@@ -30,7 +38,7 @@ const maskSensitiveValue = (key: string, value: any) => {
   return value;
 };
 
-const maskDeep = (value: any): any => {
+const maskDeep = (value: unknown): unknown => {
   if (Array.isArray(value)) {
     return value.map(maskDeep);
   }
@@ -47,14 +55,14 @@ const maskDeep = (value: any): any => {
 
       return acc;
     },
-    {} as Record<string, any>,
+    {},
   );
 };
 
-export const sanitizeAiAgent = (agent: any) => {
-  return maskDeep(toPlainObject(agent));
+export const sanitizeAiAgent = <T>(agent: T): T => {
+  return maskDeep(toPlainObject(agent)) as T;
 };
 
-export const sanitizeAiAgents = (agents: any[] = []) => {
+export const sanitizeAiAgents = <T>(agents: T[] = []) => {
   return agents.map(sanitizeAiAgent);
 };

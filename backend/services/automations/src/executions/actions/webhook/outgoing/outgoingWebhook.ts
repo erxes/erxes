@@ -38,7 +38,7 @@ type TOutgoingWebhookResult = {
     headers: Record<string, string>;
     contentType?: string;
     bodyText?: string;
-    bodyJson?: any;
+    bodyJson?: unknown;
   };
   meta: {
     attemptCount: number;
@@ -190,7 +190,7 @@ export async function executeOutgoingWebhook({
 }: {
   subdomain: string;
   targetType: string;
-  target: any;
+  target: Record<string, unknown>;
   action: IAutomationAction<TOutgoinWebhookActionConfig>;
 }): Promise<TOutgoingWebhookResult> {
   const {
@@ -314,7 +314,7 @@ export async function executeOutgoingWebhook({
       bodyMode === 'text' ? 'text/plain; charset=utf-8' : 'application/json';
   }
 
-  let requestBody: any = replacedBody;
+  let requestBody: unknown = replacedBody;
   if (
     bodyMode === 'json' &&
     headersObj['Content-Type']?.includes('application/json') &&
@@ -351,7 +351,7 @@ export async function executeOutgoingWebhook({
         ? requestBody
         : JSON.stringify(requestBody);
 
-  let lastErr: any;
+  let lastErr: unknown;
   const attempts = Math.max(0, retryOpts.attempts || 0) + 1;
 
   for (let i = 1; i <= attempts; i++) {
@@ -410,7 +410,7 @@ export async function executeOutgoingWebhook({
     }
   }
 
-  if (lastErr?.name === 'AbortError') {
+  if (lastErr instanceof Error && lastErr.name === 'AbortError') {
     throw createOutgoingWebhookError({
       phase: 'timeout',
       message: `Outgoing webhook timed out after ${timeoutMs}ms`,

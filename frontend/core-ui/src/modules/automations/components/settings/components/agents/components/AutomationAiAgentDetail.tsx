@@ -8,6 +8,7 @@ import { AiAgentInput } from '@/automations/components/settings/components/agent
 import {
   buildAiAgentFormSchema,
   normalizeAiAgentFormValues,
+  TAiAgentFormDetail,
   TAiAgentForm,
 } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,8 +21,8 @@ export const AutomationAiAgentDetail = ({
   detail,
   handleSave,
 }: {
-  detail: any;
-  handleSave: (input: AiAgentInput) => Promise<any>;
+  detail?: TAiAgentFormDetail;
+  handleSave: (input: AiAgentInput) => Promise<unknown>;
 }) => {
   const form = useForm<TAiAgentForm>({
     resolver: zodResolver(

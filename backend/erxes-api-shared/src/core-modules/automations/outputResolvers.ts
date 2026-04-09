@@ -11,18 +11,25 @@ type TAutomationNodeConfig =
   | IAutomationsTriggerConfig
   | IAutomationsActionConfig;
 
-const propertyFieldsCache = new Map<string, Promise<any[]>>();
+type TAutomationOutputSource = Record<string, unknown>;
+type TPropertyField = {
+  _id: string;
+  code?: string;
+  name?: string;
+};
+
+const propertyFieldsCache = new Map<string, Promise<TPropertyField[]>>();
 
 export const resolveFromSourceField =
-  <TModels = any>(
+  <TModels = unknown>(
     sourceField: string,
     resolver: (args: {
       subdomain: string;
-      source: Record<string, any>;
+      source: TAutomationOutputSource;
       path: string;
-      value: any;
-      defaultValue?: any;
-    }) => Promise<any>,
+      value: unknown;
+      defaultValue?: unknown;
+    }) => Promise<unknown>,
   ) =>
   async ({
     subdomain,
@@ -31,9 +38,9 @@ export const resolveFromSourceField =
     defaultValue,
   }: {
     subdomain: string;
-    source: Record<string, any>;
+    source: TAutomationOutputSource;
     path: string;
-    defaultValue?: any;
+    defaultValue?: unknown;
   }) =>
     resolver({
       subdomain,
@@ -51,9 +58,12 @@ export const matchAutomationResolverKey = (
     ? path.startsWith(resolverKey.slice(0, -1))
     : resolverKey === path;
 
-export const getValueByPath = (source: Record<string, any>, path: string) => {
+export const getValueByPath = (
+  source: TAutomationOutputSource,
+  path: string,
+) => {
   const segments = path.split('.');
-  let current: any = source;
+  let current: unknown = source;
 
   for (const segment of segments) {
     if (
@@ -65,7 +75,7 @@ export const getValueByPath = (source: Record<string, any>, path: string) => {
       return { found: false };
     }
 
-    current = current[segment];
+    current = (current as Record<string, unknown>)[segment];
   }
 
   return { found: true, value: current };
@@ -105,11 +115,11 @@ export const resolveOutputValues = async ({
 }: {
   definition: TAutomationRuntimeOutputDefinition;
   subdomain: string;
-  source: Record<string, any>;
+  source: TAutomationOutputSource;
   paths: string[];
-  defaultValue?: any;
+  defaultValue?: unknown;
 }) => {
-  const result: Record<string, any> = {};
+  const result: Record<string, unknown> = {};
 
   for (const path of [...new Set(paths)]) {
     const matchedResolver = Object.entries(definition.resolvers || {}).find(
@@ -137,11 +147,15 @@ export const resolveOutputValues = async ({
         propertySource.propertyType,
       );
       const field = fields.find(
-        (item: any) => item.code === propertyCode || item.name === propertyCode,
+        (item) => item.code === propertyCode || item.name === propertyCode,
       );
 
+      const propertiesData = source.propertiesData as
+        | Record<string, unknown>
+        | undefined;
+
       result[path] = field
-        ? (source?.propertiesData?.[field._id] ?? defaultValue)
+        ? (propertiesData?.[field._id] ?? defaultValue)
         : defaultValue;
       continue;
     }

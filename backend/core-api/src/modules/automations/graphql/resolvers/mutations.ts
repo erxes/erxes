@@ -11,21 +11,48 @@ export interface IAutomationsEdit extends IAutomation {
 
 const MASKED_SECRET_VALUE = '********';
 
-const toPlainObject = (value: any) => {
-  if (!value) {
+type TPlainObject = Record<string, unknown>;
+type TObjectWithToObject = {
+  toObject?: () => unknown;
+};
+
+type TAiAgentConnectionConfig = TPlainObject & {
+  apiKey?: string;
+};
+
+type TAiAgentConnection = TPlainObject & {
+  config?: TAiAgentConnectionConfig;
+};
+
+type TAiAgentMutationDoc = TPlainObject & {
+  connection?: TAiAgentConnection;
+};
+
+const toPlainObject = (value?: unknown | null) => {
+  if (!value || typeof value !== 'object') {
     return value;
   }
 
-  return typeof value.toObject === 'function' ? value.toObject() : value;
+  const candidate = value as TObjectWithToObject;
+
+  return typeof candidate.toObject === 'function'
+    ? candidate.toObject()
+    : value;
 };
 
-const mergeAiAgentConnectionSecrets = (currentAgent: any, doc: any) => {
+const mergeAiAgentConnectionSecrets = (
+  currentAgent: ({ connection?: unknown } & TObjectWithToObject) | null,
+  doc: TAiAgentMutationDoc,
+) => {
   if (!doc?.connection) {
     return doc;
   }
 
-  const currentConnection = toPlainObject(currentAgent?.connection) || {};
-  const incomingConnection = toPlainObject(doc.connection) || {};
+  const currentConnection =
+    (toPlainObject(currentAgent?.connection) as TAiAgentConnection | undefined) ||
+    {};
+  const incomingConnection =
+    (toPlainObject(doc.connection) as TAiAgentConnection | undefined) || {};
   const currentConfig = currentConnection.config || {};
   const incomingConfig = incomingConnection.config || {};
 

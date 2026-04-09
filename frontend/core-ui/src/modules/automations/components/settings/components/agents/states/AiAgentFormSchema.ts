@@ -65,68 +65,6 @@ const normalizeUploadedAt = (value: unknown) => {
   return undefined;
 };
 
-const normalizeAiAgentFileVersions = (versions: any[] = []) =>
-  versions
-    .map((version) => {
-      const key =
-        typeof version?.key === 'string'
-          ? version.key.trim()
-          : String(version?.key || '');
-      const name =
-        typeof version?.name === 'string'
-          ? version.name.trim()
-          : String(version?.name || '');
-      const rawSize =
-        typeof version?.size === 'number'
-          ? version.size
-          : Number(version?.size);
-
-      return {
-        key,
-        name,
-        size: Number.isFinite(rawSize) && rawSize >= 0 ? rawSize : undefined,
-        type:
-          typeof version?.type === 'string' && version.type.trim()
-            ? version.type.trim()
-            : undefined,
-        uploadedAt: normalizeUploadedAt(version?.uploadedAt),
-      };
-    })
-    .filter((version) => version.key && version.name);
-
-const normalizeAiAgentFiles = (files: any[] = []) =>
-  files
-    .map((file, index) => {
-      const key =
-        typeof file?.key === 'string'
-          ? file.key.trim()
-          : String(file?.key || '');
-      const name =
-        typeof file?.name === 'string'
-          ? file.name.trim()
-          : String(file?.name || '');
-      const fallbackId = key || name || `context-file-${index + 1}`;
-      const rawSize =
-        typeof file?.size === 'number' ? file.size : Number(file?.size);
-
-      return {
-        id:
-          typeof file?.id === 'string' && file.id.trim()
-            ? file.id.trim()
-            : fallbackId,
-        key,
-        name,
-        size: Number.isFinite(rawSize) && rawSize >= 0 ? rawSize : undefined,
-        type:
-          typeof file?.type === 'string' && file.type.trim()
-            ? file.type.trim()
-            : undefined,
-        uploadedAt: normalizeUploadedAt(file?.uploadedAt),
-        versions: normalizeAiAgentFileVersions(file?.versions || []),
-      };
-    })
-    .filter((file) => file.key && file.name);
-
 export const buildAiAgentFormSchema = ({
   requireApiKey = false,
 }: {
@@ -145,8 +83,111 @@ export const buildAiAgentFormSchema = ({
 export const aiAgentFormSchema = buildAiAgentFormSchema();
 
 export type TAiAgentForm = z.infer<typeof baseAiAgentFormSchema>;
+type TAiAgentFormFileVersionInput = {
+  key?: unknown;
+  name?: unknown;
+  size?: unknown;
+  type?: unknown;
+  uploadedAt?: unknown;
+};
 
-export const normalizeAiAgentFormValues = (detail?: any): TAiAgentForm => ({
+type TAiAgentFormFileInput = TAiAgentFormFileVersionInput & {
+  id?: unknown;
+  versions?: unknown;
+};
+
+export type TAiAgentFormDetail = {
+  _id?: string;
+  name?: unknown;
+  description?: unknown;
+  connection?: {
+    provider?: unknown;
+    model?: unknown;
+    config?: {
+      apiKey?: unknown;
+      baseUrl?: unknown;
+      headers?: unknown;
+    };
+  };
+  runtime?: {
+    temperature?: unknown;
+    maxTokens?: unknown;
+    timeoutMs?: unknown;
+  };
+  context?: {
+    systemPrompt?: unknown;
+    files?: unknown;
+  };
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === 'object' && !Array.isArray(value);
+
+const normalizeAiAgentFileVersions = (versions: unknown[] = []) =>
+  versions
+    .map((version) => {
+      const current = isRecord(version)
+        ? (version as TAiAgentFormFileVersionInput)
+        : {};
+      const key =
+        typeof current.key === 'string' ? current.key.trim() : String(current.key || '');
+      const name =
+        typeof current.name === 'string'
+          ? current.name.trim()
+          : String(current.name || '');
+      const rawSize =
+        typeof current.size === 'number' ? current.size : Number(current.size);
+
+      return {
+        key,
+        name,
+        size: Number.isFinite(rawSize) && rawSize >= 0 ? rawSize : undefined,
+        type:
+          typeof current.type === 'string' && current.type.trim()
+            ? current.type.trim()
+            : undefined,
+        uploadedAt: normalizeUploadedAt(current.uploadedAt),
+      };
+    })
+    .filter((version) => version.key && version.name);
+
+const normalizeAiAgentFiles = (files: unknown[] = []) =>
+  files
+    .map((file, index) => {
+      const current = isRecord(file) ? (file as TAiAgentFormFileInput) : {};
+      const key =
+        typeof current.key === 'string' ? current.key.trim() : String(current.key || '');
+      const name =
+        typeof current.name === 'string'
+          ? current.name.trim()
+          : String(current.name || '');
+      const fallbackId = key || name || `context-file-${index + 1}`;
+      const rawSize =
+        typeof current.size === 'number' ? current.size : Number(current.size);
+
+      return {
+        id:
+          typeof current.id === 'string' && current.id.trim()
+            ? current.id.trim()
+            : fallbackId,
+        key,
+        name,
+        size: Number.isFinite(rawSize) && rawSize >= 0 ? rawSize : undefined,
+        type:
+          typeof current.type === 'string' && current.type.trim()
+            ? current.type.trim()
+            : undefined,
+        uploadedAt: normalizeUploadedAt(current.uploadedAt),
+        versions: normalizeAiAgentFileVersions(
+          Array.isArray(current.versions) ? current.versions : [],
+        ),
+      };
+    })
+    .filter((file) => file.key && file.name);
+
+export const normalizeAiAgentFormValues = (
+  detail?: TAiAgentFormDetail,
+): TAiAgentForm => ({
   name: detail?.name || '',
   description: detail?.description || '',
   connection: {
@@ -156,7 +197,13 @@ export const normalizeAiAgentFormValues = (detail?: any): TAiAgentForm => ({
       apiKey: '',
       baseUrl:
         detail?.connection?.config?.baseUrl || 'https://api.openai.com/v1',
-      headers: detail?.connection?.config?.headers || {},
+      headers: isRecord(detail?.connection?.config?.headers)
+        ? Object.fromEntries(
+            Object.entries(detail.connection.config.headers).map(
+              ([key, value]) => [key, String(value ?? '')],
+            ),
+          )
+        : {},
     },
   },
   runtime: {
@@ -166,6 +213,8 @@ export const normalizeAiAgentFormValues = (detail?: any): TAiAgentForm => ({
   },
   context: {
     systemPrompt: detail?.context?.systemPrompt || '',
-    files: normalizeAiAgentFiles(detail?.context?.files || []),
+    files: normalizeAiAgentFiles(
+      Array.isArray(detail?.context?.files) ? detail.context.files : [],
+    ),
   },
 });
