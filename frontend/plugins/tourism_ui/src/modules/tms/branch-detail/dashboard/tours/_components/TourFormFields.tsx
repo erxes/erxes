@@ -114,7 +114,7 @@ export const TourStatusField = ({
           <Form.Control>
             <Select onValueChange={field.onChange} value={field.value}>
               <Select.Trigger
-                className={!field.value ? 'text-muted-foreground' : ''}
+                className={field.value ? '' : 'text-muted-foreground'}
               >
                 {field.value
                   ? TOUR_STATUS_OPTIONS.find((opt) => opt.value === field.value)
@@ -623,7 +623,15 @@ export const TourAttachmentsField = ({
                 variant="secondary"
                 className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
               >
-                {!field.value ? (
+                {field.value ? (
+                  <div className="flex items-center w-full gap-2 px-1">
+                    <IconFileText
+                      size={18}
+                      className="shrink-0 text-muted-foreground"
+                    />
+                    <span className="text-sm truncate">{field.value.name}</span>
+                  </div>
+                ) : (
                   <div className="flex items-center justify-center w-full gap-2 text-sm text-muted-foreground">
                     {isLoading ? (
                       <span>Uploading...</span>
@@ -633,14 +641,6 @@ export const TourAttachmentsField = ({
                         <span>Upload PDF</span>
                       </>
                     )}
-                  </div>
-                ) : (
-                  <div className="flex items-center w-full gap-2 px-1">
-                    <IconFileText
-                      size={18}
-                      className="shrink-0 text-muted-foreground"
-                    />
-                    <span className="text-sm truncate">{field.value.name}</span>
                   </div>
                 )}
               </Upload.Button>
@@ -772,7 +772,7 @@ const TourPricingOptionsFieldContent = ({
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
                       Package Title
-                      <span className="text-primary">{labelSuffix}</span>{' '}
+                      <span className="text-primary">{labelSuffix}</span>
                       <span className="text-destructive">*</span>
                     </Form.Label>
                     <Input
@@ -837,7 +837,7 @@ const TourPricingOptionsFieldContent = ({
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      Accommodation Type
+                      Accommodation Type{' '}
                       <span className="text-primary">{labelSuffix}</span>
                     </Form.Label>
                     <Input

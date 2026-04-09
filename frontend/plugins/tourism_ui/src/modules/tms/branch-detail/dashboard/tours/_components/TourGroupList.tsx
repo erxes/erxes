@@ -121,9 +121,9 @@ function EmptyState({
   branchLanguages,
   mainLanguage,
 }: {
-  branchId: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
+  readonly branchId: string;
+  readonly branchLanguages?: string[];
+  readonly mainLanguage?: string;
 }) {
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
