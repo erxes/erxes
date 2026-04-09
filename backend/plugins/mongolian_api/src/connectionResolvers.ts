@@ -27,7 +27,10 @@ import {
   loadSyncLogClass as loadErkhetSyncLogClass,
 } from '@/erkhet/db/model/SyncLog';
 // MS Dynamic
-import { ICustomerRelationDocument, ISyncLogDocument as IMSDSyncLogDocument} from '@/msdynamic/@types/dynamic';
+import {
+  ICustomerRelationDocument,
+  ISyncLogDocument as IMSDSyncLogDocument,
+} from '@/msdynamic/@types/dynamic';
 import {
   ISyncLogModel as ISyncLogMSDModel,
   loadSyncLogClass as loadSyncLogMSDClass,
