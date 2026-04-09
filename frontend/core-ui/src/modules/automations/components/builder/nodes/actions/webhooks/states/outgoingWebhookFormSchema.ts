@@ -10,17 +10,38 @@ import {
 import { AUTOMATION_INCOMING_WEBHOOK_API_METHODS } from '@/automations/components/builder/nodes/triggers/webhooks/constants/incomingWebhook';
 import { z } from 'zod';
 
-const WEBHOOK_PLACEHOLDER_REGEX = /\{\{\s*[^}]+\s*\}\}/g;
+const replaceWebhookPlaceholdersForValidation = (value: string) => {
+  let cursor = 0;
+  let normalized = '';
+
+  while (cursor < value.length) {
+    const placeholderStart = value.indexOf('{{', cursor);
+
+    if (placeholderStart === -1) {
+      normalized += value.slice(cursor);
+      break;
+    }
+
+    const placeholderEnd = value.indexOf('}}', placeholderStart + 2);
+
+    if (placeholderEnd === -1) {
+      normalized += value.slice(cursor);
+      break;
+    }
+
+    normalized += `${value.slice(cursor, placeholderStart)}placeholder`;
+    cursor = placeholderEnd + 2;
+  }
+
+  return normalized;
+};
 
 const isValidOutgoingWebhookUrl = (value: string) => {
   if (!value?.trim()) {
     return false;
   }
 
-  const normalizedValue = value.replace(
-    WEBHOOK_PLACEHOLDER_REGEX,
-    'placeholder',
-  );
+  const normalizedValue = replaceWebhookPlaceholdersForValidation(value);
 
   try {
     const parsed = new URL(normalizedValue);

@@ -22,12 +22,22 @@ export type TOpenAiCompatibleResponse<TJson = any> = {
   json: TJson | null;
 };
 
+const trimTrailingSlashes = (value: string) => {
+  let end = value.length;
+
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+
+  return value.slice(0, end);
+};
+
 export const normalizeOpenAiCompatibleBaseUrl = (
   connection: TAiBridgeConnection,
 ) => {
-  return (
-    connection.config.baseUrl?.trim() || AI_AGENT_DEFAULTS.baseUrl
-  ).replace(/\/+$/, '');
+  return trimTrailingSlashes(
+    connection.config.baseUrl?.trim() || AI_AGENT_DEFAULTS.baseUrl,
+  );
 };
 
 const buildHeaders = (connection: TAiBridgeConnection) => {
