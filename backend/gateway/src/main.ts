@@ -20,7 +20,14 @@ import {
   proxyReq,
 } from '~/proxy/middleware';
 
-import { getPlugin, getPlugins, getSubdomain, isDev, redis, setActivePlugins } from 'erxes-api-shared/utils';
+import {
+  getPlugin,
+  getPlugins,
+  getSubdomain,
+  isDev,
+  redis,
+  setActivePlugins,
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
 // import * as jwt from 'jsonwebtoken';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
@@ -40,11 +47,11 @@ const { DOMAIN, WIDGETS_DOMAIN, ALLOWED_ORIGINS, ALLOWED_DOMAINS } =
 const corsOptions = {
   credentials: true,
   origin: [
-    DOMAIN ? DOMAIN : 'http://localhost:3000',
-    WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+    DOMAIN || 'http://localhost:3000',
+    WIDGETS_DOMAIN || 'http://localhost:3200',
     ...(ALLOWED_DOMAINS || '').split(','),
     'https://studio.apollographql.com',
-    ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
+    ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && new RegExp(c)),
 
     ...(isDev
       ? [
@@ -194,7 +201,7 @@ async function start() {
     await setActivePlugins(enabledPlugins);
 
     // Initial fetch of the proxy targets
-    global.currentTargets = await retryGetProxyTargets();
+    globalThis.currentTargets = await retryGetProxyTargets();
 
     // Initialize MQ workers
     console.log('Initializing MQ workers...');
@@ -203,13 +210,13 @@ async function start() {
 
     // Start the router with the initial targets
     console.log('Starting the router...');
-    await startRouter(global.currentTargets);
+    await startRouter(globalThis.currentTargets);
     console.log('Router started successfully');
 
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);
     applyProxiesCoreless(app);
-    applyProxyToCore(app, global.currentTargets);
+    applyProxyToCore(app, globalThis.currentTargets);
 
     // Start the HTTP server
     httpServer = http.createServer(app);
