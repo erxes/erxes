@@ -77,8 +77,10 @@ const extractBotMessageContent = (botData: TBotData[] = []) => {
 
     if (item.type === 'carousel') {
       for (const element of item.elements) {
-        parts.push(wrapParagraph(element.title));
-        parts.push(wrapParagraph(element.subtitle));
+        parts.push(
+          wrapParagraph(element.title),
+          wrapParagraph(element.subtitle),
+        );
 
         const buttonTitles = element.buttons
           .map(({ title }) => title?.trim())
