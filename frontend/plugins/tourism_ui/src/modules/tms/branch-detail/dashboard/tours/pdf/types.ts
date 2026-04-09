@@ -10,8 +10,10 @@ export interface ITourPDFData extends ITourDetail {
   currencySymbol?: string;
 }
 
-export interface ITourItineraryPDFData
-  extends Omit<IItineraryDetail, 'groupDays'> {
+export interface ITourItineraryPDFData extends Omit<
+  IItineraryDetail,
+  'groupDays'
+> {
   groupDays?: IGroupDayWithImages[];
 }
 

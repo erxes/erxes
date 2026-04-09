@@ -30,4 +30,3 @@ export const TourPDF: React.FC<TourPDFProps> = React.memo(function TourPDF({
     </Document>
   );
 });
-

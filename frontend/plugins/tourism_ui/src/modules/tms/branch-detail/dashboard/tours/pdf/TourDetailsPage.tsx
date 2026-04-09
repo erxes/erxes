@@ -104,8 +104,8 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
           typeof tour.duration === 'number'
             ? `${tour.duration} Days`
             : typeof itinerary?.duration === 'number'
-            ? `${itinerary.duration} Days`
-            : '-',
+              ? `${itinerary.duration} Days`
+              : '-',
       },
       {
         label: travelDateLabel,
