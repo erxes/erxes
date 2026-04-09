@@ -91,7 +91,6 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     [selectedTemplate],
   );
 
-
   const previewStatusText = previewLoading
     ? 'Preparing PDF preview...'
     : 'Preview refreshes automatically after edits.';
