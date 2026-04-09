@@ -103,7 +103,9 @@ export function getDateRange(value: string) {
         fromDate = startOfDay(
           new Date(Number.parseInt(year), (quarterNumber - 1) * 3, 1),
         );
-        toDate = endOfDay(new Date(Number.parseInt(year), quarterNumber * 3, 0));
+        toDate = endOfDay(
+          new Date(Number.parseInt(year), quarterNumber * 3, 0),
+        );
       } else if (value.includes('half')) {
         // Half year format: YYYY-halfN
         const [year] = value.split('-');
