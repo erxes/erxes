@@ -95,7 +95,7 @@ export const setPlace = async (
       throw new Error(result.message || 'Failed to update deal');
     }
   } catch (error) {
-    console.log('setPlace ERR:', error)
+    console.log('setPlace ERR:', error);
   }
 
   return pdatas;

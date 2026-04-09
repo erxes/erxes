@@ -89,7 +89,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
         productById = Object.fromEntries(products.map((p) => [p._id, p]));
       } catch (error) {
-        console.log('ERROR:', error)
+        console.log('ERROR:', error);
       }
     } else {
       productById = {};
