@@ -187,10 +187,13 @@ export const resolveWebhookTargetId = (
     return requestScopedId;
   }
 
-  return `webhook:${automationId}:${triggerId}:${buildDeterministicWebhookTargetId(req, {
-    automationId,
-    triggerId,
-  })}`;
+  return `webhook:${automationId}:${triggerId}:${buildDeterministicWebhookTargetId(
+    req,
+    {
+      automationId,
+      triggerId,
+    },
+  )}`;
 };
 
 export function isTimestampValid(headerTs?: string, skewSeconds = 300) {
