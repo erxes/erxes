@@ -1,11 +1,10 @@
 import { gql, useQuery } from '@apollo/client';
-import { useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 import { Combobox } from 'erxes-ui/components/combobox';
 import { Popover } from 'erxes-ui/components/popover';
 import { Command } from 'erxes-ui/components/command';
-
+import AccordionSection from '../common/AccordionSection';
 import Row from './InventoryProductsRow';
 
 type Props = {
@@ -37,13 +36,9 @@ const InventoryProducts = ({
   const { data: brandsData } = useQuery(BRANDS_QUERY);
   const brands = brandsData?.brands || [];
 
-  const selectedBrand = brands.find((b: any) => b._id === queryParams.brandId);
-
-  if (loading) {
-    return (
-      <div className="py-10 text-center text-muted-foreground">Loading...</div>
-    );
-  }
+  const selectedBrand = brands.find(
+    (b: any) => b._id === queryParams?.brandId,
+  );
 
   const renderTable = (data: any[], action: string) => {
     if (!data?.length) {
@@ -86,34 +81,13 @@ const InventoryProducts = ({
     );
   };
 
-  const Section = ({
-    title,
-    data,
-    action,
-  }: {
-    title: string;
-    data: any[];
-    action: string;
-  }) => {
-    const [open, setOpen] = useState(false);
-
+  if (loading) {
     return (
-      <div className="border rounded-md overflow-hidden">
-        <div
-          className="flex items-center justify-between px-4 py-3 bg-muted/30 cursor-pointer hover:bg-muted/50"
-          onClick={() => setOpen(!open)}
-        >
-          <div className="font-medium">
-            {title} {data?.length ? `(${data.length})` : ''}
-          </div>
-
-          <span>{open ? '▾' : '▸'}</span>
-        </div>
-
-        {open && <div className="p-4">{renderTable(data, action)}</div>}
+      <div className="py-10 text-center text-muted-foreground">
+        Loading...
       </div>
     );
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -138,7 +112,7 @@ const InventoryProducts = ({
                   >
                     {brand.name}
                     <Combobox.Check
-                      checked={queryParams.brandId === brand._id}
+                      checked={queryParams?.brandId === brand._id}
                     />
                   </Command.Item>
                 ))}
@@ -151,23 +125,26 @@ const InventoryProducts = ({
       </Card>
 
       {/* Sections */}
-      <Section
+      <AccordionSection
         title="Create products"
-        data={items?.create?.items || []}
-        action="CREATE"
-      />
+        count={items?.create?.items?.length}
+      >
+        {renderTable(items?.create?.items || [], 'CREATE')}
+      </AccordionSection>
 
-      <Section
+      <AccordionSection
         title="Update products"
-        data={items?.update?.items || []}
-        action="UPDATE"
-      />
+        count={items?.update?.items?.length}
+      >
+        {renderTable(items?.update?.items || [], 'UPDATE')}
+      </AccordionSection>
 
-      <Section
+      <AccordionSection
         title="Delete products"
-        data={items?.delete?.items || []}
-        action="DELETE"
-      />
+        count={items?.delete?.items?.length}
+      >
+        {renderTable(items?.delete?.items || [], 'DELETE')}
+      </AccordionSection>
     </div>
   );
 };

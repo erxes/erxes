@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
-import { gql, useApolloClient } from '@apollo/client';
-
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 import { Input } from 'erxes-ui/components/input';
 import { Checkbox } from 'erxes-ui/components/checkbox';
-
 import { BoardSelect } from 'ui-modules/modules/sales/components/BoardSelect';
-
 import { IConfigsMap } from '../../types';
 import { KEY_LABELS } from '../../constants';
 
@@ -59,7 +55,9 @@ const PerSettings = ({
 
   const renderInput = (key: string, type = 'text') => (
     <div className="space-y-2">
-      <label className="text-sm font-medium">{KEY_LABELS[key] || key}</label>
+      <label className="text-sm font-medium">
+        {KEY_LABELS[key] || key}
+      </label>
       <Input
         type={type}
         value={config[key] || ''}
@@ -74,15 +72,18 @@ const PerSettings = ({
         checked={!!config[key]}
         onCheckedChange={(checked) => handleChange(key, checked)}
       />
-      <label className="text-sm">{KEY_LABELS[key] || key}</label>
+      <label className="text-sm">
+        {KEY_LABELS[key] || key}
+      </label>
     </div>
   );
 
   return (
     <Card className="p-6 space-y-6 hover:shadow-md transition">
-      {/* Header */}
-      <div
-        className="flex items-center justify-between cursor-pointer group"
+      {/* ✅ ACCESSIBLE HEADER */}
+      <button
+        type="button"
+        className="w-full flex items-center justify-between group text-left"
         onClick={() => setOpen(!open)}
       >
         <h3 className="text-lg font-semibold group-hover:text-primary transition">
@@ -92,7 +93,7 @@ const PerSettings = ({
         <span className="text-muted-foreground text-sm">
           {open ? '▾' : '▸'}
         </span>
-      </div>
+      </button>
 
       {open && (
         <div className="space-y-8">
@@ -119,7 +120,9 @@ const PerSettings = ({
               {config.useBoard && (
                 <BoardSelect
                   boardId={config.boardId}
-                  onChange={(boardId) => handleChange('boardId', boardId)}
+                  onChange={(boardId) =>
+                    handleChange('boardId', boardId)
+                  }
                 />
               )}
             </div>
@@ -127,7 +130,9 @@ const PerSettings = ({
 
           {/* General Settings */}
           <div>
-            <h4 className="text-md font-semibold mb-4">General Settings</h4>
+            <h4 className="text-md font-semibold mb-4">
+              General Settings
+            </h4>
 
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">

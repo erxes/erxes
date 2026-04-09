@@ -1,14 +1,6 @@
-import { useState } from 'react';
 import { Button, Card, Select } from 'erxes-ui/components';
+import AccordionSection from '../common/AccordionSection';
 import Row from './InventoryPriceRow';
-
-type Props = {
-  queryParams: any;
-  loading: boolean;
-  setBrand: (brandId: string) => void;
-  toSyncPrices: () => void;
-  items: any;
-};
 
 const InventoryPrice = ({
   items,
@@ -16,7 +8,13 @@ const InventoryPrice = ({
   queryParams,
   setBrand,
   toSyncPrices,
-}: Props) => {
+}: {
+  queryParams: any;
+  loading: boolean;
+  setBrand: (brandId: string) => void;
+  toSyncPrices: () => void;
+  items: any;
+}) => {
   const renderTable = (data: any[], action: string) => {
     if (!data?.length) {
       return (
@@ -48,100 +46,75 @@ const InventoryPrice = ({
     );
   };
 
-  const Section = ({
-    title,
-    data,
-    action,
-  }: {
-    title: string;
-    data: any[];
-    action: string;
-  }) => {
-    const [open, setOpen] = useState(false);
-
-    return (
-      <div className="border rounded-md overflow-hidden">
-        <div
-          className="flex items-center justify-between px-4 py-3 bg-muted/30 cursor-pointer hover:bg-muted/50"
-          onClick={() => setOpen(!open)}
-        >
-          <div className="font-medium">
-            {title} {data?.length ? `(${data.length})` : ''}
-          </div>
-
-          <span>{open ? '▾' : '▸'}</span>
-        </div>
-
-        {open && <div className="p-4">{renderTable(data, action)}</div>}
-      </div>
-    );
-  };
-
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">Loading...</div>
+      <div className="py-10 text-center text-muted-foreground">
+        Loading...
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Top Bar */}
       <Card className="p-4 flex justify-end items-center gap-4">
-        <Card className="p-4 flex justify-end items-center gap-4">
-          <div className="w-64">
-            <Select
-              value={queryParams?.brandId || ''}
-              onValueChange={(value: string) => setBrand(value)}
-            >
-              <Select.Trigger>
-                <Select.Value placeholder="Choose brands" />
-              </Select.Trigger>
+        <div className="w-64">
+          <Select
+            value={queryParams?.brandId || ''}
+            onValueChange={(value: string) => setBrand(value)}
+          >
+            <Select.Trigger>
+              <Select.Value placeholder="Choose brands" />
+            </Select.Trigger>
 
-              <Select.Content>
-                {(queryParams?.brands || []).map((b: any) => (
-                  <Select.Item key={b.value} value={b.value}>
-                    {b.label}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-          </div>
-
-          <Button onClick={toSyncPrices}>Sync</Button>
-        </Card>
+            <Select.Content>
+              {(queryParams?.brands || []).map((b: any) => (
+                <Select.Item key={b.value} value={b.value}>
+                  {b.label}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        </div>
 
         <Button onClick={toSyncPrices}>Sync</Button>
       </Card>
 
       {/* Sections */}
-      <Section
+      <AccordionSection
         title="Update product price"
-        data={items?.update?.items || []}
-        action="UPDATE"
-      />
+        count={items?.update?.items?.length}
+      >
+        {renderTable(items?.update?.items || [], 'UPDATE')}
+      </AccordionSection>
 
-      <Section
+      <AccordionSection
         title="Matched product price"
-        data={items?.match?.items || []}
-        action="MATCH"
-      />
+        count={items?.match?.items?.length}
+      >
+        {renderTable(items?.match?.items || [], 'MATCH')}
+      </AccordionSection>
 
-      <Section
+      <AccordionSection
         title="Not created product"
-        data={items?.create?.items || []}
-        action="CREATE"
-      />
+        count={items?.create?.items?.length}
+      >
+        {renderTable(items?.create?.items || [], 'CREATE')}
+      </AccordionSection>
 
-      <Section
+      <AccordionSection
         title="Unmatched product"
-        data={items?.delete?.items || []}
-        action="DELETE"
-      />
+        count={items?.delete?.items?.length}
+      >
+        {renderTable(items?.delete?.items || [], 'DELETE')}
+      </AccordionSection>
 
-      <Section
+      <AccordionSection
         title="Error product"
-        data={items?.error?.items || []}
-        action="ERROR"
-      />
+        count={items?.error?.items?.length}
+      >
+        {renderTable(items?.error?.items || [], 'ERROR')}
+      </AccordionSection>
     </div>
   );
 };

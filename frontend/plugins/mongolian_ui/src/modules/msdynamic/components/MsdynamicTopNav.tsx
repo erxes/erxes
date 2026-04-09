@@ -12,7 +12,6 @@ const tabs = [
 const MsdynamicTopNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const currentPath = location.pathname;
 
   return (
@@ -22,8 +21,9 @@ const MsdynamicTopNav = () => {
           const isActive = currentPath.includes(tab.value);
 
           return (
-            <div
+            <button
               key={tab.value}
+              type="button"
               onClick={() => navigate(`/mongolian/msdynamic/${tab.value}`)}
               style={{
                 cursor: 'pointer',
@@ -34,10 +34,12 @@ const MsdynamicTopNav = () => {
                   ? '2px solid #5c6ac4'
                   : '2px solid transparent',
                 whiteSpace: 'nowrap',
+                background: 'none',
+                border: 'none',
               }}
             >
               {tab.label}
-            </div>
+            </button>
           );
         })}
       </div>

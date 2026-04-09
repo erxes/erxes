@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 import { Select } from 'erxes-ui/components/select';
 
+import AccordionSection from '../common/AccordionSection';
 import Row from './InventoryCategoryRow';
 
 type Props = {
@@ -53,6 +53,7 @@ const InventoryCategory = ({
                 <th className="p-2">Status</th>
               </tr>
             </thead>
+
             <tbody>
               {data.slice(0, 100).map((p) => (
                 <Row key={p.code || p.Code} category={p} action={action} />
@@ -64,38 +65,11 @@ const InventoryCategory = ({
     );
   };
 
-  const Section = ({
-    title,
-    data,
-    action,
-  }: {
-    title: string;
-    data: any[];
-    action: string;
-  }) => {
-    const [open, setOpen] = useState(false);
-
-    return (
-      <div className="border rounded-md overflow-hidden">
-        <div
-          className="flex items-center justify-between px-4 py-3 bg-muted/30 cursor-pointer hover:bg-muted/50"
-          onClick={() => setOpen(!open)}
-        >
-          <div className="font-medium">
-            {title} {data?.length ? `(${data.length})` : ''}
-          </div>
-
-          <span className="text-sm">{open ? '▾' : '▸'}</span>
-        </div>
-
-        {open && <div className="p-4">{renderTable(data, action)}</div>}
-      </div>
-    );
-  };
-
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">Loading...</div>
+      <div className="py-10 text-center text-muted-foreground">
+        Loading...
+      </div>
     );
   }
 
@@ -133,23 +107,26 @@ const InventoryCategory = ({
       </Card>
 
       {/* Sections */}
-      <Section
+      <AccordionSection
         title="Create categories"
-        data={items?.create?.items || []}
-        action="CREATE"
-      />
+        count={items?.create?.items?.length}
+      >
+        {renderTable(items?.create?.items || [], 'CREATE')}
+      </AccordionSection>
 
-      <Section
+      <AccordionSection
         title="Update categories"
-        data={items?.update?.items || []}
-        action="UPDATE"
-      />
+        count={items?.update?.items?.length}
+      >
+        {renderTable(items?.update?.items || [], 'UPDATE')}
+      </AccordionSection>
 
-      <Section
+      <AccordionSection
         title="Delete categories"
-        data={items?.delete?.items || []}
-        action="DELETE"
-      />
+        count={items?.delete?.items?.length}
+      >
+        {renderTable(items?.delete?.items || [], 'DELETE')}
+      </AccordionSection>
     </div>
   );
 };
