@@ -577,8 +577,9 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || '';
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
-  const customerFields =
-    await editorAttributeUtil.getCustomerFields(emailContent);
+  const customerFields = await editorAttributeUtil.getCustomerFields(
+    emailContent,
+  );
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
 
@@ -734,7 +735,11 @@ const sendCampaignNotification = async (
     //   );
     // });
   } catch (e) {
-    // await models.Logs.createLog(groupId, 'failure', e.message);
+    await models.Logs.create({
+      engageMessageId: groupId,
+      type: 'failure',
+      message: e.message,
+    });
   }
 };
 
@@ -746,8 +751,9 @@ const sendNotifications = async (
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
 
-  const erxesCustomerIds =
-    await models.Customers.find(customersSelector).distinct('_id');
+  const erxesCustomerIds = await models.Customers.find(
+    customersSelector,
+  ).distinct('_id');
 
   const cpUserIds = await models.CPUser.find({
     clientPortalId: cpId,
