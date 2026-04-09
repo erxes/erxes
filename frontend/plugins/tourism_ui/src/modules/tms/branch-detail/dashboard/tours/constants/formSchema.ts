@@ -185,8 +185,8 @@ export const TourCreateFormSchema = z
     (data) => {
       if (!data.isFlexibleDate) {
         if (data.isGroupTour) {
-          // group tour → multiple start dates only
-          return Array.isArray(data.startDate) && data.startDate.length > 0;
+          // group tour → at least 2 start dates
+          return Array.isArray(data.startDate) && data.startDate.length >= 2;
         }
 
         // single tour → start + end
@@ -194,10 +194,13 @@ export const TourCreateFormSchema = z
       }
       return true;
     },
-    {
-      message: 'Start date (and end date for non-group tours) is required',
+    (data) => ({
+      message:
+        !data.isFlexibleDate && data.isGroupTour
+          ? 'Group tours require at least 2 start dates'
+          : 'Start date (and end date for non-group tours) is required',
       path: ['startDate'],
-    },
+    }),
   )
 
   // FLEXIBLE MODE
@@ -225,20 +228,6 @@ export const TourCreateFormSchema = z
     {
       message: 'Available from must be before available to',
       path: ['availableTo'],
-    },
-  )
-
-  // GROUP TOUR: minimum 2 dates required
-  .refine(
-    (data) => {
-      if (!data.isFlexibleDate && data.isGroupTour) {
-        return Array.isArray(data.startDate) && data.startDate.length >= 2;
-      }
-      return true;
-    },
-    {
-      message: 'Group tours require at least 2 start dates',
-      path: ['startDate'],
     },
   );
 
