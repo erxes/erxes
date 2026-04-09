@@ -86,6 +86,6 @@ export const generateEmailPayload = async ({
     fromEmail: formatFromEmail(sender, fromUserEmail),
     toEmails: filterOutSenderEmail(toEmails, fromUserEmail),
     ccEmails: filterOutSenderEmail(ccEmails, fromUserEmail),
-    customHtml: content.replaceAll('{{\\s*([^}]+)\\s*}}', '-'),
+    customHtml: content.replaceAll(String.raw`{{\s*([^}]+)\s*}}`, '-'),
   };
 };
