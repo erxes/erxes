@@ -5,9 +5,15 @@ import { CoverPage } from './CoverPage';
 import { ItineraryPage } from './ItineraryPage';
 import { FooterPage } from './FooterPage';
 import { EditorialItineraryPage } from './EditorialTemplate';
+import { CustomBuilderTemplatePage } from './CustomBuilderTemplate';
 
 export const ItineraryPDF: React.FC<ItineraryPDFProps> = React.memo(
-  function ItineraryPDF({ itinerary, branch, template = 'classic' }) {
+  function ItineraryPDF({
+    itinerary,
+    branch,
+    template = 'classic',
+    customTemplate,
+  }) {
     const name = itinerary.name || 'Untitled Itinerary';
     const isEditorial = template === 'editorial';
 
@@ -18,7 +24,13 @@ export const ItineraryPDF: React.FC<ItineraryPDFProps> = React.memo(
         subject="Itinerary Export"
         creator="erxes Tourism Module"
       >
-        {isEditorial ? (
+        {template === 'custom' ? (
+          <CustomBuilderTemplatePage
+            itinerary={itinerary}
+            branch={branch}
+            templateDocument={customTemplate}
+          />
+        ) : isEditorial ? (
           <EditorialItineraryPage itinerary={itinerary} branch={branch} />
         ) : (
           <>

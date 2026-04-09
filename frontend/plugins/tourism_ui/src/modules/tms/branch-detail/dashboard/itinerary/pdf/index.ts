@@ -5,7 +5,9 @@ export { CoverPage } from './CoverPage';
 export { DayBlock } from './DayBlock';
 export { ItineraryPage } from './ItineraryPage';
 export { FooterPage } from './FooterPage';
+export { CustomBuilderTemplatePage } from './CustomBuilderTemplate';
 export { ITINERARY_PDF_TEMPLATES } from './templates';
+export * from './custom-template';
 export type {
   IItineraryPDFData,
   IBranchPDFData,

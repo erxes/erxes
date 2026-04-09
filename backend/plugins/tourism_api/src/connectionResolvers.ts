@@ -27,6 +27,7 @@ import {
 } from '@/bms/db/models/ItineraryTranslation';
 import { IItineraryTranslationDocument } from './modules/bms/@types/itineraryTranslation';
 import { ITourTranslationDocument } from './modules/bms/@types/tourTranslation';
+import { IItineraryPdfTemplateDocument } from './modules/bms/@types/itineraryPdfTemplate';
 import {
   ITourTranslationModel,
   loadTourTranslationClass,
@@ -89,12 +90,17 @@ import {
   loadTourCategoryTranslationClass,
 } from './modules/bms/db/models/TourCategoryTranslation';
 import { ITourCategoryTranslationDocument } from './modules/bms/@types/tourCategoryTranslation';
+import {
+  IItineraryPdfTemplateModel,
+  loadItineraryPdfTemplateClass,
+} from './modules/bms/db/models/ItineraryPdfTemplate';
 
 export interface IModels {
   Elements: IElementModel;
   ElementCategories: IElementCategoryModel;
   ElementTranslations: IElementTranslationModel;
   Itineraries: IItineraryModel;
+  ItineraryPdfTemplates: IItineraryPdfTemplateModel;
   ItineraryTranslations: IItineraryTranslationModel;
   Tours: ITourModel;
   BmsTourCategories: IBmsTourCategoryModel;
@@ -147,6 +153,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'bm_itinerary',
     loadItineraryClass(models),
   );
+
+  models.ItineraryPdfTemplates = db.model<
+    IItineraryPdfTemplateDocument,
+    IItineraryPdfTemplateModel
+  >('bm_itinerary_pdf_templates', loadItineraryPdfTemplateClass(models));
 
   models.ItineraryTranslations = db.model<
     IItineraryTranslationDocument,

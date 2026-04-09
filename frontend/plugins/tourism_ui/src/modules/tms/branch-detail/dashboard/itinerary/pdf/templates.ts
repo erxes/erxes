@@ -17,4 +17,9 @@ export const ITINERARY_PDF_TEMPLATES: ItineraryPdfTemplateOption[] = [
     label: 'Modern',
     description: 'Logo-led editorial pages.',
   },
+  {
+    value: 'custom',
+    label: 'Custom Builder',
+    description: 'User-designed PDF layout.',
+  },
 ];

@@ -4,6 +4,7 @@ import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 import { ItineraryPDF } from './ItineraryPDF';
 import { convertImagesToBase64 } from './utils';
 import type { ItineraryPdfTemplate } from './types';
+import type { PdfTemplateDocument } from './custom-template/template.types';
 
 interface BranchDetailLike {
   _id?: string;
@@ -70,6 +71,7 @@ export const generateItineraryPdfCacheKey = (
   branchId?: string,
   language?: string,
   template: ItineraryPdfTemplate = 'classic',
+  customTemplate?: PdfTemplateDocument,
 ) =>
   [
     itinerary._id,
@@ -77,6 +79,7 @@ export const generateItineraryPdfCacheKey = (
     branchId || itinerary.branchId || '',
     language || itinerary.language || 'default',
     template,
+    customTemplate?.metadata.updatedAt || customTemplate?.id || '',
   ].join(':');
 
 export const buildItineraryPdfBlob = async ({
@@ -85,6 +88,7 @@ export const buildItineraryPdfBlob = async ({
   branchId,
   language,
   template = 'classic',
+  customTemplate,
   force = false,
 }: {
   itinerary: IItineraryDetail;
@@ -92,6 +96,7 @@ export const buildItineraryPdfBlob = async ({
   branchId?: string;
   language?: string;
   template?: ItineraryPdfTemplate;
+  customTemplate?: PdfTemplateDocument;
   force?: boolean;
 }): Promise<BuildItineraryPdfResult> => {
   const cacheKey = generateItineraryPdfCacheKey(
@@ -99,6 +104,7 @@ export const buildItineraryPdfBlob = async ({
     branchId,
     language,
     template,
+    customTemplate,
   );
 
   if (!force) {
@@ -153,6 +159,7 @@ export const buildItineraryPdfBlob = async ({
         mainLogoBase64,
       }}
       template={template}
+      customTemplate={customTemplate}
     />,
   ).toBlob();
 

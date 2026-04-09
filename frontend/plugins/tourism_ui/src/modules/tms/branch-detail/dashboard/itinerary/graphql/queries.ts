@@ -138,3 +138,23 @@ export const GET_ITINERARY_DETAIL = gql`
     }
   }
 `;
+
+export const GET_ITINERARY_PDF_TEMPLATE = gql`
+  query BmsItineraryPdfTemplateDetail($itineraryId: String!, $kind: String) {
+    bmsItineraryPdfTemplateDetail(itineraryId: $itineraryId, kind: $kind) {
+      _id
+      itineraryId
+      branchId
+      kind
+      name
+      description
+      status
+      version
+      doc
+      createdAt
+      modifiedAt
+      createdBy
+      modifiedBy
+    }
+  }
+`;

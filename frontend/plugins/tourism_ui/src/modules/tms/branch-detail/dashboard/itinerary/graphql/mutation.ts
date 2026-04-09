@@ -91,3 +91,23 @@ export const REMOVE_ITINERARY = gql`
     bmsItineraryRemove(ids: $ids)
   }
 `;
+
+export const UPSERT_ITINERARY_PDF_TEMPLATE = gql`
+  mutation BmsItineraryPdfTemplateUpsert($input: ItineraryPdfTemplateInput!) {
+    bmsItineraryPdfTemplateUpsert(input: $input) {
+      _id
+      itineraryId
+      branchId
+      kind
+      name
+      description
+      status
+      version
+      doc
+      createdAt
+      modifiedAt
+      createdBy
+      modifiedBy
+    }
+  }
+`;
