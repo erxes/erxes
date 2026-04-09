@@ -39,17 +39,24 @@ const mergeAiAgentConnectionSecrets = (currentAgent: any, doc: any) => {
     return doc;
   }
 
+  const mergedConnection = {
+    ...currentConnection,
+    ...incomingConnection,
+    config: {
+      ...currentConfig,
+      ...incomingConfig,
+    },
+  };
+
+  if (currentConfig?.apiKey !== undefined) {
+    mergedConnection.config.apiKey = currentConfig.apiKey;
+  } else {
+    delete mergedConnection.config.apiKey;
+  }
+
   return {
     ...doc,
-    connection: {
-      ...currentConnection,
-      ...incomingConnection,
-      config: {
-        ...currentConfig,
-        ...incomingConfig,
-        apiKey: currentConfig?.apiKey,
-      },
-    },
+    connection: mergedConnection,
   };
 };
 

@@ -60,20 +60,27 @@ export const getAiAgentHealth = async (
       'No context files are attached yet. The agent can still save, but it has no runtime knowledge documents.',
     );
   } else {
-    const loadedContext = await loadAiAgentContextFiles(
-      subdomain,
-      agent.context.files,
-    );
+    try {
+      const loadedContext = await loadAiAgentContextFiles(
+        subdomain,
+        agent.context.files,
+      );
 
-    health.errors.push(...loadedContext.errors);
-    health.warnings.push(...loadedContext.warnings);
+      health.errors.push(...loadedContext.errors);
+      health.warnings.push(...loadedContext.warnings);
 
-    if (loadedContext.errors.length) {
+      if (loadedContext.errors.length) {
+        health.checks.files = 'error';
+      } else if (loadedContext.warnings.length) {
+        health.checks.files = 'warning';
+      } else {
+        health.checks.files = 'ok';
+      }
+    } catch (error) {
       health.checks.files = 'error';
-    } else if (loadedContext.warnings.length) {
-      health.checks.files = 'warning';
-    } else {
-      health.checks.files = 'ok';
+      health.errors.push(
+        `Failed to validate context files: ${(error as Error).message}`,
+      );
     }
   }
 

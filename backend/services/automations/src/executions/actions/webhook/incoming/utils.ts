@@ -121,6 +121,33 @@ const normalizeWebhookTargetId = (value: unknown): string | null => {
   return null;
 };
 
+const buildDeterministicWebhookTargetId = (
+  req: express.Request,
+  {
+    automationId,
+    triggerId,
+  }: {
+    automationId: string;
+    triggerId: string;
+  },
+) => {
+  const hash = crypto.createHash('sha256');
+
+  hash.update(req.method || '');
+  hash.update('\n');
+  hash.update(automationId || '');
+  hash.update('\n');
+  hash.update(triggerId || '');
+  hash.update('\n');
+  hash.update(JSON.stringify(req.query ?? {}));
+  hash.update('\n');
+  hash.update(JSON.stringify(req.body ?? {}));
+  hash.update('\n');
+  hash.update(req.get('x-webhook-signature') || '');
+
+  return hash.digest('hex').slice(0, 32);
+};
+
 export const resolveWebhookTargetId = (
   req: express.Request,
   {
@@ -160,7 +187,10 @@ export const resolveWebhookTargetId = (
     return requestScopedId;
   }
 
-  return `webhook:${automationId}:${triggerId}:${crypto.randomUUID()}`;
+  return `webhook:${automationId}:${triggerId}:${buildDeterministicWebhookTargetId(req, {
+    automationId,
+    triggerId,
+  })}`;
 };
 
 export function isTimestampValid(headerTs?: string, skewSeconds = 300) {

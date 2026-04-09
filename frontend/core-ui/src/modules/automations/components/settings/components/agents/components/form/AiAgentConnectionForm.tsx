@@ -14,7 +14,7 @@ const OPENAI_COMPATIBLE_MODELS = [
 
 const formatModelLabel = (model: string) => {
   if (model.startsWith('gpt-')) {
-    return model.toUpperCase().replace('GPT-', 'GPT-');
+    return model.toUpperCase();
   }
 
   return model;

@@ -62,6 +62,32 @@ const parseWebhookResponseJson = (bodyText: string, contentType?: string) => {
   }
 };
 
+const sanitizeOutgoingWebhookErrorMessage = (message: string) => {
+  const normalized = message.trim().split('\n')[0] || 'Outgoing webhook failed';
+  const lowered = normalized.toLowerCase();
+  const hasPotentialUrlCredentials =
+    normalized.includes('://') &&
+    normalized.includes('@') &&
+    normalized.indexOf('://') < normalized.indexOf('@');
+  const containsSensitiveMarker =
+    lowered.includes('authorization') ||
+    lowered.includes('bearer ') ||
+    lowered.includes('api key') ||
+    lowered.includes('api_key') ||
+    lowered.includes('api-key') ||
+    lowered.includes('token=') ||
+    lowered.includes('secret=') ||
+    lowered.includes('password=');
+
+  if (hasPotentialUrlCredentials || containsSensitiveMarker) {
+    return 'Outgoing webhook failed. Sensitive error details were hidden.';
+  }
+
+  return normalized.length > 500
+    ? `${normalized.slice(0, 497)}...`
+    : normalized;
+};
+
 const createOutgoingWebhookResult = ({
   method,
   url,
@@ -131,7 +157,8 @@ const createOutgoingWebhookError = ({
   requestBodyText?: string;
   attemptCount: number;
 }) => {
-  const error = new Error(message) as Error & {
+  const safeMessage = sanitizeOutgoingWebhookErrorMessage(message);
+  const error = new Error(safeMessage) as Error & {
     result?: TOutgoingWebhookResult;
   };
 
@@ -147,7 +174,7 @@ const createOutgoingWebhookError = ({
     },
     error: {
       phase,
-      message,
+      message: safeMessage,
       attemptCount,
     },
   };

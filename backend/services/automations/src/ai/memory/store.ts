@@ -29,7 +29,7 @@ const compactObject = (value: Record<string, unknown>) =>
     ),
   );
 
-const stringifyScopeValue = (value: unknown) => {
+const stringifyScopeValue = (value: unknown): string | null => {
   if (typeof value === 'string' && value.trim()) {
     return value.trim();
   }
@@ -42,7 +42,15 @@ const stringifyScopeValue = (value: unknown) => {
     return String(value);
   }
 
-  return '';
+  if (value && typeof value === 'object' && typeof value.toString === 'function') {
+    const normalized = value.toString().trim();
+
+    if (normalized && normalized !== '[object Object]') {
+      return normalized;
+    }
+  }
+
+  return null;
 };
 
 const resolveScopeKey = (
@@ -53,7 +61,8 @@ const resolveScopeKey = (
     stringifyScopeValue(aiContext?.memory?.scopeKey) ||
     stringifyScopeValue(execution.targetId) ||
     stringifyScopeValue(execution.target?._id) ||
-    stringifyScopeValue(execution._id)
+    stringifyScopeValue(execution._id) ||
+    String(execution._id || '')
   );
 };
 

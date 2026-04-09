@@ -1,4 +1,12 @@
-const SENSITIVE_KEY_PATTERN = /(api.?key|token|secret|password)/i;
+const SENSITIVE_KEYS = new Set([
+  'apikey',
+  'authtoken',
+  'accesstoken',
+  'refreshtoken',
+  'token',
+  'secret',
+  'password',
+]);
 
 const toPlainObject = (value: any) => {
   if (!value) {
@@ -9,7 +17,9 @@ const toPlainObject = (value: any) => {
 };
 
 const maskSensitiveValue = (key: string, value: any) => {
-  if (!SENSITIVE_KEY_PATTERN.test(key)) {
+  const normalizedKey = key.replace(/[_-]/g, '').toLowerCase();
+
+  if (!SENSITIVE_KEYS.has(normalizedKey)) {
     return value;
   }
 

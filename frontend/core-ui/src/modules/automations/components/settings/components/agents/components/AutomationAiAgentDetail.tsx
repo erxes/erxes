@@ -11,7 +11,7 @@ import {
   TAiAgentForm,
 } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconChevronDownLeft, IconChevronLeft } from '@tabler/icons-react';
+import { IconChevronLeft } from '@tabler/icons-react';
 import { Button, Card, Tabs, toast } from 'erxes-ui';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Link } from 'react-router';

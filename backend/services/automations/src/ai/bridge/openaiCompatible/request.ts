@@ -133,8 +133,19 @@ export const formatOpenAiCompatibleError = (
   response: TOpenAiCompatibleResponse,
 ) => {
   const responseBody = response.text.trim();
+  const loweredBody = responseBody.toLowerCase();
+  const shouldHideBody =
+    loweredBody.includes('authorization') ||
+    loweredBody.includes('bearer ') ||
+    loweredBody.includes('api key') ||
+    loweredBody.includes('api-key') ||
+    loweredBody.includes('api_key') ||
+    loweredBody.includes('sk-');
+  const safeBody = shouldHideBody
+    ? '[provider error body hidden because it may contain secrets]'
+    : responseBody;
 
   return `AI provider request failed with ${response.status} ${
     response.statusText
-  }${responseBody ? `: ${responseBody}` : ''}`;
+  }${safeBody ? `: ${safeBody}` : ''}`;
 };
