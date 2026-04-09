@@ -12,7 +12,8 @@ export const useAutomationBuilderSecondarySidebar = () => {
     isSupportedSourceNode && selectedNode.id !== queryParams.activeNodeId
       ? selectedNode
       : null;
-  const isViewingCurrentNode = !!selectedNode && selectedNode.id === queryParams.activeNodeId;
+  const isViewingCurrentNode =
+    !!selectedNode && selectedNode.id === queryParams.activeNodeId;
   const emptyState = !selectedNode
     ? {
         title: 'Select a source node',

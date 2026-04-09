@@ -1,4 +1,6 @@
 import { AUTOMATION_NODE_OUTPUT } from '@/automations/graphql/automationQueries';
+import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { AutomationNodeType } from '@/automations/types';
 import { useQuery } from '@apollo/client';
 import { IconInfoCircle } from '@tabler/icons-react';
@@ -281,6 +283,8 @@ export const AutomationVariableBrowser = ({
   const [selectedSourceNodeId, setSelectedSourceNodeId] = useState(
     sourceNodes?.[0]?.id || '',
   );
+  const { findObjectTargetsConst } = useAutomation();
+  const { actions, triggers } = useAutomationNodes();
 
   useEffect(() => {
     if (!sourceNodes?.length) {
@@ -317,6 +321,37 @@ export const AutomationVariableBrowser = ({
   const searchQuery = deferredSearchValue.trim().toLowerCase();
   const variables = data?.automationNodeOutput?.variables || [];
   const propertySources = data?.automationNodeOutput?.propertySources || [];
+  const sourceNodeConfig =
+    activeSourceNode?.nodeType === AutomationNodeType.Action
+      ? actions.find((action) => action.id === activeSourceNode.id)?.config
+      : triggers.find((trigger) => trigger.id === activeSourceNode?.id)?.config;
+  const findObjectTarget =
+    activeSourceNode?.nodeType === AutomationNodeType.Action &&
+    activeSourceNode?.type === 'findObject'
+      ? findObjectTargetsConst.find(
+          (target) => target.value === sourceNodeConfig?.objectType,
+        )
+      : null;
+  const findObjectVariables =
+    findObjectTarget?.output?.variables?.map((variable) => ({
+      ...variable,
+      key: `object.${variable.key}`,
+      label: `${findObjectTarget.label} ${variable.label}`,
+    })) || [];
+  const findObjectPropertySources =
+    findObjectTarget?.output?.propertySources?.map((source) => ({
+      ...source,
+      key: `object.${source.key}`,
+      label: `${findObjectTarget.label} ${source.label}`,
+    })) || [];
+  const mergedVariables = [...variables, ...findObjectVariables].filter(
+    (variable, index, array) =>
+      array.findIndex((candidate) => candidate.key === variable.key) === index,
+  );
+  const mergedPropertySources = [...propertySources, ...findObjectPropertySources].filter(
+    (source, index, array) =>
+      array.findIndex((candidate) => candidate.key === source.key) === index,
+  );
   const scope =
     activeSourceNode?.nodeType === AutomationNodeType.Trigger
       ? 'trigger'
@@ -348,8 +383,8 @@ export const AutomationVariableBrowser = ({
     sourceNodeLabel: activeSourceNode?.label || '',
   });
   const filteredVariables = !searchQuery
-    ? variables
-    : variables.filter((variable) =>
+    ? mergedVariables
+    : mergedVariables.filter((variable) =>
         `${variable.label} ${variable.key}`
           .toLowerCase()
           .includes(searchQuery),
@@ -465,9 +500,9 @@ export const AutomationVariableBrowser = ({
       </SidebarSection>
 
       <SidebarSection title="Custom Properties">
-        {propertySources.length > 0 ? (
+        {mergedPropertySources.length > 0 ? (
           <div className="space-y-2">
-            {propertySources.map((source) => (
+            {mergedPropertySources.map((source) => (
               <PropertySourceFields
                 key={`${source.key}-${source.propertyType}`}
                 source={source}

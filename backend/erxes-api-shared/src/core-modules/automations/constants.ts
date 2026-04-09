@@ -41,6 +41,12 @@ export const AUTOMATION_CORE_TRIGGER_TYPES = {
   COMPANY: 'core:contacts.companies',
 };
 
+export enum TAutomationFindObjectType {
+  COMPANY = 'core:contacts.companies',
+  CUSTOMER = 'core:contacts.customers',
+  USER = 'core:organization.users',
+}
+
 export const AUTOMATION_EMAIL_RECIPIENTS_TYPES = [
   {
     type: 'customMail',

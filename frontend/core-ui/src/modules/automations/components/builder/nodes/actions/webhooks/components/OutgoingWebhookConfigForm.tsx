@@ -15,7 +15,7 @@ import { Button, Form, Tabs } from 'erxes-ui';
 import { merge } from 'lodash';
 import { OutgoingWebhookBodyBuilder } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookBodyBuilder';
 import { normalizeOutgoingWebhookBodyValue } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import {
   TAutomationActionProps,
   useFormValidationErrorHandler,
@@ -36,13 +36,20 @@ export const OutgoingWebhookConfigForm = ({
       currentAction?.config || {},
     );
 
-    merged.body = normalizeOutgoingWebhookBodyValue(merged.body);
+    merged.body = normalizeOutgoingWebhookBodyValue(
+      merged.body,
+      merged.bodyMode,
+    );
 
     return merged;
   }, [currentAction?.config]);
   const form = useForm<TOutgoingWebhookForm>({
     resolver: zodResolver(outgoingWebhookFormSchema),
     defaultValues,
+  });
+  const bodyMode = useWatch({
+    control: form.control,
+    name: 'bodyMode',
   });
 
   return (
@@ -106,8 +113,21 @@ export const OutgoingWebhookConfigForm = ({
                 name="body"
                 render={({ field }) => (
                   <OutgoingWebhookBodyBuilder
+                    bodyMode={bodyMode || 'json'}
                     value={field.value}
                     onChange={field.onChange}
+                    onBodyModeChange={(value) => {
+                      form.setValue('bodyMode', value, { shouldDirty: true });
+
+                      const currentBody = form.getValues('body');
+                      if (value === 'text' && currentBody.trim() === '{}') {
+                        form.setValue('body', '', { shouldDirty: true });
+                      }
+
+                      if (value === 'json' && !currentBody.trim()) {
+                        form.setValue('body', '{}', { shouldDirty: true });
+                      }
+                    }}
                   />
                 )}
               />

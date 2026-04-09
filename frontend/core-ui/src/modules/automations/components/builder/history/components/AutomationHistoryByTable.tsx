@@ -81,6 +81,22 @@ const getExecutionActionResultPreview = (
       : 'Sent successfully';
   }
 
+  if (action.actionType === 'outgoingWebhook') {
+    if (result?.error?.message) {
+      const attemptCount = result?.meta?.attemptCount || result?.error?.attemptCount;
+      return attemptCount
+        ? `${result.error.message} (${attemptCount} attempts)`
+        : result.error.message;
+    }
+
+    if (result?.response?.status) {
+      const statusText = result?.response?.statusText
+        ? ` ${result.response.statusText}`
+        : '';
+      return `${result.response.status}${statusText}`;
+    }
+  }
+
   if (action.actionType === 'aiAgent') {
     if (result.type === 'generateText') {
       return result.text || 'Generated text';

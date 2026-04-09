@@ -1,9 +1,12 @@
 import { json } from '@codemirror/lang-json';
 import { EditorView as CMEditorView } from '@codemirror/view';
 import CodeMirror from '@uiw/react-codemirror';
-import { cn, Form } from 'erxes-ui';
+import { cn, Form, Select } from 'erxes-ui';
 import { useMemo } from 'react';
-import { useAutomationVariableCodeMirrorDrop } from 'ui-modules';
+import {
+  PlaceholderInput,
+  useAutomationVariableCodeMirrorDrop,
+} from 'ui-modules';
 import { normalizeOutgoingWebhookBodyValue } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
 
 function createTheme() {
@@ -49,14 +52,18 @@ function createTheme() {
 }
 
 export function OutgoingWebhookBodyBuilder({
+  bodyMode,
   value,
   onChange,
+  onBodyModeChange,
 }: {
+  bodyMode: 'json' | 'text';
   value: string;
   onChange: (value: string) => void;
+  onBodyModeChange: (value: 'json' | 'text') => void;
 }) {
   const extensions = useMemo(() => [json(), createTheme()], []);
-  const normalizedValue = normalizeOutgoingWebhookBodyValue(value);
+  const normalizedValue = normalizeOutgoingWebhookBodyValue(value, bodyMode);
   const { isDragActive, editorExtensions } = useAutomationVariableCodeMirrorDrop({
     onChange,
   });
@@ -67,26 +74,45 @@ export function OutgoingWebhookBodyBuilder({
 
   return (
     <Form.Item className="flex flex-col h-full">
-      <Form.Message />
-      <Form.Label>Body</Form.Label>
-      <div
-        className={cn(
-          'rounded-md transition-colors',
-          isDragActive ? 'ring-2 ring-primary/40 ring-offset-2' : '',
-        )}
-      >
-        <CodeMirror
-          value={normalizedValue}
-          height="30rem"
-          lang="json"
-          extensions={mergedExtensions}
-          basicSetup={{
-            highlightActiveLine: false,
-            highlightActiveLineGutter: false,
-          }}
-          onChange={(newValue) => onChange(newValue)}
-        />
+      <div className="flex items-center justify-between gap-3">
+        <Form.Label>Body</Form.Label>
+        <Select value={bodyMode} onValueChange={onBodyModeChange}>
+          <Select.Trigger className="w-36">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="json">JSON</Select.Item>
+            <Select.Item value="text">Text</Select.Item>
+          </Select.Content>
+        </Select>
       </div>
+      <Form.Message />
+      {bodyMode === 'text' ? (
+        <PlaceholderInput
+          value={normalizedValue}
+          onChange={onChange}
+          variant="expression"
+        />
+      ) : (
+        <div
+          className={cn(
+            'rounded-md transition-colors',
+            isDragActive ? 'ring-2 ring-primary/40 ring-offset-2' : '',
+          )}
+        >
+          <CodeMirror
+            value={normalizedValue}
+            height="30rem"
+            lang="json"
+            extensions={mergedExtensions}
+            basicSetup={{
+              highlightActiveLine: false,
+              highlightActiveLineGutter: false,
+            }}
+            onChange={(newValue) => onChange(newValue)}
+          />
+        </div>
+      )}
     </Form.Item>
   );
 }

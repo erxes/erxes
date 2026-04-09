@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   AutomationBaseInput,
   CheckCustomTriggerInput,
+  FindObjectInput,
   CheckTargetMatchInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
@@ -44,10 +45,16 @@ export type TAutomationRuntimeOutputDefinition<TModels = any> =
     resolvers?: Record<string, TAutomationRuntimeOutputResolver<TModels>>;
   };
 
-export type TAutomationPropertyTypeDefinition = {
+export type TAutomationFindObjectLookupFieldDefinition = {
   value: string;
   label: string;
-  fields?: Array<{ label: string; value: string; type?: string }>;
+};
+
+export type TAutomationFindObjectTargetDefinition = {
+  value: string;
+  label: string;
+  lookupFields: TAutomationFindObjectLookupFieldDefinition[];
+  output?: TAutomationRuntimeOutputDefinition;
 };
 
 export type IAutomationsTriggerConfig = {
@@ -134,7 +141,18 @@ type IAutomationTriggersActionsConfig =
 
 export type AutomationConstants = IAutomationTriggersActionsConfig & {
   bots?: IAutomationsBotsConfig[];
-  propertyTypes?: TAutomationPropertyTypeDefinition[];
+  findObjectTargets?: TAutomationFindObjectTargetDefinition[];
+};
+
+export type TAutomationFindObjectResult = {
+  found: boolean;
+  objectType: string;
+  objectId?: string;
+  object: Record<string, any> | null;
+  matchedBy: {
+    field: string;
+    value: string;
+  };
 };
 
 type TAutomationAdditionalAttribute = {
@@ -197,6 +215,11 @@ export interface AutomationProducers {
     args: z.infer<typeof CheckTargetMatchInput>,
     context: IAutomationContext,
   ) => Promise<boolean>;
+
+  findObject?: (
+    args: z.infer<typeof FindObjectInput>,
+    context: IAutomationContext,
+  ) => Promise<TAutomationFindObjectResult>;
 
   setProperties?: (
     args: z.infer<typeof SetPropertiesInput>,
@@ -313,6 +336,7 @@ export enum TAutomationProducers {
   RESOLVE_OUTPUT_PATHS = 'resolveOutputPaths',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
   CHECK_TARGET_MATCH = 'checkTargetMatch',
+  FIND_OBJECT = 'findObject',
   GET_ADDITIONAL_ATTRIBUTES = 'getAdditionalAttributes',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',

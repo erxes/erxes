@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TAutomationFindObjectType } from './constants';
 import { TAutomationProducers } from './types';
 
 export const AutomationBaseInput = z.object({
@@ -88,6 +89,12 @@ export const CheckTargetMatchInputData = z.object({
   selector: z.record(z.any()),
 });
 
+export const FindObjectInputData = z.object({
+  objectType: z.nativeEnum(TAutomationFindObjectType),
+  field: z.string(),
+  value: z.string(),
+});
+
 export const ReplacePlaceholdersInputData = z.object({
   moduleName: z.string(),
   target: z.record(z.any()),
@@ -135,6 +142,10 @@ export const CheckTargetMatchInput = AutomationBaseInput.extend({
   data: CheckTargetMatchInputData,
 });
 
+export const FindObjectInput = AutomationBaseInput.extend({
+  data: FindObjectInputData,
+});
+
 export const ReplacePlaceholdersInput = AutomationBaseInput.extend({
   data: ReplacePlaceholdersInputData,
 });
@@ -161,6 +172,7 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.CHECK_TARGET_MATCH]: z.infer<
     typeof CheckTargetMatchInputData
   >;
+  [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
   [TAutomationProducers.REPLACE_PLACEHOLDERS]: z.infer<
     typeof ReplacePlaceholdersInputData
   >;

@@ -24,7 +24,8 @@ export const useReactFlowEditor = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const editorWrapper = useRef<HTMLDivElement>(null);
   const dragOverTimeoutRef = useRef<number | null>(null);
-  const { setAutomationBuilderFormValue } = useAutomationFormController();
+  const { setAutomationBuilderFormValue, syncPositionUpdates } =
+    useAutomationFormController();
   const { updateCursor, setCanvasOver, reset } = useDnD();
 
   const theme = useAtomValue(themeState);
@@ -135,6 +136,13 @@ export const useReactFlowEditor = () => {
     };
   }, []);
 
+  const onNodeDragStop = useCallback(() => {
+    syncPositionUpdates({
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  }, [syncPositionUpdates]);
+
   return {
     theme,
     nodes,
@@ -146,6 +154,7 @@ export const useReactFlowEditor = () => {
     onPaneClick,
     isValidConnection,
     onDragOver,
+    onNodeDragStop,
     onNodesChange,
     onEdgesChange,
     onConnect,

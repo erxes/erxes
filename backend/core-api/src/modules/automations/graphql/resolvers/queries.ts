@@ -169,7 +169,7 @@ type TAutomationConstantsResponse = {
   triggersConst: any[];
   triggerTypesConst: string[];
   actionsConst: any[];
-  propertyTypesConst: Array<{ value: string; label: string }>;
+  findObjectTargetsConst: any[];
 };
 
 const getAutomationConstants = async (): Promise<TAutomationConstantsResponse> => {
@@ -183,14 +183,7 @@ const getAutomationConstants = async (): Promise<TAutomationConstantsResponse> =
     triggersConst: [...(normalizedCoreConstants.triggers || [])],
     triggerTypesConst: [],
     actionsConst: [...(normalizedCoreConstants.actions || [])],
-    propertyTypesConst: [
-      ...((normalizedCoreConstants.propertyTypes || []).map(
-        ({ value, label }) => ({
-          value,
-          label,
-        }),
-      ) || []),
-    ],
+    findObjectTargetsConst: [...(normalizedCoreConstants.findObjectTargets || [])],
   };
 
   for (const pluginName of plugins) {
@@ -209,15 +202,9 @@ const getAutomationConstants = async (): Promise<TAutomationConstantsResponse> =
       pluginName,
       meta.automations.constants as AutomationConstants,
     );
-    const {
-      triggers = [],
-      actions = [],
-      propertyTypes = [],
-    } = pluginConstants as AutomationConstants;
-
-    constants.propertyTypesConst.push(
-      ...propertyTypes.map(({ value, label }) => ({ value, label })),
-    );
+    const { triggers = [], actions = [], findObjectTargets = [] } =
+      pluginConstants as AutomationConstants;
+    constants.findObjectTargetsConst.push(...findObjectTargets);
 
     for (const trigger of triggers) {
       constants.triggersConst.push({ ...trigger, pluginName });
@@ -227,11 +214,6 @@ const getAutomationConstants = async (): Promise<TAutomationConstantsResponse> =
         constants.triggerTypesConst = [
           ...new Set([...constants.triggerTypesConst, propertyType]),
         ];
-
-        constants.propertyTypesConst.push({
-          value: propertyType,
-          label: trigger.label,
-        });
       }
     }
 
@@ -240,7 +222,7 @@ const getAutomationConstants = async (): Promise<TAutomationConstantsResponse> =
     }
   }
 
-  constants.propertyTypesConst = constants.propertyTypesConst.filter(
+  constants.findObjectTargetsConst = constants.findObjectTargetsConst.filter(
     (item, index, array) =>
       array.findIndex((candidate) => candidate.value === item.value) === index,
   );

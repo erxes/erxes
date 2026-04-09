@@ -16,11 +16,6 @@ export const JWT_AUTH_ALGORITHMS = [
   'EdDSA',
 ] as const;
 
-export const OUTGOING_WEBHOOK_HEADER_VALUE_TYPES = [
-  'fixed',
-  'expression',
-] as const;
-
 export const OUTGOING_WEBHOOK_AUTH_PLACEMENTS = [
   'header',
   'query',
@@ -37,6 +32,7 @@ export const OUTGOING_WEBHOOK_FORM_DEFAULT_VALUES = {
   method: 'POST',
   url: '',
   queryParams: [],
+  bodyMode: 'json',
   body: '{}',
   auth: { type: 'none' } as Extract<TOutgoingWebhookAuth, { type: 'none' }>,
   headers: [],

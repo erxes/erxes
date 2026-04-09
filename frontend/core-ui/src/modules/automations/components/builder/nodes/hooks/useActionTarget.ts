@@ -56,7 +56,7 @@ export const useActionTarget = ({
       actionsCanBeTarget.find((a) => a.id === targetActionId) || {};
 
     if (type === 'findObject') {
-      selectedActionType = config?.propertyType;
+      selectedActionType = config?.objectType;
     } else {
       const { targetSourceType } = actionConstMap.get(type ?? '') || {};
 

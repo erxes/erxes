@@ -23,6 +23,7 @@ export const AutomationBuilderCanvas = () => {
     onNodeDoubleClick,
     onPaneClick,
     onDragOver,
+    onNodeDragStop,
     setReactFlowInstance,
   } = useReactFlowEditor();
 
@@ -42,6 +43,7 @@ export const AutomationBuilderCanvas = () => {
         onNodeClick={onNodeClick}
         onNodeDoubleClick={onNodeDoubleClick}
         onPaneClick={onPaneClick}
+        onNodeDragStop={onNodeDragStop}
         onInit={setReactFlowInstance}
         onDragOver={onDragOver}
         fitView

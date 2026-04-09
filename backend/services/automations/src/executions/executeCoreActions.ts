@@ -58,10 +58,11 @@ export const executeCoreActions = async (
   if (actionType === AUTOMATION_CORE_ACTIONS.FIND_OBJECT) {
     actionResponse = await executeFindObjectAction(
       subdomain,
+      triggerType,
+      targetType,
       execution,
       action,
       execAction,
-      actionsMap,
     );
   }
 

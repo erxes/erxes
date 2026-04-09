@@ -11,7 +11,7 @@ import {
   OUTGOING_WEBHOOK_ACTION_OUTPUT,
   SEND_EMAIL_ACTION_OUTPUT,
 } from './actionOutputs';
-import { coreAutomationPropertyTypes } from './propertyTypes';
+import { CORE_FIND_OBJECT_TARGETS_CONST } from './findObjectTargets';
 import {
   COMPANY_TRIGGER_OUTPUT,
   CUSTOMER_TRIGGER_OUTPUT,
@@ -21,7 +21,7 @@ import {
 } from './triggerOutputs';
 
 export const coreAutomationConstants: AutomationConstants = {
-  propertyTypes: coreAutomationPropertyTypes,
+  findObjectTargets: CORE_FIND_OBJECT_TARGETS_CONST,
   triggers: [
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.INCOMING_WEBHOOK,
@@ -106,8 +106,16 @@ export const coreAutomationConstants: AutomationConstants = {
       label: 'Find object',
       description: 'Find object',
       folks: [
-        { key: 'isExists', label: 'Has', type: TAutomationActionFolks.SUCCESS },
-        { key: 'notExists', label: 'None', type: TAutomationActionFolks.ERROR },
+        {
+          key: 'isExists',
+          label: 'Found',
+          type: TAutomationActionFolks.SUCCESS,
+        },
+        {
+          key: 'notExists',
+          label: 'Not Found',
+          type: TAutomationActionFolks.ERROR,
+        },
       ],
       isTargetSource: true,
       output: FIND_OBJECT_ACTION_OUTPUT,

@@ -1,10 +1,40 @@
-import { TAutomationRuntimeOutputDefinition } from 'erxes-api-shared/core-modules';
+import {
+  resolveOutputValues,
+  TAutomationFindObjectType,
+  TAutomationRuntimeOutputDefinition,
+} from 'erxes-api-shared/core-modules';
+import { CORE_FIND_OBJECT_TARGETS } from './findObjectTargets';
 
 export const FIND_OBJECT_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   variables: [
+    { key: 'found', label: 'Found' },
+    { key: 'objectType', label: 'Object Type' },
+    { key: 'objectId', label: 'Object ID' },
     { key: 'object', label: 'Object' },
-    { key: 'isExists', label: 'Exists' },
+    { key: 'matchedBy.field', label: 'Matched Field' },
+    { key: 'matchedBy.value', label: 'Matched Value' },
   ],
+  resolvers: {
+    'object.*': async ({ subdomain, source, path, defaultValue }) => {
+      const objectType = source?.objectType as TAutomationFindObjectType;
+      const target = objectType ? CORE_FIND_OBJECT_TARGETS[objectType] : null;
+      const objectPath = path.replace(/^object\./, '');
+
+      if (!target?.output || !source?.object || !objectPath) {
+        return defaultValue;
+      }
+
+      const resolved = await resolveOutputValues({
+        definition: target.output,
+        subdomain,
+        source: source.object,
+        paths: [objectPath],
+        defaultValue,
+      });
+
+      return resolved[objectPath];
+    },
+  },
 };
 
 export const SEND_EMAIL_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
@@ -21,10 +51,20 @@ export const SEND_EMAIL_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
 export const OUTGOING_WEBHOOK_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition =
   {
     variables: [
-      { key: 'status', label: 'Status' },
-      { key: 'ok', label: 'Success' },
-      { key: 'headers', label: 'Headers' },
-      { key: 'bodyText', label: 'Body Text' },
+      { key: 'request.method', label: 'Request Method' },
+      { key: 'request.url', label: 'Request URL' },
+      { key: 'request.headers', label: 'Request Headers' },
+      { key: 'request.bodyText', label: 'Request Body' },
+      { key: 'response.status', label: 'Response Status' },
+      { key: 'response.statusText', label: 'Response Status Text' },
+      { key: 'response.ok', label: 'Response Success' },
+      { key: 'response.headers', label: 'Response Headers' },
+      { key: 'response.contentType', label: 'Response Content Type' },
+      { key: 'response.bodyText', label: 'Response Body Text' },
+      { key: 'response.bodyJson', label: 'Response Body JSON' },
+      { key: 'meta.attemptCount', label: 'Attempt Count' },
+      { key: 'error.phase', label: 'Error Phase' },
+      { key: 'error.message', label: 'Error Message' },
     ],
   };
 

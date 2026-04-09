@@ -13,7 +13,7 @@ export const useAutomationFormController = () => {
   const { getValues, setValue } = useFormContext<TAutomationBuilderForm>();
   const { getNode } = useReactFlow();
 
-  const syncPositionUpdates = useCallback(() => {
+  const syncPositionUpdates = useCallback((options?: SetValueConfig) => {
     const [triggers, actions, workflows]: [
       TAutomationBuilderForm[AutomationNodesType.Triggers],
       TAutomationBuilderForm[AutomationNodesType.Actions],
@@ -35,9 +35,10 @@ export const useAutomationFormController = () => {
           ...n,
           position: getNode(n.id)?.position || n.position,
         })),
+        options,
       );
     }
-  }, [setValue]);
+  }, [getNode, getValues, setValue]);
 
   const setValueFn = useCallback(
     (
@@ -45,10 +46,16 @@ export const useAutomationFormController = () => {
       value: PathValue<TAutomationBuilderForm, Path<TAutomationBuilderForm>>,
       options?: SetValueConfig,
     ) => {
-      syncPositionUpdates();
-      setValue(path, value, options);
+      const nextOptions = {
+        shouldDirty: true,
+        shouldTouch: true,
+        ...options,
+      };
+
+      syncPositionUpdates(nextOptions);
+      setValue(path, value, nextOptions);
     },
-    [setValue],
+    [setValue, syncPositionUpdates],
   );
 
   return {

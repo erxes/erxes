@@ -220,7 +220,10 @@ export const normalizeAutomationConstantsForTransport = (
     ...constants,
     triggers,
     actions,
-    propertyTypes: constants?.propertyTypes || [],
+    findObjectTargets: (constants?.findObjectTargets || []).map((target) => ({
+      ...target,
+      output: toTransportOutput(target.output),
+    })),
   };
 };
 

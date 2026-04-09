@@ -24,7 +24,24 @@ export interface AutomationConstants {
   triggersConst: IAutomationsTriggerConfigConstants[];
   triggerTypesConst: string[];
   actionsConst: IAutomationsActionConfigConstants[];
-  propertyTypesConst: Array<{ value: string; label: string }>;
+  findObjectTargetsConst: Array<{
+    value: string;
+    label: string;
+    lookupFields: Array<{ value: string; label: string }>;
+    output?: {
+      variables?: Array<{
+        key: string;
+        label: string;
+        exposure?: 'placeholder' | 'reference';
+      }>;
+      propertySources?: Array<{
+        key: string;
+        label: string;
+        propertyType: string;
+      }>;
+      resolverKeys?: string[];
+    };
+  }>;
 }
 export interface ConstantsQueryResponse {
   automationConstants: AutomationConstants;

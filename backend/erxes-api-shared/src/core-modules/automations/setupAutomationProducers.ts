@@ -12,6 +12,7 @@ import {
 import {
   AutomationBaseInput,
   CheckCustomTriggerInput,
+  FindObjectInput,
   CheckTargetMatchInput,
   GenerateAiContextInput,
   ReceiveActionsInput,
@@ -48,6 +49,7 @@ export const startAutomations = async (
     setProperties,
     checkCustomTrigger,
     checkTargetMatch,
+    findObject,
     replacePlaceHolders,
     resolveOutputPaths,
     getAdditionalAttributes,
@@ -146,6 +148,12 @@ export const startAutomations = async (
     automationProcedures[TAutomationProducers.CHECK_TARGET_MATCH] = t.procedure
       .input(CheckTargetMatchInput)
       .mutation(async ({ ctx, input }) => checkTargetMatch(input, ctx));
+  }
+
+  if (findObject) {
+    automationProcedures[TAutomationProducers.FIND_OBJECT] = t.procedure
+      .input(FindObjectInput)
+      .mutation(async ({ ctx, input }) => findObject(input, ctx));
   }
 
   const automationsRouter = t.router(automationProcedures);

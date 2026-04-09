@@ -17,26 +17,26 @@ export const FindObjectConfigForm = ({
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Find object Configuration',
   });
-  const { propertyTypesConst } = useAutomation();
+  const { findObjectTargetsConst } = useAutomation();
   const form = useForm<TAutomationFindObjectConfig>({
     resolver: zodResolver(findObjectConfigFormSchema),
     defaultValues: {
-      propertyType: currentAction?.config?.propertyType || '',
-      propertyField: currentAction?.config?.propertyField || '',
-      propertyValue: currentAction?.config?.propertyValue || '',
+      objectType: currentAction?.config?.objectType || '',
+      lookupField: currentAction?.config?.lookupField || '',
+      value: currentAction?.config?.value || '',
     },
   });
-  const [propertyType, propertyField] = useWatch({
+  const [objectType, lookupField] = useWatch({
     control: form.control,
-    name: ['propertyType', 'propertyField'],
+    name: ['objectType', 'lookupField'],
   });
 
-  const fields = useMemo(() => {
-    const propertyTypeConst = propertyTypesConst.find(
-      ({ value }) => value === propertyType,
+  const lookupFields = useMemo(() => {
+    const targetConst = findObjectTargetsConst.find(
+      ({ value }) => value === objectType,
     );
-    return propertyTypeConst?.fields || [];
-  }, [propertyTypesConst, propertyType]);
+    return targetConst?.lookupFields || [];
+  }, [findObjectTargetsConst, objectType]);
 
   return (
     <FormProvider {...form}>
@@ -45,21 +45,21 @@ export const FindObjectConfigForm = ({
       >
         <Form.Field
           control={form.control}
-          name="propertyType"
+          name="objectType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Property Type</Form.Label>
+              <Form.Label>Record Type</Form.Label>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
-                  <Select.Value placeholder="Select a property type" />
+                  <Select.Value placeholder="Select a record type" />
                 </Select.Trigger>
                 <Select.Content>
-                  {propertyTypesConst.map((propertyType) => (
+                  {findObjectTargetsConst.map((target) => (
                     <Select.Item
-                      key={propertyType.value}
-                      value={propertyType.value}
+                      key={target.value}
+                      value={target.value}
                     >
-                      {propertyType.label}
+                      {target.label}
                     </Select.Item>
                   ))}
                 </Select.Content>
@@ -70,18 +70,21 @@ export const FindObjectConfigForm = ({
         <div className="flex flex-col gap-2">
           <Form.Field
             control={form.control}
-            name="propertyField"
+            name="lookupField"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Property Field</Form.Label>
+                <Form.Label>Lookup By</Form.Label>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select a property field" />
+                    <Select.Value placeholder="Select a lookup field" />
                   </Select.Trigger>
                   <Select.Content>
-                    {fields.map((field: any) => (
-                      <Select.Item key={field.value} value={field.value}>
-                        {field.label}
+                    {lookupFields.map((lookupField: any) => (
+                      <Select.Item
+                        key={lookupField.value}
+                        value={lookupField.value}
+                      >
+                        {lookupField.label}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -92,13 +95,13 @@ export const FindObjectConfigForm = ({
           />
           <Form.Field
             control={form.control}
-            name="propertyValue"
+            name="value"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Property Value</Form.Label>
+                <Form.Label>Value</Form.Label>
                 <PlaceholderInput
-                  propertyType={propertyType}
-                  isDisabled={!propertyField || !propertyType}
+                  propertyType={objectType}
+                  isDisabled={!lookupField || !objectType}
                   value={field.value ?? ''}
                   onChange={field.onChange}
                   disabled={{ attribute: true }}

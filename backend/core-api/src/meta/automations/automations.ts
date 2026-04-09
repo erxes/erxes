@@ -7,6 +7,7 @@ import { Express } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { checkTargetMatch } from './checkTargetMatch';
 import { coreAutomationConstants } from './constants';
+import { findObject } from './findObject';
 import { getItems, getRelatedValue } from './utils';
 
 export const initAutomation = (app: Express) =>
@@ -31,6 +32,11 @@ export const initAutomation = (app: Express) =>
       const models = await generateModels(subdomain);
 
       return checkTargetMatch(models, data);
+    },
+    findObject: async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return findObject(models, data);
     },
     setProperties: async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);

@@ -10,23 +10,6 @@ import {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const canUseCoreFastPath = (contentType: string) => {
-  const [, moduleName, collectionType] = splitType(contentType);
-
-  if (moduleName === 'organization' && collectionType === 'users') {
-    return true;
-  }
-
-  if (
-    moduleName === 'contacts' &&
-    ['customers', 'leads', 'companies'].includes(collectionType)
-  ) {
-    return true;
-  }
-
-  return false;
-};
-
 export const isInSegment = async (
   subdomain: string,
   segmentId: string,
@@ -63,7 +46,6 @@ export const isInSegment = async (
 
   const canUseFastPath =
     Boolean(segment.contentType) &&
-    canUseCoreFastPath(segment.contentType) &&
     (await hasSingleSegmentContentType({
       segment,
       loadSegment,
