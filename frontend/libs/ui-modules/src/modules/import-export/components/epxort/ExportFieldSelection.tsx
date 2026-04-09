@@ -19,7 +19,7 @@ export function SearchAndActions({
   onSelectDefaults,
   selectedCount,
   totalCount,
-}: TSearchAndActionsProps) {
+}: Readonly<TSearchAndActionsProps>) {
   return (
     <div className="flex items-center justify-between px-1">
       <div className="flex gap-2">
@@ -49,7 +49,7 @@ export function ExportFieldSelection({
   onConfirm,
   recordCount,
   entityDisplayName,
-}: TExportFieldSelectionProps) {
+}: Readonly<TExportFieldSelectionProps>) {
   const {
     selectedFields,
     headers,
