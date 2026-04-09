@@ -73,20 +73,30 @@ export const webBuilderMutations: Record<string, Resolver> = {
     { models, user }: IContext,
   ) {
     const oldWeb = await models.Web.findOne({ _id }).lean();
+    if (!oldWeb) {
+      throw new Error('Web not found');
+    }
 
-    const updated = await models.Web.updateWeb(_id, doc);
+    if (
+      doc.clientPortalId !== undefined &&
+      doc.clientPortalId !== oldWeb.clientPortalId
+    ) {
+      throw new Error('clientPortalId cannot be changed for an existing web');
+    }
 
-    if (oldWeb) {
-      const changes = diffWeb(oldWeb, doc);
-      if (changes.length > 0) {
-        await models.WebActivityLogs.createLog({
-          webId: _id,
-          userId: user?._id,
-          action: 'updated',
-          changes,
-          createdAt: new Date(),
-        });
-      }
+    const { clientPortalId: _ignoredClientPortalId, ...restDoc } = doc;
+
+    const updated = await models.Web.updateWeb(_id, restDoc);
+
+    const changes = diffWeb(oldWeb, restDoc);
+    if (changes.length > 0) {
+      await models.WebActivityLogs.createLog({
+        webId: _id,
+        userId: user?._id,
+        action: 'updated',
+        changes,
+        createdAt: new Date(),
+      });
     }
 
     return updated;
@@ -107,6 +117,13 @@ export const webBuilderMutations: Record<string, Resolver> = {
     });
 
     if (!web) throw new Error('Web not found');
+
+    if (
+      doc.clientPortalId !== undefined &&
+      doc.clientPortalId !== clientPortal?._id
+    ) {
+      throw new Error('clientPortalId cannot be changed for an existing web');
+    }
 
     const { clientPortalId: _ignoredClientPortalId, ...restDoc } = doc;
 
