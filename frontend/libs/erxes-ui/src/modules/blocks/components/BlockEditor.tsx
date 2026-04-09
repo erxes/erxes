@@ -47,7 +47,11 @@ export const BlockEditor = ({
         group: editor.dictionary.slash_menu.image.group,
         onItemClick: () => {
           const currentBlock = editor.getTextCursorPosition().block;
-          const insertedBlock = editor.insertBlocks([{ type: 'image' }], currentBlock, 'after')[0];
+          const insertedBlock = editor.insertBlocks(
+            [{ type: 'image' }],
+            currentBlock,
+            'after',
+          )[0];
 
           editor.transact((tr) =>
             tr.setMeta(editor.filePanel!.plugins[0], {

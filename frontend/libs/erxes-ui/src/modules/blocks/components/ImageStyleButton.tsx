@@ -4,10 +4,7 @@ import {
   useSelectedBlocks,
 } from '@blocknote/react';
 import { IconCheck, IconPhoto } from '@tabler/icons-react';
-import {
-  IMAGE_STYLE_PRESETS,
-  ImageStyle,
-} from './CustomImageBlock';
+import { IMAGE_STYLE_PRESETS, ImageStyle } from './CustomImageBlock';
 
 const IMAGE_STYLE_OPTIONS: Array<{
   label: string;
@@ -51,8 +48,8 @@ export const ImageStyleButton = () => {
   };
 
   const currentLabel =
-    IMAGE_STYLE_OPTIONS.find((option) => option.value === currentStyle)?.label ||
-    'Image';
+    IMAGE_STYLE_OPTIONS.find((option) => option.value === currentStyle)
+      ?.label || 'Image';
 
   return (
     <Components.Generic.Menu.Root>
