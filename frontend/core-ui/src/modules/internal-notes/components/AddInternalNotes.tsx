@@ -46,7 +46,6 @@ export function AddInternalNotes({
           variant: 'destructive',
         });
       },
-      refetchQueries: ['activityLogs'],
     });
   };
 
