@@ -1,4 +1,7 @@
-import { AutomationVariableBrowser, TAutomationVariableSourceNode } from '@/automations/components/builder/components/AutomationVariableBrowser';
+import {
+  AutomationVariableBrowser,
+  TAutomationVariableSourceNode,
+} from '@/automations/components/builder/components/AutomationVariableBrowser';
 import { EmailTemplateInEditor } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateInEditor';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { IconEdit } from '@tabler/icons-react';
@@ -115,14 +118,10 @@ const SendEmailEmailContentBuilderEditor = ({
   onChange: (content: string) => void;
 }) => {
   const { setValue } = useFormContext<TAutomationSendEmailConfig>();
-  const {
-    isDragActive,
-    handleDragOver,
-    handleDragLeave,
-    handleDrop,
-  } = useAutomationVariableBlockEditorDrop({
-    editor,
-  });
+  const { isDragActive, handleDragOver, handleDragLeave, handleDrop } =
+    useAutomationVariableBlockEditorDrop({
+      editor,
+    });
   const convertToEmailHTML = async () => {
     // Converts the editor's contents from Block objects to HTML and store to state.
     const html = await editor.blocksToFullHTML(editor.document);

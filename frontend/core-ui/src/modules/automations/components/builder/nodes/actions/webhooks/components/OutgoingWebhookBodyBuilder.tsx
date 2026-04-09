@@ -64,9 +64,10 @@ export function OutgoingWebhookBodyBuilder({
 }) {
   const extensions = useMemo(() => [json(), createTheme()], []);
   const normalizedValue = normalizeOutgoingWebhookBodyValue(value, bodyMode);
-  const { isDragActive, editorExtensions } = useAutomationVariableCodeMirrorDrop({
-    onChange,
-  });
+  const { isDragActive, editorExtensions } =
+    useAutomationVariableCodeMirrorDrop({
+      onChange,
+    });
   const mergedExtensions = useMemo(
     () => [...extensions, ...editorExtensions],
     [editorExtensions, extensions],

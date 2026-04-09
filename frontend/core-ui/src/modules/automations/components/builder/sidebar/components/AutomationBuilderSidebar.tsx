@@ -26,7 +26,8 @@ import { useEffect } from 'react';
 import { AutomationActionTargetSelector } from './content/action/AutomationActionTargetSelector';
 
 export const AutomationBuilderSidebar = () => {
-  const { awaitingToConnectNodeId, selectedNode, queryParams } = useAutomation();
+  const { awaitingToConnectNodeId, selectedNode, queryParams } =
+    useAutomation();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const setHotkeyScope = useSetHotkeyScope();
 

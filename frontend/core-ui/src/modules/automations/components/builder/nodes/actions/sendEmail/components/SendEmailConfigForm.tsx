@@ -3,7 +3,11 @@ import { TAutomationSendEmailConfig } from '@/automations/components/builder/nod
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { Collapsible, Form, Label, RadioGroup, Separator } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
-import { PlaceholderInput, TAutomationActionProps, useFormValidationErrorHandler } from 'ui-modules';
+import {
+  PlaceholderInput,
+  TAutomationActionProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
 import { SendEmailEmailContentBuilder } from './SendEmailEmailContentBuilder';
 
 export const SendEmailConfigForm = ({
@@ -15,10 +19,7 @@ export const SendEmailConfigForm = ({
     formName: 'Send email Configuration',
   });
   const { form, contentType, availableVariableSourceNodes } =
-    useSendEmailSidebarForm(
-    currentActionIndex,
-    currentAction,
-  );
+    useSendEmailSidebarForm(currentActionIndex, currentAction);
   return (
     <FormProvider {...form}>
       <AutomationConfigFormWrapper

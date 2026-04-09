@@ -37,11 +37,7 @@ export const AiAgentNodeContent = (
   return null;
 };
 
-const AiAgentMemorySummary = ({
-  config,
-}: {
-  config?: TAiAgentConfigForm;
-}) => {
+const AiAgentMemorySummary = ({ config }: { config?: TAiAgentConfigForm }) => {
   const readEnabled = config?.memory?.read?.enabled;
   const writeEnabled = config?.memory?.write?.enabled;
 

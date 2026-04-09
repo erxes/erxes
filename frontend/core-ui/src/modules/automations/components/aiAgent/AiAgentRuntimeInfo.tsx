@@ -66,7 +66,9 @@ export const AiAgentRuntimeInfo = ({
         <div className="grid gap-2 text-xs text-muted-foreground">
           <div className="flex items-center justify-between gap-4">
             <span>System prompt</span>
-            <span className="text-foreground">{summary.systemPromptChars} chars</span>
+            <span className="text-foreground">
+              {summary.systemPromptChars} chars
+            </span>
           </div>
           <div className="flex items-center justify-between gap-4">
             <span>Goal prompt</span>

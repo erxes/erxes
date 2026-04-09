@@ -10,7 +10,9 @@ import { Node, useReactFlow } from '@xyflow/react';
 import { useAtom, useSetAtom } from 'jotai';
 
 export const useAutomationBuilderSidebarHooks = () => {
-  const [isOpenSideBar, setIsOpenSideBar] = useAtom(automationBuilderSiderbarOpenState);
+  const [isOpenSideBar, setIsOpenSideBar] = useAtom(
+    automationBuilderSiderbarOpenState,
+  );
   const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useAtom(
     automationBuilderSecondarySidebarOpenState,
   );

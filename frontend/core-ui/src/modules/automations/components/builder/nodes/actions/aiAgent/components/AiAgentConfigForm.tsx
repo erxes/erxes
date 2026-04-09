@@ -144,8 +144,8 @@ export const AIAgentConfigForm = ({
                 <Textarea placeholder="Enter prompt" {...field} />
                 <Form.Description>
                   Describe the final artifact this action should produce. For
-                  email generation, ask for a ready-to-use email body instead
-                  of a conversational reply.
+                  email generation, ask for a ready-to-use email body instead of
+                  a conversational reply.
                 </Form.Description>
                 <Form.Message />
               </Form.Item>

@@ -31,7 +31,10 @@ export const executeAiAgentAction = async (
     const models = await generateModels(subdomain);
     const parsedActionConfig = parseAiAgentActionConfig(action.config);
     const aiContext = await getAiContext(subdomain, execution);
-    const inputData = await getInputData(execution, parsedActionConfig.inputMapping);
+    const inputData = await getInputData(
+      execution,
+      parsedActionConfig.inputMapping,
+    );
     const memory = await loadAiActionMemory({
       models,
       execution,

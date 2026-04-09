@@ -8,7 +8,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Select } from 'erxes-ui';
 import { useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { PlaceholderInput, TAutomationActionProps, useFormValidationErrorHandler } from 'ui-modules';
+import {
+  PlaceholderInput,
+  TAutomationActionProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
 
 export const FindObjectConfigForm = ({
   currentAction,
@@ -55,10 +59,7 @@ export const FindObjectConfigForm = ({
                 </Select.Trigger>
                 <Select.Content>
                   {findObjectTargetsConst.map((target) => (
-                    <Select.Item
-                      key={target.value}
-                      value={target.value}
-                    >
+                    <Select.Item key={target.value} value={target.value}>
                       {target.label}
                     </Select.Item>
                   ))}

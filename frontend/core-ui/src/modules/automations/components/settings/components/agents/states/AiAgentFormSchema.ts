@@ -98,7 +98,9 @@ const normalizeAiAgentFiles = (files: any[] = []) =>
   files
     .map((file, index) => {
       const key =
-        typeof file?.key === 'string' ? file.key.trim() : String(file?.key || '');
+        typeof file?.key === 'string'
+          ? file.key.trim()
+          : String(file?.key || '');
       const name =
         typeof file?.name === 'string'
           ? file.name.trim()

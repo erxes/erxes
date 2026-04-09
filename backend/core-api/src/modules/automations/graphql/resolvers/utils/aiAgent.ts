@@ -29,13 +29,16 @@ const maskDeep = (value: any): any => {
     return value;
   }
 
-  return Object.entries(value).reduce((acc, [key, currentValue]) => {
-    const masked = maskSensitiveValue(key, currentValue);
+  return Object.entries(value).reduce(
+    (acc, [key, currentValue]) => {
+      const masked = maskSensitiveValue(key, currentValue);
 
-    acc[key] = masked === currentValue ? maskDeep(currentValue) : masked;
+      acc[key] = masked === currentValue ? maskDeep(currentValue) : masked;
 
-    return acc;
-  }, {} as Record<string, any>);
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
 };
 
 export const sanitizeAiAgent = (agent: any) => {

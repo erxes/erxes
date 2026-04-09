@@ -125,11 +125,7 @@ export const OutgoinWebhookActionResponse = ({
               <InfoRow label="URL" value={request.url} />
               <InfoRow
                 label="Attempts"
-                value={
-                  attemptCount ? (
-                    <span>{attemptCount}</span>
-                  ) : undefined
-                }
+                value={attemptCount ? <span>{attemptCount}</span> : undefined}
               />
 
               <div className="space-y-2">

@@ -68,7 +68,8 @@ export function FileGrid({
           className={cn(
             'rounded-xl border bg-background/95 px-4 py-3 shadow-xs transition-colors',
             'hover:border-border hover:bg-accent/20',
-            onFileClick && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+            onFileClick &&
+              'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
           )}
         >
           <div className="flex items-start justify-between gap-3">

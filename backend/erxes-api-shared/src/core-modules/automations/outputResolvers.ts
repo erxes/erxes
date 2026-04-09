@@ -132,13 +132,16 @@ export const resolveOutputValues = async ({
 
     if (propertySource) {
       const propertyCode = path.slice(`${propertySource.key}.`.length);
-      const fields = await getPropertyFields(subdomain, propertySource.propertyType);
+      const fields = await getPropertyFields(
+        subdomain,
+        propertySource.propertyType,
+      );
       const field = fields.find(
         (item: any) => item.code === propertyCode || item.name === propertyCode,
       );
 
       result[path] = field
-        ? source?.propertiesData?.[field._id] ?? defaultValue
+        ? (source?.propertiesData?.[field._id] ?? defaultValue)
         : defaultValue;
       continue;
     }

@@ -147,9 +147,7 @@ export const persistAiActionMemory = async ({
           [writeConfig.key]: nextValue,
         };
 
-  const expiresAt = new Date(
-    Date.now() + writeConfig.ttlMinutes * 60 * 1000,
-  );
+  const expiresAt = new Date(Date.now() + writeConfig.ttlMinutes * 60 * 1000);
 
   await models.AutomationMemory.updateOne(
     {

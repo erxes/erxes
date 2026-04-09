@@ -178,16 +178,19 @@ export function UploadDropzone({
     [onFilesUploaded, upload, validateFiles],
   );
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
 
-    if (!canAddMore || isLoading) {
-      return;
-    }
+      if (!canAddMore || isLoading) {
+        return;
+      }
 
-    onUploadFiles(e.dataTransfer.files);
-  }, [canAddMore, isLoading, onUploadFiles]);
+      onUploadFiles(e.dataTransfer.files);
+    },
+    [canAddMore, isLoading, onUploadFiles],
+  );
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -211,7 +214,9 @@ export function UploadDropzone({
         isDragOver
           ? 'border-primary bg-primary/5'
           : 'border-border/80 bg-background/60',
-        canAddMore && !isLoading && 'cursor-pointer hover:border-muted-foreground/50',
+        canAddMore &&
+          !isLoading &&
+          'cursor-pointer hover:border-muted-foreground/50',
         (!canAddMore || isLoading) && 'cursor-default',
       )}
       onDragOver={handleDragOver}
@@ -294,11 +299,11 @@ export function UploadDropzone({
               ) : (
                 <IconUpload className="size-4" />
               )}
-                <span>
-                  {isLoading
-                    ? 'Uploading files...'
-                    : 'Drop more files or click to add'}
-                </span>
+              <span>
+                {isLoading
+                  ? 'Uploading files...'
+                  : 'Drop more files or click to add'}
+              </span>
             </div>
           )}
 
@@ -308,7 +313,8 @@ export function UploadDropzone({
                 {files.length} / {maxFiles} files
               </span>
               <span>
-                {formatBytes(totalBytes)} / {formatBytes(maxTotalContextBytes)} used
+                {formatBytes(totalBytes)} / {formatBytes(maxTotalContextBytes)}{' '}
+                used
               </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">

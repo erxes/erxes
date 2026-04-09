@@ -215,12 +215,9 @@ export const outgoingWebhookFormSchema = z.object({
   method: z
     .enum(AUTOMATION_INCOMING_WEBHOOK_API_METHODS as [string, ...string[]])
     .default('POST'),
-  url: z
-    .string()
-    .min(1, 'URL is required')
-    .refine(isValidOutgoingWebhookUrl, {
-      message: 'Enter a valid HTTP or HTTPS URL',
-    }),
+  url: z.string().min(1, 'URL is required').refine(isValidOutgoingWebhookUrl, {
+    message: 'Enter a valid HTTP or HTTPS URL',
+  }),
   queryParams: z.array(outgoingWebhookQueryParamsSchema).default([]),
   bodyMode: z.enum(['json', 'text']).default('json'),
   body: z.string().default(''),

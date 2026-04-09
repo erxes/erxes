@@ -131,7 +131,9 @@ const createOutgoingWebhookError = ({
   requestBodyText?: string;
   attemptCount: number;
 }) => {
-  const error = new Error(message) as Error & { result?: TOutgoingWebhookResult };
+  const error = new Error(message) as Error & {
+    result?: TOutgoingWebhookResult;
+  };
 
   error.result = {
     request: {
@@ -222,7 +224,7 @@ export async function executeOutgoingWebhook({
 
   const replacedBody =
     bodyMode === 'text'
-      ? (
+      ? ((
           await sendCoreModuleProducer({
             moduleName: 'automations',
             subdomain,
@@ -235,7 +237,7 @@ export async function executeOutgoingWebhook({
             },
             defaultValue: { bodyText: bodyValue },
           })
-        )?.bodyText ?? ''
+        )?.bodyText ?? '')
       : await sendCoreModuleProducer({
           moduleName: 'automations',
           subdomain,
@@ -295,7 +297,11 @@ export async function executeOutgoingWebhook({
     requestBody = JSON.stringify(requestBody);
   }
 
-  if (bodyMode === 'text' && requestBody !== undefined && requestBody !== null) {
+  if (
+    bodyMode === 'text' &&
+    requestBody !== undefined &&
+    requestBody !== null
+  ) {
     requestBody = String(requestBody);
   }
 

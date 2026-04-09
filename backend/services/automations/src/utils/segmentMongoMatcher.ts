@@ -53,7 +53,11 @@ const getConditionKind = (condition: TSegmentCondition) => {
     return 'subSegment' as const;
   }
 
-  if (condition.propertyName || condition.propertyOperator || condition.propertyType) {
+  if (
+    condition.propertyName ||
+    condition.propertyOperator ||
+    condition.propertyType
+  ) {
     return 'property' as const;
   }
 
@@ -106,7 +110,9 @@ const collectSegmentContextTypesInternal = async ({
 
     const nestedSegment =
       condition.subSegmentForPreview ||
-      (condition.subSegmentId ? await loadSegment(condition.subSegmentId) : null);
+      (condition.subSegmentId
+        ? await loadSegment(condition.subSegmentId)
+        : null);
 
     if (!nestedSegment) {
       return null;

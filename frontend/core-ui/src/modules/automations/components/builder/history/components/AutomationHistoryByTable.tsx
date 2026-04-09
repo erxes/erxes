@@ -83,7 +83,8 @@ const getExecutionActionResultPreview = (
 
   if (action.actionType === 'outgoingWebhook') {
     if (result?.error?.message) {
-      const attemptCount = result?.meta?.attemptCount || result?.error?.attemptCount;
+      const attemptCount =
+        result?.meta?.attemptCount || result?.error?.attemptCount;
       return attemptCount
         ? `${result.error.message} (${attemptCount} attempts)`
         : result.error.message;

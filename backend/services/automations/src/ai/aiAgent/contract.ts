@@ -30,10 +30,7 @@ const openAiCompatibleConfigSchema = z
       .trim()
       .min(1, 'Connection apiKey is required')
       .max(AI_AGENT_LIMITS.maxSecretChars),
-    baseUrl: z
-      .string()
-      .url()
-      .default(AI_AGENT_DEFAULTS.baseUrl),
+    baseUrl: z.string().url().default(AI_AGENT_DEFAULTS.baseUrl),
     headers: z.record(z.string(), z.string()).default({}),
   })
   .passthrough();
@@ -86,18 +83,16 @@ export const aiAgentInputSchema = z.object({
     .trim()
     .min(1, 'Agent name is required')
     .max(AI_AGENT_LIMITS.maxNameChars),
-  description: z
-    .string()
-    .max(AI_AGENT_LIMITS.maxDescriptionChars)
-    .default(''),
+  description: z.string().max(AI_AGENT_LIMITS.maxDescriptionChars).default(''),
   connection: aiAgentConnectionSchema,
   runtime: aiAgentRuntimeSchema,
   context: aiAgentContextSchema,
 });
 
 export type TAiAgentInput = z.infer<typeof aiAgentInputSchema>;
-export type TAiAgentFile =
-  z.infer<typeof aiAgentInputSchema>['context']['files'][number];
+export type TAiAgentFile = z.infer<
+  typeof aiAgentInputSchema
+>['context']['files'][number];
 
 export const parseAiAgentInput = (input: unknown): TAiAgentInput => {
   return aiAgentInputSchema.parse(input);
