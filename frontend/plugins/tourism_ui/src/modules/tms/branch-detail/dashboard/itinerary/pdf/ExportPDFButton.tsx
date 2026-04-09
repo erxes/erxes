@@ -135,18 +135,18 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   ]);
   const shouldWaitForCustomTemplate = Boolean(
     selectedTemplate === 'custom' &&
-      itinerary?._id &&
-      customTemplateLoading &&
-      !customTemplate &&
-      !persistedCustomTemplate,
+    itinerary?._id &&
+    customTemplateLoading &&
+    !customTemplate &&
+    !persistedCustomTemplate,
   );
   const previewStatusText = previewLoading
     ? 'Preparing PDF preview...'
     : selectedTemplate === 'custom' && customTemplateLoading
-    ? 'Loading saved custom template...'
-    : selectedTemplate === 'custom'
-    ? 'Custom Builder selected. Saved layout loads from the server.'
-    : `${selectedTemplateOption.label} selected. Refreshes after edits.`;
+      ? 'Loading saved custom template...'
+      : selectedTemplate === 'custom'
+        ? 'Custom Builder selected. Saved layout loads from the server.'
+        : `${selectedTemplateOption.label} selected. Refreshes after edits.`;
 
   const revokePreviewUrl = useCallback(() => {
     if (previewObjectUrlRef.current) {
