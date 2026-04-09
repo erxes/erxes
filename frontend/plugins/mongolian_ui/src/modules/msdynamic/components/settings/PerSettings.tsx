@@ -55,9 +55,7 @@ const PerSettings = ({
 
   const renderInput = (key: string, type = 'text') => (
     <div className="space-y-2">
-      <label className="text-sm font-medium">
-        {KEY_LABELS[key] || key}
-      </label>
+      <label className="text-sm font-medium">{KEY_LABELS[key] || key}</label>
       <Input
         type={type}
         value={config[key] || ''}
@@ -72,9 +70,7 @@ const PerSettings = ({
         checked={!!config[key]}
         onCheckedChange={(checked) => handleChange(key, checked)}
       />
-      <label className="text-sm">
-        {KEY_LABELS[key] || key}
-      </label>
+      <label className="text-sm">{KEY_LABELS[key] || key}</label>
     </div>
   );
 
@@ -120,9 +116,7 @@ const PerSettings = ({
               {config.useBoard && (
                 <BoardSelect
                   boardId={config.boardId}
-                  onChange={(boardId) =>
-                    handleChange('boardId', boardId)
-                  }
+                  onChange={(boardId) => handleChange('boardId', boardId)}
                 />
               )}
             </div>
@@ -130,9 +124,7 @@ const PerSettings = ({
 
           {/* General Settings */}
           <div>
-            <h4 className="text-md font-semibold mb-4">
-              General Settings
-            </h4>
+            <h4 className="text-md font-semibold mb-4">General Settings</h4>
 
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">

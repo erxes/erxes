@@ -11,7 +11,6 @@ const AccordionSection = ({ title, count, children }: Props) => {
 
   return (
     <div className="border rounded-md overflow-hidden">
-
       <button
         type="button"
         className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50"

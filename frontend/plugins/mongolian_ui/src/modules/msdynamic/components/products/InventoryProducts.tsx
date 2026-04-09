@@ -36,9 +36,7 @@ const InventoryProducts = ({
   const { data: brandsData } = useQuery(BRANDS_QUERY);
   const brands = brandsData?.brands || [];
 
-  const selectedBrand = brands.find(
-    (b: any) => b._id === queryParams?.brandId,
-  );
+  const selectedBrand = brands.find((b: any) => b._id === queryParams?.brandId);
 
   const renderTable = (data: any[], action: string) => {
     if (!data?.length) {
@@ -83,9 +81,7 @@ const InventoryProducts = ({
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading...
-      </div>
+      <div className="py-10 text-center text-muted-foreground">Loading...</div>
     );
   }
 
