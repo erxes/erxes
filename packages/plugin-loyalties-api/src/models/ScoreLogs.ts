@@ -14,6 +14,7 @@ import { getOwner, scoreStatistic } from "./utils";
 
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import { IScoreParams } from "./definitions/common";
+import { SCORE_CAMPAIGN_STATUSES } from "./definitions/scoreCampaigns";
 
 const OWNER_TYPES = {
   customer: {
@@ -90,7 +91,7 @@ const generateFilter = async (
     } else {
       filter.action = params.action;
     }
-    
+
     if (params.description) {
       filter.description = { $regex: params.description }
     }
@@ -317,19 +318,28 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       let ownerScore = owner.score;
 
+      const campaignFilter: any = { status: SCORE_CAMPAIGN_STATUSES.PUBLISHED };
+      const usedCustomFieldIds: string[] = [];
       if (campaignId) {
-        const campaign = await models.ScoreCampaigns.findOne({
-          _id: campaignId,
-        });
+        campaignFilter._id = campaignId
+      }
 
-        if (!campaign) {
-          throw new Error("Campaign not found");
+      const campaigns = await models.ScoreCampaigns.find(campaignFilter).lean();
+      if (campaignId && !campaigns?.length) {
+        throw new Error("Campaign not found");
+      }
+
+      for (const campaign of campaigns) {
+        if (usedCustomFieldIds.includes(campaign.fieldId)) {
+          continue;
         }
+
+        usedCustomFieldIds.push(campaign.fieldId)
         const campaignScore =
           (owner?.customFieldsData || []).find(
             ({ field }) => field === campaign.fieldId
           )?.value || 0;
-        ownerScore = campaignScore;
+        ownerScore += campaignScore;
       }
 
       const oldScore = Number(ownerScore) || 0;

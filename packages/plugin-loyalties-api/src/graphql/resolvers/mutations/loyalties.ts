@@ -14,6 +14,7 @@ interface IParam {
   destinationPhone: string;
   destinationEmail: string;
   destinationCode: string;
+  campaignId?: string;
 }
 
 const loyaltiesMutations = {
@@ -25,7 +26,8 @@ const loyaltiesMutations = {
       destinationOwnerId,
       destinationPhone,
       destinationEmail,
-      destinationCode
+      destinationCode,
+      campaignId,
     } = doc;
 
     let destOwnerId = destinationOwnerId;
@@ -121,14 +123,16 @@ const loyaltiesMutations = {
       ownerType,
       ownerId,
       changeScore: -1 * score,
-      description: 'share score'
+      description: 'share score',
+      campaignId
     });
 
     await models.ScoreLogs.changeScore({
       ownerType,
       ownerId: destOwnerId,
       changeScore: (score / 100) * (100 - fee),
-      description: 'receipt score'
+      description: 'receipt score',
+      campaignId
     });
 
     return 'success';
