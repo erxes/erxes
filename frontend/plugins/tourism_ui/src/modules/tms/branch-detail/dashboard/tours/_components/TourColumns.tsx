@@ -36,11 +36,11 @@ const formatDate = (value?: string) => {
 export const TourColumns = (
   categories: ICategory[],
   onEdit?: (tourId: string) => void,
-  branchId?: string,
+  onDuplicate?: (tourId: string, dateType?: 'fixed' | 'flexible') => void,
 ): ColumnDef<ITour>[] => {
   return [
     RecordTable.checkboxColumn as ColumnDef<ITour>,
-    tourMoreColumn(onEdit, branchId),
+    tourMoreColumn(onEdit, onDuplicate),
     {
       id: 'name',
       accessorKey: 'name',

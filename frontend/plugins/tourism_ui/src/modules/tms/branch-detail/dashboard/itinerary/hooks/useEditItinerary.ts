@@ -12,6 +12,7 @@ interface EditItineraryResponse {
 export interface IEditItineraryVariables {
   id: string;
   branchId?: string;
+  language?: string;
   name?: string;
   duration?: number;
   images?: string[];

@@ -300,6 +300,7 @@ export const ItineraryEditSheet = ({
         variables: {
           id: itineraryId,
           branchId,
+          language: resolvedPrimaryLanguage || undefined,
           name: values.name,
           color: values.color,
           content: values.content,

@@ -114,6 +114,7 @@ export const types = `
   type Tour {
     _id: String!
     branchId: String
+    language: String
     name: String
     refNumber: String
     groupCode: String
@@ -251,6 +252,7 @@ const categoryParams = `
 
 const params = `
   branchId: String,
+  language: String,
   name: String,
   groupCode: String,
   content: String,

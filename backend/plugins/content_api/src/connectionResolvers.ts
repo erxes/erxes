@@ -13,8 +13,10 @@ import {
   IPostDocument,
   IPostTagDocument,
 } from '@/cms/@types/posts';
+import { IPostViewDocument } from '@/cms/@types/postView';
 import { ITranslationDocument } from '@/cms/@types/translations';
 import { IPostModel, loadPostClass } from '@/cms/db/models/Posts';
+import { IPostViewModel, loadPostViewClass } from '@/cms/db/models/PostViews';
 import {
   ITranslationModel,
   loadTranslationClass,
@@ -54,6 +56,7 @@ export interface IModels {
   WebPages: IWebPageModel;
 
   Posts: IPostModel;
+  PostViews: IPostViewModel;
   Translations: ITranslationModel;
 
   CustomPostTypes: ICustomPostTypeModel;
@@ -80,6 +83,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Posts = db.model<IPostDocument, IPostModel>(
     'cms_posts',
     loadPostClass(models),
+  );
+
+  models.PostViews = db.model<IPostViewDocument, IPostViewModel>(
+    'cms_post_views',
+    loadPostViewClass(models),
   );
 
   models.Translations = db.model<ITranslationDocument, ITranslationModel>(

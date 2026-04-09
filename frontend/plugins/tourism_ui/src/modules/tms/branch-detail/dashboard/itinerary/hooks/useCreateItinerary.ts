@@ -21,6 +21,7 @@ export interface IItineraryTranslationInput {
 
 export interface ICreateItineraryVariables {
   branchId?: string;
+  language?: string;
   name?: string;
   duration?: number;
   images?: string[];

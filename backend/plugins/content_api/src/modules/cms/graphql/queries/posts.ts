@@ -4,11 +4,101 @@ import {
   CMS_POST_URL_FIELDS,
   CMSPostUrlField,
 } from '@/cms/@types/cms';
+import { POST_VIEW_RETENTION_DAYS } from '@/cms/db/models/PostViews';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 
 class PostQueryResolver extends BaseQueryResolver {
+  private async findMostViewedPosts(
+    args: {
+      clientPortalId: string;
+      days: number;
+      limit?: number;
+      language?: string;
+      webId?: string;
+      publishedOnly?: boolean;
+      type?: string;
+    },
+    models: IContext['models'],
+  ) {
+    const { clientPortalId, days, language, webId, publishedOnly, type } = args;
+
+    if (!Number.isInteger(days) || days <= 0) {
+      throw new Error('days must be a positive integer');
+    }
+
+    const effectiveDays = Math.min(days, POST_VIEW_RETENTION_DAYS);
+
+    const recentViewCounts = await models.PostViews.getRecentViewCounts(
+      clientPortalId,
+      new Date(Date.now() - (effectiveDays - 1) * 24 * 60 * 60 * 1000),
+    );
+
+    if (!recentViewCounts.length) {
+      return [];
+    }
+
+    const queryBuilder = getQueryBuilder('post', models);
+    const query = await queryBuilder.buildQuery({
+      clientPortalId,
+      type,
+      ...(publishedOnly ? { status: 'published' } : {}),
+    });
+    query._id = { $in: recentViewCounts.map((item) => item.postId) };
+
+    if (webId) {
+      query.webId = webId;
+    }
+
+    const limit = Math.min(Math.max(args.limit || 10, 1), 100);
+    const posts = await models.Posts.find(query).lean();
+    const postMap = new Map(
+      posts.map((post: any) => [post._id.toString(), post]),
+    );
+
+    const list = recentViewCounts
+      .map(({ postId, recentViewCount }) => {
+        const post = postMap.get(postId);
+
+        if (!post) {
+          return null;
+        }
+
+        return {
+          ...post,
+          recentViewCount,
+        };
+      })
+      .filter(Boolean)
+      .slice(0, limit);
+
+    if (!language) {
+      return list;
+    }
+
+    const shouldSkip = await this.shouldSkipTranslation(
+      clientPortalId,
+      language,
+    );
+
+    if (shouldSkip || !list.length) {
+      return list;
+    }
+
+    const translations = await this.getTranslations(
+      list.map((item: any) => item._id.toString()),
+      language,
+      'post',
+    );
+
+    return this.applyTranslationsToList(
+      list,
+      translations,
+      FIELD_MAPPINGS.POST,
+    );
+  }
+
   private async getPostUrlField(
     clientPortalId: string,
     models: IContext['models'],
@@ -170,6 +260,20 @@ class PostQueryResolver extends BaseQueryResolver {
     return models.Translations.find({ objectId, type });
   }
 
+  async cmsMostViewedPosts(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
+    const { models } = context;
+    const { clientPortalId, days, limit, language, webId, type } = args;
+
+    return this.findMostViewedPosts(
+      { clientPortalId, days, limit, language, webId, type },
+      models,
+    );
+  }
+
   async cpPosts(_parent: any, args: any, context: IContext): Promise<any> {
     const { language, webId } = args;
     const { models, clientPortal } = context;
@@ -253,6 +357,28 @@ class PostQueryResolver extends BaseQueryResolver {
       clientPortal._id,
     );
   }
+
+  async cpMostViewedPosts(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
+    const { models, clientPortal } = context;
+    const { days, limit, language, webId, type } = args;
+
+    return this.findMostViewedPosts(
+      {
+        clientPortalId: clientPortal._id,
+        days,
+        limit,
+        language,
+        webId,
+        publishedOnly: true,
+        type,
+      },
+      models,
+    );
+  }
 }
 
 export const postQueries: Record<string, Resolver> = {
@@ -264,6 +390,13 @@ export const postQueries: Record<string, Resolver> = {
   },
   async cmsPostList(_parent: any, args: any, context: IContext): Promise<any> {
     return new PostQueryResolver(context).cmsPostList(_parent, args, context);
+  },
+  cmsMostViewedPosts: (_parent: any, args: any, context: IContext) => {
+    return new PostQueryResolver(context).cmsMostViewedPosts(
+      _parent,
+      args,
+      context,
+    );
   },
   cmsTranslations: (_parent: any, args: any, context: IContext) => {
     return new PostQueryResolver(context).cmsTranslations(
@@ -291,6 +424,13 @@ export const postQueries: Record<string, Resolver> = {
       context,
     );
   },
+  cpMostViewedPosts: (_parent: any, args: any, context: IContext) => {
+    return new PostQueryResolver(context).cpMostViewedPosts(
+      _parent,
+      args,
+      context,
+    );
+  },
 };
 
 postQueries.cpPosts.wrapperConfig = {
@@ -306,5 +446,9 @@ postQueries.cpPost.wrapperConfig = {
 };
 
 postQueries.cpPostListWithPagination.wrapperConfig = {
+  forClientPortal: true,
+};
+
+postQueries.cpMostViewedPosts.wrapperConfig = {
   forClientPortal: true,
 };

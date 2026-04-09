@@ -118,6 +118,7 @@ export const ItineraryCreateSheet = ({
     currencySymbol,
     fieldPaths,
   } = useItineraryLanguage({ branchLanguages, mainLanguage });
+  const primaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
 
   const { elements: elementsData = [] } = useElements({
     variables: {
@@ -264,6 +265,7 @@ export const ItineraryCreateSheet = ({
       await createItinerary({
         variables: {
           branchId,
+          language: primaryLanguage || undefined,
           name: values.name,
           color: values.color,
           content: values.content,
@@ -287,6 +289,7 @@ export const ItineraryCreateSheet = ({
       });
 
       form.reset();
+      setSelectedLang(primaryLanguage);
       handleOpenChange(false);
     } catch (error: unknown) {
       const message =

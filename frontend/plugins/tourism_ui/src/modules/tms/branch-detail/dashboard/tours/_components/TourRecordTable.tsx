@@ -1,11 +1,12 @@
 import { IconMapRoute } from '@tabler/icons-react';
 import { RecordTable, Sheet } from 'erxes-ui';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { TourCreateSheet } from './TourCreateSheet';
 import { TourEditForm } from './TourEditForm';
 import { TourColumns } from './TourColumns';
+import { TourDuplicateSheet } from './TourDuplicateSheet';
 import { useTours } from '../hooks/useTours';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { TourCommandBar } from './TourCommandBar';
@@ -23,6 +24,10 @@ export const TourRecordTable = ({
 }) => {
   const [editTourId, setEditTourId] = useState<string | null>(null);
   const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
+  const [duplicateTourId, setDuplicateTourId] = useState<string | null>(null);
+  const [duplicateTourDateType, setDuplicateTourDateType] = useState<
+    'fixed' | 'flexible' | undefined
+  >(undefined);
 
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
@@ -31,19 +36,33 @@ export const TourRecordTable = ({
     variables: { branchId, language },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const rowData = tours || [];
 
   const { categories } = useCategories();
 
-  const handleEdit = (tourId: string) => {
+  const handleEdit = useCallback((tourId: string) => {
     setEditTourId(tourId);
-  };
+  }, []);
 
-  const handleCloseEdit = (open: boolean) => {
+  const handleDuplicate = useCallback(
+    (tourId: string, dateType?: 'fixed' | 'flexible') => {
+      setDuplicateTourId(tourId);
+      setDuplicateTourDateType(dateType);
+    },
+    [],
+  );
+
+  const handleCloseEdit = useCallback((open: boolean) => {
     if (!open) {
       setEditTourId(null);
       setSideTab(null);
     }
-  };
+  }, []);
+  const columns = useMemo(
+    () => TourColumns(categories || [], handleEdit, handleDuplicate),
+    [categories, handleDuplicate, handleEdit],
+  );
+
   if (!loading && (totalCount ?? 0) === 0) {
     return (
       <EmptyStateRow
@@ -57,16 +76,20 @@ export const TourRecordTable = ({
   return (
     <>
       <RecordTable.Provider
-        columns={TourColumns(categories || [], handleEdit, branchId)}
-        data={tours || []}
+        columns={columns}
+        data={rowData}
         className="h-full"
         stickyColumns={['more', 'checkbox', 'name']}
       >
-        <TourCommandBar />
+        <TourCommandBar
+          branchId={branchId}
+          branchLanguages={branchLanguages}
+          mainLanguage={mainLanguage}
+        />
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
-          dataLength={tours?.length}
+          dataLength={rowData.length}
           sessionKey={TOURS_CURSOR_SESSION_KEY}
         >
           <RecordTable>
@@ -106,6 +129,23 @@ export const TourRecordTable = ({
           )}
         </Sheet.View>
       </Sheet>
+
+      {duplicateTourId && (
+        <TourDuplicateSheet
+          tourId={duplicateTourId}
+          dateType={duplicateTourDateType}
+          branchId={branchId}
+          branchLanguages={branchLanguages}
+          mainLanguage={mainLanguage}
+          open={!!duplicateTourId}
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) {
+              setDuplicateTourId(null);
+              setDuplicateTourDateType(undefined);
+            }
+          }}
+        />
+      )}
     </>
   );
 };

@@ -45,9 +45,13 @@ const checkLogic = (
     case 'endsWith':
       return String(fieldValue ?? '').endsWith(String(logicValue ?? ''));
     case 'isUnknown':
-      return fieldValue === undefined || fieldValue === null || fieldValue === '';
+      return (
+        fieldValue === undefined || fieldValue === null || fieldValue === ''
+      );
     case 'hasAnyValue':
-      return fieldValue !== undefined && fieldValue !== null && fieldValue !== '';
+      return (
+        fieldValue !== undefined && fieldValue !== null && fieldValue !== ''
+      );
     case 'greaterThan':
       return Number(fieldValue) > Number(logicValue);
     case 'lessThan':
