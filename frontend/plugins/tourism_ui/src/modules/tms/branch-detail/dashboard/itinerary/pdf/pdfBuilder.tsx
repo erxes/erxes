@@ -3,6 +3,7 @@ import { pdf } from '@react-pdf/renderer';
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 import { ItineraryPDF } from './ItineraryPDF';
 import { convertImagesToBase64 } from './utils';
+import type { ItineraryPdfTemplate } from './types';
 
 interface BranchDetailLike {
   _id?: string;
@@ -68,12 +69,14 @@ export const generateItineraryPdfCacheKey = (
   itinerary: IItineraryDetail,
   branchId?: string,
   language?: string,
+  template: ItineraryPdfTemplate = 'classic',
 ) =>
   [
     itinerary._id,
     itinerary.modifiedAt || itinerary.createdAt || 'unknown-modified',
     branchId || itinerary.branchId || '',
     language || itinerary.language || 'default',
+    template,
   ].join(':');
 
 export const buildItineraryPdfBlob = async ({
@@ -81,15 +84,22 @@ export const buildItineraryPdfBlob = async ({
   branchDetail,
   branchId,
   language,
+  template = 'classic',
   force = false,
 }: {
   itinerary: IItineraryDetail;
   branchDetail?: BranchDetailLike | null;
   branchId?: string;
   language?: string;
+  template?: ItineraryPdfTemplate;
   force?: boolean;
 }): Promise<BuildItineraryPdfResult> => {
-  const cacheKey = generateItineraryPdfCacheKey(itinerary, branchId, language);
+  const cacheKey = generateItineraryPdfCacheKey(
+    itinerary,
+    branchId,
+    language,
+    template,
+  );
 
   if (!force) {
     const cachedBlob = pdfBlobCache.get(cacheKey);
@@ -142,6 +152,7 @@ export const buildItineraryPdfBlob = async ({
         name: branchDetail?.name,
         mainLogoBase64,
       }}
+      template={template}
     />,
   ).toBlob();
 
