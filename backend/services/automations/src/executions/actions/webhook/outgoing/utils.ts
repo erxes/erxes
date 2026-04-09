@@ -18,8 +18,8 @@ export const generateFetchAgent = (
     try {
       const authStr = proxy.auth?.username
         ? `${encodeURIComponent(proxy.auth.username)}:${encodeURIComponent(
-          proxy.auth.password || '',
-        )}@`
+            proxy.auth.password || '',
+          )}@`
         : '';
       const proxyUrl = `http://${authStr}${proxy.host}:${proxy.port}`;
       agent = new HttpsProxyAgent(proxyUrl);

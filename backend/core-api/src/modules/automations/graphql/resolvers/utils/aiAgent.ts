@@ -47,16 +47,13 @@ const maskDeep = (value: unknown): unknown => {
     return value;
   }
 
-  return Object.entries(value).reduce(
-    (acc, [key, currentValue]) => {
-      const masked = maskSensitiveValue(key, currentValue);
+  return Object.entries(value).reduce((acc, [key, currentValue]) => {
+    const masked = maskSensitiveValue(key, currentValue);
 
-      acc[key] = masked === currentValue ? maskDeep(currentValue) : masked;
+    acc[key] = masked === currentValue ? maskDeep(currentValue) : masked;
 
-      return acc;
-    },
-    {},
-  );
+    return acc;
+  }, {});
 };
 
 export const sanitizeAiAgent = <T>(agent: T): T => {

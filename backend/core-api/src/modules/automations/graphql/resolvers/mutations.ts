@@ -49,8 +49,9 @@ const mergeAiAgentConnectionSecrets = (
   }
 
   const currentConnection =
-    (toPlainObject(currentAgent?.connection) as TAiAgentConnection | undefined) ||
-    {};
+    (toPlainObject(currentAgent?.connection) as
+      | TAiAgentConnection
+      | undefined) || {};
   const incomingConnection =
     (toPlainObject(doc.connection) as TAiAgentConnection | undefined) || {};
   const currentConfig = currentConnection.config || {};

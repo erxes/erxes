@@ -130,7 +130,9 @@ const normalizeAiAgentFileVersions = (versions: unknown[] = []) =>
         ? (version as TAiAgentFormFileVersionInput)
         : {};
       const key =
-        typeof current.key === 'string' ? current.key.trim() : String(current.key || '');
+        typeof current.key === 'string'
+          ? current.key.trim()
+          : String(current.key || '');
       const name =
         typeof current.name === 'string'
           ? current.name.trim()
@@ -156,7 +158,9 @@ const normalizeAiAgentFiles = (files: unknown[] = []) =>
     .map((file, index) => {
       const current = isRecord(file) ? (file as TAiAgentFormFileInput) : {};
       const key =
-        typeof current.key === 'string' ? current.key.trim() : String(current.key || '');
+        typeof current.key === 'string'
+          ? current.key.trim()
+          : String(current.key || '');
       const name =
         typeof current.name === 'string'
           ? current.name.trim()
