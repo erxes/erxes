@@ -29,6 +29,7 @@ export interface IItinerary {
   status: string;
   color?: string;
   branchId?: string;
+  language?: string;
 }
 
 export interface IItineraryDocument extends IItinerary, Document {

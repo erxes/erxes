@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export const CREATE_TOUR = gql`
   mutation BmsTourAdd(
     $branchId: String
+    $language: String
     $date_status: DATE_STATUS!
     $status: String
     $name: String
@@ -37,6 +38,7 @@ export const CREATE_TOUR = gql`
   ) {
     bmsTourAdd(
       branchId: $branchId
+      language: $language
       date_status: $date_status
       status: $status
       name: $name
@@ -77,6 +79,7 @@ export const CREATE_TOUR = gql`
 export const EDIT_TOUR = gql`
   mutation BmsTourEdit(
     $id: String!
+    $language: String
     $dateStatus: DATE_STATUS!
     $name: String
     $content: String
@@ -110,6 +113,7 @@ export const EDIT_TOUR = gql`
   ) {
     bmsTourEdit(
       _id: $id
+      language: $language
       date_status: $dateStatus
       name: $name
       content: $content

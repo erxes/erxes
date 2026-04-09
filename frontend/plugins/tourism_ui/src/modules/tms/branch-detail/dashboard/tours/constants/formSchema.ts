@@ -128,7 +128,7 @@ export const TourCreateFormSchema = z
         z
           .array(z.coerce.date())
           .min(1, 'Select at least one start date')
-          .max(5, 'Max 5 dates allowed')
+          .max(15, 'Max 15 dates allowed')
           .refine(
             (dates) => {
               const unique = new Set(dates.map((d) => d.toISOString()));
@@ -225,6 +225,20 @@ export const TourCreateFormSchema = z
     {
       message: 'Available from must be before available to',
       path: ['availableTo'],
+    },
+  )
+
+  // GROUP TOUR: minimum 2 dates required
+  .refine(
+    (data) => {
+      if (!data.isFlexibleDate && data.isGroupTour) {
+        return Array.isArray(data.startDate) && data.startDate.length >= 2;
+      }
+      return true;
+    },
+    {
+      message: 'Group tours require at least 2 start dates',
+      path: ['startDate'],
     },
   );
 

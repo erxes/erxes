@@ -14,6 +14,7 @@ interface CreateTourResponse {
 
 export interface ICreateTourVariables {
   branchId: string;
+  language?: string;
   name: string;
   refNumber: string;
   content?: string;

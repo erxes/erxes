@@ -41,6 +41,7 @@ export const types = `
   type Itinerary {
     _id: String!
     branchId: String
+    language: String
     name: String
     content: String
     duration: Int
@@ -115,6 +116,7 @@ export const queries = `
 
 const params = `
   branchId: String
+  language: String
   name: String
   content: String
   duration: Int

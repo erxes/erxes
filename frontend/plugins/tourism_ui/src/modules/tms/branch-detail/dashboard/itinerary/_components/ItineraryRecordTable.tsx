@@ -61,7 +61,12 @@ export const ItineraryRecordTable = ({
   return (
     <>
       <RecordTable.Provider
-        columns={itineraryColumns({ onEditClick: handleEditClick, branchId })}
+        columns={itineraryColumns({
+          onEditClick: handleEditClick,
+          branchId,
+          branchLanguages,
+          mainLanguage,
+        })}
         data={itineraries || []}
         className="h-full"
         stickyColumns={['more', 'checkbox', 'name']}

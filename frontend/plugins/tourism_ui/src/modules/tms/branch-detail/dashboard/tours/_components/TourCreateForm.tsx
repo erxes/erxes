@@ -278,6 +278,7 @@ export const TourCreateForm = ({
 
       const normalizedPricingOptions = pricingOptions.map((opt) => ({
         ...opt,
+        _id: opt._id || nanoid(8),
         accommodationType: opt.accommodationType
           ? opt.accommodationType.trim().toLowerCase()
           : opt.accommodationType,
@@ -291,6 +292,7 @@ export const TourCreateForm = ({
         await createTour({
           variables: {
             branchId,
+            language: resolvedPrimaryLanguage || undefined,
             ...restValues,
             pricingOptions: normalizedPricingOptions,
             dateType: 'flexible',
@@ -333,6 +335,7 @@ export const TourCreateForm = ({
               return createTour({
                 variables: {
                   branchId,
+                  language: resolvedPrimaryLanguage || undefined,
                   ...restValues,
                   refNumber,
                   pricingOptions: normalizedPricingOptions,
@@ -356,6 +359,7 @@ export const TourCreateForm = ({
           await createTour({
             variables: {
               branchId,
+              language: resolvedPrimaryLanguage || undefined,
               ...restValues,
               pricingOptions: normalizedPricingOptions,
               dateType: 'fixed',

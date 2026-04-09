@@ -16,11 +16,15 @@ import { ItineraryDuplicateSheet } from './ItineraryDuplicateSheet';
 interface ItineraryMoreCellProps extends CellContext<IItinerary, unknown> {
   onEditClick?: (itineraryId: string, branchId?: string) => void;
   branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
 }
 
 export const ItineraryMoreColumn = ({
   onEditClick,
   branchId,
+  branchLanguages,
+  mainLanguage,
   ...props
 }: ItineraryMoreCellProps) => {
   const itinerary = props.row.original;
@@ -88,6 +92,8 @@ export const ItineraryMoreColumn = ({
       <ItineraryDuplicateSheet
         itinerary={itinerary}
         branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
         open={duplicateOpen}
         onOpenChange={setDuplicateOpen}
       />
@@ -98,6 +104,8 @@ export const ItineraryMoreColumn = ({
 export const itineraryMoreColumn = (
   onEditClick?: (itineraryId: string, branchId?: string) => void,
   branchId?: string,
+  branchLanguages?: string[],
+  mainLanguage?: string,
 ): ColumnDef<IItinerary> => ({
   id: 'more',
   cell: (props) => (
@@ -105,6 +113,8 @@ export const itineraryMoreColumn = (
       {...props}
       onEditClick={onEditClick}
       branchId={branchId}
+      branchLanguages={branchLanguages}
+      mainLanguage={mainLanguage}
     />
   ),
   size: 33,
