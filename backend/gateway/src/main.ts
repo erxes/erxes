@@ -20,7 +20,14 @@ import {
   proxyReq,
 } from '~/proxy/middleware';
 
-import { getPlugin, getPlugins, getSubdomain, isDev, redis, setActivePlugins } from 'erxes-api-shared/utils';
+import {
+  getPlugin,
+  getPlugins,
+  getSubdomain,
+  isDev,
+  redis,
+  setActivePlugins,
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
 // import * as jwt from 'jsonwebtoken';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
