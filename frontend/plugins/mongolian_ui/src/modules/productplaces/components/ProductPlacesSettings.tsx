@@ -2,10 +2,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { SettingsLayout } from '~/modules/SettingsLayout';
 import ProductPlacesSidebar from '~/modules/productplaces/components/Sidebar';
 
-import StagePage from './StagePage';
-import SplitPage from './SplitPage';
-import PrintPage from './PrintPage';
-import ProductFilterPage from './ProductFilterPage'; // 👈 MUST EXIST
+import StagePage from '../../../pages/productplaces/StagePage';
+import SplitPage from '../../../pages/productplaces/SplitPage';
+import PrintPage from '../../../pages/productplaces/PrintPage';
+import ProductFilterPage from '../../../pages/productplaces/ProductFilterPage';
 
 const ProductPlacesSettings = () => {
   return (
@@ -22,4 +22,3 @@ const ProductPlacesSettings = () => {
 };
 
 export default ProductPlacesSettings;
-
