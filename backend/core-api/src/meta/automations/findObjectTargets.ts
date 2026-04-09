@@ -14,9 +14,9 @@ type TFindObjectTarget = {
   label: string;
   lookupFields: TAutomationFindObjectTargetDefinition['lookupFields'];
   getCollection: (models: IModels) => {
-    findOne: (
-      filter: Record<string, unknown>,
-    ) => { lean: () => Promise<Record<string, unknown> | null> };
+    findOne: (filter: Record<string, unknown>) => {
+      lean: () => Promise<Record<string, unknown> | null>;
+    };
   };
   generateFilter: (
     field: string,
