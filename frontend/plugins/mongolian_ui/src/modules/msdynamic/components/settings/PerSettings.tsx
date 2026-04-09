@@ -79,93 +79,93 @@ const PerSettings = ({
   );
 
   return (
-  <Card className="p-6 space-y-6 hover:shadow-md transition">
-    {/* Header */}
-    <div
-      className="flex items-center justify-between cursor-pointer group"
-      onClick={() => setOpen(!open)}
-    >
-      <h3 className="text-lg font-semibold group-hover:text-primary transition">
-        {config.title}
-      </h3>
+    <Card className="p-6 space-y-6 hover:shadow-md transition">
+      {/* Header */}
+      <div
+        className="flex items-center justify-between cursor-pointer group"
+        onClick={() => setOpen(!open)}
+      >
+        <h3 className="text-lg font-semibold group-hover:text-primary transition">
+          {config.title}
+        </h3>
 
-      <span className="text-muted-foreground text-sm">
-        {open ? '▾' : '▸'}
-      </span>
-    </div>
+        <span className="text-muted-foreground text-sm">
+          {open ? '▾' : '▸'}
+        </span>
+      </div>
 
-    {open && (
-      <div className="space-y-8">
-        {/* Basic Config */}
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-4">
-            {renderInput('title')}
-            {renderInput('brandId')}
-            {renderInput('itemApi')}
-            {renderInput('itemCategoryApi')}
-            {renderInput('priceApi')}
-            {renderInput('pricePriority')}
-            {renderInput('username')}
-            {renderInput('password', 'password')}
-          </div>
-
-          <div className="space-y-4">
-            {renderInput('customerApi')}
-            {renderInput('salesApi')}
-            {renderInput('salesLineApi')}
-            {renderInput('exchangeRateApi')}
-            {renderCheckbox('useBoard')}
-
-            {config.useBoard && (
-              <BoardSelect
-                boardId={config.boardId}
-                onChange={(boardId) => handleChange('boardId', boardId)}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* General Settings */}
-        <div>
-          <h4 className="text-md font-semibold mb-4">General Settings</h4>
-
+      {open && (
+        <div className="space-y-8">
+          {/* Basic Config */}
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-4">
-              {renderInput('genBusPostingGroup')}
-              {renderInput('vatBusPostingGroup')}
-              {renderInput('customerPostingGroup')}
-              {renderInput('customerPricingGroup')}
-              {renderInput('customerDiscGroup')}
-              {renderInput('syncType')}
-              {renderInput('defaultUserCode')}
+              {renderInput('title')}
+              {renderInput('brandId')}
+              {renderInput('itemApi')}
+              {renderInput('itemCategoryApi')}
+              {renderInput('priceApi')}
+              {renderInput('pricePriority')}
+              {renderInput('username')}
+              {renderInput('password', 'password')}
             </div>
 
             <div className="space-y-4">
-              {renderInput('locationCode')}
-              {renderInput('reminderCode')}
-              {renderInput('responsibilityCenter')}
-              {renderInput('billType')}
-              {renderInput('dealType')}
-              {renderInput('paymentTermsCode')}
-              {renderInput('paymentMethodCode')}
-              {renderInput('defaultCompanyCode')}
+              {renderInput('customerApi')}
+              {renderInput('salesApi')}
+              {renderInput('salesLineApi')}
+              {renderInput('exchangeRateApi')}
+              {renderCheckbox('useBoard')}
+
+              {config.useBoard && (
+                <BoardSelect
+                  boardId={config.boardId}
+                  onChange={(boardId) => handleChange('boardId', boardId)}
+                />
+              )}
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="flex justify-between pt-4 border-t">
-          <Button variant="destructive" onClick={handleDelete}>
-            Delete
-          </Button>
+          {/* General Settings */}
+          <div>
+            <h4 className="text-md font-semibold mb-4">General Settings</h4>
 
-          <Button onClick={handleSave} disabled={!config.brandId}>
-            Save
-          </Button>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                {renderInput('genBusPostingGroup')}
+                {renderInput('vatBusPostingGroup')}
+                {renderInput('customerPostingGroup')}
+                {renderInput('customerPricingGroup')}
+                {renderInput('customerDiscGroup')}
+                {renderInput('syncType')}
+                {renderInput('defaultUserCode')}
+              </div>
+
+              <div className="space-y-4">
+                {renderInput('locationCode')}
+                {renderInput('reminderCode')}
+                {renderInput('responsibilityCenter')}
+                {renderInput('billType')}
+                {renderInput('dealType')}
+                {renderInput('paymentTermsCode')}
+                {renderInput('paymentMethodCode')}
+                {renderInput('defaultCompanyCode')}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-between pt-4 border-t">
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+
+            <Button onClick={handleSave} disabled={!config.brandId}>
+              Save
+            </Button>
+          </div>
         </div>
-      </div>
-    )}
-  </Card>
+      )}
+    </Card>
   );
 };
 
