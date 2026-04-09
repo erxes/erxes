@@ -15,20 +15,13 @@ import {
 import { useAtomValue } from 'jotai';
 import { Button, Dialog, Label, Select, Spinner, useToast } from 'erxes-ui';
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
-import { useItineraryPdfTemplate } from '../hooks/useItineraryPdfTemplate';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { ItineraryEditSheet } from '../_components/ItineraryEditSheet';
-import {
-  createTemplateFromItinerary,
-  CustomTemplateEditorSheet,
-  ensureTemplateHasDefaultDayCards,
-} from './custom-template';
 import { generateFilename } from './utils';
 import { buildItineraryPdfBlob } from './pdfBuilder';
 import { ITINERARY_PDF_TEMPLATES } from './templates';
 import type { ItineraryPdfTemplate } from './types';
-import type { PdfTemplateDocument } from './custom-template/template.types';
 import './fonts';
 
 interface ExportPDFButtonProps {
@@ -58,15 +51,12 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   const language = activeLang || mainLanguage;
   const [previewOpen, setPreviewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [customTemplateOpen, setCustomTemplateOpen] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string>();
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>();
   const [selectedTemplate, setSelectedTemplate] =
     useState<ItineraryPdfTemplate>('classic');
-  const [customTemplate, setCustomTemplate] =
-    useState<PdfTemplateDocument | null>(null);
   const [refreshNonce, setRefreshNonce] = useState(0);
   const { toast } = useToast();
   const downloadTimeoutRef = useRef<NodeJS.Timeout>();
@@ -90,19 +80,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   const shouldWaitForBranch = Boolean(
     branchId && branchLoading && !branchDetail,
   );
-  const shouldFetchCustomTemplate = Boolean(
-    itinerary?._id && (selectedTemplate === 'custom' || customTemplateOpen),
-  );
-  const {
-    template: persistedCustomTemplate,
-    loading: customTemplateLoading,
-    error: customTemplateError,
-    refetch: refetchCustomTemplate,
-  } = useItineraryPdfTemplate(
-    itinerary?._id,
-    shouldFetchCustomTemplate,
-    'custom-builder',
-  );
+
   const canEdit = Boolean(itinerary?._id);
   const canDownload = Boolean(previewBlob) && !previewLoading;
   const selectedTemplateOption = useMemo(
@@ -112,41 +90,11 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
       ) || ITINERARY_PDF_TEMPLATES[0],
     [selectedTemplate],
   );
-  const resolvedCustomTemplate = useMemo(() => {
-    if (selectedTemplate !== 'custom' || !itinerary) {
-      return undefined;
-    }
 
-    return ensureTemplateHasDefaultDayCards(
-      customTemplate ||
-        persistedCustomTemplate ||
-        createTemplateFromItinerary({
-          itinerary,
-          branchId: branchId || itinerary.branchId || 'draft-branch',
-          userId: 'server-user',
-        }),
-    );
-  }, [
-    branchId,
-    customTemplate,
-    itinerary,
-    persistedCustomTemplate,
-    selectedTemplate,
-  ]);
-  const shouldWaitForCustomTemplate = Boolean(
-    selectedTemplate === 'custom' &&
-      itinerary?._id &&
-      customTemplateLoading &&
-      !customTemplate &&
-      !persistedCustomTemplate,
-  );
+
   const previewStatusText = previewLoading
     ? 'Preparing PDF preview...'
-    : selectedTemplate === 'custom' && customTemplateLoading
-    ? 'Loading saved custom template...'
-    : selectedTemplate === 'custom'
-    ? 'Custom Builder selected. Saved layout loads from the server.'
-    : `${selectedTemplateOption.label} selected. Refreshes after edits.`;
+    : 'Preview refreshes automatically after edits.';
 
   const revokePreviewUrl = useCallback(() => {
     if (previewObjectUrlRef.current) {
@@ -194,15 +142,6 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
         return;
       }
 
-      if (
-        selectedTemplate === 'custom' &&
-        customTemplateError &&
-        !customTemplate
-      ) {
-        setPreviewError('Failed to load the saved custom template.');
-        return;
-      }
-
       const requestId = ++previewRequestIdRef.current;
       setPreviewLoading(true);
       setPreviewError(undefined);
@@ -215,7 +154,6 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
             branchId,
             language,
             template: selectedTemplate,
-            customTemplate: resolvedCustomTemplate,
             force,
           },
         );
@@ -266,10 +204,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
       itinerary,
       language,
       revokePreviewUrl,
-      customTemplate,
-      customTemplateError,
       selectedTemplate,
-      resolvedCustomTemplate,
       toast,
     ],
   );
@@ -309,13 +244,8 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   }, []);
 
   const handleOpenEditSheet = useCallback(() => {
-    if (selectedTemplate === 'custom') {
-      setCustomTemplateOpen(true);
-      return;
-    }
-
     setEditOpen(true);
-  }, [selectedTemplate]);
+  }, []);
 
   const handleEditOpenChange = useCallback(
     async (open: boolean) => {
@@ -342,26 +272,12 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     [itinerary?._id, refetchItinerary, toast],
   );
 
-  const handleCustomTemplateSave = useCallback(
-    (template: PdfTemplateDocument) => {
-      setCustomTemplate(template);
-      void refetchCustomTemplate();
-      forcePreviewRefreshRef.current = true;
-      setRefreshNonce((current) => current + 1);
-    },
-    [refetchCustomTemplate],
-  );
-
-  useEffect(() => {
-    setCustomTemplate(null);
-  }, [itinerary?._id]);
-
   useEffect(() => {
     if (!previewOpen || !itinerary) {
       return;
     }
 
-    if (shouldWaitForBranch || shouldWaitForCustomTemplate) {
+    if (shouldWaitForBranch) {
       return;
     }
 
@@ -375,7 +291,6 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     refreshNonce,
     selectedTemplate,
     shouldWaitForBranch,
-    shouldWaitForCustomTemplate,
   ]);
 
   useEffect(() => {
@@ -506,9 +421,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
                 disabled={!canEdit}
               >
                 <IconEdit size={16} />
-                {selectedTemplate === 'custom'
-                  ? 'Edit template'
-                  : 'Edit itinerary'}
+                Edit itinerary
               </Button>
 
               <Button onClick={handleDownload} disabled={!canDownload}>
@@ -530,25 +443,6 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
           void handleEditOpenChange(open);
         }}
       />
-
-      {itinerary?._id ? (
-        <CustomTemplateEditorSheet
-          open={customTemplateOpen}
-          onOpenChange={setCustomTemplateOpen}
-          itinerary={{
-            ...itinerary,
-          }}
-          branch={
-            branchDetail
-              ? {
-                  name: branchDetail.name,
-                  mainLogoBase64: undefined,
-                }
-              : undefined
-          }
-          onSave={handleCustomTemplateSave}
-        />
-      ) : null}
     </>
   );
 };
