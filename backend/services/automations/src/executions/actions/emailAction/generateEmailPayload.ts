@@ -48,9 +48,9 @@ export const generateEmailPayload = async ({
   }
 
   let replacedContent = (template?.content || '').replaceAll(
-  new RegExp(String.raw`{{\s*${type}\s*(.*?)\s*}}`, 'g'),
-  '{{ $1 }}',
-);
+    new RegExp(String.raw`{{\s*${type}\s*(.*?)\s*}}`, 'g'),
+    '{{ $1 }}',
+  );
 
   replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
