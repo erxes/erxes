@@ -217,12 +217,7 @@ const SelectAttributionContent = () => {
 
         {!loading &&
           [currentUser, ...users]
-            .filter(
-              (user) =>
-                !attributionIds.some(
-                  (attributionId) => attributionId === user._id,
-                ),
-            )
+            .filter((user) => !attributionIds.includes(user._id))
             .map((user) => (
               <SelectAttributionCommandItem key={user._id} attribution={user} />
             ))}
