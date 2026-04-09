@@ -17,7 +17,6 @@ export interface ICreateBranchVariables {
     _id?: string;
     type: string;
     title: string;
-    icon: string;
     config?: string;
   }[];
   uiOptions?: {
@@ -27,6 +26,8 @@ export interface ICreateBranchVariables {
       primary?: string;
     };
   };
+  language?: string;
+  languages?: string[];
 }
 
 export const useCreateBranch = () => {

@@ -1,6 +1,5 @@
 import { ITicketDocument, ITicketFilter } from '@/ticket/@types/ticket';
 import { generateFilter } from '@/ticket/utils';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
@@ -14,10 +13,13 @@ export const ticketQueries = {
   getTickets: async (
     _parent: undefined,
     { filter }: { filter: ITicketFilter & ICursorPaginateParams },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    const filterQuery: FilterQuery<ITicketDocument> = generateFilter(filter);
-
+    const filterQuery: FilterQuery<ITicketDocument> = await generateFilter(
+      filter,
+      user,
+      models,
+    );
     return await cursorPaginate<ITicketDocument>({
       model: models.Ticket,
       params: {
@@ -31,6 +33,3 @@ export const ticketQueries = {
     });
   },
 };
-
-requireLogin(ticketQueries, 'getTicket');
-requireLogin(ticketQueries, 'getTickets');

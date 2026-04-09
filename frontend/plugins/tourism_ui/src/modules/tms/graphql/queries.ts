@@ -31,6 +31,8 @@ export const GET_BRANCH_LIST = gql`
         erxesAppToken
         permissionConfig
         uiOptions
+        language
+        languages
       }
       totalCount
       pageInfo {
@@ -57,19 +59,8 @@ export const BRANCH_LIST_DETAIL = gql`
       erxesAppToken
       permissionConfig
       uiOptions
-    }
-  }
-`;
-
-export const PAYMENT_LIST = gql`
-  query Payments($status: String, $kind: String) {
-    payments(status: $status, kind: $kind) {
-      _id
-      name
-      kind
-      status
-      config
-      createdAt
+      language
+      languages
     }
   }
 `;

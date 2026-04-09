@@ -1,7 +1,6 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
-  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -10,13 +9,12 @@ import {
 import {
   IconCalendar,
   IconCalendarEvent,
-  IconDots,
   IconHash,
-  IconSettings,
   IconTag,
 } from '@tabler/icons-react';
 import { LotteryNameCell } from '../lottery-detail/components/LotteryNameCell';
 import { ILottery } from '../types/lotteryTypes';
+import { lotteryMoreColumn } from './LotteryMoreColumn';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -42,6 +40,7 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
 export const lotteryColumns: (
   editStatus: (options: any) => void,
 ) => ColumnDef<ILottery>[] = (editStatus) => [
+  lotteryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ILottery>,
 
   {
@@ -106,23 +105,5 @@ export const lotteryColumns: (
       );
     },
     size: 150,
-  },
-
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSettings} label="Actions" />
-    ),
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <Button className="mx-auto" variant="ghost" size="sm">
-            <IconDots className="h-4 w-4" />
-          </Button>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
   },
 ];

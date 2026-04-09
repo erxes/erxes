@@ -13,10 +13,12 @@ import { CompanyDetailGeneral } from './CompanyDetailGeneral';
 import { ContactSidebar } from '@/contacts/components/ContactSidebar';
 import {
   ActivityLogs,
+  AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
+import { companyCustomActivities } from './CompanyActivityRows';
 
 export const CompanyDetail = () => {
   const [open, setOpen] = useQueryState<string>('companyId');
@@ -47,7 +49,19 @@ export const CompanyDetail = () => {
               >
                 <Tabs.Content value="overview">
                   <CompanyDetailFields />
-                  {!!companyDetail?._id && <ActivityLogs targetId={companyDetail._id } />}
+                  {!!companyDetail?._id && (
+                    <div className="flex flex-col mb-12">
+                      <ActivityLogs
+                        targetId={companyDetail._id}
+                        customActivities={companyCustomActivities}
+                        limit={10}
+                      />
+                      <AddInternalNote
+                        contentTypeId={companyDetail._id}
+                        contentType="core:company"
+                      />
+                    </div>
+                  )}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail
@@ -56,6 +70,22 @@ export const CompanyDetail = () => {
                     mutateHook={useCompanyCustomFieldEdit}
                     id={companyDetail?._id || ''}
                   />
+                </Tabs.Content>
+                <Tabs.Content value="activity">
+                  <div className="flex flex-col mb-12">
+                    {!!companyDetail?._id && (
+                      <>
+                        <AddInternalNote
+                          contentTypeId={companyDetail._id}
+                          contentType="core:company"
+                        />
+                        <ActivityLogs
+                          targetId={companyDetail._id}
+                          customActivities={companyCustomActivities}
+                        />
+                      </>
+                    )}
+                  </div>
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

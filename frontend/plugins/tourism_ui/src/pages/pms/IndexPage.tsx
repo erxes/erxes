@@ -1,8 +1,9 @@
-import { IconBox, IconSettings } from '@tabler/icons-react';
+import { IconSandbox } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { PmsCreateSheet } from '@/pms/components/CreatePmsSheet';
+import { PmsList } from '@/pms/components/PmsList';
 
 export const IndexPage = () => {
   return (
@@ -14,7 +15,7 @@ export const IndexPage = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
                   <Link to="/pms">
-                    <IconBox />
+                    <IconSandbox />
                     Property management system
                   </Link>
                 </Button>
@@ -25,15 +26,19 @@ export const IndexPage = () => {
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
         <PageHeader.End>
-          <Button variant="outline" asChild>
+          {/* <Button variant="outline" asChild>
             <Link to="/settings/pms">
               <IconSettings />
               Go to settings
             </Link>
-          </Button>
+          </Button> */}
           <PmsCreateSheet />
         </PageHeader.End>
       </PageHeader>
+
+      <div>
+        <PmsList />
+      </div>
     </div>
   );
 };

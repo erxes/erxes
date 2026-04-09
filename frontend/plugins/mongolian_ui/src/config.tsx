@@ -94,6 +94,10 @@ export const CONFIG: IUIConfig = {
       name: 'msdynamic',
       icon: IconSandbox,
       path: 'mongolian/msdynamic/',
+    }, {
+      name: 'exchange-rates',
+      icon: IconSandbox,
+      path: 'mongolian/exchange-rates',
     },
   ],
 };

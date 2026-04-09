@@ -26,6 +26,7 @@ export interface AttributeDefinition {
 export interface InsuranceType {
   id: string;
   name: string;
+  isCitizen?: boolean;
   attributes: AttributeDefinition[];
   createdAt: Date;
   updatedAt: Date;
@@ -36,13 +37,63 @@ export interface CoveredRisk {
   coveragePercentage: number;
 }
 
+export interface AdditionalCoverage {
+  name: string;
+  limits: number[];
+  appliesTo: string[];
+}
+
+export interface CompensationCalculation {
+  name: string;
+  methodologies: string[];
+}
+
+export interface DeductibleConfig {
+  levels: string[];
+}
+
+export interface InsuranceRegion {
+  id: string;
+  name: string;
+  countries: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DiscountTier {
+  minTravelers: number;
+  discountPercent: number;
+}
+
+export interface TravelPriceResult {
+  perPerson: number;
+  total: number;
+  discountPercent: number;
+  days: number;
+  travelerCount: number;
+  dailyRate: number;
+}
+
+export interface Traveler {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  registerNumber: string;
+  passportNumber: string;
+}
+
 export interface InsuranceProduct {
   id: string;
   name: string;
   insuranceType: InsuranceType;
+  regions?: InsuranceRegion[];
   coveredRisks: CoveredRisk[];
   pricingConfig: any;
   pdfContent?: string;
+  additionalCoverages?: AdditionalCoverage[];
+  compensationCalculations?: CompensationCalculation[];
+  deductibleConfig?: DeductibleConfig;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,6 +101,7 @@ export interface InsuranceProduct {
 export interface InsuranceVendorProduct {
   product: InsuranceProduct;
   pricingOverride?: any;
+  discountTiers?: DiscountTier[];
 }
 
 export interface InsuranceVendor {

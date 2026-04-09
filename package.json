@@ -1,12 +1,13 @@
 {
   "name": "erxes-next",
-  "version": "0.0.0",
+  "version": "3.0.11",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
     "dev:apis": "dotenv -e .env -- node scripts/start-api-dev.js",
     "dev:uis": "dotenv -e .env -- node scripts/start-ui-dev.js",
-    "create-plugin": "node scripts/create-plugin.js"
+    "create-plugin": "node scripts/create-plugin.js",
+    "release": "release-it"
   },
   "engines": {
     "pnpm": ">=8",
@@ -46,6 +47,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@internationalized/date": "^3.8.2",
     "@module-federation/sdk": "^0.8.9",
+    "@react-pdf/renderer": "^4.3.2",
     "@sendgrid/mail": "^8.1.5",
     "@sniptt/guards": "^0.2.0",
     "@tabler/icons-react": "^3.34.0",
@@ -178,6 +180,7 @@
     "@nx/webpack": "20.0.8",
     "@nx/workspace": "20.0.8",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
+    "@release-it/conventional-changelog": "^8.0.0",
     "@rspack/cli": "1.0.5",
     "@rspack/core": "1.0.5",
     "@rspack/dev-server": "1.0.5",
@@ -235,6 +238,7 @@
     "postcss-loader": "^8.2.0",
     "prettier": "^2.8.8",
     "react-refresh": "~0.14.0",
+    "release-it": "^17.0.0",
     "storybook": "8.6.12",
     "tailwindcss": "^4.1.17",
     "testing": "link:@apollo/client/testing",

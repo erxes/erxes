@@ -63,9 +63,12 @@ export const deleteHandler = (params: {
 
         return afterUpload({ status: "ok" })
       })
-      .catch((error) => {
-        console.log(error.message)
-      })
+        .catch((error) => {
+          toast({
+            description: error.message,
+            variant: "destructive",
+          })
+        })
   })
 }
 
@@ -113,7 +116,7 @@ const uploadHandler = (params: Params) => {
       continue
     }
 
-    // after read proccess done
+    // after read process done
     uploadReader.onloadend = () => {
       // before upload
       if (beforeUpload) {

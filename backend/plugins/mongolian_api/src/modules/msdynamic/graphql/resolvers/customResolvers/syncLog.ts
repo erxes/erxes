@@ -5,7 +5,7 @@ import { IContext } from '~/connectionResolvers';
 export default {
   SyncMsdHistory: {
     async __resolveReference({ _id }: { _id: string }, { models }: IContext) {
-      return models.SyncLogs.findOne({ _id });
+      return models.SyncLogsMSD.findOne({ _id });
     },
 
     async createdUser(

@@ -59,7 +59,7 @@ export default {
     let syncLog;
 
     try {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+      syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
 
       await customerToDynamic(
         subdomain,
@@ -72,7 +72,7 @@ export default {
     } catch (e: any) {
       console.log(e?.message || e);
       if (syncLog?._id) {
-        await models.SyncLogs.updateOne(
+        await models.SyncLogsMSD.updateOne(
           { _id: syncLog._id },
           { $set: { error: e?.message || 'Unknown error' } },
         );

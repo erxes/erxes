@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const EM_CONFIG_SCHEMA = z.object({
   name: z.string().min(1, 'Name is required'),
   channelId: z.string(),
+  brandId: z.string().optional().nullable(),
   ticketConfigId: z.string().optional().nullable(),
   botSetup: z
     .object({
@@ -10,8 +11,9 @@ export const EM_CONFIG_SCHEMA = z.object({
       persistentMenu: z
         .array(
           z.object({
-            title: z.string().optional(),
+            text: z.string().optional(),
             type: z.enum(['button', 'link']).optional(),
+            link: z.string().optional(),
           }),
         )
         .optional(),

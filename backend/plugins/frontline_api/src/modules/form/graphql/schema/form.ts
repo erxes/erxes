@@ -177,6 +177,10 @@ export const queries = `
   formSubmissionDetail(contentTypeId: String!): Submission
 
   formsGetContentTypes: [FormType]
+
+  cpForms(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
+  cpFormDetail(_id: String!): Form
+  
 `;
 
 export const mutations = `
@@ -203,6 +207,13 @@ export const mutations = `
       browserInfo: JSON!
       cachedCustomerId: String
     ): SaveFormResponse
+
+  cpWidgetsSaveLead(
+    formId: String!
+    submissions: [FieldValueInput]
+    browserInfo: JSON!
+    cachedCustomerId: String
+  ): SaveFormResponse
 
 
 `;

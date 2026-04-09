@@ -45,3 +45,30 @@ export const TICKET_DEFAULT_STATUSES = [
     order: 5,
   },
 ];
+
+export const TICKET_PRIORITY_TYPES = [
+  {
+    name: 'minor',
+    type: 1,
+    color: '#6B7280',
+    order: 0,
+  },
+  {
+    name: 'medium',
+    type: 2,
+    color: '#FBBF24',
+    order: 1,
+  },
+  {
+    name: 'high',
+    type: 3,
+    color: '#EF4444',
+    order: 2,
+  },
+  {
+    name: 'critical',
+    type: 4,
+    color: '#B91C1C',
+    order: 3,
+  },
+];

@@ -18,12 +18,18 @@ import {
   mutations as MsdynamicMutations,
   queries as MsdynamicQueries,
 } from '@/msdynamic/graphql/schema/msdynamic';
+import {
+  mutations as ExchangeRateMutations,
+  queries as ExchangeRateQueries,
+  types as ExchangeRateTypes,
+} from '@/exchangeRates/graphql/schemas';
 
 export const types = `
   ${ConfigTypes}
   ${EbarimtTypes}
   ${ErkhetTypes}
   ${MsdynamicTypes}
+  ${ExchangeRateTypes}
 `;
 
 export const queries = `
@@ -31,6 +37,7 @@ export const queries = `
   ${EbarimtQueries}
   ${ErkhetQueries}
   ${MsdynamicQueries}
+  ${ExchangeRateQueries}
 `;
 
 export const mutations = `
@@ -38,6 +45,7 @@ export const mutations = `
   ${EbarimtMutations}
   ${ErkhetMutations}
   ${MsdynamicMutations}
+  ${ExchangeRateMutations}
 `;
 
 export default { types, queries, mutations };

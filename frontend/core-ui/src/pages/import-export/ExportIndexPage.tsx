@@ -19,7 +19,16 @@ export const ExportIndexPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <ExportHistories entityType="core:contact.customer" />
+      <ExportHistories
+        entityTypes={[
+          'core:contact.customer',
+          'core:contact.lead',
+          'core:contact.company',
+          'core:user.user',
+          'core:product.product',
+          'frontline:ticket.ticket',
+        ]}
+      />
     </PageContainer>
   );
 };

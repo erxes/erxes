@@ -201,7 +201,7 @@ const onServerInitImap = async (app) => {
     console.log(
       'SAAS mode detected, but organization handling not implemented',
     );
-    startDistributingJobs('os');
+    // startDistributingJobs('os');
   } else {
     console.log('Starting IMAP job distributor for default subdomain');
     startDistributingJobs('os');

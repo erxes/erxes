@@ -20,11 +20,11 @@ export interface ISyncLogModel extends Model<ISyncLogDocument> {
 export const loadSyncLogClass = (models: IModels) => {
   class SyncLog {
     public static async syncLogsAdd(doc: ISyncLog) {
-      return models.SyncLogs.create({ ...doc });
+      return models.SyncLogsMSD.create({ ...doc });
     }
 
     public static async syncLogsEdit(_id: string, doc: ISyncLog) {
-      return await models.SyncLogs.findOneAndUpdate(
+      return await models.SyncLogsMSD.findOneAndUpdate(
         { _id },
         { $set: { ...doc } },
         { new: true },
@@ -32,7 +32,7 @@ export const loadSyncLogClass = (models: IModels) => {
     }
 
     public static async syncLogsRemove(_ids: string[]) {
-      return await models.SyncLogs.deleteMany({ _id: { $in: _ids } });
+      return await models.SyncLogsMSD.deleteMany({ _id: { $in: _ids } });
     }
   }
 

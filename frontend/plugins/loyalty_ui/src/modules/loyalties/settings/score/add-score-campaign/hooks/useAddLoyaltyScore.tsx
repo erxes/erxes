@@ -9,7 +9,9 @@ export interface AddScoreResult {
 }
 
 export interface AddScoreVariables {
-  name: string;
+  title: string;
+  description?: string;
+  serviceName: string;
   restrictions: {
     productCategoryIds?: string;
     excludeProductCategoryIds?: string;
@@ -18,6 +20,14 @@ export interface AddScoreVariables {
     tagIds?: string;
     excludeTagIds?: string;
   };
+  add?: { placeholder?: string; currencyRatio?: string };
+  subtract?: { placeholder?: string; currencyRatio?: string };
+  ownerType?: string;
+  onlyClientPortal?: boolean;
+  fieldGroupId?: string;
+  fieldOrigin?: string;
+  fieldName?: string;
+  fieldId?: string;
 }
 export const SCORE_PER_PAGE = 30;
 

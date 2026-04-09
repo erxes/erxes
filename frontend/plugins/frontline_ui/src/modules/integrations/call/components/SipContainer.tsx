@@ -29,7 +29,7 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
   ) {
     return null;
   }
-  if (!callConfig || !callConfig.inboxId) {
+  if (!callConfig?.inboxId) {
     return <CallSelectConfig callUserIntegrations={callUserIntegrations} />;
   }
 

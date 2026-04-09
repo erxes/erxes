@@ -45,15 +45,15 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
 
   useEffect(() => {
     if (voucherDetail && voucherDetail._id === editVoucherId) {
-      const conditions = voucherDetail.conditions || {};
+      const restrictions = voucherDetail.restrictions || {};
 
       form.reset({
         title: voucherDetail.title || '',
-        buyScore: conditions.buyScore?.toString() || '0',
-        type: voucherDetail.type || 'Product discount',
+        buyScore: voucherDetail.buyScore?.toString() || '0',
+        type: voucherDetail.voucherType || 'product discount',
         description: voucherDetail.description || '',
         status: voucherDetail.status || 'active',
-        count: conditions.count || 0,
+        value: voucherDetail.value || 0,
         startDate: voucherDetail.startDate
           ? new Date(voucherDetail.startDate)
           : undefined,
@@ -61,20 +61,27 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
           ? new Date(voucherDetail.endDate)
           : undefined,
         kind: voucherDetail.kind || '',
-        minimumSpend: conditions.restrictions?.minimumSpend,
-        maximumSpend: conditions.restrictions?.maximumSpend,
-        categoryIds: conditions.restrictions?.categoryIds,
-        excludeCategoryIds: conditions.restrictions?.excludeCategoryIds,
-        productIds: conditions.restrictions?.productIds,
-        excludeProductIds: conditions.restrictions?.excludeProductIds,
-        tag: conditions.restrictions?.tag,
-        orExcludeTag: conditions.restrictions?.orExcludeTag,
-        bonusProduct: conditions.bonusProductId,
-        bonusCount: conditions.bonusCount,
-        spinCount: conditions.spinCount,
-        spinCampaignId: conditions.spinCampaignId,
-        lottery: conditions.lottery,
-        lotteryCount: conditions.lotteryCount,
+        minimumSpend: restrictions.minimumSpend ?? undefined,
+        maximumSpend: restrictions.maximumSpend ?? undefined,
+        categoryIds: restrictions.categoryIds ?? [],
+        excludeCategoryIds: restrictions.excludeCategoryIds ?? [],
+        productIds: restrictions.productIds ?? [],
+        excludeProductIds: restrictions.excludeProductIds ?? [],
+        tag: Array.isArray(restrictions.tag)
+          ? restrictions.tag
+          : restrictions.tag
+            ? [restrictions.tag]
+            : [],
+        orExcludeTag: Array.isArray(restrictions.orExcludeTag)
+          ? restrictions.orExcludeTag
+          : restrictions.orExcludeTag
+            ? [restrictions.orExcludeTag]
+            : [],
+        bonusProduct: voucherDetail.bonusProductId ?? undefined,
+        bonusCount: voucherDetail.bonusCount ?? undefined,
+        spinCount: voucherDetail.spinCount ?? undefined,
+        spinCampaignId: voucherDetail.spinCampaignId ?? undefined,
+        lotteryCount: voucherDetail.lotteryCount ?? undefined,
       });
     }
   }, [voucherDetail, editVoucherId, form]);
@@ -107,11 +114,7 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
   useScopedHotkeys(`esc`, () => onClose(), VoucherHotKeyScope.VoucherEditSheet);
 
   return (
-    <Sheet
-      onOpenChange={(open) => (!open && onClose())}
-      open={open}
-      modal
-    >
+    <Sheet onOpenChange={(open) => !open && onClose()} open={open} modal>
       {voucherId && (
         <Sheet.Trigger asChild>
           <Button variant="ghost" size="sm">

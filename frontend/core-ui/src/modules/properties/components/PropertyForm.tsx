@@ -18,6 +18,7 @@ import { PropertySelectRelationType } from './PropertySelectRelationType';
 import { FIELD_TYPES, FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
+import { Can } from 'ui-modules';
 
 export const PropertyForm = ({
   onSubmit,
@@ -31,7 +32,7 @@ export const PropertyForm = ({
   isEdit?: boolean;
 }) => {
   const { id } = useParams<{ id: string }>();
-  
+
   const form = useForm<IPropertyForm>({
     resolver: zodResolver(propertySchema),
     defaultValues,
@@ -53,9 +54,7 @@ export const PropertyForm = ({
     <Form {...form}>
       <form
         className="w-full flex flex-col gap-5"
-        onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-          console.log(errors);
-        })}
+        onSubmit={form.handleSubmit(handleSubmit)}
       >
         <div className="flex gap-5">
           <Form.Field
@@ -149,16 +148,18 @@ export const PropertyForm = ({
         <PropertyFormValidation form={form} />
         <PropertyFormSelectFields form={form} />
         <PropertySelectRelationType form={form} />
-        <Button type="submit" disabled={loading}>
-          {loading ? (
-            <Spinner containerClassName="flex-none" />
-          ) : isEdit ? (
-            <IconPencil />
-          ) : (
-            <IconPlus />
-          )}
-          {isEdit ? 'Update' : 'Add'} Property
-        </Button>
+        <Can action="fieldsManage">
+          <Button type="submit" disabled={loading}>
+            {loading ? (
+              <Spinner containerClassName="flex-none" />
+            ) : isEdit ? (
+              <IconPencil />
+            ) : (
+              <IconPlus />
+            )}
+            {isEdit ? 'Update' : 'Add'} Property
+          </Button>
+        </Can>
       </form>
     </Form>
   );

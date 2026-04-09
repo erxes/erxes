@@ -65,7 +65,16 @@ export const vendorUserMutations = {
     const updateData: any = {};
 
     if (name !== undefined) updateData.name = name;
-    if (email !== undefined) updateData.email = email;
+    if (email !== undefined) {
+      const existing = await models.VendorUser.findOne({
+        email,
+        _id: { $ne: id },
+      });
+      if (existing) {
+        throw new Error('A vendor user with this email already exists');
+      }
+      updateData.email = email;
+    }
     if (phone !== undefined) updateData.phone = phone;
     if (role !== undefined) updateData.role = role;
 
@@ -101,9 +110,8 @@ export const vendorUserMutations = {
         throw new Error('Invalid email or password');
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
       const isPasswordValid = await bcrypt.compare(
-        hashedPassword,
+        password,
         vendorUser.password,
       );
 
@@ -112,9 +120,13 @@ export const vendorUserMutations = {
       }
 
       const secret = process.env.JWT_TOKEN_SECRET;
-      
+
       if (!secret) {
         throw new Error('JWT token secret is not defined');
+      }
+
+      if (!vendorUser.vendor) {
+        throw new Error('Vendor not found for this user');
       }
 
       const token = jwt.sign(
@@ -132,6 +144,7 @@ export const vendorUserMutations = {
       return {
         token,
         refreshToken,
+        user: vendorUser,
       };
     },
     { wrapperConfig: { skipPermission: true } },

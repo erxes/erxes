@@ -1,3 +1,4 @@
+import { coordinateGetter } from '@/forms/formUtils';
 import {
   DndContext,
   DragEndEvent,
@@ -7,18 +8,17 @@ import {
   TouchSensor,
   UniqueIdentifier,
   useSensor,
+  useSensors,
 } from '@dnd-kit/core';
-import { useSensors } from '@dnd-kit/core';
-import { coordinateGetter } from '@/forms/formUtils';
 import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { atom, useAtom } from 'jotai';
+import { useCollisionDetectionStrategy } from '../hooks/useCollisionDetectionStrategy';
 import { useFormDnd } from './FormDndProvider';
 import { AddStep, FormDndStep } from './FormDndStep';
-import { useCollisionDetectionStrategy } from '../hooks/useCollisionDetectionStrategy';
 
 const TRASH_ID = 'void';
 

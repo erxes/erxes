@@ -6,6 +6,7 @@ export const EM_INTEGRATION_DETAIL_QUERY = gql`
       _id
       name
       languageCode
+      brandId
       channel {
         _id
         name

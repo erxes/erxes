@@ -51,7 +51,7 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
     switch (type) {
       case 'core:customer':
       case 'core:company': {
-        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+        syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
 
         await customerToDynamic(
           subdomain,
@@ -84,7 +84,7 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
           return;
         }
 
-        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+        syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
 
         await dealToDynamic(subdomain, models, syncLog, deal, foundConfig);
 
@@ -92,7 +92,7 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
       }
 
       case 'pos:order': {
-        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+        syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
 
         const updatedDoc = updatedDocument || object;
         const brandId = updatedDoc?.scopeBrandIds?.[0];
@@ -111,7 +111,7 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
     }
   } catch (e: any) {
     if (syncLog?._id) {
-      await models.SyncLogs.updateOne(
+      await models.SyncLogsMSD.updateOne(
         { _id: syncLog._id },
         { $set: { error: e?.message || 'Unknown error' } },
       );

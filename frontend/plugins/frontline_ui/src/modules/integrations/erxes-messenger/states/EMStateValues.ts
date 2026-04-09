@@ -31,6 +31,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
     createVariables: {
       name: config?.name,
       channelId: config?.channelId,
+      brandId: config?.brandId,
       ticketConfigId: config?.ticketConfigId,
       languageCode: settings?.languageCode || DEFAULT_LANGUAGE,
     },
@@ -41,7 +42,12 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
         botShowInitialMessage: false,
         botCheck: config?.botSetup?.botCheck ?? false,
         botGreetMessage: config?.botSetup?.greetingMessage ?? '',
-        persistentMenus: config?.botSetup?.persistentMenu ?? [],
+        persistentMenus:
+          config?.botSetup?.persistentMenu?.map((item) => ({
+            text: item.text,
+            type: item.type,
+            link: item.link,
+          })) ?? [],
         availabilityMethod: hours?.availabilityMethod || 'manual',
         isOnline: hours?.isOnline ?? false,
         timezone: hours?.timezone || '',

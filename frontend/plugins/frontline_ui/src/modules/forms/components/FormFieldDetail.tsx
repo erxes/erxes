@@ -6,24 +6,42 @@ import {
   ToggleGroup,
   Button,
   StringArrayInput,
+  Select,
+  Checkbox,
 } from 'erxes-ui';
 import { IFieldData, useFormDnd } from './FormDndProvider';
-import { useState } from 'react';
 import { UniqueIdentifier } from '@dnd-kit/core';
-import { IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { IFormFieldLogics } from '../types/formTypes';
+import {
+  LOGIC_STRING_OPERATOR_LABELS,
+  LOGIC_NUMBER_OPERATOR_LABELS,
+  LOGIC_DATE_OPERATOR_LABELS,
+} from '../constants/formLogicLabels';
 
-// export interface IFieldData {
-//     id: string;
-//     type: string;
-//     label: string;
-//     description: string;
-//     placeholder: string;
-//     required: boolean;
-//     options: string[];
-//     span: number;
-//     order: number;
-//     stepId: string;
-//   }
+const NUMBER_TYPES = ['number'];
+const DATE_TYPES = ['date'];
+
+const getOperatorOptions = (fieldType?: string) => {
+  if (fieldType && NUMBER_TYPES.includes(fieldType)) {
+    return Object.entries(LOGIC_NUMBER_OPERATOR_LABELS).map(
+      ([value, label]) => ({
+        value,
+        label,
+      }),
+    );
+  }
+  if (fieldType && DATE_TYPES.includes(fieldType)) {
+    return Object.entries(LOGIC_DATE_OPERATOR_LABELS).map(([value, label]) => ({
+      value,
+      label,
+    }));
+  }
+  return Object.entries(LOGIC_STRING_OPERATOR_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  }));
+};
 
 export const FormFieldDetail = ({
   fieldData,
@@ -36,7 +54,16 @@ export const FormFieldDetail = ({
   stepId: UniqueIdentifier;
   handleClose: () => void;
 }) => {
-  const { handleChangeField, handleDeleteField } = useFormDnd();
+  const { handleChangeField, handleDeleteField, fields, getFieldValue } =
+    useFormDnd();
+
+  const availableFields = Object.entries(fields)
+    .flatMap(([stepId, fieldIds]) =>
+      fieldIds.map((fId) =>
+        getFieldValue(stepId as UniqueIdentifier, fId as UniqueIdentifier),
+      ),
+    )
+    .filter((f): f is IFieldData => !!f && f.id !== fieldId.toString());
 
   if (!fieldData) {
     return null;
@@ -50,6 +77,34 @@ export const FormFieldDetail = ({
       ...fieldData,
       [key]: value,
     });
+  };
+
+  const handleAddLogic = () => {
+    handleChangeField(stepId, fieldId, {
+      ...fieldData,
+      logics: [
+        ...(fieldData.logics ?? []),
+        { fieldId: '', logicOperator: '', logicValue: '' },
+      ],
+    });
+  };
+
+  const handleChangeLogic = (
+    index: number,
+    key: keyof IFormFieldLogics,
+    value: string,
+  ) => {
+    const updatedLogics = (fieldData.logics ?? []).map((logic, i) =>
+      i === index ? { ...logic, [key]: value } : logic,
+    );
+    handleChangeField(stepId, fieldId, { ...fieldData, logics: updatedLogics });
+  };
+
+  const handleRemoveLogic = (index: number) => {
+    const updatedLogics = (fieldData.logics ?? []).filter(
+      (_, i) => i !== index,
+    );
+    handleChangeField(stepId, fieldId, { ...fieldData, logics: updatedLogics });
   };
 
   const handleDelete = () => {
@@ -70,6 +125,15 @@ export const FormFieldDetail = ({
             <Input
               value={fieldData?.label}
               onChange={(e) => handleValueChange('label', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2 col-span-2 flex gap-2 items-center">
+            <Label className="flex items-center m-0!">Required</Label>
+            <Checkbox
+              checked={fieldData?.required}
+              onChange={(e) =>
+                handleValueChange('required', e.currentTarget.value)
+              }
             />
           </div>
           <div className="space-y-2 col-span-2">
@@ -98,13 +162,13 @@ export const FormFieldDetail = ({
             </ToggleGroup>
           </div>
           <div className="space-y-2 col-span-2">
-            <Label>Placeholder</Label>
+            <Label>Placeholder Attribute</Label>
             <Input
               value={fieldData?.placeholder}
               onChange={(e) => handleValueChange('placeholder', e.target.value)}
             />
           </div>
-          {fieldData?.type === 'select' && (
+          {(fieldData?.type === 'select' || fieldData?.type === 'radio') && (
             <div className="space-y-2 col-span-2">
               <Label>Options</Label>
               <StringArrayInput
@@ -118,6 +182,98 @@ export const FormFieldDetail = ({
               />
             </div>
           )}
+          <div className="space-y-2 col-span-2">
+            <Label>Field Logic action</Label>
+            <Select
+              value={fieldData?.logicAction}
+              onValueChange={(value) =>
+                handleValueChange('logicAction', value as string)
+              }
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Select logic action" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="show">Show this field</Select.Item>
+                <Select.Item value="hide">Hide this field</Select.Item>
+              </Select.Content>
+            </Select>
+          </div>
+          {/* Logics */}
+          <div className="space-y-2 col-span-2">
+            <div className="flex items-center justify-between">
+              <Label>Field Logics</Label>
+              <Button variant="outline" size="sm" onClick={handleAddLogic}>
+                <IconPlus size={14} />
+                Add Logic
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {(fieldData.logics ?? []).map((logic, index) => {
+                const referencedField = availableFields.find(
+                  (f) => f.id === logic.fieldId,
+                );
+                const operators = getOperatorOptions(referencedField?.type);
+                return (
+                  <div
+                    key={index}
+                    className="grid grid-cols-2 gap-2 items-center border rounded p-2"
+                  >
+                    <Select
+                      value={logic.fieldId}
+                      onValueChange={(value) =>
+                        handleChangeLogic(index, 'fieldId', value)
+                      }
+                    >
+                      <Select.Trigger className="col-span-1">
+                        <Select.Value placeholder="Select field" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {availableFields.map((f) => (
+                          <Select.Item key={f.id} value={f.id}>
+                            {f.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                    <Select
+                      value={logic.logicOperator}
+                      onValueChange={(value) =>
+                        handleChangeLogic(index, 'logicOperator', value)
+                      }
+                    >
+                      <Select.Trigger className="col-span-1">
+                        <Select.Value placeholder="Operator" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {operators.map((op) => (
+                          <Select.Item key={op.value} value={op.value}>
+                            {op.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                    <Input
+                      className="col-span-2"
+                      value={logic.logicValue ?? ''}
+                      onChange={(e) =>
+                        handleChangeLogic(index, 'logicValue', e.target.value)
+                      }
+                      placeholder="Value"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="ml-auto col-span-2 hover:text-destructive"
+                      onClick={() => handleRemoveLogic(index)}
+                    >
+                      <IconTrash size={14} />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </Sheet.Content>
       <Sheet.Footer>

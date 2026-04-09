@@ -362,7 +362,7 @@ export const dealToDynamic = async (
       sendData.No = orderMsdNo;
     }
 
-    await models.SyncLogs.updateOne(
+    await models.SyncLogsMSD.updateOne(
       { _id: syncLog._id },
       {
         $set: {
@@ -417,7 +417,7 @@ export const dealToDynamic = async (
         const product = productById[item.productId];
 
         if (!product) {
-          await models.SyncLogs.updateOne(
+          await models.SyncLogsMSD.updateOne(
             { _id: syncLog._id },
             {
               $set: {
@@ -445,7 +445,7 @@ export const dealToDynamic = async (
           sendSalesLine.Line_No = lineNo;
         }
 
-        await models.SyncLogs.updateOne(
+        await models.SyncLogsMSD.updateOne(
           { _id: syncLog._id },
           {
             $push: {
@@ -461,10 +461,10 @@ export const dealToDynamic = async (
         }).then((res) => res.json());
 
         if (responseSaleLine?.error?.message) {
-          const foundSyncLog = (await models.SyncLogs.findOne({
+          const foundSyncLog = (await models.SyncLogsMSD.findOne({
             _id: syncLog._id,
           })) || { error: '' };
-          await models.SyncLogs.updateOne(
+          await models.SyncLogsMSD.updateOne(
             { _id: syncLog._id },
             {
               $set: {
@@ -476,7 +476,7 @@ export const dealToDynamic = async (
           );
         }
 
-        await models.SyncLogs.updateOne(
+        await models.SyncLogsMSD.updateOne(
           { _id: syncLog._id },
           {
             $push: {
@@ -541,7 +541,7 @@ export const dealToDynamic = async (
       defaultValue: {},
     });
 
-    await models.SyncLogs.updateOne(
+    await models.SyncLogsMSD.updateOne(
       { _id: syncLog._id },
       {
         $set: {
@@ -553,7 +553,7 @@ export const dealToDynamic = async (
 
     return responseSale;
   } catch (e) {
-    await models.SyncLogs.updateOne(
+    await models.SyncLogsMSD.updateOne(
       { _id: syncLog._id },
       { $set: { error: e.message } },
     );
@@ -652,7 +652,7 @@ export const orderToDynamic = async (
       sendData.No = orderMsdNo;
     }
 
-    await models.SyncLogs.updateOne(
+    await models.SyncLogsMSD.updateOne(
       { _id: syncLog._id },
       {
         $set: {
@@ -706,7 +706,7 @@ export const orderToDynamic = async (
         const product = productById[item.productId];
 
         if (!product) {
-          await models.SyncLogs.updateOne(
+          await models.SyncLogsMSD.updateOne(
             { _id: syncLog._id },
             {
               $set: {
@@ -735,7 +735,7 @@ export const orderToDynamic = async (
           sendSalesLine.Line_No = lineNo;
         }
 
-        await models.SyncLogs.updateOne(
+        await models.SyncLogsMSD.updateOne(
           { _id: syncLog._id },
           {
             $push: {
@@ -751,11 +751,11 @@ export const orderToDynamic = async (
         }).then((res) => res.json());
 
         if (responseSaleLine?.error?.message) {
-          const foundSyncLog = (await models.SyncLogs.findOne({
+          const foundSyncLog = (await models.SyncLogsMSD.findOne({
             _id: syncLog._id,
           })) || { error: '' };
 
-          await models.SyncLogs.updateOne(
+          await models.SyncLogsMSD.updateOne(
             { _id: syncLog._id },
             {
               $set: {
@@ -767,7 +767,7 @@ export const orderToDynamic = async (
           );
         }
 
-        await models.SyncLogs.updateOne(
+        await models.SyncLogsMSD.updateOne(
           { _id: syncLog._id },
           {
             $push: {
@@ -833,7 +833,7 @@ export const orderToDynamic = async (
       defaultValue: {},
     });
 
-    await models.SyncLogs.updateOne(
+    await models.SyncLogsMSD.updateOne(
       { _id: syncLog._id },
       {
         $set: {
@@ -845,7 +845,7 @@ export const orderToDynamic = async (
 
     return responseSale;
   } catch (e) {
-    await models.SyncLogs.updateOne(
+    await models.SyncLogsMSD.updateOne(
       { _id: syncLog._id },
       { $set: { error: e.message } },
     );

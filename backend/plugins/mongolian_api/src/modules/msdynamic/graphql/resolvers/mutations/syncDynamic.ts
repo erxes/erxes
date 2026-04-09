@@ -119,7 +119,7 @@ export const msdynamicSyncMutations = {
 
     const config = await getDynamicConfig(models, order.scopeBrandIds?.[0]);
 
-    const syncLog = await models.SyncLogs.syncLogsAdd({
+    const syncLog = await models.SyncLogsMSD.syncLogsAdd({
       contentType: 'pos:order',
       contentId: order._id,
       createdAt: new Date(),
@@ -139,7 +139,7 @@ export const msdynamicSyncMutations = {
         config,
       );
     } catch (e: any) {
-      await models.SyncLogs.updateOne(
+      await models.SyncLogsMSD.updateOne(
         { _id: syncLog._id },
         { $set: { error: e?.message } },
       );

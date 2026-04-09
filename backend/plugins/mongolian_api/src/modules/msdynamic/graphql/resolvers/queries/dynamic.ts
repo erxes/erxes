@@ -80,14 +80,14 @@ const generateFilter = (params: any) => {
 export const msdynamicQueries = {
   async syncMsdHistories(_root, params, { models }: IContext) {
     return cursorPaginate({
-      model: models.SyncLogs,
+      model: models.SyncLogsMSD,
       params,
       query: generateFilter(params),
     });
   },
 
   async syncMsdHistoriesCount(_root, params, { models }: IContext) {
-    return models.SyncLogs.countDocuments(generateFilter(params));
+    return models.SyncLogsMSD.countDocuments(generateFilter(params));
   },
 
   async msdProductsRemainder(

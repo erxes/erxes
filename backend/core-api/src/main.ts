@@ -4,8 +4,10 @@ import cors from 'cors';
 import * as dotenv from 'dotenv';
 import {
   closeMongooose,
-  createTRPCContext, isDev, joinErxesGateway,
-  leaveErxesGateway
+  createTRPCContext,
+  isDev,
+  joinErxesGateway,
+  leaveErxesGateway,
 } from 'erxes-api-shared/utils';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
@@ -20,6 +22,8 @@ import { initBroadcast } from './meta/broadcast';
 import initImportExport from './meta/import-export/import';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
+
+const PLUGIN_NAME = 'core';
 
 dotenv.config();
 
@@ -102,7 +106,7 @@ httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
 
   await joinErxesGateway({
-    name: 'core',
+    name: PLUGIN_NAME,
     port,
     hasSubscriptions: true,
     meta,
@@ -110,7 +114,7 @@ httpServer.listen(port, async () => {
   await initAutomation(app);
   await initSegmentCoreProducers(app);
   await initImportExport(app);
-  await initBroadcast(app)
+  await initBroadcast(app);
 });
 
 // GRACEFULL SHUTDOWN
@@ -118,7 +122,7 @@ process.stdin.resume(); // so the program will not close instantly
 
 async function leaveServiceDiscovery() {
   try {
-    await leaveErxesGateway('core', port);
+    await leaveErxesGateway(PLUGIN_NAME, port);
     console.log('Left from service discovery');
   } catch (e) {
     console.error(e);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Label, toast, Checkbox } from 'erxes-ui';
-import { SelectCategory } from 'ui-modules';
+import { SelectCategory } from '@/pos/hooks/SelectCategory';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
@@ -35,11 +35,11 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
     setHasChanges(true);
   };
 
-  const handleCategorySelect = (categoryId: string) => {
-    if (!checkExcludeCategoryIds.includes(categoryId)) {
-      setCheckExcludeCategoryIds([...checkExcludeCategoryIds, categoryId]);
-      setHasChanges(true);
-    }
+  const handleCategorySelect = (value: string | string[]) => {
+    setCheckExcludeCategoryIds(
+      Array.isArray(value) ? value : value ? [value] : [],
+    );
+    setHasChanges(true);
   };
 
   const handleBanFractionsChange = (checked: boolean) => {
@@ -129,11 +129,10 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
       <div className="space-y-2">
         <Label>EXCLUDE CATEGORIES</Label>
         <SelectCategory
-          selected={checkExcludeCategoryIds[0] || ''}
-          onSelect={
-            handleCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
-              ((categoryId: string) => void)
-          }
+          mode="multiple"
+          value={checkExcludeCategoryIds}
+          onValueChange={handleCategorySelect}
+          placeholder="Select categories to exclude"
         />
       </div>
 

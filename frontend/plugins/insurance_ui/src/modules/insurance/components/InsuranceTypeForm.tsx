@@ -22,6 +22,7 @@ export const InsuranceTypeForm = ({
 
   const [formData, setFormData] = useState({
     name: '',
+    isCitizen: false,
     attributes: [] as AttributeInput[],
   });
 
@@ -29,11 +30,13 @@ export const InsuranceTypeForm = ({
     if (insuranceType) {
       setFormData({
         name: insuranceType.name,
+        isCitizen: insuranceType.isCitizen || false,
         attributes: insuranceType.attributes || [],
       });
     } else {
       setFormData({
         name: '',
+        isCitizen: false,
         attributes: [],
       });
     }
@@ -88,6 +91,7 @@ export const InsuranceTypeForm = ({
           variables: {
             id: insuranceType.id,
             name: formData.name,
+            isCitizen: formData.isCitizen,
             attributes:
               cleanAttributes.length > 0 ? cleanAttributes : undefined,
           },
@@ -96,13 +100,14 @@ export const InsuranceTypeForm = ({
         await createInsuranceType({
           variables: {
             name: formData.name,
+            isCitizen: formData.isCitizen,
             attributes:
               cleanAttributes.length > 0 ? cleanAttributes : undefined,
           },
         });
       }
 
-      setFormData({ name: '', attributes: [] });
+      setFormData({ name: '', isCitizen: false, attributes: [] });
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
@@ -135,8 +140,26 @@ export const InsuranceTypeForm = ({
             />
           </div>
 
+          <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/30">
+            <input
+              type="checkbox"
+              id="isCitizen"
+              checked={formData.isCitizen}
+              onChange={(e) =>
+                setFormData({ ...formData, isCitizen: e.target.checked })
+              }
+              className="rounded"
+            />
+            <Label htmlFor="isCitizen" className="text-sm cursor-pointer">
+              Иргэний даатгал (Citizen Insurance)
+            </Label>
+            <span className="text-xs text-muted-foreground ml-auto">
+              Идэвхжүүлбэл аялалын даатгалын форм ашиглагдана
+            </span>
+          </div>
+
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <Label>Attributes</Label>
               <Button
                 type="button"
@@ -152,10 +175,10 @@ export const InsuranceTypeForm = ({
             {formData.attributes.map((attr, index) => (
               <div
                 key={index}
-                className="p-4 space-y-3 rounded-lg border bg-muted/30"
+                className="p-4 border rounded-lg space-y-3 bg-muted/30"
               >
-                <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-medium">Attribute {index + 1}</h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-sm">Attribute {index + 1}</h4>
                   <Button
                     type="button"
                     variant="ghost"
@@ -182,7 +205,7 @@ export const InsuranceTypeForm = ({
                   <div className="space-y-1">
                     <Label className="text-xs">Data Type *</Label>
                     <select
-                      className="px-3 w-full h-9 text-sm rounded-md border"
+                      className="w-full h-9 px-3 border rounded-md text-sm"
                       value={attr.dataType}
                       onChange={(e) =>
                         handleAttributeChange(index, 'dataType', e.target.value)
@@ -196,7 +219,7 @@ export const InsuranceTypeForm = ({
                     </select>
                   </div>
 
-                  <div className="col-span-2 space-y-1">
+                  <div className="space-y-1 col-span-2">
                     <Label className="text-xs">Description</Label>
                     <Input
                       value={attr.description || ''}
@@ -211,7 +234,7 @@ export const InsuranceTypeForm = ({
                     />
                   </div>
 
-                  <div className="flex gap-2 items-center">
+                  <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       id={`required-${index}`}
@@ -270,7 +293,7 @@ export const InsuranceTypeForm = ({
                   )}
 
                   {attr.dataType === 'string' && (
-                    <div className="col-span-2 space-y-1">
+                    <div className="space-y-1 col-span-2">
                       <Label className="text-xs">
                         Options (comma-separated)
                       </Label>
@@ -295,7 +318,7 @@ export const InsuranceTypeForm = ({
             ))}
 
             {formData.attributes.length === 0 && (
-              <p className="py-4 text-sm text-center text-muted-foreground">
+              <p className="text-sm text-muted-foreground text-center py-4">
                 No attributes defined. Click "Add Attribute" to create one.
               </p>
             )}
@@ -314,8 +337,8 @@ export const InsuranceTypeForm = ({
               {creating || updating
                 ? 'Saving...'
                 : insuranceType
-                ? 'Update'
-                : 'Create'}
+                  ? 'Update'
+                  : 'Create'}
             </Button>
           </Dialog.Footer>
         </form>

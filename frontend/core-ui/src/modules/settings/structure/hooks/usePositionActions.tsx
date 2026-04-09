@@ -13,7 +13,6 @@ import {
   GET_POSITIONS_LIST,
   REMOVE_POSITIONS,
 } from '../graphql';
-import { data } from 'react-router';
 
 interface PositionData {
   positionsMain: {
@@ -36,8 +35,7 @@ export function usePositionAdd(
         const existingData = cache.readQuery<PositionData>({
           query: GET_POSITIONS_LIST,
         });
-        if (!existingData || !existingData.positionsMain || !data?.positionsAdd)
-          return;
+        if (!existingData?.positionsMain || !data?.positionsAdd) return;
 
         cache.writeQuery<PositionData>({
           query: GET_POSITIONS_LIST,
@@ -50,7 +48,7 @@ export function usePositionAdd(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
     refetchQueries: ['Positions'],
@@ -74,12 +72,7 @@ export function usePositionEdit(
         const existingData = cache.readQuery<PositionData>({
           query: GET_POSITIONS_LIST,
         });
-        if (
-          !existingData ||
-          !existingData.positionsMain ||
-          !data?.positionsEdit
-        )
-          return;
+        if (!existingData?.positionsMain || !data?.positionsEdit) return;
 
         cache.writeQuery<PositionData>({
           query: GET_POSITIONS_LIST,
@@ -92,7 +85,7 @@ export function usePositionEdit(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Silently handle cache update errors
       }
     },
   });

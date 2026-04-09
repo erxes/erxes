@@ -10,7 +10,26 @@ export const loyaltyScoreFormSchema = z.object({
     excludeProductCategoryIds: z.array(z.string()).optional(),
     excludeProductIds: z.array(z.string()).optional(),
     excludeTagIds: z.array(z.string()).optional(),
+    serviceName: z.string().min(1, 'Service is required'),
   }),
+  add: z
+    .object({
+      placeholder: z.string().optional(),
+      currencyRatio: z.string().optional(),
+    })
+    .optional(),
+  subtract: z
+    .object({
+      placeholder: z.string().optional(),
+      currencyRatio: z.string().optional(),
+    })
+    .optional(),
+  ownerType: z.string().optional(),
+  onlyClientPortal: z.boolean().optional(),
+  fieldGroupId: z.string().optional(),
+  fieldOrigin: z.enum(['new', 'exists']).optional(),
+  fieldName: z.string().optional(),
+  fieldId: z.string().optional(),
 });
 
 export type LoyaltyScoreFormValues = z.infer<typeof loyaltyScoreFormSchema>;

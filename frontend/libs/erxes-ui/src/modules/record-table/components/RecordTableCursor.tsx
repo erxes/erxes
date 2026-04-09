@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { ScrollArea } from 'erxes-ui/components';
 import { RecordTable } from 'erxes-ui/modules';
 import { EnumCursorDirection } from '../types/RecordTableCursorTypes';
@@ -32,13 +33,32 @@ export const RecordTableCursorProvider = ({
     hasPreviousPage,
     offset,
   });
-
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleScroll = () => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
     const firstVisibleRow = scrollRef.current?.querySelector('.in-view');
     if (firstVisibleRow && sessionKey) {
       sessionStorage.setItem(sessionKey, firstVisibleRow.id);
     }
+    debounceTimer.current = setTimeout(() => {
+      try {
+        sessionStorage.setItem(
+          `${sessionKey}_scroll`,
+          String(scrollRef.current?.scrollTop),
+        );
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+      }
+    }, 150);
   };
+  useEffect(() => {
+    if (!dataLength || loading) return;
+    if (!scrollRef.current) return;
+    const saved = sessionStorage.getItem(`${sessionKey}_scroll`);
+    if (!saved) return;
+    scrollRef.current.scrollTop = parseInt(saved, 10);
+  }, [loading, dataLength, scrollRef, sessionKey]);
 
   return (
     <RecordTableCursorContext.Provider
@@ -49,6 +69,7 @@ export const RecordTableCursorProvider = ({
         distanceFromBottomRef,
         hasNextPage,
         hasPreviousPage,
+        loading,
       }}
     >
       <ScrollArea.Root className="h-full w-full pb-2 pr-2 relative">

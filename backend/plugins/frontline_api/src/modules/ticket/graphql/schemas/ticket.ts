@@ -27,6 +27,15 @@ export const types = `
     status: TicketStatus
     assignee: User
     isSubscribed: Boolean
+    propertiesData: JSON
+    state: String
+    attachments: [Attachment]
+    companyIds: [String]
+    customerFieldData: JSON
+  }
+  type RemoveResponse {
+    ok: Int!
+    removedIds: [String!]!
   }
 
   type TicketListResponse {
@@ -50,7 +59,7 @@ export const types = `
     userId: String
     name: String
     statusType: Int
-
+    state: String
     ${GQL_CURSOR_PARAM_DEFS}
   }
 
@@ -69,7 +78,7 @@ export const types = `
     userId: String
     name: String
     statusType: Int
-
+    state: String
     ${GQL_OFFSET_PARAM_DEFS}
   }
 
@@ -85,12 +94,18 @@ const createTicketParams = `
   channelId: String!
   pipelineId:String!
   statusId: String!
+  stageId: String
   priority: Int
   labelIds: [String]
   tagIds: [String]
   startDate: Date
   targetDate: Date
   assigneeId: String
+  state: String
+  propertiesData: JSON
+  attachments: [AttachmentInput]
+  companyIds: [String]
+  customerFieldData: JSON
 `;
 
 const updateTicketParams = `
@@ -100,6 +115,7 @@ const updateTicketParams = `
   channelId: String
   pipelineId: String
   statusId: String
+  destinationStatusId: String
   priority: Int
   labelIds: [String]
   tagIds: [String]
@@ -107,6 +123,10 @@ const updateTicketParams = `
   startDate: Date
   targetDate: Date
   isSubscribed: Boolean
+  state: String
+  attachments: [AttachmentInput]
+  companyIds: [String]
+  customerFieldData: JSON
 `;
 
 export const queries = `
@@ -120,7 +140,7 @@ export const queries = `
 export const mutations = `
   createTicket(${createTicketParams}): Ticket
   updateTicket(${updateTicketParams}): Ticket
-  removeTicket(_id: String!): Ticket
-
+  removeTicket(_id: [String!]!): RemoveResponse!
   cpCreateTicket(${createTicketParams}): Ticket
+  cpUpdateTicket(${updateTicketParams}): Ticket
 `;

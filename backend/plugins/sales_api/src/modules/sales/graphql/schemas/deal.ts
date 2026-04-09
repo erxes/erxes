@@ -182,7 +182,7 @@ const archivedDealsParams = `
  `;
 
 export const queries = `
-  checkDiscount(_id: String!,products:[SalesProductField], couponCode: String, voucherId: String):JSON
+  checkDiscount(_id: String!,products:[SalesProductField!]!, couponCode: String, voucherId: String):JSON
   
   deals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
@@ -191,6 +191,9 @@ export const queries = `
   
   archivedDeals(${archivedDealsParams}): DealsListResponse
   archivedDealsCount(${archivedDealsParams}): Int
+
+  cpDeals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
+  cpDealDetail(_id: String!, clientPortalCard: Boolean): Deal
 `;
 
 const mutationParams = `
@@ -230,4 +233,8 @@ export const mutations = `
   dealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
+
+  cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
+  cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
+
 `;

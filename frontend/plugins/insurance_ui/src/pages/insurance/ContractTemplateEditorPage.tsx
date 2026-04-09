@@ -120,70 +120,70 @@ const DEFAULT_TEMPLATE = `<!DOCTYPE html>
 </head>
 <body>
   <div class="header">
-    <h1>ДААТГАЛЫН ГЭРЭЭ</h1>
-    <div>Гэрээний дугаар: {{contractNumber}}</div>
+    <h1>INSURANCE CONTRACT</h1>
+    <div>Contract Number: {{contractNumber}}</div>
   </div>
 
   <div class="section">
-    <div class="section-title">Даатгалын компани</div>
+    <div class="section-title">Insurance Company</div>
     <div class="info-grid">
       <div class="info-item">
-        <div class="info-label">Компанийн нэр</div>
+        <div class="info-label">Company Name</div>
         <div class="info-value">{{vendorName}}</div>
       </div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">Даатгуулагч</div>
+    <div class="section-title">Customer</div>
     <div class="info-grid">
       <div class="info-item">
-        <div class="info-label">Овог нэр</div>
+        <div class="info-label">Full Name</div>
         <div class="info-value">{{customerName}}</div>
       </div>
       <div class="info-item">
-        <div class="info-label">Регистрийн дугаар</div>
+        <div class="info-label">Registration Number</div>
         <div class="info-value">{{registrationNumber}}</div>
       </div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">Даатгалын мэдээлэл</div>
+    <div class="section-title">Insurance Information</div>
     <div class="info-grid">
       <div class="info-item">
-        <div class="info-label">Даатгалын төрөл</div>
+        <div class="info-label">Insurance Type</div>
         <div class="info-value">{{insuranceType}}</div>
       </div>
       <div class="info-item">
-        <div class="info-label">Бүтээгдэхүүн</div>
+        <div class="info-label">Product</div>
         <div class="info-value">{{productName}}</div>
       </div>
       <div class="info-item">
-        <div class="info-label">Эхлэх огноо</div>
+        <div class="info-label">Start Date</div>
         <div class="info-value">{{startDate}}</div>
       </div>
       <div class="info-item">
-        <div class="info-label">Дуусах огноо</div>
+        <div class="info-label">End Date</div>
         <div class="info-value">{{endDate}}</div>
       </div>
     </div>
   </div>
 
   <div class="amount-box">
-    <div>Нийт хураамж</div>
+    <div>Total Premium</div>
     <div class="amount-value">{{chargedAmount}} ₮</div>
   </div>
 
   <div class="footer">
     <div class="signature-section">
       <div>
-        <div style="font-weight: bold; margin-bottom: 10px;">Даатгалын компани</div>
-        <div class="signature-line">Гарын үсэг, тамга</div>
+        <div style="font-weight: bold; margin-bottom: 10px;">Insurance Company</div>
+        <div class="signature-line">Signature & Stamp</div>
       </div>
       <div>
-        <div style="font-weight: bold; margin-bottom: 10px;">Даатгуулагч</div>
-        <div class="signature-line">Гарын үсэг</div>
+        <div style="font-weight: bold; margin-bottom: 10px;">Customer</div>
+        <div class="signature-line">Signature</div>
       </div>
     </div>
   </div>
@@ -225,15 +225,15 @@ export const ContractTemplateEditorPage = () => {
 
     // Replace placeholders with sample data for preview
     const previewHtml = template
-      .replace(/\{\{contractNumber\}\}/g, 'INS2026010001')
-      .replace(/\{\{vendorName\}\}/g, 'Монгол Даатгал ХХК')
-      .replace(/\{\{customerName\}\}/g, 'Бат Болд')
-      .replace(/\{\{registrationNumber\}\}/g, 'УБ12345678')
-      .replace(/\{\{insuranceType\}\}/g, 'Автомашины даатгал')
-      .replace(/\{\{productName\}\}/g, 'Стандарт даатгал')
-      .replace(/\{\{startDate\}\}/g, '2026 оны 1-р сарын 20')
-      .replace(/\{\{endDate\}\}/g, '2027 оны 1-р сарын 20')
-      .replace(/\{\{chargedAmount\}\}/g, '1,500,000');
+      .replaceAll('{{contractNumber}}', 'INS2026010001')
+      .replaceAll('{{vendorName}}', 'Монгол Даатгал ХХК')
+      .replaceAll('{{customerName}}', 'Бат Болд')
+      .replaceAll('{{registrationNumber}}', 'УБ12345678')
+      .replaceAll('{{insuranceType}}', 'Автомашины даатгал')
+      .replaceAll('{{productName}}', 'Стандарт даатгал')
+      .replaceAll('{{startDate}}', '2026 оны 1-р сарын 20')
+      .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
+      .replaceAll('{{chargedAmount}}', '1,500,000');
 
     previewWindow.document.write(previewHtml);
     previewWindow.document.close();
@@ -247,15 +247,15 @@ export const ContractTemplateEditorPage = () => {
     }
 
     const previewHtml = template
-      .replace(/\{\{contractNumber\}\}/g, 'INS2026010001')
-      .replace(/\{\{vendorName\}\}/g, 'Монгол Даатгал ХХК')
-      .replace(/\{\{customerName\}\}/g, 'Бат Болд')
-      .replace(/\{\{registrationNumber\}\}/g, 'УБ12345678')
-      .replace(/\{\{insuranceType\}\}/g, 'Автомашины даатгал')
-      .replace(/\{\{productName\}\}/g, 'Стандарт даатгал')
-      .replace(/\{\{startDate\}\}/g, '2026 оны 1-р сарын 20')
-      .replace(/\{\{endDate\}\}/g, '2027 оны 1-р сарын 20')
-      .replace(/\{\{chargedAmount\}\}/g, '1,500,000');
+      .replaceAll('{{contractNumber}}', 'INS2026010001')
+      .replaceAll('{{vendorName}}', 'Монгол Даатгал ХХК')
+      .replaceAll('{{customerName}}', 'Бат Болд')
+      .replaceAll('{{registrationNumber}}', 'УБ12345678')
+      .replaceAll('{{insuranceType}}', 'Автомашины даатгал')
+      .replaceAll('{{productName}}', 'Стандарт даатгал')
+      .replaceAll('{{startDate}}', '2026 оны 1-р сарын 20')
+      .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
+      .replaceAll('{{chargedAmount}}', '1,500,000');
 
     printWindow.document.write(previewHtml);
     printWindow.document.close();
@@ -379,21 +379,15 @@ export const ContractTemplateEditorPage = () => {
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe
                         srcDoc={template
-                          .replace(/\{\{contractNumber\}\}/g, 'INS2026010001')
-                          .replace(/\{\{vendorName\}\}/g, 'Монгол Даатгал ХХК')
-                          .replace(/\{\{customerName\}\}/g, 'Бат Болд')
-                          .replace(/\{\{registrationNumber\}\}/g, 'УБ12345678')
-                          .replace(
-                            /\{\{insuranceType\}\}/g,
-                            'Автомашины даатгал',
-                          )
-                          .replace(/\{\{productName\}\}/g, 'Стандарт даатгал')
-                          .replace(
-                            /\{\{startDate\}\}/g,
-                            '2026 оны 1-р сарын 20',
-                          )
-                          .replace(/\{\{endDate\}\}/g, '2027 оны 1-р сарын 20')
-                          .replace(/\{\{chargedAmount\}\}/g, '1,500,000')}
+                          .replaceAll('{{contractNumber}}', 'INS2026010001')
+                          .replaceAll('{{vendorName}}', 'Sample Insurance LLC')
+                          .replaceAll('{{customerName}}', 'John Smith')
+                          .replaceAll('{{registrationNumber}}', 'AB12345678')
+                          .replaceAll('{{insuranceType}}', 'Car Insurance')
+                          .replaceAll('{{productName}}', 'Standard Insurance')
+                          .replaceAll('{{startDate}}', 'January 20, 2026')
+                          .replaceAll('{{endDate}}', 'January 20, 2027')
+                          .replaceAll('{{chargedAmount}}', '1,500,000')}
                         className="w-full h-[800px] bg-white border-0"
                         title="Template Preview"
                       />
@@ -409,39 +403,39 @@ export const ContractTemplateEditorPage = () => {
                 <div className="grid grid-cols-2 gap-2 text-sm text-blue-700">
                   <div>
                     <code className="bg-blue-100 px-2 py-1 rounded">{`{{contractNumber}}`}</code>{' '}
-                    - Гэрээний дугаар
+                    - Contract Number
                   </div>
                   <div>
                     <code className="bg-blue-100 px-2 py-1 rounded">{`{{vendorName}}`}</code>{' '}
-                    - Компанийн нэр
+                    - Company Name
                   </div>
                   <div>
                     <code className="bg-blue-100 px-2 py-1 rounded">{`{{customerName}}`}</code>{' '}
-                    - Даатгуулагчийн нэр
+                    - Customer Name
                   </div>
                   <div>
                     <code className="bg-blue-100 px-2 py-1 rounded">{`{{registrationNumber}}`}</code>{' '}
-                    - Регистр
+                    - Registration
                   </div>
                   <div>
                     <code className="bg-blue-100 px-2 py-1 rounded">{`{{insuranceType}}`}</code>{' '}
-                    - Даатгалын төрөл
+                    - Insurance Type
                   </div>
                   <div>
                     <code className="bg-blue-100 px-2 py-1 rounded">{`{{productName}}`}</code>{' '}
-                    - Бүтээгдэхүүн
+                    - Product
                   </div>
                   <div>
                     <code className="bg-blue-100 px-2 py-1 rounded">{`{{startDate}}`}</code>{' '}
-                    - Эхлэх огноо
+                    - Start Date
                   </div>
                   <div>
                     <code className="bg-blue-100 px-2 py-1 rounded">{`{{endDate}}`}</code>{' '}
-                    - Дуусах огноо
+                    - End Date
                   </div>
                   <div>
                     <code className="bg-blue-100 px-2 py-1 rounded">{`{{chargedAmount}}`}</code>{' '}
-                    - Төлбөрийн дүн
+                    - Payment Amount
                   </div>
                 </div>
               </div>

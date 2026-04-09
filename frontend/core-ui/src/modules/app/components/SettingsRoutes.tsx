@@ -91,6 +91,22 @@ const BroadcastSettings = lazy(() =>
   })),
 );
 
+const SettingsNotificationRoutes = lazy(() =>
+  import('@/notification/settings/components/NotificationSettingsRoutes').then(
+    (module) => ({
+      default: module.NotificationSettingsRoutes,
+    }),
+  ),
+);
+
+const StructureSettings = lazy(() =>
+  import('~/pages/settings/workspace/structure/StructureSettingsPage').then(
+    (module) => ({
+      default: module.StructureSettingsPage,
+    }),
+  ),
+);
+
 export function SettingsRoutes() {
   const isOs = useVersion();
 
@@ -102,6 +118,10 @@ export function SettingsRoutes() {
           element={<Navigate to={`${SettingsPath.Profile}`} replace />}
         />
         <Route path={SettingsPath.Profile} element={<SettingsProfile />} />
+        <Route
+          path={SettingsPath.NotificationCatchAll}
+          element={<SettingsNotificationRoutes />}
+        />
         <Route
           path={SettingsPath.ChangePassword}
           element={<SettingsChangePassword />}
@@ -140,10 +160,10 @@ export function SettingsRoutes() {
           element={<ClientPortalDetailPage />}
         />
         <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
-        {/* <Route
+        <Route
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}
-        /> */}
+        />
         <Route path={SettingsWorkspacePath.Tags} element={<TagsPage />} />
         <Route
           path={SettingsWorkspacePath.Brands}
@@ -158,7 +178,10 @@ export function SettingsRoutes() {
           element={<AutomationSettingsRoutes />}
         />
 
-        <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
+        <Route
+          path={SettingsWorkspacePath.AppTokens}
+          element={<AppsSettings />}
+        />
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}
           element={<PropertiesSettingsRoutes />}

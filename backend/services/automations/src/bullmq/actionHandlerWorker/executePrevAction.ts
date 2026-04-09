@@ -1,8 +1,8 @@
 import type { Job } from 'bullmq';
-import { IJobData } from '@/bullmq/initMQWorkers';
-import { IModels } from '@/connectionResolver';
-import { executeActions } from '@/executions/executeActions';
-import { getActionsMap } from '@/utils/utils';
+import { IJobData } from '../initMQWorkers';
+import { IModels } from '../../connectionResolver';
+import { executeActions } from '../../executions/executeActions';
+import { getActionsMap } from '../../utils/utils';
 
 // Final job interfaces
 type IExecutePrevActionJobData = IJobData<{ query: any }>;

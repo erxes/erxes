@@ -27,11 +27,16 @@ export class BaseAPI {
         requestOptions.headers['Content-Type'] = 'application/json';
       }
 
-
+      console.debug(
+        `Making request to ${this.apiUrl}/${path} with options:`,
+        requestOptions,
+      );
       const res = await fetch(
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,
       );
+
+      console.debug(`Received response from ${this.apiUrl}/${path}:`, res);
 
       return res;
     } catch (e) {

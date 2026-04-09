@@ -5,24 +5,30 @@ export const productRuleMutations = {
   async productRulesAdd(
     _root: undefined,
     params: IProductRule,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productRulesManage');
+
     return models.ProductRules.createRule(params);
   },
 
   async productRulesEdit(
     _root: undefined,
     { _id, ...doc }: IProductRuleDocument,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productRulesManage');
+
     return models.ProductRules.updateRule(_id, doc);
   },
 
   async productRulesRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productRulesManage');
+
     return models.ProductRules.removeRule(_ids);
   },
 };

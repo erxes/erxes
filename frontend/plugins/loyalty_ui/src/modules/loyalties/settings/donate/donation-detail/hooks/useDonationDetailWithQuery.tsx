@@ -14,7 +14,7 @@ export const useDonationDetailWithQuery = () => {
   });
 
   return {
-    donationDetail: data?.getCampaign as IDonation,
+    donationDetail: data?.donateCampaignDetail as IDonation,
     loading,
     error,
   };

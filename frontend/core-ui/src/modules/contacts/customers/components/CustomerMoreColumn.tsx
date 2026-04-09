@@ -1,10 +1,8 @@
-import { Cell } from '@tanstack/react-table';
-import { RecordTable } from 'erxes-ui';
-
-import { Popover, Command, Combobox } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
-import { ICustomer } from 'ui-modules';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
+import { Can, ICustomer } from 'ui-modules';
 
 export const CustomerMoreColumnCell = ({
   cell,
@@ -22,9 +20,11 @@ export const CustomerMoreColumnCell = ({
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
+      <Can action="contactsUpdate">
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+      </Can>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
@@ -40,6 +40,7 @@ export const CustomerMoreColumnCell = ({
 
 export const customerMoreColumn = {
   id: 'more',
+  header: RecordTable.ColumnSelector,
   cell: CustomerMoreColumnCell,
   size: 33,
 };

@@ -1,7 +1,11 @@
 import { useMutation } from '@apollo/client';
 import { applyUiOptionsToTailwind } from '@libs/tw-utils';
-import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
-import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  getLocalStorageItem,
+  getVisitorId,
+  setLocalStorageItem,
+} from '@libs/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
 import { connect } from '../graphql';
 import {
@@ -34,7 +38,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
   const setTicketConfig = useSetAtom(ticketConfigAtom);
   const setHasTicketConfig = useSetAtom(hasTicketConfigAtom);
   const setCustomerId = useSetAtom(customerIdAtom);
-  const setCustomerData = useSetAtom(customerDataAtom);
+  const [customerData, setCustomerData] = useAtom(customerDataAtom);
   const connectionKeyRef = useRef<string>('');
   const isConnectingRef = useRef(false);
 
@@ -49,7 +53,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
         const uiOptions = connectionData.uiOptions || {
           primary: {
             DEFAULT: '#5629B6',
-            foreground: '#FFF',
+            foreground: '#ffffff',
           },
         };
 
@@ -66,6 +70,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
         if (connectionData.customerId) {
           setLocalStorageItem('customerId', connectionData.customerId);
           setCustomerId(connectionData.customerId);
+          setCustomerData(connectionData.customer as ICustomerData);
         }
         setIntegrationId(connectionData.integrationId);
         setUiOptions(uiOptions as IWidgetUiOptions);
@@ -90,54 +95,62 @@ export const useConnect = ({ integrationId }: connectionProps) => {
     const executeConnection = async () => {
       if (!integrationId || isConnectingRef.current) return;
 
-      // Only integrationId is essential for connection - other fields are optional
-      // Only connect if integrationId has changed
-      if (connectionKeyRef.current === integrationId) {
+      const email = messengerData?.email;
+
+      // Include email in the connection key so a different email triggers reconnection
+      const connectionKey = `${integrationId}:${email ?? ''}`;
+
+      if (connectionKeyRef.current === connectionKey) {
         return;
       }
 
       // Update ref before making the call
-      connectionKeyRef.current = integrationId;
+      connectionKeyRef.current = connectionKey;
       isConnectingRef.current = true;
 
       // Get fresh values from messengerData and localStorage
-      const currentCachedCustomerId = getLocalStorageItem('customerId');
-      const email = messengerData?.email;
+      const cachedCustomer = customerData;
+      const cachedCustomerId =
+        cachedCustomer?._id || getLocalStorageItem('customerId');
       const phone = messengerData?.phone;
       const code = messengerData?.code;
       const customData = messengerData?.data;
       const companyData = messengerData?.companyData;
 
-      let visitorId;
+      const visitorId = await getVisitorId();
 
-      const { getVisitorId } = await import('@libs/utils');
-      visitorId = await getVisitorId();
+      const emailChanged = email && email !== cachedCustomer?.emails?.[0];
+
+      const phoneChanged = phone && phone !== cachedCustomer?.phones?.[0];
 
       const variables = email
         ? {
-          integrationId,
-          visitorId: visitorId || null,
-          cachedCustomerId: currentCachedCustomerId || undefined,
-          isUser: true,
-          email,
-          phone,
-          code,
-          data: customData,
-          companyData,
-        }
+            integrationId,
+            visitorId: visitorId || null,
+            cachedCustomerId:
+              emailChanged || phoneChanged
+                ? undefined
+                : cachedCustomerId || undefined,
+            isUser: true,
+            email,
+            phone,
+            code,
+            data: customData,
+            companyData,
+          }
         : {
-          integrationId,
-          visitorId,
-          cachedCustomerId: currentCachedCustomerId || undefined,
-          isUser: false,
-        };
+            integrationId,
+            visitorId,
+            cachedCustomerId: cachedCustomerId || undefined,
+            isUser: false,
+          };
 
       await connectMutation({ variables });
     };
 
     executeConnection();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [integrationId]);
+  }, [integrationId, messengerData?.email, messengerData?.phone]);
 
   return {
     result: data,
