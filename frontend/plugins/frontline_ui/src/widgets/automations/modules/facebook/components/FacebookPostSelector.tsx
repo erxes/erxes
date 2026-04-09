@@ -2,17 +2,9 @@ import {
   FACEBOOK_GET_BOT_POST,
   FACEBOOK_GET_BOT_POSTS,
 } from '@/integrations/facebook/graphql/queries/facebookBots';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { IconImageInPicture } from '@tabler/icons-react';
-import {
-  Button,
-  Card,
-  cn,
-  Collapsible,
-  RelativeDateDisplay,
-  Separator,
-  Spinner,
-} from 'erxes-ui';
+import { Button, Card, cn, Collapsible, Separator, Spinner } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useState } from 'react';
 
