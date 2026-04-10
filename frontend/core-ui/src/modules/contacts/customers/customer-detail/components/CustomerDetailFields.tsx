@@ -42,10 +42,7 @@ export const CustomerDetailFields = () => {
 
   if (!customerDetail) return null;
 
-  const {
-    tagIds,
-    _id,
-  } = customerDetail;
+  const { tagIds, _id } = customerDetail;
 
   const onSubmit = (data: CustomerFormType) => {
     const {
@@ -66,12 +63,16 @@ export const CustomerDetailFields = () => {
         _id,
       },
       onCompleted: () => {
-        toast({ title: t('saved', 'Customer details updated successfully.'), variant: 'success' });
+        toast({
+          title: t('saved', 'Customer details updated successfully.'),
+          variant: 'success',
+        });
       },
       onError: (e) => {
         toast({
           title: t('error', 'Update Failed'),
-          description: e.message || t('error', 'Failed to update customer details.'),
+          description:
+            e.message || t('error', 'Failed to update customer details.'),
           variant: 'destructive',
         });
       },

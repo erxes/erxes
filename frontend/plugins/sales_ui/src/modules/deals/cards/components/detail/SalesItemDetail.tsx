@@ -111,7 +111,7 @@ export const SalesItemDetail = () => {
                   </Tabs.Content>
                 </Tabs>
               </div>
-            </div> 
+            </div>
             <RelationWidgetSideTabs
               contentId={deal?._id || ''}
               contentType="sales:deal"

@@ -59,7 +59,10 @@ export const GeneralConfigForm = () => {
           },
         },
       });
-      toast({ title: t('saved', 'General configuration updated successfully.'), variant: 'success' });
+      toast({
+        title: t('saved', 'General configuration updated successfully.'),
+        variant: 'success',
+      });
     } catch {
       toast({ title: t('error', 'Update Failed'), variant: 'destructive' });
     }
