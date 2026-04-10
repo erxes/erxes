@@ -79,6 +79,11 @@ import {
   types as ScoreCampaignTypes,
 } from '@/score/graphql/schemas/scoreCampaign';
 
+import {
+  queries as SalesBoardQueries,
+  types as SalesBoardTypes,
+} from '@/score/graphql/schemas/salesBoard';
+
 /* -------------------- Spin -------------------- */
 import {
   mutations as SpinMutations,
@@ -139,6 +144,7 @@ export const types = `
 
   ${ScoreLogTypes}
   ${ScoreCampaignTypes}
+  ${SalesBoardTypes}
 
   ${SpinTypes}
   ${SpinCampaignTypes}
@@ -169,6 +175,7 @@ export const queries = `
 
   ${ScoreLogQueries}
   ${ScoreCampaignQueries}
+  ${SalesBoardQueries}
 
   ${SpinQueries}
   ${SpinCampaignQueries}
