@@ -17,52 +17,35 @@ export const CustomerDetailFields = () => {
   const { t } = useTranslation('contact');
   const { toast } = useToast();
 
-  if (!customerDetail) return null;
-
-  const {
-    primaryEmail,
-    primaryPhone,
-    emails,
-    emailValidationStatus,
-    tagIds,
-    ownerId,
-    code,
-    _id,
-    isSubscribed,
-    description,
-    phones,
-    phoneValidationStatus,
-    avatar,
-    firstName,
-    lastName,
-    middleName,
-    sex,
-    links,
-    state,
-  } = customerDetail;
-
   const form = useForm<CustomerFormType>({
     resolver: zodResolver(customerFormSchema),
     values: {
-      avatar: avatar || null,
-      firstName: firstName || '',
-      lastName: lastName || '',
-      middleName: middleName || '',
-      sex: sex || null,
-      primaryEmail: primaryEmail || '',
-      primaryPhone: primaryPhone || '',
-      phones: phones || [],
-      emails: emails || [],
-      ownerId: ownerId || '',
-      description: description || '',
-      isSubscribed: isSubscribed || 'Yes',
-      links: links || {},
-      code: code || '',
-      emailValidationStatus: emailValidationStatus || 'unknown',
-      phoneValidationStatus: phoneValidationStatus || 'unknown',
-      state: state || '',
+      avatar: customerDetail?.avatar || null,
+      firstName: customerDetail?.firstName || '',
+      lastName: customerDetail?.lastName || '',
+      middleName: customerDetail?.middleName || '',
+      sex: customerDetail?.sex || null,
+      primaryEmail: customerDetail?.primaryEmail || '',
+      primaryPhone: customerDetail?.primaryPhone || '',
+      phones: customerDetail?.phones || [],
+      emails: customerDetail?.emails || [],
+      ownerId: customerDetail?.ownerId || '',
+      description: customerDetail?.description || '',
+      isSubscribed: customerDetail?.isSubscribed || 'Yes',
+      links: customerDetail?.links || {},
+      code: customerDetail?.code || '',
+      emailValidationStatus: customerDetail?.emailValidationStatus || 'unknown',
+      phoneValidationStatus: customerDetail?.phoneValidationStatus || 'unknown',
+      state: customerDetail?.state || '',
     },
   });
+
+  if (!customerDetail) return null;
+
+  const {
+    tagIds,
+    _id,
+  } = customerDetail;
 
   const onSubmit = (data: CustomerFormType) => {
     const {
@@ -83,11 +66,11 @@ export const CustomerDetailFields = () => {
         _id,
       },
       onCompleted: () => {
-        toast({ title: t('saved') || 'Saved', variant: 'success' });
+        toast({ title: t('saved', 'Edited successfully'), variant: 'success' });
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
