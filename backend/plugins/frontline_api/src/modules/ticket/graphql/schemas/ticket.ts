@@ -135,7 +135,7 @@ export const queries = `
 
   cpGetTickets(filter: ICpTicketFilter): [Ticket]
   cpGetTicket(_id: String!): Ticket
-  cpGetTicketTotalCount(filter: ICpTicketFilter): Number
+  cpGetTicketTotalCount(filter: ICpTicketFilter): Int
 `;
 
 export const mutations = `
