@@ -58,6 +58,32 @@ const orderQueries: Record<string, Resolver> = {
   async bmsOrderDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Orders.getOrder(_id);
   },
+
+  async bmsOrderCustomerIds(
+    _root,
+    { tourId, branchId }: { tourId: string},
+    { models }: IContext,
+  ) {
+    const selector: Record<string, string> = { tourId };
+
+    const orders = await models.Orders.find(selector, {
+      customerId: 1,
+      additionalCustomers: 1,
+    }).lean();
+
+    return Array.from(
+      new Set(
+        orders.flatMap((order) => [
+          ...(order.customerId ? [order.customerId] : []),
+          ...(Array.isArray(order.additionalCustomers)
+            ? order.additionalCustomers.filter(
+                (customerId): customerId is string => !!customerId,
+              )
+            : []),
+        ]),
+      ),
+    );
+  },
 };
 
 export default orderQueries;
