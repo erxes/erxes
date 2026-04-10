@@ -1,8 +1,9 @@
-import { IconUpload } from '@tabler/icons-react';
+import { IconDownload } from '@tabler/icons-react';
 import { VariantProps } from 'class-variance-authority';
 import { Button, buttonVariants } from 'erxes-ui';
 import { useState } from 'react';
 import { useExport } from '../../hooks/export/useExport';
+import { formatEntityLabel } from '../../utils/entityLabel';
 import { ActiveExportsPopover } from './ActiveExports';
 import { ExportFieldSelection } from './ExportFieldSelection';
 
@@ -13,7 +14,7 @@ export const Export = ({
   buttonVariant = 'outline',
   ids,
   getFilters,
-  confirmMessage = 'Are you sure you want to export this data?',
+  confirmMessage = 'Create this CSV export with the selected fields?',
 }: {
   pluginName: string;
   moduleName: string;
@@ -25,6 +26,10 @@ export const Export = ({
 }) => {
   const [fieldSelectionOpen, setFieldSelectionOpen] = useState(false);
   const entityType = `${pluginName}:${moduleName}.${collectionName}`;
+  const entityDisplayName = formatEntityLabel(collectionName, {
+    plural: true,
+    capitalize: true,
+  });
   const { loading, onFieldSelectionConfirm } = useExport({
     entityType,
     ids,
@@ -41,12 +46,15 @@ export const Export = ({
           onClick={() => setFieldSelectionOpen(true)}
           className="border-r-0 rounded-r-none"
         >
-          <IconUpload />
+          <IconDownload />
           Export
         </Button>
         <ActiveExportsPopover
           buttonVariant={buttonVariant}
           entityType={entityType}
+          entityDisplayName={entityDisplayName}
+          selectionCount={ids?.length}
+          onStartExport={() => setFieldSelectionOpen(true)}
         />
       </div>
 
@@ -55,6 +63,8 @@ export const Export = ({
         open={fieldSelectionOpen}
         onOpenChange={setFieldSelectionOpen}
         onConfirm={onFieldSelectionConfirm}
+        recordCount={ids?.length}
+        entityDisplayName={entityDisplayName}
       />
     </>
   );

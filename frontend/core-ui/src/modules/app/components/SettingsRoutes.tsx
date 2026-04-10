@@ -91,6 +91,14 @@ const BroadcastSettings = lazy(() =>
   })),
 );
 
+const ImportExportSettingsRoutes = lazy(() =>
+  import('@/import-export/settings/components/ImportExportSettingsRoutes').then(
+    (module) => ({
+      default: module.ImportExportSettingsRoutes,
+    }),
+  ),
+);
+
 const SettingsNotificationRoutes = lazy(() =>
   import('@/notification/settings/components/NotificationSettingsRoutes').then(
     (module) => ({
@@ -160,6 +168,10 @@ export function SettingsRoutes() {
           element={<ClientPortalDetailPage />}
         />
         <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
+        <Route
+          path={SettingsWorkspacePath.ImportExportCatchAll}
+          element={<ImportExportSettingsRoutes />}
+        />
         <Route
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}

@@ -14,6 +14,11 @@ export interface ImportHeaderDefinition {
   type?: 'system' | 'customProperty';
 }
 
+export interface ImportExportTypeDefinition {
+  label: string;
+  contentType: string;
+}
+
 export interface InsertImportRowsInputData {
   moduleName: string;
   collectionName: string;
@@ -49,6 +54,11 @@ export interface TImportHandlers {
 
   whenReady?: () => void;
 }
+
+export interface ImportConfig extends TImportHandlers {
+  types?: ImportExportTypeDefinition[];
+}
+
 export type GetExportData = {
   moduleName: string;
   collectionName: string;
@@ -78,13 +88,37 @@ export interface TExportHandlers {
   whenReady?: () => void;
 }
 
+export interface ExportConfig extends TExportHandlers {
+  types?: ImportExportTypeDefinition[];
+}
+
+export interface ImportExportImportMeta {
+  configured: boolean;
+  hasGetImportHeaders?: boolean;
+  hasInsertImportRows?: boolean;
+  types?: ImportExportTypeDefinition[];
+}
+
+export interface ImportExportExportMeta {
+  configured: boolean;
+  hasGetExportHeaders?: boolean;
+  hasGetExportData?: boolean;
+  hasUploadFile?: boolean;
+  types?: ImportExportTypeDefinition[];
+}
+
+export interface ImportExportMeta {
+  import?: ImportExportImportMeta;
+  export?: ImportExportExportMeta;
+}
+
 export interface ImportExportConfigs {
   createContext?: (
     subdomain: string,
     context: IImportExportContext,
   ) => Promise<IImportExportContext>;
-  import?: TImportHandlers;
-  export?: TExportHandlers;
+  import?: ImportConfig;
+  export?: ExportConfig;
 }
 
 export interface ImportJobData {

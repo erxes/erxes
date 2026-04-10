@@ -93,11 +93,13 @@ export const startImportExportWorker = ({
       configured: !!importConfig,
       hasGetImportHeaders: !!importConfig?.getImportHeaders,
       hasInsertImportRows: !!importConfig?.insertImportRows,
+      types: importConfig?.types || [],
     },
     export: {
       configured: !!exportConfig,
       hasGetExportHeaders: !!exportConfig?.getExportHeaders,
       hasGetExportData: !!exportConfig?.getExportData,
+      types: exportConfig?.types || [],
     },
   });
 
