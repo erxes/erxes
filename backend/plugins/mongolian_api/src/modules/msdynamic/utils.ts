@@ -329,8 +329,8 @@ export const dealToDynamic = async (
     const sendData: any = {
       Sell_to_Customer_No:
         customerType === 'company'
-          ? msdCustomer?.No ?? config.defaultUserCode
-          : custCode ?? config.defaultUserCode,
+          ? (msdCustomer?.No ?? config.defaultUserCode)
+          : (custCode ?? config.defaultUserCode),
       Sell_to_Phone_No: customer?.primaryPhone ?? '',
       Sell_to_E_Mail: customer?.primaryEmail ?? '',
       External_Document_No: deal.number ?? deal.name.split(':').pop().trim(),

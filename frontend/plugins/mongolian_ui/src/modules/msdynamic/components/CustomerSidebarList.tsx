@@ -20,7 +20,7 @@ const CustomerSidebar: React.FC<Props> = ({ relations = [], loading }) => {
         <h4 className="text-sm font-semibold mb-2">MSD Customer No</h4>
         <div className="text-sm text-muted-foreground">Loading...</div>
       </div>
-    )
+    );
   }
 
   return (
