@@ -46,6 +46,96 @@ type TGenerateMessagesParams = {
   config?: TAutomationActionConfig;
 };
 
+type TMessageTemplateContext = {
+  prevAction?: Record<string, any>;
+};
+
+const getValueByPath = (
+  source: Record<string, any>,
+  path: string,
+): { found: boolean; value?: unknown } => {
+  const segments = path.split('.');
+
+  let current: unknown = source;
+
+  for (const segment of segments) {
+    if (
+      current === null ||
+      current === undefined ||
+      typeof current !== 'object' ||
+      !(segment in (current as Record<string, any>))
+    ) {
+      return { found: false };
+    }
+
+    current = (current as Record<string, any>)[segment];
+  }
+
+  return { found: true, value: current };
+};
+
+const replaceMessageTemplateString = (
+  value: string,
+  context: TMessageTemplateContext,
+) => {
+  return value.replace(
+    /{{\s*([\w\d]+(?:\.[\w\d\-]+)*)\s*}}/g,
+    (match, placeholderPath) => {
+      const { found, value: resolvedValue } = getValueByPath(
+        context as Record<string, any>,
+        placeholderPath,
+      );
+
+      if (!found || resolvedValue === null || resolvedValue === undefined) {
+        return match;
+      }
+
+      if (typeof resolvedValue === 'object') {
+        return JSON.stringify(resolvedValue);
+      }
+
+      return String(resolvedValue);
+    },
+  );
+};
+
+const replaceMessageTemplateValues = <T>(
+  value: T,
+  context: TMessageTemplateContext,
+): T => {
+  if (typeof value === 'string') {
+    return replaceMessageTemplateString(value, context) as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) =>
+      replaceMessageTemplateValues(item, context),
+    ) as T;
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        key,
+        replaceMessageTemplateValues(item, context),
+      ]),
+    ) as T;
+  }
+
+  return value;
+};
+
+export const resolveMessageActionConfigTemplates = (
+  config?: TAutomationActionConfig,
+  context: TMessageTemplateContext = {},
+) => {
+  if (!config) {
+    return config;
+  }
+
+  return replaceMessageTemplateValues(config, context);
+};
+
 export const generateMessages = async ({
   subdomain,
   conversation,

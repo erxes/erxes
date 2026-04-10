@@ -211,7 +211,7 @@ export const BranchesList = ({
 
   const selectedBranchIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
   }
 

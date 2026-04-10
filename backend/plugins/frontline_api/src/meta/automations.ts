@@ -41,6 +41,13 @@ export default {
     extractModuleName: (input) => (input as any).moduleName,
     generateModels,
   }),
+  generateAiContext: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.GENERATE_AI_CONTEXT,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
 
   setProperties: createCoreModuleProducerHandler({
     moduleName: 'automations',

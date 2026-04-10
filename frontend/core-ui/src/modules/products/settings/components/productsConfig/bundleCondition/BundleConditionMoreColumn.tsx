@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { IBundleCondition } from './types';
 import { useBundleConditionRemove } from '@/products/settings/hooks/useBundleConditionRemove';
 import { BundleConditionForm } from './BundleConditionForm';
+import { Can } from 'ui-modules';
 
 export const BundleConditionMoreColumn = (
   props: CellContext<IBundleCondition, unknown>,
@@ -49,9 +50,11 @@ export const BundleConditionMoreColumn = (
   return (
     <>
       <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
+        <Can action="bundleConditionsManage">
+          <Popover.Trigger asChild>
+            <RecordTable.MoreButton className="w-full h-full" />
+          </Popover.Trigger>
+        </Can>
         <Combobox.Content>
           <Command shouldFilter={false}>
             <Command.List>

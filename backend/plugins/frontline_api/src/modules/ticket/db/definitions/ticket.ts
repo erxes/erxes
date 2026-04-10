@@ -48,6 +48,12 @@ export const ticketSchema = new Schema(
       optional: true,
       label: 'Properties data',
     },
+    companyIds: { type: [String], label: 'Company IDs' },
+    customerFieldData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Customer field data',
+    },
   },
   {
     timestamps: true,

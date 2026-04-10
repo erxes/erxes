@@ -81,12 +81,9 @@ import {
 } from '@/relations/db/models/Relations';
 import { ITagModel, loadTagClass } from '@/tags/db/models/Tags';
 import {
-  activityLogsSchema,
   AiAgentDocument,
   aiAgentSchema,
-  aiEmbeddingSchema,
   IActivityLogDocument,
-  IAiEmbeddingDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
@@ -291,7 +288,6 @@ export interface IModels {
   CPNotifications: ICPNotificationModel;
 
   AiAgents: Model<AiAgentDocument>;
-  AiEmbeddings: Model<IAiEmbeddingDocument>;
   ActivityLogs: IActivityLogsModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
@@ -533,11 +529,6 @@ export const loadClasses = (
     aiAgentSchema,
   );
 
-  models.AiEmbeddings = db.model<
-    IAiEmbeddingDocument,
-    Model<IAiEmbeddingDocument>
-  >('ai_embeddings', aiEmbeddingSchema);
-
   models.ActivityLogs = db.model<IActivityLogDocument, IActivityLogsModel>(
     'activity_logs',
     loadActivityLogsClass(models),
@@ -591,11 +582,7 @@ export const loadClasses = (
   );
   models.CPComments = db.model<ICPCommentDocument, ICPCommentsModel>(
     'client_portal_comments',
-    loadCommentClass(
-      models,
-      subdomain,
-      coreEventHandlers('clientportal', 'client_portal_comments'),
-    ),
+    loadCommentClass(models, subdomain),
   );
 
   models.CPNotifications = db.model<
@@ -617,16 +604,6 @@ export const loadClasses = (
     'product_rules',
     loadProductRuleClass(models, subdomain),
   );
-
-  const db_name = db.name;
-
-  const logDb = db.useDb(`${db_name}_logs`);
-
-  models.Logs = logDb.model<ILogDocument, ILogModel>(
-    'logs',
-    loadLogsClass(models),
-  );
-
   models.PermissionGroups = db.model<
     IPermissionGroupDocument,
     IPermissionGroupModel
@@ -641,6 +618,15 @@ export const loadClasses = (
     ITemplateCategoryDocument,
     ITemplateCategoryModal
   >('template_categories', loadTemplateCategoryClass(models));
+
+  const db_name = db.name;
+
+  const logDb = db.useDb(`${db_name}_logs`);
+
+  models.Logs = logDb.model<ILogDocument, ILogModel>(
+    'logs',
+    loadLogsClass(models),
+  );
 
   return models;
 };

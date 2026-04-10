@@ -27,23 +27,23 @@ export const Can = ({
   if (!isLoaded) return null;
 
   if (plugin && !hasPluginPermission(plugin)) {
-    return <>{fallback}</>;
+    return fallback;
   }
 
   if (module && !hasModulePermission(module)) {
-    return <>{fallback}</>;
+    return fallback;
   }
 
   if (action && !hasActionPermission(action)) {
-    return <>{fallback}</>;
+    return fallback;
   }
 
   if (actions && actions.length > 0) {
     const hasAny = actions.some((a) => hasActionPermission(a));
     if (!hasAny) {
-      return <>{fallback}</>;
+      return fallback;
     }
   }
 
-  return <>{children}</>;
+  return children;
 };

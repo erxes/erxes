@@ -1,6 +1,7 @@
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 
 type GroupDay = NonNullable<IItineraryDetail['groupDays']>[number];
+export type ItineraryPdfTemplate = 'classic' | 'editorial';
 
 export interface IGroupDayWithImages extends GroupDay {
   base64Images?: string[];
@@ -19,4 +20,5 @@ export interface IBranchPDFData {
 export interface ItineraryPDFProps {
   itinerary: IItineraryPDFData;
   branch?: IBranchPDFData;
+  template?: ItineraryPdfTemplate;
 }

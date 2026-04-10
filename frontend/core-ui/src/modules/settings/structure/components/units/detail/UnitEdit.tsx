@@ -8,6 +8,7 @@ import { useUnitForm } from '@/settings/structure/hooks/useUnitForm';
 import { TUnitForm } from '@/settings/structure/types/unit';
 import { IconUsersGroup } from '@tabler/icons-react';
 import { UnitForm } from '../UnitForm';
+import { Can } from 'ui-modules';
 
 export const UnitEdit = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -63,9 +64,11 @@ export const UnitEdit = () => {
   useEffect(() => {
     if (unitDetail) {
       const { __typename, _id, ...rest } = unitDetail;
+      void __typename;
+      void _id;
       reset(rest);
     }
-  }, [unitDetail]);
+  }, [unitDetail, reset]);
 
   return (
     <Sheet
@@ -96,9 +99,11 @@ export const UnitEdit = () => {
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Spinner /> : 'Save'}
-              </Button>
+              <Can action="unitsManage">
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? <Spinner /> : 'Save'}
+                </Button>
+              </Can>
             </Sheet.Footer>
           </form>
         </Form>

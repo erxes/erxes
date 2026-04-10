@@ -38,11 +38,24 @@ const mutations: Record<string, Resolver> = {
     args: any,
     context: IContext,
   ): Promise<any> => {
-    const { models } = context;
+    const { models, clientPortal } = context;
     const { _id } = args;
+
+    const post = await models.Posts.findOne({
+      _id,
+      clientPortalId: clientPortal._id,
+    }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
 
     return models.Posts.increaseViewCount(_id);
   },
 };
 
 export default mutations;
+
+mutations.cpPostsIncrementViewCount.wrapperConfig = {
+  forClientPortal: true,
+};

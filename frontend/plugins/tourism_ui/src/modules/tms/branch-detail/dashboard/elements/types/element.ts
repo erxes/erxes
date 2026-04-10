@@ -1,3 +1,12 @@
+export interface IElementTranslation {
+  _id?: string;
+  objectId?: string;
+  language: string;
+  name?: string;
+  note?: string;
+  cost?: number;
+}
+
 export interface IElement {
   _id: string;
   branchId?: string;
@@ -9,6 +18,8 @@ export interface IElement {
   cost?: number;
   categories?: string[];
   quick?: boolean;
+  language?: string;
   createdAt?: string;
   modifiedAt?: string;
+  translations?: IElementTranslation[];
 }

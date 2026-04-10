@@ -17,9 +17,13 @@ export interface ISafeRemainderTrRule {
 
 export interface ISafeRemEditFields {
   description?: string;
+  status: string;
   incomeRule?: ISafeRemainderTrRule;
   outRule?: ISafeRemainderTrRule;
   saleRule?: ISafeRemainderTrRule;
+  incomeTrId?: string;
+  outTrId?: string;
+  saleTrId?: string;
 }
 
 export interface ISafeRemainder {

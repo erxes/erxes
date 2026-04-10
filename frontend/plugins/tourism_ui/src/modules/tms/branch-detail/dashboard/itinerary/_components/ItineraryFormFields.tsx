@@ -1,4 +1,4 @@
-import { Control } from 'react-hook-form';
+import { Control, FieldPathByValue } from 'react-hook-form';
 import {
   Form,
   Input,
@@ -8,26 +8,62 @@ import {
   Editor,
   ColorPicker,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { ItineraryCreateFormType } from '../constants/formSchema';
+import { LANGUAGES } from '@/tms/constants/languages';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { IconMinus, IconUpload, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
 
+type ItineraryTextFieldPath = FieldPathByValue<
+  ItineraryCreateFormType,
+  string | undefined
+>;
+
+type ItineraryNumberFieldPath = FieldPathByValue<
+  ItineraryCreateFormType,
+  number | undefined
+>;
+
+interface ItineraryNameFieldProps {
+  control: Control<ItineraryCreateFormType>;
+  name?: ItineraryTextFieldPath;
+  labelSuffix?: string;
+}
+
+interface ItineraryContentFieldProps {
+  control: Control<ItineraryCreateFormType>;
+  name?: ItineraryTextFieldPath;
+  labelSuffix?: string;
+}
+
+interface ItineraryCostFieldProps {
+  control: Control<ItineraryCreateFormType>;
+  name?: ItineraryNumberFieldPath;
+  currencySymbol?: string;
+}
+
 export const ItineraryNameField = ({
   control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
+  name = 'name',
+  labelSuffix = '',
+}: ItineraryNameFieldProps) => {
   return (
     <Form.Field
       control={control}
-      name="name"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name <span className="text-destructive">*</span>
+            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input placeholder="Itinerary name" {...field} />
+            <Input
+              placeholder="Itinerary name"
+              {...field}
+              value={field.value || ''}
+            />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -66,16 +102,18 @@ export const ItineraryColorField = ({
 
 export const ItineraryContentField = ({
   control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
+  name = 'content',
+  labelSuffix = '',
+}: ItineraryContentFieldProps) => {
   return (
     <Form.Field
       control={control}
-      name="content"
+      name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Content</Form.Label>
+          <Form.Label>
+            Content<span className="text-primary">{labelSuffix}</span>
+          </Form.Label>
           <Form.Control>
             <Editor
               initialContent={field.value}
@@ -92,24 +130,34 @@ export const ItineraryContentField = ({
 
 export const ItineraryGuideCostField = ({
   control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
+  name = 'guideCost',
+  currencySymbol,
+}: ItineraryCostFieldProps) => {
+  const lang = useAtomValue(activeLangAtom);
+  const symbol =
+    currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
   return (
     <Form.Field
       control={control}
-      name="guideCost"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Guide's daily wage</Form.Label>
           <Form.Control>
-            <Input
-              type="number"
-              placeholder="0"
-              {...field}
-              value={field.value || 0}
-              onChange={(e) => field.onChange(Number(e.target.value))}
-            />
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                {symbol}
+              </span>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="pl-7"
+                {...field}
+                value={field.value || 0}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
+            </div>
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -120,24 +168,34 @@ export const ItineraryGuideCostField = ({
 
 export const ItineraryDriverCostField = ({
   control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
+  name = 'driverCost',
+  currencySymbol,
+}: ItineraryCostFieldProps) => {
+  const lang = useAtomValue(activeLangAtom);
+  const symbol =
+    currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
   return (
     <Form.Field
       control={control}
-      name="driverCost"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Driver's daily wage</Form.Label>
           <Form.Control>
-            <Input
-              type="number"
-              placeholder="0"
-              {...field}
-              value={field.value || 0}
-              onChange={(e) => field.onChange(Number(e.target.value))}
-            />
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                {symbol}
+              </span>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="pl-7"
+                {...field}
+                value={field.value || 0}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
+            </div>
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -148,24 +206,34 @@ export const ItineraryDriverCostField = ({
 
 export const ItineraryFoodCostField = ({
   control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
+  name = 'foodCost',
+  currencySymbol,
+}: ItineraryCostFieldProps) => {
+  const lang = useAtomValue(activeLangAtom);
+  const symbol =
+    currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
   return (
     <Form.Field
       control={control}
-      name="foodCost"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Daily cost of food per person</Form.Label>
           <Form.Control>
-            <Input
-              type="number"
-              placeholder="0"
-              {...field}
-              value={field.value || 0}
-              onChange={(e) => field.onChange(Number(e.target.value))}
-            />
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                {symbol}
+              </span>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="pl-7"
+                {...field}
+                value={field.value || 0}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
+            </div>
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -176,24 +244,34 @@ export const ItineraryFoodCostField = ({
 
 export const ItineraryGasCostField = ({
   control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
+  name = 'gasCost',
+  currencySymbol,
+}: ItineraryCostFieldProps) => {
+  const lang = useAtomValue(activeLangAtom);
+  const symbol =
+    currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
   return (
     <Form.Field
       control={control}
-      name="gasCost"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Gasoline fee per car</Form.Label>
           <Form.Control>
-            <Input
-              type="number"
-              placeholder="0"
-              {...field}
-              value={field.value || 0}
-              onChange={(e) => field.onChange(Number(e.target.value))}
-            />
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                {symbol}
+              </span>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="pl-7"
+                {...field}
+                value={field.value || 0}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
+            </div>
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -204,24 +282,34 @@ export const ItineraryGasCostField = ({
 
 export const ItineraryGuideCostExtraField = ({
   control,
-}: {
-  control: Control<ItineraryCreateFormType>;
-}) => {
+  name = 'guideCostExtra',
+  currencySymbol,
+}: ItineraryCostFieldProps) => {
+  const lang = useAtomValue(activeLangAtom);
+  const symbol =
+    currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
   return (
     <Form.Field
       control={control}
-      name="guideCostExtra"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Total price of a additive assistant</Form.Label>
           <Form.Control>
-            <Input
-              type="number"
-              placeholder="0"
-              {...field}
-              value={field.value || 0}
-              onChange={(e) => field.onChange(Number(e.target.value))}
-            />
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                {symbol}
+              </span>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="pl-7"
+                {...field}
+                value={field.value || 0}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
+            </div>
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>

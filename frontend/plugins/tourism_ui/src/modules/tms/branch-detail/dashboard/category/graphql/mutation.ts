@@ -5,13 +5,19 @@ export const CREATE_CATEGORY = gql`
     $name: String
     $code: String
     $parentId: String
+    $branchId: String
     $attachment: AttachmentInput
+    $language: String
+    $translations: [TourCategoryTranslationInput]
   ) {
     bmsTourCategoryAdd(
       name: $name
       code: $code
       parentId: $parentId
+      branchId: $branchId
       attachment: $attachment
+      language: $language
+      translations: $translations
     ) {
       _id
     }
@@ -24,14 +30,20 @@ export const EDIT_CATEGORY = gql`
     $name: String
     $code: String
     $parentId: String
+    $branchId: String
     $attachment: AttachmentInput
+    $language: String
+    $translations: [TourCategoryTranslationInput]
   ) {
     bmsTourCategoryEdit(
       _id: $id
       name: $name
       code: $code
       parentId: $parentId
+      branchId: $branchId
       attachment: $attachment
+      language: $language
+      translations: $translations
     ) {
       _id
     }

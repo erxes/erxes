@@ -1,37 +1,35 @@
-import {
-  BlockEditor,
-  Combobox,
-  Input,
-  Separator,
-  Tooltip,
-  useBlockEditor,
-  DropdownMenu,
-  useConfirm,
-  useToast,
-} from 'erxes-ui';
-import { IconSquareToggle, IconTrash } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
 import { ActivityList } from '@/activity/components/ActivityList';
-import { Block } from '@blocknote/core';
-import { Button } from 'erxes-ui';
-import { ITicket } from '@/ticket/types';
-import { IconTags } from '@tabler/icons-react';
-import React from 'react';
+import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
+import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
+import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+import { ITicket } from '@/ticket/types';
+import { IAttachment } from '@/ticket/types/attachments';
+import { Block } from '@blocknote/core';
+import { IconSquareToggle, IconTags, IconTrash } from '@tabler/icons-react';
+import {
+  BlockEditor,
+  Button,
+  Combobox,
+  DropdownMenu,
+  Input,
+  Separator,
+  Tooltip,
+  useBlockEditor,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
+import React, { useEffect, useState } from 'react';
 import { TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
-import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
-import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
-import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
 import { AttachmentProvider } from '../attachments/AttachmentContext';
-import { IAttachment } from '@/ticket/types/attachments';
 import AttachmentUploader from '../attachments/AttachmentUploader';
 import Attachments from '../attachments/Attachments';
 

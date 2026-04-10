@@ -27,10 +27,15 @@ export const DirectMessageEditor = ({
   }
 
   return (
-    <div>
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">
+        When no conditions are added, this trigger will run for any incoming
+        direct text message.
+      </p>
+
       <div className="flex justify-end">
         <Button variant="ghost" onClick={addCondition}>
-          + Add condition
+          + Add optional condition
         </Button>
       </div>
 

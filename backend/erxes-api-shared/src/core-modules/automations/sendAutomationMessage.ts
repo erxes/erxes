@@ -74,11 +74,12 @@ export const sendAutomationTrigger = (
       .catch((error) => {
         console.error('Error sending  trpc request ', error);
       });
+    return;
   }
 
   const queue = sendWorkerQueue('automations', 'trigger');
 
-  void queue
+  queue
     .add(
       'trigger',
       {

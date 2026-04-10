@@ -13,7 +13,7 @@ const returnGeneratedModels = async <IModels>(
   loadClasses: (
     db: mongoose.Connection,
     subdomain: string,
-    eventHandlers?: ScopedEventHandlers,
+    eventHandlers: ScopedEventHandlers,
   ) => IModels | Promise<IModels>,
   subdomain: string,
   context?: Record<string, any>,
@@ -26,7 +26,7 @@ export const createGenerateModels = <IModels>(
   loadClasses: (
     db: mongoose.Connection,
     subdomain: string,
-    eventHandlers?: ScopedEventHandlers,
+    eventHandlers: ScopedEventHandlers,
   ) => IModels | Promise<IModels>,
 ): ((
   hostnameOrSubdomain: string,
@@ -60,7 +60,7 @@ export const createGenerateModels = <IModels>(
       }
 
       // means hostname
-      if (subdomain && subdomain.includes('.')) {
+      if (subdomain?.includes('.')) {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
 

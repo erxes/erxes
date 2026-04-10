@@ -1,12 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Control, UseFormSetValue, useController } from 'react-hook-form';
 import { Form, Switch } from 'erxes-ui';
 import { RHFDatePicker } from './RHFDatePicker';
-import { TourCreateFormType } from '../constants/formSchema';
+import { TourFormValues } from '../constants/formSchema';
 
 type Props = {
-  control: Control<TourCreateFormType>;
-  setValue: UseFormSetValue<TourCreateFormType>;
+  control: Control<TourFormValues>;
+  setValue: UseFormSetValue<TourFormValues>;
 };
 
 export const TourDateSchedulingField = ({ control, setValue }: Props) => {
@@ -28,6 +28,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
   });
 
   const isFlexibleDate = flexibleField.value;
+  const today = useMemo(() => new Date(), []);
   const isGroupTour = groupField.value;
   const availableFrom = availableFromField.value;
 
@@ -59,7 +60,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
 
   return (
     <div className="space-y-6">
-      <Form.Item className="flex items-center gap-3 space-y-0">
+      <Form.Item className="flex gap-3 items-center space-y-0">
         <Switch
           checked={!!isFlexibleDate}
           onCheckedChange={handleFlexibleChange}
@@ -82,7 +83,11 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
                 Available from <span className="text-destructive">*</span>
               </Form.Label>
               <Form.Control>
-                <RHFDatePicker control={control} name="availableFrom" />
+                <RHFDatePicker
+                  control={control}
+                  name="availableFrom"
+                  fromDate={today}
+                />
               </Form.Control>
             </Form.Item>
 
@@ -102,7 +107,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
         </div>
       ) : (
         <div className="space-y-4">
-          <Form.Item className="flex items-center gap-3 space-y-0">
+          <Form.Item className="flex gap-3 items-center space-y-0">
             <Switch
               checked={!!isGroupTour}
               onCheckedChange={handleGroupChange}
@@ -135,6 +140,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
                   control={control}
                   name="startDate"
                   mode={isGroupTour ? 'multiple' : 'single'}
+                  fromDate={today}
                 />
               </Form.Control>
             </Form.Item>
