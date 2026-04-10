@@ -12,11 +12,36 @@ import {
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import {
   replacePlaceHolders,
+  TAiContext,
   setProperty,
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
+
+const toISOString = (value?: Date | string) => {
+  if (!value) {
+    return undefined;
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  return String(value);
+};
+
+const toHistoryRole = (message: { fromBot?: boolean; userId?: string }) => {
+  if (message.fromBot) {
+    return 'bot' as const;
+  }
+
+  if (message.userId) {
+    return 'agent' as const;
+  }
+
+  return 'customer' as const;
+};
 
 const getItems = async (
   subdomain: string,
@@ -86,6 +111,66 @@ export const facebookAutomationWorkers = {
       default:
         return false;
     }
+  },
+
+  generateAiContext: async (
+    {
+      target,
+      triggerType,
+    }: TAutomationProducersInput[TAutomationProducers.GENERATE_AI_CONTEXT],
+    { models },
+  ): Promise<TAiContext | null> => {
+    if (!target) {
+      return null;
+    }
+
+    const context: TAiContext = {
+      version: 1,
+      input: {
+        text: typeof target.content === 'string' ? target.content : '',
+        id: target._id,
+        createdAt: toISOString(target.createdAt),
+      },
+      facts: {
+        conversationId: target.conversationId,
+        customerId: target.customerId,
+        botId: target.botId,
+        triggerType,
+      },
+      memory: {
+        scopeKey:
+          (typeof target.conversationId === 'string' &&
+            target.conversationId.trim()) ||
+          (typeof target.customerId === 'string' && target.customerId.trim()) ||
+          (typeof target._id === 'string' && target._id.trim()) ||
+          undefined,
+      },
+    };
+
+    if (!target.conversationId) {
+      return context;
+    }
+
+    const messages = await models.FacebookConversationMessages.find({
+      conversationId: target.conversationId,
+      internal: { $ne: true },
+      _id: { $ne: target._id },
+    })
+      .sort({ createdAt: -1 })
+      .limit(12)
+      .lean();
+
+    context.history = messages.reverse().map((message) => ({
+      type: 'message',
+      role: toHistoryRole(message),
+      text: message.content || '',
+      createdAt: toISOString(message.createdAt),
+      meta: {
+        id: message._id,
+      },
+    }));
+
+    return context;
   },
 
   setProperties: async (

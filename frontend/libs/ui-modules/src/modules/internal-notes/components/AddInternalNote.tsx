@@ -81,7 +81,6 @@ export function AddInternalNote({
           variant: 'destructive',
         });
       },
-      refetchQueries: ['activityLogs'],
     });
   }, [
     content,

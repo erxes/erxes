@@ -1,46 +1,69 @@
-import { executeActions } from './executeActions';
 import {
   IAutomationAction,
-  IAutomationActionsMap,
   IAutomationExecAction,
   IAutomationExecutionDocument,
   splitType,
+  TAutomationFindObjectResult,
+  TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 
 export const executeFindObjectAction = async (
   subdomain: string,
+  triggerType: string,
+  targetType: string,
   execution: IAutomationExecutionDocument,
   action: IAutomationAction,
   execAction: IAutomationExecAction,
-
-  actionsMap: IAutomationActionsMap,
 ) => {
-  const { propertyType, propertyField, propertyValue, exists, notExists } =
-    action.config;
-  const [pluginName, moduleName] = splitType(propertyType);
+  const { objectType, lookupField, value, isExists, notExists } =
+    action.config || {};
+  const [pluginName] = splitType(objectType || '');
+  const placeholderSourceType =
+    typeof targetType === 'string' && targetType.includes(':')
+      ? targetType
+      : triggerType;
+  const [placeholderPluginName, placeholderModuleName] = splitType(
+    placeholderSourceType || '',
+  );
 
-  const object = await sendTRPCMessage({
+  const replacedValue = await sendCoreModuleProducer({
     subdomain,
-    pluginName,
-    module: moduleName,
-    action: 'findOne',
+    moduleName: 'automations',
+    pluginName: placeholderPluginName,
+    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {
-      [propertyField]: propertyValue,
+      moduleName: placeholderModuleName,
+      target: execution.target || {},
+      config: { value: value || '' },
     },
-    defaultValue: null,
+    defaultValue: { value: value || '' },
   });
 
-  const actionId = exists ? action.id : notExists ? action.id : undefined;
-  execAction.nextActionId = actionId;
-  execAction.result = { object, isExists: !!object };
-  execution.actions = [...(execution.actions || []), execAction];
-  execution = await execution.save();
-  return executeActions(
+  const resolvedValue = replacedValue?.value || '';
+
+  const result = await sendCoreModuleProducer({
     subdomain,
-    execution.triggerType,
-    execution,
-    actionsMap,
-    actionId,
-  );
+    moduleName: 'automations',
+    pluginName,
+    producerName: TAutomationProducers.FIND_OBJECT,
+    input: {
+      objectType,
+      field: lookupField,
+      value: resolvedValue,
+    },
+    defaultValue: {
+      found: false,
+      objectType,
+      object: null,
+      matchedBy: {
+        field: lookupField,
+        value: resolvedValue,
+      },
+    } satisfies TAutomationFindObjectResult,
+  });
+
+  execAction.nextActionId = result?.found ? isExists : notExists;
+
+  return result;
 };

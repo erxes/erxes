@@ -79,7 +79,11 @@ export const TourGroupList = ({
           </RecordTable>
         </RecordTable.Scroll>
       </RecordTableTree>
-      <TourCommandBar />
+      <TourCommandBar
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
       <Sheet
         open={!!editTourId}
         onOpenChange={(open) => {
@@ -126,7 +130,7 @@ function EmptyState({
   mainLanguage?: string;
 }) {
   return (
-    <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
+    <div className="flex flex-col items-center justify-center w-full h-full gap-2 p-6 text-center">
       <IconShoppingCartX
         size={64}
         stroke={1.5}

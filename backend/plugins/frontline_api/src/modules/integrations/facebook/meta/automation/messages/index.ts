@@ -13,6 +13,7 @@ import {
   generateConditionWaitToAction,
   generateMessages,
   getOrCreateFacebookMessageActionContext,
+  resolveMessageActionConfigTemplates,
   sendMessage,
 } from './utils';
 
@@ -73,7 +74,11 @@ export const checkMessageTrigger = async (
             target?.content || '',
             directMessageCondtions,
           );
-        } else if (!!target?.content) {
+        }
+
+        // When no direct-message conditions are configured, any non-empty text
+        // message should be able to trigger the automation.
+        if (String(target?.content || '').trim()) {
           return true;
         }
       }
@@ -149,6 +154,9 @@ export const actionCreateMessage = async ({
 
   try {
     const result: IFacebookConversationMessageDocument[] = [];
+    const resolvedConfig = resolveMessageActionConfigTemplates(config, {
+      prevAction: execution.actions?.at(-1)?.result,
+    });
 
     const messages = await generateMessages({
       subdomain,
@@ -156,7 +164,7 @@ export const actionCreateMessage = async ({
       customer,
       executionId,
       actionId,
-      config,
+      config: resolvedConfig,
     });
 
     if (!messages?.length) {

@@ -14,12 +14,13 @@ import { Button, Form, Tabs } from 'erxes-ui';
 // @ts-ignore
 import { merge } from 'lodash';
 import { OutgoingWebhookBodyBuilder } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookBodyBuilder';
-import { FormProvider, useForm } from 'react-hook-form';
+import { normalizeOutgoingWebhookBodyValue } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import {
   TAutomationActionProps,
   useFormValidationErrorHandler,
 } from 'ui-modules';
-import { useActionTarget } from '../../../hooks/useActionTarget';
+import { useMemo } from 'react';
 
 export const OutgoingWebhookConfigForm = ({
   currentAction,
@@ -28,16 +29,27 @@ export const OutgoingWebhookConfigForm = ({
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Webhook Configuration',
   });
-  const { selectedActionType } = useActionTarget({
-    actionId: currentAction.id,
-    targetActionId: currentAction.targetActionId,
-  });
-  const form = useForm<TOutgoingWebhookForm>({
-    resolver: zodResolver(outgoingWebhookFormSchema),
-    defaultValues: merge(
+  const defaultValues = useMemo(() => {
+    const merged = merge(
+      {},
       OUTGOING_WEBHOOK_FORM_DEFAULT_VALUES,
       currentAction?.config || {},
-    ),
+    );
+
+    merged.body = normalizeOutgoingWebhookBodyValue(
+      merged.body,
+      merged.bodyMode,
+    );
+
+    return merged;
+  }, [currentAction?.config]);
+  const form = useForm<TOutgoingWebhookForm>({
+    resolver: zodResolver(outgoingWebhookFormSchema),
+    defaultValues,
+  });
+  const bodyMode = useWatch({
+    control: form.control,
+    name: 'bodyMode',
   });
 
   return (
@@ -101,9 +113,21 @@ export const OutgoingWebhookConfigForm = ({
                 name="body"
                 render={({ field }) => (
                   <OutgoingWebhookBodyBuilder
+                    bodyMode={bodyMode || 'json'}
                     value={field.value}
                     onChange={field.onChange}
-                    contentType={selectedActionType}
+                    onBodyModeChange={(value) => {
+                      form.setValue('bodyMode', value, { shouldDirty: true });
+
+                      const currentBody = form.getValues('body');
+                      if (value === 'text' && currentBody.trim() === '{}') {
+                        form.setValue('body', '', { shouldDirty: true });
+                      }
+
+                      if (value === 'json' && !currentBody.trim()) {
+                        form.setValue('body', '{}', { shouldDirty: true });
+                      }
+                    }}
                   />
                 )}
               />
