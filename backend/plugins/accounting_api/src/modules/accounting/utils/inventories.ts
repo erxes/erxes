@@ -212,25 +212,34 @@ const afterCalc = async (models: IModels, trIds: string[]) => {
       {
         $set: {
           sumDt: {
-            $sum: {
-              $map: {
-                input: { $filter: { input: "$details", as: "d", cond: { $eq: ["$$d.side", "dt"] } } },
-                as: "item",
-                in: { $ifNull: ["$$item.amount", 0] }
-              }
-            }
+            $cond: [
+              { $eq: ["$side", "dt"] },
+              {
+                $sum: {
+                  $map: {
+                    input: "$details",
+                    as: "item",
+                    in: { $ifNull: ["$$item.amount", 0] }
+                  }
+                }
+              }, 0
+            ]
           },
           sumCt: {
-            $sum: {
-              $map: {
-                input: { $filter: { input: "$details", as: "d", cond: { $eq: ["$$d.side", "ct"] } } },
-                as: "item",
-                in: { $ifNull: ["$$item.amount", 0] }
-              }
-            }
+            $cond: [
+              { $eq: ["$side", "ct"] },
+              {
+                $sum: {
+                  $map: {
+                    input: "$details",
+                    as: "item",
+                    in: { $ifNull: ["$$item.amount", 0] }
+                  }
+                }
+              }, 0
+            ]
           }
         }
-
       }
     ]
   );

@@ -8,8 +8,8 @@ export const HandleMainACMore = ({ moreData, currentKey, nodeExtra }: { moreData
   let rem = fr_diff;
 
   moreData.forEach(md => {
-    const multiplier = md.details.side === TR_SIDES.DEBIT ? 1 : -1;
-    rem += multiplier * md.details.amount;
+    const multiplier = md.side === TR_SIDES.DEBIT ? 1 : -1;
+    rem += multiplier * md.amount;
     rows.push({
       ...md,
       remainder: rem
@@ -63,12 +63,12 @@ export const HandleMainACMore = ({ moreData, currentKey, nodeExtra }: { moreData
                 <ReportTable.Cell
                   className={cn(`text-right`)}
                 >
-                  {tr.details.side === TR_SIDES.DEBIT && displayNum(tr.details.amount)}
+                  {tr.side === TR_SIDES.DEBIT && displayNum(tr.details.amount)}
                 </ReportTable.Cell>
                 <ReportTable.Cell
                   className={cn(`text-right`)}
                 >
-                  {tr.details.side === TR_SIDES.CREDIT && displayNum(tr.details.amount)}
+                  {tr.side === TR_SIDES.CREDIT && displayNum(tr.details.amount)}
                 </ReportTable.Cell>
                 <ReportTable.Cell
                   className={cn(`text-right `)}

@@ -15,7 +15,7 @@ export interface IVatRowModel extends Model<IVatRowDocument> {
   ): Promise<IVatRowDocument>;
 }
 
-export const loadVatRowClass = (models: IModels, subdomain: string) => {
+export const loadVatRowClass = (models: IModels, _subdomain: string) => {
   class VatRow {
     /**
      *

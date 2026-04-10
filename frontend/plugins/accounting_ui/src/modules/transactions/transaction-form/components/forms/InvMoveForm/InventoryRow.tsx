@@ -95,6 +95,7 @@ export const InventoryRow = ({
       ...commonFollowTr,
       _id: currIn?._id || getTempId(),
       journal: TrJournalEnum.INV_MOVE_IN,
+      side: TR_SIDES.DEBIT,
       originType: 'invMoveIn',
       branchId: trDoc.followInfos.moveInBranchId,
       departmentId: trDoc.followInfos.moveInDepartmentId,
@@ -108,8 +109,6 @@ export const InventoryRow = ({
             productId: moveDetail.productId,
             account: trDoc.followExtras?.moveInAccount,
             accountId: trDoc.followInfos?.moveInAccountId,
-
-            side: TR_SIDES.DEBIT,
             count: moveDetail.count,
             unitPrice: moveDetail.unitPrice,
             amount: moveDetail.amount,

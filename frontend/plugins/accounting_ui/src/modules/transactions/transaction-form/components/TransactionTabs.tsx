@@ -179,10 +179,10 @@ export const TransactionsTabsList = ({
       customerId: likeTrDoc.customerId,
       departmentId: likeTrDoc.departmentId,
       journal: selectedJournal,
+      side: diff > 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
       details: [
         {
           ...fields[0].details,
-          side: diff > 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
           amount: Math.abs(diff),
         },
       ],

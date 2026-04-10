@@ -82,6 +82,7 @@ export const InventoryRow = ({
       ...commonFollowTr,
       _id: currOut?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_OUT,
+      side: TR_SIDES.CREDIT,
       originType: 'invSaleOut',
       details: (trDoc.details || []).map((saleDetail) => {
         const curOutDetail = currOut?.details.find(outDetail => outDetail.originId === saleDetail._id);
@@ -93,7 +94,6 @@ export const InventoryRow = ({
             productId: saleDetail.productId,
             account: trDoc.followExtras?.saleOutAccount,
             accountId: trDoc.followInfos?.saleOutAccountId,
-            side: TR_SIDES.CREDIT,
             unitPrice: unitCost,
             count: detail.count,
             amount: fixNum(unitCost * (detail.count ?? 0)),
@@ -108,6 +108,7 @@ export const InventoryRow = ({
       ...commonFollowTr,
       _id: currCost?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_COST,
+      side: TR_SIDES.DEBIT,
       originType: 'invSaleCost',
       details: (trDoc.details || []).map((saleDetail) => {
         const curCostDetail = currCost?.details.find(costDetail => costDetail.originId === saleDetail._id);
@@ -119,7 +120,6 @@ export const InventoryRow = ({
             productId: saleDetail.productId,
             account: trDoc.followExtras?.saleCostAccount,
             accountId: trDoc.followInfos?.saleCostAccountId,
-            side: TR_SIDES.DEBIT,
             unitPrice: unitCost,
             count: detail.count,
             amount: fixNum(unitCost * (detail.count ?? 0)),

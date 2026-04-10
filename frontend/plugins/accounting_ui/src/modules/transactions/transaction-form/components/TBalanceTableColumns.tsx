@@ -91,15 +91,15 @@ const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
 }
 
 const DebitCell = ({ row }: any) => {
-  const { detail } = row.original;
-  const { amount, side } = detail;
+  const { detail, side } = row.original;
+  const { amount } = detail;
 
   return (<AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />)
 };
 
 const CreditCell = ({ row }: any) => {
-  const { detail } = row.original;
-  const { amount, side } = detail;
+  const { detail, side } = row.original;
+  const { amount } = detail;
 
   return (<AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />)
 };

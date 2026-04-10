@@ -3,13 +3,13 @@ import { Document } from 'mongoose';
 export interface ITrDetail {
   _id?: string;
   accountId: string;
-
+  branchId?: string;
+  departmentId?: string;
   followInfos?: any;
   originId?: string;
   originType?: string;
   originSubId?: string;
 
-  side: string;
   amount: number;
   currency?: string;
   currencyAmount?: number;
@@ -51,6 +51,8 @@ export interface ITransaction {
 
   details: ITrDetail[];
   shortDetail?: ITrDetail;
+  side?: string;
+
   createdBy?: string;
   modifiedBy?: string;
 
@@ -86,6 +88,13 @@ export interface ITransactionDocument extends ITransaction, Document {
 
   sumDt: number;
   sumCt: number;
+  side: string;
+  relAccounts: {
+    dt: string[],
+    ct: string[],
+    customDt: string[],
+    customCt: string[]
+  },
   permission?: string;
 }
 

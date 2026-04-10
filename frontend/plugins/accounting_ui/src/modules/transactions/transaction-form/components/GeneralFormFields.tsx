@@ -71,7 +71,6 @@ export const AccountField = ({
 export const SideField = ({
   form,
   index,
-  detIndex,
   sides,
 }: ICommonFieldProps & {
   sides: {
@@ -81,7 +80,7 @@ export const SideField = ({
 }) => (
   <Form.Field
     control={form.control}
-    name={`trDocs.${index}.details.${detIndex ?? 0}.side`}
+    name={`trDocs.${index}.side`}
     render={({ field }) => (
       <Form.Item>
         <Form.Label>Side</Form.Label>

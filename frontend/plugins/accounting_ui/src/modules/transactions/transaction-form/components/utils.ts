@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { AccountKind, JournalEnum } from '@/settings/account/types/Account';
 import { TR_SIDES, TrJournalEnum } from '../../types/constants';
-import { ITransaction } from '../../types/Transaction';
+import { ITransaction, ITrDetail } from '../../types/Transaction';
 import { TAddTransactionGroup } from '../types/JournalForms';
 
 export const getTempId = () => {
@@ -11,13 +11,11 @@ export const getTempId = () => {
 export const getSumDtCt = (tr: ITransaction) => {
   let sumDt = 0;
   let sumCt = 0;
-
-  for (const detail of tr.details) {
-    if (detail.side === TR_SIDES.DEBIT) {
-      sumDt += detail?.amount ?? 0;
-    } else {
-      sumCt += detail?.amount ?? 0;
-    }
+  const perSum = tr.details.reduce((sum: number, det: ITrDetail) => sum + (det.amount ?? 0), 0);
+  if (tr.side === TR_SIDES.DEBIT) {
+    sumDt += perSum;
+  } else {
+    sumCt += perSum;
   }
 
   return { sumDt, sumCt }

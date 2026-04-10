@@ -15,7 +15,7 @@ export const handleMainAC = async (subdomain: string, models: IModels, groupRule
   ];
 
   const $group = {
-    _id: { side: '$details.side', accountId: '$details.accountId' },
+    _id: { side: '$side', accountId: '$details.accountId' },
     sumAmount: { $sum: '$details.amount' },
     sumCurrencyAmount: { $sum: '$details.currencyAmount' }
   };

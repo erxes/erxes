@@ -40,12 +40,12 @@ export const InvSaleForm = ({
     setFollowTrDocs((followTrDocs || []).map((ftr) => (
       ftr.originId === trDoc._id &&
       ftr.originType === 'invSaleOut'
-    ) && {
+    ) ? {
       ...ftr,
       details: ftr.details.map(ftrd => ({
         ...ftrd, account, accountId: account._id
       }))
-    } || ftr));
+    } : ftr));
   };
 
   const onChangeCostAccount = (account: IAccount) => {

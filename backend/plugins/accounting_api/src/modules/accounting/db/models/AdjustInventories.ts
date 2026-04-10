@@ -213,7 +213,7 @@ export const loadAdjustInvDetailsClass = (models: IModels, subdomain: string) =>
         { $sort: { date: 1 } },
         { $unwind: '$details' },
         { $match: { 'details.productId': productId } },
-        { $group: { _id: { side: '$detail.side' }, remainder: { $sum: '$details.count' }, cost: { $sum: '$detail.amount' } } }
+        { $group: { _id: { side: '$side' }, remainder: { $sum: '$details.count' }, cost: { $sum: '$detail.amount' } } }
       ])
 
       const remainder = fixNum(trAggs.reduce((sum, ag) => sum + (ag._id === TR_SIDES.DEBIT ? ag.remainder : -1 * ag.remainder), 0));

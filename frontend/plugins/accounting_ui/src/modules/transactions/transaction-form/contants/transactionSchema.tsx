@@ -39,10 +39,9 @@ export const baseTrDetailSchema = z.object({
   accountId: undefed(z.string()).refine((val) => val?.length, {
     message: 'Must fill account',
   }),
+  branchId: undefed(z.string()),
+  departmentId: undefed(z.string()),
   amount: z.number().min(0),
-  side: z.string().refine((val) => TR_SIDES.ALL.includes(val), {
-    message: 'wrong side aaaa',
-  }),
 
   followInfos: undefed(z.object({})), // rel backend
   followExtras: undefed(z.object({})), // followInfos to object
@@ -88,6 +87,15 @@ export const baseTransactionSchema = z.object({
   departmentId: undefed(z.string()),
   assignedUserIds: undefed(z.array(z.string())),
   details: z.array(baseTrDetailSchema).min(1),
+  side: z.string().refine((val) => TR_SIDES.ALL.includes(val), {
+    message: 'wrong side',
+  }),
+  relAccounts: undefed(z.object({
+    dt: undefed(z.array(z.string())),
+    ct: undefed(z.array(z.string())),
+    customDt: undefed(z.array(z.string())),
+    customCt: undefed(z.array(z.string())),
+  })),
 
   ...vatSchema.shape,
   ...ctaxSchema.shape,

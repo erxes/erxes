@@ -7,6 +7,7 @@ import InvSaleOutCostTrs from './invSale';
 import { createOrUpdateTr, syncProductsInventory } from './utils';
 import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
+import { TR_SIDES } from '../@types/constants';
 
 export const commonSave = async (
   subdomain: string,
@@ -86,13 +87,12 @@ async function handleSingleTr(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const detail = doc.details[0] || {};
   const currencyTrClass = new CurrencyTr(models, subdomain, userId, doc);
   const taxTrsClass = new TaxTrs(
     models,
     userId,
     doc,
-    detail.side === 'dt' ? 'ct' : 'dt',
+    doc.side === 'dt' ? 'ct' : 'dt',
     true,
   );
 
@@ -123,7 +123,7 @@ async function handleInvIncome(
   const taxTrsClass = new TaxTrs(models, userId, doc, 'dt', false);
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
+  const transaction = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.DEBIT }, oldTr);
 
   await syncProductsInventory(subdomain, transaction, oldTr, 1);
 
@@ -142,7 +142,7 @@ async function handleInvOut(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const mainTr = await createOrUpdateTr(models, userId, doc, oldTr);
+  const mainTr = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.CREDIT }, oldTr);
 
   await syncProductsInventory(subdomain, mainTr, oldTr, -1);
 
@@ -159,7 +159,7 @@ async function handleInvMove(
   const invMoveInTrsClass = new InvMoveInTrs(models, userId, doc);
   await invMoveInTrsClass.checkValidation();
 
-  const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
+  const transaction = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.CREDIT }, oldTr);
   const { invMoveInTr, oldFollowInTr } =
     await invMoveInTrsClass.doTrs(transaction);
 
@@ -187,7 +187,7 @@ async function handleInvSale(
   await invSaleOtherTrsClass.checkValidation();
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
+  const transaction = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.CREDIT }, oldTr);
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await invSaleOtherTrsClass.doTrs(transaction))),
@@ -214,7 +214,7 @@ async function handleInvSaleReturn(
   await invSaleReturnOtherTrsClass.checkValidation();
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, userId, doc, oldTr);
+  const transaction = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.DEBIT }, oldTr);
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await invSaleReturnOtherTrsClass.doTrs(transaction))),

@@ -5,6 +5,8 @@ import { JOURNALS, PTR_STATUSES, TR_DETAIL_FOLLOW_TYPES, TR_FOLLOW_TYPES, TR_SID
 export const transactionDetailSchema = new Schema({
   _id: mongooseStringRandomId,
   accountId: { type: String, label: 'Account', index: true },
+  branchId: { type: String, optional: true, label: 'Branch' },
+  departmentId: { type: String, optional: true, label: 'Department' },
 
   followInfos: {
     type: Object, label: 'Follower tr detail input'
@@ -14,13 +16,6 @@ export const transactionDetailSchema = new Schema({
   originType: { type: String, optional: true, label: 'This follow Type', enum: TR_DETAIL_FOLLOW_TYPES.ALL },
   originSubId: { type: String, optional: true, label: 'Source Sub Transaction' }, // double list
 
-  side: {
-    type: String,
-    enum: TR_SIDES.ALL,
-    label: 'Side',
-    default: 'new',
-    index: true,
-  },
   amount: { type: Number, label: 'Amount' },
   currency: { type: String, optional: true, label: 'Currency' },
   currencyAmount: { type: Number, optional: true, label: 'CurrencyAmount' },
@@ -85,6 +80,14 @@ export const transactionSchema = schemaWrapper(
     shortDetail: { type: transactionDetailSchema, label: 'short detail' },
     sumDt: { type: Number, label: 'sumDt' },
     sumCt: { type: Number, label: 'sumCt' },
+    side: {
+      type: String,
+      enum: TR_SIDES.ALL,
+      label: 'Side',
+      default: 'new',
+      index: true,
+    },
+    relAccounts: { type: { dt: [String], ct: [String], customDt: [String], customCt: [String] }, optional: true },
 
     createdBy: { type: String, label: 'Created user' },
     modifiedBy: { type: String, optional: true, label: 'Modified user' },
