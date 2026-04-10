@@ -155,14 +155,6 @@ export class TokiAPI extends BaseAPI {
         'Content-Type': 'application/json',
       };
     } catch (e: any) {
-      console.error('Toki token acquisition failed:', e.message || e);
-      if (e.response) {
-        console.error('Response status:', e.response.status);
-        console.error(
-          'Response body:',
-          await e.response.text().catch(() => 'unable to read'),
-        );
-      }
       throw new Error(`Failed to get Toki access token: ${e.message}`);
     }
   }
