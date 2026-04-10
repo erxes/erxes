@@ -61,7 +61,7 @@ const orderQueries: Record<string, Resolver> = {
 
   async bmsOrderCustomerIds(
     _root,
-    { tourId, branchId }: { tourId: string},
+    { tourId }: { tourId: string},
     { models }: IContext,
   ) {
     const selector: Record<string, string> = { tourId };
