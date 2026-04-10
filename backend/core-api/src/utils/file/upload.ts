@@ -70,29 +70,32 @@ export const uploadToCFImages = async (
   formData.append('file', fs.createReadStream(file.filepath));
   formData.append('id', `${CLOUDFLARE_BUCKET_NAME}/${fileName}`);
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: formData,
-  }).catch((err) => {
-    console.log('Error uploading file to Cloudflare Images: ' + err.message);
-  });
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (!data.success) {
-    throw new Error('Error uploading file to Cloudflare Images 1');
+    if (!data.success) {
+      throw new Error('Error uploading file to Cloudflare Images 1');
+    }
+
+    if (data.result.variants.length === 0) {
+      throw new Error('Error uploading file to Cloudflare Images 2');
+    }
+
+    if (!IS_PUBLIC || IS_PUBLIC === 'false' || VERSION === 'saas') {
+      return CLOUDFLARE_BUCKET_NAME + '/' + fileName;
+    }
+
+    return data.result.variants[0];
+  } catch (error) {
+    console.log('Cloudflare upload error:', error);
+    throw error;
   }
-
-  if (data.result.variants.length === 0) {
-    throw new Error('Error uploading file to Cloudflare Images 2');
-  }
-
-  if (!IS_PUBLIC || IS_PUBLIC === 'false' || VERSION === 'saas') {
-    return CLOUDFLARE_BUCKET_NAME + '/' + fileName;
-  }
-
-  return data.result.variants[0];
 };
 
 /*
