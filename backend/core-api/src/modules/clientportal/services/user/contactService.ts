@@ -157,7 +157,7 @@ export async function findOrCreateCustomer(
     createData.primaryPhone = phone;
   }
 
-  return models.Customers.create(createData);
+  return models.Customers.createCustomer(createData);
 }
 
 export async function findOrCreateCompany(
