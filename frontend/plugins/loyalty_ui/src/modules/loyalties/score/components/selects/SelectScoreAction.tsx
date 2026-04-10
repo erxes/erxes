@@ -17,9 +17,7 @@ import {
 } from 'erxes-ui';
 import { IconArrowsExchange } from '@tabler/icons-react';
 
-const ACTION_OPTIONS = [
-  { value: 'createdAt', label: 'Date' },
-];
+const ACTION_OPTIONS = [{ value: 'createdAt', label: 'Date' }];
 
 interface SelectScoreActionContextType {
   value: string;

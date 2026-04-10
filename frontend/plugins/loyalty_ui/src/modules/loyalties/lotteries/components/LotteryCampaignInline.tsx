@@ -83,8 +83,7 @@ const LotteryCampaignInlineTitle = () => {
   }
 
   const campaign =
-    campaignFromContext ||
-    campaignList?.find((c) => c._id === targetId);
+    campaignFromContext || campaignList?.find((c) => c._id === targetId);
 
   if (!campaign) {
     return (

@@ -48,10 +48,7 @@ export const ScoreMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={handleEdit}
-            >
+            <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit size={14} />
               Edit
             </Command.Item>

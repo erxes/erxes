@@ -139,7 +139,10 @@ export const SelectCouponCampaignFormItem = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Form.Control>
-        <Combobox.Trigger className={cn('w-full shadow-xs', className)} disabled={loading}>
+        <Combobox.Trigger
+          className={cn('w-full shadow-xs', className)}
+          disabled={loading}
+        >
           <span className={selected ? '' : 'text-muted-foreground'}>
             {selected?.label || placeholder || 'Choose coupon campaign'}
           </span>

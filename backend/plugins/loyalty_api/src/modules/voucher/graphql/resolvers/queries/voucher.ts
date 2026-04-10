@@ -65,7 +65,12 @@ export const voucherQueries = {
     params: IVoucherParams,
     { models }: IContext,
   ) {
-    const { page = 1, perPage = 20, sortField = 'createdAt', sortDirection = -1 } = params;
+    const {
+      page = 1,
+      perPage = 20,
+      sortField = 'createdAt',
+      sortDirection = -1,
+    } = params;
     const filter = generateFilter(params);
 
     const totalCount = await models.Vouchers.countDocuments(filter);
@@ -113,7 +118,11 @@ export const voucherQueries = {
       endDate: { $gte: new Date() },
     }).lean();
 
-    const vouchers: Array<{ campaign: (typeof campaigns)[number]; count: number; voucherIds: string[] }> = [];
+    const vouchers: Array<{
+      campaign: (typeof campaigns)[number];
+      count: number;
+      voucherIds: string[];
+    }> = [];
 
     for (const campaign of campaigns) {
       const { _id } = campaign;

@@ -92,7 +92,9 @@ const SelectStatusValue = ({
   className?: string;
 }) => {
   const { value } = useSelectStatusContext();
-  const selectedOption = STATUS_OPTIONS.find((option) => option.value === value);
+  const selectedOption = STATUS_OPTIONS.find(
+    (option) => option.value === value,
+  );
 
   if (!selectedOption) {
     return (
@@ -117,7 +119,10 @@ const SelectStatusCommandItem = ({ option }: { option: StatusOption }) => {
   const isChecked = value.split(',').includes(optionValue);
 
   return (
-    <Command.Item value={optionValue} onSelect={() => onValueChange(optionValue)}>
+    <Command.Item
+      value={optionValue}
+      onSelect={() => onValueChange(optionValue)}
+    >
       <div className="flex items-center gap-2">
         <span className="font-medium">{label}</span>
       </div>

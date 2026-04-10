@@ -163,9 +163,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           },
         },
         {
-          $sort: orderType === 'createdAt'
-            ? { createdAt: -1 }
-            : { totalScore: -1 },
+          $sort:
+            orderType === 'createdAt' ? { createdAt: -1 } : { totalScore: -1 },
         },
       ];
 

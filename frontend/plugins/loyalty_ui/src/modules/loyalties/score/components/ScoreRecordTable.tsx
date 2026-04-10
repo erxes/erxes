@@ -11,7 +11,10 @@ export const ScoreRecordTable = () => {
   const { list, loading } = useScoreList();
   const [selectedRecord, setSelectedRecord] = useState<IScoreLog | null>(null);
 
-  const columns = useMemo(() => makeScoreColumns((row) => setSelectedRecord(row)), []);
+  const columns = useMemo(
+    () => makeScoreColumns((row) => setSelectedRecord(row)),
+    [],
+  );
 
   if (loading && !list?.length) return <Spinner />;
 

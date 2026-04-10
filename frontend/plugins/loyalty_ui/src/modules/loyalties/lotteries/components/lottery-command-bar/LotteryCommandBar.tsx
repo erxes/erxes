@@ -6,7 +6,8 @@ import { LotteryRemove } from './delete/LotteryRemove';
 export const LotteryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
 
-  const selectedRows = table.getFilteredSelectedRowModel().rows as Row<ILottery>[];
+  const selectedRows = table.getFilteredSelectedRowModel()
+    .rows as Row<ILottery>[];
   const lotteryIds = selectedRows.map((row) => row.original._id);
 
   return (

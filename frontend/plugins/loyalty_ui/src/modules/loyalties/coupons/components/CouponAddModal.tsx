@@ -40,41 +40,41 @@ export const CouponAddModal = () => {
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-6">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
-          >
-            <Form.Field
-              control={form.control}
-              name="campaignId"
-              rules={{ required: 'Campaign is required' }}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Campaign</Form.Label>
-                  <SelectCouponCampaignFormItem
-                    value={field.value}
-                    onValueChange={(val) => field.onChange(val)}
-                    placeholder="Choose coupon campaign"
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
-                Close
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Saving...' : 'Save'}
-              </Button>
-            </div>
-          </form>
-        </Form>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col gap-4"
+            >
+              <Form.Field
+                control={form.control}
+                name="campaignId"
+                rules={{ required: 'Campaign is required' }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Campaign</Form.Label>
+                    <SelectCouponCampaignFormItem
+                      value={field.value}
+                      onValueChange={(val) => field.onChange(val)}
+                      placeholder="Choose coupon campaign"
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </Sheet.Content>
       </Sheet.View>
     </Sheet>

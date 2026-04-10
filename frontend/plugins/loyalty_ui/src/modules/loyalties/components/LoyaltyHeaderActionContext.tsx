@@ -5,12 +5,11 @@ type LoyaltyHeaderActionContextType = {
   setAction: (node: React.ReactNode) => void;
 };
 
-const LoyaltyHeaderActionContext = createContext<LoyaltyHeaderActionContextType>(
-  {
+const LoyaltyHeaderActionContext =
+  createContext<LoyaltyHeaderActionContextType>({
     action: null,
     setAction: () => {},
-  },
-);
+  });
 
 export const useLoyaltyHeaderAction = () =>
   useContext(LoyaltyHeaderActionContext);

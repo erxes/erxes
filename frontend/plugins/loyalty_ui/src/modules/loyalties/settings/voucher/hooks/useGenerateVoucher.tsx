@@ -29,7 +29,10 @@ export const useGenerateVoucher = () => {
   >(GENERATE_VOUCHER);
 
   const voucherGenerate = async (
-    options: MutationHookOptions<GenerateVoucherResult, GenerateVoucherVariables>,
+    options: MutationHookOptions<
+      GenerateVoucherResult,
+      GenerateVoucherVariables
+    >,
   ) => {
     return generateVoucher({
       ...options,

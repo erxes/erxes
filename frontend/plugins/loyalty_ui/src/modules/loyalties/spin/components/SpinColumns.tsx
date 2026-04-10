@@ -39,8 +39,10 @@ const CreatedAtCell = ({ spin }: { spin: ISpin }) => {
 };
 
 const renderOwnerContent = (ownerId: string, ownerType?: string) => {
-  if (ownerType === 'company') return <CompaniesInline companyIds={[ownerId]} placeholder="—" />;
-  if (ownerType === 'user') return <MembersInline memberIds={[ownerId]} placeholder="—" />;
+  if (ownerType === 'company')
+    return <CompaniesInline companyIds={[ownerId]} placeholder="—" />;
+  if (ownerType === 'user')
+    return <MembersInline memberIds={[ownerId]} placeholder="—" />;
   return <CustomersInline customerIds={[ownerId]} placeholder="—" />;
 };
 

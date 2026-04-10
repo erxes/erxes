@@ -63,7 +63,12 @@ const DealsList = ({
     <div className="flex flex-col overflow-hidden border-r">
       <div className="flex flex-col gap-6 p-4">
         <div className="flex flex-col gap-1">
-          <label htmlFor="deal-search" className="text-xs font-medium text-accent-foreground">Search</label>
+          <label
+            htmlFor="deal-search"
+            className="text-xs font-medium text-accent-foreground"
+          >
+            Search
+          </label>
           <Input
             id="deal-search"
             placeholder="Search deals..."

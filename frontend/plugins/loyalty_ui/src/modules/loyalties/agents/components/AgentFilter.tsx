@@ -30,13 +30,22 @@ const AgentFilterPopover = () => {
               />
               <Command.List className="p-1">
                 <SelectAgentStatus.FilterItem />
-                <SelectCustomer.FilterItem value="agentCustomerId" label="Customers" />
-                <SelectCompany.FilterItem value="agentCompanyId" label="Companies" />
+                <SelectCustomer.FilterItem
+                  value="agentCustomerId"
+                  label="Customers"
+                />
+                <SelectCompany.FilterItem
+                  value="agentCompanyId"
+                  label="Companies"
+                />
               </Command.List>
             </Command>
           </Filter.View>
           <SelectAgentStatus.FilterView />
-          <SelectCustomer.FilterView filterKey="agentCustomerId" mode="single" />
+          <SelectCustomer.FilterView
+            filterKey="agentCustomerId"
+            mode="single"
+          />
           <SelectCompany.FilterView filterKey="agentCompanyId" mode="single" />
         </Combobox.Content>
       </Filter.Popover>
@@ -45,7 +54,10 @@ const AgentFilterPopover = () => {
           <SelectAgentStatus.FilterView />
         </Filter.View>
         <Filter.View filterKey="agentCustomerId" inDialog>
-          <SelectCustomer.FilterView filterKey="agentCustomerId" mode="single" />
+          <SelectCustomer.FilterView
+            filterKey="agentCustomerId"
+            mode="single"
+          />
         </Filter.View>
         <Filter.View filterKey="agentCompanyId" inDialog>
           <SelectCompany.FilterView filterKey="agentCompanyId" mode="single" />

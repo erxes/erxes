@@ -128,9 +128,7 @@ export const GenerateVoucherSheet = () => {
                         value={field.value}
                       >
                         <Select.Trigger
-                          className={
-                            field.value ? '' : 'text-muted-foreground'
-                          }
+                          className={field.value ? '' : 'text-muted-foreground'}
                         >
                           {campaignList.find((c) => c._id === field.value)
                             ?.title || 'Select voucher campaign'}

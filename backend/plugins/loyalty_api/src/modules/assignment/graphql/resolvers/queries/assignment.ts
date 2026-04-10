@@ -73,9 +73,8 @@ export const assignmentQueries = {
       filter._id = { $in: _ids };
     }
 
-    const assignmentCampaigns = await models.AssignmentCampaigns.find(
-      filter,
-    ).lean();
+    const assignmentCampaigns =
+      await models.AssignmentCampaigns.find(filter).lean();
 
     const assignments = await models.Assignments.find({
       ownerId: customerId,

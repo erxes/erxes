@@ -203,7 +203,9 @@ export const SelectSortFieldFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
-  const [sortField, setSortField] = useQueryState<string[] | string>('sortField');
+  const [sortField, setSortField] = useQueryState<string[] | string>(
+    'sortField',
+  );
   const [open, setOpen] = useState(false);
 
   return (

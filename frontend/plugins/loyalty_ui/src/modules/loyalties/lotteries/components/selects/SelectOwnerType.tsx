@@ -204,7 +204,9 @@ export const SelectOwnerTypeFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
-  const [ownerType, setOwnerType] = useQueryState<string[] | string>('ownerType');
+  const [ownerType, setOwnerType] = useQueryState<string[] | string>(
+    'ownerType',
+  );
   const [open, setOpen] = useState(false);
 
   return (

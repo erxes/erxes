@@ -1,7 +1,10 @@
 import { RecordTable, Spinner } from 'erxes-ui';
 import { IconClipboardList } from '@tabler/icons-react';
 import { assignmentColumns } from './AssignmentColumns';
-import { useAssignmentList, ASSIGNMENT_CURSOR_SESSION_KEY } from '../hooks/useAssignmentList';
+import {
+  useAssignmentList,
+  ASSIGNMENT_CURSOR_SESSION_KEY,
+} from '../hooks/useAssignmentList';
 import { AssignmentCommandBar } from './AssignmentCommandBar';
 import { AssignmentAddModal } from './AssignmentAddModal';
 

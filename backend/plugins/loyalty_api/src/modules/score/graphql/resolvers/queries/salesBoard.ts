@@ -2,7 +2,11 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const salesBoardQueries = {
-  async salesBoards(_root: undefined, _args: undefined, { subdomain }: IContext) {
+  async salesBoards(
+    _root: undefined,
+    _args: undefined,
+    { subdomain }: IContext,
+  ) {
     const result = await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',

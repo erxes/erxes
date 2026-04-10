@@ -1,10 +1,15 @@
-import { Combobox, Command, Filter, Popover, useFilterContext, useQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
 import { IconSortAscending } from '@tabler/icons-react';
 import { useState } from 'react';
 
-const COUPON_ORDER_TYPE_OPTIONS = [
-  { value: 'createdAt', label: 'Date' },
-];
+const COUPON_ORDER_TYPE_OPTIONS = [{ value: 'createdAt', label: 'Date' }];
 
 export const SelectCouponOrderTypeFilterItem = () => (
   <Filter.Item value="couponSortField">

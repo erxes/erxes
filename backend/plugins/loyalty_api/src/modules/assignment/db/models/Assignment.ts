@@ -8,7 +8,10 @@ import { IModels } from '~/connectionResolvers';
 
 export interface IAssignmentModel extends Model<IAssignmentDocument> {
   getAssignment(_id: string): Promise<IAssignmentDocument>;
-  createAssignment(doc: IAssignment, checkExpiry?: boolean): Promise<IAssignmentDocument>;
+  createAssignment(
+    doc: IAssignment,
+    checkExpiry?: boolean,
+  ): Promise<IAssignmentDocument>;
   removeAssignments(_ids: string[]): void;
 }
 
@@ -24,7 +27,10 @@ export const loadAssignmentClass = (models: IModels) => {
       return assignment;
     }
 
-    public static async createAssignment(doc: IAssignment, checkExpiry = false) {
+    public static async createAssignment(
+      doc: IAssignment,
+      checkExpiry = false,
+    ) {
       const {
         campaignId,
         ownerId,

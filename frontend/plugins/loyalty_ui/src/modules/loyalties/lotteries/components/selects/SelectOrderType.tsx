@@ -202,7 +202,9 @@ export const SelectOrderTypeFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
-  const [orderType, setOrderType] = useQueryState<string[] | string>('orderType');
+  const [orderType, setOrderType] = useQueryState<string[] | string>(
+    'orderType',
+  );
   const [open, setOpen] = useState(false);
 
   return (

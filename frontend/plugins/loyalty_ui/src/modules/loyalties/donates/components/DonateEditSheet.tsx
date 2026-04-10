@@ -17,7 +17,9 @@ const DonateOwnerSelect = ({
   onChange: (val: string) => void;
 }) => {
   if (ownerType === 'company') {
-    return <SelectCompany value={value} onValueChange={onChange} mode="single" />;
+    return (
+      <SelectCompany value={value} onValueChange={onChange} mode="single" />
+    );
   }
   if (ownerType === 'user') {
     return (
@@ -28,7 +30,9 @@ const DonateOwnerSelect = ({
       />
     );
   }
-  return <SelectCustomer value={value} onValueChange={onChange} mode="single" />;
+  return (
+    <SelectCustomer value={value} onValueChange={onChange} mode="single" />
+  );
 };
 
 interface DonateEditFormValues {

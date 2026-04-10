@@ -21,15 +21,30 @@ interface UseCouponListOptions {
 }
 
 export const useCouponVariables = (options: UseCouponListOptions = {}) => {
-  const [{ couponStatus, couponCampaignId, ownerType, couponDate, orderType, sortField: sortFieldQuery }] =
-    useMultiQueryState<{
-      couponStatus: string;
-      couponCampaignId: string;
-      ownerType: string;
-      couponDate: string;
-      orderType: string;
-      sortField: string;
-    }>(['couponStatus', 'couponCampaignId', 'ownerType', 'couponDate', 'orderType', 'sortField']);
+  const [
+    {
+      couponStatus,
+      couponCampaignId,
+      ownerType,
+      couponDate,
+      orderType,
+      sortField: sortFieldQuery,
+    },
+  ] = useMultiQueryState<{
+    couponStatus: string;
+    couponCampaignId: string;
+    ownerType: string;
+    couponDate: string;
+    orderType: string;
+    sortField: string;
+  }>([
+    'couponStatus',
+    'couponCampaignId',
+    'ownerType',
+    'couponDate',
+    'orderType',
+    'sortField',
+  ]);
 
   const dateRange = parseDateRangeFromString(couponDate);
 

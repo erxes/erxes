@@ -164,13 +164,17 @@ export const VoucherAddSheet = () => {
                       {ownerType === 'company' ? (
                         <SelectCompany
                           value={field.value}
-                          onValueChange={(val) => field.onChange(toStringArray(val))}
+                          onValueChange={(val) =>
+                            field.onChange(toStringArray(val))
+                          }
                           mode="multiple"
                         />
                       ) : (
                         <SelectCustomer
                           value={field.value}
-                          onValueChange={(val) => field.onChange(toStringArray(val))}
+                          onValueChange={(val) =>
+                            field.onChange(toStringArray(val))
+                          }
                           mode="multiple"
                         />
                       )}

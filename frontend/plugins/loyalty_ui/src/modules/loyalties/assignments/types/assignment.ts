@@ -4,7 +4,12 @@ export interface IAssignmentItem {
   campaign?: { _id?: string; title?: string };
   ownerType?: string;
   ownerId?: string;
-  owner?: { primaryPhone?: string; primaryEmail?: string; firstName?: string; lastName?: string };
+  owner?: {
+    primaryPhone?: string;
+    primaryEmail?: string;
+    firstName?: string;
+    lastName?: string;
+  };
   status?: string;
   createdAt?: string;
   usedAt?: string;

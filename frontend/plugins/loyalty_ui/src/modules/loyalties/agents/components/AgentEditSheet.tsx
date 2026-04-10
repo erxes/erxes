@@ -35,17 +35,24 @@ const buildAgentEditPayload = (agent: IAgent, values: AgentEditFormValues) => ({
   customerIds: values.customerIds.length > 0 ? values.customerIds : undefined,
   companyIds: values.companyIds.length > 0 ? values.companyIds : undefined,
   hasReturn: values.hasReturn,
-  prepaidPercent: values.prepaidPercent ? Number(values.prepaidPercent) : undefined,
-  discountPercent: values.discountPercent ? Number(values.discountPercent) : undefined,
+  prepaidPercent: values.prepaidPercent
+    ? Number(values.prepaidPercent)
+    : undefined,
+  discountPercent: values.discountPercent
+    ? Number(values.discountPercent)
+    : undefined,
   returnAmount: values.returnAmount ? Number(values.returnAmount) : undefined,
-  returnPercent: values.returnPercent ? Number(values.returnPercent) : undefined,
+  returnPercent: values.returnPercent
+    ? Number(values.returnPercent)
+    : undefined,
   startDate: values.startDate,
   endDate: values.endDate,
   startMonth: values.startMonth,
   endMonth: values.endMonth,
   startDay: values.startDay,
   endDay: values.endDay,
-  productRuleIds: values.productRuleIds.length > 0 ? values.productRuleIds : undefined,
+  productRuleIds:
+    values.productRuleIds.length > 0 ? values.productRuleIds : undefined,
 });
 
 interface AgentEditFormValues {
@@ -95,7 +102,9 @@ export const AgentEditSheet = ({
 
   const onSubmit = async (values: AgentEditFormValues) => {
     try {
-      const result = await agentEdit(buildAgentEditPayload(agent, values) as any);
+      const result = await agentEdit(
+        buildAgentEditPayload(agent, values) as any,
+      );
       if (result?.data) {
         onOpenChange(false);
       }
@@ -213,7 +222,9 @@ export const AgentEditSheet = ({
                         <Input.Number
                           placeholder="0"
                           value={field.value ? Number(field.value) : undefined}
-                          onChange={(v) => field.onChange(v === '' ? '' : String(v))}
+                          onChange={(v) =>
+                            field.onChange(v === '' ? '' : String(v))
+                          }
                           onBlur={field.onBlur}
                         />
                         <Form.Message />
@@ -229,7 +240,9 @@ export const AgentEditSheet = ({
                         <Input.Number
                           placeholder="0"
                           value={field.value ? Number(field.value) : undefined}
-                          onChange={(v) => field.onChange(v === '' ? '' : String(v))}
+                          onChange={(v) =>
+                            field.onChange(v === '' ? '' : String(v))
+                          }
                           onBlur={field.onBlur}
                         />
                         <Form.Message />
@@ -248,7 +261,9 @@ export const AgentEditSheet = ({
                         <Input.Number
                           placeholder="0"
                           value={field.value ? Number(field.value) : undefined}
-                          onChange={(v) => field.onChange(v === '' ? '' : String(v))}
+                          onChange={(v) =>
+                            field.onChange(v === '' ? '' : String(v))
+                          }
                           onBlur={field.onBlur}
                         />
                         <Form.Message />
@@ -264,7 +279,9 @@ export const AgentEditSheet = ({
                         <Input.Number
                           placeholder="0"
                           value={field.value ? Number(field.value) : undefined}
-                          onChange={(v) => field.onChange(v === '' ? '' : String(v))}
+                          onChange={(v) =>
+                            field.onChange(v === '' ? '' : String(v))
+                          }
                           onBlur={field.onBlur}
                         />
                         <Form.Message />

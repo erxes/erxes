@@ -1,6 +1,13 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
-import { Button, CommandBar, RecordTable, Separator, useConfirm, useToast } from 'erxes-ui';
+import {
+  Button,
+  CommandBar,
+  RecordTable,
+  Separator,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { IAssignmentItem } from '../types/assignment';
 import { ASSIGNMENTS_REMOVE_MUTATION } from '../graphql/mutations';
@@ -53,7 +60,8 @@ const AssignmentRemove = ({
 
 export const AssignmentCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
-  const selectedRows = table.getFilteredSelectedRowModel().rows as Row<IAssignmentItem>[];
+  const selectedRows = table.getFilteredSelectedRowModel()
+    .rows as Row<IAssignmentItem>[];
   const ids = selectedRows.map((row) => row.original._id);
 
   return (

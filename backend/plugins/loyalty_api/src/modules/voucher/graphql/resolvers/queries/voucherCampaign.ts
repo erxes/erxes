@@ -15,8 +15,14 @@ const generateFilter = async (
 ): Promise<FilterQuery<IVoucherCampaign>> => {
   const filter: FilterQuery<IVoucherCampaign> = {};
 
-  const { searchValue, status, voucherType, equalTypeCampaignId, _ids, excludeVoucherTypes } =
-    params || {};
+  const {
+    searchValue,
+    status,
+    voucherType,
+    equalTypeCampaignId,
+    _ids,
+    excludeVoucherTypes,
+  } = params || {};
 
   if (equalTypeCampaignId) {
     const campaign = await models.VoucherCampaigns.findOne({

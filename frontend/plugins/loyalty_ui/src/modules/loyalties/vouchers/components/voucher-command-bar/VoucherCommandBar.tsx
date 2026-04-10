@@ -6,7 +6,8 @@ import { VoucherRemove } from './delete/VoucherRemove';
 export const VoucherCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
 
-  const selectedRows = table.getFilteredSelectedRowModel().rows as Row<IVoucher>[];
+  const selectedRows = table.getFilteredSelectedRowModel()
+    .rows as Row<IVoucher>[];
   const voucherIds = selectedRows.map((row) => row.original._id);
 
   return (
