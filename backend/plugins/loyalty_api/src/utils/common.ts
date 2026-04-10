@@ -57,7 +57,7 @@ export interface ICommonCampaignParams {
   page?: number;
   perPage?: number;
   sortField?: string;
-  sortDirection?: number;
+  sortDirection?: 1 | -1;
   searchValue?: string;
   filterStatus?: string;
 }
@@ -66,7 +66,7 @@ export interface ICommonParams {
   page?: number;
   perPage?: number;
   sortField?: string;
-  sortDirection?: number;
+  sortDirection?: 1 | -1;
   searchValue?: string;
   campaignId?: string;
   ownerType?: string;

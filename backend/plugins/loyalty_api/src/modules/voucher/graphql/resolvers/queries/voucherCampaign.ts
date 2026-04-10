@@ -15,7 +15,7 @@ const generateFilter = async (
 ): Promise<FilterQuery<IVoucherCampaign>> => {
   const filter: FilterQuery<IVoucherCampaign> = {};
 
-  const { searchValue, status, voucherType, equalTypeCampaignId, _ids } =
+  const { searchValue, status, voucherType, equalTypeCampaignId, _ids, excludeVoucherTypes } =
     params || {};
 
   if (equalTypeCampaignId) {
@@ -38,6 +38,10 @@ const generateFilter = async (
 
   if (voucherType) {
     filter.voucherType = voucherType;
+  }
+
+  if (excludeVoucherTypes?.length) {
+    filter.voucherType = { $nin: excludeVoucherTypes };
   }
 
   if (status) {

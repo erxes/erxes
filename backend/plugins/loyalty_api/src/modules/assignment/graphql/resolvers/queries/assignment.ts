@@ -20,6 +20,14 @@ const generateFilter = (params: IAssignmentParams) => {
     filter.status = params.status;
   }
 
+  if (params.ownerId) {
+    filter.ownerId = params.ownerId;
+  }
+
+  if (params.ownerType) {
+    filter.ownerType = params.ownerType;
+  }
+
   return filter;
 };
 

@@ -41,6 +41,7 @@ export interface IVoucherCampaignParams extends ICursorPaginateParams {
   searchValue?: string;
   status?: string;
   voucherType?: string;
+  excludeVoucherTypes?: string[];
   equalTypeCampaignId?: string;
   _ids?: string[];
 }

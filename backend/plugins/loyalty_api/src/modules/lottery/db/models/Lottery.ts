@@ -44,10 +44,6 @@ export const loadLotteryClass = (models: IModels) => {
 
       const now = new Date();
 
-      if (lotteryCampaign.startDate > now || lotteryCampaign.endDate < now) {
-        throw new Error('Not create lottery, expired');
-      }
-
       const number = getRandomNumber(lotteryCampaign.numberFormat);
       return await models.Lotteries.create({
         campaignId,

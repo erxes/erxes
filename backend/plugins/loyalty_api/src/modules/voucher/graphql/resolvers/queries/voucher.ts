@@ -60,6 +60,24 @@ export const voucherQueries = {
     });
   },
 
+  async vouchersMain(
+    _parent: undefined,
+    params: IVoucherParams,
+    { models }: IContext,
+  ) {
+    const { page = 1, perPage = 20, sortField = 'createdAt', sortDirection = -1 } = params;
+    const filter = generateFilter(params);
+
+    const totalCount = await models.Vouchers.countDocuments(filter);
+    const list = await models.Vouchers.find(filter)
+      .sort({ [sortField]: sortDirection })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .lean();
+
+    return { list, totalCount };
+  },
+
   async ownerVouchers(
     _parent: undefined,
     params: { ownerId: string; ownerType: string },
@@ -95,7 +113,7 @@ export const voucherQueries = {
       endDate: { $gte: new Date() },
     }).lean();
 
-    const vouchers: any = [];
+    const vouchers: Array<{ campaign: (typeof campaigns)[number]; count: number; voucherIds: string[] }> = [];
 
     for (const campaign of campaigns) {
       const { _id } = campaign;
