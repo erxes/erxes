@@ -11,8 +11,6 @@ import {
 } from 'erxes-ui';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { useAccountEdit } from '../hooks/useAccountEdit';
-import { useSetAtom } from 'jotai';
-import { accountDetailAtom } from '../states/accountStates';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
 
 const AccountCategoryCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
@@ -87,12 +85,10 @@ export const AccountMoreColumnCell = ({
   cell: Cell<IAccount, unknown>;
 }) => {
   const [, setOpen] = useQueryState('accountId');
-  const setAccountDetail = useSetAtom(accountDetailAtom);
   return (
     <RecordTable.MoreButton
       className="w-full h-full"
       onClick={() => {
-        setAccountDetail(cell.row.original);
         setOpen(cell.row.original._id);
       }}
     />

@@ -59,7 +59,8 @@ const accountParams = `
   departmentId: String,
   isTemp: Boolean,
   isOutBalance: Boolean,
-  scopeBrandIds: [String]
+  scopeBrandIds: [String],
+  status: String,
 `;
 
 const accountCategoryParams = `

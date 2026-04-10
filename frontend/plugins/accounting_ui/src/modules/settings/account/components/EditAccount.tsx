@@ -24,10 +24,10 @@ export const EditAccount = () => {
 export const EditAccountForm = () => {
   const { accountDetail, closeDetail, loading } = useAccountDetail();
   const { editAccount, loading: editLoading } = useAccountEdit();
-
+  
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
-    defaultValues: ACCOUNT_DEFAULT_VALUES,
+    defaultValues: accountDetail ?? ACCOUNT_DEFAULT_VALUES,
   });
   const { reset } = form;
 
