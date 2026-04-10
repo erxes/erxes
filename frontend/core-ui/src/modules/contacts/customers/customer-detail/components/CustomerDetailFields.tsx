@@ -66,12 +66,12 @@ export const CustomerDetailFields = () => {
         _id,
       },
       onCompleted: () => {
-        toast({ title: t('saved', 'Successfully saved'), variant: 'success' });
+        toast({ title: t('saved', 'Customer details updated successfully.'), variant: 'success' });
       },
       onError: (e) => {
         toast({
-          title: t('error', 'Error'),
-          description: e.message,
+          title: t('error', 'Update Failed'),
+          description: e.message || t('error', 'Failed to update customer details.'),
           variant: 'destructive',
         });
       },
