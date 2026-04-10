@@ -1,8 +1,7 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Spinner } from 'erxes-ui';
 import { firstDonateColumns, secondDonateColumns } from './DonateColumns';
 import { useDonateList } from '../hooks/UseDonateList';
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { Spinner } from 'erxes-ui';
 import { DonateCommandBar } from './DonateCommandBar';
 
 export const DonateRecordTable = ({ posId }: { posId?: string }) => {

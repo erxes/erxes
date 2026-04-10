@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 
 type LoyaltyHeaderActionContextType = {
   action: React.ReactNode;
@@ -21,9 +21,10 @@ export const LoyaltyHeaderActionProvider = ({
   children: React.ReactNode;
 }) => {
   const [action, setAction] = useState<React.ReactNode>(null);
+  const value = useMemo(() => ({ action, setAction }), [action]);
 
   return (
-    <LoyaltyHeaderActionContext.Provider value={{ action, setAction }}>
+    <LoyaltyHeaderActionContext.Provider value={value}>
       {children}
     </LoyaltyHeaderActionContext.Provider>
   );

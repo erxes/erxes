@@ -10,6 +10,17 @@ export interface IDonateModel extends Model<IDonateDocument> {
   removeDonates(_ids: string[]): void;
 }
 
+const findFitAward = (donateScore: number, awards: any[]) => {
+  const sorted = [...awards].sort((a, b) => a.minScore - b.minScore);
+  let fitAward: any = {};
+  for (const award of sorted) {
+    if (donateScore >= award.minScore) {
+      fitAward = award;
+    }
+  }
+  return fitAward;
+};
+
 export const loadDonateClass = (models: IModels) => {
   class Donate {
     public static async getDonate(_id: string) {
@@ -71,15 +82,7 @@ export const loadDonateClass = (models: IModels) => {
       let fitAward: any = {};
 
       if (donateScore && (donateCampaign.awards || []).length) {
-        const awards = (donateCampaign.awards || []).sort(
-          (a, b) => a.minScore - b.minScore,
-        );
-
-        for (const award of awards) {
-          if (donateScore >= award.minScore) {
-            fitAward = award;
-          }
-        }
+        fitAward = findFitAward(donateScore, donateCampaign.awards || []);
 
         if (fitAward.voucherCampaignId) {
           voucher = await models.Vouchers.createVoucher({

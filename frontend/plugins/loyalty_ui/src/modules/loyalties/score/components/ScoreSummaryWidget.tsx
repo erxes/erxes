@@ -44,9 +44,9 @@ export const ScoreSummaryWidget = () => {
       key: 'redemptionRate',
       label: 'Redemption Rates',
       value:
-        stats.redemptionRate != null
-          ? `${Number(stats.redemptionRate).toFixed(1)}%`
-          : '-',
+        stats.redemptionRate == null
+          ? '-'
+          : `${Number(stats.redemptionRate).toFixed(1)}%`,
     },
     {
       key: 'activeLoyaltyMembers',

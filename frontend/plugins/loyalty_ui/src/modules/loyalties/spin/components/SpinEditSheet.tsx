@@ -9,6 +9,39 @@ import { ISpin } from '../types/spin';
 import { SelectSpinCampaign } from './selects/SelectSpinCampaign';
 import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectVoucherCampaign';
 
+const SpinOwnerSelect = ({
+  ownerType,
+  value,
+  onChange,
+}: {
+  ownerType: string;
+  value: string;
+  onChange: (val: string) => void;
+}) => {
+  if (ownerType === 'company') {
+    return <SelectCompany value={value} onValueChange={onChange} mode="single" />;
+  }
+  if (ownerType === 'user') {
+    return (
+      <SelectMember.FormItem
+        value={value}
+        onValueChange={(val) => onChange(val as string)}
+        mode="single"
+      />
+    );
+  }
+  if (ownerType === 'cpUser') {
+    return (
+      <SelectClientPortalUserFormItem
+        value={value}
+        onValueChange={onChange}
+        placeholder="Choose client portal user"
+      />
+    );
+  }
+  return <SelectCustomer value={value} onValueChange={onChange} mode="single" />;
+};
+
 interface SpinEditFormValues {
   campaignId: string;
   ownerId: string;
@@ -143,31 +176,11 @@ export const SpinEditSheet = ({
                   <Form.Item>
                     <Form.Label>Owner *</Form.Label>
                     <Form.Control>
-                      {ownerType === 'company' ? (
-                        <SelectCompany
-                          value={field.value}
-                          onValueChange={(val) => field.onChange(val)}
-                          mode="single"
-                        />
-                      ) : ownerType === 'user' ? (
-                        <SelectMember.FormItem
-                          value={field.value}
-                          onValueChange={(val) => field.onChange(val as string)}
-                          mode="single"
-                        />
-                      ) : ownerType === 'cpUser' ? (
-                        <SelectClientPortalUserFormItem
-                          value={field.value}
-                          onValueChange={(val) => field.onChange(val)}
-                          placeholder="Choose client portal user"
-                        />
-                      ) : (
-                        <SelectCustomer
-                          value={field.value}
-                          onValueChange={(val) => field.onChange(val)}
-                          mode="single"
-                        />
-                      )}
+                      <SpinOwnerSelect
+                        ownerType={ownerType}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>

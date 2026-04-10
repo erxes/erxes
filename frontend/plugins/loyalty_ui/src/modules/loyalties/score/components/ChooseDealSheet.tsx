@@ -63,8 +63,9 @@ const DealsList = ({
     <div className="flex flex-col overflow-hidden border-r">
       <div className="flex flex-col gap-6 p-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-accent-foreground">Search</label>
+          <label htmlFor="deal-search" className="text-xs font-medium text-accent-foreground">Search</label>
           <Input
+            id="deal-search"
             placeholder="Search deals..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -72,7 +73,7 @@ const DealsList = ({
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-accent-foreground">Board</label>
+          <p className="text-xs font-medium text-accent-foreground">Board</p>
           <SelectBoard
             value={boardId}
             scope="deal-sheet"
@@ -80,7 +81,7 @@ const DealsList = ({
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-accent-foreground">Pipeline</label>
+          <p className="text-xs font-medium text-accent-foreground">Pipeline</p>
           <SelectPipeline
             value={pipelineId}
             boardId={boardId}
@@ -90,7 +91,7 @@ const DealsList = ({
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-accent-foreground">Stage</label>
+          <p className="text-xs font-medium text-accent-foreground">Stage</p>
           <SelectStage
             value={stageId}
             pipelineId={pipelineId}

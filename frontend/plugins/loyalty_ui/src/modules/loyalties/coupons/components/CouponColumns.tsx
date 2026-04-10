@@ -12,8 +12,8 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  useToast,
 } from 'erxes-ui';
-import { useToast } from 'erxes-ui';
 import { ICoupon } from '../types/coupon';
 
 const CodeCell = ({ code }: { code?: string }) => {
@@ -86,7 +86,7 @@ export const couponColumns: ColumnDef<ICoupon>[] = [
     size: 90,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        {cell.getValue() != null ? String(cell.getValue()) : '0'}
+        {cell.getValue() == null ? '0' : String(cell.getValue())}
       </RecordTableInlineCell>
     ),
   },
@@ -97,7 +97,7 @@ export const couponColumns: ColumnDef<ICoupon>[] = [
     size: 90,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        {cell.getValue() != null ? String(cell.getValue()) : '—'}
+        {cell.getValue() == null ? '—' : String(cell.getValue())}
       </RecordTableInlineCell>
     ),
   },

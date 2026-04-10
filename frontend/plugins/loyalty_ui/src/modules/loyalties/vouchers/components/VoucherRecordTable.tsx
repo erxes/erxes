@@ -1,11 +1,10 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Spinner } from 'erxes-ui';
 import {
   firstVoucherColumns,
   secondVoucherColumns,
 } from '@/loyalties/vouchers/components/VoucherColumns';
 import { useVouchersList } from '@/loyalties/vouchers/hooks/UseVoucherList';
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { Spinner } from 'erxes-ui';
 
 export const VoucherRecordTable = ({ posId }: { posId?: string }) => {
   const { vouchersList, handleFetchMore, loading, pageInfo } = useVouchersList({

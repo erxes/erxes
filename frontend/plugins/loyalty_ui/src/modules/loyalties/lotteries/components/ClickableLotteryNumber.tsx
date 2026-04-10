@@ -26,9 +26,13 @@ export const ClickableLotteryNumber = ({
 
   return (
     <RecordTableInlineCell>
-      <div className="cursor-pointer" onClick={handleClick}>
+      <button
+        type="button"
+        className="cursor-pointer bg-transparent border-0 p-0 text-inherit text-left w-full"
+        onClick={handleClick}
+      >
         <TextOverflowTooltip value={value} />
-      </div>
+      </button>
     </RecordTableInlineCell>
   );
 };

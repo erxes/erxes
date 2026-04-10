@@ -9,9 +9,8 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconUser } from '@tabler/icons-react';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import { useMemo, useState } from 'react';
-import { gql } from '@apollo/client';
 
 const GET_CUSTOMERS_SIMPLE = gql`
   query CustomersSimple($searchValue: String, $limit: Int) {

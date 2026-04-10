@@ -13,14 +13,15 @@ export const useDeleteAgent = () => {
       update(cache) {
         cache.modify({
           fields: {
-            agentsMain(existing = {}, { readField }) {
-              const newList = (existing.list || []).filter(
+            agentsMain(existing, { readField }) {
+              const safeExisting = existing || {};
+              const newList = (safeExisting.list || []).filter(
                 (ref: Reference) => readField('_id', ref) !== _id,
               );
               return {
-                ...existing,
+                ...safeExisting,
                 list: newList,
-                totalCount: Math.max((existing.totalCount || 0) - 1, 0),
+                totalCount: Math.max((safeExisting.totalCount || 0) - 1, 0),
               };
             },
           },

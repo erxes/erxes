@@ -22,15 +22,16 @@ const ClickableScoreNumber = ({ item }: { item: IScoreLogItem }) => {
 
   return (
     <RecordTableInlineCell>
-      <div
-        className="cursor-pointer text-primary hover:underline"
+      <button
+        type="button"
+        className="cursor-pointer text-primary hover:underline bg-transparent border-0 p-0 text-left w-full"
         onClick={(e) => {
           e.stopPropagation();
           setNumber(number);
         }}
       >
         <TextOverflowTooltip value={number} />
-      </div>
+      </button>
     </RecordTableInlineCell>
   );
 };
@@ -83,15 +84,16 @@ const OwnerNameCell = ({
 
   return (
     <RecordTableInlineCell>
-      <span
-        className="cursor-pointer "
+      <button
+        type="button"
+        className="cursor-pointer bg-transparent border-0 p-0 text-inherit text-left w-full"
         onClick={(e) => {
           e.stopPropagation();
           onEdit?.(row.original);
         }}
       >
         {name}
-      </span>
+      </button>
     </RecordTableInlineCell>
   );
 };

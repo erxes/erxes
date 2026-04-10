@@ -40,6 +40,12 @@ const CreatedAtCell = ({ donate }: { donate: IDonate }) => {
   );
 };
 
+const renderOwnerContent = (ownerId: string, ownerType?: string) => {
+  if (ownerType === 'company') return <CompaniesInline companyIds={[ownerId]} placeholder="—" />;
+  if (ownerType === 'user') return <MembersInline memberIds={[ownerId]} placeholder="—" />;
+  return <CustomersInline customerIds={[ownerId]} placeholder="—" />;
+};
+
 const OwnerCell = ({
   ownerId,
   ownerType,
@@ -51,13 +57,7 @@ const OwnerCell = ({
 
   return (
     <RecordTableInlineCell>
-      {ownerType === 'company' ? (
-        <CompaniesInline companyIds={[ownerId]} placeholder="—" />
-      ) : ownerType === 'user' ? (
-        <MembersInline memberIds={[ownerId]} placeholder="—" />
-      ) : (
-        <CustomersInline customerIds={[ownerId]} placeholder="—" />
-      )}
+      {renderOwnerContent(ownerId, ownerType)}
     </RecordTableInlineCell>
   );
 };

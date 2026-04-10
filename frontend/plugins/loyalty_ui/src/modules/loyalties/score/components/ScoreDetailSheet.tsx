@@ -90,12 +90,9 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
             <span className="text-muted-foreground"></span>
           </RecordTableInlineCell>
         );
-      const variant =
-        action === 'add'
-          ? 'success'
-          : action === 'subtract'
-          ? 'destructive'
-          : 'secondary';
+      let variant = 'secondary';
+      if (action === 'add') variant = 'success';
+      else if (action === 'subtract') variant = 'destructive';
       return (
         <RecordTableInlineCell>
           <Badge variant={variant as any}>{action}</Badge>
@@ -115,7 +112,7 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
       return (
         <RecordTableInlineCell className="text-right">
           <TextOverflowTooltip
-            value={val != null ? val.toLocaleString() : ''}
+            value={val == null ? '' : val.toLocaleString()}
           />
         </RecordTableInlineCell>
       );
@@ -132,7 +129,7 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
       const val = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell className="text-right">
-          <TextOverflowTooltip value={val != null ? String(val) : ''} />
+          <TextOverflowTooltip value={val == null ? '' : String(val)} />
         </RecordTableInlineCell>
       );
     },
@@ -148,7 +145,7 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
       const val = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell className="text-right font-semibold text-green-600">
-          <TextOverflowTooltip value={val != null ? String(val) : ''} />
+          <TextOverflowTooltip value={val == null ? '' : String(val)} />
         </RecordTableInlineCell>
       );
     },
@@ -164,7 +161,7 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
       const val = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell className="text-right font-semibold text-red-500">
-          <TextOverflowTooltip value={val != null ? String(val) : ''} />
+          <TextOverflowTooltip value={val == null ? '' : String(val)} />
         </RecordTableInlineCell>
       );
     },
@@ -180,7 +177,7 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
       const val = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell className="text-right font-semibold text-blue-500">
-          <TextOverflowTooltip value={val != null ? String(val) : ''} />
+          <TextOverflowTooltip value={val == null ? '' : String(val)} />
         </RecordTableInlineCell>
       );
     },

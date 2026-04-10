@@ -7,6 +7,30 @@ import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectComp
 import { IDonate } from '../types/donate';
 import { SelectDonateCampaign } from './selects/SelectDonateCampaign';
 
+const DonateOwnerSelect = ({
+  ownerType,
+  value,
+  onChange,
+}: {
+  ownerType: string;
+  value: string;
+  onChange: (val: string) => void;
+}) => {
+  if (ownerType === 'company') {
+    return <SelectCompany value={value} onValueChange={onChange} mode="single" />;
+  }
+  if (ownerType === 'user') {
+    return (
+      <SelectMember.FormItem
+        value={value}
+        onValueChange={(val) => onChange(val as string)}
+        mode="single"
+      />
+    );
+  }
+  return <SelectCustomer value={value} onValueChange={onChange} mode="single" />;
+};
+
 interface DonateEditFormValues {
   campaignId: string;
   ownerId: string;
@@ -144,25 +168,11 @@ export const DonateEditSheet = ({
                   <Form.Item>
                     <Form.Label>Owner *</Form.Label>
                     <Form.Control>
-                      {ownerType === 'company' ? (
-                        <SelectCompany
-                          value={field.value}
-                          onValueChange={(val) => field.onChange(val)}
-                          mode="single"
-                        />
-                      ) : ownerType === 'user' ? (
-                        <SelectMember.FormItem
-                          value={field.value}
-                          onValueChange={(val) => field.onChange(val as string)}
-                          mode="single"
-                        />
-                      ) : (
-                        <SelectCustomer
-                          value={field.value}
-                          onValueChange={(val) => field.onChange(val)}
-                          mode="single"
-                        />
-                      )}
+                      <DonateOwnerSelect
+                        ownerType={ownerType}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>

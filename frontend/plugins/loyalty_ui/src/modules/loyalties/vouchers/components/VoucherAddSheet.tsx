@@ -7,6 +7,12 @@ import { SelectCustomer, SelectTags } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
 import { SelectVoucherCampaign } from './selects/SelectVoucherCampaign';
 
+const toStringArray = (val: unknown): string[] => {
+  if (Array.isArray(val)) return val;
+  if (val) return [val as string];
+  return [];
+};
+
 interface VoucherAddFormValues {
   campaignId: string;
   ownerIds: string[];
@@ -158,21 +164,13 @@ export const VoucherAddSheet = () => {
                       {ownerType === 'company' ? (
                         <SelectCompany
                           value={field.value}
-                          onValueChange={(val) =>
-                            field.onChange(
-                              Array.isArray(val) ? val : val ? [val] : [],
-                            )
-                          }
+                          onValueChange={(val) => field.onChange(toStringArray(val))}
                           mode="multiple"
                         />
                       ) : (
                         <SelectCustomer
                           value={field.value}
-                          onValueChange={(val) =>
-                            field.onChange(
-                              Array.isArray(val) ? val : val ? [val] : [],
-                            )
-                          }
+                          onValueChange={(val) => field.onChange(toStringArray(val))}
                           mode="multiple"
                         />
                       )}

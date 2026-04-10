@@ -1,11 +1,10 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Spinner } from 'erxes-ui';
 import {
   firstSpinColumns,
   secondSpinColumns,
 } from '@/loyalties/spin/components/SpinColumns';
 import { useSpinList } from '@/loyalties/spin/hooks/UseSpinList';
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { Spinner } from 'erxes-ui';
 import { SpinCommandBar } from './SpinCommandBar';
 
 export const SpinRecordTable = ({ posId }: { posId?: string }) => {

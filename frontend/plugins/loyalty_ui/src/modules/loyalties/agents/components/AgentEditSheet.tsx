@@ -9,6 +9,45 @@ import { SelectCustomer } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
 import { MonthPicker } from './selects/MonthPicker';
 
+const getAgentFormValues = (agent: IAgent) => ({
+  number: agent.number || '',
+  status: agent.status || 'draft',
+  customerIds: agent.customerIds || [],
+  companyIds: agent.companyIds || [],
+  hasReturn: agent.hasReturn || false,
+  prepaidPercent: agent.prepaidPercent ? String(agent.prepaidPercent) : '',
+  discountPercent: agent.discountPercent ? String(agent.discountPercent) : '',
+  returnAmount: agent.returnAmount ? String(agent.returnAmount) : '',
+  returnPercent: agent.returnPercent ? String(agent.returnPercent) : '',
+  startDate: agent.startDate ? new Date(agent.startDate) : undefined,
+  endDate: agent.endDate ? new Date(agent.endDate) : undefined,
+  startMonth: agent.startMonth ? new Date(agent.startMonth) : undefined,
+  endMonth: agent.endMonth ? new Date(agent.endMonth) : undefined,
+  startDay: agent.startDay ? new Date(agent.startDay) : undefined,
+  endDay: agent.endDay ? new Date(agent.endDay) : undefined,
+  productRuleIds: agent.productRuleIds || [],
+});
+
+const buildAgentEditPayload = (agent: IAgent, values: AgentEditFormValues) => ({
+  _id: agent._id,
+  number: values.number,
+  status: values.status,
+  customerIds: values.customerIds.length > 0 ? values.customerIds : undefined,
+  companyIds: values.companyIds.length > 0 ? values.companyIds : undefined,
+  hasReturn: values.hasReturn,
+  prepaidPercent: values.prepaidPercent ? Number(values.prepaidPercent) : undefined,
+  discountPercent: values.discountPercent ? Number(values.discountPercent) : undefined,
+  returnAmount: values.returnAmount ? Number(values.returnAmount) : undefined,
+  returnPercent: values.returnPercent ? Number(values.returnPercent) : undefined,
+  startDate: values.startDate,
+  endDate: values.endDate,
+  startMonth: values.startMonth,
+  endMonth: values.endMonth,
+  startDay: values.startDay,
+  endDay: values.endDay,
+  productRuleIds: values.productRuleIds.length > 0 ? values.productRuleIds : undefined,
+});
+
 interface AgentEditFormValues {
   number: string;
   status: string;
@@ -42,26 +81,7 @@ export const AgentEditSheet = ({
   const { agentEdit, loading } = useEditAgent();
 
   const form = useForm<AgentEditFormValues>({
-    defaultValues: {
-      number: agent.number || '',
-      status: agent.status || 'draft',
-      customerIds: agent.customerIds || [],
-      companyIds: agent.companyIds || [],
-      hasReturn: agent.hasReturn || false,
-      prepaidPercent: agent.prepaidPercent ? String(agent.prepaidPercent) : '',
-      discountPercent: agent.discountPercent
-        ? String(agent.discountPercent)
-        : '',
-      returnAmount: agent.returnAmount ? String(agent.returnAmount) : '',
-      returnPercent: agent.returnPercent ? String(agent.returnPercent) : '',
-      startDate: agent.startDate ? new Date(agent.startDate) : undefined,
-      endDate: agent.endDate ? new Date(agent.endDate) : undefined,
-      startMonth: agent.startMonth ? new Date(agent.startMonth) : undefined,
-      endMonth: agent.endMonth ? new Date(agent.endMonth) : undefined,
-      startDay: agent.startDay ? new Date(agent.startDay) : undefined,
-      endDay: agent.endDay ? new Date(agent.endDay) : undefined,
-      productRuleIds: agent.productRuleIds || [],
-    },
+    defaultValues: getAgentFormValues(agent),
   });
 
   const { reset } = form;
@@ -69,63 +89,13 @@ export const AgentEditSheet = ({
 
   useEffect(() => {
     if (open) {
-      reset({
-        number: agent.number || '',
-        status: agent.status || 'draft',
-        customerIds: agent.customerIds || [],
-        companyIds: agent.companyIds || [],
-        hasReturn: agent.hasReturn || false,
-        prepaidPercent: agent.prepaidPercent
-          ? String(agent.prepaidPercent)
-          : '',
-        discountPercent: agent.discountPercent
-          ? String(agent.discountPercent)
-          : '',
-        returnAmount: agent.returnAmount ? String(agent.returnAmount) : '',
-        returnPercent: agent.returnPercent ? String(agent.returnPercent) : '',
-        startDate: agent.startDate ? new Date(agent.startDate) : undefined,
-        endDate: agent.endDate ? new Date(agent.endDate) : undefined,
-        startMonth: agent.startMonth ? new Date(agent.startMonth) : undefined,
-        endMonth: agent.endMonth ? new Date(agent.endMonth) : undefined,
-        startDay: agent.startDay ? new Date(agent.startDay) : undefined,
-        endDay: agent.endDay ? new Date(agent.endDay) : undefined,
-        productRuleIds: agent.productRuleIds || [],
-      });
+      reset(getAgentFormValues(agent));
     }
   }, [open, agent, reset]);
 
   const onSubmit = async (values: AgentEditFormValues) => {
     try {
-      const result = await agentEdit({
-        _id: agent._id,
-        number: values.number,
-        status: values.status,
-        customerIds:
-          values.customerIds.length > 0 ? values.customerIds : undefined,
-        companyIds:
-          values.companyIds.length > 0 ? values.companyIds : undefined,
-        hasReturn: values.hasReturn,
-        prepaidPercent: values.prepaidPercent
-          ? Number(values.prepaidPercent)
-          : undefined,
-        discountPercent: values.discountPercent
-          ? Number(values.discountPercent)
-          : undefined,
-        returnAmount: values.returnAmount
-          ? Number(values.returnAmount)
-          : undefined,
-        returnPercent: values.returnPercent
-          ? Number(values.returnPercent)
-          : undefined,
-        startDate: values.startDate,
-        endDate: values.endDate,
-        startMonth: values.startMonth,
-        endMonth: values.endMonth,
-        startDay: values.startDay,
-        endDay: values.endDay,
-        productRuleIds:
-          values.productRuleIds.length > 0 ? values.productRuleIds : undefined,
-      } as any);
+      const result = await agentEdit(buildAgentEditPayload(agent, values) as any);
       if (result?.data) {
         onOpenChange(false);
       }
