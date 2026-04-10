@@ -9,7 +9,6 @@ export const handlePlace = async (
   userId,
   processId,
 ) => {
-  console.log('🔥 handlePlace CALLED');
   const products = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',

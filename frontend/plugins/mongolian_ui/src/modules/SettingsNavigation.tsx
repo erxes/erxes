@@ -19,12 +19,17 @@ export const SettingsNavigation = () => {
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/product-places"
-            name="Product Places"
+            name="Product Place"
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/exchange-rates"
             name="Exchange Rates"
+          />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix="mongolian"
+            path="/msdynamic"
+            name="MSDynamic"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
