@@ -8,6 +8,8 @@ export type ISelectVoucherCampaignContext = {
   onSelect: (voucherCampaign: IVoucherCampaign) => void;
   loading: boolean;
   error: string | null;
+  voucherType?: string;
+  excludeVoucherTypes?: string[];
 };
 
 export const SelectVoucherCampaignContext =

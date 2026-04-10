@@ -3,19 +3,17 @@ import { RecordTable } from 'erxes-ui';
 import { IconHeart } from '@tabler/icons-react';
 import { LOTTERY_CURSOR_SESSION_KEY } from '../constants/lotteryCursorSessionKey';
 import { lotteryColumns } from './LotteryColumns';
-import { useLotteryStatusEdit } from '../hooks/useLotteryStatusEdit';
 import { useLottery } from '../hooks/useLotteries';
 import { LotteryAddSheet } from './LotteryAddSheet';
 import { LotteryCommandBar } from './lottery-command-bar/LotteryCommandBar';
 
 export const LotteryRecordTable = () => {
   const { lottery, handleFetchMore, loading, pageInfo } = useLottery();
-  const { editStatus } = useLotteryStatusEdit();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={lotteryColumns(editStatus)}
+      columns={lotteryColumns}
       data={lottery || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}

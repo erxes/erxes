@@ -23,7 +23,7 @@ export const assignmentMutations = {
     doc: IAssignment,
     { models }: IContext,
   ) {
-    return models.Assignments.createAssignment(doc);
+    return models.Assignments.createAssignment(doc, true);
   },
 
   async cpAssignmentsRemove(
