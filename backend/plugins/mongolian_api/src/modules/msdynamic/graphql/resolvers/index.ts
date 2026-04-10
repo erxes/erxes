@@ -7,7 +7,7 @@ const resolvers: any = {
   ...apolloCustomScalars,
   SyncMsdHistory,
   Mutation: {
-    ...msdynamicMutations
+    ...msdynamicMutations,
   },
   Query,
 };
