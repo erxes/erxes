@@ -222,7 +222,9 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
           <div className="flex items-center flex-1 min-w-0 gap-2">
             <Select
               value={statusFilter}
-              onValueChange={(value) => setStatusFilter(value as OrderFilterValue)}
+              onValueChange={(value) =>
+                setStatusFilter(value as OrderFilterValue)
+              }
             >
               <Select.Trigger className="h-9 max-w-[100px] rounded-md border border-border/60 bg-muted/30 px-3 text-sm text-foreground shadow-none">
                 <div className="flex items-center min-w-0 gap-2">

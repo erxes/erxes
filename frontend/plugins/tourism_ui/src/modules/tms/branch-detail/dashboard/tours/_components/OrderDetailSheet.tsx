@@ -361,7 +361,7 @@ export const OrderDetailSheet = ({
                     <div className="p-4 space-y-2">
                       <div className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-muted-foreground">
                         <IconFileDescription className="w-4 h-4" />
-                         Note
+                        Note
                       </div>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                         {order.note}
