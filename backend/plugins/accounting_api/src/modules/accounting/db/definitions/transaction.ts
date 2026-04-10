@@ -1,6 +1,13 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
-import { JOURNALS, PTR_STATUSES, TR_DETAIL_FOLLOW_TYPES, TR_FOLLOW_TYPES, TR_SIDES, TR_STATUSES } from '../../@types/constants';
+import {
+  JOURNALS,
+  PTR_STATUSES,
+  TR_DETAIL_FOLLOW_TYPES,
+  TR_FOLLOW_TYPES,
+  TR_SIDES,
+  TR_STATUSES,
+} from '../../@types/constants';
 
 export const transactionDetailSchema = new Schema({
   _id: mongooseStringRandomId,
@@ -9,12 +16,22 @@ export const transactionDetailSchema = new Schema({
   departmentId: { type: String, optional: true, label: 'Department' },
 
   followInfos: {
-    type: Object, label: 'Follower tr detail input'
+    type: Object,
+    label: 'Follower tr detail input',
   },
 
   originId: { type: String, optional: true, label: 'Source Transaction' },
-  originType: { type: String, optional: true, label: 'This follow Type', enum: TR_DETAIL_FOLLOW_TYPES.ALL },
-  originSubId: { type: String, optional: true, label: 'Source Sub Transaction' }, // double list
+  originType: {
+    type: String,
+    optional: true,
+    label: 'This follow Type',
+    enum: TR_DETAIL_FOLLOW_TYPES.ALL,
+  },
+  originSubId: {
+    type: String,
+    optional: true,
+    label: 'Source Sub Transaction',
+  }, // double list
 
   amount: { type: Number, label: 'Amount' },
   currency: { type: String, optional: true, label: 'Currency' },
@@ -49,7 +66,7 @@ export const transactionSchema = schemaWrapper(
       enum: JOURNALS.ALL,
       default: 'zero',
       label: 'Journal',
-      index: true
+      index: true,
     },
     ptrStatus: {
       type: String,
@@ -60,15 +77,31 @@ export const transactionSchema = schemaWrapper(
       index: true,
     },
 
-    followInfos: { // Үндсэн бичилт үед ашиглагдана, Дагалдах бичилтүүдийн мэдээлэл байна
-      type: Object, label: 'Follower transactions'
+    followInfos: {
+      // Үндсэн бичилт үед ашиглагдана, Дагалдах бичилтүүдийн мэдээлэл байна
+      type: Object,
+      label: 'Follower transactions',
     },
 
     originId: { type: String, optional: true, label: 'Source Transaction' }, // Дагалдах бичилт үед л ашиглагдана, Үндсэн бичилтийн айд
-    originSubId: { type: String, optional: true, label: 'Source Sub Transaction' }, // Дагалдах бичилт үед л ашиглагдана, Үндсэн бичилтийн дэд листээс хамаарсан бол ашиглагдана. Жишээлбэл барааны орлогын зардал бүрээс хамаарсан олон бичилт үүсэх бол
-    originType: { type: String, optional: true, label: 'This follow Type', enum: TR_FOLLOW_TYPES.ALL }, // Дагалдах бичилт үед л ашиглагдана, Уг бичилтийн үндсэн бичилтэд хавсарч буй үүрэг буюу төрөл
+    originSubId: {
+      type: String,
+      optional: true,
+      label: 'Source Sub Transaction',
+    }, // Дагалдах бичилт үед л ашиглагдана, Үндсэн бичилтийн дэд листээс хамаарсан бол ашиглагдана. Жишээлбэл барааны орлогын зардал бүрээс хамаарсан олон бичилт үүсэх бол
+    originType: {
+      type: String,
+      optional: true,
+      label: 'This follow Type',
+      enum: TR_FOLLOW_TYPES.ALL,
+    }, // Дагалдах бичилт үед л ашиглагдана, Уг бичилтийн үндсэн бичилтэд хавсарч буй үүрэг буюу төрөл
 
-    preTrId: { type: String, optional: true, label: 'previous transaction', index: true },
+    preTrId: {
+      type: String,
+      optional: true,
+      label: 'previous transaction',
+      index: true,
+    },
 
     branchId: { type: String, optional: true, label: 'Branch' },
     departmentId: { type: String, optional: true, label: 'Department' },
@@ -87,18 +120,30 @@ export const transactionSchema = schemaWrapper(
       default: 'new',
       index: true,
     },
-    relAccounts: { type: { dt: [String], ct: [String], customDt: [String], customCt: [String] }, optional: true },
+    relAccounts: {
+      type: {
+        dt: [String],
+        ct: [String],
+        customDt: [String],
+        customCt: [String],
+      },
+      optional: true,
+    },
 
     createdBy: { type: String, label: 'Created user' },
     modifiedBy: { type: String, optional: true, label: 'Modified user' },
     createdAt: { type: Date, default: new Date(), label: 'Created at' },
     updatedAt: { type: Date, optional: true, label: 'Modified at' },
 
-    // vat 
+    // vat
     hasVat: { type: Boolean, optional: true, label: 'hasVat' },
     vatRowId: { type: String, optional: true, label: 'vatRowId' },
     afterVat: { type: Boolean, optional: true, label: 'afterVat' },
-    afterVatAccountId: { type: String, optional: true, label: 'afterVatAccountId' },
+    afterVatAccountId: {
+      type: String,
+      optional: true,
+      label: 'afterVatAccountId',
+    },
     isHandleVat: { type: Boolean, optional: true, label: 'isHandleVat' },
     vatAmount: { type: Number, optional: true, label: 'vatAmount' },
 
@@ -112,7 +157,7 @@ export const transactionSchema = schemaWrapper(
 
     contentType: { type: String, optional: true, label: 'sync content type' },
     contentId: { type: String, optional: true, label: 'sync content id' },
-  })
+  }),
 );
 
 transactionSchema.index({ originId: 1, originType: 1, originSubId: 1 });

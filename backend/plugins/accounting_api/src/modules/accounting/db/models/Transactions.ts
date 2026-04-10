@@ -119,10 +119,14 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         ptrId: doc.ptrId || nanoid(),
         parentId: doc.parentId || _id,
         ptrStatus: PTR_STATUSES.UNKNOWN,
-        sumDt: doc.side === TR_SIDES.DEBIT ? doc.details
-          .reduce((sum, cur) => sum + cur.amount, 0) : 0,
-        sumCt: doc.side === TR_SIDES.CREDIT ? doc.details
-          .reduce((sum, cur) => sum + cur.amount, 0) : 0,
+        sumDt:
+          doc.side === TR_SIDES.DEBIT
+            ? doc.details.reduce((sum, cur) => sum + cur.amount, 0)
+            : 0,
+        sumCt:
+          doc.side === TR_SIDES.CREDIT
+            ? doc.details.reduce((sum, cur) => sum + cur.amount, 0)
+            : 0,
         createdBy: userId,
         createdAt: new Date(),
       };

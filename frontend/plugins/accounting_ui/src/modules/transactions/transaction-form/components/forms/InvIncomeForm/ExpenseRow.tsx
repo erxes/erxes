@@ -22,7 +22,10 @@ import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { followTrDocsState } from '../../../states/trStates';
-import { ITransactionGroupForm, TInvIncomeJournal } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TInvIncomeJournal,
+} from '../../../types/JournalForms';
 import { getSingleJournalByAccount, getTempId } from '../../utils';
 
 export const ExpenseRow = ({
