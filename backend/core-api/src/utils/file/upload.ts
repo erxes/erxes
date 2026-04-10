@@ -70,32 +70,29 @@ export const uploadToCFImages = async (
   formData.append('file', fs.createReadStream(file.filepath));
   formData.append('id', `${CLOUDFLARE_BUCKET_NAME}/${fileName}`);
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
 
-    const data = await response.json();
+  console.log({ response });
 
-    if (!data.success) {
-      throw new Error('Error uploading file to Cloudflare Images 1');
-    }
+  const data = await response.json();
 
-    if (data.result.variants.length === 0) {
-      throw new Error('Error uploading file to Cloudflare Images 2');
-    }
-
-    if (!IS_PUBLIC || IS_PUBLIC === 'false' || VERSION === 'saas') {
-      return CLOUDFLARE_BUCKET_NAME + '/' + fileName;
-    }
-
-    return data.result.variants[0];
-  } catch (error) {
-    console.log('Cloudflare upload error:', error);
-    throw error;
+  if (!data.success) {
+    throw new Error('Error uploading file to Cloudflare Images 1');
   }
+
+  if (data.result.variants.length === 0) {
+    throw new Error('Error uploading file to Cloudflare Images 2');
+  }
+
+  if (!IS_PUBLIC || IS_PUBLIC === 'false' || VERSION === 'saas') {
+    return CLOUDFLARE_BUCKET_NAME + '/' + fileName;
+  }
+
+  return data.result.variants[0];
 };
 
 /*
