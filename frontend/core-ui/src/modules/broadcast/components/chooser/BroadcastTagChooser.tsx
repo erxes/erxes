@@ -72,41 +72,50 @@ export const BroadcastTagChooser = ({
 
           return (
             <Command.Group
-            key={tag._id}
-            heading={
-              <span
-                className="cursor-pointer hover:text-primary flex justify-between w-full"
-                onClick={() => {
-                  const childIds = (tag.children || []).map((c: any) => c._id);
-                  const allSelected = childIds.every((id: string) =>
-                    value?.includes(id),
-                  );
+              key={tag._id}
+              heading={
+                <span
+                  className="cursor-pointer hover:text-primary flex justify-between w-full"
+                  onClick={() => {
+                    const childIds = (tag.children || []).map(
+                      (c: any) => c._id,
+                    );
+                    const allSelected = childIds.every((id: string) =>
+                      value?.includes(id),
+                    );
 
-                  const targetIds = allSelected
-                    ? (value || []).filter(
-                        (id: string) => !childIds.includes(id),
-                      )
-                    : [...new Set([...(value || []), ...childIds])];
+                    const targetIds = allSelected
+                      ? (value || []).filter(
+                          (id: string) => !childIds.includes(id),
+                        )
+                      : [...new Set([...(value || []), ...childIds])];
 
-                  onChange(targetIds);
+                    onChange(targetIds);
 
-                  const targetCount = targetIds.reduce(
-                    (sum, id) => sum + (tagCounts[id] || 0),
-                    0,
-                  );
-                  setValue('targetCount', targetCount);
-                }}
-              >
-                <span>{tag.name}</span>
-                {(tag.children || []).some((c: any) => value?.includes(c._id)) && (
-                  <span className={`ml-2 text-xs text-muted-foreground ${loading ? 'animate-pulse' : ''}`}>
-                    {(tag.children || []).reduce((sum: number, c: any) => sum + (tagCounts[c._id] || 0), 0)}
-                  </span>
-                )}
-              </span>
-            }
-            className="p-0"
-          >
+                    const targetCount = targetIds.reduce(
+                      (sum, id) => sum + (tagCounts[id] || 0),
+                      0,
+                    );
+                    setValue('targetCount', targetCount);
+                  }}
+                >
+                  <span>{tag.name}</span>
+                  {(tag.children || []).some((c: any) =>
+                    value?.includes(c._id),
+                  ) && (
+                    <span
+                      className={`ml-2 text-xs text-muted-foreground ${loading ? 'animate-pulse' : ''}`}
+                    >
+                      {(tag.children || []).reduce(
+                        (sum: number, c: any) => sum + (tagCounts[c._id] || 0),
+                        0,
+                      )}
+                    </span>
+                  )}
+                </span>
+              }
+              className="p-0"
+            >
               {(tag.children || []).map((child: any) => (
                 <Command.Item
                   key={child._id}

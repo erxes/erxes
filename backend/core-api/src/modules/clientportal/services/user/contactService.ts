@@ -239,8 +239,6 @@ export async function handleCPContacts(
     );
   }
 
-
-
   if (userType === 'company') {
     const company = await findOrCreateCompany(
       document,
