@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.17.40](https://github.com/erxes/erxes/compare/2.17.39...2.17.40) (2026-04-10)
+
+### Features
+
+* add Toki 21+ age verification in client portal login ([#7325](https://github.com/erxes/erxes/issues/7325)) ([95439f7](https://github.com/erxes/erxes/commit/95439f753426c8e378ad9267fa7504aae623447a))
+* implement checkTokiUserLegalAge function in client portal and remove from payment queries ([8a3b679](https://github.com/erxes/erxes/commit/8a3b679e436ca558dc76b575fd940161478bd937))
+* **payment:** introduce Toki pay as payment option([#7411](https://github.com/erxes/erxes/issues/7411)) ([392cbc7](https://github.com/erxes/erxes/commit/392cbc7e7d9108f76d44562322d3e8e14d2bf5f0))
+* refactor checkTokiUserLegalAge to return boolean for adult verification ([c7cb1d6](https://github.com/erxes/erxes/commit/c7cb1d6c0160d5c8328b9b4d47f7b59d47162b09))
+* update checkTokiUserLegalAge mutation to include clientPortalId parameter ([d018679](https://github.com/erxes/erxes/commit/d01867984a6612a12d8ef048b4e258a3a4a0e3a6))
+
+### Bug Fixes
+
+* core propertyGroupForm ui  ([ef90a40](https://github.com/erxes/erxes/commit/ef90a40dc726bd113817553d9f56520897e458dd))
+* loyalties shareScore and changeScore ([8832f7e](https://github.com/erxes/erxes/commit/8832f7e794cc512d337cb7d7fcfd002ec818d2bc))
+* msdynamic save soap response ([70cfebe](https://github.com/erxes/erxes/commit/70cfebe3855247cbaee653767886d26adbda3fe6))
+
 ## [2.17.39](https://github.com/erxes/erxes/compare/2.17.38...2.17.39) (2026-03-27)
 
 ### Features
