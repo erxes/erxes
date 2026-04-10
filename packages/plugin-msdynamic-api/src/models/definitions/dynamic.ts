@@ -14,6 +14,9 @@ export interface ISyncLog {
   responseStr?: string;
   sendSales?: string[];
   responseSales?: string[];
+  soapStatus: string;
+  sendSoap: string;
+  responseSaop: string;
   error?: string;
 }
 
@@ -54,6 +57,9 @@ export const syncLogSchema = schemaWrapper(
     responseStr: field({ type: String, optional: true }),
     sendSales: field({ type: [String], optional: true }),
     responseSales: field({ type: [String], optional: true }),
+    soapStatus: field({ type: String, optional: true }),
+    sendSoap: field({ type: String, optional: true }),
+    responseSaop: field({ type: String, optional: true }),
     error: field({ type: String, optional: true }),
   })
 );

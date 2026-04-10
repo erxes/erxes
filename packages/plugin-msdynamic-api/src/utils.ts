@@ -511,10 +511,26 @@ export const dealToDynamic = async (
           </soapenv:Body>
           </soapenv:Envelope>
         `;
-        await fetch(`${soapApiUrl}`, {
-          method: 'POST',
-          headers: soapHeaders,
-          body: soapDiscountSendData,
+
+        let soapResText: string = '';
+        let soapStatus: number | null = null;
+        try {
+          const soapResponse = await fetch(`${soapApiUrl}`, {
+            method: 'POST',
+            headers: soapHeaders,
+            body: soapDiscountSendData,
+          }).then();
+          soapStatus = soapResponse.status;
+          soapResText = await soapResponse.text();
+        } catch (e) {
+          soapResText = e instanceof Error ? e.message : String(e);
+        }
+        await models.SyncLogs.updateOne({ _id: syncLog._id }, {
+          $set: {
+            soapStatus: String(soapStatus),
+            sendSoap: soapDiscountSendData,
+            soapResponse: soapResText
+          }
         });
       }
     }
@@ -801,10 +817,25 @@ export const orderToDynamic = async (
           </soapenv:Envelope>
         `;
 
-        await fetch(`${soapApiUrl}`, {
-          method: 'POST',
-          headers: soapHeaders,
-          body: soapDiscountSendData,
+        let soapResText: string = '';
+        let soapStatus: number | null = null;
+        try {
+          const soapResponse = await fetch(`${soapApiUrl}`, {
+            method: 'POST',
+            headers: soapHeaders,
+            body: soapDiscountSendData,
+          });
+          soapStatus = soapResponse.status;
+          soapResText = await soapResponse.text();
+        } catch (e) {
+          soapResText = e instanceof Error ? e.message : String(e);
+        }
+        await models.SyncLogs.updateOne({ _id: syncLog._id }, {
+          $set: {
+            soapStatus: String(soapStatus),
+            sendSoap: soapDiscountSendData,
+            soapResponse: soapResText
+          }
         });
       }
     }

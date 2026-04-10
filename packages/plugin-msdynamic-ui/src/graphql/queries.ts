@@ -85,6 +85,9 @@ const syncMsdHistories = `
       responseStr
       sendSales
       responseSales
+      soapStatus
+      sendSoap
+      responseSaop
       error
 
       content

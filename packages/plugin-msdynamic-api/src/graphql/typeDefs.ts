@@ -17,6 +17,9 @@ const types = `
     responseStr: String
     sendSales: [String]
     responseSales: [String]
+    soapStatus: String
+    sendSoap: String
+    responseSaop: String
     error: String
     content: String
     createdUser: JSON
