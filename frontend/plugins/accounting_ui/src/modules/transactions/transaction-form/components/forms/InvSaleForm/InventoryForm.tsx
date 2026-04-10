@@ -102,6 +102,14 @@ const InventoryTableHeader = ({
         <Table.Head>Quantity</Table.Head>
         <Table.Head>Unit Price</Table.Head>
         <Table.Head>Amount</Table.Head>
+        {trDoc.hasVat && <Table.Head>HasVat</Table.Head>}
+        {trDoc.hasCtax && <Table.Head>HasCtax</Table.Head>}
+        {(trDoc.hasVat || trDoc.hasCtax) && (
+          <>
+            <Table.Head>Unit with tax</Table.Head>
+            <Table.Head>Amount with tax</Table.Head>
+          </>
+        )}
       </Table.Row>
     </Table.Header>
   );

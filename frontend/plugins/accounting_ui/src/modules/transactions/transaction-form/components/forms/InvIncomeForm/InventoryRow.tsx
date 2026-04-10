@@ -9,7 +9,6 @@ import {
   InputNumber,
   RecordTableInlineCell,
   RecordTableHotKeyControl,
-  Popover,
   Table,
   PopoverScoped,
 } from 'erxes-ui';
