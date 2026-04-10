@@ -130,12 +130,6 @@ export class TokiAPI extends BaseAPI {
       throw new Error('tokiBasicToken is not configured');
     }
 
-    console.debug('Requesting new Toki token...');
-    console.debug(
-      'Using Basic token (first 20 chars):',
-      basicToken.substring(0, 20) + '...',
-    );
-
     try {
       const response = await this.request({
         method: 'GET',
@@ -146,15 +140,7 @@ export class TokiAPI extends BaseAPI {
         },
       });
 
-      console.debug('Token endpoint status:', response.status);
-      console.debug(
-        'Token endpoint headers:',
-        Object.fromEntries(response.headers),
-      );
-
       const res = await response.json().catch(() => ({}));
-
-      console.debug('Token response body:', JSON.stringify(res, null, 2));
 
       if (response.status !== 200 || res.error || !res.data?.accessToken) {
         throw new Error(
