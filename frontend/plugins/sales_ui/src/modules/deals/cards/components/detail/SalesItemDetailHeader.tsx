@@ -33,7 +33,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
       <div className="flex flex-col flex-1 min-w-0">
         <Sheet.Title>
           <Input
-            className="h-auto p-0 border-0 bg-transparent text-lg font-semibold shadow-none focus-visible:ring-0"
+            className="h-auto p-0 border-0 bg-transparent text-lg font-semibold shadow-none focus-visible:ring-1"
             placeholder="Deal Name"
             value={name}
             onChange={(e) => {
