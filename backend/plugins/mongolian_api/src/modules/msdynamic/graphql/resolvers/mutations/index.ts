@@ -1,4 +1,3 @@
-import { msdynamicCheckMutations } from './checkDynamic';
-import {msdynamicSyncMutations} from './syncDynamic';
+export { msdynamicCheckMutations } from './checkDynamic';
+export {msdynamicSyncMutations} from './syncDynamic';
 
-export { msdynamicCheckMutations, msdynamicSyncMutations };
