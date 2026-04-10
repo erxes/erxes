@@ -7,7 +7,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import { useTourOrders, ITourOrder } from '../hooks/useTourOrders';
-import { Button, Card, DropdownMenu, Separator, Spinner } from 'erxes-ui';
+import { Button, Card, Select, Separator, Spinner } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { CustomersInline } from 'ui-modules';
 import { OrderDetailSheet } from './OrderDetailSheet';
@@ -17,7 +17,7 @@ interface Props {
 }
 
 const ORDER_FILTER_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
+  { value: 'all', label: 'All' },
   { value: 'paid', label: 'Paid' },
   { value: 'pending', label: 'Pending' },
   { value: 'prepaid', label: 'Prepaid' },
@@ -218,39 +218,28 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
   return (
     <>
       <div className="flex flex-col h-full p-3">
-        <div className="flex items-center justify-between gap-3 px-1 mb-3">
-          <div className="flex items-center min-w-0 gap-3">
-            <DropdownMenu>
-              <DropdownMenu.Trigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 gap-2 px-2 text-sm text-foreground"
-                >
-                  <IconFilter className="w-4 h-4" />
-                  Filter
-                </Button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="start" className="w-44">
-                <DropdownMenu.RadioGroup
-                  value={statusFilter}
-                  onValueChange={(value) =>
-                    setStatusFilter(value as OrderFilterValue)
-                  }
-                >
-                  {ORDER_FILTER_OPTIONS.map((option) => (
-                    <DropdownMenu.RadioItem
-                      key={option.value}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </DropdownMenu.RadioItem>
-                  ))}
-                </DropdownMenu.RadioGroup>
-              </DropdownMenu.Content>
-            </DropdownMenu>
+        <div className="flex items-center justify-between gap-3 px-1 pb-3 mb-4 border-b border-border/60">
+          <div className="flex items-center flex-1 min-w-0 gap-2">
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value as OrderFilterValue)}
+            >
+              <Select.Trigger className="h-9 max-w-[100px] rounded-md border border-border/60 bg-muted/30 px-3 text-sm text-foreground shadow-none">
+                <div className="flex items-center min-w-0 gap-2">
+                  <IconFilter className="w-4 h-4 text-muted-foreground" />
+                  <Select.Value placeholder="All statuses" />
+                </div>
+              </Select.Trigger>
+              <Select.Content>
+                {ORDER_FILTER_OPTIONS.map((option) => (
+                  <Select.Item key={option.value} value={option.value}>
+                    {option.label}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
 
-            <span className="text-xs truncate text-muted-foreground">
+            <span className="inline-flex items-center px-3 text-xs font-medium rounded-md h-9 bg-muted/30 text-muted-foreground">
               {filteredOrders.length}{' '}
               {filteredOrders.length === 1 ? 'record found' : 'records found'}
             </span>
@@ -258,9 +247,9 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
 
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="px-2 text-xs h-7"
+              className="px-3 text-xs border rounded-md h-9 border-border/60 text-muted-foreground hover:text-foreground"
               onClick={() => refetch()}
             >
               Refresh
