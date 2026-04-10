@@ -14,17 +14,20 @@ interface Props {
 }
 
 const CustomerSidebar: React.FC<Props> = ({ relations = [], loading }) => {
+  if (loading) {
+    return (
+      <div className="px-4 py-3 border-b">
+        <h4 className="text-sm font-semibold mb-2">MSD Customer No</h4>
+        <div className="text-sm text-muted-foreground">Loading...</div>
+      </div>
+    )
+  }
+
   return (
     <div className="px-4 py-3 border-b">
       <h4 className="text-sm font-semibold mb-2">MSD Customer No</h4>
 
-      {loading ? (
-        <div className="text-sm text-muted-foreground">Loading...</div>
-      ) : relations.length === 0 ? (
-        <div className="text-sm text-muted-foreground">
-          No customer numbers found
-        </div>
-      ) : (
+      {relations.length ? (
         <ul className="space-y-2 text-sm">
           {relations.map((r) => (
             <li key={r.brandId} className="flex justify-between">
@@ -33,6 +36,10 @@ const CustomerSidebar: React.FC<Props> = ({ relations = [], loading }) => {
             </li>
           ))}
         </ul>
+      ) : (
+        <div className="text-sm text-muted-foreground">
+          No customer numbers found
+        </div>
       )}
     </div>
   );

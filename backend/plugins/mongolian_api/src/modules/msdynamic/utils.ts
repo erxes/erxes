@@ -329,11 +329,11 @@ export const dealToDynamic = async (
     const sendData: any = {
       Sell_to_Customer_No:
         customerType === 'company'
-          ? msdCustomer?.No || config.defaultUserCode
-          : custCode || config.defaultUserCode,
+          ? msdCustomer?.No ?? config.defaultUserCode
+          : custCode ?? config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone ?? '',
       Sell_to_E_Mail: customer?.primaryEmail ?? '',
-      External_Document_No: deal.number || deal.name.split(':').pop().trim(),
+      External_Document_No: deal.number ?? deal.name.split(':').pop().trim(),
       Responsibility_Center: config.responsibilityCenter ?? '',
       Sync_Type: config.syncType ?? '',
       Mobile_Phone_No: customer?.primaryPhone ?? '',
@@ -349,7 +349,7 @@ export const dealToDynamic = async (
       Sell_to_Address: sellAddress,
       Sell_to_Address_2: sellAddress2,
       CustomerNo:
-        customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
+        customer?.customFieldsDataByFieldCode?.vatCustomer?.value ??
         customer?.customFieldsDataByFieldCode?.vatCompany?.value,
     };
 
@@ -528,7 +528,7 @@ export const dealToDynamic = async (
         modifier: {
           $set: {
             extraData: {
-              ...(extraData || {}),
+              ...extraData,
               msdynamic: {
                 no: orderMsdNo || responseSale.No,
                 lineNos: lineNoById,
