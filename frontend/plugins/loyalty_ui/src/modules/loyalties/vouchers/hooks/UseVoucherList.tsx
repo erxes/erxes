@@ -60,8 +60,9 @@ export const useVouchersVariables = (options: UseVouchersListOptions = {}) => {
   const dateRange = parseDateRangeFromString(date);
 
   const sortField = sortFieldQuery || (orderType ? 'createdAt' : undefined);
-  const sortDirection =
-    orderType === 'ascending' ? 1 : orderType === 'descending' ? -1 : undefined;
+  let sortDirection: number | undefined;
+  if (orderType === 'ascending') sortDirection = 1;
+  else if (orderType === 'descending') sortDirection = -1;
 
   return {
     perPage: VOUCHER_PER_PAGE,

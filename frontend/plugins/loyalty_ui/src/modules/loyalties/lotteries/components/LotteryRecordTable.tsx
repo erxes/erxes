@@ -1,11 +1,10 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Spinner } from 'erxes-ui';
 import {
   firstLotteryColumns,
   secondLotteryColumns,
 } from '@/loyalties/lotteries/components/LotteryColumns';
 import { useLotteryList } from '@/loyalties/lotteries/hooks/UseLotteryList';
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { Spinner } from 'erxes-ui';
 import { LotteryCommandBar } from './lottery-command-bar/LotteryCommandBar';
 
 export const LotteryRecordTable = ({ posId }: { posId?: string }) => {
