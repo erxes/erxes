@@ -14,9 +14,9 @@ export interface ISyncLog {
   responseStr?: string;
   sendSales?: string[];
   responseSales?: string[];
-  soapStatus: string;
-  sendSoap: string;
-  responseSaop: string;
+  soapStatus?: string;
+  sendSoap?: string;
+  responseSaop?: string;
   error?: string;
 }
 
