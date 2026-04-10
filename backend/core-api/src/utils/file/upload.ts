@@ -74,6 +74,8 @@ export const uploadToCFImages = async (
     method: 'POST',
     headers,
     body: formData,
+  }).catch((err) => {
+    console.log('Error uploading file to Cloudflare Images: ' + err.message);
   });
 
   const data = await response.json();
