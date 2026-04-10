@@ -123,7 +123,12 @@ async function handleInvIncome(
   const taxTrsClass = new TaxTrs(models, userId, doc, 'dt', false);
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.DEBIT }, oldTr);
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.DEBIT },
+    oldTr,
+  );
 
   await syncProductsInventory(subdomain, transaction, oldTr, 1);
 
@@ -142,7 +147,12 @@ async function handleInvOut(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const mainTr = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.CREDIT }, oldTr);
+  const mainTr = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.CREDIT },
+    oldTr,
+  );
 
   await syncProductsInventory(subdomain, mainTr, oldTr, -1);
 
@@ -159,7 +169,12 @@ async function handleInvMove(
   const invMoveInTrsClass = new InvMoveInTrs(models, userId, doc);
   await invMoveInTrsClass.checkValidation();
 
-  const transaction = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.CREDIT }, oldTr);
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.CREDIT },
+    oldTr,
+  );
   const { invMoveInTr, oldFollowInTr } =
     await invMoveInTrsClass.doTrs(transaction);
 
@@ -187,7 +202,12 @@ async function handleInvSale(
   await invSaleOtherTrsClass.checkValidation();
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.CREDIT }, oldTr);
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.CREDIT },
+    oldTr,
+  );
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await invSaleOtherTrsClass.doTrs(transaction))),
@@ -214,7 +234,12 @@ async function handleInvSaleReturn(
   await invSaleReturnOtherTrsClass.checkValidation();
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, userId, { ...doc, side: TR_SIDES.DEBIT }, oldTr);
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.DEBIT },
+    oldTr,
+  );
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await invSaleReturnOtherTrsClass.doTrs(transaction))),

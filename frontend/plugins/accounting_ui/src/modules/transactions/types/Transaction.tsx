@@ -80,7 +80,12 @@ interface ICommontTr {
   sumDt?: number;
   sumCt?: number;
   side: string;
-  relAccounts?: { dt?: string[], ct?: string[], customDt?: string[], customCt?: string[] };
+  relAccounts?: {
+    dt?: string[];
+    ct?: string[];
+    customDt?: string[];
+    customCt?: string[];
+  };
   permission?: string;
 
   branch?: IBranch;

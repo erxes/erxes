@@ -15,7 +15,7 @@ export const AccountField = ({
 }: ICommonFieldProps & {
   filter?: any;
   allDetails?: boolean;
-  labelTxt?: string
+  labelTxt?: string;
 }) => {
   const details = useWatch({
     control: form.control,
@@ -132,7 +132,7 @@ export const AssignToField = ({ form, index }: ICommonFieldProps) => (
           <SelectMember.FormItem
             onValueChange={(users) => field.onChange(users || [])}
             value={field.value}
-            mode='multiple'
+            mode="multiple"
           />
         </Form.Control>
         <Form.Message />

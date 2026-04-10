@@ -87,8 +87,7 @@ export default class CurrencyTr {
 
       let side = this.doc.side;
       if (amount < 0) {
-        side =
-          TR_SIDES.DEBIT === side ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
+        side = TR_SIDES.DEBIT === side ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
         amount = -1 * amount;
       }
 

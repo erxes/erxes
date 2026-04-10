@@ -86,11 +86,15 @@ class TaxTrs {
 
     this.taxPercent = taxPercent;
 
-    this.sumDt = this.side === TR_SIDES.DEBIT ? this.doc.details
-      .reduce((sum, cur) => sum + cur.amount, 0) : 0;
+    this.sumDt =
+      this.side === TR_SIDES.DEBIT
+        ? this.doc.details.reduce((sum, cur) => sum + cur.amount, 0)
+        : 0;
 
-    this.sumCt = this.side === TR_SIDES.CREDIT ? this.doc.details
-      .reduce((sum, cur) => sum + cur.amount, 0) : 0;
+    this.sumCt =
+      this.side === TR_SIDES.CREDIT
+        ? this.doc.details.reduce((sum, cur) => sum + cur.amount, 0)
+        : 0;
   };
 
   private checkVatValidation = async () => {

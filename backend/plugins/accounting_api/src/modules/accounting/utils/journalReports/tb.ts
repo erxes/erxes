@@ -1,12 +1,18 @@
-import { IUserDocument } from "erxes-api-shared/core-types";
-import { IModels } from "~/connectionResolvers";
-import { generateFilter, IGroupCommon } from ".";
-import { IReportFilterParams } from "../../graphql/resolvers/queries/journalReport";
-import { sendTRPCMessage } from "erxes-api-shared/utils";
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { IModels } from '~/connectionResolvers';
+import { generateFilter, IGroupCommon } from '.';
+import { IReportFilterParams } from '../../graphql/resolvers/queries/journalReport';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-export const handleMainTB = async (subdomain: string, models: IModels, groupRules: IGroupCommon[], filterParams: IReportFilterParams, user: IUserDocument) => {
-  const groups = new Set(groupRules.map(gr => gr.group));
-  const { fromDate, toDate, ...filters } = filterParams
+export const handleMainTB = async (
+  subdomain: string,
+  models: IModels,
+  groupRules: IGroupCommon[],
+  filterParams: IReportFilterParams,
+  user: IUserDocument,
+) => {
+  const groups = new Set(groupRules.map((gr) => gr.group));
+  const { fromDate, toDate, ...filters } = filterParams;
   const match = await generateFilter(subdomain, models, filters, user);
 
   const aggPipe = [
@@ -17,7 +23,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
   const $group = {
     _id: { side: '$side', accountId: '$details.accountId' },
     sumAmount: { $sum: '$details.amount' },
-    sumCurrencyAmount: { $sum: '$details.currencyAmount' }
+    sumCurrencyAmount: { $sum: '$details.currencyAmount' },
   };
 
   const $project = {
@@ -27,7 +33,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
     sumAmount: 1,
     sumCurrencyAmount: 1,
     departmentId: '$_id.departmentId',
-    isBetween: 1
+    isBetween: 1,
   };
 
   if (groups.has('branchId')) {
@@ -36,7 +42,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
   }
 
   if (groups.has('departmentId')) {
-    $group._id['departmentId'] = '$departmentId'
+    $group._id['departmentId'] = '$departmentId';
     $project['departmentId'] = '$_id.departmentId';
   }
 
@@ -44,26 +50,26 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
     { $match: { date: { $lte: fromDate } } },
     ...aggPipe,
     { $group },
-    { $project }
+    { $project },
   ]);
 
   const betRecs = await models.Transactions.aggregate([
     { $match: { date: { $gt: fromDate, $lte: toDate } } },
     ...aggPipe,
     { $group: { ...$group, isBetween: { $sum: 1 } } },
-    { $project }
+    { $project },
   ]);
 
   const records = [...fbRecs, ...betRecs];
 
-  const accountIds = records.map(r => r.accountId);
+  const accountIds = records.map((r) => r.accountId);
   const accounts = await models.Accounts.find(
     { _id: { $in: accountIds } },
-    { _id: 1, code: 1, name: 1, kind: 1, categoryId: 1 }
+    { _id: 1, code: 1, name: 1, kind: 1, categoryId: 1 },
   ).populate({
     path: 'categoryId',
     model: 'account_categories',
-    select: 'code name'
+    select: 'code name',
   });
 
   const accountById = {};
@@ -73,7 +79,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
 
   const branchById = {};
   if (groups.has('branchId')) {
-    const branchIds = records.map(r => r.branchId);
+    const branchIds = records.map((r) => r.branchId);
     const branches = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -97,7 +103,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
 
   const departmentById = {};
   if (groups.has('departmentId')) {
-    const departmentIds = records.map(r => r.departmentId);
+    const departmentIds = records.map((r) => r.departmentId);
     const departments = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -120,7 +126,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
   }
 
   return {
-    records: records.map(r => ({
+    records: records.map((r) => ({
       ...r,
       accountCode: accountById[r.accountId]?.code,
       accountName: accountById[r.accountId]?.name,
@@ -131,6 +137,6 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
       branchName: branchById[r.branchId]?.title,
       departmentCode: departmentById[r.departmentId]?.code,
       departmentName: departmentById[r.departmentId]?.title,
-    }))
-  }
-}
+    })),
+  };
+};

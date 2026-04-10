@@ -90,12 +90,14 @@ export const baseTransactionSchema = z.object({
   side: z.string().refine((val) => TR_SIDES.ALL.includes(val), {
     message: 'wrong side',
   }),
-  relAccounts: undefed(z.object({
-    dt: undefed(z.array(z.string())),
-    ct: undefed(z.array(z.string())),
-    customDt: undefed(z.array(z.string())),
-    customCt: undefed(z.array(z.string())),
-  })),
+  relAccounts: undefed(
+    z.object({
+      dt: undefed(z.array(z.string())),
+      ct: undefed(z.array(z.string())),
+      customDt: undefed(z.array(z.string())),
+      customCt: undefed(z.array(z.string())),
+    }),
+  ),
 
   ...vatSchema.shape,
   ...ctaxSchema.shape,
