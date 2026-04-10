@@ -21,6 +21,8 @@ export const branchSchema = new Schema({
     type: Number,
     label: 'Prepaid percent',
     optional: true,
+    min: 0,
+    max: 100,
   },
   token: { type: String, label: 'token' },
   uiOptions: { type: Object, label: 'UI Options' },
