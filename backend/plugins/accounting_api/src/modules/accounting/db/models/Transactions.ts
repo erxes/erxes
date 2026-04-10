@@ -121,7 +121,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         ptrStatus: PTR_STATUSES.UNKNOWN,
         sumDt: doc.side === TR_SIDES.DEBIT ? doc.details
           .reduce((sum, cur) => sum + cur.amount, 0) : 0,
-        sumCt: doc.side === TR_SIDES.DEBIT ? doc.details
+        sumCt: doc.side === TR_SIDES.CREDIT ? doc.details
           .reduce((sum, cur) => sum + cur.amount, 0) : 0,
         createdBy: userId,
         createdAt: new Date(),
@@ -150,12 +150,10 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
           $set: {
             ...doc,
             parentId: doc.parentId || _id,
-            sumDt: doc.details
-              .filter((d) => doc.side === TR_SIDES.DEBIT)
-              .reduce((sum, cur) => sum + cur.amount, 0),
-            sumCt: doc.details
-              .filter((d) => doc.side === TR_SIDES.CREDIT)
-              .reduce((sum, cur) => sum + cur.amount, 0),
+            sumDt: doc.side === TR_SIDES.DEBIT ? doc.details
+              .reduce((sum, cur) => sum + cur.amount, 0) : 0,
+            sumCt: doc.side === TR_SIDES.CREDIT ? doc.details
+              .reduce((sum, cur) => sum + cur.amount, 0) : 0,
             modifiedBy: userId,
             updatedAt: new Date(),
           },
