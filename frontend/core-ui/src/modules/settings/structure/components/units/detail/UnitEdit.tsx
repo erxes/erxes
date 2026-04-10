@@ -37,32 +37,29 @@ export const UnitEdit = () => {
     }
     setSearchParams(newSearchParams);
   };
-  const submitHandler: SubmitHandler<TUnitForm> = React.useCallback(
-    async (data) => {
-      handleEdit({
-        variables: {
-          id,
-          ...data,
-        },
-        onCompleted: () => {
-          toast({
-            title: 'Success!',
-            variant: 'success',
-            description: 'Unit updated successfully',
-          });
-          methods.reset();
-          setOpen(null);
-        },
-        onError: (error) =>
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [handleEdit],
-  );
+  const submitHandler: SubmitHandler<TUnitForm> = (data) => {
+    handleEdit({
+      variables: {
+        ...data,
+        id,
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success!',
+          variant: 'success',
+          description: 'Unit updated successfully',
+        });
+        methods.reset();
+        setOpen(null);
+      },
+      onError: (error) =>
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
 
   useEffect(() => {
     if (unitDetail) {

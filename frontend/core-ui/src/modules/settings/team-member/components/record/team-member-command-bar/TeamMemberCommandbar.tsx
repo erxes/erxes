@@ -20,11 +20,11 @@ export const TeamMemberCommandBar = () => {
           collectionName="user"
           buttonVariant="secondary"
           ids={table
-          .getFilteredSelectedRowModel()
-          .rows.map((row) => row.original._id)}
+            .getFilteredSelectedRowModel()
+            .rows.map((row) => row.original._id)}
         />
         <Separator.Inline />
-        <TeamMemberDelete teamMemberIds={teamMemberIds} rows={selectedRows} />
+        <TeamMemberDelete teamMemberIds={teamMemberIds} />
       </CommandBar.Bar>
     </CommandBar>
   );
