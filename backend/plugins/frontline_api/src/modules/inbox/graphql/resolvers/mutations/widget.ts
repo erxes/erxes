@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import {
   IAttachment,
   IBrowserInfo,
@@ -1039,7 +1040,7 @@ export const widgetMutations: Record<string, Resolver> = {
     { integrationId }: { integrationId: string },
     { models }: IContext,
   ) {
-    const sessionId = `_${Math.random().toString(36).substring(2, 11)}`;
+    const sessionId = `_${crypto.randomBytes(8).toString('hex')}`;
 
     await redis.set(
       `bot_initial_message_session_id_${integrationId}`,
