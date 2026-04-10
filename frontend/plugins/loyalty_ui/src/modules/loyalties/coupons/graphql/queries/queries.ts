@@ -54,8 +54,16 @@ export const COUPONS_QUERY = gql`
 `;
 
 export const QUERY_COUPON_CAMPAIGNS = gql`
-  query CouponCampaignsSelect($status: String, $searchValue: String, $perPage: Int) {
-    couponCampaigns(status: $status, searchValue: $searchValue, limit: $perPage) {
+  query CouponCampaignsSelect(
+    $status: String
+    $searchValue: String
+    $perPage: Int
+  ) {
+    couponCampaigns(
+      status: $status
+      searchValue: $searchValue
+      limit: $perPage
+    ) {
       list {
         _id
         title

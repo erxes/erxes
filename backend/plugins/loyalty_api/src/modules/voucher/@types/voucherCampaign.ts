@@ -31,9 +31,7 @@ export interface IVoucherCampaign extends ICommonCampaignFields {
 }
 
 export interface IVoucherCampaignDocument
-  extends IVoucherCampaign,
-    ICommonCampaignDocument,
-    Document {
+  extends IVoucherCampaign, ICommonCampaignDocument, Document {
   _id: string;
 }
 

@@ -64,9 +64,8 @@ export const loadDonateClass = (models: IModels) => {
         });
       }
 
-      const donateCampaign = await models.DonateCampaigns.getDonateCampaign(
-        campaignId,
-      );
+      const donateCampaign =
+        await models.DonateCampaigns.getDonateCampaign(campaignId);
 
       const now = new Date();
 

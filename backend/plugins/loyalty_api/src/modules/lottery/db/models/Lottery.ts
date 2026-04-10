@@ -38,9 +38,8 @@ export const loadLotteryClass = (models: IModels) => {
         throw new Error('Not create lottery, owner is undefined');
       }
 
-      const lotteryCampaign = await models.LotteryCampaigns.getLotteryCampaign(
-        campaignId,
-      );
+      const lotteryCampaign =
+        await models.LotteryCampaigns.getLotteryCampaign(campaignId);
 
       const now = new Date();
 
@@ -95,9 +94,8 @@ export const loadLotteryClass = (models: IModels) => {
         throw new Error('can not buy lottery, owner is undefined');
       }
 
-      const lotteryCampaign = await models.LotteryCampaigns.getLotteryCampaign(
-        campaignId,
-      );
+      const lotteryCampaign =
+        await models.LotteryCampaigns.getLotteryCampaign(campaignId);
 
       if (!lotteryCampaign.buyScore) {
         throw new Error('can not buy this lottery');

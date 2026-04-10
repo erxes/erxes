@@ -1,4 +1,7 @@
-import { IScoreCampaignDocument, IScoreCampaignParams } from '@/score/@types/scoreCampaign';
+import {
+  IScoreCampaignDocument,
+  IScoreCampaignParams,
+} from '@/score/@types/scoreCampaign';
 import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
 import {
   cursorPaginate,
@@ -23,7 +26,9 @@ export interface IScoreCampaignService {
   icon: string;
 }
 
-const generateFilter = (params: IScoreCampaignParams): FilterQuery<IScoreCampaignDocument> => {
+const generateFilter = (
+  params: IScoreCampaignParams,
+): FilterQuery<IScoreCampaignDocument> => {
   const filter: FilterQuery<IScoreCampaignDocument> = {
     status: { $ne: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
   };

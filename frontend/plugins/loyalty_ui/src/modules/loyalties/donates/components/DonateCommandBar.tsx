@@ -6,7 +6,8 @@ import { DonateRemove } from './delete/DonateRemove';
 export const DonateCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
 
-  const selectedRows = table.getFilteredSelectedRowModel().rows as Row<IDonate>[];
+  const selectedRows = table.getFilteredSelectedRowModel()
+    .rows as Row<IDonate>[];
   const donateIds = selectedRows.map((row) => row.original._id);
 
   return (

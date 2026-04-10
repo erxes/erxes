@@ -23,7 +23,14 @@ const CouponFilterPopover = () => {
     couponDate: string;
     sortField: string;
     orderType: string;
-  }>(['couponCampaignId', 'couponStatus', 'ownerType', 'couponDate', 'sortField', 'orderType']);
+  }>([
+    'couponCampaignId',
+    'couponStatus',
+    'ownerType',
+    'couponDate',
+    'sortField',
+    'orderType',
+  ]);
 
   const hasFilters = Object.values(queries || {}).some((v) => v !== null);
 

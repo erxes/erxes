@@ -38,7 +38,9 @@ const SelectBoardContext = createContext<SelectBoardContextType | null>(null);
 const useSelectBoardContext = () => {
   const context = useContext(SelectBoardContext);
   if (!context)
-    throw new Error('useSelectBoardContext must be used within SelectBoardProvider');
+    throw new Error(
+      'useSelectBoardContext must be used within SelectBoardProvider',
+    );
   return context;
 };
 
@@ -55,7 +57,11 @@ export const SelectBoardProvider = ({
   mode?: 'single' | 'multiple';
   preloadedBoards?: IBoard[];
 }) => {
-  const { boards: fetchedBoards, loading, error } = useGetSalesBoards({
+  const {
+    boards: fetchedBoards,
+    loading,
+    error,
+  } = useGetSalesBoards({
     skip: !!preloadedBoards,
   });
   const boards = preloadedBoards ?? fetchedBoards;
@@ -109,7 +115,9 @@ const SelectBoardValue = ({
 
   return (
     <div className="flex items-center gap-2">
-      <p className={cn('font-medium text-sm capitalize', className)}>{selected.name}</p>
+      <p className={cn('font-medium text-sm capitalize', className)}>
+        {selected.name}
+      </p>
     </div>
   );
 };
@@ -174,7 +182,9 @@ export const SelectBoardFilterView = ({
   mode?: 'single' | 'multiple';
   preloadedBoards?: IBoard[];
 }) => {
-  const [boardId, setBoardId] = useQueryState<string[] | string>(queryKey || 'scoreBoardId');
+  const [boardId, setBoardId] = useQueryState<string[] | string>(
+    queryKey || 'scoreBoardId',
+  );
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -206,7 +216,9 @@ export const SelectBoardFilterBar = ({
   mode?: 'single' | 'multiple';
   preloadedBoards?: IBoard[];
 }) => {
-  const [boardId, setBoardId] = useQueryState<string[] | string>('scoreBoardId');
+  const [boardId, setBoardId] = useQueryState<string[] | string>(
+    'scoreBoardId',
+  );
   const [open, setOpen] = useState(false);
 
   return (
@@ -288,7 +300,13 @@ const SelectBoardRoot = ({
 }) => {
   const [open, setOpen] = useState(false);
   return (
-    <SelectBoardProvider value={value} onValueChange={(val) => { onValueChange?.(val); setOpen(false); }}>
+    <SelectBoardProvider
+      value={value}
+      onValueChange={(val) => {
+        onValueChange?.(val);
+        setOpen(false);
+      }}
+    >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <Combobox.Trigger disabled={disabled}>
           <SelectBoardValue />

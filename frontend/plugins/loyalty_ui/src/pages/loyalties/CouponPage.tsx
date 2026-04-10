@@ -8,11 +8,7 @@ import { CouponFilter } from '~/modules/loyalties/coupons/components/CouponFilte
 
 const CouponHeaderActions = () => (
   <div className="flex items-center gap-2">
-    <Export
-      pluginName="loyalty"
-      moduleName="coupon"
-      collectionName="coupon"
-    />
+    <Export pluginName="loyalty" moduleName="coupon" collectionName="coupon" />
     <CouponAddModal />
   </div>
 );

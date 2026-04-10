@@ -64,63 +64,63 @@ export const AssignmentAddModal = () => {
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-6">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
-          >
-            <Form.Field
-              control={form.control}
-              name="campaignId"
-              rules={{ required: 'Campaign is required' }}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Campaign</Form.Label>
-                  <SelectAssignmentCampaignFormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    placeholder="Choose assignment campaign"
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="ownerId"
-              rules={{ required: 'Owner is required' }}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Owner *</Form.Label>
-                  <Form.Control>
-                    <SelectCustomer
-                      value={field.value ? [field.value] : []}
-                      onValueChange={(val) =>
-                        field.onChange(Array.isArray(val) ? val[0] : val)
-                      }
-                      mode="single"
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col gap-4"
+            >
+              <Form.Field
+                control={form.control}
+                name="campaignId"
+                rules={{ required: 'Campaign is required' }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Campaign</Form.Label>
+                    <SelectAssignmentCampaignFormItem
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Choose assignment campaign"
                     />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
-                Close
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Saving...' : 'Save'}
-              </Button>
-            </div>
-          </form>
-        </Form>
+              <Form.Field
+                control={form.control}
+                name="ownerId"
+                rules={{ required: 'Owner is required' }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Owner *</Form.Label>
+                    <Form.Control>
+                      <SelectCustomer
+                        value={field.value ? [field.value] : []}
+                        onValueChange={(val) =>
+                          field.onChange(Array.isArray(val) ? val[0] : val)
+                        }
+                        mode="single"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </Sheet.Content>
       </Sheet.View>
     </Sheet>

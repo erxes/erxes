@@ -6,7 +6,8 @@ import { AgentRemove } from './delete/AgentRemove';
 export const AgentCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
 
-  const selectedRows = table.getFilteredSelectedRowModel().rows as Row<IAgent>[];
+  const selectedRows = table.getFilteredSelectedRowModel()
+    .rows as Row<IAgent>[];
   const agentIds = selectedRows.map((row) => row.original._id);
 
   return (

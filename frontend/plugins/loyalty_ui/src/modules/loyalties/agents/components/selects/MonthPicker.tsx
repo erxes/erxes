@@ -4,9 +4,18 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 
 const MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr',
-  'May', 'Jun', 'Jul', 'Aug',
-  'Sep', 'Oct', 'Nov', 'Dec',
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 interface MonthPickerProps {
@@ -15,9 +24,15 @@ interface MonthPickerProps {
   placeholder?: string;
 }
 
-export const MonthPicker = ({ value, onChange, placeholder = 'Pick a month' }: MonthPickerProps) => {
+export const MonthPicker = ({
+  value,
+  onChange,
+  placeholder = 'Pick a month',
+}: MonthPickerProps) => {
   const [open, setOpen] = useState(false);
-  const [year, setYear] = useState(() => value ? dayjs(value).year() : dayjs().year());
+  const [year, setYear] = useState(() =>
+    value ? dayjs(value).year() : dayjs().year(),
+  );
 
   const handleSelect = (monthIndex: number) => {
     onChange(new Date(year, monthIndex, 1));
@@ -30,7 +45,9 @@ export const MonthPicker = ({ value, onChange, placeholder = 'Pick a month' }: M
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <Combobox.Trigger className="w-full shadow-xs">
-          <span className={value ? '' : 'text-accent-foreground/80'}>{label}</span>
+          <span className={value ? '' : 'text-accent-foreground/80'}>
+            {label}
+          </span>
         </Combobox.Trigger>
       </Popover.Trigger>
       <Popover.Content className="p-3 w-56">
@@ -63,7 +80,9 @@ export const MonthPicker = ({ value, onChange, placeholder = 'Pick a month' }: M
                 type="button"
                 onClick={() => handleSelect(index)}
                 className={`py-1.5 rounded text-sm hover:bg-accent ${
-                  isSelected ? 'bg-primary text-primary-foreground hover:bg-primary' : ''
+                  isSelected
+                    ? 'bg-primary text-primary-foreground hover:bg-primary'
+                    : ''
                 }`}
               >
                 {month}

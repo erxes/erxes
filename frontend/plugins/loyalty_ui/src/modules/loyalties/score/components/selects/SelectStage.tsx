@@ -39,7 +39,9 @@ const SelectStageContext = createContext<SelectStageContextType | null>(null);
 const useSelectStageContext = () => {
   const context = useContext(SelectStageContext);
   if (!context)
-    throw new Error('useSelectStageContext must be used within SelectStageProvider');
+    throw new Error(
+      'useSelectStageContext must be used within SelectStageProvider',
+    );
   return context;
 };
 
@@ -110,7 +112,9 @@ const SelectStageValue = ({
 
   return (
     <div className="flex items-center gap-2">
-      <p className={cn('font-medium text-sm capitalize', className)}>{selected.name}</p>
+      <p className={cn('font-medium text-sm capitalize', className)}>
+        {selected.name}
+      </p>
     </div>
   );
 };
@@ -176,7 +180,9 @@ export const SelectStageFilterView = ({
   pipelineId?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [stage, setStage] = useQueryState<string[] | string>(queryKey || 'scoreStageId');
+  const [stage, setStage] = useQueryState<string[] | string>(
+    queryKey || 'scoreStageId',
+  );
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -210,7 +216,9 @@ export const SelectStageFilterBar = ({
   pipelineId?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [stage, setStage] = useQueryState<string[] | string>(queryKey || 'scoreStageId');
+  const [stage, setStage] = useQueryState<string[] | string>(
+    queryKey || 'scoreStageId',
+  );
   const [open, setOpen] = useState(false);
 
   return (
@@ -300,7 +308,10 @@ const SelectStageRoot = ({
     <SelectStageProvider
       pipelineId={pipelineId}
       value={value}
-      onValueChange={(val) => { onValueChange?.(val); setOpen(false); }}
+      onValueChange={(val) => {
+        onValueChange?.(val);
+        setOpen(false);
+      }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <Combobox.Trigger disabled={disabled}>

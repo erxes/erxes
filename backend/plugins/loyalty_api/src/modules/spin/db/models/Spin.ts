@@ -91,9 +91,8 @@ export const loadSpinClass = (models: IModels) => {
         throw new Error('can not buy spin, owner is undefined');
       }
 
-      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(
-        campaignId,
-      );
+      const spinCampaign =
+        await models.SpinCampaigns.getSpinCampaign(campaignId);
 
       if (!spinCampaign.buyScore) {
         throw new Error('can not buy this spin');

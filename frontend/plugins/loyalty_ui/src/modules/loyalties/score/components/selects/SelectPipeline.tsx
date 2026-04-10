@@ -34,12 +34,16 @@ interface SelectPipelineContextType {
   mode?: 'single' | 'multiple';
 }
 
-const SelectPipelineContext = createContext<SelectPipelineContextType | null>(null);
+const SelectPipelineContext = createContext<SelectPipelineContextType | null>(
+  null,
+);
 
 const useSelectPipelineContext = () => {
   const context = useContext(SelectPipelineContext);
   if (!context)
-    throw new Error('useSelectPipelineContext must be used within SelectPipelineProvider');
+    throw new Error(
+      'useSelectPipelineContext must be used within SelectPipelineProvider',
+    );
   return context;
 };
 
@@ -103,7 +107,9 @@ const SelectPipelineValue = ({
   const selected = pipelines?.find((p) => p._id === value);
 
   if (!boardId)
-    return <span className="text-accent-foreground/80">Choose board first</span>;
+    return (
+      <span className="text-accent-foreground/80">Choose board first</span>
+    );
 
   if (!selected)
     return (
@@ -114,7 +120,9 @@ const SelectPipelineValue = ({
 
   return (
     <div className="flex items-center gap-2">
-      <p className={cn('font-medium text-sm capitalize', className)}>{selected.name}</p>
+      <p className={cn('font-medium text-sm capitalize', className)}>
+        {selected.name}
+      </p>
     </div>
   );
 };
@@ -122,7 +130,10 @@ const SelectPipelineValue = ({
 const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
   const { onValueChange, value, mode } = useSelectPipelineContext();
   return (
-    <Command.Item value={pipeline._id} onSelect={() => onValueChange(pipeline._id)}>
+    <Command.Item
+      value={pipeline._id}
+      onSelect={() => onValueChange(pipeline._id)}
+    >
       <span className="font-medium capitalize">{pipeline.name}</span>
       {mode === 'single' && <Combobox.Check checked={value === pipeline._id} />}
     </Command.Item>
@@ -151,7 +162,9 @@ const SelectPipelineContent = () => {
           Error: {error.message}
         </div>
       );
-    return pipelines?.map((p) => <SelectPipelineCommandItem key={p._id} pipeline={p} />);
+    return pipelines?.map((p) => (
+      <SelectPipelineCommandItem key={p._id} pipeline={p} />
+    ));
   }, [boardId, loading, error, pipelines]);
 
   return (
@@ -185,7 +198,9 @@ export const SelectPipelineFilterView = ({
   boardId?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [pipeline, setPipeline] = useQueryState<string[] | string>(queryKey || 'scorePipelineId');
+  const [pipeline, setPipeline] = useQueryState<string[] | string>(
+    queryKey || 'scorePipelineId',
+  );
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -219,7 +234,9 @@ export const SelectPipelineFilterBar = ({
   boardId?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [pipeline, setPipeline] = useQueryState<string[] | string>(queryKey || 'scorePipelineId');
+  const [pipeline, setPipeline] = useQueryState<string[] | string>(
+    queryKey || 'scorePipelineId',
+  );
   const [open, setOpen] = useState(false);
 
   return (
@@ -309,7 +326,10 @@ const SelectPipelineRoot = ({
     <SelectPipelineProvider
       boardId={boardId}
       value={value}
-      onValueChange={(val) => { onValueChange?.(val); setOpen(false); }}
+      onValueChange={(val) => {
+        onValueChange?.(val);
+        setOpen(false);
+      }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <Combobox.Trigger disabled={disabled || !boardId}>

@@ -98,7 +98,9 @@ export const SelectCustomerFilterView = ({
           onValueChange={setSearch}
           placeholder="Search customers..."
         />
-        <Command.Empty>{loading ? 'Loading...' : 'No customers found'}</Command.Empty>
+        <Command.Empty>
+          {loading ? 'Loading...' : 'No customers found'}
+        </Command.Empty>
         <Command.List>
           {options.map((opt) => (
             <Command.Item
@@ -202,7 +204,9 @@ export const SelectCustomerFormItem = ({
             onValueChange={setSearch}
             placeholder="Search customers..."
           />
-          <Command.Empty>{loading ? 'Loading...' : 'No customers found'}</Command.Empty>
+          <Command.Empty>
+            {loading ? 'Loading...' : 'No customers found'}
+          </Command.Empty>
           <Command.List>
             {options.map((opt) => (
               <Command.Item

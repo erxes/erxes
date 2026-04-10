@@ -19,9 +19,7 @@ export const couponExportHandlers: TExportHandlers = {
       couponExportMap[collectionName as keyof typeof couponExportMap]
         ?.getExportHeaders;
     if (!handler)
-      throw new Error(
-        `Export headers handler not found for ${collectionName}`,
-      );
+      throw new Error(`Export headers handler not found for ${collectionName}`);
     return handler(data, ctx);
   },
   getExportData: async (args: any, ctx: IImportExportContext) => {

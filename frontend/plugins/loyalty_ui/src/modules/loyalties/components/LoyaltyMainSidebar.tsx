@@ -23,7 +23,10 @@ export const LoyaltyMainSidebar = () => {
           <Sidebar.Menu>
             {NAV_ITEMS.map(({ label, path }) => (
               <Sidebar.MenuItem key={path}>
-                <Sidebar.MenuButton isActive={pathname.startsWith(path)} asChild>
+                <Sidebar.MenuButton
+                  isActive={pathname.startsWith(path)}
+                  asChild
+                >
                   <Link to={path}>{label}</Link>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>

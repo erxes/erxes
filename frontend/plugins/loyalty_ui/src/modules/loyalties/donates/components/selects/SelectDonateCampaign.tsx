@@ -55,10 +55,12 @@ const useDonateCampaignOptions = (): {
 
   const options = useMemo<DonateCampaignOption[]>(
     () =>
-      (data?.donateCampaigns?.list || []).map((c: { _id: string; title: string }) => ({
-        value: c._id,
-        label: c.title,
-      })),
+      (data?.donateCampaigns?.list || []).map(
+        (c: { _id: string; title: string }) => ({
+          value: c._id,
+          label: c.title,
+        }),
+      ),
     [data?.donateCampaigns?.list],
   );
 

@@ -159,14 +159,31 @@ export const SelectCompanyFormItem = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Form.Control>
-        <SelectTrigger selected={selected} placeholder={placeholder} className={className} />
+        <SelectTrigger
+          selected={selected}
+          placeholder={placeholder}
+          className={className}
+        />
       </Form.Control>
       <Combobox.Content>
         <Command shouldFilter={false}>
-          <Command.Input value={search} onValueChange={setSearch} placeholder="Search companies..." />
-          <Command.Empty>{loading ? 'Loading...' : 'No companies found'}</Command.Empty>
+          <Command.Input
+            value={search}
+            onValueChange={setSearch}
+            placeholder="Search companies..."
+          />
+          <Command.Empty>
+            {loading ? 'Loading...' : 'No companies found'}
+          </Command.Empty>
           <Command.List>
-            <OptionList options={options} value={value} onSelect={(v) => { onValueChange(v); setOpen(false); }} />
+            <OptionList
+              options={options}
+              value={value}
+              onSelect={(v) => {
+                onValueChange(v);
+                setOpen(false);
+              }}
+            />
           </Command.List>
         </Command>
       </Combobox.Content>
@@ -195,7 +212,9 @@ export const SelectUserFormItem = ({
         value: u._id,
         label:
           u.details?.fullName ||
-          [u.details?.firstName, u.details?.lastName].filter(Boolean).join(' ') ||
+          [u.details?.firstName, u.details?.lastName]
+            .filter(Boolean)
+            .join(' ') ||
           u.email ||
           'Unnamed',
       })),
@@ -207,14 +226,31 @@ export const SelectUserFormItem = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Form.Control>
-        <SelectTrigger selected={selected} placeholder={placeholder} className={className} />
+        <SelectTrigger
+          selected={selected}
+          placeholder={placeholder}
+          className={className}
+        />
       </Form.Control>
       <Combobox.Content>
         <Command shouldFilter={false}>
-          <Command.Input value={search} onValueChange={setSearch} placeholder="Search team members..." />
-          <Command.Empty>{loading ? 'Loading...' : 'No team members found'}</Command.Empty>
+          <Command.Input
+            value={search}
+            onValueChange={setSearch}
+            placeholder="Search team members..."
+          />
+          <Command.Empty>
+            {loading ? 'Loading...' : 'No team members found'}
+          </Command.Empty>
           <Command.List>
-            <OptionList options={options} value={value} onSelect={(v) => { onValueChange(v); setOpen(false); }} />
+            <OptionList
+              options={options}
+              value={value}
+              onSelect={(v) => {
+                onValueChange(v);
+                setOpen(false);
+              }}
+            />
           </Command.List>
         </Command>
       </Combobox.Content>
@@ -233,10 +269,11 @@ export const SelectClientPortalUserFormItem = ({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
-  const { data, loading } = useQuery<{ getClientPortalUsers: { list: CpUserItem[] } }>(
-    GET_CLIENT_PORTAL_USERS,
-    { variables: { filter: { searchValue: search || undefined } } },
-  );
+  const { data, loading } = useQuery<{
+    getClientPortalUsers: { list: CpUserItem[] };
+  }>(GET_CLIENT_PORTAL_USERS, {
+    variables: { filter: { searchValue: search || undefined } },
+  });
 
   const options = useMemo<SelectOption[]>(
     () =>
@@ -256,14 +293,31 @@ export const SelectClientPortalUserFormItem = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Form.Control>
-        <SelectTrigger selected={selected} placeholder={placeholder} className={className} />
+        <SelectTrigger
+          selected={selected}
+          placeholder={placeholder}
+          className={className}
+        />
       </Form.Control>
       <Combobox.Content>
         <Command shouldFilter={false}>
-          <Command.Input value={search} onValueChange={setSearch} placeholder="Search client portal users..." />
-          <Command.Empty>{loading ? 'Loading...' : 'No client portal users found'}</Command.Empty>
+          <Command.Input
+            value={search}
+            onValueChange={setSearch}
+            placeholder="Search client portal users..."
+          />
+          <Command.Empty>
+            {loading ? 'Loading...' : 'No client portal users found'}
+          </Command.Empty>
           <Command.List>
-            <OptionList options={options} value={value} onSelect={(v) => { onValueChange(v); setOpen(false); }} />
+            <OptionList
+              options={options}
+              value={value}
+              onSelect={(v) => {
+                onValueChange(v);
+                setOpen(false);
+              }}
+            />
           </Command.List>
         </Command>
       </Combobox.Content>

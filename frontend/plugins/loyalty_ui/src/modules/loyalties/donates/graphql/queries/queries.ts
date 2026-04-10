@@ -43,7 +43,11 @@ export const DONATES_QUERY = gql`
 
 export const QUERY_DONATE_CAMPAIGNS = gql`
   query DonateCampaigns($status: String, $searchValue: String, $perPage: Int) {
-    donateCampaigns(status: $status, searchValue: $searchValue, limit: $perPage) {
+    donateCampaigns(
+      status: $status
+      searchValue: $searchValue
+      limit: $perPage
+    ) {
       list {
         _id
         title

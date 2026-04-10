@@ -55,8 +55,7 @@ export const useDeleteSpin = () => {
             spinCampaigns: {
               ...existingData.spinCampaigns,
               list: existingData.spinCampaigns.list.filter(
-                (campaign) =>
-                  !deletedCampaign?._ids?.includes(campaign._id),
+                (campaign) => !deletedCampaign?._ids?.includes(campaign._id),
               ),
               totalCount: Math.max(
                 (existingData.spinCampaigns.totalCount || 0) -

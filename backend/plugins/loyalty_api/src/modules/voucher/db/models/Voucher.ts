@@ -62,9 +62,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
-        campaignId,
-      );
+      const voucherCampaign =
+        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
         throw new Error('Cannot create voucher: voucher is expired');
@@ -116,9 +115,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
-        campaignId,
-      );
+      const voucherCampaign =
+        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
         throw new Error('Cannot create voucher: campaign is expired');
@@ -238,9 +236,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy voucher, owner is undefined');
       }
 
-      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
-        campaignId,
-      );
+      const voucherCampaign =
+        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       if (!voucherCampaign.buyScore) {
         throw new Error('can not buy this voucher');
