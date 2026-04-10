@@ -59,9 +59,9 @@ export const GeneralConfigForm = () => {
           },
         },
       });
-      toast({ title: t('saved'), variant: 'success' });
+      toast({ title: t('saved', 'Successfully saved'), variant: 'success' });
     } catch {
-      toast({ title: t('error'), variant: 'destructive' });
+      toast({ title: t('error', 'Error'), variant: 'destructive' });
     }
   }, [productsConfigsUpdate, isRequireUOM, defaultUom, toast, t]);
 

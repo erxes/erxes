@@ -70,11 +70,11 @@ export const CompanyDetailFields = () => {
         industry: industry?.map((i) => i.value),
       },
       onCompleted: () => {
-        toast({ title: t('saved') || 'Saved', variant: 'success' });
+        toast({ title: t('saved', 'Successfully saved'), variant: 'success' });
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

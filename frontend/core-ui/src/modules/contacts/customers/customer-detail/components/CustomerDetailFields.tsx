@@ -66,7 +66,7 @@ export const CustomerDetailFields = () => {
         _id,
       },
       onCompleted: () => {
-        toast({ title: t('saved', 'Edited successfully'), variant: 'success' });
+        toast({ title: t('saved', 'Successfully saved'), variant: 'success' });
       },
       onError: (e) => {
         toast({
