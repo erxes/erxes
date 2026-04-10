@@ -6,9 +6,7 @@ export const PosOrderDetailsPage = () => {
 
   if (!id) return null;
 
-  return (
-    <PosOrderDetailContainer order={{ _id: id }} />
-  );
+  return <PosOrderDetailContainer order={{ _id: id }} />;
 };
 
 export default PosOrderDetailsPage;

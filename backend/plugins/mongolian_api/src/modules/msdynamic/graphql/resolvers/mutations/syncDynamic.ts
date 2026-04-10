@@ -1,8 +1,5 @@
 import { IContext, generateModels } from '~/connectionResolvers';
-import {
-  consumeInventory,
-  orderToDynamic,
-} from '../../../utils';
+import { consumeInventory, orderToDynamic } from '../../../utils';
 import { consumeCustomers } from '~/modules/msdynamic/utilsCustomer';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 

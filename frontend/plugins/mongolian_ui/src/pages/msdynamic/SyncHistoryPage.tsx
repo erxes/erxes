@@ -1,10 +1,7 @@
 import SyncHistoryListContainer from '@/msdynamic/containers/SyncHistoryList';
 
 export const SyncHistoryListPage = () => {
-
-  return (
-    <SyncHistoryListContainer />
-  );
+  return <SyncHistoryListContainer />;
 };
 
 export default SyncHistoryListPage;

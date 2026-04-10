@@ -1,4 +1,4 @@
-import msdynamicQueries from './dynamic';
+import { msdynamicQueries } from './dynamic';
 
 export default {
   ...msdynamicQueries,
