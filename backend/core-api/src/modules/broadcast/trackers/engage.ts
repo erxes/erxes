@@ -53,6 +53,8 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
     parsedMessage = message;
   }
 
+  console.log('parsedMessage', parsedMessage)
+
   const { eventType, mail } = parsedMessage;
 
   if (!mail) {
@@ -113,6 +115,8 @@ export const engageTracker = async (req: Request, res: Response) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
+
+    console.log('Object.keys(req.body).length', Object.keys(req.body).length)
 
     // Handle case where req.body is populated (typically for SaaS SES events)
     if (req.body && Object.keys(req.body).length) {
