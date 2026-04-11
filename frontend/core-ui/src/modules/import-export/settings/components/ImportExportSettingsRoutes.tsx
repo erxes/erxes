@@ -7,19 +7,19 @@ import { Navigate, Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
 
 const ImportHistoriesSettingsPage = lazy(() =>
-  import(
-    '~/pages/settings/workspace/import-export/ImportHistoriesSettingsPage'
-  ).then((module) => ({
-    default: module.ImportHistoriesSettingsPage,
-  })),
+  import('~/pages/settings/workspace/import-export/ImportHistoriesSettingsPage').then(
+    (module) => ({
+      default: module.ImportHistoriesSettingsPage,
+    }),
+  ),
 );
 
 const ExportHistoriesSettingsPage = lazy(() =>
-  import(
-    '~/pages/settings/workspace/import-export/ExportHistoriesSettingsPage'
-  ).then((module) => ({
-    default: module.ExportHistoriesSettingsPage,
-  })),
+  import('~/pages/settings/workspace/import-export/ExportHistoriesSettingsPage').then(
+    (module) => ({
+      default: module.ExportHistoriesSettingsPage,
+    }),
+  ),
 );
 
 export const ImportExportSettingsRoutes = () => {

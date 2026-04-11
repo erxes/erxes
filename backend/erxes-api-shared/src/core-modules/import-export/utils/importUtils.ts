@@ -77,9 +77,7 @@ export async function* processXLSXStream(
         const raw = row.values as unknown[];
         // 1-based → 0-based; null/undefined become empty strings so
         // downstream column mapping stays aligned.
-        const values = raw
-          .slice(1)
-          .map((v) => (v == null ? '' : String(v)));
+        const values = raw.slice(1).map((v) => (v == null ? '' : String(v)));
 
         yield values;
       }
