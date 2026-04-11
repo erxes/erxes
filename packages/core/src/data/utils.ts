@@ -938,19 +938,17 @@ const readFromCFImages = async (
     url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/w=${width}`;
   }
 
-  return new Promise((resolve) => {
-    fetch(url)
-      .then((res) => {
-        if (!res.ok || res.status !== 200) {
-          return readFromCR2(key, models);
-        }
-        return res.buffer();
-      })
-      .then((buffer) => resolve(buffer))
-      .catch((_err) => {
-        return readFromCR2(key, models);
-      });
-  });
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok || response.status !== 200) {
+      return await readFromCR2(key, models);
+    }
+
+    return await response.buffer();
+  } catch {
+    return await readFromCR2(key, models);
+  }
 };
 
 const readFromCR2 = async (key: string, models?: IModels) => {
