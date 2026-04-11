@@ -1,11 +1,9 @@
 import {
   GetExportData,
   IImportExportContext,
-} from 'erxes-api-shared/core-modules';
-import {
   buildExportCursorQuery,
   normalizeExportLimit,
-} from 'erxes-api-shared/core-modules/import-export/utils/exportCursor';
+} from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { buildUserExportRow } from './buildUserExportRow';
 import { escapeRegExp } from 'erxes-api-shared/utils';

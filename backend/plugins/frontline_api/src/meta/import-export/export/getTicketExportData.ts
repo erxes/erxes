@@ -1,8 +1,8 @@
 import {
   GetExportData,
   IImportExportContext,
+  buildExportCursorQuery,
 } from 'erxes-api-shared/core-modules';
-import { buildExportCursorQuery } from 'erxes-api-shared/core-modules/import-export/utils/exportCursor';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildTicketExportRow } from './buildTicketExportRow';

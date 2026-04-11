@@ -1,8 +1,8 @@
 import {
   GetExportData,
   IImportExportContext,
+  buildExportCursorQuery,
 } from 'erxes-api-shared/core-modules';
-import { buildExportCursorQuery } from 'erxes-api-shared/core-modules/import-export/utils/exportCursor';
 import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
 import { buildCompanyExportRow } from './buildCompanyExportRow';
