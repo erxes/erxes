@@ -41,7 +41,9 @@ const command = async () => {
   CPUsers = db.collection('client_portal_users');
   Customers = db.collection('customers');
 
-  const cursor = CPUsers.find({ erxesCustomerId: { $exists: true } }).batchSize(BATCH_SIZE);
+  const cursor = CPUsers.find({ erxesCustomerId: { $exists: true } }).batchSize(
+    BATCH_SIZE,
+  );
 
   let bulkOperations: any[] = [];
 
