@@ -608,6 +608,8 @@ const uploadToCFStream = async (file: any, models?: IModels) => {
     body: formData,
   });
 
+  console.log({ response });
+
   const data = await response.json();
 
   if (!data.success) {
