@@ -232,6 +232,7 @@ export const mutations = `
   engageMessageRemoveVerifiedEmail(email: String!): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
+  broadcastUpdateConfigs(configsMap: JSON!): JSON
 
   engageSendMail(
     integrationId: String

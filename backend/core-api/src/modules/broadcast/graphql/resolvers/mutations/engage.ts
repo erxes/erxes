@@ -136,7 +136,7 @@ export const engageMutations = {
     return live;
   },
 
-  async engagesUpdateConfigs(
+  async broadcastUpdateConfigs(
     _root,
     { configsMap },
     { models, checkPermission }: IContext,
