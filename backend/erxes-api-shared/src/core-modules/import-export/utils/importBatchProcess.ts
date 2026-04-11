@@ -568,7 +568,6 @@ export const createImportBatchProcessor = (
           fallbackMessage: 'Failed to finalize import error file',
           run: async () => await errorRowWriter.finalize(),
         });
-        errorRowWriterFinalized = true;
 
         if (errorRowWriter.hasErrors()) {
           errorFileUrl = await withImportExportStage({

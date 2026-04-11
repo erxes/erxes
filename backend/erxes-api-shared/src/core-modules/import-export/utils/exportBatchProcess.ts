@@ -49,10 +49,10 @@ const escapeCsvField = (value: any): string => {
   return stringValue;
 };
 
-const createContext = async (
+const createContext = (
   subdomain: string,
   baseContext: IImportExportContext,
-): Promise<IImportExportContext> => {
+): IImportExportContext => {
   return baseContext;
 };
 
@@ -203,7 +203,7 @@ const createXLSXRowWriter = async ({
   };
 };
 
-const createExportRowWriter = async ({
+const createExportRowWriter = ({
   fileFormat,
   filePath,
   headerLabels,
@@ -410,7 +410,6 @@ export const createExportBatchProcessor = (
             });
 
             if (batch.length === 0) {
-              hasMoreData = false;
               break;
             }
 
@@ -523,12 +522,16 @@ export const createExportBatchProcessor = (
           await withImportExportStage({
             stage: 'SAVE_RESULT',
             fallbackMessage: 'Failed to save export file metadata',
-            run: async () =>
+            run: async () => {
+              if (!fileKey) {
+                throw new Error('Export file key was not generated');
+              }
               await coreClient.saveExportFile(subdomain, {
                 exportId,
-                fileKey: fileKey!,
+                fileKey,
                 fileName,
-              }),
+              });
+            },
           });
         } finally {
           if (!writerFinalized) {
