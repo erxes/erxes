@@ -348,10 +348,7 @@ type ReadRemoteFileStreamParams = {
   key: string;
 };
 
-const streamFromGCS = (
-  key: string,
-  configs: StorageConfigMap,
-): Readable => {
+const streamFromGCS = (key: string, configs: StorageConfigMap): Readable => {
   const bucket = requireConfigValue(configs, 'GOOGLE_CLOUD_STORAGE_BUCKET');
   const projectId = requireConfigValue(configs, 'GOOGLE_PROJECT_ID');
   const credentialsPath = requireConfigValue(
