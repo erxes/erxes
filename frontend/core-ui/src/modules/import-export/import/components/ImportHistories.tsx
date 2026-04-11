@@ -21,13 +21,13 @@ export function ImportHistories() {
 
   return (
     <ImportHistoriesRecordTableProvider value={providerValue}>
-      <div className="space-y-4 w-full">
+      <div className="min-w-0 w-full space-y-4">
         <ImportHistoriesRecordTableHeader />
 
         <RecordTable.Provider
           columns={columns}
           data={list}
-          className="overflow-hidden rounded-xl border bg-background"
+          className="min-w-0 overflow-hidden rounded-xl border bg-background"
         >
           <RecordTable.CursorProvider
             hasPreviousPage={hasPreviousPage}

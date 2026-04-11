@@ -1,4 +1,8 @@
-import { GetExportData, IImportExportContext } from 'erxes-api-shared/core-modules';
+import {
+  GetExportData,
+  IImportExportContext,
+} from 'erxes-api-shared/core-modules';
+import { buildExportCursorQuery } from 'erxes-api-shared/core-modules/import-export/utils/exportCursor';
 import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
 import { buildProductExportRow } from './buildProductExportRow';
@@ -15,26 +19,26 @@ export async function getProductExportData(
 
   let query: any = {};
 
-  if ((!ids || ids.length === 0) && filters && Object.keys(filters).length > 0) {
+  if (
+    (!ids || ids.length === 0) &&
+    filters &&
+    Object.keys(filters).length > 0
+  ) {
     query = await generateFilter(subdomain, filters, models);
   }
 
-  if (ids && ids.length > 0) {
-    const processedCount = cursor ? Number.parseInt(cursor, 10) || 0 : 0;
-    const remainingIds = ids.slice(processedCount);
+  const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
+    baseQuery: query,
+    cursor,
+    ids,
+    limit,
+  });
 
-    // if (remainingIds.length === 0) {
-    //   return [];
-    // }
-
-    query._id = { $in: remainingIds.slice(0, limit) };
-  } else {
-    if (cursor) {
-      query._id = query._id ? { ...query._id, $gt: cursor } : { $gt: cursor };
-    }
+  if (isIdsMode && exportQuery._id?.$in?.length === 0) {
+    return [];
   }
 
-  const products = await models.Products.find(query)
+  const products = await models.Products.find(exportQuery)
     .sort({ _id: 1 })
     .limit(limit)
     .lean();

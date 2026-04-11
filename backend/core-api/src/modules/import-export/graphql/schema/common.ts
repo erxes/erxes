@@ -7,6 +7,7 @@ export const types = `
   type ImportExportType {
     label: String!
     contentType: String!
+    permissions: [String!]!
   }
 `;
 

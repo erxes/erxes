@@ -7,18 +7,57 @@ import {
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { TImportProgress } from 'ui-modules';
+import { TExportProgress } from 'ui-modules';
 import { formatImportExportEntityTypeLabel } from '~/modules/import-export/shared/formatEntityTypeLabel';
 import { formatImportExportDuration } from '~/modules/import-export/shared/import-export-duration';
-import { ImportHistoryActionsCell } from './ImportHistoryActionsCell';
+import { ExportHistoryActionsCell } from './ExportHistoryActionsCell';
 
 type ImportExportContentType = {
   contentType: string;
   label: string;
 };
 
-const IMPORT_STATUS_META: Record<
-  TImportProgress['status'],
+function PieChart({ value }: { value: number }) {
+  const size = 20;
+  const radius = size / 2 - 2;
+  const center = size / 2;
+  const circumference = 2 * Math.PI * radius;
+  const normalizedValue = Math.min(Math.max(value, 0), 100);
+  const percentage = normalizedValue / 100;
+  const strokeDashoffset = circumference - percentage * circumference;
+
+  return (
+    <svg width={size} height={size} className="flex-shrink-0">
+      <circle
+        cx={center}
+        cy={center}
+        r={radius}
+        fill="transparent"
+        stroke="hsl(var(--muted))"
+        strokeWidth="2"
+      />
+      <circle
+        cx={center}
+        cy={center}
+        r={radius}
+        fill="transparent"
+        stroke="#10b981"
+        strokeWidth="2"
+        strokeDasharray={circumference}
+        strokeDashoffset={strokeDashoffset}
+        strokeLinecap="round"
+        style={{
+          transform: 'rotate(-90deg)',
+          transformOrigin: '50% 50%',
+          transition: 'stroke-dashoffset 0.3s ease',
+        }}
+      />
+    </svg>
+  );
+}
+
+const EXPORT_STATUS_META: Record<
+  TExportProgress['status'],
   {
     label: string;
     variant: 'success' | 'destructive' | 'secondary' | 'warning' | 'info';
@@ -32,9 +71,9 @@ const IMPORT_STATUS_META: Record<
   cancelled: { label: 'Cancelled', variant: 'secondary' },
 };
 
-export const importHistoryColumns = (
+export const exportHistoryColumns = (
   contentTypes: ImportExportContentType[] = [],
-): ColumnDef<TImportProgress>[] => [
+): ColumnDef<TExportProgress>[] => [
   {
     id: 'fileName',
     accessorKey: 'fileName',
@@ -74,7 +113,7 @@ export const importHistoryColumns = (
     cell: ({ row }) => {
       const status = row.original.status;
       const statusMeta =
-        IMPORT_STATUS_META[status] || IMPORT_STATUS_META.pending;
+        EXPORT_STATUS_META[status] || EXPORT_STATUS_META.pending;
 
       return (
         <RecordTableInlineCell>
@@ -96,6 +135,7 @@ export const importHistoryColumns = (
     header: () => <RecordTable.InlineHead label="Records" />,
     cell: ({ row }) => {
       const totalRows = row.original.totalRows || 0;
+
       return (
         <RecordTableInlineCell className="justify-end whitespace-nowrap tabular-nums">
           {totalRows.toLocaleString()}
@@ -104,31 +144,26 @@ export const importHistoryColumns = (
     },
   },
   {
-    id: 'successRows',
-    accessorKey: 'successRows',
-    size: 90,
-    minSize: 78,
-    header: () => <RecordTable.InlineHead label="Succeeded" />,
+    id: 'progress',
+    accessorKey: 'progress',
+    size: 100,
+    minSize: 90,
+    header: () => <RecordTable.InlineHead label="Progress" />,
     cell: ({ row }) => {
-      const successRows = row.original.successRows || 0;
+      const progressValue = row.original.progress;
+
       return (
-        <RecordTableInlineCell className="justify-end whitespace-nowrap tabular-nums">
-          {successRows.toLocaleString()}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'errorRows',
-    accessorKey: 'errorRows',
-    size: 80,
-    minSize: 72,
-    header: () => <RecordTable.InlineHead label="Failed" />,
-    cell: ({ row }) => {
-      const errorRows = row.original.errorRows || 0;
-      return (
-        <RecordTableInlineCell className="justify-end whitespace-nowrap tabular-nums">
-          {errorRows.toLocaleString()}
+        <RecordTableInlineCell className="justify-end whitespace-nowrap">
+          {typeof progressValue === 'number' ? (
+            <div className="flex items-center gap-2">
+              <PieChart value={Math.min(Math.max(progressValue, 0), 100)} />
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {progressValue}%
+              </span>
+            </div>
+          ) : (
+            '-'
+          )}
         </RecordTableInlineCell>
       );
     },
@@ -141,6 +176,7 @@ export const importHistoryColumns = (
     header: () => <RecordTable.InlineHead label="Created" />,
     cell: ({ row }) => {
       const { createdAt } = row.original;
+
       return (
         <RecordTableInlineCell className="whitespace-nowrap">
           {createdAt ? <RelativeDateDisplay.Value value={createdAt} /> : '-'}
@@ -156,6 +192,7 @@ export const importHistoryColumns = (
     header: () => <RecordTable.InlineHead label="Completed" />,
     cell: ({ row }) => {
       const { completedAt } = row.original;
+
       return (
         <RecordTableInlineCell className="whitespace-nowrap">
           {completedAt ? (
@@ -174,7 +211,7 @@ export const importHistoryColumns = (
     header: () => <RecordTable.InlineHead label="Duration" />,
     cell: ({ row }) => {
       const { startedAt, completedAt } =
-        row.original || ({} as TImportProgress);
+        row.original || ({} as TExportProgress);
 
       return (
         <RecordTableInlineCell className="justify-end whitespace-nowrap tabular-nums">
@@ -190,6 +227,6 @@ export const importHistoryColumns = (
     size: 56,
     minSize: 56,
     header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ row }) => <ImportHistoryActionsCell importItem={row.original} />,
+    cell: ({ row }) => <ExportHistoryActionsCell exportItem={row.original} />,
   },
 ];

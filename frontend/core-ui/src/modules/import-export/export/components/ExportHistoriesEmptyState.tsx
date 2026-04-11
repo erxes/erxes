@@ -1,7 +1,7 @@
 import { formatImportExportEntityTypeLabel } from '@/import-export/shared/formatEntityTypeLabel';
-import { IconFileImport } from '@tabler/icons-react';
+import { IconFileExport } from '@tabler/icons-react';
 import { Badge, Empty, useQueryState } from 'erxes-ui';
-import { useImportHistoriesRecordTable } from './ImportHistoriesContext';
+import { useExportHistoriesRecordTable } from './ExportHistoriesContext';
 
 const SELECTED_CONTENT_TYPE_INFO = {
   label: (selectedEntityType: string | null, contentTypes: any[]) =>
@@ -9,24 +9,24 @@ const SELECTED_CONTENT_TYPE_INFO = {
       selectedEntityType || 'all',
       contentTypes,
     ),
-  title: (label: string | null) => `No ${label} imports yet`,
+  title: (label: string | null) => `No ${label} exports yet`,
   emptyDescription: (label: string | null) =>
-    `${label} imports will appear here after someone uploads a CSV file. Error files will also be available here whenever a job needs attention.`,
+    `${label} exports will appear here after someone downloads records in that section. Completed files can be downloaded again from this page.`,
 };
 
 const UNSELECTED_CONTENT_TYPE_INFO = {
   label: 'All types',
-  title: 'No imports yet',
+  title: 'No exports yet',
   emptyDescription:
-    'CSV imports started from your modules will appear here with their status, processed rows, and any error files you may need to review.',
+    'CSV exports will appear here after someone downloads records from a module. Completed files can be downloaded again from this page.',
 };
 
-export const ImportHistoriesEmptyState = () => {
+export const ExportHistoriesEmptyState = () => {
   const [selectedEntityType] = useQueryState<string>('type', {
     defaultValue: 'all',
   });
 
-  const { contentTypes, columnsLength } = useImportHistoriesRecordTable();
+  const { contentTypes, columnsLength } = useExportHistoriesRecordTable();
 
   const isAllSelected = selectedEntityType === 'all';
 
@@ -48,7 +48,7 @@ export const ImportHistoriesEmptyState = () => {
         <Empty className="min-h-[24rem] rounded-xl border bg-muted/20">
           <Empty.Header>
             <Empty.Media variant="icon">
-              <IconFileImport />
+              <IconFileExport />
             </Empty.Media>
             <Empty.Title>{emptyTitle}</Empty.Title>
             <Empty.Description>{emptyDescription}</Empty.Description>

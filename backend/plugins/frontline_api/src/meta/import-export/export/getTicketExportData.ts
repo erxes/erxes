@@ -2,6 +2,7 @@ import {
   GetExportData,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
+import { buildExportCursorQuery } from 'erxes-api-shared/core-modules/import-export/utils/exportCursor';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildTicketExportRow } from './buildTicketExportRow';
@@ -18,38 +19,39 @@ export async function getTicketExportData(
 
   let query: any = {};
 
-  if (ids && ids.length > 0) {
-    const processedCount = cursor ? Number.parseInt(cursor, 10) || 0 : 0;
-    const remainingIds = ids.slice(processedCount);
-    query._id = { $in: remainingIds.slice(0, limit) };
-  } else {
-    if (filters && Object.keys(filters).length > 0) {
-      if (filters.name) {
-        query.name = { $regex: filters.name, $options: 'i' };
-      }
-      if (filters.assigneeId) {
-        query.assigneeId = filters.assigneeId;
-      }
-      if (filters.priority) {
-        query.priority = Number(filters.priority);
-      }
-      if (filters.state) {
-        query.state = filters.state;
-      }
-      if (filters.statusId) {
-        query.statusId = filters.statusId;
-      }
-      if (filters.pipelineId) {
-        query.pipelineId = filters.pipelineId;
-      }
+  if (filters && Object.keys(filters).length > 0) {
+    if (filters.name) {
+      query.name = { $regex: filters.name, $options: 'i' };
     }
-
-    if (cursor) {
-      query._id = query._id ? { ...query._id, $gt: cursor } : { $gt: cursor };
+    if (filters.assigneeId) {
+      query.assigneeId = filters.assigneeId;
+    }
+    if (filters.priority) {
+      query.priority = Number(filters.priority);
+    }
+    if (filters.state) {
+      query.state = filters.state;
+    }
+    if (filters.statusId) {
+      query.statusId = filters.statusId;
+    }
+    if (filters.pipelineId) {
+      query.pipelineId = filters.pipelineId;
     }
   }
 
-  const tickets = await models.Ticket.find(query)
+  const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
+    baseQuery: query,
+    cursor,
+    ids,
+    limit,
+  });
+
+  if (isIdsMode && exportQuery._id?.$in?.length === 0) {
+    return [];
+  }
+
+  const tickets = await models.Ticket.find(exportQuery)
     .sort({ _id: 1 })
     .limit(limit)
     .lean();

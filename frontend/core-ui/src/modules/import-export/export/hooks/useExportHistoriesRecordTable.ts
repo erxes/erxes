@@ -1,22 +1,23 @@
 import { useImportExportTypes } from '@/import-export/hooks/useImportExportTypes';
 import { useQueryState } from 'erxes-ui/hooks/use-query-state';
-import { importHistoryColumns } from '../components/ImportHistoryColumns';
-import { useImportHistories } from './useImportHistories';
+import { exportHistoryColumns } from '../components/ExportHistoryColumns';
+import { useExportHistories } from './useExportHistories';
 
-export const useImportHistoriesRecordTable = () => {
+export const useExportHistoriesRecordTable = () => {
   const [selectedEntityType] = useQueryState<string>('type', {
     defaultValue: 'all',
   });
 
-  const RECORD_TABLE_SESSION_KEY = `import_histories_cursor_${selectedEntityType}`;
+  const RECORD_TABLE_SESSION_KEY = `export_histories_cursor_${selectedEntityType}`;
 
   const {
     importExportTypes,
     loading: typesLoading,
     error: typesError,
   } = useImportExportTypes({
-    operation: 'IMPORT',
+    operation: 'EXPORT',
   });
+
   const {
     list,
     totalCount,
@@ -25,13 +26,14 @@ export const useImportHistoriesRecordTable = () => {
     hasNextPage,
     hasPreviousPage,
     handleFetchMore,
-  } = useImportHistories({
+  } = useExportHistories({
     entityTypes:
       selectedEntityType === 'all' || !selectedEntityType
         ? undefined
         : [selectedEntityType],
   });
-  const columns = importHistoryColumns(importExportTypes);
+
+  const columns = exportHistoryColumns(importExportTypes);
 
   const providerValue = {
     contentTypes: importExportTypes,

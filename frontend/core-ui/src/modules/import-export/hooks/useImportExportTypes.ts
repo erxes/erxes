@@ -6,6 +6,7 @@ export type TImportExportOperation = 'IMPORT' | 'EXPORT';
 export type TImportExportHistoryType = {
   label: string;
   contentType: string;
+  permissions: string[];
 };
 
 type ImportExportTypesQueryResponse = {

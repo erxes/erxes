@@ -1,4 +1,8 @@
-import { GetExportData, IImportExportContext } from 'erxes-api-shared/core-modules';
+import {
+  GetExportData,
+  IImportExportContext,
+} from 'erxes-api-shared/core-modules';
+import { buildExportCursorQuery } from 'erxes-api-shared/core-modules/import-export/utils/exportCursor';
 import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
 import { buildCompanyExportRow } from './buildCompanyExportRow';
@@ -19,22 +23,16 @@ export async function getCompanyExportData(
     query = await generateFilter(subdomain, filters, models);
   }
 
-  if (ids && ids.length > 0 && !cursor) {
-    query._id = { $in: ids };
-  }
+  const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
+    baseQuery: query,
+    cursor,
+    ids,
+    limit,
+  });
 
-  if (cursor) {
-    if (ids && ids.length > 0) {
-      const processedCount = Number.parseInt(cursor, 10) || 0;
-      const remainingIds = ids.slice(processedCount);
-      if (remainingIds.length === 0) return [];
-      query._id = { $in: remainingIds.slice(0, limit) };
-    } else {
-      query._id = query._id ? { ...query._id, $gt: cursor } : { $gt: cursor };
-    }
-  }
+  if (isIdsMode && exportQuery._id?.$in?.length === 0) return [];
 
-  const companies = await models.Companies.find(query)
+  const companies = await models.Companies.find(exportQuery)
     .sort({ _id: 1 })
     .limit(limit)
     .lean();

@@ -17,6 +17,7 @@ export interface ImportHeaderDefinition {
 export interface ImportExportTypeDefinition {
   label: string;
   contentType: string;
+  permissions?: string[];
 }
 
 export interface InsertImportRowsInputData {

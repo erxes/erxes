@@ -1,9 +1,17 @@
-import { useImportHistoriesRecordTable } from '../import/components/ImportHistoriesContext';
+type ImportExportContentType = {
+  contentType: string;
+  label: string;
+};
 
-export const formatImportExportEntityTypeLabel = (entityType: string) => {
-  const { contentTypes } = useImportHistoriesRecordTable();
+export const formatImportExportEntityTypeLabel = (
+  entityType: string,
+  contentTypes: ImportExportContentType[] = [],
+) => {
+  if (entityType === 'all') {
+    return 'All types';
+  }
 
-  const configuredLabel = contentTypes?.find(
+  const configuredLabel = contentTypes.find(
     (contentType) => contentType.contentType === entityType,
   )?.label;
 

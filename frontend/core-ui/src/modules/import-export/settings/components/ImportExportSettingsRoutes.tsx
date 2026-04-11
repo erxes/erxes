@@ -26,26 +26,28 @@ export const ImportExportSettingsRoutes = () => {
   return (
     <PageContainer>
       <SettingsHeader breadcrumbs={<ImportExportSettingsBreadcrumb />} />
-      <div className="flex flex-auto w-full overflow-hidden">
+      <div className="flex flex-auto w-full min-w-0 overflow-hidden">
         <ImportExportSettingsSidebar />
-        <Suspense
-          fallback={
-            <div className="flex h-full w-full items-center justify-center">
-              <Spinner />
-            </div>
-          }
-        >
-          <Routes>
-            <Route
-              index
-              element={
-                <Navigate to={ImportExportSettingsPath.Import} replace />
-              }
-            />
-            <Route path="import" element={<ImportHistoriesSettingsPage />} />
-            <Route path="export" element={<ExportHistoriesSettingsPage />} />
-          </Routes>
-        </Suspense>
+        <div className="flex min-w-0 flex-1 overflow-hidden">
+          <Suspense
+            fallback={
+              <div className="flex h-full w-full items-center justify-center">
+                <Spinner />
+              </div>
+            }
+          >
+            <Routes>
+              <Route
+                index
+                element={
+                  <Navigate to={ImportExportSettingsPath.Import} replace />
+                }
+              />
+              <Route path="import" element={<ImportHistoriesSettingsPage />} />
+              <Route path="export" element={<ExportHistoriesSettingsPage />} />
+            </Routes>
+          </Suspense>
+        </div>
       </div>
     </PageContainer>
   );

@@ -1,9 +1,9 @@
-import { IconFileImport } from '@tabler/icons-react';
-import { Badge, Select, Skeleton, useQueryState } from 'erxes-ui';
-import { useImportHistoriesRecordTable } from './ImportHistoriesContext';
 import { formatImportExportEntityTypeLabel } from '@/import-export/shared/formatEntityTypeLabel';
+import { IconFileExport } from '@tabler/icons-react';
+import { Badge, Select, Skeleton, useQueryState } from 'erxes-ui';
+import { useExportHistoriesRecordTable } from './ExportHistoriesContext';
 
-export const ImportHistoriesRecordTableHeader = () => {
+export const ExportHistoriesRecordTableHeader = () => {
   const [selectedEntityType, setSelectedEntityType] = useQueryState<string>(
     'type',
     {
@@ -12,12 +12,12 @@ export const ImportHistoriesRecordTableHeader = () => {
   ) as [string, (value: string | null) => void];
 
   const { contentTypes, loading, totalCount, typesLoading, typesError } =
-    useImportHistoriesRecordTable();
+    useExportHistoriesRecordTable();
 
   const totalLabel =
     totalCount === 1
-      ? '1 import job'
-      : `${totalCount.toLocaleString()} import jobs`;
+      ? '1 export job'
+      : `${totalCount.toLocaleString()} export jobs`;
 
   const selectedTypeLabel =
     selectedEntityType === 'all'
@@ -33,13 +33,13 @@ export const ImportHistoriesRecordTableHeader = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="rounded-lg bg-primary/10 p-2 text-primary">
-              <IconFileImport className="size-4" />
+              <IconFileExport className="size-4" />
             </div>
-            <h3 className="text-base font-semibold">Import history</h3>
+            <h3 className="text-base font-semibold">Export history</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Review completed and failed CSV imports, then open error files when
-            a job needs attention.
+            Review generated CSV files, track progress, and download completed
+            exports again whenever you need them.
           </p>
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">{selectedTypeLabel}</Badge>

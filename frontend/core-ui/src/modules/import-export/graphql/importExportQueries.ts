@@ -5,6 +5,7 @@ export const GET_IMPORT_EXPORT_TYPES = gql`
     importExportTypes(operation: $operation) {
       label
       contentType
+      permissions
     }
   }
 `;

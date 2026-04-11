@@ -39,6 +39,7 @@ export const getImportExportTypes = async (
       typesByContentType.set(type.contentType, {
         contentType: type.contentType,
         label: type.label?.trim() || toFallbackLabel(type.contentType),
+        permissions: type.permissions || [],
       });
     }
   }
