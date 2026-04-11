@@ -2,7 +2,13 @@ import { config } from 'dotenv';
 
 config();
 
-import { AnyBulkWriteOperation, Collection, Db, Document, MongoClient } from 'mongodb';
+import {
+  AnyBulkWriteOperation,
+  Collection,
+  Db,
+  Document,
+  MongoClient,
+} from 'mongodb';
 
 const { MONGO_URL } = process.env;
 
