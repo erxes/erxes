@@ -1,7 +1,9 @@
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { splitType } from 'erxes-api-shared/core-modules';
-import { getImportExportJobOptions } from 'erxes-api-shared/core-modules/import-export/utils/importExportRuntime';
+import {
+  splitType,
+  getImportExportJobOptions,
+} from 'erxes-api-shared/core-modules';
 import { validateExportConfig } from '~/modules/import-export/utils/validateConfig';
 import { getRequiredImportExportPermissions } from '~/modules/import-export/utils/getRequiredPermissions';
 
