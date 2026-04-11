@@ -1,23 +1,23 @@
-import * as dotenv from 'dotenv';
+import { config } from 'dotenv';
 
-dotenv.config();
+config();
 
-import { Collection, Db, MongoClient } from 'mongodb';
+import { AnyBulkWriteOperation, Collection, Db, Document, MongoClient } from 'mongodb';
 
 const { MONGO_URL } = process.env;
 
 if (!MONGO_URL) {
-  throw new Error(`Environment variable MONGO_URL not set.`);
+  throw new Error('Environment variable MONGO_URL not set.');
 }
 
 const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
-let Customers: Collection<any>;
-let CPUsers: Collection<any>;
+let Customers: Collection<Document>;
+let CPUsers: Collection<Document>;
 
-const fillSearchText = (doc) => {
+const fillSearchText = (doc: Document) => {
   const searchText = [
     (doc.emails || []).join(' '),
     (doc.phones || []).join(' '),
@@ -35,52 +35,63 @@ const fillSearchText = (doc) => {
 const BATCH_SIZE = 100;
 
 const command = async () => {
-  await client.connect();
-  db = client.db() as Db;
+  try {
+    await client.connect();
+    db = client.db() as Db;
 
-  CPUsers = db.collection('client_portal_users');
-  Customers = db.collection('customers');
+    CPUsers = db.collection('client_portal_users');
+    Customers = db.collection('customers');
 
-  const cursor = CPUsers.find({ erxesCustomerId: { $exists: true } }).batchSize(
-    BATCH_SIZE,
-  );
+    const cpUserCursor = CPUsers.find(
+      { erxesCustomerId: { $exists: true } },
+      { projection: { erxesCustomerId: 1 } },
+    )
+      .batchSize(BATCH_SIZE)
+      .addCursorFlag('noCursorTimeout', true);
 
-  let bulkOperations: any[] = [];
+    const customerIds: any[] = [];
+    for await (const cpUser of cpUserCursor) {
+      customerIds.push(cpUser.erxesCustomerId);
+    }
 
-  for await (const cpUser of cursor) {
-    const customer = await Customers.findOne({
-      _id: cpUser.erxesCustomerId,
+    const customerCursor = Customers.find({
+      _id: { $in: customerIds },
       $or: [
         { searchText: { $exists: false } },
         { searchText: '' },
         { searchText: null },
       ],
-    });
+    }).batchSize(BATCH_SIZE);
 
-    if (!customer) continue;
+    let bulkOperations: AnyBulkWriteOperation<Document>[] = [];
 
-    bulkOperations.push({
-      updateOne: {
-        filter: { _id: customer._id },
-        update: { $set: { searchText: fillSearchText(customer) } },
-      },
-    });
+    for await (const customer of customerCursor) {
+      bulkOperations.push({
+        updateOne: {
+          filter: { _id: customer._id },
+          update: { $set: { searchText: fillSearchText(customer) } },
+        },
+      });
 
-    if (bulkOperations.length >= BATCH_SIZE) {
-      await Customers.bulkWrite(bulkOperations, { ordered: false });
-      console.log(`Updated ${bulkOperations.length} customers...`);
-      bulkOperations = [];
+      if (bulkOperations.length >= BATCH_SIZE) {
+        await Customers.bulkWrite(bulkOperations, { ordered: false });
+        console.log(`Updated ${bulkOperations.length} customers...`);
+        bulkOperations = [];
+      }
     }
+
+    if (bulkOperations.length > 0) {
+      await Customers.bulkWrite(bulkOperations, { ordered: false });
+    }
+
+    console.log(`Process finished at: ${new Date()}`);
+  } catch (error) {
+    console.error('Migration failed:', error);
+    process.exit(1);
+  } finally {
+    await client.close();
+    process.exit();
   }
-
-  if (bulkOperations.length > 0) {
-    await Customers.bulkWrite(bulkOperations, { ordered: false });
-  }
-
-  console.log(`Process finished at: ${new Date()}`);
-
-  await client.close();
-  process.exit();
 };
 
 command();
