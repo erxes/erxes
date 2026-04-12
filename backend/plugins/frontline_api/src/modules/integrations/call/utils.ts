@@ -75,17 +75,7 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
     throw new Error('Cookie not found');
   }
 
-  cookie = cookie?.toString();
-
-  const isValid = await validateCookie(wsServer, cookie);
-  if (!isValid) {
-    await redis.del('callCookie');
-    cookie = await getOrSetCallCookie(wsServer);
-    if (!cookie) {
-      throw new Error('Failed to refresh cookie');
-    }
-    cookie = cookie.toString();
-  }
+  cookie = cookie.toString();
 
   const requestOptions: RequestInit & { headers: HeadersInit } = {
     method,
@@ -100,6 +90,19 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
     }),
   };
 
+  const retryWithFreshCookie = async () => {
+    console.warn(
+      `[Call] Cookie expired (status -6) for ${wsServer}, refreshing and retrying (${retryCount - 1} left)...`,
+    );
+    await redis.del('callCookie');
+    await getOrSetCallCookie(wsServer);
+    return sendToGrandStream(
+      models,
+      { ...args, retryCount: retryCount - 1 },
+      user,
+    );
+  };
+
   try {
     const res = await sendRequest(
       `https://${wsServer}/${path}`,
@@ -110,27 +113,22 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
       const response = await res.json();
 
       if (response.status === -6) {
-        await redis.del('callCookie');
-        return (await sendToGrandStream(
-          models,
-          {
-            path: 'api',
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data,
-            integrationId,
-            retryCount: retryCount - 1,
-            isConvertToJson,
-            isGetExtension,
-          },
-          user,
-        )) as any;
+        return await retryWithFreshCookie();
       }
 
       if (isGetExtension) {
         return { response, extensionNumber };
       }
       return response;
+    }
+
+    try {
+      const clonedRes = res.clone();
+      const maybeError = await clonedRes.json();
+      if (maybeError?.status === -6) {
+        return await retryWithFreshCookie();
+      }
+    } catch {
     }
 
     if (isGetExtension) {
