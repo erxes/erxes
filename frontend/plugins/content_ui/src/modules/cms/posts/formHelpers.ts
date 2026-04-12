@@ -45,7 +45,10 @@ export interface ImageBlockProps extends BaseBlockProps {
 /**
  * Union type representing all possible block properties.
  */
-export type BlockProps = ParagraphBlockProps | HeadingBlockProps | ImageBlockProps;
+export type BlockProps =
+  | ParagraphBlockProps
+  | HeadingBlockProps
+  | ImageBlockProps;
 
 /**
  * Represents an attachment input with metadata.
@@ -180,9 +183,7 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
             name: '',
             caption: '',
             showPreview: true,
-            previewWidth:
-              imgElement.width ||
-              getPresetPreviewWidth(imageStyle),
+            previewWidth: imgElement.width || getPresetPreviewWidth(imageStyle),
             imageStyle,
           } as ImageBlockProps,
           content: [],
@@ -226,7 +227,8 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
         textAlignment: 'left',
       };
       if (blockType === 'heading') {
-        (props as HeadingBlockProps).level = Number.parseInt(tag.charAt(1), 10) || 1;
+        (props as HeadingBlockProps).level =
+          Number.parseInt(tag.charAt(1), 10) || 1;
       }
 
       blocks.push({
