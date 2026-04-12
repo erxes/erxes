@@ -1,22 +1,39 @@
-interface ManualInlineContent {
+import DOMPurify from 'dompurify';
+
+/**
+ * Represents the manual inline content of a block.
+ */
+export interface ManualInlineContent {
   type: string;
   text: string;
   styles: Record<string, boolean>;
 }
 
-interface BaseBlockProps {
+/**
+ * Base properties shared across all block types.
+ */
+export interface BaseBlockProps {
   textColor: string;
   backgroundColor: string;
   textAlignment: string;
 }
 
-interface ParagraphBlockProps extends BaseBlockProps {}
+/**
+ * Properties for a paragraph block.
+ */
+export interface ParagraphBlockProps extends BaseBlockProps {}
 
-interface HeadingBlockProps extends BaseBlockProps {
+/**
+ * Properties for a heading block.
+ */
+export interface HeadingBlockProps extends BaseBlockProps {
   level: number;
 }
 
-interface ImageBlockProps extends BaseBlockProps {
+/**
+ * Properties for an image block.
+ */
+export interface ImageBlockProps extends BaseBlockProps {
   url: string;
   name: string;
   caption: string;
@@ -25,8 +42,14 @@ interface ImageBlockProps extends BaseBlockProps {
   imageStyle?: 'normal' | 'wide';
 }
 
-type BlockProps = ParagraphBlockProps | HeadingBlockProps | ImageBlockProps;
+/**
+ * Union type representing all possible block properties.
+ */
+export type BlockProps = ParagraphBlockProps | HeadingBlockProps | ImageBlockProps;
 
+/**
+ * Represents an attachment input with metadata.
+ */
 export interface AttachmentInput {
   url: string;
   name: string;
@@ -35,6 +58,9 @@ export interface AttachmentInput {
   duration?: number;
 }
 
+/**
+ * Represents a structured block of content.
+ */
 export interface Block {
   id: string;
   type: string;
@@ -43,14 +69,11 @@ export interface Block {
   children: Block[];
 }
 
-interface ManualBlock {
-  id: string;
-  type: string;
-  props?: BlockProps;
-  content: ManualInlineContent[];
-  children: ManualBlock[];
-}
-
+/**
+ * Generates an empty paragraph block.
+ *
+ * @returns A new empty paragraph block instance.
+ */
 const emptyParagraph = (): Block => ({
   id: crypto.randomUUID(),
   type: 'paragraph',
@@ -63,6 +86,12 @@ const emptyParagraph = (): Block => ({
   children: [],
 });
 
+/**
+ * Escapes characters in a string to safe HTML entities.
+ *
+ * @param str - The raw string to escape.
+ * @returns The HTML-escaped string.
+ */
 const escapeHtml = (str: string): string =>
   str
     .replaceAll('&', '&amp;')
@@ -71,6 +100,12 @@ const escapeHtml = (str: string): string =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+/**
+ * Extracts the image style ('normal' or 'wide') from an element.
+ *
+ * @param element - The DOM element to inspect.
+ * @returns The determined image style.
+ */
 const getImageStyleFromElement = (element: Element): 'normal' | 'wide' => {
   const explicitStyle =
     element.getAttribute('data-image-style') ||
@@ -81,18 +116,33 @@ const getImageStyleFromElement = (element: Element): 'normal' | 'wide' => {
   return explicitStyle === 'wide' ? 'wide' : 'normal';
 };
 
+/**
+ * Gets the preset preview width based on the image style.
+ *
+ * @param imageStyle - The style of the image.
+ * @returns The width in pixels.
+ */
 const getPresetPreviewWidth = (imageStyle: 'normal' | 'wide'): number =>
   imageStyle === 'wide' ? 1080 : 720;
 
+/**
+ * Converts sanitized HTML content into an array of structured Block objects.
+ * Sanitizes input HTML to prevent Cross-Site Scripting (XSS) attacks.
+ *
+ * @param htmlContent - The raw HTML string to convert.
+ * @returns An array of parsed Block objects representing the content.
+ */
 export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
   if (!htmlContent || htmlContent.trim() === '') {
     return [emptyParagraph()];
   }
 
+  const cleanHTML = DOMPurify.sanitize(htmlContent);
+
   const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, 'text/html');
+  const doc = parser.parseFromString(cleanHTML, 'text/html');
   const container = doc.body;
-  const blocks: ManualBlock[] = [];
+  const blocks: Block[] = [];
   const children = Array.from(container.children);
 
   if (children.length === 0) {
@@ -115,9 +165,10 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
       const tag = el.tagName.toLowerCase();
 
       if (tag === 'img') {
-        const url = (el as HTMLImageElement).src;
+        const imgElement = el as HTMLImageElement;
+        const url = imgElement.src;
         if (!url) return;
-        const imageStyle = getImageStyleFromElement(el);
+        const imageStyle = getImageStyleFromElement(imgElement);
         blocks.push({
           id: crypto.randomUUID(),
           type: 'image',
@@ -130,7 +181,7 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
             caption: '',
             showPreview: true,
             previewWidth:
-              (el as HTMLImageElement).width ||
+              imgElement.width ||
               getPresetPreviewWidth(imageStyle),
             imageStyle,
           } as ImageBlockProps,
@@ -175,7 +226,7 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
         textAlignment: 'left',
       };
       if (blockType === 'heading') {
-        (props as HeadingBlockProps).level = Number.parseInt(tag.charAt(1));
+        (props as HeadingBlockProps).level = Number.parseInt(tag.charAt(1), 10) || 1;
       }
 
       blocks.push({
@@ -191,6 +242,12 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
   return blocks.length > 0 ? blocks : [emptyParagraph()];
 };
 
+/**
+ * Formats initial content string into a JSON stringified array of Blocks.
+ *
+ * @param content - The optional initial content string.
+ * @returns The formatted JSON string or undefined if empty.
+ */
 export const formatInitialContent = (content?: string): string | undefined => {
   if (!content || content.trim() === '') return undefined;
   if (content.startsWith('[')) {
@@ -209,6 +266,12 @@ export const formatInitialContent = (content?: string): string | undefined => {
   return JSON.stringify(blocks);
 };
 
+/**
+ * Creates an attachment input object from a given URL.
+ *
+ * @param url - The URL string or null.
+ * @returns An attachment input containing URL and extracted name, or undefined.
+ */
 export const makeAttachmentFromUrl = (
   url?: string | null,
 ): { url: string; name: string } | undefined => {
@@ -217,6 +280,12 @@ export const makeAttachmentFromUrl = (
   return { url, name };
 };
 
+/**
+ * Normalizes various forms of attachment inputs into a standardized AttachmentInput.
+ *
+ * @param value - The input to normalize, can be a string, object, or undefined.
+ * @returns A standardized AttachmentInput or undefined.
+ */
 export const normalizeAttachment = (
   value:
     | AttachmentInput
@@ -244,11 +313,26 @@ export const normalizeAttachment = (
   };
 };
 
+/**
+ * Processes an array of URLs and converts them into standardized AttachmentInputs.
+ *
+ * @param urls - An array of URL strings or nulls.
+ * @returns An array of valid AttachmentInput objects.
+ */
 export const makeAttachmentArrayFromUrls = (
   urls?: (string | null)[],
 ): AttachmentInput[] => {
-  return (urls || [])
-    .filter(Boolean)
-    .map((u) => makeAttachmentFromUrl(u as string))
-    .filter(Boolean) as AttachmentInput[];
+  const result: AttachmentInput[] = [];
+  if (!urls) return result;
+
+  for (const u of urls) {
+    if (typeof u === 'string' && u.trim() !== '') {
+      const attachment = makeAttachmentFromUrl(u);
+      if (attachment) {
+        result.push(attachment);
+      }
+    }
+  }
+
+  return result;
 };
