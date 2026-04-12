@@ -137,10 +137,7 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
       const isUnknownType =
         !contentType || contentType === 'application/octet-stream';
 
-      if (
-        (isLikelyJson || isSmallResponse || isUnknownType) &&
-        !res.bodyUsed
-      ) {
+      if ((isLikelyJson || isSmallResponse || isUnknownType) && !res.bodyUsed) {
         const clonedRes = res.clone();
         const maybeError = await clonedRes.json();
         if (maybeError?.status === -6) {
