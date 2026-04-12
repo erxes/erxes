@@ -1,9 +1,5 @@
 import { useChangeVerificationStatus } from '@/contacts/customers/hooks/useChangeVerificationStatus';
-import {
-  Button,
-  DropdownMenu,
-  useToast,
-} from 'erxes-ui';
+import { Button, DropdownMenu, useToast } from 'erxes-ui';
 import { IconShieldCheck } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
