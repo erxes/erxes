@@ -128,8 +128,7 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
       if (maybeError?.status === -6) {
         return await retryWithFreshCookie();
       }
-    } catch {
-    }
+    } catch {}
 
     if (isGetExtension) {
       return { res, extensionNumber };
