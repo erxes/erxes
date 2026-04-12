@@ -1214,7 +1214,6 @@ export async function getDailyCallRecords(models, startDate, endDate) {
       },
     },
 
-    /** Queue ID салгаж авах (QUEUE[x]) */
     {
       $addFields: {
         queue: {
@@ -1246,7 +1245,6 @@ export async function getDailyCallRecords(models, startDate, endDate) {
       },
     },
 
-    /** Дуудлага тус бүрээр бүлэглэх */
     {
       $group: {
         _id: '$uniqueid',
@@ -1270,7 +1268,6 @@ export async function getDailyCallRecords(models, startDate, endDate) {
       },
     },
 
-    /** Дуудлагын финал disposition */
     {
       $addFields: {
         finalDisposition: {
@@ -1295,7 +1292,6 @@ export async function getDailyCallRecords(models, startDate, endDate) {
       },
     },
 
-    /** Queue жагсаалтыг цэвэрлэх */
     {
       $addFields: {
         queues: {
@@ -1361,17 +1357,15 @@ export async function getQueueAnsweredList(
       },
     },
 
-    // Зөвхөн queue 6502
     {
       $match: {
         queue: queueId,
-        // disposition: { $eq: 'ANSWERED' },
-        // billsec: { $gte: 0 },
-        // lastapp: 'Queue',
+        disposition: { $eq: 'ANSWERED' },
+        billsec: { $gte: 0 },
+        lastapp: 'Queue',
       },
     },
 
-    // Unique call-р бүлэглэх
     {
       $group: {
         _id: '$uniqueid',
@@ -1385,7 +1379,6 @@ export async function getQueueAnsweredList(
       },
     },
 
-    // Хариулсан дуудлагууд
     {
       $match: { dispositions: 'ANSWERED' },
     },
