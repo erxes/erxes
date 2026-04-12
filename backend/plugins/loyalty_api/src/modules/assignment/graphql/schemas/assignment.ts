@@ -4,15 +4,16 @@ export const types = `
   type Assignment {
     _id: String
     campaignId: String,
+    campaign: AssignmentCampaign,
     createdAt: Date,
     usedAt: Date,
     voucherCampaignId: String,
-  
+
     ownerType: String,
     ownerId: String,
-  
+
     owner: JSON
-    
+
     segmentIds: [String]
     status: String
     voucherId: String
@@ -52,7 +53,7 @@ const mutationParams = `
 
 export const mutations = `
   assignmentsAdd(${mutationParams}): Assignment
-  assignmentsRemove(_id: String!): JSON
+  assignmentsRemove(_ids: [String]): JSON
   cpAssignmentsAdd(${mutationParams}): Assignment
   cpAssignmentsRemove(_ids: [String]): JSON
 `;

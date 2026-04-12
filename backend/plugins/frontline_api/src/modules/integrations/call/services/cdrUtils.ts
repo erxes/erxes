@@ -163,7 +163,7 @@ export const extractOperatorId = (params) => {
   }
 
   const match = action_type?.match(/FOLLOWME\[(\d+)\]/);
-  if (match && match[1]) {
+  if (match?.[1]) {
     return match[1];
   }
 

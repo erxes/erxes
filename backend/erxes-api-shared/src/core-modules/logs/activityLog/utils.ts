@@ -1,5 +1,18 @@
 import { Resolver } from './types';
 
+export function logActivityLogError(
+  scope: string,
+  error: unknown,
+  metadata?: Record<string, unknown>,
+) {
+  if (metadata && Object.keys(metadata).length > 0) {
+    console.error(`[activity-log] ${scope}`, error, metadata);
+    return;
+  }
+
+  console.error(`[activity-log] ${scope}`, error);
+}
+
 export function matchesFieldPattern(pattern: string, field: string) {
   if (pattern === field) {
     return true;

@@ -1,7 +1,8 @@
 import { StyleSheet } from '@react-pdf/renderer';
+import { PDF_FONT_FAMILY } from './fonts';
 
 export const COLORS = {
-  primary: '#2a7c6f', // teal/green from reference design
+  primary: '#2a7c6f',
   primaryDark: '#1e5c52',
   white: '#ffffff',
   black: '#1a1a1a',
@@ -15,7 +16,7 @@ export const COLORS = {
 export const styles = StyleSheet.create({
   /* ---- Cover Page ---- */
   coverPage: {
-    fontFamily: 'Helvetica',
+    fontFamily: PDF_FONT_FAMILY,
     padding: 0,
     margin: 0,
   },
@@ -49,12 +50,12 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   coverLogo: {
-    width: 40,
-    height: 40,
+    width: 64,
+    height: 64,
     objectFit: 'contain',
   },
   coverBranchName: {
-    fontFamily: 'Helvetica',
+    fontFamily: PDF_FONT_FAMILY,
     fontSize: 9,
     color: COLORS.white,
     letterSpacing: 0.5,
@@ -77,7 +78,8 @@ export const styles = StyleSheet.create({
     borderRadius: 4,
   },
   coverTitle: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
     fontSize: 26,
     color: COLORS.white,
     textAlign: 'center',
@@ -94,7 +96,9 @@ export const styles = StyleSheet.create({
     marginBottom: 14,
   },
   coverDateText: {
-    fontFamily: 'Helvetica-BoldOblique',
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
+    fontStyle: 'italic',
     fontSize: 13,
     color: COLORS.white,
     textAlign: 'center',
@@ -102,7 +106,7 @@ export const styles = StyleSheet.create({
 
   /* ---- Itinerary Pages ---- */
   page: {
-    fontFamily: 'Helvetica',
+    fontFamily: PDF_FONT_FAMILY,
     fontSize: 10,
     color: COLORS.text,
     paddingTop: 30,
@@ -114,13 +118,14 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   pageHeaderLogo: {
-    width: 80,
-    height: 35,
+    width: 116,
+    height: 48,
     objectFit: 'contain',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   pageHeaderTitle: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
     fontSize: 16,
     color: COLORS.text,
     textAlign: 'center',
@@ -134,18 +139,20 @@ export const styles = StyleSheet.create({
 
   /* ---- Day Block ---- */
   dayBlock: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   dayTitle: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
     fontSize: 10,
     color: COLORS.black,
-    marginBottom: 10,
+    marginBottom: 6,
     textTransform: 'uppercase',
   },
   dayTwoColumn: {
     flexDirection: 'row',
-    gap: 16,
+    alignItems: 'flex-start',
+    gap: 12,
   },
   dayImageColumn: {
     width: '42%',
@@ -171,8 +178,15 @@ export const styles = StyleSheet.create({
     lineHeight: 1.6,
     textAlign: 'justify',
   },
+  dayContentGroup: {
+    width: '100%',
+  },
+  dayContentParagraph: {
+    marginBottom: 4,
+  },
   dayContentBold: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
     fontSize: 9,
     color: COLORS.text,
   },
@@ -189,7 +203,7 @@ export const styles = StyleSheet.create({
 
   /* ---- Footer Page ---- */
   footerPage: {
-    fontFamily: 'Helvetica',
+    fontFamily: PDF_FONT_FAMILY,
     fontSize: 10,
     color: COLORS.text,
     paddingTop: 30,
@@ -216,21 +230,24 @@ export const styles = StyleSheet.create({
     color: COLORS.text,
     textAlign: 'center',
     lineHeight: 1.6,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
   },
   footerDefinitionText: {
     fontSize: 8.5,
     color: COLORS.text,
     textAlign: 'center',
     lineHeight: 1.7,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
   },
   footerDisclaimer: {
     fontSize: 8.5,
     color: COLORS.text,
     textAlign: 'center',
     marginTop: 16,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
     textTransform: 'uppercase',
   },
   footerAccentBar: {

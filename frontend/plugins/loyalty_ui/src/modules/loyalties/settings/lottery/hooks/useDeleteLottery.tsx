@@ -3,7 +3,12 @@ import { useRecordTableCursor } from 'erxes-ui';
 import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
 import { LOTTERY_CURSOR_SESSION_KEY } from '../constants/lotteryCursorSessionKey';
 import { REMOVE_LOTTERY_CAMPAIGN } from '../graphql/mutations/removeLotteryMutations';
+import { ILottery } from '../types/lotteryTypes';
 import { LOTTERY_PER_PAGE } from './useLotteries';
+
+interface LotteryCampaignsQueryData {
+  lotteryCampaigns: { list: ILottery[]; totalCount: number };
+}
 
 export const useDeleteLottery = () => {
   const { cursor } = useRecordTableCursor({
@@ -28,7 +33,7 @@ export const useDeleteLottery = () => {
           return;
         }
 
-        const existingData: any = cache.readQuery({
+        const existingData = cache.readQuery<LotteryCampaignsQueryData>({
           query: QUERY_LOTTERY_CAMPAIGNS,
           variables: {
             limit: LOTTERY_PER_PAGE,
@@ -50,7 +55,7 @@ export const useDeleteLottery = () => {
             lotteryCampaigns: {
               ...existingData.lotteryCampaigns,
               list: existingData.lotteryCampaigns.list.filter(
-                (campaign: any) => !deletedCampaignIds.includes(campaign._id),
+                (campaign) => !deletedCampaignIds.includes(campaign._id),
               ),
               totalCount: Math.max(
                 (existingData.lotteryCampaigns.totalCount || 0) -

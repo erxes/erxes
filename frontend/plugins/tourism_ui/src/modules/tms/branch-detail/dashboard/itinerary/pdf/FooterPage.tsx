@@ -7,11 +7,12 @@ import { parseHtmlToPdfElements } from './htmlParser';
 interface FooterPageProps {
   branch?: IBranchPDFData;
   content?: string;
+  color?: string;
 }
 
 export const FooterPage: React.FC<FooterPageProps> = React.memo(
-  ({ branch, content }) => {
-    const primaryColor = branch?.primaryColor || COLORS.primary;
+  ({ branch, content, color }) => {
+    const primaryColor = color || COLORS.primary;
 
     const parsedContent = useMemo(
       () => parseHtmlToPdfElements(content || ''),

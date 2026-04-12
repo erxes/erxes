@@ -110,7 +110,7 @@ const callQueries = {
       user,
     )) as any;
 
-    if (queueData && queueData.response) {
+    if (queueData?.response) {
       const { account } = queueData.response;
 
       if (account) {
@@ -278,7 +278,7 @@ const callQueries = {
       user,
     )) as any;
 
-    if (queueData && queueData.response) {
+    if (queueData?.response) {
       const { CallQueueMembersMessage } = queueData.response;
 
       if (CallQueueMembersMessage) {

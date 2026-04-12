@@ -10,7 +10,7 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { IUom } from 'ui-modules';
+import { Can, IUom } from 'ui-modules';
 import { useUomsRemove } from '../../hooks/useUomsRemove';
 import { UomForm } from './UomForm';
 
@@ -39,9 +39,11 @@ export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
   return (
     <>
       <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
+        <Can action="uomsManage">
+          <Popover.Trigger asChild>
+            <RecordTable.MoreButton className="w-full h-full" />
+          </Popover.Trigger>
+        </Can>
         <Combobox.Content>
           <Command shouldFilter={false}>
             <Command.List>

@@ -43,7 +43,7 @@ export const ActivityLogList = ({
     },
   });
 
-  if (loading) {
+  if (loading && (!activityLogs || activityLogs.length === 0)) {
     return <ActivityLogLoading />;
   }
 

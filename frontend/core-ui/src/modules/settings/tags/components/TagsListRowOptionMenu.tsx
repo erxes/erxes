@@ -21,7 +21,7 @@ import {
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useState } from 'react';
-import { ITag, useTagEdit, useTagRemove } from 'ui-modules';
+import { Can, ITag, useTagEdit, useTagRemove } from 'ui-modules';
 
 export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
   const [menuContent, setMenuContent] = useState<'main' | 'groupSelect'>(
@@ -35,6 +35,9 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
   const tagGroupsFiltered = useAtomValue(tagGroupsAtomFamily(type)).filter(
     (group) => group._id !== tag._id,
   );
+  const triggerActions = tag.isGroup
+    ? ['tagsCreate', 'tagsUpdate', 'tagsDelete']
+    : ['tagsUpdate', 'tagsDelete'];
 
   return (
     <PopoverScoped
@@ -45,19 +48,21 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
         setMenuContent('main');
       }}
     >
-      <Popover.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={(e) => e.stopPropagation()}
-          className={cn(
-            'absolute left-3 opacity-0 group-hover:opacity-100  ',
-            open && 'opacity-100 bg-accent-foreground/10',
-          )}
-        >
-          <IconDots />
-        </Button>
-      </Popover.Trigger>
+      <Can actions={triggerActions}>
+        <Popover.Trigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => e.stopPropagation()}
+            className={cn(
+              'absolute left-3 opacity-0 group-hover:opacity-100  ',
+              open && 'opacity-100 bg-accent-foreground/10',
+            )}
+          >
+            <IconDots />
+          </Button>
+        </Popover.Trigger>
+      </Can>
       <Combobox.Content
         sideOffset={6}
         onClick={(e) => e.stopPropagation()}
@@ -68,46 +73,54 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
             <Command.Input />
             <Combobox.Empty />
             <Command.List className="[&>div>div]:cursor-pointer">
-              <Command.Item
-                onSelect={() => {
-                  editTag({
-                    variables: {
-                      id: tag._id,
-                      isGroup: !tag.isGroup,
-                    },
-                    optimisticResponse: {
-                      tagsEdit: { ...tag, isGroup: !tag.isGroup },
-                    },
-                  });
-                }}
-              >
-                <IconTransform />
-                Convert to {tag.isGroup ? 'tag' : 'group'}
-              </Command.Item>
-              {tag.isGroup ? (
+              <Can action="tagsUpdate">
                 <Command.Item
                   onSelect={() => {
-                    setAddingTag({ parentId: tag._id, isGroup: false });
-                    setOpen(false);
+                    editTag({
+                      variables: {
+                        id: tag._id,
+                        isGroup: !tag.isGroup,
+                      },
+                      optimisticResponse: {
+                        tagsEdit: { ...tag, isGroup: !tag.isGroup },
+                      },
+                    });
                   }}
                 >
-                  <IconPlus />
-                  Add tag to group
+                  <IconTransform />
+                  Convert to {tag.isGroup ? 'tag' : 'group'}
                 </Command.Item>
+              </Can>
+              {tag.isGroup ? (
+                <Can action="tagsCreate">
+                  <Command.Item
+                    onSelect={() => {
+                      setAddingTag({ parentId: tag._id, isGroup: false });
+                      setOpen(false);
+                    }}
+                  >
+                    <IconPlus />
+                    Add tag to group
+                  </Command.Item>
+                </Can>
               ) : (
-                <Command.Item onSelect={() => setMenuContent('groupSelect')}>
-                  <IconArrowMoveRight />
-                  {!tag.parentId ? 'Move to group' : 'Change group'}
-                  <IconCaretRightFilled className="size-5 absolute right-1 text-accent-foreground" />
-                </Command.Item>
+                <Can action="tagsUpdate">
+                  <Command.Item onSelect={() => setMenuContent('groupSelect')}>
+                    <IconArrowMoveRight />
+                    {!tag.parentId ? 'Move to group' : 'Change group'}
+                    <IconCaretRightFilled className="size-5 absolute right-1 text-accent-foreground" />
+                  </Command.Item>
+                </Can>
               )}
-              <Command.Item
-                className="text-destructive"
-                onSelect={() => removeTag(tag._id)}
-              >
-                <IconTrash />
-                Delete
-              </Command.Item>
+              <Can action="tagsDelete">
+                <Command.Item
+                  className="text-destructive"
+                  onSelect={() => removeTag(tag._id)}
+                >
+                  <IconTrash />
+                  Delete
+                </Command.Item>
+              </Can>
             </Command.List>
           </Command>
         )}
@@ -120,28 +133,32 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
             />
             <Command.Empty>No groups found</Command.Empty>
             <Command.List className="[&>div>div]:cursor-pointer">
-              {tagGroupsFiltered.map((group) => (
-                <Command.Item
-                  key={group._id}
-                  onSelect={() => {
-                    editTag({
-                      variables: {
-                        id: tag._id,
-                        parentId: group._id,
-                      },
-                      optimisticResponse: {
-                        tagsEdit: { ...tag, parentId: group._id },
-                      },
-                    });
-                  }}
-                >
-                  <IconCirclesFilled
-                    className="size-3"
-                    style={{ color: group.colorCode }}
-                  ></IconCirclesFilled>
-                  {group.name}
-                </Command.Item>
-              ))}
+              <Can action="tagsUpdate">
+                <>
+                  {tagGroupsFiltered.map((group) => (
+                    <Command.Item
+                      key={group._id}
+                      onSelect={() => {
+                        editTag({
+                          variables: {
+                            id: tag._id,
+                            parentId: group._id,
+                          },
+                          optimisticResponse: {
+                            tagsEdit: { ...tag, parentId: group._id },
+                          },
+                        });
+                      }}
+                    >
+                      <IconCirclesFilled
+                        className="size-3"
+                        style={{ color: group.colorCode }}
+                      ></IconCirclesFilled>
+                      {group.name}
+                    </Command.Item>
+                  ))}
+                </>
+              </Can>
             </Command.List>
           </Command>
         )}

@@ -8,7 +8,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconChevronDown } from '@tabler/icons-react';
 
@@ -19,6 +19,7 @@ import {
 
 import {
   ItineraryNameField,
+  ItineraryColorField,
   ItineraryContentField,
   ItineraryImageField,
   ItineraryGuideCostField,
@@ -28,15 +29,45 @@ import {
   ItineraryGuideCostExtraField,
   ItineraryPersonCostField,
 } from './ItineraryFormFields';
+import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_components/TourFieldLanguageSwitch';
 import { useEditItinerary } from '../hooks/useEditItinerary';
 import { useItineraryDetail } from '../hooks/useItineraryDetail';
+import { useItineraryLanguage } from '../hooks/useItineraryLanguage';
+import {
+  buildTranslationsFromItinerary,
+  sanitizeTranslations,
+  resolveMainLanguageName,
+} from '../utils/translationHelpers';
 import { ItineraryBuilder } from '../itinerary-builder';
 import { useElements } from '../../elements/hooks/useElements';
 import { useAmenities } from '../../amenities/hooks/useAmenities';
 
+const extractFirstError = (errors: Record<string, any>): string => {
+  for (const value of Object.values(errors)) {
+    if (value?.message && typeof value.message === 'string') {
+      return value.message;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (item) {
+          const nested = extractFirstError(item);
+          if (nested) return nested;
+        }
+      }
+    }
+    if (typeof value === 'object' && value !== null && !value.message) {
+      const nested = extractFirstError(value);
+      if (nested) return nested;
+    }
+  }
+  return 'Please check the form for errors.';
+};
+
 interface ItineraryEditSheetProps {
   itineraryId?: string;
   branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -46,6 +77,8 @@ type Step = 'build' | 'info';
 export const ItineraryEditSheet = ({
   itineraryId,
   branchId,
+  branchLanguages,
+  mainLanguage,
   open,
   onOpenChange,
 }: ItineraryEditSheetProps) => {
@@ -59,22 +92,13 @@ export const ItineraryEditSheet = ({
     open,
   );
 
-  const { elements: elementsData = [] } = useElements({
-    variables: { branchId, quick: false },
-    skip: !branchId,
-  });
-
-  const { amenities: amenitiesData = [] } = useAmenities({
-    variables: { branchId, quick: true },
-    skip: !branchId,
-  });
-
   const form = useForm<ItineraryCreateFormType>({
     resolver: zodResolver(ItineraryCreateFormSchema),
     mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: {
       name: '',
+      color: '#4F46E5',
       content: '',
       duration: 1,
       images: [],
@@ -86,8 +110,44 @@ export const ItineraryEditSheet = ({
       gasCost: 0,
       personCost: {},
       guideCostExtra: 0,
+      translations: [],
     },
   });
+
+  useFieldArray({
+    control: form.control,
+    name: 'translations',
+  });
+
+  const {
+    allLanguages,
+    translationLanguages,
+    selectedLang,
+    setSelectedLang,
+    labelSuffix,
+    currencySymbol,
+    fieldPaths,
+  } = useItineraryLanguage({ branchLanguages, mainLanguage });
+
+  const { elements: elementsData = [] } = useElements({
+    variables: {
+      branchId,
+      quick: false,
+      language: selectedLang || mainLanguage,
+    },
+    skip: !branchId,
+  });
+
+  const { amenities: amenitiesData = [] } = useAmenities({
+    variables: {
+      branchId,
+      quick: true,
+      language: selectedLang || mainLanguage,
+    },
+    skip: !branchId,
+  });
+
+  const resolvedPrimaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
 
   useEffect(() => {
     if (itinerary && open) {
@@ -100,20 +160,39 @@ export const ItineraryEditSheet = ({
         images: day.images || [],
       }));
 
-      form.setValue('name', itinerary.name || '');
-      form.setValue('content', itinerary.content || '');
-      form.setValue('duration', itinerary.duration || 1);
-      form.setValue('images', itinerary.images || []);
-      form.setValue('totalCost', itinerary.totalCost || 0);
-      form.setValue('groupDays', transformedGroupDays);
-      form.setValue('guideCost', itinerary.guideCost || 0);
-      form.setValue('driverCost', itinerary.driverCost || 0);
-      form.setValue('foodCost', itinerary.foodCost || 0);
-      form.setValue('gasCost', itinerary.gasCost || 0);
-      form.setValue('personCost', itinerary.personCost || {});
-      form.setValue('guideCostExtra', itinerary.guideCostExtra || 0);
+      form.reset({
+        name: resolveMainLanguageName(itinerary as any, mainLanguage),
+        color: itinerary.color || '#4F46E5',
+        content: itinerary.content || '',
+        duration: itinerary.duration || 1,
+        images: itinerary.images || [],
+        totalCost: itinerary.totalCost || 0,
+        groupDays: transformedGroupDays,
+        guideCost: itinerary.guideCost || 0,
+        driverCost: itinerary.driverCost || 0,
+        foodCost: itinerary.foodCost || 0,
+        gasCost: itinerary.gasCost || 0,
+        personCost: itinerary.personCost || {},
+        guideCostExtra: itinerary.guideCostExtra || 0,
+        translations: buildTranslationsFromItinerary(
+          itinerary as any,
+          translationLanguages,
+        ),
+      });
+      setSelectedLang((prev) =>
+        allLanguages.includes(prev) ? prev : resolvedPrimaryLanguage,
+      );
     }
-  }, [itinerary, open, form]);
+  }, [
+    itinerary,
+    open,
+    form,
+    translationLanguages,
+    resolvedPrimaryLanguage,
+    mainLanguage,
+    allLanguages,
+    setSelectedLang,
+  ]);
 
   const handleOpenChange = (value: boolean) => {
     if (!value) {
@@ -135,6 +214,29 @@ export const ItineraryEditSheet = ({
     if (!isValid) return;
     form.clearErrors();
     setCurrentStep('info');
+  };
+
+  const onInvalid = (errors: Record<string, any>) => {
+    const nameValue = form.getValues('name');
+    if (!nameValue?.trim()) {
+      toast({
+        title: 'Error',
+        description:
+          'Please enter values for the main language before updating.',
+        variant: 'destructive',
+      });
+      setSelectedLang(mainLanguage || allLanguages[0] || '');
+      return;
+    }
+
+    const firstError = extractFirstError(errors);
+    if (firstError) {
+      toast({
+        title: 'Validation Error',
+        description: firstError,
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleSubmit = async (values: ItineraryCreateFormType) => {
@@ -198,7 +300,9 @@ export const ItineraryEditSheet = ({
         variables: {
           id: itineraryId,
           branchId,
+          language: resolvedPrimaryLanguage || undefined,
           name: values.name,
+          color: values.color,
           content: values.content,
           duration: totalDays,
           images: values.images?.slice(0, 1) || [],
@@ -210,6 +314,7 @@ export const ItineraryEditSheet = ({
           gasCost: values.gasCost,
           personCost: normalizedPersonCost,
           guideCostExtra: values.guideCostExtra,
+          translations: sanitizeTranslations(values.translations),
         },
       });
 
@@ -248,12 +353,20 @@ export const ItineraryEditSheet = ({
         ) : (
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(handleSubmit)}
+              onSubmit={form.handleSubmit(handleSubmit, onInvalid)}
               className="flex flex-col h-full"
             >
               <Sheet.Header>
                 <Sheet.Title>Edit itinerary</Sheet.Title>
-                <Sheet.Close />
+                {allLanguages.length > 1 && (
+                  <div className="flex items-center gap-2 ml-auto">
+                    <TourFieldLanguageSwitch
+                      availableLanguages={allLanguages}
+                      value={selectedLang}
+                      onValueChange={setSelectedLang}
+                    />
+                  </div>
+                )}
               </Sheet.Header>
 
               <Sheet.Content className="flex-1 p-0 overflow-hidden">
@@ -263,6 +376,7 @@ export const ItineraryEditSheet = ({
                     className="flex-1 p-3 overflow-hidden"
                   >
                     <ItineraryBuilder
+                      key={selectedLang}
                       control={form.control}
                       setValue={form.setValue}
                       watch={form.watch}
@@ -270,14 +384,35 @@ export const ItineraryEditSheet = ({
                       amenities={amenitiesData}
                       branchId={branchId}
                       isEditMode={true}
+                      labelSuffix={labelSuffix}
+                      currencySymbol={currencySymbol}
+                      mainLanguage={mainLanguage}
+                      branchLanguages={branchLanguages}
+                      daysFieldPathPrefix={fieldPaths.daysFieldPathPrefix}
+                      dayDescriptionKey={fieldPaths.dayDescriptionKey}
                     />
                   </Tabs.Content>
 
                   <Tabs.Content value="info" className="p-6 overflow-y-auto">
-                    <div className="w-full space-y-4">
-                      <ItineraryNameField control={form.control} />
+                    <div key={selectedLang} className="w-full space-y-4">
+                      <div className="flex items-end gap-4">
+                        <div className="w-[20%]">
+                          <ItineraryColorField control={form.control} />
+                        </div>
+                        <div className="w-[80%]">
+                          <ItineraryNameField
+                            control={form.control}
+                            name={fieldPaths.name}
+                            labelSuffix={labelSuffix}
+                          />
+                        </div>
+                      </div>
 
-                      <ItineraryContentField control={form.control} />
+                      <ItineraryContentField
+                        control={form.control}
+                        name={fieldPaths.content}
+                        labelSuffix={labelSuffix}
+                      />
 
                       <ItineraryImageField control={form.control} />
 
@@ -288,17 +423,35 @@ export const ItineraryEditSheet = ({
                       >
                         <Collapsible.Content className="order-1 w-full pt-4 space-y-4">
                           <div className="grid grid-cols-2 gap-4">
-                            <ItineraryGuideCostField control={form.control} />
-                            <ItineraryDriverCostField control={form.control} />
+                            <ItineraryGuideCostField
+                              control={form.control}
+                              name={fieldPaths.guideCost}
+                              currencySymbol={currencySymbol}
+                            />
+                            <ItineraryDriverCostField
+                              control={form.control}
+                              name={fieldPaths.driverCost}
+                              currencySymbol={currencySymbol}
+                            />
                           </div>
 
                           <div className="grid grid-cols-2 gap-4">
-                            <ItineraryFoodCostField control={form.control} />
-                            <ItineraryGasCostField control={form.control} />
+                            <ItineraryFoodCostField
+                              control={form.control}
+                              name={fieldPaths.foodCost}
+                              currencySymbol={currencySymbol}
+                            />
+                            <ItineraryGasCostField
+                              control={form.control}
+                              name={fieldPaths.gasCost}
+                              currencySymbol={currencySymbol}
+                            />
                           </div>
 
                           <ItineraryGuideCostExtraField
                             control={form.control}
+                            name={fieldPaths.guideCostExtra}
+                            currencySymbol={currencySymbol}
                           />
 
                           <ItineraryPersonCostField

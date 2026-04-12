@@ -4,7 +4,7 @@ import { toast } from 'erxes-ui';
 
 export const useIntegrationAdd = () => {
   const [addIntegration, { loading }] = useMutation(ADD_INTEGRATION, {
-    refetchQueries: ['Integrations'],
+    refetchQueries: ['Integrations', 'IntegrationDetail'],
     onCompleted() {
       toast({
         title: 'Integration added',

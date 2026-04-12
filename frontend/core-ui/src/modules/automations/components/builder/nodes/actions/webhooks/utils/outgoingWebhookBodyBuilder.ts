@@ -78,3 +78,22 @@ export function defaultPropertyValueForType(
       return '';
   }
 }
+
+export function normalizeOutgoingWebhookBodyValue(
+  value: unknown,
+  bodyMode: 'json' | 'text' = 'json',
+): string {
+  if (bodyMode === 'text') {
+    return typeof value === 'string' ? value : String(value ?? '');
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  try {
+    return JSON.stringify(value ?? {}, null, 2);
+  } catch {
+    return '{}';
+  }
+}

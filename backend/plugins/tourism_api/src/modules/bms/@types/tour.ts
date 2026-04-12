@@ -11,7 +11,7 @@ export interface IGuideItem {
 export type DateType = 'fixed' | 'flexible';
 
 export interface IPricingOption {
-  _id?: string;
+  _id: string;
   title: string;
   minPersons: number;
   maxPersons?: number;
@@ -23,6 +23,7 @@ export interface IPricingOption {
 }
 
 export interface ITour {
+  language?: string;
   name: string;
   groupCode: string;
   refNumber?: string;
@@ -55,6 +56,7 @@ export interface ITour {
   extra?: any;
   images?: string[];
   imageThumbnail?: string;
+  attachment?: IAttachment;
   pricingOptions?: IPricingOption[];
   startingPrice?: number;
 }
@@ -71,6 +73,7 @@ export interface ITourCategory {
   code?: string;
   order?: string;
   parentId?: string;
+  branchId?: string;
   attachment?: IAttachment;
   modifiedAt?: Date;
 }

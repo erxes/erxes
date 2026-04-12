@@ -15,6 +15,7 @@ import {
 } from './utils';
 import { sendAutomationTrigger } from '../../automations';
 import { INotificationData, sendNotification } from '../../notifications';
+import { logActivityLogError } from '../../logs/activityLog/utils';
 
 /**
  * Create an event dispatcher instance with methods for logging and automation triggers
@@ -115,33 +116,51 @@ export function createEventHandlers(
     input: ActivityLogInput | ActivityLogInput[],
     duserId?: string,
   ) {
-    const { processId, userId } = getContext();
+    try {
+      const { processId, userId } = getContext();
 
-    const isMultiple = Array.isArray(input);
-    const commonObj = { pluginName, moduleName, collectionName };
+      const isMultiple = Array.isArray(input);
+      const commonObj = { pluginName, moduleName, collectionName };
 
-    const getInputData = (activities: ActivityLogInput[]) =>
-      activities.map((activity) => ({
-        ...activity,
-        ...commonObj,
-      }));
+      const getInputData = (activities: ActivityLogInput[]) =>
+        activities.map((activity) => ({
+          ...activity,
+          ...commonObj,
+        }));
 
-    const inputData = getInputData(isMultiple ? input : [input]);
+      const inputData = getInputData(isMultiple ? input : [input]);
 
-    sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'activityLog',
-      action: 'createActivityLog',
-      input: inputData,
-      context: {
-        processId,
-        userId: duserId || userId,
-      },
-    }).catch((err) => {
-      console.error('createActivityLog', err);
-    });
+      if (!inputData.length) {
+        return;
+      }
+
+      sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'activityLog',
+        action: 'createActivityLog',
+        input: inputData,
+        context: {
+          processId,
+          userId: duserId || userId,
+        },
+      }).catch((error) => {
+        logActivityLogError('createActivityLog dispatch', error, {
+          subdomain,
+          pluginName,
+          moduleName,
+          collectionName,
+        });
+      });
+    } catch (error) {
+      logActivityLogError('createActivityLog setup', error, {
+        subdomain,
+        pluginName,
+        moduleName,
+        collectionName,
+      });
+    }
   }
 
   function sendNotificationMessage(

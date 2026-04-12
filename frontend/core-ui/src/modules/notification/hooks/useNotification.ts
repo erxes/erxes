@@ -1,6 +1,5 @@
 import { NOTIFICATION_DETAIL } from '@/notification/graphql/notificationsQueries';
 import { useMarkAsReadNotification } from '@/notification/hooks/useMarkAsReadNotification';
-import { INotification } from '@/notification/types/notifications';
 import { useQuery } from '@apollo/client';
 import { useEffect } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -8,11 +7,12 @@ import { useNavigate, useParams } from 'react-router';
 import { useSetAtom } from 'jotai';
 import { hiddenNotificationIdsState } from '../states/notificationState';
 import { useNotifications } from './useNotifications';
+import { TNotification } from 'ui-modules';
 
 export const useNotification = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data, loading } = useQuery<{ notificationDetail: INotification }>(
+  const { data, loading } = useQuery<{ notificationDetail: TNotification }>(
     NOTIFICATION_DETAIL,
     { variables: { _id: id }, skip: !id },
   );

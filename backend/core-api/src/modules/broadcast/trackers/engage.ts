@@ -1,6 +1,4 @@
 import AWS from 'aws-sdk';
-
-import { getValueAsString } from '@/organization/settings/db/models/Configs';
 import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
@@ -9,7 +7,7 @@ import { SES_DELIVERY_STATUSES } from '../constants';
 const getAwsConfig = async (models: IModels) => {
   const config = await models.EngageMessages.broadcastConfigs();
 
-  if (config && config.accessKeyId && config.secretAccessKey && config.region) {
+  if (config?.accessKeyId && config?.secretAccessKey && config?.region) {
     return config;
   }
 
@@ -55,6 +53,8 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
     parsedMessage = message;
   }
 
+  console.log('parsedMessage', parsedMessage)
+
   const { eventType, mail } = parsedMessage;
 
   if (!mail) {
@@ -76,10 +76,10 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   const type = eventType.toLowerCase();
 
   const mailHeaders = {
-    engageMessageId: engageMessageId && engageMessageId.value,
-    mailId: mailId && mailId.value,
-    customerId: customerId && customerId.value,
-    email: to && to.value,
+    engageMessageId: engageMessageId?.value,
+    mailId: mailId?.value,
+    customerId: customerId?.value,
+    email: to?.value,
   };
 
   const exists = await models.DeliveryReports.findOne({
@@ -115,6 +115,8 @@ export const engageTracker = async (req: Request, res: Response) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
+
+    console.log('Object.keys(req.body).length', Object.keys(req.body).length)
 
     // Handle case where req.body is populated (typically for SaaS SES events)
     if (req.body && Object.keys(req.body).length) {

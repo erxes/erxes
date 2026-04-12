@@ -1,5 +1,6 @@
-import { Command } from 'erxes-ui';
-import { forwardRef, useState } from 'react';
+import { IconX } from '@tabler/icons-react';
+import { Button, Command } from 'erxes-ui';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { DATE_OPTIONS } from '../../constants/placeholderInputConstants';
 import { usePlaceholderInputContext } from '../../contexts/PlaceholderInputContext';
@@ -24,6 +25,47 @@ interface SuggestionPopoverProps {
   popoverPosition?: 'left' | 'right' | 'top' | 'bottom';
 }
 
+const SuggestionPopoverHeader = ({
+  title,
+  trigger,
+  onClose,
+}: {
+  title: string;
+  trigger?: string;
+  onClose: () => void;
+}) => {
+  return (
+    <div className="border-b bg-muted/30 px-3 py-2.5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <div className="text-sm font-medium text-foreground">{title}</div>
+            {trigger ? (
+              <span className="rounded border bg-background px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                {trigger}
+              </span>
+            ) : null}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Search and press enter to insert.
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="-mr-1 -mt-1 size-7 shrink-0"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={onClose}
+          aria-label="Close suggestions"
+        >
+          <IconX className="size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 export const PlaceholderInputSuggestionPopover = forwardRef<
   HTMLDivElement,
   SuggestionPopoverProps
@@ -33,7 +75,7 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
     popoverRef,
   ) => {
     const [search, setSearch] = useState('');
-    const [debouncedSearch] = useDebounce(search, 500);
+    const [debouncedSearch] = useDebounce(search, 250);
     const { suggestionTypeMap, inputRef } = usePlaceholderInputContext();
 
     const {
@@ -44,6 +86,7 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
       isCustomCommandRenderer,
       internalRef,
       suggestionOptions,
+      suggestionConfig,
     } = usePlaceholderInputSuggestionPopover({
       popoverRef: popoverRef as
         | React.MutableRefObject<HTMLDivElement | null>
@@ -53,6 +96,8 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
     });
 
     const { selectFieldName = '_id' } = suggestionOptions || {};
+    const title = suggestionConfig?.title || 'Suggestions';
+    const trigger = suggestionConfig?.trigger;
 
     const positionStyle = usePopoverPosition({
       position: popoverPosition,
@@ -61,20 +106,43 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
       isOpen: isOpenPopover,
     });
 
+    useEffect(() => {
+      if (!isOpenPopover) {
+        setSearch('');
+        return;
+      }
+
+      setSearch(searchQuery || '');
+    }, [isOpenPopover, searchQuery, suggestionType]);
+
+    const remoteSearchValue = useMemo(
+      () => (debouncedSearch || searchQuery || '').trim(),
+      [debouncedSearch, searchQuery],
+    );
+
     if (!isOpenPopover) return null;
 
-    // Unified select-suggestionType renderers to avoid duplication
     if (suggestionType === 'emoji') {
       return (
-        <EmojiPicker
-          className="rounded-lg bg-background border max-h-80 shadow-lg z-50 w-80"
+        <div
+          ref={internalRef}
+          className="z-50 w-80 overflow-hidden rounded-lg border bg-background shadow-lg"
           style={positionStyle}
-          onEmojiSelect={({ emoji }) => onSelect(emoji)}
-          onPointerDownCapture={(e) => e.preventDefault()}
         >
-          <EmojiPicker.Search />
-          <EmojiPicker.Content />
-        </EmojiPicker>
+          <SuggestionPopoverHeader
+            title={title}
+            trigger={trigger}
+            onClose={onClose}
+          />
+          <EmojiPicker
+            className="max-h-80 w-full rounded-none border-0 shadow-none"
+            onEmojiSelect={({ emoji }) => onSelect(emoji)}
+          >
+            <EmojiPicker.Search />
+            <EmojiPicker.Content />
+            <EmojiPicker.Footer />
+          </EmojiPicker>
+        </div>
       );
     }
 
@@ -82,8 +150,11 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
       return (
         <PlaceholderInputSuggestionCustomPopover
           suggestionType={suggestionType}
+          title={title}
+          trigger={trigger}
           searchValue={searchQuery}
           onSelect={onSelect}
+          onClose={onClose}
           selectFieldName={selectFieldName}
           internalRef={internalRef}
           positionStyle={positionStyle}
@@ -94,19 +165,22 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
     return (
       <Command
         ref={internalRef}
-        className="rounded-lg border max-h-80 shadow-lg z-50 w-80"
+        className="z-50 w-80 overflow-hidden rounded-lg border bg-background shadow-lg"
         style={positionStyle}
-        onPointerDownCapture={(e) => e.preventDefault()}
       >
+        <SuggestionPopoverHeader
+          title={title}
+          trigger={trigger}
+          onClose={onClose}
+        />
         <Command.Input
           value={search}
           onValueChange={setSearch}
           variant="secondary"
-          placeholder={`Search ${
-            suggestionTypeMap.get(suggestionType || '')?.title
-          }...`}
+          placeholder={`Search ${title.toLowerCase()}...`}
         />
-        <Command.List>
+        <Command.List className="max-h-80 overflow-auto">
+          <Command.Empty>No results found.</Command.Empty>
           {suggestionType === 'attribute' && (
             <AttributesCommandList
               contentType={contentType}
@@ -128,42 +202,47 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
                   value={option.value}
                   onSelect={() => onSelect(option.value)}
                 >
-                  {option.label}
+                  <div className="flex min-w-0 items-center justify-between gap-3">
+                    <span>{option.label}</span>
+                    <span className="truncate font-mono text-[11px] text-muted-foreground">
+                      {option.value}
+                    </span>
+                  </div>
                 </Command.Item>
               ))}
             </Command.Group>
           )}
           {suggestionType === 'call_user' && (
             <TeamMemberCommandList
-              searchValue={debouncedSearch}
+              searchValue={remoteSearchValue}
               onSelect={(value) => onSelect(value)}
               selectField={selectFieldName}
             />
           )}
           {suggestionType === 'call_customer' && (
             <CustomerCommandList
-              searchValue={debouncedSearch}
+              searchValue={remoteSearchValue}
               onSelect={(value) => onSelect(value)}
               selectField={selectFieldName}
             />
           )}
           {suggestionType === 'call_company' && (
             <CompaniesCommandList
-              searchValue={debouncedSearch}
+              searchValue={remoteSearchValue}
               onSelect={(value) => onSelect(value)}
               selectField={selectFieldName}
             />
           )}
           {suggestionType === 'call_product' && (
             <ProducsCommandList
-              searchValue={debouncedSearch}
+              searchValue={remoteSearchValue}
               onSelect={(value) => onSelect(value)}
               selectField={selectFieldName}
             />
           )}
           {suggestionType === 'call_tag' && (
             <TagsCommandList
-              searchValue={debouncedSearch}
+              searchValue={remoteSearchValue}
               onSelect={(value) => onSelect(value)}
               selectField={selectFieldName}
             />
@@ -171,7 +250,7 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
           {isCustomCommandRenderer && (
             <PlaceholderInputSuggestionCustomCommandList
               suggestionType={suggestionType}
-              searchValue={debouncedSearch}
+              searchValue={remoteSearchValue}
               onSelect={(value) => onSelect(value)}
               selectField={selectFieldName}
             />

@@ -81,7 +81,7 @@ export class QpayAPI extends BaseAPI {
       }).then((r) => r.json());
 
       if (res.error) {
-        if (res.error === 'NO_CREDENDIALS') {
+        if (res.error === 'NO_CREDENTIALS') {
           throw new Error(
             'Invalid credentials!!! Please check your credentials',
           );

@@ -8,14 +8,19 @@ import { receiveComment } from '@/integrations/facebook/controller/receiveCommen
 import { receiveMessage } from '@/integrations/facebook/controller/receiveMessage';
 import { receivePost } from '@/integrations/facebook/controller/receivePost';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
-import { checkIsAdsOpenThread, getPageAccessTokenFromMap } from '@/integrations/facebook/utils';
+import {
+  checkIsAdsOpenThread,
+  getPageAccessTokenFromMap,
+} from '@/integrations/facebook/utils';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { NextFunction, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 
 export const facebookGetPost = async (req, res, next) => {
   try {
-    debugFacebook(`Request to get post data with: ${JSON.stringify(req.query)}`);
+    debugFacebook(
+      `Request to get post data with: ${JSON.stringify(req.query)}`,
+    );
 
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
@@ -237,6 +242,7 @@ export async function processMessagingEvent(
 
       await receiveMessage(models, subdomain, integration, activityData);
     }
+    res.status(200).send('EVENT_RECEIVED');
   } catch (e) {
     debugFacebook(`Failed to process messaging event: ${(e as Error).message}`);
   }

@@ -1,19 +1,16 @@
-import { useParams, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { CategoriesRecordTable } from './components/CategoriesRecordTable';
-import { CategoriesHeader } from './components/CategoriesHeader';
-import { CmsCategoryDrawer } from './CmsCategoryDrawer';
+import { IconArticle, IconPlus } from '@tabler/icons-react';
+import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
+import { useEffect, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+import { CmsSidebar } from '../shared/CmsSidebar';
+import { EmptyState } from '../shared/EmptyState';
+import { CmsCategoryDrawer } from './CmsCategoryDrawer';
+import { CategoriesHeader } from './components/CategoriesHeader';
+import { CategoriesRecordTable } from './components/CategoriesRecordTable';
+import { useCategories } from './hooks/useCategories';
 import { useRemoveCategories } from './hooks/useRemoveCategories';
 import { ICategory } from './types';
-import { CmsSidebar } from '../shared/CmsSidebar';
-import { PageContainer } from 'erxes-ui';
-import { EmptyState } from '../shared/EmptyState';
-import { IconArticle } from '@tabler/icons-react';
-import { useCategories } from './hooks/useCategories';
-import { Button } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { Kbd } from 'erxes-ui';
 
 export function Categories() {
   const { websiteId } = useParams();
@@ -115,25 +112,5 @@ export function Categories() {
         onRefetch={refetch}
       />
     </PageContainer>
-    // <div>
-    //   <CategoriesSidebar />
-    //   <CategoriesRecordTable
-    //     key={refetchTrigger}
-    //     clientPortalId={websiteId || ''}
-    //     onEdit={handleEditCategory}
-    //     onRemove={handleRemoveCategory}
-    //     onBulkDelete={handleBulkDelete}
-    //   />
-    //   <CmsCategoryDrawer
-    //     category={selectedCategory}
-    //     isOpen={drawerOpen}
-    //     onClose={() => {
-    //       setDrawerOpen(false);
-    //       setSelectedCategory(undefined);
-    //     }}
-    //     clientPortalId={websiteId || ''}
-    //     onRefetch={refetch}
-    //   />
-    // </div>
   );
 }

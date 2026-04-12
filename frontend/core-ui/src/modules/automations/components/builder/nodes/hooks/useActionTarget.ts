@@ -1,49 +1,14 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
-import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import {
+  getConnectedPreviousActions,
+  getTriggerOfAction,
+} from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { useMemo } from 'react';
 import {
   IAutomationsActionConfigConstants,
   TAutomationAction,
 } from 'ui-modules';
-
-function getConnectionsBefore(
-  targetId: string,
-  actions: TAutomationAction[],
-  actionsConst: IAutomationsActionConfigConstants[],
-) {
-  const map = new Map(actions.map((a) => [a.id, a]));
-  let result: TAutomationAction[] = [];
-
-  function findPrevious(currentId: string) {
-    const prev = actions.find(({ nextActionId, config, type }) => {
-      if (nextActionId === currentId) {
-        return true;
-      } else {
-        const { folks = [] } =
-          actionsConst.find((actionConst) => actionConst.type === type) || {};
-        for (const folk of folks) {
-          if (config[folk.key] === currentId) {
-            return true;
-          }
-        }
-      }
-      const optionalConnects = config?.optionalConnects || [];
-      for (const connect of optionalConnects) {
-        if (connect.actionId === currentId) {
-          return true;
-        }
-      }
-    });
-    if (prev) {
-      result = [prev, ...result]; // add to the beginning
-      findPrevious(prev.id);
-    }
-  }
-
-  findPrevious(targetId);
-  return result;
-}
 
 export const useActionTarget = ({
   actionId,
@@ -67,7 +32,7 @@ export const useActionTarget = ({
     .filter(({ isTargetSource }) => isTargetSource)
     .map(({ type }) => type);
   const connectedPreviousActions = actionId
-    ? getConnectionsBefore(actionId, actions, actionsConst)
+    ? getConnectedPreviousActions(actionId, actions, actionFolks)
     : [];
 
   // Filter to only those previous actions whose type can be a target
@@ -91,7 +56,7 @@ export const useActionTarget = ({
       actionsCanBeTarget.find((a) => a.id === targetActionId) || {};
 
     if (type === 'findObject') {
-      selectedActionType = config?.propertyType;
+      selectedActionType = config?.objectType;
     } else {
       const { targetSourceType } = actionConstMap.get(type ?? '') || {};
 

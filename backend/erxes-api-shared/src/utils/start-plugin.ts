@@ -16,7 +16,11 @@ import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
 import { startPayments } from '../common-modules/payment/worker';
-import type { IPropertyMeta, SegmentConfigs } from '../core-modules';
+import type {
+  IPropertyMeta,
+  LogsConfigs,
+  SegmentConfigs,
+} from '../core-modules';
 import { initSegmentProducers, startAutomations } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
@@ -32,7 +36,7 @@ import {
   leaveErxesGateway,
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
-import { getSubdomain } from './utils';
+import { applyTrustProxy, getSubdomain } from './utils';
 
 dotenv.config();
 
@@ -49,6 +53,7 @@ type TAPIMethod = keyof typeof API_METHODS;
 type IMeta = {
   automations?: AutomationConfigs;
   segments?: SegmentConfigs;
+  logs?: LogsConfigs;
   afterProcess?: AfterProcessConfigs;
   payments?: any;
   notifications?: any;
@@ -127,6 +132,7 @@ export async function startPlugin(
   const PORT = process.env.PORT ? Number(process.env.PORT) : port;
 
   const app = express();
+  applyTrustProxy(app);
   app.disable('x-powered-by');
   app.use(cors(corsOptions));
   app.use(
@@ -299,16 +305,6 @@ export async function startPlugin(
     `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
-  if (importExport) {
-    startImportExportWorker({
-      pluginName: name,
-      config: {
-        ...importExport,
-      },
-      app,
-    });
-  }
-
   if (meta) {
     const { automations, segments, afterProcess, notifications, payments } =
       meta || {};
@@ -340,6 +336,16 @@ export async function startPlugin(
     hasSubscriptions: hasSubscriptions,
     meta: meta,
   });
+
+  if (importExport) {
+    startImportExportWorker({
+      pluginName: name,
+      config: {
+        ...importExport,
+      },
+      app,
+    });
+  }
 
   if (onServerInit) {
     onServerInit(app);

@@ -42,10 +42,9 @@ export const automationsTriggerTrpcRouter = t.router({
             executeWaitingAction(subdomain, models, waitingAction);
           }
         }
-
         await receiveTrigger({ models, subdomain, type, targets, recordType });
 
-        return { id: processId || null };
+        return 'success';
       }),
   }),
 });

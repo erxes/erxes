@@ -68,7 +68,7 @@ const resolvers = {
       return {
         _id: user._id,
         code: user.code,
-        primaryPhone: (user.details && user.details.operatorPhone) || '',
+        primaryPhone: user.details?.operatorPhone || '',
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         primaryEmail: user.email,
         lastName: user.username,
@@ -107,7 +107,7 @@ const resolvers = {
       return true;
     }
     const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
-    if (!erkhetConfig || !erkhetConfig.apiToken) {
+    if (!erkhetConfig?.apiToken) {
       return true;
     }
     return order.syncedErkhet;

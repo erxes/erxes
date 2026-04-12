@@ -8,6 +8,14 @@ export const NOTIFICATION_SUBSCRIPTION = gql`
       message
       type
       fromUserId
+      fromUser {
+        _id
+        email
+        details {
+          fullName
+          avatar
+        }
+      }
       priority
       isRead
       contentType
