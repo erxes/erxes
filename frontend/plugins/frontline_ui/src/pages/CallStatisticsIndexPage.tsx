@@ -1,4 +1,4 @@
-import { CallQueueRecordTable } from '@/integrations/call/components/CallQueuRecordTable';
+import { CallQueueRecordTable } from '@/integrations/call/components/CallQueueRecordTable';
 import { IconPhone } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -32,7 +32,7 @@ export const CallIndexPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <CallQueueRecordTable />
+      <CallQueueRecordTable basePath="/frontline/calls/statistics" />
     </PageContainer>
   );
 };
