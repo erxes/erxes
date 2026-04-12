@@ -489,13 +489,27 @@ export const CallReportsView = () => {
                     <Table>
                       <Table.Header>
                         <Table.Row className="bg-muted/50">
-                          <Table.Head className="font-semibold">Queue</Table.Head>
-                          <Table.Head className="font-semibold text-right">Total</Table.Head>
-                          <Table.Head className="font-semibold text-right">Answered</Table.Head>
-                          <Table.Head className="font-semibold text-right">Missed</Table.Head>
-                          <Table.Head className="font-semibold text-right">Answer Rate</Table.Head>
-                          <Table.Head className="font-semibold text-right">Avg Wait</Table.Head>
-                          <Table.Head className="font-semibold text-right">Avg Talk</Table.Head>
+                          <Table.Head className="font-semibold">
+                            Queue
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Total
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Answered
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Missed
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Answer Rate
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Avg Wait
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Avg Talk
+                          </Table.Head>
                         </Table.Row>
                       </Table.Header>
                       <Table.Body>
@@ -540,13 +554,27 @@ export const CallReportsView = () => {
                     <Table>
                       <Table.Header>
                         <Table.Row className="bg-muted/50">
-                          <Table.Head className="font-semibold">Agent</Table.Head>
-                          <Table.Head className="font-semibold text-right">Total</Table.Head>
-                          <Table.Head className="font-semibold text-right">Answered</Table.Head>
-                          <Table.Head className="font-semibold text-right">Missed</Table.Head>
-                          <Table.Head className="font-semibold text-right">Answer Rate</Table.Head>
-                          <Table.Head className="font-semibold text-right">Avg Wait</Table.Head>
-                          <Table.Head className="font-semibold text-right">Avg Talk</Table.Head>
+                          <Table.Head className="font-semibold">
+                            Agent
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Total
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Answered
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Missed
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Answer Rate
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Avg Wait
+                          </Table.Head>
+                          <Table.Head className="font-semibold text-right">
+                            Avg Talk
+                          </Table.Head>
                         </Table.Row>
                       </Table.Header>
                       <Table.Body>
