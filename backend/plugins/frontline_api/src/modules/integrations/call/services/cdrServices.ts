@@ -67,8 +67,30 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     inboxIntegrationId: inboxId,
   }).sort({ createdAt: 1 });
 
-  if (existingCdr) {
-    conversationId = existingCdr.conversationId;
+  let followmeCdr: any = null;
+  if (!existingCdr && params.action_type?.includes('FOLLOWME')) {
+    const [datePart, timePart] = params.start.split(' ');
+    const cdrStart = new Date(`${datePart}T${timePart}+08:00`);
+    const fmRangeStart = new Date(cdrStart.getTime() - 300 * 1000);
+    const fmRangeEnd = new Date(cdrStart.getTime() + 300 * 1000);
+
+    followmeCdr = await models.CallCdrs.findOne({
+      $or: [{ src: primaryPhone }, { dst: primaryPhone }],
+      conversationId: { $exists: true, $ne: '' },
+      inboxIntegrationId: inboxId,
+      createdAt: { $gte: fmRangeStart, $lte: fmRangeEnd },
+    }).sort({ createdAt: -1 });
+
+    if (followmeCdr) {
+      debugCall(
+        `FOLLOWME merge: reusing conversation ${followmeCdr.conversationId} ` +
+          `from CDR ${followmeCdr._id} for phone=${primaryPhone}`,
+      );
+    }
+  }
+
+  if (existingCdr || followmeCdr) {
+    conversationId = existingCdr?.conversationId || followmeCdr?.conversationId;
     const payload = {
       conversationId,
       content: content,
@@ -116,11 +138,32 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
         `found=${!!callHistory}, historyId=${callHistory?._id || 'none'}`,
     );
 
+    let resolvedConversationId = callHistory?.conversationId || '';
+
+    if (!resolvedConversationId) {
+      const fiveMinAgo = new Date(startDate.getTime() - 300 * 1000);
+
+      const recentCdr = await models.CallCdrs.findOne({
+        $or: [{ src: primaryPhone }, { dst: primaryPhone }],
+        conversationId: { $exists: true, $ne: '' },
+        inboxIntegrationId: inboxId,
+        createdAt: { $gte: fiveMinAgo },
+      }).sort({ createdAt: -1 });
+
+      if (recentCdr) {
+        resolvedConversationId = recentCdr.conversationId;
+        debugCall(
+          `Reusing recent conversation ${resolvedConversationId} ` +
+            `for repeated call from phone=${primaryPhone}`,
+        );
+      }
+    }
+
     const erxesPayload = {
       customerId: customer?.erxesApiId,
       integrationId: inboxId,
       content: content,
-      conversationId: callHistory?.conversationId || '',
+      conversationId: resolvedConversationId,
       updatedAt: new Date(),
       owner: operatorPhone || '',
     };
