@@ -113,7 +113,7 @@ const generateRecordUrl = async (cdrParams, inboxId, models, subdomain) => {
       fileDir,
       recordfiles: cdrParams.recordfiles,
       inboxIntegrationId: inboxId,
-      retryCount: 1,
+      retryCount: 3,
     },
     {},
     models,

@@ -13,6 +13,7 @@ import { ICallIntegrationDocument } from '@/integrations/call/@types/integration
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { ICallHistory } from '@/integrations/call/@types/histories';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
+import { debugCall } from '@/integrations/call/debuggers';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
 const MAX_RETRY_COUNT = 3;
@@ -123,12 +124,32 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
     }
 
     try {
-      const clonedRes = res.clone();
-      const maybeError = await clonedRes.json();
-      if (maybeError?.status === -6) {
-        return await retryWithFreshCookie();
+      const contentType = res.headers.get('content-type') || '';
+      const contentLength = parseInt(
+        res.headers.get('content-length') || '0',
+        10,
+      );
+      const isLikelyJson =
+        contentType.includes('json') ||
+        contentType.includes('text') ||
+        contentType.includes('html');
+      const isSmallResponse = contentLength > 0 && contentLength < 1024;
+      const isUnknownType =
+        !contentType || contentType === 'application/octet-stream';
+
+      if (
+        (isLikelyJson || isSmallResponse || isUnknownType) &&
+        !res.bodyUsed
+      ) {
+        const clonedRes = res.clone();
+        const maybeError = await clonedRes.json();
+        if (maybeError?.status === -6) {
+          return await retryWithFreshCookie();
+        }
       }
-    } catch {}
+    } catch (e) {
+      debugCall('Non-JSON response body:', e);
+    }
 
     if (isGetExtension) {
       return { res, extensionNumber };
@@ -725,7 +746,7 @@ export const updateIntegrationQueueNames = async (
                 headers: { 'Content-Type': 'application/json' },
                 data: { request: { action: 'getQueue', queue } },
                 integrationId: integrationId,
-                retryCount: 1,
+                retryCount: 3,
                 isConvertToJson: true,
                 isGetExtension: true,
               },
