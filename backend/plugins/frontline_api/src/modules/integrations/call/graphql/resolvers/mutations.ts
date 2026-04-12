@@ -439,7 +439,7 @@ const callsMutations = {
             },
           },
           integrationId: inboxId,
-          retryCount: 1,
+          retryCount: 3,
           isConvertToJson: true,
           isAddExtention: false,
         };
