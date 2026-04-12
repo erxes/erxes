@@ -1,4 +1,4 @@
-import { ActiveFilter, DraftState, VisibleRow } from '@/settings/tags/types/tagTree';
+import { DraftState, VisibleRow } from '@/settings/tags/types/tagTree';
 import { ITag } from 'ui-modules';
 import { useMemo } from 'react';
 
@@ -8,7 +8,6 @@ interface UseVisibleTagRowsParams {
   tagGroups: ITag[];
   expandedGroupIds: Set<string>;
   searchTerm: string;
-  activeFilter: ActiveFilter;
   draft: DraftState | null;
 }
 
@@ -22,13 +21,17 @@ export const useVisibleTagRows = ({
   tagGroups,
   expandedGroupIds,
   searchTerm,
-  activeFilter,
   draft,
 }: UseVisibleTagRowsParams): VisibleRow[] => {
   return useMemo(() => {
     const groupRoots = rootTags.filter((t) => t.isGroup);
     const standaloneRoots = rootTags.filter((t) => !t.isGroup);
     const rows: VisibleRow[] = [];
+
+    // Root-level draft (group or tag) goes at the top
+    if (draft && (draft.kind === 'group' || draft.kind === 'tag')) {
+      rows.push({ rowType: 'draft', draft, depth: 0 });
+    }
 
     if (searchTerm) {
       const normalized = searchTerm.toLowerCase();
@@ -64,9 +67,6 @@ export const useVisibleTagRows = ({
         if (!isDirectMatch && !isContextParent && matchedChildren.length === 0)
           continue;
 
-        // Apply filter chips
-        if (activeFilter === 'standalone' || activeFilter === 'child') continue;
-
         if (isContextParent) {
           rows.push({ rowType: 'context-group', tag: group, depth: 0, isContext: true });
         } else {
@@ -75,7 +75,6 @@ export const useVisibleTagRows = ({
 
         const childrenToShow = isDirectMatch ? children : matchedChildren;
         for (const child of childrenToShow) {
-          if (activeFilter === 'groups') continue;
           rows.push({
             rowType: 'child-tag',
             tag: child,
@@ -87,11 +86,9 @@ export const useVisibleTagRows = ({
       }
 
       // Standalone tags
-      if (activeFilter !== 'groups' && activeFilter !== 'child') {
-        for (const tag of standaloneRoots) {
-          if (matchedTagIds.has(tag._id)) {
-            rows.push({ rowType: 'tag', tag, depth: 0 });
-          }
+      for (const tag of standaloneRoots) {
+        if (matchedTagIds.has(tag._id)) {
+          rows.push({ rowType: 'tag', tag, depth: 0 });
         }
       }
 
@@ -100,42 +97,28 @@ export const useVisibleTagRows = ({
 
     // Normal mode (no search)
     for (const group of groupRoots) {
-      if (activeFilter === 'standalone' || activeFilter === 'child') continue;
-
       rows.push({ rowType: 'group', tag: group, depth: 0 });
 
       if (expandedGroupIds.has(group._id)) {
         const children = tagsByParentId[group._id] ?? [];
 
-        if (activeFilter !== 'groups') {
-          for (const child of children) {
-            rows.push({
-              rowType: 'child-tag',
-              tag: child,
-              depth: 1,
-              parentId: group._id,
-            });
-          }
+        for (const child of children) {
+          rows.push({
+            rowType: 'child-tag',
+            tag: child,
+            depth: 1,
+            parentId: group._id,
+          });
         }
 
-        if (
-          draft?.kind === 'child-tag' &&
-          draft.parentId === group._id &&
-          activeFilter !== 'groups'
-        ) {
+        if (draft?.kind === 'child-tag' && draft.parentId === group._id) {
           rows.push({ rowType: 'draft', draft, depth: 1 });
         }
       }
     }
 
-    if (activeFilter !== 'groups' && activeFilter !== 'child') {
-      for (const tag of standaloneRoots) {
-        rows.push({ rowType: 'tag', tag, depth: 0 });
-      }
-    }
-
-    if (draft && (draft.kind === 'group' || draft.kind === 'tag')) {
-      rows.push({ rowType: 'draft', draft, depth: 0 });
+    for (const tag of standaloneRoots) {
+      rows.push({ rowType: 'tag', tag, depth: 0 });
     }
 
     return rows;
@@ -145,7 +128,6 @@ export const useVisibleTagRows = ({
     tagGroups,
     expandedGroupIds,
     searchTerm,
-    activeFilter,
     draft,
   ]);
 };

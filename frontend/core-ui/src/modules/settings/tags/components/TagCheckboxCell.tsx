@@ -11,6 +11,7 @@ export const TagCheckboxCell = ({
 }: TagCheckboxCellProps) => {
   return (
     <div
+      data-no-select
       className="w-10 flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 data-[checked=true]:opacity-100"
       data-checked={checked}
       onClick={(e) => e.stopPropagation()}

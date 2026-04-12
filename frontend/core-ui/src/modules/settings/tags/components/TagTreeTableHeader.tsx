@@ -27,9 +27,6 @@ export const TagTreeTableHeader = ({
       <TagsListHead className="flex-1 max-md:hidden pl-2">
         {t('description')}
       </TagsListHead>
-      <TagsListHead className="w-24 max-sm:hidden text-right pr-2">
-        {t('usage') || 'Usage'}
-      </TagsListHead>
       <TagsListHead className="w-32 max-sm:hidden">
         {t('created-at')}
       </TagsListHead>

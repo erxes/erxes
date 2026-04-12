@@ -4,7 +4,6 @@ import { TagDatesCell } from '@/settings/tags/components/TagDatesCell';
 import { TagDescriptionCell } from '@/settings/tags/components/TagDescriptionCell';
 import { TagDraftRow } from '@/settings/tags/components/TagDraftRow';
 import { TagNameCell } from '@/settings/tags/components/TagNameCell';
-import { TagUsageCell } from '@/settings/tags/components/TagUsageCell';
 import { DraftState, VisibleRow } from '@/settings/tags/types/tagTree';
 import { cn } from 'erxes-ui';
 import { ITag } from 'ui-modules';
@@ -49,8 +48,9 @@ export const TagTreeRow = ({
 
   const tag = row.tag;
   const isContext = row.isContext === true;
-  const childCount =
-    tag.isGroup ? (tagsByParentId[tag._id] ?? []).length : undefined;
+  const childCount = tag.isGroup
+    ? (tagsByParentId[tag._id] ?? []).length
+    : undefined;
 
   return (
     <div
@@ -59,16 +59,24 @@ export const TagTreeRow = ({
         isSelected && 'bg-primary/5 hover:bg-primary/8',
         isContext && 'opacity-50 pointer-events-none',
       )}
-      onClick={() => !isContext && !tag.isGroup && onToggleSelect(tag._id)}
+      onClick={(e) => {
+        if (
+          !isContext &&
+          !tag.isGroup &&
+          !(e.target as HTMLElement).closest('[data-no-select]')
+        ) {
+          onToggleSelect(tag._id);
+        }
+      }}
     >
-      {/* Checkbox - hidden for context rows and groups */}
-      {!isContext && !tag.isGroup && (
+      {/* Checkbox - hidden for context rows only */}
+      {!isContext && (
         <TagCheckboxCell
           checked={isSelected}
           onCheckedChange={() => onToggleSelect(tag._id)}
         />
       )}
-      {(isContext || tag.isGroup) && <div className="w-10 shrink-0" />}
+      {isContext && <div className="w-10 shrink-0" />}
 
       {/* Name */}
       <TagNameCell
@@ -83,14 +91,16 @@ export const TagTreeRow = ({
       <TagDescriptionCell tag={tag} />
 
       {/* Usage count */}
-      <TagUsageCell tag={tag} />
 
       {/* Created at */}
       <TagDatesCell tag={tag} />
 
       {/* Actions */}
       {!isContext && (
-        <div className="w-8 shrink-0 flex items-center justify-center">
+        <div
+          data-no-select
+          className="w-8 shrink-0 flex items-center justify-center"
+        >
           <TagActionsCell
             tag={tag}
             tagGroups={tagGroups}

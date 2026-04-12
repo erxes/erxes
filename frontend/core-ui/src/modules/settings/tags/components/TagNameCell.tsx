@@ -27,19 +27,26 @@ export const TagNameCell = ({
   if (tag.isGroup) {
     return (
       <div
-        className="flex-1 min-w-0 flex items-center gap-1 h-full cursor-pointer select-none"
+        className="flex-1 min-w-0 flex items-center gap-1 h-full"
         style={{ paddingLeft }}
-        onClick={() => onToggleExpand?.(tag._id)}
       >
         <IconCaretRightFilled
           className={cn(
-            'size-3 shrink-0 transition-transform duration-100 text-muted-foreground',
+            'size-3 shrink-0 transition-transform duration-100 text-muted-foreground cursor-pointer select-none',
             isExpanded && 'rotate-90',
             !hasChildren && 'opacity-0',
           )}
+          onClick={() => onToggleExpand?.(tag._id)}
         />
-        <TagsListColorField tag={tag} />
-        <TagsListNameField name={tag.name} id={tag._id} />
+        <div data-no-select onClick={(e) => e.stopPropagation()}>
+          <TagsListColorField tag={tag} />
+        </div>
+        <div
+          className="flex-1 min-w-0 cursor-pointer select-none h-full flex items-center"
+          onClick={() => onToggleExpand?.(tag._id)}
+        >
+          <TagsListNameField name={tag.name} id={tag._id} />
+        </div>
       </div>
     );
   }
@@ -50,7 +57,9 @@ export const TagNameCell = ({
       style={{ paddingLeft }}
     >
       <div className="w-3 shrink-0" />
-      <TagsListColorField tag={tag} />
+      <div data-no-select onClick={(e) => e.stopPropagation()}>
+        <TagsListColorField tag={tag} />
+      </div>
       <TagsListNameField name={tag.name} id={tag._id} />
     </div>
   );

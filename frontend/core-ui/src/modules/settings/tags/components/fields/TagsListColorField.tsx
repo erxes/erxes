@@ -13,9 +13,6 @@ export const TagsListColorField = ({ tag }: { tag: ITag }) => {
         id: tag._id,
         colorCode: newColorCode,
       },
-      optimisticResponse: {
-        tagsEdit: { ...tag, colorCode: newColorCode },
-      },
     });
   };
   return (
@@ -32,6 +29,7 @@ export const TagsListColorField = ({ tag }: { tag: ITag }) => {
     >
       <ColorPicker.Trigger asChild>
         <Button
+          data-no-select
           className="size-7 flex items-center justify-center p-0 shadow-none bg-transparent hover:bg-accent-foreground/10 shrink-0"
           variant="ghost"
           onClick={(e) => e.stopPropagation()}

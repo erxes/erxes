@@ -1,6 +1,5 @@
 import { TAG_DEFAULT_COLORS } from '@/settings/tags/constants/Colors';
 import {
-  ActiveFilter,
   DraftKind,
   DraftState,
   SelectionCapability,
@@ -44,16 +43,15 @@ export const useTagsPageState = (tags: ITag[]) => {
     new Set(),
   );
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState<ActiveFilter>('all');
   const [draft, setDraft] = useState<DraftState | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // Auto-cancel draft when search or filter changes
+  // Auto-cancel draft when search changes
   useEffect(() => {
-    if (searchTerm || activeFilter !== 'all') {
+    if (searchTerm) {
       setDraft(null);
     }
-  }, [searchTerm, activeFilter]);
+  }, [searchTerm]);
 
   const startDraft = useCallback(
     (kind: DraftKind, parentId?: string) => {
@@ -105,6 +103,23 @@ export const useTagsPageState = (tags: ITag[]) => {
     });
   }, []);
 
+  const toggleSelectGroup = useCallback(
+    (groupId: string, childIds: string[]) => {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        const ids = [groupId, ...childIds];
+        const allSelected = ids.every((id) => next.has(id));
+        if (allSelected) {
+          ids.forEach((id) => next.delete(id));
+        } else {
+          ids.forEach((id) => next.add(id));
+        }
+        return next;
+      });
+    },
+    [],
+  );
+
   const selectAll = useCallback(
     (tagIds: string[]) => {
       setSelectedIds(new Set(tagIds));
@@ -123,8 +138,6 @@ export const useTagsPageState = (tags: ITag[]) => {
     expandedGroupIds,
     searchTerm,
     setSearchTerm,
-    activeFilter,
-    setActiveFilter,
     draft,
     setDraft,
     startDraft,
@@ -133,6 +146,7 @@ export const useTagsPageState = (tags: ITag[]) => {
     selectedIds,
     toggleExpand,
     toggleSelect,
+    toggleSelectGroup,
     selectAll,
     clearSelection,
     selectionCapability,

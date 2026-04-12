@@ -1,8 +1,8 @@
 import { DraftState } from '@/settings/tags/types/tagTree';
 import { IconPlus } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
+import { Button, Kbd, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Can } from 'ui-modules';
+import { Can, getTagTypeDescription, useTagTypes } from 'ui-modules';
 
 interface TagsHeaderProps {
   draft: DraftState | null;
@@ -10,31 +10,38 @@ interface TagsHeaderProps {
   onAddTag: () => void;
 }
 
-export const TagsHeader = ({ draft, onAddGroup, onAddTag }: TagsHeaderProps) => {
+export const TagsHeader = ({
+  draft,
+  onAddGroup,
+  onAddTag,
+}: TagsHeaderProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'tags' });
+  const [type] = useQueryState<string>('tagType');
+  const { types } = useTagTypes();
+  const typeLabel = getTagTypeDescription({ type: type ?? null, tagTypes: types });
 
   return (
     <div className="flex items-center justify-between px-3 pt-3 pb-1">
       <div>
-        <h2 className="text-sm font-semibold">{t('workspace-tags')}</h2>
+        <h2 className="text-sm font-semibold">{typeLabel} {t('_')}</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {t('workspace-tags-description') ||
-            'Organize, group, and manage workspace tags'}
+          {t('workspace-tags-description')}
         </p>
       </div>
       <Can action="tagsCreate">
         <div className="flex items-center gap-2 shrink-0 ml-4">
           <Button
             variant="outline"
-            size="sm"
             onClick={onAddGroup}
-            disabled={!!draft}
+            disabled={draft?.kind === 'tag'}
           >
-            Add Group
+            {t('add-group')}
+            <Kbd variant="foreground">G</Kbd>
           </Button>
-          <Button size="sm" onClick={onAddTag} disabled={!!draft}>
+          <Button onClick={onAddTag} disabled={draft?.kind === 'group'}>
             <IconPlus className="size-4" />
-            Add Tag
+            {t('add-tag')}
+            <Kbd>C</Kbd>
           </Button>
         </div>
       </Can>

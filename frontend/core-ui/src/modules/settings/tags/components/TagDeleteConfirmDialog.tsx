@@ -1,28 +1,29 @@
 import { useConfirm } from 'erxes-ui';
 import { ITag, useTagRemove } from 'ui-modules';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const useTagDeleteConfirm = () => {
   const { confirm } = useConfirm();
   const { removeTag } = useTagRemove();
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
 
   const confirmDelete = useCallback(
     async (tag: ITag, childCount?: number) => {
-      let message = `Delete "${tag.name}"?`;
+      let message = t('delete-confirm', { name: tag.name });
       let description: string | undefined;
 
       if (tag.isGroup && childCount && childCount > 0) {
-        message = `Delete group "${tag.name}"?`;
-        description = `This group contains ${childCount} tag(s). All child tags will also be deleted.`;
+        message = t('delete-group-confirm', { name: tag.name });
+        description = t('delete-group-confirm-description', { count: childCount });
       } else if (!tag.isGroup && (tag.objectCount ?? 0) > 0) {
-        message = `Delete "${tag.name}"?`;
-        description = `This tag is applied to ${tag.objectCount} item(s). It will be removed from all of them.`;
+        description = t('delete-tag-confirm-description', { count: tag.objectCount });
       }
 
-      await confirm({ message, options: { description, okLabel: 'Delete' } });
+      await confirm({ message, options: { description, okLabel: t('delete') } });
       removeTag(tag._id);
     },
-    [confirm, removeTag],
+    [confirm, removeTag, t],
   );
 
   return { confirmDelete };

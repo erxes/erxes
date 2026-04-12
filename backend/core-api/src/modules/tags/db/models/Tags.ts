@@ -29,14 +29,16 @@ export const loadTagClass = (
     public static async validate(_id: string | null, doc: ITag) {
       const { name, type, parentId, isGroup } = doc;
 
-      const existingTag = await models.Tags.findOne({
-        name,
-        type,
-        _id: { $ne: _id },
-      }).lean();
+      if (name) {
+        const existingTag = await models.Tags.findOne({
+          name,
+          type,
+          _id: { $ne: _id },
+        }).lean();
 
-      if (existingTag) {
-        throw new Error(`A tag named ${name} already exists`);
+        if (existingTag) {
+          throw new Error(`A tag named ${name} already exists`);
+        }
       }
 
       const tag = _id ? await models.Tags.findOne({ _id }).lean() : null;
@@ -113,7 +115,7 @@ export const loadTagClass = (
 
       const tag = await models.Tags.getTag(_id);
 
-      if (tag.isGroup && !doc.isGroup) {
+      if (tag.isGroup && doc.isGroup === false) {
         const childTags = await models.Tags.find({ parentId: _id }).lean();
 
         if (childTags.length) {
@@ -394,7 +396,7 @@ export const loadTagClass = (
       sendDbEventLog({
         action: 'bulkWrite',
         docIds: tags.map((t) => t._id),
-        updateDescription: doc,
+        updateDescription: { operations: doc },
       });
     }
   }

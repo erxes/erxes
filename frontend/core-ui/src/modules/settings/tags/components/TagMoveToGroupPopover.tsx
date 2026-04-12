@@ -1,11 +1,10 @@
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
-import { IconCirclesFilled, IconMinus } from '@tabler/icons-react';
 import {
-  Combobox,
-  Command,
-  Popover,
-  PopoverScoped,
-} from 'erxes-ui';
+  IconCirclesFilled,
+  IconMinusVertical,
+  IconX,
+} from '@tabler/icons-react';
+import { Combobox, Command, Popover, PopoverScoped } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { Can, ITag, useTagEdit } from 'ui-modules';
 
@@ -35,10 +34,7 @@ export const TagMoveToGroupPopover = ({
       editTag({
         variables: {
           id: tag._id,
-          parentId: groupId ?? undefined,
-        },
-        optimisticResponse: {
-          tagsEdit: { ...tag, parentId: groupId ?? undefined },
+          parentId: groupId,
         },
       });
     }
@@ -75,8 +71,8 @@ export const TagMoveToGroupPopover = ({
               <>
                 {showNoGroup && (
                   <Command.Item onSelect={() => handleMove(null)}>
-                    <IconMinus className="size-3" />
-                    No group (standalone)
+                    <IconX className="size-3" />
+                    remove from group
                   </Command.Item>
                 )}
                 {availableGroups.map((group) => (
