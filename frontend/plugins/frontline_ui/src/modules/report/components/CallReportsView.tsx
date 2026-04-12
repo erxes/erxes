@@ -4,20 +4,13 @@ import {
   Button,
   Dialog,
   IconComponent,
+  InfoCard,
   ScrollArea,
   Select,
   Spinner,
   Table,
 } from 'erxes-ui';
 import { endOfDay, format, startOfMonth } from 'date-fns';
-import {
-  IconPhone,
-  IconPhoneCheck,
-  IconPhoneOff,
-  IconPercentage,
-  IconClock,
-  IconMessage,
-} from '@tabler/icons-react';
 import { CALL_QUEUE_LIST } from '@/integrations/call/graphql/queries/callQueueList';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import { callReportsDashboard } from '@/integrations/call/graphql/queries/callStatistics';
@@ -117,42 +110,6 @@ const formatPercentage = (value: number) => `${value.toFixed(2)}%`;
 
 const formatDuration = (value: number) => formatSeconds(Math.round(value));
 
-const cardThemes: Record<
-  string,
-  { icon: React.ElementType; accent: string; iconBg: string }
-> = {
-  'Total Calls': {
-    icon: IconPhone,
-    accent: 'text-blue-600',
-    iconBg: 'bg-blue-100 text-blue-600',
-  },
-  'Answered Calls': {
-    icon: IconPhoneCheck,
-    accent: 'text-emerald-600',
-    iconBg: 'bg-emerald-100 text-emerald-600',
-  },
-  'Missed Calls': {
-    icon: IconPhoneOff,
-    accent: 'text-rose-600',
-    iconBg: 'bg-rose-100 text-rose-600',
-  },
-  'Answer Rate': {
-    icon: IconPercentage,
-    accent: 'text-violet-600',
-    iconBg: 'bg-violet-100 text-violet-600',
-  },
-  'Avg Wait Time': {
-    icon: IconClock,
-    accent: 'text-amber-600',
-    iconBg: 'bg-amber-100 text-amber-600',
-  },
-  'Avg Talk Time': {
-    icon: IconMessage,
-    accent: 'text-cyan-600',
-    iconBg: 'bg-cyan-100 text-cyan-600',
-  },
-};
-
 const SummaryCard = ({
   title,
   value,
@@ -162,32 +119,13 @@ const SummaryCard = ({
   value: string;
   description: string;
 }) => {
-  const theme = cardThemes[title] || {
-    icon: IconPhone,
-    accent: 'text-foreground',
-    iconBg: 'bg-muted text-muted-foreground',
-  };
-  const Icon = theme.icon;
-
   return (
-    <div className="group relative rounded-xl border bg-background p-5 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {title}
-          </p>
-          <p className={`text-3xl font-bold tracking-tight ${theme.accent}`}>
-            {value}
-          </p>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-        <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${theme.iconBg}`}
-        >
-          <Icon className="h-5 w-5" />
-        </div>
+    <InfoCard title={title}>
+      <div className="space-y-1">
+        <div className="text-3xl px-2 font-semibold tracking-tight">{value}</div>
+        <p className="text-sm  px-4text-muted-foreground">{description}</p>
       </div>
-    </div>
+    </InfoCard>
   );
 };
 
@@ -287,11 +225,6 @@ export const CallReportsView = () => {
 
   const hasQueue = Boolean(selectedQueue);
 
-  const selectedQueueLabel = useMemo(() => {
-    const match = queueOptions.find(({ value }) => value === selectedQueue);
-    return match?.label || selectedQueue;
-  }, [queueOptions, selectedQueue]);
-
   const { data, loading: statsLoading } = useQuery<
     DashboardQuery,
     DashboardQueryVariables
@@ -316,7 +249,7 @@ export const CallReportsView = () => {
     {
       title: 'Total Calls',
       value: selectedQueueStats.totalCalls.toLocaleString(),
-      description: `Queue ${selectedQueueLabel || '–'} · ${dateRangeLabel}`,
+      description: `${selectedQueue || 'Selected queue'} · ${dateRangeLabel}`,
     },
     {
       title: 'Answered Calls',
@@ -354,10 +287,10 @@ export const CallReportsView = () => {
 
   return (
     <ScrollArea className="h-full w-full">
-      <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-8 px-8 pb-8">
-        <div className="flex flex-wrap items-end gap-5 rounded-xl border bg-background p-5 shadow-sm">
-          <div className="min-w-[200px] flex-1">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-8 pb-8">
+        <div className="flex flex-wrap items-end gap-4 rounded-lg border bg-background p-4">
+          <div className="w-64">
+            <label className="mb-1 block text-sm font-medium">
               Integration
             </label>
             <Select
@@ -376,10 +309,8 @@ export const CallReportsView = () => {
               </Select.Content>
             </Select>
           </div>
-          <div className="min-w-[180px] flex-1">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Queue
-            </label>
+          <div className="w-64">
+            <label className="mb-1 block text-sm font-medium">Queue</label>
             <Select value={selectedQueue} onValueChange={setSelectedQueue}>
               <Select.Trigger disabled={!queueOptions.length}>
                 <Select.Value placeholder="Select queue" />
@@ -393,10 +324,8 @@ export const CallReportsView = () => {
               </Select.Content>
             </Select>
           </div>
-          <div className="min-w-[160px] flex-1">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Direction
-            </label>
+          <div className="w-48">
+            <label className="mb-1 block text-sm font-medium">Direction</label>
             <Select value={direction} onValueChange={setDirection}>
               <Select.Trigger>
                 <Select.Value placeholder="All directions" />
@@ -410,10 +339,8 @@ export const CallReportsView = () => {
               </Select.Content>
             </Select>
           </div>
-          <div className="min-w-[220px] flex-1">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Date
-            </label>
+          <div className="w-64">
+            <label className="mb-1 block text-sm font-medium">Date</label>
             <Dialog>
               <Dialog.Trigger asChild>
                 <Button
@@ -458,14 +385,14 @@ export const CallReportsView = () => {
 
         {!statsLoading && hasQueue && (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {summaryCards.map((card) => (
                 <SummaryCard key={card.title} {...card} />
               ))}
             </div>
 
             {queueStats.length === 0 && (
-              <div className="rounded-xl border-2 border-dashed p-12 text-center text-sm text-muted-foreground">
+              <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground mt-4">
                 No call records were found for this queue in the selected date
                 range.
               </div>
@@ -473,49 +400,40 @@ export const CallReportsView = () => {
 
             {queueStats.length > 0 && (
               <>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-5 w-1 rounded-full bg-blue-500" />
-                    <h3 className="text-base font-semibold">Queue Snapshot</h3>
-                  </div>
-                  <div className="overflow-hidden rounded-xl border shadow-sm">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Queue Snapshot</h3>
+                  <div className="rounded-md border">
                     <Table>
                       <Table.Header>
-                        <Table.Row className="bg-muted/50">
-                          <Table.Head className="font-semibold">Queue</Table.Head>
-                          <Table.Head className="font-semibold text-right">Total</Table.Head>
-                          <Table.Head className="font-semibold text-right">Answered</Table.Head>
-                          <Table.Head className="font-semibold text-right">Missed</Table.Head>
-                          <Table.Head className="font-semibold text-right">Answer Rate</Table.Head>
-                          <Table.Head className="font-semibold text-right">Avg Wait</Table.Head>
-                          <Table.Head className="font-semibold text-right">Avg Talk</Table.Head>
+                        <Table.Row>
+                          <Table.Head>Queue</Table.Head>
+                          <Table.Head>Total</Table.Head>
+                          <Table.Head>Answered</Table.Head>
+                          <Table.Head>Missed</Table.Head>
+                          <Table.Head>Answer Rate</Table.Head>
+                          <Table.Head>Avg Wait</Table.Head>
+                          <Table.Head>Avg Talk</Table.Head>
                         </Table.Row>
                       </Table.Header>
-                      <Table.Body>
-                        <Table.Row className="hover:bg-muted/30">
-                          <Table.Cell className="font-medium">
-                            {selectedQueueLabel || selectedQueueStats.queue}
+                      <Table.Body >
+                        <Table.Row style={{ padding: "0 4px" }}>
+                          <Table.Cell>
+                            {selectedQueueStats.queue || selectedQueue}
                           </Table.Cell>
-                          <Table.Cell className="text-right font-semibold">
-                            {selectedQueueStats.totalCalls}
+                          <Table.Cell>{selectedQueueStats.totalCalls}</Table.Cell>
+                          <Table.Cell>
+                            {selectedQueueStats.answeredCalls}
                           </Table.Cell>
-                          <Table.Cell className="text-right">
-                            <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-sm font-medium text-emerald-700">
-                              {selectedQueueStats.answeredCalls}
-                            </span>
+                          <Table.Cell>
+                            {selectedQueueStats.abandonedCalls}
                           </Table.Cell>
-                          <Table.Cell className="text-right">
-                            <span className="inline-flex items-center rounded-md bg-rose-50 px-2 py-0.5 text-sm font-medium text-rose-700">
-                              {selectedQueueStats.abandonedCalls}
-                            </span>
-                          </Table.Cell>
-                          <Table.Cell className="text-right font-medium">
+                          <Table.Cell>
                             {formatPercentage(selectedQueueStats.answeredRate)}
                           </Table.Cell>
-                          <Table.Cell className="text-right font-mono text-sm">
+                          <Table.Cell>
                             {formatDuration(selectedQueueStats.averageWaitTime)}
                           </Table.Cell>
-                          <Table.Cell className="text-right font-mono text-sm">
+                          <Table.Cell>
                             {formatDuration(selectedQueueStats.averageTalkTime)}
                           </Table.Cell>
                         </Table.Row>
@@ -524,66 +442,47 @@ export const CallReportsView = () => {
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-5 w-1 rounded-full bg-violet-500" />
-                    <h3 className="text-base font-semibold">Agent Breakdown</h3>
-                  </div>
-                  <div className="overflow-hidden rounded-xl border shadow-sm">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Agent Breakdown</h3>
+                  <div className="rounded-md border">
                     <Table>
                       <Table.Header>
-                        <Table.Row className="bg-muted/50">
-                          <Table.Head className="font-semibold">Agent</Table.Head>
-                          <Table.Head className="font-semibold text-right">Total</Table.Head>
-                          <Table.Head className="font-semibold text-right">Answered</Table.Head>
-                          <Table.Head className="font-semibold text-right">Missed</Table.Head>
-                          <Table.Head className="font-semibold text-right">Answer Rate</Table.Head>
-                          <Table.Head className="font-semibold text-right">Avg Wait</Table.Head>
-                          <Table.Head className="font-semibold text-right">Avg Talk</Table.Head>
+                        <Table.Row>
+                          <Table.Head>Agent</Table.Head>
+                          <Table.Head>Total</Table.Head>
+                          <Table.Head>Answered</Table.Head>
+                          <Table.Head>Missed</Table.Head>
+                          <Table.Head>Answer Rate</Table.Head>
+                          <Table.Head>Avg Wait</Table.Head>
+                          <Table.Head>Avg Talk</Table.Head>
                         </Table.Row>
                       </Table.Header>
-                      <Table.Body>
+                      <Table.Body >
                         {agentStats.length > 0 ? (
-                          agentStats.map((stat, index) => (
+                          agentStats.map((stat) => (
                             <Table.Row
                               key={`${stat.agent}-${stat.agentName || ''}`}
-                              className={`hover:bg-muted/30 ${
-                                index % 2 === 0 ? '' : 'bg-muted/20'
-                              }`}
                             >
-                              <Table.Cell className="font-medium">
+                              <Table.Cell>
                                 {stat.agentName || stat.agent}
                               </Table.Cell>
-                              <Table.Cell className="text-right font-semibold">
-                                {stat.totalCalls}
-                              </Table.Cell>
-                              <Table.Cell className="text-right">
-                                <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-sm font-medium text-emerald-700">
-                                  {stat.answeredCalls}
-                                </span>
-                              </Table.Cell>
-                              <Table.Cell className="text-right">
-                                <span className="inline-flex items-center rounded-md bg-rose-50 px-2 py-0.5 text-sm font-medium text-rose-700">
-                                  {stat.missedCalls}
-                                </span>
-                              </Table.Cell>
-                              <Table.Cell className="text-right font-medium">
+                              <Table.Cell>{stat.totalCalls}</Table.Cell>
+                              <Table.Cell>{stat.answeredCalls}</Table.Cell>
+                              <Table.Cell>{stat.missedCalls}</Table.Cell>
+                              <Table.Cell>
                                 {formatPercentage(stat.answeredRate)}
                               </Table.Cell>
-                              <Table.Cell className="text-right font-mono text-sm">
+                              <Table.Cell>
                                 {formatDuration(stat.averageWaitTime)}
                               </Table.Cell>
-                              <Table.Cell className="text-right font-mono text-sm">
+                              <Table.Cell>
                                 {formatDuration(stat.averageTalkTime)}
                               </Table.Cell>
                             </Table.Row>
                           ))
                         ) : (
                           <Table.Row>
-                            <Table.Cell
-                              colSpan={7}
-                              className="py-8 text-center text-muted-foreground"
-                            >
+                            <Table.Cell colSpan={7} className="text-center">
                               No agent level statistics available
                             </Table.Cell>
                           </Table.Row>

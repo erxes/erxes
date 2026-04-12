@@ -252,7 +252,7 @@ export const getOrSetCallCookie = async (wsServer) => {
   }
 };
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const getRecordUrl = async (params, user, models, subdomain) => {
   const {
@@ -306,8 +306,12 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       )?.extension;
 
       const tz = 'Asia/Ulaanbaatar';
-      const startDate = (momentTz(callStartTime).tz(tz) || momentTz(callStartTime)).format('YYYY-MM-DD');
-      const endDate = (momentTz(callEndTime).tz(tz) || momentTz(callEndTime)).format('YYYY-MM-DD');
+      const startDate = (
+        momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
+      ).format('YYYY-MM-DD');
+      const endDate = (
+        momentTz(callEndTime).tz(tz) || momentTz(callEndTime)
+      ).format('YYYY-MM-DD');
 
       let caller = customerPhone;
       let callee = extensionNumber || extension || operator;
@@ -354,7 +358,8 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       if (!cdrRoot) throw new Error('CDR root not found');
 
       const sortedCdr = cdrRoot.sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
 
       let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
@@ -374,7 +379,9 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       }
 
       if (
-        ['QUEUE', 'TRANSFER'].some((substring) => lastCreatedObject?.action_type?.includes(substring)) &&
+        ['QUEUE', 'TRANSFER'].some((substring) =>
+          lastCreatedObject?.action_type?.includes(substring),
+        ) &&
         !(transferredCallStatus === 'remote' && callType === 'incoming')
       ) {
         fileDir = 'queue';
@@ -389,16 +396,21 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         models,
         subdomain,
       );
-
     } catch (error) {
-      console.error(`Error in fetchRecordUrl (Retries left: ${retryCount}):`, error.message);
+      console.error(
+        `Error in fetchRecordUrl (Retries left: ${retryCount}):`,
+        error.message,
+      );
 
-      const isAuthError = error.message.toLowerCase().includes('wrong account') ||
+      const isAuthError =
+        error.message.toLowerCase().includes('wrong account') ||
         error.message.toLowerCase().includes('auth failed') ||
         error.message.toLowerCase().includes('password');
 
       if (isAuthError) {
-        console.error('Critical Auth Error: Please check GrandStream credentials!');
+        console.error(
+          'Critical Auth Error: Please check GrandStream credentials!',
+        );
         throw error;
       }
 
@@ -423,7 +435,8 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
   try {
     const { fileDir, recordfiles, inboxIntegrationId, retryCount } = params;
 
-    if (!recordfiles) throw new Error('Missing required parameter: recordfiles');
+    if (!recordfiles)
+      throw new Error('Missing required parameter: recordfiles');
 
     const filePathParts = recordfiles.split('/');
     const rawFileName = filePathParts[1]?.split('@')[0];
@@ -450,7 +463,8 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
       user,
     );
 
-    if (!grandStreamResponse) throw new Error('Failed to get response from GrandStream API');
+    if (!grandStreamResponse)
+      throw new Error('Failed to get response from GrandStream API');
 
     const fileBuffer = await grandStreamResponse.buffer();
     if (!fileBuffer || fileBuffer.length === 0) {
@@ -470,7 +484,7 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
       const uploadResponse = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
-        signal: controller.signal
+        signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
@@ -481,10 +495,10 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
 
       return await uploadResponse.text();
     } catch (fetchError) {
-      if (fetchError.name === 'AbortError') throw new Error('Upload to Erxes timed out');
+      if (fetchError.name === 'AbortError')
+        throw new Error('Upload to Erxes timed out');
       throw fetchError;
     }
-
   } catch (error) {
     console.error('Error in cfRecordUrl:', error.message);
     throw error;
@@ -639,8 +653,8 @@ export const checkForExistingIntegrations = async (
     typeof details?.queues === 'string'
       ? details.queues.split(',').flatMap((q) => q.trim().split(/\s+/))
       : (details?.queues || []).flatMap((q) =>
-        typeof q === 'string' ? q.trim().split(/\s+/) : q,
-      );
+          typeof q === 'string' ? q.trim().split(/\s+/) : q,
+        );
 
   const models = await generateModels(subdomain);
   // Check for existing integrations with the same wsServer and overlapping queues
