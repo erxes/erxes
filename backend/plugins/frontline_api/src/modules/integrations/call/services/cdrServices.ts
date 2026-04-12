@@ -81,38 +81,40 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     }
     await createOrUpdateErxesConversation(subdomain, payload);
   } else {
-    // console.log('now date:', new Date(), params.start, typeof params.start);
-
     const [datePart, timePart] = params.start.split(' ');
     const localTimeString = `${datePart}T${timePart}+08:00`;
     const localStart = new Date(localTimeString);
     const startDate = new Date(localStart.getTime());
-    const rangeSeconds = 30;
+    const rangeSeconds = 180;
     const startTime = new Date(startDate.getTime() - rangeSeconds * 1000);
     const endTime = new Date(startDate.getTime() + rangeSeconds * 1000);
 
-    const historySelector: Record<string, any> = {
+    const baseSelector: Record<string, any> = {
       customerPhone: primaryPhone,
       createdAt: { $gte: startTime, $lte: endTime },
     };
 
+    let callHistory: any = null;
     if (extension) {
-      historySelector.extensionNumber = extension;
+      callHistory = await models.CallHistory.findOne({
+        ...baseSelector,
+        extensionNumber: extension,
+      })
+        .sort({ createdAt: -1 })
+        .lean();
     }
 
-    const callHistory = await models.CallHistory.findOne(historySelector)
-      .sort({ createdAt: -1 })
-      .lean();
+    if (!callHistory) {
+      callHistory = await models.CallHistory.findOne(baseSelector)
+        .sort({ createdAt: -1 })
+        .lean();
+    }
 
-    console.log({
-      now: new Date(),
-      paramsStart: params.start,
-      localStart,
-      startDate,
-      startTime,
-      endTime,
-      found: !!callHistory,
-    });
+    debugCall(
+      `CDR match: phone=${primaryPhone}, ext=${extension}, ` +
+        `range=${startTime.toISOString()}~${endTime.toISOString()}, ` +
+        `found=${!!callHistory}, historyId=${callHistory?._id || 'none'}`,
+    );
 
     const erxesPayload = {
       customerId: customer?.erxesApiId,
@@ -122,11 +124,10 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
       updatedAt: new Date(),
       owner: operatorPhone || '',
     };
-    const payload = JSON.stringify(erxesPayload);
 
     const newErxesConversation = await createOrUpdateErxesConversation(
       subdomain,
-      payload,
+      erxesPayload,
     );
 
     if (newErxesConversation.status === 'success') {
