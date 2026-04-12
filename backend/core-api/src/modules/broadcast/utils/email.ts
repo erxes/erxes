@@ -29,11 +29,12 @@ const prepareContentAndSubject = (
   subject: string,
   content: string,
   customer: ICustomer,
+  subdomain: string,
 ) => {
   let replacedContent = content;
   let replacedSubject = subject;
 
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = (getEnv({ name: 'DOMAIN' }) || '').replace('<subdomain>', subdomain);
   const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
 
   if (customer.replacers) {
@@ -64,7 +65,8 @@ export const prepareEmailHeader = (
   const DOMAIN = getEnv({ name: 'DOMAIN' })
     ? `${getEnv({ name: 'DOMAIN' })}/gateway`
     : 'http://localhost:4000';
-  const callbackUrl = DOMAIN.replace('<subdomain>', subdomain);
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
+  const callbackUrl = `${domain}/pl:core`;
 
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
@@ -93,6 +95,7 @@ export const prepareEmailParams = (
     subject,
     content,
     customer,
+    subdomain,
   );
 
   return {
