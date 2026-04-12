@@ -193,7 +193,11 @@ const SummaryCard = ({
 
 const formatPhoneStr = (phone: string) => {
   if (!phone) return '';
-  if (phone.includes(',')) return phone.split(',').map((p) => p.trim()).join(', ');
+  if (phone.includes(','))
+    return phone
+      .split(',')
+      .map((p) => p.trim())
+      .join(', ');
   if (/^\d+$/.test(phone) && phone.length > 8 && phone.length % 8 === 0) {
     return phone.match(/.{1,8}/g)?.join(', ') || phone;
   }
@@ -369,7 +373,10 @@ export const CallReportsView = () => {
               </Select.Trigger>
               <Select.Content>
                 {uniqueIntegrations.map((integration) => (
-                  <Select.Item key={integration.inboxId} value={integration.inboxId}>
+                  <Select.Item
+                    key={integration.inboxId}
+                    value={integration.inboxId}
+                  >
                     {integration.phone}
                   </Select.Item>
                 ))}
