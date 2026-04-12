@@ -13,7 +13,8 @@ export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
     userId: string,
     integrationId?: string,
   ): Promise<ICallIntegrationDocument>;
-  getIntegrationQueuesByUser(userId: string): Promise<string[]>;}
+  getIntegrationQueuesByUser(userId: string): Promise<string[]>;
+}
 
 export const loadCallIntegrationClass = (models: IModels) => {
   class Integration {

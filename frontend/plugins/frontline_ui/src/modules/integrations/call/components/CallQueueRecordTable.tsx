@@ -73,10 +73,7 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
       return (
         <HoverCard openDelay={100}>
           <HoverCard.Trigger asChild>
-            <Link
-              to={`${basePath}/${cell.getValue()}`}
-              className="block"
-            >
+            <Link to={`${basePath}/${cell.getValue()}`} className="block">
               <RecordTableInlineCell>
                 <Badge variant="secondary">
                   {cell.getValue() as string} -{' '}
