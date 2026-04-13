@@ -1,4 +1,3 @@
-import { TR_SIDES } from '@/transactions/types/constants';
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';

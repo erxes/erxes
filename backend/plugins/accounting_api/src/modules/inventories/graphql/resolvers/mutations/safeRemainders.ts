@@ -1,6 +1,6 @@
 import { fixNum } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
+import { JOURNALS } from '~/modules/accounting/@types/constants';
 import { ITrDetail } from '~/modules/accounting/@types/transaction';
 import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants';
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';

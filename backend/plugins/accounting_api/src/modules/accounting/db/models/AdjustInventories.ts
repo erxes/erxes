@@ -198,18 +198,6 @@ export const loadAdjustInvDetailsClass = (
       });
     }
 
-    public static async cacheAdjustInvDetails({
-      adjustId,
-    }: {
-      adjustId: string;
-    }) {
-      await models.AdjustInvDetails.deleteMany({
-        adjustId,
-        remainder: { $eq: 0 },
-        cost: { $eq: 0 },
-      });
-    }
-
     public static async updateAdjustInvDetail(
       args: IAdjustInvDetail & { hasResp: boolean },
     ) {
