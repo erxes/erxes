@@ -28,9 +28,14 @@ export const BroadcastEditor = ({
       className={cn('flex-1 w-full overflow-y-auto')}
     >
       {attribute && (
-        <AttributeInEditor editor={editor} contentType="core:contacts.customers" />
+        <AttributeInEditor
+          editor={editor}
+          contentType="core:contacts.customers"
+        />
       )}
-      {document && <DocumentInEditor editor={editor} contentType="core:broadcast" />}
+      {document && (
+        <DocumentInEditor editor={editor} contentType="core:broadcast" />
+      )}
     </BlockEditor>
   );
 };

@@ -42,7 +42,12 @@ const TraceRow = ({ trace, isLast }: { trace: any; isLast: boolean }) => {
       )}
 
       <div className="relative z-10 shrink-0">
-        <div className={cn('size-6 rounded-full flex items-center justify-center border border-background', config.bgClass)}>
+        <div
+          className={cn(
+            'size-6 rounded-full flex items-center justify-center border border-background',
+            config.bgClass,
+          )}
+        >
           <Icon className={cn('size-4', config.iconClass)} />
         </div>
       </div>
@@ -70,9 +75,7 @@ export const BroadcastTabLogContent = ({ message }: { message: any }) => {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       <div className="flex-1 overflow-y-auto px-8 py-5">
-        {loading && (
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        )}
+        {loading && <p className="text-sm text-muted-foreground">Loading...</p>}
 
         {!loading && traces.length === 0 && (
           <Empty>

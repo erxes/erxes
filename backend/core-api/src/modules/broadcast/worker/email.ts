@@ -67,7 +67,7 @@ export const handleEmailProcessor = async (payload) => {
           const DOMAIN = (
             process.env.DOMAIN || 'http://localhost:4000'
           ).replace('<subdomain>', subdomain);
-          
+
           const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
 
           const htmlContent = blocksToHtml(replacedContent, {
