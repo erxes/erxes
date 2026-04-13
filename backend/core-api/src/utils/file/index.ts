@@ -73,6 +73,8 @@ export const checkFile = async (
     'text/csv',
     'image/svg+xml',
     'text/plain',
+    'text/markdown',
+    'text/x-markdown',
     'application/vnd.ms-excel',
     'audio/mp3',
     'audio/vnd.wave',

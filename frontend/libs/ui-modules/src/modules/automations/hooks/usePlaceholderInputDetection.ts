@@ -18,6 +18,9 @@ type PlaceholderInputTriggerDetectionProps = {
   value: string;
   onChange: (value: string) => void;
   inputRef: RefObject<HTMLInputElement | HTMLTextAreaElement> | null;
+  suggestionPopoverRef?: RefObject<HTMLDivElement> | null;
+  isSelectionPopoverOpen?: boolean;
+  setIsSelectionPopoverOpen?: (open: boolean) => void;
   enabledTypes?: Record<SuggestionType, boolean>;
   suggestionTypeByTriggerMap: Map<string, SuggestionConfig>;
   allowOnlyTriggers?: boolean;
@@ -28,6 +31,9 @@ export function usePlaceHolderInputTriggerDetection({
   value,
   onChange,
   inputRef,
+  suggestionPopoverRef,
+  isSelectionPopoverOpen,
+  setIsSelectionPopoverOpen,
   enabledTypes,
   suggestionTypeByTriggerMap,
   allowOnlyTriggers,
@@ -38,13 +44,47 @@ export function usePlaceHolderInputTriggerDetection({
   const [searchQuery, setSearchQuery] = useState('');
   const [triggerPosition, setTriggerPosition] = useState(0);
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [selectionVersion, setSelectionVersion] = useState(0);
+  const [dismissedTriggerContext, setDismissedTriggerContext] = useState<
+    string | null
+  >(null);
+
+  const getCurrentTriggerContext = useCallback(() => {
+    if (!inputRef?.current) {
+      return null;
+    }
+
+    const cursorPos = inputRef.current.selectionStart || 0;
+    const selectionEnd = inputRef.current.selectionEnd || cursorPos;
+
+    if (selectionEnd !== cursorPos) {
+      return null;
+    }
+
+    const textBeforeCursor = (value || '').slice(0, cursorPos);
+    const lastChar = textBeforeCursor.slice(-1);
+
+    if (!suggestionTypeByTriggerMap.get(lastChar)) {
+      return null;
+    }
+
+    return `${cursorPos}:${textBeforeCursor}`;
+  }, [inputRef, suggestionTypeByTriggerMap, value]);
 
   // Detect trigger characters
   useEffect(() => {
     if (!inputRef?.current) return;
 
     const cursorPos = inputRef.current.selectionStart || 0;
+    const selectionEnd = inputRef.current.selectionEnd || cursorPos;
+
+    if (selectionEnd !== cursorPos) {
+      setShowSuggestions(false);
+      return;
+    }
+
     const textBeforeCursor = (value || '').slice(0, cursorPos);
+    const currentTriggerContext = `${cursorPos}:${textBeforeCursor}`;
     // lock when cursor is inside {{ }} or [[ ]]
     const { inCurly, inBracket } = isInsideLockedExpression(
       value || '',
@@ -71,7 +111,19 @@ export function usePlaceHolderInputTriggerDetection({
     const isEnabled =
       !enabledTypes || (type && enabledTypes[type as SuggestionType]);
 
+    if (
+      dismissedTriggerContext &&
+      dismissedTriggerContext !== currentTriggerContext
+    ) {
+      setDismissedTriggerContext(null);
+    }
+
     if (type && isEnabled) {
+      if (dismissedTriggerContext === currentTriggerContext) {
+        setShowSuggestions(false);
+        return;
+      }
+
       setShowSuggestions(true);
       setSuggestionType(type);
       setSearchQuery('');
@@ -81,21 +133,72 @@ export function usePlaceHolderInputTriggerDetection({
     }
 
     setShowSuggestions(false);
-  }, [value, inputRef, enabledTypes, suggestionTypeByTriggerMap]);
+  }, [
+    value,
+    inputRef,
+    enabledTypes,
+    dismissedTriggerContext,
+    selectionVersion,
+    suggestionTypeByTriggerMap,
+  ]);
+
+  useEffect(() => {
+    const node = inputRef?.current;
+
+    if (!node) {
+      return;
+    }
+
+    const handleSelectionChange = () => {
+      setSelectionVersion((current) => current + 1);
+    };
+
+    const handleDocumentSelectionChange = () => {
+      if (document.activeElement === node) {
+        handleSelectionChange();
+      }
+    };
+
+    node.addEventListener('click', handleSelectionChange);
+    node.addEventListener('keyup', handleSelectionChange);
+    node.addEventListener('select', handleSelectionChange);
+    document.addEventListener('selectionchange', handleDocumentSelectionChange);
+
+    return () => {
+      node.removeEventListener('click', handleSelectionChange);
+      node.removeEventListener('keyup', handleSelectionChange);
+      node.removeEventListener('select', handleSelectionChange);
+      document.removeEventListener(
+        'selectionchange',
+        handleDocumentSelectionChange,
+      );
+    };
+  }, [inputRef]);
 
   // close on blur
   useEffect(() => {
     const node = inputRef?.current;
     if (!node) return;
-    const onBlur = () => setShowSuggestions(false);
+    const onBlur = (event: FocusEvent) => {
+      const nextTarget = event.relatedTarget as Node | null;
+      const container = suggestionPopoverRef?.current;
+
+      if (container && nextTarget && container.contains(nextTarget)) {
+        return;
+      }
+
+      setShowSuggestions(false);
+    };
     node.addEventListener('blur', onBlur);
     return () => node.removeEventListener('blur', onBlur);
-  }, [inputRef]);
+  }, [inputRef, suggestionPopoverRef]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      if (e.key === 'Escape' && showSuggestions) {
+      if (e.key === 'Escape' && (showSuggestions || isSelectionPopoverOpen)) {
+        setDismissedTriggerContext(getCurrentTriggerContext());
         setShowSuggestions(false);
+        setIsSelectionPopoverOpen?.(false);
         e.preventDefault();
         return;
       }
@@ -167,9 +270,12 @@ export function usePlaceHolderInputTriggerDetection({
     },
     [
       showSuggestions,
+      isSelectionPopoverOpen,
       inputRef,
       value,
       allowOnlyTriggers,
+      getCurrentTriggerContext,
+      setIsSelectionPopoverOpen,
       suggestionTypeByTriggerMap,
     ],
   );
@@ -298,8 +404,10 @@ export function usePlaceHolderInputTriggerDetection({
   );
 
   const closeSuggestions = useCallback(() => {
+    setDismissedTriggerContext(getCurrentTriggerContext());
     setShowSuggestions(false);
-  }, []);
+    setIsSelectionPopoverOpen?.(false);
+  }, [getCurrentTriggerContext, setIsSelectionPopoverOpen]);
 
   return {
     showSuggestions,

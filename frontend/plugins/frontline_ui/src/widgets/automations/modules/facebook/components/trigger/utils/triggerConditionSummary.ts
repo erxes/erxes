@@ -8,9 +8,15 @@ const buildConditionValue = (
   bot?: IFacebookBot,
 ) => {
   if (condition.type === 'direct') {
-    return (condition.conditions || [])
+    const keywords = (condition.conditions || [])
       .flatMap(({ keywords = [] }) => keywords.map(({ text }) => text))
-      .join(',');
+      .filter((text) => text.trim().length > 0);
+
+    if (!keywords.length) {
+      return 'Any direct text message';
+    }
+
+    return keywords.join(',');
   }
 
   if (condition.type === 'persistentMenu') {

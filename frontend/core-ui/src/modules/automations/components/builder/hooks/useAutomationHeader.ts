@@ -14,7 +14,7 @@ import { SubmitErrorHandler, useFormContext } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 export const useAutomationHeader = () => {
-  const { handleSubmit, clearErrors } =
+  const { handleSubmit, clearErrors, reset } =
     useFormContext<TAutomationBuilderForm>();
   const navigate = useNavigate();
 
@@ -71,6 +71,7 @@ export const useAutomationHeader = () => {
         });
       },
       onCompleted: ({ automationsAdd }) => {
+        reset(generateValues());
         clearErrors();
         clearNodeErrors();
         toast({

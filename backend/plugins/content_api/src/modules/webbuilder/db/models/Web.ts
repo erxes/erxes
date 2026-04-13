@@ -40,9 +40,22 @@ export const loadWebClass = (models: IModels) => {
     }
 
     public static async updateWeb(_id: string, docFields: IWeb) {
+      const existing = await models.Web.findOne({ _id });
+
+      if (!existing) {
+        throw new Error('Web not found');
+      }
+
+      if (
+        docFields.clientPortalId !== undefined &&
+        docFields.clientPortalId !== existing.clientPortalId
+      ) {
+        throw new Error('clientPortalId cannot be changed for an existing web');
+      }
+
       const update = await models.Web.findOneAndUpdate(
         { _id },
-        { $set: { ...docFields } },
+        { $set: { ...docFields, clientPortalId: existing.clientPortalId } },
         { new: true },
       );
       if (!update) throw new Error('Web not found');

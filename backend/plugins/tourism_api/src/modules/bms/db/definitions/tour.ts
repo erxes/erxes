@@ -87,6 +87,7 @@ export const tourSchema = new Schema({
 
   createdAt: { type: Date, label: 'Created at' },
   modifiedAt: { type: Date, label: 'Modified at' },
+  language: { type: String, optional: true, label: 'language' },
   refNumber: { type: String, optional: true, label: 'refnumber' },
   name: { type: String, optional: true, label: 'name' },
   groupCode: { type: String, optional: true, label: 'groupCode' },

@@ -86,12 +86,14 @@ export const GET_TOUR_GROUPS = gql`
     $status: String
     $date_status: DATE_STATUS
     $categoryIds: [String]
+    $language: String
   ) {
     bmToursGroup(
       branchId: $branchId
       status: $status
       date_status: $date_status
       categoryIds: $categoryIds
+      language: $language
     ) {
       total
       list {
@@ -122,6 +124,8 @@ export const GET_TOUR_DETAIL = gql`
   query BmsTourDetail($id: String!, $language: String) {
     bmsTourDetail(_id: $id, language: $language) {
       _id
+      branchId
+      language
       advanceCheck
       advancePercent
       categoryIds
@@ -188,6 +192,8 @@ export const GET_TOUR_DETAIL = gql`
           singleSupplement
         }
       }
+      createdAt
+      modifiedAt
     }
   }
 `;

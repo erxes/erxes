@@ -67,8 +67,30 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     inboxIntegrationId: inboxId,
   }).sort({ createdAt: 1 });
 
-  if (existingCdr) {
-    conversationId = existingCdr.conversationId;
+  let followmeCdr: any = null;
+  if (!existingCdr && params.action_type?.includes('FOLLOWME')) {
+    const [datePart, timePart] = params.start.split(' ');
+    const cdrStart = new Date(`${datePart}T${timePart}+08:00`);
+    const fmRangeStart = new Date(cdrStart.getTime() - 300 * 1000);
+    const fmRangeEnd = new Date(cdrStart.getTime() + 300 * 1000);
+
+    followmeCdr = await models.CallCdrs.findOne({
+      $or: [{ src: primaryPhone }, { dst: primaryPhone }],
+      conversationId: { $exists: true, $ne: '' },
+      inboxIntegrationId: inboxId,
+      createdAt: { $gte: fmRangeStart, $lte: fmRangeEnd },
+    }).sort({ createdAt: -1 });
+
+    if (followmeCdr) {
+      debugCall(
+        `FOLLOWME merge: reusing conversation ${followmeCdr.conversationId} ` +
+          `from CDR ${followmeCdr._id} for phone=${primaryPhone}`,
+      );
+    }
+  }
+
+  if (existingCdr || followmeCdr) {
+    conversationId = existingCdr?.conversationId || followmeCdr?.conversationId;
     const payload = {
       conversationId,
       content: content,
@@ -81,52 +103,74 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     }
     await createOrUpdateErxesConversation(subdomain, payload);
   } else {
-    // console.log('now date:', new Date(), params.start, typeof params.start);
-
     const [datePart, timePart] = params.start.split(' ');
     const localTimeString = `${datePart}T${timePart}+08:00`;
     const localStart = new Date(localTimeString);
     const startDate = new Date(localStart.getTime());
-    const rangeSeconds = 30;
+    const rangeSeconds = 180;
     const startTime = new Date(startDate.getTime() - rangeSeconds * 1000);
     const endTime = new Date(startDate.getTime() + rangeSeconds * 1000);
 
-    const historySelector: Record<string, any> = {
+    const baseSelector: Record<string, any> = {
       customerPhone: primaryPhone,
       createdAt: { $gte: startTime, $lte: endTime },
     };
 
+    let callHistory: any = null;
     if (extension) {
-      historySelector.extensionNumber = extension;
+      callHistory = await models.CallHistory.findOne({
+        ...baseSelector,
+        extensionNumber: extension,
+      })
+        .sort({ createdAt: -1 })
+        .lean();
     }
 
-    const callHistory = await models.CallHistory.findOne(historySelector)
-      .sort({ createdAt: -1 })
-      .lean();
+    if (!callHistory) {
+      callHistory = await models.CallHistory.findOne(baseSelector)
+        .sort({ createdAt: -1 })
+        .lean();
+    }
 
-    console.log({
-      now: new Date(),
-      paramsStart: params.start,
-      localStart,
-      startDate,
-      startTime,
-      endTime,
-      found: !!callHistory,
-    });
+    debugCall(
+      `CDR match: phone=${primaryPhone}, ext=${extension}, ` +
+        `range=${startTime.toISOString()}~${endTime.toISOString()}, ` +
+        `found=${!!callHistory}, historyId=${callHistory?._id || 'none'}`,
+    );
+
+    let resolvedConversationId = callHistory?.conversationId || '';
+
+    if (!resolvedConversationId) {
+      const fiveMinAgo = new Date(startDate.getTime() - 300 * 1000);
+
+      const recentCdr = await models.CallCdrs.findOne({
+        $or: [{ src: primaryPhone }, { dst: primaryPhone }],
+        conversationId: { $exists: true, $ne: '' },
+        inboxIntegrationId: inboxId,
+        createdAt: { $gte: fiveMinAgo },
+      }).sort({ createdAt: -1 });
+
+      if (recentCdr) {
+        resolvedConversationId = recentCdr.conversationId;
+        debugCall(
+          `Reusing recent conversation ${resolvedConversationId} ` +
+            `for repeated call from phone=${primaryPhone}`,
+        );
+      }
+    }
 
     const erxesPayload = {
       customerId: customer?.erxesApiId,
       integrationId: inboxId,
       content: content,
-      conversationId: callHistory?.conversationId || '',
+      conversationId: resolvedConversationId,
       updatedAt: new Date(),
       owner: operatorPhone || '',
     };
-    const payload = JSON.stringify(erxesPayload);
 
     const newErxesConversation = await createOrUpdateErxesConversation(
       subdomain,
-      payload,
+      erxesPayload,
     );
 
     if (newErxesConversation.status === 'success') {

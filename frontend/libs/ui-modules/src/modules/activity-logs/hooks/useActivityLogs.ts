@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ACTIVITY_LOGS } from '../graphql/queries';
 import { TActivityLog } from '../types';
 import { ACTIVITY_LOG_INSERTED } from '../graphql/subscriptions';
@@ -32,6 +32,23 @@ export type ActivityLogsQueryData = {
   };
 };
 
+const dedupeActivityLogs = (activityLogs: TActivityLog[] = []) => {
+  const seen = new Set<string>();
+
+  return activityLogs.filter((activityLog) => {
+    if (!activityLog?._id) {
+      return true;
+    }
+
+    if (seen.has(activityLog._id)) {
+      return false;
+    }
+
+    seen.add(activityLog._id);
+    return true;
+  });
+};
+
 export const useActivityLogs = (
   {
     targetId,
@@ -57,6 +74,9 @@ export const useActivityLogs = (
       },
       skip: !targetId,
     });
+
+  const inFlightCursorRef = useRef<string | null>(null);
+  const fetchedCursorsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!targetId) {
@@ -106,6 +126,11 @@ export const useActivityLogs = (
     };
   }, [targetId, subscribeToMore, variant]);
 
+  useEffect(() => {
+    inFlightCursorRef.current = null;
+    fetchedCursorsRef.current.clear();
+  }, [targetId, action, limit, targetType, variant]);
+
   const pageInfo = data?.activityLogs.pageInfo || {
     hasNextPage: false,
     hasPreviousPage: false,
@@ -122,28 +147,58 @@ export const useActivityLogs = (
       return;
     }
 
-    fetchMore({
+    const cursor =
+      direction === EnumCursorDirection.FORWARD
+        ? pageInfo?.endCursor
+        : pageInfo?.startCursor;
+
+    if (!cursor) {
+      return;
+    }
+
+    if (
+      inFlightCursorRef.current === cursor ||
+      fetchedCursorsRef.current.has(cursor)
+    ) {
+      return;
+    }
+
+    inFlightCursorRef.current = cursor;
+
+    void fetchMore({
       variables: {
         ...options?.variables,
         variant,
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo?.endCursor
-            : pageInfo?.startCursor,
+        cursor,
         limit: limit || 10,
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
+
+        const mergedActivityLogs = mergeCursorData({
+          direction,
+          fetchMoreResult: fetchMoreResult.activityLogs,
+          prevResult: prev.activityLogs,
+        });
+
         return Object.assign({}, prev, {
-          activityLogs: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.activityLogs,
-            prevResult: prev.activityLogs,
-          }),
+          activityLogs: {
+            ...mergedActivityLogs,
+            list: dedupeActivityLogs(mergedActivityLogs.list),
+          },
         });
       },
-    });
+    })
+      .then(() => {
+        fetchedCursorsRef.current.add(cursor);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (inFlightCursorRef.current === cursor) {
+          inFlightCursorRef.current = null;
+        }
+      });
   };
 
   return {
