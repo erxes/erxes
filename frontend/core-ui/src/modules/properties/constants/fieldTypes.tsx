@@ -6,6 +6,7 @@ import {
   IconCircleCheck,
   IconFile,
   IconNumbers,
+  IconPhone,
   IconRelationManyToMany,
   IconSquareCheck,
   IconTextScan2,
@@ -24,6 +25,7 @@ export const FIELD_TYPES = [
   { value: 'radio', label: 'Radio Button', icon: <IconCircleCheck /> },
   { value: 'relation', label: 'Relation', icon: <IconRelationManyToMany /> },
   { value: 'file', label: 'File', icon: <IconFile /> },
+  { value: 'phone', label: 'Phone', icon: <IconPhone /> },
 ];
 
 export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce((acc, type) => {
