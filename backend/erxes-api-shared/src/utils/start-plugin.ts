@@ -213,13 +213,9 @@ export async function startPlugin(
       message: 'Too many requests from this IP, please try again later.',
     });
 
-    app.get(
-      '/subscriptionPlugin.js',
-      subscriptionFileLimiter,
-      (_req, res) => {
-        res.sendFile(path.resolve(subscriptionPluginPath));
-      },
-    );
+    app.get('/subscriptionPlugin.js', subscriptionFileLimiter, (_req, res) => {
+      res.sendFile(path.resolve(subscriptionPluginPath));
+    });
   }
 
   if (trpcAppRouter) {
