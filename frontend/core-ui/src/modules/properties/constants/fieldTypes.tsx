@@ -10,7 +10,7 @@ import {
   IconRelationManyToMany,
   IconSquareCheck,
   IconTextScan2,
-  IconTextSize
+  IconTextSize,
 } from '@tabler/icons-react';
 
 export const FIELD_TYPES = [
@@ -20,7 +20,11 @@ export const FIELD_TYPES = [
   { value: 'boolean', label: 'True/False', icon: <IconCheck /> },
   { value: 'date', label: 'Date', icon: <IconCalendarEvent /> },
   { value: 'select', label: 'Select', icon: <IconChevronDown /> },
-  { value: 'multiSelect', label: 'Multiple Select', icon: <IconChevronsDown /> },
+  {
+    value: 'multiSelect',
+    label: 'Multiple Select',
+    icon: <IconChevronsDown />,
+  },
   { value: 'check', label: 'Checkbox', icon: <IconSquareCheck /> },
   { value: 'radio', label: 'Radio Button', icon: <IconCircleCheck /> },
   { value: 'relation', label: 'Relation', icon: <IconRelationManyToMany /> },
@@ -28,7 +32,10 @@ export const FIELD_TYPES = [
   { value: 'phone', label: 'Phone', icon: <IconPhone /> },
 ];
 
-export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce((acc, type) => {
-  acc[type.value as keyof typeof acc] = type;
-  return acc;
-}, {} as Record<string, { value: string; label: string; icon: React.ReactNode }>);
+export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce(
+  (acc, type) => {
+    acc[type.value as keyof typeof acc] = type;
+    return acc;
+  },
+  {} as Record<string, { value: string; label: string; icon: React.ReactNode }>,
+);
