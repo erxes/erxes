@@ -94,8 +94,8 @@ export const baseTransactionSchema = z.object({
     z.object({
       dt: undefed(z.array(z.string())),
       ct: undefed(z.array(z.string())),
-      customDt: undefed(z.array(z.string())),
-      customCt: undefed(z.array(z.string())),
+      customDt: z.array(z.string()).nullish(),
+      customCt: z.array(z.string()).nullish(),
     }),
   ),
 

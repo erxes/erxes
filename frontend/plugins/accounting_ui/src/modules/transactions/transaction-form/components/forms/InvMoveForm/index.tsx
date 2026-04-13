@@ -11,6 +11,7 @@ import {
   DescriptionField,
 } from '../../GeneralFormFields';
 import { CustomerFields } from '../../helpers/CustomerFields';
+import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { InventoryForm } from './InventoryForm';
 
 export const InvMoveForm = ({
@@ -94,6 +95,10 @@ export const InvMoveForm = ({
             </Form.Item>
           )}
         />
+      </div>
+
+      <div className="pt-3">
+        <RelAccountsForm form={form} index={index} />
       </div>
 
       <InventoryForm

@@ -5,6 +5,9 @@ import {
   JournalEnum,
 } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { useWatch } from 'react-hook-form';
+import { followTrDocsState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvSaleJournal,
@@ -18,11 +21,9 @@ import {
 } from '../../GeneralFormFields';
 import { CtaxForm } from '../../helpers/CtaxForm';
 import { CustomerFields } from '../../helpers/CustomerFields';
+import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
-import { useAtom } from 'jotai';
-import { followTrDocsState } from '../../../states/trStates';
-import { useWatch } from 'react-hook-form';
 
 export const InvSaleForm = ({
   form,
@@ -45,13 +46,13 @@ export const InvSaleForm = ({
       (followTrDocs || []).map((ftr) =>
         ftr.originId === trDoc._id && ftr.originType === 'invSaleOut'
           ? {
-              ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
-            }
+            ...ftr,
+            details: ftr.details.map((ftrd) => ({
+              ...ftrd,
+              account,
+              accountId: account._id,
+            })),
+          }
           : ftr,
       ),
     );
@@ -65,13 +66,13 @@ export const InvSaleForm = ({
         (ftr) =>
           (ftr.originId === trDoc._id &&
             ftr.originType === 'invSaleCost' && {
-              ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
-            }) ||
+            ...ftr,
+            details: ftr.details.map((ftrd) => ({
+              ...ftrd,
+              account,
+              accountId: account._id,
+            })),
+          }) ||
           ftr,
       ),
     );
@@ -146,6 +147,10 @@ export const InvSaleForm = ({
           isWithTax={false}
           isSameSide={true}
         />
+      </div>
+
+      <div className="pt-3">
+        <RelAccountsForm form={form} index={index} />
       </div>
 
       <InventoryForm form={form} journalIndex={index} />

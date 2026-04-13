@@ -45,7 +45,7 @@ const CurrencyFormBody = ({
 
   const mainSide = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.details.0.side`,
+    name: `trDocs.${journalIndex}.side`,
   });
 
   const diffAmount: number = useMemo(() => {
@@ -112,12 +112,12 @@ const CurrencyFormBody = ({
       ...curr,
       _id: curr?._id || getTempId(),
       journal: TrJournalEnum.EXCHANGE_DIFF,
+      side,
       originId: trDoc._id,
       originType: 'exchangeDiff',
       details: [{
         ...(curr?.details || [{}])[0],
         accountId: (detail?.followInfos as any)?.currencyDiffAccountId ?? '',
-        side,
         amount: diffAmount
       }],
 

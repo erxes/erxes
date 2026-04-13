@@ -34,7 +34,7 @@ export const CtaxForm = ({
 
   const mainSide = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.details.0.side`
+    name: `trDocs.${journalIndex}.side`
   });
 
   const side = useMemo(() => {
@@ -93,12 +93,12 @@ export const CtaxForm = ({
       ...curr,
       _id: curr?._id || getTempId(),
       journal: TrJournalEnum.TAX,
+      side,
       originId: trDoc._id,
       originType: 'ctax',
       details: [{
         ...(curr?.details || [{}])[0],
         accountId: configs?.CtaxPayableAccount,
-        side,
         amount: calcedAmount
       }],
 
