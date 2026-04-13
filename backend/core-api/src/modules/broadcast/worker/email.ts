@@ -13,8 +13,6 @@ export const handleEmailProcessor = async (payload) => {
   const { subdomain, customers, engageMessage, fromEmail, configSet } =
     payload ?? {};
 
-    console.log('handleEmailProcessor', configSet)
-
   const models = await generateModels(subdomain);
 
   const transporter = await createTransporter(models);
@@ -130,10 +128,12 @@ export const handleEmailProcessor = async (payload) => {
 
     if (message) {
       const totalProcessed = STATS.validCustomersCount + STATS.failureCount;
-      const failureRate = totalProcessed > 0 ? STATS.failureCount / totalProcessed : 0;
+      const failureRate =
+        totalProcessed > 0 ? STATS.failureCount / totalProcessed : 0;
 
       if (message.progress.processedBatches >= message.progress.totalBatches) {
-        const finalStatus = failureRate >= FAILURE_THRESHOLD ? 'failed' : 'completed';
+        const finalStatus =
+          failureRate >= FAILURE_THRESHOLD ? 'failed' : 'completed';
 
         await models.EngageMessages.updateOne(
           { _id: engageMessage._id, status: { $eq: 'sending' } },
