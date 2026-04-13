@@ -45,6 +45,15 @@
       }
     },
 
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/backend/gateway"],
+      "options": {
+        "jestConfig": "backend/gateway/jest.config.ts",
+        "passWithNoTests": false
+      }
+    },
+
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/gateway/Dockerfile . -t erxes/erxes-next-gateway"

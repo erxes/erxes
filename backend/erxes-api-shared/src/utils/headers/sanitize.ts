@@ -1,9 +1,21 @@
 import { IncomingHttpHeaders } from 'http';
-import { userHeaderName } from './user';
+import {
+  clientPortalHeaderName,
+  cpUserHeaderName,
+  userHeaderName,
+} from './user';
 import { erxesSubdomainHeaderName } from './subdomain';
 
+export const internalAuthHeaderNames = [
+  erxesSubdomainHeaderName,
+  userHeaderName,
+  clientPortalHeaderName,
+  cpUserHeaderName,
+  'userid',
+] as const;
+
 export function sanitizeHeaders(headers: IncomingHttpHeaders) {
-  delete headers[erxesSubdomainHeaderName];
-  delete headers[userHeaderName];
-  delete headers['userid'];
+  for (const headerName of internalAuthHeaderNames) {
+    delete headers[headerName];
+  }
 }
