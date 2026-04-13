@@ -141,45 +141,79 @@ export const AssignToField = ({ form, index }: ICommonFieldProps) => (
   />
 );
 
-export const BranchField = ({ form, index }: ICommonFieldProps) => (
-  <Form.Field
-    control={form.control}
-    name={`trDocs.${index}.branchId`}
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label>Branch</Form.Label>
-        <Form.Control>
-          <SelectBranches.FormItem
-            mode="single"
-            value={field.value ?? ''}
-            onValueChange={(branch) => field.onChange(branch)}
-          />
-        </Form.Control>
-        <Form.Message />
-      </Form.Item>
-    )}
-  />
-);
+export const BranchField = ({ form, index }: ICommonFieldProps) => {
+  const details = useWatch({
+    control: form.control,
+    name: `trDocs.${index}.details`,
+  });
 
-export const DepartmentField = ({ form, index }: ICommonFieldProps) => (
-  <Form.Field
-    control={form.control}
-    name={`trDocs.${index}.departmentId`}
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label>Department</Form.Label>
-        <Form.Control>
-          <SelectDepartments.FormItem
-            mode="single"
-            value={field.value ?? ''}
-            onValueChange={(department) => field.onChange(department)}
-          />
-        </Form.Control>
-        <Form.Message />
-      </Form.Item>
-    )}
-  />
-);
+  const onChangeBranch = (branchId: string[] | string | undefined) => {
+    form.setValue(
+      `trDocs.${index}.branchId`,
+      branchId as string,
+    );
+    details.forEach((_d, ind) => {
+      form.setValue(`trDocs.${index}.details.${ind}.branchId`, branchId as string,);
+    });
+  };
+
+  return (
+    <Form.Field
+      control={form.control}
+      name={`trDocs.${index}.branchId`}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Branch</Form.Label>
+          <Form.Control>
+            <SelectBranches.FormItem
+              mode="single"
+              value={field.value ?? ''}
+              onValueChange={onChangeBranch}
+            />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  )
+};
+
+export const DepartmentField = ({ form, index }: ICommonFieldProps) => {
+  const details = useWatch({
+    control: form.control,
+    name: `trDocs.${index}.details`,
+  });
+
+  const onChangeDepartment = (departmentId: string[] | string | undefined) => {
+    form.setValue(
+      `trDocs.${index}.departmentId`,
+      departmentId as string,
+    );
+    details.forEach((_d, ind) => {
+      form.setValue(`trDocs.${index}.details.${ind}.departmentId`, departmentId as string);
+    });
+  };
+
+  return (
+    <Form.Field
+      control={form.control}
+      name={`trDocs.${index}.departmentId`}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Department</Form.Label>
+          <Form.Control>
+            <SelectDepartments.FormItem
+              mode="single"
+              value={field.value ?? ''}
+              onValueChange={onChangeDepartment}
+            />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  )
+};
 
 export const DescriptionField = ({ form, index }: ICommonFieldProps) => (
   <Form.Field
