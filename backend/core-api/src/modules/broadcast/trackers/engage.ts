@@ -53,8 +53,6 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
     parsedMessage = message;
   }
 
-  console.log('parsedMessage', parsedMessage)
-
   const { eventType, mail } = parsedMessage;
 
   if (!mail) {
