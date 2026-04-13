@@ -1,6 +1,6 @@
 {
   "name": "erxes-next",
-  "version": "0.0.0",
+  "version": "3.0.13",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
@@ -47,6 +47,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@internationalized/date": "^3.8.2",
     "@module-federation/sdk": "^0.8.9",
+    "@react-pdf/renderer": "^4.3.2",
     "@sendgrid/mail": "^8.1.5",
     "@sniptt/guards": "^0.2.0",
     "@tabler/icons-react": "^3.34.0",
@@ -69,6 +70,7 @@
     "cmdk": "^1.0.4",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "csv-parse": "^6.2.1",
     "dataloader": "^2.2.3",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
@@ -179,6 +181,7 @@
     "@nx/webpack": "20.0.8",
     "@nx/workspace": "20.0.8",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
+    "@release-it/conventional-changelog": "^8.0.0",
     "@rspack/cli": "1.0.5",
     "@rspack/core": "1.0.5",
     "@rspack/dev-server": "1.0.5",
@@ -237,6 +240,7 @@
     "postcss-loader": "^8.2.0",
     "prettier": "^2.8.8",
     "react-refresh": "~0.14.0",
+    "release-it": "^17.0.0",
     "storybook": "8.6.12",
     "tailwindcss": "^4.1.17",
     "testing": "link:@apollo/client/testing",
@@ -249,9 +253,7 @@
     "type-fest": "^4.30.0",
     "typescript": "5.7.3",
     "typescript-eslint": "^8.0.0",
-    "webpack-cli": "^5.1.4",
-    "release-it": "^17.0.0",
-    "@release-it/conventional-changelog": "^8.0.0"
+    "webpack-cli": "^5.1.4"
   },
   "packageManager": "pnpm@9.12.3"
 }

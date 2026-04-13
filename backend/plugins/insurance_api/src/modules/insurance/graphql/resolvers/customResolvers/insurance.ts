@@ -45,3 +45,9 @@ export const InsuranceVendorUser = {
     return user._id || user.id;
   },
 };
+
+export const InsuranceRegion = {
+  id(region: any) {
+    return region._id || region.id;
+  },
+};

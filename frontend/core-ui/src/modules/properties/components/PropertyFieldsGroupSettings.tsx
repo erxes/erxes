@@ -14,7 +14,7 @@ import { PropertyGroupEditSheet } from './PropertyGroupEdit';
 import { activePropertyState } from '../states/activePropertyState';
 import { useSetAtom } from 'jotai';
 import { IFieldGroup } from '../types/Properties';
-import { useFieldGroups } from 'ui-modules';
+import { Can, useFieldGroups } from 'ui-modules';
 
 export const PropertyFieldsGroupSettings = () => {
   const { type } = useParams<{ type: string }>();
@@ -58,12 +58,16 @@ export const PropertyFieldsGroupSettings = () => {
                   </Table.Body>
                 </Table>
                 <div className="flex items-center justify-end mt-2">
-                  <Button variant="secondary" asChild>
-                    <Link to={`/settings/properties/${type}/${group._id}/add`}>
-                      <IconPlus />
-                      Add field
-                    </Link>
-                  </Button>
+                  <Can action="fieldsManage">
+                    <Button variant="secondary" asChild>
+                      <Link
+                        to={`/settings/properties/${type}/${group._id}/add`}
+                      >
+                        <IconPlus />
+                        Add field
+                      </Link>
+                    </Button>
+                  </Can>
                 </div>
               </Collapsible.Content>
             </Collapsible>
@@ -94,28 +98,34 @@ export const FieldGroupSettingsDropdown = ({
   };
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          variant="secondary"
-          size="icon"
-          className="absolute right-0.5 top-0.5 size-6 px-0"
-        >
-          <IconDots />
-        </Button>
-      </DropdownMenu.Trigger>
+      <Can action="fieldGroupsManage">
+        <DropdownMenu.Trigger asChild>
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute right-0.5 top-0.5 size-6 px-0"
+          >
+            <IconDots />
+          </Button>
+        </DropdownMenu.Trigger>
+      </Can>
       <DropdownMenu.Content className="min-w-48">
-        <DropdownMenu.Item onClick={() => setActivePropertyGroup(group)}>
-          <IconEdit />
-          Edit
-        </DropdownMenu.Item>
-        <DropdownMenu.Item
-          className="text-destructive"
-          disabled={loading}
-          onClick={handleDeleteFieldGroup}
-        >
-          {loading ? <Spinner size="sm" /> : <IconTrash />}
-          Delete
-        </DropdownMenu.Item>
+        <Can action="fieldGroupsManage">
+          <DropdownMenu.Item onClick={() => setActivePropertyGroup(group)}>
+            <IconEdit />
+            Edit
+          </DropdownMenu.Item>
+        </Can>
+        <Can action="fieldGroupsManage">
+          <DropdownMenu.Item
+            className="text-destructive"
+            disabled={loading}
+            onClick={handleDeleteFieldGroup}
+          >
+            {loading ? <Spinner size="sm" /> : <IconTrash />}
+            Delete
+          </DropdownMenu.Item>
+        </Can>
       </DropdownMenu.Content>
     </DropdownMenu>
   );

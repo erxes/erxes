@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export const CREATE_TOUR = gql`
   mutation BmsTourAdd(
     $branchId: String
+    $language: String
     $date_status: DATE_STATUS!
     $status: String
     $name: String
@@ -26,14 +27,18 @@ export const CREATE_TOUR = gql`
     $info5: String
     $images: [String]
     $imageThumbnail: String
+    $attachment: AttachmentInput
     $advancePercent: Float
     $advanceCheck: Boolean
     $joinPercent: Float
     $personCost: JSON
     $categoryIds: [String]
+    $pricingOptions: [PricingOptionInput]
+    $translations: [TourTranslationInput]
   ) {
     bmsTourAdd(
       branchId: $branchId
+      language: $language
       date_status: $date_status
       status: $status
       name: $name
@@ -57,11 +62,14 @@ export const CREATE_TOUR = gql`
       info5: $info5
       images: $images
       imageThumbnail: $imageThumbnail
+      attachment: $attachment
       advancePercent: $advancePercent
       advanceCheck: $advanceCheck
       joinPercent: $joinPercent
       personCost: $personCost
       categoryIds: $categoryIds
+      pricingOptions: $pricingOptions
+      translations: $translations
     ) {
       _id
     }
@@ -71,6 +79,7 @@ export const CREATE_TOUR = gql`
 export const EDIT_TOUR = gql`
   mutation BmsTourEdit(
     $id: String!
+    $language: String
     $dateStatus: DATE_STATUS!
     $name: String
     $content: String
@@ -97,10 +106,14 @@ export const EDIT_TOUR = gql`
     $personCost: JSON
     $images: [String]
     $imageThumbnail: String
+    $attachment: AttachmentInput
     $categoryIds: [String]
+    $pricingOptions: [PricingOptionInput]
+    $translations: [TourTranslationInput]
   ) {
     bmsTourEdit(
       _id: $id
+      language: $language
       date_status: $dateStatus
       name: $name
       content: $content
@@ -127,7 +140,10 @@ export const EDIT_TOUR = gql`
       personCost: $personCost
       images: $images
       imageThumbnail: $imageThumbnail
+      attachment: $attachment
       categoryIds: $categoryIds
+      pricingOptions: $pricingOptions
+      translations: $translations
     ) {
       _id
     }
@@ -137,5 +153,25 @@ export const EDIT_TOUR = gql`
 export const REMOVE_TOUR = gql`
   mutation BmsTourRemove($ids: [String]) {
     bmsTourRemove(ids: $ids)
+  }
+`;
+
+export const EDIT_TOUR_ORDER = gql`
+  mutation BmsOrderEdit($id: String!, $order: BmsOrderInput) {
+    bmsOrderEdit(_id: $id, order: $order) {
+      _id
+      branchId
+      customerId
+      tourId
+      amount
+      status
+      note
+      numberOfPeople
+      type
+      additionalCustomers
+      isChild
+      parent
+      createdAt
+    }
   }
 `;

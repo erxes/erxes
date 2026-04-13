@@ -98,7 +98,7 @@ export const documentQueries = {
     for (const serviceName of services) {
       const service = await getPlugin(serviceName);
       const meta = service.config.meta || {};
-      if (meta && meta.documents) {
+      if (meta?.documents) {
         const types = meta.documents.types || [];
 
         for (const type of types) {
@@ -119,18 +119,23 @@ export const documentQueries = {
     { contentType }: { contentType: string },
     { models, subdomain }: IContext,
   ) => {
-    const [serviceName] = contentType.split(':');
+    const [pluginName, moduleName] = contentType.split(':');
 
-    const { editorAttributes } = documents;
+    if (pluginName === 'core') {
+      const { editorAttributes } = documents;
 
-    if (editorAttributes) {
-      return await editorAttributes(models, subdomain, contentType);
+      if (moduleName === 'broadcast') {
+        contentType = 'core:contacts.customers';
+      }
+
+      if (editorAttributes) {
+        return await editorAttributes(models, subdomain, contentType);
+      }
     }
 
     return await sendTRPCMessage({
       subdomain,
-
-      pluginName: serviceName,
+      pluginName,
       method: 'query',
       module: 'documents',
       action: 'editorAttributes',

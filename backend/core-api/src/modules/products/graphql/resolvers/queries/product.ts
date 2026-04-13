@@ -242,7 +242,7 @@ const generateFilter = async (
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
 };
 
-export const productQueries: Record<string, Resolver> = {
+export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Products list
    */
@@ -339,6 +339,14 @@ export const productQueries: Record<string, Resolver> = {
     return await models.Products.findOne({ _id }).lean();
   },
 
+  async cpProductDetail(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return await models.Products.findOne({ _id }).lean();
+  },
+
   async productsTotalCount(
     _parent: undefined,
     params: IProductParams,
@@ -368,16 +376,19 @@ export const productQueries: Record<string, Resolver> = {
     const product: IProductDocument = await models.Products.getProduct({ _id });
 
     if (groupedSimilarity === 'config') {
-      const getRegex = (str) => {
-        return ['*', '.', '_'].includes(str)
-          ? new RegExp(
-              `^${str
-                .replace(/\./g, '\\.')
-                .replace(/\*/g, '.')
-                .replace(/_/g, '.')}.*`,
-              'igu',
-            )
-          : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+      /**
+       * Converts a similarity mask character into a matching regex.
+       * Single wildcard chars (*, _) become "any single char" anchored at start.
+       * Literal '.' matches strings starting with a dot.
+       * All other strings become unanchored escaped-substring matchers.
+       */
+      const WILDCARD_REGEX: Record<string, RegExp> = {
+        '*': /^..*/igu,
+        '.': /^\..*/igu,
+        '_': /^..*/igu,
+      };
+      const getRegex = (str: string): RegExp => {
+        return WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
       const similarityGroups =
@@ -423,7 +434,7 @@ export const productQueries: Record<string, Resolver> = {
         };
       }
 
-      const codeRegexes: any[] = [];
+      const codeRegexes: FilterQuery<IProductDocument>[] = [];
       const fieldIds: string[] = [];
       const groups: { title: string; fieldId: string }[] = [];
 
@@ -462,7 +473,7 @@ export const productQueries: Record<string, Resolver> = {
         }
       }
 
-      const filters: any = {
+      const filters: FilterQuery<IProductDocument> = {
         $and: [
           {
             $or: codeRegexes,
@@ -499,7 +510,7 @@ export const productQueries: Record<string, Resolver> = {
 
     const fieldIds = category.similarities.map((r) => r.fieldId);
 
-    const filters: any = {
+    const filters: FilterQuery<IProductDocument> = {
       $and: [
         {
           categoryId: category._id,
@@ -538,3 +549,8 @@ export const productQueries: Record<string, Resolver> = {
 productQueries.cpProducts.wrapperConfig = {
   forClientPortal: true,
 };
+
+productQueries.cpProductDetail.wrapperConfig = {
+  forClientPortal: true,
+};
+

@@ -4,7 +4,10 @@ const returnFields = `
   _id
   code
   title
+  description
   supervisorId
+  parentId
+  userIds
   userCount
 `;
 

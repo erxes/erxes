@@ -1,4 +1,4 @@
-import { IModels } from '@/connectionResolver';
+import { IModels } from '../../connectionResolver';
 import type { Job } from 'bullmq';
 import {
   AutomationExecutionSetWaitCondition,

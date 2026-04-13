@@ -1,9 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import {
-  cursorPaginate,
-  sendCoreModuleProducer,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { cursorPaginate, sendCoreModuleProducer } from 'erxes-api-shared/utils';
 import {
   splitType,
   TImportExportProducers,
@@ -47,7 +43,7 @@ export const exportQueries = {
   async exportProgress(
     _root: undefined,
     { exportId }: { exportId: string },
-    { models, subdomain, user }: IContext,
+    { models, user }: IContext,
   ) {
     const exportDoc = await models.Exports.getExport(exportId);
 
@@ -89,6 +85,7 @@ export const exportQueries = {
     _root: undefined,
     args: {
       entityType?: string;
+      entityTypes?: string[];
       limit?: number;
       cursor?: string;
       direction?: 'forward' | 'backward';
@@ -96,26 +93,32 @@ export const exportQueries = {
     },
     { models, subdomain, user }: IContext,
   ) {
-    const { entityType, ...cursorArgs } = args;
+    const { entityType, entityTypes, ...cursorArgs } = args;
+    const normalizedEntityTypes = Array.from(
+      new Set([entityType, ...(entityTypes || [])].filter(Boolean) as string[]),
+    );
 
     const query: any = {
       subdomain,
       userId: user._id,
     };
 
-    if (entityType) {
-      query.entityType = entityType;
+    if (normalizedEntityTypes.length === 1) {
+      query.entityType = normalizedEntityTypes[0];
     }
 
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<any>({
-        model: models.Exports as any,
-        params: {
-          ...cursorArgs,
-          orderBy: { createdAt: -1 },
-        },
-        query,
-      });
+    if (normalizedEntityTypes.length > 1) {
+      query.entityType = { $in: normalizedEntityTypes };
+    }
+
+    const { list, totalCount, pageInfo } = await cursorPaginate<any>({
+      model: models.Exports as any,
+      params: {
+        ...cursorArgs,
+        orderBy: { createdAt: -1 },
+      },
+      query,
+    });
 
     return {
       list: list.map(mapExportWithMetrics),

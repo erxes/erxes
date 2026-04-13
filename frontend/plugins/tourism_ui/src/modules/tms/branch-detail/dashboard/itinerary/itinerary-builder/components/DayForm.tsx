@@ -8,6 +8,7 @@ import { IAmenity } from '../../../amenities/types/amenity';
 
 import { ImageUploadGrid } from '../../../../components';
 import { DayAmenitiesSelect } from './DayAmenitiesSelect';
+import { SortableList } from './SortableList';
 
 interface DayFormProps {
   dayIndex: number;
@@ -16,6 +17,11 @@ interface DayFormProps {
   availableAmenities: IAmenity[];
   droppedElements: IElement[];
   onRemoveElement: (elementId: string) => void;
+  onReorderElements: (reorderedElements: IElement[]) => void;
+  labelSuffix?: string;
+  currencySymbol?: string;
+  daysFieldPathPrefix?: string;
+  dayDescriptionKey?: string;
 }
 
 export const DayForm = ({
@@ -25,15 +31,20 @@ export const DayForm = ({
   availableAmenities,
   droppedElements,
   onRemoveElement,
+  onReorderElements,
+  labelSuffix = '',
+  currencySymbol = '$',
+  daysFieldPathPrefix = 'groupDays',
+  dayDescriptionKey = 'description',
 }: DayFormProps) => {
   const dayCost = useMemo(() => {
     return droppedElements.reduce((sum, el) => sum + (el.cost || 0), 0);
   }, [droppedElements]);
 
   return (
-    <div className="p-6 space-y-4 rounded-lg border bg-background">
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2 items-center">
+    <div className="p-6 space-y-4 border rounded-lg bg-background">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <IconGripVertical
             className="cursor-move text-muted-foreground"
             size={20}
@@ -41,9 +52,12 @@ export const DayForm = ({
           <h3 className="text-lg font-semibold">Day {dayIndex + 1}</h3>
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground">
-            day cost: <span className="font-semibold">{dayCost} $</span>
+            day cost:{' '}
+            <span className="font-semibold">
+              {dayCost} {currencySymbol}
+            </span>
           </span>
 
           {dayIndex > 0 && (
@@ -62,11 +76,12 @@ export const DayForm = ({
 
       <Form.Field
         control={control}
-        name={`groupDays.${dayIndex}.title`}
+        name={`${daysFieldPathPrefix}.${dayIndex}.title`}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Day Title <span className="text-destructive">*</span>
+              Day Title<span className="text-primary">{labelSuffix}</span>{' '}
+              <span className="text-destructive">*</span>
             </Form.Label>
 
             <Form.Control>
@@ -84,39 +99,42 @@ export const DayForm = ({
             Please drag and drop from elements
           </p>
         ) : (
-          <div className="p-4 space-y-2 w-full">
-            <div className="space-y-2 w-full">
-              {droppedElements.map((element) => (
-                <div
-                  key={element._id}
-                  className="flex gap-2 items-center px-3 py-2 rounded-md border transition group"
-                >
+          <div className="w-full p-4">
+            <SortableList
+              items={droppedElements.map((el) => ({ ...el, id: el._id }))}
+              onReorder={onReorderElements}
+              keyExtractor={(item) => item.id}
+              renderItem={(item) => (
+                <div className="flex items-center w-full gap-2">
                   <span className="flex-1 min-w-0 text-sm break-all">
-                    {element.name}
+                    {item.name}
                   </span>
 
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
-                    onClick={() => onRemoveElement(element._id)}
+                    onClick={() => onRemoveElement(item._id)}
                     className="shrink-0 text-destructive"
                   >
                     <IconTrash size={16} />
                   </Button>
                 </div>
-              ))}
-            </div>
+              )}
+            />
           </div>
         )}
       </div>
 
       <Form.Field
         control={control}
-        name={`groupDays.${dayIndex}.description`}
+        name={`${daysFieldPathPrefix}.${dayIndex}.${dayDescriptionKey}`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description for customers</Form.Label>
+            <Form.Label>
+              Description for customers
+              <span className="text-primary">{labelSuffix}</span>
+            </Form.Label>
 
             <Form.Control>
               <Editor

@@ -1,17 +1,15 @@
-import moment from 'moment-timezone';
-
-import { Model, Query } from 'mongoose';
-
-import { IModels } from '~/connectionResolvers';
 import {
   IIntegration,
   IIntegrationDocument,
   ILeadData,
   IMessengerData,
   IUiOptions,
-  ITicketData,
 } from '@/inbox/@types/integrations';
 import { integrationSchema } from '@/inbox/db/definitions/integrations';
+import moment from 'moment-timezone';
+import { Model, Query } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
+
 export interface IMessengerIntegration {
   kind: string;
   name: string;

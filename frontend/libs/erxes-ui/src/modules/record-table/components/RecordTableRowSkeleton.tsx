@@ -20,7 +20,7 @@ export const RecordTableRowSkeleton = ({
   const columnCount = table.getRowModel().rows[0]?.getVisibleCells().length;
   const { ref } = useInView({
     onChange: (inView) => {
-      inView && handleInView && handleInView();
+      inView && handleInView?.();
     },
   });
 

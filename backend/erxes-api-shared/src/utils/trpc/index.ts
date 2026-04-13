@@ -1,3 +1,4 @@
+import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
 import {
   createTRPCUntypedClient,
   httpBatchLink,
@@ -7,6 +8,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import { IncomingHttpHeaders } from 'http';
 import { getPlugin, isEnabled } from '../service-discovery';
 import { generateRequestProcess, getEnv } from '../utils';
+import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
 
 export type MessageProps = {
   subdomain: string;
@@ -26,9 +28,15 @@ type CommonTRPCContext = {
   cpUserId?: string;
 };
 
-export type TRPCContext = {
+export type ScopedEventHandlers = ReturnType<typeof createScopedEventHandlers>;
+
+type RequestTRPCContext = {
   subdomain: string;
 } & CommonTRPCContext;
+
+export type TRPCContext = RequestTRPCContext & {
+  eventHandlers: ScopedEventHandlers;
+};
 
 export interface InterMessage {
   subdomain: string;
@@ -68,7 +76,7 @@ export function encodeTRPCContextHeader(
 function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
   subdomain: string;
   method: 'query' | 'mutation';
-  context: TRPCContext;
+  context: CommonTRPCContext;
 } | null {
   const contextHeader = headers[trpcContextHeaderName];
   if (!contextHeader) {
@@ -176,17 +184,35 @@ export const createTRPCContext =
 
     const processInfo = generateRequestProcess();
 
-    const context: { subdomain: string } & TRPCContext = {
+    const context: RequestTRPCContext = {
       ...processInfo,
       ...reqContext,
       subdomain,
     };
 
+    setEventHandlerRuntimeContext(subdomain, {
+      subdomain,
+      processId: context.processId || '',
+      userId: context.userId || '',
+    });
+
+    const eventHandlers = createScopedEventHandlers(subdomain, {
+      subdomain,
+      processId: context.processId || '',
+      userId: context.userId || '',
+    });
+
     if (trpcContext) {
-      return await trpcContext(subdomain, context);
+      return await trpcContext(subdomain, {
+        ...context,
+        eventHandlers,
+      });
     }
 
-    return context as TContext & { subdomain: string } & TRPCContext;
+    return {
+      ...(context as TContext & RequestTRPCContext),
+      eventHandlers,
+    };
   };
 
 export type ITRPCContext<TExtraContext = object> = Awaited<

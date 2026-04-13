@@ -154,7 +154,7 @@ export const sendNotifications = async (
       throw new Error('Error: Conversation or Conversation ID is undefined');
     }
 
-    if (!user || !user._id) {
+    if (!user?._id) {
       throw new Error('Error: User or User ID is undefined');
     }
 
@@ -162,9 +162,7 @@ export const sendNotifications = async (
       createdUser: user,
       link: `/inbox/index?_id=${conversation._id}`,
       title: 'Conversation updated',
-      content: messageContent
-        ? messageContent
-        : conversation.content || 'Conversation updated',
+      content: messageContent || conversation.content || 'Conversation updated',
       notifType: type,
       receivers: conversationNotifReceivers(conversation, user._id),
       action: 'updated conversation',

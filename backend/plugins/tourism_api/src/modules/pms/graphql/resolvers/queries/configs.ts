@@ -1,5 +1,5 @@
 import { Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const configQueries: Record<string, Resolver> = {

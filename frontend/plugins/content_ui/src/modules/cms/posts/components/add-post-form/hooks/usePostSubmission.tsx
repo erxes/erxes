@@ -25,6 +25,7 @@ interface BlockContent {
     level?: number;
     url?: string;
     caption?: string;
+    imageStyle?: 'normal' | 'wide';
   };
 }
 
@@ -104,6 +105,9 @@ const escapeHtml = (str: string): string =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+const getImageMaxWidth = (imageStyle: 'normal' | 'wide'): number =>
+  imageStyle === 'wide' ? 1080 : 720;
+
 const blocksToHtml = (raw: string): string => {
   try {
     const blocks = JSON.parse(raw) as BlockContent[];
@@ -143,11 +147,15 @@ const blocksToHtml = (raw: string): string => {
           const url = block.props?.url;
           if (!url) return '';
           const caption = block.props?.caption || '';
+          const safeCaption = escapeHtml(caption);
+          const imageStyle =
+            block.props?.imageStyle === 'wide' ? 'wide' : 'normal';
+          const maxWidth = getImageMaxWidth(imageStyle);
           const img = `<img src="${url}"${
-            caption ? ` alt="${caption}"` : ''
-          } />`;
+            safeCaption ? ` alt="${safeCaption}"` : ''
+          } data-image-style="${imageStyle}" class="erxes-editor-image erxes-editor-image--${imageStyle}" style="width:100%;max-width:${maxWidth}px;height:auto;display:block;margin:0 auto;" />`;
           return caption
-            ? `<figure>${img}<figcaption>${caption}</figcaption></figure>`
+            ? `<figure data-image-style="${imageStyle}" class="erxes-editor-image erxes-editor-image--${imageStyle}" style="width:100%;max-width:${maxWidth}px;margin:0 auto;">${img}<figcaption>${safeCaption}</figcaption></figure>`
             : img;
         }
 
@@ -159,7 +167,22 @@ const blocksToHtml = (raw: string): string => {
   }
 };
 
+/**
+ * Extracts plain text from HTML for derived fields (for example, fallback title).
+ *
+ * Uses a DOM parser instead of regex-only stripping to avoid malformed HTML edge
+ * cases where crafted input can bypass simplistic replacements.
+ */
 const extractText = (html: string): string => {
+  if (!html) {
+    return '';
+  }
+
+  if (typeof DOMParser !== 'undefined') {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return (doc.body.textContent ?? '').trim();
+  }
+
   return html.replace(/<[^>]*>/g, '').trim();
 };
 

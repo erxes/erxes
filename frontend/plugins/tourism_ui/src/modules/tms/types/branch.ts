@@ -25,6 +25,8 @@ export interface IBranch {
   erxesAppToken: string;
   permissionConfig: any;
   uiOptions: any;
+  language?: string;
+  languages?: string[];
   managers: IBranchUser[];
   generalManagers: IBranchUser[];
 }

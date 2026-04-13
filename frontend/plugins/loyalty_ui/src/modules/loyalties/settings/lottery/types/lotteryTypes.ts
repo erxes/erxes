@@ -33,4 +33,6 @@ export interface ILottery {
   kind?: string;
   maxScore?: number;
   buyScore?: number;
+  numberFormat?: string;
+  finishDateOfUse?: string;
 }

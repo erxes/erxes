@@ -3,9 +3,10 @@
     "publish": false
   },
   "git": {
-    "commitMessage": "chore: release v${version}",
-    "tagName": "v${version}",
-    "tagAnnotation": "Release v${version}"
+    "commitMessage": "release ${version}",
+    "tagName": "${version}",
+    "tagAnnotation": "Release ${version}",
+    "tagMatch": "3.*"
   },
   "github": {
     "release": true,

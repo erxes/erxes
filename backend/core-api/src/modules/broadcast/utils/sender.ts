@@ -1,5 +1,27 @@
+import { getEnv } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
+
+const getConfigSet = async (models: IModels) => {
+  let configSet = await getValueAsString(
+    models,
+    'AWS_SES_CONFIG_SET',
+    'AWS_SES_CONFIG_SET',
+    '',
+  );
+
+  if (!configSet) {
+    const VERSION = getEnv({ name: 'VERSION', defaultValue: '' });
+
+    if (VERSION === 'saas') {
+      configSet = getEnv({ name: 'AWS_SES_CONFIG_SET', defaultValue: 'erxes' });
+    } else {
+      configSet = 'erxes';
+    }
+  }
+
+  return configSet;
+};
 import { ICustomer, IEmailParams, ISmsParams } from '../@types';
 import { CAMPAIGN_KINDS } from '../constants';
 import { getConfig, getConfigs, setCampaignCount } from './common';
@@ -16,12 +38,7 @@ export const start = async (
 
   const configs = await getConfigs(models);
 
-  const configSet = await getValueAsString(
-    models,
-    'AWS_SES_CONFIG_SET',
-    'AWS_SES_CONFIG_SET',
-    'erxes',
-  );
+  const configSet = await getConfigSet(models);
 
   await models.Stats.findOneAndUpdate(
     { engageMessageId },
@@ -281,12 +298,7 @@ export const sendEngageEmail = async (
   const transporter = await createTransporter(models);
   const { customer } = data;
 
-  const configSet = await getValueAsString(
-    models,
-    'AWS_SES_CONFIG_SET',
-    'AWS_SES_CONFIG_SET',
-    'erxes',
-  );
+  const configSet = await getConfigSet(models);
 
   try {
     await transporter.sendMail(

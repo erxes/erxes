@@ -1,7 +1,6 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
-  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -11,11 +10,10 @@ import { SpinNameCell } from '../spin-detail/components/SpinNameCell';
 import {
   IconCalendar,
   IconCalendarEvent,
-  IconDots,
   IconHash,
-  IconSettings,
   IconTag,
 } from '@tabler/icons-react';
+import { spinMoreColumn } from './SpinMoreColumn';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -38,16 +36,15 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const spinColumns: (
-  editStatus: (options: any) => void,
-) => ColumnDef<ISpin>[] = (editStatus) => [
+export const spinColumns: ColumnDef<ISpin>[] = [
+  spinMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ISpin>,
 
   {
     id: 'title',
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <SpinNameCell
           spin={cell.row.original}
@@ -63,7 +60,7 @@ export const spinColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />
@@ -78,7 +75,7 @@ export const spinColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconCalendarEvent} label="End Date" />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />
@@ -105,23 +102,5 @@ export const spinColumns: (
       );
     },
     size: 150,
-  },
-
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSettings} label="Actions" />
-    ),
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <Button className="mx-auto" variant="ghost" size="sm">
-            <IconDots className="h-4 w-4" />
-          </Button>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
   },
 ];

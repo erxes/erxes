@@ -1,15 +1,14 @@
-import { IModels } from '~/connectionResolvers';
-import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
-import { ICPUserDocument } from '@/clientportal/types/cpUser';
-import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
+import { AuthenticationError, ValidationError } from '@/clientportal/services/errorHandler';
 import {
   SocialAuthProvider,
   SocialUserProfile,
   getSocialUserProfile,
 } from '@/clientportal/services/helpers/socialAuth';
+import { getCPUserByIdOrThrow, updateLastLogin } from '@/clientportal/services/helpers/userUtils';
+import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import { ICPUserDocument } from '@/clientportal/types/cpUser';
+import { IModels } from '~/connectionResolvers';
 import { handleCPContacts } from './contactService';
-import { AuthenticationError, ValidationError } from '@/clientportal/services/errorHandler';
-import { getCPUserByIdOrThrow } from '@/clientportal/services/helpers/userUtils';
 
 function buildSocialAuthQuery(
   provider: SocialAuthProvider,

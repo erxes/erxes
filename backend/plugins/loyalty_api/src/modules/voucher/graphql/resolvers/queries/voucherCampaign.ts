@@ -15,8 +15,14 @@ const generateFilter = async (
 ): Promise<FilterQuery<IVoucherCampaign>> => {
   const filter: FilterQuery<IVoucherCampaign> = {};
 
-  const { searchValue, status, voucherType, equalTypeCampaignId, _ids } =
-    params || {};
+  const {
+    searchValue,
+    status,
+    voucherType,
+    equalTypeCampaignId,
+    _ids,
+    excludeVoucherTypes,
+  } = params || {};
 
   if (equalTypeCampaignId) {
     const campaign = await models.VoucherCampaigns.findOne({
@@ -40,8 +46,14 @@ const generateFilter = async (
     filter.voucherType = voucherType;
   }
 
+  if (excludeVoucherTypes?.length) {
+    filter.voucherType = { $nin: excludeVoucherTypes };
+  }
+
   if (status) {
     filter.status = status;
+  } else {
+    filter.status = { $ne: CAMPAIGN_STATUS.TRASH };
   }
 
   return filter;

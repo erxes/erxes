@@ -1,4 +1,5 @@
 import { ICustomer, ICustomerDocument } from 'erxes-api-shared/core-types';
+import { getEnv } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
@@ -44,14 +45,14 @@ const sendBroadcastEmail = async ({
 
   const fromUser = await models.Users.findOne({ _id: fromUserId }).lean();
 
-  if (!fromUser || !fromUser?.email) {
+  if (!fromUser?.email) {
     throw new Error('Invalid from user');
   }
 
   const configSet = await getValueAsString(
     models,
     'BROADCAST_AWS_SES_CONFIG_SET',
-    'BROADCAST_AWS_SES_CONFIG_SET',
+    'AWS_SES_CONFIG_SET',
     'erxes',
   );
 
@@ -129,6 +130,7 @@ const sendBroadcastEmail = async ({
           customers,
           engageMessage,
           fromEmail: fromUser.email,
+          configSet,
           subdomain,
         },
       },

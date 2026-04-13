@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/main.ts",
     "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "start": "node -r tsconfig-paths/register dist/src/main.js"
+    "start": "node dist/src/main.js"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +24,8 @@
     "express-rate-limit": "^8.0.1",
     "jsonwebtoken": "^9.0.2",
     "https-proxy-agent": "^7.0.6",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {}
 }

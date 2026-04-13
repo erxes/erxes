@@ -73,6 +73,12 @@ const CitizenInsurancePage = lazy(() =>
   })),
 );
 
+const RegionsPage = lazy(() =>
+  import('~/pages/insurance/RegionsPage').then((module) => ({
+    default: module.RegionsPage,
+  })),
+);
+
 const ContractPdfEditorPage = lazy(() =>
   import('~/pages/insurance/ContractPdfEditorPage').then((module) => ({
     default: module.ContractPdfEditorPage,
@@ -129,6 +135,7 @@ const insuranceMain = () => {
         <Route path="/customers" element={<CustomersPage />} />
         <Route path="/car-insurance" element={<CarInsurancePage />} />
         <Route path="/citizen-insurance" element={<CitizenInsurancePage />} />
+        <Route path="/regions" element={<RegionsPage />} />
       </Routes>
     </Suspense>
   );

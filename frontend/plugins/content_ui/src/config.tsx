@@ -1,6 +1,5 @@
-import { IconLibraryPhoto } from '@tabler/icons-react';
+import { IconBooks, IconLibraryPhoto } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
-import { IconBooks } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 
 const ContentNavigation = lazy(() =>

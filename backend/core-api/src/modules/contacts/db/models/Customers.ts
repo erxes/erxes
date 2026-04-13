@@ -9,6 +9,7 @@ import {
 import { validSearchText } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { generateCustomerUpdateActivityLogs } from '../../meta/activity-log/customers';
 import {
   ICreateMessengerCustomerParams,
   IGetCustomerParams,
@@ -18,7 +19,6 @@ import {
 } from '../../@types/customer';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
-import { generateCustomerActivityLogs } from '../../utils/activityLogs';
 
 interface ICustomerFieldsInput {
   primaryEmail?: string;
@@ -245,10 +245,10 @@ export const loadCustomerClass = (
           currentDocument: updatedCustomer.toObject(),
           prevDocument: oldCustomer,
         });
-        generateCustomerActivityLogs(
+        generateCustomerUpdateActivityLogs(
+          { subdomain, models },
           oldCustomer,
           updatedCustomer,
-          models,
           createActivityLog,
         );
       }
@@ -465,7 +465,10 @@ export const loadCustomerClass = (
     }: ICreateMessengerCustomerParams) {
       doc = this.fixListFields(doc, customData);
 
-      const { propertiesData } = await models.Fields.generatePropertiesData(customData, 'core:customer');
+      const { propertiesData } = await models.Fields.generatePropertiesData(
+        customData,
+        'core:customer',
+      );
 
       return this.createCustomer({
         ...doc,
@@ -489,7 +492,10 @@ export const loadCustomerClass = (
 
       doc = this.fixListFields(doc, customData, customer);
 
-      const { propertiesData } = await models.Fields.generatePropertiesData(customData, 'core:customer');
+      const { propertiesData } = await models.Fields.generatePropertiesData(
+        customData,
+        'core:customer',
+      );
 
       const modifier: any = {
         ...doc,
@@ -507,7 +513,6 @@ export const loadCustomerClass = (
         modifier.propertiesData = propertiesData;
       }
 
-      
       await models.Customers.updateOne({ _id }, { $set: modifier });
 
       const updateCustomer = await models.Customers.getCustomer(_id);
@@ -522,10 +527,10 @@ export const loadCustomerClass = (
         currentDocument: { ...pssDoc, ...modifier },
         prevDocument: customer,
       });
-      generateCustomerActivityLogs(
+      generateCustomerUpdateActivityLogs(
+        { subdomain, models },
         customer,
         updateCustomer,
-        models,
         createActivityLog,
       );
 
@@ -606,10 +611,10 @@ export const loadCustomerClass = (
           currentDocument: updatedCustomer,
           prevDocument: customer,
         });
-        generateCustomerActivityLogs(
+        generateCustomerUpdateActivityLogs(
+          { subdomain, models },
           customer,
           updatedCustomer,
-          models,
           createActivityLog,
         );
       }
@@ -693,10 +698,10 @@ export const loadCustomerClass = (
           currentDocument: updatedCustomer.toObject(),
           prevDocument: customer.toObject(),
         });
-        generateCustomerActivityLogs(
+        generateCustomerUpdateActivityLogs(
+          { subdomain, models },
           customer,
           updatedCustomer,
-          models,
           createActivityLog,
         );
       }
@@ -724,10 +729,10 @@ export const loadCustomerClass = (
           currentDocument: updatedCustomer.toObject(),
           prevDocument: customer,
         });
-        generateCustomerActivityLogs(
+        generateCustomerUpdateActivityLogs(
+          { subdomain, models },
           customer,
           updatedCustomer,
-          models,
           createActivityLog,
         );
       }

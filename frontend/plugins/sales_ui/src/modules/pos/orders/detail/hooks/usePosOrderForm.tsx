@@ -25,16 +25,17 @@ const buildDefaultValues = (
 ): Record<string, number> => {
   const normalized = normalizePaidAmounts(paidAmounts);
 
-  return {
-    ...(summary || {}),
-    ...normalized.reduce(
-      (acc, { type, amount }) => {
-        acc[type] = amount;
-        return acc;
-      },
-      {} as Record<string, number>,
-    ),
-  };
+  const result: Record<string, number> = {};
+
+  Object.entries(summary || {}).forEach(([key, value]) => {
+    result[key] = Number(value) || 0;
+  });
+
+  normalized.forEach(({ type, amount }) => {
+    result[type] = amount;
+  });
+
+  return result;
 };
 
 export const usePosOrderForm = (paidAmounts?: any, summary?: any) => {
@@ -46,10 +47,17 @@ export const usePosOrderForm = (paidAmounts?: any, summary?: any) => {
     }
   }, [paidAmounts]);
 
+  const summaryKey = React.useMemo(() => {
+    try {
+      return JSON.stringify(summary);
+    } catch {
+      return '';
+    }
+  }, [summary]);
+
   const defaultValues = React.useMemo(
     () => buildDefaultValues(paidAmounts, summary),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [paidAmountsKey, summary],
+    [paidAmounts, summary],
   );
 
   const methods = useForm<any>({
@@ -59,8 +67,7 @@ export const usePosOrderForm = (paidAmounts?: any, summary?: any) => {
 
   React.useEffect(() => {
     methods.reset(defaultValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paidAmountsKey]);
+  }, [defaultValues, methods, paidAmountsKey, summaryKey]);
 
   return { methods };
 };

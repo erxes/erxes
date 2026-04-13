@@ -11,7 +11,6 @@ import {
   ActivityLogs,
   AddInternalNote,
   FieldsInDetail,
-  internalNoteCustomActivity,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { CustomerDetailGeneral } from './CustomerDetailGeneral';
@@ -52,36 +51,52 @@ export const CustomerDetail = () => {
           <div className="flex-1 flex flex-col overflow-hidden">
             <CustomerDetailGeneral />
             <Separator />
-            <ScrollArea className="h-full">
+            <div className="flex-1 min-h-0">
               <Tabs
                 value={selectedTab ?? 'overview'}
                 onValueChange={setSelectedTab}
+                className="h-full"
               >
-                <Tabs.Content value="overview">
-                  <CustomerDetailFields />
-                  {!!customerDetail?._id && (
-                    <div className="flex flex-col mb-12">
-                      <ActivityLogs
-                        targetId={customerDetail?._id || ''}
-                        customActivities={[internalNoteCustomActivity]}
-                      />
-                      <AddInternalNote
-                        contentTypeId={customerDetail._id}
-                        contentType="core:customer"
+                <Tabs.Content value="overview" className="h-full">
+                  <ScrollArea className="h-full">
+                    <CustomerDetailFields />
+                  </ScrollArea>
+                </Tabs.Content>
+                <Tabs.Content value="properties" className="h-full">
+                  <ScrollArea className="h-full">
+                    <div className="p-6">
+                      <FieldsInDetail
+                        fieldContentType="core:customer"
+                        propertiesData={customerDetail?.propertiesData || {}}
+                        mutateHook={useCustomerCustomFieldEdit}
+                        id={customerDetail?._id || ''}
                       />
                     </div>
-                  )}
+                  </ScrollArea>
                 </Tabs.Content>
-                <Tabs.Content value="properties" className="p-6">
-                  <FieldsInDetail
-                    fieldContentType="core:customer"
-                    propertiesData={customerDetail?.propertiesData || {}}
-                    mutateHook={useCustomerCustomFieldEdit}
-                    id={customerDetail?._id || ''}
-                  />
+                <Tabs.Content value="activity" className="h-full">
+                  <div className="h-full flex flex-col">
+                    <ScrollArea className="flex-1 min-h-0">
+                      <div className="pt-3">
+                        <ActivityLogs
+                          targetId={customerDetail?._id || ''}
+                          variant="backward"
+                        />
+                      </div>
+                    </ScrollArea>
+
+                    {!!customerDetail?._id && (
+                      <div className="shrink-0 pb-6 pt-2">
+                        <AddInternalNote
+                          contentTypeId={customerDetail._id}
+                          contentType="core:customer"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </Tabs.Content>
               </Tabs>
-            </ScrollArea>
+            </div>
           </div>
           <RelationWidgetSideTabs
             contentId={open || ''}

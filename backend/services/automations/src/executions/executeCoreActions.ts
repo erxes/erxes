@@ -1,10 +1,11 @@
-import { executeEmailAction } from '@/executions/actions/emailAction/executeEmailAction';
-import { executeDelayAction } from '@/executions/actions/executeDelayAction';
-import { executeIfCondition } from '@/executions/actions/executeIfCondition';
-import { executeSetPropertyAction } from '@/executions/actions/executeSetPropertyAction';
-import { executeWaitEvent } from '@/executions/actions/executeWaitEvent';
-import { executeOutgoingWebhook } from '@/executions/actions/webhook/outgoing/outgoingWebhook';
-import { executeFindObjectAction } from '@/executions/executeFindObjectAction';
+import { executeEmailAction } from './actions/emailAction/executeEmailAction';
+import { executeAiAgentAction } from './actions/executeAiAgentAction';
+import { executeDelayAction } from './actions/executeDelayAction';
+import { executeIfCondition } from './actions/executeIfCondition';
+import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
+import { executeWaitEvent } from './actions/executeWaitEvent';
+import { executeOutgoingWebhook } from './actions/webhook/outgoing/outgoingWebhook';
+import { executeFindObjectAction } from './executeFindObjectAction';
 import {
   AUTOMATION_CORE_ACTIONS,
   IAutomationAction,
@@ -32,7 +33,7 @@ export const executeCoreActions = async (
 
   let actionResponse: any = null;
   if (actionType === AUTOMATION_CORE_ACTIONS.DELAY) {
-    await executeDelayAction(subdomain, execution, action, execAction);
+    await executeDelayAction(subdomain, execution, action);
     return { actionResponse, shouldBreak: true };
   }
 
@@ -49,7 +50,7 @@ export const executeCoreActions = async (
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.WAIT_EVENT) {
-    await executeWaitEvent(subdomain, execution, action, execAction);
+    actionResponse = await executeWaitEvent(subdomain, execution, action);
 
     return { actionResponse, shouldBreak: true };
   }
@@ -57,10 +58,11 @@ export const executeCoreActions = async (
   if (actionType === AUTOMATION_CORE_ACTIONS.FIND_OBJECT) {
     actionResponse = await executeFindObjectAction(
       subdomain,
+      triggerType,
+      targetType,
       execution,
       action,
       execAction,
-      actionsMap,
     );
   }
 
@@ -93,6 +95,16 @@ export const executeCoreActions = async (
       target: execution.target,
       action,
     });
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.AI_AGENT) {
+    const aiResponse = await executeAiAgentAction(subdomain, execution, action);
+
+    if (aiResponse?.nextActionId) {
+      execAction.nextActionId = aiResponse.nextActionId;
+    }
+
+    actionResponse = aiResponse?.result ?? aiResponse;
   }
   return { actionResponse, shouldBreak };
 };

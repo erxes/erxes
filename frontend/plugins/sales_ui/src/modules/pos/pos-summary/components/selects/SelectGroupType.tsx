@@ -162,7 +162,7 @@ const SelectGroupTypeContent = () => {
 
 export const SelectGroupTypeFilterItem = () => {
   return (
-    <Filter.Item value="groupType">
+    <Filter.Item value="groupField">
       <IconTag />
       Group Type
     </Filter.Item>
@@ -179,12 +179,12 @@ export const SelectGroupTypeFilterView = ({
   mode?: 'single' | 'multiple';
 }) => {
   const [groupType, setGroupType] = useQueryState<string[] | string>(
-    queryKey || 'groupType',
+    queryKey || 'groupField',
   );
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={queryKey || 'groupType'}>
+    <Filter.View filterKey={queryKey || 'groupField'}>
       <SelectGroupTypeProvider
         mode={mode}
         value={groupType || (mode === 'single' ? '' : [])}
@@ -210,12 +210,12 @@ export const SelectGroupTypeFilterBar = ({
   mode?: 'single' | 'multiple';
 }) => {
   const [groupType, setGroupType] = useQueryState<string[] | string>(
-    'groupType',
+    'groupField',
   );
   const [open, setOpen] = useState(false);
 
   return (
-    <Filter.BarItem queryKey={'groupType'}>
+    <Filter.BarItem queryKey={'groupField'}>
       <Filter.BarName>
         <IconTag />
         Group Type
@@ -235,7 +235,7 @@ export const SelectGroupTypeFilterBar = ({
       >
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={'groupType'}>
+            <Filter.BarButton filterKey={'groupField'}>
               <SelectGroupTypeValue />
             </Filter.BarButton>
           </Popover.Trigger>

@@ -14,6 +14,7 @@ export const GET_TOURS = gql`
     $sortMode: String
     $aggregationPipeline: [JSON]
     $categoryIds: [String]
+    $language: String
   ) {
     bmsTours(
       branchId: $branchId
@@ -28,6 +29,7 @@ export const GET_TOURS = gql`
       sortMode: $sortMode
       aggregationPipeline: $aggregationPipeline
       categoryIds: $categoryIds
+      language: $language
     ) {
       list {
         _id
@@ -58,18 +60,40 @@ export const GET_TOURS = gql`
   }
 `;
 
+export const GET_TOUR_ORDER_DETAIL = gql`
+  query BmsOrderDetail($id: String!) {
+    bmsOrderDetail(_id: $id) {
+      _id
+      branchId
+      customerId
+      tourId
+      amount
+      status
+      note
+      numberOfPeople
+      type
+      additionalCustomers
+      isChild
+      parent
+      createdAt
+    }
+  }
+`;
+
 export const GET_TOUR_GROUPS = gql`
   query BmToursGroup(
     $branchId: String
     $status: String
     $date_status: DATE_STATUS
     $categoryIds: [String]
+    $language: String
   ) {
     bmToursGroup(
       branchId: $branchId
       status: $status
       date_status: $date_status
       categoryIds: $categoryIds
+      language: $language
     ) {
       total
       list {
@@ -97,9 +121,11 @@ export const GET_TOUR_GROUPS = gql`
 `;
 
 export const GET_TOUR_DETAIL = gql`
-  query BmsTourDetail($id: String!) {
-    bmsTourDetail(_id: $id) {
+  query BmsTourDetail($id: String!, $language: String) {
+    bmsTourDetail(_id: $id, language: $language) {
       _id
+      branchId
+      language
       advanceCheck
       advancePercent
       categoryIds
@@ -114,6 +140,12 @@ export const GET_TOUR_DETAIL = gql`
       groupSize
       imageThumbnail
       images
+      attachment {
+        url
+        name
+        type
+        size
+      }
       info1
       info2
       info3
@@ -127,6 +159,88 @@ export const GET_TOUR_DETAIL = gql`
       startDate
       status
       categoryIds
+      pricingOptions {
+        _id
+        title
+        minPersons
+        maxPersons
+        pricePerPerson
+        accommodationType
+        domesticFlightPerPerson
+        singleSupplement
+        note
+      }
+      translations {
+        _id
+        objectId
+        language
+        name
+        refNumber
+        content
+        info1
+        info2
+        info3
+        info4
+        info5
+        pricingOptions {
+          optionId
+          title
+          accommodationType
+          note
+          pricePerPerson
+          domesticFlightPerPerson
+          singleSupplement
+        }
+      }
+      createdAt
+      modifiedAt
+    }
+  }
+`;
+
+export const GET_TOUR_ORDERS = gql`
+  query BmsOrders(
+    $tourId: String
+    $orderBy: JSON
+    $sortMode: String
+    $aggregationPipeline: [JSON]
+    $direction: CURSOR_DIRECTION
+    $cursorMode: CURSOR_MODE
+    $cursor: String
+    $limit: Int
+  ) {
+    bmsOrders(
+      tourId: $tourId
+      orderBy: $orderBy
+      sortMode: $sortMode
+      aggregationPipeline: $aggregationPipeline
+      direction: $direction
+      cursorMode: $cursorMode
+      cursor: $cursor
+      limit: $limit
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      list {
+        _id
+        branchId
+        customerId
+        tourId
+        amount
+        status
+        note
+        numberOfPeople
+        type
+        additionalCustomers
+        isChild
+        parent
+        createdAt
+      }
     }
   }
 `;

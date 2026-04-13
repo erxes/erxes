@@ -1,5 +1,9 @@
 import { RecordTable } from 'erxes-ui';
-import { PosSummaryColumns } from './PosSummaryColumns';
+import {
+  firstPosSummaryColumns,
+  secondPosSummaryColumns,
+  generateOtherPaymentColumns,
+} from './PosSummaryColumns';
 import { PosSummaryCommandBar } from '@/pos/pos-summary/components/pos-summary-command-bar/PosSummaryCommandBar';
 import { usePosSummaryList } from '~/modules/pos/pos-summary/hooks/UsePosSummaryList';
 import { IconShoppingCartX } from '@tabler/icons-react';
@@ -7,19 +11,26 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
   const { posSummaryList, handleFetchMore, loading, pageInfo } =
     usePosSummaryList({ posId });
-
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const allColumns = [
+    ...firstPosSummaryColumns,
+    ...generateOtherPaymentColumns(posSummaryList?.[0]?.amounts || {}),
+    ...secondPosSummaryColumns,
+  ];
+  const columnsKey = allColumns.map((c) => c.id || '').join('|');
   return (
     <RecordTable.Provider
-      columns={PosSummaryColumns}
+      key={columnsKey}
+      columns={allColumns}
       data={posSummaryList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTable.CursorProvider
-        hasPreviousPage={pageInfo?.hasPreviousPage}
-        hasNextPage={pageInfo?.hasNextPage}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
         dataLength={posSummaryList?.length}
-        sessionKey="posSummary_cursor"
+        sessionKey="pos_summary_cursor"
       >
         <RecordTable>
           <RecordTable.Header />
@@ -27,8 +38,11 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
+            {loading ? (
+              <RecordTable.RowSkeleton rows={32} />
+            ) : (
+              <RecordTable.RowList />
+            )}
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />

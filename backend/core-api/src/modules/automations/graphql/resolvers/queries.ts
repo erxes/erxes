@@ -1,11 +1,9 @@
 import {
-  AUTOMATION_ACTIONS,
-  AUTOMATION_CORE_PROPERTY_TYPES,
   AUTOMATION_STATUSES,
-  AUTOMATION_TRIGGERS,
   AutomationConstants,
   IAutomationDocument,
   IAutomationExecutionDocument,
+  normalizeAutomationConstantsForTransport,
 } from 'erxes-api-shared/core-modules';
 import {
   IAutomationEmailTemplateDocument,
@@ -16,9 +14,12 @@ import {
   getEnv,
   getPlugin,
   getPlugins,
+  sendWorkerMessage,
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { coreAutomationConstants } from '~/meta/automations/constants';
+import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 
 export interface IListArgs extends ICursorPaginateParams {
   status: string;
@@ -164,6 +165,82 @@ const generateHistoriesFilter = (params: any) => {
   return filter;
 };
 
+type TAutomationConstantsResponse = {
+  triggersConst: any[];
+  triggerTypesConst: string[];
+  actionsConst: any[];
+  findObjectTargetsConst: any[];
+};
+
+const getAutomationConstants =
+  async (): Promise<TAutomationConstantsResponse> => {
+    const plugins = await getPlugins();
+    const normalizedCoreConstants = normalizeAutomationConstantsForTransport(
+      'core',
+      coreAutomationConstants,
+    );
+
+    const constants: TAutomationConstantsResponse = {
+      triggersConst: [...(normalizedCoreConstants.triggers || [])],
+      triggerTypesConst: [],
+      actionsConst: [...(normalizedCoreConstants.actions || [])],
+      findObjectTargetsConst: [
+        ...(normalizedCoreConstants.findObjectTargets || []),
+      ],
+    };
+
+    for (const pluginName of plugins) {
+      if (pluginName === 'core') {
+        continue;
+      }
+
+      const plugin = await getPlugin(pluginName);
+      const meta = plugin.config?.meta ?? {};
+
+      if (!meta?.automations?.constants) {
+        continue;
+      }
+
+      const pluginConstants = normalizeAutomationConstantsForTransport(
+        pluginName,
+        meta.automations.constants as AutomationConstants,
+      );
+      const {
+        triggers = [],
+        actions = [],
+        findObjectTargets = [],
+      } = pluginConstants as AutomationConstants;
+      constants.findObjectTargetsConst.push(...findObjectTargets);
+
+      for (const trigger of triggers) {
+        constants.triggersConst.push({ ...trigger, pluginName });
+
+        if (
+          pluginName !== 'core' &&
+          trigger.moduleName &&
+          trigger.collectionName
+        ) {
+          const propertyType = `${pluginName}:${trigger.moduleName}.${trigger.collectionName}`;
+          constants.triggerTypesConst = [
+            ...new Set([...constants.triggerTypesConst, propertyType]),
+          ];
+        }
+      }
+
+      for (const action of actions) {
+        constants.actionsConst.push({ ...action, pluginName });
+      }
+    }
+
+    constants.findObjectTargetsConst = constants.findObjectTargetsConst.filter(
+      (item, index, array) =>
+        array.findIndex((candidate) => candidate.value === item.value) ===
+        index,
+    );
+
+    return constants;
+  };
+
 export const automationQueries = {
   /**
    * Automations list
@@ -262,64 +339,21 @@ export const automationQueries = {
   },
 
   async automationConstants(_root, _args) {
-    const plugins = await getPlugins();
+    return getAutomationConstants();
+  },
 
-    const constants: {
-      triggersConst: any[];
-      triggerTypesConst: string[];
-      actionsConst: any[];
-      propertyTypesConst: Array<{ value: string; label: string }>;
-    } = {
-      triggersConst: [...AUTOMATION_TRIGGERS],
-      triggerTypesConst: [],
-      actionsConst: [...AUTOMATION_ACTIONS],
-      propertyTypesConst: [...AUTOMATION_CORE_PROPERTY_TYPES],
-    };
+  async automationNodeOutput(_root, { nodeType }: { nodeType: string }) {
+    const { triggersConst, actionsConst } = await getAutomationConstants();
 
-    for (const pluginName of plugins) {
-      const plugin = await getPlugin(pluginName);
-      const meta = plugin.config?.meta || {};
+    const matchedTrigger = triggersConst.find(({ type }) => type === nodeType);
 
-      if (meta && meta.automations && meta.automations.constants) {
-        const pluginConstants = meta.automations.constants || {};
-        const { triggers = [], actions = [] } =
-          pluginConstants as AutomationConstants;
-
-        for (const {
-          moduleName,
-          collectionName,
-          relationType,
-          ...trigger
-        } of triggers) {
-          const propertyType = `${pluginName}:${moduleName}.${collectionName}`;
-          const type = `${propertyType}${
-            relationType ? `.${relationType}` : ''
-          }`;
-          constants.triggersConst.push({ ...trigger, type, pluginName });
-          constants.triggerTypesConst = [
-            ...new Set([...constants.triggerTypesConst, propertyType]),
-          ];
-
-          constants.propertyTypesConst.push({
-            value: propertyType,
-            label: trigger.label,
-          });
-        }
-
-        for (const {
-          moduleName,
-          collectionName,
-          method = 'create',
-          ...action
-        } of actions) {
-          const propertyType = `${pluginName}:${moduleName}.${collectionName}`;
-          const type = `${propertyType}.${method}`;
-          constants.actionsConst.push({ ...action, type, pluginName });
-        }
-      }
+    if (matchedTrigger?.output) {
+      return matchedTrigger.output;
     }
 
-    return constants;
+    const matchedAction = actionsConst.find(({ type }) => type === nodeType);
+
+    return matchedAction?.output || null;
   },
 
   async getAutomationWebhookEndpoint(
@@ -373,30 +407,34 @@ export const automationQueries = {
   },
 
   async automationsAiAgents(_root, { kind }, { models }: IContext) {
-    return await models.AiAgents.find(kind ? { provider: kind } : {});
+    const agents = await models.AiAgents.find(
+      kind ? { 'connection.provider': kind } : {},
+    );
+
+    return sanitizeAiAgents(agents as any[]);
   },
 
-  async automationsAiAgentDetail(_root, _, { models }: IContext) {
-    return await models.AiAgents.findOne({});
+  async automationsAiAgentDetail(
+    _root,
+    { _id }: { _id?: string },
+    { models }: IContext,
+  ) {
+    return sanitizeAiAgent(await models.AiAgents.findOne(_id ? { _id } : {}));
   },
 
-  async getTrainingStatus(_root, { agentId }, {}: IContext) {
-    const agent = await this.models.AiAgents.findById(agentId);
-    if (!agent) {
-      throw new Error('AI Agent not found');
-    }
-
-    const files = agent.files || [];
-    const embeddedFiles = await this.models.AiEmbeddings.find({
-      fileId: { $in: files.map(({ id }) => id) },
+  async automationsAiAgentHealth(
+    _root,
+    { agentId }: { agentId: string },
+    { subdomain }: IContext,
+  ) {
+    return await sendWorkerMessage({
+      pluginName: 'automations',
+      queueName: 'aiAgent',
+      jobName: 'checkAiAgentHealth',
+      subdomain,
+      data: { agentId },
+      timeout: 10000,
     });
-
-    return {
-      agentId,
-      totalFiles: files.length,
-      processedFiles: embeddedFiles.length,
-      status: embeddedFiles.length === files.length ? 'completed' : 'pending',
-    };
   },
 
   /**

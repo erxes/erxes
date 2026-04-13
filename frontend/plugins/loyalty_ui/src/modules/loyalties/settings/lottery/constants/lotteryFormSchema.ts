@@ -20,12 +20,14 @@ export const lotteryFormSchema = z.object({
 
   buyScore: z.number().min(0, 'Score must be at least 0'),
 
+  numberFormat: z.string().optional(),
+
   awards: z
     .array(
       z.object({
         name: z.string().min(1, 'Name is required'),
         voucherCampaignId: z.string().optional(),
-        probablity: z.number().min(0, 'Probability must be at least 0'),
+        count: z.number().min(0, 'Count must be at least 0'),
       }),
     )
     .optional(),

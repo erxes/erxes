@@ -1,13 +1,11 @@
 import { IconLayoutGrid, IconList, IconWorldPlus } from '@tabler/icons-react';
 import { Spinner, ToggleGroup } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { webViewModeState } from '../states/webBuilderState';
+import { useAtom, useSetAtom } from 'jotai';
+import { EmptyState } from '../../cms/shared/EmptyState';
 import { useGetWebList } from '../hooks/useGetWebList';
+import { webDrawerState, webViewModeState } from '../states/webBuilderState';
 import { WebCard } from './WebCard';
 import { WebListItem } from './WebListItem';
-import { EmptyState } from '../../cms/shared/EmptyState';
-import { useSetAtom } from 'jotai';
-import { webDrawerState } from '../states/webBuilderState';
 
 export const WebList = () => {
   const [viewMode, setViewMode] = useAtom(webViewModeState);

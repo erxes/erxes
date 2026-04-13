@@ -2,6 +2,7 @@ import { FilterQuery, Model } from 'mongoose';
 
 import { IModels } from '~/connectionResolvers';
 import {
+  IPricingOption,
   ITour,
   ITourCategory,
   ITourCategoryDocument,
@@ -48,19 +49,26 @@ export const loadTourClass = (models: IModels) => {
     public static async createTour(doc) {
       const dateType = doc.dateType || 'fixed';
 
-      if (dateType === 'fixed') {
-        if (!doc.startDate) {
-          throw new Error('Start date is required for fixed schedule tours');
+      // if (dateType === 'fixed') {
+      //   if (!doc.startDate) {
+      //     throw new Error('Start date is required for fixed schedule tours');
+      //   }
+      // } else if (dateType === 'flexible') {
+      //   if (!doc.availableFrom || !doc.availableTo) {
+      //     throw new Error(
+      //       'Available date range (from and to) is required for flexible schedule tours',
+      //     );
+      //   }
+      //   if (new Date(doc.availableFrom) >= new Date(doc.availableTo)) {
+      //     throw new Error('Available "from" date must be before "to" date');
+      //   }
+      // }
+
+      if (doc.pricingOptions) {
+        if (doc.pricingOptions.length > 0) {
+          this.validatePricingOptions(doc.pricingOptions);
         }
-      } else if (dateType === 'flexible') {
-        if (!doc.availableFrom || !doc.availableTo) {
-          throw new Error(
-            'Available date range (from and to) is required for flexible schedule tours',
-          );
-        }
-        if (new Date(doc.availableFrom) >= new Date(doc.availableTo)) {
-          throw new Error('Available "from" date must be before "to" date');
-        }
+        doc.startingPrice = this.calculateStartingPrice(doc.pricingOptions);
       }
 
       const element = await models.Tours.create({
@@ -103,12 +111,92 @@ export const loadTourClass = (models: IModels) => {
         }
       }
 
+      if (doc.pricingOptions) {
+        if (doc.pricingOptions.length > 0) {
+          this.validatePricingOptions(doc.pricingOptions);
+        }
+        doc.startingPrice = this.calculateStartingPrice(doc.pricingOptions);
+      }
+
       await models.Tours.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date() } },
       );
 
       return await models.Tours.findOne({ _id });
+    }
+
+    /**
+     * Calculate starting price from pricing options
+     */
+    private static calculateStartingPrice(
+      pricingOptions?: IPricingOption[],
+    ): number | undefined {
+      if (!pricingOptions || pricingOptions.length === 0) {
+        return undefined;
+      }
+      const prices = pricingOptions
+        .map((opt) => opt.pricePerPerson)
+        .filter((p): p is number => typeof p === 'number');
+      return prices.length ? Math.min(...prices) : undefined;
+    }
+
+    /**
+     * Validate pricing options
+     */
+    private static validatePricingOptions(
+      pricingOptions: IPricingOption[],
+    ): void {
+      const combinations = new Set<string>();
+
+      for (const option of pricingOptions) {
+        // 1. minPersons validation
+        if (typeof option.minPersons !== 'number' || option.minPersons < 1) {
+          throw new Error(
+            `Invalid pricing option "${option.title}": minPersons must be >= 1`,
+          );
+        }
+
+        // 2. maxPersons validation
+        if (
+          option.maxPersons !== undefined &&
+          option.maxPersons !== null &&
+          option.maxPersons < option.minPersons
+        ) {
+          throw new Error(
+            `Invalid pricing option "${option.title}": maxPersons (${option.maxPersons}) must be >= minPersons (${option.minPersons})`,
+          );
+        }
+
+        // 3. price validation
+        if (
+          option.pricePerPerson === undefined ||
+          option.pricePerPerson === null ||
+          option.pricePerPerson <= 0
+        ) {
+          throw new Error(
+            `Invalid pricing option "${option.title}": pricePerPerson must be > 0`,
+          );
+        }
+
+        // 4. normalize accommodationType (optional safety)
+        const accommodationType = option.accommodationType
+          ? option.accommodationType.trim().toLowerCase()
+          : '';
+
+        // 5. duplicate check – normalize for comparison
+        const key = `${option.minPersons}|${
+          option.maxPersons ?? ''
+        }|${accommodationType}|${option.pricePerPerson}`;
+
+        if (combinations.has(key)) {
+          throw new Error(
+            `Duplicate pricing option found: minPersons=${option.minPersons}, maxPersons=${option.maxPersons}, accommodationType=${accommodationType}`,
+          );
+        }
+
+        combinations.add(key);
+      }
     }
 
     /**

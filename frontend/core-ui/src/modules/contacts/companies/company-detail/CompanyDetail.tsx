@@ -15,10 +15,10 @@ import {
   ActivityLogs,
   AddInternalNote,
   FieldsInDetail,
-  internalNoteCustomActivity,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
+import { companyCustomActivities } from './CompanyActivityRows';
 
 export const CompanyDetail = () => {
   const [open, setOpen] = useQueryState<string>('companyId');
@@ -42,36 +42,66 @@ export const CompanyDetail = () => {
           <div className="flex-1 flex flex-col overflow-hidden">
             <CompanyDetailGeneral />
             <Separator />
-            <ScrollArea className="h-full">
+            <div className="flex-1 min-h-0">
               <Tabs
                 value={selectedTab ?? 'overview'}
                 onValueChange={setSelectedTab}
+                className="h-full"
               >
-                <Tabs.Content value="overview">
-                  <CompanyDetailFields />
-                  {!!companyDetail?._id && (
-                    <div className="flex flex-col mb-12">
-                      <ActivityLogs
-                        targetId={companyDetail._id}
-                        customActivities={[internalNoteCustomActivity]}
-                      />
-                      <AddInternalNote
-                        contentTypeId={companyDetail._id}
-                        contentType="core:company"
+                <Tabs.Content value="overview" className="h-full">
+                  <ScrollArea className="h-full">
+                    <CompanyDetailFields />
+                    {!!companyDetail?._id && (
+                      <div className="flex flex-col mb-12">
+                        <ActivityLogs
+                          targetId={companyDetail._id}
+                          customActivities={companyCustomActivities}
+                          limit={10}
+                        />
+                        <AddInternalNote
+                          contentTypeId={companyDetail._id}
+                          contentType="core:company"
+                        />
+                      </div>
+                    )}
+                  </ScrollArea>
+                </Tabs.Content>
+                <Tabs.Content value="properties" className="h-full">
+                  <ScrollArea className="h-full">
+                    <div className="p-6">
+                      <FieldsInDetail
+                        fieldContentType="core:company"
+                        propertiesData={companyDetail?.propertiesData || {}}
+                        mutateHook={useCompanyCustomFieldEdit}
+                        id={companyDetail?._id || ''}
                       />
                     </div>
-                  )}
+                  </ScrollArea>
                 </Tabs.Content>
-                <Tabs.Content value="properties" className="p-6">
-                  <FieldsInDetail
-                    fieldContentType="core:company"
-                    propertiesData={companyDetail?.propertiesData || {}}
-                    mutateHook={useCompanyCustomFieldEdit}
-                    id={companyDetail?._id || ''}
-                  />
+                <Tabs.Content value="activity" className="h-full">
+                  <div className="h-full flex flex-col">
+                    <ScrollArea className="flex-1 min-h-0">
+                      <div className="pt-3">
+                        <ActivityLogs
+                          targetId={companyDetail?._id || ''}
+                          customActivities={companyCustomActivities}
+                          variant="backward"
+                        />
+                      </div>
+                    </ScrollArea>
+
+                    {!!companyDetail?._id && (
+                      <div className="shrink-0 pb-6 pt-2">
+                        <AddInternalNote
+                          contentTypeId={companyDetail._id}
+                          contentType="core:company"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </Tabs.Content>
               </Tabs>
-            </ScrollArea>
+            </div>
           </div>
           <RelationWidgetSideTabs
             contentId={open || ''}

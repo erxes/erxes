@@ -1,18 +1,17 @@
-import { BoardCardProps, Separator } from 'erxes-ui';
-import { IconCalendarEventFilled } from '@tabler/icons-react';
-import { format } from 'date-fns';
-import { Button } from 'erxes-ui';
+import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
+import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
+import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
+import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
-import { atom, useAtomValue, useSetAtom } from 'jotai';
-import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
-import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
-import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
-import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
 import { allTasksMapState } from '@/task/components/TasksBoard';
 import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
 import { taskCountByBoardAtom } from '@/task/states/tasksTotalCountState';
+import { IconCalendarEventFilled } from '@tabler/icons-react';
+import { format } from 'date-fns';
+import { BoardCardProps, Button, Separator } from 'erxes-ui';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 
 export const taskBoardItemAtom = atom(
   (get) => (id: string) => get(allTasksMapState)[id],

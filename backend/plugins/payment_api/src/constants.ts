@@ -136,6 +136,20 @@ export const PAYMENTS = {
     acceptedCurrencies: ['MNT', 'USD'],
   },
 
+  toki: {
+    title: 'Toki',
+    kind: 'toki',
+    apiUrl: 'https://ms-api.toki.mn',
+    actions: {
+      getToken: 'third-party-service/v1/auth/token',
+      invoice: 'third-party-service/v1/payment-request/merchant-qr',
+      checkInvoice: 'third-party-service/v1/payment-request',
+      cancelInvoice: 'third-party-service/v1/payment-request',
+    },
+    handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
+  },
+
   ALL: [
     'qpay',
     'socialpay',
@@ -149,6 +163,7 @@ export const PAYMENTS = {
     'golomt',
     'stripe',
     'khanbank',
+    'toki',
   ],
 };
 

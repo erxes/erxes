@@ -343,7 +343,7 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
-      name: 'broadcast',
+      name: 'broadcasts',
       description: 'Broadcast & engage message management',
       scopeField: null,
       ownerFields: ['createdBy'],
@@ -382,6 +382,27 @@ export const permissions: IPermissionConfig = {
           title: 'Manage broadcast configs',
           name: 'broadcastConfigsManage',
           description: 'Update broadcast configurations',
+        },
+      ],
+    },
+    {
+      name: 'importExport',
+      description: 'Import and export management',
+      scopeField: null,
+      ownerFields: ['userId'],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'Manage imports',
+          name: 'importsManage',
+          description: 'Start, cancel, retry, and resume imports',
+        },
+        {
+          title: 'Manage exports',
+          name: 'exportsManage',
+          description: 'Start, cancel, and retry exports',
         },
       ],
     },
@@ -540,6 +561,22 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'logs',
+      description: 'System log access',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'View system logs',
+          name: 'logsRead',
+          description: 'View system logs',
+        },
+      ],
+    },
+    {
       name: 'internalNotes',
       description: 'Internal note management',
       scopeField: null,
@@ -694,6 +731,12 @@ export const permissions: IPermissionConfig = {
           ],
           scope: 'all',
         },
+        {
+          plugin: 'core',
+          module: 'logs',
+          actions: ['logsRead'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -736,7 +779,8 @@ export const permissions: IPermissionConfig = {
     {
       id: 'core:viewer',
       name: 'Core Viewer',
-      description: 'Read-only access to all Core modules, with own-data mutations',
+      description:
+        'Read-only access to all Core modules, with own-data mutations',
       permissions: [
         {
           plugin: 'core',

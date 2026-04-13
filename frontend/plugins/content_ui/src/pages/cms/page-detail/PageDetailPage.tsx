@@ -4,7 +4,7 @@ import { PagesHeader } from '~/modules/cms/pages/components/PagesHeader';
 import { PageHeaderActions } from '~/modules/cms/pages/components/PageHeaderActions';
 import { usePageDetail } from '~/modules/cms/pages/hooks/usePageDetail';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { IPageFormData } from '~/modules/cms/pages/types/pageTypes';
 
@@ -12,6 +12,7 @@ interface FormState {
   form: UseFormReturn<IPageFormData>;
   onSubmit: (data: IPageFormData) => void;
   getSaving: () => boolean;
+  handleLanguageChange: (lang: string) => void;
 }
 
 export const PagesDetailPage = ({
@@ -27,8 +28,17 @@ export const PagesDetailPage = ({
   const navigate = useNavigate();
   const { websiteId } = useParams();
 
+  const languageChangeRef = useRef<(lang: string) => void>();
+
   const handleFormReady = useCallback((state: FormState) => {
     setFormState(state);
+    languageChangeRef.current = state.handleLanguageChange;
+  }, []);
+
+  const handleHeaderLanguageChange = useCallback((lang: string) => {
+    if (languageChangeRef.current) {
+      languageChangeRef.current(lang);
+    }
   }, []);
 
   const handleClose = useCallback(() => {
@@ -37,7 +47,7 @@ export const PagesDetailPage = ({
 
   return (
     <PageContainer key={pageId}>
-      <PagesHeader>
+      <PagesHeader onLanguageChange={handleHeaderLanguageChange}>
         {formState && (
           <PageHeaderActions
             form={formState.form}

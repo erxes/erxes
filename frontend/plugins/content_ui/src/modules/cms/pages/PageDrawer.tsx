@@ -3,16 +3,26 @@ import { Form, ScrollArea, toast } from 'erxes-ui';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
-import { useAddPage } from './hooks/useAddPage';
+import { useSetAtom, useAtomValue } from 'jotai';
+import { CustomFieldValue } from '../posts/CustomFieldInput';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { pageFormSchema } from '../constants/pageFormSchema';
 import { useEditPage } from './hooks/useEditPage';
-import { IPageDrawerProps, IPageFormData } from './types/pageTypes';
-import { CONTENT_CMS_LIST } from '../graphql/queries';
+import { useAddPage } from './hooks/useAddPage';
+import { IPage, IPageDrawerProps, IPageFormData } from './types/pageTypes';
+import { CONTENT_CMS_LIST, CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import {
   useCmsTranslation,
   TranslationData,
 } from '../shared/hooks/useCmsTranslation';
+import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
 import { PageEditorColumn } from './components/PageEditorColumn';
 import { PageSidebarPanel } from './components/PageSidebarPanel';
+import {
+  PageCustomFieldsSection,
+  FieldGroup,
+} from './components/PageCustomFieldsSection';
 import {
   normalizeAttachment,
   makeAttachmentArrayFromUrls,
@@ -113,11 +123,10 @@ interface PageInput {
   translations?: PageTranslationInput[];
   thumbnail?: { url: string; name: string; type?: string } | null;
   pageImages?: { url: string; name: string }[];
-  video?: { url: string; name: string; type?: string } | null;
   videoUrl?: string;
-  audio?: { url: string; name: string; type?: string } | null;
   documents?: { url: string; name: string }[];
   attachments?: { url: string; name: string }[];
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
 }
 
 function resolveMainFields(
@@ -191,6 +200,7 @@ interface PageFormProps extends IPageDrawerProps {
     form: UseFormReturn<IPageFormData>;
     onSubmit: (data: IPageFormData) => void;
     getSaving: () => boolean;
+    handleLanguageChange: (lang: string) => void;
   }) => void;
 }
 
@@ -202,6 +212,8 @@ export function PageDrawer({
 }: PageFormProps) {
   const isEditing = Boolean(page);
   const [hasPermissionError, setHasPermissionError] = useState(false);
+  const setCmsLanguage = useSetAtom(cmsLanguageAtom);
+  const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
@@ -216,6 +228,7 @@ export function PageDrawer({
 
   const {
     selectedLanguage,
+    setSelectedLanguage,
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
@@ -229,6 +242,96 @@ export function PageDrawer({
     resetKey: clientPortalId,
   });
 
+  // Create dynamic validation schema with custom fields
+  const createValidationSchema = useCallback((fieldGroups: FieldGroup[]) => {
+    const baseSchema = pageFormSchema;
+
+    // If no custom fields, return base schema
+    if (!fieldGroups.length) return baseSchema;
+
+    // Create individual field validations for required custom fields
+    const customFieldShape: Record<string, z.ZodTypeAny> = {};
+
+    for (const group of fieldGroups) {
+      for (const field of group.fields || []) {
+        if (field.isRequired) {
+          customFieldShape[field._id] = z.custom<CustomFieldValue>(
+            (value) => {
+              if (!value) return false;
+              if (typeof value === 'string' && value.trim() === '')
+                return false;
+              if (Array.isArray(value) && value.length === 0) return false;
+              return true;
+            },
+            { message: `${field.label} is required` },
+          );
+        }
+      }
+    }
+
+    // Create a schema that validates the entire customFieldsData array
+    const customFieldsValidation = z
+      .array(
+        z.object({
+          field: z.string(),
+          value: z.custom<CustomFieldValue>(),
+        }),
+      )
+      .superRefine((data, ctx) => {
+        // Check each required field has a valid value
+        for (const group of fieldGroups) {
+          for (const field of group.fields || []) {
+            if (field.isRequired) {
+              const fieldValue = data.find(
+                (item) => item.field === field._id,
+              )?.value;
+
+              if (!fieldValue) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} is required`,
+                  path: ['customFieldsData'],
+                });
+              } else if (
+                typeof fieldValue === 'string' &&
+                fieldValue.trim() === ''
+              ) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} cannot be empty`,
+                  path: ['customFieldsData'],
+                });
+              } else if (Array.isArray(fieldValue) && fieldValue.length === 0) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} requires at least one selection`,
+                  path: ['customFieldsData'],
+                });
+              }
+            }
+          }
+        }
+      });
+
+    return baseSchema.extend({
+      customFieldsData: customFieldsValidation.optional(),
+    });
+  }, []);
+
+  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: {
+      clientPortalId,
+    },
+    skip: !clientPortalId,
+  });
+
+  const fieldGroups: FieldGroup[] = (
+    customFieldsData?.cmsCustomFieldGroupList?.list || []
+  ).filter(
+    (group: FieldGroup) =>
+      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
+  );
+
   const form = useForm<IPageFormData>({
     defaultValues: {
       name: '',
@@ -239,12 +342,12 @@ export function PageDrawer({
       clientPortalId,
       thumbnail: null,
       gallery: [],
-      video: null,
       videoUrl: '',
-      audio: null,
       documents: [],
       attachments: [],
+      customFieldsData: [],
     },
+    resolver: zodResolver(createValidationSchema(fieldGroups)),
   });
 
   const { editPage, loading: savingEdit } = useEditPage();
@@ -267,11 +370,10 @@ export function PageDrawer({
         clientPortalId,
         thumbnail: page.thumbnail || null,
         gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
-        video: page.video?.url || null,
         videoUrl: page.videoUrl || '',
-        audio: page.audio?.url || null,
         documents: (page.documents || []).map((d) => d.url).filter(Boolean),
         attachments: (page.attachments || []).map((a) => a.url).filter(Boolean),
+        customFieldsData: page.customFieldsData || [],
       });
     } else {
       form.reset({
@@ -283,14 +385,72 @@ export function PageDrawer({
         clientPortalId,
         thumbnail: null,
         gallery: [],
-        video: null,
         videoUrl: '',
-        audio: null,
         documents: [],
         attachments: [],
+        customFieldsData: [],
       });
     }
   }, [page, isEditing, clientPortalId, form]);
+
+  // Helper: apply translation (or clear) translatable fields
+  const applyTranslationToForm = useCallback(
+    (lang: string) => {
+      const translation = translations[lang];
+      form.setValue('name', translation?.title || '');
+      form.setValue('description', translation?.content || '');
+    },
+    [translations, form],
+  );
+
+  // Initial language sync from cmsLanguageAtom.
+  // This must run AFTER the form-reset effect above so form.setValue
+  // overwrites the default-lang data, and it must call form.setValue
+  // BEFORE setSelectedLanguage so the Editor (which remounts on key
+  // change) reads the correct initialContent.
+  useEffect(() => {
+    if (
+      !selectedLanguage ||
+      !defaultLanguage ||
+      !cmsLanguage ||
+      cmsLanguage === defaultLanguage ||
+      selectedLanguage !== defaultLanguage
+    ) {
+      return;
+    }
+    applyTranslationToForm(cmsLanguage);
+    setSelectedLanguage(cmsLanguage);
+  }, [
+    selectedLanguage,
+    defaultLanguage,
+    cmsLanguage,
+    applyTranslationToForm,
+    setSelectedLanguage,
+  ]);
+
+  // When page data loads, the form-reset effect above overwrites translatable
+  // fields with default-lang data.  Re-apply for the current non-default lang.
+  const appliedForPageRef = useRef<IPage | null>(null);
+  useEffect(() => {
+    if (
+      !selectedLanguage ||
+      !defaultLanguage ||
+      selectedLanguage === defaultLanguage
+    ) {
+      return;
+    }
+    if (isEditing && !page) return;
+    if (appliedForPageRef.current === (page ?? null)) return;
+
+    applyTranslationToForm(selectedLanguage);
+    appliedForPageRef.current = page ?? null;
+  }, [
+    selectedLanguage,
+    defaultLanguage,
+    applyTranslationToForm,
+    isEditing,
+    page,
+  ]);
 
   const onCompleted = () => {
     onClose();
@@ -351,6 +511,16 @@ export function PageDrawer({
     translationsRef.current = translations;
   }, [translations]);
 
+  const handleLanguageChangeRef = useRef(handleLanguageChange);
+  useEffect(() => {
+    handleLanguageChangeRef.current = handleLanguageChange;
+  }, [handleLanguageChange]);
+
+  const pageRef = useRef(page);
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
+
   const onSubmitRef = useRef<(data: IPageFormData) => void>(() => undefined);
 
   onSubmitRef.current = (data: IPageFormData) => {
@@ -391,9 +561,6 @@ export function PageDrawer({
     const attachmentsPayload = makeAttachmentArrayFromUrls(
       data.attachments ?? [],
     );
-    const videoPayload = normalizeAttachment(data.video ?? undefined);
-    const audioPayload = normalizeAttachment(data.audio ?? undefined);
-
     const input: PageInput = {
       clientPortalId: data.clientPortalId,
       name: main.name,
@@ -403,11 +570,10 @@ export function PageDrawer({
       status: data.status || 'active',
       thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
       pageImages: imagesPayload.length ? imagesPayload : undefined,
-      video: videoPayload,
       videoUrl: data.videoUrl,
-      audio: audioPayload,
       documents: documentsPayload.length ? documentsPayload : undefined,
       attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
+      customFieldsData: data.customFieldsData || [],
     };
 
     if (curSelectedLanguage) {
@@ -449,29 +615,55 @@ export function PageDrawer({
 
   const isSwitchingLanguageRef = useRef(false);
 
-  const onLanguageChange = (lang: string) => {
-    isSwitchingLanguageRef.current = true;
-    handleLanguageChange(
-      lang,
-      () => ({
-        title: form.getValues('name') || '',
-        content: form.getValues('description') || '',
-      }),
-      (data) => {
-        form.setValue('name', data.title || '');
-        form.setValue('description', data.content || '');
-        requestAnimationFrame(() => {
-          isSwitchingLanguageRef.current = false;
-        });
-      },
-      page
-        ? {
-            title: page.name || '',
-            content: page.description || '',
-          }
-        : undefined,
-    );
-  };
+  const onLanguageChange = useCallback(
+    (lang: string) => {
+      isSwitchingLanguageRef.current = true;
+      setCmsLanguage(lang);
+
+      const curPage = pageRef.current;
+      const curDefaultLanguage = defaultLanguageRef.current;
+      const curDefaultLangData = defaultLangDataRef.current;
+      const curTranslations = translationsRef.current;
+
+      handleLanguageChangeRef.current(
+        lang,
+        () => ({
+          title: form.getValues('name') || '',
+          content: form.getValues('description') || '',
+        }),
+        (data) => {
+          form.setValue('name', data.title || '');
+          form.setValue('description', data.content || '');
+        },
+        curPage
+          ? {
+              title: curPage.name || '',
+              content: curPage.description || '',
+            }
+          : undefined,
+      );
+
+      // Explicitly set form values after handleLanguageChange to guarantee
+      // the Editor (which remounts on selectedLanguage key change) reads
+      // the correct initialContent.
+      if (lang === curDefaultLanguage) {
+        form.setValue('name', curDefaultLangData?.title || curPage?.name || '');
+        form.setValue(
+          'description',
+          curDefaultLangData?.content || curPage?.description || '',
+        );
+      } else {
+        const translation = curTranslations[lang];
+        form.setValue('name', translation?.title || '');
+        form.setValue('description', translation?.content || '');
+      }
+
+      requestAnimationFrame(() => {
+        isSwitchingLanguageRef.current = false;
+      });
+    },
+    [form, setCmsLanguage],
+  );
 
   const handleEditorChange = useCallback(
     (content: string) => {
@@ -487,7 +679,12 @@ export function PageDrawer({
 
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
-      onFormReady({ form, onSubmit, getSaving });
+      onFormReady({
+        form,
+        onSubmit,
+        getSaving,
+        handleLanguageChange: onLanguageChange,
+      });
       formInitializedRef.current = true;
     }
   }, [form, onSubmit, getSaving, onFormReady]);
@@ -514,13 +711,21 @@ export function PageDrawer({
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <PageEditorColumn
-              form={form}
-              selectedLanguage={selectedLanguage}
-              defaultLanguage={defaultLanguage}
-              page={page}
-              handleEditorChange={handleEditorChange}
-            />
+            <div className="lg:col-span-2">
+              <PageEditorColumn
+                form={form}
+                selectedLanguage={selectedLanguage}
+                defaultLanguage={defaultLanguage}
+                page={page}
+                handleEditorChange={handleEditorChange}
+              />
+              {fieldGroups.length > 0 && (
+                <PageCustomFieldsSection
+                  fieldGroups={fieldGroups}
+                  form={form}
+                />
+              )}
+            </div>
             <PageSidebarPanel
               form={form}
               websiteId={clientPortalId}

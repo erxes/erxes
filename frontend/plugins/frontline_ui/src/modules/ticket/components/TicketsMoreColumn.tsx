@@ -1,10 +1,9 @@
-import { Cell } from '@tanstack/react-table';
-import { RecordTable, useConfirm, useToast } from 'erxes-ui';
-import { Popover, Command, Combobox } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { ITicket } from '../types';
 import { ticketDetailSheetState } from '../states/ticketDetailSheetState';
+import { ITicket } from '../types';
 
 import { useTicketRemove } from '../hooks/useRemoveTicket';
 

@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import {
   ISettlePaymentParams,
   getStatus,
@@ -25,6 +24,7 @@ import {
   validateOrderPayment,
 } from '~/modules/posclient/utils/orderUtils';
 import * as crypto from 'node:crypto';
+import { debugError } from '~/modules/posclient/debugError';
 
 export interface ICountBy {
   [index: string]: number;
@@ -554,9 +554,7 @@ export const prepareSettlePayment = async (
     return e;
   }
 };
-function debugError(arg0: string) {
-  throw new Error('Function not implemented.');
-}
+
 export function cryptoRandom() {
   // Generate a random 6-byte buffer (48 bits of entropy)
   const randomBuffer = crypto.randomBytes(6);
