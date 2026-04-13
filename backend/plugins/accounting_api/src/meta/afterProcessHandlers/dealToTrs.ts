@@ -75,6 +75,7 @@ export const dealToTrs = async ({
     parentId,
     date,
     journal: JOURNALS.INV_SALE,
+    side: TR_SIDES.CREDIT,
     followInfos: {
       saleOutAccountId: config.saleOutAccountId,
       saleCostAccountId: config.saleCostAccountId,
@@ -149,7 +150,6 @@ export const dealToTrs = async ({
     saleTrDoc.details.push({
       _id: nanoid(),
       accountId: config.saleAccountId,
-      side: TR_SIDES.CREDIT,
       amount,
       currency: productData.currency,
 
@@ -180,6 +180,7 @@ export const dealToTrs = async ({
       parentId,
       date,
       journal,
+      side,
       branchId: deal.branchId || config.branchId,
       departmentId: deal.departmentId || config.departmentId,
       customerType: saleTrDoc.customerType,
@@ -190,7 +191,6 @@ export const dealToTrs = async ({
         {
           _id: nanoid(),
           accountId,
-          side,
           amount: lastAmount,
           currency,
         },
@@ -214,6 +214,7 @@ export const dealToTrs = async ({
         parentId,
         date,
         journal,
+        side,
         branchId: saleTrDoc.branchId,
         departmentId: saleTrDoc.departmentId,
         customerType: saleTrDoc.customerType,
@@ -224,7 +225,6 @@ export const dealToTrs = async ({
           {
             _id: nanoid(),
             accountId,
-            side,
             amount: lastAmount,
           },
         ],

@@ -22,6 +22,7 @@ const trDataWrapper = (doc?: Partial<ITransaction>) => {
     ...doc,
     _id: doc?._id ?? getTempId(),
     customerType: doc?.customerType || CustomerType.CUSTOMER,
+    side: doc?.side,
   };
 };
 
@@ -31,7 +32,6 @@ const trDetailWrapper = (detail?: ITrDetail) => {
     _id: detail?._id ?? getTempId(),
     account: detail?.account,
     accountId: detail?.accountId ?? '',
-    side: detail?.side || TR_SIDES.DEBIT,
     amount: detail?.amount ?? 0,
     checked: false,
   };
@@ -152,12 +152,12 @@ export const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_INCOME,
+    side: TR_SIDES.DEBIT,
     ...DEFAULT_VAT_VALUES(doc),
     ...DEFAULT_CTAX_VALUES(doc),
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
           ...trDetailWrapper(det),
-          side: TR_SIDES.DEBIT,
           productId: det.productId || '',
           product: det.product,
           count: det.count ?? 0,
@@ -167,7 +167,6 @@ export const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
       : [
           {
             ...trDetailWrapper(),
-            side: TR_SIDES.DEBIT,
             productId: '',
             count: 0,
             unitPrice: 0,
@@ -183,10 +182,10 @@ export const INV_OUT_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_OUT,
+    side: TR_SIDES.CREDIT,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
           ...trDetailWrapper(det),
-          side: TR_SIDES.CREDIT,
           productId: det.productId || '',
           product: det.product,
           count: det.count ?? 0,
@@ -196,7 +195,6 @@ export const INV_OUT_JOURNAL_DEFAULT_VALUES = (
       : [
           {
             ...trDetailWrapper(),
-            side: TR_SIDES.CREDIT,
             productId: '',
             count: 0,
             unitPrice: 0,
@@ -212,10 +210,10 @@ export const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_MOVE,
+    side: TR_SIDES.CREDIT,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
           ...trDetailWrapper(det),
-          side: TR_SIDES.CREDIT,
           productId: det.productId || '',
           product: det.product,
           count: det.count ?? 0,
@@ -225,7 +223,6 @@ export const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
       : [
           {
             ...trDetailWrapper(),
-            side: TR_SIDES.CREDIT,
             productId: '',
             count: 0,
             unitPrice: 0,
@@ -241,10 +238,10 @@ export const INV_SALE_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_SALE,
+    side: TR_SIDES.CREDIT,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
           ...trDetailWrapper(det),
-          side: TR_SIDES.CREDIT,
           productId: det.productId || '',
           product: det.product,
           count: det.count ?? 0,
@@ -254,7 +251,6 @@ export const INV_SALE_JOURNAL_DEFAULT_VALUES = (
       : [
           {
             ...trDetailWrapper(),
-            side: TR_SIDES.CREDIT,
             productId: '',
             count: 0,
             unitPrice: 0,
@@ -270,10 +266,10 @@ export const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_SALE_RETURN,
+    side: TR_SIDES.DEBIT,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
           ...trDetailWrapper(det),
-          side: TR_SIDES.DEBIT,
           productId: det.productId || '',
           product: det.product,
           count: det.count ?? 0,
@@ -283,7 +279,6 @@ export const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
       : [
           {
             ...trDetailWrapper(),
-            side: TR_SIDES.DEBIT,
             productId: '',
             count: 0,
             unitPrice: 0,
