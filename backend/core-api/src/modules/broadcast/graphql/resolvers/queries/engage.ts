@@ -292,7 +292,6 @@ export const engageQueries = {
   ) {
     return models.BroadcastTraces.find({ engageMessageId })
       .sort({ createdAt: -1 })
-      .lean();
   },
 
   async engageSmsDeliveries(
