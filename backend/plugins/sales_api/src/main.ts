@@ -67,6 +67,12 @@ startPlugin({
         configured: true,
         hasGetExportHeaders: true,
         hasGetExportData: true,
+        types: [
+          {
+            label: 'POS item',
+            contentType: 'sales:pos.posItems',
+          },
+        ],
       },
     },
   } as any,

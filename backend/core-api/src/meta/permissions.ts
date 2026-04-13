@@ -386,6 +386,27 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'importExport',
+      description: 'Import and export management',
+      scopeField: null,
+      ownerFields: ['userId'],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'Manage imports',
+          name: 'importsManage',
+          description: 'Start, cancel, retry, and resume imports',
+        },
+        {
+          title: 'Manage exports',
+          name: 'exportsManage',
+          description: 'Start, cancel, and retry exports',
+        },
+      ],
+    },
+    {
       name: 'bundle',
       description: 'Bundle management',
       scopeField: null,
