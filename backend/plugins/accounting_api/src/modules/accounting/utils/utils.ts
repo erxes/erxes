@@ -15,10 +15,10 @@ export const createOrUpdateTr = async (
 ): Promise<ITransactionDocument> => {
   for (const detail of doc.details) {
     if (!detail.branchId) {
-      detail.branchId = doc.branchId
+      detail.branchId = doc.branchId;
     }
     if (!detail.departmentId) {
-      detail.departmentId = doc.departmentId
+      detail.departmentId = doc.departmentId;
     }
   }
 

@@ -15,7 +15,10 @@ import {
 } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
-import { ITransactionGroupForm, TInvOutJournal } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TInvOutJournal,
+} from '../../../types/JournalForms';
 import { useEffect, useRef } from 'react';
 import { showAdvancedViewState } from '../../../states/trStates';
 import { useAtomValue } from 'jotai';
@@ -317,7 +320,9 @@ export const InventoryRow = ({
                           <SelectDepartments.InlineCell
                             mode="single"
                             value={field.value ?? ''}
-                            onValueChange={(department) => field.onChange(department)}
+                            onValueChange={(department) =>
+                              field.onChange(department)
+                            }
                             scope={AccountingHotkeyScope.TransactionFormPage}
                           />
                         </Form.Control>

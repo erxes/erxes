@@ -44,7 +44,9 @@ export const InventoryForm = ({
   const setHotkeyScope = useSetHotkeyScope();
 
   const tableRef = useRef<HTMLTableElement>(null);
-  const [showAdvancedView, setShowAdvancedView] = useAtom(showAdvancedViewState);
+  const [showAdvancedView, setShowAdvancedView] = useAtom(
+    showAdvancedViewState,
+  );
 
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
@@ -59,7 +61,7 @@ export const InventoryForm = ({
       >
         <ScrollArea
           scrollBarClassName="z-10"
-          className='h-full w-full pb-3 pr-3'
+          className="h-full w-full pb-3 pr-3"
         >
           <Table
             className="mt-5 p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar w-max min-w-full"

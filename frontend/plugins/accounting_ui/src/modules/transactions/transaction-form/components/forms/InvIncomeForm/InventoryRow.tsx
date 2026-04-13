@@ -16,7 +16,10 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
-import { showAdvancedViewState, taxPercentsState } from '../../../states/trStates';
+import {
+  showAdvancedViewState,
+  taxPercentsState,
+} from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvIncomeJournal,
@@ -436,7 +439,9 @@ export const InventoryRow = ({
                         <SelectDepartments.InlineCell
                           mode="single"
                           value={field.value ?? ''}
-                          onValueChange={(department) => field.onChange(department)}
+                          onValueChange={(department) =>
+                            field.onChange(department)
+                          }
                           scope={AccountingHotkeyScope.TransactionFormPage}
                         />
                       </Form.Control>

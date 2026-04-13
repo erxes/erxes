@@ -148,12 +148,12 @@ export const BranchField = ({ form, index }: ICommonFieldProps) => {
   });
 
   const onChangeBranch = (branchId: string[] | string | undefined) => {
-    form.setValue(
-      `trDocs.${index}.branchId`,
-      branchId as string,
-    );
+    form.setValue(`trDocs.${index}.branchId`, branchId as string);
     details.forEach((_d, ind) => {
-      form.setValue(`trDocs.${index}.details.${ind}.branchId`, branchId as string,);
+      form.setValue(
+        `trDocs.${index}.details.${ind}.branchId`,
+        branchId as string,
+      );
     });
   };
 
@@ -175,7 +175,7 @@ export const BranchField = ({ form, index }: ICommonFieldProps) => {
         </Form.Item>
       )}
     />
-  )
+  );
 };
 
 export const DepartmentField = ({ form, index }: ICommonFieldProps) => {
@@ -185,12 +185,12 @@ export const DepartmentField = ({ form, index }: ICommonFieldProps) => {
   });
 
   const onChangeDepartment = (departmentId: string[] | string | undefined) => {
-    form.setValue(
-      `trDocs.${index}.departmentId`,
-      departmentId as string,
-    );
+    form.setValue(`trDocs.${index}.departmentId`, departmentId as string);
     details.forEach((_d, ind) => {
-      form.setValue(`trDocs.${index}.details.${ind}.departmentId`, departmentId as string);
+      form.setValue(
+        `trDocs.${index}.details.${ind}.departmentId`,
+        departmentId as string,
+      );
     });
   };
 
@@ -212,7 +212,7 @@ export const DepartmentField = ({ form, index }: ICommonFieldProps) => {
         </Form.Item>
       )}
     />
-  )
+  );
 };
 
 export const DescriptionField = ({ form, index }: ICommonFieldProps) => (

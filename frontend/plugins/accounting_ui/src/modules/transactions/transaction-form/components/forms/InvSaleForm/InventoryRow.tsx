@@ -20,7 +20,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
 import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
-import { followTrDocsState, showAdvancedViewState, taxPercentsState } from '../../../states/trStates';
+import {
+  followTrDocsState,
+  showAdvancedViewState,
+  taxPercentsState,
+} from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvSaleJournal,
@@ -603,7 +607,9 @@ export const InventoryRow = ({
                         <SelectDepartments.InlineCell
                           mode="single"
                           value={field.value ?? ''}
-                          onValueChange={(department) => field.onChange(department)}
+                          onValueChange={(department) =>
+                            field.onChange(department)
+                          }
                           scope={AccountingHotkeyScope.TransactionFormPage}
                         />
                       </Form.Control>
