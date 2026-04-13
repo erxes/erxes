@@ -17,7 +17,10 @@ import { useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
 import { taxPercentsState } from '../../../states/trStates';
-import { ITransactionGroupForm, TInvIncomeJournal } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TInvIncomeJournal,
+} from '../../../types/JournalForms';
 
 export const InventoryRow = ({
   detailIndex,
