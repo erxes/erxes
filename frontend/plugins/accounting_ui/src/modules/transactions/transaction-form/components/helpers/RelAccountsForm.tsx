@@ -98,7 +98,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
     }
 
     timeoutRef.current = setTimeout(() => {
-      const filtered = newValues.filter((code) => code);
+      const filtered = newValues.filter((code) => !!code);
       setCustomDts([...filtered, '']);
 
       form.setValue(`trDocs.${index}.relAccounts`, {
@@ -119,7 +119,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
     }
 
     timeoutRef.current = setTimeout(() => {
-      const filtered = newValues.filter((code) => code);
+      const filtered = newValues.filter((code) => !!code);
       setCustomCts([...filtered, '']);
       form.setValue(`trDocs.${index}.relAccounts`, {
         ...trDoc.relAccounts,
@@ -154,7 +154,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
         <Label> Debit:</Label>
         {
           customDts?.map((code, ind) => <Input
-            className='ml-4 max-w-36' key={ind} value={code} onChange={(e) => onChangeDt(e.target.value, ind)}
+            className='ml-4 max-w-36' key={code} value={code} onChange={(e) => onChangeDt(e.target.value, ind)}
           />)
         }
       </div>
@@ -162,7 +162,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
         <Label>Credit:</Label>
         {
           customCts?.map((code, ind) => <Input
-            className='ml-4 max-w-36' key={ind} value={code} onChange={(e) => onChangeCt(e.target.value, ind)}
+            className='ml-4 max-w-36' key={code} value={code} onChange={(e) => onChangeCt(e.target.value, ind)}
           />)
         }
       </div>

@@ -99,7 +99,7 @@ export const setPtrStatus = async (models: IModels, transactions: ITransactionDo
 
     trsByPtrId[tr.ptrId].push(tr);
 
-    relAccountsByTrId[tr._id] = await getRelAccounts(tr, transactions, accountsById)
+    relAccountsByTrId[tr._id] = getRelAccounts(tr, transactions, accountsById)
   }
 
   const ptrIds = Object.keys(trsByPtrId);
