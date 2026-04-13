@@ -56,8 +56,10 @@ export const loadSafeRemainderItemClass = (
       const safeRemainderItems: any =
         await models.SafeRemainderItems.find(filter);
 
-      let count: number = 0;
-      for (const item of safeRemainderItems) count += item.count;
+      let count = 0;
+      for (const item of safeRemainderItems) {
+        count = count + item.count;
+      }
 
       return count;
     }

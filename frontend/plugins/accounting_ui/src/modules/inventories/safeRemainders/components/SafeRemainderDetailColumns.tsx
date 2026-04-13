@@ -9,9 +9,13 @@ import {
   NumberField,
   RecordTable,
   RecordTableInlineCell,
+  RecordTableHotKeyControl,
 } from 'erxes-ui';
 import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
+
+const REMAINDER_COL_INDEX = 0;
+const DIFF_COL_INDEX = 1;
 
 const ProductCell = ({ row }: any) => {
   return (
@@ -161,12 +165,20 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     ),
     accessorKey: 'remainder',
     cell: ({ row }) => (
-      <RemainderField
-        value={row.original.count ?? 0}
-        field="count"
-        _id={row.original._id}
-        remItem={row.original}
-      />
+      <RecordTableHotKeyControl
+        rowId={row.original._id}
+        rowIndex={row.index}
+        colIndex={REMAINDER_COL_INDEX}
+      >
+        <div>
+          <RemainderField
+            value={row.original.count ?? 0}
+            field="count"
+            _id={row.original._id}
+            remItem={row.original}
+          />
+        </div>
+      </RecordTableHotKeyControl>
     ),
   },
   {
@@ -174,12 +186,20 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Diff" />,
     accessorKey: 'diff',
     cell: ({ row }) => (
-      <DiffField
-        value={row.original.count - row.original.preCount}
-        field="diff"
-        _id={row.original._id}
-        remItem={row.original}
-      />
+      <RecordTableHotKeyControl
+        rowId={row.original._id}
+        rowIndex={row.index}
+        colIndex={DIFF_COL_INDEX}
+      >
+        <div>
+          <DiffField
+            value={row.original.count - row.original.preCount}
+            field="diff"
+            _id={row.original._id}
+            remItem={row.original}
+          />
+        </div>
+      </RecordTableHotKeyControl>
     ),
   },
 ];

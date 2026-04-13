@@ -6,12 +6,15 @@ import { IStage, IStageDocument } from '../../@types';
 import { removeStageItems } from '~/modules/sales/graphql/resolvers/utils';
 import { stageSchema } from '../definitions/stages';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { generateStageActivityLogs } from '~/utils/activityLogs';
 
 export interface IStageModel extends Model<IStageDocument> {
   getStage(_id: string): Promise<IStageDocument>;
   createStage(doc: IStage, userId?: string): Promise<IStageDocument>;
-  updateStage(_id: string, doc: IStage, userId?: string): Promise<IStageDocument>;
+  updateStage(
+    _id: string,
+    doc: IStage,
+    userId?: string,
+  ): Promise<IStageDocument>;
   removeStage(_id: string): Promise<IStageDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IStageDocument[]>;
   checkCodeDuplication(code: string, _id?: string): Promise<void>;
@@ -22,7 +25,7 @@ export const loadStageClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class Stage {
     public static async getStage(_id: string) {
@@ -52,19 +55,6 @@ export const loadStageClass = (
         currentDocument: stage.toObject(),
       });
 
-      createActivityLog?.({
-        activityType: 'create',
-        target: { _id: stage._id, moduleName: 'sales', collectionName: 'stages' },
-        action: { type: 'create', description: 'Stage created' },
-        changes: {
-          name: stage.name,
-          pipelineId: stage.pipelineId,
-          type: stage.type,
-          createdAt: new Date(),
-        },
-        metadata: { pipelineId: stage.pipelineId, userId },
-      });
-
       return stage;
     }
 
@@ -88,41 +78,22 @@ export const loadStageClass = (
         prevDocument: prevStage.toObject(),
       });
 
-      await generateStageActivityLogs(
-        prevStage.toObject(),
-        updatedStage.toObject(),
-        models,
-        createActivityLog,
-        subdomain,
-      );
-
       return updatedStage;
     }
 
     public static async updateOrder(orders: IOrderInput[]) {
       const stagesBefore = await models.Stages.find({
-        _id: { $in: orders.map(o => o._id) },
+        _id: { $in: orders.map((o) => o._id) },
       }).lean();
 
       const result = await updateOrder(models.Stages, orders);
 
       for (const order of orders) {
-        const prev = stagesBefore.find(s => s._id.toString() === order._id);
+        const prev = stagesBefore.find((s) => s._id.toString() === order._id);
         if (prev && prev.order !== order.order) {
           sendDbEventLog?.({
             action: 'update',
             docId: order._id,
-          });
-
-          createActivityLog?.({
-            activityType: 'reorder',
-            target: { _id: order._id, moduleName: 'sales', collectionName: 'stages' },
-            action: { type: 'reorder', description: 'Stage order changed' },
-            changes: {
-              order: { from: prev.order, to: order.order },
-              reorderedAt: new Date(),
-            },
-            metadata: { pipelineId: prev.pipelineId, userId: prev.userId },
           });
         }
       }
@@ -136,18 +107,6 @@ export const loadStageClass = (
       sendDbEventLog?.({
         action: 'delete',
         docId: stage._id,
-      });
-
-      createActivityLog?.({
-        activityType: 'delete',
-        target: { _id: stage._id, moduleName: 'sales', collectionName: 'stages' },
-        action: { type: 'delete', description: 'Stage deleted' },
-        changes: {
-          name: stage.name,
-          pipelineId: stage.pipelineId,
-          deletedAt: new Date(),
-        },
-        metadata: { pipelineId: stage.pipelineId, userId: stage.userId },
       });
 
       await removeStageItems(models, _id);

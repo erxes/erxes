@@ -33,7 +33,18 @@ export const generateFilter = async (
   }
 
   if (searchValue) {
-    filter['searchText'] = { $regex: searchValue, $options: 'i' };
+    const regex = { $regex: searchValue, $options: 'i' };
+
+    filter['$or'] = [
+      { searchText: regex },
+      { primaryEmail: regex },
+      { emails: regex },
+      { primaryPhone: regex },
+      { phones: regex },
+      { firstName: regex },
+      { lastName: regex },
+      { middleName: regex },
+    ];
   }
 
   if (ids?.length) {

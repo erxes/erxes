@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { Spinner } from 'erxes-ui';
+import { Spinner, Form } from 'erxes-ui';
+import { useForm } from 'react-hook-form';
 
 import type {
-  MNConfigQueryResponse,
   MNConfigsCreateMutationResponse,
   MNConfigsUpdateMutationResponse,
   MNConfigsRemoveMutationResponse,
 } from '../types';
 
-import { MN_CONFIG } from '../graphql/clientQueries';
+import { MN_CONFIG, MN_CONFIGS } from '../graphql/clientQueries';
 import {
   MN_CONFIGS_CREATE,
   MN_CONFIGS_UPDATE,
@@ -28,20 +28,23 @@ type Props = {
   component: React.ComponentType<any>;
   configCode: string;
   subId?: string;
+  multiple?: boolean;
 };
 
 const SettingsContainer = ({
   component: Component,
   configCode,
   subId,
+  multiple = false,
 }: Props) => {
-  const { data, loading, error, refetch } = useQuery<MNConfigQueryResponse>(
-    MN_CONFIG,
+  const form = useForm();
+
+  const { data, loading, error, refetch } = useQuery(
+    multiple ? MN_CONFIGS : MN_CONFIG,
     {
-      variables: {
-        code: configCode,
-        subId: subId ?? null,
-      },
+      variables: multiple
+        ? { code: configCode }
+        : { code: configCode, subId: subId ?? '' },
       fetchPolicy: 'network-only',
       errorPolicy: 'all',
     },
@@ -56,37 +59,55 @@ const SettingsContainer = ({
   const [removeConfig] =
     useMutation<MNConfigsRemoveMutationResponse>(MN_CONFIGS_REMOVE);
 
-  /**
-   * Normalize ALL configs into array
-   */
-  const normalizedConfig = useMemo(() => {
+  const normalizedConfigs = useMemo(() => {
+    if (multiple) {
+      const rawList = data?.mnConfigs || [];
+
+      return rawList.map((raw: any) => {
+        let normalized;
+
+        if (configCode === 'dealsProductsDataPlaces') {
+          normalized = normalizePlaceConfig(raw);
+        } else if (configCode === 'dealsProductsDataSplit') {
+          normalized = normalizeSplitConfig(raw);
+        } else if (configCode === 'dealsProductsDataPrint') {
+          normalized = normalizePrintConfig(raw);
+        } else {
+          normalized = normalizeConfig(raw);
+        }
+
+        return {
+          _id: raw._id,
+          subId: raw.subId,
+          ...normalized,
+        };
+      });
+    }
+
     const raw = data?.mnConfig;
 
-    if (!raw?.value) return null;
+    if (!raw?.value) return [];
 
-    try {
-      let normalized: Record<string, any>;
+    let normalized;
 
-      if (configCode === 'dealsProductsDataPlaces') {
-        normalized = normalizePlaceConfig(raw);
-      } else if (configCode === 'dealsProductsDataSplit') {
-        normalized = normalizeSplitConfig(raw);
-      } else if (configCode === 'dealsProductsDataPrint') {
-        normalized = normalizePrintConfig(raw);
-      } else {
-        normalized = normalizeConfig(raw);
-      }
-
-      return {
-        _id: raw._id,
-        ...normalized,
-      };
-    } catch (err) {
-      console.error(`[SettingsContainer:${configCode}] normalize failed`, err);
-      return null;
+    if (configCode === 'dealsProductsDataPlaces') {
+      normalized = normalizePlaceConfig(raw);
+    } else if (configCode === 'dealsProductsDataSplit') {
+      normalized = normalizeSplitConfig(raw);
+    } else if (configCode === 'dealsProductsDataPrint') {
+      normalized = normalizePrintConfig(raw);
+    } else {
+      normalized = normalizeConfig(raw);
     }
-  }, [data, configCode]);
 
+    return [
+      {
+        _id: raw._id,
+        subId: raw.subId,
+        ...normalized,
+      },
+    ];
+  }, [data, configCode, multiple]);
 
   if (loading) {
     return (
@@ -96,7 +117,7 @@ const SettingsContainer = ({
     );
   }
 
-  if (error && !data?.mnConfig) {
+  if (error && !data) {
     return (
       <div className="p-4 bg-red-50 text-red-700 rounded">
         Error loading configuration: {error.message}
@@ -104,18 +125,17 @@ const SettingsContainer = ({
     );
   }
 
-  /**
-   * SAVE (create or update)
-   */
-  const save = async (config: Record<string, any>) => {
+  const save = async (config: Record<string, any>, formSubId?: string) => {
     const { _id, ...rest } = config;
     const value = denormalizeConfig(rest);
+
+    const finalSubId = formSubId ?? rest.stageId ?? subId ?? '';
 
     if (_id) {
       await updateConfig({
         variables: {
           _id,
-          subId: subId ?? null,
+          subId: finalSubId,
           value,
         },
       });
@@ -123,7 +143,7 @@ const SettingsContainer = ({
       await createConfig({
         variables: {
           code: configCode,
-          subId: subId ?? null,
+          subId: finalSubId,
           value,
         },
       });
@@ -133,9 +153,6 @@ const SettingsContainer = ({
     return true;
   };
 
-  /**
-   * DELETE by id
-   */
   const remove = async (id: string) => {
     if (!id) return;
 
@@ -147,12 +164,14 @@ const SettingsContainer = ({
   };
 
   return (
-    <Component
-      configs={normalizedConfig}
-      save={save}
-      delete={remove}
-      loading={loading}
-    />
+    <Form {...form}>
+      <Component
+        configs={normalizedConfigs}
+        save={save}
+        delete={remove}
+        loading={loading}
+      />
+    </Form>
   );
 };
 

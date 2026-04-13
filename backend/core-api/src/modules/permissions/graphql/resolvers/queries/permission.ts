@@ -78,26 +78,33 @@ export const permissionQueries = {
   ) {
     if (!user) throw new Error('Login required');
 
-    if (user.isOwner) {
-      return [{ plugin: '*', module: '*', actions: ['*'], scope: 'all' }];
-    }
-
-    let groupIds = user.permissionGroupIds || [];
-    const customPermissions = user.customPermissions || [];
-
     const plugins = await getPlugins();
 
+    const pluginsWithPermissions: string[] = [];
     const allDefaultGroups: any[] = [];
 
     for (const pluginName of plugins) {
       const plugin = await getPlugin(pluginName);
-
       const permissions = plugin?.config?.meta?.permissions;
 
-      if (!permissions?.defaultGroups) continue;
+      if (permissions?.modules?.length || permissions?.defaultGroups?.length) {
+        pluginsWithPermissions.push(pluginName);
+      }
 
-      allDefaultGroups.push(...permissions.defaultGroups);
+      if (permissions?.defaultGroups) {
+        allDefaultGroups.push(...permissions.defaultGroups);
+      }
     }
+
+    if (user.isOwner) {
+      return {
+        permissions: [{ plugin: '*', module: '*', actions: ['*'], scope: 'all' }],
+        pluginsWithPermissions,
+      };
+    }
+
+    let groupIds = user.permissionGroupIds || [];
+    const customPermissions = user.customPermissions || [];
 
     if (groupIds.length === 0 && customPermissions.length === 0) {
       const viewerGroupIds = allDefaultGroups
@@ -138,6 +145,9 @@ export const permissionQueries = {
       mergePerm(permMap, perm);
     }
 
-    return Array.from(permMap.values());
+    return {
+      permissions: Array.from(permMap.values()),
+      pluginsWithPermissions,
+    };
   },
 };

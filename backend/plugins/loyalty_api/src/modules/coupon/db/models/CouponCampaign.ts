@@ -88,7 +88,11 @@ export const loadCouponCampaignClass = (models: IModels) => {
         modifiedAt: new Date(),
       };
 
-      return models.CouponCampaigns.updateOne({ _id }, { $set: doc });
+      return models.CouponCampaigns.findOneAndUpdate(
+        { _id },
+        { $set: doc },
+        { new: true },
+      );
     }
 
     public static async removeCouponCampaigns(_ids: string[]) {

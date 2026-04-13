@@ -28,7 +28,7 @@ const accountsMutations = {
     await models.Accounts.getAccount({ _id });
     const updated = await models.Accounts.updateAccount(_id, {
       ...doc,
-      status: 'active',
+      status: doc.status ?? 'active',
     });
 
     return updated;

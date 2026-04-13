@@ -1,7 +1,6 @@
-import { useMutation } from '@apollo/client';
-import { REMOVE_TEAM } from '../graphql/mutations/removeTeam';
-import { MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { REMOVE_TEAM } from '../graphql/mutations/removeTeam';
 
 export const useRemoveTeam = () => {
   const { toast } = useToast();

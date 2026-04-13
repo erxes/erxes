@@ -9,27 +9,26 @@ import {
   watchItem,
 } from '../../utils';
 import { dealSchema } from '../definitions/deals';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
-  generateDealActivityLogs,
+  generateDealUpdateActivityLogs,
   generateDealCreatedActivityLog,
-} from '~/utils/activityLogs';
+  generateDealWatchActivityLog,
+} from '~/modules/sales/meta/activity-log';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
   createDeal(doc: IDeal): Promise<IDealDocument>;
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
-  watchDeal(_id: string, isAdd: boolean, userId: string): void;
+  watchDeal(_id: string, isAdd: boolean, userId: string): Promise<void>;
   removeDeals(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
 export const loadDealClass = (
   models: IModels,
   subdomain: string,
-  dispatcher: EventDispatcherReturn,
+  { sendDbEventLog, getContext, createActivityLog }: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, getContext } = dispatcher;
-
   class Deal {
     /** Get single deal */
     public static async getDeal(_id: string) {
@@ -50,7 +49,7 @@ export const loadDealClass = (
 
       // Calculate totals
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter(pd => pd);
+        doc.productsData = doc.productsData.filter((pd) => pd);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
@@ -63,30 +62,25 @@ export const loadDealClass = (
         currentDocument: deal.toObject(),
       });
 
-      dispatcher.createActivityLog(generateDealCreatedActivityLog(deal));
+      createActivityLog(generateDealCreatedActivityLog(deal));
 
       return deal;
     }
 
     public static async updateDeal(_id: string, doc: IDeal) {
       const prevDeal = await models.Deals.getDeal(_id);
-      const prevDealObj = prevDeal.toObject()
+      const prevDealObj = prevDeal.toObject();
 
       // Fill searchText for indexing
       const searchText = fillSearchTextItem(doc, prevDeal);
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter(
-          pd => pd && pd.productId,
-        );
+        doc.productsData = doc.productsData.filter((pd) => pd.productId);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
 
-      await models.Deals.updateOne(
-        { _id },
-        { $set: { ...doc, searchText } },
-      );
+      await models.Deals.updateOne({ _id }, { $set: { ...doc, searchText } });
 
       const updatedDeal = await models.Deals.getDeal(_id);
       const updatedDealObj = updatedDeal.toObject();
@@ -98,20 +92,25 @@ export const loadDealClass = (
         prevDocument: prevDealObj,
       });
 
-      const context = getContext();
-      await generateDealActivityLogs(
+      await generateDealUpdateActivityLogs(
         prevDealObj,
         updatedDealObj,
         models,
-        dispatcher.createActivityLog,
+        createActivityLog,
         subdomain,
       );
 
       return updatedDeal;
     }
 
-    public static watchDeal(_id: string, isAdd: boolean, userId: string) {
-      return watchItem(models.Deals, _id, isAdd, userId);
+    public static async watchDeal(_id: string, isAdd: boolean, userId: string) {
+      const deal = await models.Deals.getDeal(_id);
+
+      await watchItem(models.Deals, _id, isAdd, userId);
+
+      createActivityLog(
+        generateDealWatchActivityLog(deal.toObject(), isAdd, userId),
+      );
     }
 
     public static async removeDeals(_ids: string[]) {

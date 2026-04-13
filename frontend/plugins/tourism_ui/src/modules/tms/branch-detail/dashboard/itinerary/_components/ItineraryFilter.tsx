@@ -1,5 +1,6 @@
 import { Combobox, Command, Filter } from 'erxes-ui';
 import { ITINERARIES_CURSOR_SESSION_KEY } from '../constants/itineraryCursorSessionKey';
+import { ItineraryTotalCount } from './ItineraryTotalCount';
 
 const ItineraryFilterPopover = () => {
   return (
@@ -32,6 +33,7 @@ export const ItineraryFilter = () => {
       <Filter.Bar>
         <ItineraryFilterPopover />
         <Filter.SearchValueBarItem />
+        <ItineraryTotalCount />
       </Filter.Bar>
     </Filter>
   );

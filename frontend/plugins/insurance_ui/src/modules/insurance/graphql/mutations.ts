@@ -34,16 +34,16 @@ export const DELETE_RISK_TYPE = gql`
 
 // Insurance Type Mutations
 export const CREATE_INSURANCE_TYPE = gql`
-  mutation CreateInsuranceType($name: String!, $attributes: [AttributeInput!]) {
-    createInsuranceType(name: $name, attributes: $attributes) {
+  mutation CreateInsuranceType($name: String!, $attributes: [AttributeInput!], $isCitizen: Boolean) {
+    createInsuranceType(name: $name, attributes: $attributes, isCitizen: $isCitizen) {
       ${insuranceTypeFields}
     }
   }
 `;
 
 export const UPDATE_INSURANCE_TYPE = gql`
-  mutation UpdateInsuranceType($id: ID!, $name: String, $attributes: [AttributeInput!]) {
-    updateInsuranceType(id: $id, name: $name, attributes: $attributes) {
+  mutation UpdateInsuranceType($id: ID!, $name: String, $attributes: [AttributeInput!], $isCitizen: Boolean) {
+    updateInsuranceType(id: $id, name: $name, attributes: $attributes, isCitizen: $isCitizen) {
       ${insuranceTypeFields}
     }
   }
@@ -66,6 +66,7 @@ export const CREATE_INSURANCE_PRODUCT = gql`
     $additionalCoverages: [AdditionalCoverageInput!]
     $compensationCalculations: [CompensationCalculationInput!]
     $deductibleConfig: DeductibleConfigInput
+    $regionIds: [ID!]
   ) {
     createInsuranceProduct(
       name: $name
@@ -76,6 +77,7 @@ export const CREATE_INSURANCE_PRODUCT = gql`
       additionalCoverages: $additionalCoverages
       compensationCalculations: $compensationCalculations
       deductibleConfig: $deductibleConfig
+      regionIds: $regionIds
     ) {
       ${insuranceProductFields}
     }
@@ -92,6 +94,7 @@ export const UPDATE_INSURANCE_PRODUCT = gql`
     $additionalCoverages: [AdditionalCoverageInput!]
     $compensationCalculations: [CompensationCalculationInput!]
     $deductibleConfig: DeductibleConfigInput
+    $regionIds: [ID!]
   ) {
     updateInsuranceProduct(
       id: $id
@@ -102,6 +105,7 @@ export const UPDATE_INSURANCE_PRODUCT = gql`
       additionalCoverages: $additionalCoverages
       compensationCalculations: $compensationCalculations
       deductibleConfig: $deductibleConfig
+      regionIds: $regionIds
     ) {
       ${insuranceProductFields}
     }
@@ -132,8 +136,8 @@ export const UPDATE_VENDOR = gql`
 `;
 
 export const ADD_PRODUCT_TO_VENDOR = gql`
-  mutation AddProductToVendor($vendorId: ID!, $productId: ID!, $pricingOverride: JSON) {
-    addProductToVendor(vendorId: $vendorId, productId: $productId, pricingOverride: $pricingOverride) {
+  mutation AddProductToVendor($vendorId: ID!, $productId: ID!, $pricingOverride: JSON, $discountTiers: [DiscountTierInput!]) {
+    addProductToVendor(vendorId: $vendorId, productId: $productId, pricingOverride: $pricingOverride, discountTiers: $discountTiers) {
       ${insuranceVendorFields}
     }
   }
@@ -228,6 +232,55 @@ export const DELETE_VENDOR_USER = gql`
   }
 `;
 
+// Region Mutations
+import { insuranceRegionFields } from './queries';
+
+export const CREATE_INSURANCE_REGION = gql`
+  mutation CreateInsuranceRegion($name: String!, $countries: [String!]!) {
+    createInsuranceRegion(name: $name, countries: $countries) {
+      ${insuranceRegionFields}
+    }
+  }
+`;
+
+export const UPDATE_INSURANCE_REGION = gql`
+  mutation UpdateInsuranceRegion($id: ID!, $name: String, $countries: [String!]) {
+    updateInsuranceRegion(id: $id, name: $name, countries: $countries) {
+      ${insuranceRegionFields}
+    }
+  }
+`;
+
+export const DELETE_INSURANCE_REGION = gql`
+  mutation DeleteInsuranceRegion($id: ID!) {
+    deleteInsuranceRegion(id: $id)
+  }
+`;
+
+export const ADD_COUNTRY_TO_REGION = gql`
+  mutation AddCountryToRegion($regionId: ID!, $country: String!) {
+    addCountryToRegion(regionId: $regionId, country: $country) {
+      ${insuranceRegionFields}
+    }
+  }
+`;
+
+export const REMOVE_COUNTRY_FROM_REGION = gql`
+  mutation RemoveCountryFromRegion($regionId: ID!, $country: String!) {
+    removeCountryFromRegion(regionId: $regionId, country: $country) {
+      ${insuranceRegionFields}
+    }
+  }
+`;
+
+export const SEED_INSURANCE_REGIONS = gql`
+  mutation SeedInsuranceRegions {
+    seedInsuranceRegions {
+      ${insuranceRegionFields}
+    }
+  }
+`;
+
 export default {
   CREATE_RISK_TYPE,
   UPDATE_RISK_TYPE,
@@ -250,4 +303,10 @@ export default {
   DELETE_CUSTOMER,
   CREATE_INSURANCE_CONTRACT,
   GENERATE_CONTRACT_PDF,
+  CREATE_INSURANCE_REGION,
+  UPDATE_INSURANCE_REGION,
+  DELETE_INSURANCE_REGION,
+  ADD_COUNTRY_TO_REGION,
+  REMOVE_COUNTRY_FROM_REGION,
+  SEED_INSURANCE_REGIONS,
 };

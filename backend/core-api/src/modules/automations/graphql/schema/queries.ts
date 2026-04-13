@@ -57,10 +57,11 @@ const queries = `
   automationHistoriesTotalCount(${historiesParams}):Int
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
+  automationNodeOutput(nodeType: String!): JSON
   automationBotsConstants:JSON
   automationsAiAgents(kind:String):JSON
-  automationsAiAgentDetail:JSON
-  getTrainingStatus(agentId: String!): TrainingProgress!
+  automationsAiAgentDetail(_id:String):JSON
+  automationsAiAgentHealth(agentId: String!): AiAgentHealth!
   getAutomationWebhookEndpoint(_id:String!,waitEventActionId:String):String
   getAutomationExecutionDetail(executionId: String!): AutomationHistory
   automationEmailTemplates(${emailTemplateParams}): AutomationEmailTemplatesListResponse

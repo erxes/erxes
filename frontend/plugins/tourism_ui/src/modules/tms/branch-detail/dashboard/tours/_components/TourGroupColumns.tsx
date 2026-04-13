@@ -6,6 +6,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import {
+  Badge,
   Checkbox,
   RecordTable,
   RecordTableInlineCell,
@@ -36,7 +37,13 @@ const formatDate = (value?: string) => {
   return dateFormatter.format(date);
 };
 
-export const GroupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
+interface GroupedTourColumnsProps {
+  onEdit?: (tourId: string) => void;
+}
+
+export const GroupedTourColumns = (
+  props?: GroupedTourColumnsProps,
+): ColumnDef<TourGroupRow>[] => [
   {
     id: 'checkbox',
     header: ({ table }) => {
@@ -96,9 +103,17 @@ export const GroupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
             hasChildren={row.original.hasChildren}
           >
             <div className="min-w-0">
-              <TextOverflowTooltip
-                value={row.original.isGroup ? row.original._id : value || '-'}
-              />
+              {row.original.isGroup ? (
+                <TextOverflowTooltip value={row.original._id} />
+              ) : (
+                <Badge
+                  variant="secondary"
+                  className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+                  onClick={() => props?.onEdit?.(row.original._id)}
+                >
+                  <TextOverflowTooltip value={value || '-'} />
+                </Badge>
+              )}
             </div>
           </RecordTableTree.Trigger>
         </RecordTableInlineCell>
@@ -125,19 +140,31 @@ export const GroupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
     id: 'date',
     accessorKey: 'dateRangeLabel',
     header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
-    cell: ({ row }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={
-            row.original.isGroup
-              ? row.original.dateRangeLabel || '-'
-              : `${formatDate(row.original.startDate)} - ${formatDate(
-                  row.original.endDate,
-                )}`
-          }
-        />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ row }) => {
+      if (row.original.isGroup) {
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={row.original.dateRangeLabel || '-'} />
+          </RecordTableInlineCell>
+        );
+      }
+
+      const tour = row.original;
+      const startDateValue =
+        tour.dateType === 'flexible' ? tour.availableFrom : tour.startDate;
+      const endDateValue =
+        tour.dateType === 'flexible' ? tour.availableTo : tour.endDate;
+
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={`${formatDate(startDateValue)} - ${formatDate(
+              endDateValue,
+            )}`}
+          />
+        </RecordTableInlineCell>
+      );
+    },
     size: 200,
   },
   {

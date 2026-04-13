@@ -14,8 +14,13 @@ interface DayListProps {
   availableAmenities: IAmenity[];
   getDayElements: (dayIndex: number) => IElement[];
   onRemoveElement: (dayIndex: number, elementId: string) => void;
+  onReorderElements: (dayIndex: number, reorderedElementIds: string[]) => void;
   onDrop: (dayIndex: number) => void;
   isDragging: boolean;
+  labelSuffix?: string;
+  currencySymbol?: string;
+  daysFieldPathPrefix?: string;
+  dayDescriptionKey?: string;
 }
 
 export const DayList = ({
@@ -26,12 +31,17 @@ export const DayList = ({
   availableAmenities,
   getDayElements,
   onRemoveElement,
+  onReorderElements,
   onDrop,
   isDragging,
+  labelSuffix,
+  currencySymbol,
+  daysFieldPathPrefix,
+  dayDescriptionKey,
 }: DayListProps) => {
   return (
-    <div className="flex overflow-y-auto flex-col flex-1 p-3 space-y-4 min-h-0">
-      {days.map((day, index) => {
+    <div className="flex flex-col flex-1 min-h-0 p-3 space-y-4 overflow-y-auto">
+      {days.map((_, index) => {
         const elements = getDayElements(index);
 
         return (
@@ -53,6 +63,16 @@ export const DayList = ({
               availableAmenities={availableAmenities}
               droppedElements={elements}
               onRemoveElement={(elementId) => onRemoveElement(index, elementId)}
+              onReorderElements={(reordered) =>
+                onReorderElements(
+                  index,
+                  reordered.map((el) => el._id),
+                )
+              }
+              labelSuffix={labelSuffix}
+              currencySymbol={currencySymbol}
+              daysFieldPathPrefix={daysFieldPathPrefix}
+              dayDescriptionKey={dayDescriptionKey}
             />
           </div>
         );
@@ -63,7 +83,7 @@ export const DayList = ({
           type="button"
           variant="outline"
           onClick={onAddDay}
-          className="flex gap-2 items-center w-full"
+          className="flex items-center w-full gap-2"
         >
           <IconPlus size={18} />
           Add Day

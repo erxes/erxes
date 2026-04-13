@@ -32,7 +32,7 @@ export const types = `
     pdfAttachment: PdfAttachment
 
     cursor: String
-    remainders: JSON
+    inventories: JSON
     discounts: JSON
 
     remainder: JSON
@@ -116,6 +116,7 @@ export const queries = `
     sortField: String,
     sortDirection: Int,
   ): [Product]
+  cpProductDetail(_id: String): Product
 `;
 
 export const mutationParams = `

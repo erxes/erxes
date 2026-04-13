@@ -236,8 +236,8 @@ export const destroyBoardItemRelations = async (
     pluginName: 'core',
     module: 'activityLog',
     action: 'deleteActivityLog',
-    input: { targetIds: dealIds }
-  })
+    input: { targetIds: dealIds },
+  });
 
   await models.Checklists.removeChecklists(dealIds);
 
@@ -249,7 +249,7 @@ export const destroyBoardItemRelations = async (
     action: 'cleanRelation',
     input: {
       contentType: 'sales:deal',
-      contentIds: dealIds
+      contentIds: dealIds,
     },
   });
 
@@ -338,19 +338,19 @@ const generateArchivedItemsFilter = (
     filter.userId = { $in: userIds };
   }
 
-  if (priorities && priorities.length) {
+  if (priorities?.length) {
     filter.priority = { $in: priorities };
   }
 
-  if (assignedUserIds && assignedUserIds.length) {
+  if (assignedUserIds?.length) {
     filter.assignedUserIds = { $in: assignedUserIds };
   }
 
-  if (labelIds && labelIds.length) {
+  if (labelIds?.length) {
     filter.labelIds = { $in: labelIds };
   }
 
-  if (productIds && productIds.length) {
+  if (productIds?.length) {
     filter['productsData.productId'] = { $in: productIds };
   }
 
@@ -370,11 +370,11 @@ const generateArchivedItemsFilter = (
     }
   }
 
-  if (sources && sources.length) {
+  if (sources?.length) {
     filter.source = { $in: sources };
   }
 
-  if (hackStages && hackStages.length) {
+  if (hackStages?.length) {
     filter.hackStages = { $in: hackStages };
   }
 
@@ -511,7 +511,7 @@ export const getItemList = async (
 ) => {
   const { orderBy } = args;
   if (!orderBy || !Object.keys(orderBy)) {
-    args.orderBy = { order: 1 }
+    args.orderBy = { order: 1 };
   }
 
   const { list, pageInfo, totalCount } = await cursorPaginate<IDealDocument>({
@@ -530,7 +530,7 @@ export const getItemList = async (
     action: 'find',
     input: {
       query: {
-        "configs.showInCard": true,
+        'configs.showInCard': true,
         contentType: `sales:deal`,
       },
     },
@@ -549,7 +549,7 @@ export const getItemList = async (
             name: `${field.name} - ${fieldData}`,
           });
         }
-      };
+      }
     }
 
     updatedList.push({
@@ -583,7 +583,7 @@ const compareDepartmentIds = (
 
 export const generateProducts = async (
   subdomain: string,
-  productsData?: any[]
+  productsData?: any[],
 ) => {
   const products: any = [];
 
@@ -592,24 +592,24 @@ export const generateProducts = async (
   }
 
   const productIds = productsData
-    .filter(pd => pd.productId)
-    .map(pd => pd.productId);
+    .filter((pd) => pd.productId)
+    .map((pd) => pd.productId);
 
   const allProducts = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
     module: 'products',
-    action: "find",
+    action: 'find',
     input: { query: { _id: { $in: productIds } }, limit: productsData.length },
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const data of productsData || []) {
     if (!data.productId) {
       continue;
     }
-    const product = allProducts.find(p => p._id === data.productId);
+    const product = allProducts.find((p) => p._id === data.productId);
 
     if (!product) {
       continue;
@@ -626,22 +626,22 @@ export const generateProducts = async (
       pluginName: 'core',
       method: 'query',
       module: 'fields',
-      action: "find",
+      action: 'find',
       input: {
         query: {
-          _id: { $in: fieldIds }
-        }
+          _id: { $in: fieldIds },
+        },
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const fieldId of fieldIds || []) {
-      const field = fields.find(f => f._id === fieldId);
+      const field = fields.find((f) => f._id === fieldId);
 
       if (field) {
         properties[fieldId] = {
           text: field.text,
-          data: propertiesData[fieldId]
+          data: propertiesData[fieldId],
         };
       }
     }
@@ -649,8 +649,8 @@ export const generateProducts = async (
     product.propertiesData = properties;
 
     products.push({
-      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
-      product
+      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+      product,
     });
   }
 
@@ -921,29 +921,39 @@ export const getCustomerIds = async (
 
 export const createRelations = async (
   subdomain: string,
-  { dealId, companyIds, customerIds }: { dealId: string, companyIds?: string[], customerIds?: string[] },
+  {
+    dealId,
+    companyIds,
+    customerIds,
+  }: { dealId: string; companyIds?: string[]; customerIds?: string[] },
 ) => {
-  const companyEntities = companyIds?.map(companyId => ({
-    entities: [{
-      "contentType": "sales:deal",
-      "contentId": dealId
-    },
-    {
-      "contentType": "core:company",
-      "contentId": companyId
-    }]
-  })) ?? [];
+  const companyEntities =
+    companyIds?.map((companyId) => ({
+      entities: [
+        {
+          contentType: 'sales:deal',
+          contentId: dealId,
+        },
+        {
+          contentType: 'core:company',
+          contentId: companyId,
+        },
+      ],
+    })) ?? [];
 
-  const customerEntities = customerIds?.map(customerId => ({
-    entities: [{
-      "contentType": "sales:deal",
-      "contentId": dealId
-    },
-    {
-      "contentType": "core:customer",
-      "contentId": customerId
-    }]
-  })) ?? [];
+  const customerEntities =
+    customerIds?.map((customerId) => ({
+      entities: [
+        {
+          contentType: 'sales:deal',
+          contentId: dealId,
+        },
+        {
+          contentType: 'core:customer',
+          contentId: customerId,
+        },
+      ],
+    })) ?? [];
 
   if (!(companyEntities.length + customerEntities.length)) {
     return;
@@ -956,10 +966,7 @@ export const createRelations = async (
     module: 'relation',
     action: 'createMultipleRelations',
     input: {
-      relations: [
-        ...companyEntities,
-        ...customerEntities
-      ]
+      relations: [...companyEntities, ...customerEntities],
     },
   });
 };
@@ -1168,7 +1175,7 @@ export const itemsAdd = async (
 
   const extendedDoc = {
     ...modifiedDoc,
-    modifiedBy: user && user._id,
+    modifiedBy: user?._id,
     userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection: models.Deals,

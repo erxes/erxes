@@ -11,6 +11,7 @@ import {
   IPermissionGroup,
 } from '@/settings/permissions/types';
 import { PermissionGroupDetails } from '@/settings/permissions/components/PermissionGroupDetails';
+import { Can } from 'ui-modules';
 
 export const MemberPermission = ({
   userId,
@@ -105,18 +106,20 @@ export const MemberPermission = ({
           <Collapsible.Content className="pt-3 space-y-3">
             {groups.map((group: IDefaultPermissionGroup) => (
               <div className="flex items-center gap-2 flex-wrap" key={group.id}>
-                <Checkbox
-                  id={group.id}
-                  checked={permissionGroupIds.includes(group.id)}
-                  disabled={updateLoading}
-                  onCheckedChange={(checked) =>
-                    handlePermissionGroupChange(
-                      group.id,
-                      checked as boolean,
-                      true,
-                    )
-                  }
-                />
+                <Can action="permissionsManage">
+                  <Checkbox
+                    id={group.id}
+                    checked={permissionGroupIds.includes(group.id)}
+                    disabled={updateLoading}
+                    onCheckedChange={(checked) =>
+                      handlePermissionGroupChange(
+                        group.id,
+                        checked as boolean,
+                        true,
+                      )
+                    }
+                  />
+                </Can>
                 <Label variant="peer" htmlFor={group.id} className="flex-1">
                   {group.name}
                 </Label>
@@ -148,14 +151,16 @@ export const MemberPermission = ({
         <Collapsible.Content className="pt-3 space-y-3">
           {permissionGroups.map((group: IPermissionGroup) => (
             <div className="flex items-center gap-2 flex-wrap" key={group._id}>
-              <Checkbox
-                id={group._id}
-                checked={permissionGroupIds.includes(group._id)}
-                disabled={updateLoading}
-                onCheckedChange={(checked) =>
-                  handlePermissionGroupChange(group._id, checked as boolean)
-                }
-              />
+              <Can action="permissionsManage">
+                <Checkbox
+                  id={group._id}
+                  checked={permissionGroupIds.includes(group._id)}
+                  disabled={updateLoading}
+                  onCheckedChange={(checked) =>
+                    handlePermissionGroupChange(group._id, checked as boolean)
+                  }
+                />
+              </Can>
               <Label variant="peer" htmlFor={group._id} className="flex-1">
                 {group.name}
               </Label>

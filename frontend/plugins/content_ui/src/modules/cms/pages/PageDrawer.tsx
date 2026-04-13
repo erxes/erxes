@@ -1,17 +1,98 @@
 import { IconAlertCircle } from '@tabler/icons-react';
-import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Form, ScrollArea, toast } from 'erxes-ui';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
-import { useAddPage } from './hooks/useAddPage';
+import { useSetAtom, useAtomValue } from 'jotai';
+import { CustomFieldValue } from '../posts/CustomFieldInput';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { pageFormSchema } from '../constants/pageFormSchema';
 import { useEditPage } from './hooks/useEditPage';
-import { IPageDrawerProps, IPageFormData } from './types/pageTypes';
-import { CONTENT_CMS_LIST } from '../graphql/queries';
+import { useAddPage } from './hooks/useAddPage';
+import { IPage, IPageDrawerProps, IPageFormData } from './types/pageTypes';
+import { CONTENT_CMS_LIST, CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import {
   useCmsTranslation,
   TranslationData,
 } from '../shared/hooks/useCmsTranslation';
-import { LanguageSelector } from '../shared/LanguageSelector';
+import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+import { PageEditorColumn } from './components/PageEditorColumn';
+import { PageSidebarPanel } from './components/PageSidebarPanel';
+import {
+  PageCustomFieldsSection,
+  FieldGroup,
+} from './components/PageCustomFieldsSection';
+import {
+  normalizeAttachment,
+  makeAttachmentArrayFromUrls,
+} from '../posts/formHelpers';
+
+interface InlineContent {
+  text?: string;
+  styles?: {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strike?: boolean;
+    code?: boolean;
+  };
+}
+
+interface BlockContent {
+  type?: string;
+  content?: InlineContent[];
+  props?: {
+    level?: number;
+  };
+}
+
+const escapeHtml = (str: string): string =>
+  str
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
+const blocksToHtml = (raw: string): string => {
+  try {
+    const blocks = JSON.parse(raw) as BlockContent[];
+    if (!Array.isArray(blocks)) return raw;
+
+    return blocks
+      .map((block) => {
+        const inlines = block.content ?? [];
+        const html = inlines
+          .map((inline) => {
+            let text = escapeHtml(inline.text ?? '');
+            if (inline.styles?.bold) text = `<strong>${text}</strong>`;
+            if (inline.styles?.italic) text = `<em>${text}</em>`;
+            if (inline.styles?.underline) text = `<u>${text}</u>`;
+            if (inline.styles?.strike) text = `<s>${text}</s>`;
+            if (inline.styles?.code) text = `<code>${text}</code>`;
+            return text;
+          })
+          .join('');
+
+        if (block.type === 'heading') {
+          const level = block.props?.level ?? 1;
+          return `<h${level}>${html}</h${level}>`;
+        }
+        if (block.type === 'codeBlock') {
+          return `<pre><code>${html}</code></pre>`;
+        }
+        return `<p>${html}</p>`;
+      })
+      .join('');
+  } catch {
+    return raw;
+  }
+};
+
+const normalizeContent = (raw: string): string => {
+  return raw.trimStart().startsWith('[') ? blocksToHtml(raw) : raw;
+};
 
 interface CmsConfig {
   clientPortalId: string;
@@ -36,9 +117,16 @@ interface PageInput {
   name: string;
   slug: string;
   description: string | undefined;
+  parentId?: string;
   status: string;
   language?: string;
   translations?: PageTranslationInput[];
+  thumbnail?: { url: string; name: string; type?: string } | null;
+  pageImages?: { url: string; name: string }[];
+  videoUrl?: string;
+  documents?: { url: string; name: string }[];
+  attachments?: { url: string; name: string }[];
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
 }
 
 function resolveMainFields(
@@ -54,10 +142,13 @@ function resolveMainFields(
     }
     return {
       name: defaultLangData.title || '',
-      description: defaultLangData.content || '',
+      description: normalizeContent(defaultLangData.content || ''),
     };
   }
-  return { name: currentName, description: currentDescription };
+  return {
+    name: currentName,
+    description: normalizeContent(currentDescription || ''),
+  };
 }
 
 function resolveLanguage(
@@ -86,7 +177,7 @@ function buildPageTranslations(
       entries.push({
         language: lang,
         title: tData.title || '',
-        content: tData.content || '',
+        content: normalizeContent(tData.content || ''),
         type: 'page',
       });
     }
@@ -96,7 +187,7 @@ function buildPageTranslations(
     entries.push({
       language: selectedLanguage,
       title: currentName,
-      content: currentDescription || '',
+      content: normalizeContent(currentDescription || ''),
       type: 'page',
     });
   }
@@ -104,15 +195,26 @@ function buildPageTranslations(
   return entries;
 }
 
+interface PageFormProps extends IPageDrawerProps {
+  onFormReady?: (formState: {
+    form: UseFormReturn<IPageFormData>;
+    onSubmit: (data: IPageFormData) => void;
+    getSaving: () => boolean;
+    handleLanguageChange: (lang: string) => void;
+  }) => void;
+}
+
 export function PageDrawer({
   page,
   onClose,
   clientPortalId,
-}: IPageDrawerProps) {
+  onFormReady,
+}: PageFormProps) {
   const isEditing = Boolean(page);
   const [hasPermissionError, setHasPermissionError] = useState(false);
+  const setCmsLanguage = useSetAtom(cmsLanguageAtom);
+  const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  // Fetch CMS config for languages
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
@@ -126,6 +228,7 @@ export function PageDrawer({
 
   const {
     selectedLanguage,
+    setSelectedLanguage,
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
@@ -139,18 +242,122 @@ export function PageDrawer({
     resetKey: clientPortalId,
   });
 
+  // Create dynamic validation schema with custom fields
+  const createValidationSchema = useCallback((fieldGroups: FieldGroup[]) => {
+    const baseSchema = pageFormSchema;
+
+    // If no custom fields, return base schema
+    if (!fieldGroups.length) return baseSchema;
+
+    // Create individual field validations for required custom fields
+    const customFieldShape: Record<string, z.ZodTypeAny> = {};
+
+    for (const group of fieldGroups) {
+      for (const field of group.fields || []) {
+        if (field.isRequired) {
+          customFieldShape[field._id] = z.custom<CustomFieldValue>(
+            (value) => {
+              if (!value) return false;
+              if (typeof value === 'string' && value.trim() === '')
+                return false;
+              if (Array.isArray(value) && value.length === 0) return false;
+              return true;
+            },
+            { message: `${field.label} is required` },
+          );
+        }
+      }
+    }
+
+    // Create a schema that validates the entire customFieldsData array
+    const customFieldsValidation = z
+      .array(
+        z.object({
+          field: z.string(),
+          value: z.custom<CustomFieldValue>(),
+        }),
+      )
+      .superRefine((data, ctx) => {
+        // Check each required field has a valid value
+        for (const group of fieldGroups) {
+          for (const field of group.fields || []) {
+            if (field.isRequired) {
+              const fieldValue = data.find(
+                (item) => item.field === field._id,
+              )?.value;
+
+              if (!fieldValue) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} is required`,
+                  path: ['customFieldsData'],
+                });
+              } else if (
+                typeof fieldValue === 'string' &&
+                fieldValue.trim() === ''
+              ) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} cannot be empty`,
+                  path: ['customFieldsData'],
+                });
+              } else if (Array.isArray(fieldValue) && fieldValue.length === 0) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} requires at least one selection`,
+                  path: ['customFieldsData'],
+                });
+              }
+            }
+          }
+        }
+      });
+
+    return baseSchema.extend({
+      customFieldsData: customFieldsValidation.optional(),
+    });
+  }, []);
+
+  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: {
+      clientPortalId,
+    },
+    skip: !clientPortalId,
+  });
+
+  const fieldGroups: FieldGroup[] = (
+    customFieldsData?.cmsCustomFieldGroupList?.list || []
+  ).filter(
+    (group: FieldGroup) =>
+      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
+  );
+
   const form = useForm<IPageFormData>({
     defaultValues: {
       name: '',
       path: '',
       description: '',
+      parentId: '',
       status: 'active',
       clientPortalId,
+      thumbnail: null,
+      gallery: [],
+      videoUrl: '',
+      documents: [],
+      attachments: [],
+      customFieldsData: [],
     },
+    resolver: zodResolver(createValidationSchema(fieldGroups)),
   });
 
   const { editPage, loading: savingEdit } = useEditPage();
   const { addPage, loading: savingAdd } = useAddPage();
+  const saving = savingEdit || savingAdd;
+
+  const savingRef = useRef(saving);
+  useEffect(() => {
+    savingRef.current = saving;
+  }, [saving]);
 
   useEffect(() => {
     if (isEditing && page) {
@@ -158,19 +365,92 @@ export function PageDrawer({
         name: page.name || '',
         path: page.slug || '',
         description: page.description || '',
+        parentId: page.parentId || '',
         status: page.status || 'active',
         clientPortalId,
+        thumbnail: page.thumbnail || null,
+        gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
+        videoUrl: page.videoUrl || '',
+        documents: (page.documents || []).map((d) => d.url).filter(Boolean),
+        attachments: (page.attachments || []).map((a) => a.url).filter(Boolean),
+        customFieldsData: page.customFieldsData || [],
       });
     } else {
       form.reset({
         name: '',
         path: '',
         description: '',
+        parentId: '',
         status: 'active',
         clientPortalId,
+        thumbnail: null,
+        gallery: [],
+        videoUrl: '',
+        documents: [],
+        attachments: [],
+        customFieldsData: [],
       });
     }
   }, [page, isEditing, clientPortalId, form]);
+
+  // Helper: apply translation (or clear) translatable fields
+  const applyTranslationToForm = useCallback(
+    (lang: string) => {
+      const translation = translations[lang];
+      form.setValue('name', translation?.title || '');
+      form.setValue('description', translation?.content || '');
+    },
+    [translations, form],
+  );
+
+  // Initial language sync from cmsLanguageAtom.
+  // This must run AFTER the form-reset effect above so form.setValue
+  // overwrites the default-lang data, and it must call form.setValue
+  // BEFORE setSelectedLanguage so the Editor (which remounts on key
+  // change) reads the correct initialContent.
+  useEffect(() => {
+    if (
+      !selectedLanguage ||
+      !defaultLanguage ||
+      !cmsLanguage ||
+      cmsLanguage === defaultLanguage ||
+      selectedLanguage !== defaultLanguage
+    ) {
+      return;
+    }
+    applyTranslationToForm(cmsLanguage);
+    setSelectedLanguage(cmsLanguage);
+  }, [
+    selectedLanguage,
+    defaultLanguage,
+    cmsLanguage,
+    applyTranslationToForm,
+    setSelectedLanguage,
+  ]);
+
+  // When page data loads, the form-reset effect above overwrites translatable
+  // fields with default-lang data.  Re-apply for the current non-default lang.
+  const appliedForPageRef = useRef<IPage | null>(null);
+  useEffect(() => {
+    if (
+      !selectedLanguage ||
+      !defaultLanguage ||
+      selectedLanguage === defaultLanguage
+    ) {
+      return;
+    }
+    if (isEditing && !page) return;
+    if (appliedForPageRef.current === (page ?? null)) return;
+
+    applyTranslationToForm(selectedLanguage);
+    appliedForPageRef.current = page ?? null;
+  }, [
+    selectedLanguage,
+    defaultLanguage,
+    applyTranslationToForm,
+    isEditing,
+    page,
+  ]);
 
   const onCompleted = () => {
     onClose();
@@ -211,11 +491,48 @@ export function PageDrawer({
     }
   };
 
-  const onSubmit = (data: IPageFormData) => {
+  const selectedLanguageRef = useRef(selectedLanguage);
+  useEffect(() => {
+    selectedLanguageRef.current = selectedLanguage;
+  }, [selectedLanguage]);
+
+  const defaultLanguageRef = useRef(defaultLanguage);
+  useEffect(() => {
+    defaultLanguageRef.current = defaultLanguage;
+  }, [defaultLanguage]);
+
+  const defaultLangDataRef = useRef(defaultLangData);
+  useEffect(() => {
+    defaultLangDataRef.current = defaultLangData;
+  }, [defaultLangData]);
+
+  const translationsRef = useRef(translations);
+  useEffect(() => {
+    translationsRef.current = translations;
+  }, [translations]);
+
+  const handleLanguageChangeRef = useRef(handleLanguageChange);
+  useEffect(() => {
+    handleLanguageChangeRef.current = handleLanguageChange;
+  }, [handleLanguageChange]);
+
+  const pageRef = useRef(page);
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
+
+  const onSubmitRef = useRef<(data: IPageFormData) => void>(() => undefined);
+
+  onSubmitRef.current = (data: IPageFormData) => {
+    const curSelectedLanguage = selectedLanguageRef.current;
+    const curDefaultLanguage = defaultLanguageRef.current;
+    const curDefaultLangData = defaultLangDataRef.current;
+    const curTranslations = translationsRef.current;
+
     const isNonDefaultLang =
-      Boolean(selectedLanguage) &&
-      Boolean(defaultLanguage) &&
-      selectedLanguage !== defaultLanguage;
+      Boolean(curSelectedLanguage) &&
+      Boolean(curDefaultLanguage) &&
+      curSelectedLanguage !== curDefaultLanguage;
     const isCreating = !isEditing;
     const currentName = data.name;
     const currentDescription = data.description;
@@ -225,7 +542,7 @@ export function PageDrawer({
       currentDescription,
       isCreating,
       isNonDefaultLang,
-      defaultLangData,
+      curDefaultLangData,
     );
 
     if (!main) {
@@ -239,28 +556,40 @@ export function PageDrawer({
       return;
     }
 
+    const imagesPayload = makeAttachmentArrayFromUrls(data.gallery ?? []);
+    const documentsPayload = makeAttachmentArrayFromUrls(data.documents ?? []);
+    const attachmentsPayload = makeAttachmentArrayFromUrls(
+      data.attachments ?? [],
+    );
     const input: PageInput = {
       clientPortalId: data.clientPortalId,
       name: main.name,
       slug: data.path,
       description: main.description,
+      parentId: data.parentId || undefined,
       status: data.status || 'active',
+      thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
+      pageImages: imagesPayload.length ? imagesPayload : undefined,
+      videoUrl: data.videoUrl,
+      documents: documentsPayload.length ? documentsPayload : undefined,
+      attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
+      customFieldsData: data.customFieldsData || [],
     };
 
-    if (selectedLanguage) {
+    if (curSelectedLanguage) {
       input.language = resolveLanguage(
-        selectedLanguage,
-        defaultLanguage,
+        curSelectedLanguage,
+        curDefaultLanguage,
         isCreating,
         isNonDefaultLang,
       );
     }
 
-    if (defaultLanguage) {
+    if (curDefaultLanguage) {
       const translationEntries = buildPageTranslations(
-        translations,
-        defaultLanguage,
-        selectedLanguage,
+        curTranslations,
+        curDefaultLanguage,
+        curSelectedLanguage,
         currentName,
         currentDescription,
         isCreating,
@@ -279,169 +608,137 @@ export function PageDrawer({
     }
   };
 
-  /**
-   * Language switch handler for pages.
-   * Maps: name ↔ title, description ↔ content in translations.
-   */
-  const onLanguageChange = (lang: string) => {
-    handleLanguageChange(
-      lang,
-      () => ({
-        title: form.getValues('name') || '',
-        content: form.getValues('description') || '',
-      }),
-      (data) => {
-        form.setValue('name', data.title || '');
-        form.setValue('description', data.content || '');
-      },
-      page
-        ? { title: page.name || '', content: page.description || '' }
-        : undefined,
-    );
-  };
+  const onSubmit = useCallback(
+    (data: IPageFormData) => onSubmitRef.current(data),
+    [],
+  );
+
+  const isSwitchingLanguageRef = useRef(false);
+
+  const onLanguageChange = useCallback(
+    (lang: string) => {
+      isSwitchingLanguageRef.current = true;
+      setCmsLanguage(lang);
+
+      const curPage = pageRef.current;
+      const curDefaultLanguage = defaultLanguageRef.current;
+      const curDefaultLangData = defaultLangDataRef.current;
+      const curTranslations = translationsRef.current;
+
+      handleLanguageChangeRef.current(
+        lang,
+        () => ({
+          title: form.getValues('name') || '',
+          content: form.getValues('description') || '',
+        }),
+        (data) => {
+          form.setValue('name', data.title || '');
+          form.setValue('description', data.content || '');
+        },
+        curPage
+          ? {
+              title: curPage.name || '',
+              content: curPage.description || '',
+            }
+          : undefined,
+      );
+
+      // Explicitly set form values after handleLanguageChange to guarantee
+      // the Editor (which remounts on selectedLanguage key change) reads
+      // the correct initialContent.
+      if (lang === curDefaultLanguage) {
+        form.setValue('name', curDefaultLangData?.title || curPage?.name || '');
+        form.setValue(
+          'description',
+          curDefaultLangData?.content || curPage?.description || '',
+        );
+      } else {
+        const translation = curTranslations[lang];
+        form.setValue('name', translation?.title || '');
+        form.setValue('description', translation?.content || '');
+      }
+
+      requestAnimationFrame(() => {
+        isSwitchingLanguageRef.current = false;
+      });
+    },
+    [form, setCmsLanguage],
+  );
+
+  const handleEditorChange = useCallback(
+    (content: string) => {
+      if (isSwitchingLanguageRef.current) return;
+      form.setValue('description', content);
+    },
+    [form],
+  );
+
+  const formInitializedRef = useRef(false);
+
+  const getSaving = useCallback(() => savingRef.current, []);
+
+  useEffect(() => {
+    if (onFormReady && form && !formInitializedRef.current) {
+      onFormReady({
+        form,
+        onSubmit,
+        getSaving,
+        handleLanguageChange: onLanguageChange,
+      });
+      formInitializedRef.current = true;
+    }
+  }, [form, onSubmit, getSaving, onFormReady]);
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="p-4 space-y-4">
-        {hasPermissionError && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-            <div className="flex items-start gap-2">
-              <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5 " />
-              <div className="text-sm">
-                <p className="font-medium text-red-800">Permission Required</p>
-                <p className="text-red-700 mt-1">
-                  You need permission to create or edit pages. Please contact
-                  your administrator to grant this permission.
-                </p>
+    <ScrollArea className="flex-auto" viewportClassName="p-4">
+      <Form {...form}>
+        <div className="flex flex-col w-full mb-4 px-4 pt-4">
+          {hasPermissionError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+              <div className="flex items-start gap-2">
+                <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-red-800">
+                    Permission Required
+                  </p>
+                  <p className="text-red-700 mt-1">
+                    You need permission to create or edit pages. Please contact
+                    your administrator to grant this permission.
+                  </p>
+                </div>
               </div>
             </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <PageEditorColumn
+                form={form}
+                selectedLanguage={selectedLanguage}
+                defaultLanguage={defaultLanguage}
+                page={page}
+                handleEditorChange={handleEditorChange}
+              />
+              {fieldGroups.length > 0 && (
+                <PageCustomFieldsSection
+                  fieldGroups={fieldGroups}
+                  form={form}
+                />
+              )}
+            </div>
+            <PageSidebarPanel
+              form={form}
+              websiteId={clientPortalId}
+              currentPageId={page?._id}
+              availableLanguages={availableLanguages}
+              selectedLanguage={selectedLanguage}
+              languageOptions={languageOptions}
+              handleLanguageChange={onLanguageChange}
+              isTranslationMode={isTranslationMode}
+            />
           </div>
-        )}
-
-        {/* Language selector */}
-        {availableLanguages.length > 0 && (
-          <LanguageSelector
-            selectedLanguage={selectedLanguage}
-            languageOptions={languageOptions}
-            onLanguageChange={onLanguageChange}
-          />
-        )}
-
-        {/* Name - translatable (stored as title in translations) */}
-        <Form.Field
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>
-                Name
-                {isTranslationMode && (
-                  <span className="ml-2 text-xs text-blue-600">
-                    ({selectedLanguage})
-                  </span>
-                )}
-              </Form.Label>
-              <Form.Control>
-                <Input {...field} placeholder="Enter name" required />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-
-        {/* Path - shared field */}
-        <Form.Field
-          control={form.control}
-          name="path"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>
-                Path
-                {isTranslationMode && (
-                  <span className="ml-2 text-xs text-gray-500">
-                    (shared across languages)
-                  </span>
-                )}
-              </Form.Label>
-              <Form.Control>
-                <Input {...field} placeholder="/about-us" required />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-
-        {/* Description - translatable (stored as content in translations) */}
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>
-                Description
-                {isTranslationMode && (
-                  <span className="ml-2 text-xs text-blue-600">
-                    ({selectedLanguage})
-                  </span>
-                )}
-              </Form.Label>
-              <Form.Control>
-                <Textarea {...field} placeholder="Enter description" rows={4} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-
-        {/* Status - shared field */}
-        <Form.Field
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>
-                Status
-                {isTranslationMode && (
-                  <span className="ml-2 text-xs text-gray-500">
-                    (shared across languages)
-                  </span>
-                )}
-              </Form.Label>
-              <Form.Control>
-                <Select
-                  {...field}
-                  onValueChange={field.onChange}
-                  value={field.value}
-                >
-                  <Select.Trigger>
-                    <Select.Value placeholder="Select status" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Item value="active">active</Select.Item>
-                    <Select.Item value="inactive">inactive</Select.Item>
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-
-        <div className="flex justify-end space-x-2">
-          <Button
-            type="submit"
-            disabled={hasPermissionError || savingAdd || savingEdit}
-          >
-            {savingAdd || savingEdit
-              ? isEditing
-                ? 'Saving...'
-                : 'Creating...'
-              : isEditing
-                ? 'Save Changes'
-                : 'Create Page'}
-          </Button>
         </div>
-      </form>
-    </Form>
+      </Form>
+    </ScrollArea>
   );
 }

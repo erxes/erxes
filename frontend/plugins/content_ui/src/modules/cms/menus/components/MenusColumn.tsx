@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row, Cell } from '@tanstack/react-table';
 import {
   RecordTable,
   RecordTableInlineCell,
@@ -19,13 +19,26 @@ import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useMutation } from '@apollo/client';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
 import { getDepthPrefix } from '../menuUtils';
+import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+
+interface MenuItem {
+  _id: string;
+  label: string;
+  parentId?: string;
+  kind?: string;
+  url?: string;
+  order?: number;
+  depth?: number;
+  translations?: { language: string }[];
+  [key: string]: unknown;
+}
 
 const BADGE_CLASS =
   'mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent';
 
 interface MoreCellProps {
-  row: any;
-  onEdit: (menu: any) => void;
+  row: Row<MenuItem>;
+  onEdit: (menu: MenuItem) => void;
   refetch: () => void;
 }
 
@@ -65,12 +78,14 @@ const MoreCell = ({ row, onEdit, refetch }: MoreCellProps) => {
 };
 
 interface LabelCellProps {
-  cell: any;
+  cell: Cell<MenuItem, unknown>;
   refetch: () => void;
+  isMissing: (translations?: { language: string }[]) => boolean;
 }
 
-const LabelCell = ({ cell, refetch }: LabelCellProps) => {
-  const original = cell.row.original as any;
+const LabelCell = ({ cell, refetch, isMissing }: LabelCellProps) => {
+  const original = cell.row.original;
+  const missing = isMissing(original.translations);
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState<string>(cell.getValue() as string);
   const [editMenu] = useMutation(CMS_MENU_EDIT);
@@ -93,8 +108,8 @@ const LabelCell = ({ cell, refetch }: LabelCellProps) => {
       }}
     >
       <RecordTableInlineCell.Trigger>
-        <span>
-          {getDepthPrefix(original.depth) + (cell.getValue() as string)}
+        <span className={missing ? 'text-red-500' : ''}>
+          {getDepthPrefix(original.depth || 0) + (cell.getValue() as string)}
         </span>
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
@@ -107,48 +122,56 @@ const LabelCell = ({ cell, refetch }: LabelCellProps) => {
   );
 };
 
-export const createMenusColumns = (
-  onEdit: (menu: any) => void,
+export const useMenusColumns = (
+  onEdit: (menu: MenuItem) => void,
   refetch: () => void,
-): ColumnDef<any>[] => [
-  {
-    id: 'more',
-    header: () => <span className="sr-only">More</span>,
-    cell: ({ row }) => <MoreCell row={row} onEdit={onEdit} refetch={refetch} />,
-    size: 40,
-  },
-  RecordTable.checkboxColumn as ColumnDef<any>,
-  {
-    id: 'label',
-    header: () => <RecordTable.InlineHead icon={IconList} label="Label" />,
-    accessorKey: 'label',
-    cell: ({ cell }) => <LabelCell cell={cell} refetch={refetch} />,
-    size: 280,
-  },
-  {
-    id: 'url',
-    header: () => <RecordTable.InlineHead icon={IconLink} label="URL" />,
-    accessorKey: 'url',
-    cell: ({ cell }) => (
-      <div className={BADGE_CLASS}>
-        <span className="text-sm text-gray-500">
-          {(cell.getValue() as string) || ''}
-        </span>
-      </div>
-    ),
-    size: 260,
-  },
-  {
-    id: 'kind',
-    header: () => <RecordTable.InlineHead icon={IconArticle} label="Kind" />,
-    accessorKey: 'kind',
-    cell: ({ cell }) => (
-      <div className={BADGE_CLASS}>
-        <span className="text-sm text-gray-500">
-          {(cell.getValue() as string) || ''}
-        </span>
-      </div>
-    ),
-    size: 140,
-  },
-];
+): ColumnDef<MenuItem>[] => {
+  const { isMissing } = useIsTranslationMissing();
+
+  return [
+    {
+      id: 'more',
+      header: () => <span className="sr-only">More</span>,
+      cell: ({ row }) => (
+        <MoreCell row={row} onEdit={onEdit} refetch={refetch} />
+      ),
+      size: 40,
+    },
+    RecordTable.checkboxColumn as ColumnDef<MenuItem>,
+    {
+      id: 'label',
+      header: () => <RecordTable.InlineHead icon={IconList} label="Label" />,
+      accessorKey: 'label',
+      cell: ({ cell }) => (
+        <LabelCell cell={cell} refetch={refetch} isMissing={isMissing} />
+      ),
+      size: 280,
+    },
+    {
+      id: 'url',
+      header: () => <RecordTable.InlineHead icon={IconLink} label="URL" />,
+      accessorKey: 'url',
+      cell: ({ cell }) => (
+        <div className={BADGE_CLASS}>
+          <span className="text-sm text-gray-500">
+            {(cell.getValue() as string) || ''}
+          </span>
+        </div>
+      ),
+      size: 260,
+    },
+    {
+      id: 'kind',
+      header: () => <RecordTable.InlineHead icon={IconArticle} label="Kind" />,
+      accessorKey: 'kind',
+      cell: ({ cell }) => (
+        <div className={BADGE_CLASS}>
+          <span className="text-sm text-gray-500">
+            {(cell.getValue() as string) || ''}
+          </span>
+        </div>
+      ),
+      size: 140,
+    },
+  ];
+};

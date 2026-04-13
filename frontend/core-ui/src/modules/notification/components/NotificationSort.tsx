@@ -1,12 +1,15 @@
 import { IconSortDescending } from '@tabler/icons-react';
 import { Button, cn, Select, useMultiQueryState } from 'erxes-ui';
 import { Select as SelectPrimitive } from 'radix-ui';
-import { NotificationStatusT } from '../types/notifications';
+import { TNotificationStatus } from 'ui-modules';
 
 export const NotificationSort = () => {
-  const [{ notificationOrderBy: orderBy, notificationStatus: status }, setQueries] = useMultiQueryState<{
+  const [
+    { notificationOrderBy: orderBy, notificationStatus: status },
+    setQueries,
+  ] = useMultiQueryState<{
     notificationOrderBy: string;
-    notificationStatus: NotificationStatusT;
+    notificationStatus: TNotificationStatus;
   }>(['notificationOrderBy', 'notificationStatus']);
   return (
     <Select

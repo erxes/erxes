@@ -36,6 +36,16 @@ export const FORM_CONTENT_SCHEMA = z.object({
           order: z.number().optional().default(0),
           stepId: z.string(),
           validation: z.string().optional().default('').nullable(),
+          logics: z
+            .array(
+              z.object({
+                fieldId: z.string(),
+                logicOperator: z.string().optional(),
+                logicValue: z.any().optional(),
+              }),
+            )
+            .optional(),
+          logicAction: z.string().optional().default(''),
         }),
       ),
     }),

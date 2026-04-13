@@ -387,52 +387,61 @@ export const scoreStatistic = async ({ doc, models, filter }) => {
 };
 
 export const handleOnCreateCampaignScoreField = async ({ doc, subdomain }) => {
-  if (doc.fieldGroupId) {
-    if (doc.fieldId && doc.fieldOrigin === 'exists') {
-      const field = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'fields',
-        action: 'findOne',
-        input: {
-          query: { _id: doc.fieldId },
-        },
-        defaultValue: null,
-      });
-
-      if (!field) {
-        throw new Error('Cannot find field from database');
-      }
-
-      if (!field.isDisabled) {
-        throw new Error('Somehing went wrong field is not supported');
-      }
-    } else {
-      if (!doc?.fieldName && doc.fieldOrigin === 'new') {
-        throw new Error('Please provide a field name that for score field');
-      }
-
-      const field = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'fields',
-        action: 'create',
-        input: {
-          text: doc.fieldName,
-          groupId: doc.fieldGroupId,
-          type: 'input',
-          validation: 'number',
-          contentType: `core:${doc.ownerType}`,
-          isDisabled: true,
-        },
-        defaultValue: null,
-      });
-
-      doc.fieldId = field._id;
-    }
+  if (!doc.fieldGroupId || !doc.fieldOrigin) {
+    return doc;
   }
+
+  if (doc.fieldOrigin === 'exists') {
+    if (!doc.fieldId) {
+      throw new Error('Please select a field');
+    }
+
+    const field = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: 'findOne',
+      input: {
+        query: { _id: doc.fieldId },
+      },
+      defaultValue: null,
+    });
+
+    if (!field) {
+      throw new Error('Cannot find field from database');
+    }
+  } else if (doc.fieldOrigin === 'new') {
+    if (!doc.fieldName) {
+      throw new Error('Please provide a field name for score field');
+    }
+
+    const fieldCode = `loyalty_score_${doc.fieldName?.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+
+    const field = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'fields',
+      action: 'create',
+      input: {
+        name: doc.fieldName,
+        code: fieldCode,
+        groupId: doc.fieldGroupId,
+        type: 'input',
+        validations: { number: true },
+        contentType: `core:${doc.ownerType}`,
+      },
+      defaultValue: null,
+    });
+
+    if (!field) {
+      throw new Error('Failed to create score field');
+    }
+
+    doc.fieldId = field._id;
+  }
+
   return doc;
 };
 
@@ -445,6 +454,8 @@ export const handleOnUpdateCampaignScoreField = async ({
     doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId;
 
   if (doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId) {
+    const fieldCode = `loyalty_score_${doc.fieldName?.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+
     const field = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -452,15 +463,20 @@ export const handleOnUpdateCampaignScoreField = async ({
       module: 'fields',
       action: 'create',
       input: {
-        text: doc.fieldName,
+        name: doc.fieldName,
+        code: fieldCode,
         groupId: doc.fieldGroupId,
         type: 'input',
-        validation: 'number',
+        validations: { number: true },
         contentType: `core:${doc.ownerType}`,
-        isDisabled: true,
       },
       defaultValue: null,
     });
+
+    if (!field) {
+      throw new Error('Failed to create score field');
+    }
+
     doc.fieldId = field._id;
   } else {
     const modifiedFieldData: any = {};

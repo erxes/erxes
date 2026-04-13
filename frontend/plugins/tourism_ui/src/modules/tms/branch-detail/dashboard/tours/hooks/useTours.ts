@@ -8,14 +8,18 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { useEffect } from 'react';
 import { GET_TOURS } from '../graphql/queries';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { ITour } from '../types/tour';
+import { tourTotalCountAtom } from '../states/tourCounts';
 
 const TOURS_PER_PAGE = 30;
 
 type ToursQueryVariables = {
   branchId?: string;
+  name?: string;
   status?: string;
   date_status?:
     | 'running'
@@ -24,6 +28,7 @@ type ToursQueryVariables = {
     | 'cancelled'
     | 'unscheduled';
   categoryIds?: string[];
+  language?: string;
   limit?: number;
   cursor?: string;
   direction?: EnumCursorDirection;
@@ -42,16 +47,20 @@ export const useTours = (
     ToursQueryVariables
   >,
 ) => {
-  const [{ status, date_status, categoryIds }] = useMultiQueryState<{
-    status: string;
-    date_status:
-      | 'running'
-      | 'completed'
-      | 'scheduled'
-      | 'cancelled'
-      | 'unscheduled';
-    categoryIds: string;
-  }>(['status', 'date_status', 'categoryIds']);
+  const setTourTotalCount = useSetAtom(tourTotalCountAtom);
+
+  const [{ searchValue, status, date_status, categoryIds }] =
+    useMultiQueryState<{
+      searchValue: string;
+      status: string;
+      date_status:
+        | 'running'
+        | 'completed'
+        | 'scheduled'
+        | 'cancelled'
+        | 'unscheduled';
+      categoryIds: string;
+    }>(['searchValue', 'status', 'date_status', 'categoryIds']);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: TOURS_CURSOR_SESSION_KEY,
@@ -60,6 +69,7 @@ export const useTours = (
   const variables: ToursQueryVariables = {
     orderBy: { createdAt: -1 },
     ...(options?.variables || {}),
+    name: searchValue || undefined,
     status: status || undefined,
     date_status: date_status || undefined,
     categoryIds: categoryIds
@@ -69,13 +79,18 @@ export const useTours = (
     limit: TOURS_PER_PAGE,
   };
 
-  const { data, loading, fetchMore } = useQuery(GET_TOURS, {
+  const { data, loading, error, fetchMore } = useQuery(GET_TOURS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables,
+    fetchPolicy: 'cache-and-network',
   });
 
   const { list: tours, totalCount, pageInfo } = data?.bmsTours || {};
+
+  useEffect(() => {
+    setTourTotalCount(totalCount ?? null);
+  }, [totalCount, setTourTotalCount]);
 
   const handleFetchMore = ({
     direction,
@@ -109,6 +124,7 @@ export const useTours = (
 
   return {
     loading,
+    error,
     tours,
     totalCount,
     pageInfo,

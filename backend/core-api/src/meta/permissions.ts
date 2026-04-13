@@ -343,7 +343,7 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
-      name: 'broadcast',
+      name: 'broadcasts',
       description: 'Broadcast & engage message management',
       scopeField: null,
       ownerFields: ['createdBy'],
@@ -540,6 +540,22 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'logs',
+      description: 'System log access',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'View system logs',
+          name: 'logsRead',
+          description: 'View system logs',
+        },
+      ],
+    },
+    {
       name: 'internalNotes',
       description: 'Internal note management',
       scopeField: null,
@@ -644,8 +660,9 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
-          module: 'broadcast',
+          module: 'broadcasts',
           actions: [
+            'broadcastRead',
             'broadcastCreate',
             'broadcastUpdate',
             'broadcastDelete',
@@ -693,6 +710,12 @@ export const permissions: IPermissionConfig = {
           ],
           scope: 'all',
         },
+        {
+          plugin: 'core',
+          module: 'logs',
+          actions: ['logsRead'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -726,8 +749,8 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
-          module: 'broadcast',
-          actions: ['broadcastCreate', 'broadcastUpdate'],
+          module: 'broadcasts',
+          actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
         },
       ],
@@ -735,7 +758,8 @@ export const permissions: IPermissionConfig = {
     {
       id: 'core:viewer',
       name: 'Core Viewer',
-      description: 'Read-only access to all Core modules, with own-data mutations',
+      description:
+        'Read-only access to all Core modules, with own-data mutations',
       permissions: [
         {
           plugin: 'core',
@@ -811,13 +835,13 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
-          module: 'broadcast',
+          module: 'broadcasts',
           actions: ['broadcastRead'],
           scope: 'all',
         },
         {
           plugin: 'core',
-          module: 'broadcast',
+          module: 'broadcasts',
           actions: ['broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
         },

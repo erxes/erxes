@@ -8,7 +8,7 @@ import {
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
@@ -192,11 +192,14 @@ export function CustomFields() {
   return (
     <PageContainer>
       <CustomFieldsHeader>
-        <Button asChild>
-          <Link to={`/content/cms/${websiteId}/posts/add`}>
-            <IconPlus className="w-4 h-4 mr-2" />
-            Create Post
-          </Link>
+        <Button
+          onClick={() => {
+            setEditingGroup(null);
+            setIsGroupDrawerOpen(true);
+          }}
+        >
+          <IconPlus className="w-4 h-4 mr-2" />
+          Add Group
         </Button>
       </CustomFieldsHeader>
       <div className="flex overflow-hidden flex-auto">
@@ -205,25 +208,6 @@ export function CustomFields() {
           <div className="flex-auto">
             <div className="p-6">
               <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h1 className="text-xl font-semibold">Custom Fields</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Manage custom field groups and fields
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => {
-                      setEditingGroup(null);
-                      setIsGroupDrawerOpen(true);
-                    }}
-                  >
-                    <IconPlus className="w-4 h-4 mr-2" />
-                    Add Group
-                  </Button>
-                </div>
-
                 {/* Table Header */}
                 <Table>
                   <Table.Header>

@@ -128,9 +128,9 @@ export const CreatePositionForm = () => {
 
 export function SelectPositionCreateContainer({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const { setNewPositionName } = useSelectPositionsContext();
   return (
     <div className="overflow-auto">

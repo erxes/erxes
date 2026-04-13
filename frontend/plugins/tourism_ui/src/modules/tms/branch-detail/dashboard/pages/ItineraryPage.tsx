@@ -4,15 +4,19 @@ import { ItineraryFilter, ItineraryRecordTable } from '../itinerary';
 
 export const ItineraryPage = ({ branch }: { branch: IBranch }) => {
   return (
-    <>
+    <div className="flex flex-col h-full">
       <PageSubHeader>
         <ItineraryFilter />
       </PageSubHeader>
-      <div className="overflow-hidden flex-auto p-3">
-        <div className="h-full">
-          <ItineraryRecordTable branchId={branch._id} />
+      <div className="overflow-hidden flex-auto p-3 min-h-0">
+        <div className="flex flex-col h-full min-h-0">
+          <ItineraryRecordTable
+            branchId={branch._id}
+            branchLanguages={branch.languages}
+            mainLanguage={branch.language}
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 };

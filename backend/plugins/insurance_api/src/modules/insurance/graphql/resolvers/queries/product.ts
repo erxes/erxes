@@ -4,13 +4,14 @@ export const productQueries = {
   insuranceProducts: Object.assign(
     async (_parent: undefined, _args: any, { models }: IContext) => {
       const products = await models.Product.find({}).populate(
-        'insuranceType coveredRisks.risk',
+        'insuranceType coveredRisks.risk regions',
       );
       return products
-        .filter((p: any) => p && p._id && p.insuranceType)
+        .filter((p: any) => p?._id && p.insuranceType)
         .map((p: any) => ({
           ...p.toObject(),
           coveredRisks: p.coveredRisks.filter((cr: any) => cr.risk != null),
+          regions: (p.regions || []).filter((r: any) => r != null && r.name),
         }));
     },
     { wrapperConfig: { skipPermission: true } },
@@ -23,7 +24,7 @@ export const productQueries = {
       { models }: IContext,
     ) => {
       const product = await models.Product.findById(id).populate(
-        'insuranceType coveredRisks.risk',
+        'insuranceType coveredRisks.risk regions',
       );
 
       if (!product) return null;
@@ -31,6 +32,9 @@ export const productQueries = {
       return {
         ...product.toObject(),
         coveredRisks: product.coveredRisks.filter((cr: any) => cr.risk != null),
+        regions: (product.regions || []).filter(
+          (r: any) => r != null && r.name,
+        ),
       };
     },
     { wrapperConfig: { skipPermission: true } },
@@ -44,11 +48,12 @@ export const productQueries = {
     ) => {
       const products = await models.Product.find({
         insuranceType: typeId,
-      }).populate('insuranceType coveredRisks.risk');
+      }).populate('insuranceType coveredRisks.risk regions');
 
       return products.map((p: any) => ({
         ...p.toObject(),
         coveredRisks: p.coveredRisks.filter((cr: any) => cr.risk != null),
+        regions: (p.regions || []).filter((r: any) => r != null && r.name),
       }));
     },
     { wrapperConfig: { skipPermission: true } },

@@ -20,7 +20,15 @@ import {
   proxyReq,
 } from '~/proxy/middleware';
 
-import { getPlugin, getSubdomain, isDev, redis } from 'erxes-api-shared/utils';
+import {
+  applyTrustProxy,
+  getPlugin,
+  getPlugins,
+  getSubdomain,
+  isDev,
+  redis,
+  setActivePlugins,
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
 // import * as jwt from 'jsonwebtoken';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
@@ -73,6 +81,7 @@ createBullBoard({
 serverAdapter.setBasePath('/bullmq-board');
 
 const app = express();
+applyTrustProxy(app);
 
 app.use(cookieParser());
 
@@ -190,6 +199,9 @@ let httpServer: http.Server;
 
 async function start() {
   try {
+    const enabledPlugins = await getPlugins();
+    await setActivePlugins(enabledPlugins);
+
     // Initial fetch of the proxy targets
     global.currentTargets = await retryGetProxyTargets();
 

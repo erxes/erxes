@@ -9,6 +9,7 @@ import { IconTags } from '@tabler/icons-react';
 import { ELEMENTS_CURSOR_SESSION_KEY } from '../constants/elementCursorSessionKey';
 import { useElementCategories } from '../hooks/useElementCategories';
 import { CategorySelector } from './CategorySelector';
+import { ElementsTotalCount } from './ElementsTotalCount';
 
 function SelectCategoryFilterItem() {
   return (
@@ -95,6 +96,7 @@ export const ElementFilter = () => {
             {selectedCategoryLabel || 'Select category'}
           </Filter.BarButton>
         </Filter.BarItem>
+        <ElementsTotalCount />
       </Filter.Bar>
     </Filter>
   );

@@ -70,7 +70,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       return await models.ScoreCampaigns.create({
         ...doc,
-        createdUserId: user._id,
+        createdUserId: user?._id,
       });
     }
 
@@ -82,7 +82,9 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       const scoreCampaign = await this.getScoreCampaign(_id);
 
       if (
+        !!scoreCampaign?.fieldId &&
         !!scoreCampaign?.ownerType &&
+        !!doc.ownerType &&
         scoreCampaign.ownerType !== doc.ownerType
       ) {
         throw new Error(
@@ -315,15 +317,12 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       let oldScore = score;
 
-      console.log({ customFieldsData, score, changeScore });
       if (campaign.fieldId) {
         const fieldScore =
           customFieldsData.find(({ field }) => field === campaign.fieldId)
             ?.value || 0;
         oldScore = fieldScore;
       }
-
-      console.log({ oldScore });
 
       const newScore =
         actionMethod === 'subtract'
@@ -364,15 +363,11 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      console.log({ updatedCustomFieldsData });
-
       await this.updateOwnerScore({
         ownerId,
         ownerType,
         updatedCustomFieldsData,
       });
-
-      console.log('score log');
 
       return await models.ScoreLogs.create({
         ownerId,

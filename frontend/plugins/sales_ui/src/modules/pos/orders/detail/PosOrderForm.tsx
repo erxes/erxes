@@ -1,9 +1,13 @@
 import { Control } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
+import React from 'react';
+import { options } from '../../constants';
 
 interface PosOrderFormProps {
   control: Control<any>;
   summary?: any;
+  paidAmounts?: Array<{ type: string; amount: number }>;
+  posName?: string;
 }
 
 const formatNumberWithCommas = (value: string | number | undefined) => {
@@ -12,46 +16,59 @@ const formatNumberWithCommas = (value: string | number | undefined) => {
   return num.toLocaleString('en-US');
 };
 
-export const PosOrderForm = ({ control, summary }: PosOrderFormProps) => {
-  const summaryPaymentTypes = (summary ? Object.keys(summary) || [] : [])
-    .filter((a) => !['_id'].includes(a))
-    .sort();
+export const PosOrderForm = ({
+  control,
+  summary,
+  paidAmounts,
+  posName,
+}: PosOrderFormProps) => {
+  const paymentTypes = React.useMemo(() => {
+    const summaryKeys = Object.keys(summary || {});
+    const paidKeys = (paidAmounts || []).map((p) => p.type);
+
+    const standardPaymentTypes = options.map((opt) => opt.value);
+
+    return Array.from(
+      new Set([...standardPaymentTypes, ...summaryKeys, ...paidKeys]),
+    )
+      .filter((key) => key !== '_id')
+      .sort();
+  }, [summary, paidAmounts]);
 
   return (
     <div className="flex flex-col gap-3">
-      {summaryPaymentTypes.map((paymentType) => (
-        <Form.Field
-          key={paymentType}
-          control={control}
-          name={paymentType}
-          render={({ field }) => {
-            const fieldValue = field.value;
+      {paymentTypes.map((paymentType) => {
+        const paymentOption = options.find((opt) => opt.value === paymentType);
+        const label = paymentOption?.label || paymentType;
 
-            return (
+        return (
+          <Form.Field
+            key={paymentType}
+            control={control}
+            name={paymentType}
+            render={({ field }) => (
               <Form.Item>
-                <Form.Label>{paymentType}</Form.Label>
-                <Form.Description className="sr-only">
-                  {paymentType}
-                </Form.Description>
+                <Form.Label>{label}</Form.Label>
+
                 <Form.Control>
                   <Input
                     {...field}
                     type="text"
                     placeholder="0"
-                    value={formatNumberWithCommas(fieldValue)}
+                    value={formatNumberWithCommas(field.value)}
                     onChange={(e) => {
-                      const rawValue = e.target.value.replace(/,/g, '');
-                      const numValue = parseFloat(rawValue) || 0;
-                      field.onChange(numValue);
+                      const raw = e.target.value.replace(/,/g, '');
+                      field.onChange(parseFloat(raw) || 0);
                     }}
                   />
                 </Form.Control>
+
                 <Form.Message />
               </Form.Item>
-            );
-          }}
-        />
-      ))}
+            )}
+          />
+        );
+      })}
     </div>
   );
 };

@@ -1,10 +1,14 @@
-import { IContext } from "~/connectionResolvers";
-import { ITransaction } from "@/accounting/@types/transaction";
+import { IContext } from '~/connectionResolvers';
+import { ITransaction } from '@/accounting/@types/transaction';
 
 const transactionsMutations = {
-  async accTransactionsLink(_root, doc: { ids: string[], ptrId: string }, { user, models }) {
+  async accTransactionsLink(
+    _root,
+    doc: { ids: string[]; ptrId: string },
+    { user, models },
+  ) {
     const { ids, ptrId } = doc;
-    return await models.Transactions.linkTransaction(ids, ptrId)
+    return await models.Transactions.linkTransaction(ids, ptrId);
   },
   /**
    * Creates a new perfect transaction form
@@ -14,8 +18,10 @@ const transactionsMutations = {
     { trDocs }: { trDocs: ITransaction[] },
     { user, models }: IContext,
   ) {
-
-    const transactions = await models.Transactions.createPTransaction(trDocs, user);
+    const transactions = await models.Transactions.createPTransaction(
+      trDocs,
+      user._id,
+    );
 
     return transactions;
   },
@@ -25,10 +31,17 @@ const transactionsMutations = {
    */
   async accTransactionsUpdate(
     _root,
-    { parentId, trDocs }: { parentId: string, trDocs: (ITransaction & { _id?: string })[] },
+    {
+      parentId,
+      trDocs,
+    }: { parentId: string; trDocs: (ITransaction & { _id?: string })[] },
     { user, models }: IContext,
   ) {
-    const transactions = await models.Transactions.updatePTransaction(parentId, trDocs, user);
+    const transactions = await models.Transactions.updatePTransaction(
+      parentId,
+      trDocs,
+      user._id,
+    );
 
     return transactions;
   },
@@ -38,10 +51,13 @@ const transactionsMutations = {
    */
   async accTransactionsRemove(
     _root,
-    { parentId, ptrId }: { parentId: string, ptrId: string },
+    { parentId, ptrId }: { parentId: string; ptrId: string },
     { models }: IContext,
   ) {
-    const removed = await models.Transactions.removePTransaction(parentId, ptrId);
+    const removed = await models.Transactions.removePTransaction({
+      parentId,
+      ptrId,
+    });
 
     return removed;
   },

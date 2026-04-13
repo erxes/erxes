@@ -95,9 +95,9 @@ export const CreateUnitForm = () => {
 
 export function SelectUnitCreateContainer({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const { setNewUnitName } = useSelectUnitContext();
   return (
     <div className="overflow-auto">

@@ -1,4 +1,4 @@
-import { Badge, cn, Skeleton, TextOverflowTooltip } from 'erxes-ui';
+import { Badge, Skeleton, TextOverflowTooltip } from 'erxes-ui';
 import React from 'react';
 import { IUnit } from '../types/Unit';
 import { useUnitById } from '../hooks/useUnitById';

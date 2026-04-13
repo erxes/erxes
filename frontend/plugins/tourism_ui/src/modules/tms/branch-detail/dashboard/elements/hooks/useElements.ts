@@ -9,6 +9,9 @@ import {
 import { GET_ELEMENTS } from '@/tms/branch-detail/dashboard/elements/graphql/queries';
 import { ELEMENTS_CURSOR_SESSION_KEY } from '@/tms/branch-detail/dashboard/elements/constants/elementCursorSessionKey';
 import { IElement } from '@/tms/branch-detail/dashboard/elements/types/element';
+import { useEffect } from 'react';
+import { elementsTotalCountAtom } from '../states/elementsCounts';
+import { useSetAtom } from 'jotai';
 
 const ELEMENTS_PER_PAGE = 30;
 interface ElementsQueryVariables {
@@ -22,6 +25,7 @@ interface ElementsQueryVariables {
   orderBy?: Record<string, number>;
   cursorMode?: string;
   sortMode?: string;
+  language?: string;
 }
 
 export const useElements = (
@@ -42,6 +46,7 @@ export const useElements = (
 
   const variables: ElementsQueryVariables = {
     orderBy: { createdAt: -1 },
+    quick: false,
     ...(options?.variables || {}),
     cursor,
     limit: ELEMENTS_PER_PAGE,
@@ -51,6 +56,7 @@ export const useElements = (
     ...options,
     skip: options?.skip,
     variables,
+    fetchPolicy: 'cache-and-network',
   });
 
   const {
@@ -58,6 +64,12 @@ export const useElements = (
     totalCount = 0,
     pageInfo = {},
   } = data?.bmsElements || {};
+
+  const setElementsTotalCount = useSetAtom(elementsTotalCountAtom);
+
+  useEffect(() => {
+    setElementsTotalCount(totalCount);
+  }, [totalCount, setElementsTotalCount]);
 
   const handleFetchMore = ({
     direction,

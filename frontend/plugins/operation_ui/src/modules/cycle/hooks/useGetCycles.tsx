@@ -1,21 +1,20 @@
-
 import { CYCLES_CURSOR_SESSION_KEY } from '@/cycle/constants';
 import { GET_CYCLES } from '@/cycle/graphql/queries/getCycles';
-import { useQuery, QueryHookOptions } from '@apollo/client';
+import { cycleTotalCountAtom } from '@/cycle/states/cycleTotalCountState';
+import { ICycle } from '@/cycle/types';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
   isUndefinedOrNull,
+  mergeCursorData,
+  useRecordTableCursor,
   useToast,
   validateFetchMore,
-  mergeCursorData,
 } from 'erxes-ui';
-import { ICycle } from '@/cycle/types';
-import { useRecordTableCursor } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
-import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
-import { cycleTotalCountAtom } from '@/cycle/states/cycleTotalCountState';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 const CYCLES_PER_PAGE = 30;
 
 export const useCyclesVariables = (
