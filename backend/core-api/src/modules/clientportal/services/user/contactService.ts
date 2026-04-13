@@ -157,7 +157,7 @@ export async function findOrCreateCustomer(
     createData.primaryPhone = phone;
   }
 
-  return models.Customers.create(createData);
+  return models.Customers.createCustomer(createData);
 }
 
 export async function findOrCreateCompany(
@@ -238,8 +238,6 @@ export async function handleCPContacts(
       customer,
     );
   }
-
-
 
   if (userType === 'company') {
     const company = await findOrCreateCompany(

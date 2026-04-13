@@ -32,11 +32,55 @@ const modules = {
   import: importModules,
   export: exportModules,
 };
+
+const coreImportTypes = [
+  {
+    label: 'Customer',
+    contentType: 'core:contact.customer',
+  },
+  {
+    label: 'Lead',
+    contentType: 'core:contact.lead',
+  },
+  {
+    label: 'Company',
+    contentType: 'core:contact.company',
+  },
+  {
+    label: 'Product',
+    contentType: 'core:product.product',
+  },
+  {
+    label: 'Team member',
+    contentType: 'core:user.user',
+  },
+];
+
+const coreExportTypes = [
+  {
+    label: 'Customer',
+    contentType: 'core:contact.customer',
+  },
+  {
+    label: 'Company',
+    contentType: 'core:contact.company',
+  },
+  {
+    label: 'Product',
+    contentType: 'core:product.product',
+  },
+  {
+    label: 'Team member',
+    contentType: 'core:user.user',
+  },
+];
+
 export default async (app: Express) =>
   startImportExportWorker({
     pluginName: 'core',
     config: {
       import: {
+        types: coreImportTypes,
         whenReady: () => {
           console.log('Import worker ready');
         },
@@ -58,6 +102,7 @@ export default async (app: Express) =>
         }),
       },
       export: {
+        types: coreExportTypes,
         getExportData: createCoreModuleProducerHandler({
           moduleName: 'importExport',
           modules: modules.export,

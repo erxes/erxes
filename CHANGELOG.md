@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.0.13](https://github.com/erxes/erxes/compare/3.0.12...3.0.13) (2026-04-13)
+
+
+### Bug Fixes
+
+* cp user searchText bug and broadcast tag group select ([#7446](https://github.com/erxes/erxes/issues/7446)) ([5a01386](https://github.com/erxes/erxes/commit/5a01386352a3dba33c497be1fe9c59a5a7330c23))
+* improve broadcast subdomain handling in email utilities ([0849ede](https://github.com/erxes/erxes/commit/0849ede93a5379883a19572c80000aaba913abeb))
+* simplify Checkbox onCheckedChange handling in MessageTriggerConditionCard ([73adec3](https://github.com/erxes/erxes/commit/73adec3f813298066e08eb1762440fb76a2195f1))
+
 ## [3.0.12](https://github.com/erxes/erxes/compare/3.0.11...3.0.12) (2026-04-12)
 
 

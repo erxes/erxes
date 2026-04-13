@@ -1,12 +1,8 @@
 import { IconDownload } from '@tabler/icons-react';
 import { Button, REACT_APP_API_URL, toast } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
 import { useState } from 'react';
-import { currentUserState } from 'ui-modules';
 
 export const TemplateImport = () => {
-  const currentUser = useAtomValue(currentUserState);
-
   const [importing, setImporting] = useState(false);
 
   const handleImport = async (file: File) => {
@@ -17,12 +13,12 @@ export const TemplateImport = () => {
 
       const response = await fetch(`${REACT_APP_API_URL}/import/template`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           encryptedData: text,
-          userId: currentUser?._id,
         }),
       });
 

@@ -13,8 +13,6 @@ export const handleEmailProcessor = async (payload) => {
   const { subdomain, customers, engageMessage, fromEmail, configSet } =
     payload ?? {};
 
-    console.log('handleEmailProcessor', configSet)
-
   const models = await generateModels(subdomain);
 
   const transporter = await createTransporter(models);
@@ -46,6 +44,7 @@ export const handleEmailProcessor = async (payload) => {
 
           continue;
         }
+
         try {
           const replacedContent = await replaceContent({
             replacer: customer,
@@ -65,17 +64,24 @@ export const handleEmailProcessor = async (payload) => {
             },
           });
 
-          const htmlContent = blocksToHtml(replacedContent, {
-            wrapper: { email: true },
-          });
+          const DOMAIN = (
+            process.env.DOMAIN || 'http://localhost:4000'
+          ).replace('<subdomain>', subdomain);
 
-          engageMessage.email.content = htmlContent;
+          const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
+
+          const htmlContent = blocksToHtml(replacedContent, {
+            wrapper: { email: true, unsubscribeUrl },
+          });
 
           await transporter.sendMail(
             prepareEmailParams(
               subdomain,
               customer,
-              engageMessage,
+              {
+                ...engageMessage,
+                email: { ...engageMessage.email, content: htmlContent },
+              },
               fromEmail,
               configSet,
             ),
@@ -130,10 +136,12 @@ export const handleEmailProcessor = async (payload) => {
 
     if (message) {
       const totalProcessed = STATS.validCustomersCount + STATS.failureCount;
-      const failureRate = totalProcessed > 0 ? STATS.failureCount / totalProcessed : 0;
+      const failureRate =
+        totalProcessed > 0 ? STATS.failureCount / totalProcessed : 0;
 
       if (message.progress.processedBatches >= message.progress.totalBatches) {
-        const finalStatus = failureRate >= FAILURE_THRESHOLD ? 'failed' : 'completed';
+        const finalStatus =
+          failureRate >= FAILURE_THRESHOLD ? 'failed' : 'completed';
 
         await models.EngageMessages.updateOne(
           { _id: engageMessage._id, status: { $eq: 'sending' } },

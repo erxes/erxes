@@ -48,6 +48,7 @@ export const queries = `
   activeExports(entityType: String): [Export]
   exportHistories(
     entityType: String
+    entityTypes: [String]
     limit: Int
     cursor: String
     direction: CURSOR_DIRECTION

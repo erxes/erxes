@@ -376,15 +376,19 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     const product: IProductDocument = await models.Products.getProduct({ _id });
 
     if (groupedSimilarity === 'config') {
-      const getRegex = (str) => {
-        return ['*', '.', '_'].includes(str)
-          ? new RegExp(
-              `^${escapeRegExp(str)
-                .replace(/\\\*/g, '.')
-                .replace(/\\_/g, '.')}.*`,
-              'igu',
-            )
-          : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+      /**
+       * Converts a similarity mask character into a matching regex.
+       * Single wildcard chars (*, _) become "any single char" anchored at start.
+       * Literal '.' matches strings starting with a dot.
+       * All other strings become unanchored escaped-substring matchers.
+       */
+      const WILDCARD_REGEX: Record<string, RegExp> = {
+        '*': /^..*/igu,
+        '.': /^\..*/igu,
+        '_': /^..*/igu,
+      };
+      const getRegex = (str: string): RegExp => {
+        return WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
       const similarityGroups =
@@ -430,7 +434,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         };
       }
 
-      const codeRegexes: any[] = [];
+      const codeRegexes: FilterQuery<IProductDocument>[] = [];
       const fieldIds: string[] = [];
       const groups: { title: string; fieldId: string }[] = [];
 
@@ -469,7 +473,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         }
       }
 
-      const filters: any = {
+      const filters: FilterQuery<IProductDocument> = {
         $and: [
           {
             $or: codeRegexes,
@@ -506,7 +510,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
 
     const fieldIds = category.similarities.map((r) => r.fieldId);
 
-    const filters: any = {
+    const filters: FilterQuery<IProductDocument> = {
       $and: [
         {
           categoryId: category._id,
