@@ -122,11 +122,11 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
 
       const current = await models.AdjustClosings.findById(_id).lean();
 
-      if (!current || !current.createdAt) {
+      if (!current?.createdAt) {
         throw new Error('Adjust Closing not found or missing createdAt');
       }
 
-      if (lastPublished && current.createdAt! < lastPublished.createdAt!) {
+      if (lastPublished && current.createdAt < lastPublished.createdAt!) {
         throw new Error('Adjust Closing must be published in order');
       }
 
@@ -137,7 +137,6 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
 
       return 'published';
     }
-
     /**
      * Get Adjust Closings
      */

@@ -1,4 +1,4 @@
-import { Button, cn, IconComponent, Sidebar } from 'erxes-ui';
+import { IconComponent, Sidebar } from 'erxes-ui';
 import { ReportRules } from '../types/reportsMap';
 import { activeReportState } from '../states/renderingReportsStates';
 import { useAtom } from 'jotai';

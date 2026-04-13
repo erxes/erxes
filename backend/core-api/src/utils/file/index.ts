@@ -1,4 +1,3 @@
-import type { FileTypeResult } from 'file-type';
 import * as fs from 'fs';
 import { Jimp } from 'jimp';
 import { tmpdir } from 'os';

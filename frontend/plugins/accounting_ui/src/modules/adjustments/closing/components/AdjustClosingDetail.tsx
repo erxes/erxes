@@ -44,15 +44,10 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
     skip: !id,
   });
 
-  const { runAdjust, loading: runLoading } = useAdjustClosingRun(id ?? '');
-  const { publishAdjust, loading: publishLoading } = useAdjustClosingPublish(
-    id ?? '',
-  );
-  const { cancelAdjust, loading: cancelLoading } = useAdjustClosingCancel(
-    id ?? '',
-  );
-  const { removeAdjust, loading: removeLoading } =
-    useAdjustClosingEntryRemove();
+  const { runAdjust } = useAdjustClosingRun(id ?? '');
+  const { publishAdjust } = useAdjustClosingPublish(id ?? '');
+  const { cancelAdjust } = useAdjustClosingCancel(id ?? '');
+  const { removeAdjust } = useAdjustClosingEntryRemove();
 
   if (loading || detailsLoading) {
     return <Spinner />;

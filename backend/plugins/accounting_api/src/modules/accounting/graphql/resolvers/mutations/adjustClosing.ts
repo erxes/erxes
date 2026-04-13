@@ -73,8 +73,4 @@ const adjustClosingEntryMutations = {
   },
 };
 
-// checkPermission(adjustClosingEntryMutationsMutations, 'adjustClosingEntriesAdd', 'createAdjustClosingEntry');
-// checkPermission(adjustClosingEntryMutationsMutations, 'adjustClosingEntriesEdit', 'updateAdjustClosingEntry');
-// checkPermission(adjustClosingEntryMutationsMutations, 'adjustClosingEntriesRemove', 'removeAdjustClosing');
-
 export default adjustClosingEntryMutations;

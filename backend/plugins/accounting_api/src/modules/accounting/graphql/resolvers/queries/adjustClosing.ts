@@ -10,7 +10,6 @@ interface IQueryParams {
 }
 
 export const generateFilter = async (models: IModels, params: IQueryParams) => {
-  const { page, perPage, sortField, sortDirection } = params;
   const filter: any = {};
 
   filter.status = { $ne: ACCOUNT_STATUSES.DELETED };
@@ -26,8 +25,7 @@ const adjustClosingQueries = {
   ) {
     const filter = await generateFilter(models, params);
 
-    const { sortField, sortDirection, page, perPage } = params;
-    const paginationArgs = { page, perPage };
+    const { sortField, sortDirection } = params;
 
     let sort: any = { code: 1 };
     if (sortField) {
@@ -36,7 +34,7 @@ const adjustClosingQueries = {
 
     return defaultPaginate(
       models.AdjustClosings.find(filter).sort(sort).lean(),
-      paginationArgs,
+      { page: params.page, perPage: params.perPage },
     );
   },
 

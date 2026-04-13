@@ -14,7 +14,7 @@ export const useAdjustClosingEdit = () => {
         ...options.variables,
       },
       update: (cache, { data }) => {
-        const updatedData = (data as any)?.adjustClosingEdit;
+        const updatedData = data?.adjustClosingEdit;
         if (!updatedData) return;
       },
       onError: (error) => {

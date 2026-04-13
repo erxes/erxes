@@ -1,17 +1,11 @@
-import { cn, displayNum, ReportTable } from 'erxes-ui';
+import { cn, ReportTable } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { moreDataState } from '~/modules/journal-reports/states/renderingReportsStates';
-import { IGroupRule } from '~/modules/journal-reports/types/reportsMap';
-import { AccountKind } from '~/modules/settings/account/types/Account';
-import { TR_SIDES } from '~/modules/transactions/types/constants';
 
 export const HandleMainACMore = (parent: string, child: string) => {
-  const parentRules = parent.split('*').map((p) => child.split('+'));
-  const [leafKey, leafId] = child.split('+');
   const allMoreData = useAtomValue(moreDataState);
 
-  const moreData = allMoreData.filter((md) => md);
-
+  const moreData = allMoreData.filter(Boolean);
   // moreData Context
   return (
     <ReportTable.Row key={'aaaaaa'} className={cn('text-right')}>
@@ -20,7 +14,7 @@ export const HandleMainACMore = (parent: string, child: string) => {
           <ReportTable.Header></ReportTable.Header>
           <ReportTable.Body>
             {moreData.map((tr) => (
-              <ReportTable.Row className={cn('')}>
+              <ReportTable.Row key={tr._id} className={cn('')}>
                 <ReportTable.Cell className={cn(`text-left `)}>
                   {parent}
                 </ReportTable.Cell>

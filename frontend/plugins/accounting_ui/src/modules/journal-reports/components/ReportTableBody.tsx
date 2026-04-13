@@ -1,4 +1,4 @@
-import { ReportTable, Spinner, cn, displayNum, useQueryState } from 'erxes-ui';
+import { ReportTable, cn, displayNum } from 'erxes-ui';
 import React, { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useJournalReportData } from '../hooks/useJournalReportData';
@@ -262,14 +262,6 @@ function renderGroup(
 
     // ✅ Дараагийн групп байвал (recursion үргэлжилнэ)
     if (groupRule.groupRule?.group) {
-      const preLeafAttr = (leafAttr && `${leafAttr},`) || '';
-      const newMoreAttr = getMoreAttr(
-        groupRule,
-        grStep[grId],
-        moreAttr,
-        isMore,
-      );
-
       return (
         <React.Fragment key={attr + index}>
           {
@@ -365,9 +357,8 @@ const totalsCalc = (root: HTMLElement) => {
     tds.forEach((td, index) => {
       if (excluded_indexes.includes(index)) return;
 
-      let recordValue = parseFloat(td.textContent?.replace(/,/g, '') || '0');
-      if (isNaN(recordValue)) recordValue = 0;
-
+      let recordValue = Number(td.textContent?.replace(/,/g, '') || '0');
+      if (Number.isNaN(recordValue)) recordValue = 0;
       Array.from(sumKeys).forEach((sumKey) => {
         if (!totals[sumKey]) totals[sumKey] = {};
         if (!totals[sumKey][index]) totals[sumKey][index] = 0;

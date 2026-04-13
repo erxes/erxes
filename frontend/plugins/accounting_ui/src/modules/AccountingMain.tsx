@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { Spinner } from 'erxes-ui';
-import { AdjustClosingRoutes } from './app/components/AdjustClosingRoutes';
 import { PageChangeEffect } from './app/AccountingPageChangeEffect';
 
 const TransactionList = lazy(() =>
