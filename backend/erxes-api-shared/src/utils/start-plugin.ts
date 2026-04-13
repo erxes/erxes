@@ -148,21 +148,6 @@ export async function startPlugin(
     res.end('ok');
   });
 
-  /**
-   * Protects the public subscription bundle endpoint from request floods.
-   *
-   * The limit is intentionally generous so regular page loads, retries, and
-   * normal multi-user traffic are not blocked. It only throttles abnormal
-   * high-frequency bursts from the same IP.
-   */
-  const subscriptionFileLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 1000,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: 'Too many requests from this IP, please try again later.',
-  });
-
   if (expressRouter) {
     app.use(expressRouter);
   }
@@ -207,11 +192,32 @@ export async function startPlugin(
   }
 
   if (hasSubscriptions) {
+    if (!subscriptionPluginPath) {
+      throw new Error(
+        'subscriptionPluginPath is required when hasSubscriptions is true',
+      );
+    }
+
+    /**
+     * Protects the public subscription bundle endpoint from request floods.
+     *
+     * The limit is intentionally generous so regular page loads, retries, and
+     * normal multi-user traffic are not blocked. It only throttles abnormal
+     * high-frequency bursts from the same IP.
+     */
+    const subscriptionFileLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 1000,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: 'Too many requests from this IP, please try again later.',
+    });
+
     app.get(
       '/subscriptionPlugin.js',
       subscriptionFileLimiter,
-      async (_req, res) => {
-        res.sendFile(path.join(subscriptionPluginPath));
+      (_req, res) => {
+        res.sendFile(path.resolve(subscriptionPluginPath));
       },
     );
   }
