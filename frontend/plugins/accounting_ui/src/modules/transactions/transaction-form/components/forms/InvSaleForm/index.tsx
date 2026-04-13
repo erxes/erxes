@@ -46,13 +46,13 @@ export const InvSaleForm = ({
       (followTrDocs || []).map((ftr) =>
         ftr.originId === trDoc._id && ftr.originType === 'invSaleOut'
           ? {
-            ...ftr,
-            details: ftr.details.map((ftrd) => ({
-              ...ftrd,
-              account,
-              accountId: account._id,
-            })),
-          }
+              ...ftr,
+              details: ftr.details.map((ftrd) => ({
+                ...ftrd,
+                account,
+                accountId: account._id,
+              })),
+            }
           : ftr,
       ),
     );
@@ -66,13 +66,13 @@ export const InvSaleForm = ({
         (ftr) =>
           (ftr.originId === trDoc._id &&
             ftr.originType === 'invSaleCost' && {
-            ...ftr,
-            details: ftr.details.map((ftrd) => ({
-              ...ftrd,
-              account,
-              accountId: account._id,
-            })),
-          }) ||
+              ...ftr,
+              details: ftr.details.map((ftrd) => ({
+                ...ftrd,
+                account,
+                accountId: account._id,
+              })),
+            }) ||
           ftr,
       ),
     );

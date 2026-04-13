@@ -38,10 +38,7 @@ export const InvOutForm = ({
         <RelAccountsForm form={form} index={index} />
       </div>
 
-      <InventoryForm
-        form={form}
-        journalIndex={index}
-      />
+      <InventoryForm form={form} journalIndex={index} />
     </>
   );
 };

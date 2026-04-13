@@ -26,7 +26,11 @@ export const PayableTransaction = ({
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6">
-        <AccountField form={form} index={index} filter={{ journals: [JournalEnum.DEBT], kind: AccountKind.PASSIVE }} />
+        <AccountField
+          form={form}
+          index={index}
+          filter={{ journals: [JournalEnum.DEBT], kind: AccountKind.PASSIVE }}
+        />
         <SideField form={form} index={index} sides={TR_SIDES.PAYABLE_OPTIONS} />
         <AmountField form={form} index={index} />
         <CustomerFields form={form} index={index} />
@@ -35,8 +39,18 @@ export const PayableTransaction = ({
         <DepartmentField form={form} index={index} />
         <DescriptionField form={form} index={index} />
         <CurrencyForm form={form} journalIndex={index} />
-        <VatForm form={form} journalIndex={index} isWithTax={true} isSameSide={false} />
-        <CtaxForm form={form} journalIndex={index} isWithTax={true} isSameSide={false} />
+        <VatForm
+          form={form}
+          journalIndex={index}
+          isWithTax={true}
+          isSameSide={false}
+        />
+        <CtaxForm
+          form={form}
+          journalIndex={index}
+          isWithTax={true}
+          isSameSide={false}
+        />
       </div>
       <div className="pt-3">
         <RelAccountsForm form={form} index={index} />

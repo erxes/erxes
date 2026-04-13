@@ -59,13 +59,13 @@ export const InvSaleReturnForm = ({
         (ftr) =>
           (ftr.originId === trDoc._id &&
             ftr.originType === 'invSaleReturnOut' && {
-            ...ftr,
-            details: ftr.details.map((ftrd) => ({
-              ...ftrd,
-              account,
-              accountId: account._id,
-            })),
-          }) ||
+              ...ftr,
+              details: ftr.details.map((ftrd) => ({
+                ...ftrd,
+                account,
+                accountId: account._id,
+              })),
+            }) ||
           ftr,
       ),
     );
@@ -79,13 +79,13 @@ export const InvSaleReturnForm = ({
         (ftr) =>
           (ftr.originId === trDoc._id &&
             ftr.originType === 'invSaleReturnCost' && {
-            ...ftr,
-            details: ftr.details.map((ftrd) => ({
-              ...ftrd,
-              account,
-              accountId: account._id,
-            })),
-          }) ||
+              ...ftr,
+              details: ftr.details.map((ftrd) => ({
+                ...ftrd,
+                account,
+                accountId: account._id,
+              })),
+            }) ||
           ftr,
       ),
     );

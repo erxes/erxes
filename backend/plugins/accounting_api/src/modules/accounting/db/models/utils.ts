@@ -1,27 +1,34 @@
-import { IModels } from "~/connectionResolvers";
-import { PTR_STATUSES, TR_SIDES } from "../../@types/constants";
-import { ITransaction, ITransactionDocument } from "../../@types/transaction";
+import { IModels } from '~/connectionResolvers';
+import { PTR_STATUSES, TR_SIDES } from '../../@types/constants';
+import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { IAccountDocument } from '../../@types/account';
 
-const getAccountIdsOnTr = async (models: IModels, transactions: ITransactionDocument[]) => {
+const getAccountIdsOnTr = async (
+  models: IModels,
+  transactions: ITransactionDocument[],
+) => {
   const accountsById: { [_id: string]: any } = {};
   const accountIds = transactions.reduce(
-    (
-      ids: string[], tr: ITransactionDocument
-    ) => ids.concat(
-      (tr.details || []).map(d => d.accountId)
-    ),
-    []
+    (ids: string[], tr: ITransactionDocument) =>
+      ids.concat((tr.details || []).map((d) => d.accountId)),
+    [],
   );
 
-  const accounts = await models.Accounts.find({ _id: { $in: accountIds } }, { _id: 1, code: 1, isOutBalance: 1 }).lean();
+  const accounts = await models.Accounts.find(
+    { _id: { $in: accountIds } },
+    { _id: 1, code: 1, isOutBalance: 1 },
+  ).lean();
   for (const acc of accounts) {
     accountsById[acc._id] = acc;
   }
   return { accountsById, accounts };
-}
+};
 
-const getPtrStatus = async (models: IModels, transactions: ITransactionDocument[], accounts: IAccountDocument[]) => {
+const getPtrStatus = async (
+  models: IModels,
+  transactions: ITransactionDocument[],
+  accounts: IAccountDocument[],
+) => {
   let balance = 0;
   for (const tr of transactions) {
     balance += tr.sumDt - tr.sumCt;
@@ -33,13 +40,17 @@ const getPtrStatus = async (models: IModels, transactions: ITransactionDocument[
 
   const balanceTypes = [...new Set(accounts.map((acc) => acc.isOutBalance))];
   if (balanceTypes.length > 1) {
-    return PTR_STATUSES.ACCOUNT_BALANCE
+    return PTR_STATUSES.ACCOUNT_BALANCE;
   }
 
   return PTR_STATUSES.OK;
-}
+};
 
-const getRelAccounts = (trDoc: ITransaction, transactions: ITransaction[], accountsById: { [_id: string]: string }) => {
+const getRelAccounts = (
+  trDoc: ITransaction,
+  transactions: ITransaction[],
+  accountsById: { [_id: string]: string },
+) => {
   const dtAccountCodes: string[] = [];
   const ctAccountCodes: string[] = [];
   (transactions || []).forEach((activeTr) => {
@@ -71,14 +82,20 @@ const getRelAccounts = (trDoc: ITransaction, transactions: ITransaction[], accou
 
   return {
     dt: dtAccountCodes,
-    ct: ctAccountCodes
-  }
-}
+    ct: ctAccountCodes,
+  };
+};
 
-export const setPtrStatus = async (models: IModels, transactions: ITransactionDocument[]) => {
+export const setPtrStatus = async (
+  models: IModels,
+  transactions: ITransactionDocument[],
+) => {
   const trsByPtrId = {};
   const relAccountsByTrId = {};
-  const { accounts, accountsById } = await getAccountIdsOnTr(models, transactions);
+  const { accounts, accountsById } = await getAccountIdsOnTr(
+    models,
+    transactions,
+  );
   let mainPtrId = '';
   let resultStatus = PTR_STATUSES.DIFF;
 
@@ -94,12 +111,12 @@ export const setPtrStatus = async (models: IModels, transactions: ITransactionDo
       trsByPtrId[tr.ptrId] = [];
     }
     if (!mainPtrId && !tr.originId) {
-      mainPtrId = tr.ptrId
+      mainPtrId = tr.ptrId;
     }
 
     trsByPtrId[tr.ptrId].push(tr);
 
-    relAccountsByTrId[tr._id] = getRelAccounts(tr, transactions, accountsById)
+    relAccountsByTrId[tr._id] = getRelAccounts(tr, transactions, accountsById);
   }
 
   const ptrIds = Object.keys(trsByPtrId);
@@ -117,10 +134,10 @@ export const setPtrStatus = async (models: IModels, transactions: ITransactionDo
               'relAccounts.dt': relAccountsByTrId[tr._id]?.dt,
               'relAccounts.ct': relAccountsByTrId[tr._id]?.ct,
               ptrStatus: status,
-            }
-          }
-        }
-      })
+            },
+          },
+        },
+      });
     }
 
     if (ptrId === mainPtrId) {
@@ -133,4 +150,4 @@ export const setPtrStatus = async (models: IModels, transactions: ITransactionDo
   }
 
   return resultStatus;
-}
+};

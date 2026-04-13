@@ -38,8 +38,18 @@ export const InvIncomeForm = ({
         <DepartmentField form={form} index={index} />
         <AssignToField form={form} index={index} />
         <DescriptionField form={form} index={index} />
-        <VatForm form={form} journalIndex={index} isWithTax={false} isSameSide={true} />
-        <CtaxForm form={form} journalIndex={index} isWithTax={false} isSameSide={true} />
+        <VatForm
+          form={form}
+          journalIndex={index}
+          isWithTax={false}
+          isSameSide={true}
+        />
+        <CtaxForm
+          form={form}
+          journalIndex={index}
+          isWithTax={false}
+          isSameSide={true}
+        />
       </div>
 
       <div className="pt-3">
@@ -49,10 +59,7 @@ export const InvIncomeForm = ({
         <RelAccountsForm form={form} index={index} />
       </div>
 
-      <InventoryForm
-        form={form}
-        journalIndex={index}
-      />
+      <InventoryForm form={form} journalIndex={index} />
       <CalcAmountEffectComponent form={form} journalIndex={index} />
     </>
   );
@@ -74,24 +81,41 @@ const CalcAmountEffectComponent = ({
     name: `trDocs.${journalIndex}.details`,
   });
 
-  const sumAmountExpenses = expenses?.filter(ex => ex.rule === 'amount').reduce((sum, cur) => fixNum(sum + (cur.amount ?? 0)), 0);
-  const sumCountExpenses = expenses?.filter(ex => ex.rule === 'count').reduce((sum, cur) => fixNum(sum + (cur.amount ?? 0)), 0);
+  const sumAmountExpenses = expenses
+    ?.filter((ex) => ex.rule === 'amount')
+    .reduce((sum, cur) => fixNum(sum + (cur.amount ?? 0)), 0);
+  const sumCountExpenses = expenses
+    ?.filter((ex) => ex.rule === 'count')
+    .reduce((sum, cur) => fixNum(sum + (cur.amount ?? 0)), 0);
 
-  const sumAmountDetails = details.reduce((sum, cur) => fixNum(sum + (cur.count ?? 0) * (cur.unitPrice ?? 0)), 0);
-  const sumCountDetails = details.reduce((sum, cur) => fixNum(sum + (cur.count ?? 0)), 0);
+  const sumAmountDetails = details.reduce(
+    (sum, cur) => fixNum(sum + (cur.count ?? 0) * (cur.unitPrice ?? 0)),
+    0,
+  );
+  const sumCountDetails = details.reduce(
+    (sum, cur) => fixNum(sum + (cur.count ?? 0)),
+    0,
+  );
 
-  useEffect(() => {
-    const proportionAmount = sumAmountExpenses / sumAmountDetails;
-    const proportionCount = sumCountExpenses / sumCountDetails;
+  useEffect(
+    () => {
+      const proportionAmount = sumAmountExpenses / sumAmountDetails;
+      const proportionCount = sumCountExpenses / sumCountDetails;
 
-    details.forEach((detail, detIndex) => {
-      const amount = fixNum((detail.count ?? 0) * (detail.unitPrice ?? 0));
-      const newAmount = amount + fixNum(proportionCount * (detail.count ?? 0)) + fixNum(proportionAmount * amount);
-      form.setValue(`trDocs.${journalIndex}.details.${detIndex}.amount`, newAmount);
-    });
-  },
+      details.forEach((detail, detIndex) => {
+        const amount = fixNum((detail.count ?? 0) * (detail.unitPrice ?? 0));
+        const newAmount =
+          amount +
+          fixNum(proportionCount * (detail.count ?? 0)) +
+          fixNum(proportionAmount * amount);
+        form.setValue(
+          `trDocs.${journalIndex}.details.${detIndex}.amount`,
+          newAmount,
+        );
+      });
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sumAmountDetails, sumAmountExpenses, sumCountDetails, sumCountExpenses]
-  )
-  return null
-}
+    [sumAmountDetails, sumAmountExpenses, sumCountDetails, sumCountExpenses],
+  );
+  return null;
+};

@@ -1,7 +1,7 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
-import { SelectBranches, SelectDepartments, } from 'ui-modules';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 import {
   AccountField,
@@ -22,10 +22,7 @@ export const InvMoveForm = ({
   index: number;
 }) => {
   const onChangeInAccount = (account: IAccount) => {
-    form.setValue(
-      `trDocs.${index}.followExtras.moveInAccount`,
-      account as any,
-    );
+    form.setValue(`trDocs.${index}.followExtras.moveInAccount`, account as any);
   };
 
   return (
@@ -36,7 +33,7 @@ export const InvMoveForm = ({
           index={index}
           filter={{ journals: [JournalEnum.INVENTORY] }}
           allDetails={true}
-          labelTxt='Move Out Account'
+          labelTxt="Move Out Account"
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
@@ -101,10 +98,7 @@ export const InvMoveForm = ({
         <RelAccountsForm form={form} index={index} />
       </div>
 
-      <InventoryForm
-        form={form}
-        journalIndex={index}
-      />
+      <InventoryForm form={form} journalIndex={index} />
     </>
   );
 };

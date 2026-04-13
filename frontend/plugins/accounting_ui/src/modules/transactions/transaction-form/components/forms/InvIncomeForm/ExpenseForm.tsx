@@ -1,5 +1,11 @@
 import { IconPlus, IconZoomCancel, IconZoomIn } from '@tabler/icons-react';
-import { Button, RecordTableHotkeyProvider, Separator, Table, usePreviousHotkeyScope } from 'erxes-ui';
+import {
+  Button,
+  RecordTableHotkeyProvider,
+  Separator,
+  Table,
+  usePreviousHotkeyScope,
+} from 'erxes-ui';
 import { useFieldArray } from 'react-hook-form';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 import { ExpenseRow } from './ExpenseRow';
@@ -15,12 +21,12 @@ export const ExpenseForm = ({
   journalIndex: number;
 }) => {
   const [isShow, setIsShow] = useState(false);
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope()
+  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
 
   const { fields, append } = useFieldArray({
     control: form.control,
     name: `trDocs.${journalIndex}.extraData.invIncomeExpenses`,
-    keyName: '_id'
+    keyName: '_id',
   });
 
   const handleAppend = () => {
@@ -28,9 +34,9 @@ export const ExpenseForm = ({
       _id: getTempId(),
       amount: 0,
       title: '',
-      rule: 'amount'
-    })
-  }
+      rule: 'amount',
+    });
+  };
 
   if (!isShow) {
     return (
@@ -53,7 +59,14 @@ export const ExpenseForm = ({
         rowLength={fields.length}
         scope={AccountingHotkeyScope.TransactionFormSubPage}
       >
-        <Table className="mt-8 p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar" onClickCapture={() => setHotkeyScopeAndMemorizePreviousScope(AccountingHotkeyScope.TransactionFormSubPage)} >
+        <Table
+          className="mt-8 p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar"
+          onClickCapture={() =>
+            setHotkeyScopeAndMemorizePreviousScope(
+              AccountingHotkeyScope.TransactionFormSubPage,
+            )
+          }
+        >
           <ExpenseTableHeader form={form} journalIndex={journalIndex} />
           <Table.Body className="overflow-hidden">
             {fields.map((expense, expenseIndex) => (
@@ -106,7 +119,7 @@ const ExpenseTableHeader = ({
   return (
     <Table.Header>
       <Table.Row>
-        <Table.Head className='w-10'></Table.Head>
+        <Table.Head className="w-10"></Table.Head>
         <Table.Head>Expense</Table.Head>
         <Table.Head>Rule</Table.Head>
         <Table.Head>Amount</Table.Head>
