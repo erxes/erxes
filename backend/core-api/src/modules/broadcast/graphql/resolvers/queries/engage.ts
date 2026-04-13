@@ -290,8 +290,9 @@ export const engageQueries = {
     { engageMessageId }: { engageMessageId: string },
     { models }: IContext,
   ) {
-    return models.BroadcastTraces.find({ engageMessageId })
-      .sort({ createdAt: -1 })
+    return models.BroadcastTraces.find({ engageMessageId }).sort({
+      createdAt: -1,
+    });
   },
 
   async engageSmsDeliveries(
