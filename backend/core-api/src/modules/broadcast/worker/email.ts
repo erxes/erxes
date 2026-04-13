@@ -13,6 +13,8 @@ export const handleEmailProcessor = async (payload) => {
   const { subdomain, customers, engageMessage, fromEmail, configSet } =
     payload ?? {};
 
+    console.log('handleEmailProcessor', configSet)
+
   const models = await generateModels(subdomain);
 
   const transporter = await createTransporter(models);
