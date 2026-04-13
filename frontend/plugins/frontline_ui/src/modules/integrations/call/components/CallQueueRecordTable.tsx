@@ -13,7 +13,11 @@ import { useAtomValue } from 'jotai';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { Link } from 'react-router-dom';
 
-export const CallQueueRecordTable = () => {
+export const CallQueueRecordTable = ({
+  basePath = '/frontline/calls/dashboard',
+}: {
+  basePath?: string;
+}) => {
   const callConfig = useAtomValue(callConfigAtom);
   const { inboxId } = callConfig || {};
 
@@ -28,7 +32,7 @@ export const CallQueueRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={columns}
+      columns={getColumns(basePath)}
       data={callQueueList || (loading ? [{}] : [])}
       className="m-3"
       stickyColumns={['queue']}
@@ -49,7 +53,7 @@ export const CallQueueRecordTable = () => {
   );
 };
 
-const columns: ColumnDef<any>[] = [
+const getColumns = (basePath: string): ColumnDef<any>[] => [
   {
     header: 'Queue',
     accessorKey: 'queue',
@@ -69,7 +73,7 @@ const columns: ColumnDef<any>[] = [
       return (
         <HoverCard openDelay={100}>
           <HoverCard.Trigger asChild>
-            <Link to={`/frontline/calls/${cell.getValue()}`} className="block">
+            <Link to={`${basePath}/${cell.getValue()}`} className="block">
               <RecordTableInlineCell>
                 <Badge variant="secondary">
                   {cell.getValue() as string} -{' '}

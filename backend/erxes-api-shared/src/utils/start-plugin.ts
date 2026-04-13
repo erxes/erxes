@@ -36,7 +36,7 @@ import {
   leaveErxesGateway,
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
-import { getSubdomain } from './utils';
+import { applyTrustProxy, getSubdomain } from './utils';
 
 dotenv.config();
 
@@ -132,6 +132,7 @@ export async function startPlugin(
   const PORT = process.env.PORT ? Number(process.env.PORT) : port;
 
   const app = express();
+  applyTrustProxy(app);
   app.disable('x-powered-by');
   app.use(cors(corsOptions));
   app.use(

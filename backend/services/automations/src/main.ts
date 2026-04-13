@@ -2,6 +2,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import {
+  applyTrustProxy,
   closeMongooose,
   createHealthRoute,
   createTRPCContext,
@@ -29,6 +30,7 @@ const port = PORT ? Number(PORT) : 3302;
 const serviceName = 'automations-service';
 
 const app = express();
+applyTrustProxy(app);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));

@@ -74,7 +74,9 @@ export const SelectVoucherCampaignProvider = ({
   );
 
   const voucherCampaignId = useMemo(() => {
-    return Array.isArray(value) ? value : value && [value] || []
+    if (Array.isArray(value)) return value;
+    if (value) return [value];
+    return [];
   }, [value]);
 
   const contextValue = useMemo(

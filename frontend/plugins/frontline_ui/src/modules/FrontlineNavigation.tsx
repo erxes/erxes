@@ -7,6 +7,7 @@ import {
   IconForms,
   IconBook,
   IconPlus,
+  IconCaretRightFilled,
 } from '@tabler/icons-react';
 import {
   NavigationMenuLinkItem,

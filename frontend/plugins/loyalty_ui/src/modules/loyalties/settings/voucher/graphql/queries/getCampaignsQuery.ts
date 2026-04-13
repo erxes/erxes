@@ -2,11 +2,12 @@ import { gql } from '@apollo/client';
 import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 export const QUERY_VOUCHER_CAMPAIGNS = gql`
-  query GetVoucherCampaigns(
+  query VoucherCampaigns(
     $searchValue: String
     $status: String
     $equalTypeCampaignId: String
     $voucherType: String
+    $excludeVoucherTypes: [String]
 
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
@@ -15,6 +16,7 @@ export const QUERY_VOUCHER_CAMPAIGNS = gql`
       status: $status
       equalTypeCampaignId: $equalTypeCampaignId
       voucherType: $voucherType
+      excludeVoucherTypes: $excludeVoucherTypes
 
       ${GQL_CURSOR_PARAMS}
     ) {
