@@ -58,20 +58,9 @@ export const MessageTriggerConditionCard = ({
       <Checkbox
         className="data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500"
         checked={isSelected}
-        disabled={isDisabled}
-        onCheckedChange={(checked) => {
-          if (isDisabled) {
-            return;
-          }
-
-          onCheck(!!checked);
-        }}
+        onCheckedChange={onCheck}
         onClick={(e) => {
           e.stopPropagation();
-
-          if (isDisabled) {
-            e.preventDefault();
-          }
         }}
       />
 
