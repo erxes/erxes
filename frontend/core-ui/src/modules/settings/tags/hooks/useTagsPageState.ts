@@ -26,8 +26,7 @@ const deriveCapability = (
     return {
       canDelete: true,
       canMove: false,
-      moveDisabledReason:
-        'Only standalone or child tags can be moved together',
+      moveDisabledReason: 'Only standalone or child tags can be moved together',
     };
   }
 
@@ -53,22 +52,19 @@ export const useTagsPageState = (tags: ITag[]) => {
     }
   }, [searchTerm]);
 
-  const startDraft = useCallback(
-    (kind: DraftKind, parentId?: string) => {
-      if (kind === 'child-tag' && parentId) {
-        setExpandedGroupIds((prev) => new Set([...prev, parentId]));
-      }
-      setDraft({
-        kind,
-        parentId,
-        name: '',
-        description: '',
-        touched: false,
-        colorCode: randomColor(),
-      });
-    },
-    [],
-  );
+  const startDraft = useCallback((kind: DraftKind, parentId?: string) => {
+    if (kind === 'child-tag' && parentId) {
+      setExpandedGroupIds((prev) => new Set([...prev, parentId]));
+    }
+    setDraft({
+      kind,
+      parentId,
+      name: '',
+      description: '',
+      touched: false,
+      colorCode: randomColor(),
+    });
+  }, []);
 
   const cancelDraft = useCallback(() => setDraft(null), []);
 
@@ -120,12 +116,9 @@ export const useTagsPageState = (tags: ITag[]) => {
     [],
   );
 
-  const selectAll = useCallback(
-    (tagIds: string[]) => {
-      setSelectedIds(new Set(tagIds));
-    },
-    [],
-  );
+  const selectAll = useCallback((tagIds: string[]) => {
+    setSelectedIds(new Set(tagIds));
+  }, []);
 
   const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
 

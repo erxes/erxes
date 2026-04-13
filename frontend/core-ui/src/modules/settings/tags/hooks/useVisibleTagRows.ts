@@ -68,7 +68,12 @@ export const useVisibleTagRows = ({
           continue;
 
         if (isContextParent) {
-          rows.push({ rowType: 'context-group', tag: group, depth: 0, isContext: true });
+          rows.push({
+            rowType: 'context-group',
+            tag: group,
+            depth: 0,
+            isContext: true,
+          });
         } else {
           rows.push({ rowType: 'group', tag: group, depth: 0 });
         }

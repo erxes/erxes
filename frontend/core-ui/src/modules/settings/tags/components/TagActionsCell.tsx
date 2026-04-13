@@ -130,9 +130,14 @@ export const TagActionsCell = ({
                     if (tag.isGroup && childCount > 0) {
                       try {
                         await confirm({
-                          message: t('convert-group-confirm', { name: tag.name }),
+                          message: t('convert-group-confirm', {
+                            name: tag.name,
+                          }),
                           options: {
-                            description: t('convert-group-confirm-description', { count: childCount }),
+                            description: t(
+                              'convert-group-confirm-description',
+                              { count: childCount },
+                            ),
                             okLabel: t('convert'),
                           },
                         });

@@ -15,12 +15,19 @@ export const useTagDeleteConfirm = () => {
 
       if (tag.isGroup && childCount && childCount > 0) {
         message = t('delete-group-confirm', { name: tag.name });
-        description = t('delete-group-confirm-description', { count: childCount });
+        description = t('delete-group-confirm-description', {
+          count: childCount,
+        });
       } else if (!tag.isGroup && (tag.objectCount ?? 0) > 0) {
-        description = t('delete-tag-confirm-description', { count: tag.objectCount });
+        description = t('delete-tag-confirm-description', {
+          count: tag.objectCount,
+        });
       }
 
-      await confirm({ message, options: { description, okLabel: t('delete') } });
+      await confirm({
+        message,
+        options: { description, okLabel: t('delete') },
+      });
       removeTag(tag._id);
     },
     [confirm, removeTag, t],

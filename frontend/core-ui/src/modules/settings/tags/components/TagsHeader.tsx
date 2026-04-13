@@ -18,12 +18,17 @@ export const TagsHeader = ({
   const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [type] = useQueryState<string>('tagType');
   const { types } = useTagTypes();
-  const typeLabel = getTagTypeDescription({ type: type ?? null, tagTypes: types });
+  const typeLabel = getTagTypeDescription({
+    type: type ?? null,
+    tagTypes: types,
+  });
 
   return (
     <div className="flex items-center justify-between px-3 pt-3 pb-1">
       <div>
-        <h2 className="text-sm font-semibold">{typeLabel} {t('_')}</h2>
+        <h2 className="text-sm font-semibold">
+          {typeLabel} {t('_')}
+        </h2>
         <p className="text-xs text-muted-foreground mt-0.5">
           {t('workspace-tags-description')}
         </p>

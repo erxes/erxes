@@ -14,7 +14,12 @@ interface TagDraftRowProps {
 const BASE_LEFT = 8;
 const INDENT_PER_LEVEL = 24;
 
-export const TagDraftRow = ({ draft, depth, onSave, onCancel }: TagDraftRowProps) => {
+export const TagDraftRow = ({
+  draft,
+  depth,
+  onSave,
+  onCancel,
+}: TagDraftRowProps) => {
   const { toast } = useToast();
   const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [name, setName] = useState(draft.name ?? '');
@@ -62,56 +67,59 @@ export const TagDraftRow = ({ draft, depth, onSave, onCancel }: TagDraftRowProps
       <div className="w-10 shrink-0" />
 
       {/* Color dot + name indented like a tag row */}
-      <div className="flex-1 min-w-0 flex items-center gap-1 h-full" style={{ paddingLeft }}>
-      {/* Color dot */}
-      <div className="w-7 flex items-center justify-center shrink-0">
-        {draft.kind === 'group' ? (
-          <IconCirclesFilled
-            className="size-3"
-            style={{ color: draft.colorCode }}
-          />
-        ) : (
-          <IconCircleFilled
-            className="size-3"
-            style={{ color: draft.colorCode }}
-          />
-        )}
-      </div>
+      <div
+        className="flex-1 min-w-0 flex items-center gap-1 h-full"
+        style={{ paddingLeft }}
+      >
+        {/* Color dot */}
+        <div className="w-7 flex items-center justify-center shrink-0">
+          {draft.kind === 'group' ? (
+            <IconCirclesFilled
+              className="size-3"
+              style={{ color: draft.colorCode }}
+            />
+          ) : (
+            <IconCircleFilled
+              className="size-3"
+              style={{ color: draft.colorCode }}
+            />
+          )}
+        </div>
 
-      {/* Name input */}
-      <input
-        ref={nameRef}
-        autoFocus
-        value={name}
-        onChange={(e) => {
-          setName(e.target.value);
-        }}
-        onBlur={handleSave}
-        onKeyDown={handleKeyDown}
-        placeholder={t('add-tag-name') || 'Add tag name...'}
-        maxLength={64}
-        className="flex-1 min-w-0 bg-transparent text-xs font-medium outline-none border-none placeholder:text-muted-foreground/50"
-        onClick={(e) => e.stopPropagation()}
-      />
+        {/* Name input */}
+        <input
+          ref={nameRef}
+          autoFocus
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+          onBlur={handleSave}
+          onKeyDown={handleKeyDown}
+          placeholder={t('add-tag-name') || 'Add tag name...'}
+          maxLength={64}
+          className="flex-1 min-w-0 bg-transparent text-xs font-medium outline-none border-none placeholder:text-muted-foreground/50"
+          onClick={(e) => e.stopPropagation()}
+        />
 
-      {/* Description input */}
-      <input
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            const trimmed = name.trim();
-            if (trimmed) onSave(trimmed, description);
-          } else if (e.key === 'Escape') {
-            onCancel();
-          }
-        }}
-        placeholder={t('add-description') || 'Add description...'}
-        maxLength={255}
-        className="w-64 max-md:hidden bg-transparent text-xs outline-none border-none placeholder:text-muted-foreground/40 text-muted-foreground"
-        onClick={(e) => e.stopPropagation()}
-      />
+        {/* Description input */}
+        <input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              const trimmed = name.trim();
+              if (trimmed) onSave(trimmed, description);
+            } else if (e.key === 'Escape') {
+              onCancel();
+            }
+          }}
+          placeholder={t('add-description') || 'Add description...'}
+          maxLength={255}
+          className="w-64 max-md:hidden bg-transparent text-xs outline-none border-none placeholder:text-muted-foreground/40 text-muted-foreground"
+          onClick={(e) => e.stopPropagation()}
+        />
       </div>
     </div>
   );
