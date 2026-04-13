@@ -29,16 +29,9 @@ const prepareContentAndSubject = (
   subject: string,
   content: string,
   customer: ICustomer,
-  subdomain: string,
 ) => {
   let replacedContent = content;
   let replacedSubject = subject;
-
-  const DOMAIN = (getEnv({ name: 'DOMAIN' }) || '').replace(
-    '<subdomain>',
-    subdomain,
-  );
-  const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
 
   if (customer.replacers) {
     for (const replacer of customer.replacers) {
@@ -47,14 +40,6 @@ const prepareContentAndSubject = (
       replacedSubject = replacedSubject.replace(regex, replacer.value);
     }
   }
-
-  replacedContent += `
-    <div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">
-      You are receiving this email because you have signed up for our services.
-      <br />
-      <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a>
-    </div>
-  `;
 
   return { replacedContent, replacedSubject };
 };
@@ -98,7 +83,6 @@ export const prepareEmailParams = (
     subject,
     content,
     customer,
-    subdomain,
   );
 
   return {

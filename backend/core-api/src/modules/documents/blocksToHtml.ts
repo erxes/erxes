@@ -12,7 +12,6 @@ export const COLORS_DEFAULT = {
   pink: { text: '#ad1a72', background: '#f4dfeb' },
 } as const;
 
-type ColorName = keyof typeof COLORS_DEFAULT;
 type ColorConfig = Record<string, { text: string; background: string }>;
 
 interface Config {
@@ -24,6 +23,7 @@ interface Config {
   maxWidth?: number;
   wrapper?: {
     email?: boolean;
+    unsubscribeUrl?: string;
   };
 }
 
@@ -188,7 +188,7 @@ const mergeStyles = (baseStyle: string, customStyle?: string): string => {
 };
 
 const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
-  const { type, props, content, children } = block as any;
+  const { type, props, content } = block as any;
   const baseStyles = getBaseStyles(config);
   const customStyle = stylesToCss(props, config);
 
@@ -379,6 +379,17 @@ export const blocksToHtml = (
 
 export const emailHtmlWrapper = (html: string, config?: Config) => {
   const maxWidth = Math.min(config?.maxWidth || DEFAULTS.maxWidth, 600);
+  const unsubscribeUrl = config?.wrapper?.unsubscribeUrl;
+
+  const unsubscribeRow = unsubscribeUrl
+    ? `<tr>
+        <td style="padding: 10px; color: #ccc; text-align: center; font-size: 12px; border-top: 1px solid #f0f0f0;">
+          You are receiving this email because you have signed up for our services.
+          <br />
+          <a style="text-decoration: underline; color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a>
+        </td>
+      </tr>`
+    : '';
 
   return `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -397,6 +408,7 @@ export const emailHtmlWrapper = (html: string, config?: Config) => {
                     ${html}
                   </td>
                 </tr>
+                ${unsubscribeRow}
               </table>
             </td>
           </tr>

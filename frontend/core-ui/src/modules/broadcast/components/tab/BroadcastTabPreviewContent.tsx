@@ -1,4 +1,4 @@
-import { ComponentType, lazy } from 'react';
+import { ComponentType, lazy, Suspense } from 'react';
 
 const BroadcastTabPreviewEmailContent = lazy(() =>
   import('../methods/BroadcastEmailTabContent').then((module) => ({
@@ -38,7 +38,9 @@ export const BroadcastTabPreviewContent = ({ message }: { message: any }) => {
 
   return (
     <div className="w-full overflow-hidden px-8 py-5 space-y-5">
-      <BroadcastMethodTabContent message={message} />
+      <Suspense fallback={null}>
+        <BroadcastMethodTabContent message={message} />
+      </Suspense>
     </div>
   );
 };
