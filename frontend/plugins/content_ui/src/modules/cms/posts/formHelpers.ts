@@ -21,7 +21,7 @@ export interface BaseBlockProps {
 /**
  * Properties for a paragraph block.
  */
-export interface ParagraphBlockProps extends BaseBlockProps {}
+export type ParagraphBlockProps = BaseBlockProps;
 
 /**
  * Properties for a heading block.
@@ -140,7 +140,9 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
     return [emptyParagraph()];
   }
 
-  const cleanHTML = DOMPurify.sanitize(htmlContent);
+  const cleanHTML = DOMPurify.sanitize(htmlContent, {
+    ADD_ATTR: ['data-image-style'],
+  });
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(cleanHTML, 'text/html');
