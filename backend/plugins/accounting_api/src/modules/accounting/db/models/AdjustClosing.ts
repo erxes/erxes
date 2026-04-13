@@ -6,8 +6,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { adjustClosingSchema } from '../definitions/adjustClosingEntry';
 
-export interface IAdjustClosingEntryModel
-  extends Model<IAdjustClosingDocument> {
+export interface IAdjustClosingEntryModel extends Model<IAdjustClosingDocument> {
   getAdjustClosing(selector: any): Promise<IAdjustClosingDocument>;
   getAdjustClosings(params: {
     beginDate: Date;
@@ -30,9 +29,8 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
      */
 
     public static async getAdjustClosing(selector: any) {
-      const adjustClosing = await models.AdjustClosings.findOne(
-        selector,
-      ).lean();
+      const adjustClosing =
+        await models.AdjustClosings.findOne(selector).lean();
 
       if (!adjustClosing) {
         throw new Error('Adjust Closing not found');
