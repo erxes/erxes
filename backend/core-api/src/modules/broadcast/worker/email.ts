@@ -44,6 +44,7 @@ export const handleEmailProcessor = async (payload) => {
 
           continue;
         }
+
         try {
           const replacedContent = await replaceContent({
             replacer: customer,
@@ -63,17 +64,24 @@ export const handleEmailProcessor = async (payload) => {
             },
           });
 
-          const htmlContent = blocksToHtml(replacedContent, {
-            wrapper: { email: true },
-          });
+          const DOMAIN = (
+            process.env.DOMAIN || 'http://localhost:4000'
+          ).replace('<subdomain>', subdomain);
 
-          engageMessage.email.content = htmlContent;
+          const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
+
+          const htmlContent = blocksToHtml(replacedContent, {
+            wrapper: { email: true, unsubscribeUrl },
+          });
 
           await transporter.sendMail(
             prepareEmailParams(
               subdomain,
               customer,
-              engageMessage,
+              {
+                ...engageMessage,
+                email: { ...engageMessage.email, content: htmlContent },
+              },
               fromEmail,
               configSet,
             ),
