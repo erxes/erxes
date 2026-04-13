@@ -12,6 +12,7 @@ export const CUSTOMERS_CHANGE_VERIFICATION_STATUS = gql`
       status: $status
     ) {
       _id
+      emailValidationStatus
     }
   }
 `;

@@ -56,8 +56,6 @@ const sendBroadcastEmail = async ({
     'erxes',
   );
 
-  console.log('sendBroadcastEmail', configSet)
-
   await models.EngageMessages.updateOne(
     { _id },
     {

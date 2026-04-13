@@ -68,8 +68,6 @@ export const prepareEmailHeader = (
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const callbackUrl = `${domain}/pl:core`;
 
-  console.log('prepareEmailHeader', configSet)
-
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
     CustomerId: customerId,
@@ -99,8 +97,6 @@ export const prepareEmailParams = (
     customer,
     subdomain,
   );
-
-  console.log('prepareEmailParams', configSet)
 
   return {
     from: sender?.trim() ? `${sender} <${fromEmail}>` : fromEmail,

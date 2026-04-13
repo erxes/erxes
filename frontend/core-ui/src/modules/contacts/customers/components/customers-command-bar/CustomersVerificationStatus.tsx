@@ -8,12 +8,12 @@ import { ICustomer } from 'ui-modules';
 const EMAIL_VALIDATION_STATUSES = [
   { label: 'Valid', value: 'valid' },
   { label: 'Invalid', value: 'invalid' },
-  { label: 'Accept all (unverifiable)', value: 'accept_all_unverifiable' },
-  { label: 'Unverifiable', value: 'unverifiable' },
+  { label: 'Accept all unverifiable', value: 'accept_all_unverifiable' },
   { label: 'Unknown', value: 'unknown' },
   { label: 'Disposable', value: 'disposable' },
   { label: 'Catch all', value: 'catchall' },
-  { label: 'Bad syntax', value: 'badsyntax' },
+  { label: 'Bat syntax', value: 'bad_syntax' },
+  { label: 'Not checked', value: 'not_checked' },
 ];
 
 export const CustomersVerificationStatus = ({

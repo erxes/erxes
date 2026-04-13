@@ -116,8 +116,6 @@ export const engageTracker = async (req: Request, res: Response) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    console.log('Object.keys(req.body).length', Object.keys(req.body).length)
-
     // Handle case where req.body is populated (typically for SaaS SES events)
     if (req.body && Object.keys(req.body).length) {
       const { message: messageString } = req.body;
