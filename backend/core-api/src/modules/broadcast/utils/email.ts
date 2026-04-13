@@ -34,7 +34,10 @@ const prepareContentAndSubject = (
   let replacedContent = content;
   let replacedSubject = subject;
 
-  const DOMAIN = (getEnv({ name: 'DOMAIN' }) || '').replace('<subdomain>', subdomain);
+  const DOMAIN = (getEnv({ name: 'DOMAIN' }) || '').replace(
+    '<subdomain>',
+    subdomain,
+  );
   const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
 
   if (customer.replacers) {
