@@ -143,7 +143,7 @@ export const CallDetailPage = () => {
       <div className="flex flex-col flex-auto overflow-hidden p-5 gap-5">
         <div>
           <Button variant="ghost" asChild className="px-2 gap-1">
-            <Link to="/frontline/calls/dashboard">
+            <Link to="/frontline/calls/statistics">
               <IconChevronLeft />
               Go back to queues
             </Link>

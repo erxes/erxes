@@ -177,6 +177,14 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int
   }
+
+  type BroadcastTrace {
+    _id: String!
+    engageMessageId: String!
+    type: String!
+    message: String!
+    createdAt: Date
+  }
 `;
 
 const queryParams = `
@@ -200,6 +208,7 @@ export const queries = `
   engageReportsList(page: Int, perPage: Int, customerId: String, status: String, searchValue: String): EngageDeliveryReport
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
+  engageBroadcastTraces(engageMessageId: String!): [BroadcastTrace]
 `;
 
 const mutationParams = `

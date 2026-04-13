@@ -32,7 +32,7 @@ export const CallIndexPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <CallQueueRecordTable />
+      <CallQueueRecordTable basePath="/frontline/calls/statistics" />
     </PageContainer>
   );
 };
