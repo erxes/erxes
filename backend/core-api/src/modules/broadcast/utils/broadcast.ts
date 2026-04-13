@@ -130,6 +130,7 @@ const sendBroadcastEmail = async ({
           customers,
           engageMessage,
           fromEmail: fromUser.email,
+          configSet,
           subdomain,
         },
       },
