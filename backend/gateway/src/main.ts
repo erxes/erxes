@@ -91,8 +91,7 @@ const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
   max: 5000, // generous global cap per IP
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) =>
-    req.path === '/health' || req.path.startsWith('/bullmq-board'),
+  skip: (req) => req.path === '/health' || req.path.startsWith('/bullmq-board'),
 });
 
 app.use(gatewayRateLimiter);
