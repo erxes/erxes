@@ -21,6 +21,7 @@ import {
   TAutomationActionProps,
   useFormValidationErrorHandler,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AIAgentConfigForm = ({
   currentAction,
@@ -42,6 +43,7 @@ export const AIAgentConfigForm = ({
     },
   });
   const { automationsAiAgents } = useAiAgents();
+  const { t } = useTranslation('automations');
 
   const { control, handleSubmit, setValue } = form;
   const config = useWatch<TAiAgentConfigForm>({
@@ -80,11 +82,11 @@ export const AIAgentConfigForm = ({
           render={({ field }) => {
             return (
               <Form.Item>
-                <Form.Label>Ai Agent</Form.Label>
+                <Form.Label>{t('ai-agent')}</Form.Label>
 
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger className="mt-1">
-                    <Select.Value placeholder="Select ai agent" />
+                    <Select.Value placeholder={t('select-ai-agent')} />
                   </Select.Trigger>
                   <Select.Content>
                     {automationsAiAgents.map(({ _id, name }) => (
@@ -94,7 +96,7 @@ export const AIAgentConfigForm = ({
                     ))}
                     <Link to="/settings/automations/agents">
                       <Button variant="ghost" className="w-full">
-                        <IconPlus /> Add new agent
+                        <IconPlus /> {t('add-new-agent')}
                       </Button>
                     </Link>
                   </Select.Content>
@@ -111,10 +113,10 @@ export const AIAgentConfigForm = ({
           render={({ field }) => {
             return (
               <Form.Item>
-                <Form.Label>Goal Type</Form.Label>
+                <Form.Label>{t('goal-type')}</Form.Label>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger className="mt-1">
-                    <Select.Value placeholder="Select goal type" />
+                    <Select.Value placeholder={t('select-goal-type')} />
                   </Select.Trigger>
                   <Select.Content>
                     {AI_AGENT_NODE_GOAL_TYPES.map(({ type, label }) => (
@@ -140,8 +142,8 @@ export const AIAgentConfigForm = ({
             control={control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Instruction Prompt</Form.Label>
-                <Textarea placeholder="Enter prompt" {...field} />
+                <Form.Label>{t('instruction-prompt')}</Form.Label>
+                <Textarea placeholder={t('enter-prompt')} {...field} />
                 <Form.Description>
                   Describe the final artifact this action should produce. For
                   email generation, ask for a ready-to-use email body instead of

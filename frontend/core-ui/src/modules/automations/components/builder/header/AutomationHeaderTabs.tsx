@@ -5,6 +5,7 @@ import {
 } from '@/automations/types';
 import { Tabs, usePreviousHotkeyScope, useScopedHotkeys } from 'erxes-ui';
 import { motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHeaderTabs = ({
   toggleTabs,
@@ -12,6 +13,7 @@ export const AutomationHeaderTabs = ({
   toggleTabs: (tab: AutomationBuilderTabsType) => void;
 }) => {
   const { queryParams } = useAutomation();
+  const { t } = useTranslation('automations');
 
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
 
@@ -61,7 +63,7 @@ export const AutomationHeaderTabs = ({
             }}
           />
         )}
-        <span className="relative z-10">Builder</span>
+        <span className="relative z-10">{t('builder')}</span>
       </Tabs.Trigger>
       <Tabs.Trigger
         className="w-24 font-normal after:content-none after:border-none after:shadow-none text-muted-foreground data-[state=active]:text-foreground hover:bg-transparent rounded-md transition-colors cursor-pointer relative z-10"
@@ -79,7 +81,7 @@ export const AutomationHeaderTabs = ({
             }}
           />
         )}
-        <span className="relative z-10">History</span>
+        <span className="relative z-10">{t('history')}</span>
       </Tabs.Trigger>
     </Tabs.List>
   );

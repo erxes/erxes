@@ -14,6 +14,32 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { IAutomationHistory } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
+
+const TitleHeader = () => {
+  const { t } = useTranslation('automations');
+  return <RecordTable.InlineHead label={t('name')} />;
+};
+
+const DescriptionHeader = () => {
+  const { t } = useTranslation('automations');
+  return <RecordTable.InlineHead label={t('trigger')} />;
+};
+
+const TriggerHeader = () => {
+  const { t } = useTranslation('automations');
+  return <RecordTable.InlineHead label={t('trigger')} />;
+};
+
+const StatusHeader = () => {
+  const { t } = useTranslation('automations');
+  return <RecordTable.InlineHead label={t('status')} />;
+};
+
+const CreatedAtHeader = () => {
+  const { t } = useTranslation('automations');
+  return <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />;
+};
 
 export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
   {
@@ -26,13 +52,13 @@ export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Title" />,
+    header: TitleHeader,
     cell: AutomationHistoryResultName,
   },
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: DescriptionHeader,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="p-0">
         <AutomationHistoryPopoverValue
@@ -45,14 +71,14 @@ export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
   {
     id: 'trigger',
     accessorKey: 'trigger',
-    header: () => <RecordTable.InlineHead label="Trigger" />,
+    header: TriggerHeader,
     cell: AutomationHistoryTriggerCell,
   },
 
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: StatusHeader,
     cell: ({ cell }) => {
       const status = cell.getValue() as IAutomationHistory['status'];
 
@@ -68,9 +94,7 @@ export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendarTime} label="Created At" />
-    ),
+    header: CreatedAtHeader,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <RelativeDateDisplay.Value

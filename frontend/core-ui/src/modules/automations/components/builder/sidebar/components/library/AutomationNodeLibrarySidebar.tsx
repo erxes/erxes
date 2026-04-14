@@ -4,6 +4,7 @@ import { AutomationNodeType } from '@/automations/types';
 import { Command, Tabs, Separator, Button } from 'erxes-ui';
 import { useAutomationBuilderSidebarHooks } from '../../hooks/useAutomationBuilderSidebarHooks';
 import { IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 const SidebarPanelHeader = ({
   title,
@@ -46,6 +47,7 @@ export const AutomationNodeLibrarySidebar = () => {
     onDragStart,
   } = useAutomationNodeLibrarySidebar();
   const { handleClose } = useAutomationBuilderSidebarHooks();
+  const { t } = useTranslation('automations');
   const commonTabContentProps = {
     loading,
     error,
@@ -67,8 +69,8 @@ export const AutomationNodeLibrarySidebar = () => {
         className="shrink-0 bg-background"
       >
         <SidebarPanelHeader
-          title="Choose your trigger type"
-          description="Start with an automation type that enrolls and triggers off"
+          title={t('choose-trigger-type')}
+          description={t('trigger-type-description')}
           onClose={handleClose}
         />
       </Tabs.Content>
@@ -77,8 +79,8 @@ export const AutomationNodeLibrarySidebar = () => {
         className="shrink-0 bg-background"
       >
         <SidebarPanelHeader
-          title="Choose your action type"
-          description="Pick what should happen next after the automation is triggered"
+          title={t('choose-action-type')}
+          description={t('action-type-description')}
           onClose={handleClose}
         />
       </Tabs.Content>
@@ -86,7 +88,7 @@ export const AutomationNodeLibrarySidebar = () => {
         <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
           <div className="shrink-0 px-5 py-4">
             <Command.Input
-              placeholder="Search..."
+              placeholder={t('search')}
               variant="primary"
               wrapperClassName="m-0 rounded-md bg-white shadow-xs"
               autoFocus
