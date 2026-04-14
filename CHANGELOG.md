@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.17.41](https://github.com/erxes/erxes/compare/2.17.40...2.17.41) (2026-04-14)
+
+### Bug Fixes
+
+* add logging for response in uploadToCFStream function ([89da6ca](https://github.com/erxes/erxes/commit/89da6ca92510ac79b673e62c320b69d983dd27dc))
+* improve email extraction logic to avoid duplicates ([5e60b3a](https://github.com/erxes/erxes/commit/5e60b3a88b493c058c31559722b1617f93c8ae27))
+* loyalties, check score to number ([ea2b717](https://github.com/erxes/erxes/commit/ea2b7174798ad565a6884fa4d21b51ff58f47a77))
+* refactor readFromCFImages to use async/await for improved error handling ([ca00808](https://github.com/erxes/erxes/commit/ca008082f0529b7698dfcdef472abd68d48a9aa1))
+* share score then update customFieldsData ([2260296](https://github.com/erxes/erxes/commit/2260296153c3a960826adcb35e8a582673202ad3))
+
 ## [2.17.40](https://github.com/erxes/erxes/compare/2.17.39...2.17.40) (2026-04-10)
 
 ### Features
