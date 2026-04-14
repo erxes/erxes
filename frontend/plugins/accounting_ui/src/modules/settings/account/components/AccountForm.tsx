@@ -38,12 +38,6 @@ export const AccountForm = ({
     control: form.control,
     name: 'journal',
   });
-  const BANK_OPTIONS = [
-    { label: 'Xac Bank', value: BankEnum.XAC },
-    { label: 'Golomt Bank', value: BankEnum.GOLOMT },
-    { label: 'Khan Bank', value: BankEnum.KHAN },
-    { label: 'TDB', value: BankEnum.TDB },
-  ];
 
   return (
     <Form {...form}>
@@ -191,18 +185,7 @@ export const AccountForm = ({
                 <Form.Item>
                   <Form.Label>Bank</Form.Label>
                   <Form.Control>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select bank" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {BANK_OPTIONS.map((bank) => (
-                          <Select.Item key={bank.value} value={bank.value}>
-                            {bank.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
+                    <Input placeholder="Enter bank name" {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
