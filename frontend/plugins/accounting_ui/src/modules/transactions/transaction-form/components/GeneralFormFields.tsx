@@ -233,12 +233,6 @@ export const DescriptionField = ({ form, index }: ICommonFieldProps) => (
 );
 
 export const BankField = ({ form, index }: ICommonFieldProps) => {
-  const BANK_OPTIONS = [
-    { label: 'Xac Bank', value: BankEnum.XAC },
-    { label: 'Golomt Bank', value: BankEnum.GOLOMT },
-    { label: 'Khan Bank', value: BankEnum.KHAN },
-    { label: 'TDB', value: BankEnum.TDB },
-  ];
   return (
     <>
       <Form.Field
@@ -248,18 +242,11 @@ export const BankField = ({ form, index }: ICommonFieldProps) => {
           <Form.Item>
             <Form.Label>Bank</Form.Label>
             <Form.Control>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <Select.Trigger>
-                  <Select.Value placeholder="Select bank" />
-                </Select.Trigger>
-                <Select.Content>
-                  {BANK_OPTIONS.map((bank) => (
-                    <Select.Item key={bank.value} value={bank.value}>
-                      {bank.label}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
+              <Input
+                placeholder="Enter bank name"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>

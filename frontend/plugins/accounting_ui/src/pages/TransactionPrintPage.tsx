@@ -5,6 +5,7 @@ import { AccountingLayout } from '~/modules/layout/components/Layout';
 import { AccountingHeader } from '~/modules/layout/components/Header';
 import { useEffect, useRef } from 'react';
 // import { numberToWord } from 'erxes:master/packages/api-utils/src/numberUtils';
+
 export const TransactionPrintPage = () => {
   const query = new URLSearchParams(useLocation().search);
   const parentId = query.get('parentId');

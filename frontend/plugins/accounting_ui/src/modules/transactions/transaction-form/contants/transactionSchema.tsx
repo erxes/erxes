@@ -72,10 +72,6 @@ export const currencyDetailSchema = z.object({
     }),
   ),
 });
-export const extraDataSchema = z.object({
-  bank: z.string().optional(),
-  bankAccount: z.string().optional(),
-});
 
 export const baseTransactionSchema = z.object({
   _id: z.string(),
@@ -106,7 +102,7 @@ export const baseTransactionSchema = z.object({
   ...vatSchema.shape,
   ...ctaxSchema.shape,
 
-  extraData: undefed(extraDataSchema),
+  extraData: undefed(z.any()),
 });
 //#endregion common
 
@@ -135,6 +131,11 @@ export const transactionCashSchema = z
     hasCtax: z.boolean(),
   });
 
+export const extraDataBankSchema = z.object({
+  bank: undefed(z.string()),
+  bankAccount: undefed(z.string()),
+});
+
 export const transactionBankSchema = z
   .object({
     journal: z.literal(TrJournalEnum.BANK),
@@ -144,6 +145,9 @@ export const transactionBankSchema = z
     customerId: z.string(),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
+  })
+  .extend({
+    extraData: undefed(z.object({ ...extraDataBankSchema.shape })),
   });
 
 export const transactionReceivableSchema = z
