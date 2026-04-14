@@ -6,7 +6,6 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
   formSetupValuesAtom,
   resetFormSetupAtom,
-  formSetupGeneralAtom,
 } from '../states/formSetupStates';
 import { FORM_CONFIRMATION_SCHEMA } from '../constants/formSchema';
 import { FORM_BULK_ACTION } from '../graphql/formMutations';
@@ -15,11 +14,10 @@ import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 
 export const useFormMutate = () => {
-  const { formId: id } = useParams();
+  const { formId: id, id: channelId } = useParams();
   const navigate = useNavigate();
   const formSetupValues = useAtomValue(formSetupValuesAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
-  const { channelId } = useAtomValue(formSetupGeneralAtom);
   const { formDetail } = useFormDetail({ formId: id as string });
   const { addForm, isAddingForm, client: addFormClient } = useFormAdd();
   const { editForm, loading: isEditingForm } = useFormEdit();
@@ -74,7 +72,7 @@ export const useFormMutate = () => {
       });
     } else {
       await addForm({
-        variables: { ...formValues },
+        variables: { ...formValues, channelId },
         onCompleted: ({ formsAdd }) => {
           fieldsBulkAction({
             variables: {

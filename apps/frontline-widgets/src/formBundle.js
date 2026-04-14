@@ -2,34 +2,34 @@
 (() => {
   var C = Object.defineProperty;
   var x = Object.getOwnPropertySymbols;
-  var L = Object.prototype.hasOwnProperty,
-    A = Object.prototype.propertyIsEnumerable;
+  var A = Object.prototype.hasOwnProperty,
+    _ = Object.prototype.propertyIsEnumerable;
   var y = (e, t, n) =>
       t in e
         ? C(e, t, { enumerable: !0, configurable: !0, writable: !0, value: n })
         : (e[t] = n),
     c = (e, t) => {
-      for (var n in t || (t = {})) L.call(t, n) && y(e, n, t[n]);
-      if (x) for (var n of x(t)) A.call(t, n) && y(e, n, t[n]);
+      for (var n in t || (t = {})) A.call(t, n) && y(e, n, t[n]);
+      if (x) for (var n of x(t)) _.call(t, n) && y(e, n, t[n]);
       return e;
     };
   var l = (e, t, n) =>
-    new Promise((d, r) => {
-      var o = (a) => {
+    new Promise((d, a) => {
+      var o = (r) => {
           try {
-            s(n.next(a));
+            s(n.next(r));
           } catch (m) {
-            r(m);
+            a(m);
           }
         },
-        i = (a) => {
+        i = (r) => {
           try {
-            s(n.throw(a));
+            s(n.throw(r));
           } catch (m) {
-            r(m);
+            a(m);
           }
         },
-        s = (a) => (a.done ? d(a.value) : Promise.resolve(a.value).then(o, i));
+        s = (r) => (r.done ? d(r.value) : Promise.resolve(r.value).then(o, i));
       s((n = n.apply(e, t)).next());
     });
   var b = `[id^='erxes-container'] {
@@ -272,9 +272,9 @@
 }
 `;
   var I = (e) => localStorage.getItem(e);
-  var S = document.createElement('style');
-  S.textContent = b;
-  document.head.appendChild(S);
+  var k = document.createElement('style');
+  k.textContent = b;
+  document.head.appendChild(k);
   var B = () => {
       let e =
         document.currentScript ||
@@ -290,7 +290,7 @@
       let n = window.Erxes || {};
       ((n[e] = t), (window.Erxes = n));
     },
-    M = () =>
+    P = () =>
       l(void 0, null, function* () {
         if (window.location.hostname === 'localhost')
           return {
@@ -324,9 +324,9 @@
           userAgent: navigator.userAgent,
         };
       }),
-    P = (e, t) =>
+    N = (e, t) =>
       l(void 0, null, function* () {
-        let { message: n, fromErxes: d, source: r, key: o, value: i } = e.data;
+        let { message: n, fromErxes: d, source: a, key: o, value: i } = e.data;
         if (
           d &&
           t != null &&
@@ -335,9 +335,9 @@
             t.contentWindow.postMessage(
               {
                 fromPublisher: !0,
-                source: r,
+                source: a,
                 message: 'sendingBrowserInfo',
-                browserInfo: yield M(),
+                browserInfo: yield P(),
               },
               '*',
             ),
@@ -351,12 +351,12 @@
   u.name = 'viewport';
   u.content = 'initial-scale=1, width=device-width';
   document.getElementsByTagName('head')[0].appendChild(u);
-  var N = (e) => {
+  var R = (e) => {
       let t = e.form_id,
         n = `erxes-container-${t}`,
         d = `erxes-iframe-${t}`,
-        r = document.getElementById(n);
-      r || ((r = document.createElement('div')), (r.id = n));
+        a = document.getElementById(n);
+      a || ((a = document.createElement('div')), (a.id = n));
       let o = document.getElementById(d);
       (o ||
         ((o = document.createElement('iframe')),
@@ -367,18 +367,18 @@
         (o.style.height = 'auto'),
         (o.allowFullscreen = !0)),
         (o.src = B()),
-        r.appendChild(o));
+        a.appendChild(o));
       let i = document.querySelector(`[data-erxes-embed="${t}"]`);
       return (
-        i ? i.appendChild(r) : document.body.appendChild(r),
+        i ? i.appendChild(a) : document.body.appendChild(a),
         (o.onload = () => {
           o.style.display = 'inherit';
           let s = `[data-erxes-modal="${e.form_id}"]`,
-            a = o.contentWindow;
-          if (!a) return;
+            r = o.contentWindow;
+          if (!r) return;
           let m = c({}, e);
           (m.onAction && delete m.onAction,
-            a.postMessage(
+            r.postMessage(
               {
                 fromPublisher: !0,
                 hasPopupHandlers: document.querySelectorAll(s).length > 0,
@@ -388,7 +388,7 @@
               '*',
             ));
         }),
-        { container: r, iframe: o }
+        { container: a, iframe: o }
       );
     },
     w = (e, t) => {
@@ -398,8 +398,8 @@
       });
       if (!n) return;
       let { iframe: d } = f[n],
-        r = d.contentWindow;
-      r && r.postMessage(c({ fromPublisher: !0, formId: e }, t), '*');
+        a = d.contentWindow;
+      a && a.postMessage(c({ fromPublisher: !0, formId: e }, t), '*');
     };
   p('showPopup', (e) => {
     w(e, { action: 'showPopup' });
@@ -410,31 +410,36 @@
   p('sendExtraFormContent', (e, t) => {
     w(e, { action: 'extraFormContent', html: t });
   });
-  var k = window.erxesSettings.forms || [],
+  var v = window.erxesSettings.forms || [],
     f = {},
-    v = (e) => JSON.stringify({ form_id: e.form_id, channel_id: e.channel_id }),
-    R = (e) =>
-      k.find((t) => t.channel_id === e.channel_id && t.form_id === e.form_id);
-  k.forEach((e) => {
-    f[v(e)] = N(e);
-  });
+    E = (e) => JSON.stringify({ form_id: e.form_id, channel_id: e.channel_id }),
+    F = (e) =>
+      v.find((t) => t.channel_id === e.channel_id && t.form_id === e.form_id),
+    S = () => {
+      v.forEach((e) => {
+        f[E(e)] = R(e);
+      });
+    };
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', S)
+    : S();
   window.addEventListener('message', (e) =>
     l(void 0, null, function* () {
       let t = e.data || {},
-        { fromErxes: n, source: d, message: r, settings: o } = t;
+        { fromErxes: n, source: d, message: a, settings: o } = t;
       if (!o || d !== 'fromForms') return null;
-      let { container: i, iframe: s } = f[v(o)] || {};
-      P(e, s);
-      let a = R(o);
-      if (!a || !(n && d === 'fromForms')) return null;
+      let { container: i, iframe: s } = f[E(o)] || {};
+      N(e, s);
+      let r = F(o);
+      if (!r || !(n && d === 'fromForms')) return null;
       if (
-        (r === 'submitResponse' && a.onAction && a.onAction(t),
-        r === 'connected' &&
+        (a === 'submitResponse' && r.onAction && r.onAction(t),
+        a === 'connected' &&
           t.connectionInfo.widgetsLeadConnect.form.leadData.loadType ===
             'popup')
       ) {
-        let E = `[data-erxes-modal="${o.form_id}"]`,
-          h = document.querySelectorAll(E);
+        let L = `[data-erxes-modal="${o.form_id}"]`,
+          h = document.querySelectorAll(L);
         for (let g = 0; g < h.length; g++)
           h[g].addEventListener('click', () => {
             s == null ||
@@ -445,8 +450,8 @@
           });
       }
       return (
-        r === 'changeContainerClass' && i && (i.className = t.className),
-        r === 'changeContainerStyle' && i && (i.style = t.style),
+        a === 'changeContainerClass' && i && (i.className = t.className),
+        a === 'changeContainerStyle' && i && (i.style = t.style),
         null
       );
     }),
