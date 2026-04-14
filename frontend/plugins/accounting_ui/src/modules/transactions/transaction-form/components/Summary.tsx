@@ -21,13 +21,15 @@ const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
       return;
     }
 
-    tr.details?.forEach((det: ITrDetail) => {
-      if (det?.side === TR_SIDES.DEBIT) {
-        sumDebit += det.amount ?? 0;
-      } else {
-        sumCredit += det.amount ?? 0;
-      }
-    });
+    const perSum = tr.details.reduce(
+      (sum: number, det: ITrDetail) => sum + (det.amount ?? 0),
+      0,
+    );
+    if (tr.side === TR_SIDES.DEBIT) {
+      sumDebit += perSum;
+    } else {
+      sumCredit += perSum;
+    }
   });
   return [sumDebit, sumCredit];
 };

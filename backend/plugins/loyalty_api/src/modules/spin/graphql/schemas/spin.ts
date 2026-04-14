@@ -6,15 +6,25 @@ export const types = `
     campaignId: String
     ownerType: String
     ownerId: String
-
+    owner: JSON
     status: String
     awardId: String
     voucherId: String
+    voucherCampaignId: String
+    number: String
+    usedAt: Date
+    createdAt: Date
+    updatedAt: Date
   }
 
   type SpinListResponse {
     list: [Spin]
     pageInfo: PageInfo
+    totalCount: Int
+  }
+
+  type SpinMainResponse {
+    list: [Spin]
     totalCount: Int
   }
 `;
@@ -31,16 +41,29 @@ const queryParams = `
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
+const mainQueryParams = `
+  page: Int
+  perPage: Int
+  sortField: String
+  sortDirection: Int
+  campaignId: String
+  status: String
+  ownerId: String
+  ownerType: String
+  voucherCampaignId: String
+`;
+
 export const queries = `
   spins(${queryParams}): SpinListResponse
+  spinsMain(${mainQueryParams}): SpinMainResponse
 `;
 
 const mutationParams = `
   campaignId: String
   ownerType: String
   ownerId: String
-
   status: String
+  voucherCampaignId: String
 `;
 
 export const mutations = `

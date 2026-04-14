@@ -49,6 +49,7 @@ const ebarimtConfigSchema = new Schema(
     }),
     footerText: field({ type: String, optional: true, label: 'Footer text' }),
     hasCopy: field({ type: Boolean, optional: true }),
+    isCleanTaxPrice: field({ type: Boolean, optional: true }),
   },
   { _id: false },
 );

@@ -1,21 +1,17 @@
 import { Template } from '@/templates/types/Template';
 import { IconFileDownload } from '@tabler/icons-react';
 import { Command, REACT_APP_API_URL, toast } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
 import { useState } from 'react';
-import { currentUserState } from 'ui-modules';
 
 export const TemplateExport = ({ template }: { template: Template }) => {
-  const currentUser = useAtomValue(currentUserState);
-
   const [exporting, setExporting] = useState(false);
 
   const handleExport = () => {
     setExporting(true);
 
-    const exportUrl = `${REACT_APP_API_URL}/export/template/${template._id}?userId=${currentUser?._id}`;
+    const exportUrl = `${REACT_APP_API_URL}/export/template/${template._id}`;
 
-    fetch(exportUrl)
+    fetch(exportUrl, { credentials: 'include' })
       .then((response) => {
         if (response.ok) {
           window.open(exportUrl, '_blank');

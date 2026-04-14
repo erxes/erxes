@@ -38,32 +38,29 @@ export const PositionEdit = () => {
     }
     setSearchParams(newSearchParams);
   };
-  const submitHandler: SubmitHandler<TPositionForm> = React.useCallback(
-    async (data) => {
-      handleEdit({
-        variables: {
-          id,
-          ...data,
-        },
-        onCompleted: () => {
-          toast({
-            title: 'Success!',
-            variant: 'success',
-            description: 'Position updated successfully',
-          });
-          methods.reset();
-          setOpen(null);
-        },
-        onError: (error) =>
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [handleEdit],
-  );
+  const submitHandler: SubmitHandler<TPositionForm> = (data) => {
+    handleEdit({
+      variables: {
+        ...data,
+        id,
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success!',
+          variant: 'success',
+          description: 'Position updated successfully',
+        });
+        methods.reset();
+        setOpen(null);
+      },
+      onError: (error) =>
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
 
   useEffect(() => {
     if (positionDetail) {

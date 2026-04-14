@@ -7,7 +7,7 @@ export interface SelectVoucherCampaignContextType {
   onSelect: (voucherCampaign: IVoucherCampaign) => void;
   setVoucherCampaigns: (voucherCampaigns: IVoucherCampaign[]) => void;
   loading: boolean;
-  error: any;
+  error: Error | undefined;
 }
 
 export const SelectVoucherCampaignContext =

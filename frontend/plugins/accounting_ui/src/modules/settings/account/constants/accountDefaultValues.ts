@@ -9,7 +9,7 @@ export const ACCOUNT_DEFAULT_VALUES: TAccountForm = {
   code: '',
   categoryId: '',
   description: '',
-  currency: CurrencyCode.USD,
+  currency: CurrencyCode.MNT,
   kind: AccountKind.ACTIVE,
   journal: JournalEnum.MAIN,
   branchId: '',

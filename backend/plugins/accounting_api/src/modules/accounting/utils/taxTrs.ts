@@ -86,13 +86,15 @@ class TaxTrs {
 
     this.taxPercent = taxPercent;
 
-    this.sumDt = this.doc.details
-      .filter((d) => d.side === TR_SIDES.DEBIT)
-      .reduce((sum, cur) => sum + cur.amount, 0);
+    this.sumDt =
+      this.side === TR_SIDES.DEBIT
+        ? this.doc.details.reduce((sum, cur) => sum + cur.amount, 0)
+        : 0;
 
-    this.sumCt = this.doc.details
-      .filter((d) => d.side === TR_SIDES.CREDIT)
-      .reduce((sum, cur) => sum + cur.amount, 0);
+    this.sumCt =
+      this.side === TR_SIDES.CREDIT
+        ? this.doc.details.reduce((sum, cur) => sum + cur.amount, 0)
+        : 0;
   };
 
   private checkVatValidation = async () => {
@@ -123,6 +125,7 @@ class TaxTrs {
       date: this.doc.date,
       description: this.doc.description,
       journal: JOURNALS.TAX,
+      side: this.side,
       branchId: this.doc.branchId,
       departmentId: this.doc.departmentId,
       customerType: this.doc.customerType,
@@ -131,7 +134,6 @@ class TaxTrs {
         {
           _id: nanoid(),
           accountId: this.vatAccountId ?? '',
-          side: this.side,
           amount: vatValue,
         },
       ],
@@ -169,6 +171,7 @@ class TaxTrs {
         date: this.doc.date,
         description: this.doc.description,
         journal: JOURNALS.TAX,
+        side: this.side,
         branchId: this.doc.branchId,
         departmentId: this.doc.departmentId,
         customerType: this.doc.customerType,
@@ -177,7 +180,6 @@ class TaxTrs {
           {
             _id: nanoid(),
             accountId: this.ctaxAccountId ?? '',
-            side: this.side,
             amount: ctaxValue,
           },
         ],

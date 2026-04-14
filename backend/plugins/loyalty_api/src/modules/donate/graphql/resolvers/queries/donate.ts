@@ -39,4 +39,27 @@ export const donateQueries = {
       query: filter,
     });
   },
+
+  async donatesMain(
+    _root: undefined,
+    params: IDonateListParams,
+    { models }: IContext,
+  ) {
+    const {
+      page = 1,
+      perPage = 20,
+      sortField = 'createdAt',
+      sortDirection = -1,
+    } = params;
+    const filter = generateFilter(params);
+
+    const totalCount = await models.Donates.countDocuments(filter);
+    const list = await models.Donates.find(filter)
+      .sort({ [sortField]: sortDirection })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .lean();
+
+    return { list, totalCount };
+  },
 };

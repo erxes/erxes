@@ -1,5 +1,6 @@
 import { CustomersDelete } from '@/contacts/customers/components/customers-command-bar/delete/CustomersDelete';
 import { CustomersMerge } from '@/contacts/customers/components/customers-command-bar/merge/CustomersMerge';
+import { CustomersVerificationStatus } from '@/contacts/customers/components/customers-command-bar/CustomersVerificationStatus';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
@@ -72,6 +73,15 @@ export const CustomersCommandBar = () => {
           buttonVariant="secondary"
           ids={customerIds}
         />
+        <Can action="contactsUpdate">
+          <>
+            <Separator.Inline />
+            <CustomersVerificationStatus
+              customerIds={customerIds}
+              rows={table.getFilteredSelectedRowModel().rows}
+            />
+          </>
+        </Can>
         <Can action="contactsMerge">
           <>
             <Separator.Inline />
@@ -87,10 +97,7 @@ export const CustomersCommandBar = () => {
         <Can action="contactsDelete">
           <>
             <Separator.Inline />
-            <CustomersDelete
-              customerIds={customerIds}
-              rows={table.getFilteredSelectedRowModel().rows}
-            />
+            <CustomersDelete customerIds={customerIds} />
           </>
         </Can>
       </CommandBar.Bar>

@@ -446,25 +446,25 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       const accessKeyId = await getValueAsString(
         models,
         'BROADCAST_AWS_SES_ACCESS_KEY_ID',
-        'BROADCAST_AWS_SES_ACCESS_KEY_ID',
+        'AWS_SES_ACCESS_KEY_ID',
       );
 
       const secretAccessKey = await getValueAsString(
         models,
         'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
-        'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
+        'AWS_SES_SECRET_ACCESS_KEY',
       );
 
       const region = await getValueAsString(
         models,
         'BROADCAST_AWS_REGION',
-        'BROADCAST_AWS_REGION',
+        'AWS_REGION',
       );
 
       const unverifiedEmailsLimit = await getValueAsString(
         models,
         'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
-        'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
+        'UNVERIFIED_EMAILS_LIMIT',
         '100',
       );
 

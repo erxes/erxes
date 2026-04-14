@@ -285,6 +285,16 @@ export const engageQueries = {
     }
   },
 
+  async engageBroadcastTraces(
+    _root: undefined,
+    { engageMessageId }: { engageMessageId: string },
+    { models }: IContext,
+  ) {
+    return models.BroadcastTraces.find({ engageMessageId }).sort({
+      createdAt: -1,
+    });
+  },
+
   async engageSmsDeliveries(
     _root: undefined,
     params: ISmsDeliveryQueryParams,
