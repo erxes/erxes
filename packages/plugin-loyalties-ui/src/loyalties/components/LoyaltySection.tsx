@@ -164,7 +164,7 @@ class LoyaltySection extends React.Component<IProps, State> {
       const finalAction = action ?? (changeScore > 0 ? "add" : "subtract");
 
       if (finalAction === "add") {
-        status.earned += Math.abs(changeScore);
+        status.earned += changeScore;
       } else if (finalAction === "subtract") {
         status.redeemed += Math.abs(changeScore);
       } else if (finalAction === "refund") {

@@ -316,7 +316,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      let ownerScore = owner.score;
+      let ownerScore = Number(owner.score) ?? 0;
 
       const campaignFilter: any = { status: SCORE_CAMPAIGN_STATUSES.PUBLISHED };
       const usedCustomFieldIds: string[] = [];
@@ -336,9 +336,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
         usedCustomFieldIds.push(campaign.fieldId)
         const campaignScore =
-          (owner?.customFieldsData || []).find(
+          Number((owner?.customFieldsData || []).find(
             ({ field }) => field === campaign.fieldId
-          )?.value || 0;
+          )?.value) || 0;
         ownerScore += campaignScore;
       }
 
@@ -360,6 +360,25 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       if (!response || !Object.keys(response || {})?.length) {
         throw new Error("Something went wrong for give score");
       }
+
+      await sendCoreMessage({
+        subdomain,
+        action: "customers.updateOne",
+        data: {
+          selector: { _id: ownerId },
+          modifier: {
+            customFieldsData: owner.customFieldsData.map((item) => item.field === usedCustomFieldIds[0] ? {
+              ...item,
+              "value": newScore,
+              "stringValue": `${newScore}`,
+              "numberValue": newScore,
+            } : item)
+          },
+        },
+        isRPC: true,
+        defaultValue: null,
+      });
+
       return await models.ScoreLogs.create({
         ownerId,
         ownerType,
