@@ -79,7 +79,8 @@ export class GenerateEmailsByType {
     value: string,
     key: string
   ): Promise<string[]> {
-    let emails: string[] = [];
+    const customEmails = extractValidEmails(value || "");
+    let emails: string[] = customEmails?.length ? customEmails : [];
     const matches = (value || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
     const attributes =
       matches?.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, "")) || [];
@@ -125,6 +126,6 @@ export class GenerateEmailsByType {
     });
 
     const generatedEmails = extractValidEmails(replacedContent[key]);
-    return [...emails, ...generatedEmails];
+    return [...new Set([...emails, ...generatedEmails])];
   }
 }
