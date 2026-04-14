@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 
 export const PrintBankDocument = ({
@@ -9,14 +10,9 @@ export const PrintBankDocument = ({
   const detail = transaction?.details?.[0];
 
   const amount =
-    detail?.currencyAmount ?? detail?.amount ?? transaction?.sumDt ?? '';
+    detail?.currencyAmount ?? detail?.amount ?? 0;
 
-  const amountFormatted =
-    amount !== ''
-      ? Number(amount).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        })
-      : '';
+  const amountFormatted = fixNum(amount, 2).toLocaleString()
 
   // const amountInWords =
   //   amount !== '' ? numberToWord(amount) : '';
