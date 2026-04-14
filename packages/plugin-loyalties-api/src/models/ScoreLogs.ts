@@ -345,6 +345,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const oldScore = Number(ownerScore) || 0;
       const newScore = oldScore + score;
 
+      console.log(oldScore, newScore, score, owner._id)
+
       if (score < 0 && newScore < 0) {
         throw new Error(`score are not enough`);
       }
