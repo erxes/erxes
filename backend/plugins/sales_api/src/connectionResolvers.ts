@@ -1,6 +1,6 @@
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
-import { createEventDispatcher, EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import mongoose from 'mongoose';
 
 import {
@@ -52,6 +52,26 @@ import {
   loadProductGroupClass,
 } from './modules/pos/db/models/Pos';
 import { ILoaders } from './modules/sales/graphql/resolvers/loaders';
+import {
+  IAddressModel,
+  loadAddressClass,
+} from '~/modules/ecommerce/db/models/Address';
+import {
+  ILastViewedItemModel,
+  loadLastViewedItemClass,
+} from './modules/ecommerce/db/models/LastViewedItems';
+import {
+  IProductReviewModel,
+  loadProductReviewClass,
+} from './modules/ecommerce/db/models/ProductReview';
+import {
+  IWishlistModel,
+  loadWishlistClass,
+} from './modules/ecommerce/db/models/Wishlist';
+import { IProductReviewDocument } from '~/modules/ecommerce/@types/productReview';
+import { IWishlistDocument } from '~/modules/ecommerce/@types/wishlist';
+import { ILastViewedItemDocument } from '~/modules/ecommerce/@types/lastViewedItem';
+import { IAddressDocument } from '~/modules/ecommerce/@types/address';
 
 export interface IModels {
   Boards: IBoardModel;
@@ -68,40 +88,31 @@ export interface IModels {
   PosOrders: IPosOrderModel;
   PosSlots: IPosSlotModel;
   Covers: ICoverModel;
+  //ecommerce
+  ProductReview: IProductReviewModel;
+  Wishlist: IWishlistModel;
+  LastViewedItem: ILastViewedItemModel;
+  Address: IAddressModel;
 }
 
 export interface IContext extends IMainContext {
   models: IModels;
   subdomain: string;
-  loaders: ILoaders
+  loaders: ILoaders;
 }
 
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
-  eventDispatcher: (
-    pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ) => EventDispatcherReturn,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
-
-  // Get the getContext function from the models when it's available
-  const getContext = () => ({
-    subdomain,
-    processId: '',
-    userId: '',
-  });
+  const salesEventHandlers = eventHandlers('sales');
 
   // Board model with event dispatcher
   models.Boards = db.model<IBoardDocument, IBoardModel>(
     'sales_boards',
-    loadBoardClass(
-      models,
-      subdomain,
-      eventDispatcher('sales', 'board', 'boards'),
-    ),
+    loadBoardClass(models, subdomain, salesEventHandlers('sales', 'boards')),
   );
 
   // Pipeline model with event dispatcher
@@ -110,28 +121,20 @@ export const loadClasses = (
     loadPipelineClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'pipeline', 'pipelines'),
+      salesEventHandlers('sales', 'pipelines'),
     ),
   );
 
   // Stage model with event dispatcher
   models.Stages = db.model<IStageDocument, IStageModel>(
     'sales_stages',
-    loadStageClass(
-      models,
-      subdomain,
-      eventDispatcher('sales', 'stage', 'stages'),
-    ),
+    loadStageClass(models, subdomain, salesEventHandlers('sales', 'stages')),
   );
 
   // Deal model with event dispatcher
   models.Deals = db.model<IDealDocument, IDealModel>(
     'deals',
-    loadDealClass(
-      models,
-      subdomain,
-      eventDispatcher('sales', 'deal', 'deals'),
-    ),
+    loadDealClass(models, subdomain, salesEventHandlers('sales', 'deals')),
   );
 
   // Checklist model with event dispatcher
@@ -140,7 +143,7 @@ export const loadClasses = (
     loadCheckListClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'checklist', 'checklists'),
+      salesEventHandlers('sales', 'checklists'),
     ),
   );
 
@@ -150,7 +153,7 @@ export const loadClasses = (
     loadCheckListItemClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'checklist', 'checklistItems'),
+      salesEventHandlers('sales', 'checklistItems'),
     ),
   );
 
@@ -160,7 +163,7 @@ export const loadClasses = (
     loadPipelineLabelClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'pipeline', 'pipelineLabels'),
+      salesEventHandlers('sales', 'pipelineLabels'),
     ),
   );
 
@@ -186,36 +189,25 @@ export const loadClasses = (
     'pos_covers',
     loadCoverClass(models),
   );
+  models.ProductReview = db.model<IProductReviewDocument, IProductReviewModel>(
+    'ecommerce_productreview',
+    loadProductReviewClass(models, subdomain),
+  );
+  models.Wishlist = db.model<IWishlistDocument, IWishlistModel>(
+    'ecommerce_wishlist',
+    loadWishlistClass(models, subdomain),
+  );
+  models.LastViewedItem = db.model<
+    ILastViewedItemDocument,
+    ILastViewedItemModel
+  >('ecommerce_lastvieweditem', loadLastViewedItemClass(models, subdomain));
+
+  models.Address = db.model<IAddressDocument, IAddressModel>(
+    'ecommerce_address',
+    loadAddressClass(models, subdomain),
+  );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>((
-  db: mongoose.Connection,
-  subdomain: string,
-  context?: any,
-) => {
-  // Create an event dispatcher function that follows the pattern in core API
-  const eventDispatcher = (
-    pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ): EventDispatcherReturn => {
-    // Create a getContext function that extracts processId and userId from context
-    const getContext = () => ({
-      subdomain,
-      processId: context?.processId || '',
-      userId: context?.userId || '',
-    });
-
-    return createEventDispatcher({
-      subdomain,
-      pluginName,
-      moduleName,
-      collectionName,
-      getContext,
-    });
-  };
-
-  return loadClasses(db, subdomain, eventDispatcher);
-});
+export const generateModels = createGenerateModels<IModels>(loadClasses);

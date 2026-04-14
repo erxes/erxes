@@ -1,5 +1,5 @@
 import { Sidebar } from 'erxes-ui';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router-dom';
 import { SETTINGS_ROUTES } from '@/ebarimt/settings/constants/settingRoutes';
 
 export const EBarimtSidebar = () => {
@@ -9,7 +9,10 @@ export const EBarimtSidebar = () => {
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {Object.entries(SETTINGS_ROUTES).map(([path, label]) => (
-              <EBarimtSidebarItem key={path} to={path}>
+              <EBarimtSidebarItem
+                key={path}
+                to={`/settings/mongolian/ebarimt/${path}`}
+              >
                 {label}
               </EBarimtSidebarItem>
             ))}

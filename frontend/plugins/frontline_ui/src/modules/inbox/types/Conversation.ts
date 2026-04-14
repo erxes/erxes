@@ -40,6 +40,7 @@ export interface IConversationMemberProgress {
   new: number;
   open: number;
   closed: number;
+  resolved: number;
 }
 
 export interface IConversationSourceProgressItem {

@@ -9,7 +9,8 @@ import { Document, FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
-
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
   getTickets(
@@ -29,7 +30,7 @@ export interface ITicketModel extends Model<ITicketDocument> {
     userId: string;
     subdomain: string;
   }): Promise<ITicketDocument>;
-  removeTicket(_id: string): Promise<{ ok: number }>;
+  removeTicket(_id: string[]): Promise<{ ok: number }>;
 }
 
 export const loadTicketClass = (models: IModels) => {
@@ -44,7 +45,6 @@ export const loadTicketClass = (models: IModels) => {
       params: ITicketFilter,
     ): Promise<FlattenMaps<ITicketDocument>[] | Document[]> {
       const query = {} as FilterQuery<ITicketDocument>;
-
       if (params.name) query.name = { $regex: params.name, $options: 'i' };
       if (params.assigneeId) query.assigneeId = params.assigneeId;
       if (params.channelId) query.channelId = params.channelId;
@@ -58,6 +58,21 @@ export const loadTicketClass = (models: IModels) => {
       if (params.startDate) query.startDate = { $gte: params.startDate };
       if (params.targetDate) query.targetDate = { $lte: params.targetDate };
       if (params.createdAt) query.createdAt = { $gte: params.createdAt };
+      switch (params.state) {
+        case 'active':
+          query.$or = [{ state: 'active' }, { state: { $exists: false } }];
+          break;
+        case 'archived':
+          query.state = 'archived';
+          break;
+        case 'deleted':
+          query.state = 'deleted';
+          break;
+        default:
+          query.$or = [{ state: 'active' }, { state: { $exists: false } }];
+          break;
+      }
+
       return models.Ticket.find(query)
         .populate('pipelineId')
         .populate('statusId')
@@ -77,7 +92,7 @@ export const loadTicketClass = (models: IModels) => {
 
       const status = await models.Status.getStatus(doc.statusId);
 
-      if (status && status.pipelineId) {
+      if (status?.pipelineId) {
         doc.pipelineId = status.pipelineId;
       }
 
@@ -113,11 +128,33 @@ export const loadTicketClass = (models: IModels) => {
       subdomain: string;
     }) {
       const { _id, ...rest } = doc;
+      const permissionValidator = createPermissionValidator(models);
 
       const ticket = await models.Ticket.findOne({ _id });
 
       if (!ticket) {
         throw new Error('Ticket not found');
+      }
+
+      await permissionValidator.validateEditPermission(
+        ticket.statusId || '',
+        doc.statusId || '',
+        userId,
+      );
+      if (doc.propertiesData) {
+        const propertiesData = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'fields',
+          action: 'validateFieldValues',
+          input: {
+            data: doc.propertiesData,
+          },
+          defaultValue: doc.propertiesData,
+        });
+
+        doc.propertiesData = propertiesData;
       }
 
       if (doc.statusId && doc.statusId !== ticket.statusId) {
@@ -191,14 +228,11 @@ export const loadTicketClass = (models: IModels) => {
         new: true,
       });
 
-      if (
-        detail &&
-        detail.subscribedUserIds &&
-        detail.subscribedUserIds.length > 0
-      ) {
-        const userIds = detail.subscribedUserIds.filter(
-          (id) => id !== userId && id !== doc.assigneeId,
-        );
+      if (detail?.subscribedUserIds?.length) {
+        const userIds =
+          detail.subscribedUserIds.filter(
+            (id) => id !== userId && id !== doc.assigneeId,
+          ) || [];
         await createNotifications({
           contentType: 'ticket',
           contentTypeId: detail._id,
@@ -212,8 +246,10 @@ export const loadTicketClass = (models: IModels) => {
       return detail;
     }
 
-    public static async removeTicket(_id: string): Promise<{ ok: number }> {
-      const result = await models.Ticket.deleteOne({ _id });
+    public static async removeTicket(_ids: string[]): Promise<{ ok: number }> {
+      const result = await models.Ticket.deleteMany({
+        _id: { $in: _ids },
+      });
 
       return { ok: result.deletedCount || 0 };
     }

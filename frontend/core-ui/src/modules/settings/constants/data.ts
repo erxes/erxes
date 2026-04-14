@@ -5,12 +5,17 @@ import {
 } from '@/types/paths/SettingsPath';
 import {
   IconAdjustmentsAlt,
+  IconBolt,
   IconBuilding,
   IconChessKnight,
   IconFile,
+  IconFileImport,
+  IconHierarchy,
   IconHierarchy2,
   IconMail,
+  IconNotification,
   IconPassword,
+  IconShoppingCart,
   IconTag,
   IconUserCircle,
   IconUsersGroup,
@@ -105,13 +110,18 @@ export const KEY_LABELS = {
 };
 
 export const SETTINGS_PATH_DATA = (
-  t: TFunction = ((key: string) => key) as TFunction
+  t: TFunction = ((key: string) => key) as TFunction,
 ): { [key: string]: TSettingPath[] } => ({
   account: [
     {
       name: t('profile'),
       icon: IconUserCircle,
       path: SettingsPath.Profile,
+    },
+    {
+      name: t('notification'),
+      icon: IconNotification,
+      path: SettingsPath.Notification,
     },
     {
       name: t('change-password'),
@@ -130,11 +140,11 @@ export const SETTINGS_PATH_DATA = (
       icon: IconUsersGroup,
       path: SettingsWorkspacePath.TeamMember,
     },
-    // {
-    //   name: t('structure'),
-    //   icon: IconHierarchy,
-    //   path: SettingsWorkspacePath.Structure,
-    // },
+    {
+      name: t('structure'),
+      icon: IconHierarchy,
+      path: SettingsWorkspacePath.Structure,
+    },
     {
       name: t('tags'),
       icon: IconTag,
@@ -150,6 +160,16 @@ export const SETTINGS_PATH_DATA = (
       icon: IconHierarchy2,
       path: SettingsWorkspacePath.Properties,
     },
+    {
+      name: 'Products',
+      icon: IconShoppingCart,
+      path: SettingsWorkspacePath.Products,
+    },
+    {
+      name: t('automations'),
+      icon: IconBolt,
+      path: SettingsWorkspacePath.Automations,
+    },
   ],
   developer: [
     {
@@ -158,9 +178,19 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.ClientPortals,
     },
     {
+      name: 'App tokens',
+      icon: IconBuilding,
+      path: SettingsWorkspacePath.AppTokens,
+    },
+    {
       name: 'System Logs',
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,
+    },
+    {
+      name: 'Import & Export',
+      icon: IconFileImport,
+      path: SettingsWorkspacePath.ImportExport,
     },
   ],
 });

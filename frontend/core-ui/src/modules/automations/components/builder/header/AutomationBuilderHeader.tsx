@@ -2,21 +2,15 @@ import { AutomationBuilderHeaderActions } from '@/automations/components/builder
 import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
 import { AutomationBuilderNameInput } from '@/automations/components/builder/header/AutomationBuilderNameInput';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
-import {
-  Breadcrumb,
-  Button,
-  cn,
-  PageSubHeader,
-  Separator,
-  Spinner,
-} from 'erxes-ui';
+import { Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader } from 'ui-modules';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
 
 export const AutomationBuilderHeader = () => {
   const { loading, handleSubmit, handleSave, handleError, toggleTabs } =
     useAutomationHeader();
+
   return (
     <div>
       <PageHeader>
@@ -33,7 +27,6 @@ export const AutomationBuilderHeader = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
@@ -42,20 +35,24 @@ export const AutomationBuilderHeader = () => {
               Go to settings
             </Link>
           </Button>
-          <Button
-            disabled={loading}
-            onClick={handleSubmit(handleSave, handleError)}
-          >
-            {loading ? <Spinner /> : `Save`}
-          </Button>
+          <Can actions={['automationsCreate', 'automationsUpdate']}>
+            <Button
+              disabled={loading}
+              onClick={handleSubmit(handleSave, handleError)}
+            >
+              {loading ? <Spinner /> : `Save`}
+            </Button>
+          </Can>
         </PageHeader.End>
       </PageHeader>
-      <PageSubHeader className="flex items-center justify-between">
-        <div className="flex items-center gap-24">
+      <PageSubHeader className="flex items-center justify-between overflow-x-auto styled-scroll">
+        <div className="flex items-center gap-3 shrink-0">
           <AutomationBuilderNameInput />
           <AutomationHeaderTabs toggleTabs={toggleTabs} />
         </div>
-        <AutomationBuilderHeaderActions />
+        <div className="shrink-0">
+          <AutomationBuilderHeaderActions />
+        </div>
       </PageSubHeader>
     </div>
   );

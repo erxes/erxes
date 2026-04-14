@@ -1,29 +1,33 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-  type Assignment{
+  type Assignment {
     _id: String
-    
-    ownerId: String
-    ownerType: String
-    status: String
-    campaignId: String
-    conditions: JSON
-    
-    createdAt: String
-    updatedAt: String
+    campaignId: String,
+    campaign: AssignmentCampaign,
+    createdAt: Date,
+    usedAt: Date,
+    voucherCampaignId: String,
 
-    createdBy: String
-    updatedBy: String
+    ownerType: String,
+    ownerId: String,
+
+    owner: JSON
+
+    segmentIds: [String]
+    status: String
+    voucherId: String
   }
 
   type AssignmentListResponse {
     list: [Assignment]
+    pageInfo: PageInfo
     totalCount: Int
   }
 `;
 
 const queryParams = `
+  searchValue: String,
   campaignId: String,
   ownerType: String,
   ownerId: String,
@@ -33,23 +37,23 @@ const queryParams = `
 `;
 
 export const queries = `
-  getAssignments(params: ${queryParams}): AssignmentListResponse
-  checkAssignment(customerId: String!, _ids: [String]): Assignment
+  assignments(${queryParams}): AssignmentListResponse
+  assignmentDetail(_id: String!): Assignment
+  checkAssignment(customerId: String!, _ids: [String]): JSON
 `;
 
 const mutationParams = `
   campaignId: String,
-
   ownerType: String,
   ownerId: String,
+  usedAt: Date,
 
-  conditions: JSON,
-
-  status: String,
+  segmentIds: [String],
 `;
 
 export const mutations = `
-  createAssignment(${mutationParams}): Assignment
-  updateAssignment(_id: String!, ${mutationParams}): Assignment
-  removeAssignment(_id: String!): Assignment
+  assignmentsAdd(${mutationParams}): Assignment
+  assignmentsRemove(_ids: [String]): JSON
+  cpAssignmentsAdd(${mutationParams}): Assignment
+  cpAssignmentsRemove(_ids: [String]): JSON
 `;

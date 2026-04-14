@@ -42,6 +42,8 @@ export const types = `
     tags: [Tag]
     channelId: String
     integrationId: String
+
+    channel: Channel
   }
 
   type FormSubmission {
@@ -168,19 +170,24 @@ export const cursorParams = `
 export const queries = `
   formDetail(_id: String!): Form
   forms(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
+  formsMain(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
   formsTotalCount(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams} ): FormsTotalCount
   formSubmissions(${formSubmissionQueryParams}, ${cursorParams}): [Submission]
   formSubmissionsTotalCount(${formSubmissionQueryParams},${cursorParams}): Int
   formSubmissionDetail(contentTypeId: String!): Submission
 
   formsGetContentTypes: [FormType]
+
+  cpForms(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
+  cpFormDetail(_id: String!): Form
+  
 `;
 
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
-  formsRemove(_id: String!): JSON
-  formsToggleStatus(_id: String!): Form
+  formsRemove(_ids: [String]): [String]
+  formsToggleStatus(_ids: [String]!, status: String): Boolean
   formsDuplicate(_id: String!): Form
   formSubmissionsSave(${commonFormSubmissionFields}): Boolean
 
@@ -200,6 +207,13 @@ export const mutations = `
       browserInfo: JSON!
       cachedCustomerId: String
     ): SaveFormResponse
+
+  cpWidgetsSaveLead(
+    formId: String!
+    submissions: [FieldValueInput]
+    browserInfo: JSON!
+    cachedCustomerId: String
+  ): SaveFormResponse
 
 
 `;

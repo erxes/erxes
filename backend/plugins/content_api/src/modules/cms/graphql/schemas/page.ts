@@ -16,22 +16,30 @@ export const types = `
         _id: String!
         clientPortalId: String!
         name: String
+        parentId: String
         description: String
         coverImage: String
         type: String
         slug: String
         content: String
+        status: String
         createdUserId: String
         createdUser: User
         createdAt: Date
         updatedAt: Date
         pageItems: [PageItem]
-
         customFieldsData: JSON
-
         customFieldsMap: JSON
+        thumbnail: Attachment
+        pageImages: [Attachment]
+        video: Attachment
+        audio: Attachment
+        documents: [Attachment]
+        attachments: [Attachment]
+        pdfAttachment: PdfAttachment
+        videoUrl: String
+        translations: [Translation]
     }
-
 
     type PageList {
         pages: [Page]
@@ -49,21 +57,30 @@ export const inputs = `
         objectType: String
         objectId: String
         config: JSON
-
-        
     }
 
     input PageInput {
         clientPortalId: String
+        language: String
         name: String
+        parentId: String
         description: String
         coverImage: String
         status: String
         type: String
         slug: String
         content: String
+        thumbnail: AttachmentInput
+        pageImages: [AttachmentInput]
+        video: AttachmentInput
+        audio: AttachmentInput
+        documents: [AttachmentInput]
+        attachments: [AttachmentInput]
+        pdfAttachment: PdfAttachmentInput
+        videoUrl: String
         pageItems: [PageItemInput]
         customFieldsData: JSON
+        translations: [TranslationInput]
     }
 `;
 
@@ -71,8 +88,8 @@ export const queries = `
     cmsPage(_id: String, slug: String, language: String, clientPortalId: String): Page
     cmsPages(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [Page]
     cmsPageList(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): PageList
-    
-    cpPages(language: String, clientPortalId: String): [Page]
+
+    cpPages(language: String): [Page]
 `;
 
 export const mutations = `

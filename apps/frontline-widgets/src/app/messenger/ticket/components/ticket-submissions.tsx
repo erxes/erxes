@@ -1,55 +1,24 @@
 import {
-  type Icon,
   IconPlus,
-  IconReload,
-  IconCircle,
-  IconCircleDot,
-  IconCircleDashed,
-  IconCircleCheck,
-  IconCircleDashedCheck,
-  IconCircleX,
-  IconCopy,
   IconCircleMinus,
-  IconChevronDown,
   IconChevronUp,
   IconCalendarTime,
   IconCalendarPlus,
-  IconUserOff,
   IconUserCancel,
 } from '@tabler/icons-react';
 import {
   Button,
-  Dialog,
-  Form,
-  Input,
-  PhoneInput,
-  Spinner,
   toast,
-  InfoCard,
-  Label,
-  Textarea,
-  cn,
-  Card,
   Collapsible,
   Tooltip,
   Avatar,
   readImage,
   Separator,
 } from 'erxes-ui';
-import { motion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
-import { useTicketProgressForms } from '../hooks/useTicketProgressForms';
-import { useForgotTicketNumber } from '../hooks/useForgotTicketNumber';
+import { useState } from 'react';
 import {
   ITicketCheckProgress,
-  ITicketStatus,
-  TTicketCheckProgressForm,
-  TTicketForgotProgressForm,
 } from '../types';
-import { useGetTicketProgress } from '../hooks/useGetTicketProgress';
-import { SubmitHandler } from 'react-hook-form';
-import { useAtom, useAtomValue } from 'jotai';
-import { ticketProgressAtom, userTicketCreatedNumberAtom } from '../../states';
 import { format } from 'date-fns';
 import { useGetTicketsByCustomer } from '../hooks/useGetTicketsByCustomer';
 import { TicketStatusInlineValue } from './ticket-check-progress';
@@ -60,7 +29,7 @@ export const TicketSubmissions = ({
 }: {
   setPage: (page: 'submissions' | 'submit') => void;
 }) => {
-  const { tickets, loading, error } = useGetTicketsByCustomer();
+  const { tickets, error } = useGetTicketsByCustomer();
 
   if (error || tickets?.length === 0) {
     return (
@@ -124,23 +93,9 @@ export const TicketSubmissionItem = ({
     >
       <Collapsible.Trigger className="flex flex-row px-1.5 py-0 h-9 gap-2 items-center w-full cursor-pointer justify-between">
         <TicketStatusInlineValue status={ticket.status} />
-        <div className="text-base font-semibold flex-1 shrink-0 truncate flex m-0">
+        <div className="text-base font-semibold flex-1 shrink-0 truncate flex m-0 justify-between">
           {ticket.name || 'Untitled ticket'}
-        </div>
-        <div className="flex-none truncate text-left uppercase flex items-center">
-          <span className="text-base text-muted-foreground">Ticket #</span>
-          <span
-            className="text-base text-muted-foreground hover:underline cursor-pointer hover:text-primary"
-            onClick={() => {
-              navigator.clipboard.writeText(ticket.number);
-              toast({
-                title: 'Ticket number copied to clipboard',
-                variant: 'success',
-              });
-            }}
-          >
-            {ticket.number}
-          </span>
+          {!open && <TicketDateDisplay value={ticket?.createdAt || undefined} />}
         </div>
         <div className="flex-none shrink-0">
           {open ? (
@@ -166,8 +121,28 @@ export const TicketSubmissionItem = ({
               placeholder="Close date"
             />
           </div>
-          <div className="text-sm text-muted-foreground px-1">
-            {parseTicketDescription(ticket.description)}
+          <div className='flex justify-between items-center'>
+            <div className="text-sm text-muted-foreground px-1">
+              {parseTicketDescription(ticket.description)}
+            </div>
+            <div className="flex-none truncate text-left uppercase flex items-center">
+              <span className="text-base text-muted-foreground">Ticket #</span>
+              <span
+                className="text-base text-muted-foreground hover:underline cursor-pointer hover:text-primary"
+                onClick={() => {
+                  navigator.clipboard.writeText(ticket.number);
+                  toast({
+                    title: 'Ticket number copied to clipboard',
+                    variant: 'success',
+                  });
+                }}
+              >
+                {ticket.number}
+              </span>
+            </div>
+          </div>
+          <div>
+            <TicketStatusInlineValue status={ticket.status} hasName />
           </div>
         </div>
         <Separator />
@@ -198,22 +173,24 @@ export const TicketAssignee = ({
   if (!assigneeId && !assignee)
     return <IconUserCancel className="size-4 text-muted-foreground" />;
   return (
-    <Tooltip>
-      <Tooltip.Trigger asChild>
-        <Avatar>
-          <Avatar.Image
-            src={readImage(assignee.details?.avatar as string, 200)}
-            alt={assignee.details?.fullName as string}
-          />
-          <Avatar.Fallback>
-            {assignee.details?.fullName?.charAt(0) || ''}
-          </Avatar.Fallback>
-        </Avatar>
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        <p>{assignee.details?.fullName}</p>
-      </Tooltip.Content>
-    </Tooltip>
+    <Tooltip.Provider>
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <Avatar>
+            <Avatar.Image
+              src={readImage(assignee.details?.avatar as string, 200)}
+              alt={assignee.details?.fullName as string}
+            />
+            <Avatar.Fallback>
+              {assignee.details?.fullName?.charAt(0) || ''}
+            </Avatar.Fallback>
+          </Avatar>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          <p>{assignee.details?.fullName}</p>
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
   );
 };
 

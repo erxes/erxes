@@ -12,39 +12,39 @@ export const SyncErkhetHistoryBreadcrumb = () => {
       <Breadcrumb.List className="gap-1">
         <ToggleGroup type="single" value={pathname}>
           <ToggleGroup.Item
-            value="/mongolian/sync-erkhet-history"
+            value="/mongolian/sync-erkhet/history"
             asChild
             onClick={() => setCursor('')}
           >
-            <Link to="/mongolian/sync-erkhet-history">Sync History</Link>
+            <Link to="/mongolian/sync-erkhet/history">Sync History</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item
-            value="/mongolian/check-synced-deals"
+            value="/mongolian/sync-erkhet/deals"
             asChild
             onClick={() => setCursor('')}
           >
-            <Link to="/mongolian/check-synced-deals">Check Deals</Link>
+            <Link to="/mongolian/sync-erkhet/deals">Check Deals</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item
-            value="/mongolian/check-pos-orders"
+            value="/mongolian/sync-erkhet/pos-order"
             asChild
             onClick={() => setCursor('')}
           >
-            <Link to="/mongolian/check-pos-orders">Check Orders</Link>
+            <Link to="/mongolian/sync-erkhet/pos-order">Check Orders</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item
-            value="/mongolian/check-category"
+            value="/mongolian/sync-erkhet/category"
             asChild
             onClick={() => setCursor('')}
           >
-            <Link to="/mongolian/check-category">Check Category</Link>
+            <Link to="/mongolian/sync-erkhet/category">Check Category</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item
-            value="/mongolian/check-products"
+            value="/mongolian/sync-erkhet/products"
             asChild
             onClick={() => setCursor('')}
           >
-            <Link to="/mongolian/check-products">Check Products</Link>
+            <Link to="/mongolian/sync-erkhet/products">Check Products</Link>
           </ToggleGroup.Item>
         </ToggleGroup>
       </Breadcrumb.List>

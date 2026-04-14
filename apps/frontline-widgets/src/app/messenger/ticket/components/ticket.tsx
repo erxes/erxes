@@ -3,7 +3,6 @@ import { TicketForm } from './ticket-form';
 import { TicketSubmissions } from './ticket-submissions';
 import { useCustomerData } from '../../hooks/useCustomerData';
 import { NotifyCustomerForm } from '../../components/notify-customer-form';
-import { Tabs } from 'erxes-ui';
 
 export const Ticket = () => {
   const { hasEmailOrPhone } = useCustomerData();

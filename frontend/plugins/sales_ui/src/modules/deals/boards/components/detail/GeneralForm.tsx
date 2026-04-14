@@ -1,5 +1,6 @@
 import { Combobox, Form, Input, Popover, Select } from 'erxes-ui';
 import {
+  SelectBoard,
   SelectBranches,
   SelectDepartments,
   SelectMember,
@@ -8,7 +9,6 @@ import {
 import { useRef, useState } from 'react';
 
 import PipelineConfig from '@/deals/pipelines/components/PipelineConfig';
-import { SelectBoard } from '../common/SelectBoards';
 
 const VISIBILITY_TYPES = [
   { value: 'public', label: 'Public' },

@@ -1,7 +1,7 @@
 import { PageContainer, PageSubHeader } from 'erxes-ui';
-import { DuplicatedHeader } from '@/put-response/put-responses-duplicated/components/DuplicatedHeader';
-import { DuplicatedRecordTable } from '@/put-response/put-responses-duplicated/components/DuplicatedRecordTable';
-import { DuplicatedFilter } from '@/put-response/put-responses-duplicated/components/DuplicatedFilter';
+import { DuplicatedHeader } from '~/modules/ebarimt/put-response/put-responses-duplicated/components/DuplicatedHeader';
+import { DuplicatedRecordTable } from '~/modules/ebarimt/put-response/put-responses-duplicated/components/DuplicatedRecordTable';
+import { DuplicatedFilter } from '~/modules/ebarimt/put-response/put-responses-duplicated/components/DuplicatedFilter';
 
 export const DuplicatedPage = () => {
   return (

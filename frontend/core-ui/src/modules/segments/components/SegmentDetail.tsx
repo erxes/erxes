@@ -1,7 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet, useQueryState } from 'erxes-ui';
 import { useState } from 'react';
-import { SegmentForm } from 'ui-modules';
+import { Can, SegmentForm } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -11,13 +11,12 @@ type Props = {
 export function SegmentDetail({ onRefresh }: Props) {
   const [selectedContentType] = useQueryState<string>('contentType');
 
-  if (!selectedContentType) {
-    return null;
-  }
-
   const [segmentId, setOpen] = useQueryState<string>('segmentId');
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const { t } = useTranslation('segment');
+  if (!selectedContentType) {
+    return null;
+  }
 
   return (
     <Sheet
@@ -30,14 +29,16 @@ export function SegmentDetail({ onRefresh }: Props) {
         }
       }}
     >
-      <Sheet.Trigger asChild>
-        <Button
-          onClick={() => setIsCreatingNew(!isCreatingNew)}
-          disabled={!selectedContentType}
-        >
-          <IconPlus /> {t('create-segment')}
-        </Button>
-      </Sheet.Trigger>
+      <Can action="segmentsManage">
+        <Sheet.Trigger asChild>
+          <Button
+            onClick={() => setIsCreatingNew(!isCreatingNew)}
+            disabled={!selectedContentType}
+          >
+            <IconPlus /> {t('create-segment')}
+          </Button>
+        </Sheet.Trigger>
+      </Can>
 
       <Sheet.View
         className="p-0 md:max-w-5xl"

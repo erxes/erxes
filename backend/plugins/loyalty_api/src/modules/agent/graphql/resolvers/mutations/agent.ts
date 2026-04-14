@@ -2,21 +2,43 @@ import { IAgent } from '@/agent/@types';
 import { IContext } from '~/connectionResolvers';
 
 export const agentMutations = {
-  agentsAdd: async (_root: undefined, doc: IAgent, { models }: IContext) => {
-    return await models.Agent.createAgent(doc);
+  async createAgent(_root: undefined, doc: IAgent, { models }: IContext) {
+    return models.Agents.createAgent(doc);
   },
-  agentsEdit: async (
+
+  async updateAgent(
     _root: undefined,
-    { _id, ...doc }: IAgent & { _id: string },
+    { _id, ...doc }: { _id: string } & IAgent,
     { models }: IContext,
-  ) => {
-    return await models.Agent.updateAgent(_id, doc);
+  ) {
+    return models.Agents.updateAgent(_id, doc);
   },
-  agentsRemove: async (
+
+  async removeAgent(
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
-  ) => {
-    return await models.Agent.removeAgent(_id);
+  ) {
+    return models.Agents.removeAgent(_id);
+  },
+
+  async agentsAdd(_root: undefined, doc: IAgent, { models }: IContext) {
+    return models.Agents.createAgent(doc);
+  },
+
+  async agentsEdit(
+    _root: undefined,
+    { _id, ...doc }: { _id: string } & IAgent,
+    { models }: IContext,
+  ) {
+    return models.Agents.updateAgent(_id, doc);
+  },
+
+  async agentsRemove(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Agents.removeAgent(_id);
   },
 };

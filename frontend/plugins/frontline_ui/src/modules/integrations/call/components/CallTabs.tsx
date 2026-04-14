@@ -93,7 +93,7 @@ export const CallButton = ({ addCustomer }: { addCustomer: any }) => {
   return (
     <Button
       className="my-3 w-full"
-      disabled={!phoneNumber || !phoneNumber.length}
+      disabled={!phoneNumber?.length}
       onClick={call}
     >
       Call

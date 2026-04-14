@@ -37,6 +37,12 @@ export const BROADCAST_MESSAGE_ADD = gql`
   }
 `;
 
+export const BROADCAST_UPDATE_CONFIGS = gql`
+  mutation BROADCAST_UPDATE_CONFIGS($configsMap: JSON!) {
+    broadcastUpdateConfigs(configsMap: $configsMap)
+  }
+`;
+
 export const BROADCAST_REMOVE = gql`
   mutation BROADCAST_REMOVE($_ids: [String]) {
     engageMessageRemove(_ids: $_ids)
@@ -48,5 +54,17 @@ export const BROADCAST_SET_LIVE = gql`
     engageMessageSetLive(_id: $_id) {
       _id
     }
+  }
+`;
+
+export const BROADCAST_MEMBER_REMOVE = gql`
+  mutation BROADCAST_MEMBER_REMOVE($email: String!) {
+    engageMessageRemoveVerifiedEmail(email: $email)
+  }
+`;
+
+export const BROADCAST_MEMBER_ADD = gql`
+  mutation BROADCAST_MEMBER_ADD($email: String!) {
+    engageMessageVerifyEmail(email: $email)
   }
 `;

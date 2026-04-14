@@ -2,28 +2,29 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import { isDev } from 'erxes-api-shared/utils';
-import express from 'express';
-import * as http from 'http';
-import { appRouter } from '~/init-trpc';
-import { initApolloServer } from './apollo/apolloServer';
-import { router } from './routes';
-
 import {
+  applyTrustProxy,
   closeMongooose,
   createTRPCContext,
+  isDev,
   joinErxesGateway,
   leaveErxesGateway,
 } from 'erxes-api-shared/utils';
-
+import express from 'express';
 import rateLimit from 'express-rate-limit';
+import * as http from 'http';
 import * as path from 'path';
+import { appRouter } from '~/init-trpc';
+import { initApolloServer } from './apollo/apolloServer';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
-import { initSegmentCoreProducers } from './meta/segments';
-import initImportExport from './meta/import-export/import';
 import { initBroadcast } from './meta/broadcast';
+import initImportExport from './meta/import-export/import';
+import { initSegmentCoreProducers } from './meta/segments';
+import { router } from './routes';
+
+const PLUGIN_NAME = 'core';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
+applyTrustProxy(app);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
@@ -62,9 +64,24 @@ app.options('*', cors(corsOptions));
 app.use(router);
 
 const fileLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  keyGenerator: (req) => {
+    const xff = req.headers['x-forwarded-for'];
+    if (xff) {
+      const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
+      return parts[parts.length - 1].trim();
+    }
+    return req.ip || 'unknown';
+  },
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many requests from this IP, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
@@ -106,7 +123,7 @@ httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
 
   await joinErxesGateway({
-    name: 'core',
+    name: PLUGIN_NAME,
     port,
     hasSubscriptions: true,
     meta,
@@ -114,7 +131,7 @@ httpServer.listen(port, async () => {
   await initAutomation(app);
   await initSegmentCoreProducers(app);
   await initImportExport(app);
-  await initBroadcast(app)
+  await initBroadcast(app);
 });
 
 // GRACEFULL SHUTDOWN
@@ -122,7 +139,7 @@ process.stdin.resume(); // so the program will not close instantly
 
 async function leaveServiceDiscovery() {
   try {
-    await leaveErxesGateway('core', port);
+    await leaveErxesGateway(PLUGIN_NAME, port);
     console.log('Left from service discovery');
   } catch (e) {
     console.error(e);

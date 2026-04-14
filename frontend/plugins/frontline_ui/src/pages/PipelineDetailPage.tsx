@@ -1,9 +1,7 @@
-import { Breadcrumb } from 'erxes-ui';
-import { IconArrowLeft } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
 import { PipelineDetail } from '@/pipelines/components/PipelineDetail';
-import { useParams } from 'react-router-dom';
-import { Button } from 'erxes-ui';
+import { IconArrowLeft } from '@tabler/icons-react';
+import { Breadcrumb, Button } from 'erxes-ui';
+import { Link, useParams } from 'react-router-dom';
 
 export const PipelineDetailPage = () => {
   const { id: channelId } = useParams<{ id: string; pipelineId: string }>();

@@ -6,7 +6,6 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { processCustomerRows } from './customers/processCustomerRows';
 import { processCompanyRows } from './companies/processCompanyRows';
-
 const contactImportMap = {
   customer: {
     headers: [

@@ -1,29 +1,32 @@
+import crypto from 'crypto';
+import {
+  IAttachment,
+  IBrowserInfo,
+  Resolver,
+} from 'erxes-api-shared/core-types';
 import {
   getEnv,
   graphqlPubsub,
   isEnabled,
+  markResolvers,
   redis,
   sendTRPCMessage,
-  markResolvers,
 } from 'erxes-api-shared/utils';
-import { IAttachment, Resolver } from 'erxes-api-shared/core-types';
-import { IModels, generateModels } from '~/connectionResolvers';
+import strip from 'strip';
+import { IContext, IModels, generateModels } from '~/connectionResolvers';
 import {
   IIntegrationDocument,
   IMessengerDataMessagesItem,
 } from '~/modules/inbox/@types/integrations';
-import { IContext } from '~/connectionResolvers';
+import { VERIFY_EMAIL_TRANSLATIONS } from '~/modules/inbox/constants';
 import {
   AUTO_BOT_MESSAGES,
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   MESSAGE_TYPES,
 } from '~/modules/inbox/db/definitions/constants';
-import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
-import strip from 'strip';
-import { IBrowserInfo } from 'erxes-api-shared/core-types';
-import { VERIFY_EMAIL_TRANSLATIONS } from '~/modules/inbox/constants';
 import { trackViewPageEvent } from '~/modules/inbox/events';
+import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
 
 export const pConversationClientMessageInserted = async (
   subdomain,
@@ -74,6 +77,7 @@ export const pConversationClientMessageInserted = async (
       },
     );
   } catch (err) {
+    console.log('Error publishing subscription:', err);
     throw new Error(
       'conversationMessageInserted Error publishing subscription:',
     );
@@ -105,7 +109,7 @@ export const getMessengerData = async (
     }
 
     const languageCode = integration.languageCode || 'en';
-    const messages = (messengerData || {}).messages;
+    const messages = messengerData?.messages;
 
     if (messages) {
       messagesByLanguage = messages[languageCode];
@@ -131,7 +135,7 @@ export const getMessengerData = async (
       messengerData.hideWhenOffline &&
       messengerData.availabilityMethod === 'auto'
     ) {
-      const isOnline = await models.Integrations.isOnline(integration);
+      const isOnline = models.Integrations.isOnline(integration);
       if (!isOnline) {
         messengerData.showChat = false;
       }
@@ -153,7 +157,7 @@ export const getMessengerData = async (
   const formCodes = [] as string[];
 
   for (const app of leadApps) {
-    if (app && app.credentials) {
+    if (app.credentials) {
       formCodes.push(app.credentials.formCode);
     }
   }
@@ -188,7 +192,7 @@ export const getMessengerData = async (
   }
 
   return {
-    ...(messengerData || {}),
+    ...messengerData,
     getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId,
@@ -333,7 +337,7 @@ export const widgetMutations: Record<string, Resolver> = {
     }
 
     // get or create company
-    if (companyData && companyData.name) {
+    if (companyData?.name) {
       let company = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -347,12 +351,12 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      const { customFieldsData, trackedData } = await sendTRPCMessage({
+      const { propertiesData } = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
         module: 'fields',
-        action: 'generateCustomFieldsData',
+        action: 'generatePropertiesData',
         input: {
           query: {
             customData: companyData,
@@ -361,26 +365,12 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      companyData.customFieldsData = customFieldsData;
-      companyData.trackedData = trackedData;
+      companyData.propertiesData = propertiesData;
 
-      if (!company) {
-        companyData.primaryName = companyData.name;
-        companyData.names = [companyData.name];
+      // trackData note: trackedData is not used for now
+      // companyData.trackedData = trackedData;
 
-        company = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'companies',
-          action: 'createCompany',
-          input: {
-            query: {
-              ...companyData,
-            },
-          },
-        });
-      } else {
+      if (company) {
         company = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
@@ -406,6 +396,22 @@ export const widgetMutations: Record<string, Resolver> = {
             targets: [company],
           },
         });
+      } else {
+        companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
+
+        company = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'companies',
+          action: 'createCompany',
+          input: {
+            query: {
+              ...companyData,
+            },
+          },
+        });
       }
 
       if (customer && company) {
@@ -415,7 +421,7 @@ export const widgetMutations: Record<string, Resolver> = {
           subdomain,
           pluginName: 'core',
           method: 'mutation',
-          module: 'conformities',
+          module: 'conformity',
           action: 'create',
           input: {
             mainType: 'customer',
@@ -472,7 +478,7 @@ export const widgetMutations: Record<string, Resolver> = {
       languageCode: integration.languageCode,
       ticketConfig: ticketConfig || {},
       messengerData: await getMessengerData(models, subdomain, integration),
-      customerId: customer && customer._id,
+      customerId: customer?._id,
       visitorId: customer ? null : visitorId,
       channel: {
         _id: channel._id,
@@ -519,7 +525,7 @@ export const widgetMutations: Record<string, Resolver> = {
           videoCallRequestMessage.createdAt,
         ).getTime();
 
-        const nowTime = new Date().getTime();
+        const nowTime = Date.now();
 
         let integrationConfigs: Array<{ code: string; value?: string }> = [];
 
@@ -533,9 +539,11 @@ export const widgetMutations: Record<string, Resolver> = {
           (config) => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS',
         ) || { value: '0' };
 
-        const timeDelayIntValue = parseInt(timeDelay.value || '0', 10);
+        const timeDelayIntValue = Number.parseInt(timeDelay.value || '0', 10);
 
-        const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
+        const timeDelayValue = Number.isNaN(timeDelayIntValue)
+          ? 0
+          : timeDelayIntValue;
 
         if (messageTime + timeDelayValue * 1000 > nowTime) {
           const defaultValue = 'Video call request has already been sent';
@@ -673,7 +681,7 @@ export const widgetMutations: Record<string, Resolver> = {
         const { responses } = botRequest;
 
         const botData =
-          responses.length !== 0
+          responses.length > 0
             ? responses
             : [
                 {
@@ -811,7 +819,7 @@ export const widgetMutations: Record<string, Resolver> = {
       customerId,
       browserInfo,
     }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
-    { subdomain }: IContext,
+    { models, subdomain }: IContext,
   ) {
     if (customerId) {
       await sendTRPCMessage({
@@ -852,7 +860,7 @@ export const widgetMutations: Record<string, Resolver> = {
     // }
 
     try {
-      await trackViewPageEvent(subdomain, {
+      await trackViewPageEvent(models, subdomain, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url },
@@ -1032,7 +1040,7 @@ export const widgetMutations: Record<string, Resolver> = {
     { integrationId }: { integrationId: string },
     { models }: IContext,
   ) {
-    const sessionId = `_${Math.random().toString(36).substr(2, 9)}`;
+    const sessionId = `_${crypto.randomBytes(8).toString('hex')}`;
 
     await redis.set(
       `bot_initial_message_session_id_${integrationId}`,
@@ -1099,7 +1107,7 @@ export const widgetMutations: Record<string, Resolver> = {
         modifiedAt: new Date(),
         stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc),
-        number: new Date().getTime().toString(),
+        number: Date.now().toString(),
       });
       await sendTRPCMessage({
         subdomain,

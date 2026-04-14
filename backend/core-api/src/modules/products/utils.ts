@@ -1,7 +1,7 @@
 import {
-  ICustomField,
   IProduct,
   IProductCategory,
+  IPropertyField,
 } from 'erxes-api-shared/core-types';
 import { IModels } from '../../connectionResolvers';
 
@@ -10,12 +10,7 @@ export const checkCodeMask = (category?: IProductCategory, code?: string) => {
     return false;
   }
 
-  if (
-    !category ||
-    !category.maskType ||
-    !category.mask ||
-    !category.mask.values
-  ) {
+  if (!category?.maskType || !category?.mask?.values) {
     return true;
   }
 
@@ -29,7 +24,7 @@ export const checkCodeMask = (category?: IProductCategory, code?: string) => {
     }
 
     if (value.type === 'char') {
-      maskList.push(value.char.replace(/./g, '\\.'));
+      maskList.push(value.char.replaceAll('.', String.raw`\.`));
     }
 
     if (value.type === 'customField' && value.matches) {
@@ -51,31 +46,24 @@ export const initCustomField = async (
   models: IModels,
   category: IProductCategory,
   code: string,
-  productCustomFieldsData?: ICustomField[],
-  docCustomFieldsData?: ICustomField[],
+  productPropertiesData?: IPropertyField,
+  docPropertiesData?: IPropertyField,
 ) => {
-  if (
-    !category ||
-    !category.maskType ||
-    !category.mask ||
-    !category.mask.values
-  ) {
-    if (docCustomFieldsData && docCustomFieldsData.length) {
-      const docFieldsIds = docCustomFieldsData.map((d) => d.field);
-      const allCustomFieldsData = docCustomFieldsData.concat(
-        (productCustomFieldsData || []).filter(
-          (d) => !docFieldsIds.includes(d.field),
-        ),
-      );
+  if (!category?.maskType || !category.mask?.values) {
+    const propertiesData = {
+      ...productPropertiesData,
+      ...docPropertiesData,
+    };
 
-      return models.Fields.validateFieldValues(allCustomFieldsData);
+    if (Object.keys(propertiesData)?.length) {
+      return models.Fields.validateFieldValues(propertiesData);
     }
 
-    return productCustomFieldsData;
+    return productPropertiesData || {};
   }
 
   let strInd = 0;
-  let customFieldsData: ICustomField[] = [];
+  const maskPropertiesData: IPropertyField = {};
 
   for (const value of category.mask.values || []) {
     const len = Number(value.len);
@@ -89,27 +77,20 @@ export const initCustomField = async (
 
       const subCodeInd = Object.values(value.matches).indexOf(subCode);
 
-      customFieldsData.push({
-        field: value.fieldId,
-        value: (Object.keys(value.matches) || [])[subCodeInd],
-      });
+      maskPropertiesData[value.fieldId] = (Object.keys(value.matches) || [])[
+        subCodeInd
+      ];
       strInd += len;
     }
   }
 
-  const codeFieldIds = customFieldsData.map((d) => d.field);
-  customFieldsData = customFieldsData.concat(
-    (docCustomFieldsData || []).filter((d) => !codeFieldIds.includes(d.field)),
-  );
+  const propertiesData = {
+    ...productPropertiesData,
+    ...docPropertiesData,
+    ...maskPropertiesData,
+  };
 
-  const withDocFieldIds = customFieldsData.map((d) => d.field);
-  customFieldsData = customFieldsData.concat(
-    (productCustomFieldsData || []).filter(
-      (d) => !withDocFieldIds.includes(d.field),
-    ),
-  );
-
-  return models.Fields.validateFieldValues(customFieldsData);
+  return models.Fields.validateFieldValues(propertiesData);
 };
 
 export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
@@ -117,9 +98,8 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
     return undefined;
   }
 
-  const similarityGroups = await models.ProductsConfigs.getConfig(
-    'similarityGroup',
-  );
+  const similarityGroups =
+    await models.ProductsConfigs.getConfig('similarityGroup');
 
   if (!similarityGroups) {
     return undefined;
@@ -136,13 +116,13 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
 
     const codeRegex = ['*', '.', '_'].includes(mask)
       ? new RegExp(
-          `^${mask
-            .replace(/\./g, '\\.')
-            .replace(/\*/g, '.')
-            .replace(/_/g, '.')}.*`,
+          String.raw`^${mask
+            .replaceAll('.', String.raw`\.`)
+            .replaceAll('*', '.')
+            .replaceAll('_', '.')}.*`,
           'igu',
         )
-      : new RegExp(`.*${mask}.*`, 'igu');
+      : new RegExp(String.raw`.*${mask}.*`, 'igu');
 
     const filterFieldVal = filterFieldDef.includes('customFieldsData.')
       ? (
@@ -349,5 +329,5 @@ export const getSimilaritiesProductsCount = async (models, filter, params) => {
     { $group: { _id: {}, count: { $sum: 1 } } },
   ]);
 
-  return ((groupedData || [])[0] || {}).count || 0;
+  return groupedData?.[0]?.count ?? 0;
 };

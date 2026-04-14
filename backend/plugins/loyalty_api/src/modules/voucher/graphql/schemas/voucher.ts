@@ -6,9 +6,13 @@ export const types = `
     name: String
     description: String
     campaignId: String
+    voucherCampaignId: String
     owner: Owner
+    ownerId: String
     ownerType: String
     status: String
+    createdAt: Date
+    usedAt: Date
     createdBy: User
     updatedBy: User
     conditions: JSON
@@ -17,6 +21,11 @@ export const types = `
   type VoucherListRepsponse {
     list: [Voucher]
     pageInfo: PageInfo
+    totalCount: Int
+  }
+
+  type VoucherMainResponse {
+    list: [Voucher]
     totalCount: Int
   }
 `;
@@ -32,12 +41,27 @@ const queryParams = `
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
-export const queries = `
-  getVoucher(_id: String!): Voucher
-  getVouchers(${queryParams}): VoucherListRepsponse
+const mainQueryParams = `
+  page: Int
+  perPage: Int
+  sortField: String
+  sortDirection: Int
+  campaignId: String
+  status: String
+  ownerId: String
+  ownerType: String
+  searchValue: String
+  fromDate: String
+  toDate: String
 `;
 
-const mutationParams = `  
+export const queries = `
+  vouchers(${queryParams}): VoucherListRepsponse
+  vouchersMain(${mainQueryParams}): VoucherMainResponse
+  ownerVouchers(ownerId: String!): JSON
+`;
+
+const mutationParams = `
   campaignId: String
   ownerId: String
   ownerType: String
@@ -45,8 +69,19 @@ const mutationParams = `
   conditions: JSON
 `;
 
+const mutationManyParams = `
+  campaignId: String
+  ownerType: String
+  ownerIds: [String]
+  tagIds: [String]
+  status: String
+`;
+
 export const mutations = `
-  createVoucher(${mutationParams}): Voucher
-  updateVoucher(_id: String!, ${mutationParams}): Voucher
-  removeVoucher(_id: String!): Voucher
+  vouchersAdd(${mutationParams}): Voucher
+  vouchersAddMany(${mutationManyParams}): String
+  vouchersEdit(_id: String!, ${mutationParams}): Voucher
+  vouchersRemove(_ids: [String]): JSON
+  vouchersRemoveByFilter(${mainQueryParams}): Int
+  buyVoucher(campaignId: String, ownerType: String, ownerId: String, count: Int): Voucher
 `;

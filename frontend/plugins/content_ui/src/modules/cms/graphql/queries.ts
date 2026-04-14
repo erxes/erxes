@@ -11,6 +11,7 @@ export const CONTENT_CMS_LIST = gql`
       name
       languages
       language
+      postUrlField
       description
     }
   }
@@ -38,8 +39,8 @@ export const CMS_MENU_ADD = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
+      # contentType
+      # contentTypeID
       kind
       icon
       url
@@ -56,8 +57,8 @@ export const CMS_MENU_EDIT = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
+      # contentType
+      # contentTypeID
       kind
       icon
       url
@@ -137,7 +138,6 @@ export const POST_LIST = gql`
     $clientPortalId: String!
     $type: String
     $featured: Boolean
-    $categoryIds: [String]
     $searchValue: String
     $status: PostStatus
     $limit: Int
@@ -151,7 +151,6 @@ export const POST_LIST = gql`
       clientPortalId: $clientPortalId
       featured: $featured
       type: $type
-      categoryIds: $categoryIds
       searchValue: $searchValue
       status: $status
       limit: $limit
@@ -194,12 +193,6 @@ export const POST_LIST = gql`
             __typename
           }
           # Remove or replace the ClientPortalUser fragment if not needed
-          __typename
-        }
-        categoryIds
-        categories {
-          _id
-          name
           __typename
         }
         featured
@@ -316,6 +309,7 @@ export const CMS_POSTS_EDIT = gql`
       tagIds
       featured
       featuredDate
+      publishedDate
       scheduledDate
       autoArchiveDate
       reactions
@@ -405,6 +399,7 @@ export const CMS_POST = gql`
       authorId
       featured
       featuredDate
+      publishedDate
       scheduledDate
       autoArchiveDate
       reactions
@@ -749,13 +744,14 @@ export const CMS_MENU_LIST = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
       kind
       icon
       url
       order
       target
+      translations {
+        language
+      }
       __typename
     }
   }
@@ -897,15 +893,16 @@ export const CMS_CUSTOM_POST_TYPE_REMOVE = gql`
 `;
 
 export const CMS_TRANSLATIONS = gql`
-  query cmsTranslations($postId: String!) {
-    cmsTranslations(postId: $postId) {
+  query cmsTranslations($objectId: String, $type: String) {
+    cmsTranslations(objectId: $objectId, type: $type) {
       _id
-      postId
+      objectId
       language
       title
       content
       excerpt
       customFieldsData
+      type
     }
   }
 `;
@@ -914,12 +911,13 @@ export const CMS_ADD_TRANSLATION = gql`
   mutation cmsAddTranslation($input: TranslationInput!) {
     cmsAddTranslation(input: $input) {
       _id
-      postId
+      objectId
       language
       title
       content
       excerpt
       customFieldsData
+      type
     }
   }
 `;
@@ -928,12 +926,13 @@ export const CMS_EDIT_TRANSLATION = gql`
   mutation cmsEditTranslation($input: TranslationInput!) {
     cmsEditTranslation(input: $input) {
       _id
-      postId
+      objectId
       language
       title
       content
       excerpt
       customFieldsData
+      type
     }
   }
 `;

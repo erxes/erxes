@@ -26,20 +26,44 @@ export const PRODUCT_FORM_SCHEMA = z.object({
   customFieldsData: z.any().optional(),
   attachment: z.any().optional(),
   attachmentMore: z.any().optional(),
-  pdfAttachment: z
-    .object({
-      name: z.string().optional(),
-      url: z.string().optional(),
-      type: z.string().optional(),
-      size: z.number().optional(),
-    })
-    .optional(),
+  // pdfAttachment: z
+  //   .object({
+  //     name: z.string().optional(),
+  //     url: z.string().optional(),
+  //     type: z.string().optional(),
+  //     size: z.number().optional(),
+  //   })
+  //   .optional(),
   vendorId: z.string().optional(),
   scopeBrandIds: z.array(z.string()).optional(),
   uom: z
     .string({
-      required_error: 'UOM is required',
-    }).optional(),
-    // .min(1, 'UOM is required'),
+      required_error: 'Please select a unit of measurement',
+    })
+    .min(1, 'Please select a unit of measurement'),
   subUoms: z.any().optional(),
+  currency: z.string().optional(),
 });
+
+export type ProductFormSchemaType = z.infer<typeof PRODUCT_FORM_SCHEMA>;
+
+export const EMPTY_PRODUCT_FORM_VALUES: ProductFormSchemaType = {
+  name: '',
+  code: '',
+  categoryId: '',
+  vendorId: '',
+  type: 'product',
+  uom: '',
+  shortName: '',
+  attachment: undefined,
+  attachmentMore: undefined,
+  description: '',
+  subUoms: [],
+  barcodes: [],
+  variants: {},
+  barcodeDescription: '',
+  scopeBrandIds: [],
+  unitPrice: 0,
+  currency: '',
+  customFieldsData: {},
+};

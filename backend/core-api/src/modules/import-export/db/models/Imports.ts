@@ -22,6 +22,12 @@ export interface IImportDocument {
   processedRows: number;
   successRows: number;
   errorRows: number;
+  lastProcessedRow: number;
+  terminalError?: {
+    code?: string;
+    stage?: string;
+    retryable?: boolean;
+  };
   importedIds: string[];
   errorFileUrl?: string;
   startedAt?: Date;
@@ -43,6 +49,12 @@ export interface IImportModel extends Model<IImportDocument> {
       successRows?: number;
       errorRows?: number;
       totalRows?: number;
+      lastProcessedRow?: number;
+      terminalError?: {
+        code?: string;
+        stage?: string;
+        retryable?: boolean;
+      };
       status?: IImportDocument['status'];
       errorMessage?: string;
       errorFileUrl?: string;
@@ -81,6 +93,7 @@ const buildNotificationMetadata = (importDoc: IImportDocument) => ({
   totalRows: importDoc.totalRows,
   errorMessage: importDoc.errorMessage,
   errorFileUrl: importDoc.errorFileUrl,
+  terminalError: importDoc.terminalError,
 });
 
 export const loadImportClass = (
@@ -99,12 +112,19 @@ export const loadImportClass = (
         successRows?: number;
         errorRows?: number;
         totalRows?: number;
+        lastProcessedRow?: number;
+        terminalError?: {
+          code?: string;
+          stage?: string;
+          retryable?: boolean;
+        };
         status?: IImportDocument['status'];
         errorMessage?: string;
         errorFileUrl?: string;
       },
     ) {
       const update: any = {};
+      const unset: Record<string, any> = {};
 
       if (progress.processedRows !== undefined) {
         update.processedRows = progress.processedRows;
@@ -120,6 +140,16 @@ export const loadImportClass = (
 
       if (progress.totalRows !== undefined) {
         update.totalRows = progress.totalRows;
+      }
+
+      if (progress.lastProcessedRow !== undefined) {
+        update.lastProcessedRow = progress.lastProcessedRow;
+      }
+
+      if (progress.terminalError === undefined) {
+        unset.terminalError = 1;
+      } else {
+        update.terminalError = progress.terminalError;
       }
 
       if (progress.errorMessage !== undefined) {
@@ -142,7 +172,10 @@ export const loadImportClass = (
 
       const importDoc = await models.Imports.findOneAndUpdate(
         { _id },
-        { $set: update },
+        {
+          ...(Object.keys(update).length ? { $set: update } : {}),
+          ...(Object.keys(unset).length ? { $unset: unset } : {}),
+        },
         { new: true },
       ).lean();
 

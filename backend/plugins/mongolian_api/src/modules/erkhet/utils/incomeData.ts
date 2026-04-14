@@ -12,7 +12,7 @@ export const getIncomeData = async (
     subdomain,
     pluginName: 'core',
     method: 'query',
-    module: 'conformities',
+    module: 'conformity',
     action: 'savedConformity',
     input: {
       mainType: 'purchase',
@@ -49,7 +49,7 @@ export const getIncomeData = async (
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'conformities',
+      module: 'conformity',
       action: 'savedConformity',
       input: {
         mainType: 'purchase',
@@ -73,7 +73,7 @@ export const getIncomeData = async (
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code ?? '';
     }
   }
 
@@ -184,7 +184,7 @@ export const getIncomeData = async (
   for (const paymentKind of Object.keys(purchase.paymentsData || [])) {
     const payment = purchase.paymentsData[paymentKind];
     const accountStr =
-      (config.payAccounts || {})[paymentKind] || config.defaultPayAccount;
+      config.payAccounts?.[paymentKind] || config.defaultPayAccount;
     payments[accountStr] = (payments[accountStr] || 0) + payment.amount;
     sumSaleAmount = sumSaleAmount - payment.amount;
   }

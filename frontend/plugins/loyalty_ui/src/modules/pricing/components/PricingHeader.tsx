@@ -12,7 +12,7 @@ export function PricingHeader() {
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
-                <Link to="/settings/pricing">
+                <Link to="/settings/loyalty/pricing">
                   <IconCoins />
                   Pricing
                 </Link>

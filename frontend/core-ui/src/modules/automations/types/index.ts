@@ -24,7 +24,24 @@ export interface AutomationConstants {
   triggersConst: IAutomationsTriggerConfigConstants[];
   triggerTypesConst: string[];
   actionsConst: IAutomationsActionConfigConstants[];
-  propertyTypesConst: Array<{ value: string; label: string }>;
+  findObjectTargetsConst: Array<{
+    value: string;
+    label: string;
+    lookupFields: Array<{ value: string; label: string }>;
+    output?: {
+      variables?: Array<{
+        key: string;
+        label: string;
+        exposure?: 'placeholder' | 'reference';
+      }>;
+      propertySources?: Array<{
+        key: string;
+        label: string;
+        propertyType: string;
+      }>;
+      resolverKeys?: string[];
+    };
+  }>;
 }
 export interface ConstantsQueryResponse {
   automationConstants: AutomationConstants;
@@ -111,6 +128,9 @@ export type StatusBadgeValue =
   (typeof STATUSES_BADGE_VARIABLES)[keyof typeof STATUSES_BADGE_VARIABLES];
 
 export enum AutomationsHotKeyScope {
+  AutomationsPage = 'automations-page',
+  AutomationCreatePage = 'automation-create-page',
+  AutomationsTableInlinePopover = 'automations-table-inline-popover',
   Builder = 'automation-builder',
   BuilderSideBar = 'automation-builder-sidebar',
   BuilderPanel = 'automation-builder-panel',
@@ -121,6 +141,7 @@ export enum AutomationsHotKeyScope {
 export enum AutomationsPath {
   Index = '/automations',
   Detail = '/edit/:id',
+  Create = '/create',
 }
 
 export enum AutomationNodeType {
@@ -166,8 +187,9 @@ interface BaseComponentConfig<TConfig = any> {
 }
 
 // Generic action component configuration with config type parameter
-interface ActionComponentConfig<TConfig = any>
-  extends BaseComponentConfig<TConfig> {
+interface ActionComponentConfig<
+  TConfig = any,
+> extends BaseComponentConfig<TConfig> {
   sidebar?: LazyAutomationComponent<TAutomationActionProps>;
   actionResult?: LazyAutomationComponent<{
     componentType: 'historyActionResult';

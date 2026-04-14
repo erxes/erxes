@@ -38,7 +38,7 @@ export const permissionConfigAtom = atom<IPermissionConfig | undefined>(
 
     const pConfig = get(configAtom)?.permissionConfig?.[role] ?? {}
 
-    const limit = parseFloat(pConfig.directDiscountLimit + "")
+    const limit = Number.parseFloat(pConfig.directDiscountLimit + "")
 
     return pConfig
       ? { ...pConfig, directDiscountLimit: isNaN(limit) ? 0 : limit }

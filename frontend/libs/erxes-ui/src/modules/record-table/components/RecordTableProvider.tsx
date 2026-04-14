@@ -5,12 +5,15 @@ import {
   type ReactNode,
   useContext,
   useState,
+  useEffect,
 } from 'react';
 
 import {
   ColumnDef,
   ColumnFiltersState,
   ColumnOrderState,
+  ColumnSizingState,
+  VisibilityState,
   getCoreRowModel,
   RowSelectionState,
   SortingState,
@@ -21,6 +24,7 @@ import {
 import RecordTableContainer from 'erxes-ui/modules/record-table/components/RecordTableContainer';
 import { RecordTableDnDProvider } from 'erxes-ui/modules/record-table/components/RecordTableDnDProvider';
 import { IRecordTableContext } from 'erxes-ui/modules/record-table/types/recordTableTypes';
+import { useTablePreferences } from '../hooks/useTablePreferences';
 
 const RecordTableContext = createContext<IRecordTableContext | null>(null);
 
@@ -40,6 +44,7 @@ interface RecordTableProviderProps extends HTMLAttributes<HTMLDivElement> {
   data: any[];
   tableOptions?: TableOptions<any>;
   stickyColumns?: string[];
+  tableId?: string;
 }
 
 export const RecordTableProvider = forwardRef<
@@ -54,17 +59,27 @@ export const RecordTableProvider = forwardRef<
       tableOptions,
       className,
       stickyColumns,
+      tableId,
       ...restProps
     },
     ref,
   ) => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(() =>
-      columns.map((c) => c.id || ''),
-    );
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-
+    const {
+      prefs: { columnOrder, columnSizing, columnVisibility },
+      savePrefs,
+    } = useTablePreferences(tableId);
+    const [colOrder, setColumnOrder] = useState<ColumnOrderState>(
+      () => columnOrder || columns.map((c) => c.id || ''),
+    );
+    const [colVisibility, setColVisibility] = useState<VisibilityState>(
+      columnVisibility || {},
+    );
+    const [colSizing, setColSizing] = useState<ColumnSizingState>(
+      columnSizing || {},
+    );
     const table = useReactTable({
       data,
       columns,
@@ -73,7 +88,9 @@ export const RecordTableProvider = forwardRef<
       },
       getCoreRowModel: getCoreRowModel(),
       state: {
-        columnOrder,
+        columnOrder: colOrder,
+        columnSizing: colSizing,
+        columnVisibility: colVisibility,
         columnPinning: {
           left: stickyColumns,
         },
@@ -83,12 +100,26 @@ export const RecordTableProvider = forwardRef<
       },
       columnResizeMode: 'onChange',
       onColumnOrderChange: setColumnOrder,
+      onColumnSizingChange: setColSizing,
+      onColumnVisibilityChange: setColVisibility,
       onSortingChange: setSorting,
       onColumnFiltersChange: setColumnFilters,
       onRowSelectionChange: setRowSelection,
       getRowId: (row) => row._id,
       ...tableOptions,
     });
+
+    useEffect(() => {
+      savePrefs({ columnOrder: colOrder });
+    }, [colOrder, savePrefs]);
+
+    useEffect(() => {
+      savePrefs({ columnVisibility: colVisibility });
+    }, [colVisibility, savePrefs]);
+
+    useEffect(() => {
+      savePrefs({ columnSizing: colSizing });
+    }, [colSizing, savePrefs]);
 
     return (
       <RecordTableContext.Provider

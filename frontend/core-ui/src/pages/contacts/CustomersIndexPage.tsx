@@ -1,19 +1,14 @@
 import { CustomersHeader } from '@/contacts/customers/components/CustomersHeader';
 import { CustomersRecordTable } from '@/contacts/customers/components/CustomersRecordTable';
 import { CustomersFilter } from '@/contacts/customers/components/CustomersFilter';
-import { CustomerDetail } from '@/contacts/customers/customer-detail/components/CustomerDetail';
 import { PageContainer, PageSubHeader } from 'erxes-ui';
-import { ContactsDetailSheet } from '@/contacts/components/ContactsDetail';
-import { useTranslation } from 'react-i18next';
 import { Import } from 'ui-modules';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { useCustomersVariables } from '@/contacts/customers/hooks/useCustomers';
+import { CustomerDetail } from '@/contacts/customers/customer-detail/components/CustomerDetail';
 
 export const CustomersIndexPage = () => {
   const variables = useCustomersVariables();
-  const { t } = useTranslation('contact', {
-    keyPrefix: 'customer.detail',
-  });
 
   const getFilters = () => {
     const { cursor, limit, orderBy, ...filters } = variables;
@@ -38,9 +33,7 @@ export const CustomersIndexPage = () => {
         />
       </PageSubHeader>
       <CustomersRecordTable />
-      <ContactsDetailSheet queryKey="contactId" title={t('customer-detail')}>
-        <CustomerDetail />
-      </ContactsDetailSheet>
+      <CustomerDetail />
     </PageContainer>
   );
 };

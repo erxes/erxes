@@ -1,5 +1,5 @@
-import { ICustomField } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ICustomField, Resolver } from 'erxes-api-shared/core-types';
+import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IContext, IModels } from '~/connectionResolvers';
 import { getSocialLinkKey } from '~/modules/form/utils';
@@ -172,7 +172,7 @@ function updateCustomerDoc(
   return customerDoc;
 }
 
-export const widgetFormMutation = {
+export const widgetFormMutation: Record<string, Resolver> = {
   async widgetsLeadConnect(
     _root,
     args: { channelId: string; formCode: string; cachedCustomerId?: string },
@@ -227,7 +227,7 @@ export const widgetFormMutation = {
 
     let integration: any = null;
 
-    if (form && form.integrationId) {
+    if (form?.integrationId) {
       integration = await models.Integrations.findOne({
         _id: form.integrationId,
       });
@@ -462,4 +462,268 @@ export const widgetFormMutation = {
       conversationId: conversationId || null,
     };
   },
+
+  async cpWidgetsSaveLead(
+    _root,
+    args: {
+      formId: string;
+      submissions: any;
+      browserInfo: any;
+      cachedCustomerId?: string;
+    },
+    { models, subdomain }: IContext,
+  ) {
+    const { submissions, formId } = args;
+
+    const form = await models.Forms.getForm(formId);
+    const errors = await models.Forms.validateForm(formId, submissions);
+    if (errors.length > 0) return { status: 'error', errors };
+
+    let integration: any = null;
+
+    if (form?.integrationId) {
+      integration = await models.Integrations.findOne({
+        _id: form.integrationId,
+      });
+    }
+
+    const customerfields = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: 'getFieldList',
+      input: {
+        moduleType: 'contact',
+        collectionType: 'customer',
+      },
+    });
+    const companyfields = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: 'getFieldList',
+      input: {
+        moduleType: 'contact',
+        collectionType: 'company',
+      },
+    });
+
+    const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
+      name: f.name,
+      label: f.label || f.name,
+    }));
+    const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
+      name: f.name,
+      label: f.label || f.name,
+    }));
+
+    const customerDoc: any = {};
+    const companyDoc: any = {};
+    const customFieldsData: ICustomField[] = [];
+    const customerLinks: ILink = {};
+    const companyLinks: ILink = {};
+    const submissionValues = {};
+
+    for (const submission of submissions) {
+      const submissionType = submission.type || '';
+      const value = submission.value || '';
+      submissionValues[submission._id] = submission.value;
+
+      if (submissionType.includes('customerLinks')) {
+        customerLinks[getSocialLinkKey(submissionType)] = value;
+      } else if (submissionType.includes('companyLinks')) {
+        companyLinks[getSocialLinkKey(submissionType)] = value;
+      }
+
+      if (submissionType === 'pronoun') {
+        customerDoc.pronoun = mapPronounToCode(value);
+      }
+
+      if (customerSchemaLabels.some((e) => e.name === submissionType)) {
+        if (submissionType === 'avatar' && value.length > 0) {
+          customerDoc.avatar = value[0].url;
+        } else {
+          customerDoc[submissionType] = value;
+        }
+      }
+
+      if (submissionType.includes('company_')) {
+        handleCompanyFields(submissionType, value, companyDoc);
+      }
+
+      if (companySchemaLabels.some((e) => e.name === submissionType)) {
+        companyDoc[submissionType] = value;
+      }
+
+      if (submission.associatedFieldId && isCustomField(submissionType)) {
+        const field = await models.Fields.findOne({
+          _id: submission.associatedFieldId,
+        });
+        if (!field) continue;
+
+        const targetData = customFieldsData;
+        targetData.push({ field: submission.associatedFieldId, value });
+      }
+    }
+
+    let customerQry: any = {
+      _id: args.cachedCustomerId,
+    };
+
+    const { saveAsCustomer } = form.leadData || {};
+
+    if (saveAsCustomer) {
+      customerQry = {
+        $or: [{ _id: args.cachedCustomerId }],
+      };
+
+      if (customerDoc.email) {
+        customerQry.$or.push({ primaryEmail: customerDoc.email });
+      }
+      if (customerDoc.phone) {
+        customerQry.$or.push({ primaryPhone: customerDoc.phone });
+      }
+
+      if (!customerDoc.email && !customerDoc.phone && !args.cachedCustomerId) {
+        customerQry = null;
+      }
+    }
+
+    if (form.leadData?.clearCacheAfterSave) {
+      customerQry = {
+        $or: [],
+      };
+
+      if (customerDoc.email) {
+        customerQry.$or.push({ primaryEmail: customerDoc.email });
+      }
+      if (customerDoc.phone) {
+        customerQry.$or.push({ primaryPhone: customerDoc.phone });
+      }
+
+      if (customerQry.$or.length === 0) {
+        customerQry = null;
+      }
+    }
+
+    let customer: any = null;
+
+    if (customerQry) {
+      customer = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'customers',
+        action: 'findOne',
+        input: { customerQry },
+        defaultValue: null,
+      });
+    }
+    if (!customer) {
+      customer = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'customers',
+        action: 'createCustomer',
+        input: {
+          doc: {
+            ...customerDoc,
+            emails: [customerDoc.email],
+            phones: [customerDoc.phone],
+            primaryEmail: saveAsCustomer ? customerDoc.email : null,
+            primaryPhone: saveAsCustomer ? customerDoc.phone : null,
+            state: saveAsCustomer ? 'customer' : 'lead',
+            links: customerLinks,
+            customFieldsData,
+            integrationId: integration?._id,
+            relatedIntegrationIds: [integration?._id],
+            scopeBrandIds: [form.channelId],
+          },
+        },
+      });
+
+      await models.Forms.increaseContactsGathered(form._id);
+    } else {
+      const doc = updateCustomerDoc(
+        customer,
+        customerDoc,
+        form,
+        integration,
+        customFieldsData,
+        customerLinks,
+      );
+
+      if (saveAsCustomer) {
+        doc.state = 'customer';
+        doc.primaryEmail = customerDoc.email;
+        doc.primaryPhone = customerDoc.phone;
+      }
+      customer = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'customers',
+        action: 'updateCustomer',
+        input: {
+          _id: customer._id,
+          doc: {
+            doc,
+          },
+        },
+      });
+    }
+
+    const { conversation } = await createConversationAndMessage(models, {
+      customerId: customer._id,
+      integrationId: integration?._id,
+      content: form.title,
+      formWidgetData: submissions,
+      status: 'new',
+    });
+    const conversationId = conversation?._id || '';
+
+    await saveFormSubmissions(models, {
+      submissions,
+      formId,
+      customerId: customer._id,
+      conversationId,
+    });
+
+    // sendCommonMessage({
+    //   subdomain,
+    //   serviceName: 'automations',
+    //   action: 'trigger',
+    //   data: {
+    //     type: 'core:form_submission',
+    //     targets: [
+    //       {
+    //         ...submissionValues,
+    //         _id: customer._id,
+    //         conversationId: conversationId || null,
+    //       },
+    //     ],
+    //   },
+    //   isRPC: true,
+    //   defaultValue: null,
+    // });
+
+    return {
+      status: 'ok',
+      customerId: customer._id,
+      conversationId: conversationId || null,
+    };
+  },
+};
+
+markResolvers(widgetFormMutation, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
+
+widgetFormMutation.cpWidgetsSaveLead.wrapperConfig = {
+  forClientPortal: true,
 };

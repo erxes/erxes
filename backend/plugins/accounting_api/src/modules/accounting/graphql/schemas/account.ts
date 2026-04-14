@@ -60,6 +60,7 @@ const accountParams = `
   isOutBalance: Boolean,
   scopeBrandIds: [String],
   extra:JSON
+  status: String,
 `;
 
 const accountCategoryParams = `

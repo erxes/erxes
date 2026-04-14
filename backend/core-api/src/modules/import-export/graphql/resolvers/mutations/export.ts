@@ -1,7 +1,11 @@
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { splitType } from 'erxes-api-shared/core-modules';
+import {
+  splitType,
+  getImportExportJobOptions,
+} from 'erxes-api-shared/core-modules';
 import { validateExportConfig } from '~/modules/import-export/utils/validateConfig';
+import { getRequiredImportExportPermissions } from '~/modules/import-export/utils/getRequiredPermissions';
 
 async function getJobIdFromQueue(
   subdomain: string,
@@ -32,7 +36,7 @@ export const exportMutations = {
       ids?: string[];
       selectedFields?: string[];
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     const [pluginName, moduleName, collectionName] = splitType(entityType);
 
@@ -41,6 +45,16 @@ export const exportMutations = {
       collectionName,
       requireGetExportHeaders: true,
     });
+
+    const requiredPermissions = await getRequiredImportExportPermissions({
+      pluginName,
+      operation: 'export',
+      entityType,
+    });
+
+    for (const permission of requiredPermissions) {
+      await checkPermission(permission);
+    }
 
     const fileName = `export-${entityType}-${Date.now()}`;
 
@@ -70,13 +84,10 @@ export const exportMutations = {
           fileFormat,
         },
       },
-      {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-      },
+      getImportExportJobOptions({
+        attempts: 2,
+        backoffDelay: 2000,
+      }),
     );
 
     await models.Exports.updateOne(
@@ -90,8 +101,10 @@ export const exportMutations = {
   async exportCancel(
     _root: undefined,
     { exportId }: { exportId: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('exportsManage');
+
     const exportDoc = await models.Exports.getExport(exportId);
 
     if (!exportDoc) {
@@ -136,8 +149,10 @@ export const exportMutations = {
   async exportRetry(
     _root: undefined,
     { exportId }: { exportId: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('exportsManage');
+
     const exportDoc = await models.Exports.getExport(exportId);
 
     if (!exportDoc) {
@@ -178,13 +193,10 @@ export const exportMutations = {
           fileFormat: exportDoc.fileFormat,
         },
       },
-      {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-      },
+      getImportExportJobOptions({
+        attempts: 2,
+        backoffDelay: 2000,
+      }),
     );
 
     await models.Exports.updateOne(

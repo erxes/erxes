@@ -9,7 +9,8 @@ import {
   removeExtraSpaces,
   removeLastTrailingSlash,
 } from 'erxes-api-shared/utils';
-import { authService } from '@/clientportal/services/authService';
+import { jwtManager } from '@/clientportal/services';
+import { deepMerge } from '@/clientportal/utils/deepMerge';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
@@ -23,7 +24,7 @@ export const loadClientPortalClass = (models: IModels) => {
     public static async createClientPortal(name: string) {
       const clientPortal = await models.ClientPortal.create({ name });
 
-      const token = authService.createClientPortalToken(clientPortal._id);
+      const token = jwtManager.createClientPortalToken(clientPortal._id);
 
       return models.ClientPortal.findOneAndUpdate(
         { _id: clientPortal._id },
@@ -40,7 +41,7 @@ export const loadClientPortalClass = (models: IModels) => {
         throw new Error('Client portal not found');
       }
 
-      const token = authService.createClientPortalToken(_id);
+      const token = jwtManager.createClientPortalToken(_id);
 
       await models.ClientPortal.findOneAndUpdate(
         { _id },
@@ -64,9 +65,38 @@ export const loadClientPortalClass = (models: IModels) => {
         doc.url = removeExtraSpaces(removeLastTrailingSlash(doc.url));
       }
 
+      const existing = await models.ClientPortal.findOne({
+        _id,
+      }).lean<IClientPortalDocument>();
+
+      if (!existing) {
+        throw new Error('Client portal not found');
+      }
+
+      const mergedAuth =
+        doc.auth || existing.auth
+          ? deepMerge(existing.auth || {}, doc.auth || {})
+          : undefined;
+
+      const mergedSecurityAuthConfig =
+        doc.securityAuthConfig || existing.securityAuthConfig
+          ? deepMerge(
+              existing.securityAuthConfig || {},
+              doc.securityAuthConfig || {},
+            )
+          : undefined;
+
+      const updateDoc: IClientPortal = {
+        ...existing,
+        ...doc,
+        auth: mergedAuth as IClientPortal['auth'],
+        securityAuthConfig:
+          mergedSecurityAuthConfig as IClientPortal['securityAuthConfig'],
+      };
+
       await models.ClientPortal.findOneAndUpdate(
         { _id },
-        { $set: doc },
+        { $set: updateDoc },
         { new: true },
       );
     }

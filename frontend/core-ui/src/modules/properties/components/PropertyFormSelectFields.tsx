@@ -2,19 +2,23 @@ import { Button, Form, InfoCard, Input } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { IPropertyForm } from '../types/Properties';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { useParams } from 'react-router-dom';
 
 export const PropertyFormSelectFields = ({
   form,
 }: {
   form: UseFormReturn<IPropertyForm>;
 }) => {
+  const { id } = useParams<{ id: string }>();
+
   const type = form.watch('type');
+  
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'options' as never,
   });
 
-  if (type !== 'select') {
+  if (!['multiSelect', 'select', 'check', 'radio'].includes(type)) {
     return <></>;
   }
 
@@ -31,7 +35,7 @@ export const PropertyFormSelectFields = ({
                   <Form.Item className="flex-auto">
                     {index === 0 && <Form.Label>Label</Form.Label>}
                     <Form.Control>
-                      <Input {...field} placeholder="Enter label" />
+                      <Input {...field} placeholder="Enter label" disabled={Boolean(id)}/>
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -44,7 +48,7 @@ export const PropertyFormSelectFields = ({
                   <Form.Item className="flex-auto">
                     {index === 0 && <Form.Label>Value</Form.Label>}
                     <Form.Control>
-                      <Input {...field} placeholder="Enter value" />
+                      <Input {...field} placeholder="Enter value" disabled={Boolean(id)}/>
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>

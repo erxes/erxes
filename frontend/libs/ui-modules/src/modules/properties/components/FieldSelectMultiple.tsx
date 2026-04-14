@@ -1,16 +1,17 @@
 import {
   Badge,
-  cn,
   Combobox,
   Command,
-  isDeeplyEqual,
   PopoverScoped,
   RecordTableInlineCell,
+  cn,
+  isDeeplyEqual,
 } from 'erxes-ui';
-import { IField } from '../types/fieldsTypes';
+
 import { useState } from 'react';
-import { SpecificFieldProps } from './Field';
 import { getStringArray } from '../propertyUtils';
+import { IField } from '../types/fieldsTypes';
+import { SpecificFieldProps } from './Field';
 
 export const FieldSelectMultiple = (props: SpecificFieldProps) => {
   const { field, value, handleChange, id, inCell } = props;
@@ -25,7 +26,6 @@ export const FieldSelectMultiple = (props: SpecificFieldProps) => {
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) {
-          console.log('currentValue', currentValue);
           !isDeeplyEqual(currentValue, value) && handleChange(currentValue);
         }
       }}
@@ -34,11 +34,16 @@ export const FieldSelectMultiple = (props: SpecificFieldProps) => {
       <RecordTableInlineCell.Trigger
         className={cn(!inCell && 'shadow-xs rounded')}
       >
-        {currentValue.map((item) => (
-          <Badge key={item} variant="secondary">
-            {field.options?.find((o) => o.value === item)?.label}
-          </Badge>
-        ))}
+        {currentValue.map((item) => {
+          const option = field.options?.find((o) => o.value === item);
+          if (!option) return null;
+
+          return (
+            <Badge key={item} variant="secondary">
+              {option.label}
+            </Badge>
+          );
+        })}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <FieldSelectMultipleContent

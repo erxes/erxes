@@ -1,6 +1,5 @@
 import { Button, Form, Input, Select } from 'erxes-ui';
 import { useEBarimtConfig } from '@/ebarimt/settings/ebarimt-config/hooks/useEBarimtConfig';
-import { useEffect } from 'react';
 
 export const EBarimtMainSettingsForm = () => {
   const {
@@ -28,11 +27,6 @@ export const EBarimtMainSettingsForm = () => {
       return 'Description';
     return 'Select bill type';
   })();
-
-  useEffect(() => {
-    console.log('Current FieldGroup:', selectedFieldGroup);
-    console.log('Current BillTypeChooser:', billTypeValue);
-  }, [selectedFieldGroup, billTypeValue]);
 
   return (
     <Form {...form}>
@@ -118,7 +112,6 @@ export const EBarimtMainSettingsForm = () => {
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
-                      console.log('FieldGroup selected:', value);
                       field.onChange(value);
                       handleFieldGroupChange(value);
                     }}

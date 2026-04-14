@@ -63,10 +63,13 @@ export const getConfigPostData = async (
   const companyIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'conformities',
-    action: 'savedConformity',
-    method: 'query',
-    input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
+    module: 'relation',
+    action: 'getRelationIds',
+    input: {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      relatedContentType: 'core:company',
+    },
     defaultValue: [],
   });
 
@@ -106,10 +109,13 @@ export const getConfigPostData = async (
     const customerIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
-      action: 'savedConformity',
-      method: 'query',
-      input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
+      module: 'relation',
+      action: 'getRelationIds',
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
+      },
       defaultValue: [],
     });
 
@@ -127,7 +133,7 @@ export const getConfigPostData = async (
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code ?? '';
     }
   }
 
@@ -369,13 +375,12 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
   const companyIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'conformities',
-    action: 'savedConformity',
-    method: 'query',
+    module: 'relation',
+    action: 'getRelationIds',
     input: {
-      mainType: 'deal',
-      mainTypeId: deal._id,
-      relTypes: ['company'],
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      relatedContentType: 'core:company',
     },
     defaultValue: [],
   });
@@ -406,13 +411,12 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     const customerIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
-      action: 'savedConformity',
-      method: 'query',
+      module: 'relation',
+      action: 'getRelationIds',
       input: {
-        mainType: 'deal',
-        mainTypeId: deal._id,
-        relTypes: ['customer'],
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
       },
       defaultValue: [],
     });
@@ -431,7 +435,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code ?? '';
     }
   }
 

@@ -16,6 +16,7 @@ const accountInputParamsDefs = `
   $isOutBalance: Boolean,
   $scopeBrandIds: [String],
   $extra: JSON
+  $status: String,
 `;
 
 const accountInputParams = `
@@ -33,6 +34,7 @@ const accountInputParams = `
   isOutBalance: $isOutBalance,
   scopeBrandIds: $scopeBrandIds,
   extra: $extra
+  status: $status,
 `;
 
 export const ACCOUNTS_ADD = gql`

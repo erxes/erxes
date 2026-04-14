@@ -32,14 +32,7 @@ export interface IFormModel extends Model<IForm> {
     createdUserId: string,
   ): Promise<IFormDocument>;
 
-  updateForm(
-    _id: string,
-    {
-      title,
-      description,
-      buttonText,
-    }: { title?: string; description?: string; buttonText?: string },
-  ): Promise<IFormDocument>;
+  updateForm(_id: string, doc: Omit<IForm, '_id'>): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
   duplicate(_id: string, userId: string): Promise<IFormDocument>;
@@ -96,22 +89,10 @@ export const loadFormClass = (models: IModels) => {
     /**
      * Updates a form document
      */
-    public static async updateForm(
-      _id: string,
-      {
-        title,
-        description,
-        buttonText,
-      }: { title?: string; description?: string; buttonText?: string },
-    ) {
-      const updateData: any = {};
-      if (title !== undefined) updateData.title = title;
-      if (description !== undefined) updateData.description = description;
-      if (buttonText !== undefined) updateData.buttonText = buttonText;
-
+   public static async updateForm(_id: string, doc: Omit<IForm, '_id'>) {
       await models.Forms.updateOne(
         { _id },
-        { $set: updateData },
+        { $set: doc },
         { runValidators: true },
       );
 

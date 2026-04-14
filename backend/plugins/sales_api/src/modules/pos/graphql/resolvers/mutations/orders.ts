@@ -24,10 +24,9 @@ const orderMutations = {
 
     await sendTRPCMessage({
       subdomain,
-
-      method: 'query',
-      pluginName: 'ebarimt',
-      module: 'putresponses',
+      method: 'mutation',
+      pluginName: 'mongolian',
+      module: 'putResponses',
       action: 'returnBill',
       input: {
         contentType: 'pos',
@@ -39,10 +38,9 @@ const orderMutations = {
 
     await sendTRPCMessage({
       subdomain,
-
       method: 'mutation',
-      pluginName: 'coreintegrations',
-      module: 'syncerkhet',
+      pluginName: 'mongolian',
+      module: 'erkhet',
       action: 'returnOrder',
       input: {
         pos,
@@ -98,6 +96,4 @@ const orderMutations = {
   },
 };
 
-// checkPermission(orderMutations, 'posOrderReturnBill', 'manageOrders');
-// checkPermission(orderMutations, 'posOrderChangePayments', 'manageOrders');
 export default orderMutations;

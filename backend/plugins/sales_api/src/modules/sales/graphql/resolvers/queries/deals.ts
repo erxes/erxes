@@ -12,10 +12,6 @@ import {
   getItemList,
 } from '~/modules/sales/utils';
 import {
-  checkPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
-import {
   getNextMonth,
   getToday,
   regexSearchText,
@@ -26,6 +22,7 @@ import { FilterQuery } from 'mongoose';
 import dealResolvers from '../customResolvers/deal';
 import moment from 'moment';
 import { fetchSegment } from '~/modules/sales/trpc/deal';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 const contains = (values: string[]) => {
   return { $in: values };
@@ -57,10 +54,8 @@ export const generateFilter = async (
     customerIds,
     vendorCustomerIds,
     companyIds,
-    conformityMainType,
-    conformityMainTypeId,
-    conformityIsRelated,
-    conformityIsSaved,
+    relationType,
+    relationId,
     initialStageId,
     labelIds,
     priority,
@@ -79,7 +74,6 @@ export const generateFilter = async (
     branchIds,
     departmentIds,
     dateRangeFilters,
-    customFieldsDataFilters,
     resolvedDayBetween,
     productIds,
     date,
@@ -162,9 +156,9 @@ export const generateFilter = async (
       input: {
         contentType: 'core:customer',
         contentIds: customerIds,
-        relatedContentType: 'sales:deal'
+        relatedContentType: 'sales:deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = relIds;
@@ -178,10 +172,10 @@ export const generateFilter = async (
       action: 'filterRelationIds',
       input: {
         contentType: 'core:company',
-        contentIds: customerIds,
-        relatedContentType: 'sales:deal'
+        contentIds: companyIds,
+        relatedContentType: 'sales:deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = filterIds.length
@@ -197,42 +191,19 @@ export const generateFilter = async (
     filter._id = { $in: _ids };
   }
 
-  if (conformityMainType && conformityMainTypeId) {
-    if (conformityIsSaved) {
-      const relIds = await sendTRPCMessage({
-        subdomain,
-
-        pluginName: 'core',
-        module: 'conformity',
-        action: 'savedConformity',
-        input: {
-          mainType: conformityMainType,
-          mainTypeId: conformityMainTypeId,
-          relTypes: ['deal'],
-        },
-        defaultValue: [],
-      });
-
-      filter._id = contains(relIds || []);
-    }
-
-    if (conformityIsRelated) {
-      const relIds = await sendTRPCMessage({
-        subdomain,
-
-        pluginName: 'core',
-        module: 'conformity',
-        action: 'conformities.relatedConformity',
-        input: {
-          mainType: conformityMainType,
-          mainTypeId: conformityMainTypeId,
-          relType: 'deal',
-        },
-        defaultValue: [],
-      });
-
-      filter._id = contains(relIds);
-    }
+  if (relationType && relationId) {
+    const relIds = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'relation',
+      action: 'getRelationIds',
+      input: {
+        contentType: relationType,
+        contentId: relationId,
+        relatedContentType: 'sales:deal',
+      },
+    });
+    filter._id = contains(relIds || []);
   }
 
   if (initialStageId) {
@@ -311,16 +282,6 @@ export const generateFilter = async (
 
       if (to) {
         filter[name] = { ...filter[name], $lte: new Date(to) };
-      }
-    }
-  }
-
-  if (customFieldsDataFilters) {
-    for (const { value, name } of customFieldsDataFilters) {
-      if (Array.isArray(value) && value?.length) {
-        filter[`customFieldsData.${name}`] = { $in: value };
-      } else {
-        filter[`customFieldsData.${name}`] = value;
       }
     }
   }
@@ -557,6 +518,7 @@ export const generateFilter = async (
   if (number) {
     filter.number = { $regex: `${number}`, $options: 'mui' };
   }
+
   if (vendorCustomerIds?.length > 0) {
     const cards = await sendTRPCMessage({
       subdomain,
@@ -659,11 +621,98 @@ export const generateFilter = async (
   return filter;
 };
 
-export const dealQueries = {
+export const dealQueries: Record<string, Resolver> = {
   /**
    * Deals list
    */
   async deals(
+    _root,
+    args: IDealQueryParams,
+    { user, models, subdomain }: IContext,
+  ) {
+    const filter = await generateFilter(models, subdomain, user._id, args);
+
+    const getExtraFields = async (item: any) => ({
+      amount: await dealResolvers.amount(item),
+      unUsedAmount: await dealResolvers.unusedAmount(item),
+    });
+
+    const {
+      list: deals,
+      pageInfo,
+      totalCount,
+    } = await getItemList(
+      models,
+      subdomain,
+      filter,
+      args,
+      user,
+      getExtraFields,
+    );
+
+    const dealProductIds = deals.flatMap((deal) => {
+      if (deal.productsData && deal.productsData.length > 0) {
+        return deal.productsData.flatMap((pData) => pData.productId || []);
+      }
+
+      return [];
+    });
+
+    const products =
+      (dealProductIds.length &&
+        (await sendTRPCMessage({
+          subdomain,
+
+          pluginName: 'core',
+          method: 'query',
+          module: 'products',
+          action: 'find',
+          input: {
+            query: {
+              _id: { $in: [...new Set(dealProductIds)] },
+            },
+          },
+          defaultValue: [],
+        }))) ||
+      [];
+
+    for (const deal of deals) {
+      let pd = deal.productsData;
+
+      if (!pd || pd.length === 0) {
+        continue;
+      }
+
+      deal.products = [];
+
+      // do not display to many products
+      pd = pd.slice(0, 10);
+
+      for (const pData of pd) {
+        if (!pData.productId) {
+          continue;
+        }
+
+        deal.products.push({
+          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
+          product: products.find((p) => p._id === pData.productId) || {},
+        });
+      }
+
+      // do not display to many products
+      if (deal.productsData.length > pd.length) {
+        deal.products.push({
+          product: {
+            name: '...More',
+          },
+        });
+      }
+    }
+
+    return { list: deals, pageInfo, totalCount };
+  },
+
+  async cpDeals(
     _root,
     args: IDealQueryParams,
     { user, models, subdomain }: IContext,
@@ -933,8 +982,98 @@ export const dealQueries = {
     return checkItemPermByUser(models, subdomain, user, deal);
   },
 
-  //   async checkDiscount() {}
+  async cpDealDetail(
+    _root,
+    { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
+    { user, models, subdomain }: IContext,
+  ) {
+    const deal = await models.Deals.getDeal(_id);
+
+    // no need to check permission on cp deal
+    if (clientPortalCard) {
+      return deal;
+    }
+
+    return checkItemPermByUser(models, subdomain, user, deal);
+  },
+
+  async checkDiscount(
+    _root,
+    {
+      _id,
+      products,
+    }: {
+      _id: string;
+      products: Array<{
+        productId: string;
+        quantity: number;
+        unitPrice?: number;
+      }>;
+    },
+    { subdomain }: IContext,
+  ) {
+    const getOwner = async (): Promise<{
+      ownerId?: string;
+      ownerType?: 'customer' | 'company';
+    }> => {
+      const getRelation = async (
+        contentType: 'core:customer' | 'core:company',
+      ) => {
+        const ids = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'relation',
+          action: 'getRelationIds',
+          input: {
+            contentType,
+            relatedContentType: 'sales:deal',
+            contentId: _id,
+          },
+          defaultValue: [],
+        });
+
+        return ids?.[0];
+      };
+
+      const customerId = await getRelation('core:customer');
+      if (customerId) {
+        return { ownerId: customerId, ownerType: 'customer' };
+      }
+
+      const companyId = await getRelation('core:company');
+      if (companyId) {
+        return { ownerId: companyId, ownerType: 'company' };
+      }
+
+      return {};
+    };
+
+    const { ownerId, ownerType } = await getOwner();
+
+    if (!ownerId) {
+      return {};
+    }
+
+    const result = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalties',
+      module: 'loyalties',
+      action: 'checkLoyalties',
+      input: {
+        ownerType,
+        ownerId,
+        products,
+      },
+      defaultValue: {},
+    });
+
+    return result || {};
+  },
 };
 
-// moduleRequireLogin(dealQueries);
-// checkPermission(dealQueries, 'deals', 'showDeals');
+dealQueries.cpDeals.wrapperConfig = {
+  forClientPortal: true,
+};
+dealQueries.cpDealDetail.wrapperConfig = {
+  forClientPortal: true,
+};

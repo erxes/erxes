@@ -1,5 +1,7 @@
 import { MutationHookOptions, OperationVariables } from '@apollo/client';
 
+import { ITag } from 'ui-modules/index';
+
 export interface TTag {
   _id: string;
   name: string;
@@ -25,7 +27,7 @@ export interface TTagQueryResponse {
 }
 
 export type ISelectTagsProviderProps = {
-  tagType: string;
+  tagType?: string;
   targetIds?: string[];
   value?: string[] | string;
   onValueChange?: (tags: string[] | string) => void;
@@ -45,10 +47,10 @@ export type ISelectTagsProviderProps = {
 export interface ISelectTagsContext {
   tagType: string;
   targetIds: string[];
-  selectedTags: TTag[];
+  selectedTags: ITag[];
   value?: string[] | string;
-  setSelectedTags: (tags: TTag[]) => void;
-  onSelect: (tags: TTag) => void;
+  setSelectedTags: (tags: ITag[]) => void;
+  onSelect: (tags: ITag) => void;
   newTagName: string;
   setNewTagName: (tagName: string) => void;
   mode: 'single' | 'multiple';

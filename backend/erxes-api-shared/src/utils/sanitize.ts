@@ -21,19 +21,19 @@ const removeTrailingSpacesAndDots = (str: string): string => {
 const illegalRe = /[/?<>\\:*|"]/g;
 // eslint-disable-next-line no-control-regex
 const controlRe = /[\x00-\x1f\x80-\x9f]/g;
-const reservedRe = /^\.+$/;
-const windowsReservedRe = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
+const reservedRe = /^\.+$/g;
+const windowsReservedRe = /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/gi;
 
 export const sanitizeFilename = (input: string) => {
   if (typeof input !== 'string') {
-    throw new Error('Input must be string');
+    throw new TypeError('Input must be string');
   }
 
   let sanitized = input
-    .replace(illegalRe, '')
-    .replace(controlRe, '')
-    .replace(reservedRe, '')
-    .replace(windowsReservedRe, '');
+    .replaceAll(illegalRe, '')
+    .replaceAll(controlRe, '')
+    .replaceAll(reservedRe, '')
+    .replaceAll(windowsReservedRe, '');
 
   sanitized = removeTrailingSpacesAndDots(sanitized);
 
@@ -54,9 +54,9 @@ export const sanitizeKey = (key: string): string => {
     throw new Error('Invalid key: path traversal is not allowed');
   }
 
-  // Allow only alphanumeric, slash, dash, underscore, space, parentheses and dot characters
-  // Adjust this regex based on your expected key format
-  if (!/^[a-zA-Z0-9/_\-. ()]+$/.test(key)) {
+  // Allow alphanumeric, Unicode letters/marks (for non-Latin filenames),
+  // slash, dash, underscore, space, parentheses, and dot
+  if (!/^[a-zA-Z0-9/_\-. ()\p{L}\p{M}]+$/u.test(key)) {
     throw new Error('Invalid key: contains disallowed characters');
   }
 

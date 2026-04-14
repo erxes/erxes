@@ -3,54 +3,54 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 export const types = `
   type Coupon {
     _id: String
-    name: String
-    description: String
     code: String
-    owner: Owner
-    ownerType: String
     campaignId: String
-    conditions: String
+    campaign: CouponCampaign
+    ownerType: String
+    ownerId: String
     status: String
+    usageLimit: Int
+    usageCount: Int
+    redemptionLimitPerUser: Int
     createdAt: String
     updatedAt: String
-    createdBy: User
-    updatedBy: User
   }
 
   type CouponListResponse {
     list: [Coupon]
     pageInfo: PageInfo
-    totalCount: Float
+    totalCount: Int
+  }
+
+  type OwnerCoupon {
+    campaign: CouponCampaign,
+    coupons: [Coupon],
+    count: Int
   }
 `;
 
 const queryParams = `
   searchValue: String
+  campaignId: String
+  ownerType: String
+  ownerId: String
   status: String
   fromDate: String
   toDate: String
   dateField: String
+  sortField: String
+  sortDirection: Int
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
-  getCoupon(_id: String!): Coupon
-  getCoupons(${queryParams}): CouponListResponse
-`;
-
-const mutationParams = `
-  name: String!
-  description: String
-  ownerId: String
-  ownerType: String
-  campaignId: String
-  conditions: JSON
-  status: String
+  coupons(${queryParams}): CouponListResponse
+  couponsByOwner(ownerId: String!, status: String): [OwnerCoupon]
 `;
 
 export const mutations = `
-  createCoupon(${mutationParams}): Coupon
-  updateCoupon(_id: String!, ${mutationParams}): Coupon
-  removeCoupon(_id: String!): Coupon
+  couponAdd(campaignId: String!): [Coupon]
+  couponEdit(_id: String!, status: String, usageLimit: Int, redemptionLimitPerUser: Int): Coupon
+  couponsRemove(_ids: [String]): JSON
 `;

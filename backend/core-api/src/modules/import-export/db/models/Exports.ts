@@ -19,6 +19,11 @@ export interface IExportDocument {
     | 'cancelled';
   totalRows: number;
   processedRows: number;
+  terminalError?: {
+    code?: string;
+    stage?: string;
+    retryable?: boolean;
+  };
   fileFormat: 'csv' | 'xlsx';
   fileKey?: string;
   filters?: Record<string, any>;
@@ -42,6 +47,11 @@ export interface IExportModel extends Model<IExportDocument> {
     progress: {
       processedRows?: number;
       totalRows?: number;
+      terminalError?: {
+        code?: string;
+        stage?: string;
+        retryable?: boolean;
+      };
       status?: IExportDocument['status'];
       errorMessage?: string;
     },
@@ -59,7 +69,11 @@ const buildNotificationMessage = (exportDoc: IExportDocument): string => {
       exportDoc.totalRows > 0
         ? ` ${exportDoc.totalRows.toLocaleString()} records exported.`
         : '';
-    return `Your export "${exportDoc.fileName}" has been completed successfully.${recordsText}`;
+    const derivedLabel = exportDoc.entityType
+      ? exportDoc.entityType.toUpperCase().split(':').pop()?.split('.').pop()
+      : undefined;
+    const typeLabel = derivedLabel?.trim() ? derivedLabel : exportDoc.fileName;
+    return `Your export "${typeLabel}" has been completed successfully.${recordsText}`;
   }
 
   if (exportDoc.errorMessage) {
@@ -78,6 +92,7 @@ const buildNotificationMetadata = (exportDoc: IExportDocument) => ({
   errorMessage: exportDoc.errorMessage,
   fileKey: exportDoc.fileKey,
   fileFormat: exportDoc.fileFormat,
+  terminalError: exportDoc.terminalError,
 });
 
 export const loadExportClass = (
@@ -94,12 +109,18 @@ export const loadExportClass = (
       progress: {
         processedRows?: number;
         totalRows?: number;
+        terminalError?: {
+          code?: string;
+          stage?: string;
+          retryable?: boolean;
+        };
         status?: IExportDocument['status'];
         errorMessage?: string;
         lastCursor?: string;
       },
     ) {
       const update: Record<string, any> = {};
+      const unset: Record<string, any> = {};
 
       if (progress.processedRows !== undefined) {
         update.processedRows = progress.processedRows;
@@ -117,6 +138,12 @@ export const loadExportClass = (
         update.lastCursor = progress.lastCursor;
       }
 
+      if (progress.terminalError === undefined) {
+        unset.terminalError = 1;
+      } else {
+        update.terminalError = progress.terminalError;
+      }
+
       if (progress.status) {
         update.status = progress.status;
 
@@ -131,7 +158,10 @@ export const loadExportClass = (
 
       const exportDoc = await models.Exports.findOneAndUpdate(
         { _id },
-        { $set: update },
+        {
+          ...(Object.keys(update).length ? { $set: update } : {}),
+          ...(Object.keys(unset).length ? { $unset: unset } : {}),
+        },
         { new: true },
       ).lean();
 
@@ -161,11 +191,15 @@ export const loadExportClass = (
       fileKey: string,
       fileName: string,
     ) {
-      return models.Exports.findOneAndUpdate({ _id }, {
-        $set: { fileKey, fileName },
-      }, {
-        new: true,
-      }).lean();
+      return models.Exports.findOneAndUpdate(
+        { _id },
+        {
+          $set: { fileKey, fileName },
+        },
+        {
+          new: true,
+        },
+      ).lean();
     }
   }
 

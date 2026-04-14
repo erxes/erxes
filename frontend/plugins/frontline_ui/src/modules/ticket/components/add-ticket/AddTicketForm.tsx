@@ -1,13 +1,15 @@
-import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
+import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
 import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
-import { addTicketSchema } from '@/ticket/types';
+import { TAddTicket, addTicketSchema } from '@/ticket/types';
 import { Block } from '@blocknote/core';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { IconTags } from '@tabler/icons-react';
 import {
   BlockEditor,
   Button,
@@ -23,10 +25,7 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { TAddTicket } from '@/ticket/types';
-import { currentUserState, TagsSelect } from 'ui-modules';
-import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
-import { IconTags } from '@tabler/icons-react';
+import { TagsSelect, currentUserState } from 'ui-modules';
 
 export const AddTicketForm = ({
   onClose,
@@ -55,7 +54,6 @@ export const AddTicketForm = ({
     startDate: undefined,
     targetDate: undefined,
   };
-  console.log(channelId, 'channelId');
   const form = useForm<TAddTicket>({
     resolver: zodResolver(addTicketSchema),
     defaultValues,

@@ -14,7 +14,7 @@ export const PricingEditPage = () => {
   const currentPricing = pricing?.find((p: IPricing) => p._id === id);
 
   const handlePricingChange = (pricingId: string) => {
-    navigate(`/settings/pricing/${pricingId}`);
+    navigate(`/settings/loyalty/pricing/${pricingId}`);
   };
 
   return (
@@ -25,7 +25,7 @@ export const PricingEditPage = () => {
             <Breadcrumb.List className="gap-2">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/settings/pricing">
+                  <Link to="/settings/loyalty/pricing">
                     <IconCoins />
                     Pricing
                   </Link>

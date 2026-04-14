@@ -11,13 +11,32 @@ export const GET_PIPELINE = gql`
       userId
       createdAt
       updatedAt
+      state
+      isCheckDate
+      isCheckUser
+      isCheckDepartment
+      isCheckBranch
+      isHideName
+      excludeCheckUserIds
+      numberConfig
+      numberSize
+      nameConfig
+      lastNum
+      departmentIds
+      branchIds
+      tagId
       createdUser {
         _id
         details {
           avatar
           fullName
+          __typename
         }
+        __typename
       }
+      __typename
+      memberIds
+      visibility
     }
   }
 `;

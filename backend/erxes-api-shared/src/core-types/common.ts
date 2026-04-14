@@ -1,7 +1,8 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { SortOrder } from 'mongoose';
 import { IUserDocument } from './modules/team-member/user';
-import { Request as ApiRequest, Response as ApiResponse } from 'express';
+import { Request as ApiRequest } from 'express';
+import { ScopedEventHandlers } from '../core-modules';
 
 export interface IRule {
   kind: string;
@@ -17,6 +18,16 @@ export interface ILink {
 export interface IRuleDocument extends IRule, Document {
   _id: string;
 }
+
+export interface IOffsetPaginateParams {
+  limit?: number;
+  page?: number;
+  perPage?: number;
+
+  sortField?: string;
+  sortDirection?: SortOrder;
+}
+
 export interface ICursorPaginateParams {
   limit?: number;
   cursor?: string;
@@ -51,6 +62,7 @@ export interface ICustomField {
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;
+  locationValue?: ILocationOption;
   extraValue?: string;
 }
 
@@ -93,6 +105,8 @@ export interface IMainContext {
   models?: any;
   __: <T extends object>(doc: T) => T & { processId: string };
   processId: string;
+  eventHandlers: ScopedEventHandlers;
+  checkPermission: (action: string, ownerId?: string) => Promise<void>;
 }
 
 export interface IOrderInput {

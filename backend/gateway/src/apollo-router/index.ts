@@ -11,19 +11,10 @@ import {
   supergraphPath,
 } from '~/apollo-router/paths';
 import supergraphCompose from '~/apollo-router/supergraph-compose';
-import { isDev } from 'erxes-api-shared/utils';
 
 dotenv.config();
 
-const {
-  DOMAIN,
-  ALLOWED_ORIGINS,
-  ALLOWED_DOMAINS,
-  WIDGETS_DOMAIN,
-  NODE_ENV,
-  APOLLO_ROUTER_PORT,
-  INTROSPECTION,
-} = process.env;
+const { NODE_ENV, APOLLO_ROUTER_PORT, INTROSPECTION } = process.env;
 
 let routerProcess: ChildProcess | undefined = undefined;
 
@@ -99,13 +90,6 @@ const createRouterConfig = async () => {
     },
     cors: {
       allow_credentials: true,
-      origins: [
-        DOMAIN ? DOMAIN : 'http://localhost:3000',
-        WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
-        ...(ALLOWED_DOMAINS || '').split(','),
-        'https://studio.apollographql.com',
-      ].filter((x) => typeof x === 'string'),
-      match_origins: (ALLOWED_ORIGINS || '').split(',').filter(Boolean),
     },
     headers: {
       all: {

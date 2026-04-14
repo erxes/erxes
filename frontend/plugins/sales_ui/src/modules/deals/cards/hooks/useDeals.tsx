@@ -94,6 +94,7 @@ export const useDeals = (
     const unsubscribe = subscribeToMore<IDealChanged>({
       document: DEAL_LIST_CHANGED,
       variables: subscriptionVars,
+
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
         if (!prev.deals?.list) return prev;
@@ -108,7 +109,9 @@ export const useDeals = (
             (item: IDeal) => item._id === deal._id,
           );
           if (!exists) {
-            updatedList = [deal, ...currentList];
+            const merged = [...currentList, deal];
+            merged.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            updatedList = merged;
           }
         }
 
@@ -116,6 +119,7 @@ export const useDeals = (
           updatedList = currentList.map((item: IDeal) =>
             item._id === deal._id ? { ...item, ...deal } : item,
           );
+          updatedList.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         }
 
         if (action === 'remove') {

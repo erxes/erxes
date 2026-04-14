@@ -67,7 +67,7 @@
     "_": "Team Member",
     "invite-team-members": "Invite team members",
     "notify": "Send an email and notify members that they've been invited!",
-    "seperate-emails": "Separate emails with comma, space, or Enter",
+    "separate-emails": "Separate emails with comma, space, or Enter",
     "send-invites": "Send invites",
     "date-created": "Date created",
     "name": "Name",
@@ -133,5 +133,10 @@
     "created-at": "Created At",
     "not-found": "No tags found",
     "workspace-description": "Workspace tags are shared tags that can be used across all tag types."
+  },
+
+  "broadcast": {
+    "_": "Broadcast",
+    "broadcast": "Broadcast"
   }
 }

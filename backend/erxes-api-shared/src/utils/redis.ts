@@ -4,7 +4,7 @@ const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 
 export const redis = new Redis({
   host: REDIS_HOST,
-  port: parseInt(REDIS_PORT || '6379', 10),
+  port: Number.parseInt(REDIS_PORT || '6379', 10),
   password: REDIS_PASSWORD,
   connectTimeout: 20_000,
   maxRetriesPerRequest: null,

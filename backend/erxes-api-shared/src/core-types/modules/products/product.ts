@@ -1,9 +1,35 @@
-import { IAttachment, ICustomField, IPdfAttachment } from '../../common';
+import {
+  IAttachment,
+  ICustomField,
+  IPdfAttachment,
+  IPropertyField,
+} from '../../common';
 import { Document } from 'mongoose';
 
 interface ISubUom {
   uom: string;
   ratio: number;
+}
+
+interface IInventory {
+  [branchId: string]: {
+    [departmentId: string]: {
+      remainder: number;
+      cost: number;
+      soonIn: number;
+      soonOut: number;
+    };
+  };
+}
+
+interface IDiscount {
+  [branchId: string]: {
+    [departmentId: string]: {
+      pricingId: { type: string };
+      value: { type: number };
+      percent: { type: number };
+    };
+  };
 }
 
 export interface IProduct {
@@ -20,6 +46,7 @@ export interface IProduct {
   unitPrice?: number;
   code: string;
   customFieldsData?: ICustomField[];
+  propertiesData?: IPropertyField;
   tagIds?: string[];
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];
@@ -36,6 +63,9 @@ export interface IProduct {
   currency?: string;
 
   pdfAttachment?: IPdfAttachment;
+
+  inventories?: IInventory;
+  discounts?: IDiscount;
 }
 
 export interface IProductDocument extends IProduct, Document {

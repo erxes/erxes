@@ -9,23 +9,26 @@ import {
   watchItem,
 } from '../../utils';
 import { dealSchema } from '../definitions/deals';
+import {
+  generateDealUpdateActivityLogs,
+  generateDealCreatedActivityLog,
+  generateDealWatchActivityLog,
+} from '~/modules/sales/meta/activity-log';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
   createDeal(doc: IDeal): Promise<IDealDocument>;
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
-  watchDeal(_id: string, isAdd: boolean, userId: string): void;
+  watchDeal(_id: string, isAdd: boolean, userId: string): Promise<void>;
   removeDeals(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
 export const loadDealClass = (
   models: IModels,
   subdomain: string,
-  dispatcher: EventDispatcherReturn,
+  { sendDbEventLog, getContext, createActivityLog }: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog } = dispatcher;
-
   class Deal {
     /** Get single deal */
     public static async getDeal(_id: string) {
@@ -46,7 +49,7 @@ export const loadDealClass = (
 
       // Calculate totals
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter(pd => pd);
+        doc.productsData = doc.productsData.filter((pd) => pd);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
@@ -59,45 +62,57 @@ export const loadDealClass = (
         currentDocument: deal.toObject(),
       });
 
+      createActivityLog(generateDealCreatedActivityLog(deal));
+
       return deal;
     }
 
     public static async updateDeal(_id: string, doc: IDeal) {
       const prevDeal = await models.Deals.getDeal(_id);
+      const prevDealObj = prevDeal.toObject();
 
       // Fill searchText for indexing
       const searchText = fillSearchTextItem(doc, prevDeal);
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter(
-          pd => pd && pd.productId,
-        );
+        doc.productsData = doc.productsData.filter((pd) => pd.productId);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
 
-      await models.Deals.updateOne(
-        { _id },
-        { $set: { ...doc, searchText } },
-      );
+      await models.Deals.updateOne({ _id }, { $set: { ...doc, searchText } });
 
-      const updatedDeal = await models.Deals.findOne({ _id });
-      if (!updatedDeal) throw new Error('Deal not found after update');
+      const updatedDeal = await models.Deals.getDeal(_id);
+      const updatedDealObj = updatedDeal.toObject();
 
       sendDbEventLog?.({
         action: 'update',
         docId: updatedDeal._id,
-        currentDocument: updatedDeal.toObject(),
-        prevDocument: prevDeal.toObject(),
+        currentDocument: updatedDealObj,
+        prevDocument: prevDealObj,
       });
+
+      await generateDealUpdateActivityLogs(
+        prevDealObj,
+        updatedDealObj,
+        models,
+        createActivityLog,
+        subdomain,
+      );
 
       return updatedDeal;
     }
 
-    /** Watch / unwatch deal */
-    public static watchDeal(_id: string, isAdd: boolean, userId: string) {
-      return watchItem(models.Deals, _id, isAdd, userId);
+    public static async watchDeal(_id: string, isAdd: boolean, userId: string) {
+      const deal = await models.Deals.getDeal(_id);
+
+      await watchItem(models.Deals, _id, isAdd, userId);
+
+      createActivityLog(
+        generateDealWatchActivityLog(deal.toObject(), isAdd, userId),
+      );
     }
+
     public static async removeDeals(_ids: string[]) {
       const deals = await models.Deals.find({ _id: { $in: _ids } });
 
@@ -108,9 +123,7 @@ export const loadDealClass = (
         });
       }
 
-      for (const _id of _ids) {
-        await destroyBoardItemRelations(models, _id);
-      }
+      await destroyBoardItemRelations(subdomain, models, _ids);
 
       return models.Deals.deleteMany({ _id: { $in: _ids } });
     }

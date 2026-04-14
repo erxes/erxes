@@ -18,15 +18,23 @@ export const stringToHslColor = (
   return `hsl(${h}, ${saturation}%, ${lightness}%)`;
 };
 
-export const hexToOklch = (hex: string): string => {
-  const cleanHex = hex.replace('#', '');
-  if (!/^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+export const hexToOklch = (hex: string, onlyValue = false): string => {
+  let cleanHex = hex.replace('#', '');
+
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex
+      .split('')
+      .map((char) => char + char)
+      .join('');
+  }
+
+  if (!/^[0-9A-Fa-f]{0,6}$/.test(cleanHex)) {
     throw new Error(`Invalid hex color format: ${hex}`);
   }
 
-  const r = parseInt(cleanHex.substring(0, 2), 16) / 255;
-  const g = parseInt(cleanHex.substring(2, 4), 16) / 255;
-  const b = parseInt(cleanHex.substring(4, 6), 16) / 255;
+  const r = Number.parseInt(cleanHex.substring(0, 2), 16) / 255;
+  const g = Number.parseInt(cleanHex.substring(2, 4), 16) / 255;
+  const b = Number.parseInt(cleanHex.substring(4, 6), 16) / 255;
 
   const linearR = r <= 0.04045 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
   const linearG = g <= 0.04045 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
@@ -51,6 +59,10 @@ export const hexToOklch = (hex: string): string => {
   const C = Math.sqrt(a * a + b_ * b_);
   let h = Math.atan2(b_, a) * (180 / Math.PI);
   if (h < 0) h += 360;
+
+  if (onlyValue) {
+    return `${L} ${C} ${h}`;
+  }
 
   return `oklch(${L} ${C} ${h})`;
 };

@@ -27,7 +27,7 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
       return (
         <RecordTableInlineCell>
           <Link
-            to={`/settings/pricing/${pricingId}`}
+            to={`/settings/loyalty/pricing/${pricingId}`}
             className="cursor-pointer hover:underline"
           >
             <Badge variant="secondary">{cell.getValue() as string}</Badge>

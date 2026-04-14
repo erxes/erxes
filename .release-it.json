@@ -1,0 +1,23 @@
+{
+  "npm": {
+    "publish": false
+  },
+  "git": {
+    "commitMessage": "release ${version}",
+    "tagName": "${version}",
+    "tagAnnotation": "Release ${version}",
+    "tagMatch": "3.*"
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v${version}"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": {
+        "name": "angular"
+      },
+      "infile": "CHANGELOG.md"
+    }
+  }
+}

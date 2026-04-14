@@ -3,13 +3,13 @@ import { Document } from 'mongoose';
 export interface ITrDetail {
   _id?: string;
   accountId: string;
-
+  branchId?: string;
+  departmentId?: string;
   followInfos?: any;
   originId?: string;
   originType?: string;
   originSubId?: string;
 
-  side: string;
   amount: number;
   currency?: string;
   currencyAmount?: number;
@@ -23,13 +23,13 @@ export interface ITrDetail {
   productId?: string;
   count?: number;
   unitPrice?: number;
-};
+}
 
 export interface ITransaction {
   _id?: string;
   date: Date;
   fullDate?: Date;
-  description: string;
+  description?: string;
   status?: string;
   ptrId?: string;
   parentId?: string;
@@ -51,6 +51,8 @@ export interface ITransaction {
 
   details: ITrDetail[];
   shortDetail?: ITrDetail;
+  side?: string;
+
   createdBy?: string;
   modifiedBy?: string;
 
@@ -67,6 +69,9 @@ export interface ITransaction {
   ctaxAmount?: number;
 
   extraData?: any;
+
+  contentType?: string;
+  contentId?: string;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -83,6 +88,13 @@ export interface ITransactionDocument extends ITransaction, Document {
 
   sumDt: number;
   sumCt: number;
+  side: string;
+  relAccounts: {
+    dt: string[];
+    ct: string[];
+    customDt: string[];
+    customCt: string[];
+  };
   permission?: string;
 }
 
@@ -92,20 +104,20 @@ export interface ITrRecord extends Omit<ITransaction, 'details'> {
 }
 
 export interface IHiddenTransaction extends Document {
-  _id: string,
-  parentId: string,
-  ptrId: string,
+  _id: string;
+  parentId: string;
+  ptrId: string;
   ptrStatus: string;
-  originId?: string,
-  originType?: string,
-  originSubId?: string,
+  originId?: string;
+  originType?: string;
+  originSubId?: string;
   details: {
     _id: string;
     originId?: string;
     originType?: string;
     originSubId?: string;
     side: string;
-  }[]
+  }[];
   sumDt: number;
   sumCt: number;
   permission?: string;

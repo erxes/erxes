@@ -10,6 +10,13 @@ export const types = `
     type: Int
     createdAt: Date
     updatedAt: Date
+    visibilityType: String
+    memberIds: [String]
+    canMoveMemberIds: [String]
+    canEditMemberIds: [String]
+    departmentIds: [String]
+    state: String
+    probability: Float
   }
 
   type StatusSubscription {
@@ -22,8 +29,19 @@ export const types = `
 
 export const queries = `
   getTicketStatus(_id: String!): TicketStatus
+  getAccessibleTicketStatuses(pipelineId: String!): JSON
   getTicketStatusesChoicesPipeline(pipelineId: String!): JSON
   getTicketStatusesByType(pipelineId: String! , type: Int!): [TicketStatus]
+`;
+
+const statusParams = `
+  visibilityType: String
+  memberIds: [String]
+  canMoveMemberIds: [String]
+  canEditMemberIds: [String]
+  departmentIds: [String]
+  state: String
+  probability: Float
 `;
 
 export const mutations = `
@@ -34,6 +52,7 @@ export const mutations = `
     color: String
     order: Int
     type: Int
+    ${statusParams}
   ): TicketStatus
 
   updateTicketStatus(
@@ -43,6 +62,7 @@ export const mutations = `
     color: String
     order: Int
     type: Int
+    ${statusParams}
   ): TicketStatus
 
   deleteTicketStatus(_id: String!): JSON

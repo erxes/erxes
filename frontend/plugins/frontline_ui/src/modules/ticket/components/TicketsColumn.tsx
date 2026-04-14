@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { TicketHotKeyScope } from '@/ticket/types';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
+import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
-import { ITicket } from '@/ticket/types';
-import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { ITicket, TicketHotKeyScope } from '@/ticket/types';
 import {
   IconAlertSquareRounded,
   IconCalendarFilled,
@@ -25,13 +26,13 @@ import {
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
-import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { ticketsMoreColumn } from './TicketsMoreColumn';
 
 export const ticketsColumns = (): ColumnDef<ITicket>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ITicket>;
 
   return [
+    ticketsMoreColumn,
     checkBoxColumn,
     {
       id: 'name',

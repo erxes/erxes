@@ -1,8 +1,11 @@
+import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import {
+  applyTrustProxy,
   closeMongooose,
   createHealthRoute,
+  createTRPCContext,
   isDev,
   keyForConfig,
   redis,
@@ -10,8 +13,9 @@ import {
 import express from 'express';
 import * as http from 'http';
 import { initMQWorkers } from './bullmq/initMQWorkers';
-import { debugError, debugInfo } from '@/debugger';
-import { webhookRoutes } from '@/executions/actions/webhook/incoming/webhookRoutes';
+import { debugError, debugInfo } from './debugger';
+import { webhookRoutes } from './executions/actions/webhook/incoming/webhookRoutes';
+import { appRouter } from './trpc';
 
 const {
   DOMAIN,
@@ -26,6 +30,7 @@ const port = PORT ? Number(PORT) : 3302;
 const serviceName = 'automations-service';
 
 const app = express();
+applyTrustProxy(app);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
@@ -57,6 +62,14 @@ app.get('/health', createHealthRoute(serviceName));
 
 app.use(webhookRoutes);
 
+app.use(
+  '/trpc',
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+    createContext: createTRPCContext(async (_subdomain, context) => context),
+  }),
+);
+
 const httpServer = http.createServer(app);
 
 httpServer.listen(port, async () => {
@@ -72,6 +85,7 @@ httpServer.listen(port, async () => {
     LOAD_BALANCER_ADDRESS ||
     `http://${isDev ? 'localhost' : serviceName}:${port}`;
 
+  await redis.set('erxes-service-automations', address);
   await redis.set(`service-logs`, address);
 
   console.log(`service-logs joined with ${address}`);

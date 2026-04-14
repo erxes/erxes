@@ -23,4 +23,9 @@ export const INTEGRATIONS = {
     description: 'Connect and manage calls right from your Team Inbox',
     img: 'grandstream.webp',
   },
+  [IntegrationType.IMAP]: {
+    name: 'IMAP',
+    description: 'Connect and manage IMAP right from your Team Inbox',
+    img: 'email.webp',
+  },
 };

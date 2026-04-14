@@ -1,18 +1,18 @@
 import {
-  startOfDay,
   endOfDay,
-  subDays,
-  startOfWeek,
-  endOfWeek,
-  subWeeks,
-  startOfMonth,
   endOfMonth,
-  subMonths,
-  startOfYear,
+  endOfWeek,
   endOfYear,
+  parse,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+  subDays,
+  subMonths,
+  subWeeks,
   subYears,
 } from 'date-fns';
-import { parse } from 'date-fns';
 
 export function getDateRange(value: string) {
   const today = new Date();
@@ -36,46 +36,51 @@ export function getDateRange(value: string) {
   ];
 
   switch (value) {
-    case 'today':
+    case 'today': {
       fromDate = startOfDay(today);
       toDate = endOfDay(today);
       break;
-    case 'yesterday':
+    }
+    case 'yesterday': {
       const yesterday = subDays(today, 1);
       fromDate = startOfDay(yesterday);
       toDate = endOfDay(yesterday);
       break;
-    case 'this-week':
-      fromDate = startOfWeek(today, { weekStartsOn: 1 });
-      toDate = endOfWeek(today, { weekStartsOn: 1 });
+    }
+    case 'this-week': {
+      fromDate = startOfDay(startOfWeek(today, { weekStartsOn: 1 }));
+      toDate = endOfDay(endOfWeek(today, { weekStartsOn: 1 }));
       break;
-    case 'last-week':
-      const lastWeekStart = startOfWeek(subWeeks(today, 1), {
-        weekStartsOn: 1,
-      });
-      const lastWeekEnd = endOfWeek(subWeeks(today, 1), { weekStartsOn: 1 });
-      fromDate = startOfDay(lastWeekStart);
-      toDate = endOfDay(lastWeekEnd);
+    }
+    case 'last-week': {
+      const lastWeek = subWeeks(today, 1);
+      fromDate = startOfDay(startOfWeek(lastWeek, { weekStartsOn: 1 }));
+      toDate = endOfDay(endOfWeek(lastWeek, { weekStartsOn: 1 }));
       break;
-    case 'this-month':
-      fromDate = startOfMonth(today);
-      toDate = endOfMonth(today);
+    }
+    case 'this-month': {
+      fromDate = startOfDay(startOfMonth(today));
+      toDate = endOfDay(endOfMonth(today));
       break;
-    case 'last-month':
+    }
+    case 'last-month': {
       const lastMonth = subMonths(today, 1);
-      fromDate = startOfMonth(lastMonth);
-      toDate = endOfMonth(lastMonth);
+      fromDate = startOfDay(startOfMonth(lastMonth));
+      toDate = endOfDay(endOfMonth(lastMonth));
       break;
-    case 'this-year':
-      fromDate = startOfYear(today);
-      toDate = endOfYear(today);
+    }
+    case 'this-year': {
+      fromDate = startOfDay(startOfYear(today));
+      toDate = endOfDay(endOfYear(today));
       break;
-    case 'last-year':
+    }
+    case 'last-year': {
       const lastYear = subYears(today, 1);
-      fromDate = startOfYear(lastYear);
-      toDate = endOfYear(lastYear);
+      fromDate = startOfDay(startOfYear(lastYear));
+      toDate = endOfDay(endOfYear(lastYear));
       break;
-    default:
+    }
+    default: {
       if (value.startsWith('custom:')) {
         const dateString = value.replace('custom:', '');
         try {
@@ -94,7 +99,7 @@ export function getDateRange(value: string) {
       } else if (value.includes('quarter')) {
         // Quarter format: YYYY-quarterN
         const [year] = value.split('-');
-        const quarterNumber = parseInt(value.split('quarter')[1]);
+        const quarterNumber = Number.parseInt(value.split('quarter')[1]);
         fromDate = startOfDay(
           new Date(parseInt(year), (quarterNumber - 1) * 3, 1),
         );
@@ -102,14 +107,14 @@ export function getDateRange(value: string) {
       } else if (value.includes('half')) {
         // Half year format: YYYY-halfN
         const [year] = value.split('-');
-        const halfNumber = parseInt(value.split('half')[1]);
+        const halfNumber = Number.parseInt(value.split('half')[1]);
         fromDate = startOfDay(
           new Date(parseInt(year), (halfNumber - 1) * 6, 1),
         );
         toDate = endOfDay(new Date(parseInt(year), halfNumber * 6, 0));
       } else if (/^\d{4}-y$/.test(value)) {
         // Year format: YYYY-y
-        const year = parseInt(value);
+        const year = Number.parseInt(value);
         fromDate = startOfDay(new Date(year, 0, 1));
         toDate = endOfDay(new Date(year, 11, 31));
       } else if (value.includes(',')) {
@@ -119,6 +124,7 @@ export function getDateRange(value: string) {
         toDate = endOfDay(new Date(to));
       }
       break;
+    }
   }
 
   return { fromDate, toDate };

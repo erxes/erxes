@@ -1,26 +1,18 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import { ICommonDocument, ICommonFields } from '~/utils';
 
-export interface IDonate {
-  ownerId: string;
-  ownerType: string;
-
-  campaignId: string;
-
-  donateScore: number;
-
-  awardId: string;
-  voucherId: string;
-
-  conditions: Record<string, any>;
+export interface IDonate extends ICommonFields {
+  donateScore?: number;
+  awardId?: string;
+  voucherId?: string;
+  status?: string;
+  voucherCampaignId?: string;
+  number?: string;
 }
 
-export interface IDonateDocument extends IDonate, Document {
-  createdBy: string;
-  updatedBy: string;
-
-  createdAt: Date;
-  updatedAt: Date;
+export interface IDonateDocument extends IDonate, ICommonDocument, Document {
+  _id: string;
 }
 
 export interface IDonateListParams extends ICursorPaginateParams {
@@ -31,4 +23,9 @@ export interface IDonateListParams extends ICursorPaginateParams {
   status?: string;
   statuses?: string[];
   awardId?: string;
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: 1 | -1;
+  voucherCampaignId?: string;
 }

@@ -1,31 +1,49 @@
-import { ActivityLogRow } from './ActivityLogRow';
-import { ActivityLogLoading } from './ActivityLogLoading';
-import { useActivityLog } from '../context/ActivityLogProvider';
-import { Empty, EnumCursorDirection, SkeletonArray } from 'erxes-ui';
-import { useInView } from 'react-intersection-observer';
-import { Skeleton } from 'erxes-ui';
 import { IconActivity } from '@tabler/icons-react';
-
-interface ActivityLogListProps {
-  emptyMessage?: string;
-}
+import { Empty, EnumCursorDirection, Skeleton } from 'erxes-ui';
+import { useInView } from 'react-intersection-observer';
+import { useActivityLog } from '../context/ActivityLogProvider';
+import { ActivityLogLoading } from './ActivityLogLoading';
+import { ActivityLogRow } from './ActivityLogRow';
 
 export const ActivityLogList = ({
-  emptyMessage = 'No activity logs found',
-}: ActivityLogListProps) => {
-  const { activityLogs, loading, handleFetchMore, hasNextPage } =
-    useActivityLog();
+  emptyMessage,
+}: {
+  emptyMessage?: string;
+}) => {
+  const {
+    activityLogs,
+    loading,
+    handleFetchMore,
+    hasNextPage,
+    hasPreviousPage,
+    limit,
+    variant = 'forward',
+  } = useActivityLog();
+
+  const reachedLimit = limit !== undefined && activityLogs.length >= limit;
+  const canFetchMore = variant === 'backward' ? hasPreviousPage : hasNextPage;
 
   const { ref: fetchMoreRef } = useInView({
     threshold: 0.1,
     onChange: (inView) => {
-      if (inView && hasNextPage && handleFetchMore && !loading) {
-        handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+      if (
+        inView &&
+        canFetchMore &&
+        handleFetchMore &&
+        !loading &&
+        !reachedLimit
+      ) {
+        handleFetchMore({
+          direction:
+            variant === 'backward'
+              ? EnumCursorDirection.BACKWARD
+              : EnumCursorDirection.FORWARD,
+        });
       }
     },
   });
 
-  if (loading) {
+  if (loading && (!activityLogs || activityLogs.length === 0)) {
     return <ActivityLogLoading />;
   }
 
@@ -36,7 +54,7 @@ export const ActivityLogList = ({
           <Empty.Media variant="icon">
             <IconActivity />
           </Empty.Media>
-          <Empty.Title>No activity logs found</Empty.Title>
+          <Empty.Title>{emptyMessage || 'No activity logs found'}</Empty.Title>
           <Empty.Description>
             There seems to be no activity logs for this item.
           </Empty.Description>
@@ -47,6 +65,17 @@ export const ActivityLogList = ({
 
   return (
     <div className="w-full flex flex-col">
+      {variant === 'backward' && canFetchMore && !loading && !reachedLimit && (
+        <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="flex gap-2 items-center">
+              <Skeleton className="size-6 rounded-full" />
+              <Skeleton className="w-1/2 h-3" />
+              <Skeleton className="w-20 ml-auto h-3" />
+            </div>
+          ))}
+        </div>
+      )}
       {activityLogs.map((activity, index) => (
         <ActivityLogRow
           key={activity._id}
@@ -54,9 +83,15 @@ export const ActivityLogList = ({
           isLast={index === activityLogs.length - 1}
         />
       ))}
-      {hasNextPage && !loading && (
-        <div ref={fetchMoreRef} className="w-full py-2">
-          <SkeletonArray count={4} className="h-4 w-full" />
+      {variant === 'forward' && canFetchMore && !loading && !reachedLimit && (
+        <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="flex gap-2 items-center">
+              <Skeleton className="size-6 rounded-full" />
+              <Skeleton className="w-1/2 h-3" />
+              <Skeleton className="w-20 ml-auto h-3" />
+            </div>
+          ))}
         </div>
       )}
     </div>

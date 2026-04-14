@@ -18,6 +18,7 @@ export interface IRelationModel extends Model<IRelationDocument> {
     doc: IRelation;
   }) => Promise<IRelationDocument>;
   deleteRelation: ({ _id }: { _id: string }) => Promise<IRelationDocument>;
+  cleanRelation: ({ contentType, contentIds }: { contentType: string, contentIds: string[] }) => Promise<string>;
   getRelationsByEntity: ({
     contentType,
     contentId,
@@ -97,6 +98,18 @@ export const loadRelationClass = (models: IModels) => {
 
     public static async deleteRelation({ _id }: { _id: string }) {
       return models.Relations.deleteOne({ _id });
+    }
+
+    public static async cleanRelation({ contentType, contentIds }: { contentType: string, contentIds: string[] }) {
+      await models.Relations.deleteMany({
+        entities: {
+          $elemMatch: {
+            contentType: contentType,
+            contentId: { $in: contentIds },
+          },
+        },
+      })
+      return 'success';
     }
 
     public static async getRelationsByEntity({

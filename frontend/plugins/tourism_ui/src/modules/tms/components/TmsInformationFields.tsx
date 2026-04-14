@@ -1,10 +1,8 @@
 import { UseFormReturn } from 'react-hook-form';
 import { useAtom, useSetAtom } from 'jotai';
-import { useQuery } from '@apollo/client';
 import { currentStepAtom } from '@/tms/states/tmsInformationFieldsAtoms';
 import { tmsFormAtom } from '@/tms/atoms/formAtoms';
 import { TmsFormType } from '@/tms/constants/formSchema';
-import { PAYMENT_LIST } from '@/tms/graphql/queries';
 import {
   TourName,
   SelectColor,
@@ -15,7 +13,8 @@ import {
   Payments,
   Token,
   OtherPayments,
-  PaymentType,
+  LanguageSelect,
+  MainLanguageSelect,
 } from '@/tms/components/TmsFormFields';
 import { Button } from 'erxes-ui';
 import { useEffect, useState } from 'react';
@@ -36,10 +35,6 @@ export const TmsInformationFields = ({
   const [currentStep, setCurrentStep] = useAtom(currentStepAtom);
   const [hasBeenOpened, setHasBeenOpened] = useState(false);
   const setFormAtom = useSetAtom(tmsFormAtom);
-
-  const { data: paymentsData, loading: paymentsLoading } =
-    useQuery(PAYMENT_LIST);
-  const payments: PaymentType[] = paymentsData?.payments ?? [];
 
   useEffect(() => {
     if (isOpen && !hasBeenOpened) {
@@ -63,7 +58,14 @@ export const TmsInformationFields = ({
         managers: Array.isArray(value.managers)
           ? value.managers.filter((id): id is string => !!id)
           : [],
-        payment: value.payment || '',
+        payment: Array.isArray(value.payment)
+          ? value.payment.filter((id): id is string => !!id)
+          : [],
+        language: Array.isArray(value.language)
+          ? value.language.filter((code): code is string => !!code)
+          : [],
+        mainLanguage:
+          typeof value.mainLanguage === 'string' ? value.mainLanguage : '',
         token: value.token || '',
         otherPayments: Array.isArray(value.otherPayments)
           ? value.otherPayments.filter(
@@ -72,13 +74,8 @@ export const TmsInformationFields = ({
               ): payment is {
                 type: string;
                 title: string;
-                icon: string;
                 config?: string;
-              } =>
-                !!payment &&
-                !!payment.type &&
-                !!payment.title &&
-                !!payment.icon,
+              } => !!payment && !!payment.type && !!payment.title,
             )
           : [],
       });
@@ -88,10 +85,10 @@ export const TmsInformationFields = ({
 
   const renderStepContent = () => {
     return (
-      <div className="relative w-full min-h-[300px]">
+      <div className="w-full">
         {/* Step 1 */}
         <div
-          className={`absolute inset-0 w-full transition-all duration-300 ease-in-out ${
+          className={`w-full transition-all duration-300 ease-in-out ${
             currentStep === 1 ? 'opacity-100 block' : 'opacity-0 hidden'
           }`}
         >
@@ -100,12 +97,14 @@ export const TmsInformationFields = ({
             <SelectColor control={form.control} />
             <LogoField control={form.control} />
             <FavIconField control={form.control} />
+            <LanguageSelect control={form.control} />
+            <MainLanguageSelect control={form.control} />
           </div>
         </div>
 
         {/* Step 2 */}
         <div
-          className={`absolute inset-0 w-full transition-all duration-300 ease-in-out ${
+          className={`w-full transition-all duration-300 ease-in-out ${
             currentStep === 2 ? 'opacity-100 block' : 'opacity-0 hidden'
           }`}
         >
@@ -117,16 +116,12 @@ export const TmsInformationFields = ({
 
         {/* Step 3 */}
         <div
-          className={`absolute inset-0 w-full transition-all duration-300 ease-in-out ${
+          className={`w-full transition-all duration-300 ease-in-out ${
             currentStep === 3 ? 'opacity-100 block' : 'opacity-0 hidden'
           }`}
         >
           <div className="space-y-4">
-            <Payments
-              control={form.control}
-              payments={payments}
-              loading={paymentsLoading}
-            />
+            <Payments control={form.control} />
             <Token control={form.control} />
             <OtherPayments control={form.control} />
           </div>
@@ -142,7 +137,10 @@ export const TmsInformationFields = ({
         setCurrentStep(2);
       }
     } else if (currentStep === 2) {
-      setCurrentStep(3);
+      const result = await form.trigger('generalManager');
+      if (result) {
+        setCurrentStep(3);
+      }
     }
   };
 
@@ -163,8 +161,8 @@ export const TmsInformationFields = ({
   }
 
   return (
-    <div className="flex flex-col mx-auto w-full max-w-3xl h-full border-r">
-      <div className="flex flex-col shrink-0 gap-3 justify-center items-start self-stretch p-5 border-b">
+    <div className="flex flex-col mx-auto w-full h-full border-r bg-background">
+      <div className="flex flex-col gap-3 justify-center items-start self-stretch p-5 border-b shrink-0">
         <div className="flex gap-2 items-center">
           <div className="flex h-5 px-2 justify-center items-center gap-1 rounded-[21px] bg-[rgba(79,70,229,0.10)] transition-all duration-300">
             <p className="text-primary leading-none text-[12px] font-semibold uppercase font-mono">
@@ -175,8 +173,8 @@ export const TmsInformationFields = ({
             {currentStep === 1
               ? 'General information'
               : currentStep === 2
-              ? 'Permission'
-              : 'Payments'}
+                ? 'Permission'
+                : 'Payments'}
           </p>
         </div>
         <div className="flex gap-2 items-center self-stretch">
@@ -187,8 +185,8 @@ export const TmsInformationFields = ({
                 step === currentStep
                   ? 'bg-primary w-24'
                   : step < currentStep
-                  ? 'bg-primary/50 w-16'
-                  : 'bg-[#F4F4F5] w-16'
+                    ? 'bg-primary/50 w-16'
+                    : 'bg-muted w-16'
               }`}
             />
           ))}
@@ -197,17 +195,17 @@ export const TmsInformationFields = ({
           {currentStep === 1
             ? 'Set up your TMS information'
             : currentStep === 2
-            ? 'Setup your permission'
-            : 'Setup your payments'}
+              ? 'Setup your permission'
+              : 'Setup your payments'}
         </p>
       </div>
-      <div className="relative flex-1">
-        <div className="overflow-y-auto overflow-x-hidden px-4 py-2 h-full max-h-screen">
+      <div className="overflow-hidden relative flex-1 min-h-0">
+        <div className="overflow-y-auto overflow-x-hidden px-4 py-2 h-full">
           {renderStepContent()}
         </div>
       </div>
 
-      <div className="flex shrink-0 gap-2 justify-between items-center p-4 border-t">
+      <div className="flex gap-2 justify-between items-center p-4 border-t shrink-0">
         {currentStep === 1 ? (
           <Button
             variant="outline"

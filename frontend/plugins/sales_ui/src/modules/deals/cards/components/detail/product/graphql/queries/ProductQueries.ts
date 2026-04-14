@@ -41,7 +41,7 @@ export const GET_PRODUCTS = gql`
         categoryId
         code
         createdAt
-        customFieldsData
+        propertiesData
         description
         tagIds
         category {

@@ -5,14 +5,14 @@ import { AddProductGroup } from '@/ebarimt/settings/product-group/components/Pro
 export const EBarimtTopbar = () => {
   const { pathname } = useLocation();
 
-  if (pathname === '/settings/ebarimt/product-rules-on-tax') {
+  if (pathname === '/settings/mongolian/ebarimt/product-rules-on-tax') {
     return (
       <div className="flex items-center gap-3">
         <AddProductRulesOnTax />
       </div>
     );
   }
-  if (pathname === '/settings/ebarimt/product-groups') {
+  if (pathname === '/settings/mongolian/ebarimt/product-groups') {
     return (
       <div className="flex items-center gap-3">
         <AddProductGroup />

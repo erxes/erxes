@@ -3,13 +3,14 @@
   "core-modules": {
     "_": "Core modules",
     "contacts": "Contacts",
-    "products": "Products",
     "segments": "Segments",
     "automations": "Automations",
     "documents": "Documents",
     "broadcasts": "Broadcasts",
+    "templates": "Templates",
     "success": "Success",
     "cancel": "Cancel",
+    "delete": "Delete",
     "save": "Save",
     "settings": "Settings"
   },
@@ -22,6 +23,9 @@
     "updated-at": "Updated At",
     "last-seen-at": "Last Seen At",
     "birthday": "Birthday"
+  },
+  "logs": {
+    "searchContentType": "Search content type"
   },
   "records-found": "Records Found",
   "organization": {
@@ -36,20 +40,23 @@
 },
   "sidebar" : {
     "profile" : "Profile",
+    "notification" : "Notification",
     "change-password" : "Change Password",
     "general" : "General",
     "team-member" : "Team member",
+    "structure" : "Structure",
     "tags" : "Tags",
     "brands" : "Brands",
     "file-upload" : "File upload",
+    "broadcast-config": "Broadcast config",
     "mail-config" : "Mail config",
     "client-portal" : "Client Portal",
-    "products" : "Products",
     "automations" : "Automations",
     "account" : "Account",
     "developer" : "Developer",
     "workspace" : "Workspace",
     "core-modules" : "Core modules",
+    "templates": "Templates",
     "exit-settings": "Exit Settings",
     "favorites": "Favorites",
     "my-inbox": "My inbox"

@@ -33,7 +33,7 @@ export const inputs = `
     status: PaymentMethodStatus
     config: JSON
   }
-`
+`;
 
 export const queries = `
   payments(status: String, kind: String): [Payment]
@@ -46,6 +46,9 @@ export const queries = `
   qpayGetDistricts(cityCode: String!): JSON
 
   paymentsGetStripeKey(_id: String!): String
+
+
+  cpPayments(status: String, kind: String): [Payment]
 `;
 
 export const mutations = `

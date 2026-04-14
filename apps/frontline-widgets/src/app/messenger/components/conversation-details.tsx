@@ -1,6 +1,11 @@
 import { useMemo, useRef } from 'react';
 import { useAtomValue } from 'jotai';
-import { BotMessage, OperatorMessage, CustomerMessage } from './conversation';
+import {
+  BotMessage,
+  OperatorMessage,
+  CustomerMessage,
+  WelcomeMessage,
+} from './conversation';
 import { ChatInput } from './chat-input';
 import { useConversationDetail } from '../hooks/useConversationDetail';
 import {
@@ -13,7 +18,7 @@ import { formatMessageDate, getDateKey } from '@libs/formatDate';
 import { DateSeparator } from './date-separator';
 import { BotSeparator } from './bot-separator';
 import { TypingStatus } from './typing-status';
-import { NotifyCustomerForm } from './notify-customer-form';
+import { InitialMessage } from '../constants';
 
 const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
@@ -64,7 +69,11 @@ export const ConversationDetails = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { widgetsMessengerConnect } = connection || {};
   const { messengerData } = widgetsMessengerConnect || {};
-  const { botGreetMessage, botShowInitialMessage } = messengerData || {};
+  const {
+    botGreetMessage,
+    botShowInitialMessage,
+    messages: messagesConfig,
+  } = messengerData || {};
   const { conversationDetail, loading, isBotTyping } = useConversationDetail({
     variables: {
       _id: conversationId,
@@ -234,8 +243,11 @@ export const ConversationDetails = () => {
             </div>
           );
         })}
-
+        <BotMessage content={botGreetMessage} />
         {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
+        <WelcomeMessage
+          content={messagesConfig?.welcome || InitialMessage.WELCOME}
+        />
       </div>
       <div className="shrink-0">
         <ChatInput />

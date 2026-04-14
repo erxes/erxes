@@ -27,7 +27,7 @@ const useConfig = () => {
       onCompleted() {
         toast({
           title: 'Success',
-          description: 'configs updated successfully',
+          description: 'Configs updated successfully',
           variant: 'success',
         });
       },
@@ -36,7 +36,11 @@ const useConfig = () => {
     },
   );
 
-  const updateConfig = (args: any) => {
+  const updateConfig = (args: any, options?: { skipConfirm?: boolean }) => {
+    if (options?.skipConfirm) {
+      return update({ variables: { configsMap: { ...args } } });
+    }
+
     confirm({
       message: 'Are you sure you want to update file configs?',
       options: confirmOptions,

@@ -1,5 +1,3 @@
-import { LOG_MAPPINGS } from '../inbox/constants';
-
 type Field = {
   name: string;
   label?: string;
@@ -19,7 +17,7 @@ export const buildLabelList = (obj = {}): any[] => {
 
   for (const name of fieldNames) {
     const field: any = obj[name];
-    const label: string = field && field.label ? field.label : '';
+    const label: string = field?.label ?? '';
 
     list.push({ name, label });
   }

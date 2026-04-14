@@ -1,7 +1,6 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { gql, MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import { ITag } from '../types/Tag';
+import { ITag } from 'ui-modules/index';
 
 const ADD_TAG = gql`
   mutation TagsAdd(
@@ -112,7 +111,7 @@ export const useTagsEdit = () => {
           id: cache.identify(tagsEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field as keyof ITag];
+              fields[field] = () => variables?.[field as keyof ITag];
               return fields;
             },
             {},

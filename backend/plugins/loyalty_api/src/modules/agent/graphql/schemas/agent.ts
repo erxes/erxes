@@ -34,6 +34,11 @@ export const types = `
     pageInfo: PageInfo,
     totalCount: Int
   }
+
+  type AgentMainResponse {
+    list: [Agent],
+    totalCount: Int
+  }
 `;
 
 const queryParams = `
@@ -46,9 +51,18 @@ const queryParams = `
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
+const mainQueryParams = `
+  page: Int,
+  perPage: Int,
+  status: String,
+  customerIds: [String],
+  companyIds: [String]
+`;
+
 export const queries = `
-  getAgent(_id: String!): Agent
-  getAgents(${queryParams}): AgentListResponse
+  agents(${queryParams}): AgentListResponse
+  agentsMain(${mainQueryParams}): AgentMainResponse
+  agentDetail(_id: String!): Agent
 `;
 
 const mutationParams = `
@@ -74,4 +88,8 @@ export const mutations = `
   createAgent(${mutationParams}): Agent
   updateAgent(_id: String!, ${mutationParams}): Agent
   removeAgent(_id: String!): Agent
+
+  agentsAdd(${mutationParams}): Agent
+  agentsEdit(_id: String!, ${mutationParams}): Agent
+  agentsRemove(_id: String!): Agent
 `;

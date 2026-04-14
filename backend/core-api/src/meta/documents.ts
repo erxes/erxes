@@ -9,11 +9,11 @@ export const documents = {
   types: [
     {
       label: 'Customer',
-      contentType: 'core:customer',
+      contentType: 'core:contact.customer',
     },
     {
       label: 'Company',
-      contentType: 'core:company',
+      contentType: 'core:contact.company',
     },
     {
       label: 'Product',
@@ -23,6 +23,10 @@ export const documents = {
       label: 'Team member',
       contentType: 'core:user',
     },
+    {
+      label: 'Broadcast',
+      contentType: 'core:broadcast',
+    },
   ],
   editorAttributes: async (
     models: IModels,
@@ -31,7 +35,7 @@ export const documents = {
   ) => {
     const [pluginName, moduleName] = contentType.split(':');
 
-    const isEnabledService = isEnabled(pluginName);
+    const isEnabledService = await isEnabled(pluginName);
 
     if (!isEnabledService) {
       return [];

@@ -1,10 +1,10 @@
-import { can } from 'erxes-api-shared/core-modules';
+import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import {
-  createConformity,
+  createRelations,
   getNewOrder,
   sendNotifications,
 } from '~/modules/sales/utils';
@@ -32,7 +32,7 @@ export const addDeal = async ({
 
   const extendedDoc = {
     ...doc,
-    modifiedBy: user && user._id,
+    modifiedBy: user?._id,
     userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection: models.Deals,
@@ -41,19 +41,17 @@ export const addDeal = async ({
     }),
   };
 
-  if (extendedDoc.customFieldsData) {
+  if (extendedDoc.propertiesData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendTRPCMessage({
+    extendedDoc.propertiesData = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',
-      action: 'prepareCustomFieldsData',
-      input: {
-        customFieldsData: extendedDoc.customFieldsData,
-      },
-      defaultValue: [],
+      action: 'validateFieldValues',
+      input: extendedDoc.propertiesData,
+      defaultValue: {},
     });
   }
 
@@ -61,9 +59,8 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await createConformity(subdomain, {
-    mainType: 'deal',
-    mainTypeId: deal._id,
+  await createRelations(subdomain, {
+    dealId: deal._id,
     companyIds: doc.companyIds,
     customerIds: doc.customerIds,
   });
@@ -159,24 +156,22 @@ export const editDeal = async ({
   if (
     doc.status === 'archived' &&
     oldDeal.status === 'active' &&
-    !(await can(subdomain, 'dealsArchive', user))
+    !(await canGroup(subdomain, 'dealsArchive', user))
   ) {
     throw new Error('Permission denied');
   }
 
-  if (extendedDoc.customFieldsData) {
+  if (extendedDoc.propertiesData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendTRPCMessage({
+    extendedDoc.propertiesData = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',
-      action: 'prepareCustomFieldsData',
-      input: {
-        customFieldsData: extendedDoc.customFieldsData,
-      },
-      defaultValue: [],
+      action: 'validateFieldValues',
+      input: extendedDoc.propertiesData,
+      defaultValue: {},
     });
   }
 
@@ -200,6 +195,7 @@ export const editDeal = async ({
     // order notification
     await changeItemStatus(models, user, {
       item: updatedItem,
+      oldDeal,
       status: activityAction,
       processId,
       stage,
@@ -219,16 +215,23 @@ export const editDeal = async ({
   await sendNotifications(models, subdomain, notificationDoc);
 
   // exclude [null]
-  if (doc.tagIds && doc.tagIds.length) {
+  if (doc.tagIds?.length) {
     doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 
-  await subscriptionWrapper(models, {
-    action: 'update',
-    deal: updatedItem,
-    oldDeal,
-    pipelineId: stage.pipelineId,
-  });
+  const transitionedToArchived =
+    doc.status === 'archived' &&
+    !!oldDeal.status &&
+    oldDeal.status !== doc.status;
+
+  if (!transitionedToArchived) {
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: updatedItem,
+      oldDeal,
+      pipelineId: stage.pipelineId,
+    });
+  }
 
   // await doScoreCampaign(subdomain, models, _id, updatedItem);
 

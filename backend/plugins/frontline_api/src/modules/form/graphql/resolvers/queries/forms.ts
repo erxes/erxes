@@ -1,6 +1,10 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import {
+  ICursorPaginateParams,
+  IUserDocument,
+  Resolver,
+} from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 
 interface FilterArgs {
   type?: string;
@@ -11,8 +15,8 @@ interface FilterArgs {
 }
 const generateFilterQuery = async (
   { type, channelId, searchValue, status }: FilterArgs,
-  models,
-  userId,
+  models: IModels,
+  user: IUserDocument,
 ) => {
   const query: any = {};
 
@@ -24,10 +28,12 @@ const generateFilterQuery = async (
     query.channelId = channelId;
     return query;
   }
-  if (!channelId) {
+
+  if (!channelId && !user?.isOwner) {
     const channelMemberships = await models.ChannelMembers.find({
-      memberId: userId,
+      memberId: user._id,
     }).lean();
+
     let channelIds = channelMemberships.map((m) => m.channelId);
 
     if (channelId) {
@@ -73,16 +79,50 @@ type FormsArgs = {
   sortDirection?: 1 | -1;
 } & ({ page: number; perPage: number } | ICursorPaginateParams);
 
-const formQueries = {
+const formQueries: Record<string, Resolver> = {
   /**
    * Forms list
    */
   async forms(_root, args: FormsArgs, { models, user }: IContext) {
     const qry = {
-      ...(await generateFilterQuery(args, models, user._id)),
+      ...(await generateFilterQuery(args, models, user)),
     };
     if (args.type === 'lead') {
-      console.log(qry, 'qry');
+      return models.Forms.findLeadForms(qry, args);
+    }
+
+    return cursorPaginate({
+      model: models.Forms as any,
+      params: { ...args, orderBy: { createdAt: 1 } },
+      query: { ...qry },
+    });
+  },
+
+  async cpForms(_root, args: FormsArgs, { models, user }: IContext) {
+    const qry = {
+      ...(await generateFilterQuery(args, models, user)),
+    };
+    if (args.type === 'lead') {
+      return models.Forms.findLeadForms(qry, args);
+    }
+
+    return cursorPaginate({
+      model: models.Forms as any,
+      params: { ...args, orderBy: { createdAt: 1 } },
+      query: { ...qry },
+    });
+  },
+
+  async formsMain(
+    _root: undefined,
+    args: FormsArgs,
+    { models, user }: IContext,
+  ) {
+    const qry = {
+      ...(await generateFilterQuery(args, models, user)),
+    };
+
+    if (args.type === 'lead') {
       return models.Forms.findLeadForms(qry, args);
     }
 
@@ -102,7 +142,7 @@ const formQueries = {
     };
 
     const qry = {
-      ...(await generateFilterQuery(args, models, user._id)),
+      ...(await generateFilterQuery(args, models, user)),
     };
     console.log('qry:::', qry);
     const count = async (query) => {
@@ -142,6 +182,18 @@ const formQueries = {
   //  */
   async formDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Forms.findOne({ _id });
+  },
+
+  async cpFormDetail(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext,
+  ) {
+    if (!user) {
+      throw new Error('Unauthorized');
+    }
+    const accessQuery = await generateFilterQuery({}, models, user);
+    return models.Forms.findOne({ _id, ...accessQuery });
   },
 
   // async formSubmissions(
@@ -336,6 +388,12 @@ const formQueries = {
   // },
 };
 
-// checkPermission(formQueries, 'forms', 'showForms', []);
-
 export default formQueries;
+
+formQueries.cpForms.wrapperConfig = {
+  forClientPortal: true,
+};
+
+formQueries.cpFormDetail.wrapperConfig = {
+  forClientPortal: true,
+};

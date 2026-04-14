@@ -121,7 +121,7 @@ export const types = `
     email: String
     phone: String
     password: String
-    otp: Int
+    otp: String
   }
 
   type GoogleOAuthConfig {
@@ -135,6 +135,11 @@ export const types = `
     appId: String
     appSecret: String
     redirectUri: String
+  }
+
+  type FirebaseConfig {
+    serviceAccountKey: String
+    enabled: Boolean
   }
 
 type ClientPortal {
@@ -153,6 +158,7 @@ type ClientPortal {
     manualVerificationConfig: ManualVerificationConfig
     enableManualVerification: Boolean
     testUser: TestUser
+    firebaseConfig: FirebaseConfig
 
     createdAt: Date
     updatedAt: Date
@@ -279,7 +285,7 @@ type ClientPortal {
     email: String
     phone: String
     password: String
-    otp: Int
+    otp: String
   }
 
   input GoogleOAuthConfigInput {
@@ -293,6 +299,11 @@ type ClientPortal {
     appId: String
     appSecret: String
     redirectUri: String
+  }
+
+  input FirebaseConfigInput {
+    serviceAccountKey: String
+    enabled: Boolean
   }
 
   input ClientPortalConfigInput {
@@ -310,6 +321,7 @@ type ClientPortal {
     manualVerificationConfig: ManualVerificationConfigInput
     enableManualVerification: Boolean
     testUser: TestUserInput
+    firebaseConfig: FirebaseConfigInput
   }
 
   input IClientPortalFilter {

@@ -7,15 +7,13 @@ import {
   Table,
   useConfirm,
 } from 'erxes-ui';
-import { useFields } from 'ui-modules';
+import { useAtom } from 'jotai';
+import { useEffect } from 'react';
 import { Link, useParams } from 'react-router';
+import { CORE_RELATION_TYPES, Can, IField, useFields } from 'ui-modules';
 import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { useFieldRemove } from '../hooks/useFieldRemove';
-import { IField } from 'ui-modules';
-import { CORE_RELATION_TYPES } from 'ui-modules';
-import { useAtom } from 'jotai';
 import { needsToRefreshState } from '../states/needsToRefresh';
-import { useEffect } from 'react';
 
 export const Properties = ({ groupId }: { groupId: string }) => {
   const { type } = useParams<{ type: string }>();
@@ -130,32 +128,38 @@ const PropertyRow = ({
       </Table.Cell>
       <Table.Cell className="w-8 p-0.5">
         <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-full w-full text-muted-foreground size-7"
-            >
-              <IconDots />
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content className="min-w-48">
-            <DropdownMenu.Item asChild>
-              <Link
-                to={`/settings/properties/${contentType}/${groupId}/${_id}`}
+          <Can action="fieldsManage">
+            <DropdownMenu.Trigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-full w-full text-muted-foreground size-7"
               >
-                <IconEdit />
-                Edit
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item
-              className="text-destructive"
-              disabled={removeFieldLoading}
-              onClick={() => handleDeleteField(_id)}
-            >
-              {removeFieldLoading ? <Spinner /> : <IconTrash />}
-              Delete
-            </DropdownMenu.Item>
+                <IconDots />
+              </Button>
+            </DropdownMenu.Trigger>
+          </Can>
+          <DropdownMenu.Content className="min-w-48">
+            <Can action="fieldsManage">
+              <DropdownMenu.Item asChild>
+                <Link
+                  to={`/settings/properties/${contentType}/${groupId}/${_id}`}
+                >
+                  <IconEdit />
+                  Edit
+                </Link>
+              </DropdownMenu.Item>
+            </Can>
+            <Can action="fieldsManage">
+              <DropdownMenu.Item
+                className="text-destructive"
+                disabled={removeFieldLoading}
+                onClick={() => handleDeleteField(_id)}
+              >
+                {removeFieldLoading ? <Spinner /> : <IconTrash />}
+                Delete
+              </DropdownMenu.Item>
+            </Can>
           </DropdownMenu.Content>
         </DropdownMenu>
       </Table.Cell>

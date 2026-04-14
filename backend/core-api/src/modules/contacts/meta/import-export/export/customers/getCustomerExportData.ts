@@ -1,6 +1,7 @@
 import {
   GetExportData,
   IImportExportContext,
+  buildExportCursorQuery,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
@@ -22,23 +23,18 @@ export async function getCustomerExportData(
     query = await generateFilter(subdomain, filters, models);
   }
 
-  if (ids && ids.length > 0 && !cursor) {
-    query._id = { $in: ids };
-  }
-  if (cursor) {
-    if (ids && ids.length > 0) {
-      const processedCount = parseInt(cursor, 10) || 0;
-      const remainingIds = ids.slice(processedCount);
-      if (remainingIds.length === 0) {
-        return [];
-      }
-      query._id = { $in: remainingIds.slice(0, limit) };
-    } else {
-      query._id = query._id ? { ...query._id, $gt: cursor } : { $gt: cursor };
-    }
+  const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
+    baseQuery: query,
+    cursor,
+    ids,
+    limit,
+  });
+
+  if (isIdsMode && exportQuery._id?.$in?.length === 0) {
+    return [];
   }
 
-  const customers = await models.Customers.find(query)
+  const customers = await models.Customers.find(exportQuery)
     .sort({ _id: 1 })
     .limit(limit)
     .lean();

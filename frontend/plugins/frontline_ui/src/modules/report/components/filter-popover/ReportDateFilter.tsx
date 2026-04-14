@@ -9,24 +9,35 @@ import {
 } from 'erxes-ui';
 import { useEffect, useId, useRef, useState } from 'react';
 import { DateRange } from 'react-day-picker';
-import { endOfDay, startOfDay, subDays, subMonths } from 'date-fns';
+import {
+  endOfDay,
+  endOfMonth,
+  endOfWeek,
+  endOfYear,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+  subDays,
+  subMonths,
+  subYears,
+  format,
+} from 'date-fns';
+import {
+  MONTHS,
+  QUARTERS,
+} from 'erxes-ui/modules/filter/date-filter/constants/dateTypes';
 
-const MONTHS = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
+export const REPORT_FIXED_DATES = [
+  'today',
+  'yesterday',
+  'this-week',
+  'last-week',
+  'this-month',
+  'last-month',
+  'this-year',
+  'last-year',
 ];
-
-const QUARTERS = ['quarter-1', 'quarter-2', 'quarter-3', 'quarter-4'];
 
 const getYearsArray = (startYearOffset: number, endYearOffset: number) => {
   const currentYear = new Date().getFullYear();
@@ -40,12 +51,6 @@ const getYearsArray = (startYearOffset: number, endYearOffset: number) => {
 };
 
 const getActiveTab = (date: string) => {
-  if (date.includes('half')) {
-    return 'halfYear';
-  }
-  if (date.includes('quarter')) {
-    return 'quarter';
-  }
   if (MONTHS.some((month) => date.includes(month))) {
     return 'month';
   }
@@ -62,40 +67,45 @@ const parseDateRangeFromString = (
 
   const today = new Date();
 
-  // Predefined date ranges
   const dateRanges: Record<string, { from: Date; to: Date }> = {
     today: {
       from: startOfDay(today),
       to: endOfDay(today),
     },
-    'in-the-past': {
-      from: startOfDay(new Date(1979, 0, 1)),
-      to: endOfDay(today),
-    },
-    '1-day-from-now': {
+    yesterday: {
       from: startOfDay(subDays(today, 1)),
-      to: endOfDay(today),
+      to: endOfDay(subDays(today, 1)),
     },
-    '3-days-from-now': {
-      from: startOfDay(subDays(today, 3)),
-      to: endOfDay(today),
+    'this-week': {
+      from: startOfWeek(today, { weekStartsOn: 1 }),
+      to: endOfWeek(today, { weekStartsOn: 1 }),
     },
-    '1-week-from-now': {
-      from: startOfDay(subDays(today, 7)),
-      to: endOfDay(today),
+    'last-week': {
+      from: startOfWeek(subDays(today, 7), { weekStartsOn: 1 }),
+      to: endOfWeek(subDays(today, 7), { weekStartsOn: 1 }),
     },
-    '3-months-from-now': {
-      from: startOfDay(subMonths(today, 3)),
-      to: endOfDay(today),
+    'this-month': {
+      from: startOfMonth(today),
+      to: endOfMonth(today),
+    },
+    'last-month': {
+      from: startOfMonth(subMonths(today, 1)),
+      to: endOfMonth(subMonths(today, 1)),
+    },
+    'this-year': {
+      from: startOfYear(today),
+      to: endOfYear(today),
+    },
+    'last-year': {
+      from: startOfYear(subYears(today, 1)),
+      to: endOfYear(subYears(today, 1)),
     },
   };
 
-  // Check for predefined ranges
   if (dateRanges[date]) {
     return dateRanges[date];
   }
 
-  // Month format: YYYY-MMM
   if (MONTHS.some((month) => date.includes(month))) {
     const [year, month] = date.split('-');
     const monthIndex = MONTHS.indexOf(month);
@@ -108,7 +118,7 @@ const parseDateRangeFromString = (
   // Quarter format: YYYY-quarterN
   if (date.includes('quarter')) {
     const [year] = date.split('-');
-    const quarterNumber = parseInt(date.split('quarter')[1]);
+    const quarterNumber = Number.parseInt(date.split('quarter')[1]);
     return {
       from: startOfDay(new Date(parseInt(year), (quarterNumber - 1) * 3, 1)),
       to: endOfDay(new Date(parseInt(year), quarterNumber * 3, 0)),
@@ -118,23 +128,22 @@ const parseDateRangeFromString = (
   // Half year format: YYYY-halfN
   if (date.includes('half')) {
     const [year] = date.split('-');
-    const halfNumber = parseInt(date.split('half')[1]);
+    const halfNumber = Number.parseInt(date.split('half')[1]);
     return {
       from: startOfDay(new Date(parseInt(year), (halfNumber - 1) * 6, 1)),
       to: endOfDay(new Date(parseInt(year), halfNumber * 6, 0)),
     };
   }
 
-  // Year format: YYYY
+  // Year format: YYYY-y
   if (/^\d{4}-y$/.test(date)) {
-    const year = parseInt(date);
+    const year = Number.parseInt(date);
     return {
       from: startOfDay(new Date(year, 0, 1)),
       to: endOfDay(new Date(year, 11, 31)),
     };
   }
 
-  // Date range format: fromDate,toDate
   if (date.includes(',')) {
     const [from, to] = date.split(',');
     return {
@@ -183,12 +192,6 @@ export const ReportDateFilter = ({
   const handleApply = () => {
     if (currentValue) {
       onChange(currentValue);
-      // We rely on the parent (Filter.Dialog) to close, but we might need a trigger or similar.
-      // Filter.Dialog usually closes when we click a close button.
-      // To programmatically close, we might need access to the dialog context.
-      // But typically, Apply just updates the value.
-      // If we need to close it, we can trigger a click on a close button or use specific props if available.
-      // For now we just update logic.
       const closeButton = document.querySelector('[data-dialog-close]');
       if (closeButton instanceof HTMLElement) {
         closeButton.click();
@@ -212,8 +215,6 @@ export const ReportDateFilter = ({
             >
               <ToggleGroup.Item value="day">Day</ToggleGroup.Item>
               <ToggleGroup.Item value="month">Month</ToggleGroup.Item>
-              <ToggleGroup.Item value="quarter">Quarter</ToggleGroup.Item>
-              <ToggleGroup.Item value="halfYear">Half Year</ToggleGroup.Item>
               <ToggleGroup.Item value="year">Year</ToggleGroup.Item>
             </ToggleGroup>
           </div>
@@ -239,22 +240,6 @@ export const ReportDateFilter = ({
               onValueChange={handleRadioGroupChange}
               value={currentValue}
               className="grid grid-cols-2"
-            />
-          </Tabs.Content>
-          <Tabs.Content value="quarter" className="w-full outline-hidden">
-            <DateFilterRadioGroup
-              items={QUARTERS}
-              className="flex flex-col"
-              onValueChange={handleRadioGroupChange}
-              value={currentValue}
-            />
-          </Tabs.Content>
-          <Tabs.Content value="halfYear" className="w-full outline-hidden">
-            <DateFilterRadioGroup
-              items={['half-1', 'half-2']}
-              className="flex flex-col"
-              onValueChange={handleRadioGroupChange}
-              value={currentValue}
             />
           </Tabs.Content>
           <Tabs.Content value="year" className="w-full outline-hidden">
@@ -378,4 +363,58 @@ const DateFilterRadioGroupItem = ({
       </label>
     </Button>
   );
+};
+
+export const getReportDisplayValue = (value: string) => {
+  if (value === 'today') {
+    return 'Today';
+  }
+  if (value === 'yesterday') {
+    return 'Yesterday';
+  }
+  if (value === 'this-week') {
+    return 'This week';
+  }
+  if (value === 'last-week') {
+    return 'Last week';
+  }
+  if (value === 'this-month') {
+    return 'This month';
+  }
+  if (value === 'last-month') {
+    return 'Last month';
+  }
+  if (value === 'this-year') {
+    return 'This year';
+  }
+  if (value === 'last-year') {
+    return 'Last year';
+  }
+
+  if (MONTHS.some((month) => value.includes(month))) {
+    return value;
+  }
+
+  if (value.includes('quarter')) {
+    const [year] = value.split('-');
+    const quarterNumber = Number.parseInt(value.split('quarter')[1]);
+    return `${year} Q${quarterNumber}`;
+  }
+
+  if (value.includes('half')) {
+    const [year] = value.split('-');
+    const halfNumber = Number.parseInt(value.split('half')[1]);
+    return `${year} H${halfNumber}`;
+  }
+
+  if (/^\d{4}-y$/.test(value)) {
+    return value.replace('-y', '');
+  }
+
+  if (value.includes(',')) {
+    const [from, to] = value.split(',');
+    return `${format(from, 'MMM d, yyyy')} - ${format(to, 'MMM d, yyyy')}`;
+  }
+
+  return 'Unknown';
 };

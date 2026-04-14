@@ -39,12 +39,9 @@ export const baseTrDetailSchema = z.object({
   accountId: undefed(z.string()).refine((val) => val?.length, {
     message: 'Must fill account',
   }),
+  branchId: undefed(z.string()),
+  departmentId: undefed(z.string()),
   amount: z.number().min(0),
-  side: z
-    .string()
-    .refine((val) => TR_SIDES.ALL.includes(val), {
-      message: 'wrong side aaaa',
-    }),
 
   followInfos: undefed(z.object({})), // rel backend
   followExtras: undefed(z.object({})), // followInfos to object
@@ -94,6 +91,17 @@ export const baseTransactionSchema = z.object({
   departmentId: undefed(z.string()),
   assignedUserIds: undefed(z.array(z.string())),
   details: z.array(baseTrDetailSchema).min(1),
+  side: z.string().refine((val) => TR_SIDES.ALL.includes(val), {
+    message: 'wrong side',
+  }),
+  relAccounts: undefed(
+    z.object({
+      dt: undefed(z.array(z.string())),
+      ct: undefed(z.array(z.string())),
+      customDt: z.array(z.string()).nullish(),
+      customCt: z.array(z.string()).nullish(),
+    }),
+  ),
 
   ...vatSchema.shape,
   ...ctaxSchema.shape,
@@ -195,19 +203,21 @@ export const transactionInvIncomeSchema = z
         ...invDetailSchema.shape,
       }),
     ),
-    extraData: z.object({
-      invIncomeExpenses: z
-        .array(
-          z.object({
-            _id: z.string(),
-            title: z.string(),
-            rule: z.string(),
-            amount: z.number().min(0),
-            accountId: undefed(z.string()),
-          }),
-        )
-        .min(0),
-    }),
+    extraData: undefed(
+      z.object({
+        invIncomeExpenses: z
+          .array(
+            z.object({
+              _id: z.string(),
+              title: z.string(),
+              rule: z.string(),
+              amount: z.number().min(0),
+              accountId: undefed(z.string()),
+            }),
+          )
+          .min(0),
+      }),
+    ),
   });
 
 export const transactionInvOutSchema = z
@@ -277,6 +287,36 @@ export const transactionInvSaleSchema = z
       }),
     ),
   });
+
+export const transactionInvSaleReturnSchema = z
+  .object({
+    journal: z.literal(TrJournalEnum.INV_SALE_RETURN),
+    ...baseTransactionSchema.shape,
+  })
+  .extend({
+    customerId: undefed(z.string()),
+    branchId: z.string(),
+    departmentId: z.string(),
+    followInfos: z.object({
+      saleTransactionId: undefed(z.string()),
+      saleOutAccountId: z.string(),
+      saleCostAccountId: z.string(),
+    }),
+    followExtras: undefed(
+      z.object({
+        saleTransaction: undefed(
+          z.object({ ...transactionInvSaleSchema.shape }),
+        ),
+        saleOutAccount: undefed(z.object({ ...accountSchema.shape })),
+        saleCostAccount: undefed(z.object({ ...accountSchema.shape })),
+      }),
+    ),
+    details: z.array(
+      z.object({
+        ...invDetailSchema.shape,
+      }),
+    ),
+  });
 //#endregion Inventories
 
 export const trDocSchema = z
@@ -291,6 +331,7 @@ export const trDocSchema = z
     transactionInvOutSchema,
     transactionInvMoveSchema,
     transactionInvSaleSchema,
+    transactionInvSaleReturnSchema,
 
     transactionTaxSchema,
   ])

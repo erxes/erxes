@@ -1,29 +1,30 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useNavigate } from 'react-router-dom';
-import {
-  IconCalendarFilled,
-  IconProgressCheck,
-  IconLabelFilled,
-  IconProgress,
-} from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { CycleStatusDisplay } from '@/cycle/components/CycleStatusDisplay';
 import { DateSelect } from '@/cycle/components/DateSelect';
-import {
-  Badge,
-  Input,
-  RecordTable,
-  RecordTableInlineCell,
-  PopoverScoped,
-  ChartContainer,
-} from 'erxes-ui';
-import { ICycle } from '@/cycle/types';
-import { useState } from 'react';
 import { CycleHotKeyScope } from '@/cycle/CycleHotkeyScope';
 import { useUpdateCycle } from '@/cycle/hooks/useUpdateCycle';
-import { ChartConfig } from 'erxes-ui';
+import { ICycle } from '@/cycle/types';
+import {
+  IconCalendarFilled,
+  IconLabelFilled,
+  IconProgress,
+  IconProgressCheck,
+} from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/table-core';
 import clsx from 'clsx';
+import {
+  Badge,
+  ChartConfig,
+  ChartContainer,
+  Input,
+  PopoverScoped,
+  RecordTable,
+  RecordTableInlineCell,
+} from 'erxes-ui';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
-import { CycleStatusDisplay } from '@/cycle/components/CycleStatusDisplay';
+import { cyclesMoreColumn } from './CyclesMoreColumn';
 
 const chartConfig = {
   visitors: {
@@ -37,6 +38,7 @@ const chartConfig = {
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICycle>;
 export const cyclesColumns: ColumnDef<ICycle>[] = [
+  cyclesMoreColumn,
   checkBoxColumn,
   {
     id: 'name',

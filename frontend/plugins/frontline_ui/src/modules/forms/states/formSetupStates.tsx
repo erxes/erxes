@@ -88,6 +88,14 @@ export const formSetupValuesAtom = atom((get) => {
             text: field.label,
             type: field.type,
             validation: field.validation,
+            logics: field.logics?.map(
+              ({ fieldId, logicOperator, logicValue }) => ({
+                fieldId,
+                logicOperator,
+                logicValue,
+              }),
+            ),
+            logicAction: field.logicAction,
           };
         });
       })
@@ -105,6 +113,7 @@ export const resetFormSetupAtom = atom(null, (_, set) => {
 
 export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
   const general = {
+    channelId: payload.channelId,
     title: payload.title,
     name: payload.title,
     description: payload.description,
@@ -128,12 +137,14 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
               type: field.type,
               label: field.text,
               description: field.description,
-              placeholder: field.content,
+              placeholder: field.content || '',
               options: field.options,
               span: field.column ?? 1,
-              required: field.isRequired,
+              required: field.isRequired || false,
               order: field.order,
               validation: field.validation,
+              logics: field.logics,
+              logicAction: field.logicAction || '',
               stepId: key,
             })),
         },

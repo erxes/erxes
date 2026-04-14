@@ -1,17 +1,11 @@
 import { AutomationBuilderCanvas } from '@/automations/components/builder/AutomationBuilderCanvas';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationsHotKeyScope } from '@/automations/types';
-import {
-  Icon,
-  // IconLayoutBottombarExpand,
-  IconLayoutSidebarRightExpand,
-  IconProps,
-} from '@tabler/icons-react';
+import { Icon, IconProps } from '@tabler/icons-react';
 import {
   Badge,
   Button,
   Command,
-  // PageSubHeader,
   Resizable,
   Spinner,
   Tooltip,
@@ -44,25 +38,6 @@ export const AutomationBuilderWorkspace = () => {
         className="relative flex flex-row w-full"
       >
         <AutomationBuilderCanvas />
-        <div className="bg-sidebar border-l h-full w-16 flex flex-col gap-2 items-center pt-2">
-          <AutomationBuilderPanelToggle
-            isOpen={isOpenSideBar}
-            onToggle={toggleSideBarOpen}
-            openLabel="Hide Menu"
-            closedLabel="Show Menu"
-            shortcut={`${isMac ? '⌘' : 'Ctrl'}G`}
-            IconComponent={IconLayoutSidebarRightExpand}
-          />
-          {/* TODO: Add inspector panel when it is implemented */}
-          {/* <AutomationBuilderPanelToggle
-            isOpen={isPanelOpen}
-            onToggle={togglePanelOpen}
-            openLabel="Hide Inspect"
-            closedLabel="Show Inspect"
-            shortcut={`${isMac ? '⌘' : 'Ctrl'}I`}
-            IconComponent={IconLayoutBottombarExpand}
-          /> */}
-        </div>
       </Resizable.Panel>
 
       {/* TODO: Add inspector panel when it is implemented */}
@@ -113,11 +88,10 @@ const AutomationBuilderPanelToggle = ({
       <Tooltip.Trigger asChild>
         <Button
           variant="ghost"
-          className="bg-sidebar text-primary"
+          className="bg-sidebar text-primary w-full aspect-square size-16 [&>svg]:size-5"
           onClick={onToggle}
-          asChild
         >
-          <IconComponent className="size-16" />
+          <IconComponent />
         </Button>
       </Tooltip.Trigger>
       <Tooltip.Content

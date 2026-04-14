@@ -2,6 +2,7 @@ import {
   IconCalendarEvent,
   IconCheck,
   IconChevronDown,
+  IconCircleCheck,
   IconNumbers,
   IconTextScan2,
   IconTextSize,
@@ -14,6 +15,7 @@ export const FORM_FIELD_TYPES = [
   { value: 'date', label: 'Date', icon: <IconCalendarEvent /> },
   { value: 'select', label: 'Select', icon: <IconChevronDown /> },
   { value: 'textarea', label: 'Textarea', icon: <IconTextScan2 /> },
+  { value: 'radio', label: 'Radio Group', icon: <IconCircleCheck /> },
 ];
 
 export type FormFieldType = (typeof FORM_FIELD_TYPES)[number];

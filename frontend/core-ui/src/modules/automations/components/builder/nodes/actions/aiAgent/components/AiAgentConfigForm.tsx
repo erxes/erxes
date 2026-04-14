@@ -1,19 +1,26 @@
+import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRuntimeInfo';
 import { AiAgentObjectBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectBuilder';
+import { AiAgentInputMappingFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentInputMappingFields';
+import { AiAgentMemoryFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentMemoryFields';
 import { AiAgentTopicBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentTopicBuilder';
 import { AI_AGENT_NODE_GOAL_TYPES } from '@/automations/components/builder/nodes/actions/aiAgent/constants/aiAgentConfigForm';
 import {
   aiAgentConfigFormSchema,
+  getDefaultAiAgentMemoryConfig,
   TAiAgentConfigForm,
 } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
-import { useFormValidationErrorHandler } from 'ui-modules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Command, Form, Select, Textarea } from 'erxes-ui';
+import { Button, Form, Select, Textarea } from 'erxes-ui';
+import { useEffect, useMemo, useRef } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Link } from 'react-router';
-import { TAutomationActionProps } from 'ui-modules';
+import {
+  TAutomationActionProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
 
 export const AIAgentConfigForm = ({
   currentAction,
@@ -24,14 +31,43 @@ export const AIAgentConfigForm = ({
   });
   const form = useForm<TAiAgentConfigForm>({
     resolver: zodResolver(aiAgentConfigFormSchema),
-    defaultValues: { ...(currentAction?.config || {}) },
+    defaultValues: {
+      inputMapping: {
+        source: 'trigger',
+        path: '',
+        customValue: '',
+      },
+      memory: getDefaultAiAgentMemoryConfig(currentAction?.config?.goalType),
+      ...(currentAction?.config || {}),
+    },
   });
   const { automationsAiAgents } = useAiAgents();
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit, setValue } = form;
   const config = useWatch<TAiAgentConfigForm>({
     control,
   });
+  const selectedAgent = useMemo(
+    () =>
+      automationsAiAgents.find(({ _id }) => _id === config?.aiAgentId) || null,
+    [automationsAiAgents, config?.aiAgentId],
+  );
+  const previousGoalTypeRef = useRef(currentAction?.config?.goalType);
+
+  useEffect(() => {
+    if (!config?.goalType) {
+      previousGoalTypeRef.current = config?.goalType;
+      return;
+    }
+
+    if (previousGoalTypeRef.current !== config.goalType) {
+      setValue('memory', getDefaultAiAgentMemoryConfig(config.goalType), {
+        shouldDirty: true,
+      });
+    }
+
+    previousGoalTypeRef.current = config.goalType;
+  }, [config?.goalType, setValue]);
 
   return (
     <FormProvider {...form}>
@@ -94,20 +130,32 @@ export const AIAgentConfigForm = ({
           }}
         />
 
-        {config?.goalType === 'generateObject' && <AiAgentObjectBuilder />}
-        {config?.goalType === 'classifyTopic' && <AiAgentTopicBuilder />}
+        <AiAgentInputMappingFields />
+
+        {config?.goalType === 'classification' && <AiAgentObjectBuilder />}
+        {config?.goalType === 'splitTopic' && <AiAgentTopicBuilder />}
         {config?.goalType === 'generateText' && (
           <Form.Field
             name="prompt"
             control={control}
             render={({ field }) => (
               <Form.Item>
+                <Form.Label>Instruction Prompt</Form.Label>
                 <Textarea placeholder="Enter prompt" {...field} />
+                <Form.Description>
+                  Describe the final artifact this action should produce. For
+                  email generation, ask for a ready-to-use email body instead of
+                  a conversational reply.
+                </Form.Description>
                 <Form.Message />
               </Form.Item>
             )}
           />
         )}
+
+        <AiAgentRuntimeInfo agent={selectedAgent} actionConfig={config} />
+
+        <AiAgentMemoryFields />
       </AutomationConfigFormWrapper>
     </FormProvider>
   );

@@ -28,14 +28,12 @@ export const getRelatedValue = async (
       input: { _id: target[targetKey] },
     });
 
-    if (!!relatedValueProps[targetKey]) {
+    if (relatedValueProps?.[targetKey]) {
       const key = relatedValueProps[targetKey]?.key;
       return user[key];
     }
 
-    return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
-    );
+    return user?.detail?.fullName || user?.email || '';
   }
 
   if (
@@ -56,7 +54,7 @@ export const getRelatedValue = async (
       },
     });
 
-    if (!!relatedValueProps[targetKey]) {
+    if (relatedValueProps?.[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return users
         .filter((user) => (filter ? user[filter.key] === filter.value : user))
@@ -65,9 +63,7 @@ export const getRelatedValue = async (
     }
 
     return (
-      users.map(
-        (user) => (user.detail && user.detail.fullName) || user.email,
-      ) || []
+      users.map((user) => user.detail?.fullName || user.email) || []
     ).join(', ');
   }
 
@@ -97,7 +93,7 @@ export const getRelatedValue = async (
       _id: target[targetKey],
     });
 
-    return (stage && stage.name) || '';
+    return stage?.name || '';
   }
 
   if (['sourceConversationIds'].includes(targetKey)) {
@@ -121,13 +117,14 @@ export const getRelatedValue = async (
     const contactIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
-      action: 'savedConformity',
+      module: 'relation',
+      action: 'getRelationIds',
       input: {
-        mainType: 'deal',
-        mainTypeId: target._id,
-        relTypes: [relTypeConst[targetKey]],
+        contentType: 'sales:deal',
+        contentId: target._id,
+        relatedContentType: relTypeConst[targetKey],
       },
+      defaultValue: [],
     });
 
     const upperCasedTargetKey =
@@ -299,12 +296,12 @@ const generateCustomersFielValue = async ({
   const customerIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'conformities',
-    action: 'savedConformity',
+    module: 'relation',
+    action: 'getRelationIds',
     input: {
-      mainType: 'deal',
-      mainTypeId: target._id,
-      relTypes: ['customer'],
+      contentType: 'sales:deal',
+      contentId: target._id,
+      relatedContentType: 'core:customer',
     },
     defaultValue: [],
   });

@@ -19,7 +19,7 @@ export const ExportIndexPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <ExportHistories entityType="core:contact.customer" />
+      <ExportHistories />
     </PageContainer>
   );
 };

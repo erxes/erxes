@@ -69,8 +69,8 @@ const Image: FC<
         fromCF
           ? cloudflareLoader({
               src: srcI,
-              width: parseInt(width?.toString() || "500"),
-              quality: parseInt(quality?.toString() || "75"),
+              width: Number.parseInt(width?.toString() || "500"),
+              quality: Number.parseInt(quality?.toString() || "75"),
             })
           : srcI
       }
