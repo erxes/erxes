@@ -37,14 +37,14 @@ export const TransactionsDelete = () => {
       },
     }).then(() => {
       const selectedRows = table.getFilteredSelectedRowModel().rows;
-      
+
       // Delete each transaction record by parentId
       selectedRows.forEach((row) => {
         if (row.original.parentId) {
           removeTrRecords(row.original.parentId);
         }
       });
-      
+
       // Clear selection after deletion
       table.setRowSelection({});
     });
