@@ -19,6 +19,8 @@ export const useScoreList = () => {
       scoreOrderType,
       scoreAction,
       scoreStageId,
+      scorePipelineId,
+      scoreBoardId,
       number,
       description,
     },
@@ -30,6 +32,8 @@ export const useScoreList = () => {
     scoreOrderType: string;
     scoreAction: string;
     scoreStageId: string;
+    scorePipelineId: string;
+    scoreBoardId: string;
     number: string;
     description: string;
   }>([
@@ -40,6 +44,8 @@ export const useScoreList = () => {
     'scoreOrderType',
     'scoreAction',
     'scoreStageId',
+    'scorePipelineId',
+    'scoreBoardId',
     'number',
     'description',
   ]);
@@ -56,6 +62,8 @@ export const useScoreList = () => {
       orderType: scoreOrderType || undefined,
       action: scoreAction || undefined,
       stageId: scoreStageId || undefined,
+      pipelineId: scorePipelineId || undefined,
+      boardId: scoreBoardId || undefined,
       number: number || undefined,
       description: description || undefined,
     },

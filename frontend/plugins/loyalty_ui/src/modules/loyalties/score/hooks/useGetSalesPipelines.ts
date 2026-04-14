@@ -10,7 +10,6 @@ interface IPipeline {
 interface IResponse {
   salesPipelines: {
     list: IPipeline[];
-    totalCount: number;
   };
 }
 

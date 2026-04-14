@@ -56,6 +56,8 @@ const queryParams = `
   fromDate: String,
   toDate: String,
   stageId: String,
+  pipelineId: String,
+  boardId: String,
   number: String,
   description: String,
 `;

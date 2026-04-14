@@ -21,7 +21,6 @@ export const GET_SALES_PIPELINES = gql`
         name
         boardId
       }
-      totalCount
     }
   }
 `;
@@ -46,7 +45,7 @@ export const GET_SALES_DEALS = gql`
 `;
 
 export const GET_SALES_STAGES = gql`
-  query SalesStages($pipelineId: String!) {
+  query SalesStages($pipelineId: String) {
     salesStages(pipelineId: $pipelineId) {
       _id
       name
