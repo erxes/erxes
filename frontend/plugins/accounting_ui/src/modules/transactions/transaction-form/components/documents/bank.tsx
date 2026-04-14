@@ -1,10 +1,15 @@
 import dayjs from 'dayjs';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 
-export const PrintBankDocument = ({ transaction }: {transaction: ITransaction}) => {
+export const PrintBankDocument = ({
+  transaction,
+}: {
+  transaction: ITransaction;
+}) => {
   const detail = transaction?.details?.[0];
 
-  const amount = detail?.currencyAmount ?? detail?.amount ?? transaction?.sumDt ?? '';
+  const amount =
+    detail?.currencyAmount ?? detail?.amount ?? transaction?.sumDt ?? '';
 
   const amountFormatted =
     amount !== ''
@@ -53,7 +58,9 @@ export const PrintBankDocument = ({ transaction }: {transaction: ITransaction}) 
           <tr>
             <td className="py-1">Төлөгчийн нэр:</td>
             <td className="py-1">
-              {transaction.customer?.firstName || transaction.customer?.code || '-'}
+              {transaction.customer?.firstName ||
+                transaction.customer?.code ||
+                '-'}
             </td>
             <td className="py-1" colSpan={4}></td>
           </tr>

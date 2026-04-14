@@ -1,5 +1,5 @@
-import { TrJournalEnum } from "../../types/constants";
-import { PrintBankDocument } from "../components/documents/bank";
+import { TrJournalEnum } from '../../types/constants';
+import { PrintBankDocument } from '../components/documents/bank';
 
 export const PRINT_DOCUMENTS = {
   [TrJournalEnum.MAIN]: '',

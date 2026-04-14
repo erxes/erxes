@@ -249,7 +249,8 @@ export const TransactionsTabsList = ({
           )}
         </Tabs.List>
 
-        {isSaved && PRINT_DOCUMENTS[fields[Number(activeJournal ?? '0')]?.journal] ? (
+        {isSaved &&
+        PRINT_DOCUMENTS[fields[Number(activeJournal ?? '0')]?.journal] ? (
           <Button
             onClick={() => {
               window.open(
@@ -264,7 +265,6 @@ export const TransactionsTabsList = ({
         ) : (
           <Button variant="secondary">Save transaction template</Button>
         )}
-
       </div>
       {fields.map((field, index) => (
         <Tabs.Content
