@@ -47,7 +47,7 @@ export const DEFAULT_ITINERARY_PDF_CONFIG: ItineraryPdfRenderConfig = {
   showDayContent: true,
   showElements: false,
   showAmenities: false,
-  labels: DEFAULT_ITINERARY_PDF_LABELS,
+  labels: { ...DEFAULT_ITINERARY_PDF_LABELS },
 };
 
 export interface ItineraryPdfRenderConfig {
