@@ -1,4 +1,8 @@
-import { TCoreModuleProducerContext, TInsertImportRowsInput, TGetImportHeadersOutput } from 'erxes-api-shared/core-modules';
+import {
+  TCoreModuleProducerContext,
+  TInsertImportRowsInput,
+  TGetImportHeadersOutput,
+} from 'erxes-api-shared/core-modules';
 import { processProductRows } from './processProductRows';
 import { IModels } from '~/connectionResolvers';
 
@@ -17,25 +21,27 @@ const productImportMap = {
       { label: 'Status', key: 'status' },
       { label: 'Tags', key: 'tags' },
     ],
-    processRows: (models: IModels, rows: any[]) => processProductRows(models, rows),
+    processRows: (models: IModels, rows: any[]) =>
+      processProductRows(models, rows),
   },
 };
 export const productImportHandlers = {
-    getImportHeaders: async (
-      { collectionName }: { collectionName: string },
-      { subdomain }: TCoreModuleProducerContext<IModels>,
-    ): Promise<TGetImportHeadersOutput> => {
+  getImportHeaders: async (
+    { collectionName }: { collectionName: string },
+    { subdomain }: TCoreModuleProducerContext<IModels>,
+  ): Promise<TGetImportHeadersOutput> => {
     const handler = productImportMap[collectionName];
-    if (!handler) throw new Error(`Import headers handler not found for ${collectionName}`);
+    if (!handler)
+      throw new Error(`Import headers handler not found for ${collectionName}`);
     return handler.headers;
-   },
-   insertImportRows: async (
-     { collectionName, rows }: TInsertImportRowsInput,
-     { models }: TCoreModuleProducerContext<IModels>,
+  },
+  insertImportRows: async (
+    { collectionName, rows }: TInsertImportRowsInput,
+    { models }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = productImportMap[collectionName];
-    if (!handler) throw new Error(`Import handler not found for ${collectionName}`);
+    if (!handler)
+      throw new Error(`Import handler not found for ${collectionName}`);
     return handler.processRows(models, rows);
   },
- };
-  
+};
