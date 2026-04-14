@@ -28,11 +28,7 @@ const EditorialMasthead: React.FC<{
   branch?: IBranchPDFData;
   itineraryName?: string;
   config: ItineraryPdfRenderConfig;
-}> = React.memo(function EditorialMasthead({
-  branch,
-  itineraryName,
-  config,
-}) {
+}> = React.memo(function EditorialMasthead({ branch, itineraryName, config }) {
   return (
     <View style={styles.pageHeader}>
       <View style={styles.headerLogoRow}>
@@ -150,8 +146,7 @@ const EditorialDayBlock: React.FC<{
                   const description = stripHtml(
                     element.note || element.content || '',
                   );
-                  const title =
-                    element.name || `Activity ${elementIndex + 1}`;
+                  const title = element.name || `Activity ${elementIndex + 1}`;
 
                   return (
                     <View
@@ -163,7 +158,9 @@ const EditorialDayBlock: React.FC<{
                       <Text style={styles.dayElementTitle}>
                         • {title}
                         {meta ? (
-                          <Text style={styles.dayElementMeta}>{` (${meta})`}</Text>
+                          <Text
+                            style={styles.dayElementMeta}
+                          >{` (${meta})`}</Text>
                         ) : null}
                       </Text>
                       {description ? (

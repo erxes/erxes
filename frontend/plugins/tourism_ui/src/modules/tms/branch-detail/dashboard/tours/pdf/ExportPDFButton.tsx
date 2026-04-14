@@ -173,17 +173,17 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
   );
   const shouldWaitForElements = Boolean(
     pdfConfig.itineraryConfig.showElements &&
-      previewOpen &&
-      branchId &&
-      elementsLoading &&
-      !elements.length,
+    previewOpen &&
+    branchId &&
+    elementsLoading &&
+    !elements.length,
   );
   const shouldWaitForAmenities = Boolean(
     pdfConfig.itineraryConfig.showAmenities &&
-      previewOpen &&
-      branchId &&
-      amenitiesLoading &&
-      !amenities.length,
+    previewOpen &&
+    branchId &&
+    amenitiesLoading &&
+    !amenities.length,
   );
   const shouldWaitForResources =
     shouldWaitForElements || shouldWaitForAmenities;

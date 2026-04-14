@@ -5,10 +5,7 @@ import {
   IconLayoutGrid,
 } from '@tabler/icons-react';
 import { Button, Checkbox, Dialog, Input, Label } from 'erxes-ui';
-import type {
-  ItineraryPdfLabels,
-  ItineraryPdfRenderConfig,
-} from './types';
+import type { ItineraryPdfLabels, ItineraryPdfRenderConfig } from './types';
 
 type ToggleKey =
   | 'showCoverPage'
@@ -116,8 +113,8 @@ export const CustomizePdfDialog: React.FC<CustomizePdfDialogProps> = ({
             <Dialog.Header className="px-6 py-6 border-b bg-muted/30">
               <Dialog.Title className="text-xl">Customize PDF</Dialog.Title>
               <Dialog.Description className="max-w-xl text-sm leading-6">
-                Control which sections appear and shape the language used in
-                the exported itinerary.
+                Control which sections appear and shape the language used in the
+                exported itinerary.
               </Dialog.Description>
             </Dialog.Header>
 
@@ -185,7 +182,9 @@ export const CustomizePdfDialog: React.FC<CustomizePdfDialogProps> = ({
                 <div className="space-y-4">
                   {LABEL_FIELDS.map((field) => (
                     <div key={field.key} className="space-y-1.5">
-                      <Label htmlFor={`pdf-label-${field.key}`}>{field.label}</Label>
+                      <Label htmlFor={`pdf-label-${field.key}`}>
+                        {field.label}
+                      </Label>
                       <Input
                         id={`pdf-label-${field.key}`}
                         value={pdfConfig.labels[field.key]}

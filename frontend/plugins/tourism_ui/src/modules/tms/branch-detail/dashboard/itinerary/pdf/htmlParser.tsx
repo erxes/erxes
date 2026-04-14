@@ -194,7 +194,10 @@ export const parseHtmlToPdfElements = (
         key="fallback"
         style={[
           BASE_STYLE,
-          { textAlign: options?.forceAlignment || options?.defaultAlignment || 'center' },
+          {
+            textAlign:
+              options?.forceAlignment || options?.defaultAlignment || 'center',
+          },
         ]}
       >
         {stripHtml(html)}
