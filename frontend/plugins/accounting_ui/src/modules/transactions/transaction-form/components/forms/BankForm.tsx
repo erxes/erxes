@@ -14,6 +14,7 @@ import {
   DepartmentField,
   DescriptionField,
   SideField,
+  BankField,
 } from './../GeneralFormFields';
 
 export const BankTransaction = ({
@@ -51,6 +52,7 @@ export const BankTransaction = ({
           isWithTax={true}
           isSameSide={false}
         />
+        <BankField form={form} index={index} />
       </div>
       <div className="pt-3">
         <RelAccountsForm form={form} index={index} />
