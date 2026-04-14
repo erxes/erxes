@@ -20,7 +20,7 @@ export const types = `
 `;
 
 export const queries = `
-  salesBoards: [LoyaltySalesBoard]
-  salesPipelines(boardId: String): [LoyaltySalesPipeline]
-  salesStages(pipelineId: String!): [LoyaltySalesStage]
+  loyaltySalesBoards: [LoyaltySalesBoard]
+  loyaltySalesPipelines(boardId: String): [LoyaltySalesPipeline]
+  loyaltySalesStages(pipelineId: String!): [LoyaltySalesStage]
 `;

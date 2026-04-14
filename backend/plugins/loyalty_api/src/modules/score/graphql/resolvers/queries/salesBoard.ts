@@ -2,7 +2,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const salesBoardQueries = {
-  async salesBoards(
+  async loyaltySalesBoards(
     _root: undefined,
     _args: undefined,
     { subdomain }: IContext,
@@ -20,7 +20,7 @@ export const salesBoardQueries = {
     return Array.isArray(result) ? result : [];
   },
 
-  async salesPipelines(
+  async loyaltySalesPipelines(
     _root: undefined,
     { boardId }: { boardId?: string },
     { subdomain }: IContext,
@@ -38,7 +38,7 @@ export const salesBoardQueries = {
     return Array.isArray(result) ? result : [];
   },
 
-  async salesStages(
+  async loyaltySalesStages(
     _root: undefined,
     { pipelineId }: { pipelineId: string },
     { subdomain }: IContext,
