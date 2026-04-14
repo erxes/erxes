@@ -7,31 +7,28 @@ import {
   RecordTable,
   RecordTableInlineCell,
   fixNum,
+  Popover,
+  Combobox,
+  Command,
+  useConfirm,
 } from 'erxes-ui';
-import { Link } from 'react-router';
+import { useNavigate } from 'react-router';
 import { ProductsInline } from 'ui-modules';
 import { TR_JOURNAL_LABELS, TR_SIDES, TrJournalEnum } from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
+import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 
-// Create named components for cell renderers to fix React Hook usage
 const NumberCell = ({ row }: any) => {
   const { number } = row.original;
 
-  return (
-    <RecordTableInlineCell>
-      {number}
-    </RecordTableInlineCell>
-  );
+  return <RecordTableInlineCell>{number}</RecordTableInlineCell>;
 };
 
 const DescriptionCell = ({ row }: any) => {
   const { description } = row.original;
 
-  return (
-    <RecordTableInlineCell>
-      {description}
-    </RecordTableInlineCell>
-  );
+  return <RecordTableInlineCell>{description}</RecordTableInlineCell>;
 };
 
 const AmountCell = ({ value }: { value: number }) => {
@@ -45,23 +42,23 @@ const AmountCell = ({ value }: { value: number }) => {
       />
     </RecordTableInlineCell>
   );
-}
+};
 
 const DebitCell = ({ row }: any) => {
   const { details } = row.original;
   const { amount, side } = details;
 
-  return (<AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />)
+  return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
 };
 
 const CreditCell = ({ row }: any) => {
   const { details } = row.original;
   const { amount, side } = details;
 
-  return (<AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />)
+  return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
 
-const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
+const AmountProdCell = ({ row, value }: { row: any; value: number }) => {
   const { details } = row.original;
   if (!details?.productId) {
     return undefined;
@@ -77,7 +74,7 @@ const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
       />
     </RecordTableInlineCell>
   );
-}
+};
 
 const BranchCell = ({ row }: any) => {
   const { branch } = row.original;
@@ -109,7 +106,6 @@ const JournalCell = ({ row }: any) => {
   );
 };
 
-
 const DateCell = ({ getValue }: any) => {
   return (
     <RecordTableInlineCell>
@@ -136,7 +132,10 @@ const ProductCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      <ProductsInline productIds={[details.productId]} products={details.product && [details.product]} />
+      <ProductsInline
+        productIds={[details.productId]}
+        products={details.product && [details.product]}
+      />
     </RecordTableInlineCell>
   );
 };
@@ -147,14 +146,47 @@ const TransactionMoreColumnCell = ({
   cell: Cell<ITrRecord, unknown>;
 }) => {
   const { parentId, trId, originId } = cell.row.original;
+  const navigate = useNavigate();
+  const { confirm } = useConfirm();
+  const { removeTrRecords } = useTrRecordsRemove();
+
+  const handleEdit = () => {
+    navigate(
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${
+        originId || trId
+      }`,
+    );
+  };
+
+  const handleDelete = () =>
+    confirm({
+      message: 'Are you sure you want to delete this transaction record?',
+      options: {
+        okLabel: 'Delete',
+        cancelLabel: 'Cancel',
+      },
+    }).then(() => {
+      removeTrRecords(parentId);
+    });
 
   return (
-    <Link
-      to={`/accounting/transaction/edit?parentId=${parentId}&trId=${originId || trId
-        }`}
-    >
-      <RecordTable.MoreButton className="w-full h-full" />
-    </Link>
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -199,29 +231,33 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
   },
   {
     id: 'unitPrice-inv',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />
+    ),
     accessorKey: 'unitPrice-inv',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.details?.unitPrice ?? 0} />,
+    cell: ({ row }) => (
+      <AmountProdCell row={row} value={row.original?.details?.unitPrice ?? 0} />
+    ),
   },
   {
     id: 'count-inv',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />
+    ),
     accessorKey: 'count-inv',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.details?.count ?? 0} />,
+    cell: ({ row }) => (
+      <AmountProdCell row={row} value={row.original?.details?.count ?? 0} />
+    ),
   },
   {
     id: 'Debit',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Debit" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Debit" />,
     accessorKey: 'Debit',
     cell: ({ getValue, row }) => <DebitCell getValue={getValue} row={row} />,
   },
   {
     id: 'Credit',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Credit" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Credit" />,
     accessorKey: 'Credit',
     cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
   },
