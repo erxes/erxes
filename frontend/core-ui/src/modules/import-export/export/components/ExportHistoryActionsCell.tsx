@@ -1,4 +1,4 @@
-import { IconDotsVertical, IconDownload } from '@tabler/icons-react';
+import { IconDots, IconDownload } from '@tabler/icons-react';
 import {
   DropdownMenu,
   REACT_APP_API_URL,
@@ -35,7 +35,7 @@ export function ExportHistoryActionsCell({
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
         <RecordTableInlineCell className="justify-center cursor-pointer">
-          <IconDotsVertical className="size-4 text-muted-foreground" />
+          <IconDots className="size-4 text-muted-foreground" />
         </RecordTableInlineCell>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>

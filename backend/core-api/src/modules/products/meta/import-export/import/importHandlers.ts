@@ -4,6 +4,7 @@ import { IModels } from '~/connectionResolvers';
 
 const productImportMap = {
   product: {
+    fileName: 'products-template.csv',
     headers: [
       { label: 'Name', key: 'name' },
       { label: 'Short Name', key: 'shortName' },

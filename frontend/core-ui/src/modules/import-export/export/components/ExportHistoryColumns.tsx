@@ -75,6 +75,12 @@ export const exportHistoryColumns = (
   contentTypes: ImportExportContentType[] = [],
 ): ColumnDef<TExportProgress>[] => [
   {
+    id: 'actions',
+    size: 34,
+    minSize: 34,
+    cell: ({ row }) => <ExportHistoryActionsCell exportItem={row.original} />,
+  },
+  {
     id: 'fileName',
     accessorKey: 'fileName',
     size: 220,
@@ -221,12 +227,5 @@ export const exportHistoryColumns = (
         </RecordTableInlineCell>
       );
     },
-  },
-  {
-    id: 'actions',
-    size: 56,
-    minSize: 56,
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ row }) => <ExportHistoryActionsCell exportItem={row.original} />,
   },
 ];
