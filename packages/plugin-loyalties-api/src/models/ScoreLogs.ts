@@ -316,7 +316,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      let ownerScore = owner.score;
+      let ownerScore = Number(owner.score) ?? 0;
 
       const campaignFilter: any = { status: SCORE_CAMPAIGN_STATUSES.PUBLISHED };
       const usedCustomFieldIds: string[] = [];
@@ -336,9 +336,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
         usedCustomFieldIds.push(campaign.fieldId)
         const campaignScore =
-          (owner?.customFieldsData || []).find(
+          Number((owner?.customFieldsData || []).find(
             ({ field }) => field === campaign.fieldId
-          )?.value || 0;
+          )?.value) || 0;
         ownerScore += campaignScore;
       }
 
