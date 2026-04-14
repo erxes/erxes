@@ -211,7 +211,7 @@ export const BranchesList = ({
 
   const selectedBranchIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
   }
 
@@ -245,7 +245,7 @@ export const BranchesList = ({
 export const SelectBranchesValue = () => {
   const { selectedBranches, mode } = useSelectBranchesContext();
 
-  if (selectedBranches?.length > 1)
+  if (selectedBranches?.length > 1 && mode === 'multiple')
     return (
       <span className="text-muted-foreground">
         {selectedBranches.length} branches selected

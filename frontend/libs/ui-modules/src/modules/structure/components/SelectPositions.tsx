@@ -215,7 +215,7 @@ export const PositionsList = ({
 
   const selectedPositionIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
   }
 

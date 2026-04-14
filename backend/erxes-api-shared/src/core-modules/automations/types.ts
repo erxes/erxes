@@ -2,7 +2,10 @@ import { z } from 'zod';
 import {
   AutomationBaseInput,
   CheckCustomTriggerInput,
+  FindObjectInput,
+  CheckTargetMatchInput,
   ReceiveActionsInput,
+  ResolveOutputPathsInput,
   ReplacePlaceholdersInput,
   SetPropertiesInput,
 } from './zodTypes';
@@ -12,14 +15,58 @@ export type IAutomationContext = {
   processId?: string;
 };
 
+export type TAutomationOutputVariable = {
+  key: string;
+  label: string;
+  exposure?: 'placeholder' | 'reference';
+};
+
+export type TAutomationOutputPropertySource = {
+  key: string;
+  label: string;
+  propertyType: string;
+};
+
+export type TAutomationOutputDefinition = {
+  variables: TAutomationOutputVariable[];
+  propertySources?: TAutomationOutputPropertySource[];
+  resolverKeys?: string[];
+};
+
+export type TAutomationRuntimeOutputResolver<TModels = any> = (args: {
+  subdomain: string;
+  source: Record<string, any>;
+  path: string;
+  defaultValue?: any;
+}) => Promise<any>;
+
+export type TAutomationRuntimeOutputDefinition<TModels = any> =
+  TAutomationOutputDefinition & {
+    resolvers?: Record<string, TAutomationRuntimeOutputResolver<TModels>>;
+  };
+
+export type TAutomationFindObjectLookupFieldDefinition = {
+  value: string;
+  label: string;
+};
+
+export type TAutomationFindObjectTargetDefinition = {
+  value: string;
+  label: string;
+  lookupFields: TAutomationFindObjectLookupFieldDefinition[];
+  output?: TAutomationRuntimeOutputDefinition;
+};
+
 export type IAutomationsTriggerConfig = {
-  moduleName: string;
-  collectionName: string;
+  type?: string;
+  moduleName?: string;
+  collectionName?: string;
   relationType?: string;
   icon: string;
   label: string;
   description: string;
   isCustom?: boolean;
+  output?: TAutomationRuntimeOutputDefinition;
   conditions?: {
     type: string;
     icon: string;
@@ -35,8 +82,9 @@ export type IAutomationsActionConfigFolkConfig = {
 };
 
 export type IAutomationsActionConfig = {
-  moduleName: string;
-  collectionName: string;
+  type?: string;
+  moduleName?: string;
+  collectionName?: string;
   method?: 'create';
   icon: string;
   label: string;
@@ -47,6 +95,7 @@ export type IAutomationsActionConfig = {
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
   folks?: IAutomationsActionConfigFolkConfig[];
+  output?: TAutomationRuntimeOutputDefinition;
 };
 
 export type IAutomationsBotsConfig = {
@@ -56,6 +105,28 @@ export type IAutomationsBotsConfig = {
   description: string;
   logo: string;
   totalCountQueryName: string;
+};
+
+export type TAiContextHistoryItem = {
+  type?: string;
+  role?: 'customer' | 'agent' | 'bot' | 'system' | 'user' | 'assistant';
+  text?: string;
+  createdAt?: string;
+  meta?: Record<string, unknown>;
+};
+
+export type TAiContext = {
+  version: 1;
+  input?: {
+    text?: string;
+    id?: string;
+    createdAt?: string;
+  };
+  history?: TAiContextHistoryItem[];
+  facts?: Record<string, unknown>;
+  memory?: {
+    scopeKey?: string;
+  };
 };
 
 type IAutomationTriggersActionsConfig =
@@ -70,6 +141,18 @@ type IAutomationTriggersActionsConfig =
 
 export type AutomationConstants = IAutomationTriggersActionsConfig & {
   bots?: IAutomationsBotsConfig[];
+  findObjectTargets?: TAutomationFindObjectTargetDefinition[];
+};
+
+export type TAutomationFindObjectResult = {
+  found: boolean;
+  objectType: string;
+  objectId?: string;
+  object: Record<string, any> | null;
+  matchedBy: {
+    field: string;
+    value: string;
+  };
 };
 
 type TAutomationAdditionalAttribute = {
@@ -102,14 +185,41 @@ export interface AutomationProducers {
     context: IAutomationContext,
   ) => Promise<Array<TAutomationAdditionalAttribute>>;
 
+  generateAiContext?: (
+    args: {
+      subdomain: string;
+      data: {
+        moduleName: string;
+        collectionType?: string;
+        triggerType: string;
+        target: Record<string, any>;
+      };
+    },
+    context: IAutomationContext,
+  ) => Promise<TAiContext | null>;
+
   replacePlaceHolders?: (
     args: z.infer<typeof ReplacePlaceholdersInput>,
     context: IAutomationContext,
   ) => Promise<any>;
+  resolveOutputPaths?: (
+    args: z.infer<typeof ResolveOutputPathsInput>,
+    context: IAutomationContext,
+  ) => Promise<Record<string, any>>;
   checkCustomTrigger?: <TTarget = any, TConfig = any>(
     args: z.infer<typeof CheckCustomTriggerInput>,
     context: IAutomationContext,
   ) => Promise<boolean>;
+
+  checkTargetMatch?: (
+    args: z.infer<typeof CheckTargetMatchInput>,
+    context: IAutomationContext,
+  ) => Promise<boolean>;
+
+  findObject?: (
+    args: z.infer<typeof FindObjectInput>,
+    context: IAutomationContext,
+  ) => Promise<TAutomationFindObjectResult>;
 
   setProperties?: (
     args: z.infer<typeof SetPropertiesInput>,
@@ -223,9 +333,13 @@ export type AutomationExecutionSetWaitCondition =
 export enum TAutomationProducers {
   RECEIVE_ACTIONS = 'receiveActions',
   REPLACE_PLACEHOLDERS = 'replacePlaceHolders',
+  RESOLVE_OUTPUT_PATHS = 'resolveOutputPaths',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
+  CHECK_TARGET_MATCH = 'checkTargetMatch',
+  FIND_OBJECT = 'findObject',
   GET_ADDITIONAL_ATTRIBUTES = 'getAdditionalAttributes',
   SET_PROPERTIES = 'setProperties',
+  GENERATE_AI_CONTEXT = 'generateAiContext',
 }
 
 export enum TAutomationActionFolks {

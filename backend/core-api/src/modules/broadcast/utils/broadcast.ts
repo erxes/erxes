@@ -45,26 +45,16 @@ const sendBroadcastEmail = async ({
 
   const fromUser = await models.Users.findOne({ _id: fromUserId }).lean();
 
-  if (!fromUser || !fromUser?.email) {
+  if (!fromUser?.email) {
     throw new Error('Invalid from user');
   }
 
-  let configSet = await getValueAsString(
+  const configSet = await getValueAsString(
     models,
     'BROADCAST_AWS_SES_CONFIG_SET',
-    'BROADCAST_AWS_SES_CONFIG_SET',
-    '',
+    'AWS_SES_CONFIG_SET',
+    'erxes',
   );
-
-  if (!configSet) {
-    const VERSION = getEnv({ name: 'VERSION', defaultValue: '' });
-
-    if (VERSION === 'saas') {
-      configSet = getEnv({ name: 'AWS_SES_CONFIG_SET', defaultValue: 'erxes' });
-    } else {
-      configSet = 'erxes';
-    }
-  }
 
   await models.EngageMessages.updateOne(
     { _id },
@@ -140,6 +130,7 @@ const sendBroadcastEmail = async ({
           customers,
           engageMessage,
           fromEmail: fromUser.email,
+          configSet,
           subdomain,
         },
       },

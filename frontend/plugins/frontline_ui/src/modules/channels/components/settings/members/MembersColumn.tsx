@@ -1,11 +1,10 @@
-import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable, RecordTableInlineCell, Select } from 'erxes-ui';
-
-import { MembersInline } from 'ui-modules';
 import { useChannelMemberUpdate } from '@/channels/hooks/useChannelMemberUpdate';
 import { IChannelMember } from '@/channels/types';
-import { Cell } from '@tanstack/table-core';
+import { Cell, ColumnDef } from '@tanstack/table-core';
+import { RecordTable, RecordTableInlineCell, Select } from 'erxes-ui';
+import { MembersInline } from 'ui-modules';
 import { MemberMoreColumn } from './MemberMoreColumn';
+
 type RowType = { order: string; hasChildren: boolean } & IChannelMember;
 
 const RoleCell = ({ cell }: { cell: Cell<RowType, unknown> }) => {
@@ -43,11 +42,9 @@ const RoleCell = ({ cell }: { cell: Cell<RowType, unknown> }) => {
   );
 };
 
-const columns: (
-  t: (key: string) => string,
-) => ColumnDef<{ order: string; hasChildren: boolean } & IChannelMember>[] = (
-  t,
-) => [
+const columns: () => ColumnDef<
+  { order: string; hasChildren: boolean } & IChannelMember
+>[] = () => [
   MemberMoreColumn,
   {
     ...RecordTable.checkboxColumn,
@@ -57,11 +54,13 @@ const columns: (
   {
     id: 'member',
     accessorKey: 'memberId',
-    header: () => <RecordTable.InlineHead label={t('member')} />,
-    cell: ({ cell }) => {
+    header: () => <RecordTable.InlineHead label="Member" />,
+    cell: ({ row }) => {
       return (
         <RecordTableInlineCell>
-          <MembersInline.Provider memberIds={[cell.getValue() as string]}>
+          <MembersInline.Provider
+            members={row.original.member ? [row.original.member] : []}
+          >
             <span className="w-full flex gap-2 items-center">
               <span className="[1lh] flex items-center">
                 <MembersInline.Avatar />
@@ -76,7 +75,7 @@ const columns: (
   {
     id: 'role',
     accessorKey: 'role',
-    header: () => <RecordTable.InlineHead label={t('role')} />,
+    header: () => <RecordTable.InlineHead label="Role" />,
     cell: ({ cell }) => {
       return <RoleCell cell={cell} />;
     },

@@ -14,6 +14,8 @@ export interface IBranch {
   uiOptions?: any;
   permissionConfig?: any;
   status: string;
+  language?: string;
+  languages?: string[];
 }
 export interface IBranchDocument extends IBranch, Document {
   _id: string;

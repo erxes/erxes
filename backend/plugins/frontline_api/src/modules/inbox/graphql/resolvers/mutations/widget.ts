@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import {
   IAttachment,
   IBrowserInfo,
@@ -108,7 +109,7 @@ export const getMessengerData = async (
     }
 
     const languageCode = integration.languageCode || 'en';
-    const messages = (messengerData || {}).messages;
+    const messages = messengerData?.messages;
 
     if (messages) {
       messagesByLanguage = messages[languageCode];
@@ -134,7 +135,7 @@ export const getMessengerData = async (
       messengerData.hideWhenOffline &&
       messengerData.availabilityMethod === 'auto'
     ) {
-      const isOnline = await models.Integrations.isOnline(integration);
+      const isOnline = models.Integrations.isOnline(integration);
       if (!isOnline) {
         messengerData.showChat = false;
       }
@@ -156,7 +157,7 @@ export const getMessengerData = async (
   const formCodes = [] as string[];
 
   for (const app of leadApps) {
-    if (app && app.credentials) {
+    if (app.credentials) {
       formCodes.push(app.credentials.formCode);
     }
   }
@@ -336,7 +337,7 @@ export const widgetMutations: Record<string, Resolver> = {
     }
 
     // get or create company
-    if (companyData && companyData.name) {
+    if (companyData?.name) {
       let company = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -477,7 +478,7 @@ export const widgetMutations: Record<string, Resolver> = {
       languageCode: integration.languageCode,
       ticketConfig: ticketConfig || {},
       messengerData: await getMessengerData(models, subdomain, integration),
-      customerId: customer && customer._id,
+      customerId: customer?._id,
       visitorId: customer ? null : visitorId,
       channel: {
         _id: channel._id,
@@ -1039,7 +1040,7 @@ export const widgetMutations: Record<string, Resolver> = {
     { integrationId }: { integrationId: string },
     { models }: IContext,
   ) {
-    const sessionId = `_${Math.random().toString(36).substring(2, 11)}`;
+    const sessionId = `_${crypto.randomBytes(8).toString('hex')}`;
 
     await redis.set(
       `bot_initial_message_session_id_${integrationId}`,

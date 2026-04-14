@@ -9,8 +9,22 @@ import {
   SelectTree,
 } from 'erxes-ui';
 
-import { useCategories } from '../hooks/useCategories';
-import { ICategory } from '../types/category';
+import { useParentCategories } from '../hooks/useParentCategories';
+
+interface IAttachment {
+  url?: string;
+  name?: string;
+  type?: string;
+  size?: number;
+  duration?: number;
+}
+
+type ParentCategory = {
+  _id: string;
+  name?: string;
+  parentId?: string;
+  attachment?: IAttachment;
+};
 
 export const SelectParentCategory = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
@@ -20,18 +34,21 @@ export const SelectParentCategory = React.forwardRef<
     open?: boolean;
     setOpen?: (open: boolean) => void;
     id?: string;
+    branchId?: string;
+    language?: string;
   }
->(({ onSelect, selected, id, ...props }, ref) => {
-  const [selectedCategory, setSelectedCategory] = useState<ICategory>();
-  const { categories, loading } = useCategories({
+>(({ onSelect, selected, id, branchId, language, ...props }, ref) => {
+  const [selectedCategory, setSelectedCategory] = useState<ParentCategory>();
+  const { categories, loading } = useParentCategories({
+    variables: { branchId, language },
     onCompleted: ({
       bmsTourCategories,
     }: {
-      bmsTourCategories: ICategory[];
+      bmsTourCategories: ParentCategory[];
     }) => {
       setSelectedCategory(
         bmsTourCategories?.find(
-          (category: ICategory) => category._id === selected,
+          (category: ParentCategory) => category._id === selected,
         ),
       );
     },
@@ -39,7 +56,7 @@ export const SelectParentCategory = React.forwardRef<
 
   const handleSelect = (categoryId: string) => {
     const category = categories?.find(
-      (category: ICategory) => category._id === categoryId,
+      (category: ParentCategory) => category._id === categoryId,
     );
     setSelectedCategory(category);
     onSelect(categoryId);
@@ -58,7 +75,7 @@ export const SelectParentCategory = React.forwardRef<
           <Command.Input />
           <Command.List>
             <Combobox.Empty loading={loading} />
-            {categories?.map((category: ICategory) => (
+            {categories?.map((category: ParentCategory) => (
               <SelectParentCategoryItem
                 key={category._id}
                 category={category}
@@ -66,7 +83,7 @@ export const SelectParentCategory = React.forwardRef<
                 onSelect={handleSelect}
                 hasChildren={
                   categories.find(
-                    (c: ICategory) => c.parentId === category._id,
+                    (c: ParentCategory) => c.parentId === category._id,
                   ) !== undefined
                 }
               />
@@ -84,7 +101,7 @@ export const SelectParentCategoryItem = ({
   onSelect,
   hasChildren,
 }: {
-  category: ICategory;
+  category: ParentCategory;
   selected: boolean;
   onSelect: (categoryId: string) => void;
   hasChildren: boolean;
@@ -110,11 +127,11 @@ export const SelectParentCategoryBadge = ({
   category,
   selected,
 }: {
-  category?: ICategory;
+  category?: ParentCategory;
   selected?: boolean;
 }) => {
   if (!category) return null;
-  const { attachment, name } = category;
+  const { name, attachment } = category;
   const firstLetter = name?.charAt(0) || '';
   return (
     <>
@@ -133,7 +150,7 @@ export const SelectParentCategoryBadge = ({
 export const SelectParentCategoryTrigger = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   React.ComponentPropsWithoutRef<typeof Combobox.Trigger> & {
-    selectedCategory: ICategory | undefined;
+    selectedCategory: ParentCategory | undefined;
     loading: boolean;
   }
 >(({ selectedCategory, loading, className, ...props }, ref) => {

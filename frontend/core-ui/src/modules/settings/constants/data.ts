@@ -5,9 +5,11 @@ import {
 } from '@/types/paths/SettingsPath';
 import {
   IconAdjustmentsAlt,
+  IconBolt,
   IconBuilding,
   IconChessKnight,
   IconFile,
+  IconFileImport,
   IconHierarchy,
   IconHierarchy2,
   IconMail,
@@ -163,6 +165,11 @@ export const SETTINGS_PATH_DATA = (
       icon: IconShoppingCart,
       path: SettingsWorkspacePath.Products,
     },
+    {
+      name: t('automations'),
+      icon: IconBolt,
+      path: SettingsWorkspacePath.Automations,
+    },
   ],
   developer: [
     {
@@ -179,6 +186,11 @@ export const SETTINGS_PATH_DATA = (
       name: 'System Logs',
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,
+    },
+    {
+      name: 'Import & Export',
+      icon: IconFileImport,
+      path: SettingsWorkspacePath.ImportExport,
     },
   ],
 });

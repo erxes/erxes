@@ -17,7 +17,7 @@ export const MainContent = ({ activeStep, branch }: MainContentProps) => {
       case 'tour':
         return <TourPage branch={branch} />;
       case 'category':
-        return <CategoryPage />;
+        return <CategoryPage branch={branch} />;
       case 'itinerary':
         return <ItineraryPage branch={branch} />;
       case 'elements':

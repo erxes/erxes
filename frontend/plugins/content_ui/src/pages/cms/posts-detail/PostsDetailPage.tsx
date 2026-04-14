@@ -1,11 +1,10 @@
-import { PageContainer } from 'erxes-ui';
-import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
-import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
-import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
-import { useState, useCallback, useRef } from 'react';
-import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
+import { PageContainer, Spinner } from 'erxes-ui';
+import { useCallback, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Spinner } from 'erxes-ui';
+import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
+import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
+import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
+import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
 
 export const PostsDetailPage = ({
   clientPortalId,

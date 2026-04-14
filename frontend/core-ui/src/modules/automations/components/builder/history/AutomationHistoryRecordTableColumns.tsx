@@ -1,4 +1,5 @@
 import { AutomationHistoryDetail } from '@/automations/components/builder/history/components/AutomationHistoryDetail';
+import { AutomationHistoryPopoverValue } from '@/automations/components/builder/history/components/AutomationHistoryPopoverValue';
 import { AutomationHistoryResultName } from '@/automations/components/builder/history/components/AutomationHistoryResultName';
 import { AutomationHistoryTriggerCell } from '@/automations/components/builder/history/components/AutomationHistoryTriggerCell';
 import { STATUSES_BADGE_VARIABLES } from '@/automations/constants';
@@ -33,7 +34,12 @@ export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
     accessorKey: 'description',
     header: () => <RecordTable.InlineHead label="Description" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
+      <RecordTableInlineCell className="p-0">
+        <AutomationHistoryPopoverValue
+          preview={(cell.getValue() as string) || 'No description'}
+          content={(cell.getValue() as string) || 'No description'}
+        />
+      </RecordTableInlineCell>
     ),
   },
   {

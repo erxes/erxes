@@ -1,6 +1,5 @@
 import {
   TExportHandlers,
-  GetExportDataArgs,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
 import { getCustomerExportData } from './customers/getCustomerExportData';
@@ -18,7 +17,6 @@ const contactExportMap = {
     getExportData: getCompanyExportData,
   },
 };
-
 
 export const contactExportHandlers: TExportHandlers = {
   getExportHeaders: async (data: any, ctx: IImportExportContext) => {

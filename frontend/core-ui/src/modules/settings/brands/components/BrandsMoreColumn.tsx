@@ -1,11 +1,11 @@
-import { Cell } from '@tanstack/react-table';
-import { RecordTable, useQueryState, useConfirm, useToast } from 'erxes-ui';
-import { Popover, Command, Combobox } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable, useConfirm, useQueryState, useToast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { IBrand } from '../types';
-import { renderingBrandDetailAtom } from '../state';
+import { Can } from 'ui-modules';
 import { useBrandsRemove } from '../hooks/useBrandsRemove';
+import { renderingBrandDetailAtom } from '../state';
+import { IBrand } from '../types';
 
 export const BrandsMoreColumnCell = ({
   cell,
@@ -37,24 +37,30 @@ export const BrandsMoreColumnCell = ({
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
+      <Can actions={['brandsUpdate', 'brandsDelete']}>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+      </Can>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => {
-                setRenderingBrandDetail(true);
-                setBrandDetail(_id);
-              }}
-            >
-              <IconEdit /> Edit
-            </Command.Item>
-            <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
-            </Command.Item>
+            <Can action="brandsUpdate">
+              <Command.Item
+                value="edit"
+                onSelect={() => {
+                  setRenderingBrandDetail(true);
+                  setBrandDetail(_id);
+                }}
+              >
+                <IconEdit /> Edit
+              </Command.Item>
+            </Can>
+            <Can action="brandsDelete">
+              <Command.Item value="delete" onSelect={handleDelete}>
+                <IconTrash /> Delete
+              </Command.Item>
+            </Can>
           </Command.List>
         </Command>
       </Combobox.Content>

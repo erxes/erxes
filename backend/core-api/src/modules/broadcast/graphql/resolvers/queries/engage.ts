@@ -79,7 +79,7 @@ const generateFilter = async (
   if (tag) {
     const object = await models.Tags.findOne({ _id: tag });
 
-    const relatedIds = object && object.relatedIds ? object.relatedIds : [];
+    const relatedIds = object?.relatedIds || [];
 
     filter.tagIds = { $in: [tag, ...relatedIds] };
   }
@@ -258,7 +258,7 @@ export const engageQueries = {
       query.email = {
         $in: verifiedEmails || [],
         $regex: searchValue,
-        $options: 'i'
+        $options: 'i',
       };
     }
 
@@ -283,6 +283,16 @@ export const engageQueries = {
 
       return e;
     }
+  },
+
+  async engageBroadcastTraces(
+    _root: undefined,
+    { engageMessageId }: { engageMessageId: string },
+    { models }: IContext,
+  ) {
+    return models.BroadcastTraces.find({ engageMessageId }).sort({
+      createdAt: -1,
+    });
   },
 
   async engageSmsDeliveries(

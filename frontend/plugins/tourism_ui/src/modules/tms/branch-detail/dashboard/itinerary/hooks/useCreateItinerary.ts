@@ -7,11 +7,24 @@ interface CreateItineraryResponse {
   };
 }
 
+export interface IItineraryTranslationInput {
+  language: string;
+  name?: string;
+  content?: string;
+  foodCost?: number;
+  gasCost?: number;
+  driverCost?: number;
+  guideCost?: number;
+  guideCostExtra?: number;
+  groupDays?: Array<{ day: number; title?: string; content?: string }>;
+}
+
 export interface ICreateItineraryVariables {
   branchId?: string;
+  language?: string;
   name?: string;
   duration?: number;
-  color?: string;
+  images?: string[];
   groupDays?: Array<{
     day?: number;
     title?: string;
@@ -27,6 +40,9 @@ export interface ICreateItineraryVariables {
   gasCost?: number;
   personCost?: Record<string, number>;
   guideCostExtra?: number;
+  content?: string;
+  color?: string;
+  translations?: IItineraryTranslationInput[];
 }
 
 export const useCreateItinerary = () => {

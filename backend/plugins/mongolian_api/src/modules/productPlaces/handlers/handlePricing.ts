@@ -1,10 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-export const handlePricing = async (
-  subdomain,
-  deal,
-  productsData
-) => {
+export const handlePricing = async (subdomain, deal, productsData) => {
   const groupedData: Record<string, Record<string, any[]>> = {};
 
   for (const data of productsData) {
@@ -39,13 +35,10 @@ export const handlePricing = async (
         method: 'query',
         input: {
           prioritizeRule: 'exclude',
-          totalAmount: perDatas.reduce(
-            (sum, cur) => sum + cur.amount,
-            0
-          ),
+          totalAmount: perDatas.reduce((sum, cur) => sum + cur.amount, 0),
           departmentId,
           branchId,
-          products: perDatas.map(i => ({
+          products: perDatas.map((i) => ({
             itemId: i._id,
             productId: i.productId,
             quantity: i.quantity,
@@ -65,17 +58,13 @@ export const handlePricing = async (
 
         if (discount.type === 'percentage') {
           item.discountPercent = Number.parseFloat(
-            (
-              (discount.value / (item.unitPrice || 1)) *
-              100
-            ).toFixed(2)
+            ((discount.value / (item.unitPrice || 1)) * 100).toFixed(2),
           );
         }
 
         item.discount = discount.value * item.quantity;
         item.amount =
-          ((item.globalUnitPrice || item.unitPrice) -
-            discount.value) *
+          ((item.globalUnitPrice || item.unitPrice) - discount.value) *
           item.quantity;
       }
 

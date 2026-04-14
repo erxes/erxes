@@ -149,7 +149,7 @@ export const usePipelineEdit = () => {
           id: cache.identify(salesPipelinesEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field];
+              fields[field] = () => variables?.[field];
               return fields;
             },
             {},

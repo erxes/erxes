@@ -49,7 +49,7 @@ export const subscribeEngage = async (models: IModels) => {
   const sesApi = await getApi(models, 'ses');
   const configSet = await getValueAsString(
     models,
-    'configSet',
+    'BROADCAST_AWS_SES_CONFIG_SET',
     'AWS_SES_CONFIG_SET',
     'erxes',
   );
@@ -67,7 +67,7 @@ export const subscribeEngage = async (models: IModels) => {
       .subscribe({
         TopicArn: topicArn.TopicArn,
         Protocol: 'https',
-        Endpoint: `${DOMAIN}/gateway/pl:engages/service/engage/tracker`,
+        Endpoint: `${DOMAIN}/gateway/pl:core/service/engage/tracker`,
       })
       .promise();
 
@@ -114,7 +114,7 @@ export const subscribeEngage = async (models: IModels) => {
 
     return true;
   } catch (e: any) {
-    console.log(e.message);
+    console.log(`Error occurred while subscribe: ${e.message}`);
     throw e;
   }
 };
@@ -123,11 +123,11 @@ export const updateConfigs = async (
   models: IModels,
   configsMap,
 ): Promise<void> => {
-  const prevSESConfigs = await models.Configs.getSESConfigs();
+  const prevSESConfigs = await models.EngageMessages.broadcastConfigs();
 
   await models.Configs.updateConfigs(configsMap);
 
-  const updatedSESConfigs = await models.Configs.getSESConfigs();
+  const updatedSESConfigs = await models.EngageMessages.broadcastConfigs();
 
   if (JSON.stringify(prevSESConfigs) !== JSON.stringify(updatedSESConfigs)) {
     await subscribeEngage(models);
@@ -302,7 +302,7 @@ export const getEditorAttributeUtil = async (subdomain: string) => {
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  const editor: any = await new EditorAttributeUtil(
+  const editor: any = new EditorAttributeUtil(
     `${DOMAIN}/gateway/pl:core`,
     services,
     subdomain,
@@ -398,7 +398,7 @@ export const timeCheckScheduledBroadcast = async (
   scheduleDate?: IScheduleDateDocument,
 ) => {
   const isValidScheduledBroadcast =
-    scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime;
+    scheduleDate?.type === 'pre' && scheduleDate?.dateTime;
   // Check for pre scheduled engages
 
   if (isValidScheduledBroadcast) {

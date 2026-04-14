@@ -15,6 +15,8 @@ export const types = `
     modifiedAt: Date,
     modifiedBy: String,
     order: Int
+    
+    trInfo: JSON
   }
 `;
 
@@ -35,7 +37,8 @@ export const mutations = `
   safeRemainderItemEdit(
     _id: String,
     status: String,
-    remainder: Float
+    remainder: Float,
+    trInfo: JSON,
   ): SafeRemainderItem
   safeRemainderItemsRemove(ids: [String]): JSON
 `;

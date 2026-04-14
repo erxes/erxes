@@ -1,9 +1,8 @@
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader } from 'ui-modules';
 import { CustomerAddSheet } from './CustomerAddSheet';
 import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
 
 export const CustomersHeader = () => {
-
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -12,7 +11,9 @@ export const CustomersHeader = () => {
       </PageHeader.Start>
 
       <PageHeader.End>
-        <CustomerAddSheet />
+        <Can action="contactsCreate">
+          <CustomerAddSheet />
+        </Can>
       </PageHeader.End>
     </PageHeader>
   );

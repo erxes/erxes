@@ -2,8 +2,13 @@ import { ISpinDocument, ISpinParams } from '@/spin/@types/spin';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { ICommonParams } from '~/utils';
 
-const generateFilter = (params: ISpinParams) => {
+export interface ISpinMainParams extends ICommonParams {
+  voucherCampaignId?: string;
+}
+
+const generateFilter = (params: ISpinParams | ISpinMainParams) => {
   const filter: FilterQuery<ISpinDocument> = {};
 
   if (params.campaignId) {
@@ -38,5 +43,29 @@ export const spinQueries = {
       params,
       query: filter,
     });
+  },
+
+  async spinsMain(
+    _root: undefined,
+    params: ISpinMainParams,
+    { models }: IContext,
+  ) {
+    const {
+      page = 1,
+      perPage = 20,
+      sortField = 'createdAt',
+      sortDirection = -1,
+    } = params;
+
+    const filter = generateFilter(params);
+
+    const totalCount = await models.Spins.countDocuments(filter);
+    const list = await models.Spins.find(filter)
+      .sort({ [sortField]: sortDirection })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .lean();
+
+    return { list, totalCount };
   },
 };

@@ -2,7 +2,6 @@ import { IContext } from '~/connectionResolvers';
 import {
   getPageList,
   fetchPagesPostsList,
-  fetchPagePosts,
   fetchPagePost,
 } from '@/integrations/facebook/utils';
 import {
@@ -80,7 +79,7 @@ export const facebookQueries = {
         erxesApiId: senderId,
       });
 
-      if (customer && customer.userId) {
+      if (customer?.userId) {
         query.senderId = customer.userId;
       }
     } else {

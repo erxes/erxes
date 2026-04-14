@@ -10,7 +10,7 @@ import { Button, Combobox, Form, Label, Switch, useToast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { TagsSelect, useCompaniesEdit } from 'ui-modules';
+import { Can, TagsSelect, useCompaniesEdit } from 'ui-modules';
 
 export const CompanyDetailFields = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
@@ -70,12 +70,16 @@ export const CompanyDetailFields = () => {
         industry: industry?.map((i) => i.value),
       },
       onCompleted: () => {
-        toast({ title: t('saved') || 'Saved', variant: 'success' });
+        toast({
+          title: t('saved', 'Company details updated successfully.'),
+          variant: 'success',
+        });
       },
       onError: (e) => {
         toast({
-          title: 'Error',
-          description: e.message,
+          title: t('error', 'Update Failed'),
+          description:
+            e.message || t('error', 'Failed to save company details.'),
           variant: 'destructive',
         });
       },
@@ -104,7 +108,9 @@ export const CompanyDetailFields = () => {
           </DataListItem>
 
           <div className="flex justify-end">
-            <Button type="submit">{t('save', 'Save')}</Button>
+            <Can action="contactsUpdate">
+              <Button type="submit">{t('save', 'Save')}</Button>
+            </Can>
           </div>
         </form>
       </Form>

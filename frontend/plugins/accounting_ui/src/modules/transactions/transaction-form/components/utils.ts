@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { AccountKind, JournalEnum } from '@/settings/account/types/Account';
 import { TR_SIDES, TrJournalEnum } from '../../types/constants';
-import { ITransaction } from '../../types/Transaction';
+import { ITransaction, ITrDetail } from '../../types/Transaction';
 import { TAddTransactionGroup } from '../types/JournalForms';
 
 export const getTempId = () => {
@@ -11,25 +11,26 @@ export const getTempId = () => {
 export const getSumDtCt = (tr: ITransaction) => {
   let sumDt = 0;
   let sumCt = 0;
-
-  for (const detail of tr.details) {
-    if (detail.side === TR_SIDES.DEBIT) {
-      sumDt += detail?.amount ?? 0;
-    } else {
-      sumCt += detail?.amount ?? 0;
-    }
+  const perSum = tr.details.reduce(
+    (sum: number, det: ITrDetail) => sum + (det.amount ?? 0),
+    0,
+  );
+  if (tr.side === TR_SIDES.DEBIT) {
+    sumDt += perSum;
+  } else {
+    sumCt += perSum;
   }
 
-  return { sumDt, sumCt }
-}
+  return { sumDt, sumCt };
+};
 
 export const fixSumDtCt = (tr: ITransaction) => {
   if (!tr.details?.length) {
-    return { ...tr, sumDt: 0, sumCt: 0 }
+    return { ...tr, sumDt: 0, sumCt: 0 };
   }
   const { sumDt, sumCt } = getSumDtCt(tr);
-  return { ...tr, sumDt, sumCt }
-}
+  return { ...tr, sumDt, sumCt };
+};
 
 export const getTrSide = (
   mainSide?: 'dt' | 'ct' | string,
@@ -71,24 +72,26 @@ export const getSingleJournalByAccount = (
 export const cleanTrDoc = (trDoc: ITransaction) => {
   return {
     ...trDoc,
-    details: trDoc.details.map(det => ({
+    details: trDoc.details.map((det) => ({
       ...det,
       account: undefined,
       checked: undefined,
     })),
-  }
-}
+  };
+};
 
 export const cleanTrDocs = (data: TAddTransactionGroup) => {
-  return data.trDocs.map(trD => cleanTrDoc({
-    ...trD,
-    followExtras: undefined,
-    details: trD.details.map(det => ({
-      ...det,
-      account: undefined,
-      checked: undefined,
-    })),
-    date: data.date,
-    number: data.number,
-  }));
-}
+  return data.trDocs.map((trD) =>
+    cleanTrDoc({
+      ...trD,
+      followExtras: undefined,
+      details: trD.details.map((det) => ({
+        ...det,
+        account: undefined,
+        checked: undefined,
+      })),
+      date: data.date,
+      number: data.number,
+    }),
+  );
+};

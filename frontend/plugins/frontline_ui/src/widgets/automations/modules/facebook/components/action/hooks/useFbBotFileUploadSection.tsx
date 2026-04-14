@@ -105,7 +105,7 @@ export const useFbBotFileUploadSection = ({
 
           setUploadedFileUrl(fileUrl);
           setUploadedFileMimeType(fileInfo.type);
-          onUpload?.(fileUrl);
+          onUpload?.(encodeURIComponent(response));
 
           toast({
             title: 'File uploaded successfully',

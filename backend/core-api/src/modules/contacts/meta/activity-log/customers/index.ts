@@ -29,14 +29,24 @@ export async function generateCustomerUpdateActivityLogs(
     activities: ActivityLogInput | ActivityLogInput[],
   ) => void,
 ): Promise<void> {
-  const activities = await activityBuilder(
-    prevDocument,
-    currentDocument,
-    CUSTOMER_ACTIVITY_CONFIG,
-    context,
-  );
+  try {
+    const activities = await activityBuilder(
+      prevDocument,
+      currentDocument,
+      CUSTOMER_ACTIVITY_CONFIG,
+      {
+        ...context,
+        customer: currentDocument,
+      },
+    );
 
-  if (activities.length > 0) {
-    createActivityLog(activities);
+    if (activities.length > 0) {
+      createActivityLog(activities);
+    }
+  } catch (error) {
+    console.error('Failed to generate customer activity logs', error, {
+      customerId: currentDocument?._id || prevDocument?._id,
+      subdomain: context.subdomain,
+    });
   }
 }

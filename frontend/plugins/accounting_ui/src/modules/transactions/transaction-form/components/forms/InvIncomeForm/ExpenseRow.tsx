@@ -22,7 +22,10 @@ import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { followTrDocsState } from '../../../states/trStates';
-import { ITransactionGroupForm, TInvIncomeJournal } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TInvIncomeJournal,
+} from '../../../types/JournalForms';
 import { getSingleJournalByAccount, getTempId } from '../../utils';
 
 export const ExpenseRow = ({
@@ -81,6 +84,7 @@ export const ExpenseRow = ({
         ...curr,
         _id: curr?._id || getTempId(),
         journal: getSingleJournalByAccount(account?.journal, account?.kind),
+        side: TR_SIDES.CREDIT,
         originId: trDoc._id,
         ptrId: trDoc.ptrId,
         parentId: trDoc.parentId,
@@ -91,7 +95,6 @@ export const ExpenseRow = ({
             ...(curr?.details || [{}])[0],
             account,
             accountId: expense.accountId,
-            side: TR_SIDES.CREDIT,
             amount: expense.amount ?? 0,
           },
         ],

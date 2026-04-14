@@ -11,7 +11,6 @@ export const MemberCommandBar = () => {
     .rows.map((row: Row<any>) => row.original.memberId);
 
   const isSelected = table.getFilteredSelectedRowModel().rows.length > 0;
-  console.log({ memberIds });
   return (
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
