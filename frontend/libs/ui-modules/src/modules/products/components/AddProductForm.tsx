@@ -44,6 +44,7 @@ import { FieldNumber } from 'ui-modules/modules/properties/components/FieldNumbe
 import { FieldRelation } from 'ui-modules/modules/properties/components/FieldRelation';
 import { FieldSelect } from 'ui-modules/modules/properties/components/FieldSelect';
 import { FieldString } from 'ui-modules/modules/properties/components/FieldString';
+import { FieldPhone } from 'ui-modules/modules/properties/components/FieldPhone';
 import { IFieldGroup } from 'ui-modules/modules/properties/types/fieldsTypes';
 import { SelectCategory } from '../categories';
 import {
@@ -116,10 +117,13 @@ export function AddProductForm({
       ) {
         const customFieldsObj = Object.entries(value)
           .filter(([_, val]) => val !== undefined && val !== null && val !== '')
-          .reduce((acc, [fieldId, val]) => {
-            acc[fieldId] = val;
-            return acc;
-          }, {} as Record<string, unknown>);
+          .reduce(
+            (acc, [fieldId, val]) => {
+              acc[fieldId] = val;
+              return acc;
+            },
+            {} as Record<string, unknown>,
+          );
         if (Object.keys(customFieldsObj).length > 0) {
           cleanData['propertiesData'] = customFieldsObj;
         }
@@ -1233,6 +1237,8 @@ function CustomField({
         switch (field.type) {
           case 'text':
             return <FieldString {...fieldProps} />;
+          case 'phone':
+            return <FieldPhone {...fieldProps} />;
           case 'number':
             return <FieldNumber {...fieldProps} />;
           case 'boolean':
