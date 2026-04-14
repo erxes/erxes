@@ -71,7 +71,7 @@ export const useUserEdit = () => {
         cache.modify({
           id: cache.identify(usersEdit),
           fields: Object.keys(variables || {}).reduce(
-            (fields: Record<string, () => any>, field) => {
+            (fields: Record<string | number, () => any>, field) => {
               fields[field] = () => variables?.[field];
               return fields;
             },
@@ -80,7 +80,7 @@ export const useUserEdit = () => {
           optimistic: true,
         });
       },
-      refetchQueries: ['Users', 'UserDetail'],
+      refetchQueries: ['UserDetail'],
     });
   };
 

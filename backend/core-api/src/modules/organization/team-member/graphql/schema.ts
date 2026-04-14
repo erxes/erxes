@@ -148,6 +148,7 @@ const commonParams = `
   employeeId: String
   password: String
   isOnboarded: Boolean
+  score: Float
 `;
 
 const commonSelector = `
