@@ -11,6 +11,7 @@ import {
   TrJournalEnum,
 } from '../../types/constants';
 import { JOURNALS_BY_JOURNAL } from '../contants/defaultValues';
+import { PRINT_DOCUMENTS } from '../contants/printDocuments';
 import {
   activeJournalState,
   followTrDocsState,
@@ -248,19 +249,22 @@ export const TransactionsTabsList = ({
           )}
         </Tabs.List>
 
-        <Button
-          onClick={() => {
-            if (!isSaved) return;
+        {isSaved && PRINT_DOCUMENTS[fields[Number(activeJournal ?? '0')]?.journal] ? (
+          <Button
+            onClick={() => {
+              window.open(
+                `/accounting/transaction/print?_id=${fields[Number(activeJournal ?? '0')]?._id}`,
+                '_blank',
+              );
+            }}
+            variant="secondary"
+          >
+            Print Document
+          </Button>
+        ) : (
+          <Button variant="secondary">Save transaction template</Button>
+        )}
 
-            window.open(
-              `/accounting/transaction/print?parentId=${fields[0].parentId}`,
-              '_blank',
-            );
-          }}
-          variant="secondary"
-        >
-          {isSaved ? 'Print Template' : 'Save transaction template'}
-        </Button>
       </div>
       {fields.map((field, index) => (
         <Tabs.Content

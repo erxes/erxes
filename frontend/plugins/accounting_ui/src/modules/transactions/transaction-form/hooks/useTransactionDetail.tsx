@@ -1,6 +1,6 @@
 import { useQuery, OperationVariables } from '@apollo/client';
-import { ITransaction } from '../../types/Transaction';
 import { TRANSACTION_DETAIL_QUERY } from '../graphql/queries/accTransactionDetail';
+import { ITransaction } from '../../types/Transaction';
 
 export const useTransactionDetail = (options?: OperationVariables) => {
   const { data, loading, error, refetch } = useQuery<OperationVariables>(
@@ -9,7 +9,8 @@ export const useTransactionDetail = (options?: OperationVariables) => {
       ...options,
     },
   );
-  const transaction: ITransaction = data?.accTransactionDetail[0];
+  const transaction: ITransaction = data?.accTransactionDetail;
+
   return {
     transaction,
     loading,

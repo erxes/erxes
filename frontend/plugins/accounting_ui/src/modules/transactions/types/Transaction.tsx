@@ -96,9 +96,12 @@ export interface ITransaction extends ICommontTr {
   details: ITrDetail[];
   shortDetail?: ITrDetail;
   customer?: {
-    _id: string;
-    primaryName?: string;
-    code?: string;
+    _id: string
+    code?: string
+    primaryPhone?: string
+    firstName?: string
+    primaryEmail?: string
+    lastName?: string
   };
 }
 

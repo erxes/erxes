@@ -320,7 +320,7 @@ const transactionCommon = {
       throw new Error('Transaction not found');
     }
 
-    return [transaction];
+    return transaction;
   },
 
   async accTransactionsMain(

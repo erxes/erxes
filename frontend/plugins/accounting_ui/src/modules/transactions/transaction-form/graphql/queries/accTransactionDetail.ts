@@ -1,25 +1,18 @@
 import { gql } from '@apollo/client';
+import { commonTransactionFields } from '@/transactions/graphql/transactionQueries';
 
 export const TRANSACTION_DETAIL_QUERY = gql`
   query accTransactionDetail($_id: String!) {
     accTransactionDetail(_id: $_id) {
-      _id
-      number
-      date
-      journal
-      status
+      ${commonTransactionFields}
       customer {
+        _id
+        code
+        primaryPhone
+        firstName
         primaryEmail
+        lastName
       }
-      details {
-        amount
-        currencyAmount
-        account {
-          extra
-        }
-      }
-      extraData
-      description
     }
   }
 `;
