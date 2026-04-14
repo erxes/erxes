@@ -345,8 +345,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const oldScore = Number(ownerScore) || 0;
       const newScore = oldScore + score;
 
-      console.log(oldScore, newScore, score, owner._id)
-
       if (score < 0 && newScore < 0) {
         throw new Error(`score are not enough`);
       }
@@ -362,6 +360,25 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       if (!response || !Object.keys(response || {})?.length) {
         throw new Error("Something went wrong for give score");
       }
+
+      await sendCoreMessage({
+        subdomain,
+        action: "customers.updateOne",
+        data: {
+          selector: { _id: ownerId },
+          modifier: {
+            customFieldsData: owner.customFieldsData.map((item) => item.field === usedCustomFieldIds[0] ? {
+              ...item,
+              "value": newScore,
+              "stringValue": `${newScore}`,
+              "numberValue": newScore,
+            } : item)
+          },
+        },
+        isRPC: true,
+        defaultValue: null,
+      });
+
       return await models.ScoreLogs.create({
         ownerId,
         ownerType,
