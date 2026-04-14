@@ -1,4 +1,42 @@
+# Changelog
 
+## [3.0.13](https://github.com/erxes/erxes/compare/3.0.12...3.0.13) (2026-04-13)
+
+
+### Bug Fixes
+
+* cp user searchText bug and broadcast tag group select ([#7446](https://github.com/erxes/erxes/issues/7446)) ([5a01386](https://github.com/erxes/erxes/commit/5a01386352a3dba33c497be1fe9c59a5a7330c23))
+* improve broadcast subdomain handling in email utilities ([0849ede](https://github.com/erxes/erxes/commit/0849ede93a5379883a19572c80000aaba913abeb))
+* simplify Checkbox onCheckedChange handling in MessageTriggerConditionCard ([73adec3](https://github.com/erxes/erxes/commit/73adec3f813298066e08eb1762440fb76a2195f1))
+
+## [3.0.12](https://github.com/erxes/erxes/compare/3.0.11...3.0.12) (2026-04-12)
+
+
+### Bug Fixes
+
+* account edit and ebarimt sidebar improve ([#7447](https://github.com/erxes/erxes/issues/7447)) ([12def55](https://github.com/erxes/erxes/commit/12def55b74f6f9a7e6e0d6a759597c07db110fa0))
+* **accounting:** account edit from ([3d3b45a](https://github.com/erxes/erxes/commit/3d3b45a9e2dcb14bc0bdc3c75dad22dab2447096))
+* **activity-logs:** stop redundant refetching on scroll ([#7445](https://github.com/erxes/erxes/issues/7445)) ([0d2800d](https://github.com/erxes/erxes/commit/0d2800d8845de803eaf1877246b990adf86cd824))
+* add error handling for Cloudflare Images upload ([18f670d](https://github.com/erxes/erxes/commit/18f670dc032f9d68977132f14a858636c2cd4203))
+* call cookie related issues ([25cf054](https://github.com/erxes/erxes/commit/25cf054daa4219c0101e26d4a541862bfa294971))
+* enhance error handling in file upload and reading processes ([ac7cfb0](https://github.com/erxes/erxes/commit/ac7cfb05b73dbefc638ce8caef7a9cd7806d61b2))
+* improve error handling for Cloudflare Images upload ([fae0ebb](https://github.com/erxes/erxes/commit/fae0ebb871a11bab4d3776be98954b48fc97a801))
+* improve loyalty ([#7451](https://github.com/erxes/erxes/issues/7451)) ([3463884](https://github.com/erxes/erxes/commit/3463884415da853865b28f61ff68ce61e7f33e3a))
+* improve nullable field handling, assignee notifications, and batch user status updates ([7551118](https://github.com/erxes/erxes/commit/75511184eabe102eecf5027265947325e309845b))
+* improve Product places  ([#7035](https://github.com/erxes/erxes/issues/7035)) ([20654b2](https://github.com/erxes/erxes/commit/20654b26226ac5fdbcda5e56602f2bdb57aa601b))
+* normalize broadcast config keys and config update flow ([2e9985c](https://github.com/erxes/erxes/commit/2e9985c8ad180eea25072323d6a0ecfae49b4dc2))
+
+
+### Features
+
+* **accounting:** census detail with keyboard shortcut ([#7385](https://github.com/erxes/erxes/issues/7385)) ([e19988f](https://github.com/erxes/erxes/commit/e19988f9813b25f548944ee31b5dd22183492d47))
+* add broadcast trace logging for email worker ([a8caf82](https://github.com/erxes/erxes/commit/a8caf824bc4cfda62f8c9123b62acc8ae5de83a1))
+* Added field logic and required attributes in detail, chore: minor ux improvements ([cf193f3](https://github.com/erxes/erxes/commit/cf193f36d38ccc4df76230fb2009d700ae0cc1ab))
+* **automations:** enhance builder UX, AI agent tooling, and core actions ([#7441](https://github.com/erxes/erxes/issues/7441)) ([ff28842](https://github.com/erxes/erxes/commit/ff28842074422a7c5dae6f0f27ff0101f451a853))
+* cms posts view and reaction  ([17e7436](https://github.com/erxes/erxes/commit/17e7436632f0c45afc7cef1a2c21207cb45ec257))
+* implement applyTrustProxy in multiple services and utilities ([d9040a2](https://github.com/erxes/erxes/commit/d9040a2b2512b3bcd3191b766298259660b28d45))
+* **tms:** add additional improvements and enhancements ([#7399](https://github.com/erxes/erxes/issues/7399)) ([cc452d1](https://github.com/erxes/erxes/commit/cc452d17283fa21cdb54091d61af7646481830b1))
+* **tourism:** improve tour and itinerary pdf generation ([#7423](https://github.com/erxes/erxes/issues/7423)) ([e943256](https://github.com/erxes/erxes/commit/e9432563f9be03470e129f153f8de519dab3d2fe))
 
 ## [3.0.11](https://github.com/erxes/erxes/compare/3.0.10...3.0.11) (2026-04-08)
 
@@ -67,7 +105,7 @@
 
 * remove activity from contact overview ([de25831](https://github.com/erxes/erxes/commit/de258317124d47d5953a063baa79e869191a9ead))
 
-# Changelog
+
 
 ## [3.0.8](https://github.com/erxes/erxes/compare/3.0.7...3.0.8) (2026-03-30)
 

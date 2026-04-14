@@ -108,7 +108,6 @@ class InvMoveInTrs {
 
         originType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
         accountId: this.moveInAccount?._id ?? '',
-        side: TR_SIDES.DEBIT,
       });
     }
 
@@ -116,6 +115,7 @@ class InvMoveInTrs {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_MOVE_IN,
       journal: JOURNALS.INV_MOVE_IN,
+      side: TR_SIDES.DEBIT,
       details: followInDetails,
     };
 

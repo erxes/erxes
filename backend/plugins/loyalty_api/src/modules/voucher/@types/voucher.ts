@@ -20,6 +20,11 @@ export interface IVoucherParams extends ICursorPaginateParams {
   status?: string;
   fromDate?: string;
   toDate?: string;
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: 1 | -1;
+  searchValue?: string;
 }
 
 export interface IVoucherInput extends IVoucher {

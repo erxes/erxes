@@ -249,9 +249,19 @@ const getSettings = (settings: Settings) =>
       s.channel_id === settings.channel_id && s.form_id === settings.form_id,
   );
 
-formSettings.forEach((formSettings: Settings) => {
-  iframesMapping[getMappingKey(formSettings)] = createIframe(formSettings);
-});
+const initForms = () => {
+  formSettings.forEach((formSettings: Settings) => {
+    iframesMapping[getMappingKey(formSettings)] = createIframe(formSettings);
+  });
+};
+
+// Defer iframe creation until DOM is ready so that data-erxes-embed
+// elements are available before querySelector runs
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initForms);
+} else {
+  initForms();
+}
 
 // listen for messages from widget
 window.addEventListener('message', async (event: MessageEvent) => {

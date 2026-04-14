@@ -35,6 +35,8 @@ export const scoreLogSchema = schemaWrapper(
         label: 'Source Score Log',
         optional: true,
       },
+      amount: { type: Number, label: 'Amount', optional: true },
+      quantity: { type: Number, label: 'Quantity', optional: true },
     },
     {
       timestamps: true,

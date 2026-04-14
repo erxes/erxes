@@ -13,6 +13,8 @@ export enum SettingsWorkspacePath {
   General = 'general',
   FileUpload = 'file-upload',
   MailConfig = 'mail-config',
+  ImportExport = 'import-export',
+  ImportExportCatchAll = `${ImportExport}/*`,
   Permissions = 'permissions',
   TeamMember = 'team',
   TeamMemberCatchAll = `${TeamMember}/*`,

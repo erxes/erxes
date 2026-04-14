@@ -7,7 +7,14 @@ import {
 import { IconBookDownload } from '@tabler/icons-react';
 import { Button, Form } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useState } from 'react';
 import { useWatch } from 'react-hook-form';
+import { CustomerType } from 'ui-modules';
+import { TR_SIDES } from '~/modules/transactions/types/constants';
+import {
+  ITransaction,
+  ITrDetail,
+} from '~/modules/transactions/types/Transaction';
 import { followTrDocsState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
@@ -23,16 +30,10 @@ import {
 } from '../../GeneralFormFields';
 import { CtaxForm } from '../../helpers/CtaxForm';
 import { CustomerFields } from '../../helpers/CustomerFields';
+import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
 import { SelectSaleSheet } from './SelectSaleSheet';
-import {
-  ITransaction,
-  ITrDetail,
-} from '~/modules/transactions/types/Transaction';
-import { CustomerType } from 'ui-modules';
-import { TR_SIDES } from '~/modules/transactions/types/constants';
-import { useState } from 'react';
 
 export const InvSaleReturnForm = ({
   form,
@@ -209,6 +210,10 @@ export const InvSaleReturnForm = ({
           isWithTax={false}
           isSameSide={true}
         />
+      </div>
+
+      <div className="pt-3">
+        <RelAccountsForm form={form} index={index} />
       </div>
 
       <InventoryForm

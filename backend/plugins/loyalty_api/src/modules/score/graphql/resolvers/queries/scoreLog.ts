@@ -1,5 +1,6 @@
-import { IScoreLogParams } from '@/score/@types/scoreLog';
+import { IScoreLogDocument, IScoreLogParams } from '@/score/@types/scoreLog';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 export const scoreLogQueries = {
@@ -9,7 +10,7 @@ export const scoreLogQueries = {
     { models }: IContext,
   ) {
     const { ownerType, ownerId, searchValue, campaignId, action } = params;
-    const filter: any = {};
+    const filter: FilterQuery<IScoreLogDocument> = {};
 
     if (ownerType) {
       filter.ownerType = ownerType;

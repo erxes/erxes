@@ -81,10 +81,11 @@ export const FieldsInDetail = ({
   if (fieldGroupsLoading) {
     return <Spinner containerClassName="py-6" />;
   }
+  const [, propertyName] = fieldContentType.split(':');
 
   return (
     <div className={cn('flex flex-col gap-4', className)}>
-      <InfoCard title="Product Properties">
+      <InfoCard title={`${propertyName} Properties`}>
         <InfoCard.Content>
           {fieldGroups.map((group) => (
             <FieldGroupContent

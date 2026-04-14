@@ -70,12 +70,16 @@ export const CompanyDetailFields = () => {
         industry: industry?.map((i) => i.value),
       },
       onCompleted: () => {
-        toast({ title: t('saved') || 'Saved', variant: 'success' });
+        toast({
+          title: t('saved', 'Company details updated successfully.'),
+          variant: 'success',
+        });
       },
       onError: (e) => {
         toast({
-          title: 'Error',
-          description: e.message,
+          title: t('error', 'Update Failed'),
+          description:
+            e.message || t('error', 'Failed to save company details.'),
           variant: 'destructive',
         });
       },

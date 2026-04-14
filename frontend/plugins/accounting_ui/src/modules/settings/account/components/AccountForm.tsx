@@ -13,7 +13,12 @@ import { UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
-import { AccountKind, AccountStatus, JournalEnum } from '../types/Account';
+import {
+  AccountKind,
+  AccountStatus,
+  JournalEnum,
+  BankEnum,
+} from '../types/Account';
 import { TAccountForm } from '../types/accountForm';
 
 export const AccountForm = ({
@@ -27,7 +32,11 @@ export const AccountForm = ({
 }) => {
   const status = useWatch({
     control: form.control,
-    name: 'status'
+    name: 'status',
+  });
+  const journal = useWatch({
+    control: form.control,
+    name: 'journal',
   });
 
   return (
@@ -125,7 +134,7 @@ export const AccountForm = ({
             <Form.Item>
               <Form.Label>Kind</Form.Label>
               <Form.Control>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger>
                     <Select.Value placeholder="Select kind" />
                   </Select.Trigger>
@@ -150,7 +159,7 @@ export const AccountForm = ({
             <Form.Item>
               <Form.Label>Journal</Form.Label>
               <Form.Control>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger>
                     <Select.Value placeholder="Select journal" />
                   </Select.Trigger>
@@ -167,6 +176,37 @@ export const AccountForm = ({
             </Form.Item>
           )}
         />
+        {journal === JournalEnum.BANK && (
+          <>
+            <Form.Field
+              control={form.control}
+              name="extra.bank"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Bank</Form.Label>
+                  <Form.Control>
+                    <Input placeholder="Enter bank name" {...field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="extra.bankAccount"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Bank Account</Form.Label>
+                  <Form.Control>
+                    <Input placeholder="Enter bank account number" {...field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </>
+        )}
 
         <Form.Field
           control={form.control}
@@ -244,7 +284,7 @@ export const AccountForm = ({
               <Form.Item>
                 <Form.Label>Status</Form.Label>
                 <Form.Control>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <Select.Trigger>
                       <Select.Value placeholder="Select status" />
                     </Select.Trigger>

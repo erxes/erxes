@@ -77,7 +77,7 @@ export const CompaniesCommandBar = () => {
         <Can action="contactsDelete">
           <>
             <Separator.Inline />
-            <CompaniesDelete companyIds={companyIds} rows={selectedRows} />
+            <CompaniesDelete companyIds={companyIds} />
           </>
         </Can>
       </CommandBar.Bar>

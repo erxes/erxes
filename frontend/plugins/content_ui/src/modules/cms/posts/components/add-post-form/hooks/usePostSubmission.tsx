@@ -167,7 +167,22 @@ const blocksToHtml = (raw: string): string => {
   }
 };
 
+/**
+ * Extracts plain text from HTML for derived fields (for example, fallback title).
+ *
+ * Uses a DOM parser instead of regex-only stripping to avoid malformed HTML edge
+ * cases where crafted input can bypass simplistic replacements.
+ */
 const extractText = (html: string): string => {
+  if (!html) {
+    return '';
+  }
+
+  if (typeof DOMParser !== 'undefined') {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return (doc.body.textContent ?? '').trim();
+  }
+
   return html.replace(/<[^>]*>/g, '').trim();
 };
 

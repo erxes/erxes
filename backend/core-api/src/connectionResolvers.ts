@@ -154,6 +154,11 @@ import {
 } from './modules/broadcast/@types';
 import { deliveryReportsSchema } from './modules/broadcast/db/definitions/deliveryReports';
 import {
+  IBroadcastTraceDocument,
+  IBroadcastTraceModel,
+  loadBroadcastTraceClass,
+} from './modules/broadcast/db/models/BroadcastTraces';
+import {
   IDeliveryReportModel,
   IStatsModel,
   loadStatsClass,
@@ -291,6 +296,7 @@ export interface IModels {
   ActivityLogs: IActivityLogsModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
+  BroadcastTraces: IBroadcastTraceModel;
   SmsRequests: ISmsRequestModel;
   DeliveryReports: IDeliveryReportModel;
   OrgWhiteLabel: IOrgWhiteLabelModel;
@@ -547,6 +553,11 @@ export const loadClasses = (
   models.Stats = db.model<IStatsDocument, IStatsModel>(
     'broadcast_stats',
     loadStatsClass(models),
+  );
+
+  models.BroadcastTraces = db.model<IBroadcastTraceDocument, IBroadcastTraceModel>(
+    'broadcast_traces',
+    loadBroadcastTraceClass(models),
   );
 
   models.SmsRequests = db.model<ISmsRequestDocument, ISmsRequestModel>(
