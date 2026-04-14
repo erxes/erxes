@@ -144,7 +144,6 @@ class InvSaleReturnOutCostTrs {
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_OUT,
         accountId: this.outAccount?._id ?? '',
-        side: TR_SIDES.DEBIT,
       });
 
       followCostDetails.push({
@@ -152,7 +151,6 @@ class InvSaleReturnOutCostTrs {
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_COST,
         accountId: this.costAccount?._id ?? '',
-        side: TR_SIDES.CREDIT,
       });
     }
 
@@ -160,6 +158,7 @@ class InvSaleReturnOutCostTrs {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_SALE_RETURN_OUT,
       journal: JOURNALS.INV_SALE_RETURN_OUT,
+      side: TR_SIDES.DEBIT,
       details: followOutDetails,
     };
 
@@ -167,6 +166,7 @@ class InvSaleReturnOutCostTrs {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_SALE_RETURN_COST,
       journal: JOURNALS.INV_SALE_RETURN_COST,
+      side: TR_SIDES.CREDIT,
       details: followCostDetails,
     };
 

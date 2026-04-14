@@ -14,6 +14,7 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
   const [footerText, setFooterText] = useState('');
   const [hasCopy, setHasCopy] = useState(false);
   const [hasSumQty, setHasSumQty] = useState(false);
+  const [isCleanTaxPrice, setIsCleanTaxPrice] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
@@ -25,6 +26,7 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
       setFooterText(posDetail.ebarimtConfig.footerText || '');
       setHasCopy(posDetail.ebarimtConfig.hasCopy ?? false);
       setHasSumQty(posDetail.ebarimtConfig.hasSumQty ?? false);
+      setIsCleanTaxPrice(posDetail.ebarimtConfig.isCleanTaxPrice ?? false);
     }
   }, [posDetail]);
 
@@ -49,6 +51,7 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
             footerText,
             hasCopy,
             hasSumQty,
+            isCleanTaxPrice,
           },
         },
       });
@@ -71,7 +74,7 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
   if (detailLoading) {
     return (
       <div className="space-y-4">
-        <div className="flex gap-8 items-end">
+        <div className="flex items-end gap-8">
           <div className="flex-1 space-y-2">
             <div className="w-24 h-4 rounded animate-pulse bg-muted" />
             <div className="h-20 rounded animate-pulse bg-muted" />
@@ -82,11 +85,11 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
           </div>
         </div>
         <div className="flex gap-8">
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded animate-pulse bg-muted" />
-            <div className="w-28 h-4 rounded animate-pulse bg-muted" />
+            <div className="h-4 rounded w-28 animate-pulse bg-muted" />
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded animate-pulse bg-muted" />
             <div className="w-20 h-4 rounded animate-pulse bg-muted" />
           </div>
@@ -108,7 +111,7 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <div className="flex gap-8 items-end">
+        <div className="flex items-end gap-8">
           <div className="flex-1 space-y-2">
             <Label>HEADER TEXT</Label>
             <Textarea
@@ -135,7 +138,7 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
         </div>
 
         <div className="flex gap-8">
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <Checkbox
               checked={hasSumQty}
               onCheckedChange={(checked) => {
@@ -146,7 +149,7 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
             <Label>HAS SUMMARY QTY</Label>
           </div>
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <Checkbox
               checked={hasCopy}
               onCheckedChange={(checked) => {
@@ -155,6 +158,17 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
               }}
             />
             <Label>HAS COPY</Label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              checked={isCleanTaxPrice}
+              onCheckedChange={(checked) => {
+                setIsCleanTaxPrice(checked === true);
+                setHasChanges(true);
+              }}
+            />
+            <Label>IS CLEAN TAX PRICE</Label>
           </div>
         </div>
       </div>

@@ -92,6 +92,7 @@ export const dealToReturnTrs = async ({
     parentId,
     date,
     journal: JOURNALS.INV_SALE_RETURN,
+    side: TR_SIDES.DEBIT,
     followInfos: {
       ...firstSaleTr.followInfos,
       saleTransactionId: firstSaleTr._id,
@@ -119,7 +120,6 @@ export const dealToReturnTrs = async ({
     totalAmount += detail.amount;
     returnTrDoc.details.push({
       ...detail,
-      side: TR_SIDES.DEBIT,
     });
   }
 
@@ -150,6 +150,7 @@ export const dealToReturnTrs = async ({
         parentId,
         date,
         journal,
+        side,
         branchId: firstSaleTr.branchId,
         departmentId: firstSaleTr.departmentId,
         customerType: firstSaleTr.customerType,
@@ -160,7 +161,6 @@ export const dealToReturnTrs = async ({
           {
             _id: nanoid(),
             accountId,
-            side,
             amount: fixNum(lastAmount, 4),
           },
         ],

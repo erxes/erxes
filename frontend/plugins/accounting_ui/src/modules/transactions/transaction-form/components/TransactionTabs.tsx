@@ -11,6 +11,7 @@ import {
   TrJournalEnum,
 } from '../../types/constants';
 import { JOURNALS_BY_JOURNAL } from '../contants/defaultValues';
+import { PRINT_DOCUMENTS } from '../contants/printDocuments';
 import {
   activeJournalState,
   followTrDocsState,
@@ -140,6 +141,7 @@ export const TransactionsTabsList = ({
       minLength: 1,
     },
   });
+  const isSaved = Boolean(fields?.[0]?.parentId);
 
   const journals = fields.map((f) => f.journal);
 
@@ -179,10 +181,10 @@ export const TransactionsTabsList = ({
       customerId: likeTrDoc.customerId,
       departmentId: likeTrDoc.departmentId,
       journal: selectedJournal,
+      side: diff > 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
       details: [
         {
           ...fields[0].details,
-          side: diff > 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
           amount: Math.abs(diff),
         },
       ],
@@ -247,7 +249,22 @@ export const TransactionsTabsList = ({
           )}
         </Tabs.List>
 
-        <Button variant="secondary">Save transaction template</Button>
+        {isSaved &&
+        PRINT_DOCUMENTS[fields[Number(activeJournal ?? '0')]?.journal] ? (
+          <Button
+            onClick={() => {
+              window.open(
+                `/accounting/transaction/print?_id=${fields[Number(activeJournal ?? '0')]?._id}`,
+                '_blank',
+              );
+            }}
+            variant="secondary"
+          >
+            Print Document
+          </Button>
+        ) : (
+          <Button variant="secondary">Save transaction template</Button>
+        )}
       </div>
       {fields.map((field, index) => (
         <Tabs.Content
