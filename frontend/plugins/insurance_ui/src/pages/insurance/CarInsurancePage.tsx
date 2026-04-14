@@ -142,8 +142,8 @@ export const CarInsurancePage = () => {
     }
 
     // Check if product has duration-based pricing
-    const percentageByDuration = (selectedProduct.pricingConfig as any)
-      ?.percentageByDuration;
+    const percentageByDuration =
+      selectedProduct.pricingConfig?.percentageByDuration;
     if (percentageByDuration && durationInMonths > 0) {
       const durationKey = `${durationInMonths}months`;
       if (percentageByDuration[durationKey] !== undefined) {
@@ -152,7 +152,7 @@ export const CarInsurancePage = () => {
     }
 
     // Fall back to product's base percentage
-    return (selectedProduct.pricingConfig as any)?.percentage || 3;
+    return selectedProduct.pricingConfig?.percentage || 3;
   };
 
   const productPercentage = getEffectivePercentage();
@@ -295,107 +295,106 @@ export const CarInsurancePage = () => {
                 <Separator />
 
                 {/* Dynamic Fields from Insurance Type Attributes */}
-                {carInsuranceType &&
-                  carInsuranceType.attributes &&
-                  carInsuranceType.attributes.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <IconCar size={20} />
-                        Vehicle Information
-                      </h3>
+                {carInsuranceType?.attributes?.length && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <IconCar size={20} />
+                      Vehicle Information
+                    </h3>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        {/* Assessed Value Field - Always show first */}
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            Vehicle Value ($) *
-                          </label>
-                          <Input
-                            type="number"
-                            value={insuredObject.assessedValue || ''}
-                            onChange={(e) =>
-                              setInsuredObject({
-                                ...insuredObject,
-                                assessedValue: parseFloat(e.target.value) || 0,
-                              })
-                            }
-                            min={0}
-                            placeholder="Enter vehicle value"
-                            required
-                          />
-                        </div>
-
-                        {carInsuranceType.attributes
-                          .filter((attr: any) => attr.name !== 'assessedValue')
-                          .map((attr: any) => (
-                            <div key={attr.name}>
-                              <label className="block text-sm font-medium mb-2">
-                                {attr.label || attr.name} {attr.required && '*'}
-                              </label>
-                              {attr.type === 'select' && attr.options ? (
-                                <Select
-                                  value={insuredObject[attr.name] || ''}
-                                  onValueChange={(value: string) =>
-                                    setInsuredObject({
-                                      ...insuredObject,
-                                      [attr.name]: value,
-                                    })
-                                  }
-                                >
-                                  <Select.Trigger>
-                                    <Select.Value placeholder="Select" />
-                                  </Select.Trigger>
-                                  <Select.Content>
-                                    {attr.options.map((option: any) => (
-                                      <Select.Item key={option} value={option}>
-                                        {option}
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Content>
-                                </Select>
-                              ) : attr.type === 'number' ? (
-                                <Input
-                                  type="number"
-                                  value={insuredObject[attr.name] || ''}
-                                  onChange={(e) =>
-                                    setInsuredObject({
-                                      ...insuredObject,
-                                      [attr.name]:
-                                        parseFloat(e.target.value) || 0,
-                                    })
-                                  }
-                                  required={attr.required}
-                                />
-                              ) : attr.type === 'boolean' ? (
-                                <label className="flex items-center gap-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={insuredObject[attr.name] || false}
-                                    onChange={(e) =>
-                                      setInsuredObject({
-                                        ...insuredObject,
-                                        [attr.name]: e.target.checked,
-                                      })
-                                    }
-                                  />
-                                </label>
-                              ) : (
-                                <Input
-                                  value={insuredObject[attr.name] || ''}
-                                  onChange={(e) =>
-                                    setInsuredObject({
-                                      ...insuredObject,
-                                      [attr.name]: e.target.value,
-                                    })
-                                  }
-                                  required={attr.required}
-                                />
-                              )}
-                            </div>
-                          ))}
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Assessed Value Field - Always show first */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Vehicle Value ($) *
+                        </label>
+                        <Input
+                          type="number"
+                          value={insuredObject.assessedValue || ''}
+                          onChange={(e) =>
+                            setInsuredObject({
+                              ...insuredObject,
+                              assessedValue:
+                                Number.parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          min={0}
+                          placeholder="Enter vehicle value"
+                          required
+                        />
                       </div>
+
+                      {carInsuranceType.attributes
+                        .filter((attr: any) => attr.name !== 'assessedValue')
+                        .map((attr: any) => (
+                          <div key={attr.name}>
+                            <label className="block text-sm font-medium mb-2">
+                              {attr.label || attr.name} {attr.required && '*'}
+                            </label>
+                            {attr.type === 'select' && attr.options ? (
+                              <Select
+                                value={insuredObject[attr.name] || ''}
+                                onValueChange={(value: string) =>
+                                  setInsuredObject({
+                                    ...insuredObject,
+                                    [attr.name]: value,
+                                  })
+                                }
+                              >
+                                <Select.Trigger>
+                                  <Select.Value placeholder="Select" />
+                                </Select.Trigger>
+                                <Select.Content>
+                                  {attr.options.map((option: any) => (
+                                    <Select.Item key={option} value={option}>
+                                      {option}
+                                    </Select.Item>
+                                  ))}
+                                </Select.Content>
+                              </Select>
+                            ) : attr.type === 'number' ? (
+                              <Input
+                                type="number"
+                                value={insuredObject[attr.name] || ''}
+                                onChange={(e) =>
+                                  setInsuredObject({
+                                    ...insuredObject,
+                                    [attr.name]:
+                                      Number.parseFloat(e.target.value) || 0,
+                                  })
+                                }
+                                required={attr.required}
+                              />
+                            ) : attr.type === 'boolean' ? (
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={insuredObject[attr.name] || false}
+                                  onChange={(e) =>
+                                    setInsuredObject({
+                                      ...insuredObject,
+                                      [attr.name]: e.target.checked,
+                                    })
+                                  }
+                                />
+                              </label>
+                            ) : (
+                              <Input
+                                value={insuredObject[attr.name] || ''}
+                                onChange={(e) =>
+                                  setInsuredObject({
+                                    ...insuredObject,
+                                    [attr.name]: e.target.value,
+                                  })
+                                }
+                                required={attr.required}
+                              />
+                            )}
+                          </div>
+                        ))}
                     </div>
-                  )}
+                  </div>
+                )}
 
                 {/* Premium Calculation Display */}
                 {insuredObject.assessedValue > 0 && formData.productId && (
@@ -476,9 +475,7 @@ export const CarInsurancePage = () => {
                       <label className="block text-sm font-medium mb-2">
                         Duration *
                       </label>
-                      {selectedProduct &&
-                      (selectedProduct.pricingConfig as any)
-                        ?.percentageByDuration ? (
+                      {selectedProduct?.pricingConfig?.percentageByDuration ? (
                         <Select
                           value={
                             durationInMonths > 0
@@ -486,7 +483,7 @@ export const CarInsurancePage = () => {
                               : ''
                           }
                           onValueChange={(value) => {
-                            const months = parseInt(
+                            const months = Number.parseFloat(
                               value.replace('months', ''),
                             );
                             if (formData.startDate && months > 0) {
@@ -501,15 +498,15 @@ export const CarInsurancePage = () => {
                           </Select.Trigger>
                           <Select.Content>
                             {Object.keys(
-                              (selectedProduct.pricingConfig as any)
+                              selectedProduct.pricingConfig
                                 .percentageByDuration,
                             ).map((duration) => {
-                              const months = parseInt(
+                              const months = Number.parseFloat(
                                 duration.replace('months', ''),
                               );
-                              const percentage = (
-                                selectedProduct.pricingConfig as any
-                              ).percentageByDuration[duration];
+                              const percentage =
+                                selectedProduct.pricingConfig
+                                  .percentageByDuration[duration];
                               return (
                                 <Select.Item key={duration} value={duration}>
                                   {months} months ({percentage}%)
@@ -528,7 +525,7 @@ export const CarInsurancePage = () => {
                         />
                       )}
                       {selectedProduct &&
-                        !(selectedProduct.pricingConfig as any)
+                        !selectedProduct.pricingConfig
                           ?.percentageByDuration && (
                           <p className="text-xs text-muted-foreground mt-1">
                             End Date

@@ -10,10 +10,19 @@ export const EMFormValueEffectComponent = ({
   atom: WritableAtom<any, [value: any], void>;
   form: UseFormReturn<z.infer<any>>;
 }) => {
-  // `persistValueTaken` becomes true once we have done the first reset, at
-  // which point it is safe for the setter effect to start writing form values
-  // back into the atom.
-  const [persistValueTaken, setPersistValueTaken] = useState(false);
+  // `persistValueTaken` becomes true once it is safe for the setter effect to
+  // start writing form values back into the atom.
+  //
+  // • When atomValue is already null on mount (fresh "Add" flow with no saved
+  //   data) we start as true immediately — there is nothing to restore, so the
+  //   setter can begin syncing right away.
+  // • When atomValue is non-null on mount (edit flow or saved draft) we start
+  //   as false and let EMFormResetEffectComponent do one reset first, then flip
+  //   the flag so subsequent keystrokes are synced without triggering a re-reset.
+  const atomValue = useAtomValue(atom);
+  const [persistValueTaken, setPersistValueTaken] = useState(
+    () => atomValue === null,
+  );
 
   return (
     <>

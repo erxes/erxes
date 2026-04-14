@@ -1,31 +1,13 @@
-import {
-  Form,
-  Input,
-  Textarea,
-  Select,
-  MultipleSelector,
-  Switch,
-  Tabs,
-  Upload,
-  Collapsible,
-  Button,
-  ScrollArea,
-} from 'erxes-ui';
-import { readImage } from 'erxes-ui/utils/core';
-import { IconUpload, IconX } from '@tabler/icons-react';
-import { useLocation } from 'react-router-dom';
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { CustomFieldInput } from '../../CustomFieldInput';
-import { GalleryUploader } from '../../GalleryUploader';
-import { VideoUploader } from '../../VideoUploader';
-import { AudioUploader } from '../../AudioUploader';
-import { DocumentsUploader } from '../../DocumentsUploader';
-import { AttachmentsUploader } from '../../AttachmentsUploader';
-import { PostPreview } from '../../PostPreview';
-import { formatInitialContent } from '../../formHelpers';
+import { Form, ScrollArea } from 'erxes-ui';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { useEffect, useRef, useMemo, useCallback } from 'react';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
 import { usePostSubmission } from './hooks/usePostSubmission';
+import { PostEditorColumn } from './PostEditorColumn';
+import { PostSidebarPanel } from './PostSidebarPanel';
+import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 
 interface AddPostFormProps {
   websiteId: string;
@@ -36,6 +18,7 @@ interface AddPostFormProps {
     onSubmit: (data?: any) => Promise<void>;
     creating: boolean;
     saving: boolean;
+    handleLanguageChange: (lang: string) => void;
   }) => void;
 }
 
@@ -46,12 +29,10 @@ export const AddPostForm = ({
   onFormReady,
 }: AddPostFormProps) => {
   const location = useLocation() as any;
-  const editingPostFromLocation = location?.state?.post as any;
-  const currentEditingPost = editingPost || editingPostFromLocation;
-
-  const [activeTab, setActiveTab] = useState<'content' | 'media' | 'seo'>(
-    'content',
-  );
+  const [searchParams] = useSearchParams();
+  const setCmsLanguage = useSetAtom(cmsLanguageAtom);
+  const cmsLanguage = useAtomValue(cmsLanguageAtom);
+  const currentEditingPost = editingPost || (location?.state?.post as any);
 
   const {
     form,
@@ -71,8 +52,6 @@ export const AddPostForm = ({
 
   const selectedType = form.watch('type');
 
-  const postData = usePostData(websiteId, selectedType);
-
   const {
     categories,
     tags,
@@ -80,29 +59,39 @@ export const AddPostForm = ({
     availableLanguages,
     defaultLanguage,
     fieldGroups,
-  } = postData;
+  } = usePostData(websiteId, selectedType);
 
-  const languageOptions = useMemo(() => {
-    return availableLanguages.map((lang: string) => ({
-      value: lang,
-      label: lang.toUpperCase(),
-      isDefault: lang === defaultLanguage,
-      hasTranslation: translations[lang] && lang !== defaultLanguage,
-    }));
-  }, [availableLanguages, defaultLanguage, translations]);
+  const languageOptions = useMemo(
+    () =>
+      availableLanguages.map((lang: string) => ({
+        value: lang,
+        label: lang.toUpperCase(),
+        isDefault: lang === defaultLanguage,
+        hasTranslation: translations[lang] && lang !== defaultLanguage,
+      })),
+    [availableLanguages, defaultLanguage, translations],
+  );
 
   const { onSubmit, creating, saving } = usePostSubmission({
     websiteId,
     editingPost: currentEditingPost,
     selectedLanguage,
     defaultLanguage,
-    translations,
     defaultLangData,
+    translations,
     onClose,
-    currentPath: location.pathname,
   });
 
   const formInitializedRef = useRef(false);
+
+  const handleLanguageChangeRef = useRef<(lang: string) => void>(
+    () => undefined,
+  );
+
+  const handleLanguageChangeStable = useCallback(
+    (lang: string) => handleLanguageChangeRef.current(lang),
+    [],
+  );
 
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
@@ -111,16 +100,79 @@ export const AddPostForm = ({
         onSubmit,
         creating,
         saving,
+        handleLanguageChange: handleLanguageChangeStable,
       });
       formInitializedRef.current = true;
     }
-  }, [form, onSubmit, creating, saving, onFormReady]);
+  }, [
+    form,
+    onSubmit,
+    creating,
+    saving,
+    onFormReady,
+    handleLanguageChangeStable,
+  ]);
+
+  // Helper: apply translation (or clear) translatable fields and save default data
+  const applyTranslationToForm = (lang: string) => {
+    setDefaultLangData({
+      title: fullPost?.title || '',
+      content: fullPost?.content || '',
+      excerpt: fullPost?.excerpt || fullPost?.description || '',
+      customFieldsData: fullPost?.customFieldsData || [],
+    });
+    const translation = translations[lang];
+    form.setValue('title', translation?.title || '');
+    form.setValue('content', translation?.content || '');
+    form.setValue('description', translation?.excerpt || '');
+    form.setValue('customFieldsData', translation?.customFieldsData || []);
+  };
 
   useEffect(() => {
     if (!selectedLanguage && defaultLanguage) {
-      setSelectedLanguage(defaultLanguage);
+      const initialLang = cmsLanguage || defaultLanguage;
+      // Set form values BEFORE setting selectedLanguage so the Editor
+      // (which remounts on key change including selectedLanguage) reads
+      // the correct values when it re-initialises.
+      if (initialLang !== defaultLanguage) {
+        applyTranslationToForm(initialLang);
+      }
+      setSelectedLanguage(initialLang);
     }
-  }, [defaultLanguage, selectedLanguage, setSelectedLanguage]);
+  }, [defaultLanguage, selectedLanguage, setSelectedLanguage, cmsLanguage]);
+
+  // When fullPost changes (loads twice: editingPost then fullPostData.cmsPost),
+  // the hook's effect resets the form with default-lang data.  Re-apply the
+  // translation override for the current non-default language.
+  const appliedForPostRef = useRef<Record<string, unknown> | null>(null);
+  useEffect(() => {
+    if (
+      !selectedLanguage ||
+      !defaultLanguage ||
+      selectedLanguage === defaultLanguage
+    ) {
+      return;
+    }
+    if (currentEditingPost && !fullPost) return;
+    if (appliedForPostRef.current === (fullPost ?? null)) return;
+
+    applyTranslationToForm(selectedLanguage);
+    appliedForPostRef.current = fullPost ?? null;
+  }, [
+    selectedLanguage,
+    defaultLanguage,
+    translations,
+    fullPost,
+    currentEditingPost,
+  ]);
+
+  useEffect(() => {
+    if (currentEditingPost || !customTypes.length) return;
+    const typeCode = searchParams.get('type');
+    if (!typeCode || typeCode === 'post') return;
+    const matched = customTypes.find((t: any) => t.code === typeCode);
+    if (matched) form.setValue('type', matched._id);
+  }, [customTypes]);
 
   useEffect(() => {
     if (
@@ -142,7 +194,7 @@ export const AddPostForm = ({
       setDefaultLangData({
         title: form.getValues('title') || '',
         content: form.getValues('content') || '',
-        description: form.getValues('description') || '',
+        excerpt: form.getValues('description') || '',
         customFieldsData: form.getValues('customFieldsData') || [],
       });
     } else {
@@ -161,12 +213,12 @@ export const AddPostForm = ({
       const data = defaultLangData || {
         title: fullPost?.title || '',
         content: fullPost?.content || '',
-        description: fullPost?.excerpt || fullPost?.description || '',
+        excerpt: fullPost?.excerpt || fullPost?.description || '',
         customFieldsData: fullPost?.customFieldsData || [],
       };
       form.setValue('title', data.title);
       form.setValue('content', data.content);
-      form.setValue('description', data.description);
+      form.setValue('description', data.excerpt);
       form.setValue('customFieldsData', data.customFieldsData);
     } else {
       const translation = translations[lang];
@@ -177,493 +229,44 @@ export const AddPostForm = ({
     }
 
     setSelectedLanguage(lang);
+    setCmsLanguage(lang);
   };
+
+  // Keep ref in sync so the stable callback always delegates to latest logic
+  handleLanguageChangeRef.current = handleLanguageChange;
+
   return (
-    <ScrollArea className="flex-auto overflow-hidden" viewportClassName="p-4">
-      <div className="h-full flex flex-col w-full mb-4 px-4 pt-4">
-        <div className="flex-1 min-h-0 overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
-            <div className="rounded-lg border overflow-hidden flex flex-col">
-              <div className="px-4 pt-1 border-b">
-                <Tabs
-                  value={activeTab}
-                  onValueChange={(v) =>
-                    setActiveTab(v as 'content' | 'media' | 'seo')
-                  }
-                >
-                  <Tabs.List className="border-none">
-                    <div className="flex justify-evenly items-center gap-4">
-                      <Tabs.Trigger value="content" className="w-full">
-                        Content
-                      </Tabs.Trigger>
-                      <Tabs.Trigger value="media" className="w-full">
-                        Media
-                      </Tabs.Trigger>
-                    </div>
-                  </Tabs.List>
-                </Tabs>
-              </div>
-
-              <Form {...form}>
-                <form className="p-4 space-y-4 flex-1 overflow-y-auto">
-                  {activeTab === 'content' && (
-                    <>
-                      {currentEditingPost?._id &&
-                        availableLanguages.length > 0 && (
-                          <div className="space-y-3 p-2 rounded-md border">
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-3">
-                                <span className="text-sm font-medium text-gray-700">
-                                  Language:
-                                </span>
-                                <Select
-                                  value={selectedLanguage}
-                                  onValueChange={handleLanguageChange}
-                                >
-                                  <Select.Trigger className="w-[180px]">
-                                    <Select.Value />
-                                  </Select.Trigger>
-                                  <Select.Content>
-                                    {languageOptions.map((option: any) => (
-                                      <Select.Item
-                                        key={option.value}
-                                        value={option.value}
-                                      >
-                                        {option.label}
-                                        {option.isDefault && (
-                                          <span className="ml-2 text-xs text-gray-500">
-                                            (Default)
-                                          </span>
-                                        )}
-                                        {option.hasTranslation && (
-                                          <span className="ml-2 text-green-600">
-                                            ✓
-                                          </span>
-                                        )}
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Content>
-                                </Select>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                        <Form.Field
-                          control={form.control}
-                          name="type"
-                          render={({ field }) => (
-                            <Form.Item>
-                              <Form.Label>Post Type</Form.Label>
-                              <Form.Control>
-                                <Select
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                >
-                                  <Select.Trigger>
-                                    <Select.Value placeholder="Choose type" />
-                                  </Select.Trigger>
-                                  <Select.Content>
-                                    <Select.Item value="post">post</Select.Item>
-                                    {customTypes.map((type: any) => (
-                                      <Select.Item
-                                        key={type._id}
-                                        value={type._id}
-                                      >
-                                        {type.label}
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Content>
-                                </Select>
-                              </Form.Control>
-                              <Form.Message />
-                            </Form.Item>
-                          )}
-                        />
-                        <Form.Field
-                          control={form.control}
-                          name="title"
-                          render={({ field }) => (
-                            <Form.Item>
-                              <Form.Label>
-                                Post Title
-                                {selectedLanguage !== defaultLanguage && (
-                                  <span className="ml-2 text-xs text-blue-600">
-                                    ({selectedLanguage})
-                                  </span>
-                                )}
-                              </Form.Label>
-                              <Form.Control>
-                                <Input
-                                  {...field}
-                                  placeholder="Post title"
-                                  onChange={(e) => {
-                                    field.onChange(e);
-                                    const val = e.target.value;
-                                    if (
-                                      selectedLanguage === defaultLanguage &&
-                                      !form.getValues('slug')
-                                    ) {
-                                      form.setValue('slug', generateSlug(val));
-                                    }
-                                  }}
-                                />
-                              </Form.Control>
-                              <Form.Message />
-                            </Form.Item>
-                          )}
-                        />
-                      </div>
-
-                      <Form.Field
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                          <Form.Item>
-                            <Form.Label>
-                              Short Description
-                              {selectedLanguage !== defaultLanguage && (
-                                <span className="ml-2 text-xs text-blue-600">
-                                  ({selectedLanguage})
-                                </span>
-                              )}
-                            </Form.Label>
-                            <Form.Control>
-                              <Textarea
-                                {...field}
-                                placeholder="Description here"
-                                rows={8}
-                                maxLength={500}
-                              />
-                            </Form.Control>
-                            <div className="text-xs text-muted-foreground text-right">
-                              {field.value?.length || 0}/500 characters
-                            </div>
-                            <Form.Message />
-                          </Form.Item>
-                        )}
-                      />
-
-                      <Form.Field
-                        control={form.control}
-                        name="categoryIds"
-                        render={({ field }) => (
-                          <Form.Item>
-                            <Form.Label>Category</Form.Label>
-                            <Form.Control>
-                              <MultipleSelector
-                                value={categories.filter((o: any) =>
-                                  (field.value || []).includes(o.value),
-                                )}
-                                options={categories}
-                                placeholder="Select"
-                                hidePlaceholderWhenSelected={true}
-                                emptyIndicator="Empty"
-                                onChange={(opts: any[]) =>
-                                  field.onChange(opts.map((o) => o.value))
-                                }
-                              />
-                            </Form.Control>
-                            <Form.Message />
-                          </Form.Item>
-                        )}
-                      />
-
-                      <Form.Field
-                        control={form.control}
-                        name="tagIds"
-                        render={({ field }) => (
-                          <Form.Item>
-                            <Form.Label>Tag</Form.Label>
-                            <Form.Control>
-                              <MultipleSelector
-                                value={tags.filter((o: any) =>
-                                  (field.value || []).includes(o.value),
-                                )}
-                                options={tags}
-                                placeholder="Select"
-                                hidePlaceholderWhenSelected={true}
-                                emptyIndicator="Empty"
-                                onChange={(opts: any[]) =>
-                                  field.onChange(opts.map((o) => o.value))
-                                }
-                              />
-                            </Form.Control>
-                            <Form.Message />
-                          </Form.Item>
-                        )}
-                      />
-
-                      <Form.Field
-                        control={form.control}
-                        name="featured"
-                        render={({ field }) => (
-                          <Form.Item>
-                            <Form.Label>Featured</Form.Label>
-                            <Form.Description>
-                              Turn this post into a featured post
-                            </Form.Description>
-                            <Form.Control>
-                              <Switch
-                                checked={!!field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </Form.Control>
-                            <Form.Message />
-                          </Form.Item>
-                        )}
-                      />
-
-                      {selectedType && fieldGroups.length > 0 && (
-                        <div className="space-y-3 mt-6 pt-6 border-t">
-                          <div className="text-sm font-semibold text-foreground">
-                            Custom Fields
-                          </div>
-                          {fieldGroups.map((group: any) => (
-                            <Collapsible
-                              key={group._id}
-                              defaultOpen
-                              className="group"
-                            >
-                              <Collapsible.Trigger asChild>
-                                <Button
-                                  variant="secondary"
-                                  className="w-full justify-start"
-                                >
-                                  <Collapsible.TriggerIcon />
-                                  {group.label}
-                                </Button>
-                              </Collapsible.Trigger>
-                              <Collapsible.Content className="pt-4">
-                                <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                                  {(group.fields || []).map((field: any) => (
-                                    <div
-                                      key={field._id}
-                                      className="flex flex-col gap-2"
-                                    >
-                                      <Form.Label
-                                        className="text-sm font-medium"
-                                        htmlFor={`custom-field-${field._id}`}
-                                      >
-                                        {field.label}
-                                        {field.isRequired && (
-                                          <span className="text-destructive ml-1">
-                                            *
-                                          </span>
-                                        )}
-                                      </Form.Label>
-                                      <CustomFieldInput
-                                        field={field}
-                                        value={getCustomFieldValue(field._id)}
-                                        onChange={(value: any) =>
-                                          updateCustomFieldValue(
-                                            field._id,
-                                            value,
-                                          )
-                                        }
-                                      />
-                                    </div>
-                                  ))}
-                                </div>
-                              </Collapsible.Content>
-                            </Collapsible>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                  {activeTab === 'media' && <MediaSection form={form} />}
-                </form>
-              </Form>
-            </div>
-
-            <PostPreview
-              content={form.watch('content') || ''}
+    <ScrollArea className="flex-auto" viewportClassName="p-4">
+      <Form {...form}>
+        <div className="flex flex-col w-full mb-4 px-4 pt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <PostEditorColumn
               form={form}
               selectedLanguage={selectedLanguage}
               defaultLanguage={defaultLanguage}
+              selectedType={selectedType}
+              fieldGroups={fieldGroups}
               fullPost={fullPost}
-              formatInitialContent={formatInitialContent}
+              generateSlug={generateSlug}
               handleEditorChange={handleEditorChange}
+              getCustomFieldValue={getCustomFieldValue}
+              updateCustomFieldValue={updateCustomFieldValue}
+            />
+            <PostSidebarPanel
+              form={form}
+              categories={categories}
+              tags={tags}
+              customTypes={customTypes}
+              websiteId={websiteId}
+              availableLanguages={availableLanguages}
+              defaultLanguage={defaultLanguage}
+              selectedLanguage={selectedLanguage}
+              languageOptions={languageOptions}
+              handleLanguageChange={handleLanguageChange}
             />
           </div>
         </div>
-      </div>
+      </Form>
     </ScrollArea>
   );
 };
-
-const MediaSection = ({ form }: { form: any }) => (
-  <div>
-    <div className="mt-1 space-y-4">
-      <div className="text-sm font-medium">Media</div>
-
-      <Form.Field
-        control={form.control}
-        name="thumbnail"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Featured image</Form.Label>
-            <Form.Description>
-              Image can be shown on top of the post also in the list view
-            </Form.Description>
-            <Form.Control>
-              <ThumbnailUploader field={field} form={form} />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-
-      <Form.Field
-        control={form.control}
-        name="gallery"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Image gallery</Form.Label>
-            <Form.Description>
-              Image gallery with maximum of 10 images
-            </Form.Description>
-            <Form.Control>
-              <GalleryUploader
-                value={(field.value as string[]) || []}
-                onChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-
-      <Form.Field
-        control={form.control}
-        name="video"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Video</Form.Label>
-            <Form.Control>
-              <VideoUploader value={field.value} onChange={field.onChange} />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-
-      <Form.Field
-        control={form.control}
-        name="audio"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Audio</Form.Label>
-            <Form.Description>Can be used for audio podcast</Form.Description>
-            <Form.Control>
-              <AudioUploader value={field.value} onChange={field.onChange} />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-
-      <Form.Field
-        control={form.control}
-        name="documents"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Documents</Form.Label>
-            <Form.Control>
-              <DocumentsUploader
-                value={(field.value as string[]) || []}
-                onChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-
-      <Form.Field
-        control={form.control}
-        name="attachments"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Attachments</Form.Label>
-            <Form.Control>
-              <AttachmentsUploader
-                value={(field.value as string[]) || []}
-                onChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-    </div>
-  </div>
-);
-
-const ThumbnailUploader = ({ field, form }: { field: any; form: any }) => (
-  <>
-    <div className="flex items-center gap-3">
-      <Upload.Root
-        value={
-          typeof field.value === 'string'
-            ? field.value
-            : (field.value as any)?.url || ''
-        }
-        onChange={(v: any) => {
-          if (v && typeof v === 'object' && 'url' in v) {
-            field.onChange({
-              url: (v as any).url,
-              name: (v as any).fileInfo?.name || '',
-            });
-          } else {
-            field.onChange(null);
-          }
-        }}
-      >
-        <Upload.Preview />
-        <div className="flex flex-col items-stretch gap-2 flex-1">
-          <Upload.Button
-            size="sm"
-            variant="secondary"
-            type="button"
-            className="flex items-center justify-center gap-2"
-          >
-            <IconUpload size={16} />
-            <span className="text-sm font-medium">
-              {field.value ? 'Change image' : 'Upload featured image'}
-            </span>
-          </Upload.Button>
-        </div>
-      </Upload.Root>
-    </div>
-    {form.watch('thumbnail') && (
-      <div className="mt-2 relative">
-        <div className="relative">
-          <img
-            src={readImage(
-              typeof form.watch('thumbnail') === 'string'
-                ? form.watch('thumbnail')
-                : (form.watch('thumbnail') as any)?.url || '',
-            )}
-            alt="Featured preview"
-            className="w-full h-32 object-cover rounded border"
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-0 right-0"
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              form.setValue('thumbnail', null);
-            }}
-          >
-            <IconX size={12} />
-          </Button>
-        </div>
-      </div>
-    )}
-  </>
-);

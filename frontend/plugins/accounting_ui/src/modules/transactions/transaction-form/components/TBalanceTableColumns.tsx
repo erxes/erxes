@@ -70,9 +70,9 @@ const AmountCell = ({ value }: { value: number }) => {
       />
     </RecordTableInlineCell>
   );
-}
+};
 
-const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
+const AmountProdCell = ({ row, value }: { row: any; value: number }) => {
   const { detail } = row.original;
   if (!detail.productId) {
     return undefined;
@@ -88,20 +88,20 @@ const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
       />
     </RecordTableInlineCell>
   );
-}
+};
 
 const DebitCell = ({ row }: any) => {
-  const { detail } = row.original;
-  const { amount, side } = detail;
+  const { detail, side } = row.original;
+  const { amount } = detail;
 
-  return (<AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />)
+  return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
 };
 
 const CreditCell = ({ row }: any) => {
-  const { detail } = row.original;
-  const { amount, side } = detail;
+  const { detail, side } = row.original;
+  const { amount } = detail;
 
-  return (<AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />)
+  return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
 
 const BranchCell = ({ row }: any) => {
@@ -136,7 +136,10 @@ const AccountCell = ({ row }: any) => {
   const { detail } = row.original;
   return (
     <RecordTableInlineCell>
-      <AccountsInline accountIds={[detail.accountId]} accounts={detail.account && [detail.account]} />
+      <AccountsInline
+        accountIds={[detail.accountId]}
+        accounts={detail.account && [detail.account]}
+      />
     </RecordTableInlineCell>
   );
 };
@@ -149,7 +152,10 @@ const ProductCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      <ProductsInline productIds={[detail.productId]} products={detail.product && [detail.product]} />
+      <ProductsInline
+        productIds={[detail.productId]}
+        products={detail.product && [detail.product]}
+      />
     </RecordTableInlineCell>
   );
 };
@@ -222,15 +228,23 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
   },
   {
     id: 'unitPrice-inv',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />
+    ),
     accessorKey: 'unitPrice-inv',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />,
+    cell: ({ row }) => (
+      <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />
+    ),
   },
   {
     id: 'count-inv',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />
+    ),
     accessorKey: 'count-inv',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />,
+    cell: ({ row }) => (
+      <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />
+    ),
   },
   {
     id: 'branch',

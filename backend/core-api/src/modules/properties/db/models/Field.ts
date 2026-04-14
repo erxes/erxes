@@ -167,7 +167,7 @@ export const loadFieldClass = (models: IModels) => {
 
         // required
         if (key === 'required') {
-          if (!value || !value.toString().trim()) {
+          if (!value?.toString().trim()) {
             throw new Error(`${field.name}: required`);
           }
         }
@@ -320,7 +320,7 @@ export const loadFieldClass = (models: IModels) => {
           continue;
         }
 
-        const fieldValue = (propertiesData || {})[fieldName];
+        const fieldValue = propertiesData?.[fieldName];
 
         if (fieldValue === undefined) {
           continue;
@@ -387,9 +387,8 @@ export const loadFieldClass = (models: IModels) => {
         });
       }
 
-      result.propertiesData = await models.Fields.validateFieldValues(
-        mergedData,
-      );
+      result.propertiesData =
+        await models.Fields.validateFieldValues(mergedData);
 
       return result;
     }

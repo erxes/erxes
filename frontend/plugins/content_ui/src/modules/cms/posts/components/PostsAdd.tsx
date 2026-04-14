@@ -1,12 +1,21 @@
 import { IconPlus } from '@tabler/icons-react';
 
-import { Button, Kbd, useScopedHotkeys } from 'erxes-ui';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Button, useScopedHotkeys } from 'erxes-ui';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
+import { useCustomTypes } from '../../custom-types/hooks/useCustomTypes';
 
 export const PostsAdd = ({ clientPortalId }: { clientPortalId: string }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const currentType = searchParams.get('type');
+  const { customTypes } = useCustomTypes({ clientPortalId });
+
+  const typeLabel =
+    currentType && currentType !== 'post'
+      ? (customTypes.find((t) => t.code === currentType)?.label ?? 'Post')
+      : 'Post';
 
   const onOpen = () => {
     const pathSegments = location.pathname.split('/');
@@ -15,7 +24,9 @@ export const PostsAdd = ({ clientPortalId }: { clientPortalId: string }) => {
       cmsIndex > 0 && cmsIndex < pathSegments.length - 1
         ? pathSegments[cmsIndex + 1]
         : clientPortalId;
-    navigate(`/content/cms/${websiteId}/posts/add`);
+    const typeParam =
+      currentType && currentType !== 'post' ? `?type=${currentType}` : '';
+    navigate(`/content/cms/${websiteId}/posts/add${typeParam}`);
   };
 
   useScopedHotkeys(`c`, () => onOpen(), PostsHotKeyScope.PostsPage);
@@ -23,8 +34,7 @@ export const PostsAdd = ({ clientPortalId }: { clientPortalId: string }) => {
   return (
     <Button onClick={onOpen}>
       <IconPlus />
-      Add Post
-      <Kbd>C</Kbd>
+      Add {typeLabel}
     </Button>
   );
 };

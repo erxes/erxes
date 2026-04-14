@@ -19,12 +19,14 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
+import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 
 export const usePostsColumns = (
   onEditPost?: (post: any) => void,
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
   const navigate = useNavigate();
+  const { isMissing } = useIsTranslationMissing();
 
   return [
     postMoreColumn(onEditPost, undefined, onRefetch),
@@ -37,6 +39,7 @@ export const usePostsColumns = (
       accessorKey: 'title',
       cell: ({ cell, row }) => {
         const post = row.original;
+        const missing = isMissing(post.translations);
         return (
           <RecordTableInlineCell>
             <div
@@ -48,14 +51,17 @@ export const usePostsColumns = (
               }}
               className="cursor-pointer "
             >
-              <Badge variant="secondary">
+              <Badge
+                variant={missing ? 'outline' : 'secondary'}
+                className={missing ? 'text-red-500 border-red-300' : ''}
+              >
                 <TextOverflowTooltip value={post.title || post.name} />
               </Badge>
             </div>
           </RecordTableInlineCell>
         );
       },
-      size: 300,
+      size: 400,
     },
     {
       id: 'status',
@@ -64,7 +70,7 @@ export const usePostsColumns = (
       cell: ({ cell }) => {
         return <PostsRecordTableStatusInlineCell cell={cell} />;
       },
-      size: 90,
+      size: 120,
     },
     {
       id: 'categories',
@@ -108,7 +114,9 @@ export const usePostsColumns = (
       header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
       cell: ({ row }) => {
         const post = row.original;
-        const typeLabel = post.customPostType?.label || post.type;
+        const typeLabel =
+          post.customPostType?.label ||
+          (post.type === 'post' ? 'Post' : post.type);
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip value={typeLabel} />
@@ -126,9 +134,13 @@ export const usePostsColumns = (
           />
         </div>
       ),
-      accessorFn: (row: any) => row.scheduledDate || row.createdAt,
+      accessorFn: (row: any) =>
+        row.scheduledDate || row.publishedDate || row.createdAt,
       cell: ({ row }) => {
-        const date = row.original.scheduledDate;
+        const date =
+          row.original.scheduledDate ||
+          row.original.publishedDate ||
+          row.original.createdAt;
         return (
           <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1">
             <IconCalendarEvent className="h-3 w-3" />

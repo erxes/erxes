@@ -1,4 +1,4 @@
-import { GQL_CURSOR_PARAM_DEFS } from "erxes-api-shared/utils";
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 const trDetailFields = `
   _id: String
@@ -8,8 +8,9 @@ const trDetailFields = `
   originType: String
   originSubId: String
   followInfos: JSON
+  branchId: String
+  departmentId: String
 
-  side: String
   amount: Float
   currencyAmount: Float
   customRate: Float
@@ -31,8 +32,10 @@ const transactionFields = `
   date: Date
   description: String
   journal: String
+  side: String
   originType: String
   followInfos: JSON
+  relAccounts: JSON
 
   branchId: String
   departmentId: String
@@ -57,7 +60,10 @@ const transactionFields = `
 export const types = () => `
   type AccTrDetail {
     ${trDetailFields}
+
     account: Account
+    branch: Branch
+    department: Department
     product: Product
   }
 
@@ -158,6 +164,8 @@ const trsQueryParams = `
   searchValue: String,
   number: String,
   ptrStatus: String,
+  customerType: String,
+  customerId: String,
 
   accountIds: [String],
   accountKind: String,
@@ -182,6 +190,7 @@ const trsQueryParams = `
   journal: String,
   journals: [String],
   statuses: [String],
+  relAccounts: [String],
 
   createdUserId: String
   modifiedUserId: String

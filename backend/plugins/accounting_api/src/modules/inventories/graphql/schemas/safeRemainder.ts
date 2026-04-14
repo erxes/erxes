@@ -14,6 +14,13 @@ export const types = `
     description: String
     status: String    
 
+    incomeRule: JSON
+    incomeTrId: String
+    outRule: JSON
+    outTrId: String
+    saleRule: JSON
+    saleTrId: String
+
     createdAt: Date
     createdBy: String
     modifiedAt: Date
@@ -63,6 +70,11 @@ export const mutations = `
     filterField: String,
     items: JSON
   ): SafeRemainder
+  safeRemainderEdit(_id: String!, description: String, incomeRule: JSON, outRule: JSON, saleRule: JSON): SafeRemainder
   safeRemainderRemove(_id: String!): JSON
-  safeRemainderSubmit( _id: String! ): JSON
+  safeRemainderReCalc(_id: String!): String
+  safeRemainderSubmit(_id: String!): SafeRemainder
+  safeRemainderCancel(_id: String!): SafeRemainder
+  safeRemainderDoTr(_id: String!): SafeRemainder
+  safeRemainderUndoTr(_id: String!): SafeRemainder
 `;

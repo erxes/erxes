@@ -205,7 +205,7 @@ const processBracketPlaceholders = async (
           input: { query: { _id: objectId } },
         });
 
-        const replaceValue = (result || {})[fieldKey ?? '_id'] || '';
+        const replaceValue = result?.[fieldKey ?? '_id'] || '';
         processed = processed.replace(fullMatch, String(replaceValue));
       } catch (error) {
         // If tRPC request fails, just remove the brackets

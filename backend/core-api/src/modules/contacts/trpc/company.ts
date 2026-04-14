@@ -1,8 +1,6 @@
 import { initTRPC } from '@trpc/server';
-import { generateModels } from '~/connectionResolvers';
 import { z } from 'zod';
 import { createOrUpdate } from '../utils';
-import { ITRPCContext } from 'erxes-api-shared/utils';
 import { CoreTRPCContext } from '~/init-trpc';
 
 const t = initTRPC.context<CoreTRPCContext>().create();

@@ -157,7 +157,7 @@ export async function findOrCreateCustomer(
     createData.primaryPhone = phone;
   }
 
-  return models.Customers.create(createData);
+  return models.Customers.createCustomer(createData);
 }
 
 export async function findOrCreateCompany(
@@ -218,12 +218,12 @@ export async function handleCPContacts(
   password?: string,
 ): Promise<ICPUserDocument> {
   const defaultPassword = password || random('Aa0!', 8);
-  const { type = 'customer' } = document;
+  const { userType = 'customer' } = document;
 
   const trimmedMail = document.email ? normalizeEmail(document.email) : '';
   const phone = document.phone || '';
 
-  if (type === 'customer') {
+  if (userType === 'customer') {
     const customer = await findOrCreateCustomer(
       document,
       trimmedMail,
@@ -239,7 +239,7 @@ export async function handleCPContacts(
     );
   }
 
-  if (type === 'company') {
+  if (userType === 'company') {
     const company = await findOrCreateCompany(
       document,
       trimmedMail,

@@ -48,7 +48,7 @@ export const generateConditionStageIds = async (
     pipelineIds = [options.pipelineId];
   }
 
-  if (boardId && (!options || !options.pipelineId)) {
+  if (boardId && !options?.pipelineId) {
     const board = await models.Boards.getBoard(boardId);
 
     const pipelines = await models.Pipelines.find(

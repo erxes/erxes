@@ -161,6 +161,7 @@ const SelectStatusTicketRoot = ({
   variant,
   scope,
   onValueChange,
+  disabled,
 }: {
   value: string;
   id: string;
@@ -168,6 +169,7 @@ const SelectStatusTicketRoot = ({
   variant: `${SelectTriggerVariant}`;
   scope?: string;
   onValueChange?: (value: string) => void;
+  disabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTicket } = useUpdateTicket();
@@ -191,7 +193,7 @@ const SelectStatusTicketRoot = ({
       onValueChange={handleValueChange}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerTicket variant={variant}>
+        <SelectTriggerTicket variant={variant} disabled={disabled}>
           <SelectStatusValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant={variant}>

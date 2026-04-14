@@ -5,4 +5,5 @@ export enum PostsPath {
   Tags = '/tags',
   CustomFields = '/custom-fields',
   CustomPostTypes = '/custom-types',
+  Menus = '/menus',
 }

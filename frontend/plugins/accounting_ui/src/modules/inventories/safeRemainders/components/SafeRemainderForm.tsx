@@ -15,7 +15,7 @@ import { useForm } from 'react-hook-form';
 import { useSafeRemainderAdd } from '../hooks/useSafeRemainderAdd';
 import { TSafeRemainderForm } from '../types/safeRemainderForm';
 import { safeRemainderSchema } from '../types/safeRemainderSchema';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
 
 export const AddSafeRemainder = () => {
   const [open, setOpen] = useState(false);
@@ -58,7 +58,7 @@ const AddSafeRemainderForm = ({
   };
 
   const onError = (error: any) => {
-    console.log(error);
+    return {};
   };
 
   return (
@@ -125,6 +125,20 @@ const AddSafeRemainderForm = ({
                 mode="single"
                 value={field.value}
                 onValueChange={field.onChange}
+              />
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="productCategoryId"
+          render={({ field }) => (
+            <Form.Item className="col-span-2">
+              <Form.Label>Product Category</Form.Label>
+              <SelectCategory
+                selected={field.value}
+                onSelect={field.onChange}
               />
               <Form.Message />
             </Form.Item>

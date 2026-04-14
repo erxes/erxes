@@ -16,7 +16,11 @@ import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
 import { startPayments } from '../common-modules/payment/worker';
-import type { IPropertyMeta, SegmentConfigs } from '../core-modules';
+import type {
+  IPropertyMeta,
+  LogsConfigs,
+  SegmentConfigs,
+} from '../core-modules';
 import { initSegmentProducers, startAutomations } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
@@ -32,13 +36,24 @@ import {
   leaveErxesGateway,
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
-import { getSubdomain } from './utils';
+import { applyTrustProxy, getSubdomain } from './utils';
 
 dotenv.config();
+
+enum API_METHODS {
+  GET = 'get',
+  POST = 'post',
+  PUT = 'put',
+  PATCH = 'patch',
+  DELETE = 'delete',
+}
+
+type TAPIMethod = keyof typeof API_METHODS;
 
 type IMeta = {
   automations?: AutomationConfigs;
   segments?: SegmentConfigs;
+  logs?: LogsConfigs;
   afterProcess?: AfterProcessConfigs;
   payments?: any;
   notifications?: any;
@@ -48,7 +63,7 @@ type IMeta = {
 };
 
 type ApiHandler = {
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  method: TAPIMethod;
   path: string;
   resolver: (req: ApiRequest, res: ApiResponse) => Promise<void> | void;
 };
@@ -94,11 +109,32 @@ type ConfigTypes = {
 export async function startPlugin(
   configs: ConfigTypes,
 ): Promise<express.Express> {
-  const PORT = process.env.PORT ? Number(process.env.PORT) : configs.port;
+  const {
+    //common
+    name,
+    port,
+    // api configs
+    corsOptions = {},
+    expressRouter,
+    middlewares,
+    apiHandlers,
+    // graphql
+    hasSubscriptions,
+    subscriptionPluginPath,
+    graphql,
+    apolloServerContext,
+    trpcAppRouter,
+    onServerInit,
+    // meta
+    meta,
+    importExport,
+  } = configs || {};
+  const PORT = process.env.PORT ? Number(process.env.PORT) : port;
 
   const app = express();
+  applyTrustProxy(app);
   app.disable('x-powered-by');
-  app.use(cors(configs.corsOptions || {}));
+  app.use(cors(corsOptions));
   app.use(
     express.json({
       limit: '15mb',
@@ -111,36 +147,30 @@ export async function startPlugin(
     res.end('ok');
   });
 
-  if (configs.expressRouter) {
-    app.use(configs.expressRouter);
+  if (expressRouter) {
+    app.use(expressRouter);
   }
 
-  if (configs.middlewares) {
-    for (const middleware of configs.middlewares) {
+  if (middlewares) {
+    for (const middleware of middlewares) {
       app.use(middleware);
     }
   }
 
-  if (configs.apiHandlers) {
-    const apiHandlers = configs.apiHandlers || [];
+  if (apiHandlers) {
     for (const handler of apiHandlers) {
       const { method, path, resolver } = handler;
 
-      const METHODS = {
-        GET: 'get',
-        POST: 'post',
-        PUT: 'put',
-        PATCH: 'patch',
-        DELETE: 'delete',
-      } as const;
-
-      type Method = keyof typeof METHODS;
-      type LowercaseMethod = (typeof METHODS)[Method];
+      type LowercaseMethod = (typeof API_METHODS)[TAPIMethod];
 
       // Ensure `method` is one of the keys
-      const METHOD = METHODS[method as Method] as LowercaseMethod;
+      const METHOD = API_METHODS[method] as LowercaseMethod;
+      type TApiMethodApp = Record<
+        LowercaseMethod,
+        Application[LowercaseMethod]
+      >;
 
-      (app as Record<LowercaseMethod, Application[LowercaseMethod]>)[METHOD](
+      (app as TApiMethodApp)[METHOD](
         path,
         async (req: ApiRequest, res: ApiResponse) => {
           return await logHandler(async () => await resolver(req, res), {
@@ -160,18 +190,19 @@ export async function startPlugin(
     }
   }
 
-  if (configs.hasSubscriptions) {
+  if (hasSubscriptions) {
     app.get('/subscriptionPlugin.js', async (_req, res) => {
-      res.sendFile(path.join(configs.subscriptionPluginPath));
+      res.sendFile(path.join(subscriptionPluginPath));
     });
   }
 
-  if (configs.trpcAppRouter) {
+  if (trpcAppRouter) {
+    const { router, createContext } = trpcAppRouter;
     app.use(
       '/trpc',
       trpcExpress.createExpressMiddleware({
-        router: configs.trpcAppRouter.router,
-        createContext: createTRPCContext(configs.trpcAppRouter.createContext),
+        router,
+        createContext: createTRPCContext(createContext),
       }),
     );
   }
@@ -220,8 +251,8 @@ export async function startPlugin(
 
   async function leaveServiceDiscovery() {
     try {
-      await leaveErxesGateway(configs.name, PORT);
-      console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
+      await leaveErxesGateway(name, PORT);
+      console.log(`Left service discovery. name=${name} port=${PORT}`);
     } catch (e) {
       console.error(e);
     }
@@ -241,7 +272,7 @@ export async function startPlugin(
     // const services = await getServices();
     // debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
 
-    const { typeDefs, resolvers } = await configs.graphql();
+    const { typeDefs, resolvers } = await graphql();
 
     return new ApolloServer({
       schema: buildSubgraphSchema([
@@ -262,7 +293,7 @@ export async function startPlugin(
   app.use(
     '/graphql',
     expressMiddleware(apolloServer, {
-      context: generateApolloContext<IMainContext>(configs.apolloServerContext),
+      context: generateApolloContext<IMainContext>(apolloServerContext),
     }),
   );
 
@@ -271,62 +302,58 @@ export async function startPlugin(
   );
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
+    `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
-  if (configs.meta) {
+  if (meta) {
     const { automations, segments, afterProcess, notifications, payments } =
-      configs.meta || {};
+      meta || {};
 
     if (automations) {
-      await startAutomations(app, configs.name, automations);
+      await startAutomations(app, name, automations);
     }
 
     if (segments) {
-      await initSegmentProducers(app, configs.name, segments);
+      await initSegmentProducers(app, name, segments);
     }
 
     if (afterProcess) {
-      await startAfterProcess(app, configs.name, afterProcess);
+      await startAfterProcess(app, name, afterProcess);
     }
 
     if (notifications) {
-      await initializePluginConfig(
-        configs.name,
-        'notifications',
-        notifications,
-      );
+      await initializePluginConfig(name, 'notifications', notifications);
     }
 
     if (payments) {
-      await startPayments(configs.name, payments);
+      await startPayments(name, payments);
     }
-  } // end configs.meta if
+  } // end meta if
 
   await joinErxesGateway({
-    name: configs.name,
+    name: name,
     port: PORT,
-    hasSubscriptions: configs.hasSubscriptions,
-    meta: configs.meta,
+    hasSubscriptions: hasSubscriptions,
+    meta: meta,
   });
 
-  if (configs.onServerInit) {
-    configs.onServerInit(app);
-  }
-
-  if (configs.importExport) {
+  if (importExport) {
     startImportExportWorker({
-      pluginName: configs.name,
+      pluginName: name,
       config: {
-        ...configs.importExport,
+        ...importExport,
       },
       app,
     });
   }
 
-  //   applyInspectorEndpoints(configs.name);
+  if (onServerInit) {
+    onServerInit(app);
+  }
 
-  //   debugInfo(`${configs.name} server is running on port: ${PORT}`);
+  //   applyInspectorEndpoints(name);
+
+  //   debugInfo(`${name} server is running on port: ${PORT}`);
 
   return app;
 }

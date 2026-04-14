@@ -7,6 +7,7 @@
     "automations": "Automations",
     "documents": "Documents",
     "broadcasts": "Broadcasts",
+    "templates": "Templates",
     "success": "Success",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -22,6 +23,9 @@
     "updated-at": "Updated At",
     "last-seen-at": "Last Seen At",
     "birthday": "Birthday"
+  },
+  "logs": {
+    "searchContentType": "Search content type"
   },
   "records-found": "Records Found",
   "organization": {
@@ -40,6 +44,7 @@
     "change-password" : "Change Password",
     "general" : "General",
     "team-member" : "Team member",
+    "structure" : "Structure",
     "tags" : "Tags",
     "brands" : "Brands",
     "file-upload" : "File upload",
@@ -51,6 +56,7 @@
     "developer" : "Developer",
     "workspace" : "Workspace",
     "core-modules" : "Core modules",
+    "templates": "Templates",
     "exit-settings": "Exit Settings",
     "favorites": "Favorites",
     "my-inbox": "My inbox"

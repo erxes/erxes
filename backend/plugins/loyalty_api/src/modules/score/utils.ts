@@ -2,6 +2,114 @@ import dayjs from 'dayjs';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
+/**
+ * Safely evaluate a math expression string using recursive descent parsing.
+ * Only supports: numbers (int/float), +, -, *, /, parentheses.
+ * No eval/Function — purely structural parsing, no code execution.
+ */
+export const safeEvalMath = (expr: string): number => {
+  const input = (expr || '').trim();
+  if (!input) return 0;
+
+  let pos = 0;
+
+  /** look at the current character without moving forward */
+  function peek() { return input[pos]; }
+
+  /** grab the current character and step to the next one */
+  function advance() { return input[pos++]; }
+
+  /** jump past any spaces */
+  function skipWhitespace() { while (pos < input.length && input[pos] === ' ') pos++; }
+
+  /** read a number like 42, 3.14, or -5 from the input */
+  function parseNumber(): number {
+    skipWhitespace();
+    let numStr = '';
+
+    if (peek() === '-' || peek() === '+') numStr += advance();
+
+    if (peek() !== '(' && peek() !== undefined && !/[\d.]/.test(peek())) {
+      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+    }
+
+    while (pos < input.length && /[\d.]/.test(peek())) {
+      numStr += advance();
+    }
+
+    if (!numStr || numStr === '-' || numStr === '+') {
+      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+    }
+
+    const num = Number(numStr);
+    if (!isFinite(num)) {
+      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+    }
+    return num;
+  }
+
+  /** handle + and - (runs last because they have the lowest priority) */
+  function parseAddSub(): number {
+    let left = parseMulDiv();
+
+    while (true) {
+      skipWhitespace();
+      const op = peek();
+      if (op !== '+' && op !== '-') break;
+      advance();
+      const right = parseMulDiv();
+      left = op === '+' ? left + right : left - right;
+    }
+
+    return left;
+  }
+
+  /** handle * and / (runs before + and - because they bind tighter) */
+  function parseMulDiv(): number {
+    let left = parsePrimary();
+
+    while (true) {
+      skipWhitespace();
+      const op = peek();
+      if (op !== '*' && op !== '/') break;
+      advance();
+      const right = parsePrimary();
+      left = op === '*' ? left * right : left / right;
+    }
+
+    return left;
+  }
+
+  /** handle a number or a parenthesized group like (2 + 3) */
+  function parsePrimary(): number {
+    skipWhitespace();
+
+    if (peek() === '(') {
+      advance();
+      const val = parseAddSub();
+      skipWhitespace();
+      if (peek() !== ')') {
+        throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+      }
+      advance();
+      return val;
+    }
+
+    return parseNumber();
+  }
+
+  const result = parseAddSub();
+  skipWhitespace();
+
+  if (pos < input.length) {
+    throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
+  }
+
+  if (!isFinite(result)) return 0;
+
+  return result;
+};
+
 export const resolvePlaceholderValue = (target: any, attribute: string) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 
@@ -387,52 +495,61 @@ export const scoreStatistic = async ({ doc, models, filter }) => {
 };
 
 export const handleOnCreateCampaignScoreField = async ({ doc, subdomain }) => {
-  if (doc.fieldGroupId) {
-    if (doc.fieldId && doc.fieldOrigin === 'exists') {
-      const field = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'fields',
-        action: 'findOne',
-        input: {
-          query: { _id: doc.fieldId },
-        },
-        defaultValue: null,
-      });
-
-      if (!field) {
-        throw new Error('Cannot find field from database');
-      }
-
-      if (!field.isDisabled) {
-        throw new Error('Somehing went wrong field is not supported');
-      }
-    } else {
-      if (!doc?.fieldName && doc.fieldOrigin === 'new') {
-        throw new Error('Please provide a field name that for score field');
-      }
-
-      const field = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'fields',
-        action: 'create',
-        input: {
-          text: doc.fieldName,
-          groupId: doc.fieldGroupId,
-          type: 'input',
-          validation: 'number',
-          contentType: `core:${doc.ownerType}`,
-          isDisabled: true,
-        },
-        defaultValue: null,
-      });
-
-      doc.fieldId = field._id;
-    }
+  if (!doc.fieldGroupId || !doc.fieldOrigin) {
+    return doc;
   }
+
+  if (doc.fieldOrigin === 'exists') {
+    if (!doc.fieldId) {
+      throw new Error('Please select a field');
+    }
+
+    const field = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: 'findOne',
+      input: {
+        query: { _id: doc.fieldId },
+      },
+      defaultValue: null,
+    });
+
+    if (!field) {
+      throw new Error('Cannot find field from database');
+    }
+  } else if (doc.fieldOrigin === 'new') {
+    if (!doc.fieldName) {
+      throw new Error('Please provide a field name for score field');
+    }
+
+    const fieldCode = `loyalty_score_${doc.fieldName?.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+
+    const field = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'fields',
+      action: 'create',
+      input: {
+        name: doc.fieldName,
+        code: fieldCode,
+        groupId: doc.fieldGroupId,
+        type: 'input',
+        validations: { number: true },
+        contentType: `core:${doc.ownerType}`,
+      },
+      defaultValue: null,
+    });
+
+    if (!field) {
+      throw new Error('Failed to create score field');
+    }
+
+    doc.fieldId = field._id;
+  }
+
   return doc;
 };
 
@@ -445,6 +562,8 @@ export const handleOnUpdateCampaignScoreField = async ({
     doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId;
 
   if (doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId) {
+    const fieldCode = `loyalty_score_${doc.fieldName?.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+
     const field = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -452,15 +571,20 @@ export const handleOnUpdateCampaignScoreField = async ({
       module: 'fields',
       action: 'create',
       input: {
-        text: doc.fieldName,
+        name: doc.fieldName,
+        code: fieldCode,
         groupId: doc.fieldGroupId,
         type: 'input',
-        validation: 'number',
+        validations: { number: true },
         contentType: `core:${doc.ownerType}`,
-        isDisabled: true,
       },
       defaultValue: null,
     });
+
+    if (!field) {
+      throw new Error('Failed to create score field');
+    }
+
     doc.fieldId = field._id;
   } else {
     const modifiedFieldData: any = {};

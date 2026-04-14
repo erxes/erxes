@@ -10,14 +10,21 @@ import { createOrUpdateTr } from './utils';
 export default class CurrencyTr {
   private models: IModels;
   private subdomain: string;
+  private readonly userId: string;
   private doc: ITransaction;
   private currencyDiffTrDoc?: ITransaction;
   private spotRate?: any;
 
-  constructor(models: IModels, subdomain: string, doc: ITransaction) {
+  constructor(
+    models: IModels,
+    subdomain: string,
+    userId: string,
+    doc: ITransaction,
+  ) {
     this.subdomain = subdomain;
     this.models = models;
     this.doc = doc;
+    this.userId = userId;
   }
 
   public checkValidationCurrency = async () => {
@@ -78,10 +85,9 @@ export default class CurrencyTr {
       const rateDiff = detail.customRate - spotRate;
       let amount = detail.currencyAmount * rateDiff;
 
-      let side = detail.side;
+      let side = this.doc.side;
       if (amount < 0) {
-        side =
-          TR_SIDES.DEBIT === detail.side ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
+        side = TR_SIDES.DEBIT === side ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
         amount = -1 * amount;
       }
 
@@ -92,6 +98,7 @@ export default class CurrencyTr {
         date: this.doc.date,
         description: this.doc.description,
         journal: JOURNALS.EXCHANGE_DIFF,
+        side,
         branchId: this.doc.branchId,
         departmentId: this.doc.departmentId,
         customerType: this.doc.customerType,
@@ -100,7 +107,6 @@ export default class CurrencyTr {
           {
             _id: nanoid(),
             accountId: detail.followInfos.currencyDiffAccountId,
-            side,
             amount,
           },
         ],
@@ -129,8 +135,6 @@ export default class CurrencyTr {
   };
 
   public doCurrencyTr = async (transaction: ITransactionDocument) => {
-    let currencyTr;
-
     const oldFollowTrs = await this.models.Transactions.find({
       originId: transaction._id,
       originType: TR_FOLLOW_TYPES.EXCHANGE_DIFF,
@@ -153,8 +157,9 @@ export default class CurrencyTr {
       });
     }
 
-    currencyTr = await createOrUpdateTr(
+    return await createOrUpdateTr(
       this.models,
+      this.userId,
       {
         ...this.currencyDiffTrDoc,
         originId: transaction._id,
@@ -164,7 +169,5 @@ export default class CurrencyTr {
       },
       oldCurrencyTr,
     );
-
-    return currencyTr;
   };
 }

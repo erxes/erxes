@@ -2,6 +2,7 @@ import {
   IVoucher,
   IVoucherDocument,
   IVoucherInput,
+  IVoucherParams,
 } from '@/voucher/@types/voucher';
 import { IVoucherCampaignDocument } from '@/voucher/@types/voucherCampaign';
 import { VOUCHER_STATUS } from '@/voucher/constants';
@@ -18,6 +19,7 @@ export interface IVoucherModel extends Model<IVoucherDocument> {
   updateVoucher(_id: string, doc: IVoucher): Promise<IVoucherDocument>;
   buyVoucher(params: IBuyParams): Promise<IVoucherDocument>;
   removeVouchers(_ids: string[]): void;
+  removeVouchersByFilter(params: IVoucherParams): Promise<number>;
 
   checkVoucher({
     voucherId,
@@ -60,9 +62,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
-        campaignId,
-      );
+      const voucherCampaign =
+        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
         throw new Error('Cannot create voucher: voucher is expired');
@@ -114,9 +115,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
-        campaignId,
-      );
+      const voucherCampaign =
+        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
         throw new Error('Cannot create voucher: campaign is expired');
@@ -130,8 +130,10 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
           module: 'customers',
           action: 'find',
           input: {
-            tagIds: { $in: tagIds },
-            ...(ownerIds?.length && { _id: { $in: ownerIds } }),
+            query: {
+              tagIds: { $in: tagIds },
+              ...(ownerIds?.length && { _id: { $in: ownerIds } }),
+            },
           },
           defaultValue: [],
         });
@@ -190,7 +192,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         return 'success';
       } catch (error) {
         console.error('Failed to create vouchers:', error);
-        return 'error';
+        throw new Error(error.message || 'Failed to create vouchers');
       }
     }
 
@@ -234,9 +236,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy voucher, owner is undefined');
       }
 
-      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
-        campaignId,
-      );
+      const voucherCampaign =
+        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       if (!voucherCampaign.buyScore) {
         throw new Error('can not buy this voucher');
@@ -254,6 +255,25 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
     public static async removeVouchers(_ids: string[]) {
       return models.Vouchers.deleteMany({ _id: { $in: _ids } });
+    }
+
+    public static async removeVouchersByFilter(params: IVoucherParams) {
+      const { campaignId, ownerId, ownerType, status, fromDate, toDate } =
+        params || {};
+      const filter: any = {};
+
+      if (campaignId) filter.campaignId = campaignId;
+      if (ownerId) filter.ownerId = ownerId;
+      if (ownerType) filter.ownerType = ownerType;
+      if (status) filter.status = status;
+      if (fromDate || toDate) {
+        filter.createdAt = {};
+        if (fromDate) filter.createdAt.$gte = new Date(fromDate);
+        if (toDate) filter.createdAt.$lte = new Date(toDate);
+      }
+
+      const result = await models.Vouchers.deleteMany(filter);
+      return result.deletedCount;
     }
 
     public static async checkVoucher({

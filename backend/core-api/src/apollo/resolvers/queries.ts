@@ -7,7 +7,6 @@ import { commentQueries } from '@/clientportal/graphql/resolvers/queries/comment
 import { cpNotificationQueries } from '@/clientportal/graphql/resolvers/queries/cpNotification';
 import { contactQueries } from '@/contacts/graphql/resolvers/queries';
 import { documentQueries } from '@/documents/graphql/queries';
-import { exchangeRateQueries } from '@/exchangeRates/graphql/resolvers';
 import { queries as formQueries } from '@/forms/graphql/resolvers';
 import { internalNoteQueries } from '@/internalNote/graphql/queries';
 import { logQueries } from '@/logs/graphql/resolvers/queries';
@@ -23,6 +22,7 @@ import { relationsQueries } from '@/relations/graphql/queries';
 import { segmentQueries } from '@/segments/graphql/resolvers';
 import { tagQueries } from '@/tags/graphql/queries';
 import {
+  importExportCommonQueries,
   importQueries,
   exportQueries,
 } from '~/modules/import-export/graphql/resolvers';
@@ -30,6 +30,7 @@ import { activityLogQueries } from '@/logs/graphql/resolvers/activityLogQueries'
 import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries';
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
+import { templateQueries } from '@/template/graphql/queries';
 
 export const queries = {
   ...contactQueries,
@@ -45,7 +46,6 @@ export const queries = {
   ...structureQueries,
   ...brandQueries,
   ...organizationConfigQueries,
-  ...exchangeRateQueries,
   ...permissionQueries,
   ...documentQueries,
   ...automationQueries,
@@ -55,11 +55,13 @@ export const queries = {
   ...broadcastQueries,
   ...propertiesQueries,
   ...clientPortalQueries,
+  ...importExportCommonQueries,
   ...importQueries,
   ...exportQueries,
   ...cpUserQueries,
   ...commentQueries,
   ...cpNotificationQueries,
   ...activityLogQueries,
-  ...bundleQueries
+  ...bundleQueries,
+  ...templateQueries,
 };

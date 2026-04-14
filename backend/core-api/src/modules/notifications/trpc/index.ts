@@ -1,9 +1,11 @@
 import { initTRPC } from '@trpc/server';
 import { INotificationDocument } from 'erxes-api-shared/core-modules';
-import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
+import { getEnv, graphqlPubsub, USER_ROLES } from 'erxes-api-shared/utils';
+import * as admin from 'firebase-admin';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { PRIORITY_ORDER } from '~/modules/notifications/constants';
+import { initFirebase } from '~/modules/notifications/utils';
 import { sendEmail } from '~/utils/email';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
@@ -87,5 +89,73 @@ export const notificationTrpcRouter = t.router({
 
       return models.NotificationSettings.find({ userId: { $in: userIds } });
     }),
+    sendMobileNotification: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { receivers, deviceTokens, title, body, data } = input;
+
+        if (!admin.apps.length) {
+          await initFirebase(models);
+        }
+
+        const additionalConfigs = await models.Configs.findOne({
+          code: 'GOOGLE_APP_ADDITIONAL_CREDS_JSON',
+        });
+
+        if (admin.apps.length === 1 && additionalConfigs) {
+          for (const [index, item] of (
+            additionalConfigs?.value || []
+          ).entries()) {
+            await initFirebase(models, item, `app${index + 1}`);
+          }
+        }
+
+        const tokens: string[] = [];
+
+        if (receivers?.length) {
+          const xs = await models.Users.find({
+            _id: { $in: receivers },
+            role: { $ne: USER_ROLES.SYSTEM },
+          }).distinct('deviceTokens');
+
+          for (const x of xs) {
+            if (x) tokens.push(x);
+          }
+        }
+
+        if (deviceTokens?.length) {
+          tokens.push(...deviceTokens);
+        }
+
+        if (tokens.length > 0) {
+          for (const app of admin.apps) {
+            if (app) {
+              const transporter = app.messaging();
+
+              for (const token of tokens) {
+                await transporter
+                  .send({
+                    token,
+                    notification: { title, body },
+                    data: data || {},
+                  })
+                  .catch(async (e: Error) => {
+                    console.error(
+                      `Error occurred during firebase send: ${e.message}`,
+                    );
+
+                    if (!e.message.includes('SenderId mismatch')) {
+                      await models.Users.updateOne(
+                        { deviceTokens: token },
+                        { $pull: { deviceTokens: token } },
+                      );
+                    }
+                  });
+              }
+            }
+          }
+        }
+      }),
   }),
 });

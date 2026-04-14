@@ -1,5 +1,6 @@
 import {
   getEnv,
+  getPlugin,
   getSaasOrganizationDetail,
   getSubdomain,
 } from 'erxes-api-shared/utils';
@@ -42,7 +43,7 @@ router.get('/initial-setup', async (req: Request, res: Response) => {
   if (VERSION && VERSION === 'os') {
     const orgWhiteLabel = await models.OrgWhiteLabel.getOrgWhiteLabel();
 
-    if (orgWhiteLabel && orgWhiteLabel.enabled) {
+    if (orgWhiteLabel?.enabled) {
       organizationInfo = {
         ...organizationInfo,
         ...orgWhiteLabel,
@@ -67,6 +68,15 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
   const ENABLED_PLUGINS = getEnv({ name: 'ENABLED_PLUGINS' });
   const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
 
+  const getPluginVersion = async (pluginName: string): Promise<string> => {
+    try {
+      const pluginInfo = await getPlugin(pluginName);
+      return pluginInfo?.config?.releaseVersion || 'latest';
+    } catch {
+      return 'latest';
+    }
+  };
+
   if (VERSION === 'saas') {
     const remotes: { name: string; entry: string }[] = [];
     const subdomain = getSubdomain(_req);
@@ -77,29 +87,32 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
 
     const charges = organizationInfo.charge as IOrganizationCharge;
 
-    Object.keys(charges).forEach((key) => {
+    const enabledPluginsArray = ENABLED_PLUGINS.split(',');
+
+    for (const key of Object.keys(charges)) {
       if (
         (charges[key].purchased && charges[key].purchased > 0) ||
         (charges[key].free && charges[key].free > 0)
       ) {
         const pluginName = key.split(':')[0];
 
-        const enabledPluginsArray = ENABLED_PLUGINS.split(',');
         if (enabledPluginsArray.includes(pluginName)) {
+          const version = await getPluginVersion(pluginName);
           remotes.push({
             name: `${pluginName}_ui`,
-            entry: `https://plugins.erxes.io/latest/${pluginName}_ui/remoteEntry.js`,
+            entry: `https://plugins.erxes.io/${version}/${pluginName}_ui/remoteEntry.js`,
           });
         }
       }
-    });
+    }
 
     const hasAgentUi = remotes.some((remote) => remote.name === 'agent_ui');
 
     if (!hasAgentUi) {
+      const agentVersion = await getPluginVersion('agent');
       remotes.push({
         name: 'agent_ui',
-        entry: `https://plugins.erxes.io/latest/agent_ui/remoteEntry.js`,
+        entry: `https://plugins.erxes.io/${agentVersion}/agent_ui/remoteEntry.js`,
       });
     }
 
@@ -108,12 +121,13 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
     const remotes: { name: string; entry: string }[] = [];
 
     if (ENABLED_PLUGINS) {
-      ENABLED_PLUGINS.split(',').forEach((plugin) => {
+      for (const plugin of ENABLED_PLUGINS.split(',')) {
+        const version = await getPluginVersion(plugin);
         remotes.push({
           name: `${plugin}_ui`,
-          entry: `https://plugins.erxes.io/latest/${plugin}_ui/remoteEntry.js`,
+          entry: `https://plugins.erxes.io/${version}/${plugin}_ui/remoteEntry.js`,
         });
-      });
+      }
     }
 
     return res.json(remotes);

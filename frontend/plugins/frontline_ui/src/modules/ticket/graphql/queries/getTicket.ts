@@ -23,6 +23,14 @@ export const GET_TICKET = gql`
       pipelineId
       isSubscribed
       state
+      propertiesData
+      attachments {
+        name
+        url
+        size
+        type
+        duration
+      }
     }
   }
 `;

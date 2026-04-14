@@ -53,6 +53,7 @@
     "@azure/storage-blob": "^12.29.1",
     "@google-cloud/storage": "^7.17.3",
     "aws-sdk": "^2.1692.0",
+    "csv-parse": "^6.2.1",
     "exceljs": "^4.4.0",
     "file-type": "^20.5.0",
     "form-data": "^4.0.2"

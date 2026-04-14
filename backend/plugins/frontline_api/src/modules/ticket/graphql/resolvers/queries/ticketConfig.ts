@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const ticketConfigQueries = {
@@ -24,6 +23,3 @@ export const ticketConfigQueries = {
     return models.TicketConfig.findOne({ pipelineId });
   },
 };
-
-requireLogin(ticketConfigQueries, 'ticketConfigs');
-requireLogin(ticketConfigQueries, 'ticketConfigDetail');

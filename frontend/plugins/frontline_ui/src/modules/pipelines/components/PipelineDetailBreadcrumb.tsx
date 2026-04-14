@@ -1,8 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { Button } from 'erxes-ui';
+import { Link, useParams } from 'react-router-dom';
+
 export const PipelineDetailBreadcrumb = () => {
   const { pipelineId, id } = useParams<{ pipelineId: string; id: string }>();
   const { pipeline } = useGetPipeline(pipelineId);

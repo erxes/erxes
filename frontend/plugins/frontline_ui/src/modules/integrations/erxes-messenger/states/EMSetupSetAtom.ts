@@ -49,6 +49,7 @@ export const erxesMessengerSetSetupAtom = atom(
       const config = {
         name: payload?.name || '',
         channelId,
+        brandId: payload?.brandId,
         ticketConfigId: payload?.ticketConfigId,
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,
@@ -58,12 +59,13 @@ export const erxesMessengerSetSetupAtom = atom(
               name?: string;
               text?: string;
               type?: string;
-              url?: string;
+              link?: string;
             }) => ({
               text: menu.text ?? menu.name ?? '',
               type: (menu.type === 'link' ? 'link' : 'button') as
                 | 'button'
                 | 'link',
+              link: menu.link ?? '',
             }),
           ),
           botCheck: payload?.messengerData?.botCheck,
@@ -81,11 +83,11 @@ export const erxesMessengerSetSetupAtom = atom(
       const greetings = {
         supporterIds: payload?.messengerData?.supporterIds,
         title:
-          (payload?.messengerData?.messages || {})[
+          payload?.messengerData?.messages?.[
             payload?.languageCode || DEFAULT_LANGUAGE
           ]?.greetings?.title || '',
         message:
-          (payload?.messengerData?.messages || {})[
+          payload?.messengerData?.messages?.[
             payload?.languageCode || DEFAULT_LANGUAGE
           ]?.greetings?.message || '',
         links: greetingLinks,
@@ -134,9 +136,10 @@ export const erxesMessengerSetSetupAtom = atom(
       set(erxesMessengerSetupSettingsAtom, settings);
 
       // Set intro messages
-      const messages = (payload?.messengerData?.messages || {})[
-        payload?.languageCode || DEFAULT_LANGUAGE
-      ];
+      const messages =
+        payload?.messengerData?.messages?.[
+          payload?.languageCode || DEFAULT_LANGUAGE
+        ];
       const intro = {
         welcome: messages?.welcome ?? '',
         away: messages?.away ?? '',

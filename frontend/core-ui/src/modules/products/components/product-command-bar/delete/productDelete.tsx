@@ -4,6 +4,7 @@ import { ApolloError } from '@apollo/client';
 import { useRemoveProducts } from '@/products/product-detail/hooks/useRemoveProduct';
 import type { ReactNode } from 'react';
 import { useCallback } from 'react';
+import { Can } from 'ui-modules';
 
 export const ProductsDelete = ({
   productIds,
@@ -53,18 +54,24 @@ export const ProductsDelete = ({
   }, [disabled, confirm, confirmOptions, productIds, removeProducts, toast]);
 
   if (children) {
-    return <>{children({ onClick: handleClick, disabled })}</>;
+    return (
+      <Can action="productsDelete">
+        <>{children({ onClick: handleClick, disabled })}</>
+      </Can>
+    );
   }
 
   return (
-    <Button
-      variant="secondary"
-      className="text-destructive"
-      onClick={handleClick}
-      disabled={disabled}
-    >
-      <IconTrash />
-      Delete
-    </Button>
+    <Can action="productsDelete">
+      <Button
+        variant="secondary"
+        className="text-destructive"
+        onClick={handleClick}
+        disabled={disabled}
+      >
+        <IconTrash />
+        Delete
+      </Button>
+    </Can>
   );
 };

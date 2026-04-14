@@ -1,11 +1,10 @@
-import { PageContainer } from 'erxes-ui';
-import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
-import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
-import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
-import { useState, useCallback } from 'react';
-import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
+import { PageContainer, Spinner } from 'erxes-ui';
+import { useCallback, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Spinner } from 'erxes-ui';
+import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
+import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
+import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
+import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
 
 export const PostsDetailPage = ({
   clientPortalId,
@@ -19,8 +18,17 @@ export const PostsDetailPage = ({
   const navigate = useNavigate();
   const { websiteId } = useParams();
 
+  const languageChangeRef = useRef<(lang: string) => void>();
+
   const handleFormReady = useCallback((state: any) => {
     setFormState(state);
+    languageChangeRef.current = state.handleLanguageChange;
+  }, []);
+
+  const handleHeaderLanguageChange = useCallback((lang: string) => {
+    if (languageChangeRef.current) {
+      languageChangeRef.current(lang);
+    }
   }, []);
 
   const handleClose = useCallback(() => {
@@ -29,7 +37,7 @@ export const PostsDetailPage = ({
 
   return (
     <PageContainer key={postId}>
-      <PostsHeader>
+      <PostsHeader onLanguageChange={handleHeaderLanguageChange}>
         {formState && (
           <AddPostHeaderActions
             form={formState.form}
@@ -39,7 +47,7 @@ export const PostsDetailPage = ({
           />
         )}
       </PostsHeader>
-      <div className="w-full h-full">
+      <div className="flex flex-col overflow-hidden w-full h-full">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Spinner />

@@ -1,7 +1,6 @@
-import { useQuery } from '@apollo/client';
-import { CONTENT_CMS_LIST } from '../../../../graphql/queries';
+import { gql, useQuery } from '@apollo/client';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
-import { gql } from '@apollo/client';
+import { CONTENT_CMS_LIST } from '../../../../graphql/queries';
 
 const COMBINED_CMS_DATA = gql`
   query CombinedCmsData($clientPortalId: String!, $limit: Int) {
@@ -20,6 +19,7 @@ const COMBINED_CMS_DATA = gql`
     }
     cmsCustomPostTypes(clientPortalId: $clientPortalId) {
       _id
+      code
       label
       description
     }

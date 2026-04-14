@@ -5,7 +5,6 @@ import {
   AUTOMATION_EDIT,
 } from '@/automations/graphql/automationMutations';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
-import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { AutomationBuilderTabsType, NodeData } from '@/automations/types';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { useMutation } from '@apollo/client';
@@ -15,7 +14,7 @@ import { SubmitErrorHandler, useFormContext } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 export const useAutomationHeader = () => {
-  const { handleSubmit, clearErrors } =
+  const { handleSubmit, clearErrors, reset } =
     useFormContext<TAutomationBuilderForm>();
   const navigate = useNavigate();
 
@@ -72,6 +71,7 @@ export const useAutomationHeader = () => {
         });
       },
       onCompleted: ({ automationsAdd }) => {
+        reset(generateValues());
         clearErrors();
         clearNodeErrors();
         toast({

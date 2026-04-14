@@ -18,6 +18,12 @@ const item = {
     return userDetail;
   },
   async managers(branch: IBranch, _args, { models, subdomain }: IContext) {
+    const managerIds = branch.managerIds || [];
+
+    if (!managerIds.length) {
+      return [];
+    }
+
     const users = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -25,7 +31,7 @@ const item = {
       module: 'users',
       action: 'find',
       input: {
-        query: { _id: { $in: branch.managerIds } },
+        query: { _id: { $in: managerIds } },
       },
       defaultValue: [],
     });
@@ -36,6 +42,12 @@ const item = {
     _args,
     { models, subdomain }: IContext,
   ) {
+    const generalManagerIds = branch.generalManagerIds || [];
+
+    if (!generalManagerIds.length) {
+      return [];
+    }
+
     const users = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -43,7 +55,7 @@ const item = {
       module: 'users',
       action: 'find',
       input: {
-        query: { _id: { $in: branch.managerIds } },
+        query: { _id: { $in: generalManagerIds } },
       },
       defaultValue: [],
     });

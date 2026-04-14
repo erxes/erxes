@@ -113,7 +113,7 @@ const MemberInlineEffectComponent = ({ memberId }: { memberId: string }) => {
         return [...prev, { ...userDetail, _id: memberId }];
       });
     }
-    if (currentUser && currentUser._id === memberId) {
+    if (currentUser?._id === memberId) {
       updateMembers((prev) => {
         if (prev.some((m) => m._id === memberId)) return prev;
         return [currentUser, ...prev];
@@ -224,13 +224,18 @@ export const MembersInlineAvatar = ({
 };
 
 export const MembersInlineTitle = ({ className }: { className?: string }) => {
-  const { members, loading, placeholder, allowUnassigned, memberIds } =
-    useMembersInlineContext();
+  const {
+    members: allMembers,
+    loading,
+    placeholder,
+    allowUnassigned,
+    memberIds,
+  } = useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
 
-  const activeMembers = memberIds
-    ? members.filter((m) => memberIds.includes(m._id))
-    : members;
+  const activeMembers = memberIds?.length
+    ? allMembers.filter((m) => memberIds.includes(m._id))
+    : allMembers;
   const isCurrentUser = activeMembers.some((m) => m._id === currentUser._id);
 
   const getDisplayValue = () => {

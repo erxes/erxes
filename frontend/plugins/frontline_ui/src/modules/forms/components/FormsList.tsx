@@ -1,15 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import { useFormsList } from '../hooks/useFormsList';
-import {
-  Badge,
-  DropdownMenu,
-  Empty,
-  RecordTable,
-  RecordTableInlineCell,
-  RelativeDateDisplay,
-} from 'erxes-ui';
-import { Cell, ColumnDef } from '@tanstack/react-table';
-import { IForm } from '../types/formTypes';
+import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
 import {
   IconCalendarEvent,
   IconCircles,
@@ -20,15 +9,25 @@ import {
   IconToggleRight,
   IconUser,
 } from '@tabler/icons-react';
-import { MembersInline, SelectTags } from 'ui-modules';
-import { FormInstallScript } from './actions/install-form';
-import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
-import { Link } from 'react-router-dom';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+import {
+  Badge,
+  DropdownMenu,
+  Empty,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
+} from 'erxes-ui';
 import { useState } from 'react';
-import { FormToggleStatus } from './actions/toggle-form';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { MembersInline, SelectTags } from 'ui-modules';
+import { useFormsList } from '../hooks/useFormsList';
+import { IForm } from '../types/formTypes';
+import { FormInstallScript } from './actions/install-form';
 import { RemoveForm } from './actions/remove-form';
-import { FormsCreateButton } from './form-page/forms-create';
+import { FormToggleStatus } from './actions/toggle-form';
 import { FormCommandBar } from './form-page/command-bar/form-command-bar';
+import { FormsCreateButton } from './form-page/forms-create';
 
 export const FormsList = () => {
   const { id: channelId } = useParams<{ id: string }>();
@@ -96,7 +95,7 @@ export const FormsMoreColumnCell = ({
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
-  const { _id, status, channelId } = cell.row.original;
+  const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
@@ -107,7 +106,7 @@ export const FormsMoreColumnCell = ({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content side="bottom" align="start">
         <FormInstallScript
-          formId={_id}
+          formId={code}
           channelId={channelId}
           inActionBar={true}
         />

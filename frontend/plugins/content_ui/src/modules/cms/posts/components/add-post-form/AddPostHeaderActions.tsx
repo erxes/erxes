@@ -21,6 +21,7 @@ interface PostFormData {
   documents?: string[];
   attachments?: string[];
   pdf?: string | null;
+  publishDate?: Date | null;
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
@@ -57,7 +58,7 @@ export const AddPostHeaderActions = ({
           {status === 'published' && (
             <Form.Field
               control={form.control}
-              name="scheduledDate"
+              name="publishDate"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Control>
@@ -144,7 +145,12 @@ export const AddPostHeaderActions = ({
                         field.value === 'published' ? 'default' : 'ghost'
                       }
                       size="sm"
-                      onClick={() => field.onChange('published')}
+                      onClick={() => {
+                        field.onChange('published');
+                        if (!form.getValues('publishDate')) {
+                          form.setValue('publishDate', new Date());
+                        }
+                      }}
                       className="h-8"
                     >
                       Publish

@@ -33,34 +33,27 @@ export const loadSpinClass = (models: IModels) => {
         ownerId,
         voucherCampaignId = '',
         userId = '',
+        status,
       } = doc;
       if (!ownerId || !ownerType) {
         throw new Error('Not create spin, owner is undefined');
       }
 
-      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(
-        campaignId,
-      );
-
-      const now = new Date();
-
-      if (spinCampaign.startDate > now || spinCampaign.endDate < now) {
-        throw new Error('Not create spin, expired');
-      }
+      await models.SpinCampaigns.getSpinCampaign(campaignId);
 
       return await models.Spins.create({
         campaignId,
         ownerType,
         ownerId,
         createdAt: new Date(),
-        status: SPIN_STATUS.NEW,
+        status: status || SPIN_STATUS.NEW,
         voucherCampaignId,
         userId,
       });
     }
 
     public static async updateSpin(_id: string, doc: ISpin) {
-      const { ownerId, ownerType, status, userId } = doc;
+      const { ownerId, ownerType, status, userId, voucherCampaignId } = doc;
       if (!ownerId || !ownerType) {
         throw new Error('Not create spin, owner is undefined');
       }
@@ -85,6 +78,7 @@ export const loadSpinClass = (models: IModels) => {
             modifiedAt: now,
             status: status || SPIN_STATUS.NEW,
             userId,
+            ...(voucherCampaignId !== undefined && { voucherCampaignId }),
           },
         },
       );
@@ -97,9 +91,8 @@ export const loadSpinClass = (models: IModels) => {
         throw new Error('can not buy spin, owner is undefined');
       }
 
-      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(
-        campaignId,
-      );
+      const spinCampaign =
+        await models.SpinCampaigns.getSpinCampaign(campaignId);
 
       if (!spinCampaign.buyScore) {
         throw new Error('can not buy this spin');

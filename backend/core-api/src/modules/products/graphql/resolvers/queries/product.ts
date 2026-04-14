@@ -1,4 +1,4 @@
-import { IProductDocument } from 'erxes-api-shared/core-types';
+import { IProductDocument, Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
   defaultPaginate,
@@ -169,7 +169,7 @@ const generateFilter = async (
   if (branchId && departmentId) {
     if (minRemainder || minRemainder === 0) {
       andFilters.push({
-        [`remainders.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchId}.${departmentId}.remainder`]: {
           $exists: true,
           $gte: minRemainder,
         },
@@ -177,7 +177,7 @@ const generateFilter = async (
     }
     if (maxRemainder || maxRemainder === 0) {
       andFilters.push({
-        [`remainders.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchId}.${departmentId}.remainder`]: {
           $exists: true,
           $lte: maxRemainder,
         },
@@ -242,7 +242,7 @@ const generateFilter = async (
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
 };
 
-export const productQueries = {
+export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Products list
    */
@@ -300,7 +300,46 @@ export const productQueries = {
     });
   },
 
+  async cpProducts(
+    _parent: undefined,
+    params: IProductParams,
+    { commonQuerySelector, models, subdomain }: IContext,
+  ) {
+    const filter = await generateFilter(
+      models,
+      subdomain,
+      commonQuerySelector,
+      params,
+    );
+
+    const { sortField, sortDirection } = params;
+
+    let sort: { [key: string]: SortOrder } = { code: 1 };
+
+    if (sortField) {
+      sort = { [sortField]: (sortDirection || 1) as SortOrder };
+    }
+
+    if (params.groupedSimilarity) {
+      return await getSimilaritiesProducts(models, filter, sort, {
+        groupedSimilarity: params.groupedSimilarity,
+      });
+    }
+
+    return await defaultPaginate(models.Products.find(filter).sort(sort), {
+      ...params,
+    });
+  },
+
   async productDetail(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return await models.Products.findOne({ _id }).lean();
+  },
+
+  async cpProductDetail(
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -337,16 +376,19 @@ export const productQueries = {
     const product: IProductDocument = await models.Products.getProduct({ _id });
 
     if (groupedSimilarity === 'config') {
-      const getRegex = (str) => {
-        return ['*', '.', '_'].includes(str)
-          ? new RegExp(
-              `^${str
-                .replace(/\./g, '\\.')
-                .replace(/\*/g, '.')
-                .replace(/_/g, '.')}.*`,
-              'igu',
-            )
-          : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+      /**
+       * Converts a similarity mask character into a matching regex.
+       * Single wildcard chars (*, _) become "any single char" anchored at start.
+       * Literal '.' matches strings starting with a dot.
+       * All other strings become unanchored escaped-substring matchers.
+       */
+      const WILDCARD_REGEX: Record<string, RegExp> = {
+        '*': /^..*/igu,
+        '.': /^\..*/igu,
+        '_': /^..*/igu,
+      };
+      const getRegex = (str: string): RegExp => {
+        return WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
       const similarityGroups =
@@ -392,7 +434,7 @@ export const productQueries = {
         };
       }
 
-      const codeRegexes: any[] = [];
+      const codeRegexes: FilterQuery<IProductDocument>[] = [];
       const fieldIds: string[] = [];
       const groups: { title: string; fieldId: string }[] = [];
 
@@ -431,7 +473,7 @@ export const productQueries = {
         }
       }
 
-      const filters: any = {
+      const filters: FilterQuery<IProductDocument> = {
         $and: [
           {
             $or: codeRegexes,
@@ -468,7 +510,7 @@ export const productQueries = {
 
     const fieldIds = category.similarities.map((r) => r.fieldId);
 
-    const filters: any = {
+    const filters: FilterQuery<IProductDocument> = {
       $and: [
         {
           categoryId: category._id,
@@ -503,3 +545,12 @@ export const productQueries = {
     return counts;
   },
 };
+
+productQueries.cpProducts.wrapperConfig = {
+  forClientPortal: true,
+};
+
+productQueries.cpProductDetail.wrapperConfig = {
+  forClientPortal: true,
+};
+

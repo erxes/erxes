@@ -57,6 +57,7 @@ export interface ITicketsPipelineFilter {
     orderBy?: any;
     sortMode?: string;
     userId?: string;
+    applyVisibilityFilter?: boolean;
   };
 }
 

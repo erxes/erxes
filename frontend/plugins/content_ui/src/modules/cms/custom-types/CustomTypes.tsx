@@ -1,17 +1,15 @@
-import { useParams, useLocation } from 'react-router-dom';
+import { IconLayout, IconPlus } from '@tabler/icons-react';
+import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-import { CustomTypesRecordTable } from './components/CustomTypesRecordTable';
-import { CustomTypesHeader } from './components/CustomTypesHeader';
+import { useLocation, useParams } from 'react-router-dom';
 import { CustomTypeDrawer } from '../components/customTypes/CustomTypeDrawer';
+import { CmsSidebar } from '../shared/CmsSidebar';
+import { EmptyState } from '../shared/EmptyState';
+import { CustomTypesHeader } from './components/CustomTypesHeader';
+import { CustomTypesRecordTable } from './components/CustomTypesRecordTable';
+import { useCustomTypes } from './hooks/useCustomTypes';
 import { useRemoveCustomType } from './hooks/useRemoveCustomType';
 import { ICustomPostType } from './types/customTypeTypes';
-import { CustomTypesSidebar } from './components/CustomTypesSidebar';
-import { PageContainer } from 'erxes-ui';
-import { EmptyState } from '../shared/EmptyState';
-import { IconLayout } from '@tabler/icons-react';
-import { useCustomTypes } from './hooks/useCustomTypes';
-import { Button, Kbd } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
 
 export function CustomTypes() {
   const { websiteId } = useParams();
@@ -61,7 +59,7 @@ export function CustomTypes() {
     <PageContainer>
       <CustomTypesHeader>{headerActions}</CustomTypesHeader>
       <div className="flex overflow-hidden flex-auto">
-        <CustomTypesSidebar />
+        <CmsSidebar />
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">

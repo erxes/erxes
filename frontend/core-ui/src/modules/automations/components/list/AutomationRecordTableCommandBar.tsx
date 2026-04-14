@@ -2,6 +2,7 @@ import { IAutomation } from '@/automations/types';
 import { Row } from '@tanstack/react-table';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { AutomationRemoveButtonCommandBar } from '@/automations/components/list/AutomationRemoveButtonCommandBar';
+import { Can } from 'ui-modules';
 
 export const AutomationRecordTableCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -17,11 +18,15 @@ export const AutomationRecordTableCommandBar = () => {
         <CommandBar.Value>
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
-        <Separator.Inline />
-        <AutomationRemoveButtonCommandBar
-          automationIds={automationIds}
-          rows={table.getFilteredSelectedRowModel().rows}
-        />
+        <Can action="automationsDelete">
+          <>
+            <Separator.Inline />
+            <AutomationRemoveButtonCommandBar
+              automationIds={automationIds}
+              rows={table.getFilteredSelectedRowModel().rows}
+            />
+          </>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

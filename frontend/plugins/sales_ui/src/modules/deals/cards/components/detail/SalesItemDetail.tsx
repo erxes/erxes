@@ -2,9 +2,12 @@
 
 import {
   ActivityLogs,
+  AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
+  internalNoteCustomActivity,
 } from 'ui-modules';
+import { dealCustomActivities } from './DealActivityRows';
 import { Empty, FocusSheet, ScrollArea, Tabs, useQueryState } from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
@@ -58,30 +61,56 @@ export const SalesItemDetail = () => {
               <SalesItemSidebar />
             </FocusSheet.SideBar>
             <div className="flex-1 flex flex-col overflow-hidden">
-              <ScrollArea className="h-full">
+              <div className="flex-1 min-h-0">
                 <Tabs
                   value={selectedTab ?? 'overview'}
                   onValueChange={setSelectedTab}
+                  className="h-full"
                 >
-                  <Tabs.Content value="overview">
-                    <Overview deal={deal || ({} as IDeal)} />
+                  <Tabs.Content value="overview" className="h-full">
+                    <ScrollArea className="h-full">
+                      <Overview deal={deal || ({} as IDeal)} />
+                    </ScrollArea>
                   </Tabs.Content>
-                  <Tabs.Content value="properties" className="p-6">
-                    <FieldsInDetail
-                      fieldContentType="sales:deal"
-                      propertiesData={deal?.propertiesData || {}}
-                      mutateHook={useDealCustomFieldEdit}
-                      id={deal?._id || ''}
-                    />
+                  <Tabs.Content value="properties" className="h-full">
+                    <ScrollArea className="h-full">
+                      <div className="p-6">
+                        <FieldsInDetail
+                          fieldContentType="sales:deal"
+                          propertiesData={deal?.propertiesData || {}}
+                          mutateHook={useDealCustomFieldEdit}
+                          id={deal?._id || ''}
+                        />
+                      </div>
+                    </ScrollArea>
                   </Tabs.Content>
-                  <Tabs.Content value="activityLogs">
-                    <ActivityLogs targetId={deal?._id || ''} />
+                  <Tabs.Content value="activity" className="h-full">
+                    <div className="h-full flex flex-col">
+                      <ScrollArea className="flex-1 min-h-0">
+                        <div className="pt-3">
+                          <ActivityLogs
+                            targetId={deal?._id || ''}
+                            customActivities={dealCustomActivities}
+                            variant="backward"
+                          />
+                        </div>
+                      </ScrollArea>
+
+                      {!!deal?._id && (
+                        <div className="shrink-0 pb-6 pt-2">
+                          <AddInternalNote
+                            contentTypeId={deal._id}
+                            contentType="sales:deal"
+                          />
+                        </div>
+                      )}
+                    </div>
                   </Tabs.Content>
-                  <Tabs.Content value="products" className="p-6">
+                  <Tabs.Content value="products" className="h-full p-6">
                     <Products deal={deal || ({} as IDeal)} refetch={refetch} />
                   </Tabs.Content>
                 </Tabs>
-              </ScrollArea>
+              </div>
             </div>
             <RelationWidgetSideTabs
               contentId={deal?._id || ''}

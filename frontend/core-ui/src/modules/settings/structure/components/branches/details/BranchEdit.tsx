@@ -8,13 +8,14 @@ import { BranchForm } from '../BranchForm';
 import { SubmitHandler } from 'react-hook-form';
 import { TBranchForm } from '@/settings/structure/types/branch';
 import { useBranchEdit } from '@/settings/structure/hooks/useBranchActions';
+import { Can } from 'ui-modules';
 
-export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
+export const BranchEdit = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('branch_id');
 
-  const { branchDetail, loading } = useBranchDetailsById({
+  const { branchDetail } = useBranchDetailsById({
     variables: {
       id,
     },
@@ -36,39 +37,38 @@ export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
     }
     setSearchParams(newSearchParams);
   };
-  const submitHandler: SubmitHandler<TBranchForm> = React.useCallback(
-    async (data) => {
-      handleEdit({
-        variables: {
-          id,
-          ...data,
-        },
-        onCompleted: () => {
-          toast({
-            title: 'Success!',
-            variant: 'success',
-            description: 'Branch updated successfully',
-          });
-          methods.reset();
-          setOpen(null);
-        },
-        onError: (error) =>
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [handleEdit],
-  );
+  const submitHandler: SubmitHandler<TBranchForm> = (data) => {
+    handleEdit({
+      variables: {
+        ...data,
+        id,
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success!',
+          variant: 'success',
+          description: 'Branch updated successfully',
+        });
+        methods.reset();
+        setOpen(null);
+      },
+      onError: (error) =>
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
 
   useEffect(() => {
     if (branchDetail) {
       const { __typename, _id, ...rest } = branchDetail;
+      void __typename;
+      void _id;
       reset(rest);
     }
-  }, [branchDetail]);
+  }, [branchDetail, reset]);
 
   return (
     <Sheet
@@ -99,9 +99,11 @@ export const BranchEdit = ({ children }: { children?: React.ReactNode }) => {
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Spinner /> : 'Save'}
-              </Button>
+              <Can action="branchesManage">
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? <Spinner /> : 'Save'}
+                </Button>
+              </Can>
             </Sheet.Footer>
           </form>
         </Form>

@@ -5,6 +5,7 @@ export const types = `
     departmentId: String
     productId: String
     count: Float
+    cost: Float
     soonIn: Float
     soonOut: Float
     uom: String
@@ -26,6 +27,7 @@ export const types = `
     category: ProductCategory
     categoryId: String
     remainder: Float
+    cost: Float
     soonIn: Float
     soonOut: Float
     unitPrice: Float
@@ -76,7 +78,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  remaindersUpdate(
+  reCalcRemainders(
     departmentId: String,
     branchId: String,
     productCategoryId: String,

@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { Block } from '@blocknote/core';
+import { CustomFieldValue } from '../../../CustomFieldInput';
 
 import {
   CMS_POST,
@@ -21,27 +21,37 @@ interface PostFormData {
   featured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
-  thumbnail?: any | null;
+  thumbnail?: { url: string; name?: string; type?: string } | null;
   gallery?: string[];
-  video?: string | null;
-  audio?: string | null;
+  videoUrl?: string;
   documents?: string[];
   attachments?: string[];
   pdf?: string | null;
+  publishDate?: Date | null;
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
-  customFieldsData?: { field: string; value: any }[];
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
 }
 
-export const usePostForm = (editingPost?: any) => {
+export const usePostForm = (editingPost?: { _id: string }) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
-  const [translations, setTranslations] = useState<Record<string, any>>({});
+  const [translations, setTranslations] = useState<
+    Record<
+      string,
+      {
+        title: string;
+        content: string;
+        excerpt: string;
+        customFieldsData: CustomFieldValue[];
+      }
+    >
+  >({});
   const [defaultLangData, setDefaultLangData] = useState<{
     title: string;
     content: string;
-    description: string;
-    customFieldsData: any[];
+    excerpt: string;
+    customFieldsData: CustomFieldValue[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
 
@@ -51,7 +61,7 @@ export const usePostForm = (editingPost?: any) => {
       slug: '',
       description: '',
       content: '',
-      type: 'Post',
+      type: 'post',
       status: 'draft',
       categoryIds: [],
       tagIds: [],
@@ -60,11 +70,11 @@ export const usePostForm = (editingPost?: any) => {
       seoDescription: '',
       thumbnail: null,
       gallery: [],
-      video: null,
-      audio: null,
+      videoUrl: '',
       documents: [],
       attachments: [],
       pdf: null,
+      publishDate: null,
       scheduledDate: null,
       autoArchiveDate: null,
       enableAutoArchive: false,
@@ -72,53 +82,8 @@ export const usePostForm = (editingPost?: any) => {
     },
   });
 
-  const handleEditorChange = async (value: string, editorInstance?: any) => {
-    try {
-      if (typeof value === 'string' && value.trim().startsWith('[')) {
-        const blocks: Block[] = JSON.parse(value);
-        if (editorInstance?.blocksToHTMLLossy) {
-          const htmlContent = await editorInstance.blocksToHTMLLossy(
-            blocks as any,
-          );
-          form.setValue('content', htmlContent, {
-            shouldDirty: true,
-            shouldTouch: true,
-          });
-        } else {
-          const htmlContent = (blocks as any)
-            .map((block: any) => {
-              if (block.type === 'paragraph' && block.content) {
-                const text = block.content
-                  .map((i: any) => i.text || '')
-                  .join('');
-                return text ? `<p>${text}</p>` : '';
-              }
-              if (block.type === 'heading' && block.content) {
-                const text = block.content
-                  .map((i: any) => i.text || '')
-                  .join('');
-                const level = (block.props as any)?.level || 1;
-                return text ? `<h${level}>${text}</h${level}>` : '';
-              }
-              return '';
-            })
-            .filter(Boolean)
-            .join('');
-          form.setValue('content', htmlContent, {
-            shouldDirty: true,
-            shouldTouch: true,
-          });
-        }
-      } else {
-        const htmlContent = value || '';
-        form.setValue('content', htmlContent, {
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-      }
-    } catch {
-      form.setValue('content', '', { shouldDirty: true, shouldTouch: true });
-    }
+  const handleEditorChange = (value: string) => {
+    form.setValue('content', value, { shouldDirty: true, shouldTouch: true });
   };
 
   const generateSlug = (text: string) =>
@@ -137,7 +102,7 @@ export const usePostForm = (editingPost?: any) => {
   const fullPost = (fullPostData?.cmsPost as any) || editingPost;
 
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
-    variables: { postId: editingPost?._id },
+    variables: { objectId: editingPost?._id, type: 'post' },
     skip: !editingPost?._id,
     fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: false,
@@ -147,22 +112,39 @@ export const usePostForm = (editingPost?: any) => {
 
   useEffect(() => {
     if (translationsData?.cmsTranslations) {
-      const translationsMap: Record<string, any> = {};
-      translationsData.cmsTranslations.forEach((t: any) => {
-        translationsMap[t.language] = {
-          title: t.title || '',
-          content: t.content || '',
-          excerpt: t.excerpt || '',
-          customFieldsData: t.customFieldsData || [],
-        };
-      });
+      const translationsMap: Record<
+        string,
+        {
+          title: string;
+          content: string;
+          excerpt: string;
+          customFieldsData: CustomFieldValue[];
+        }
+      > = {};
+      translationsData.cmsTranslations.forEach(
+        (t: {
+          language: string;
+          title: string;
+          content: string;
+          excerpt: string;
+          customFieldsData: CustomFieldValue[];
+        }) => {
+          translationsMap[t.language] = {
+            title: t.title || '',
+            content: t.content || '',
+            excerpt: t.excerpt || '',
+            customFieldsData: t.customFieldsData || [],
+          };
+        },
+      );
       setTranslations(translationsMap);
     }
   }, [translationsData]);
 
   useEffect(() => {
     if (fullPost) {
-      const toDate = (v: any) => (v ? new Date(v) : null);
+      const toDate = (v: string | Date | null | undefined) =>
+        v ? new Date(v) : null;
       form.reset({
         title: fullPost.title || '',
         slug: fullPost.slug || '',
@@ -172,23 +154,28 @@ export const usePostForm = (editingPost?: any) => {
         status: fullPost.status || undefined,
         categoryIds:
           fullPost.categoryIds ||
-          fullPost.categories?.map((c: any) => c._id) ||
+          fullPost.categories?.map((c: { _id: string }) => c._id) ||
           [],
-        tagIds: fullPost.tagIds || fullPost.tags?.map((t: any) => t._id) || [],
+        tagIds:
+          fullPost.tagIds ||
+          fullPost.tags?.map((t: { _id: string }) => t._id) ||
+          [],
         featured: !!fullPost.featured,
         seoTitle: fullPost.seoTitle || '',
         seoDescription: fullPost.seoDescription || '',
         thumbnail: fullPost.thumbnail || null,
-        gallery: (fullPost.images || []).map((i: any) => i.url).filter(Boolean),
-        video: (fullPost.video && fullPost.video.url) || fullPost.video || null,
-        audio: (fullPost.audio && fullPost.audio.url) || fullPost.audio || null,
+        gallery: (fullPost.images || [])
+          .map((i: { url: string }) => i.url)
+          .filter(Boolean),
+        videoUrl: fullPost.videoUrl || '',
         documents: (fullPost.documents || [])
-          .map((d: any) => d.url)
+          .map((d: { url: string }) => d.url)
           .filter(Boolean),
         attachments: (fullPost.attachments || [])
-          .map((a: any) => a.url)
+          .map((a: { url: string }) => a.url)
           .filter(Boolean),
         pdf: fullPost.pdf || null,
+        publishDate: toDate(fullPost.publishedDate) || null,
         scheduledDate: toDate(fullPost.scheduledDate) || null,
         autoArchiveDate: toDate(fullPost.autoArchiveDate) || null,
         enableAutoArchive: !!fullPost.autoArchiveDate,
@@ -203,7 +190,7 @@ export const usePostForm = (editingPost?: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fullPost]);
 
-  const updateCustomFieldValue = (fieldId: string, value: any) => {
+  const updateCustomFieldValue = (fieldId: string, value: CustomFieldValue) => {
     const currentData = form.getValues('customFieldsData') || [];
     const existingIndex = currentData.findIndex(
       (item) => item.field === fieldId,

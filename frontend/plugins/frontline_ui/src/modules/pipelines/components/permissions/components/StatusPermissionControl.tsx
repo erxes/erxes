@@ -93,13 +93,31 @@ export const StatusPermissionControl = ({
     async (newVisibility: 'public' | 'private') => {
       setIsUpdating(true);
       try {
+        const updateVariables: any = {
+          id: status.value,
+          visibilityType: newVisibility,
+        };
+
+        // When visibility is set to public, automatically clear all member permissions
+        if (newVisibility === 'public') {
+          updateVariables.memberIds = [];
+          updateVariables.canMoveMemberIds = [];
+          updateVariables.canEditMemberIds = [];
+        }
+
         await updateStatus({
-          variables: {
-            id: status.value,
-            visibilityType: newVisibility,
-          },
+          variables: updateVariables,
         });
         setVisibility(newVisibility);
+
+        // Update local state to match the changes
+        if (newVisibility === 'public') {
+          setMemberStates({
+            memberIds: [],
+            canMoveMemberIds: [],
+            canEditMemberIds: [],
+          });
+        }
       } catch (error) {
         toast({
           title: 'Error',
@@ -247,11 +265,13 @@ export const StatusPermissionControl = ({
           )}
         </div>
 
-        <div className="space-y-4">
-          {MEMBER_PERMISSIONS.map((config) => (
-            <MemberPermissionSelector key={config.type} config={config} />
-          ))}
-        </div>
+        {visibility === 'private' && (
+          <div className="space-y-4">
+            {MEMBER_PERMISSIONS.map((config) => (
+              <MemberPermissionSelector key={config.type} config={config} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -91,10 +91,26 @@ const BroadcastSettings = lazy(() =>
   })),
 );
 
+const ImportExportSettingsRoutes = lazy(() =>
+  import('@/import-export/settings/components/ImportExportSettingsRoutes').then(
+    (module) => ({
+      default: module.ImportExportSettingsRoutes,
+    }),
+  ),
+);
+
 const SettingsNotificationRoutes = lazy(() =>
   import('@/notification/settings/components/NotificationSettingsRoutes').then(
     (module) => ({
       default: module.NotificationSettingsRoutes,
+    }),
+  ),
+);
+
+const StructureSettings = lazy(() =>
+  import('~/pages/settings/workspace/structure/StructureSettingsPage').then(
+    (module) => ({
+      default: module.StructureSettingsPage,
     }),
   ),
 );
@@ -152,10 +168,14 @@ export function SettingsRoutes() {
           element={<ClientPortalDetailPage />}
         />
         <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
-        {/* <Route
+        <Route
+          path={SettingsWorkspacePath.ImportExportCatchAll}
+          element={<ImportExportSettingsRoutes />}
+        />
+        <Route
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}
-        /> */}
+        />
         <Route path={SettingsWorkspacePath.Tags} element={<TagsPage />} />
         <Route
           path={SettingsWorkspacePath.Brands}
@@ -170,7 +190,10 @@ export function SettingsRoutes() {
           element={<AutomationSettingsRoutes />}
         />
 
-        <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
+        <Route
+          path={SettingsWorkspacePath.AppTokens}
+          element={<AppsSettings />}
+        />
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}
           element={<PropertiesSettingsRoutes />}

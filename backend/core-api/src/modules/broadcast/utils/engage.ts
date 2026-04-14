@@ -45,10 +45,8 @@ export const generateCustomerSelector = async (
   // find matched customers
   let customerQuery: any = {};
 
-  switch (targetType) {
-    case 'tag': {
-      customerQuery = { tagIds: { $in: targetIds } };
-    }
+  if (targetType === 'tag') {
+    customerQuery = { tagIds: { $in: targetIds } };
   }
 
   return {

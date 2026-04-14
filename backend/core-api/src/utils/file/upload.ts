@@ -76,6 +76,8 @@ export const uploadToCFImages = async (
     body: formData,
   });
 
+  console.log({ response });
+
   const data = await response.json();
 
   if (!data.success) {
@@ -328,7 +330,6 @@ export const uploadFileCloudflare = async (
       'image/vnd.microsoft.icon',
     ].includes(detectedType.mime)
   ) {
-    console.debug('uploading to cf images');
     return uploadToCFImages(file, forcePrivate, models);
   }
 

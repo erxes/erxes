@@ -3,7 +3,12 @@ import { useRecordTableCursor } from 'erxes-ui';
 import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { SPINS_CURSOR_SESSION_KEY } from '../constants/spinsCursorSessionKey';
 import { REMOVE_SPIN_CAMPAIGN } from '../graphql/mutations/removeSpinMutations';
+import { ISpin } from '../types/spinTypes';
 import { SPINS_PER_PAGE } from './useSpins';
+
+interface SpinCampaignsQueryData {
+  spinCampaigns: { list: ISpin[]; totalCount: number };
+}
 
 export const useDeleteSpin = () => {
   const { cursor } = useRecordTableCursor({
@@ -28,7 +33,7 @@ export const useDeleteSpin = () => {
           return;
         }
 
-        const existingData: any = cache.readQuery({
+        const existingData = cache.readQuery<SpinCampaignsQueryData>({
           query: QUERY_SPIN_CAMPAIGNS,
           variables: {
             limit: SPINS_PER_PAGE,
@@ -50,8 +55,7 @@ export const useDeleteSpin = () => {
             spinCampaigns: {
               ...existingData.spinCampaigns,
               list: existingData.spinCampaigns.list.filter(
-                (campaign: any) =>
-                  !deletedCampaign?._ids?.includes(campaign._id),
+                (campaign) => !deletedCampaign?._ids?.includes(campaign._id),
               ),
               totalCount: Math.max(
                 (existingData.spinCampaigns.totalCount || 0) -

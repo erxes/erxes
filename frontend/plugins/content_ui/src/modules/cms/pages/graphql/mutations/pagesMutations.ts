@@ -6,6 +6,8 @@ export const PAGES_ADD = gql`
       name
       description
       slug
+      parentId
+      status
       clientPortalId
       createdAt
       customFieldsData
@@ -37,6 +39,8 @@ export const PAGES_EDIT = gql`
       name
       description
       slug
+      parentId
+      status
       clientPortalId
       createdAt
       customFieldsData

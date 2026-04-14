@@ -1,4 +1,4 @@
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
@@ -48,10 +48,6 @@ import {
   loadVatRowClass,
 } from './modules/accounting/db/models/VatRows';
 import {
-  IRemainderModel,
-  loadRemainderClass,
-} from './modules/inventories/db/models/Remainders';
-import {
   IReserveRemModel,
   loadReserveRemClass,
 } from './modules/inventories/db/models/ReserveRems';
@@ -63,7 +59,6 @@ import {
   ISafeRemainderModel,
   loadSafeRemainderClass,
 } from './modules/inventories/db/models/SafeRemainders';
-import { IRemainderDocument } from './modules/inventories/@types/remainders';
 import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
 import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
@@ -79,7 +74,6 @@ export interface IModels {
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
 
-  Remainders: IRemainderModel;
   ReserveRems: IReserveRemModel;
   SafeRemainderItems: ISafeRemainderItemModel;
   SafeRemainders: ISafeRemainderModel;
@@ -94,20 +88,17 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
-  eventDispatcher: (
-    pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ) => EventDispatcherReturn,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+  const accountingEventHandlers = eventHandlers('accounting');
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'accountings_configs',
     loadConfigClass(
       models,
       subdomain,
-      eventDispatcher('accounting', 'accounting', 'accountings_configs'),
+      accountingEventHandlers('accounting', 'accountings_configs'),
     ),
   );
 
@@ -116,7 +107,7 @@ export const loadClasses = (
     loadAccountClass(
       models,
       subdomain,
-      eventDispatcher('accounting', 'accounting', 'accounts'),
+      accountingEventHandlers('accounting', 'accounts'),
     ),
   );
 
@@ -128,7 +119,7 @@ export const loadClasses = (
     loadAccountCategoryClass(
       models,
       subdomain,
-      eventDispatcher('accounting', 'accounting', 'account_categories'),
+      accountingEventHandlers('accounting', 'account_categories'),
     ),
   );
 
@@ -161,10 +152,6 @@ export const loadClasses = (
     loadCtaxRowClass(models, subdomain),
   );
 
-  models.Remainders = db.model<IRemainderDocument, IRemainderModel>(
-    'remainders',
-    loadRemainderClass(models, subdomain),
-  );
   models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
     'inventories_reserverems',
     loadReserveRemClass(models, subdomain),

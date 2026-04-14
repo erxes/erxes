@@ -1,17 +1,45 @@
+import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  Label,
+  RecordTable,
+  Spinner,
+  Tabs,
+  useQueryState,
+  RecordTableHotkeyProvider,
+  useSetHotkeyScope,
+} from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
-import { useSafeRemainderSubmit } from '../hooks/useSafeRemainderSubmit';
-import { ISafeRemainder } from '../types/SafeRemainder';
+import {
+  useSafeRemainderCancel,
+  useSafeRemainderDoTr,
+  useSafeRemainderReCalc,
+  useSafeRemainderSubmit,
+  useSafeRemainderUndoTr,
+} from '../hooks/useSafeRemainderChange';
+import {
+  ISafeRemainder,
+  SAFE_REMAINDER_STATUSES,
+} from '../types/SafeRemainder';
 import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
-import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
-
+import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
+import { activeTabState } from '../states';
+import { useAtom } from 'jotai';
+import { CENSUS_TABS } from '../types/constants';
+import { safeRemDetailColumnsIncome } from './SafeRemainderDetailColsIncome';
+import { safeRemDetailColumnsOut } from './SafeRemainderDetailColsOut';
+import { safeRemDetailColumnsSale } from './SafeRemainderDetailColsSale';
+import { EditSafeRemainder } from './SafeRemainderEditForm';
+import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
-
+  const [activeTab, setActiveTab] = useAtom(activeTabState);
+  const setHotkeyScope = useSetHotkeyScope();
   const { safeRemainder, loading } = useSafeRemainderDetail({
     variables: { _id: id },
     skip: !id,
@@ -27,8 +55,12 @@ export const SafeRemainderDetail = () => {
     skip: !id,
   });
 
-  const { submitSafeRemainder } = useSafeRemainderSubmit(id ?? '');
-  const { removeSafeRemainder } = useSafeRemainderRemove(id ?? '');
+  const { reCalcSafeRemainder } = useSafeRemainderReCalc();
+  const { submitSafeRemainder } = useSafeRemainderSubmit();
+  const { cancelSafeRemainder } = useSafeRemainderCancel();
+  const { doTrSafeRemainder } = useSafeRemainderDoTr();
+  const { undoTrSafeRemainder } = useSafeRemainderUndoTr();
+  const { removeSafeRemainder } = useSafeRemainderRemove();
 
   if (loading || detailsLoading) {
     return <Spinner />;
@@ -38,17 +70,73 @@ export const SafeRemainderDetail = () => {
     return;
   }
 
-  const handleSubmit = () => {
-    submitSafeRemainder();
-  };
+  const renderEvents = () => {
+    const status = safeRemainder?.status || SAFE_REMAINDER_STATUSES.DRAFT;
+    switch (status) {
+      case SAFE_REMAINDER_STATUSES.DRAFT:
+        return (
+          <>
+            <Button onClick={() => reCalcSafeRemainder(id)}>
+              <IconCrane />
+              ReCalc
+            </Button>
+            <Button onClick={() => submitSafeRemainder(id)}>
+              <IconAccessPoint />
+              Submit
+            </Button>
+            <Button
+              variant="secondary"
+              className="text-destructive"
+              onClick={() => removeSafeRemainder({ variables: { _id: id } })}
+            >
+              <IconTrashX />
+              Delete
+            </Button>
+          </>
+        );
+      case SAFE_REMAINDER_STATUSES.DONE:
+        return (
+          <>
+            <Button onClick={() => doTrSafeRemainder(id)}>
+              <IconCrane />
+              Do Transaction
+            </Button>
+            <Button
+              variant="secondary"
+              className="text-destructive"
+              onClick={() => cancelSafeRemainder(id)}
+            >
+              <IconTrashX />
+              Cancel Submition
+            </Button>
+          </>
+        );
 
-  const handleDelete = () => {
-    removeSafeRemainder();
+      case SAFE_REMAINDER_STATUSES.PUBLISHED:
+        return (
+          <>
+            <Button onClick={() => doTrSafeRemainder(id)}>
+              <IconCrane />
+              ReDo Transaction
+            </Button>
+            <Button
+              variant="secondary"
+              className="text-destructive"
+              onClick={() => undoTrSafeRemainder(id)}
+            >
+              <IconTrashX />
+              Undo transaction
+            </Button>
+          </>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
     <>
-      <div className="m-3 flex-auto">
+      <div className="m-3 mb-0">
         <h3 className="text-lg font-bold">Inventory Census Detail</h3>
         <div className="flex items-center col-span-2 xl:col-span-3 gap-6">
           <div>
@@ -60,35 +148,180 @@ export const SafeRemainderDetail = () => {
               {safeRemainder?.status}
             </span>
           </div>
-          {/* {renderEvents()} */}
+          {renderEvents()}
         </div>
       </div>
-
-      <SafeRemainderDetailFilter />
-
-      <RecordTable.Provider
-        columns={safeRemDetailTableColumns}
-        data={safeRemainderItems || []}
-        stickyColumns={[]}
-        className="m-3"
+      <div className="">
+        <SafeRemainderDetailFilter />
+      </div>
+      <Tabs
+        className="col-span-2"
+        value={activeTab}
+        onValueChange={setActiveTab}
       >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-              {!detailsLoading &&
-                safeRemainderItemsCount > safeRemainderItems?.length && (
-                  <RecordTable.RowSkeleton
-                    rows={4}
-                    handleInView={handleFetchMore}
-                  />
+        <div className="flex items-center gap-3">
+          <Tabs.List className="w-full justify-start flex-auto">
+            {Object.values(CENSUS_TABS).map((field) => (
+              <Tabs.Trigger
+                key={field.value}
+                value={field.value}
+                className={cn(
+                  field.value === activeTab && 'font-bold',
+                  'capitalize py-1 gap-2 pr-1 h-8',
                 )}
-            </RecordTable.Body>
-          </RecordTable>
-          <SafeRemDetailCommandbar />
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
+                asChild
+              >
+                <div>{field.label}</div>
+              </Tabs.Trigger>
+            ))}
+          </Tabs.List>
+        </div>
+
+        <Tabs.Content value={CENSUS_TABS.CENSUS.value} className="mt-6">
+          <RecordTableHotkeyProvider
+            columnLength={2}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
+          >
+            <RecordTable.Provider
+              columns={safeRemDetailTableColumns}
+              data={safeRemainderItems || []}
+              stickyColumns={[]}
+              className="m-3"
+              onClickCapture={() =>
+                setHotkeyScope(AccountingHotkeyScope.SafeRemainderPage)
+              }
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                    {!detailsLoading &&
+                      safeRemainderItemsCount > safeRemainderItems?.length && (
+                        <RecordTable.RowSkeleton
+                          rows={4}
+                          handleInView={handleFetchMore}
+                        />
+                      )}
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
+        </Tabs.Content>
+
+        <Tabs.Content
+          key={CENSUS_TABS.INCOME.value}
+          value={CENSUS_TABS.INCOME.value}
+          className="mt-6"
+        >
+          <RecordTable.Provider
+            columns={safeRemDetailColumnsIncome}
+            data={
+              safeRemainderItems?.filter(
+                (item) => item.preCount < item.count,
+              ) || []
+            }
+            stickyColumns={[]}
+            className="m-3"
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                  {!detailsLoading &&
+                    safeRemainderItemsCount > safeRemainderItems?.length && (
+                      <RecordTable.RowSkeleton
+                        rows={4}
+                        handleInView={handleFetchMore}
+                      />
+                    )}
+                </RecordTable.Body>
+              </RecordTable>
+              <SafeRemDetailCommandbar />
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
+        </Tabs.Content>
+
+        <Tabs.Content
+          key={CENSUS_TABS.OUT.value}
+          value={CENSUS_TABS.OUT.value}
+          className="mt-6"
+        >
+          <RecordTable.Provider
+            columns={safeRemDetailColumnsOut}
+            data={
+              safeRemainderItems.filter(
+                (item) => item.preCount > item.count && !item.trInfo?.isSale,
+              ) || []
+            }
+            stickyColumns={[]}
+            className="m-3"
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                  {!detailsLoading &&
+                    safeRemainderItemsCount > safeRemainderItems?.length && (
+                      <RecordTable.RowSkeleton
+                        rows={4}
+                        handleInView={handleFetchMore}
+                      />
+                    )}
+                </RecordTable.Body>
+              </RecordTable>
+              <SafeRemDetailCommandbar />
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
+        </Tabs.Content>
+
+        <Tabs.Content
+          key={CENSUS_TABS.SALE.value}
+          value={CENSUS_TABS.SALE.value}
+          className="mt-6"
+        >
+          <RecordTable.Provider
+            columns={safeRemDetailColumnsSale}
+            data={
+              safeRemainderItems.filter(
+                (item) => item.preCount > item.count && item.trInfo?.isSale,
+              ) || []
+            }
+            stickyColumns={[]}
+            className="m-3"
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                  {!detailsLoading &&
+                    safeRemainderItemsCount > safeRemainderItems?.length && (
+                      <RecordTable.RowSkeleton
+                        rows={4}
+                        handleInView={handleFetchMore}
+                      />
+                    )}
+                </RecordTable.Body>
+              </RecordTable>
+              <SafeRemDetailCommandbar />
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
+        </Tabs.Content>
+
+        <Tabs.Content
+          key={CENSUS_TABS.CONFIG.value}
+          value={CENSUS_TABS.CONFIG.value}
+          className="mt-6"
+        >
+          <EditSafeRemainder />
+        </Tabs.Content>
+      </Tabs>
     </>
   );
 };
@@ -103,18 +336,24 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
       </div>
       <div className="flex items-center gap-2 text-sm">
         <Label>Branch:</Label>
-        <span>{`${safeRemainder.branch?.code} - ${safeRemainder.branch?.title}`}</span>
+        <span>{`${safeRemainder.branch?.code ?? ''} - ${
+          safeRemainder.branch?.title ?? ''
+        }`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
         <Label>Department:</Label>
-        <span>{`${safeRemainder.department?.code} - ${safeRemainder.department?.title}`}</span>
+        <span>{`${safeRemainder.department?.code ?? ''} - ${
+          safeRemainder.department?.title ?? ''
+        }`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       {safeRemainder.productCategoryId && (
         <div className="flex items-center gap-2 text-sm">
           <Label>Product Category:</Label>
-          <span>{`${safeRemainder.productCategory?.code} - ${safeRemainder.productCategory?.name}`}</span>
+          <span>{`${safeRemainder.productCategory?.code ?? ''} - ${
+            safeRemainder.productCategory?.name ?? ''
+          }`}</span>
           <span className="text-accent-foreground">{'|'}</span>
         </div>
       )}

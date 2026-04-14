@@ -79,7 +79,7 @@ const generateFilter = async (
   if (tag) {
     const object = await models.Tags.findOne({ _id: tag });
 
-    const relatedIds = object && object.relatedIds ? object.relatedIds : [];
+    const relatedIds = object?.relatedIds || [];
 
     filter.tagIds = { $in: [tag, ...relatedIds] };
   }
@@ -244,14 +244,22 @@ export const engageQueries = {
       isActive: true,
     };
 
-    if (isVerified) {
-      const verifiedEmails: any = await awsRequests.getVerifiedEmails(models);
+    const verifiedEmails: any = await awsRequests.getVerifiedEmails(models);
 
+    if (isVerified) {
       query.email = { $in: verifiedEmails || [] };
     }
 
     if (searchValue) {
       query.email = { $regex: searchValue, $options: '$i' };
+    }
+
+    if (isVerified && searchValue) {
+      query.email = {
+        $in: verifiedEmails || [],
+        $regex: searchValue,
+        $options: 'i',
+      };
     }
 
     return await cursorPaginate({
@@ -275,6 +283,16 @@ export const engageQueries = {
 
       return e;
     }
+  },
+
+  async engageBroadcastTraces(
+    _root: undefined,
+    { engageMessageId }: { engageMessageId: string },
+    { models }: IContext,
+  ) {
+    return models.BroadcastTraces.find({ engageMessageId }).sort({
+      createdAt: -1,
+    });
   },
 
   async engageSmsDeliveries(

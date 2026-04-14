@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { PAYMENT_STATUS_TYPES } from '@/bms/constants';
-import { getEnum } from '@/bms/utils';
+import { getEnum } from '~/modules/bms/utils/utils';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export interface IOrder {

@@ -1,59 +1,67 @@
 import { Form, Editor } from 'erxes-ui';
+import { REACT_APP_API_URL } from 'erxes-ui/utils';
+import { readImage } from 'erxes-ui/utils/core';
+import { UseFormReturn, FieldValues } from 'react-hook-form';
 
 interface PostPreviewProps {
-  content: string;
-  form: any;
+  form: UseFormReturn<FieldValues>;
   selectedLanguage: string;
   defaultLanguage: string;
-  fullPost: any;
-  formatInitialContent: (content: string) => any;
-  handleEditorChange: (value: string, editorInstance?: any) => void;
+  fullPost: { _id?: string } | null | undefined;
+  handleEditorChange: (value: string) => void;
 }
 
 export const PostPreview = ({
-  content,
   form,
   selectedLanguage,
   defaultLanguage,
   fullPost,
-  formatInitialContent,
   handleEditorChange,
 }: PostPreviewProps) => {
   return (
-    <div className="rounded-lg border overflow-hidden bg-background">
-      <div className="px-4 py-3 border-b bg-background">
-        <h3 className="text-sm font-semibold">
-          Content Editor
-          {selectedLanguage !== defaultLanguage && (
-            <span className="ml-2 text-xs text-blue-600">
-              ({selectedLanguage})
-            </span>
+    <div className="rounded-lg overflow-hidden bg-background">
+      <Form {...form}>
+        <Form.Field
+          control={form.control}
+          name="content"
+          render={() => (
+            <Form.Item>
+              <Form.Label>
+                Content
+                {selectedLanguage !== defaultLanguage && (
+                  <span className="ml-2 text-xs text-blue-600">
+                    ({selectedLanguage})
+                  </span>
+                )}
+              </Form.Label>
+              <Form.Control>
+                <Editor
+                  className="h-[calc(100vh-200px)] border text-justify"
+                  key={`editor-${selectedLanguage}-${fullPost?._id || 'new'}`}
+                  isHTML
+                  initialContent={form.getValues('content') || ''}
+                  onChange={handleEditorChange}
+                  uploadFile={async (file) => {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const response = await fetch(
+                      `${REACT_APP_API_URL}/upload-file?kind=main`,
+                      {
+                        method: 'post',
+                        body: formData,
+                        credentials: 'include',
+                      },
+                    );
+                    const key = await response.text();
+                    return readImage(key);
+                  }}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
           )}
-        </h3>
-      </div>
-      <div className="p-4">
-        <Form {...form}>
-          <Form.Field
-            control={form.control}
-            name="content"
-            render={() => (
-              <Form.Item>
-                <Form.Control>
-                  <Editor
-                    className="h-[calc(100vh-200px)]"
-                    key={`editor-${selectedLanguage}-${fullPost?._id || 'new'}`}
-                    initialContent={formatInitialContent(
-                      form.getValues('content') || '',
-                    )}
-                    onChange={handleEditorChange}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </Form>
-      </div>
+        />
+      </Form>
     </div>
   );
 };

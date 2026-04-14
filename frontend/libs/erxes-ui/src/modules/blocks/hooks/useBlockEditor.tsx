@@ -5,8 +5,9 @@ import { BLOCK_SCHEMA, TABLE_SCHEMA } from '../constant';
 export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
+  uploadFile?: (file: File) => Promise<string>;
 }) => {
-  const { placeholder, ...restArgs } = args || {};
+  const { placeholder, uploadFile, ...restArgs } = args || {};
 
   const editor = useCreateBlockNote({
     schema: BLOCK_SCHEMA,
@@ -14,6 +15,7 @@ export const useBlockEditor = (args?: {
     placeholders: {
       default: placeholder || "Type '/' for commands...",
     },
+    uploadFile,
     ...restArgs,
   });
 

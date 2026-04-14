@@ -3,7 +3,6 @@ import { STATUS_TYPES } from '@/status/constants/types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import {
   getCycleProgressByMember,
   getCycleProgressByProject,
@@ -12,11 +11,24 @@ import {
 } from '~/modules/cycle/utils';
 
 export const cycleQueries = {
-  getCycle: async (_parent: undefined, { _id }, { models }: IContext) => {
+  getCycle: async (
+    _parent: undefined,
+    { _id },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('cycleRead');
+
     const cycle = await models.Cycle.getCycle(_id);
     return cycle;
   },
-  getCycles: async (_parent: undefined, params, { models }: IContext) => {
+
+  getCycles: async (
+    _parent: undefined,
+    params,
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('cycleRead');
+
     const { list, totalCount, pageInfo } = await cursorPaginate<ICycleDocument>(
       {
         model: models.Cycle,
@@ -31,7 +43,13 @@ export const cycleQueries = {
     return { list, totalCount, pageInfo };
   },
 
-  getCyclesActive: async (_parent: undefined, params, { models }: IContext) => {
+  getCyclesActive: async (
+    _parent: undefined,
+    params,
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('cycleRead');
+
     if (params.taskId) {
       const task = await models.Task.findOne({
         _id: params.taskId,
@@ -70,43 +88,44 @@ export const cycleQueries = {
 
     return { list, totalCount, pageInfo };
   },
+
   getCycleProgress: async (
     _parent: undefined,
     { _id, assigneeId },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('cycleRead');
+
     return getCyclesProgress(_id, assigneeId, models);
   },
 
   getCycleProgressChart: async (
     _parent: undefined,
     { _id, assigneeId },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('cycleRead');
+
     return getCycleProgressChart(subdomain, _id, assigneeId, models);
   },
 
   getCycleProgressByMember: async (
     _parent: undefined,
     { _id, assigneeId },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('cycleRead');
+
     return getCycleProgressByMember(_id, assigneeId, models);
   },
 
   getCycleProgressByProject: async (
     _parent: undefined,
     { _id, assigneeId },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('cycleRead');
+
     return getCycleProgressByProject(_id, assigneeId, models);
   },
 };
-
-requireLogin(cycleQueries, 'getCycle');
-requireLogin(cycleQueries, 'getCycles');
-requireLogin(cycleQueries, 'getCyclesActive');
-requireLogin(cycleQueries, 'getCycleProgress');
-requireLogin(cycleQueries, 'getCycleProgressChart');
-requireLogin(cycleQueries, 'getCycleProgressByMember');
-requireLogin(cycleQueries, 'getCycleProgressByProject');
