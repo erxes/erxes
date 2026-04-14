@@ -53,7 +53,20 @@ const Progress = () => {
   const hasPrintedRef = useRef(false)
   const latestItemsRef = useRef<OrderItem[]>([])
 
-  const [getCategoryOrders, ordersQuery] = useLazyQuery<
+  const setGroupedItems = useCallback((groupedItems: OrderItem[][]) => {
+    setCurrentGroupIndex(null)
+    setItemsToPrint(groupedItems)
+    setIsCategoryLoaded(true)
+  }, [])
+
+  const setUngroupedItems = useCallback(
+    (baseItems: OrderItem[]) => {
+      setGroupedItems([baseItems])
+    },
+    [setGroupedItems]
+  )
+
+  const [getCategoryOrders] = useLazyQuery<
     CategoryOrdersByProductQueryResult,
     CategoryOrdersByProductQueryVariables
   >(productQueries.getCategoryOrders, {
@@ -81,8 +94,10 @@ const Progress = () => {
         allFilteredItems.push(checkedItems)
       }
 
-      setItemsToPrint(allFilteredItems)
-      setIsCategoryLoaded(true)
+      setGroupedItems(allFilteredItems)
+    },
+    onError() {
+      setUngroupedItems(latestItemsRef.current || [])
     },
   })
 
@@ -91,8 +106,10 @@ const Progress = () => {
     fetchPolicy: "network-only",
     onCompleted({ orderDetail }) {
       setIsCategoryLoaded(false)
+      setCurrentGroupIndex(null)
 
-      const hasFilters = categoryOrders.some((g) => g.length > 0)
+      const hasFilters =
+        !forCustomer && categoryOrders.some((g) => g.length > 0)
 
       const baseItems = orderDetail.items || []
 
@@ -112,8 +129,7 @@ const Progress = () => {
         })
       }
 
-      setItemsToPrint([itemsToProcess])
-      setIsCategoryLoaded(true)
+      setUngroupedItems(itemsToProcess)
     },
   })
 
@@ -151,35 +167,46 @@ const Progress = () => {
     window.parent.postMessage({ message: "close" }, "*")
   }, [])
 
+  const triggerPrint = useCallback(
+    (options?: { closeAfterPrint?: boolean; onPrinted?: () => void }) => {
+      setTimeout(() => {
+        window.print()
+        options?.onPrinted?.()
+
+        if (options?.closeAfterPrint) {
+          handleAfterPrint()
+        }
+      }, 100)
+    },
+    [handleAfterPrint]
+  )
+
   useEffect(() => {
     if (loading) return
 
-    const hasFilters = categoryOrders.some((g) => g.length > 0)
+    const hasFilters = !forCustomer && categoryOrders.some((g) => g.length > 0)
     if (hasFilters && !isCategoryLoaded) return
 
-    if (!forCustomer && onlyNewItems) {
-      const hasItems = itemsToPrint.some((g) => g.length > 0)
-
-      if (!hasItems) {
+    if (forCustomer) {
+      if (!items || items.length === 0) {
         handleAfterPrint()
         return
       }
-    }
-
-    if (forCustomer) {
-      if (!items || items.length === 0) return
 
       if (hasPrintedRef.current) return
       hasPrintedRef.current = true
 
-      setTimeout(() => window.print(), 100)
+      triggerPrint({ closeAfterPrint: true })
       return
     }
 
     if (!itemsToPrint.length) return
 
     const hasAnyItems = itemsToPrint.some((g) => g.length > 0)
-    if (!hasAnyItems) return
+    if (!hasAnyItems) {
+      handleAfterPrint()
+      return
+    }
 
     if (hasPrintedRef.current) return
     hasPrintedRef.current = true
@@ -199,18 +226,19 @@ const Progress = () => {
 
         setCurrentGroupIndex(index)
 
-        setTimeout(() => {
-          window.print()
-          index++
-          setTimeout(printNext, 800)
-        }, 100)
+        triggerPrint({
+          onPrinted: () => {
+            index++
+            setTimeout(printNext, 800)
+          },
+        })
       }
 
       printNext()
       return
     }
 
-    setTimeout(() => window.print(), 100)
+    triggerPrint({ closeAfterPrint: true })
   }, [
     itemsToPrint,
     isCategoryLoaded,
@@ -219,6 +247,8 @@ const Progress = () => {
     items,
     loading,
     categoryOrders,
+    handleAfterPrint,
+    triggerPrint,
   ])
 
   if (loading) return <div />
@@ -226,18 +256,18 @@ const Progress = () => {
   const renderGroups = forCustomer
     ? [{ items: items || [], title: "" }]
     : printSeparately && currentGroupIndex !== null
-      ? [
-          {
-            items: itemsToPrint[currentGroupIndex] || [],
-            title: groupTitles[currentGroupIndex],
-          },
-        ]
-      : itemsToPrint
-          .map((g, i) => ({
-            items: g,
-            title: groupTitles[i],
-          }))
-          .filter((g) => g.items.length > 0)
+    ? [
+        {
+          items: itemsToPrint[currentGroupIndex] || [],
+          title: groupTitles[currentGroupIndex],
+        },
+      ]
+    : itemsToPrint
+        .map((g, i) => ({
+          items: g,
+          title: groupTitles[i],
+        }))
+        .filter((g) => g.items.length > 0)
 
   return (
     <div className="space-y-1 text-[12px]">

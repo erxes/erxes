@@ -32,11 +32,11 @@ export default {
 
     let totalPercent = vatPercent + cityTaxPercent + 100;
 
-    if (
-      !ebarimtConfig.hasCitytax &&
-      ebarimtConfig.reverseCtaxRules?.length &&
-      taxRule.citytaxCode
-    ) {
+    const hasReverseCtaxRule =
+      !!taxRule.citytaxCode &&
+      !!ebarimtConfig.reverseCtaxRules?.includes(taxRule.citytaxCode);
+
+    if (!ebarimtConfig.hasCitytax && hasReverseCtaxRule) {
       const pCtaxPercent = Number(taxRule.citytaxPercent) || 0;
       totalPercent = vatPercent + pCtaxPercent + 100;
     }

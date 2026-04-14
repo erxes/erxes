@@ -9,6 +9,53 @@ import { Button } from "@/components/ui/button"
 import { FacetedFilter } from "@/components/ui/faceted-filter"
 import Loader from "@/components/ui/loader"
 
+const isSameOrDescendant = (value: string, candidate: string) =>
+  value === candidate || value.startsWith(`${candidate}/`)
+
+const hasCategoryOverlap = (left: string, right: string) =>
+  isSameOrDescendant(left, right) || isSameOrDescendant(right, left)
+
+const normalizeGroup = (group: string[]) => {
+  const uniqueValues = Array.from(new Set(group))
+
+  return uniqueValues.filter(
+    (value, index) =>
+      !uniqueValues.some(
+        (other, otherIndex) =>
+          otherIndex !== index && isSameOrDescendant(value, other)
+      )
+  )
+}
+
+const normalizeStoredGroups = (groups: string[][]) => {
+  const takenValues: string[] = []
+
+  return groups.map((group) => {
+    const normalizedGroup = normalizeGroup(group).filter(
+      (value) =>
+        !takenValues.some((takenValue) => hasCategoryOverlap(value, takenValue))
+    )
+
+    takenValues.push(...normalizedGroup)
+
+    return normalizedGroup
+  })
+}
+
+const normalizeUpdatedGroups = (groups: string[][], index: number) => {
+  const normalizedGroups = groups.map((group) => normalizeGroup(group))
+  const takenValues = normalizedGroups.flatMap((group, groupIndex) =>
+    groupIndex === index ? [] : group
+  )
+
+  normalizedGroups[index] = normalizedGroups[index].filter(
+    (value) =>
+      !takenValues.some((takenValue) => hasCategoryOverlap(value, takenValue))
+  )
+
+  return normalizedGroups
+}
+
 const CategoriesToPrint = () => {
   const [categoriesToPrint, setCategoriesToPrint] = useAtom(
     categoriesToPrintAtom
@@ -18,8 +65,10 @@ const CategoriesToPrint = () => {
   const { loading, categories } = useProductCategories((cats) => {
     const validOrders = cats.map((c: ICategory) => c.order)
     setCategoriesToPrint(
-      categoriesToPrint.map((filterGroup) =>
-        filterGroup.filter((cat) => validOrders.includes(cat))
+      normalizeStoredGroups(
+        categoriesToPrint.map((filterGroup) =>
+          filterGroup.filter((cat) => validOrders.includes(cat))
+        )
       )
     )
   }, isActive || !isPrint)
@@ -29,36 +78,6 @@ const CategoriesToPrint = () => {
   }
 
   if (loading) return <Loader />
-
-  // const rootCategories = (categories || []).filter(
-  //   (category) =>
-  //     !categories.find(
-  //       (cat) => cat._id !== category._id && category.order.includes(cat.order)
-  //     )
-  // )
-
-  const getGen = (order: string) => order.split("/").length
-
-  const getDirectChildren = (parentCat: ICategory) => {
-    return categories.filter(
-      (cat) =>
-        cat._id !== parentCat._id &&
-        getGen(cat.order) === getGen(parentCat.order) + 1 &&
-        cat.order.includes(parentCat.order)
-    )
-  }
-
-  const getMainCategories: (rCategories: ICategory[]) => ICategory[] = (
-    rCategories
-  ) => {
-    if (!(rCategories || []).length) {
-      return [] as ICategory[]
-    }
-    if (rCategories.length === 1) {
-      return getMainCategories(getDirectChildren(rCategories[0]))
-    }
-    return rCategories
-  }
 
   const addNewFilter = () => {
     setCategoriesToPrint((prev) => [...prev, []])
@@ -76,7 +95,7 @@ const CategoriesToPrint = () => {
     setCategoriesToPrint((prev) => {
       const updated = [...prev]
       updated[index] = value
-      return updated
+      return normalizeUpdatedGroups(updated, index)
     })
   }
 

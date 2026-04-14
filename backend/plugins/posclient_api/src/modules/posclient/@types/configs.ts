@@ -20,7 +20,7 @@ export interface IEbarimtConfig {
   reverseCtaxRules?: string[];
   footerText?: string;
   hasCopy: boolean;
-  isCleanTaxPrice: boolean;
+  isCleanTaxPrice?: boolean;
 }
 
 interface IConfigColors {

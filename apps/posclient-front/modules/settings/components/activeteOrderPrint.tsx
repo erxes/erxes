@@ -1,6 +1,7 @@
 "use client"
 
 import { printSeparatelyAtom } from "@/store"
+import type { CheckedState } from "@radix-ui/react-checkbox"
 import { Label } from "@radix-ui/react-label"
 import { useAtom } from "jotai"
 
@@ -9,8 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 const ActivateOrderPrint = () => {
   const [printSeparately, setPrintSeparately] = useAtom(printSeparatelyAtom)
 
-  const handleCheckboxChange = (checked: boolean) => {
-    setPrintSeparately(checked)
+  const handleCheckboxChange = (checked: CheckedState) => {
+    setPrintSeparately(checked === true)
   }
 
   return (
