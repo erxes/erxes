@@ -148,7 +148,9 @@ const accountCategoryMoreColumn = {
   size: 33,
 };
 
-export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildren: boolean }>[] = [
+export const accountCategoriesColumns: ColumnDef<
+  IAccountCategory & { hasChildren: boolean }
+>[] = [
   accountCategoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<
     IAccountCategory & { hasChildren: boolean }
@@ -216,4 +218,3 @@ export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildre
     size: 300,
   },
 ];
-
