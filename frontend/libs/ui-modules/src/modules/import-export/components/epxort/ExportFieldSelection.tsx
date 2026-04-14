@@ -1,4 +1,4 @@
-import { IconCheck, IconMinus, IconInfoCircle } from '@tabler/icons-react';
+import { IconCheck, IconMinus } from '@tabler/icons-react';
 import {
   Button,
   Checkbox,
@@ -7,11 +7,13 @@ import {
   Sheet,
   ScrollArea,
 } from 'erxes-ui';
+import { Badge } from 'erxes-ui/components/badge';
 import { useExportFieldSelection } from '../../hooks/export/useExportFieldSelection';
 import {
   TExportFieldSelectionProps,
   TSearchAndActionsProps,
 } from '../../types/export/exportTypes';
+import { getEntityLabelFromType } from '../../utils/entityLabel';
 
 export function SearchAndActions({
   onSelectAll,
@@ -21,22 +23,22 @@ export function SearchAndActions({
   totalCount,
 }: TSearchAndActionsProps) {
   return (
-    <div className="flex items-center justify-between px-1">
-      <div className="flex gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+      <div className="flex flex-wrap gap-2">
         <Button variant="outline" size="sm" onClick={onSelectAll}>
           <IconCheck className="w-4 h-4 mr-1.5" />
-          Select All
+          Select all
         </Button>
         <Button variant="outline" size="sm" onClick={onDeselectAll}>
           <IconMinus className="w-4 h-4 mr-1.5" />
-          Deselect All
+          Clear all
         </Button>
         <Button variant="outline" size="sm" onClick={onSelectDefaults}>
-          Reset to Defaults
+          Use suggested fields
         </Button>
       </div>
       <div className="text-sm text-muted-foreground whitespace-nowrap">
-        {selectedCount} of {totalCount}
+        {selectedCount} of {totalCount} fields selected
       </div>
     </div>
   );
@@ -63,9 +65,10 @@ export function ExportFieldSelection({
 
   const getEntityName = () => {
     if (entityDisplayName) return entityDisplayName;
-    const parts = entityType.split('.');
-    const collectionName = parts[parts.length - 1] || 'Records';
-    return collectionName.charAt(0).toUpperCase() + collectionName.slice(1);
+    return getEntityLabelFromType(entityType, {
+      plural: true,
+      capitalize: true,
+    });
   };
 
   return (
@@ -75,12 +78,12 @@ export function ExportFieldSelection({
           <div>
             <div className="flex items-center gap-2">
               <Sheet.Title>Export {getEntityName()}</Sheet.Title>
-              <IconInfoCircle className="size-4 text-muted-foreground" />
+              <Badge variant="info">CSV</Badge>
             </div>
             <Sheet.Description>
-              Select the fields to include in your export file.
+              Choose the fields to include in your export file.
               {recordCount !== undefined &&
-                ` ${recordCount} records will be exported.`}
+                ` ${recordCount} selected records will be exported.`}
             </Sheet.Description>
           </div>
           <Sheet.Close />
@@ -90,7 +93,7 @@ export function ExportFieldSelection({
             <Command className="flex-1 overflow-hidden flex flex-col min-h-0">
               <Command.Input
                 variant="primary"
-                placeholder="Search fields by name or description..."
+                placeholder="Search fields by name..."
               />
               <div className="flex-shrink-0 py-2">
                 <SearchAndActions
@@ -125,15 +128,23 @@ export function ExportFieldSelection({
                             <Checkbox checked={isSelected} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-center gap-2">
-                              <span className="text-sm font-medium">
-                                {header.label}
-                              </span>
-                              {header.isDefault && (
-                                <span className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded">
-                                  Default
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="min-w-0">
+                                <span className="text-sm font-medium">
+                                  {header.label}
                                 </span>
-                              )}
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {header.key}
+                                </p>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-1">
+                                {header.type === 'customProperty' && (
+                                  <Badge variant="secondary">Custom</Badge>
+                                )}
+                                {header.isDefault && (
+                                  <Badge variant="default">Suggested</Badge>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -151,7 +162,7 @@ export function ExportFieldSelection({
             Cancel
           </Button>
           <Button onClick={handleConfirm} disabled={loading}>
-            Export ({selectedFields.length} fields)
+            Create CSV export ({selectedFields.length} fields)
           </Button>
         </Sheet.Footer>
       </Sheet.View>

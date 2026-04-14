@@ -151,3 +151,5 @@ export const SENT_AS_CHOICES = {
 };
 
 export const LOG_MESSAGE_TYPES = ['regular', 'success', 'failure'];
+
+export const BROADCAST_TRACE_TYPES = ['regular', 'success', 'failure'];

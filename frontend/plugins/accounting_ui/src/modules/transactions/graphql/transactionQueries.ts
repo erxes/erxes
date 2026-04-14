@@ -9,12 +9,13 @@ export const commonTrDetailFields = `
   _id
   accountId
   transactionId
+  branchId
+  departmentId
   originId
   originType
   originSubId
   followInfos
 
-  side
   amount
   currencyAmount
   customRate
@@ -38,6 +39,8 @@ export const commonTransactionFields = `
   description
   status
   journal
+  side
+  relAccounts
   originId
   originType
   originSubId

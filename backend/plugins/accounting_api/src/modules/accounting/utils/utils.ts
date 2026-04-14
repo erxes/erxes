@@ -13,6 +13,15 @@ export const createOrUpdateTr = async (
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ): Promise<ITransactionDocument> => {
+  for (const detail of doc.details) {
+    if (!detail.branchId) {
+      detail.branchId = doc.branchId;
+    }
+    if (!detail.departmentId) {
+      detail.departmentId = doc.departmentId;
+    }
+  }
+
   if (oldTr?._id) {
     return await models.Transactions.updateTransaction(
       oldTr._id,

@@ -6,7 +6,7 @@ import {
 
 const SalesNoteAndComment = ({ dealId }: { dealId: string }) => {
   return (
-    <div className="flex flex-col mb-12">
+    <div className="flex flex-col mb-12 mt-4">
       <ActivityLogs
         targetId={dealId}
         customActivities={[internalNoteCustomActivity]}

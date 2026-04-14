@@ -1,6 +1,7 @@
 import { startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { afterProcess } from '~/meta/afterProcess';
+import { permissions } from '~/meta/permissions';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { appRouter } from './init-trpc';
@@ -40,5 +41,6 @@ startPlugin({
   },
   meta: {
     afterProcess,
+    permissions,
   }
 });

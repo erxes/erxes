@@ -1,4 +1,9 @@
-import type { DefaultJobOptions, Job, Worker as WorkerType } from 'bullmq';
+import type {
+  DefaultJobOptions,
+  Job,
+  Worker as WorkerType,
+  WorkerOptions,
+} from 'bullmq';
 import { Queue, QueueEvents, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
 import { redis } from './redis';
@@ -12,9 +17,11 @@ export const createMQWorkerWithListeners = (
   processor: (job: Job) => Promise<any>,
   redis: Redis,
   onReady: () => void,
+  workerOptions: Omit<WorkerOptions, 'connection'> = {},
 ): WorkerType => {
   const worker = new Worker(`${service}-${queueName}`, processor, {
     connection: redis,
+    ...workerOptions,
   });
 
   // Default event listeners

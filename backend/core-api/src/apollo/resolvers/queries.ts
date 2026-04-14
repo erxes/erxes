@@ -22,6 +22,7 @@ import { relationsQueries } from '@/relations/graphql/queries';
 import { segmentQueries } from '@/segments/graphql/resolvers';
 import { tagQueries } from '@/tags/graphql/queries';
 import {
+  importExportCommonQueries,
   importQueries,
   exportQueries,
 } from '~/modules/import-export/graphql/resolvers';
@@ -54,6 +55,7 @@ export const queries = {
   ...broadcastQueries,
   ...propertiesQueries,
   ...clientPortalQueries,
+  ...importExportCommonQueries,
   ...importQueries,
   ...exportQueries,
   ...cpUserQueries,
