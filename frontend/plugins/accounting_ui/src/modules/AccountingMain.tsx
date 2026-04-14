@@ -51,15 +51,30 @@ const AccountingGenJournalReport = lazy(() =>
   })),
 );
 
-const AdjustClosingList = lazy(() =>
-  import('~/pages/AdjustClosingPage').then((module) => ({
-    default: module.AdjustClosingListPage,
+const InventoryRemainders = lazy(() =>
+  import('~/pages/inventories/RemaindersPage').then((module) => ({
+    default: module.RemaindersPage,
+  })),
+);
+const InventorySafeRemainders = lazy(() =>
+  import('~/pages/inventories/SafeRemaindersPage').then((module) => ({
+    default: module.SafeRemaindersPage,
+  })),
+);
+const InventorySafeRemainderDetail = lazy(() =>
+  import('~/pages/inventories/SafeRemainderDetailPage').then((module) => ({
+    default: module.SafeRemainderDetailPage,
+  })),
+);
+const InventoryReserveRemainders = lazy(() =>
+  import('~/pages/inventories/ReserveRemaindersPage').then((module) => ({
+    default: module.ReserveRemaindersPage,
   })),
 );
 
-const AdjustClosingDetail = lazy(() =>
-  import('~/pages/AdjustClosingDetailPage').then((module) => ({
-    default: module.AdjustClosingDetailPage,
+const TransactionPrint = lazy(() =>
+  import('~/pages/TransactionPrintPage').then((module) => ({
+    default: module.TransactionPrintPage,
   })),
 );
 
@@ -78,6 +93,7 @@ const PluginAccounting = () => {
         <Route path="/records" element={<TrRecordList />} />
         <Route path="/transaction/edit" element={<TransactionForm />} />
         <Route path="/transaction/create" element={<TransactionForm />} />
+        <Route path="transaction/print" element={<TransactionPrint />} />
         <Route path="/adjustment" element={<AdjustmentsHomePage />} />
         <Route path="/adjustment/inventory" element={<AdjustInventoryList />} />
         <Route
@@ -89,11 +105,22 @@ const PluginAccounting = () => {
           path="/gen-journal-report"
           element={<AccountingGenJournalReport />}
         />
-        <Route path={'adjustment/closing'} element={<AdjustClosingList />} />
-        <Route path="adjustment/closing" element={<AdjustClosingList />} />
+
         <Route
-          path="adjustment/closing/:id"
-          element={<AdjustClosingDetail />}
+          path="/inventories/remainders"
+          element={<InventoryRemainders />}
+        />
+        <Route
+          path="/inventories/safe-remainders"
+          element={<InventorySafeRemainders />}
+        />
+        <Route
+          path="/inventories/safe-remainder/detail"
+          element={<InventorySafeRemainderDetail />}
+        />
+        <Route
+          path="/inventories/reserve-remainders"
+          element={<InventoryReserveRemainders />}
         />
       </Routes>
       <PageChangeEffect />

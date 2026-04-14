@@ -1,4 +1,4 @@
-import { ReportTable, useQueryState } from 'erxes-ui';
+import { ReportTable, useQueryState } from "erxes-ui"
 
 export const ReportTableFooter = () => {
   const [report] = useQueryState('report');
@@ -17,7 +17,7 @@ export const ReportTableFooter = () => {
           <ReportTable.Cell className="text-right"></ReportTable.Cell>
           <ReportTable.Cell className="text-right"></ReportTable.Cell>
         </ReportTable.Row>
-      );
+      )
 
     case 'invCost':
       return (
@@ -34,8 +34,8 @@ export const ReportTableFooter = () => {
           <ReportTable.Cell className="text-right"></ReportTable.Cell>
           <ReportTable.Cell className="text-right"></ReportTable.Cell>
         </ReportTable.Row>
-      );
+      )
     default:
-      return <></>;
+      return <></>
   }
-};
+}

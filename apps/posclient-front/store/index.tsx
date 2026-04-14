@@ -52,6 +52,12 @@ export const orderNotificationEnabledAtom = atomWithStorage<boolean>(
   false
 )
 
+// print
+export const printSeparatelyAtom = atomWithStorage<boolean>(
+  "printSeparately",
+  false
+)
+
 // supplement
 export const userNameAtom = atomWithStorage<string>("userName", "")
 export const userBankAddressAtom = atomWithStorage<string>(
