@@ -6,23 +6,56 @@ import React, {
   useState,
 } from 'react';
 import {
+  IconAdjustmentsHorizontal,
   IconDownload,
   IconEdit,
   IconFileTypePdf,
   IconRefresh,
   IconX,
 } from '@tabler/icons-react';
+import { useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
-import { Button, Dialog, Label, Select, Spinner, useToast } from 'erxes-ui';
+import {
+  Button,
+  Dialog,
+  Label,
+  Select,
+  Spinner,
+  useToast,
+} from 'erxes-ui';
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { ItineraryEditSheet } from '../_components/ItineraryEditSheet';
+import { CustomizePdfDialog } from './CustomizePdfDialog';
 import { generateFilename } from './utils';
 import { buildItineraryPdfBlob } from './pdfBuilder';
 import { ITINERARY_PDF_TEMPLATES } from './templates';
-import type { ItineraryPdfTemplate } from './types';
+import {
+  DEFAULT_ITINERARY_PDF_LABELS,
+  type ItineraryPdfLabels,
+  type ItineraryPdfRenderConfig,
+  type ItineraryPdfTemplate,
+} from './types';
+import { GET_ELEMENTS } from '@/tms/branch-detail/dashboard/elements/graphql/queries';
+import type { IElement } from '@/tms/branch-detail/dashboard/elements/types/element';
+import { GET_AMENITIES } from '@/tms/branch-detail/dashboard/amenities/graphql/queries';
+import type { IAmenity } from '@/tms/branch-detail/dashboard/amenities/types/amenity';
 import './fonts';
+
+const DEFAULT_PDF_CONFIG: ItineraryPdfRenderConfig = {
+  showCoverPage: true,
+  showFooterPage: true,
+  showDayContent: true,
+  showElements: false,
+  showAmenities: false,
+  labels: DEFAULT_ITINERARY_PDF_LABELS,
+};
+
+const createDefaultPdfConfig = (): ItineraryPdfRenderConfig => ({
+  ...DEFAULT_PDF_CONFIG,
+  labels: { ...DEFAULT_PDF_CONFIG.labels },
+});
 
 interface ExportPDFButtonProps {
   itinerary?: IItineraryDetail | null;
@@ -57,6 +90,9 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string>();
   const [selectedTemplate, setSelectedTemplate] =
     useState<ItineraryPdfTemplate>('classic');
+  const [pdfConfig, setPdfConfig] =
+    useState<ItineraryPdfRenderConfig>(createDefaultPdfConfig);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
   const [refreshNonce, setRefreshNonce] = useState(0);
   const { toast } = useToast();
   const downloadTimeoutRef = useRef<NodeJS.Timeout>();
@@ -80,9 +116,88 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   const shouldWaitForBranch = Boolean(
     branchId && branchLoading && !branchDetail,
   );
+  const { data: elementsData, loading: elementsLoading } = useQuery<{
+    bmsElements: {
+      list: IElement[];
+      totalCount: number;
+    };
+  }>(GET_ELEMENTS, {
+    variables: {
+      branchId,
+      language,
+      quick: false,
+      limit: 100,
+      orderBy: { createdAt: -1 },
+    },
+    skip: !branchId || !previewOpen || !pdfConfig.showElements,
+    fetchPolicy: 'cache-and-network',
+  });
+  const elements = useMemo(
+    () => elementsData?.bmsElements?.list ?? [],
+    [elementsData?.bmsElements?.list],
+  );
+  const pdfElements = useMemo(
+    () =>
+      elements.map((element) => ({
+        _id: element._id,
+        name: element.name,
+        note: element.note,
+        content: element.content,
+        startTime: element.startTime,
+        duration: element.duration,
+        cost: element.cost,
+      })),
+    [elements],
+  );
+  const { data: amenitiesData, loading: amenitiesLoading } = useQuery<{
+    bmsElements: {
+      list: IAmenity[];
+      totalCount: number;
+    };
+  }>(GET_AMENITIES, {
+    variables: {
+      branchId,
+      language,
+      quick: true,
+      limit: 100,
+      orderBy: { createdAt: -1 },
+    },
+    skip: !branchId || !previewOpen || !pdfConfig.showAmenities,
+    fetchPolicy: 'cache-and-network',
+  });
+  const amenities = useMemo(
+    () => amenitiesData?.bmsElements?.list ?? [],
+    [amenitiesData?.bmsElements?.list],
+  );
+  const pdfAmenities = useMemo(
+    () =>
+      amenities.map((amenity) => ({
+        _id: amenity._id,
+        name: amenity.name,
+        icon: amenity.icon,
+      })),
+    [amenities],
+  );
+  const shouldWaitForElements = Boolean(
+    pdfConfig.showElements &&
+      previewOpen &&
+      branchId &&
+      elementsLoading &&
+      !elements.length,
+  );
+  const shouldWaitForAmenities = Boolean(
+    pdfConfig.showAmenities &&
+      previewOpen &&
+      branchId &&
+      amenitiesLoading &&
+      !amenities.length,
+  );
+  const shouldWaitForResources =
+    shouldWaitForElements || shouldWaitForAmenities;
 
   const canEdit = Boolean(itinerary?._id);
-  const canDownload = Boolean(previewBlob) && !previewLoading;
+  const canDownload =
+    Boolean(previewBlob) && !previewLoading && !shouldWaitForResources;
   const selectedTemplateOption = useMemo(
     () =>
       ITINERARY_PDF_TEMPLATES.find(
@@ -91,9 +206,10 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     [selectedTemplate],
   );
 
-  const previewStatusText = previewLoading
-    ? 'Preparing PDF preview...'
-    : 'Preview refreshes automatically after edits.';
+  const previewStatusText =
+    previewLoading || shouldWaitForResources
+      ? 'Preparing PDF preview...'
+      : 'Preview refreshes automatically after edits and customization changes.';
 
   const revokePreviewUrl = useCallback(() => {
     if (previewObjectUrlRef.current) {
@@ -153,6 +269,9 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
             branchId,
             language,
             template: selectedTemplate,
+            config: pdfConfig,
+            elements: pdfElements,
+            amenities: pdfAmenities,
             force,
           },
         );
@@ -202,6 +321,9 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
       branchId,
       itinerary,
       language,
+      pdfAmenities,
+      pdfElements,
+      pdfConfig,
       revokePreviewUrl,
       selectedTemplate,
       toast,
@@ -242,6 +364,82 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     setSelectedTemplate(value as ItineraryPdfTemplate);
   }, []);
 
+  const handleConfigToggle = useCallback(
+    (
+      key: keyof ItineraryPdfRenderConfig,
+      checked: boolean | 'indeterminate',
+    ) => {
+      const nextChecked = checked === true;
+
+      setPdfConfig((current) => {
+        if (key === 'showCoverPage') {
+          return {
+            ...current,
+            showCoverPage: nextChecked,
+          };
+        }
+
+        if (key === 'showFooterPage') {
+          return {
+            ...current,
+            showFooterPage: nextChecked,
+          };
+        }
+
+        if (key === 'showAmenities') {
+          return {
+            ...current,
+            showAmenities: nextChecked,
+          };
+        }
+
+        if (key === 'showDayContent') {
+          if (!nextChecked && !current.showElements) {
+            return current;
+          }
+
+          return {
+            ...current,
+            showDayContent: nextChecked,
+            showElements: nextChecked ? false : current.showElements,
+          };
+        }
+
+        if (key === 'showElements') {
+          if (!nextChecked && !current.showDayContent) {
+            return current;
+          }
+
+          return {
+            ...current,
+            showElements: nextChecked,
+            showDayContent: nextChecked ? false : current.showDayContent,
+          };
+        }
+
+        return current;
+      });
+    },
+    [],
+  );
+
+  const handleLabelChange = useCallback(
+    (key: keyof ItineraryPdfLabels, value: string) => {
+      setPdfConfig((current) => ({
+        ...current,
+        labels: {
+          ...current.labels,
+          [key]: value,
+        },
+      }));
+    },
+    [],
+  );
+
+  const handleResetCustomize = useCallback(() => {
+    setPdfConfig(createDefaultPdfConfig());
+  }, []);
+
   const handleOpenEditSheet = useCallback(() => {
     setEditOpen(true);
   }, []);
@@ -280,6 +478,10 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
       return;
     }
 
+    if (shouldWaitForResources) {
+      return;
+    }
+
     void generatePreview(forcePreviewRefreshRef.current).finally(() => {
       forcePreviewRefreshRef.current = false;
     });
@@ -288,8 +490,10 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     itinerary,
     previewOpen,
     refreshNonce,
+    pdfConfig,
     selectedTemplate,
     shouldWaitForBranch,
+    shouldWaitForResources,
   ]);
 
   useEffect(() => {
@@ -371,7 +575,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
           </Dialog.Header>
 
           <div className="flex-1 min-h-0 bg-muted/30">
-            {previewLoading ? (
+            {previewLoading || shouldWaitForResources ? (
               <div className="flex items-center justify-center h-full">
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <Spinner />
@@ -407,8 +611,19 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
               <Button
                 variant="outline"
+                onClick={() => setCustomizeOpen(true)}
+                disabled={!itinerary}
+              >
+                <IconAdjustmentsHorizontal size={16} />
+                Customize
+              </Button>
+
+              <Button
+                variant="outline"
                 onClick={handleRefreshPreview}
-                disabled={previewLoading || !itinerary}
+                disabled={
+                  previewLoading || shouldWaitForResources || !itinerary
+                }
               >
                 {previewLoading ? <Spinner /> : <IconRefresh size={16} />}
                 Refresh
@@ -431,6 +646,15 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
+
+      <CustomizePdfDialog
+        open={customizeOpen}
+        onOpenChange={setCustomizeOpen}
+        pdfConfig={pdfConfig}
+        onConfigToggle={handleConfigToggle}
+        onLabelChange={handleLabelChange}
+        onReset={handleResetCustomize}
+      />
 
       <ItineraryEditSheet
         itineraryId={itinerary?._id}
