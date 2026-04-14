@@ -95,6 +95,14 @@ interface ICommontTr {
 export interface ITransaction extends ICommontTr {
   details: ITrDetail[];
   shortDetail?: ITrDetail;
+  customer?: {
+    _id: string;
+    code?: string;
+    primaryPhone?: string;
+    firstName?: string;
+    primaryEmail?: string;
+    lastName?: string;
+  };
 }
 
 export interface ITrRecord extends ICommontTr {

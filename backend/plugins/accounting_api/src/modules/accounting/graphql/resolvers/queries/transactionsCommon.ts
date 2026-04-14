@@ -191,7 +191,9 @@ const generateFilter = async (
     filter.updatedAt = updatedDateQry;
   }
 
-  // filter['details.accountId'] = { $in: await getAccountIds(models, params, user) }
+  filter['details.accountId'] = {
+    $in: await getAccountIds(models, params, user),
+  };
 
   if (journals?.length) {
     filter.journal = { $in: journals };
@@ -282,7 +284,7 @@ const generateFilter = async (
 };
 
 const transactionCommon = {
-  async accTransactionDetail(
+  async accTransactionsDetail(
     _root,
     params: { _id: string },
     { models, user }: IContext,
@@ -303,6 +305,22 @@ const transactionCommon = {
     }).lean();
 
     return await checkPermissionTrs(models, relatedTrs, user);
+  },
+
+  async accTransactionDetail(
+    _root,
+    params: { _id: string },
+    { models }: IContext,
+  ) {
+    const transaction = await models.Transactions.findOne({
+      _id: params._id,
+    }).lean();
+
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+
+    return transaction;
   },
 
   async accTransactionsMain(
