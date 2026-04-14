@@ -1,10 +1,9 @@
-import { ICommonFieldProps } from '../types/JournalForms';
-import { CurrencyField, Form, Input, Select } from 'erxes-ui';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { IAccount } from '@/settings/account/types/Account';
+import { CurrencyField, Form, Input, Select } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
-import { BankEnum } from '@/settings/account/types/Account';
+import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
+import { ICommonFieldProps } from '../types/JournalForms';
 
 export const AccountField = ({
   form,
