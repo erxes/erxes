@@ -71,7 +71,9 @@ export const FooterPage: React.FC<FooterPageProps> = React.memo(
           </View>
 
           <View style={editorialStyles.fixedFooter} fixed>
-            <Text style={editorialStyles.fixedFooterText}></Text>
+            <Text style={editorialStyles.fixedFooterText}>
+              {itineraryName || ''}
+            </Text>
             <Text
               style={editorialStyles.fixedFooterText}
               render={({ pageNumber, totalPages }) =>
@@ -93,7 +95,10 @@ export const FooterPage: React.FC<FooterPageProps> = React.memo(
             {config.labels.footerNotesTitle}
           </Text>
           <View
-            style={[styles.pageHeaderDivider, { backgroundColor: primaryColor }]}
+            style={[
+              styles.pageHeaderDivider,
+              { backgroundColor: primaryColor },
+            ]}
           />
         </View>
 

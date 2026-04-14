@@ -53,6 +53,8 @@ function formatAmount(amount?: number): string {
   return `${amount.toLocaleString()} USD`;
 }
 
+const TERMINAL_ORDER_STATUSES = new Set(['refunded', 'cancelled']);
+
 function StatusBadge({ status }: Readonly<{ status?: string }>) {
   const toneMap: Record<string, string> = {
     paid: 'border-emerald-500/15 bg-emerald-500/6 text-emerald-200',
@@ -159,6 +161,10 @@ export const OrderDetailSheet = ({
   const [noteValue, setNoteValue] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const initialEditStatus = TERMINAL_ORDER_STATUSES.has(order?.status || '')
+    ? order?.status ?? ''
+    : '';
+  const initialEditNote = order?.note || '';
 
   useEffect(() => {
     setStatusValue(order?.status || 'pending');
@@ -167,19 +173,15 @@ export const OrderDetailSheet = ({
   }, [order?._id, order?.status, order?.note, open]);
 
   const isDirty =
-    statusValue !== (order?.status || 'pending') ||
-    noteValue !== (order?.note || '');
+    statusValue !== initialEditStatus || noteValue !== initialEditNote;
+  const hasSelectedStatus = Boolean(statusValue);
 
   const handleEditOpenChange = (open: boolean) => {
     setEditOpen(open);
 
     if (open) {
-      setStatusValue(
-        order?.status === 'refunded' || order?.status === 'cancelled'
-          ? order.status
-          : 'cancelled',
-      );
-      setNoteValue(order?.note || '');
+      setStatusValue(initialEditStatus);
+      setNoteValue(initialEditNote);
     }
 
     setValidationError(null);
@@ -189,8 +191,12 @@ export const OrderDetailSheet = ({
     if (!orderId || !isDirty) return;
 
     const trimmedNote = noteValue.trim();
-    const requiresExplanation =
-      statusValue === 'cancelled' || statusValue === 'refunded';
+    if (!statusValue) {
+      setValidationError('Please select a terminal status before saving');
+      return;
+    }
+
+    const requiresExplanation = TERMINAL_ORDER_STATUSES.has(statusValue);
 
     if (requiresExplanation && !trimmedNote) {
       setValidationError(
@@ -213,8 +219,17 @@ export const OrderDetailSheet = ({
         variables: {
           id: orderId,
           order: {
+            branchId: order?.branchId,
+            customerId: order?.customerId,
+            tourId: order?.tourId,
+            amount: order?.amount,
             status: statusValue,
             note: trimmedNote,
+            numberOfPeople: order?.numberOfPeople,
+            type: order?.type,
+            additionalCustomers: order?.additionalCustomers,
+            isChild: order?.isChild,
+            parent: order?.parent,
           },
         },
       });
@@ -408,11 +423,17 @@ export const OrderDetailSheet = ({
               <div className="text-xs font-medium tracking-wide uppercase text-muted-foreground">
                 Status
               </div>
-              <Select value={statusValue} onValueChange={setStatusValue}>
+              <Select
+                value={statusValue || undefined}
+                onValueChange={(value) => {
+                  setStatusValue(value);
+                  if (validationError) {
+                    setValidationError(null);
+                  }
+                }}
+              >
                 <Select.Trigger>
-                  {ORDER_STATUS_OPTIONS.find(
-                    (option) => option.value === statusValue,
-                  )?.label || 'Select status'}
+                  <Select.Value placeholder="Select status" />
                 </Select.Trigger>
                 <Select.Content>
                   {ORDER_STATUS_OPTIONS.map((option) => (
@@ -460,7 +481,7 @@ export const OrderDetailSheet = ({
             <Button
               type="button"
               onClick={handleSave}
-              disabled={updating || !isDirty}
+              disabled={updating || !isDirty || !hasSelectedStatus}
             >
               {updating ? 'Saving...' : 'Save Changes'}
             </Button>
