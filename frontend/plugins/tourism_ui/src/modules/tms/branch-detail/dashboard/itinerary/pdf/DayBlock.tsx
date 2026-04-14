@@ -151,7 +151,9 @@ export const DayBlock: React.FC<DayBlockProps> = React.memo(
                     <Text style={styles.dayElementTitle}>
                       • {title}
                       {meta ? (
-                        <Text style={styles.dayElementMeta}>{` (${meta})`}</Text>
+                        <Text
+                          style={styles.dayElementMeta}
+                        >{` (${meta})`}</Text>
                       ) : null}
                     </Text>
                     {description ? (

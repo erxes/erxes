@@ -174,17 +174,17 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   );
   const shouldWaitForElements = Boolean(
     pdfConfig.showElements &&
-      previewOpen &&
-      branchId &&
-      elementsLoading &&
-      !elements.length,
+    previewOpen &&
+    branchId &&
+    elementsLoading &&
+    !elements.length,
   );
   const shouldWaitForAmenities = Boolean(
     pdfConfig.showAmenities &&
-      previewOpen &&
-      branchId &&
-      amenitiesLoading &&
-      !amenities.length,
+    previewOpen &&
+    branchId &&
+    amenitiesLoading &&
+    !amenities.length,
   );
   const shouldWaitForResources =
     shouldWaitForElements || shouldWaitForAmenities;
