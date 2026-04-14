@@ -163,7 +163,7 @@ export const OrderDetailSheet = ({
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const initialEditStatus = TERMINAL_ORDER_STATUSES.has(order?.status || '')
-    ? order?.status ?? ''
+    ? (order?.status ?? '')
     : '';
   const initialEditNote = order?.note || '';
   const hasLoadedOrder = Boolean(order?._id);
