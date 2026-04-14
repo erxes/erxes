@@ -12,21 +12,17 @@ export const useTransactionsBulkRemove = () => {
 
   const removeTransactions = async (transactions: any[]) => {
     try {
+      const uniqueParentIds = [...new Set(transactions.map((t) => t.parentId))];
       const results = await Promise.allSettled(
-        transactions.map((transaction) =>
+        uniqueParentIds.map((parentId) =>
           _removeTransactions({
-            variables: {
-              parentId: transaction.parentId,
-              ptrId: transaction.ptrId,
-            },
+            variables: { parentId },
             refetchQueries: [
               {
                 query: TRANSACTIONS_QUERY,
                 variables: {
                   limit: ACC_TRS__PER_PAGE,
-                  orderBy: {
-                    date: 1,
-                  },
+                  orderBy: { date: 1 },
                   cursor: '',
                 },
               },
