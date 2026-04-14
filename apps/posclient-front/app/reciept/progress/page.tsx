@@ -256,18 +256,18 @@ const Progress = () => {
   const renderGroups = forCustomer
     ? [{ items: items || [], title: "" }]
     : printSeparately && currentGroupIndex !== null
-    ? [
-        {
-          items: itemsToPrint[currentGroupIndex] || [],
-          title: groupTitles[currentGroupIndex],
-        },
-      ]
-    : itemsToPrint
-        .map((g, i) => ({
-          items: g,
-          title: groupTitles[i],
-        }))
-        .filter((g) => g.items.length > 0)
+      ? [
+          {
+            items: itemsToPrint[currentGroupIndex] || [],
+            title: groupTitles[currentGroupIndex],
+          },
+        ]
+      : itemsToPrint
+          .map((g, i) => ({
+            items: g,
+            title: groupTitles[i],
+          }))
+          .filter((g) => g.items.length > 0)
 
   return (
     <div className="space-y-1 text-[12px]">
