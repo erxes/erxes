@@ -1,9 +1,6 @@
 import React from 'react';
 import { Document } from '@react-pdf/renderer';
-import {
-  DEFAULT_ITINERARY_PDF_LABELS,
-  type ItineraryPDFProps,
-} from './types';
+import { DEFAULT_ITINERARY_PDF_CONFIG, type ItineraryPDFProps } from './types';
 import { CoverPage } from './CoverPage';
 import { ItineraryPage } from './ItineraryPage';
 import { FooterPage } from './FooterPage';
@@ -14,14 +11,7 @@ export const ItineraryPDF: React.FC<ItineraryPDFProps> = React.memo(
     itinerary,
     branch,
     template = 'classic',
-    config = {
-      showCoverPage: true,
-      showFooterPage: true,
-      showDayContent: true,
-      showElements: false,
-      showAmenities: false,
-      labels: DEFAULT_ITINERARY_PDF_LABELS,
-    },
+    config = DEFAULT_ITINERARY_PDF_CONFIG,
   }) {
     const name = itinerary.name || 'Untitled Itinerary';
     const isEditorial = template === 'editorial';

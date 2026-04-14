@@ -39,6 +39,15 @@ export const DEFAULT_ITINERARY_PDF_LABELS: ItineraryPdfLabels = {
   footerNotesTitle: 'ITINERARY NOTES',
 };
 
+export const DEFAULT_ITINERARY_PDF_CONFIG: ItineraryPdfRenderConfig = {
+  showCoverPage: true,
+  showFooterPage: true,
+  showDayContent: true,
+  showElements: false,
+  showAmenities: false,
+  labels: DEFAULT_ITINERARY_PDF_LABELS,
+};
+
 export interface ItineraryPdfRenderConfig {
   showCoverPage: boolean;
   showFooterPage: boolean;

@@ -15,14 +15,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
-import {
-  Button,
-  Dialog,
-  Label,
-  Select,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
+import { Button, Dialog, Label, Select, Spinner, useToast } from 'erxes-ui';
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
@@ -90,8 +83,9 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string>();
   const [selectedTemplate, setSelectedTemplate] =
     useState<ItineraryPdfTemplate>('classic');
-  const [pdfConfig, setPdfConfig] =
-    useState<ItineraryPdfRenderConfig>(createDefaultPdfConfig);
+  const [pdfConfig, setPdfConfig] = useState<ItineraryPdfRenderConfig>(
+    createDefaultPdfConfig,
+  );
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [refreshNonce, setRefreshNonce] = useState(0);
   const { toast } = useToast();
