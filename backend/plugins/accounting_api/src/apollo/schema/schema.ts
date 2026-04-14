@@ -43,6 +43,26 @@ import {
   queries as adjustClosingQueries,
   types as adjustClosingTypes,
 } from '~/modules/accounting/graphql/schemas/adjustClosing';
+import {
+  mutations as remainderMutations,
+  queries as remainderQueries,
+  types as remainderTypes,
+} from '~/modules/inventories/graphql/schemas/remainder';
+import {
+  mutations as reserveRemsMutations,
+  queries as reserveRemsQueries,
+  types as reserveRemsTypes,
+} from '~/modules/inventories/graphql/schemas/reserveRems';
+import {
+  mutations as safeRemainderMutations,
+  queries as safeRemainderQueries,
+  types as safeRemainderTypes,
+} from '~/modules/inventories/graphql/schemas/safeRemainder';
+import {
+  mutations as safeRemainderItemMutations,
+  queries as safeRemainderItemQueries,
+  types as safeRemainderItemTypes,
+} from '~/modules/inventories/graphql/schemas/safeRemainderItem';
 
 export const types = `
   enum CacheControlScope {
@@ -69,6 +89,10 @@ export const types = `
   ${adjustInventoryTypes}
   ${journalReportTypes}
   ${adjustClosingTypes}
+  ${remainderTypes}
+  ${reserveRemsTypes}
+  ${safeRemainderTypes}
+  ${safeRemainderItemTypes}
 `;
 
 export const queries = `
@@ -81,6 +105,10 @@ export const queries = `
   ${adjustInventoryQueries}
   ${journalReportQueries}
   ${adjustClosingQueries}
+  ${remainderQueries}
+  ${reserveRemsQueries}
+  ${safeRemainderQueries}
+  ${safeRemainderItemQueries}
 `;
 
 export const mutations = `
@@ -92,6 +120,10 @@ export const mutations = `
   ${accInventoryMutations}
   ${adjustInventoryMutations}
   ${adjustClosingMutations}
+  ${remainderMutations}
+  ${reserveRemsMutations}
+  ${safeRemainderMutations}
+  ${safeRemainderItemMutations}
 `;
 
 export default { types, queries, mutations };

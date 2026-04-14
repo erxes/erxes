@@ -7,8 +7,9 @@ import { TagsSelect } from 'ui-modules';
 
 const intersection = (arrays: string[][]): string[] => {
   if (arrays.length === 0) return [];
-  return arrays.reduce((common, current) =>
-    common.filter((item) => current.includes(item)),
+  return arrays.reduce(
+    (common, current) => common.filter((item) => current.includes(item)),
+    [],
   );
 };
 

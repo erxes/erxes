@@ -42,11 +42,13 @@ export type RenderMoreProps = {
   nodeExtra: any;
 };
 
-export const getRenderMoreHandler = (report: string): React.FC<RenderMoreProps> => {
+export const getRenderMoreHandler = (
+  report: string,
+): React.FC<RenderMoreProps> => {
   const handlers: any = {
     ac: HandleMainACMore,
-    tb: () => (<></>),
+    tb: () => <></>,
   };
 
   return handlers[report] || <></>;
-}
+};

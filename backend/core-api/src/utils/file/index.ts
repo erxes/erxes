@@ -1,3 +1,4 @@
+import { fileTypeFromBuffer } from 'file-type/core';
 import * as fs from 'fs';
 import { Jimp } from 'jimp';
 import { tmpdir } from 'os';
