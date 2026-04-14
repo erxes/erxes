@@ -27,6 +27,7 @@ export interface ItineraryPdfLabels {
   dayOverviewTitle: string;
   dayActivitiesTitle: string;
   footerNotesTitle: string;
+  footerPageCounter: string;
 }
 
 export const DEFAULT_ITINERARY_PDF_LABELS: ItineraryPdfLabels = {
@@ -37,6 +38,7 @@ export const DEFAULT_ITINERARY_PDF_LABELS: ItineraryPdfLabels = {
   dayOverviewTitle: 'Overview',
   dayActivitiesTitle: 'Activities',
   footerNotesTitle: 'ITINERARY NOTES',
+  footerPageCounter: 'Page {page} of {total}',
 };
 
 export const DEFAULT_ITINERARY_PDF_CONFIG: ItineraryPdfRenderConfig = {

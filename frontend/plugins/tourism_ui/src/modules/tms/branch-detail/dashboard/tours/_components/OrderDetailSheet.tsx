@@ -145,7 +145,7 @@ export const OrderDetailSheet = ({
 }: Props) => {
   const { toast } = useToast();
   const { confirm } = useConfirm();
-  const { order, loading, refetch } = useTourOrderDetail(
+  const { order, loading, error, refetch } = useTourOrderDetail(
     orderId ?? undefined,
     open,
   );
@@ -161,22 +161,50 @@ export const OrderDetailSheet = ({
   const [noteValue, setNoteValue] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
   const initialEditStatus = TERMINAL_ORDER_STATUSES.has(order?.status || '')
     ? order?.status ?? ''
     : '';
   const initialEditNote = order?.note || '';
+  const hasLoadedOrder = Boolean(order?._id);
+  const isBusy = updating || saving;
+  const missingOrderMessage = error
+    ? error.message
+    : 'Booking details could not be loaded for this order.';
 
   useEffect(() => {
-    setStatusValue(order?.status || 'pending');
-    setNoteValue(order?.note || '');
+    setStatusValue(initialEditStatus);
+    setNoteValue(initialEditNote);
     setValidationError(null);
-  }, [order?._id, order?.status, order?.note, open]);
+  }, [initialEditNote, initialEditStatus, order?._id, open]);
+
+  useEffect(() => {
+    if (!open || !order?._id) {
+      setEditOpen(false);
+      setValidationError(null);
+    }
+  }, [open, order?._id]);
 
   const isDirty =
     statusValue !== initialEditStatus || noteValue !== initialEditNote;
   const hasSelectedStatus = Boolean(statusValue);
+  const handleSheetOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen && isBusy) {
+      return;
+    }
+
+    onOpenChange(nextOpen);
+  };
 
   const handleEditOpenChange = (open: boolean) => {
+    if (!open && isBusy) {
+      return;
+    }
+
+    if (open && !order?._id) {
+      return;
+    }
+
     setEditOpen(open);
 
     if (open) {
@@ -188,7 +216,7 @@ export const OrderDetailSheet = ({
   };
 
   const handleSave = async () => {
-    if (!orderId || !isDirty) return;
+    if (!orderId || !order?._id || !isDirty) return;
 
     const trimmedNote = noteValue.trim();
     if (!statusValue) {
@@ -214,6 +242,7 @@ export const OrderDetailSheet = ({
       }
 
       setValidationError(null);
+      setSaving(true);
 
       await editOrder({
         variables: {
@@ -235,13 +264,13 @@ export const OrderDetailSheet = ({
       });
 
       await refetch?.();
+      await onUpdated?.();
 
       toast({
         title: 'Success',
         description: 'Booking details updated successfully',
       });
 
-      await onUpdated?.();
       setEditOpen(false);
     } catch (error) {
       if (error instanceof Error && error.message === 'Dialog closed') {
@@ -254,16 +283,46 @@ export const OrderDetailSheet = ({
           error instanceof Error ? error.message : 'Failed to update booking',
         variant: 'destructive',
       });
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleSheetOpenChange}>
       <Sheet.View className="w-[560px] sm:max-w-[560px] p-0">
         {loading ? (
           <div className="flex items-center justify-center h-full min-h-[300px]">
             <Spinner />
           </div>
+        ) : !hasLoadedOrder ? (
+          <>
+            <Sheet.Header>
+              <Sheet.Title>Order Details</Sheet.Title>
+              <Sheet.Close />
+            </Sheet.Header>
+
+            <Sheet.Content className="flex min-h-[260px] items-center justify-center px-6 py-4">
+              <div className="max-w-sm space-y-2 text-center">
+                <p className="text-sm text-muted-foreground">
+                  {missingOrderMessage}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Reload the booking list and try opening this order again.
+                </p>
+              </div>
+            </Sheet.Content>
+
+            <Sheet.Footer className="bg-background">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Close
+              </Button>
+            </Sheet.Footer>
+          </>
         ) : (
           <>
             <Sheet.Header>
@@ -392,7 +451,7 @@ export const OrderDetailSheet = ({
                 type="button"
                 variant="outline"
                 onClick={() => handleEditOpenChange(true)}
-                disabled={updating}
+                disabled={isBusy || !hasLoadedOrder}
               >
                 Edit
               </Button>
@@ -400,7 +459,7 @@ export const OrderDetailSheet = ({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={updating}
+                disabled={isBusy}
               >
                 Close
               </Button>
@@ -474,16 +533,18 @@ export const OrderDetailSheet = ({
               type="button"
               variant="outline"
               onClick={() => handleEditOpenChange(false)}
-              disabled={updating}
+              disabled={isBusy}
             >
               Close
             </Button>
             <Button
               type="button"
               onClick={handleSave}
-              disabled={updating || !isDirty || !hasSelectedStatus}
+              disabled={
+                isBusy || !isDirty || !hasSelectedStatus || !hasLoadedOrder
+              }
             >
-              {updating ? 'Saving...' : 'Save Changes'}
+              {isBusy ? 'Saving...' : 'Save Changes'}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

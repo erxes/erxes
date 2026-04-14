@@ -95,6 +95,11 @@ const LABEL_FIELDS: Array<{
     label: 'Footer page title',
     placeholder: 'ITINERARY NOTES',
   },
+  {
+    key: 'footerPageCounter',
+    label: 'Page counter',
+    placeholder: 'Page {page} of {total}',
+  },
 ];
 
 export const CustomizePdfDialog: React.FC<CustomizePdfDialogProps> = ({
