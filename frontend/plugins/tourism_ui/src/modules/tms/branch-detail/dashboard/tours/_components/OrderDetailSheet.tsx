@@ -162,7 +162,7 @@ export const OrderDetailSheet = ({
   const [validationError, setValidationError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const initialEditStatus = TERMINAL_ORDER_STATUSES.has(order?.status || '')
-    ? order?.status ?? ''
+    ? (order?.status ?? '')
     : '';
   const initialEditNote = order?.note || '';
 
