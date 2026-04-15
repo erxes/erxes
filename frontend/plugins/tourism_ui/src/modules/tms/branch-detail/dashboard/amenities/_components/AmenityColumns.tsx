@@ -10,11 +10,11 @@ import {
   RecordTableInlineCell,
   TextOverflowTooltip,
   Badge,
-  IconComponent,
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { IAmenity } from '../types/amenity';
 import { AmenityEditSheet } from './AmenityEditSheet';
+import { AmenityIcon } from './AmenityIconPicker';
 import { amenityMoreColumn } from './AmenityMoreCell';
 
 export const amenityColumns = (
@@ -36,7 +36,7 @@ export const amenityColumns = (
         <div className="flex justify-center items-center h-8">
           {iconName ? (
             <div className="flex justify-center items-center w-7 h-7 p-0.5 rounded border bg-muted/50">
-              <IconComponent name={iconName} size={18} />
+              <AmenityIcon name={iconName} size={18} />
             </div>
           ) : (
             <div className="flex justify-center items-center w-7 h-7 p-0.5 rounded border bg-muted/50 text-muted-foreground">
