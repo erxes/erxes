@@ -244,3 +244,9 @@ export const GET_TOUR_ORDERS = gql`
     }
   }
 `;
+
+export const GET_TOUR_ORDER_CUSTOMER_IDS = gql`
+  query BmsOrderCustomerIds($tourId: String!) {
+    bmsOrderCustomerIds(tourId: $tourId)
+  }
+`;

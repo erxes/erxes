@@ -47,6 +47,8 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
     branch: IBranch,
     refetch?: () => Promise<any>,
   ) => {
+    const prepaid = branch.prepaid ?? false;
+
     try {
       await duplicateBranch({
         variables: {
@@ -56,8 +58,8 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
           managerIds: branch.managerIds || [],
           paymentIds: branch.paymentIds || [],
           paymentTypes: branch.paymentTypes || [],
-          prepaid: branch.prepaid ?? false,
-          prepaidPercent: branch.prepaidPercent,
+          prepaid,
+          prepaidPercent: prepaid ? branch.prepaidPercent : undefined,
           erxesAppToken: branch.erxesAppToken,
           permissionConfig: branch.permissionConfig || [],
           uiOptions: branch.uiOptions || {},
