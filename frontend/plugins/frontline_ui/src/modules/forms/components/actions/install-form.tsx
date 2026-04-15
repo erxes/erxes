@@ -33,17 +33,17 @@ function CopyButton({
     <Button
       size="sm"
       variant="secondary"
-      className="absolute top-2 right-2"
+      className="top-2 right-2 absolute"
       onClick={handleCopy}
     >
       {copied ? (
         <>
-          <IconCheck className="w-4 h-4 mr-2" />
+          <IconCheck className="mr-2 w-4 h-4" />
           Copied!
         </>
       ) : (
         <>
-          <IconCopy className="w-4 h-4 mr-2" />
+          <IconCopy className="mr-2 w-4 h-4" />
           {label}
         </>
       )}
@@ -118,21 +118,21 @@ export function FormInstallScript({
           <div className="space-y-5">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0">
+                <span className="flex justify-center items-center bg-primary rounded-full w-5 h-5 font-bold text-primary-foreground text-xs shrink-0">
                   1
                 </span>
-                <p className="text-sm font-medium">
+                <p className="font-medium text-sm">
                   Add the loader script to your HTML
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground pl-7">
+              <p className="pl-7 text-muted-foreground text-xs">
                 Paste this snippet just before the closing{' '}
                 <code className="bg-muted px-1 rounded">{'</body>'}</code> tag.
                 It loads the form widget asynchronously without blocking your
                 page.
               </p>
               <div className="relative pl-7">
-                <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
+                <pre className="bg-muted p-4 rounded-lg overflow-x-auto font-mono text-sm">
                   <code>{script}</code>
                 </pre>
                 <CopyButton text={script} />
@@ -141,28 +141,28 @@ export function FormInstallScript({
 
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0">
+                <span className="flex justify-center items-center bg-primary rounded-full w-5 h-5 font-bold text-primary-foreground text-xs shrink-0">
                   2
                 </span>
-                <p className="text-sm font-medium">
+                <p className="font-medium text-sm">
                   Place the embed element where the form should appear
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground pl-7">
+              <p className="pl-7 text-muted-foreground text-xs">
                 Add this element anywhere in your page body. The form will
                 render inside it.
               </p>
               <div className="relative pl-7">
-                <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
+                <pre className="bg-muted p-4 rounded-lg overflow-x-auto font-mono text-sm">
                   <code>{embed}</code>
                 </pre>
-                <CopyButton text={embed} />
+                <CopyButton text={embed} label="Copy embed code" />
               </div>
             </div>
 
-            <Badge variant="info" className="block w-full h-auto p-3">
-              <h4 className="font-medium text-sm mb-2">Quick checklist</h4>
-              <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
+            <Badge variant="info" className="block p-3 w-full h-auto">
+              <h4 className="mb-2 font-medium text-sm">Quick checklist</h4>
+              <ul className="space-y-1 text-muted-foreground text-sm list-disc list-inside">
                 <li>
                   Loader script is placed before{' '}
                   <code className="bg-muted px-1 rounded">{'</body>'}</code>
