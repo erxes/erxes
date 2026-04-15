@@ -6,7 +6,7 @@ import validator from 'validator';
 
 dotenv.config();
 
-export const readFileUrl = (value: string) => {
+export const readFileUrl = (value: string, subdomain: string) => {
   if (!value || isValidURL(value) || validator.isURL(value)) {
     return value;
   }
@@ -15,13 +15,15 @@ export const readFileUrl = (value: string) => {
     name: 'DOMAIN',
   });
 
-  return `${DOMAIN}/gateway/read-file?key=${value}`;
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+  return `${domain}/gateway/read-file?key=${encodeURIComponent(value)}`;
 };
 
-const prepareAttachments = (attachments: IAttachment[] = []) => {
+const prepareAttachments = (attachments: IAttachment[] = [], subdomain: string) => {
   return attachments.map((file) => ({
     filename: file.name || '',
-    path: readFileUrl(file.url || ''),
+    path: readFileUrl(file.url || '', subdomain),
   }));
 };
 
@@ -90,7 +92,7 @@ export const prepareEmailParams = (
     to: (customer?.primaryEmail || '').toLocaleLowerCase().trim(),
     replyTo,
     subject: replacedSubject,
-    attachments: prepareAttachments(attachments),
+    attachments: prepareAttachments(attachments, subdomain),
     html: replacedContent,
     headers: prepareEmailHeader(subdomain, customer._id, _id, configSet),
   };

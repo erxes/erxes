@@ -1,9 +1,9 @@
-import { ICommonFieldProps } from '../types/JournalForms';
-import { CurrencyField, Form, Input, Select } from 'erxes-ui';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { IAccount } from '@/settings/account/types/Account';
+import { CurrencyField, Form, Input, Select } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
+import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
+import { ICommonFieldProps } from '../types/JournalForms';
 
 export const AccountField = ({
   form,
@@ -230,3 +230,45 @@ export const DescriptionField = ({ form, index }: ICommonFieldProps) => (
     )}
   />
 );
+
+export const BankField = ({ form, index }: ICommonFieldProps) => {
+  return (
+    <>
+      <Form.Field
+        control={form.control}
+        name={`trDocs.${index}.extraData.bank`}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Bank</Form.Label>
+            <Form.Control>
+              <Input
+                placeholder="Enter bank name"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={form.control}
+        name={`trDocs.${index}.extraData.bankAccount`}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Bank Account</Form.Label>
+            <Form.Control>
+              <Input
+                placeholder="Enter bank account number"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </>
+  );
+};

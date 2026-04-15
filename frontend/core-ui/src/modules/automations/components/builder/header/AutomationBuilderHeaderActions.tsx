@@ -7,12 +7,14 @@ import { useAutomationNodeLibrarySidebar } from '@/automations/components/builde
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
 import { AUTOMATION_LIBRARY_TABS } from '@/automations/constants';
 import { IconBolt } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderHeaderActions = () => {
   const { control } = useFormContext<TAutomationBuilderForm>();
   const activeTab = useAtomValue(automationBuilderActiveTabState);
   const { setQueryParams, activeNodeTab } = useAutomationNodeLibrarySidebar();
   const { setIsOpenSideBar, handleClose } = useAutomationBuilderSidebarHooks();
+  const { t } = useTranslation('automations');
   if (activeTab !== 'builder') {
     return null;
   }
@@ -27,7 +29,7 @@ export const AutomationBuilderHeaderActions = () => {
             <Form.Item>
               <Form.Control>
                 <div className="flex items-center space-x-2">
-                  <Label htmlFor="mode">Inactive</Label>
+                  <Label htmlFor="mode">{t('inactive')}</Label>
                   <Switch
                     id="mode"
                     onCheckedChange={(open) =>
