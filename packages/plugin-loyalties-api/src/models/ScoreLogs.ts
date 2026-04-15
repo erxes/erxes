@@ -316,7 +316,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      let ownerScore = Number(owner.score) ?? 0;
+      let ownerScore = 0;
 
       const campaignFilter: any = { status: SCORE_CAMPAIGN_STATUSES.PUBLISHED };
       const usedCustomFieldIds: string[] = [];
@@ -342,8 +342,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerScore += campaignScore;
       }
 
-      const oldScore = Number(ownerScore) || 0;
-      const newScore = oldScore + score;
+      const newScore = (Number(ownerScore) || 0) + score;
 
       if (score < 0 && newScore < 0) {
         throw new Error(`score are not enough`);
@@ -351,33 +350,15 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const response = await this.updateOwnerScore({
         subdomain,
-        ownerId,
+        owner,
         ownerType,
-        newScore,
-        campaignId,
+        score,
+        usedCustomFieldIds,
       });
 
       if (!response || !Object.keys(response || {})?.length) {
         throw new Error("Something went wrong for give score");
       }
-
-      await sendCoreMessage({
-        subdomain,
-        action: "customers.updateOne",
-        data: {
-          selector: { _id: ownerId },
-          modifier: {
-            customFieldsData: owner.customFieldsData.map((item) => item.field === usedCustomFieldIds[0] ? {
-              ...item,
-              "value": newScore,
-              "stringValue": `${newScore}`,
-              "numberValue": newScore,
-            } : item)
-          },
-        },
-        isRPC: true,
-        defaultValue: null,
-      });
 
       return await models.ScoreLogs.create({
         ownerId,
@@ -396,9 +377,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     static async updateOwnerScore({
       subdomain,
       ownerType,
-      ownerId,
-      newScore,
-      campaignId,
+      owner,
+      score,
+      usedCustomFieldIds,
     }) {
       const updateEntity = async (
         action: string,
@@ -413,65 +394,36 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           defaultValue: null,
         });
 
-      const modifier: any = { $set: { score: newScore } };
-      const selector: {
-        _id: string;
-      } = { _id: ownerId };
 
-      if (campaignId) {
-        const campaign = await models.ScoreCampaigns.findOne({
-          _id: campaignId,
-        });
+      const selector = { _id: owner._id };
 
-        if (!campaign?.fieldId) {
-          throw new Error(
-            "Something went wrong when trying to find campaign field"
-          );
+      let updatedCustomFieldsData = owner.customFieldsData;
+      if (score > 0) {
+        updatedCustomFieldsData = updatedCustomFieldsData.map(cfd => cfd.field === usedCustomFieldIds[0] ? {
+          ...cfd,
+          value: Number(cfd.value) + score,
+          stringValue: `${Number(cfd.value) + score}`,
+          numberValue: Number(cfd.value) + score,
+        } : cfd)
+      } else {
+        let remaining = Math.abs(score);
+        for (const cfd of updatedCustomFieldsData) {
+          if (!remaining) break;
+
+          if (!usedCustomFieldIds.includes(cfd.field)) {
+            continue
+          }
+
+          const deduct = Math.min(Number(cfd.value), remaining);
+          const newValue = cfd.value - deduct;
+          cfd.value = newValue;
+          cfd.stringValue = `${newValue}`;
+          cfd.numberValue = newValue;
+          remaining -= deduct;
         }
-
-        const prepareCustomFieldsData = await sendCoreMessage({
-          subdomain,
-          action: "fields.prepareCustomFieldsData",
-          data: [{ field: campaign.fieldId, value: newScore }],
-          isRPC: true,
-          defaultValue: [],
-        });
-
-        if (!prepareCustomFieldsData[0]) {
-          throw new Error(
-            "Something went wrong when preparing score field data"
-          );
-        }
-
-        const prepareCustomFieldData: { field: string; value: number } =
-          prepareCustomFieldsData[0];
-
-        const owner = await getOwner(subdomain, ownerType, ownerId);
-
-        const { customFieldsData } = owner || {};
-        let updatedCustomFieldsData;
-
-        if (
-          !customFieldsData ||
-          !(customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId
-          )
-        ) {
-          updatedCustomFieldsData = [
-            ...(customFieldsData || []),
-            prepareCustomFieldData,
-          ];
-        } else {
-          updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-            customFieldData.field === campaign.fieldId
-              ? { ...customFieldData, ...prepareCustomFieldData }
-              : customFieldData
-          );
-        }
-
-        modifier.$set["customFieldsData"] = updatedCustomFieldsData || [];
-        delete modifier.$set.score;
       }
+
+      const modifier = { $set: { customFieldsData: updatedCustomFieldsData } };
 
       if (ownerType === "user") {
         return await updateEntity("users.updateOne", selector, modifier);
@@ -487,7 +439,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: "clientPortalUsers.findOne",
           data: {
-            _id: ownerId,
+            _id: owner._id,
           },
           isRPC: true,
           defaultValue: null,
