@@ -48,11 +48,21 @@ export const loadBranchClass = (models: IModels) => {
     public static async edit(_id: string, doc: IBranch) {
       await models.Branches.get({ _id });
 
-      await models.Branches.updateOne(
-        { _id },
-        { $set: { ...doc } },
-        { runValidators: true },
-      );
+      const updateDoc: {
+        $set: Partial<IBranch>;
+        $unset?: Record<string, 1>;
+      } = {
+        $set: { ...doc },
+      };
+
+      if (!doc.prepaid || doc.prepaidPercent == null) {
+        delete updateDoc.$set.prepaidPercent;
+        updateDoc.$unset = { prepaidPercent: 1 };
+      }
+
+      await models.Branches.updateOne({ _id }, updateDoc, {
+        runValidators: true,
+      });
 
       return models.Branches.findOne({ _id }).lean();
     }

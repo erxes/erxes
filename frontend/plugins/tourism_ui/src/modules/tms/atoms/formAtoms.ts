@@ -13,6 +13,8 @@ export type TmsForm = {
   generalManager: string[];
   managers: string[];
   payment: string[];
+  prepaid: boolean;
+  prepaidPercent?: number;
   token: string;
   otherPayments: Array<{
     type: string;
@@ -31,6 +33,8 @@ const DEFAULT_STORAGE_FORM: TmsFormStorage = {
   generalManager: [],
   managers: [],
   payment: [],
+  prepaid: false,
+  prepaidPercent: undefined,
   token: '',
   otherPayments: [],
 };

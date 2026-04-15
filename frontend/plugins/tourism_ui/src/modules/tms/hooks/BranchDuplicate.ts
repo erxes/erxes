@@ -10,6 +10,8 @@ interface DuplicateBranchVariables {
   managerIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
+  prepaid?: boolean;
+  prepaidPercent?: number | null;
   erxesAppToken?: string;
   permissionConfig?: any[];
   uiOptions?: Record<string, any>;
@@ -54,6 +56,8 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
           managerIds: branch.managerIds || [],
           paymentIds: branch.paymentIds || [],
           paymentTypes: branch.paymentTypes || [],
+          prepaid: branch.prepaid ?? false,
+          prepaidPercent: branch.prepaidPercent,
           erxesAppToken: branch.erxesAppToken,
           permissionConfig: branch.permissionConfig || [],
           uiOptions: branch.uiOptions || {},
