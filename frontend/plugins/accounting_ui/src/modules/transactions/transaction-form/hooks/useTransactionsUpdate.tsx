@@ -1,8 +1,11 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { ACC_TRANSACTIONS_UPDATE } from '../graphql/mutations/accTransactionsUpdate';
 import { toast } from 'erxes-ui';
-import { TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
-import { ACC_TRS__PER_PAGE } from '../../types/constants';
+import {
+  TRANSACTIONS_QUERY,
+  TR_RECORDS_QUERY,
+} from '../../graphql/transactionQueries';
+import { TRANSACTIONS_DETAIL_QUERY } from '../graphql/queries/accTransactionsDetail';
 
 export const useTransactionsUpdate = (options?: OperationVariables) => {
   const [_updateTransaction, { loading }] = useMutation(
@@ -32,13 +35,14 @@ export const useTransactionsUpdate = (options?: OperationVariables) => {
         {
           query: TRANSACTIONS_QUERY,
           variables: {
-            limit: ACC_TRS__PER_PAGE,
-            orderBy: {
-              date: 1,
-            },
-            cursor: '',
+            page: 1,
+            perPage: 20,
           },
         },
+        {
+          query: TR_RECORDS_QUERY,
+        },
+        TRANSACTIONS_DETAIL_QUERY,
       ],
       awaitRefetchQueries: true,
     });

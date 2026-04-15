@@ -1,6 +1,7 @@
 import { IconAlertCircle, IconX } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface NodeErrorDisplayProps {
   error: string;
@@ -16,6 +17,7 @@ export const NodeErrorDisplay = ({
   className,
 }: NodeErrorDisplayProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation('automations');
 
   return (
     <div className={cn('relative', className)}>
@@ -26,7 +28,7 @@ export const NodeErrorDisplay = ({
         title={error}
       >
         <IconAlertCircle className="size-3" />
-        <span className="text-xs font-medium">Configuration Error</span>
+        <span className="text-xs font-medium">{t('configuration-error')}</span>
         <span className="text-xs text-red-500 ml-auto">
           {isExpanded ? '−' : '+'}
         </span>
