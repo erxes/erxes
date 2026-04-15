@@ -77,7 +77,7 @@ export function useBranchSubmit({
       managerIds: data.managers || [],
       paymentIds: Array.isArray(data.payment) ? data.payment : [],
       prepaid: data.prepaid ?? false,
-      prepaidPercent: data.prepaid ? data.prepaidPercent ?? null : null,
+      prepaidPercent: data.prepaid ? (data.prepaidPercent ?? null) : null,
       permissionConfig,
       language: data.mainLanguage || '',
       languages: Array.isArray(data.language) ? data.language : [],
