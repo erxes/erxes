@@ -1,4 +1,4 @@
-import { reportStartDateAtom, reportEndDateAtom } from "@/store"
+import { reportEndDateAtom, reportStartDateAtom } from "@/store"
 import { paymentTypesAtom } from "@/store/config.store"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
@@ -14,7 +14,15 @@ const Flex = ({
 }: {
   children: React.ReactNode
   className?: string
-}) => <div className="flex items-center justify-between">{children}</div>
+}) => (
+  <div
+    className={`report-print__row flex items-start justify-between gap-2 ${
+      className || ""
+    }`.trim()}
+  >
+    {children}
+  </div>
+)
 
 type ReportProduct = {
   name?: string | null
@@ -78,23 +86,34 @@ const Receipt = ({ date, report }: any) => {
 
   const renderAmounts = (amounts: any) => {
     return (
-      <div className="pt-4 md:pt-0">
+      <div className="report-print__section pt-3 md:pt-0">
         <Flex>
           {`Бэлнээр: `}
-          <span>{formatNum(amounts.cashAmount)}</span>
+          <span className="report-print__value tabular-nums">
+            {formatNum(amounts.cashAmount)}
+          </span>
         </Flex>
         <Flex>
-          {`Цахимаар: `} <span>{formatNum(amounts.mobileAmount)}</span>
+          {`Цахимаар: `}
+          <span className="report-print__value tabular-nums">
+            {formatNum(amounts.mobileAmount)}
+          </span>
         </Flex>
         {(amounts.cardAmount && (
           <Flex>
-            {`Картаар: `} <span>{formatNum(amounts.cardAmount)}</span>
+            {`Картаар: `}
+            <span className="report-print__value tabular-nums">
+              {formatNum(amounts.cardAmount)}
+            </span>
           </Flex>
         )) ||
           ""}
         {(amounts.receivableAmount && (
           <Flex>
-            {`Картаар: `} <span>{formatNum(amounts.receivableAmount)}</span>
+            {`Картаар: `}
+            <span className="report-print__value tabular-nums">
+              {formatNum(amounts.receivableAmount)}
+            </span>
           </Flex>
         )) ||
           ""}
@@ -112,15 +131,23 @@ const Receipt = ({ date, report }: any) => {
                   }
                 ).title
               }: `}
-              <span>{formatNum(amounts[type])}</span>
+              <span className="report-print__value tabular-nums">
+                {formatNum(amounts[type])}
+              </span>
             </Flex>
           ))}
 
         <Flex>
-          {`Нийт: `} <span>{formatNum(amounts.totalAmount)}</span>
+          {`Нийт: `}
+          <span className="report-print__value tabular-nums">
+            {formatNum(amounts.totalAmount)}
+          </span>
         </Flex>
         <Flex>
-          {`Б.тоо: `} <span>{formatNum(amounts.count)}</span>
+          {`Б.тоо: `}
+          <span className="report-print__value tabular-nums">
+            {formatNum(amounts.count)}
+          </span>
         </Flex>
       </div>
     )
@@ -129,10 +156,13 @@ const Receipt = ({ date, report }: any) => {
   const renderProduct = (product: ReportProduct) => {
     return (
       <Flex
-        className="printDocument-product"
+        className="report-print__product pl-2"
         key={product.code || product.name}
       >
-        {`${getProductLabel(product)}: `} <span>{formatNum(product.count)}</span>
+        {`${getProductLabel(product)}: `}{" "}
+        <span className="report-print__value tabular-nums">
+          {formatNum(product.count)}
+        </span>
       </Flex>
     )
   }
@@ -140,8 +170,8 @@ const Receipt = ({ date, report }: any) => {
   const renderCategory = (category: any) => {
     return (
       <>
-       <div key={Math.random()} className="category">
-          <b>
+        <div key={Math.random()} className="report-print__category">
+          <b className="font-semibold">
             {`Барааны бүлэг: `} {category.name}
           </b>
         </div>
@@ -155,8 +185,8 @@ const Receipt = ({ date, report }: any) => {
 
   const renderUser = (item: any) => {
     return (
-      <div key={Math.random()} className="block printDocument-user">
-        <b className="flex-v-center">
+      <div key={Math.random()} className="report-print__user block">
+        <b className="flex-v-center font-semibold">
           <span>{`Хэрэглэгч: `}</span>
           <span>{item.user.email}</span>
         </b>
@@ -169,21 +199,29 @@ const Receipt = ({ date, report }: any) => {
   //   <div className="h-full px-1 mx-4 overflow-auto print:overflow-visible print:mx-0">
 
   return (
- <PrintLayout>
-      <header className="block">
-        <div className="text-xs font-bold">Өдрийн тайлан</div>
-        <p>
-          Хамаарах:{" "}
-          <b>{format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} - {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}</b>
-        </p>
-        <p>Хэвлэсэн: {format(new Date(), "yyyy.MM.dd HH:mm")}</p>
-      </header>
-      {Object.keys(report || {}).map((userId) => renderUser(report[userId]))}
-      <footer className="space-y-1">
-        <p>
-          <label>Гарын үсэг:</label>
+    <PrintLayout>
+      <div className="report-print">
+        <header className="block border-b border-black/15 pb-2">
+          <div className="report-print__title">Өдрийн тайлан</div>
+          <p className="report-print__meta">
+            Хамаарах:{" "}
+            <b className="font-semibold">
+              {format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} -{" "}
+              {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}
+            </b>
+          </p>
+          <p className="report-print__meta">
+            Хэвлэсэн:{" "}
+            <b className="font-semibold">
+              {format(new Date(), "yyyy.MM.dd HH:mm")}
+            </b>
+          </p>
+        </header>
+        {Object.keys(report || {}).map((userId) => renderUser(report[userId]))}
+        <footer className="report-print__signature space-y-1">
+          <label className="font-semibold">Гарын үсэг:</label>
           <span> _____________________</span>
-        </p>
+        </footer>
 
         <Button
           onClick={() => window.print()}
@@ -192,7 +230,7 @@ const Receipt = ({ date, report }: any) => {
         >
           Хэвлэх
         </Button>
-      </footer>
+      </div>
     </PrintLayout>
   )
 }

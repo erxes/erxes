@@ -1295,6 +1295,8 @@ const orderMutations: Record<string, Resolver> = {
       throw new Error('Order return admin required');
     }
 
+    const trimmedDescription = description?.trim();
+
     let order = await models.Orders.getOrder(_id);
 
     if (order.returnInfo?.returnAt) {
@@ -1341,7 +1343,7 @@ const orderMutations: Record<string, Resolver> = {
           paidAmounts,
           returnAt: new Date(),
           returnBy: posUser._id,
-          description,
+          description: trimmedDescription || undefined,
         },
         cashAmount: cashAmount
           ? (order.cashAmount || 0) - Number(cashAmount.toFixed(2))
