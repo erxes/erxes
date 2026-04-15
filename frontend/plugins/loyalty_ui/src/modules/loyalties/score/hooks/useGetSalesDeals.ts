@@ -1,5 +1,25 @@
-import { useQuery } from '@apollo/client';
-import { GET_SALES_DEALS } from '../graphql/salesQueries';
+import { useQuery, gql } from '@apollo/client';
+
+const GET_SALES_DEALS = gql`
+  query SalesDeals(
+    $search: String
+    $pipelineId: String
+    $stageId: String
+  ) {
+    deals(
+      search: $search
+      pipelineId: $pipelineId
+      stageId: $stageId
+    ) {
+      list {
+        _id
+        name
+        number
+        stageId
+      }
+    }
+  }
+`;
 
 interface IDeal {
   _id: string;
@@ -8,24 +28,20 @@ interface IDeal {
   stageId: string;
 }
 
-export const useGetSalesDeals = ({
-  pipelineId,
-  stageId,
-  searchValue,
-  skip,
-}: {
+interface IParams {
+  search?: string;
   pipelineId?: string;
   stageId?: string;
-  searchValue?: string;
-  skip?: boolean;
-}) => {
-  const { data, loading, error } = useQuery<{ salesDeals: IDeal[] }>(
+}
+
+export const useGetSalesDeals = (params: IParams) => {
+  const { data, loading, error } = useQuery<{ deals: { list: IDeal[] } }>(
     GET_SALES_DEALS,
     {
-      variables: { pipelineId, stageId, searchValue: searchValue || undefined },
-      skip: skip || !pipelineId,
+      variables: params,
+      skip: !params.pipelineId && !params.stageId,
       errorPolicy: 'all',
     },
   );
-  return { deals: data?.salesDeals || [], loading, error };
+  return { deals: data?.deals?.list || [], loading, error };
 };

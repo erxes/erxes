@@ -18,9 +18,9 @@ export const useScoreList = () => {
       scoreDate,
       scoreOrderType,
       scoreAction,
-      scoreStageId,
-      scorePipelineId,
       scoreBoardId,
+      scorePipelineId,
+      scoreStageId,
       number,
       description,
     },
@@ -31,9 +31,9 @@ export const useScoreList = () => {
     scoreDate: string;
     scoreOrderType: string;
     scoreAction: string;
-    scoreStageId: string;
-    scorePipelineId: string;
     scoreBoardId: string;
+    scorePipelineId: string;
+    scoreStageId: string;
     number: string;
     description: string;
   }>([
@@ -43,9 +43,9 @@ export const useScoreList = () => {
     'scoreDate',
     'scoreOrderType',
     'scoreAction',
-    'scoreStageId',
-    'scorePipelineId',
     'scoreBoardId',
+    'scorePipelineId',
+    'scoreStageId',
     'number',
     'description',
   ]);
@@ -61,9 +61,9 @@ export const useScoreList = () => {
       toDate: dateRange?.to?.toISOString() || undefined,
       orderType: scoreOrderType || undefined,
       action: scoreAction || undefined,
-      stageId: scoreStageId || undefined,
-      pipelineId: scorePipelineId || undefined,
       boardId: scoreBoardId || undefined,
+      pipelineId: scorePipelineId || undefined,
+      stageId: scoreStageId || undefined,
       number: number || undefined,
       description: description || undefined,
     },

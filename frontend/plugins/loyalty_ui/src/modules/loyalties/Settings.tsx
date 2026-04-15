@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router';
+import { Routes, Route } from 'react-router';
 import { lazy, Suspense } from 'react';
 import { Spinner } from 'erxes-ui';
 import { LoyaltyMainLayout } from './components/LoyaltyMainLayout';
@@ -62,7 +62,6 @@ const LoyaltySettingsRoutes = () => {
     >
       <LoyaltyMainLayout>
         <Routes>
-          <Route index element={<Navigate to="vouchers" replace />} />
           <Route path="vouchers" element={<VoucherPage />} />
           <Route path="lotteries" element={<LotteryPage />} />
           <Route path="spins" element={<SpinPage />} />
@@ -71,7 +70,6 @@ const LoyaltySettingsRoutes = () => {
           <Route path="assignments" element={<AssignmentPage />} />
           <Route path="agents" element={<AgentPage />} />
           <Route path="coupons" element={<CouponPage />} />
-          <Route path="/*" element={<Navigate to="vouchers" replace />} />
         </Routes>
       </LoyaltyMainLayout>
     </Suspense>
