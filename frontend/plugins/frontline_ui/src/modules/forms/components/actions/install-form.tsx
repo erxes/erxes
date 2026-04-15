@@ -156,7 +156,7 @@ export function FormInstallScript({
                 <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
                   <code>{embed}</code>
                 </pre>
-                <CopyButton text={embed} label='Copy embed code' />
+                <CopyButton text={embed} label="Copy embed code" />
               </div>
             </div>
 
