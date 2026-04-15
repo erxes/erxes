@@ -3,7 +3,12 @@ import { pdf } from '@react-pdf/renderer';
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 import { ItineraryPDF } from './ItineraryPDF';
 import { convertImagesToBase64 } from './utils';
-import type { ItineraryPdfTemplate } from './types';
+import type {
+  ItineraryPdfAmenityData,
+  ItineraryPdfElementData,
+  ItineraryPdfRenderConfig,
+  ItineraryPdfTemplate,
+} from './types';
 
 interface BranchDetailLike {
   _id?: string;
@@ -70,6 +75,7 @@ export const generateItineraryPdfCacheKey = (
   branchId?: string,
   language?: string,
   template: ItineraryPdfTemplate = 'classic',
+  config?: ItineraryPdfRenderConfig,
 ) =>
   [
     itinerary._id,
@@ -77,6 +83,7 @@ export const generateItineraryPdfCacheKey = (
     branchId || itinerary.branchId || '',
     language || itinerary.language || 'default',
     template,
+    JSON.stringify(config || {}),
   ].join(':');
 
 export const buildItineraryPdfBlob = async ({
@@ -85,6 +92,9 @@ export const buildItineraryPdfBlob = async ({
   branchId,
   language,
   template = 'classic',
+  config,
+  elements,
+  amenities,
   force = false,
 }: {
   itinerary: IItineraryDetail;
@@ -92,6 +102,9 @@ export const buildItineraryPdfBlob = async ({
   branchId?: string;
   language?: string;
   template?: ItineraryPdfTemplate;
+  config?: ItineraryPdfRenderConfig;
+  elements?: ItineraryPdfElementData[];
+  amenities?: ItineraryPdfAmenityData[];
   force?: boolean;
 }): Promise<BuildItineraryPdfResult> => {
   const cacheKey = generateItineraryPdfCacheKey(
@@ -99,6 +112,7 @@ export const buildItineraryPdfBlob = async ({
     branchId,
     language,
     template,
+    config,
   );
 
   if (!force) {
@@ -115,6 +129,12 @@ export const buildItineraryPdfBlob = async ({
   }
 
   const imageLoadStats = createImageLoadStats();
+  const elementMap = new Map(
+    (elements || []).map((element) => [element._id, element]),
+  );
+  const amenityMap = new Map(
+    (amenities || []).map((amenity) => [amenity._id, amenity]),
+  );
 
   const groupDaysWithImages = await Promise.all(
     (itinerary.groupDays || []).map(async (day) => {
@@ -128,6 +148,20 @@ export const buildItineraryPdfBlob = async ({
       return {
         ...day,
         base64Images: base64Image ? [base64Image] : [],
+        resolvedElements: (day.elements || [])
+          .slice()
+          .sort((a, b) => (a.orderOfDay || 0) - (b.orderOfDay || 0))
+          .map((item) => item.elementId && elementMap.get(item.elementId))
+          .filter((element): element is ItineraryPdfElementData =>
+            Boolean(element),
+          ),
+        resolvedAmenities: (day.elementsQuick || [])
+          .slice()
+          .sort((a, b) => (a.orderOfDay || 0) - (b.orderOfDay || 0))
+          .map((item) => item.elementId && amenityMap.get(item.elementId))
+          .filter((amenity): amenity is ItineraryPdfAmenityData =>
+            Boolean(amenity),
+          ),
       };
     }),
   );
@@ -153,6 +187,7 @@ export const buildItineraryPdfBlob = async ({
         mainLogoBase64,
       }}
       template={template}
+      config={config}
     />,
   ).toBlob();
 

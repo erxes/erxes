@@ -64,9 +64,6 @@ export default class CurrencyTr {
       defaultValue: {},
     });
 
-    if (!this.spotRate?.rate) {
-      throw new Error('not found spot rate');
-    }
     const spotRate = this.spotRate.rate;
 
     if (

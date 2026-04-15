@@ -229,6 +229,7 @@ export const queries = `
   bmsTourCategories(parentId: String, name: String, branchId: String, language: String): [TourCategory]
   bmsOrders(tourId: String, customerId: String, branchId: String, ${GQL_CURSOR_PARAM_DEFS}): BmsOrderListResponse
   bmsOrderDetail(_id: String!): BmsOrder
+  bmsOrderCustomerIds(tourId: String!): [String]
   bmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, language: String): GroupTour
   bmToursGroupDetail(groupCode: String, status: String, language: String): GroupTourItem
 

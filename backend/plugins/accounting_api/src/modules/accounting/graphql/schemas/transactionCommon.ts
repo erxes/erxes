@@ -221,7 +221,8 @@ export const queries = `
     sortField: String
     sortDirection: Int
   ): [AccCommonTransaction]
-  accTransactionDetail(_id: String!): [AccCommonTransaction]
+  accTransactionsDetail(_id: String!): [AccCommonTransaction]
+  accTransactionDetail(_id:String!): AccCommonTransaction
   accTransactionsCount(${trsQueryParams}): Int
   accTrRecordsMain(
     ${trRecsQueryParams},

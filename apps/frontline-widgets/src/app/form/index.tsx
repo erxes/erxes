@@ -24,7 +24,9 @@ export const Form = () => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.fromPublisher) {
-        setSettings(event.data.settings || {});
+        if (event.data.settings) {
+          setSettings(event.data.settings);
+        }
         if (event.data.message === 'sendingBrowserInfo') {
           setBrowserInfo(event.data.browserInfo || {});
         }

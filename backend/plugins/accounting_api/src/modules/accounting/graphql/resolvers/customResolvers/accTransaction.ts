@@ -121,12 +121,11 @@ export default {
 
       method: 'query',
       pluginName: 'core',
-      module: 'customer',
+      module: 'customers',
       action: 'findOne',
       input: { query: { _id: transaction.customerId } },
       defaultValue: {},
     });
-
     if (!customer?._id) {
       return null;
     }
