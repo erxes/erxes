@@ -86,7 +86,7 @@ const Receipt = ({ date, report }: any) => {
 
   const renderAmounts = (amounts: any) => {
     return (
-      <div className="report-print__section pt-3 md:pt-0">
+      <div className="pt-3 report-print__section md:pt-0">
         <Flex>
           {`Бэлнээр: `}
           <span className="report-print__value tabular-nums">
@@ -156,7 +156,7 @@ const Receipt = ({ date, report }: any) => {
   const renderProduct = (product: ReportProduct) => {
     return (
       <Flex
-        className="report-print__product pl-2"
+        className="pl-2 report-print__product"
         key={product.code || product.name}
       >
         {`${getProductLabel(product)}: `}{" "}
@@ -185,8 +185,8 @@ const Receipt = ({ date, report }: any) => {
 
   const renderUser = (item: any) => {
     return (
-      <div key={Math.random()} className="report-print__user block">
-        <b className="flex-v-center font-semibold">
+      <div key={Math.random()} className="block report-print__user">
+        <b className="font-semibold flex-v-center">
           <span>{`Хэрэглэгч: `}</span>
           <span>{item.user.email}</span>
         </b>
@@ -201,7 +201,7 @@ const Receipt = ({ date, report }: any) => {
   return (
     <PrintLayout>
       <div className="report-print">
-        <header className="block border-b border-black/15 pb-2">
+        <header className="block pb-2 border-b border-black/15">
           <div className="report-print__title">Өдрийн тайлан</div>
           <p className="report-print__meta">
             Хамаарах:{" "}
@@ -218,7 +218,7 @@ const Receipt = ({ date, report }: any) => {
           </p>
         </header>
         {Object.keys(report || {}).map((userId) => renderUser(report[userId]))}
-        <footer className="report-print__signature space-y-1">
+        <footer className="space-y-1 report-print__signature">
           <label className="font-semibold">Гарын үсэг:</label>
           <span> _____________________</span>
         </footer>
