@@ -40,7 +40,7 @@ const EbarimtHeader = () => {
 
   return (
     <>
-      <header className="flex items-center justify-center">
+      <header className="flex items-center justify-center border-b border-black/15 pb-2">
         {receiptIcon && (
           <Image
             src={receiptIcon}
@@ -50,29 +50,33 @@ const EbarimtHeader = () => {
             className="h-8 w-auto object-contain"
           />
         )}
-        <p className="pl-2 font-bold leading-5">
+        <p className="receipt-print__title pl-2">
           {ebarimtConfig?.companyName || name}
         </p>
       </header>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <p className="w-10 font-semibold">Огноо:</p>
-          <p>{!!paidDate && format(new Date(paidDate), "yyyy.MM.dd HH:mm")}</p>
+      <div className="receipt-print__section receipt-print__section--flush space-y-1">
+        <div className="receipt-print__row flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <p className="font-semibold">Огноо:</p>
+            <p>
+              {!!paidDate && format(new Date(paidDate), "yyyy.MM.dd HH:mm")}
+            </p>
+          </div>
+
+          <div className="font-semibold tabular-nums">
+            &#8470;{":"} {number.split("_")[1]}
+          </div>
         </div>
 
-        <div className="font-medium">
-          &#8470;{":"} {number.split("_")[1]}
-        </div>
+        {renderPerson()}
+        {renderPerson(true)}
+        {ebarimtConfig?.headerText && (
+          <div
+            dangerouslySetInnerHTML={{ __html: ebarimtConfig?.headerText }}
+            className="whitespace-pre-line text-[11px]"
+          />
+        )}
       </div>
-
-      {renderPerson()}
-      {renderPerson(true)}
-      {ebarimtConfig?.headerText && (
-        <div
-          dangerouslySetInnerHTML={{ __html: ebarimtConfig?.headerText }}
-          className="whitespace-pre-line text-[11px]"
-        />
-      )}
     </>
   )
 }
