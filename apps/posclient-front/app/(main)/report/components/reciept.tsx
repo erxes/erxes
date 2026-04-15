@@ -16,6 +16,47 @@ const Flex = ({
   className?: string
 }) => <div className="flex items-center justify-between">{children}</div>
 
+type ReportProduct = {
+  name?: string | null
+  code?: string | null
+  count?: number
+}
+
+const normalizeText = (value?: string | null) => value?.trim() || ""
+
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
+const getProductSizeFromCode = (code?: string | null) => {
+  const parts = normalizeText(code)
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  return parts.length > 1 ? parts[parts.length - 1] : ""
+}
+
+const hasStandaloneSize = (name: string, size: string) => {
+  const matcher = new RegExp(`(^|\\W)${escapeRegExp(size)}($|\\W)`, "i")
+
+  return matcher.test(name)
+}
+
+const getProductLabel = ({ name, code }: ReportProduct) => {
+  const normalizedName = normalizeText(name)
+  const size = getProductSizeFromCode(code)
+
+  if (!normalizedName) {
+    return normalizeText(code)
+  }
+
+  if (!size || hasStandaloneSize(normalizedName, size)) {
+    return normalizedName
+  }
+
+  return `${normalizedName} / ${size}`
+}
+
 const Receipt = ({ date, report }: any) => {
   const paymentTypes = useAtomValue(paymentTypesAtom)
   const reportStartDate = useAtomValue(reportStartDateAtom)
@@ -85,10 +126,13 @@ const Receipt = ({ date, report }: any) => {
     )
   }
 
-  const renderProduct = (product: any) => {
+  const renderProduct = (product: ReportProduct) => {
     return (
-      <Flex className="printDocument-product" key={Math.random()}>
-        {`${product.name}: `} <span>{formatNum(product.count)}</span>
+      <Flex
+        className="printDocument-product"
+        key={product.code || product.name}
+      >
+        {`${getProductLabel(product)}: `} <span>{formatNum(product.count)}</span>
       </Flex>
     )
   }
@@ -96,7 +140,7 @@ const Receipt = ({ date, report }: any) => {
   const renderCategory = (category: any) => {
     return (
       <>
-        <div key={Math.random()} className="category">
+       <div key={Math.random()} className="category">
           <b>
             {`Барааны бүлэг: `} {category.name}
           </b>
@@ -111,7 +155,7 @@ const Receipt = ({ date, report }: any) => {
 
   const renderUser = (item: any) => {
     return (
-      <div key={Math.random()} className="printDocument-user block">
+      <div key={Math.random()} className="block printDocument-user">
         <b className="flex-v-center">
           <span>{`Хэрэглэгч: `}</span>
           <span>{item.user.email}</span>
@@ -122,12 +166,12 @@ const Receipt = ({ date, report }: any) => {
     )
   }
 
-  //   <div className=" overflow-auto h-full print:overflow-visible mx-4 px-1 print:mx-0">
+  //   <div className="h-full px-1 mx-4 overflow-auto print:overflow-visible print:mx-0">
 
   return (
-    <PrintLayout>
+ <PrintLayout>
       <header className="block">
-        <div className="font-bold text-xs">Өдрийн тайлан</div>
+        <div className="text-xs font-bold">Өдрийн тайлан</div>
         <p>
           Хамаарах:{" "}
           <b>{format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} - {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}</b>

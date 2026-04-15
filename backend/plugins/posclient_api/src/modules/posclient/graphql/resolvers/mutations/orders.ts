@@ -1280,10 +1280,12 @@ const orderMutations: Record<string, Resolver> = {
       _id,
       cashAmount,
       paidAmounts,
+      description,
     }: {
       _id: string;
       cashAmount?: number;
       paidAmounts?: IPaidAmount[];
+      description?: string;
     },
     { subdomain, models, posUser, config }: IContext,
   ) {
@@ -1339,6 +1341,7 @@ const orderMutations: Record<string, Resolver> = {
           paidAmounts,
           returnAt: new Date(),
           returnBy: posUser._id,
+          description,
         },
         cashAmount: cashAmount
           ? (order.cashAmount || 0) - Number(cashAmount.toFixed(2))
