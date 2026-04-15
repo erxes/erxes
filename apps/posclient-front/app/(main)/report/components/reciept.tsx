@@ -132,7 +132,8 @@ const Receipt = ({ date, report }: any) => {
         className="printDocument-product"
         key={product.code || product.name}
       >
-        {`${getProductLabel(product)}: `} <span>{formatNum(product.count)}</span>
+        {`${getProductLabel(product)}: `}{" "}
+        <span>{formatNum(product.count)}</span>
       </Flex>
     )
   }
@@ -140,7 +141,7 @@ const Receipt = ({ date, report }: any) => {
   const renderCategory = (category: any) => {
     return (
       <>
-       <div key={Math.random()} className="category">
+        <div key={Math.random()} className="category">
           <b>
             {`Барааны бүлэг: `} {category.name}
           </b>
@@ -169,12 +170,15 @@ const Receipt = ({ date, report }: any) => {
   //   <div className="h-full px-1 mx-4 overflow-auto print:overflow-visible print:mx-0">
 
   return (
- <PrintLayout>
+    <PrintLayout>
       <header className="block">
         <div className="text-xs font-bold">Өдрийн тайлан</div>
         <p>
           Хамаарах:{" "}
-          <b>{format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} - {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}</b>
+          <b>
+            {format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} -{" "}
+            {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}
+          </b>
         </p>
         <p>Хэвлэсэн: {format(new Date(), "yyyy.MM.dd HH:mm")}</p>
       </header>
