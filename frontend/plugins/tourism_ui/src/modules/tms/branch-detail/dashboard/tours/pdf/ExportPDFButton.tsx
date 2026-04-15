@@ -6,20 +6,30 @@ import React, {
   useState,
 } from 'react';
 import {
+  IconAdjustmentsHorizontal,
   IconDownload,
   IconEdit,
   IconFileTypePdf,
   IconRefresh,
   IconX,
 } from '@tabler/icons-react';
+import { useQuery } from '@apollo/client';
 import { Button, Dialog, Sheet, Spinner, useToast } from 'erxes-ui';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { useItineraryDetail } from '../../itinerary/hooks/useItineraryDetail';
 import '../../itinerary/pdf/fonts';
+import type { ItineraryPdfLabels } from '../../itinerary/pdf/types';
+import { GET_AMENITIES } from '@/tms/branch-detail/dashboard/amenities/graphql/queries';
+import type { IAmenity } from '@/tms/branch-detail/dashboard/amenities/types/amenity';
+import { GET_ELEMENTS } from '@/tms/branch-detail/dashboard/elements/graphql/queries';
+import type { IElement } from '@/tms/branch-detail/dashboard/elements/types/element';
 import type { ITourDetail } from '../hooks/useTourDetail';
 import { TourEditForm } from '../_components/TourEditForm';
 import { generateFilename } from '../../itinerary/pdf/utils';
 import { buildTourPdfBlob, resolveTourForPdf } from './pdfBuilder';
+import { CustomizeTourPdfDialog } from './CustomizeTourPdfDialog';
+import type { TourPdfLabels, TourPdfRenderConfig } from './types';
+import { createDefaultTourPdfConfig } from './types';
 
 interface ExportTourPDFButtonProps {
   tour?: ITourDetail | null;
@@ -48,10 +58,14 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
 }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string>();
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>();
+  const [pdfConfig, setPdfConfig] = useState<TourPdfRenderConfig>(
+    createDefaultTourPdfConfig,
+  );
   const [refreshNonce, setRefreshNonce] = useState(0);
   const { toast } = useToast();
   const downloadTimeoutRef = useRef<NodeJS.Timeout>();
@@ -95,11 +109,91 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
   const shouldWaitForItinerary = Boolean(
     itineraryId && itineraryLoading && !itinerary,
   );
+  const { data: elementsData, loading: elementsLoading } = useQuery<{
+    bmsElements: {
+      list: IElement[];
+      totalCount: number;
+    };
+  }>(GET_ELEMENTS, {
+    variables: {
+      branchId,
+      language,
+      quick: false,
+      limit: 100,
+      orderBy: { createdAt: -1 },
+    },
+    skip: !branchId || !previewOpen || !pdfConfig.itineraryConfig.showElements,
+    fetchPolicy: 'cache-and-network',
+  });
+  const elements = useMemo(
+    () => elementsData?.bmsElements?.list ?? [],
+    [elementsData?.bmsElements?.list],
+  );
+  const pdfElements = useMemo(
+    () =>
+      elements.map((element) => ({
+        _id: element._id,
+        name: element.name,
+        note: element.note,
+        content: element.content,
+        startTime: element.startTime,
+        duration: element.duration,
+        cost: element.cost,
+      })),
+    [elements],
+  );
+  const { data: amenitiesData, loading: amenitiesLoading } = useQuery<{
+    bmsElements: {
+      list: IAmenity[];
+      totalCount: number;
+    };
+  }>(GET_AMENITIES, {
+    variables: {
+      branchId,
+      language,
+      quick: true,
+      limit: 100,
+      orderBy: { createdAt: -1 },
+    },
+    skip: !branchId || !previewOpen || !pdfConfig.itineraryConfig.showAmenities,
+    fetchPolicy: 'cache-and-network',
+  });
+  const amenities = useMemo(
+    () => amenitiesData?.bmsElements?.list ?? [],
+    [amenitiesData?.bmsElements?.list],
+  );
+  const pdfAmenities = useMemo(
+    () =>
+      amenities.map((amenity) => ({
+        _id: amenity._id,
+        name: amenity.name,
+        icon: amenity.icon,
+      })),
+    [amenities],
+  );
+  const shouldWaitForElements = Boolean(
+    pdfConfig.itineraryConfig.showElements &&
+    previewOpen &&
+    branchId &&
+    elementsLoading &&
+    !elements.length,
+  );
+  const shouldWaitForAmenities = Boolean(
+    pdfConfig.itineraryConfig.showAmenities &&
+    previewOpen &&
+    branchId &&
+    amenitiesLoading &&
+    !amenities.length,
+  );
+  const shouldWaitForResources =
+    shouldWaitForElements || shouldWaitForAmenities;
   const canEdit = Boolean(localizedTour?._id);
-  const canDownload = Boolean(previewBlob) && !previewLoading;
-  const previewStatusText = previewLoading
-    ? 'Preparing PDF preview...'
-    : 'Preview refreshes automatically after edits.';
+  const canDownload =
+    Boolean(previewBlob) && !previewLoading && !shouldWaitForResources;
+  const previewStatusText =
+    previewLoading || shouldWaitForResources
+      ? 'Preparing PDF preview...'
+      : 'Preview refreshes automatically after edits and customization changes.';
 
   const revokePreviewUrl = useCallback(() => {
     if (previewObjectUrlRef.current) {
@@ -159,6 +253,9 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
           branchDetail,
           branchId,
           language,
+          config: pdfConfig,
+          elements: pdfElements,
+          amenities: pdfAmenities,
           force,
         });
 
@@ -210,6 +307,9 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
       itinerary,
       language,
       localizedTour,
+      pdfAmenities,
+      pdfElements,
+      pdfConfig,
       revokePreviewUrl,
       toast,
     ],
@@ -249,6 +349,113 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
     setEditOpen(true);
   }, []);
 
+  const handleConfigToggle = useCallback(
+    (
+      key: 'showCoverPage' | 'showDetailsPage' | 'showItineraryPage',
+      checked: boolean | 'indeterminate',
+    ) => {
+      const nextChecked = checked === true;
+
+      setPdfConfig((current) => {
+        const nextConfig = {
+          ...current,
+          [key]: nextChecked,
+        };
+
+        if (
+          !nextConfig.showCoverPage &&
+          !nextConfig.showDetailsPage &&
+          !nextConfig.showItineraryPage
+        ) {
+          return current;
+        }
+
+        return nextConfig;
+      });
+    },
+    [],
+  );
+
+  const handleLabelChange = useCallback(
+    (key: keyof TourPdfLabels, value: string) => {
+      setPdfConfig((current) => ({
+        ...current,
+        labels: {
+          ...current.labels,
+          [key]: value,
+        },
+      }));
+    },
+    [],
+  );
+
+  const handleItineraryConfigToggle = useCallback(
+    (
+      key: 'showDayContent' | 'showElements' | 'showAmenities',
+      checked: boolean | 'indeterminate',
+    ) => {
+      const nextChecked = checked === true;
+
+      setPdfConfig((current) => {
+        const nextItineraryConfig = {
+          ...current.itineraryConfig,
+        };
+
+        if (key === 'showAmenities') {
+          nextItineraryConfig.showAmenities = nextChecked;
+        }
+
+        if (key === 'showDayContent') {
+          if (!nextChecked && !current.itineraryConfig.showElements) {
+            return current;
+          }
+
+          nextItineraryConfig.showDayContent = nextChecked;
+          if (nextChecked) {
+            nextItineraryConfig.showElements = false;
+          }
+        }
+
+        if (key === 'showElements') {
+          if (!nextChecked && !current.itineraryConfig.showDayContent) {
+            return current;
+          }
+
+          nextItineraryConfig.showElements = nextChecked;
+          if (nextChecked) {
+            nextItineraryConfig.showDayContent = false;
+          }
+        }
+
+        return {
+          ...current,
+          itineraryConfig: nextItineraryConfig,
+        };
+      });
+    },
+    [],
+  );
+
+  const handleItineraryLabelChange = useCallback(
+    (key: keyof ItineraryPdfLabels, value: string) => {
+      setPdfConfig((current) => ({
+        ...current,
+        itineraryConfig: {
+          ...current.itineraryConfig,
+          labels: {
+            ...current.itineraryConfig.labels,
+            [key]: value,
+          },
+        },
+      }));
+    },
+    [],
+  );
+
+  const handleResetConfig = useCallback(() => {
+    setPdfConfig(createDefaultTourPdfConfig());
+  }, []);
+
   const handleEditOpenChange = useCallback(
     async (open: boolean) => {
       setEditOpen(open);
@@ -282,7 +489,11 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
       return;
     }
 
-    if (shouldWaitForBranch || shouldWaitForItinerary) {
+    if (
+      shouldWaitForBranch ||
+      shouldWaitForItinerary ||
+      shouldWaitForResources
+    ) {
       return;
     }
 
@@ -293,9 +504,11 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
     generatePreview,
     localizedTour,
     previewOpen,
+    pdfConfig,
     refreshNonce,
     shouldWaitForBranch,
     shouldWaitForItinerary,
+    shouldWaitForResources,
   ]);
 
   useEffect(() => {
@@ -391,6 +604,15 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
               <Button
                 variant="outline"
+                onClick={() => setCustomizeOpen(true)}
+                disabled={!localizedTour}
+              >
+                <IconAdjustmentsHorizontal size={16} />
+                Customize
+              </Button>
+
+              <Button
+                variant="outline"
                 onClick={handleRefreshPreview}
                 disabled={previewLoading || !localizedTour}
               >
@@ -432,6 +654,17 @@ export const ExportTourPDFButton: React.FC<ExportTourPDFButtonProps> = ({
           ) : null}
         </Sheet.View>
       </Sheet>
+
+      <CustomizeTourPdfDialog
+        open={customizeOpen}
+        onOpenChange={setCustomizeOpen}
+        pdfConfig={pdfConfig}
+        onConfigToggle={handleConfigToggle}
+        onLabelChange={handleLabelChange}
+        onItineraryConfigToggle={handleItineraryConfigToggle}
+        onItineraryLabelChange={handleItineraryLabelChange}
+        onReset={handleResetConfig}
+      />
     </>
   );
 };

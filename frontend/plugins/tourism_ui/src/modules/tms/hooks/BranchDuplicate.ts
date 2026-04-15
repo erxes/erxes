@@ -10,6 +10,8 @@ interface DuplicateBranchVariables {
   managerIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
+  prepaid?: boolean;
+  prepaidPercent?: number | null;
   erxesAppToken?: string;
   permissionConfig?: any[];
   uiOptions?: Record<string, any>;
@@ -45,6 +47,8 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
     branch: IBranch,
     refetch?: () => Promise<any>,
   ) => {
+    const prepaid = branch.prepaid ?? false;
+
     try {
       await duplicateBranch({
         variables: {
@@ -54,6 +58,8 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
           managerIds: branch.managerIds || [],
           paymentIds: branch.paymentIds || [],
           paymentTypes: branch.paymentTypes || [],
+          prepaid,
+          prepaidPercent: prepaid ? branch.prepaidPercent : undefined,
           erxesAppToken: branch.erxesAppToken,
           permissionConfig: branch.permissionConfig || [],
           uiOptions: branch.uiOptions || {},

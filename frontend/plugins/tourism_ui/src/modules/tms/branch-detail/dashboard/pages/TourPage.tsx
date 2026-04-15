@@ -8,7 +8,7 @@ export const TourPage = ({ branch }: { branch: IBranch }) => {
   return (
     <div className="flex flex-col h-full">
       <PageSubHeader>
-        <TourFilter />
+        <TourFilter branchId={branch._id} />
         <div className="flex gap-2 items-center ml-auto">
           {(view || 'table') === 'table' && (
             <ToggleGroup
