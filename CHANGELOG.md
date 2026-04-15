@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.42](https://github.com/erxes/erxes/compare/2.17.41...2.17.42) (2026-04-15)
+
+### Features
+
+* **pricing:** add query checkDiscoutn ([c8ca602](https://github.com/erxes/erxes/commit/c8ca602e65753253ddb740477307f11629c00ef8))
+
 ## [2.17.41](https://github.com/erxes/erxes/compare/2.17.40...2.17.41) (2026-04-14)
 
 ### Bug Fixes
