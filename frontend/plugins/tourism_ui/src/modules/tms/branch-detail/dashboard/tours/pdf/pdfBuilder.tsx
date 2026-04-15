@@ -4,6 +4,10 @@ import { LANGUAGES } from '@/tms/constants/languages';
 import { convertImagesToBase64 } from '../../itinerary/pdf/utils';
 import type { IItineraryDetail } from '../../itinerary/hooks/useItineraryDetail';
 import type {
+  ItineraryPdfAmenityData,
+  ItineraryPdfElementData,
+} from '../../itinerary/pdf/types';
+import type {
   IPricingOption,
   IPricingOptionTranslation,
   ITourDetail,
@@ -11,6 +15,7 @@ import type {
 } from '../hooks/useTourDetail';
 import { pdf } from '@react-pdf/renderer';
 import { TourPDF } from './TourPDF';
+import type { TourPdfRenderConfig } from './types';
 
 export interface LocalizedTourDetail extends ITourDetail {
   coverImageBase64?: string;
@@ -131,11 +136,13 @@ export const generateTourPdfCacheKey = ({
   itinerary,
   branchId,
   language,
+  config,
 }: {
   tour: ITourDetail;
   itinerary?: IItineraryDetail | null;
   branchId?: string;
   language?: string;
+  config?: TourPdfRenderConfig;
 }) =>
   [
     tour._id,
@@ -144,6 +151,7 @@ export const generateTourPdfCacheKey = ({
     itinerary?.modifiedAt || '',
     branchId || '',
     language || '',
+    JSON.stringify(config || {}),
   ].join(':');
 
 export const buildTourPdfBlob = async ({
@@ -152,6 +160,9 @@ export const buildTourPdfBlob = async ({
   branchDetail,
   branchId,
   language,
+  config,
+  elements,
+  amenities,
   force = false,
 }: {
   tour: LocalizedTourDetail;
@@ -159,6 +170,9 @@ export const buildTourPdfBlob = async ({
   branchDetail?: IBranch | null;
   branchId?: string;
   language?: string;
+  config?: TourPdfRenderConfig;
+  elements?: ItineraryPdfElementData[];
+  amenities?: ItineraryPdfAmenityData[];
   force?: boolean;
 }): Promise<BuildTourPdfResult> => {
   const currencySymbol =
@@ -171,6 +185,7 @@ export const buildTourPdfBlob = async ({
     itinerary,
     branchId,
     language,
+    config,
   });
 
   if (!force) {
@@ -187,6 +202,12 @@ export const buildTourPdfBlob = async ({
   }
 
   const imageLoadStats = createImageLoadStats();
+  const elementMap = new Map(
+    (elements || []).map((element) => [element._id, element]),
+  );
+  const amenityMap = new Map(
+    (amenities || []).map((amenity) => [amenity._id, amenity]),
+  );
 
   const itineraryWithImages = itinerary
     ? {
@@ -201,6 +222,20 @@ export const buildTourPdfBlob = async ({
             return {
               ...day,
               base64Images: base64Image ? [base64Image] : [],
+              resolvedElements: (day.elements || [])
+                .slice()
+                .sort((a, b) => (a.orderOfDay || 0) - (b.orderOfDay || 0))
+                .map((item) => item.elementId && elementMap.get(item.elementId))
+                .filter((element): element is ItineraryPdfElementData =>
+                  Boolean(element),
+                ),
+              resolvedAmenities: (day.elementsQuick || [])
+                .slice()
+                .sort((a, b) => (a.orderOfDay || 0) - (b.orderOfDay || 0))
+                .map((item) => item.elementId && amenityMap.get(item.elementId))
+                .filter((amenity): amenity is ItineraryPdfAmenityData =>
+                  Boolean(amenity),
+                ),
             };
           }),
         ),
@@ -232,6 +267,7 @@ export const buildTourPdfBlob = async ({
       branch={{
         mainLogoBase64,
       }}
+      config={config}
     />,
   ).toBlob();
 
