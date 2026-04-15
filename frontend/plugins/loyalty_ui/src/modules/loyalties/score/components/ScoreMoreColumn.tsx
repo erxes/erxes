@@ -72,5 +72,5 @@ export const makeScoreMoreColumn = (onEdit?: (record: IScoreLog) => void) => ({
   cell: ({ cell }: { cell: Cell<IScoreLog, unknown> }) => (
     <ScoreMoreColumnCell cell={cell} onEdit={onEdit} />
   ),
-  size: 25,
+  size: 30,
 });
