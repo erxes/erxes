@@ -7,6 +7,7 @@ import {
 import { paginate } from '@erxes/api-utils/src';
 import { getAllowedProducts } from '../../../utils/product';
 import { IPricingPlanDocument } from '../../../models/definitions/pricingPlan';
+import { checkPricing } from '../../../utils';
 
 const generateFilter = async (subdomain, models, params) => {
   const {
@@ -160,7 +161,40 @@ const pricingPlanQueries = {
     { models }: IContext
   ) => {
     return await models.PricingPlans.findById(id);
-  }
+  },
+
+  pricingCheckDiscount: async (
+    _root,
+    params: {
+      prioritizeRule?: string,
+      totalAmount: number,
+      departmentId: string,
+      branchId: string,
+      pipelineId: string,
+      products: Array<{
+        itemId: string;
+        productId: string;
+        quantity: number;
+        price: number;
+        manufacturedDate?: string;
+      }>;
+    },
+    { models, subdomain }: IContext
+  ) => {
+    const { prioritizeRule = 'exclude', totalAmount, departmentId, branchId, products, pipelineId } =
+      params;
+
+    return await checkPricing(
+      models,
+      subdomain,
+      prioritizeRule,
+      totalAmount,
+      departmentId,
+      branchId,
+      pipelineId,
+      products
+    );
+  },
 };
 
 moduleRequireLogin(pricingPlanQueries);
