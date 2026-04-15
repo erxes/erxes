@@ -1,16 +1,8 @@
 import { useQuery, gql } from '@apollo/client';
 
 const GET_SALES_DEALS = gql`
-  query SalesDeals(
-    $search: String
-    $pipelineId: String
-    $stageId: String
-  ) {
-    deals(
-      search: $search
-      pipelineId: $pipelineId
-      stageId: $stageId
-    ) {
+  query SalesDeals($search: String, $pipelineId: String, $stageId: String) {
+    deals(search: $search, pipelineId: $pipelineId, stageId: $stageId) {
       list {
         _id
         name
