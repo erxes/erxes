@@ -71,6 +71,13 @@ export const useFormMutate = () => {
         },
       });
     } else {
+      if (!channelId) {
+        toast({
+          variant: 'destructive',
+          title: 'Channel ID is required to create a form',
+        });
+        return;
+      }
       await addForm({
         variables: { ...formValues, channelId },
         onCompleted: ({ formsAdd }) => {

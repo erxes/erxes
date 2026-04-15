@@ -1,45 +1,44 @@
 'use strict';
 (() => {
   var C = Object.defineProperty;
-  var x = Object.getOwnPropertySymbols;
+  var y = Object.getOwnPropertySymbols;
   var A = Object.prototype.hasOwnProperty,
     _ = Object.prototype.propertyIsEnumerable;
-  var y = (e, t, n) =>
+  var b = (e, t, n) =>
       t in e
         ? C(e, t, { enumerable: !0, configurable: !0, writable: !0, value: n })
         : (e[t] = n),
-    c = (e, t) => {
-      for (var n in t || (t = {})) A.call(t, n) && y(e, n, t[n]);
-      if (x) for (var n of x(t)) _.call(t, n) && y(e, n, t[n]);
+    f = (e, t) => {
+      for (var n in t || (t = {})) A.call(t, n) && b(e, n, t[n]);
+      if (y) for (var n of y(t)) _.call(t, n) && b(e, n, t[n]);
       return e;
     };
-  var l = (e, t, n) =>
-    new Promise((d, a) => {
-      var o = (r) => {
+  var c = (e, t, n) =>
+    new Promise((s, r) => {
+      var o = (i) => {
           try {
-            s(n.next(r));
+            a(n.next(i));
           } catch (m) {
-            a(m);
+            r(m);
           }
         },
-        i = (r) => {
+        d = (i) => {
           try {
-            s(n.throw(r));
+            a(n.throw(i));
           } catch (m) {
-            a(m);
+            r(m);
           }
         },
-        s = (r) => (r.done ? d(r.value) : Promise.resolve(r.value).then(o, i));
-      s((n = n.apply(e, t)).next());
+        a = (i) => (i.done ? s(i.value) : Promise.resolve(i.value).then(o, d));
+      a((n = n.apply(e, t)).next());
     });
-  var b = `[id^='erxes-container'] {
+  var I = `[id^='erxes-container'] {
   z-index: 1000000000;
   border: none;
 }
 
 [id^='erxes-container'] > iframe {
   border: none;
-  height: 100% !important;
 }
 
 /*loader*/
@@ -75,6 +74,14 @@
   min-width: 100%; /* Full width */
   border: none;
   height: 100% !important;
+}
+
+.erxes-modal-iframe > iframe,
+.erxes-slide-right-iframe > iframe,
+.erxes-slide-left-iframe > iframe,
+.erxes-dropdown-iframe > iframe,
+.erxes-shoutbox-iframe > iframe {
+  height: 100%;
 }
 
 .erxes-slide-right-iframe,
@@ -271,10 +278,10 @@
   animation-name: fadeInRight;
 }
 `;
-  var I = (e) => localStorage.getItem(e);
-  var k = document.createElement('style');
-  k.textContent = b;
-  document.head.appendChild(k);
+  var S = (e) => localStorage.getItem(e);
+  var E = document.createElement('style');
+  E.textContent = I;
+  document.head.appendChild(E);
   var B = () => {
       let e =
         document.currentScript ||
@@ -286,12 +293,12 @@
         ? e.src.replace('/formBundle.js', '/form')
         : '';
     },
-    p = (e, t) => {
+    u = (e, t) => {
       let n = window.Erxes || {};
       ((n[e] = t), (window.Erxes = n));
     },
-    P = () =>
-      l(void 0, null, function* () {
+    N = () =>
+      c(void 0, null, function* () {
         if (window.location.hostname === 'localhost')
           return {
             url: window.location.pathname,
@@ -324,136 +331,139 @@
           userAgent: navigator.userAgent,
         };
       }),
-    N = (e, t) =>
-      l(void 0, null, function* () {
-        let { message: n, fromErxes: d, source: a, key: o, value: i } = e.data;
+    R = (e, t) =>
+      c(void 0, null, function* () {
+        let { message: n, fromErxes: s, source: r, key: o, value: d } = e.data;
         if (
-          d &&
+          s &&
           t != null &&
           t.contentWindow &&
           (n === 'requestingBrowserInfo' &&
             t.contentWindow.postMessage(
               {
                 fromPublisher: !0,
-                source: a,
+                source: r,
                 message: 'sendingBrowserInfo',
-                browserInfo: yield P(),
+                browserInfo: yield N(),
               },
               '*',
             ),
           n === 'setLocalStorageItem')
         ) {
-          let s = JSON.parse(localStorage.getItem('erxes') || '{}');
-          ((s[o] = i), localStorage.setItem('erxes', JSON.stringify(s)));
+          let a = JSON.parse(localStorage.getItem('erxes') || '{}');
+          ((a[o] = d), localStorage.setItem('erxes', JSON.stringify(a)));
         }
       }),
-    u = document.createElement('meta');
-  u.name = 'viewport';
-  u.content = 'initial-scale=1, width=device-width';
-  document.getElementsByTagName('head')[0].appendChild(u);
-  var R = (e) => {
+    w = document.createElement('meta');
+  w.name = 'viewport';
+  w.content = 'initial-scale=1, width=device-width';
+  document.getElementsByTagName('head')[0].appendChild(w);
+  var P = (e) => {
       let t = e.form_id,
         n = `erxes-container-${t}`,
-        d = `erxes-iframe-${t}`,
-        a = document.getElementById(n);
-      a || ((a = document.createElement('div')), (a.id = n));
-      let o = document.getElementById(d);
-      (o ||
+        s = `erxes-iframe-${t}`,
+        r = document.getElementById(n);
+      r || ((r = document.createElement('div')), (r.id = n));
+      let o = document.getElementById(s);
+      o ||
         ((o = document.createElement('iframe')),
-        (o.id = d),
+        (o.id = s),
         (o.style.display = 'none'),
         (o.style.width = '100%'),
         (o.style.margin = '0 auto'),
-        (o.style.height = 'auto'),
-        (o.allowFullscreen = !0)),
-        (o.src = B()),
-        a.appendChild(o));
-      let i = document.querySelector(`[data-erxes-embed="${t}"]`);
+        (o.style.height = '100%'),
+        (o.allowFullscreen = !0));
+      let d = B();
+      ((o.src = d), r.appendChild(o));
+      let a = document.querySelector(`[data-erxes-embed="${t}"]`);
       return (
-        i ? i.appendChild(a) : document.body.appendChild(a),
+        a ? a.appendChild(r) : document.body.appendChild(r),
         (o.onload = () => {
           o.style.display = 'inherit';
-          let s = `[data-erxes-modal="${e.form_id}"]`,
-            r = o.contentWindow;
-          if (!r) return;
-          let m = c({}, e);
-          (m.onAction && delete m.onAction,
-            r.postMessage(
+          let i = `[data-erxes-modal="${e.form_id}"]`,
+            m = o.contentWindow;
+          if (!m) return;
+          let l = f({}, e);
+          (l.onAction && delete l.onAction,
+            m.postMessage(
               {
                 fromPublisher: !0,
-                hasPopupHandlers: document.querySelectorAll(s).length > 0,
-                settings: m,
-                storage: I('erxes'),
+                hasPopupHandlers: document.querySelectorAll(i).length > 0,
+                settings: l,
+                storage: S('erxes'),
               },
               '*',
             ));
         }),
-        { container: a, iframe: o }
+        { container: r, iframe: o }
       );
     },
-    w = (e, t) => {
-      let n = Object.keys(f).find((o) => {
-        let i = JSON.parse(o);
-        return e === i.form_id;
+    h = (e, t) => {
+      let n = Object.keys(g).find((o) => {
+        let d = JSON.parse(o);
+        return e === d.form_id;
       });
       if (!n) return;
-      let { iframe: d } = f[n],
-        a = d.contentWindow;
-      a && a.postMessage(c({ fromPublisher: !0, formId: e }, t), '*');
+      let { iframe: s } = g[n],
+        r = s.contentWindow;
+      r && r.postMessage(f({ fromPublisher: !0, formId: e }, t), '*');
     };
-  p('showPopup', (e) => {
-    w(e, { action: 'showPopup' });
+  u('showPopup', (e) => {
+    h(e, { action: 'showPopup' });
   });
-  p('callFormSubmit', (e) => {
-    w(e, { action: 'callSubmit' });
+  u('callFormSubmit', (e) => {
+    h(e, { action: 'callSubmit' });
   });
-  p('sendExtraFormContent', (e, t) => {
-    w(e, { action: 'extraFormContent', html: t });
+  u('sendExtraFormContent', (e, t) => {
+    h(e, { action: 'extraFormContent', html: t });
   });
   var v = window.erxesSettings.forms || [],
-    f = {},
-    E = (e) => JSON.stringify({ form_id: e.form_id, channel_id: e.channel_id }),
-    F = (e) =>
+    g = {},
+    L = (e) => JSON.stringify({ form_id: e.form_id, channel_id: e.channel_id }),
+    T = (e) =>
       v.find((t) => t.channel_id === e.channel_id && t.form_id === e.form_id),
-    S = () => {
+    k = () => {
       v.forEach((e) => {
-        f[E(e)] = R(e);
+        g[L(e)] = P(e);
       });
     };
   document.readyState === 'loading'
-    ? document.addEventListener('DOMContentLoaded', S)
-    : S();
+    ? document.addEventListener('DOMContentLoaded', k)
+    : k();
   window.addEventListener('message', (e) =>
-    l(void 0, null, function* () {
+    c(void 0, null, function* () {
       let t = e.data || {},
-        { fromErxes: n, source: d, message: a, settings: o } = t;
-      if (!o || d !== 'fromForms') return null;
-      let { container: i, iframe: s } = f[E(o)] || {};
-      N(e, s);
-      let r = F(o);
-      if (!r || !(n && d === 'fromForms')) return null;
+        { fromErxes: n, source: s, message: r, settings: o } = t;
+      if (!o || s !== 'fromForms') return null;
+      let { container: d, iframe: a } = g[L(o)] || {};
+      R(e, a);
+      let i = T(o);
+      if (!i || !(n && s === 'fromForms')) return null;
       if (
-        (a === 'submitResponse' && r.onAction && r.onAction(t),
-        a === 'connected' &&
+        (r === 'submitResponse' && i.onAction && i.onAction(t),
+        r === 'connected' &&
           t.connectionInfo.widgetsLeadConnect.form.leadData.loadType ===
             'popup')
       ) {
-        let L = `[data-erxes-modal="${o.form_id}"]`,
-          h = document.querySelectorAll(L);
-        for (let g = 0; g < h.length; g++)
-          h[g].addEventListener('click', () => {
-            s == null ||
-              s.contentWindow.postMessage(
+        let l = `[data-erxes-modal="${o.form_id}"]`,
+          x = document.querySelectorAll(l);
+        for (let p = 0; p < x.length; p++)
+          x[p].addEventListener('click', () => {
+            a == null ||
+              a.contentWindow.postMessage(
                 { fromPublisher: !0, action: 'showPopup', formId: o.form_id },
                 '*',
               );
           });
       }
-      return (
-        a === 'changeContainerClass' && i && (i.className = t.className),
-        a === 'changeContainerStyle' && i && (i.style = t.style),
-        null
-      );
+      if (
+        (r === 'changeContainerClass' && d && (d.className = t.className),
+        r === 'changeContainerStyle' && a)
+      ) {
+        let m = t.style.match(/height:\s*([\d.]+px)/);
+        m && (a.style.height = m[1]);
+      }
+      return null;
     }),
   );
 })();
