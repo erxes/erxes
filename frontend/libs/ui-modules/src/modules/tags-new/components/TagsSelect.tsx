@@ -98,7 +98,11 @@ const TagsSelectProvider = ({
             tagIds: [tag._id],
             action: isSelected ? 'remove' : 'add',
           },
-          ...options?.(newTags.map((t) => t._id), isSelected ? 'remove' : 'add', tag._id),
+          ...options?.(
+            newTags.map((t) => t._id),
+            isSelected ? 'remove' : 'add',
+            tag._id,
+          ),
         });
       }
 
@@ -414,7 +418,11 @@ const TagsSelectedList = ({
                     tagIds: [tag._id],
                     action: 'remove',
                   },
-                  ...options?.(newTags.map((t) => t._id), 'remove', tag._id),
+                  ...options?.(
+                    newTags.map((t) => t._id),
+                    'remove',
+                    tag._id,
+                  ),
                 });
               }
             }

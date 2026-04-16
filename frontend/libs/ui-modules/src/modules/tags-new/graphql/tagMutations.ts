@@ -38,7 +38,12 @@ export const GIVE_TAGS = gql`
     $tagIds: [String!]!
     $action: String
   ) {
-    tagsTag(type: $type, targetIds: $targetIds, tagIds: $tagIds, action: $action)
+    tagsTag(
+      type: $type
+      targetIds: $targetIds
+      tagIds: $tagIds
+      action: $action
+    )
   }
 `;
 
@@ -73,6 +78,7 @@ export const EDIT_TAG = gql`
 `;
 
 export const REMOVE_TAG = gql`
-mutation TagsRemove($id: String!) {
-  tagsRemove(_id: $id)
-}`;
+  mutation TagsRemove($id: String!) {
+    tagsRemove(_id: $id)
+  }
+`;
