@@ -103,4 +103,22 @@ export const importTemplates: Record<
       'Branches',
     ],
   },
+  'accounting:account.account': {
+    filename: 'accounting-account-template.csv',
+    headers: [
+      'Code',
+      'Name',
+      'Category ID',
+      'Parent ID',
+      'Currency',
+      'Kind',
+      'Journal',
+      'Description',
+      'Branch ID',
+      'Department ID',
+      'Status',
+      'Is Temp',
+      'Is Out Balance',
+    ]
+  }
 };

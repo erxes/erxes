@@ -1,7 +1,9 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 import { Storage } from '@google-cloud/storage';
 import AWS from 'aws-sdk';
+import * as fs from 'fs';
 import fetch from 'node-fetch';
+import * as path from 'path';
 import { Readable } from 'stream';
 import { sendTRPCMessage } from '../trpc';
 import { getEnv, isImage } from '../utils';
@@ -348,6 +350,48 @@ type ReadRemoteFileStreamParams = {
   key: string;
 };
 
+const resolveLocalUploadsPath = () => {
+  const defaultPrivateUploadsPath = path.join(__dirname, 'backend/core-api/src/utils/private/uploads');
+
+  return path.resolve(
+    getEnv({
+      name: 'LOCAL_UPLOADS_DIR',
+      defaultValue: defaultPrivateUploadsPath,
+    }),
+  );
+};
+
+const streamFromLocal = (key: string): Readable => {
+  const safeKey = key.replace(/^\/+/, '');
+
+  if (!safeKey || safeKey.includes('..') || path.isAbsolute(safeKey)) {
+    throw new Error('Invalid local storage key');
+  }
+
+  const uploadsPath = resolveLocalUploadsPath();
+  const absoluteBase = path.resolve(uploadsPath);
+  const filePath = path.resolve(absoluteBase, safeKey);
+
+  if (!fs.existsSync(absoluteBase)) {
+    throw new Error(
+      `Local uploads directory does not exist: ${absoluteBase}`,
+    );
+  }
+
+  if (
+    filePath !== absoluteBase &&
+    !filePath.startsWith(`${absoluteBase}${path.sep}`)
+  ) {
+    throw new Error('Invalid local storage key path');
+  }
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Local file not found: ${safeKey}`);
+  }
+
+  return fs.createReadStream(filePath);
+};
+
 const streamFromGCS = (key: string, configs: StorageConfigMap): Readable => {
   const bucket = requireConfigValue(configs, 'GOOGLE_CLOUD_STORAGE_BUCKET');
   const projectId = requireConfigValue(configs, 'GOOGLE_PROJECT_ID');
@@ -411,12 +455,7 @@ export const readFileStreamFromStorage = async ({
   if (uploadType === 'CLOUDFLARE') return streamFromCR2(key, configs);
   if (uploadType === 'AZURE') return await streamFromAzure(key, configs);
 
-  if (uploadType === 'LOCAL') {
-    throw new Error(
-      'Local storage streaming is not implemented yet. ' +
-        'Use readFileFromStorage (buffer) for local dev.',
-    );
-  }
+  if (uploadType === 'LOCAL') return streamFromLocal(key);
 
   throw new Error(
     `Unsupported upload service type "${uploadType}" while streaming "${key}"`,

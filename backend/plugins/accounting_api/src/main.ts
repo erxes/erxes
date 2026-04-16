@@ -1,3 +1,9 @@
+import {
+  createCoreModuleProducerHandler,
+  TGetImportHeadersInput,
+  TImportExportProducers,
+  TInsertImportRowsInput,
+} from 'erxes-api-shared/core-modules';
 import { startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { afterProcess } from '~/meta/afterProcess';
@@ -5,6 +11,14 @@ import { permissions } from '~/meta/permissions';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { appRouter } from './init-trpc';
+import { accountImportHandlers } from './meta/import-export/import/importHandlers';
+
+const accountImportTypes = [
+  {
+    label: 'Account',
+    contentType: 'accounting:account.account',
+  },
+];
 
 startPlugin({
   name: 'accounting',
@@ -39,8 +53,35 @@ startPlugin({
       return context;
     },
   },
+  onServerInit: async () => {
+    // await initMQWorkers(redis);
+  },
+  importExport: {
+    import: {
+      types: accountImportTypes,
+      insertImportRows: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { account: accountImportHandlers },
+        methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+        extractModuleName: (input: TInsertImportRowsInput) => input.moduleName,
+        generateModels,
+      }),
+      getImportHeaders: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { account: accountImportHandlers },
+        methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+        extractModuleName: (input: TGetImportHeadersInput) => input.moduleName,
+        generateModels,
+      }),
+    },
+  },
   meta: {
     afterProcess,
     permissions,
-  }
+    importExport: {
+      import: {
+        types: accountImportTypes,
+      }
+    }
+  },
 });

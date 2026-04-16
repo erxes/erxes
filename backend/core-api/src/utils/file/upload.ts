@@ -143,6 +143,7 @@ export const uploadFileAzure = async (
     filepath: string;
     mimetype: string;
   },
+  forcePrivate = false,
   models: IModels,
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
@@ -151,7 +152,9 @@ export const uploadFileAzure = async (
     throw new Error('Unsafe file path');
   }
 
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+  const IS_PUBLIC = forcePrivate
+    ? 'false'
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
 
   // initialize Azure Blob Storage
   const containerClient = await createAzureBlobStorage(models);
@@ -241,6 +244,7 @@ export const uploadFileGCS = async (
     filepath: string;
     mimetype: string;
   },
+  forcePrivate = false,
   models: IModels,
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
@@ -250,7 +254,9 @@ export const uploadFileGCS = async (
   }
 
   const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
+  const IS_PUBLIC = forcePrivate
+    ? 'false'
+    : await getConfig('FILE_SYSTEM_PUBLIC', '', models);
 
   // initialize GCS
   const storage = await createGCS(models);
@@ -414,6 +420,7 @@ export const uploadFile = async (
   apiUrl: string,
   file,
   fromEditor = false,
+  forcePrivate = false,
   models: IModels,
 ): Promise<any> => {
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
@@ -423,21 +430,21 @@ export const uploadFile = async (
   let nameOrLink = '';
 
   if (UPLOAD_SERVICE_TYPE === 'AZURE') {
-    nameOrLink = await uploadFileAzure(file, models);
+    nameOrLink = await uploadFileAzure(file, forcePrivate, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    nameOrLink = await uploadFileAWS(file, false, models);
+    nameOrLink = await uploadFileAWS(file, forcePrivate, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    nameOrLink = await uploadFileGCS(file, models);
+    nameOrLink = await uploadFileGCS(file, forcePrivate, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
     nameOrLink = await uploadFileCloudflare(
       file,
-      !!(VERSION === 'saas'),
+      forcePrivate || !!(VERSION === 'saas'),
       models,
     );
   }

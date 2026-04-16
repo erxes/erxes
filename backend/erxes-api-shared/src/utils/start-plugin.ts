@@ -60,6 +60,7 @@ type IMeta = {
   tags?: any;
   properties?: IPropertyMeta;
   permissions?: IPermissionConfig;
+  importExport?: any;
 };
 
 type ApiHandler = {

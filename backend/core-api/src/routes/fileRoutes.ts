@@ -151,6 +151,12 @@ router.post('/upload-file', uploadLimiter, async (req: Request, res: Response) =
   const models = await generateModels(subdomain);
   const maxHeight = Number(req.query.maxHeight);
   const maxWidth = Number(req.query.maxWidth);
+  const kindQuery = Array.isArray(req.query.kind) ? req.query.kind[0] : req.query.kind;
+  const forcePrivate =
+    kindQuery === 'import' ||
+    (Array.isArray(req.query.forcePrivate)
+      ? req.query.forcePrivate[0]
+      : req.query.forcePrivate) === 'true';
 
   const form = new formidable.IncomingForm({
     uploadDir: os.tmpdir(),
@@ -196,6 +202,7 @@ router.post('/upload-file', uploadLimiter, async (req: Request, res: Response) =
         `${domain}/gateway`,
         processedFile,
         !!files.upload,
+        forcePrivate,
         models,
       );
 
@@ -426,6 +433,7 @@ router.post(
               size: latestInfo.fileSize,
               name: file.originalname,
             },
+            false,
             false,
             models,
           );

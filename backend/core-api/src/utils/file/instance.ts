@@ -1,14 +1,19 @@
 import * as AWS from 'aws-sdk';
 import * as path from 'path';
+import { getEnv } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import {
   getConfig,
   getFileUploadConfigs,
 } from '~/modules/organization/settings/utils/configs';
 
-const privateUploadsPath = path.join(__dirname, '../private/uploads');
+const defaultPrivateUploadsPath = path.join(__dirname, '../private/uploads');
+const localUploadsPath = getEnv({
+  name: 'LOCAL_UPLOADS_DIR',
+  defaultValue: defaultPrivateUploadsPath,
+});
 
-export const uploadsFolderPath = path.resolve(privateUploadsPath);
+export const uploadsFolderPath = path.resolve(localUploadsPath);
 
 /**
  * Create Azure Blob Storage instance

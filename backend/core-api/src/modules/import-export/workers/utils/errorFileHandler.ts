@@ -72,6 +72,7 @@ export const saveErrorFile = async (
         mimetype: 'text/csv',
       },
       false,
+      true,
       models,
     );
 
