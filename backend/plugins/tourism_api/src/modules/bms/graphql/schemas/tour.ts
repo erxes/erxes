@@ -215,6 +215,7 @@ export const types = `
   type GroupTourItem {
     items: [Tour]
     _id: String
+    name: String
   }
   type GroupTour {
     list: [GroupTourItem]
