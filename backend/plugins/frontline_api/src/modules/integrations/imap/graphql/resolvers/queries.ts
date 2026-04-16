@@ -51,6 +51,7 @@ export const imapQueries = {
         _id: message._id,
         mailData: {
           messageId: message.messageId,
+          type: message.type,
           from: convertEmails(message.from),
           to: convertEmails(message.to),
           cc: convertEmails(message.cc),
