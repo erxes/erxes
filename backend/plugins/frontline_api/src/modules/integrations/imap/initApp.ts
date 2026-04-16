@@ -203,7 +203,9 @@ const onServerInitImap = async (app) => {
   const VERSION = getEnv({ name: 'VERSION' });
 
   if (VERSION && VERSION === 'saas') {
-    console.log('SAAS mode: starting IMAP job distributor for all organizations');
+    console.log(
+      'SAAS mode: starting IMAP job distributor for all organizations',
+    );
 
     (async () => {
       try {
@@ -216,7 +218,9 @@ const onServerInitImap = async (app) => {
 
         for (const org of organizations) {
           if (!org.subdomain) continue;
-          console.log(`[IMAP] Starting job distributor for org: ${org.subdomain}`);
+          console.log(
+            `[IMAP] Starting job distributor for org: ${org.subdomain}`,
+          );
           startDistributingJobs(org.subdomain);
         }
       } catch (err) {

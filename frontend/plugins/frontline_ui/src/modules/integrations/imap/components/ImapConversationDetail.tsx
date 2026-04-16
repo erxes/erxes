@@ -10,12 +10,21 @@ import {
   cn,
   toast,
 } from 'erxes-ui';
-import { IconArrowBackUp, IconChevronDown, IconChevronUp, IconMailForward, IconSend } from '@tabler/icons-react';
+import {
+  IconArrowBackUp,
+  IconChevronDown,
+  IconChevronUp,
+  IconMailForward,
+  IconSend,
+} from '@tabler/icons-react';
 
 import { IMAP_CONVERSATION_DETAIL_QUERY } from '../graphql/queries/imapQueries';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { useSetAtom } from 'jotai';
-import { isInternalState, onlyInternalState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
+import {
+  isInternalState,
+  onlyInternalState,
+} from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { useImapSendMail } from '../hooks/useImapConversationDetail';
 
 /* =====================
@@ -54,7 +63,10 @@ interface ImapConversationDetailResponse {
 ===================== */
 
 const formatEmails = (emails?: EmailAddress[]) =>
-  (emails || []).map((e) => e.name || e.email || '').filter(Boolean).join(', ');
+  (emails || [])
+    .map((e) => e.name || e.email || '')
+    .filter(Boolean)
+    .join(', ');
 
 const getInitials = (name?: string, email?: string) =>
   (name || email || '?')[0].toUpperCase();
@@ -87,7 +99,9 @@ const EmailHeader: React.FC<{
   return (
     <div className="flex items-start gap-3 px-4 py-3">
       <Avatar size="lg" className="flex-none mt-0.5">
-        <Avatar.Fallback className={cn(isSent ? 'bg-blue-100 text-blue-600' : 'bg-muted')}>
+        <Avatar.Fallback
+          className={cn(isSent ? 'bg-blue-100 text-blue-600' : 'bg-muted')}
+        >
           {getInitials(sender?.name, sender?.email)}
         </Avatar.Fallback>
       </Avatar>
@@ -137,7 +151,12 @@ const EmailBody: React.FC<{ body?: string }> = ({ body }) => {
     return () => iframe.removeEventListener('load', onLoad);
   }, [body]);
 
-  if (!body) return <p className="px-4 pb-3 text-sm text-muted-foreground italic">No content</p>;
+  if (!body)
+    return (
+      <p className="px-4 pb-3 text-sm text-muted-foreground italic">
+        No content
+      </p>
+    );
 
   return (
     <iframe
@@ -162,17 +181,30 @@ const EmailCard: React.FC<{
   const isSent = mailData.type === 'SENT';
 
   return (
-    <div className={cn('rounded-lg border bg-background shadow-sm overflow-hidden', isSent && 'border-blue-200')}>
+    <div
+      className={cn(
+        'rounded-lg border bg-background shadow-sm overflow-hidden',
+        isSent && 'border-blue-200',
+      )}
+    >
       <button
         className="w-full text-left hover:bg-muted/30 transition-colors"
         onClick={() => setExpanded((v) => !v)}
       >
         <div className="flex items-center">
           <div className="flex-1 min-w-0">
-            <EmailHeader mailData={mailData} createdAt={createdAt} isSent={isSent} />
+            <EmailHeader
+              mailData={mailData}
+              createdAt={createdAt}
+              isSent={isSent}
+            />
           </div>
           <span className="px-4 text-muted-foreground flex-none">
-            {expanded ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
+            {expanded ? (
+              <IconChevronUp size={16} />
+            ) : (
+              <IconChevronDown size={16} />
+            )}
           </span>
         </div>
       </button>
@@ -240,7 +272,10 @@ const ComposeSection: React.FC<ComposeProps> = ({
   const handleSend = () => {
     const toList = splitEmails(to);
     if (!toList.length) {
-      toast({ title: 'Please enter at least one recipient', variant: 'destructive' });
+      toast({
+        title: 'Please enter at least one recipient',
+        variant: 'destructive',
+      });
       return;
     }
     if (!body.trim()) {
@@ -336,11 +371,20 @@ const ComposeSection: React.FC<ComposeProps> = ({
       </div>
 
       <div className="px-4 py-3 flex justify-end gap-2 bg-muted/20">
-        <Button variant="outline" size="sm" onClick={onClose} disabled={loading}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onClose}
+          disabled={loading}
+        >
           Cancel
         </Button>
         <Button size="sm" onClick={handleSend} disabled={loading}>
-          {loading ? <Spinner size="sm" className="mr-1" /> : <IconSend size={14} className="mr-1" />}
+          {loading ? (
+            <Spinner size="sm" className="mr-1" />
+          ) : (
+            <IconSend size={14} className="mr-1" />
+          )}
           Send
         </Button>
       </div>
@@ -357,7 +401,9 @@ export const ImapConversationDetail: React.FC = () => {
   const setIsInternalNote = useSetAtom(isInternalState);
   const setOnlyInternal = useSetAtom(onlyInternalState);
 
-  const [composeMode, setComposeMode] = useState<'reply' | 'forward' | null>(null);
+  const [composeMode, setComposeMode] = useState<'reply' | 'forward' | null>(
+    null,
+  );
   const [composeTarget, setComposeTarget] = useState<ImapMessage | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -412,20 +458,27 @@ export const ImapConversationDetail: React.FC = () => {
   const handleReply = (msg: ImapMessage) => {
     setComposeTarget(msg);
     setComposeMode('reply');
-    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    setTimeout(
+      () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }),
+      50,
+    );
   };
 
   const handleForward = (msg: ImapMessage) => {
     setComposeTarget(msg);
     setComposeMode('forward');
-    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    setTimeout(
+      () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }),
+      50,
+    );
   };
 
   const getReplyTo = (msg: ImapMessage): string[] => {
     const { type, from, to } = msg.mailData;
     // Reply to the sender — if it's an incoming message, reply to `from`
     // If it's a sent message being replied to (unusual), reply to `to`
-    if (type === 'SENT') return (to || []).map((e) => e.email || '').filter(Boolean);
+    if (type === 'SENT')
+      return (to || []).map((e) => e.email || '').filter(Boolean);
     return (from || []).map((e) => e.email || '').filter(Boolean);
   };
 
