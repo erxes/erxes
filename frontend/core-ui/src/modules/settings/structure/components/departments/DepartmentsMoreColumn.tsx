@@ -11,21 +11,23 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
-import { IBranchListItem } from '../../types/branch';
-import { renderingBranchDetailAtom } from '../../states/renderingBranchDetail';
-import { useRemoveBranch } from '../../hooks/useBranchActions';
+import { IDepartmentListItem } from '../../types/department';
+import { renderingDepartmentDetailAtom } from '../../states/renderingDepartmentDetail';
+import { useRemoveDepartment } from '../../hooks/useDepartmentActions';
 
-export const BranchesMoreColumnCell = ({
+export const DepartmentsMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<IBranchListItem, unknown>;
+  cell: Cell<IDepartmentListItem, unknown>;
 }) => {
   const { _id, title } = cell.row.original;
-  const [, setOpenBranch] = useQueryState('branch_id');
+  const [, setOpenDepartment] = useQueryState('department_id');
   const [, setOpenWorkingHours] = useQueryState('workingHoursId');
-  const setRenderingBranchDetail = useSetAtom(renderingBranchDetailAtom);
+  const setRenderingDepartmentDetail = useSetAtom(
+    renderingDepartmentDetailAtom,
+  );
   const { confirm } = useConfirm();
-  const { handleRemove } = useRemoveBranch();
+  const { handleRemove } = useRemoveDepartment();
 
   const handleDelete = () => {
     confirm({
@@ -42,9 +44,10 @@ export const BranchesMoreColumnCell = ({
       }
     });
   };
+
   return (
     <Popover>
-      <Can actions={['branchesManage']}>
+      <Can action="departmentsManage">
         <Popover.Trigger asChild>
           <RecordTable.MoreButton className="w-full h-full" />
         </Popover.Trigger>
@@ -52,29 +55,29 @@ export const BranchesMoreColumnCell = ({
       <Combobox.Content>
         <Command>
           <Command.List>
-            <Can action="branchesManage">
+            <Can action="departmentsManage">
               <Command.Item
                 value="edit"
                 onSelect={() => {
-                  setOpenBranch(_id);
-                  setRenderingBranchDetail(false);
+                  setOpenDepartment(_id);
+                  setRenderingDepartmentDetail(false);
                 }}
               >
                 <IconEdit /> Edit
               </Command.Item>
             </Can>
-            <Can action="branchesManage">
+            <Can action="departmentsManage">
               <Command.Item
                 value="workingHours"
                 onSelect={() => {
                   setOpenWorkingHours(_id);
-                  setRenderingBranchDetail(false);
+                  setRenderingDepartmentDetail(false);
                 }}
               >
                 <IconClock /> Working Hours
               </Command.Item>
             </Can>
-            <Can action="branchesManage">
+            <Can action="departmentsManage">
               <Command.Item
                 value="delete"
                 onSelect={handleDelete}
@@ -90,8 +93,8 @@ export const BranchesMoreColumnCell = ({
   );
 };
 
-export const BranchesMoreColumn = {
+export const DepartmentsMoreColumn = {
   id: 'more',
-  cell: BranchesMoreColumnCell,
+  cell: DepartmentsMoreColumnCell,
   size: 25,
 };

@@ -1,6 +1,6 @@
 import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
-import { IconEdit, IconClock, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Can } from 'ui-modules';
 import {
   Combobox,
@@ -11,25 +11,24 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
-import { IBranchListItem } from '../../types/branch';
-import { renderingBranchDetailAtom } from '../../states/renderingBranchDetail';
-import { useRemoveBranch } from '../../hooks/useBranchActions';
+import { IPositionListItem } from '../../types/position';
+import { renderingPositionDetailAtom } from '../../states/renderingPositionDetail';
+import { useRemovePosition } from '../../hooks/usePositionActions';
 
-export const BranchesMoreColumnCell = ({
+export const PositionsMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<IBranchListItem, unknown>;
+  cell: Cell<IPositionListItem, unknown>;
 }) => {
-  const { _id, title } = cell.row.original;
-  const [, setOpenBranch] = useQueryState('branch_id');
-  const [, setOpenWorkingHours] = useQueryState('workingHoursId');
-  const setRenderingBranchDetail = useSetAtom(renderingBranchDetailAtom);
+  const { _id, title } = cell.row.original || {};
+  const [, setOpenPosition] = useQueryState('position_id');
+  const setRenderingPositionDetail = useSetAtom(renderingPositionDetailAtom);
   const { confirm } = useConfirm();
-  const { handleRemove } = useRemoveBranch();
+  const { handleRemove } = useRemovePosition();
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${title}"?`,
+      message: `Are you sure you want to delete "${title}" position?`,
     }).then(async () => {
       try {
         await handleRemove({ variables: { ids: [_id] } });
@@ -42,9 +41,10 @@ export const BranchesMoreColumnCell = ({
       }
     });
   };
+
   return (
     <Popover>
-      <Can actions={['branchesManage']}>
+      <Can action="positionsManage">
         <Popover.Trigger asChild>
           <RecordTable.MoreButton className="w-full h-full" />
         </Popover.Trigger>
@@ -52,29 +52,18 @@ export const BranchesMoreColumnCell = ({
       <Combobox.Content>
         <Command>
           <Command.List>
-            <Can action="branchesManage">
+            <Can action="positionsManage">
               <Command.Item
                 value="edit"
                 onSelect={() => {
-                  setOpenBranch(_id);
-                  setRenderingBranchDetail(false);
+                  setOpenPosition(_id);
+                  setRenderingPositionDetail(false);
                 }}
               >
                 <IconEdit /> Edit
               </Command.Item>
             </Can>
-            <Can action="branchesManage">
-              <Command.Item
-                value="workingHours"
-                onSelect={() => {
-                  setOpenWorkingHours(_id);
-                  setRenderingBranchDetail(false);
-                }}
-              >
-                <IconClock /> Working Hours
-              </Command.Item>
-            </Can>
-            <Can action="branchesManage">
+            <Can action="positionsManage">
               <Command.Item
                 value="delete"
                 onSelect={handleDelete}
@@ -90,8 +79,8 @@ export const BranchesMoreColumnCell = ({
   );
 };
 
-export const BranchesMoreColumn = {
+export const PositionsMoreColumn = {
   id: 'more',
-  cell: BranchesMoreColumnCell,
+  cell: PositionsMoreColumnCell,
   size: 25,
 };

@@ -14,7 +14,7 @@ export function PositionsSettings() {
       <RecordTable.Provider
         data={sortedPositions || []}
         columns={PositionsColumns}
-        stickyColumns={['checkbox','code', 'title']}
+        stickyColumns={['more','checkbox','code', 'title']}
         className="m-3"
       >
         <RecordTableTree id="positions-list" ordered>
