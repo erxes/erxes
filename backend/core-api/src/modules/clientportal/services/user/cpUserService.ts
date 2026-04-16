@@ -133,47 +133,36 @@ export async function registerUser(
 }
 
 export async function verifyUser(
-  userId: string,
-  email: string,
-  phone: string,
-  code: string,
-  clientPortal: IClientPortalDocument,
   models: IModels,
-): Promise<ICPUserDocument> {
-  const query = buildUserQuery(userId, email, phone, clientPortal._id);
-  const user = await models.CPUser.findOne(query);
+  params: {
+    userIds?: string[];
+    userId?: string;
+    type: 'email' | 'phone';
+    code?: string;
+    clientPortal?: IClientPortalDocument;
+  },
+) {
+  const { userIds, userId, type, code } = params;
 
-  if (!user) {
-    throw new AuthenticationError('User not found');
+  if (userIds && userIds.length > 0) {
+    const updateFields: any = { isVerified: true };
+
+    if (type === 'email') updateFields.isEmailVerified = true;
+    if (type === 'phone') updateFields.isPhoneVerified = true;
+
+    await models.CPUser.updateMany(
+      { _id: { $in: userIds } },
+      { $set: updateFields },
+    );
+
+    const users = await models.CPUser.find({ _id: { $in: userIds } });
+    for (const user of users) {
+      if (user.erxesCustomerId) {
+        await updateCustomerStateToCustomer(user.erxesCustomerId, models);
+      }
+    }
+    return 'success';
   }
-
-  if (user.isVerified) {
-    throw new ValidationError('User already verified');
-  }
-
-  if (isActionCodeExpired(user)) {
-    throw new TokenExpiredError('Verification code expired');
-  }
-
-  if (!user.actionCode) {
-    throw new ValidationError('No verification code found');
-  }
-
-  const VALID_VERIFICATION_TYPES: ActionCodeType[] = [
-    'EMAIL_VERIFICATION',
-    'PHONE_VERIFICATION',
-  ];
-
-  function isValidVerificationType(type: string): type is ActionCodeType {
-    return VALID_VERIFICATION_TYPES.includes(type as ActionCodeType);
-  }
-
-  if (!isValidVerificationType(user.actionCode.type)) {
-    throw new ValidationError('Invalid verification code type');
-  }
-  validateActionCode(user, code, user.actionCode.type as ActionCodeType);
-
-  return markUserAsVerified(user, models);
 }
 
 export async function updateUser(
