@@ -71,9 +71,18 @@ const createLimiter = (max: number, message: string) =>
     legacyHeaders: false,
   });
 
-const readLimiter = createLimiter(1000, 'Too many read-file requests, please try again later.');
-const uploadLimiter = createLimiter(200, 'Too many upload requests, please try again later.');
-const chunkLimiter = createLimiter(1000, 'Too many chunk upload requests, please try again later.');
+const readLimiter = createLimiter(
+  1000,
+  'Too many read-file requests, please try again later.',
+);
+const uploadLimiter = createLimiter(
+  200,
+  'Too many upload requests, please try again later.',
+);
+const chunkLimiter = createLimiter(
+  1000,
+  'Too many chunk upload requests, please try again later.',
+);
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
@@ -145,94 +154,104 @@ router.get(
   },
 );
 
-router.post('/upload-file', uploadLimiter, async (req: Request, res: Response) => {
-  const subdomain = getSubdomain(req);
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
-  const models = await generateModels(subdomain);
-  const maxHeight = Number(req.query.maxHeight);
-  const maxWidth = Number(req.query.maxWidth);
-  const kindQuery = Array.isArray(req.query.kind) ? req.query.kind[0] : req.query.kind;
-  const forcePrivate =
-    kindQuery === 'import' ||
-    (Array.isArray(req.query.forcePrivate)
-      ? req.query.forcePrivate[0]
-      : req.query.forcePrivate) === 'true';
+router.post(
+  '/upload-file',
+  uploadLimiter,
+  async (req: Request, res: Response) => {
+    const subdomain = getSubdomain(req);
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
+    const models = await generateModels(subdomain);
+    const maxHeight = Number(req.query.maxHeight);
+    const maxWidth = Number(req.query.maxWidth);
+    const kindQuery = Array.isArray(req.query.kind)
+      ? req.query.kind[0]
+      : req.query.kind;
+    const forcePrivate =
+      kindQuery === 'import' ||
+      (Array.isArray(req.query.forcePrivate)
+        ? req.query.forcePrivate[0]
+        : req.query.forcePrivate) === 'true';
 
-  const form = new formidable.IncomingForm({
-    uploadDir: os.tmpdir(),
-    keepExtensions: true,
-  });
+    const form = new formidable.IncomingForm({
+      uploadDir: os.tmpdir(),
+      keepExtensions: true,
+    });
 
-  form.parse(req, async (error, _fields, files) => {
-    if (error) {
-      return res
-        .status(400)
-        .send(`File upload parsing error: ${error.message}`);
+    form.parse(req, async (error, _fields, files) => {
+      if (error) {
+        return res
+          .status(400)
+          .send(`File upload parsing error: ${error.message}`);
+      }
+
+      const uploaded = files.file || files.upload;
+
+      const file = Array.isArray(uploaded) ? uploaded[0] : uploaded;
+
+      if (!file?.filepath || !isValidPath(file.filepath)) {
+        return res.status(400).send('Invalid or unsafe file path');
+      }
+
+      const mimetype = file?.mimetype;
+
+      if (!mimetype) {
+        return res
+          .status(400)
+          .send('One or more files have unrecognized MIME type');
+      }
+
+      let processedFile = file;
+
+      if (isImage(mimetype) && maxHeight && maxWidth) {
+        processedFile = await resizeImage(file, maxWidth, maxHeight);
+      }
+
+      const status = await checkFile(models, processedFile, req.headers.source);
+      if (status !== 'ok') {
+        return res.status(400).send(status);
+      }
+
+      try {
+        const result = await uploadFile(
+          `${domain}/gateway`,
+          processedFile,
+          !!files.upload,
+          forcePrivate,
+          models,
+        );
+
+        res.send(result);
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'Upload failed';
+        return res.status(500).send(filterXSS(message));
+      }
+    });
+  },
+);
+
+router.post(
+  '/delete-file',
+  uploadLimiter,
+  async (req: Request, res: Response) => {
+    // require login
+    if (!req.headers.userid) {
+      return res.end('forbidden');
     }
 
-    const uploaded = files.file || files.upload;
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
 
-    const file = Array.isArray(uploaded) ? uploaded[0] : uploaded;
+    const sanitizedFilename = sanitizeFilename(req.body.fileName);
 
-    if (!file?.filepath || !isValidPath(file.filepath)) {
-      return res.status(400).send('Invalid or unsafe file path');
+    const status = await deleteFile(models, sanitizedFilename);
+
+    if (status === 'ok') {
+      return res.send(status);
     }
 
-    const mimetype = file?.mimetype;
-
-    if (!mimetype) {
-      return res
-        .status(400)
-        .send('One or more files have unrecognized MIME type');
-    }
-
-    let processedFile = file;
-
-    if (isImage(mimetype) && maxHeight && maxWidth) {
-      processedFile = await resizeImage(file, maxWidth, maxHeight);
-    }
-
-    const status = await checkFile(models, processedFile, req.headers.source);
-    if (status !== 'ok') {
-      return res.status(400).send(status);
-    }
-
-    try {
-      const result = await uploadFile(
-        `${domain}/gateway`,
-        processedFile,
-        !!files.upload,
-        forcePrivate,
-        models,
-      );
-
-      res.send(result);
-    } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : 'Upload failed';
-      return res.status(500).send(filterXSS(message));
-    }
-  });
-});
-
-router.post('/delete-file', uploadLimiter, async (req: Request, res: Response) => {
-  // require login
-  if (!req.headers.userid) {
-    return res.end('forbidden');
-  }
-
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
-
-  const sanitizedFilename = sanitizeFilename(req.body.fileName);
-
-  const status = await deleteFile(models, sanitizedFilename);
-
-  if (status === 'ok') {
-    return res.send(status);
-  }
-
-  return res.status(500).send(status);
-});
+    return res.status(500).send(status);
+  },
+);
 
 /**
  * Chunked upload for large files.
@@ -274,19 +293,24 @@ const chunkStore = new Map<
 
 /** Evict abandoned upload sessions older than 30 minutes to prevent memory leaks. */
 const CHUNK_SESSION_TTL = 30 * 60 * 1000;
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, info] of chunkStore.entries()) {
-    if (now - info.createdAt > CHUNK_SESSION_TTL) {
-      chunkStore.delete(id);
-      uploadStore.delete(id);
-      const staleDir = path.join(tmpDir.name, info.uploadId);
-      try {
-        fs.rmSync(staleDir, { recursive: true, force: true });
-      } catch { /* already cleaned up */ }
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [id, info] of chunkStore.entries()) {
+      if (now - info.createdAt > CHUNK_SESSION_TTL) {
+        chunkStore.delete(id);
+        uploadStore.delete(id);
+        const staleDir = path.join(tmpDir.name, info.uploadId);
+        try {
+          fs.rmSync(staleDir, { recursive: true, force: true });
+        } catch {
+          /* already cleaned up */
+        }
+      }
     }
-  }
-}, 5 * 60 * 1000).unref();
+  },
+  5 * 60 * 1000,
+).unref();
 
 /** Initialize a chunked upload session, returning a server-generated uploadId. */
 router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
@@ -303,7 +327,10 @@ router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
     !Number.isInteger(parsedChunks) ||
     parsedChunks <= 0
   ) {
-    return res.status(400).json({ error: 'Missing or invalid required fields: fileName, fileSize, totalChunks' });
+    return res.status(400).json({
+      error:
+        'Missing or invalid required fields: fileName, fileSize, totalChunks',
+    });
   }
 
   const uploadId = crypto.randomUUID();
@@ -331,7 +358,16 @@ router.post(
     const domain = DOMAIN.replace('<subdomain>', subdomain);
     const models = await generateModels(subdomain);
     const { uploadId, chunkIndex } = req.body;
-    const file = (req as Request & { file?: { path: string; mimetype: string; originalname: string; size: number } }).file;
+    const file = (
+      req as Request & {
+        file?: {
+          path: string;
+          mimetype: string;
+          originalname: string;
+          size: number;
+        };
+      }
+    ).file;
 
     if (!file || !uploadId || chunkIndex === undefined) {
       return res.status(400).json({ error: 'Missing data' });
@@ -446,10 +482,13 @@ router.post(
             progress: 100,
           });
 
-          setTimeout(() => {
-            uploadStore.delete(trustedId);
-            chunkStore.delete(trustedId);
-          }, 5 * 60 * 1000);
+          setTimeout(
+            () => {
+              uploadStore.delete(trustedId);
+              chunkStore.delete(trustedId);
+            },
+            5 * 60 * 1000,
+          );
 
           try {
             fs.unlinkSync(finalPath);

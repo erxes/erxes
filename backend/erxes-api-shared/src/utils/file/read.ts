@@ -351,7 +351,10 @@ type ReadRemoteFileStreamParams = {
 };
 
 const resolveLocalUploadsPath = () => {
-  const defaultPrivateUploadsPath = path.join(__dirname, 'backend/core-api/src/utils/private/uploads');
+  const defaultPrivateUploadsPath = path.join(
+    __dirname,
+    'backend/core-api/src/utils/private/uploads',
+  );
 
   return path.resolve(
     getEnv({
@@ -373,9 +376,7 @@ const streamFromLocal = (key: string): Readable => {
   const filePath = path.resolve(absoluteBase, safeKey);
 
   if (!fs.existsSync(absoluteBase)) {
-    throw new Error(
-      `Local uploads directory does not exist: ${absoluteBase}`,
-    );
+    throw new Error(`Local uploads directory does not exist: ${absoluteBase}`);
   }
 
   if (

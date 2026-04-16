@@ -33,9 +33,9 @@ export const Import = ({
   const resolvedTitle =
     title === 'Upload CSV'
       ? `Import ${formatEntityLabel(collectionName, {
-        plural: true,
-        capitalize: true,
-      })}`
+          plural: true,
+          capitalize: true,
+        })}`
       : title;
   const {
     activeImports,
@@ -159,7 +159,11 @@ export const Import = ({
               </div>
             )}
 
-            <Button asChild variant="outline" className="w-full justify-between">
+            <Button
+              asChild
+              variant="outline"
+              className="w-full justify-between"
+            >
               <Link to={`/settings/import-export/import?type=${contentType}`}>
                 Open import history
                 <IconArrowRight className="size-4" />

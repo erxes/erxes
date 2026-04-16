@@ -81,7 +81,7 @@ startPlugin({
     importExport: {
       import: {
         types: accountImportTypes,
-      }
-    }
+      },
+    },
   },
 });
