@@ -230,6 +230,7 @@ export const queries = `
   cpBmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, webId: String, language: String): GroupTour
   cpBmToursGroupDetail(groupCode: String, status: String, language: String): GroupTourItem
   cpBmsOrders(tourId: String, customerId: String, branchId: String, ${GQL_CURSOR_PARAM_DEFS}): BmsOrderListResponse
+  cpBmsTourCategories(parentId: String, name: String, branchId: String, language: String): [TourCategory]
 `;
 
 const categoryParams = `

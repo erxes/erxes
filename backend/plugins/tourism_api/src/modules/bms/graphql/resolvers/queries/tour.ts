@@ -325,6 +325,42 @@ const tourQueries: Record<string, Resolver> = {
     return list;
   },
 
+  cpBmsTourCategories: async (
+    _root,
+    { parentId, name, branchId, language },
+    { models }: IContext,
+  ) => {
+    const selector: any = {};
+
+    if (parentId) {
+      selector.parentId = parentId;
+    } else if (parentId === null) {
+      selector.parentId = null;
+    }
+    if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    if (branchId) selector.branchId = branchId;
+
+    // No language — return raw sorted list
+    if (!language) {
+      return models.BmsTourCategories.find(selector).sort({
+        order: 1,
+        name: 1,
+      });
+    }
+
+    // With language — overlay translations
+    const { list } = await getBmsListWithTranslations(
+      models,
+      models.BmsTourCategories,
+      models.TourCategoryTranslations,
+      selector,
+      { branchId, language, orderBy: { order: 1, name: 1 } },
+      TOUR_CATEGORY_FIELD_MAPPINGS,
+    );
+
+    return list;
+  },
+
   cpBmsTourDetail(
     _root: any,
     { _id, language }: { _id: string; language?: string },
@@ -586,3 +622,4 @@ tourQueries.cpBmsToursTotalCount.wrapperConfig = { forClientPortal: true };
 tourQueries.cpBmsTourDetail.wrapperConfig = { forClientPortal: true };
 tourQueries.cpBmToursGroup.wrapperConfig = { forClientPortal: true };
 tourQueries.cpBmToursGroupDetail.wrapperConfig = { forClientPortal: true };
+tourQueries.cpBmsTourCategories.wrapperConfig = {forClientPortal:true};
