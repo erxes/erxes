@@ -581,16 +581,15 @@ const tourQueries: Record<string, Resolver> = {
       ),
     );
 
-    const items = translatedItems.reduce<Array<{ _id?: string; name?: string | null }>>(
-      (acc, tour) => {
-        if (tour) {
-          acc.push(tour);
-        }
+    const items = translatedItems.reduce<
+      Array<{ _id?: string; name?: string | null }>
+    >((acc, tour) => {
+      if (tour) {
+        acc.push(tour);
+      }
 
-        return acc;
-      },
-      [],
-    );
+      return acc;
+    }, []);
 
     return {
       _id: groupCode,
@@ -620,16 +619,15 @@ const tourQueries: Record<string, Resolver> = {
       ),
     );
 
-    const items = translatedItems.reduce<Array<{ _id?: string; name?: string | null }>>(
-      (acc, tour) => {
-        if (tour) {
-          acc.push(tour);
-        }
+    const items = translatedItems.reduce<
+      Array<{ _id?: string; name?: string | null }>
+    >((acc, tour) => {
+      if (tour) {
+        acc.push(tour);
+      }
 
-        return acc;
-      },
-      [],
-    );
+      return acc;
+    }, []);
 
     return {
       _id: groupCode,

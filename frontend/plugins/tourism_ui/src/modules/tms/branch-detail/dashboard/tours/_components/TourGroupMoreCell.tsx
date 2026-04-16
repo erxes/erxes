@@ -3,8 +3,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { TourGroupRow } from './TourGroupColumns';
 
-interface TourGroupMoreColumnProps
-  extends CellContext<TourGroupRow, unknown> {
+interface TourGroupMoreColumnProps extends CellContext<TourGroupRow, unknown> {
   onAddTour?: (row: TourGroupRow) => void;
 }
 

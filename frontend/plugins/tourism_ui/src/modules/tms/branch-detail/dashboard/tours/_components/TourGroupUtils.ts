@@ -45,7 +45,9 @@ const getGroupDateRangeLabel = (items: ITour[]) => {
       : firstItem?.startDate,
   );
   const endLabel = formatDate(
-    lastItem?.dateType === 'flexible' ? lastItem?.availableTo : lastItem?.endDate,
+    lastItem?.dateType === 'flexible'
+      ? lastItem?.availableTo
+      : lastItem?.endDate,
   );
 
   if (startLabel === '-' && endLabel === '-') return '-';
@@ -98,8 +100,9 @@ export const flattenGroups = (groups: ITourGroup[]): TourGroupRow[] => {
       const tourName = tour.name?.trim();
       const isSameAsGroupName =
         !tourName ||
-        tourName.localeCompare(groupName, undefined, { sensitivity: 'base' }) ===
-          0;
+        tourName.localeCompare(groupName, undefined, {
+          sensitivity: 'base',
+        }) === 0;
       const startLabel = getTourStartLabel(tour);
       const fallbackLabel =
         startLabel !== '-'
