@@ -204,6 +204,14 @@ const cpUsersEditParams = `
   companyName: String,
   companyRegistrationNumber: String,
   erxesCustomerId: String,
+  isVerified: Boolean,       
+  isEmailVerified: Boolean,  
+  isPhoneVerified: Boolean,  
+`;
+
+const cpUsersVerifyParams = `
+  type: String,
+  userIds: [String]!
 `;
 
 const cpUsersVerifyParams = `
