@@ -622,4 +622,4 @@ tourQueries.cpBmsToursTotalCount.wrapperConfig = { forClientPortal: true };
 tourQueries.cpBmsTourDetail.wrapperConfig = { forClientPortal: true };
 tourQueries.cpBmToursGroup.wrapperConfig = { forClientPortal: true };
 tourQueries.cpBmToursGroupDetail.wrapperConfig = { forClientPortal: true };
-tourQueries.cpBmsTourCategories.wrapperConfig = {forClientPortal:true};
+tourQueries.cpBmsTourCategories.wrapperConfig = { forClientPortal: true };
