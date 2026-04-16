@@ -37,12 +37,13 @@ export const tagMutations: Record<string, Resolver> = {
       type,
       targetIds,
       tagIds,
-    }: { type: string; targetIds: string[]; tagIds: string[] },
+      action,
+    }: { type: string; targetIds: string[]; tagIds: string[]; action?: 'add' | 'remove' },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('tagsTag');
 
-    return await models.Tags.tagsTag(type, targetIds, tagIds);
+    return await models.Tags.tagsTag(type, targetIds, tagIds, action);
   },
 
   /**

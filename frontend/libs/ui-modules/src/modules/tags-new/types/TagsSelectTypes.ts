@@ -21,6 +21,8 @@ export type TagsSelectProps = {
   targetIds?: string[];
   options?: (
     newSelectedTagIds: string[],
+    action?: 'add' | 'remove',
+    changedTagId?: string,
   ) => MutationHookOptions<GiveTagsMutationResponse, GiveTagsMutationVariables>;
 } & (SingleTagsSelectProps | MultipleTagsSelectProps);
 
@@ -40,4 +42,9 @@ export type TagsSelectContextType = {
   type: string | null;
   loading: boolean;
   targetIds?: string[];
+  options?: (
+    newSelectedTagIds: string[],
+    action?: 'add' | 'remove',
+    changedTagId?: string,
+  ) => MutationHookOptions<GiveTagsMutationResponse, GiveTagsMutationVariables>;
 };

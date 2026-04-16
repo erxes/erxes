@@ -36,8 +36,9 @@ export const GIVE_TAGS = gql`
     $type: String!
     $targetIds: [String!]!
     $tagIds: [String!]!
+    $action: String
   ) {
-    tagsTag(type: $type, targetIds: $targetIds, tagIds: $tagIds)
+    tagsTag(type: $type, targetIds: $targetIds, tagIds: $tagIds, action: $action)
   }
 `;
 

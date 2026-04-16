@@ -3,6 +3,7 @@ export type GiveTagsMutationVariables = {
   type: string | null;
   targetIds: string[];
   tagIds: string[];
+  action?: 'add' | 'remove';
 };
 
 export type GiveTagsMutationResponse = {
