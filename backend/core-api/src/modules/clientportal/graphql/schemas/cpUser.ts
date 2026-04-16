@@ -214,11 +214,6 @@ const cpUsersVerifyParams = `
   userIds: [String]!
 `;
 
-const cpUsersVerifyParams = `
-  type: String,
-  userIds: [String]!
-`;
-
 export const mutations = `
   cpUsersAdd(${cpUsersAddParams}): CPUser
   cpUsersEdit(${cpUsersEditParams}): CPUser
