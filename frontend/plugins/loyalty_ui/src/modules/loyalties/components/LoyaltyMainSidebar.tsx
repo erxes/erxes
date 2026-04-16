@@ -1,5 +1,5 @@
 import { Sidebar } from 'erxes-ui';
-import { Link, useLocation } from 'react-router';
+import { NavLink } from 'react-router';
 
 const NAV_ITEMS = [
   { label: 'Vouchers', path: '/loyalty/vouchers' },
@@ -13,8 +13,6 @@ const NAV_ITEMS = [
 ];
 
 export const LoyaltyMainSidebar = () => {
-  const { pathname } = useLocation();
-
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
@@ -23,12 +21,13 @@ export const LoyaltyMainSidebar = () => {
           <Sidebar.Menu>
             {NAV_ITEMS.map(({ label, path }) => (
               <Sidebar.MenuItem key={path}>
-                <Sidebar.MenuButton
-                  isActive={pathname.startsWith(path)}
-                  asChild
-                >
-                  <Link to={path}>{label}</Link>
-                </Sidebar.MenuButton>
+                <NavLink to={path} end className="w-full">
+                  {({ isActive }) => (
+                    <Sidebar.MenuButton isActive={isActive} asChild={false}>
+                      {label}
+                    </Sidebar.MenuButton>
+                  )}
+                </NavLink>
               </Sidebar.MenuItem>
             ))}
           </Sidebar.Menu>

@@ -1,6 +1,9 @@
 import {
+  IconArrowsRight,
   IconCalendar,
   IconFileDescription,
+  IconLabel,
+  IconListCheck,
   IconSearch,
 } from '@tabler/icons-react';
 import {
@@ -9,7 +12,9 @@ import {
   Filter,
   useFilterQueryState,
   useMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
+import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { ScoreTotalCount } from './ScoreTotalCount';
 import {
   SelectScoreCampaignFilterItem,
@@ -35,28 +40,14 @@ import {
   SelectScoreActionTypeFilterView,
   SelectScoreActionTypeFilterBar,
 } from './selects/SelectScoreActionType';
-import {
-  SelectBoardFilterItem,
-  SelectBoardFilterView,
-  SelectBoardFilterBar,
-  SelectPipelineFilterItem,
-  SelectPipelineFilterView,
-  SelectPipelineFilterBar,
-  SelectStageFilterItem,
-  SelectStageFilterView,
-  SelectStageFilterBar,
-} from './selects/SelectTarget';
-import { useGetSalesBoards } from '../hooks/useGetSalesBoards';
 
 export const SCORE_FILTER_SESSION_KEY = 'score_filter';
 
-const ScoreFilterPopover = ({
-  boards,
-}: {
-  boards?: { _id: string; name: string }[];
-}) => {
-  const [boardId] = useFilterQueryState<string>('scoreBoardId');
-  const [pipelineId] = useFilterQueryState<string>('scorePipelineId');
+const ScoreFilterPopover = () => {
+  const [scoreBoardId] = useFilterQueryState<string>('scoreBoardId');
+  const [scorePipelineId] = useFilterQueryState<string>('scorePipelineId');
+  const [, setPipelineId] = useQueryState<string>('scorePipelineId');
+  const [, setStageId] = useQueryState<string>('scoreStageId');
   const [queries] = useMultiQueryState<{
     scoreOwnerType: string | null;
     scoreOwnerId: string | null;
@@ -101,11 +92,18 @@ const ScoreFilterPopover = ({
                 <SelectScoreCampaignFilterItem />
                 <SelectOwnerTypeFilterItem />
                 <SelectScoreActionFilterItem />
-
-                <SelectBoardFilterItem />
-                <SelectPipelineFilterItem />
-                <Command.Separator className="my-1" />
-                <SelectStageFilterItem />
+                <Filter.Item value="scoreBoardId">
+                  <IconLabel />
+                  Board
+                </Filter.Item>
+                <Filter.Item value="scorePipelineId">
+                  <IconArrowsRight />
+                  Pipeline
+                </Filter.Item>
+                <Filter.Item value="scoreStageId">
+                  <IconListCheck />
+                  Stage
+                </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconSearch />
                   Number
@@ -126,11 +124,23 @@ const ScoreFilterPopover = ({
           <SelectScoreCampaignFilterView />
           <SelectOwnerTypeFilterView />
           <SelectScoreCustomerFilterView />
-          <SelectBoardFilterView preloadedBoards={boards} />
-          <SelectPipelineFilterView boardId={boardId || undefined} />
-          <SelectStageFilterView pipelineId={pipelineId || undefined} />
           <SelectScoreActionFilterView />
           <SelectScoreActionTypeFilterView />
+          <SelectBoard.FilterView
+            queryKey="scoreBoardId"
+            onValueChange={() => {
+              setPipelineId(null);
+              setStageId(null);
+            }}
+          />
+          <SelectPipeline.FilterView
+            queryKey="scorePipelineId"
+            boardId={scoreBoardId || undefined}
+          />
+          <SelectStage.FilterView
+            queryKey="scoreStageId"
+            pipelineId={scorePipelineId || undefined}
+          />
           <Filter.View filterKey="scoreDate">
             <Filter.DateView filterKey="scoreDate" />
           </Filter.View>
@@ -164,9 +174,8 @@ const ScoreFilterPopover = ({
 export const ScoreFilter = () => {
   const [number] = useFilterQueryState<string>('number');
   const [description] = useFilterQueryState<string>('description');
-  const [boardId] = useFilterQueryState<string>('scoreBoardId');
-  const [pipelineId] = useFilterQueryState<string>('scorePipelineId');
-  const { boards } = useGetSalesBoards();
+  const [scoreBoardId] = useFilterQueryState<string>('scoreBoardId');
+  const [scorePipelineId] = useFilterQueryState<string>('scorePipelineId');
 
   return (
     <Filter id="score-filter" sessionKey={SCORE_FILTER_SESSION_KEY}>
@@ -174,9 +183,15 @@ export const ScoreFilter = () => {
         <SelectScoreCampaignFilterBar />
         <SelectOwnerTypeFilterBar />
         <SelectScoreCustomerFilterBar />
-        <SelectBoardFilterBar preloadedBoards={boards} />
-        <SelectPipelineFilterBar boardId={boardId || undefined} />
-        <SelectStageFilterBar pipelineId={pipelineId || undefined} />
+        <SelectBoard.FilterBar queryKey="scoreBoardId" />
+        <SelectPipeline.FilterBar
+          queryKey="scorePipelineId"
+          boardId={scoreBoardId || undefined}
+        />
+        <SelectStage.FilterBar
+          queryKey="scoreStageId"
+          pipelineId={scorePipelineId || undefined}
+        />
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconSearch />
@@ -204,7 +219,7 @@ export const ScoreFilter = () => {
           </Filter.BarName>
           <Filter.Date filterKey="scoreDate" />
         </Filter.BarItem>
-        <ScoreFilterPopover boards={boards} />
+        <ScoreFilterPopover />
         <ScoreTotalCount />
       </Filter.Bar>
     </Filter>
