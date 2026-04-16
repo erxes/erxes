@@ -98,6 +98,7 @@ export const GET_TOUR_GROUPS = gql`
       total
       list {
         _id
+        name
         items {
           _id
           name
