@@ -35,6 +35,14 @@ export const userMutations: Record<string, Resolver> = {
     return cpUserService.updateUser(cpUser._id, params, models);
   },
 
+  async clientPortalUsersVerify(
+    _root: unknown,
+    params: { type: 'email' | 'phone'; userIds: string[] },
+    { models }: IContext,
+  ) {
+    return cpUserService.verifyUser(models, params);
+  },
+
   async clientPortalCustomerEdit(
     _root: unknown,
     params: Pick<
