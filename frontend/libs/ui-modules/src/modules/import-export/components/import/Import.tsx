@@ -7,7 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { type ComponentType, useId } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Popover, cn } from 'erxes-ui';
+import { Button, Popover, ScrollArea, cn } from 'erxes-ui';
 import { Badge } from 'erxes-ui/components/badge';
 import { useImportUploadHandler } from '../../hooks/import/useImportUploadHandler';
 import { formatEntityLabel } from '../../utils/entityLabel';
@@ -33,9 +33,9 @@ export const Import = ({
   const resolvedTitle =
     title === 'Upload CSV'
       ? `Import ${formatEntityLabel(collectionName, {
-          plural: true,
-          capitalize: true,
-        })}`
+        plural: true,
+        capitalize: true,
+      })}`
       : title;
   const {
     activeImports,
@@ -62,7 +62,10 @@ export const Import = ({
           )}
         </Button>
       </Popover.Trigger>
-      <Popover.Content align="end" className="w-[420px] overflow-hidden p-0">
+      <Popover.Content
+        align="end"
+        className="grid h-[85dvh] max-h-(--radix-popover-content-available-height) w-[420px] max-w-[calc(100vw-1rem)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden p-0"
+      >
         <div className="border-b bg-muted/30 px-5 py-4">
           <div className="flex items-start gap-3">
             <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
@@ -80,88 +83,90 @@ export const Import = ({
             </div>
           </div>
         </div>
-        <div className="space-y-5 p-5">
-          <div className="rounded-xl border bg-muted/20 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              How it works
-            </p>
-            <div className="mt-3 space-y-3">
-              <StepRow
-                icon={IconDownload}
-                title="Download the CSV template"
-                description={`Start with the template so your ${entityPluralLabel} columns match the importer.`}
-              />
-              <StepRow
-                icon={IconFileSpreadsheet}
-                title={`Add your ${entityPluralLabel}`}
-                description="Fill in each row with the values you want to create or update."
-              />
-              <StepRow
-                icon={IconUpload}
-                title="Upload the completed file"
-                description="We will validate the file and begin the import right away."
-                isLast
-              />
-            </div>
-          </div>
-
-          <ImportUploader
-            inputId={inputId}
-            entityLabel={entityLabel}
-            {...{
-              isDragOver,
-              handleDragOver,
-              handleDragLeave,
-              handleDrop,
-              handleFileSelect,
-              handleClickUpload,
-              handleDownloadTemplate,
-              isLoading,
-            }}
-          />
-
-          {activeImports.length > 0 ? (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium">Current imports</p>
-                  <p className="text-xs text-muted-foreground">
-                    Check progress, retry failed jobs, or download error rows.
-                  </p>
-                </div>
-                <Badge variant="secondary">{activeImports.length}</Badge>
-              </div>
-              {activeImports.map((importProgress: any) => (
-                <ImportProgress
-                  key={importProgress._id}
-                  importProgress={importProgress}
-                />
-              ))}
-            </div>
-          ) : (
+        <ScrollArea className="min-h-0">
+          <div className="space-y-5 p-5">
             <div className="rounded-xl border bg-muted/20 p-4">
-              <div className="flex items-start gap-3">
-                <div className="rounded-full bg-background p-2 shadow-sm">
-                  <IconHistory className="size-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">No imports running</p>
-                  <p className="text-xs text-muted-foreground">
-                    Your latest CSV uploads will appear here so you can follow
-                    progress and fix any row-level errors.
-                  </p>
-                </div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                How it works
+              </p>
+              <div className="mt-3 space-y-3">
+                <StepRow
+                  icon={IconDownload}
+                  title="Download the CSV template"
+                  description={`Start with the template so your ${entityPluralLabel} columns match the importer.`}
+                />
+                <StepRow
+                  icon={IconFileSpreadsheet}
+                  title={`Add your ${entityPluralLabel}`}
+                  description="Fill in each row with the values you want to create or update."
+                />
+                <StepRow
+                  icon={IconUpload}
+                  title="Upload the completed file"
+                  description="We will validate the file and begin the import right away."
+                  isLast
+                />
               </div>
             </div>
-          )}
 
-          <Button asChild variant="outline" className="w-full justify-between">
-            <Link to={`/settings/import-export/import?type=${contentType}`}>
-              Open import history
-              <IconArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </div>
+            <ImportUploader
+              inputId={inputId}
+              entityLabel={entityLabel}
+              {...{
+                isDragOver,
+                handleDragOver,
+                handleDragLeave,
+                handleDrop,
+                handleFileSelect,
+                handleClickUpload,
+                handleDownloadTemplate,
+                isLoading,
+              }}
+            />
+
+            {activeImports.length > 0 ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium">Current imports</p>
+                    <p className="text-xs text-muted-foreground">
+                      Check progress, retry failed jobs, or download error rows.
+                    </p>
+                  </div>
+                  <Badge variant="secondary">{activeImports.length}</Badge>
+                </div>
+                {activeImports.map((importProgress: any) => (
+                  <ImportProgress
+                    key={importProgress._id}
+                    importProgress={importProgress}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border bg-muted/20 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-full bg-background p-2 shadow-sm">
+                    <IconHistory className="size-4 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">No imports running</p>
+                    <p className="text-xs text-muted-foreground">
+                      Your latest CSV uploads will appear here so you can follow
+                      progress and fix any row-level errors.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <Button asChild variant="outline" className="w-full justify-between">
+              <Link to={`/settings/import-export/import?type=${contentType}`}>
+                Open import history
+                <IconArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </div>
+        </ScrollArea>
       </Popover.Content>
     </Popover>
   );
