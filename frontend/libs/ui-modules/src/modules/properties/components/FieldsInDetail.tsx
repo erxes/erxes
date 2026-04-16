@@ -240,7 +240,9 @@ const EmptyProperties = ({
         size={64}
         stroke={1.5}
       />
-      <h3 className="font-semibold text-muted-foreground">No properties found </h3>
+      <h3 className="font-semibold text-muted-foreground">
+        No properties found{' '}
+      </h3>
       <div className="flex flex-col justify-center items-center gap-2 my-2">
         <p className="text-muted-foreground">
           Get started by creating your first property.
