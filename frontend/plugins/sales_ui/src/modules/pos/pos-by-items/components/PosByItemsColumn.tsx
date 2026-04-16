@@ -85,7 +85,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
-          value={getHourCount(row.original.counts as any, BEFORE_10_HOURS)}
+          value={getHourCount(row.original.counts, BEFORE_10_HOURS)}
         />
       </RecordTableInlineCell>
     ),
@@ -99,7 +99,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
         cell: ({ row }: { row: { original: IPosByItems } }) => (
           <RecordTableInlineCell>
             <TextOverflowTooltip
-              value={getHourCount(row.original.counts as any, [hour])}
+              value={getHourCount(row.original.counts, [hour])}
             />
           </RecordTableInlineCell>
         ),
@@ -112,7 +112,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
-          value={getHourCount(row.original.counts as any, AFTER_21_HOURS)}
+          value={getHourCount(row.original.counts, AFTER_21_HOURS)}
         />
       </RecordTableInlineCell>
     ),

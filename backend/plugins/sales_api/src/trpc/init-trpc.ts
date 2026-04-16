@@ -24,8 +24,8 @@ const createFieldListProcedure = (
   fieldGenerator: (
     subdomain: string,
     models: IModels,
-    input: any,
-  ) => Promise<any[]>,
+    input: z.infer<typeof fieldQueryInput>,
+  ) => Promise<unknown[]>,
 ) => {
   return t.procedure.input(fieldQueryInput).query(async ({ ctx, input }) => {
     const { models, subdomain } = ctx;

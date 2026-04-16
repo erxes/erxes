@@ -21,7 +21,7 @@ interface PaymentRow {
 
 type PaymentSummary = Record<string, number | undefined>;
 
-export const generateOtherPaymentColumns = (summary?: PaymentSummary, columnLabels?: Record<string, string>) => {
+export const generateOtherPaymentColumns = (summary?: PaymentSummary, columnLabels?: Record<string, string>): ColumnDef<IPosSummary>[] => {
   const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
     .filter((a) => !['count', 'cashAmount', 'mobileAmount'].includes(a))
     .sort((a, b) => a.localeCompare(b));

@@ -1,21 +1,54 @@
 import {
-  GetExportData,
+  GetExportDataArgs,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { posOrderRecordsQuery } from '@/pos/graphql/resolvers/queries/orders';
 
+interface IOrderItem {
+  product?: {
+    code?: string;
+    name?: string;
+    barcodes?: string[];
+    categoryId?: string;
+  };
+  productCategory?: {
+    code?: string;
+    name?: string;
+  };
+  count?: number;
+  unitPrice?: number;
+  discountAmount?: number;
+}
+
+interface IOrderRecord {
+  number?: string;
+  createdAt?: string;
+  posName?: string;
+  branch?: { order: string; title: string };
+  department?: { order: string; title: string };
+  user?: { email?: string };
+  type?: string;
+  billType?: string;
+  registerNumber?: string;
+  customerType?: string;
+  customer?: { primaryEmail?: string; firstName?: string };
+  items?: IOrderItem;
+  totalAmount?: number;
+  paidAmounts?: Array<{ type?: string }>;
+}
+
 export async function getPosItemsExportData(
-  data: GetExportData | any,
+  args: GetExportDataArgs,
   { models, subdomain }: IImportExportContext<IModels>,
 ): Promise<Record<string, any>[]> {
-  const { limit = 5000, filters, ids, selectedFields } = (data?.data ?? data) as GetExportData;
+  const { limit = 5000, filters, ids, selectedFields } = args.data;
 
   if (!models) {
     throw new Error('Models not available in context');
   }
 
-  const params: any = {
+  const params: Record<string, unknown> = {
     ...(filters || {}),
     perPage: limit,
     page: 1,
@@ -41,7 +74,7 @@ export async function getPosItemsExportData(
           'totalAmount',
         ];
 
-  return orders.map((order: any) => {
+  return (orders as IOrderRecord[]).map((order) => {
     const row: Record<string, any> = {};
     for (const field of fields) {
       switch (field) {
@@ -112,7 +145,7 @@ export async function getPosItemsExportData(
           break;
         case 'paymentType':
           row.paymentType = (order.paidAmounts || [])
-            .map((pa: any) => pa.type)
+            .map((pa) => pa.type)
             .join(', ');
           break;
         default:

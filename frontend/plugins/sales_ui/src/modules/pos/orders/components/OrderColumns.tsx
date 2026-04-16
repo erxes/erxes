@@ -30,7 +30,13 @@ interface PaymentRow {
 // posOrdersSummary keys are payment titles (e.g. 'Invoice', 'QPay')
 // paidAmounts items: { type, amount, title } — title may be missing on old data
 // Build two maps: by title AND by type, merge both for lookup
-const getPaidAmountsMap = (paidAmounts: any): Record<string, number> => {
+interface IPaidAmount {
+  type?: string;
+  amount?: number;
+  title?: string;
+}
+
+const getPaidAmountsMap = (paidAmounts: IPaidAmount[] | null | undefined): Record<string, number> => {
   if (!paidAmounts || !Array.isArray(paidAmounts)) return {};
 
   return paidAmounts.reduce<Record<string, number>>((acc, item) => {

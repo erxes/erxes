@@ -14,7 +14,7 @@ const POS_PER_PAGE = 30;
 
 interface UsePosSummaryListOptions {
   posId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UsePosSummaryListReturn {

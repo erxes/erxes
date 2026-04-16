@@ -1,5 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { TPosItemFormData } from '../types/posItemType';
 
 export const usePosItemForm = (paymentSummary?: Record<string, number>) => {
   const summaryKey = React.useMemo(() => {
@@ -16,7 +17,7 @@ export const usePosItemForm = (paymentSummary?: Record<string, number>) => {
     [summaryKey],
   );
 
-  const methods = useForm<any>({
+  const methods = useForm<TPosItemFormData>({
     mode: 'onBlur',
     defaultValues,
   });

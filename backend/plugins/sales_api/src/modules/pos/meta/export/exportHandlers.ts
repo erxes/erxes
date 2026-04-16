@@ -1,9 +1,12 @@
 import {
   TExportHandlers,
   IImportExportContext,
+  GetExportDataArgs,
 } from 'erxes-api-shared/core-modules';
 import { getPosItemsExportHeaders } from './getPosItemsExportHeaders';
 import { getPosItemsExportData } from './getPosItemsExportData';
+
+type ExportHeadersArgs = Parameters<TExportHandlers['getExportHeaders']>[0];
 
 const posExportMap = {
   posItems: {
@@ -13,9 +16,8 @@ const posExportMap = {
 };
 
 export const posExportHandlers: TExportHandlers = {
-  getExportHeaders: async (args: any, ctx: IImportExportContext) => {
-    const collectionName =
-      args?.data?.collectionName ?? args?.collectionName;
+  getExportHeaders: async (args: ExportHeadersArgs, ctx: IImportExportContext) => {
+    const collectionName = args?.data?.collectionName;
     const handler =
       posExportMap[collectionName as keyof typeof posExportMap]
         ?.getExportHeaders;
@@ -23,13 +25,12 @@ export const posExportHandlers: TExportHandlers = {
       throw new Error(`Export headers handler not found for ${collectionName}`);
     return handler(args, ctx);
   },
-  getExportData: async (args: any, ctx: IImportExportContext) => {
-    const collectionName =
-      args?.data?.collectionName ?? args?.collectionName;
+  getExportData: async (args: GetExportDataArgs, ctx: IImportExportContext) => {
+    const collectionName = args?.data?.collectionName;
     const handler =
       posExportMap[collectionName as keyof typeof posExportMap]?.getExportData;
     if (!handler)
       throw new Error(`Export handler not found for ${collectionName}`);
-    return handler(args?.data ?? args, ctx);
+    return handler(args, ctx);
   },
 };
