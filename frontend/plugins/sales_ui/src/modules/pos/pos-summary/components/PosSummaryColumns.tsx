@@ -21,14 +21,14 @@ interface PaymentRow {
 
 type PaymentSummary = Record<string, number | undefined>;
 
-export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
+export const generateOtherPaymentColumns = (summary?: PaymentSummary, columnLabels?: Record<string, string>) => {
   const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
     .filter((a) => !['count', 'cashAmount', 'mobileAmount'].includes(a))
     .sort((a, b) => a.localeCompare(b));
 
   return otherPayTitles.map((title: string, index) => ({
     id: `${title}_${index}`,
-    header: () => <RecordTable.InlineHead icon={IconClock} label={title} />,
+    header: () => <RecordTable.InlineHead icon={IconClock} label={columnLabels?.[title] || title} />,
     cell: ({ row }: { row: PaymentRow }) => {
       const order = row.original;
       const dynamicAmounts = order.amounts as Record<
@@ -43,7 +43,7 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
         </RecordTableInlineCell>
       );
     },
-    size: 150,
+    size: 155,
   }));
 };
 export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
@@ -52,12 +52,16 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
     accessorKey: 'paidDate',
     header: () => <RecordTable.InlineHead icon={IconLabel} label="Group" />,
     cell: ({ cell }) => {
+      const value = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip
+            value={value && value !== 'undefined' ? value : '-'}
+          />
         </RecordTableInlineCell>
       );
     },
+    size: 150,
   },
   {
     id: 'count',
@@ -75,6 +79,7 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 100,
   },
   {
     id: 'amounts.cashAmount',
@@ -92,6 +97,7 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 130,
   },
   {
     id: 'amounts.mobileAmount',
@@ -109,6 +115,7 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 130,
   },
 ];
 export const secondPosSummaryColumns: ColumnDef<IPosSummary>[] = [
@@ -126,5 +133,6 @@ export const secondPosSummaryColumns: ColumnDef<IPosSummary>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 130,
   },
 ];

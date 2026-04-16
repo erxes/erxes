@@ -1,4 +1,8 @@
-import { IconChessKnight, IconShoppingCart, IconTag } from '@tabler/icons-react';
+import {
+  IconChessKnight,
+  IconShoppingCart,
+  IconTag,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
 import {
@@ -13,15 +17,9 @@ import { useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
 import { usePosCoversQuery } from '../detail/hook/usePosCoversQuery';
 
-const renderDetailValue = (value: unknown) => {
-  if (!value) return '';
-  if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
-};
-
 const itemColumns: ColumnDef<any>[] = [
   {
-    id: 'type',
+    id: 'paidType',
     accessorKey: 'paidType',
     header: () => (
       <RecordTable.InlineHead icon={IconShoppingCart} label="Type" />
@@ -31,38 +29,12 @@ const itemColumns: ColumnDef<any>[] = [
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
       </RecordTableInlineCell>
     ),
-    size: 200,
-  },
-  {
-    id: 'summary',
-    accessorFn: (row) =>
-      (row?.paidSummary || []).reduce(
-        (sum: number, cur: { amount?: number }) => sum + (cur?.amount || 0),
-        0,
-      ),
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Summary" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
-      </RecordTableInlineCell>
-    ),
-    size: 80,
-  },
-  {
-    id: 'detail',
-    accessorKey: 'details.paidDetail',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Detail" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={renderDetailValue(cell.getValue())} />
-      </RecordTableInlineCell>
-    ),
-    size: 240,
+    size: 160,
   },
   {
     id: 'kind',
-    accessorKey: 'details.paidSummary.kind',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="kind" />,
+    accessorKey: 'kind',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Kind" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -72,8 +44,8 @@ const itemColumns: ColumnDef<any>[] = [
   },
   {
     id: 'kindOfVal',
-    accessorKey: 'details.paidSummary.kindOfVal',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="kindOfVal" />,
+    accessorKey: 'kindOfVal',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Kind of Val" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -83,7 +55,7 @@ const itemColumns: ColumnDef<any>[] = [
   },
   {
     id: 'value',
-    accessorKey: 'details.paidSummary.value',
+    accessorKey: 'value',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Value" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -94,14 +66,19 @@ const itemColumns: ColumnDef<any>[] = [
   },
   {
     id: 'amount',
-    accessorKey: 'details.paidSummary.amount',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="amount" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
-      </RecordTableInlineCell>
-    ),
-    size: 100,
+    accessorKey: 'amount',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Amount" />,
+    cell: ({ cell }) => {
+      const val = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={val != null ? val.toLocaleString() : '0'}
+          />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 120,
   },
 ];
 
@@ -197,7 +174,13 @@ export const PosCoversSheet = () => {
                       Total Amount
                     </span>
                     <span className="text-base font-medium">
-                      {posCovers.totalAmount || 0}
+                      {(posCovers.details || [])
+                        .flatMap((d: any) => d?.paidSummary || [])
+                        .reduce(
+                          (sum: number, s: any) => sum + (s?.amount || 0),
+                          0,
+                        )
+                        .toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -212,10 +195,15 @@ export const PosCoversSheet = () => {
                   <div className="rounded-md overflow-hidden relative">
                     <RecordTable.Provider
                       columns={itemColumns}
-                      data={(posCovers.details || []).map((d: any) => ({
-                        ...d,
-                        subRows: d?.paidSummary || [],
-                      }))}
+                      data={(posCovers.details || []).flatMap((d: any) =>
+                        (d?.paidSummary || []).map((s: any) => ({
+                          paidType: d.paidType,
+                          kind: s.kind,
+                          kindOfVal: s.kindOfVal,
+                          value: s.value,
+                          amount: s.amount,
+                        })),
+                      )}
                       className="w-full"
                     >
                       <RecordTable>

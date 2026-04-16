@@ -115,28 +115,19 @@ export const PosItemDetailSheet = () => {
   const { posItemChangePayments, loading: mutationLoading } =
     usePosItemChangePayments();
 
-  const paidAmountsSummary = React.useMemo(() => {
+  // paidAmounts from backend: [{ _id, type, amount, title }]
+  // type examples: 'cash', 'mobile', 'qpay', 'golomt', etc.
+  // Build a flat map of { [type]: amount } for form default values
+  const paymentSummary = React.useMemo(() => {
     if (!posItem?.paidAmounts || !Array.isArray(posItem.paidAmounts)) return {};
     return posItem.paidAmounts.reduce(
-      (
-        acc: Record<string, number>,
-        item: { type?: string; amount?: number },
-      ) => {
+      (acc: Record<string, number>, item: { type?: string; amount?: number }) => {
         if (item?.type) acc[item.type] = item.amount ?? 0;
         return acc;
       },
       {},
     );
   }, [posItem?.paidAmounts]);
-
-  const paymentSummary = React.useMemo(
-    () => ({
-      cashAmount: paidAmountsSummary.cashAmount ?? 0,
-      mobileAmount: paidAmountsSummary.mobileAmount ?? 0,
-      ...paidAmountsSummary,
-    }),
-    [paidAmountsSummary],
-  );
 
   const renderCustomerInfo = React.useMemo(() => {
     if (!posItem) return null;
@@ -231,13 +222,13 @@ export const PosItemDetailSheet = () => {
           Total Amount:
         </span>
         <span className="text-base font-medium">
-          {posItem.totalAmount ? posItem.totalAmount : '0'}
+          {posItem.totalAmount ? posItem.totalAmount.toLocaleString() : '0'}
         </span>
       </div>
     );
   }, [posItem]);
 
-  const { methods } = usePosItemForm(posItem?.paidAmounts, paymentSummary);
+  const { methods } = usePosItemForm(paymentSummary);
 
   const submitHandler: SubmitHandler<TPosItemFormData> = React.useCallback(
     async (data) => {
@@ -253,19 +244,14 @@ export const PosItemDetailSheet = () => {
           return;
         }
 
-        const cashAmount = Number(data.cashAmount) || 0;
-        const mobileAmount = Number(data.mobileAmount) || 0;
+        // 'cash' type → cashAmount, 'mobile' type → mobileAmount, rest → paidAmounts array
+        const cashAmount = Number(data.cash) || 0;
+        const mobileAmount = Number(data.mobile) || 0;
 
         const paidAmounts = Object.entries(data)
-          .filter(([key]) => !['cashAmount', 'mobileAmount'].includes(key))
-          .map(([type, amount]) => {
-            const numericAmount = Number(amount) || 0;
-            const isDirty = methods.getFieldState(type).isDirty;
-
-            return { type, amount: numericAmount, isDirty };
-          })
-          .filter(({ amount, isDirty }) => isDirty || amount !== 0)
-          .map(({ type, amount }) => ({ type, amount }));
+          .filter(([key]) => !['cash', 'mobile'].includes(key))
+          .map(([type, amount]) => ({ type, amount: Number(amount) || 0 }))
+          .filter(({ amount }) => amount !== 0);
 
         const expectedTotal = posItem?.totalAmount ?? 0;
         const sum =
@@ -319,7 +305,6 @@ export const PosItemDetailSheet = () => {
       refetch,
       toast,
       updatePosItemId,
-      methods,
     ],
   );
 
@@ -349,12 +334,9 @@ export const PosItemDetailSheet = () => {
                   {renderTotalAmount}
                   <PosItemsForm
                     control={methods.control}
-                    summary={paymentSummary}
                     paidAmounts={
-                      posItem?.paidAmounts?.filter(
-                        (p): p is { type: string; amount: number } =>
-                          p.type !== undefined && p.amount !== undefined,
-                      ) || []
+                      (posItem?.paidAmounts as Array<{ type: string; amount: number; title?: string }> || [])
+                        .filter((p) => p.type !== undefined && p.amount !== undefined)
                     }
                   />
                 </div>

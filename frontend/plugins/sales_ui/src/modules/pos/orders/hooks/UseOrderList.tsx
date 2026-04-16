@@ -108,8 +108,8 @@ export const useOrdersList = (
   );
 
   const totalCount = useMemo(
-    () => data?.posOrders?.length || 0,
-    [data?.posOrders],
+    () => data?.posOrdersTotalCount || 0,
+    [data?.posOrdersTotalCount],
   );
 
   const handleFetchMore = useCallback(() => {
