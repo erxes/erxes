@@ -12,7 +12,6 @@ import {
   detectIdentifierType,
   validateUserRegistration,
 } from '@/clientportal/services/helpers/validators';
-import { buildUserQuery } from '@/clientportal/services/helpers/queryBuilders';
 import { normalizeEmail } from '@/clientportal/utils';
 import {
   getCPUserByIdOrThrow,
@@ -22,17 +21,6 @@ import {
   isEmailVerificationEnabled,
   isPhoneVerificationEnabled,
 } from '@/clientportal/services/helpers/otpConfigHelper';
-import {
-  AuthenticationError,
-  ValidationError,
-  TokenExpiredError,
-} from '@/clientportal/services/errorHandler';
-import {
-  ActionCodeType,
-  isActionCodeExpired,
-  validateActionCode,
-} from '../helpers/actionCodeHelper';
-
 interface UserFields {
   email?: string;
   phone?: string;
@@ -142,7 +130,7 @@ export async function verifyUser(
     clientPortal?: IClientPortalDocument;
   },
 ) {
-  const { userIds, userId, type, code } = params;
+  const { userIds, type } = params;
 
   if (userIds && userIds.length > 0) {
     const updateFields: any = { isVerified: true };
