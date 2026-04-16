@@ -32,6 +32,6 @@ export const PosSummaryPage = () => {
           <PosSummaryRecordTable posId={posId} />
         </div>
       </div>
-    </> 
+    </>
   );
 };

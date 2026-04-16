@@ -9,7 +9,12 @@ export async function getPosItemsExportData(
   data: GetExportData | any,
   { models, subdomain }: IImportExportContext<IModels>,
 ): Promise<Record<string, any>[]> {
-  const { limit = 5000, filters, ids, selectedFields } = (data?.data ?? data) as GetExportData;
+  const {
+    limit = 5000,
+    filters,
+    ids,
+    selectedFields,
+  } = (data?.data ?? data) as GetExportData;
 
   if (!models) {
     throw new Error('Models not available in context');
