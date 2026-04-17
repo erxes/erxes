@@ -79,14 +79,14 @@ import {
   IconWind,
 } from '@tabler/icons-react';
 
-export interface AmenityIconOption {
+export interface IAmenityIconOption {
   name: string;
   label: string;
   keywords: string[];
   icon: TablerIcon;
 }
 
-export const AMENITY_ICON_OPTIONS: AmenityIconOption[] = [
+export const AMENITY_ICON_OPTIONS: IAmenityIconOption[] = [
   {
     name: 'IconWifi',
     label: 'Wi-Fi',

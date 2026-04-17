@@ -10,7 +10,7 @@ import {
 type AmenityIconPickerProps = React.ComponentProps<
   typeof Combobox.TriggerBase
 > & {
-  value?: string;
+  value?: string | null;
   onValueChange?: (value: string | null) => void;
 };
 
