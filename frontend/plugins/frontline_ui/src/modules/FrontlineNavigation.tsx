@@ -1,7 +1,5 @@
 import {
   IconMail,
-  IconDotsVertical,
-  IconSettings,
   IconTicket,
   IconChartHistogram,
   IconForms,
@@ -9,14 +7,7 @@ import {
   IconPlus,
   IconCaretRightFilled,
 } from '@tabler/icons-react';
-import {
-  NavigationMenuLinkItem,
-  DropdownMenu,
-  Button,
-  Spinner,
-  Skeleton,
-  Badge,
-} from 'erxes-ui';
+import { NavigationMenuLinkItem, Button, Skeleton, Badge } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 import { useConversations } from './inbox/conversations/hooks/useConversations';
