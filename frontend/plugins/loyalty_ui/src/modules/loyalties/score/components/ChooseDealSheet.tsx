@@ -9,9 +9,7 @@ import {
   cn,
 } from 'erxes-ui';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
-import { SelectBoard } from './selects/SelectBoard';
-import { SelectPipeline } from './selects/SelectPipeline';
-import { SelectStage } from './selects/SelectStage';
+import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { useGetSalesDeals } from '../hooks/useGetSalesDeals';
 
 interface IDeal {
@@ -45,18 +43,22 @@ const DealsList = ({
   const { deals, loading: dealsLoading } = useGetSalesDeals({
     pipelineId: pipelineId || undefined,
     stageId: stageId || undefined,
-    searchValue: search || undefined,
+    search: search || undefined,
   });
 
-  const handleBoardChange = (val: string) => {
-    setBoardId(val);
+  const handleBoardChange = (val: string | string[]) => {
+    setBoardId(Array.isArray(val) ? val[0] : val);
     setPipelineId('');
     setStageId('');
   };
 
-  const handlePipelineChange = (val: string) => {
-    setPipelineId(val);
+  const handlePipelineChange = (val: string | string[]) => {
+    setPipelineId(Array.isArray(val) ? val[0] : val);
     setStageId('');
+  };
+
+  const handleStageChange = (val: string | string[]) => {
+    setStageId(Array.isArray(val) ? val[0] : val);
   };
 
   return (
@@ -79,18 +81,13 @@ const DealsList = ({
 
         <div className="flex flex-col gap-1">
           <p className="text-xs font-medium text-accent-foreground">Board</p>
-          <SelectBoard
-            value={boardId}
-            scope="deal-sheet"
-            onValueChange={handleBoardChange}
-          />
+          <SelectBoard value={boardId} onValueChange={handleBoardChange} />
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-xs font-medium text-accent-foreground">Pipeline</p>
           <SelectPipeline
             value={pipelineId}
             boardId={boardId}
-            scope="deal-sheet"
             onValueChange={handlePipelineChange}
             disabled={!boardId}
           />
@@ -100,8 +97,7 @@ const DealsList = ({
           <SelectStage
             value={stageId}
             pipelineId={pipelineId}
-            scope="deal-sheet"
-            onValueChange={setStageId}
+            onValueChange={handleStageChange}
             disabled={!pipelineId}
           />
         </div>

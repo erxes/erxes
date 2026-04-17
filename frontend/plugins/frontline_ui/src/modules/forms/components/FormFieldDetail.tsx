@@ -71,7 +71,7 @@ export const FormFieldDetail = ({
 
   const handleValueChange = (
     key: keyof IFieldData,
-    value: string | number | string[],
+    value: string | number | string[] | boolean,
   ) => {
     handleChangeField(stepId, fieldId, {
       ...fieldData,
@@ -131,8 +131,8 @@ export const FormFieldDetail = ({
             <Label className="flex items-center m-0!">Required</Label>
             <Checkbox
               checked={fieldData?.required}
-              onChange={(e) =>
-                handleValueChange('required', e.currentTarget.value)
+              onCheckedChange={(checked) =>
+                handleValueChange('required', checked === true)
               }
             />
           </div>

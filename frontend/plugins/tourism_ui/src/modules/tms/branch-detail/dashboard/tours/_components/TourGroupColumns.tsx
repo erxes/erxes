@@ -14,14 +14,18 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ITour } from '../types/tour';
+import { tourGroupMoreColumn } from './TourGroupMoreCell';
 
 export type TourGroupRow = ITour & {
   order: string;
   hasChildren: boolean;
   isGroup: boolean;
+  isSingleGroupRow?: boolean;
   childCount?: number;
   dateRangeLabel?: string;
   statusLabel?: string;
+  groupCode?: string;
+  templateTourId?: string;
 };
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -39,6 +43,7 @@ const formatDate = (value?: string) => {
 
 interface GroupedTourColumnsProps {
   onEdit?: (tourId: string) => void;
+  onAddTour?: (row: TourGroupRow) => void;
 }
 
 export const GroupedTourColumns = (
@@ -88,6 +93,7 @@ export const GroupedTourColumns = (
       );
     },
   },
+  tourGroupMoreColumn(props?.onAddTour),
   {
     id: 'name',
     accessorKey: 'name',
@@ -104,7 +110,10 @@ export const GroupedTourColumns = (
           >
             <div className="min-w-0">
               {row.original.isGroup ? (
-                <TextOverflowTooltip value={row.original._id} />
+                <TextOverflowTooltip
+                  value={value || row.original._id}
+                  className="font-medium"
+                />
               ) : (
                 <Badge
                   variant="secondary"

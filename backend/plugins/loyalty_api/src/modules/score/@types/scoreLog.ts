@@ -33,6 +33,8 @@ export interface IScoreLogParams extends ICursorPaginateParams {
   orderType?: string;
   number?: string;
   description?: string;
+  boardId?: string;
+  pipelineId?: string;
   stageId?: string;
   contentId?: string;
   contentType?: string;

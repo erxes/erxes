@@ -11,6 +11,8 @@ import {
   IconListTree,
   IconProgressCheck,
 } from '@tabler/icons-react';
+import { useAtomValue } from 'jotai';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { useCategories } from '../../category/hooks/useCategories';
 import { ICategory } from '../../category';
@@ -80,12 +82,18 @@ function SelectStatusFilterView() {
   );
 }
 
-function SelectCategoryFilterView() {
+function SelectCategoryFilterView({ branchId }: { branchId: string }) {
   const [categoryIds, setCategoryIds] = useQueryState<string | undefined>(
     'categoryIds',
   );
+  const activeLang = useAtomValue(activeLangAtom);
 
-  const { categories, loading } = useCategories();
+  const { categories, loading } = useCategories({
+    variables: {
+      language: activeLang || undefined,
+      branchId,
+    },
+  });
 
   const value = categoryIds ? categoryIds.split(',').filter(Boolean) : [];
 
@@ -153,7 +161,7 @@ function SelectDateStatusFilterView() {
   );
 }
 
-const TourFilterPopover = () => {
+const TourFilterPopover = ({ branchId }: { branchId: string }) => {
   return (
     <>
       <Filter.Popover>
@@ -173,7 +181,7 @@ const TourFilterPopover = () => {
           </Filter.View>
           <SelectStatusFilterView />
           <SelectDateStatusFilterView />
-          <SelectCategoryFilterView />
+          <SelectCategoryFilterView branchId={branchId} />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -185,7 +193,8 @@ const TourFilterPopover = () => {
   );
 };
 
-export const TourFilter = () => {
+export const TourFilter = ({ branchId }: { branchId: string }) => {
+  const activeLang = useAtomValue(activeLangAtom);
   const [queries] = useMultiQueryState<{
     searchValue: string;
     status: string;
@@ -193,7 +202,12 @@ export const TourFilter = () => {
     categoryIds: string;
   }>(['searchValue', 'status', 'date_status', 'categoryIds']);
 
-  const { categories } = useCategories();
+  const { categories } = useCategories({
+    variables: {
+      language: activeLang || undefined,
+      branchId,
+    },
+  });
 
   const selectedStatusLabel = STATUS_OPTIONS.find(
     (item) => item.value === queries?.status,
@@ -221,7 +235,7 @@ export const TourFilter = () => {
   return (
     <Filter id="tours-filter" sessionKey={TOURS_CURSOR_SESSION_KEY}>
       <Filter.Bar>
-        <TourFilterPopover />
+        <TourFilterPopover branchId={branchId} />
         <Filter.SearchValueBarItem />
 
         <Filter.BarItem queryKey="status">

@@ -9,6 +9,8 @@ export interface IBranch {
   managerIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
+  prepaid?: boolean;
+  prepaidPercent?: number | null;
   erxesAppToken: string;
   token: string;
   uiOptions?: any;

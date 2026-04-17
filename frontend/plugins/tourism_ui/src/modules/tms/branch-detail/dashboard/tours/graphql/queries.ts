@@ -98,6 +98,7 @@ export const GET_TOUR_GROUPS = gql`
       total
       list {
         _id
+        name
         items {
           _id
           name
@@ -242,5 +243,11 @@ export const GET_TOUR_ORDERS = gql`
         createdAt
       }
     }
+  }
+`;
+
+export const GET_TOUR_ORDER_CUSTOMER_IDS = gql`
+  query BmsOrderCustomerIds($tourId: String!) {
+    bmsOrderCustomerIds(tourId: $tourId)
   }
 `;
