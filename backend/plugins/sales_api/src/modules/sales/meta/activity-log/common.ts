@@ -43,6 +43,7 @@ export async function fetchUsersByIds(
       return user._id;
     });
   } catch (error) {
+    console.log(error);
     return ids.map((id) => id.toString());
   }
 }
