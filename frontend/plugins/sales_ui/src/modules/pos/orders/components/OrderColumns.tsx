@@ -51,7 +51,9 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
   const otherPayTitles = (summary ? Object.keys(summary) : [])
     .filter(
       (a) =>
-        !['_id', 'count', 'cashAmount', 'mobileAmount', 'totalAmount'].includes(a),
+        !['_id', 'count', 'cashAmount', 'mobileAmount', 'totalAmount'].includes(
+          a,
+        ),
     )
     .sort();
 

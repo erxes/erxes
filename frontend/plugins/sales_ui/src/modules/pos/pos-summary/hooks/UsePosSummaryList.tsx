@@ -115,7 +115,15 @@ export const usePosSummaryList = (
   const posSummaryList = useMemo<IPosSummary[]>(
     () =>
       data?.posOrdersGroupSummary?.amounts?.map((item: any) => {
-        const { paidDate, count, cashAmount, mobileAmount, totalAmount, finalAmount, ...rest } = item;
+        const {
+          paidDate,
+          count,
+          cashAmount,
+          mobileAmount,
+          totalAmount,
+          finalAmount,
+          ...rest
+        } = item;
         const groupKey = paidDate || '-';
         return {
           _id: groupKey,

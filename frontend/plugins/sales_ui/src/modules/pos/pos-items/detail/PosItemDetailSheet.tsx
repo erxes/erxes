@@ -120,8 +120,8 @@ export const PosItemDetailSheet = () => {
   // Build a flat map of { [type]: amount } for form default values
   const paymentSummary = React.useMemo(() => {
     if (!posItem?.paidAmounts || !Array.isArray(posItem.paidAmounts)) return {};
-    return posItem.paidAmounts.reduce<Record<string, number>>(
-      (acc, item) => {
+    return posItem.paidAmounts.reduce(
+      (acc: Record<string, number>, item: { type?: string; amount?: number }) => {
         if (item?.type) acc[item.type] = item.amount ?? 0;
         return acc;
       },
@@ -334,10 +334,10 @@ export const PosItemDetailSheet = () => {
                   {renderTotalAmount}
                   <PosItemsForm
                     control={methods.control}
-                    paidAmounts={(posItem?.paidAmounts || []).filter(
-                      (p): p is { type: string; amount: number; title?: string } =>
-                        p.type !== undefined && p.amount !== undefined,
-                    )}
+                    paidAmounts={
+                      (posItem?.paidAmounts as Array<{ type: string; amount: number; title?: string }> || [])
+                        .filter((p) => p.type !== undefined && p.amount !== undefined)
+                    }
                   />
                 </div>
               )}

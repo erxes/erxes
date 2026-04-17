@@ -16,8 +16,8 @@ const posExportMap = {
 };
 
 export const posExportHandlers: TExportHandlers = {
-  getExportHeaders: async (args: ExportHeadersArgs, ctx: IImportExportContext) => {
-    const collectionName = args?.data?.collectionName;
+  getExportHeaders: async (args: any, ctx: IImportExportContext) => {
+    const collectionName = args?.data?.collectionName ?? args?.collectionName;
     const handler =
       posExportMap[collectionName as keyof typeof posExportMap]
         ?.getExportHeaders;
@@ -25,8 +25,8 @@ export const posExportHandlers: TExportHandlers = {
       throw new Error(`Export headers handler not found for ${collectionName}`);
     return await handler(args, ctx);
   },
-  getExportData: async (args: GetExportDataArgs, ctx: IImportExportContext) => {
-    const collectionName = args?.data?.collectionName;
+  getExportData: async (args: any, ctx: IImportExportContext) => {
+    const collectionName = args?.data?.collectionName ?? args?.collectionName;
     const handler =
       posExportMap[collectionName as keyof typeof posExportMap]?.getExportData;
     if (!handler)

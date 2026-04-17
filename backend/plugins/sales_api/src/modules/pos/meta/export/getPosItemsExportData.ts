@@ -1,4 +1,5 @@
 import {
+  GetExportData,
   GetExportDataArgs,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
@@ -75,8 +76,13 @@ const DEFAULT_FIELDS = [
 export async function getPosItemsExportData(
   args: GetExportDataArgs,
   { models, subdomain }: IImportExportContext<IModels>,
-): Promise<ExportRow[]> {
-  const { limit = 5000, filters, ids, selectedFields } = args.data;
+): Promise<Record<string, any>[]> {
+  const {
+    limit = 5000,
+    filters,
+    ids,
+    selectedFields,
+  } = (args?.data ?? args) as GetExportData;
 
   if (!models) {
     throw new Error('Models not available in context');

@@ -104,7 +104,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
           </RecordTableInlineCell>
         ),
         size: 50,
-      } satisfies ColumnDef<IPosByItems>),
+      }) satisfies ColumnDef<IPosByItems>,
   ),
   {
     id: 'count_after_21',
