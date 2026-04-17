@@ -41,7 +41,7 @@ const configMutations = {
       const updatedConfig = await models.Configs.getConfig(code);
 
       if (["GOOGLE_APPLICATION_CREDENTIALS_JSON"].includes(code)) {
-        initFirebase(models);
+        await initFirebase(models);
       }
 
       if (
@@ -121,7 +121,7 @@ const configMutations = {
         method: "POST",
         body: JSON.stringify(args),
         headers: { "Content-Type": "application/json" }
-      }).then(res => res.json());
+      }).then((res) => res.json());
     } catch (e) {
       throw new Error(e.message);
     }
