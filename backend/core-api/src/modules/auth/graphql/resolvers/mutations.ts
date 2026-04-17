@@ -22,6 +22,123 @@ type LoginParams = {
   deviceToken?: string;
 };
 
+const ACCESS_TOKEN_EXPIRES_IN = 24 * 60 * 60;
+const APP_TOKEN_HEADERS = ['erxes-app-token', 'x-app-api-token'];
+const SENSITIVE_HEADERS = [
+  'authorization',
+  'cookie',
+  'erxes-app-token',
+  'x-app-api-token',
+];
+
+const escapeRegExp = (value: string) => {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+const getHeaderValue = (headers: any, name: string) => {
+  const value = headers?.[name];
+
+  if (Array.isArray(value)) {
+    throw new Error(`Multiple ${name} headers`);
+  }
+
+  return (value || '').toString().trim();
+};
+
+const getAppTokenFromHeaders = (headers: any) => {
+  for (const header of APP_TOKEN_HEADERS) {
+    const token = getHeaderValue(headers, header);
+
+    if (token) {
+      return token;
+    }
+  }
+
+  return '';
+};
+
+const sanitizeHeaders = (headers: any) => {
+  const sanitized = { ...(headers || {}) };
+
+  for (const header of SENSITIVE_HEADERS) {
+    if (sanitized[header]) {
+      sanitized[header] = '[redacted]';
+    }
+  }
+
+  return sanitized;
+};
+
+const findLoginUser = async (models: IContext['models'], email: string) => {
+  const normalizedEmail = (email || '').toLowerCase().trim();
+  const escapedEmail = escapeRegExp(normalizedEmail);
+
+  return models.Users.findOne({
+    $or: [
+      { email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') } },
+      { username: { $regex: new RegExp(`^${escapedEmail}$`, 'i') } },
+    ],
+    isActive: true,
+  });
+};
+
+const ensureActiveAppToken = async ({
+  req,
+  models,
+  subdomain,
+}: Pick<IContext, 'req' | 'models' | 'subdomain'>) => {
+  const appToken = getAppTokenFromHeaders(req.headers);
+
+  if (!appToken) {
+    throw new Error('Missing erxes app token');
+  }
+  console.log({ appToken });
+  const cacheKey = `app_token:${subdomain}:${appToken}`;
+  let isValid = await redis.get(cacheKey);
+
+  if (isValid === null) {
+    const appInDb = await models.Apps.findOne({
+      token: appToken,
+      status: 'active',
+    });
+
+    isValid = appInDb ? '1' : '0';
+    await redis.set(cacheKey, isValid, 'EX', 3600);
+  }
+
+  if (isValid !== '1') {
+    throw new Error('Invalid app token');
+  }
+
+  const app = await models.Apps.findOneAndUpdate(
+    { token: appToken, status: 'active' },
+    { $set: { lastUsedAt: new Date() } },
+    { new: true },
+  );
+
+  if (!app) {
+    await redis.del(cacheKey);
+    throw new Error('Invalid app token');
+  }
+
+  return app;
+};
+
+const buildAuthTokenResponse = async (
+  models: IContext['models'],
+  token: string,
+  refreshToken: string,
+  user: any,
+) => {
+  return {
+    tokenType: 'Bearer',
+    accessToken: token,
+    refreshToken,
+    expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+    user: user ? await models.Users.getTokenFields(user) : null,
+  };
+};
+
 export const authMutations = {
   /*
    * Login   */
@@ -61,6 +178,97 @@ export const authMutations = {
           headers: req.headers,
           email: args?.email,
           method: 'email/password',
+        },
+      },
+      null,
+      null,
+      true,
+    );
+  },
+
+  async loginWithAppToken(
+    _parent: undefined,
+    args: LoginParams,
+    { req, models, subdomain }: IContext,
+  ) {
+    const app = await ensureActiveAppToken({ req, models, subdomain });
+    const userForLog = await findLoginUser(models, args.email);
+
+    return await logHandler(
+      async () => {
+        const response = await models.Users.login(args);
+        const user = await findLoginUser(models, args.email);
+
+        if (!user) {
+          throw new Error('Invalid login');
+        }
+
+        return buildAuthTokenResponse(
+          models,
+          response.token,
+          response.refreshToken,
+          user,
+        );
+      },
+      {
+        subdomain,
+        source: 'auth',
+        action: 'loginWithAppToken',
+        userId: userForLog?._id,
+        payload: {
+          headers: sanitizeHeaders(req.headers),
+          email: args?.email,
+          method: 'app-token/email/password',
+          appId: app?._id,
+          appName: app?.name,
+        },
+      },
+      null,
+      null,
+      true,
+    );
+  },
+
+  async refreshAppToken(
+    _parent: undefined,
+    { refreshToken }: { refreshToken: string },
+    { req, models, subdomain }: IContext,
+  ) {
+    const app = await ensureActiveAppToken({ req, models, subdomain });
+    let userId: string | undefined;
+
+    try {
+      const decoded: any = jwt.verify(refreshToken, models.Users.getSecret());
+      userId = decoded?.user?._id;
+    } catch {
+      userId = undefined;
+    }
+
+    return await logHandler(
+      async () => {
+        const response = await models.Users.refreshTokens(refreshToken);
+
+        if (!response?.token || !response?.refreshToken || !response?.user) {
+          throw new Error('Invalid refresh token');
+        }
+
+        return buildAuthTokenResponse(
+          models,
+          response.token,
+          response.refreshToken,
+          response.user,
+        );
+      },
+      {
+        subdomain,
+        source: 'auth',
+        action: 'refreshAppToken',
+        userId,
+        payload: {
+          headers: sanitizeHeaders(req.headers),
+          method: 'app-token/refresh-token',
+          appId: app?._id,
+          appName: app?.name,
         },
       },
       null,

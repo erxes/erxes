@@ -153,6 +153,54 @@ export const canGroup = async (
   return actionsMap[action] === true;
 };
 
+const getOAuthActionScopeMap = async () => {
+  const activePlugins = await getActivePlugins();
+  const scopeMap: Record<string, string[]> = {};
+
+  for (const pluginName of activePlugins) {
+    const plugin = await getPlugin(pluginName);
+    const modules = plugin?.config?.meta?.permissions?.modules || [];
+
+    for (const module of modules) {
+      for (const action of module.actions || []) {
+        const actionScopes = action.oauthScopes?.length
+          ? action.oauthScopes
+          : action.oauthScope
+          ? [action.oauthScope]
+          : [];
+
+        if (actionScopes.length) {
+          scopeMap[action.name] = actionScopes;
+        }
+      }
+    }
+  }
+
+  return scopeMap;
+};
+
+const checkOAuthScope = async (action: string, user?: IUserDocument) => {
+  const oauthScopes = (
+    (user || {}) as IUserDocument & {
+      oauthScopes?: string[];
+    }
+  ).oauthScopes;
+
+  if (!oauthScopes?.length) {
+    return;
+  }
+
+  const scopeMap = await getOAuthActionScopeMap();
+  const actionScopes = scopeMap[action] || [];
+
+  if (
+    actionScopes.length === 0 ||
+    !actionScopes.some((scope) => oauthScopes.includes(scope))
+  ) {
+    throw new Error('OAuth scope required');
+  }
+};
+
 export const checkPermissionGroup = (
   subdomain: string,
   user?: IUserDocument,
@@ -165,6 +213,8 @@ export const checkPermissionGroup = (
     if (!allowed) {
       throw new Error('Permission required');
     }
+
+    await checkOAuthScope(action, user);
   };
 };
 

@@ -14,6 +14,22 @@ import { generateModels, IModels } from '../connectionResolver';
 
 dotenv.config();
 
+const getBearerToken = (req: Request) => {
+  const authorization = req.headers.authorization;
+
+  if (!authorization) {
+    return '';
+  }
+
+  if (Array.isArray(authorization)) {
+    throw new Error('Multiple authorization headers');
+  }
+
+  const match = authorization.match(/^Bearer\s+(.+)$/i);
+
+  return (match?.[1] || '').trim();
+};
+
 export default async function userMiddleware(
   req: Request & { user?: any; cpUser?: any; clientPortal?: any },
   res: Response,
@@ -165,7 +181,17 @@ export default async function userMiddleware(
     }
   }
 
-  const token = req.cookies['auth-token'];
+  let bearerToken = '';
+
+  try {
+    bearerToken = getBearerToken(req);
+  } catch (e) {
+    if (e instanceof Error) {
+      return res.status(400).json({ error: e.message });
+    }
+  }
+
+  const token = bearerToken || req.cookies['auth-token'];
 
   if (!token) {
     return next();
@@ -199,6 +225,14 @@ export default async function userMiddleware(
     req.user = { ...userDoc };
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
+
+    if (decoded.typ === 'oauth_access') {
+      req.user.oauthClientId = decoded.clientId || '';
+      req.user.oauthScopes = String(decoded.scope || '')
+        .split(/\s|,/)
+        .map((scope) => scope.trim())
+        .filter(Boolean);
+    }
 
     const hostname = await redis.get('hostname');
 

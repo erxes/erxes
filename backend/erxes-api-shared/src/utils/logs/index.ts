@@ -28,7 +28,7 @@ export const logHandler = async (
 
     const endTime = performance.now();
     const durationMs = endTime - startTime;
-    logDoc.payload = { ...payload, ...onSuccess, result };
+    logDoc.payload = { ...payload, ...onSuccess };
     if (!skipSaveResult) {
       logDoc.payload.result = result;
     }
