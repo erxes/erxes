@@ -1,5 +1,19 @@
 import * as admin from 'firebase-admin';
 
+const parseServiceAccount = (input: string) => {
+  const serviceAccount = JSON.parse(input.trim());
+  const privateKey = serviceAccount.private_key || serviceAccount.privateKey;
+
+  if (privateKey) {
+    serviceAccount.private_key = privateKey
+      .replace(/\r\n/g, '\n')
+      .replace(/\\n/g, '\n')
+      .trim();
+  }
+
+  return serviceAccount;
+};
+
 const initFirebase = async (models): Promise<void> => {
   let config;
 
@@ -13,10 +27,10 @@ const initFirebase = async (models): Promise<void> => {
     return;
   }
 
-  const codeString = config.value || 'value';
+  const codeString = (config.value || 'value').trim();
 
   if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
-    const serviceAccount = JSON.parse(codeString);
+    const serviceAccount = parseServiceAccount(codeString);
 
     if (serviceAccount.private_key) {
       try {
