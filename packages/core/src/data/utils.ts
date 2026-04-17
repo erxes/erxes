@@ -360,7 +360,6 @@ export const checkFile = async (models: IModels, file, source?: string) => {
   }
 
   const { size } = file;
-  console.log(file, "filefile");
   // 20mb
   if (size > 20 * 1024 * 1024) {
     return "Too large file";
@@ -627,8 +626,6 @@ const uploadToCFStream = async (file: any, models?: IModels) => {
     headers,
     body: formData
   });
-
-  console.log({ response });
 
   const data = await response.json();
 
