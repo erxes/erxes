@@ -38,10 +38,44 @@ interface IOrderRecord {
   paidAmounts?: Array<{ type?: string }>;
 }
 
+type ExportRow = Record<string, string | number>;
+
+function extractOrderField(order: IOrderRecord, field: string): string | number {
+  switch (field) {
+    case 'number':      return order.number ?? '';
+    case 'createdAt':   return order.createdAt ?? '';
+    case 'posName':     return order.posName ?? '';
+    case 'branch':      return order.branch ? `${order.branch.order} - ${order.branch.title}` : '';
+    case 'department':  return order.department ? `${order.department.order} - ${order.department.title}` : '';
+    case 'cashier':     return order.user?.email ?? '';
+    case 'type':        return order.type ?? '';
+    case 'billType':    return order.billType ?? '';
+    case 'registerNumber': return order.registerNumber ?? '';
+    case 'customerType':   return order.customerType ?? '';
+    case 'customer':    return order.customer?.primaryEmail ?? order.customer?.firstName ?? '';
+    case 'productCode': return order.items?.product?.code ?? '';
+    case 'productName': return order.items?.product?.name ?? '';
+    case 'categoryCode': return order.items?.productCategory?.code ?? '';
+    case 'categoryName': return order.items?.productCategory?.name ?? '';
+    case 'barcode':     return (order.items?.product?.barcodes ?? []).join(', ');
+    case 'count':       return order.items?.count ?? 0;
+    case 'unitPrice':   return order.items?.unitPrice ?? 0;
+    case 'discountAmount': return order.items?.discountAmount ?? 0;
+    case 'totalAmount': return order.totalAmount ?? 0;
+    case 'paymentType': return (order.paidAmounts ?? []).map((pa) => pa.type ?? '').join(', ');
+    default:            return '';
+  }
+}
+
+const DEFAULT_FIELDS = [
+  'number', 'createdAt', 'posName', 'productCode', 'productName',
+  'count', 'unitPrice', 'totalAmount',
+];
+
 export async function getPosItemsExportData(
   args: GetExportDataArgs,
   { models, subdomain }: IImportExportContext<IModels>,
-): Promise<Record<string, any>[]> {
+): Promise<ExportRow[]> {
   const { limit = 5000, filters, ids, selectedFields } = args.data;
 
   if (!models) {
@@ -49,7 +83,7 @@ export async function getPosItemsExportData(
   }
 
   const params: Record<string, unknown> = {
-    ...(filters || {}),
+    ...(filters ?? {}),
     perPage: limit,
     page: 1,
   };
@@ -58,99 +92,13 @@ export async function getPosItemsExportData(
     params.ids = ids;
   }
 
-  const orders = await posOrderRecordsQuery(models, subdomain, params);
+  const orders = (await posOrderRecordsQuery(models, subdomain, params)) as IOrderRecord[];
+  const fields = selectedFields && selectedFields.length > 0 ? selectedFields : DEFAULT_FIELDS;
 
-  const fields =
-    selectedFields && selectedFields.length > 0
-      ? selectedFields
-      : [
-          'number',
-          'createdAt',
-          'posName',
-          'productCode',
-          'productName',
-          'count',
-          'unitPrice',
-          'totalAmount',
-        ];
-
-  return (orders as IOrderRecord[]).map((order) => {
-    const row: Record<string, any> = {};
+  return orders.map((order) => {
+    const row: ExportRow = {};
     for (const field of fields) {
-      switch (field) {
-        case 'number':
-          row.number = order.number;
-          break;
-        case 'createdAt':
-          row.createdAt = order.createdAt;
-          break;
-        case 'posName':
-          row.posName = order.posName;
-          break;
-        case 'branch':
-          row.branch = order.branch
-            ? `${order.branch.order} - ${order.branch.title}`
-            : '';
-          break;
-        case 'department':
-          row.department = order.department
-            ? `${order.department.order} - ${order.department.title}`
-            : '';
-          break;
-        case 'cashier':
-          row.cashier = order.user?.email || '';
-          break;
-        case 'type':
-          row.type = order.type || '';
-          break;
-        case 'billType':
-          row.billType = order.billType || '';
-          break;
-        case 'registerNumber':
-          row.registerNumber = order.registerNumber || '';
-          break;
-        case 'customerType':
-          row.customerType = order.customerType || '';
-          break;
-        case 'customer':
-          row.customer =
-            order.customer?.primaryEmail || order.customer?.firstName || '';
-          break;
-        case 'productCode':
-          row.productCode = order.items?.product?.code || '';
-          break;
-        case 'productName':
-          row.productName = order.items?.product?.name || '';
-          break;
-        case 'categoryCode':
-          row.categoryCode = order.items?.productCategory?.code || '';
-          break;
-        case 'categoryName':
-          row.categoryName = order.items?.productCategory?.name || '';
-          break;
-        case 'barcode':
-          row.barcode = (order.items?.product?.barcodes || []).join(', ');
-          break;
-        case 'count':
-          row.count = order.items?.count || 0;
-          break;
-        case 'unitPrice':
-          row.unitPrice = order.items?.unitPrice || 0;
-          break;
-        case 'discountAmount':
-          row.discountAmount = order.items?.discountAmount || 0;
-          break;
-        case 'totalAmount':
-          row.totalAmount = order.totalAmount || 0;
-          break;
-        case 'paymentType':
-          row.paymentType = (order.paidAmounts || [])
-            .map((pa) => pa.type)
-            .join(', ');
-          break;
-        default:
-          break;
-      }
+      row[field] = extractOrderField(order, field);
     }
     return row;
   });

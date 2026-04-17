@@ -96,7 +96,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
       ({
         id: `count_${hour}`,
         header: () => <RecordTable.InlineHead label={String(hour)} />,
-        cell: ({ row }: { row: { original: IPosByItems } }) => (
+        cell: ({ row }) => (
           <RecordTableInlineCell>
             <TextOverflowTooltip
               value={getHourCount(row.original.counts, [hour])}

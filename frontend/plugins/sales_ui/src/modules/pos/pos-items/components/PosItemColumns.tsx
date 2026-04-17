@@ -329,7 +329,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       <RecordTable.InlineHead icon={IconUser} label="Payment Type" />
     ),
     cell: ({ row }) => {
-      const paidAmounts = row.original.paidAmounts as Array<{ type?: string }> | undefined;
+      const paidAmounts = row.original.paidAmounts;
       const types = (paidAmounts || [])
         .map((pa) => pa.type)
         .filter((t): t is string => !!t)

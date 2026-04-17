@@ -4,7 +4,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 
 export async function getPosItemsExportHeaders(
-  _data: any,
+  _data: unknown,
   _ctx: IImportExportContext,
 ): Promise<ImportHeaderDefinition[]> {
   return [

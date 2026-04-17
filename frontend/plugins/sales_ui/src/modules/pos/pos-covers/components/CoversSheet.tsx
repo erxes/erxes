@@ -17,23 +17,11 @@ import { useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
 import { usePosCoversQuery } from '../detail/hook/usePosCoversQuery';
 
-interface ICoverPaidSummary {
-  kind: string;
-  kindOfVal: string;
-  value: unknown;
-  amount: number;
-}
-
-interface ICoverDetail {
-  paidType: string;
-  paidSummary?: ICoverPaidSummary[];
-}
-
 interface ICoverItemRow {
   paidType: string;
   kind: string;
   kindOfVal: string;
-  value: unknown;
+  value: string;
   amount: number;
 }
 
@@ -194,7 +182,7 @@ export const PosCoversSheet = () => {
                       Total Amount
                     </span>
                     <span className="text-base font-medium">
-                      {((posCovers.details || []) as ICoverDetail[])
+                      {(posCovers.details || [])
                         .flatMap((d) => d?.paidSummary || [])
                         .reduce((sum, s) => sum + (s?.amount || 0), 0)
                         .toLocaleString()}
@@ -212,15 +200,14 @@ export const PosCoversSheet = () => {
                   <div className="rounded-md overflow-hidden relative">
                     <RecordTable.Provider
                       columns={itemColumns}
-                      data={((posCovers.details || []) as ICoverDetail[]).flatMap(
-                        (d) =>
-                          (d?.paidSummary || []).map((s) => ({
-                            paidType: d.paidType,
-                            kind: s.kind,
-                            kindOfVal: s.kindOfVal,
-                            value: s.value,
-                            amount: s.amount,
-                          })),
+                      data={(posCovers.details || []).flatMap((d) =>
+                        (d?.paidSummary || []).map((s) => ({
+                          paidType: d.paidType,
+                          kind: s.kind,
+                          kindOfVal: s.kindOfVal,
+                          value: s.value,
+                          amount: s.amount,
+                        })),
                       )}
                       className="w-full"
                     >
