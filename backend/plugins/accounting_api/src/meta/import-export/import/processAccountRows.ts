@@ -71,14 +71,19 @@ export async function processAccountRows(
       if (row.departmentId) codes.push(row.departmentId)
     }
 
-    const categories = await models.AccountCategories.find({ $or: [{ _id: { $in: categoryIds } }, { code: { $in: categoryIds } }] });
+    const categories = await models.AccountCategories.find({
+      $or: [{ _id: { $in: categoryIds } }, { code: { $in: categoryIds } }]
+    }, { _id: 1, code: 1 });
     const branches = branchIds.length ? await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'branches',
       action: 'find',
       defaultValue: [],
-      input: { query: { $or: [{ _id: { $in: branchIds } }, { code: { $in: branchIds } }] } },
+      input: {
+        query: { $or: [{ _id: { $in: branchIds } }, { code: { $in: branchIds } }] },
+        fields: { _id: 1, code: 1 }
+      },
     }) : [];
     const departments = departmentIds.length ? await sendTRPCMessage({
       subdomain,
@@ -86,7 +91,13 @@ export async function processAccountRows(
       module: 'branches',
       action: 'find',
       defaultValue: [],
-      input: { query: { $or: [{ _id: { $in: departmentIds } }, { code: { $in: departmentIds } }] } },
+      input: {
+        query: {
+          $or: [
+            { _id: { $in: departmentIds } }, { code: { $in: departmentIds } }]
+        },
+        fields: { _id: 1, code: 1 }
+      },
     }) : [];
 
     const existingDocs = await models.Accounts.find({
