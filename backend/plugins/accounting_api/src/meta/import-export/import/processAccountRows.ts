@@ -25,32 +25,27 @@ export async function prepareAccountDoc(subdomain: string, models: IModels, row:
     doc.departmentId = departments.find(c => c._id === row.departmentId || c.code === row.departmentId)?._id;
   }
 
-  if ([1, '1', 'active', 'ACTIVE', 'Active', true, 'true'].includes(row.kind)) {
-    doc.kind = ACCOUNT_KINDS.ACTIVE
-  } else {
-    doc.kind = ACCOUNT_KINDS.PASSIVE
-  }
+  const normalize = (val: any) => String(val).toLowerCase();
 
-  if ([1, '1', 'temp', 'TEMP', 'Temp', true, 'true', 'True'].includes(row.isTemp)) {
-    doc.kind = true
-  } else {
-    doc.kind = false
-  }
-  if ([1, '1', 'OutBalance', 'Out', true, 'true', 'True'].includes(row.isOutBalance)) {
-    doc.kind = true
-  } else {
-    doc.kind = false
-  }
-  if (['deleted', 'Deleted', 'DELETED'].includes(row.status)) {
-    doc.status = ACCOUNT_STATUSES.DELETED;
-  } else {
-    doc.status = ACCOUNT_STATUSES.ACTIVE;
-  }
 
+  doc.kind = ['1', 'true', 'active'].includes(normalize(row.kind))
+    ? ACCOUNT_KINDS.ACTIVE : ACCOUNT_KINDS.PASSIVE;
+
+  // IS TEMP
+  doc.isTemp = ['1', 1, 'temp'].includes(normalize(row.isTemp));
+
+  // IS OUT BALANCE
+  doc.isOutBalance = [1, '1', 'outbalance', 'out'].includes(normalize(row.isOutBalance));
+
+  // STATUS
+  doc.status = ['deleted', 1, '1'].includes(normalize(row.status))
+    ? ACCOUNT_STATUSES.DELETED : ACCOUNT_STATUSES.ACTIVE;
+
+  // JOURNAL
   if (ACCOUNT_JOURNALS.ALL.includes(row.journal)) {
-    doc.journal = row.jouranl;
-  } {
-    doc.jouranl = ACCOUNT_JOURNALS.MAIN;
+    doc.journal = row.journal;
+  } else {
+    doc.journal = ACCOUNT_JOURNALS.MAIN;
   }
 
   return doc;
@@ -65,10 +60,16 @@ export async function processAccountRows(
   const errorRows: any[] = [];
 
   try {
-    const codes = rows.map((r) => r.code).filter(Boolean);
-    const categoryIds = rows.map(r => r.categoryId).filter(Boolean);
-    const branchIds = rows.map(r => r.branchId).filter(Boolean);
-    const departmentIds = rows.map(r => r.departmentId).filter(Boolean);
+    const codes: string[] = [];
+    const categoryIds: string[] = [];
+    const branchIds: string[] = [];
+    const departmentIds: string[] = [];
+    for (const row of rows) {
+      if (row.code) codes.push(row.code)
+      if (row.categoryId) codes.push(row.categoryId)
+      if (row.branchId) codes.push(row.branchId)
+      if (row.departmentId) codes.push(row.departmentId)
+    }
 
     const categories = await models.AccountCategories.find({ $or: [{ _id: { $in: categoryIds } }, { code: { $in: categoryIds } }] });
     const branches = branchIds.length ? await sendTRPCMessage({
@@ -76,7 +77,7 @@ export async function processAccountRows(
       pluginName: 'core',
       module: 'branches',
       action: 'find',
-      defaultValue: {},
+      defaultValue: [],
       input: { query: { $or: [{ _id: { $in: branchIds } }, { code: { $in: branchIds } }] } },
     }) : [];
     const departments = departmentIds.length ? await sendTRPCMessage({
@@ -84,7 +85,7 @@ export async function processAccountRows(
       pluginName: 'core',
       module: 'branches',
       action: 'find',
-      defaultValue: {},
+      defaultValue: [],
       input: { query: { $or: [{ _id: { $in: departmentIds } }, { code: { $in: departmentIds } }] } },
     }) : [];
 

@@ -78,10 +78,5 @@ startPlugin({
   meta: {
     afterProcess,
     permissions,
-    importExport: {
-      import: {
-        types: accountImportTypes,
-      }
-    }
   },
 });
