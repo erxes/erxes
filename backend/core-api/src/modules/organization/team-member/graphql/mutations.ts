@@ -8,8 +8,11 @@ import {
 import {
   authCookieOptions,
   getEnv,
+  getPlugin,
+  getPlugins,
   getSaasOrganizationDetail,
 } from 'erxes-api-shared/utils';
+import { Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
@@ -19,6 +22,49 @@ export interface IUsersEdit extends IUser {
   channelIds?: string[];
   _id: string;
 }
+
+const validatePermissionGroupIds = async (
+  models: IContext['models'],
+  permissionGroupIds: string[],
+) => {
+  const validPermissionGroupIds = new Set<string>();
+  const services = await getPlugins();
+
+  for (const name of services) {
+    const service = await getPlugin(name);
+    const permissions = service?.config?.meta?.permissions;
+
+    if (!permissions?.defaultGroups) continue;
+
+    for (const group of permissions.defaultGroups) {
+      validPermissionGroupIds.add(group.id);
+    }
+  }
+
+  const customPermissionGroupIds = permissionGroupIds.filter(
+    (id) => !id.includes(':') && Types.ObjectId.isValid(id),
+  );
+
+  if (customPermissionGroupIds.length > 0) {
+    const permissionGroups = await models.PermissionGroups.find({
+      _id: { $in: customPermissionGroupIds },
+    })
+      .select('_id')
+      .lean();
+
+    for (const group of permissionGroups) {
+      validPermissionGroupIds.add(String(group._id));
+    }
+  }
+
+  const invalidPermissionGroupIds = permissionGroupIds.filter(
+    (id) => !validPermissionGroupIds.has(id),
+  );
+
+  if (invalidPermissionGroupIds.length > 0) {
+    throw new Error('One or more permission groups are invalid');
+  }
+};
 
 export const userMutations: Record<string, Resolver> = {
   async usersCreateOwner(
@@ -231,11 +277,21 @@ export const userMutations: Record<string, Resolver> = {
       entries: Array<{
         email: string;
         password: string;
+        permissionGroupIds?: string[];
       }>;
     },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('teamMembersInvite');
+
+    const permissionGroupIds = [
+      ...new Set(entries.flatMap((entry) => entry.permissionGroupIds || [])),
+    ];
+
+    if (permissionGroupIds.length > 0) {
+      await checkPermission('permissionsManage');
+      await validatePermissionGroupIds(models, permissionGroupIds);
+    }
 
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });

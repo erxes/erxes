@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const USERS_INVITE = gql`
-  mutation usersInvite($entries: [InvitationEntry]) {
+  mutation usersInvite($entries: [InvitationEntry!]!) {
     usersInvite(entries: $entries)
   }
 `;
