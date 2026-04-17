@@ -18,7 +18,9 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
   const [account, setAccount] = useState('');
   const [location, setLocation] = useState('');
   const [getRemainder, setGetRemainder] = useState(false);
-  const [paymentTypeConfigs, setPaymentTypeConfigs] = useState<Record<string, string>>({});
+  const [paymentTypeConfigs, setPaymentTypeConfigs] = useState<
+    Record<string, string>
+  >({});
   const [hasChanges, setHasChanges] = useState(false);
 
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
@@ -37,7 +39,8 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
       const ptConfigs: Record<string, string> = {};
       for (const key of Object.keys(posDetail.erkhetConfig)) {
         if (key.startsWith('_')) {
-          const val = posDetail.erkhetConfig[key as keyof typeof posDetail.erkhetConfig];
+          const val =
+            posDetail.erkhetConfig[key as keyof typeof posDetail.erkhetConfig];
           if (typeof val === 'string') {
             ptConfigs[key] = val;
           }
@@ -237,7 +240,10 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
                   <Select
                     value={paymentTypeConfigs[`_${pt.type}`] || ''}
                     onValueChange={(val) => {
-                      setPaymentTypeConfigs((prev) => ({ ...prev, [`_${pt.type}`]: val }));
+                      setPaymentTypeConfigs((prev) => ({
+                        ...prev,
+                        [`_${pt.type}`]: val,
+                      }));
                       setHasChanges(true);
                     }}
                   >
