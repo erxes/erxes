@@ -76,8 +76,7 @@ export const SpreadsheetInput = ({
   const addRow = () =>
     onChange(serializeTsv([...grid, Array(numCols).fill('')]));
 
-  const addCol = () =>
-    onChange(serializeTsv(grid.map((row) => [...row, ''])));
+  const addCol = () => onChange(serializeTsv(grid.map((row) => [...row, ''])));
 
   const removeRow = (r: number) => {
     if (grid.length <= 1) return;
@@ -131,9 +130,7 @@ export const SpreadsheetInput = ({
                     <input
                       type="text"
                       value={cell}
-                      placeholder={
-                        r === 0 && c === 0 ? placeholder : undefined
-                      }
+                      placeholder={r === 0 && c === 0 ? placeholder : undefined}
                       onChange={(e) => updateCell(r, c, e.target.value)}
                       onPaste={(e) => handlePaste(r, c, e)}
                       className="w-full min-w-24 px-2 py-1 outline-none focus:bg-accent bg-transparent"
