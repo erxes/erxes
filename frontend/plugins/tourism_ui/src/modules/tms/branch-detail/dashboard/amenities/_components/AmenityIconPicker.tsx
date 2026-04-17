@@ -7,11 +7,12 @@ import {
   getAmenityIconOption,
 } from '../constants/amenityIcons';
 
-type AmenityIconPickerProps =
-  React.ComponentProps<typeof Combobox.TriggerBase> & {
-    value?: string;
-    onValueChange?: (value: string | null) => void;
-  };
+type AmenityIconPickerProps = React.ComponentProps<
+  typeof Combobox.TriggerBase
+> & {
+  value?: string;
+  onValueChange?: (value: string | null) => void;
+};
 
 export const AmenityIconPicker = forwardRef<
   HTMLButtonElement,
