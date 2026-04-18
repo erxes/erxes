@@ -1,36 +1,22 @@
 import crypto from 'crypto';
-import * as jwt from 'jsonwebtoken';
 import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { getActivePlugins, getPlugin, redis } from 'erxes-api-shared/utils';
+import {
+  extractUserFromHeader,
+  getActivePlugins,
+  getPlugin,
+  redis,
+} from 'erxes-api-shared/utils';
+import { Request, Response } from 'express';
+import * as jwt from 'jsonwebtoken';
 import { IModels } from '~/connectionResolvers';
-
-export const DEVICE_CODE_EXPIRES_IN = 10 * 60;
-export const DEVICE_POLL_INTERVAL = 5;
-
-// public  (CLI / device flow) — long-lived
-export const ACCESS_TOKEN_EXPIRES_IN_PUBLIC        = 8 * 60 * 60;        // 8h
-export const REFRESH_TOKEN_EXPIRES_IN_PUBLIC       = 90 * 24 * 60 * 60;  // 90d
-
-// confidential (server-side apps) — short-lived
-export const ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL  = 15 * 60;            // 15m
-export const REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL = 30 * 24 * 60 * 60;  // 30d
-
-// backward-compat alias (gateway userMiddleware-д ашиглагдаж болно)
-export const ACCESS_TOKEN_EXPIRES_IN = ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL;
-
-type OAuthClientInfo = {
-  id: string;
-  name: string;
-  description: string;
-  logoText: string;
-  logo?: string;
-};
-
-type OAuthScopeItem = {
-  scope: string;
-  description: string;
-};
+import {
+  ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL,
+  ACCESS_TOKEN_EXPIRES_IN_PUBLIC,
+  REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL,
+  REFRESH_TOKEN_EXPIRES_IN_PUBLIC,
+} from './constants';
+import { OAuthClientInfo, OAuthScopeItem } from './types';
 
 export const getAvailableOAuthScopesForUser = async ({
   subdomain,
@@ -134,7 +120,9 @@ export const validateClientSecret = (
   }
 
   if (!clientSecret) {
-    throw new ClientAuthError('client_secret is required for confidential clients');
+    throw new ClientAuthError(
+      'client_secret is required for confidential clients',
+    );
   }
 
   if (!oauthClientApp.secretHash) {
@@ -341,4 +329,26 @@ export const buildTokenResponse = async ({
     expiresIn: accessExpiresIn,
     user: await models.Users.getTokenFields(user),
   };
+};
+
+export const getAuthenticatedUserId = (req: Request) => {
+  const user = extractUserFromHeader(req.headers) as { _id?: string } | null;
+
+  if (!user?._id) {
+    throw new Error('Not authenticated');
+  }
+
+  return user._id;
+};
+
+export const sendOAuthError = (
+  res: Response,
+  status: number,
+  error: string,
+  errorDescription?: string,
+) => {
+  return res.status(status).json({
+    error,
+    ...(errorDescription && { error_description: errorDescription }),
+  });
 };

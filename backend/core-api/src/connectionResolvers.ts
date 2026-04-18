@@ -141,11 +141,11 @@ import {
 import {
   IOAuthDeviceCodeDocument,
   oauthDeviceCodeSchema,
-} from '~/modules/oauth/db/definitions/oauthDeviceCodes';
+} from '~/modules/auth/db/definitions/oauthDeviceCodes';
 import {
   IOAuthRefreshTokenDocument,
   oauthRefreshTokenSchema,
-} from '~/modules/oauth/db/definitions/oauthRefreshTokens';
+} from '~/modules/auth/db/definitions/oauthRefreshTokens';
 
 import {
   IAutomationEmailTemplateModel,

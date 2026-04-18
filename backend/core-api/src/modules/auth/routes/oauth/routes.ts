@@ -1,20 +1,25 @@
-import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
+import { getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
 import {
   ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL,
   ACCESS_TOKEN_EXPIRES_IN_PUBLIC,
+  DEVICE_CODE_EXPIRES_IN,
+  DEVICE_CODE_GRANT,
+  DEVICE_POLL_INTERVAL,
+  MAX_DEVICE_CODE_FAILED_ATTEMPTS,
+  REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL,
+  REFRESH_TOKEN_EXPIRES_IN_PUBLIC,
+} from './constants';
+import {
   buildTokenResponse,
   checkRateLimit,
   createOAuthAccessToken,
   createOAuthRefreshToken,
   createRandomToken,
   createUserCode,
-  DEVICE_CODE_EXPIRES_IN,
-  DEVICE_POLL_INTERVAL,
-  REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL,
-  REFRESH_TOKEN_EXPIRES_IN_PUBLIC,
   formatUserCode,
+  getAuthenticatedUserId,
   getAvailableOAuthScopesForUser,
   getClientIp,
   getOAuthClientApp,
@@ -24,36 +29,11 @@ import {
   isClientAuthError,
   isRateLimitError,
   normalizeUserCode,
+  sendOAuthError,
   validateClientSecret,
 } from './utils';
 
-const MAX_DEVICE_CODE_FAILED_ATTEMPTS = 5;
-
 export const router: Router = Router();
-
-const DEVICE_CODE_GRANT = 'urn:ietf:params:oauth:grant-type:device_code';
-
-const getAuthenticatedUserId = (req: Request) => {
-  const user = extractUserFromHeader(req.headers) as { _id?: string } | null;
-
-  if (!user?._id) {
-    throw new Error('Not authenticated');
-  }
-
-  return user._id;
-};
-
-const sendOAuthError = (
-  res: Response,
-  status: number,
-  error: string,
-  errorDescription?: string,
-) => {
-  return res.status(status).json({
-    error,
-    ...(errorDescription && { error_description: errorDescription }),
-  });
-};
 
 router.post('/oauth/device/code', async (req: Request, res: Response) => {
   try {

@@ -242,7 +242,7 @@ export const authMutations = {
   },
 };
 
-markResolvers(authMutations, {
+markResolvers<any, any, IContext>(authMutations, {
   wrapperConfig: {
     skipPermission: true,
   },
