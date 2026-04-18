@@ -215,9 +215,9 @@ router.post(
         const result = await uploadFile(
           `${domain}/gateway`,
           processedFile,
+          models,
           !!files.upload,
           forcePrivate,
-          models,
         );
 
         res.send(result);
@@ -469,9 +469,9 @@ router.post(
               size: latestInfo.fileSize,
               name: file.originalname,
             },
-            false,
-            false,
             models,
+            false,
+            false,
           );
 
           uploadStore.set(trustedId, {

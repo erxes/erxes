@@ -71,9 +71,9 @@ export const saveErrorFile = async (
         filepath: tempFilePath,
         mimetype: 'text/csv',
       },
+      models,
       false,
       true,
-      models,
     );
 
     return fileKey;
