@@ -65,10 +65,10 @@ export async function processAccountRows(
     const branchIds: string[] = [];
     const departmentIds: string[] = [];
     for (const row of rows) {
-      if (row.code) codes.push(row.code)
-      if (row.categoryId) codes.push(row.categoryId)
-      if (row.branchId) codes.push(row.branchId)
-      if (row.departmentId) codes.push(row.departmentId)
+      if (row.code) codes.push(row.code);
+      if (row.categoryId) categoryIds.push(row.categoryId);
+      if (row.branchId) branchIds.push(row.branchId);
+      if (row.departmentId) departmentIds.push(row.departmentId);
     }
 
     const categories = await models.AccountCategories.find({

@@ -1,8 +1,16 @@
-import { TCoreModuleProducerContext, TInsertImportRowsInput, TGetImportHeadersOutput } from 'erxes-api-shared/core-modules';
+import {
+  TBatchSkipRowInput,
+  TCoreModuleProducerContext,
+  TGetImportHeadersOutput,
+  TInsertImportRowsInput,
+} from 'erxes-api-shared/core-modules';
 import { processAccountRows } from './processAccountRows';
 import { IModels } from '~/connectionResolvers';
 
 const accountImportMap = {
+  accountCategory: {
+
+  },
   account: {
     headers: [
       { label: 'Code', key: 'code' },
@@ -19,8 +27,15 @@ const accountImportMap = {
       { label: 'Is Temp', key: 'isTemp' },
       { label: 'Is Out Balance', key: 'isOutBalance' },
     ],
-    processRows: (subdomain: string, models: IModels, rows: any[]) => processAccountRows(subdomain, models, rows),
+    processRows: (subdomain: string, models: IModels, rows: any[]) =>
+      processAccountRows(subdomain, models, rows),
   },
+  transactions: {
+    processRows: (subdomain: string, models: IModels, rows: any[]) =>
+      processAccountRows(subdomain, models, rows),
+    batchSkipRow: (_subdomain: string, _models: IModels, rowData: any) =>
+      !rowData?.date,
+  }
 };
 export const accountImportHandlers = {
   getImportHeaders: async (
@@ -29,7 +44,9 @@ export const accountImportHandlers = {
     { subdomain }: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
     const handler = accountImportMap[collectionName];
-    if (!handler) throw new Error(`Import headers handler not found for ${collectionName}`);
+    if (!handler) {
+      throw new Error(`Import headers handler not found for ${collectionName}`);
+    }
     return handler.headers;
   },
   insertImportRows: async (
@@ -39,5 +56,13 @@ export const accountImportHandlers = {
     const handler = accountImportMap[collectionName];
     if (!handler) throw new Error(`Import handler not found for ${collectionName}`);
     return handler.processRows(subdomain, models, rows);
+  },
+  batchSkipRow: async (
+    { collectionName, rowData }: TBatchSkipRowInput,
+    { models, subdomain }: TCoreModuleProducerContext<IModels>,
+  ) => {
+    const handler = accountImportMap[collectionName];
+    if (!handler) throw new Error(`Import handler not found for ${collectionName}`);
+    return handler.batchSkipRow(subdomain, models, rowData);
   },
 };

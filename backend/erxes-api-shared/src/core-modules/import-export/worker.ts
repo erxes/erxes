@@ -55,21 +55,21 @@ const getImportExportWorkerOptions = (kind: 'import' | 'export') => {
     concurrency,
     ...(limiterMax > 0 && limiterDuration > 0
       ? {
-          limiter: {
-            max: limiterMax,
-            duration: limiterDuration,
-          },
-        }
+        limiter: {
+          max: limiterMax,
+          duration: limiterDuration,
+        },
+      }
       : {}),
   };
 };
 
 const generateImportExportRouter = (
-  { getImportHeaders }: TImportHandlers | undefined = {} as TImportHandlers,
+  { getImportHeaders, batchSkipRow }: TImportHandlers | undefined = {} as TImportHandlers,
   { getExportHeaders }: TExportHandlers | undefined = {} as TExportHandlers,
 ) => {
   const routerConfig: Partial<
-    Record<'getImportHeaders' | 'getExportHeaders', AnyProcedure>
+    Record<'getImportHeaders' | 'getExportHeaders' | 'batchSkipRow', AnyProcedure>
   > = {};
   const trpcRouter = initTRPC
     .context<{ subdomain: string; processId: string }>()
@@ -106,6 +106,23 @@ const generateImportExportRouter = (
       });
   }
 
+  if (batchSkipRow) {
+    routerConfig.batchSkipRow = trpcRouter.procedure
+      .input(
+        z.object({
+          subdomain: z.string(),
+          data: z.object({
+            moduleName: z.string(),
+            collectionName: z.string(),
+            rowData: z.object({})
+          }),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
+        return await batchSkipRow(input, ctx);
+      });
+  }
+
   const trpcMiddleware = trpcExpress.createExpressMiddleware({
     router: trpcRouter.router(routerConfig),
     createContext: createTRPCContext(async (_subdomain, context) => {
@@ -139,6 +156,7 @@ export const startImportExportWorker = ({
       hasGetImportHeaders: !!importConfig?.getImportHeaders,
       hasInsertImportRows: !!importConfig?.insertImportRows,
       types: importConfig?.types || [],
+      hasSkipBatch: !!importConfig?.batchSkipRow,
     },
     export: {
       configured: !!exportConfig,

@@ -1,4 +1,5 @@
 import {
+  TBatchSkipRowInput,
   createCoreModuleProducerHandler,
   TGetImportHeadersInput,
   TImportExportProducers,
@@ -71,6 +72,13 @@ startPlugin({
         modules: { account: accountImportHandlers },
         methodName: TImportExportProducers.GET_IMPORT_HEADERS,
         extractModuleName: (input: TGetImportHeadersInput) => input.moduleName,
+        generateModels,
+      }),
+      batchSkipRow: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { account: accountImportHandlers },
+        methodName: TImportExportProducers.BATCH_SKIP_ROW,
+        extractModuleName: (input: TBatchSkipRowInput) => input.moduleName,
         generateModels,
       }),
     },
