@@ -32,4 +32,3 @@ export const IMPORT_RESUME = gql`
     }
   }
 `;
-

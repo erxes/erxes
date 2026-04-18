@@ -70,11 +70,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
             disabled={disabled || isLoading}
             onClick={handleClick}
           >
-            {isLoading ? (
-              <Spinner />
-            ) : (
-              <IconUpload className="size-4" />
-            )}
+            {isLoading ? <Spinner /> : <IconUpload className="size-4" />}
             {value ? 'Change' : 'Upload'}
           </Button>
 

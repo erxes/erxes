@@ -24,7 +24,9 @@ export const DeviceAuthorizeScopeGroup = ({
   const [open, setOpen] = useState(false);
 
   const groupScopes = group.modules.flatMap((m) => m.scopes);
-  const groupChecked = groupScopes.every((s) => selectedScopes.includes(s.scope));
+  const groupChecked = groupScopes.every((s) =>
+    selectedScopes.includes(s.scope),
+  );
   const groupIndeterminate =
     !groupChecked && groupScopes.some((s) => selectedScopes.includes(s.scope));
 
@@ -38,7 +40,10 @@ export const DeviceAuthorizeScopeGroup = ({
             checked={groupIndeterminate ? 'indeterminate' : groupChecked}
             disabled={loading}
             onCheckedChange={(value) =>
-              onToggle(groupScopes.map((s) => s.scope), Boolean(value))
+              onToggle(
+                groupScopes.map((s) => s.scope),
+                Boolean(value),
+              )
             }
           />
 
@@ -98,7 +103,9 @@ export const DeviceAuthorizeScopeGroup = ({
                           }
                         />
                         <div className="space-y-1">
-                          <div className="text-sm font-medium">{scope.scope}</div>
+                          <div className="text-sm font-medium">
+                            {scope.scope}
+                          </div>
                           <div className="text-sm text-muted-foreground">
                             {scope.description}
                           </div>

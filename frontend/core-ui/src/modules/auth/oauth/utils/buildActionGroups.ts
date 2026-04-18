@@ -61,7 +61,8 @@ export const buildActionGroups = (scopes: ConsentScope[]): ActionGroup[] => {
       const leftIndex = ACTION_ORDER.indexOf(left);
       const rightIndex = ACTION_ORDER.indexOf(right);
 
-      if (leftIndex === -1 && rightIndex === -1) return left.localeCompare(right);
+      if (leftIndex === -1 && rightIndex === -1)
+        return left.localeCompare(right);
       if (leftIndex === -1) return 1;
       if (rightIndex === -1) return -1;
 

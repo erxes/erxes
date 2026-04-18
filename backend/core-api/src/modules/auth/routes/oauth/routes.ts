@@ -165,8 +165,8 @@ router.get('/oauth/device/details', async (req: Request, res: Response) => {
       isRateLimitError(e)
         ? 429
         : e instanceof Error && e.message === 'Not authenticated'
-        ? 401
-        : 400,
+          ? 401
+          : 400,
       isRateLimitError(e) ? 'rate_limit_exceeded' : 'invalid_request',
       e instanceof Error ? e.message : 'Invalid request',
     );
@@ -224,8 +224,8 @@ router.post('/oauth/device/approve', async (req: Request, res: Response) => {
       isRateLimitError(e)
         ? 429
         : e instanceof Error && e.message === 'Not authenticated'
-        ? 401
-        : 400,
+          ? 401
+          : 400,
       isRateLimitError(e) ? 'rate_limit_exceeded' : 'invalid_request',
       e instanceof Error ? e.message : 'Invalid request',
     );

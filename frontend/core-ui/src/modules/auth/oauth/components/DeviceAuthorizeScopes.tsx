@@ -60,7 +60,8 @@ export const DeviceAuthorizeScopes = ({
 
       {hasNoGrantableScopes ? (
         <div className="rounded-lg border p-4 text-sm text-muted-foreground">
-          Your account does not have any grantable permissions from this request.
+          Your account does not have any grantable permissions from this
+          request.
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border">
