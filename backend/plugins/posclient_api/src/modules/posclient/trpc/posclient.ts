@@ -83,15 +83,17 @@ export const posclientTrpcRouter = t.router({
           case 'user':
             await receiveUser(models, input);
             break;
-          case 'productGroups':
+          case 'productGroups': {
             const { productGroups = [] } = input;
             await preImportProducts(models, token, productGroups);
             await importProducts(subdomain, models, token, productGroups);
             break;
-          case 'slots':
+          }
+          case 'slots': {
             const { slots = [] } = input;
             await importSlots(models, slots, token);
             break;
+          }
           default:
             break;
         }
