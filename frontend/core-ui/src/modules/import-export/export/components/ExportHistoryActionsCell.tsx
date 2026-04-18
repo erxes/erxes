@@ -11,7 +11,7 @@ export function ExportHistoryActionsCell({
 }: {
   exportItem: TExportProgress;
 }) {
-  const canDownload = exportItem.status === 'completed' && !!exportItem.fileKey;
+  const canDownload = !!exportItem.fileKey;
 
   if (!canDownload) {
     return (

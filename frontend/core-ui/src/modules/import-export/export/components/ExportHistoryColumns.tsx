@@ -1,7 +1,8 @@
-import { IconFileText } from '@tabler/icons-react';
+import { IconAlertCircle, IconFileText } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
+  Popover,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -117,20 +118,45 @@ export const exportHistoryColumns = (
     minSize: 90,
     header: () => <RecordTable.InlineHead label="Status" />,
     cell: ({ row }) => {
-      const status = row.original.status;
+      const { status, errorMessage } = row.original;
       const statusMeta =
         EXPORT_STATUS_META[status] || EXPORT_STATUS_META.pending;
 
-      return (
-        <RecordTableInlineCell>
-          <Badge
-            variant={statusMeta.variant}
-            className="uppercase tracking-wide text-[11px] px-2 py-0.5"
-          >
-            {statusMeta.label}
-          </Badge>
-        </RecordTableInlineCell>
+      const badge = (
+        <Badge
+          variant={statusMeta.variant}
+          className="uppercase tracking-wide text-[11px] px-2 py-0.5"
+        >
+          {statusMeta.label}
+        </Badge>
       );
+
+      if (status === 'failed' && errorMessage) {
+        return (
+          <RecordTableInlineCell className="gap-1.5">
+            <Popover>
+              <Popover.Trigger asChild>
+                <div className="flex items-center gap-1.5 cursor-pointer">
+                  {badge}
+                  <IconAlertCircle className="size-3.5 text-destructive flex-shrink-0" />
+                </div>
+              </Popover.Trigger>
+              <Popover.Content
+                side="top"
+                align="start"
+                className="w-auto max-w-xs text-xs break-words"
+              >
+                <p className="font-medium text-destructive mb-1">
+                  Export failed
+                </p>
+                <p className="text-muted-foreground">{errorMessage}</p>
+              </Popover.Content>
+            </Popover>
+          </RecordTableInlineCell>
+        );
+      }
+
+      return <RecordTableInlineCell>{badge}</RecordTableInlineCell>;
     },
   },
   {
