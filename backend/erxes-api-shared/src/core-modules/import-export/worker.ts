@@ -55,21 +55,27 @@ const getImportExportWorkerOptions = (kind: 'import' | 'export') => {
     concurrency,
     ...(limiterMax > 0 && limiterDuration > 0
       ? {
-        limiter: {
-          max: limiterMax,
-          duration: limiterDuration,
-        },
-      }
+          limiter: {
+            max: limiterMax,
+            duration: limiterDuration,
+          },
+        }
       : {}),
   };
 };
 
 const generateImportExportRouter = (
-  { getImportHeaders, batchSkipRow }: TImportHandlers | undefined = {} as TImportHandlers,
+  {
+    getImportHeaders,
+    batchSkipRow,
+  }: TImportHandlers | undefined = {} as TImportHandlers,
   { getExportHeaders }: TExportHandlers | undefined = {} as TExportHandlers,
 ) => {
   const routerConfig: Partial<
-    Record<'getImportHeaders' | 'getExportHeaders' | 'batchSkipRow', AnyProcedure>
+    Record<
+      'getImportHeaders' | 'getExportHeaders' | 'batchSkipRow',
+      AnyProcedure
+    >
   > = {};
   const trpcRouter = initTRPC
     .context<{ subdomain: string; processId: string }>()
@@ -114,7 +120,7 @@ const generateImportExportRouter = (
           data: z.object({
             moduleName: z.string(),
             collectionName: z.string(),
-            rowData: z.object({})
+            rowData: z.object({}),
           }),
         }),
       )

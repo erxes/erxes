@@ -8,9 +8,7 @@ import { processAccountRows } from './processAccountRows';
 import { IModels } from '~/connectionResolvers';
 
 const accountImportMap = {
-  accountCategory: {
-
-  },
+  accountCategory: {},
   account: {
     headers: [
       { label: 'Code', key: 'code' },
@@ -35,7 +33,7 @@ const accountImportMap = {
       processAccountRows(subdomain, models, rows),
     batchSkipRow: (_subdomain: string, _models: IModels, rowData: any) =>
       !rowData?.date,
-  }
+  },
 };
 export const accountImportHandlers = {
   getImportHeaders: async (
@@ -62,7 +60,8 @@ export const accountImportHandlers = {
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = accountImportMap[collectionName];
-    if (!handler) throw new Error(`Import handler not found for ${collectionName}`);
+    if (!handler)
+      throw new Error(`Import handler not found for ${collectionName}`);
     return handler.batchSkipRow(subdomain, models, rowData);
   },
 };

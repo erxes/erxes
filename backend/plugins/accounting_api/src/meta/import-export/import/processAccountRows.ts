@@ -41,19 +41,22 @@ export async function prepareAccountDoc(
 
   const normalize = (val: any) => String(val).toLowerCase();
 
-
   doc.kind = ['1', 'true', 'active'].includes(normalize(row.kind))
-    ? ACCOUNT_KINDS.ACTIVE : ACCOUNT_KINDS.PASSIVE;
+    ? ACCOUNT_KINDS.ACTIVE
+    : ACCOUNT_KINDS.PASSIVE;
 
   // IS TEMP
   doc.isTemp = ['1', 1, 'temp'].includes(normalize(row.isTemp));
 
   // IS OUT BALANCE
-  doc.isOutBalance = [1, '1', 'outbalance', 'out'].includes(normalize(row.isOutBalance));
+  doc.isOutBalance = [1, '1', 'outbalance', 'out'].includes(
+    normalize(row.isOutBalance),
+  );
 
   // STATUS
   doc.status = ['deleted', 1, '1'].includes(normalize(row.status))
-    ? ACCOUNT_STATUSES.DELETED : ACCOUNT_STATUSES.ACTIVE;
+    ? ACCOUNT_STATUSES.DELETED
+    : ACCOUNT_STATUSES.ACTIVE;
 
   // JOURNAL
   if (ACCOUNT_JOURNALS.ALL.includes(row.journal)) {
@@ -85,34 +88,45 @@ export async function processAccountRows(
       if (row.departmentId) departmentIds.push(row.departmentId);
     }
 
-    const categories = await models.AccountCategories.find({
-      $or: [{ _id: { $in: categoryIds } }, { code: { $in: categoryIds } }]
-    }, { _id: 1, code: 1 });
-    const branches = branchIds.length ? await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'branches',
-      action: 'find',
-      defaultValue: [],
-      input: {
-        query: { $or: [{ _id: { $in: branchIds } }, { code: { $in: branchIds } }] },
-        fields: { _id: 1, code: 1 }
+    const categories = await models.AccountCategories.find(
+      {
+        $or: [{ _id: { $in: categoryIds } }, { code: { $in: categoryIds } }],
       },
-    }) : [];
-    const departments = departmentIds.length ? await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'branches',
-      action: 'find',
-      defaultValue: [],
-      input: {
-        query: {
-          $or: [
-            { _id: { $in: departmentIds } }, { code: { $in: departmentIds } }]
-        },
-        fields: { _id: 1, code: 1 }
-      },
-    }) : [];
+      { _id: 1, code: 1 },
+    );
+    const branches = branchIds.length
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'branches',
+          action: 'find',
+          defaultValue: [],
+          input: {
+            query: {
+              $or: [{ _id: { $in: branchIds } }, { code: { $in: branchIds } }],
+            },
+            fields: { _id: 1, code: 1 },
+          },
+        })
+      : [];
+    const departments = departmentIds.length
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'branches',
+          action: 'find',
+          defaultValue: [],
+          input: {
+            query: {
+              $or: [
+                { _id: { $in: departmentIds } },
+                { code: { $in: departmentIds } },
+              ],
+            },
+            fields: { _id: 1, code: 1 },
+          },
+        })
+      : [];
 
     const existingDocs = await models.Accounts.find({
       ...(codes.length ? { code: { $in: codes } } : {}),
