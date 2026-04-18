@@ -5,6 +5,7 @@ export const CREATE_ITINERARY = gql`
     $groupDays: [DayItemInput]
     $totalCost: Float
     $branchId: String
+    $language: String
     $name: String
     $duration: Int
     $images: [String]
@@ -22,6 +23,7 @@ export const CREATE_ITINERARY = gql`
       groupDays: $groupDays
       totalCost: $totalCost
       branchId: $branchId
+      language: $language
       name: $name
       duration: $duration
       images: $images
@@ -44,6 +46,7 @@ export const EDIT_ITINERARY = gql`
   mutation BmsItineraryEdit(
     $id: String!
     $branchId: String
+    $language: String
     $name: String
     $duration: Int
     $totalCost: Float
@@ -62,6 +65,7 @@ export const EDIT_ITINERARY = gql`
     bmsItineraryEdit(
       _id: $id
       branchId: $branchId
+      language: $language
       name: $name
       duration: $duration
       totalCost: $totalCost

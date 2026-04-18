@@ -22,6 +22,7 @@ export interface IItineraryTranslation {
 export interface IItinerary {
   _id: string;
   branchId?: string;
+  language?: string;
   name?: string;
   duration?: number;
   createdAt?: string;

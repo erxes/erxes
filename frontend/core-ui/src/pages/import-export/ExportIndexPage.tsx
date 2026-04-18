@@ -27,6 +27,7 @@ export const ExportIndexPage = () => {
           'core:user.user',
           'core:product.product',
           'frontline:ticket.ticket',
+          'loyalty:coupon.coupon',
         ]}
       />
     </PageContainer>

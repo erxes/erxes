@@ -12,31 +12,28 @@ const item = {
     }).lean();
 
     // Include the main language value so the frontend always has every language
-    if (itinerary.branchId) {
-      const branch = await models.Branches.findOne({ _id: itinerary.branchId })
-        .select('language')
-        .lean();
-      const mainLang = branch?.language;
-      if (mainLang) {
-        const alreadyExists = translations.some(
-          (t: { language: string }) => t.language === mainLang,
-        );
+    const mainLang = itinerary?.language;
+    if (mainLang) {
+      const alreadyExists = translations.some(
+        (t: { language: string }) => t.language === mainLang,
+      );
 
-        if (!alreadyExists) {
-          const original = await models.Itineraries.findOne({
-            _id: itinerary._id,
-          })
-            .select('name')
-            .lean();
+      if (!alreadyExists) {
+        // itinerary.name may have been swapped by getBmsListWithTranslations,
+        // so read the original value from the database
+        const original = await models.Itineraries.findOne({
+          _id: itinerary._id,
+        })
+          .select('name')
+          .lean();
 
-          if (original?.name) {
-            translations.unshift({
-              _id: `${itinerary._id}_${mainLang}`,
-              objectId: itinerary._id,
-              language: mainLang,
-              name: original.name,
-            } as unknown as (typeof translations)[number]);
-          }
+        if (original?.name) {
+          translations.unshift({
+            _id: `${itinerary._id}_${mainLang}`,
+            objectId: itinerary._id,
+            language: mainLang,
+            name: original.name,
+          } as unknown as (typeof translations)[number]);
         }
       }
     }

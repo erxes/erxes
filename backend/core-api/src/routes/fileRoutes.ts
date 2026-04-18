@@ -131,6 +131,13 @@ router.get(
         return res.status(404).send('Not found');
       }
 
+      if (
+        (e as { code?: string }).code === 'AccessDenied' ||
+        (e as Error).message.includes('Access Denied')
+      ) {
+        return res.status(403).send('Access denied');
+      }
+
       // debugError(e);
 
       return next(e);
@@ -328,7 +335,8 @@ router.post(
       return res.status(400).json({ error: 'Invalid chunkIndex' });
     }
 
-    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const UUID_RE =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!UUID_RE.test(uploadId)) {
       return res.status(400).json({ error: 'Invalid uploadId' });
     }
@@ -357,7 +365,9 @@ router.post(
     const chunkPath = path.join(chunkDir, `chunk-${chunkIndexNum}`);
 
     // Ensure resolved path stays within the temp directory
-    if (!path.resolve(chunkPath).startsWith(path.resolve(tmpDir.name) + path.sep)) {
+    if (
+      !path.resolve(chunkPath).startsWith(path.resolve(tmpDir.name) + path.sep)
+    ) {
       return res.status(400).json({ error: 'Invalid path' });
     }
 

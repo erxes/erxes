@@ -8,7 +8,7 @@ export const MainNavigation = () => {
         name="Loyalty"
         icon={IconUserFilled}
         pathPrefix="loyalty"
-        path="loyalty"
+        path="vouchers"
       />
     </div>
   );

@@ -35,6 +35,14 @@ export const NOTIFICATIONS = gql`
         message
         type
         fromUserId
+        fromUser {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
         priority
         isRead
         contentType
@@ -63,6 +71,14 @@ export const NOTIFICATION_DETAIL = gql`
       message
       type
       fromUserId
+      fromUser {
+        _id
+        email
+        details {
+          fullName
+          avatar
+        }
+      }
       priority
       metadata
       createdAt

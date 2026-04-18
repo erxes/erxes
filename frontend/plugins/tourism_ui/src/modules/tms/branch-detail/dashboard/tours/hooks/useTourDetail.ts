@@ -40,6 +40,8 @@ export interface ITourTranslation {
 
 export interface ITourDetail {
   _id: string;
+  branchId?: string;
+  language?: string;
   advanceCheck?: boolean;
   advancePercent?: number;
   content?: string;
@@ -79,6 +81,8 @@ export interface ITourDetail {
   status?: string;
   pricingOptions?: IPricingOption[];
   translations?: ITourTranslation[];
+  createdAt?: string;
+  modifiedAt?: string;
 }
 
 type TourDetailQueryVariables = {

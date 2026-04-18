@@ -20,7 +20,24 @@ export const AmenityDuplicate = ({
   const { toast } = useToast();
   const { createAmenity, loading } = useCreateAmenity();
 
+  const duplicateSuffix = ' (copy)';
+
   const handleDuplicate = () => {
+    const primaryLanguage = amenity.language;
+    const primaryTranslation = amenity.translations?.find(
+      (translation) => translation.language === primaryLanguage,
+    );
+    const primaryName = primaryTranslation?.name || amenity.name || '';
+    const translations = amenity.translations
+      ?.filter((translation) => translation.language !== primaryLanguage)
+      .map((translation) => ({
+        language: translation.language,
+        name: translation.name
+          ? `${translation.name}${duplicateSuffix}`
+          : undefined,
+      }))
+      .filter((translation) => translation.name);
+
     confirm({
       message: 'Are you sure you want to duplicate this amenity?',
       options: { confirmationValue: 'duplicate' },
@@ -29,9 +46,11 @@ export const AmenityDuplicate = ({
         createAmenity({
           variables: {
             branchId: branchId || amenity.branchId,
-            name: `${amenity.name || ''} (copy)`,
+            name: `${primaryName}${duplicateSuffix}`,
             icon: amenity.icon,
             quick: amenity.quick,
+            language: primaryLanguage,
+            translations: translations?.length ? translations : undefined,
           },
           onCompleted: () => {
             toast({
