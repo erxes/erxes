@@ -44,9 +44,8 @@ export const accountImportHandlers = {
     { subdomain }: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
     const handler = accountImportMap[collectionName];
-    if (!handler) {
+    if (!handler)
       throw new Error(`Import headers handler not found for ${collectionName}`);
-    }
     return handler.headers;
   },
   insertImportRows: async (
@@ -54,7 +53,8 @@ export const accountImportHandlers = {
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = accountImportMap[collectionName];
-    if (!handler) throw new Error(`Import handler not found for ${collectionName}`);
+    if (!handler)
+      throw new Error(`Import handler not found for ${collectionName}`);
     return handler.processRows(subdomain, models, rows);
   },
   batchSkipRow: async (

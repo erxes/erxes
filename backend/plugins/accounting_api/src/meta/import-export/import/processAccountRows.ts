@@ -1,9 +1,17 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { ACCOUNT_JOURNALS, ACCOUNT_KINDS, ACCOUNT_STATUSES } from '~/modules/accounting/@types/constants';
+import {
+  ACCOUNT_JOURNALS,
+  ACCOUNT_KINDS,
+  ACCOUNT_STATUSES,
+} from '~/modules/accounting/@types/constants';
 
-
-export async function prepareAccountDoc(subdomain: string, models: IModels, row: any, addInfos: any) {
+export async function prepareAccountDoc(
+  subdomain: string,
+  models: IModels,
+  row: any,
+  addInfos: any,
+) {
   const { categories, branches, departments } = addInfos;
   const doc: any = { ...row };
 
@@ -15,14 +23,20 @@ export async function prepareAccountDoc(subdomain: string, models: IModels, row:
   }
 
   if (row.categoryId) {
-    doc.categoryId = categories.find(c => c._id === row.categoryId || c.code === row.categoryId)?._id;
+    doc.categoryId = categories.find(
+      (c) => c._id === row.categoryId || c.code === row.categoryId,
+    )?._id;
   }
 
   if (row.branchId) {
-    doc.branchId = branches.find(c => c._id === row.branchId || c.code === row.branchId)?._id;
+    doc.branchId = branches.find(
+      (c) => c._id === row.branchId || c.code === row.branchId,
+    )?._id;
   }
   if (row.departmentId) {
-    doc.departmentId = departments.find(c => c._id === row.departmentId || c.code === row.departmentId)?._id;
+    doc.departmentId = departments.find(
+      (c) => c._id === row.departmentId || c.code === row.departmentId,
+    )?._id;
   }
 
   const normalize = (val: any) => String(val).toLowerCase();
@@ -114,7 +128,11 @@ export async function processAccountRows(
 
     for (const row of rows) {
       try {
-        const doc = await prepareAccountDoc(subdomain, models, row, { categories, branches, departments });
+        const doc = await prepareAccountDoc(subdomain, models, row, {
+          categories,
+          branches,
+          departments,
+        });
         const existing = existingByCode.get(doc.code);
 
         if (existing) {
@@ -131,7 +149,10 @@ export async function processAccountRows(
           rowToMetaMap.set(row, { operationIndex: opIndex });
         }
       } catch (e: any) {
-        errorRows.push({ ...row, error: e?.message || 'Failed to prepare row' });
+        errorRows.push({
+          ...row,
+          error: e?.message || 'Failed to prepare row',
+        });
       }
     }
 
@@ -140,7 +161,10 @@ export async function processAccountRows(
 
       for (const [row, meta] of rowToMetaMap.entries()) {
         if (meta.operationIndex !== undefined) {
-          successRows.push({ ...row, _id: result.insertedIds[meta.operationIndex] });
+          successRows.push({
+            ...row,
+            _id: result.insertedIds[meta.operationIndex],
+          });
         } else {
           successRows.push({ ...row, _id: meta._id });
         }
@@ -151,7 +175,10 @@ export async function processAccountRows(
   } catch (e: any) {
     return {
       successRows: [],
-      errorRows: rows.map((r) => ({ ...r, error: e?.message || 'Failed to process rows' })),
+      errorRows: rows.map((r) => ({
+        ...r,
+        error: e?.message || 'Failed to process rows',
+      })),
     };
   }
 }
