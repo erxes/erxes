@@ -392,7 +392,7 @@ router.post(
         existing &&
         (existing.status === 'processing' || existing.status === 'completed')
       )
-        return;
+        return null;
 
       uploadStore.set(trustedId, {
         id: trustedId,
