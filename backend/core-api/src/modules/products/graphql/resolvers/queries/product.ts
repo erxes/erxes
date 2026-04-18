@@ -383,12 +383,12 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
        * All other strings become unanchored escaped-substring matchers.
        */
       const WILDCARD_REGEX: Record<string, RegExp> = {
-        '*': /^..*/igu,
-        '.': /^\..*/igu,
-        '_': /^..*/igu,
+        '*': /^..*/iu,
+        '.': /^\..*/iu,
+        '_': /^..*/iu,
       };
       const getRegex = (str: string): RegExp => {
-        return WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+        return WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'iu');
       };
 
       const similarityGroups =

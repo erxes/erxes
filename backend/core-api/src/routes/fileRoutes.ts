@@ -387,6 +387,20 @@ router.post(
      * via `setImmediate` so the 200 response is sent before the heavy I/O.
      */
     if (uploadInfo.chunks.size === uploadInfo.totalChunks) {
+      const existing = uploadStore.get(trustedId);
+      if (
+        existing &&
+        (existing.status === 'processing' || existing.status === 'completed')
+      )
+        return;
+
+      uploadStore.set(trustedId, {
+        id: trustedId,
+        status: 'processing',
+        fileName: uploadInfo.fileName,
+        progress: 50,
+      });
+
       setImmediate(async () => {
         try {
           const latestInfo = chunkStore.get(trustedId);
