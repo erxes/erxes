@@ -95,6 +95,11 @@ export const OAuthClientForm = () => {
                 value={field.value || []}
                 onValueChange={field.onChange}
                 placeholder="Add a callback URL"
+                styleClasses={{
+                  inlineTagsContainer: `shadow-xs ${
+                    field.value?.length ? 'p-2' : ''
+                  }`,
+                }}
               />
             </Form.Control>
             <Form.Description>

@@ -2,7 +2,8 @@ import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
 import {
-  ACCESS_TOKEN_EXPIRES_IN,
+  ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL,
+  ACCESS_TOKEN_EXPIRES_IN_PUBLIC,
   buildTokenResponse,
   checkRateLimit,
   createOAuthAccessToken,
@@ -11,6 +12,8 @@ import {
   createUserCode,
   DEVICE_CODE_EXPIRES_IN,
   DEVICE_POLL_INTERVAL,
+  REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL,
+  REFRESH_TOKEN_EXPIRES_IN_PUBLIC,
   formatUserCode,
   getAvailableOAuthScopesForUser,
   getClientIp,
@@ -224,12 +227,17 @@ router.post('/oauth/device/approve', async (req: Request, res: Response) => {
       );
     }
 
-    await models.OAuthDeviceCodes.updateOne(
-      { _id: deviceCode._id },
-      { $set: { userId, status: 'approved', approvedAt: new Date() } },
-    );
+    const [oauthClientApp] = await Promise.all([
+      getOAuthClientApp(models, deviceCode.clientId),
+      models.OAuthDeviceCodes.updateOne(
+        { _id: deviceCode._id },
+        { $set: { userId, status: 'approved', approvedAt: new Date() } },
+      ),
+    ]);
 
-    return res.json({ status: 'approved' });
+    const redirectUrl = oauthClientApp.redirectUrls?.[0] || null;
+
+    return res.json({ status: 'approved', redirectUrl });
   } catch (e) {
     return sendOAuthError(
       res,
@@ -350,6 +358,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         user,
         clientId,
         subdomain,
+        clientType: oauthClientApp.type,
       });
 
       await models.OAuthDeviceCodes.deleteOne({ _id: deviceCodeDoc._id });
@@ -411,17 +420,29 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         return sendOAuthError(res, 401, 'invalid_grant');
       }
 
+      const accessExpiresIn =
+        oauthClientApp.type === 'confidential'
+          ? ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL
+          : ACCESS_TOKEN_EXPIRES_IN_PUBLIC;
+
+      const refreshExpiresIn =
+        oauthClientApp.type === 'confidential'
+          ? REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL
+          : REFRESH_TOKEN_EXPIRES_IN_PUBLIC;
+
       const accessToken = await createOAuthAccessToken({
         models,
         user,
         clientId,
         subdomain,
+        expiresIn: accessExpiresIn,
       });
 
       const nextRefreshToken = await createOAuthRefreshToken({
         models,
         userId: user._id,
         clientId,
+        expiresIn: refreshExpiresIn,
       });
 
       await models.OAuthClientApps.updateOne(
@@ -443,7 +464,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         tokenType: 'Bearer',
         accessToken,
         refreshToken: nextRefreshToken.refreshToken,
-        expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+        expiresIn: accessExpiresIn,
         user: await models.Users.getTokenFields(user),
       });
     } catch (e) {

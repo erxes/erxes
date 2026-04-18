@@ -2,6 +2,7 @@ import { IconPhoto, IconTrash, IconUpload } from '@tabler/icons-react';
 import { useRef } from 'react';
 
 import { Button, Spinner, cn, useUpload } from 'erxes-ui';
+import { readImage } from 'erxes-ui/utils/core';
 
 type Props = {
   value?: string;
@@ -51,7 +52,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
       >
         {value ? (
           <img
-            src={value}
+            src={readImage(value, 64)}
             alt="Logo"
             className="size-full object-contain"
           />

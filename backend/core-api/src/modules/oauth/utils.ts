@@ -7,8 +7,17 @@ import { IModels } from '~/connectionResolvers';
 
 export const DEVICE_CODE_EXPIRES_IN = 10 * 60;
 export const DEVICE_POLL_INTERVAL = 5;
-export const ACCESS_TOKEN_EXPIRES_IN = 15 * 60;
-export const REFRESH_TOKEN_EXPIRES_IN = 30 * 24 * 60 * 60;
+
+// public  (CLI / device flow) — long-lived
+export const ACCESS_TOKEN_EXPIRES_IN_PUBLIC        = 8 * 60 * 60;        // 8h
+export const REFRESH_TOKEN_EXPIRES_IN_PUBLIC       = 90 * 24 * 60 * 60;  // 90d
+
+// confidential (server-side apps) — short-lived
+export const ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL  = 15 * 60;            // 15m
+export const REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL = 30 * 24 * 60 * 60;  // 30d
+
+// backward-compat alias (gateway userMiddleware-д ашиглагдаж болно)
+export const ACCESS_TOKEN_EXPIRES_IN = ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL;
 
 type OAuthClientInfo = {
   id: string;
@@ -232,11 +241,13 @@ export const createOAuthAccessToken = async ({
   user,
   clientId,
   subdomain,
+  expiresIn,
 }: {
   models: IModels;
   user: IUserDocument;
   clientId: string;
   subdomain: string;
+  expiresIn: number;
 }) => {
   const token = jwt.sign(
     {
@@ -247,15 +258,10 @@ export const createOAuthAccessToken = async ({
       subdomain,
     },
     models.Users.getSecret(),
-    { expiresIn: ACCESS_TOKEN_EXPIRES_IN },
+    { expiresIn },
   );
 
-  await redis.set(
-    `user_token_${user._id}_${token}`,
-    1,
-    'EX',
-    ACCESS_TOKEN_EXPIRES_IN,
-  );
+  await redis.set(`user_token_${user._id}_${token}`, 1, 'EX', expiresIn);
 
   return token;
 };
@@ -264,14 +270,16 @@ export const createOAuthRefreshToken = async ({
   models,
   userId,
   clientId,
+  expiresIn,
 }: {
   models: IModels;
   userId: string;
   clientId: string;
+  expiresIn: number;
 }) => {
   const refreshToken = createRandomToken(48);
   const tokenHash = hashToken(refreshToken);
-  const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN * 1000);
+  const expiresAt = new Date(Date.now() + expiresIn * 1000);
 
   await models.OAuthRefreshTokens.create({
     tokenHash,
@@ -288,22 +296,37 @@ export const buildTokenResponse = async ({
   user,
   clientId,
   subdomain,
+  clientType,
 }: {
   models: IModels;
   user: IUserDocument;
   clientId: string;
   subdomain: string;
+  clientType: 'public' | 'confidential';
 }) => {
+  const accessExpiresIn =
+    clientType === 'confidential'
+      ? ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL
+      : ACCESS_TOKEN_EXPIRES_IN_PUBLIC;
+
+  const refreshExpiresIn =
+    clientType === 'confidential'
+      ? REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL
+      : REFRESH_TOKEN_EXPIRES_IN_PUBLIC;
+
   const accessToken = await createOAuthAccessToken({
     models,
     user,
     clientId,
     subdomain,
+    expiresIn: accessExpiresIn,
   });
+
   const { refreshToken } = await createOAuthRefreshToken({
     models,
     userId: user._id,
     clientId,
+    expiresIn: refreshExpiresIn,
   });
 
   await models.OAuthClientApps.updateOne(
@@ -315,7 +338,7 @@ export const buildTokenResponse = async ({
     tokenType: 'Bearer',
     accessToken,
     refreshToken,
-    expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+    expiresIn: accessExpiresIn,
     user: await models.Users.getTokenFields(user),
   };
 };

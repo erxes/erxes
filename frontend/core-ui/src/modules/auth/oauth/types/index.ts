@@ -3,6 +3,7 @@ export type ConsentClient = {
   name: string;
   description: string;
   logoText: string;
+  logo?: string;
 };
 
 export type ConsentScope = {

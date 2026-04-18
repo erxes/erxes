@@ -2,6 +2,7 @@ import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 
 import { Avatar, Badge, Button, Card } from 'erxes-ui';
+import { readImage } from 'erxes-ui/utils/core';
 
 import { useDeviceAuthorize } from '../hooks/useDeviceAuthorize';
 import { DeviceAuthorizeApproved } from './DeviceAuthorizeApproved';
@@ -41,6 +42,13 @@ export const DeviceAuthorize = () => {
         <Card.Header className="space-y-5 px-8 py-8">
           <div className="flex items-start gap-4">
             <Avatar size="xl" className="size-12 rounded-lg bg-primary/5">
+              {details?.client.logo ? (
+                <Avatar.Image
+                  src={readImage(details.client.logo, 48)}
+                  alt={details.client.name}
+                  className="rounded-lg object-contain"
+                />
+              ) : null}
               <Avatar.Fallback className="rounded-lg bg-primary/10 text-base font-semibold text-primary">
                 {details?.client.logoText || 'ER'}
               </Avatar.Fallback>

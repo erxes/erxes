@@ -123,11 +123,16 @@ export const useDeviceAuthorize = () => {
         throw new Error(result?.error_description || 'Failed to approve device');
       }
 
+      if (result?.redirectUrl) {
+        window.location.href = result.redirectUrl;
+        return;
+      }
+
       setApproved(true);
 
       toast({
         title: 'Access granted',
-        description: 'You can return to erxes-local now.',
+        description: 'You can return to the application now.',
         variant: 'success',
       });
     } catch (error) {
