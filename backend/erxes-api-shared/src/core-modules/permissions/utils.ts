@@ -166,8 +166,8 @@ const getOAuthActionScopeMap = async () => {
         const actionScopes = action.oauthScopes?.length
           ? action.oauthScopes
           : action.oauthScope
-          ? [action.oauthScope]
-          : [];
+            ? [action.oauthScope]
+            : [];
 
         if (actionScopes.length) {
           scopeMap[action.name] = actionScopes;

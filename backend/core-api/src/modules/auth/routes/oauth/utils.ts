@@ -37,8 +37,8 @@ export const getAvailableOAuthScopesForUser = async ({
         const actionScopes = action.oauthScopes?.length
           ? action.oauthScopes
           : action.oauthScope
-          ? [action.oauthScope]
-          : [];
+            ? [action.oauthScope]
+            : [];
 
         if (actionScopes.length === 0) {
           continue;

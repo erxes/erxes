@@ -45,7 +45,9 @@ export const useDeviceAuthorize = () => {
         const result = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-          throw new Error(result?.error_description || 'Failed to load access request');
+          throw new Error(
+            result?.error_description || 'Failed to load access request',
+          );
         }
 
         setDetails(result);
@@ -57,7 +59,8 @@ export const useDeviceAuthorize = () => {
 
         toast({
           title: 'Could not load access request',
-          description: error instanceof Error ? error.message : 'Something went wrong.',
+          description:
+            error instanceof Error ? error.message : 'Something went wrong.',
           variant: 'destructive',
         });
       } finally {
@@ -110,17 +113,22 @@ export const useDeviceAuthorize = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${REACT_APP_API_URL}/oauth/device/approve`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userCode, grantedScopes: selectedScopes }),
-      });
+      const response = await fetch(
+        `${REACT_APP_API_URL}/oauth/device/approve`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userCode, grantedScopes: selectedScopes }),
+        },
+      );
 
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(result?.error_description || 'Failed to approve device');
+        throw new Error(
+          result?.error_description || 'Failed to approve device',
+        );
       }
 
       if (result?.redirectUrl) {
@@ -138,7 +146,8 @@ export const useDeviceAuthorize = () => {
     } catch (error) {
       toast({
         title: 'Authorization failed',
-        description: error instanceof Error ? error.message : 'Something went wrong.',
+        description:
+          error instanceof Error ? error.message : 'Something went wrong.',
         variant: 'destructive',
       });
     } finally {
@@ -162,14 +171,17 @@ export const useDeviceAuthorize = () => {
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(result?.error_description || 'Failed to cancel request');
+        throw new Error(
+          result?.error_description || 'Failed to cancel request',
+        );
       }
 
       setDenied(true);
     } catch (error) {
       toast({
         title: 'Cancel failed',
-        description: error instanceof Error ? error.message : 'Something went wrong.',
+        description:
+          error instanceof Error ? error.message : 'Something went wrong.',
         variant: 'destructive',
       });
     } finally {
