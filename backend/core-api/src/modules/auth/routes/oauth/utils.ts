@@ -129,7 +129,13 @@ export const validateClientSecret = (
     throw new ClientAuthError('Client secret is not configured');
   }
 
-  if (hashToken(clientSecret) !== oauthClientApp.secretHash) {
+  const computed = Buffer.from(hashToken(clientSecret), 'hex');
+  const stored = Buffer.from(oauthClientApp.secretHash, 'hex');
+
+  if (
+    computed.length !== stored.length ||
+    !crypto.timingSafeEqual(computed, stored)
+  ) {
     throw new ClientAuthError('Invalid client_secret');
   }
 };
@@ -230,12 +236,14 @@ export const createOAuthAccessToken = async ({
   clientId,
   subdomain,
   expiresIn,
+  scope,
 }: {
   models: IModels;
   user: IUserDocument;
   clientId: string;
   subdomain: string;
   expiresIn: number;
+  scope?: string;
 }) => {
   const token = jwt.sign(
     {
@@ -244,6 +252,7 @@ export const createOAuthAccessToken = async ({
       user: await models.Users.getTokenFields(user),
       clientId,
       subdomain,
+      ...(scope ? { scope } : {}),
     },
     models.Users.getSecret(),
     { expiresIn },
@@ -259,11 +268,13 @@ export const createOAuthRefreshToken = async ({
   userId,
   clientId,
   expiresIn,
+  scope,
 }: {
   models: IModels;
   userId: string;
   clientId: string;
   expiresIn: number;
+  scope?: string;
 }) => {
   const refreshToken = createRandomToken(48);
   const tokenHash = hashToken(refreshToken);
@@ -274,6 +285,7 @@ export const createOAuthRefreshToken = async ({
     userId,
     clientId,
     expiresAt,
+    ...(scope ? { scope } : {}),
   });
 
   return { refreshToken, tokenHash, expiresAt };
@@ -285,12 +297,14 @@ export const buildTokenResponse = async ({
   clientId,
   subdomain,
   clientType,
+  scope,
 }: {
   models: IModels;
   user: IUserDocument;
   clientId: string;
   subdomain: string;
   clientType: 'public' | 'confidential';
+  scope?: string;
 }) => {
   const accessExpiresIn =
     clientType === 'confidential'
@@ -308,6 +322,7 @@ export const buildTokenResponse = async ({
     clientId,
     subdomain,
     expiresIn: accessExpiresIn,
+    scope,
   });
 
   const { refreshToken } = await createOAuthRefreshToken({
@@ -315,6 +330,7 @@ export const buildTokenResponse = async ({
     userId: user._id,
     clientId,
     expiresIn: refreshExpiresIn,
+    scope,
   });
 
   await models.OAuthClientApps.updateOne(

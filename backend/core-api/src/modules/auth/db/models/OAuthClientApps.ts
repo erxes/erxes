@@ -41,7 +41,7 @@ const generateSecret = () => {
   return `ocs_${crypto.randomBytes(24).toString('hex')}`;
 };
 
-const hashSecret = (secret: string) => {
+const hashSecret = (secret: string): string => {
   return crypto.createHash('sha256').update(secret).digest('hex');
 };
 

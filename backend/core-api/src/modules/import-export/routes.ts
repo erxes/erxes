@@ -45,13 +45,13 @@ router.get('/import-export/download-template', async (req, res) => {
     return res.status(400).send('entityType is required');
   }
 
-  const { moduleName, collectionName, pluginName } =
-    parseEntityType(entityType);
-
   const tpl = importTemplates[entityType];
   const filename = tpl?.filename || 'import-template.csv';
 
   try {
+    const { moduleName, collectionName, pluginName } =
+      parseEntityType(entityType);
+
     const subdomain = getSubdomain(req);
 
     await validateImportConfig({
@@ -71,8 +71,14 @@ router.get('/import-export/download-template', async (req, res) => {
         moduleName: moduleName,
         collectionName: collectionName,
       },
-      defaultValue: [],
+      defaultValue: null,
     });
+
+    if (!headers || headers.length === 0) {
+      return res.status(404).json({
+        error: `No import headers found for "${entityType}". The module may not support imports or the entity type is incorrect.`,
+      });
+    }
 
     const csv = `${headers
       .map((header: any) => csvEscape(header?.label || header?.key || ''))
@@ -83,7 +89,11 @@ router.get('/import-export/download-template', async (req, res) => {
 
     return res.status(200).send(csv);
   } catch (e: any) {
-    return res.status(500).json({
+    const isValidationError =
+      e?.message?.startsWith('Invalid entityType') ||
+      e?.message?.startsWith('Missing module name');
+
+    return res.status(isValidationError ? 400 : 500).json({
       error: e?.message || 'Failed to download template',
     });
   }

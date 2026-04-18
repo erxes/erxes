@@ -247,6 +247,9 @@ router.post('/oauth/device/approve', async (req: Request, res: Response) => {
 
 router.post('/oauth/device/deny', async (req: Request, res: Response) => {
   try {
+    const ip = getClientIp(req);
+    await checkRateLimit(`oauth:deny:${ip}`, 10, 60);
+
     getAuthenticatedUserId(req);
 
     const subdomain = getSubdomain(req);
@@ -257,13 +260,21 @@ router.post('/oauth/device/deny', async (req: Request, res: Response) => {
       return sendOAuthError(res, 400, 'invalid_request', 'Missing userCode');
     }
 
+    const userCodeHash = hashToken(userCode);
+
     const deviceCode = await models.OAuthDeviceCodes.findOne({
-      userCodeHash: hashToken(userCode),
+      userCodeHash,
       status: 'pending',
       expiresAt: { $gt: new Date() },
     });
 
     if (!deviceCode) {
+      // Increment failedAttempts on any document with this userCodeHash
+      // (regardless of status/expiry) to track enumeration attempts.
+      await models.OAuthDeviceCodes.updateOne(
+        { userCodeHash },
+        { $inc: { failedAttempts: 1 } },
+      );
       return sendOAuthError(res, 404, 'invalid_grant', 'Invalid device code');
     }
 
@@ -276,8 +287,12 @@ router.post('/oauth/device/deny', async (req: Request, res: Response) => {
   } catch (e) {
     return sendOAuthError(
       res,
-      e instanceof Error && e.message === 'Not authenticated' ? 401 : 400,
-      'invalid_request',
+      isRateLimitError(e)
+        ? 429
+        : e instanceof Error && e.message === 'Not authenticated'
+          ? 401
+          : 400,
+      isRateLimitError(e) ? 'rate_limit_exceeded' : 'invalid_request',
       e instanceof Error ? e.message : 'Invalid request',
     );
   }
@@ -353,6 +368,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         clientId,
         subdomain,
         clientType: oauthClientApp.type,
+        scope: deviceCodeDoc.grantedScope || undefined,
       });
 
       await models.OAuthDeviceCodes.deleteOne({ _id: deviceCodeDoc._id });
@@ -424,12 +440,15 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
           ? REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL
           : REFRESH_TOKEN_EXPIRES_IN_PUBLIC;
 
+      const inheritedScope = tokenDoc.scope || undefined;
+
       const accessToken = await createOAuthAccessToken({
         models,
         user,
         clientId,
         subdomain,
         expiresIn: accessExpiresIn,
+        scope: inheritedScope,
       });
 
       const nextRefreshToken = await createOAuthRefreshToken({
@@ -437,6 +456,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         userId: user._id,
         clientId,
         expiresIn: refreshExpiresIn,
+        scope: inheritedScope,
       });
 
       await models.OAuthClientApps.updateOne(
