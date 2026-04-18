@@ -10,8 +10,18 @@ import { validateImportConfig } from '~/modules/import-export/utils/validateConf
 const router: Router = Router();
 
 const parseEntityType = (entityType: string) => {
+  if (!entityType || !entityType.includes(':')) {
+    throw new Error(
+      `Invalid entityType format: "${entityType}". Expected "<plugin>:<module>.<collection>"`,
+    );
+  }
+
   const [pluginName, rest] = entityType.split(':');
   const [moduleName, collectionName] = (rest || '').split('.');
+
+  if (!moduleName) {
+    throw new Error(`Missing module name in entityType: "${entityType}"`);
+  }
 
   return {
     pluginName,

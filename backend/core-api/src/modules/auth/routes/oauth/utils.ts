@@ -37,8 +37,8 @@ export const getAvailableOAuthScopesForUser = async ({
         const actionScopes = action.oauthScopes?.length
           ? action.oauthScopes
           : action.oauthScope
-            ? [action.oauthScope]
-            : [];
+          ? [action.oauthScope]
+          : [];
 
         if (actionScopes.length === 0) {
           continue;
@@ -158,23 +158,23 @@ class RateLimitError extends Error {
 export const isRateLimitError = (e: unknown): e is RateLimitError =>
   e instanceof RateLimitError;
 
-/**
- * Sliding-window counter via Redis INCR + EXPIRE.
- * Throws RateLimitError when the caller exceeds `limit` calls within `windowSecs`.
- */
 export const checkRateLimit = async (
   key: string,
   limit: number,
   windowSecs: number,
 ): Promise<void> => {
-  const current = await redis.incr(key);
+  try {
+    const current = await redis.incr(key);
 
-  if (current === 1) {
-    await redis.expire(key, windowSecs);
-  }
+    if (current === 1) {
+      await redis.expire(key, windowSecs);
+    }
 
-  if (current > limit) {
-    throw new RateLimitError('Too many requests. Please try again later.');
+    if (current > limit) {
+      throw new RateLimitError('Too many requests. Please try again later.');
+    }
+  } catch (e) {
+    throw e;
   }
 };
 

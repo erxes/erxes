@@ -27,7 +27,8 @@ const slugifyClientName = (name: string) => {
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
 
   return normalized || 'oauth-client';
 };
@@ -72,36 +73,33 @@ export const loadOAuthClientAppClass = (
       const redirectUrls = normalizeRedirectUrls(doc.redirectUrls);
       const secret = doc.type === 'confidential' ? generateSecret() : undefined;
 
-      let clientId = '';
-
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const nextClientId = `${slugifyClientName(
-          normalizedName,
-        )}-${generateClientId()}`;
-        const existing = await models.OAuthClientApps.findOne({
-          clientId: nextClientId,
-        }).lean();
-
-        if (!existing) {
-          clientId = nextClientId;
-          break;
+      const createWithUniqueId = async (attempt = 0): Promise<any> => {
+        if (attempt >= 5) {
+          throw new Error('Could not generate unique client id');
         }
-      }
 
-      if (!clientId) {
-        throw new Error('Could not generate unique client id');
-      }
+        const clientId = `${slugifyClientName(normalizedName)}-${generateClientId()}`;
 
-      const oauthClientApp = await models.OAuthClientApps.create({
-        name: normalizedName,
-        logo: doc.logo?.trim() || undefined,
-        description: doc.description?.trim() || undefined,
-        clientId,
-        type: doc.type,
-        redirectUrls,
-        secretHash: secret ? hashSecret(secret) : undefined,
-        status: 'active',
-      });
+        try {
+          return await models.OAuthClientApps.create({
+            name: normalizedName,
+            logo: doc.logo?.trim() || undefined,
+            description: doc.description?.trim() || undefined,
+            clientId,
+            type: doc.type,
+            redirectUrls,
+            secretHash: secret ? hashSecret(secret) : undefined,
+            status: 'active',
+          });
+        } catch (e: any) {
+          if (e?.code === 11000 && e?.keyPattern?.clientId) {
+            return createWithUniqueId(attempt + 1);
+          }
+          throw e;
+        }
+      };
+
+      const oauthClientApp = await createWithUniqueId();
 
       sendDbEventLog({
         action: 'create',

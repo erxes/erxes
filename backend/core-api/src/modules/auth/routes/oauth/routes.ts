@@ -207,11 +207,24 @@ router.post('/oauth/device/approve', async (req: Request, res: Response) => {
       );
     }
 
+    const grantedScopes: string[] = Array.isArray(req.body?.grantedScopes)
+      ? req.body.grantedScopes.filter(
+          (s: unknown) => typeof s === 'string' && s.trim(),
+        )
+      : [];
+
     const [oauthClientApp] = await Promise.all([
       getOAuthClientApp(models, deviceCode.clientId),
       models.OAuthDeviceCodes.updateOne(
         { _id: deviceCode._id },
-        { $set: { userId, status: 'approved', approvedAt: new Date() } },
+        {
+          $set: {
+            userId,
+            status: 'approved',
+            approvedAt: new Date(),
+            grantedScope: grantedScopes.join(' '),
+          },
+        },
       ),
     ]);
 
@@ -330,6 +343,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
       });
 
       if (!user) {
+        await models.OAuthDeviceCodes.deleteOne({ _id: deviceCodeDoc._id });
         return sendOAuthError(res, 400, 'invalid_grant', 'User not found');
       }
 

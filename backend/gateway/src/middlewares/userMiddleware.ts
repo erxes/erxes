@@ -25,9 +25,9 @@ const getBearerToken = (req: Request) => {
     throw new Error('Multiple authorization headers');
   }
 
-  const match = authorization.match(/^Bearer\s+(.+)$/i);
+  const match = authorization.match(/^Bearer\s+(\S+)$/i);
 
-  return (match?.[1] || '').trim();
+  return match?.[1] || '';
 };
 
 export default async function userMiddleware(
