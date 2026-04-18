@@ -23,7 +23,7 @@ import multer from 'multer';
 import tmp from 'tmp';
 import path from 'path';
 import fs from 'fs';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 /** Tracks the lifecycle of a chunked file upload through processing stages. */
 interface IUploadStatus {
@@ -60,7 +60,7 @@ const createLimiter = (max: number, message: string) =>
   rateLimit({
     windowMs: 15 * 60 * 1000,
     max,
-    keyGenerator: getClientIp,
+    keyGenerator: (req) => ipKeyGenerator(getClientIp(req)),
     handler: (_req, res) => {
       res.status(429).json({
         errorCode: 'RATE_LIMIT_EXCEEDED',

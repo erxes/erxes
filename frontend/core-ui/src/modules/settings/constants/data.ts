@@ -9,6 +9,7 @@ import {
   IconBuilding,
   IconChessKnight,
   IconFile,
+  IconFileImport,
   IconHierarchy,
   IconHierarchy2,
   IconMail,
@@ -185,6 +186,11 @@ export const SETTINGS_PATH_DATA = (
       name: 'System Logs',
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,
+    },
+    {
+      name: 'Import & Export',
+      icon: IconFileImport,
+      path: SettingsWorkspacePath.ImportExport,
     },
   ],
 });

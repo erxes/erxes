@@ -30,21 +30,6 @@ export const handleEmailProcessor = async (payload) => {
       const chunk = customers.slice(i, i + CHUNK_SIZE);
 
       for (const customer of chunk) {
-        const existing = await models.DeliveryReports.findOne({
-          engageMessageId: engageMessage._id,
-          email: customer.primaryEmail,
-        });
-
-        if (existing) {
-          await models.BroadcastTraces.createTrace(
-            engageMessage._id,
-            'regular',
-            `Email has already been sent to ${existing.email} before. (${existing.customerId})`,
-          );
-
-          continue;
-        }
-
         try {
           const replacedContent = await replaceContent({
             replacer: customer,

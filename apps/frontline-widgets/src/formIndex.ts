@@ -23,6 +23,13 @@ export const generateIntegrationUrl = (): string => {
   return '';
 };
 
+// Capture the integration URL synchronously at module load time while
+// document.currentScript is still available. After this point (e.g. inside
+// DOMContentLoaded callbacks) document.currentScript is always null, so
+// calling generateIntegrationUrl() there would fall back to the last <script>
+// in the DOM — which is often the inline install script whose .src is '',
+// causing iframe.src to be set to '' and the iframe to reload the host page.
+
 export const setErxesProperty = (name: string, value: any) => {
   const erxes = window.Erxes || {};
 
@@ -136,11 +143,12 @@ const createIframe = (settings: Settings) => {
     iframe.style.display = 'none';
     iframe.style.width = '100%';
     iframe.style.margin = '0 auto';
-    iframe.style.height = 'auto';
+    iframe.style.height = '100%';
     iframe.allowFullscreen = true;
   }
 
-  iframe.src = generateIntegrationUrl();
+  const INTEGRATION_URL = generateIntegrationUrl();
+  iframe.src = INTEGRATION_URL;
 
   container.appendChild(iframe);
 
@@ -249,9 +257,19 @@ const getSettings = (settings: Settings) =>
       s.channel_id === settings.channel_id && s.form_id === settings.form_id,
   );
 
-formSettings.forEach((formSettings: Settings) => {
-  iframesMapping[getMappingKey(formSettings)] = createIframe(formSettings);
-});
+const initForms = () => {
+  formSettings.forEach((formSettings: Settings) => {
+    iframesMapping[getMappingKey(formSettings)] = createIframe(formSettings);
+  });
+};
+
+// Defer iframe creation until DOM is ready so that data-erxes-embed
+// elements are available before querySelector runs
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initForms);
+} else {
+  initForms();
+}
 
 // listen for messages from widget
 window.addEventListener('message', async (event: MessageEvent) => {
@@ -312,8 +330,11 @@ window.addEventListener('message', async (event: MessageEvent) => {
     container.className = data.className;
   }
 
-  if (message === 'changeContainerStyle' && container) {
-    container.style = data.style;
+  if (message === 'changeContainerStyle' && iframe) {
+    const heightMatch = (data.style as string).match(/height:\s*([\d.]+px)/);
+    if (heightMatch) {
+      iframe.style.height = heightMatch[1];
+    }
   }
 
   return null;

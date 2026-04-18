@@ -255,7 +255,7 @@ export const DepartmentsList = ({
 export const SelectDepartmentsValue = () => {
   const { selectedDepartments, mode } = useSelectDepartmentsContext();
 
-  if (selectedDepartments?.length > 1)
+  if (selectedDepartments?.length > 1 && mode === 'multiple')
     return (
       <span className="text-muted-foreground">
         {selectedDepartments.length} departments selected

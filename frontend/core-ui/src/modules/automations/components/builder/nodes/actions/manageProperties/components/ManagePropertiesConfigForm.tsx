@@ -9,7 +9,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { Alert, Button, Form, Label, Select } from 'erxes-ui';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { TAutomationAction, TAutomationActionProps, useFormValidationErrorHandler } from 'ui-modules';
+import {
+  TAutomationAction,
+  TAutomationActionProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const generateDefaultValues = (currentAction: TAutomationAction) => {
   const values = { ...(currentAction?.config || {}) };
@@ -33,6 +38,7 @@ export const ManagePropertiesConfigForm = ({
   });
   const { propertyTypes, propertyType, isPropertyTypeValid } =
     useManagePropertySidebarContent(currentAction, form);
+  const { t } = useTranslation('automations');
   const rules: TManagePropertiesForm['rules'] =
     useWatch({
       control: form.control,
@@ -44,10 +50,9 @@ export const ManagePropertiesConfigForm = ({
       <div className="p-4">
         <Alert variant="default" className="mb-4">
           <IconInfoCircle className="mr-2 inline size-4 text-muted-foreground" />
-          <Alert.Title>We couldn’t find a matching context</Alert.Title>
+          <Alert.Title>{t('no-matching-context-title')}</Alert.Title>
           <Alert.Description>
-            This action may not apply to the current workflow. Select a module
-            or choose a trigger/action to proceed.
+            {t('no-matching-context-description')}
           </Alert.Description>
         </Alert>
       </div>
@@ -65,7 +70,7 @@ export const ManagePropertiesConfigForm = ({
             name="module"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Property Type</Form.Label>
+                <Form.Label>{t('property-type')}</Form.Label>
                 <Select
                   value={field.value}
                   onValueChange={(value) => {
@@ -77,7 +82,7 @@ export const ManagePropertiesConfigForm = ({
                   }}
                 >
                   <Select.Trigger>
-                    <Select.Value placeholder="Select a property type" />
+                    <Select.Value placeholder={t('select-property-type')} />
                   </Select.Trigger>
                   <Select.Content>
                     {propertyTypes.map(({ value, description }) => (
@@ -97,7 +102,7 @@ export const ManagePropertiesConfigForm = ({
             render={({ field: { onChange } }) => {
               return (
                 <Form.Item>
-                  <Form.Label>Rules</Form.Label>
+                  <Form.Label>{t('rules')}</Form.Label>
 
                   {rules.map((_, index) => (
                     <ManagePropertyRule
@@ -116,7 +121,7 @@ export const ManagePropertiesConfigForm = ({
                       })
                     }
                   >
-                    <Label>Add Rule</Label>
+                    <Label>{t('add-rule')}</Label>
                   </Button>
                 </Form.Item>
               );

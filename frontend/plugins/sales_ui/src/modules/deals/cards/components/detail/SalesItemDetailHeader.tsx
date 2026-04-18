@@ -26,21 +26,23 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   };
 
   return (
-    <Sheet.Header className="border-b p-3 flex-row items-center space-y-0 gap-3">
+    <Sheet.Header className="gap-2 flex-row items-center space-y-0">
       <Button variant="ghost" size="icon">
         <IconLayoutSidebarLeftCollapse />
       </Button>
-      <Sheet.Title className="flex-1 min-w-0">
-        <Input
-          className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-          placeholder="Deal Name"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
-          onBlur={handleName}
-        />
-      </Sheet.Title>
+      <div className="flex flex-col flex-1 min-w-0">
+        <Sheet.Title>
+          <Input
+            className="h-auto p-0 border-0 bg-transparent text-lg font-semibold shadow-none focus-visible:ring-1"
+            placeholder="Deal Name"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+            onBlur={handleName}
+          />
+        </Sheet.Title>
+      </div>
 
       <div className="flex items-center gap-2 shrink-0">
         {deal?.status === 'archived' && (

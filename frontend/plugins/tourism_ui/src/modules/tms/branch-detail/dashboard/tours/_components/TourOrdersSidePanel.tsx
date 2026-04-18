@@ -33,7 +33,7 @@ export const TourOrdersSidePanel = ({
 
       {activeTab === 'customers' && (
         <div className="overflow-y-auto w-[340px] border-l">
-          <TourCustomersPanel />
+          <TourCustomersPanel tourId={tourId} />
         </div>
       )}
 

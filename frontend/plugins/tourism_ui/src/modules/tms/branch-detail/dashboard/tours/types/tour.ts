@@ -17,5 +17,6 @@ export interface ITour {
 
 export interface ITourGroup {
   _id: string;
+  name?: string;
   items: ITour[];
 }
