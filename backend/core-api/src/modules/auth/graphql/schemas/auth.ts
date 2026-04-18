@@ -42,8 +42,6 @@ export const queries = `
 
 export const mutations = `
   login(email: String!, password: String! deviceToken: String): String
-  loginWithAppToken(email: String!, password: String! deviceToken: String): AuthTokenResponse
-  refreshAppToken(refreshToken: String!): AuthTokenResponse
   logout: String
   forgotPassword(email: String!): String!
   resetPassword(token: String!, newPassword: String!): JSON
