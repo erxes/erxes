@@ -160,9 +160,9 @@ function EmptyStateRow({
   branchLanguages,
   mainLanguage,
 }: {
-  branchId: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
+  readonly branchId: string;
+  readonly branchLanguages?: string[];
+  readonly mainLanguage?: string;
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
