@@ -262,6 +262,7 @@ const chunkStore = new Map<
     fileSize: number;
     uploadId: string;
     createdAt: number;
+    lastActivityAt: number;
   }
 >();
 
@@ -270,7 +271,7 @@ const CHUNK_SESSION_TTL = 30 * 60 * 1000;
 setInterval(() => {
   const now = Date.now();
   for (const [id, info] of chunkStore.entries()) {
-    if (now - info.createdAt > CHUNK_SESSION_TTL) {
+    if (now - info.lastActivityAt > CHUNK_SESSION_TTL) {
       chunkStore.delete(id);
       uploadStore.delete(id);
       const staleDir = path.join(tmpDir.name, info.uploadId);
@@ -308,6 +309,7 @@ router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
     fileSize: parsedSize,
     uploadId,
     createdAt: Date.now(),
+    lastActivityAt: Date.now(),
   });
 
   res.json({ uploadId });
@@ -374,6 +376,7 @@ router.post(
     fs.renameSync(file.path, chunkPath);
 
     uploadInfo.chunks.add(chunkIndexNum);
+    uploadInfo.lastActivityAt = Date.now();
     chunkStore.set(trustedId, uploadInfo);
 
     res.json({
