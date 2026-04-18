@@ -119,6 +119,6 @@ export const importTemplates: Record<
       'Status',
       'Is Temp',
       'Is Out Balance',
-    ]
-  }
+    ],
+  },
 };
