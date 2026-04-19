@@ -28,7 +28,7 @@ const SelectCreatorContent = () => {
   const [debouncedSearch] = useDebounce(search, 500);
   const currentUser = useAtomValue(currentUserState) as IUser;
   const { members } = useSelectMemberContext();
-  
+
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
       searchValue: debouncedSearch,
@@ -36,7 +36,7 @@ const SelectCreatorContent = () => {
   });
 
   const usersList = [currentUser, ...users].filter(
-    (user) => !members.find((member) => member._id === user._id),
+    (user) => !members.some((member) => member._id === user._id),
   );
 
   return (
@@ -78,7 +78,7 @@ const SelectCreatorContent = () => {
 const SelectCreatorFilterView = () => {
   const [createdBy, setCreatedBy] = useQueryState<string>('createdBy');
   const { resetFilterState } = useFilterContext();
-  
+
   return (
     <Filter.View filterKey="createdBy">
       <SelectCreatorProvider
@@ -98,7 +98,7 @@ const SelectCreatorFilterView = () => {
 export const SelectCreatorFilterBar = () => {
   const [createdBy, setCreatedBy] = useQueryState<string>('createdBy');
   const [open, setOpen] = useState(false);
-  
+
   return (
     <SelectCreatorProvider
       mode="single"
