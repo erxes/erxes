@@ -1,9 +1,9 @@
 import { useParams } from 'react-router';
-import { EmailTemplateForm } from '@/automations/components/settings/components/email-templates/components/EmailTemplateForm';
+import { EmailTemplateEditor } from '@/automations/components/settings/components/email-templates/editor/EmailTemplateEditor';
 
 export const AutomationEmailTemplateDetailSettingsPage = () => {
   const { id } = useParams<{ id: string }>();
   const isCreate = id === 'create';
 
-  return <EmailTemplateForm templateId={isCreate ? undefined : id} />;
+  return <EmailTemplateEditor templateId={isCreate ? undefined : id} />;
 };
