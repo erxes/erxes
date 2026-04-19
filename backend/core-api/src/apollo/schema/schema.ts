@@ -13,6 +13,7 @@ import {
 import {
   mutations as AuthMutations,
   queries as AuthQueries,
+  types as AuthTypes,
 } from '@/auth/graphql/schemas/auth';
 
 import {
@@ -219,6 +220,7 @@ export const types = `
     }
     ${CustomerTypes}
     ${CompanyTypes}
+    ${AuthTypes}
     ${UserTypes}
     ${ConfigTypes}
     ${TagTypes}

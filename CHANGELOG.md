@@ -1,4 +1,30 @@
+# Changelog
 
+## [3.0.15](https://github.com/erxes/erxes/compare/3.0.14...3.0.15) (2026-04-19)
+
+
+### Bug Fixes
+
+* build error ([688ff89](https://github.com/erxes/erxes/commit/688ff89088b7c1abd9c80150cfb714088d2b3f87))
+* **content:** category list by alphabetical order ([#7494](https://github.com/erxes/erxes/issues/7494)) ([6c33c78](https://github.com/erxes/erxes/commit/6c33c789403424ea7a45b502e3b78ea62a8fbd4c))
+* frontline forms ([#7471](https://github.com/erxes/erxes/issues/7471)) ([f21cb87](https://github.com/erxes/erxes/commit/f21cb87e2b30aa1f71875ca77bb3bfc0c74b81d5))
+* **frontline:** add propertiesData argument to updateTicket mutation ([6a5a6e8](https://github.com/erxes/erxes/commit/6a5a6e8cc2edd5bd88d2875edd50b3f081491943))
+* **loyalty:** loyalties-change-query ([#7469](https://github.com/erxes/erxes/issues/7469)) ([39bda14](https://github.com/erxes/erxes/commit/39bda145a680ff2a0a806afce6d02bef63d83811))
+* **pdf:** downgrade react-pdf to stable version ([#7475](https://github.com/erxes/erxes/issues/7475)) ([3c9a89c](https://github.com/erxes/erxes/commit/3c9a89c986bb1c85621aff3d5274ba94ab7b624f))
+* **pos:** fix build error by syncing radix ui dependencies ([#7482](https://github.com/erxes/erxes/issues/7482)) ([7a1d1fd](https://github.com/erxes/erxes/commit/7a1d1fd62da1dd1cecb839b1ca77593eae8b2d70))
+* products sync to posclient ([#7497](https://github.com/erxes/erxes/issues/7497)) ([453f9ae](https://github.com/erxes/erxes/commit/453f9ae42c710d24afc6d9da9ab5e619fee2286d))
+* **tourism:** improve grouped tour display and add quick add action  ([4373a09](https://github.com/erxes/erxes/commit/4373a09a52aa89bb7e459ecbad40857d6b51a894))
+* update @react-pdf/renderer to 4.3.2 ([6ce740c](https://github.com/erxes/erxes/commit/6ce740c3326ccb55ab52d7b9329dcfea3ce7b1ee))
+* update pnpm-lock.yml ([bbe844e](https://github.com/erxes/erxes/commit/bbe844e059c0da4e4d5ca16e7fc5d815289fac14))
+
+
+### Features
+
+* add a client-portal tour categories GraphQL query that supports optional filtering and language-aware translations. ([#7489](https://github.com/erxes/erxes/issues/7489)) ([18459a0](https://github.com/erxes/erxes/commit/18459a00a82dcf772a02678bdf02b5329614c5a9))
+* improve properties empty state and extend columns in org tables ([#7492](https://github.com/erxes/erxes/issues/7492)) ([da97631](https://github.com/erxes/erxes/commit/da97631a7d4ede3a72434de0eacc207cb6b3d8db))
+* **pos:** implement new features in pos 3.0 ([#7477](https://github.com/erxes/erxes/issues/7477)) ([3c24790](https://github.com/erxes/erxes/commit/3c24790ff58fa69694870b422770ea089fe58be1))
+* refactor import/export flow and add OAuth client management ([#7498](https://github.com/erxes/erxes/issues/7498)) ([c146aaa](https://github.com/erxes/erxes/commit/c146aaaa578bc7934ba5410c209223cd34050f5a))
+* **tourism:** enable tour and itinerary pdf section and label customization  ([3d51ced](https://github.com/erxes/erxes/commit/3d51ced0eff4bc0d913187933e5c655d267ffec3))
 
 ## [3.0.14](https://github.com/erxes/erxes/compare/3.0.13...3.0.14) (2026-04-14)
 
@@ -27,7 +53,7 @@
 * **pos:** tax flag, table refresh, print fixes ([#7323](https://github.com/erxes/erxes/issues/7323)) ([3282faf](https://github.com/erxes/erxes/commit/3282faf500e06b11a3b64783df335d35ee070431))
 * rename sales queries for consistency and clarity ([c0ba511](https://github.com/erxes/erxes/commit/c0ba5119342615df27d822a67774c60242bddd69))
 
-# Changelog
+
 
 ## [3.0.13](https://github.com/erxes/erxes/compare/3.0.12...3.0.13) (2026-04-13)
 

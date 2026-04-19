@@ -180,7 +180,7 @@ const createImportErrorRowWriter = async ({
       }
 
       await new Promise<void>((resolve, reject) => {
-        stream.end((err) => {
+        stream.end((err: any) => {
           if (err) {
             reject(err);
             return;
