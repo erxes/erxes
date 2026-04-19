@@ -113,7 +113,7 @@ export async function processAccountRows(
       ? await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
-          module: 'branches',
+          module: 'departments',
           action: 'find',
           defaultValue: [],
           input: {
