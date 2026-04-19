@@ -49,22 +49,22 @@ export const FieldChangeSentence = ({
       <ActivityLogActorName activity={activity} />
       <span className="text-muted-foreground">changed</span>
       <span className="font-medium">{fieldLabel.toLowerCase()}</span>
-      {previousValue !== undefined ? (
+      {previousValue === undefined ? null : (
         <>
           <span className="text-muted-foreground">from</span>
           <span className="font-medium">
             {previousValueLabel || formatActivityValue(previousValue)}
           </span>
         </>
-      ) : null}
-      {currentValue !== undefined ? (
+      )}
+      {currentValue === undefined ? null : (
         <>
           <span className="text-muted-foreground">to</span>
           <span className="font-medium">
             {currentValueLabel || formatActivityValue(currentValue)}
           </span>
         </>
-      ) : null}
+      )}
     </>
   );
 };

@@ -4,8 +4,8 @@ import { TActivityLog } from '../types';
 import { ActivityLogActorAvatar } from './ActivityLogActor';
 
 interface ActivityLogRowProps {
-  activity: TActivityLog;
-  isLast?: boolean;
+  readonly activity: TActivityLog;
+  readonly isLast?: boolean;
 }
 
 export function ActivityLogRow({
