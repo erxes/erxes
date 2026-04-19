@@ -22,11 +22,23 @@ export const ClickableBillNumber = ({
     setSearchParams(newSearchParams);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
     <RecordTableInlineCell>
-      <div className="cursor-pointer" onClick={handleClick}>
+      <button
+        type="button"
+        className="cursor-pointer bg-transparent border-none p-0 text-inherit"
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+      >
         <TextOverflowTooltip value={value} />
-      </div>
+      </button>
     </RecordTableInlineCell>
   );
 };
