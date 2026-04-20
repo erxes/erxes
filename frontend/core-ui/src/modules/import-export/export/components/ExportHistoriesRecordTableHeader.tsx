@@ -1,31 +1,19 @@
-import { formatImportExportEntityTypeLabel } from '@/import-export/shared/formatEntityTypeLabel';
 import { IconFileExport } from '@tabler/icons-react';
-import { Badge, Select, Skeleton, useQueryState } from 'erxes-ui';
-import { useExportHistoriesRecordTable } from './ExportHistoriesContext';
+import { Badge, Select, Skeleton } from 'erxes-ui';
+import { useExportHistoriesRecordTableHeader } from '../hooks/useExportHistoriesRecordTableHeader';
 
 export const ExportHistoriesRecordTableHeader = () => {
-  const [selectedEntityType, setSelectedEntityType] = useQueryState<string>(
-    'type',
-    {
-      defaultValue: 'all',
-    },
-  ) as [string, (value: string | null) => void];
-
-  const { contentTypes, loading, totalCount, typesLoading, typesError } =
-    useExportHistoriesRecordTable();
-
-  const totalLabel =
-    totalCount === 1
-      ? '1 export job'
-      : `${totalCount.toLocaleString()} export jobs`;
-
-  const selectedTypeLabel =
-    selectedEntityType === 'all'
-      ? 'All types'
-      : formatImportExportEntityTypeLabel(
-          selectedEntityType || 'all',
-          contentTypes,
-        );
+  const {
+    selectedEntityType,
+    setSelectedEntityType,
+    contentTypes,
+    typesLoading,
+    totalLabel,
+    selectedTypeLabel,
+    isLoadingTotalCount,
+    hasContentTypes,
+    isFilterNotAvailable,
+  } = useExportHistoriesRecordTableHeader();
 
   return (
     <div className="rounded-xl border bg-muted/20 p-5">
@@ -43,7 +31,7 @@ export const ExportHistoriesRecordTableHeader = () => {
           </p>
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">{selectedTypeLabel}</Badge>
-            {!!contentTypes.length && (
+            {hasContentTypes && (
               <Badge variant="secondary">
                 {contentTypes.length.toLocaleString()} supported records
               </Badge>
@@ -52,15 +40,14 @@ export const ExportHistoriesRecordTableHeader = () => {
         </div>
         <div className="flex w-full flex-col gap-3 lg:w-auto lg:min-w-56 lg:items-end">
           <div className="text-muted-foreground text-sm whitespace-nowrap">
-            {loading && !totalCount ? (
+            {isLoadingTotalCount ? (
               <Skeleton className="h-5 w-28" />
             ) : (
               totalLabel
             )}
           </div>
-          {typesLoading ? (
-            <Skeleton className="h-9 w-full lg:w-56" />
-          ) : !!contentTypes.length ? (
+          {typesLoading && <Skeleton className="h-9 w-full lg:w-56" />}
+          {hasContentTypes && (
             <Select
               value={selectedEntityType}
               onValueChange={setSelectedEntityType}
@@ -77,12 +64,12 @@ export const ExportHistoriesRecordTableHeader = () => {
                 ))}
               </Select.Content>
             </Select>
-          ) : null}
-          {!typesLoading && typesError ? (
+          )}
+          {isFilterNotAvailable && (
             <p className="text-xs text-muted-foreground">
               Type filters are temporarily unavailable.
             </p>
-          ) : null}
+          )}
         </div>
       </div>
     </div>
