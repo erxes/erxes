@@ -35,14 +35,8 @@ export const messageTriggerSchema = z.object({
             .optional(),
         })
         .superRefine((data, ctx) => {
-          const {
-            type,
-            isSelected,
-            persistentMenuIds,
-            conditions,
-            sourceMode,
-            sourceIds,
-          } = data;
+          const { type, isSelected, persistentMenuIds, sourceMode, sourceIds } =
+            data;
 
           if (isSelected) {
             if (
@@ -53,21 +47,6 @@ export const messageTriggerSchema = z.object({
                 code: z.ZodIssueCode.custom,
                 message: 'You should select some persistent menu',
                 path: ['persistentMenuIds'],
-              });
-            }
-
-            const hasDirectKeyword = !!conditions?.some((condition) =>
-              (condition.keywords || []).some(
-                ({ text }) => text.trim().length > 0,
-              ),
-            );
-
-            if (type === 'direct' && !hasDirectKeyword) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message:
-                  'You should provide at least one keyword on direct message',
-                path: ['conditions'],
               });
             }
 

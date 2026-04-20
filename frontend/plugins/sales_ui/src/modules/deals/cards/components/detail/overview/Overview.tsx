@@ -16,7 +16,7 @@ const Overview = ({ deal }: { deal: IDeal }) => {
       <MainOverview deal={deal} />
       <div className="border-b">
         <div className="flex justify-between">
-          <div className="flex gap-4 py-2 px-4">
+          <div className="flex gap-4 py-2 px-5">
             <ChecklistOverview />
             <AttachmentUploader />
           </div>

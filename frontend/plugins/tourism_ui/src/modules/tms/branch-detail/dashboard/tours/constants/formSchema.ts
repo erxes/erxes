@@ -22,10 +22,37 @@ const optionalNumber = (schema: z.ZodNumber) =>
 const optionalString = (schema: z.ZodString = z.string()) =>
   z.preprocess(emptyStringOrNullToUndefined, schema.optional());
 
+/* ================= PRICING OPTION TRANSLATION ================= */
+
+export const PricingOptionTranslationSchema = z.object({
+  optionId: z.string(),
+  title: z.string().optional(),
+  accommodationType: z.string().optional(),
+  note: z.string().optional(),
+  pricePerPerson: optionalNumber(z.number()),
+  domesticFlightPerPerson: optionalNumber(z.number()),
+  singleSupplement: optionalNumber(z.number()),
+});
+
+/* ================= TOUR TRANSLATION ================= */
+
+export const TourTranslationSchema = z.object({
+  language: z.string(),
+  name: z.string().optional(),
+  refNumber: z.string().optional(),
+  content: z.string().optional(),
+  info1: z.string().optional(),
+  info2: z.string().optional(),
+  info3: z.string().optional(),
+  info4: z.string().optional(),
+  info5: z.string().optional(),
+  pricingOptions: z.array(PricingOptionTranslationSchema).optional(),
+});
+
 /* ================= PRICING ================= */
 
 export const PricingOptionSchema = z.object({
-  _id: z.string().optional(),
+  _id: z.string(),
 
   title: z.string().trim().min(1, 'Title is required'),
 
@@ -101,7 +128,7 @@ export const TourCreateFormSchema = z
         z
           .array(z.coerce.date())
           .min(1, 'Select at least one start date')
-          .max(5, 'Max 5 dates allowed')
+          .max(15, 'Max 15 dates allowed')
           .refine(
             (dates) => {
               const unique = new Set(dates.map((d) => d.toISOString()));
@@ -147,6 +174,8 @@ export const TourCreateFormSchema = z
     pricingOptions: z
       .array(PricingOptionSchema)
       .min(1, 'At least one pricing option is required'),
+
+    translations: z.array(TourTranslationSchema).optional(),
   })
 
   /* ================= VALIDATIONS ================= */
@@ -156,8 +185,8 @@ export const TourCreateFormSchema = z
     (data) => {
       if (!data.isFlexibleDate) {
         if (data.isGroupTour) {
-          // group tour → multiple start dates only
-          return Array.isArray(data.startDate) && data.startDate.length > 0;
+          // group tour → at least 2 start dates
+          return Array.isArray(data.startDate) && data.startDate.length >= 2;
         }
 
         // single tour → start + end
@@ -165,10 +194,13 @@ export const TourCreateFormSchema = z
       }
       return true;
     },
-    {
-      message: 'Start date (and end date for non-group tours) is required',
+    (data) => ({
+      message:
+        !data.isFlexibleDate && data.isGroupTour
+          ? 'Group tours require at least 2 start dates'
+          : 'Start date (and end date for non-group tours) is required',
       path: ['startDate'],
-    },
+    }),
   )
 
   // FLEXIBLE MODE
@@ -200,3 +232,35 @@ export const TourCreateFormSchema = z
   );
 
 export type TourCreateFormType = z.infer<typeof TourCreateFormSchema>;
+
+/**
+ * Form-level translation pricing type – allows `''` (empty string)
+ * so React Hook Form can track the field as "set but empty".
+ * Zod `optionalNumber` converts `''` → `undefined` on validation.
+ */
+export type PricingOptionTranslationFormValue = {
+  optionId: string;
+  title?: string;
+  accommodationType?: string;
+  note?: string;
+  pricePerPerson?: number | string;
+  domesticFlightPerPerson?: number | string;
+  singleSupplement?: number | string;
+};
+
+type InferredTranslation = NonNullable<
+  TourCreateFormType['translations']
+>[number];
+
+/** Widened translation type for form state (allows `''` in pricing numerics). */
+export type TourTranslationFormValue = Omit<
+  InferredTranslation,
+  'pricingOptions'
+> & {
+  pricingOptions?: PricingOptionTranslationFormValue[];
+};
+
+/** Form values type – same as `TourCreateFormType` but translations allow `''` in pricing numerics. */
+export type TourFormValues = Omit<TourCreateFormType, 'translations'> & {
+  translations?: TourTranslationFormValue[];
+};

@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { UseFieldArrayReturn } from 'react-hook-form';
+import { useAtomValue } from 'jotai';
 import { LANGUAGES } from '@/tms/constants/languages';
-import { ElementCreateFormType } from '../constants/formSchema';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 interface UseElementLanguageOptions {
   branchLanguages?: string[];
   mainLanguage?: string;
-  fields: UseFieldArrayReturn<ElementCreateFormType, 'translations'>['fields'];
 }
 
 type FieldPaths = {
@@ -18,7 +17,6 @@ type FieldPaths = {
 export const useElementLanguage = ({
   branchLanguages,
   mainLanguage,
-  fields,
 }: UseElementLanguageOptions) => {
   const allLanguages = useMemo(() => {
     const base =
@@ -43,7 +41,13 @@ export const useElementLanguage = ({
     [allLanguages, primaryLanguage],
   );
 
-  const [selectedLang, setSelectedLang] = useState(primaryLanguage);
+  const activeLang = useAtomValue(activeLangAtom);
+
+  const [selectedLang, setSelectedLang] = useState(() => {
+    const stored = activeLang;
+    if (stored && allLanguages.includes(stored)) return stored;
+    return primaryLanguage;
+  });
 
   useEffect(() => {
     if (primaryLanguage && !selectedLang) {
@@ -59,9 +63,7 @@ export const useElementLanguage = ({
 
   const effectiveLang = selectedLang || primaryLanguage;
   const isMainLang = effectiveLang === primaryLanguage;
-  const translationIndex = fields.findIndex(
-    (f) => f.language === effectiveLang,
-  );
+  const translationIndex = translationLanguages.indexOf(effectiveLang);
   const currencySymbol =
     LANGUAGES.find((l) => l.value === effectiveLang)?.symbol ?? '$';
 

@@ -19,6 +19,7 @@ const ITINERARIES_PER_PAGE = 30;
 type ItinerariesQueryVariables = {
   branchId?: string;
   name?: string;
+  language?: string;
   limit?: number;
   cursor?: string;
   direction?: EnumCursorDirection;
@@ -55,6 +56,7 @@ export const useItineraries = (
     ...options,
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables,
+    fetchPolicy: 'cache-and-network',
   });
 
   const {

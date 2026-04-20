@@ -1,27 +1,54 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { pdf } from '@react-pdf/renderer';
-import { IconFileTypePdf } from '@tabler/icons-react';
-import { Button, Spinner, useToast } from 'erxes-ui';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  IconAdjustmentsHorizontal,
+  IconDownload,
+  IconEdit,
+  IconFileTypePdf,
+  IconRefresh,
+  IconX,
+} from '@tabler/icons-react';
+import { useQuery } from '@apollo/client';
+import { useAtomValue } from 'jotai';
+import { Button, Dialog, Label, Select, Spinner, useToast } from 'erxes-ui';
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
-import { ItineraryPDF } from './ItineraryPDF';
-import { generateFilename, convertImagesToBase64 } from './utils';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import { ItineraryEditSheet } from '../_components/ItineraryEditSheet';
+import { CustomizePdfDialog } from './CustomizePdfDialog';
+import { generateFilename } from './utils';
+import { buildItineraryPdfBlob } from './pdfBuilder';
+import { ITINERARY_PDF_TEMPLATES } from './templates';
+import {
+  DEFAULT_ITINERARY_PDF_LABELS,
+  type ItineraryPdfLabels,
+  type ItineraryPdfRenderConfig,
+  type ItineraryPdfTemplate,
+} from './types';
+import { GET_ELEMENTS } from '@/tms/branch-detail/dashboard/elements/graphql/queries';
+import type { IElement } from '@/tms/branch-detail/dashboard/elements/types/element';
+import { GET_AMENITIES } from '@/tms/branch-detail/dashboard/amenities/graphql/queries';
+import type { IAmenity } from '@/tms/branch-detail/dashboard/amenities/types/amenity';
 import './fonts';
 
-/**
- * Module-level blob cache: key = `${itinerary._id}:${modifiedAt}:${branchId}`.
- * Skips full PDF regeneration when the same data is exported again.
- */
-const pdfBlobCache = new Map<string, Blob>();
-const MAX_PDF_CACHE_SIZE = 50;
+const DEFAULT_PDF_CONFIG: ItineraryPdfRenderConfig = {
+  showCoverPage: true,
+  showFooterPage: true,
+  showDayContent: true,
+  showElements: false,
+  showAmenities: false,
+  labels: DEFAULT_ITINERARY_PDF_LABELS,
+};
 
-function setCachedPdf(key: string, blob: Blob) {
-  if (pdfBlobCache.size >= MAX_PDF_CACHE_SIZE) {
-    const firstKey = pdfBlobCache.keys().next().value;
-    if (firstKey) pdfBlobCache.delete(firstKey);
-  }
-  pdfBlobCache.set(key, blob);
-}
+const createDefaultPdfConfig = (): ItineraryPdfRenderConfig => ({
+  ...DEFAULT_PDF_CONFIG,
+  labels: { ...DEFAULT_PDF_CONFIG.labels },
+});
 
 interface ExportPDFButtonProps {
   itinerary?: IItineraryDetail | null;
@@ -29,6 +56,10 @@ interface ExportPDFButtonProps {
   variant?: 'default' | 'secondary' | 'outline' | 'ghost';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
+  branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+  refetchItinerary?: () => Promise<unknown>;
 }
 
 export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
@@ -37,14 +68,166 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   variant = 'outline',
   size = 'default',
   className,
+  branchId: fallbackBranchId,
+  branchLanguages,
+  mainLanguage,
+  refetchItinerary,
 }) => {
-  const [generating, setGenerating] = useState(false);
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string>();
+  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>();
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<ItineraryPdfTemplate>('classic');
+  const [pdfConfig, setPdfConfig] = useState<ItineraryPdfRenderConfig>(
+    createDefaultPdfConfig,
+  );
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [refreshNonce, setRefreshNonce] = useState(0);
   const { toast } = useToast();
   const downloadTimeoutRef = useRef<NodeJS.Timeout>();
-  const lastObjectUrlRef = useRef<string>();
+  const downloadObjectUrlRef = useRef<string>();
+  const previewObjectUrlRef = useRef<string>();
+  const previewRequestIdRef = useRef(0);
+  const isMountedRef = useRef(true);
+  const forcePreviewRefreshRef = useRef(false);
+  const branchId = itinerary?.branchId || fallbackBranchId;
+  const { branchDetail: rawBranchDetail, loading: branchLoading } =
+    useBranchDetail({
+      id: branchId,
+    });
+  const branchDetail = useMemo(
+    () =>
+      rawBranchDetail && rawBranchDetail._id === branchId
+        ? rawBranchDetail
+        : undefined,
+    [branchId, rawBranchDetail],
+  );
+  const shouldWaitForBranch = Boolean(
+    branchId && branchLoading && !branchDetail,
+  );
+  const { data: elementsData, loading: elementsLoading } = useQuery<{
+    bmsElements: {
+      list: IElement[];
+      totalCount: number;
+    };
+  }>(GET_ELEMENTS, {
+    variables: {
+      branchId,
+      language,
+      quick: false,
+      limit: 100,
+      orderBy: { createdAt: -1 },
+    },
+    skip: !branchId || !previewOpen || !pdfConfig.showElements,
+    fetchPolicy: 'cache-and-network',
+  });
+  const elements = useMemo(
+    () => elementsData?.bmsElements?.list ?? [],
+    [elementsData?.bmsElements?.list],
+  );
+  const pdfElements = useMemo(
+    () =>
+      elements.map((element) => ({
+        _id: element._id,
+        name: element.name,
+        note: element.note,
+        content: element.content,
+        startTime: element.startTime,
+        duration: element.duration,
+        cost: element.cost,
+      })),
+    [elements],
+  );
+  const { data: amenitiesData, loading: amenitiesLoading } = useQuery<{
+    bmsElements: {
+      list: IAmenity[];
+      totalCount: number;
+    };
+  }>(GET_AMENITIES, {
+    variables: {
+      branchId,
+      language,
+      quick: true,
+      limit: 100,
+      orderBy: { createdAt: -1 },
+    },
+    skip: !branchId || !previewOpen || !pdfConfig.showAmenities,
+    fetchPolicy: 'cache-and-network',
+  });
+  const amenities = useMemo(
+    () => amenitiesData?.bmsElements?.list ?? [],
+    [amenitiesData?.bmsElements?.list],
+  );
+  const pdfAmenities = useMemo(
+    () =>
+      amenities.map((amenity) => ({
+        _id: amenity._id,
+        name: amenity.name,
+        icon: amenity.icon,
+      })),
+    [amenities],
+  );
+  const shouldWaitForElements = Boolean(
+    pdfConfig.showElements &&
+    previewOpen &&
+    branchId &&
+    elementsLoading &&
+    !elements.length,
+  );
+  const shouldWaitForAmenities = Boolean(
+    pdfConfig.showAmenities &&
+    previewOpen &&
+    branchId &&
+    amenitiesLoading &&
+    !amenities.length,
+  );
+  const shouldWaitForResources =
+    shouldWaitForElements || shouldWaitForAmenities;
+
+  const canEdit = Boolean(itinerary?._id);
+  const canDownload =
+    Boolean(previewBlob) && !previewLoading && !shouldWaitForResources;
+  const selectedTemplateOption = useMemo(
+    () =>
+      ITINERARY_PDF_TEMPLATES.find(
+        (template) => template.value === selectedTemplate,
+      ) || ITINERARY_PDF_TEMPLATES[0],
+    [selectedTemplate],
+  );
+
+  const previewStatusText =
+    previewLoading || shouldWaitForResources
+      ? 'Preparing PDF preview...'
+      : 'Preview refreshes automatically after edits and customization changes.';
+
+  const revokePreviewUrl = useCallback(() => {
+    if (previewObjectUrlRef.current) {
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+      previewObjectUrlRef.current = undefined;
+    }
+    setPreviewUrl(undefined);
+  }, []);
+
+  const resetPreviewState = useCallback(() => {
+    previewRequestIdRef.current += 1;
+    revokePreviewUrl();
+    setPreviewBlob(null);
+    setPreviewError(undefined);
+    setPreviewLoading(false);
+  }, [revokePreviewUrl]);
 
   const triggerDownload = useCallback((url: string, filename: string): void => {
-    lastObjectUrlRef.current = url;
+    if (downloadTimeoutRef.current) {
+      clearTimeout(downloadTimeoutRef.current);
+    }
+
+    downloadObjectUrlRef.current = url;
+
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
@@ -55,170 +238,428 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
       if (document.body.contains(link)) {
         link.remove();
       }
+
       URL.revokeObjectURL(url);
-      lastObjectUrlRef.current = undefined;
+      downloadObjectUrlRef.current = undefined;
     }, 5000);
   }, []);
 
-  // Cleanup on unmount
+  const generatePreview = useCallback(
+    async (force = false) => {
+      if (!itinerary) {
+        setPreviewError('No itinerary data available.');
+        return;
+      }
+
+      const requestId = ++previewRequestIdRef.current;
+      setPreviewLoading(true);
+      setPreviewError(undefined);
+
+      try {
+        const { blob, loadedImages, totalImages } = await buildItineraryPdfBlob(
+          {
+            itinerary,
+            branchDetail,
+            branchId,
+            language,
+            template: selectedTemplate,
+            config: pdfConfig,
+            elements: pdfElements,
+            amenities: pdfAmenities,
+            force,
+          },
+        );
+
+        if (
+          !isMountedRef.current ||
+          requestId !== previewRequestIdRef.current
+        ) {
+          return;
+        }
+
+        if (totalImages > 0 && loadedImages < totalImages) {
+          toast({
+            title: 'Some images failed to load',
+            description: `${
+              totalImages - loadedImages
+            } of ${totalImages} image(s) could not be loaded. The preview may have missing images.`,
+          });
+        }
+
+        revokePreviewUrl();
+
+        const nextPreviewUrl = URL.createObjectURL(blob);
+        previewObjectUrlRef.current = nextPreviewUrl;
+        setPreviewBlob(blob);
+        setPreviewUrl(nextPreviewUrl);
+      } catch (err) {
+        if (
+          !isMountedRef.current ||
+          requestId !== previewRequestIdRef.current
+        ) {
+          return;
+        }
+
+        setPreviewBlob(null);
+        setPreviewError(
+          err instanceof Error ? err.message : 'Failed to generate preview.',
+        );
+      } finally {
+        if (isMountedRef.current && requestId === previewRequestIdRef.current) {
+          setPreviewLoading(false);
+        }
+      }
+    },
+    [
+      branchDetail,
+      branchId,
+      itinerary,
+      language,
+      pdfAmenities,
+      pdfElements,
+      pdfConfig,
+      revokePreviewUrl,
+      selectedTemplate,
+      toast,
+    ],
+  );
+
+  const handleDownload = useCallback(() => {
+    if (!previewBlob || !itinerary) {
+      return;
+    }
+
+    const url = URL.createObjectURL(previewBlob);
+    triggerDownload(url, generateFilename(itinerary.name));
+
+    toast({
+      title: 'PDF downloaded',
+      description: `"${itinerary.name || 'Itinerary'}" has been downloaded.`,
+      variant: 'success',
+    });
+  }, [itinerary, previewBlob, toast, triggerDownload]);
+
+  const handlePreviewOpenChange = useCallback(
+    (open: boolean) => {
+      setPreviewOpen(open);
+
+      if (!open) {
+        resetPreviewState();
+      }
+    },
+    [resetPreviewState],
+  );
+
+  const handleRefreshPreview = useCallback(() => {
+    void generatePreview(true);
+  }, [generatePreview]);
+
+  const handleTemplateChange = useCallback((value: string) => {
+    setSelectedTemplate(value as ItineraryPdfTemplate);
+  }, []);
+
+  const handleConfigToggle = useCallback(
+    (
+      key: keyof ItineraryPdfRenderConfig,
+      checked: boolean | 'indeterminate',
+    ) => {
+      const nextChecked = checked === true;
+
+      setPdfConfig((current) => {
+        if (key === 'showCoverPage') {
+          return {
+            ...current,
+            showCoverPage: nextChecked,
+          };
+        }
+
+        if (key === 'showFooterPage') {
+          return {
+            ...current,
+            showFooterPage: nextChecked,
+          };
+        }
+
+        if (key === 'showAmenities') {
+          return {
+            ...current,
+            showAmenities: nextChecked,
+          };
+        }
+
+        if (key === 'showDayContent') {
+          if (!nextChecked && !current.showElements) {
+            return current;
+          }
+
+          return {
+            ...current,
+            showDayContent: nextChecked,
+            showElements: nextChecked ? false : current.showElements,
+          };
+        }
+
+        if (key === 'showElements') {
+          if (!nextChecked && !current.showDayContent) {
+            return current;
+          }
+
+          return {
+            ...current,
+            showElements: nextChecked,
+            showDayContent: nextChecked ? false : current.showDayContent,
+          };
+        }
+
+        return current;
+      });
+    },
+    [],
+  );
+
+  const handleLabelChange = useCallback(
+    (key: keyof ItineraryPdfLabels, value: string) => {
+      setPdfConfig((current) => ({
+        ...current,
+        labels: {
+          ...current.labels,
+          [key]: value,
+        },
+      }));
+    },
+    [],
+  );
+
+  const handleResetCustomize = useCallback(() => {
+    setPdfConfig(createDefaultPdfConfig());
+  }, []);
+
+  const handleOpenEditSheet = useCallback(() => {
+    setEditOpen(true);
+  }, []);
+
+  const handleEditOpenChange = useCallback(
+    async (open: boolean) => {
+      setEditOpen(open);
+
+      if (!open && itinerary?._id) {
+        try {
+          await refetchItinerary?.();
+        } catch (error) {
+          toast({
+            title: 'Refresh failed',
+            description:
+              error instanceof Error
+                ? error.message
+                : 'Failed to reload itinerary details.',
+            variant: 'destructive',
+          });
+        } finally {
+          forcePreviewRefreshRef.current = true;
+          setRefreshNonce((current) => current + 1);
+        }
+      }
+    },
+    [itinerary?._id, refetchItinerary, toast],
+  );
+
   useEffect(() => {
+    if (!previewOpen || !itinerary) {
+      return;
+    }
+
+    if (shouldWaitForBranch) {
+      return;
+    }
+
+    if (shouldWaitForResources) {
+      return;
+    }
+
+    void generatePreview(forcePreviewRefreshRef.current).finally(() => {
+      forcePreviewRefreshRef.current = false;
+    });
+  }, [
+    generatePreview,
+    itinerary,
+    previewOpen,
+    refreshNonce,
+    pdfConfig,
+    selectedTemplate,
+    shouldWaitForBranch,
+    shouldWaitForResources,
+  ]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
     return () => {
+      isMountedRef.current = false;
+      previewRequestIdRef.current += 1;
+
       if (downloadTimeoutRef.current) {
         clearTimeout(downloadTimeoutRef.current);
       }
-      if (lastObjectUrlRef.current) {
-        URL.revokeObjectURL(lastObjectUrlRef.current);
+
+      if (downloadObjectUrlRef.current) {
+        URL.revokeObjectURL(downloadObjectUrlRef.current);
+      }
+
+      if (previewObjectUrlRef.current) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
       }
     };
   }, []);
 
-  const branchId = itinerary?.branchId;
-  const { branchDetail, loading: branchLoading } = useBranchDetail({
-    id: branchId,
-  });
-
-  const handleExport = useCallback(async () => {
-    if (!itinerary) {
-      toast({
-        title: 'Export failed',
-        description: 'No itinerary data available.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (branchLoading && branchId) {
-      toast({
-        title: 'Preparing export',
-        description: 'Loading branch information for the PDF...',
-      });
-      return;
-    }
-
-    setGenerating(true);
-
-    try {
-      // Check blob cache first — skip full regeneration if data unchanged.
-      const cacheKey = `${itinerary._id}:${
-        itinerary.modifiedAt ?? Date.now()
-      }:${branchId ?? ''}`;
-      const cachedBlob = pdfBlobCache.get(cacheKey);
-      if (cachedBlob) {
-        const url = URL.createObjectURL(cachedBlob);
-        triggerDownload(url, generateFilename(itinerary.name));
-        toast({
-          title: 'PDF exported',
-          description: `"${
-            itinerary.name || 'Itinerary'
-          }" has been downloaded.`,
-          variant: 'success',
-        });
-        setGenerating(false);
-        return;
-      }
-
-      let totalImages = 0;
-      let loadedImages = 0;
-
-      const groupDaysWithImages = await Promise.all(
-        (itinerary.groupDays || []).map(async (day) => {
-          const images = day.images || [];
-          if (images.length > 0) totalImages++;
-          const base64Images = await convertImagesToBase64(images, 1);
-          if (base64Images.length > 0) loadedImages++;
-          return { ...day, base64Images };
-        }),
-      );
-
-      const coverImages = itinerary.images || [];
-      if (coverImages.length > 0 && coverImages[0]) totalImages++;
-      const [coverImageBase64] = await convertImagesToBase64(
-        coverImages.length > 0 && coverImages[0] ? [coverImages[0]] : [],
-        1,
-      );
-      if (coverImageBase64) loadedImages++;
-
-      const logoKey =
-        branchDetail?.uiOptions?.mainLogo ||
-        branchDetail?.uiOptions?.logo ||
-        '';
-      if (logoKey) totalImages++;
-      const [mainLogoBase64] = await convertImagesToBase64(
-        logoKey ? [logoKey] : [],
-        1,
-      );
-      if (mainLogoBase64) loadedImages++;
-
-      if (totalImages > 0 && loadedImages < totalImages) {
-        toast({
-          title: 'Some images failed to load',
-          description: `${
-            totalImages - loadedImages
-          } of ${totalImages} image(s) could not be loaded. The PDF may have missing images.`,
-        });
-      }
-
-      const blob = await pdf(
-        <ItineraryPDF
-          itinerary={{
-            ...itinerary,
-            groupDays: groupDaysWithImages,
-            coverImageBase64,
-          }}
-          branch={{
-            name: branchDetail?.name,
-            mainLogoBase64,
-          }}
-        />,
-      ).toBlob();
-
-      setCachedPdf(cacheKey, blob);
-
-      const url = URL.createObjectURL(blob);
-      triggerDownload(url, generateFilename(itinerary.name));
-
-      toast({
-        title: 'PDF exported',
-        description: `"${itinerary.name || 'Itinerary'}" has been downloaded.`,
-        variant: 'success',
-      });
-    } catch (err) {
-      toast({
-        title: 'Export failed',
-        description:
-          err instanceof Error ? err.message : 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
-    } finally {
-      setGenerating(false);
-    }
-  }, [
-    branchDetail?.name,
-    branchDetail?.uiOptions?.logo,
-    branchDetail?.uiOptions?.mainLogo,
-    branchId,
-    branchLoading,
-    itinerary,
-    toast,
-    triggerDownload,
-  ]);
-
-  const isDisabled =
-    !itinerary ||
-    externalLoading ||
-    generating ||
-    (branchLoading && !!branchId);
+  const isDisabled = !itinerary || externalLoading;
 
   return (
-    <Button
-      variant={variant}
-      size={size}
-      className={className}
-      disabled={isDisabled}
-      onClick={handleExport}
-    >
-      {generating ? <Spinner /> : <IconFileTypePdf size={16} />}
-      {size !== 'icon' && (generating ? 'Generating…' : 'Export as PDF')}
-    </Button>
+    <>
+      <Button
+        variant={variant}
+        size={size}
+        className={className}
+        disabled={isDisabled}
+        onClick={() => handlePreviewOpenChange(true)}
+      >
+        <IconFileTypePdf size={16} />
+        {size !== 'icon' && 'Preview PDF'}
+      </Button>
+
+      <Dialog open={previewOpen} onOpenChange={handlePreviewOpenChange}>
+        <Dialog.Content className="max-w-[96vw] h-[92vh] grid-rows-[auto_minmax(0,1fr)_auto] p-0 gap-0 overflow-hidden">
+          <Dialog.Close asChild>
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute z-10 right-4 top-4"
+            >
+              <IconX size={16} />
+            </Button>
+          </Dialog.Close>
+
+          <Dialog.Header className="px-6 py-4 space-y-1 border-b pr-14">
+            <Dialog.Title>Itinerary PDF preview</Dialog.Title>
+            <Dialog.Description>
+              Preview before download. You can edit and refresh here.
+            </Dialog.Description>
+            <div className="pt-2 space-y-2">
+              <Label htmlFor="template-select">Template</Label>
+              <Select
+                value={selectedTemplate}
+                onValueChange={handleTemplateChange}
+              >
+                <Select.Trigger className="h-9 min-w-20" id="template-select">
+                  <Select.Value>{selectedTemplateOption.label}</Select.Value>
+                </Select.Trigger>
+                <Select.Content>
+                  {ITINERARY_PDF_TEMPLATES.map((template) => (
+                    <Select.Item key={template.value} value={template.value}>
+                      <div className="flex flex-col">
+                        <span>{template.label}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {template.description}
+                        </span>
+                      </div>
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            </div>
+          </Dialog.Header>
+
+          <div className="flex-1 min-h-0 bg-muted/30">
+            {previewLoading || shouldWaitForResources ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <Spinner />
+                  Preparing PDF preview...
+                </div>
+              </div>
+            ) : previewError ? (
+              <div className="flex flex-col items-center justify-center h-full gap-4 px-6 text-center">
+                <p className="max-w-md text-sm text-muted-foreground">
+                  {previewError}
+                </p>
+                <Button variant="outline" onClick={handleRefreshPreview}>
+                  <IconRefresh size={16} />
+                  Retry preview
+                </Button>
+              </div>
+            ) : previewUrl ? (
+              <iframe
+                title="Itinerary PDF preview"
+                src={previewUrl}
+                className="w-full h-full bg-white border-0"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                No preview available yet.
+              </div>
+            )}
+          </div>
+
+          <Dialog.Footer className="px-6 py-4 border-t sm:justify-between sm:space-x-0">
+            <p className="text-xs text-muted-foreground">{previewStatusText}</p>
+
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
+              <Button
+                variant="outline"
+                onClick={() => setCustomizeOpen(true)}
+                disabled={!itinerary}
+              >
+                <IconAdjustmentsHorizontal size={16} />
+                Customize
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={handleRefreshPreview}
+                disabled={
+                  previewLoading || shouldWaitForResources || !itinerary
+                }
+              >
+                {previewLoading ? <Spinner /> : <IconRefresh size={16} />}
+                Refresh
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={handleOpenEditSheet}
+                disabled={!canEdit}
+              >
+                <IconEdit size={16} />
+                Edit itinerary
+              </Button>
+
+              <Button onClick={handleDownload} disabled={!canDownload}>
+                <IconDownload size={16} />
+                Download PDF
+              </Button>
+            </div>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+
+      <CustomizePdfDialog
+        open={customizeOpen}
+        onOpenChange={setCustomizeOpen}
+        pdfConfig={pdfConfig}
+        onConfigToggle={handleConfigToggle}
+        onLabelChange={handleLabelChange}
+        onReset={handleResetCustomize}
+      />
+
+      <ItineraryEditSheet
+        itineraryId={itinerary?._id}
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+        open={editOpen}
+        onOpenChange={(open) => {
+          void handleEditOpenChange(open);
+        }}
+      />
+    </>
   );
 };

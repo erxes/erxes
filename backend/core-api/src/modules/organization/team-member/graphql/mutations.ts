@@ -20,7 +20,7 @@ export interface IUsersEdit extends IUser {
   _id: string;
 }
 
-export const userMutations: Record<string, Resolver> = {
+export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersCreateOwner(
     _parent: undefined,
     {
@@ -194,6 +194,30 @@ export const userMutations: Record<string, Resolver> = {
     const updatedUser = await models.Users.setUserActiveOrInactive(_id);
 
     return updatedUser;
+  },
+
+  async usersSetActiveStatusBatch(
+    _parent: undefined,
+    { _ids }: { _ids: string[] },
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersRemove');
+
+    for (const _id of _ids) {
+      if (user._id === _id) {
+        throw new Error('You can not delete yourself');
+      }
+    }
+
+    for (const _id of _ids) {
+      const targetUser = await models.Users.findOne({ _id });
+
+      if (targetUser && targetUser.isActive !== false) {
+        await models.Users.setUserActiveOrInactive(_id);
+      }
+    }
+
+    return true;
   },
 
   /*

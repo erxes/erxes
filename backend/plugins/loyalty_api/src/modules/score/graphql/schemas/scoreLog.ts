@@ -19,6 +19,9 @@ export const types = `
     serviceName: String
     createdBy: String
     createdAt: Date
+
+    amount: Float
+    quantity: Float
   }
 
   type ScoreLog {
@@ -49,8 +52,14 @@ const queryParams = `
   ownerId: String,
   status: String,
   action: String,
+  orderType: String,
   fromDate: String,
   toDate: String,
+  boardId: String,
+  pipelineId: String,
+  stageId: String,
+  number: String,
+  description: String,
 `;
 
 export const queries = `
@@ -68,6 +77,8 @@ const mutationParams = `
   change: Float!
   description: String
   serviceName: String
+  amount: Float
+  quantity: Float
 `;
 
 export const mutations = `

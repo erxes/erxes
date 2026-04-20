@@ -1,13 +1,32 @@
-import { Job } from 'bullmq';
+import { Job, UnrecoverableError } from 'bullmq';
 import { nanoid } from 'nanoid';
 import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
 import { splitType } from '../../../core-modules/automations';
-import { readFileFromStorage } from '../../../utils/file/read';
+import { readFileStreamFromStorage } from '../../../utils/file/read';
 import { IImportExportContext, TImportHandlers, ImportJobData } from '../types';
 import { CoreImportClient } from './createCoreImportClient';
-import { processCSVFile, processXLSXFile } from './importUtils';
+import { ImportExportError, withImportExportStage } from './importExportError';
+import {
+  logImportExportEvent,
+  safeCleanup,
+  toTerminalImportExportError,
+} from './importExportRuntime';
+import { processCSVStream, processXLSXStream } from './importUtils';
+import { safeProgressUpdate } from './progressUpdate';
+import {
+  ImportExportTempWorkspace,
+  createImportExportTempWorkspace,
+} from './tempWorkspace';
+
+type ImportErrorRow = Record<string, any>;
+
+interface ImportErrorRowWriter {
+  writeRows(rows: ImportErrorRow[]): Promise<void>;
+  finalize(): Promise<void>;
+  cleanup(): Promise<void>;
+  getErrorRows(): ImportErrorRow[];
+  hasErrors(): boolean;
+}
 
 const createContext = async (
   subdomain: string,
@@ -20,6 +39,178 @@ const createContext = async (
 
   return baseContext;
 };
+
+const escapeCsvField = (
+  field: string | number | boolean | null | undefined,
+): string => {
+  const value =
+    field === null || field === undefined
+      ? ''
+      : typeof field === 'string'
+        ? field
+        : String(field);
+
+  if (value.includes('"') || value.includes(',') || value.includes('\n')) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+
+  return value;
+};
+
+const createImportErrorRowWriter = async ({
+  importId,
+  getCsvHeaders,
+  keyToHeaderMap,
+  tempWorkspace,
+}: {
+  importId: string;
+  getCsvHeaders: () => string[];
+  keyToHeaderMap: Record<string, string>;
+  tempWorkspace: ImportExportTempWorkspace;
+}): Promise<ImportErrorRowWriter> => {
+  const errorFilePath = tempWorkspace.createFilePath(
+    `import-errors-${importId}-${nanoid()}.csv`,
+  );
+
+  const stream = fs.createWriteStream(errorFilePath, { encoding: 'utf8' });
+  let initialized = false;
+  let streamError: Error | null = null;
+  const bufferedErrorRows: ImportErrorRow[] = [];
+
+  stream.on('error', (err) => {
+    streamError = err;
+  });
+
+  const writeChunk = async (chunk: string) => {
+    if (streamError) {
+      throw streamError;
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      const cleanupListeners = () => {
+        stream.off('error', onError);
+        stream.off('drain', onDrain);
+      };
+
+      const onError = (err: Error) => {
+        cleanupListeners();
+        reject(err);
+      };
+
+      const onDrain = () => {
+        cleanupListeners();
+        resolve();
+      };
+
+      stream.once('error', onError);
+
+      const canContinue = stream.write(chunk, (err) => {
+        if (err) {
+          cleanupListeners();
+          reject(err);
+        }
+      });
+
+      if (canContinue) {
+        cleanupListeners();
+        resolve();
+        return;
+      }
+
+      stream.once('drain', onDrain);
+    });
+  };
+
+  const ensureHeader = async () => {
+    if (initialized) {
+      return;
+    }
+
+    const finalHeaders = [...getCsvHeaders(), 'Error'];
+    await writeChunk(finalHeaders.map(escapeCsvField).join(',') + '\n');
+    initialized = true;
+  };
+
+  return {
+    async writeRows(rows) {
+      if (!rows.length) {
+        return;
+      }
+
+      await ensureHeader();
+
+      const csvHeaders = getCsvHeaders();
+      const headerToKeyMap: Record<string, string> = {};
+
+      Object.entries(keyToHeaderMap).forEach(([key, header]) => {
+        headerToKeyMap[header] = key;
+      });
+
+      const chunk =
+        rows
+          .map((row) => {
+            const errorMessage =
+              row?.error ||
+              row?.errorMessage ||
+              row?.message ||
+              'Unknown error';
+
+            const normalizedRow: ImportErrorRow = { error: errorMessage };
+
+            const values = csvHeaders.map((header) => {
+              const lookupKey = keyToHeaderMap[header] || header;
+              const value = row?.[lookupKey];
+              normalizedRow[lookupKey] = value;
+              return escapeCsvField(value);
+            });
+
+            bufferedErrorRows.push(normalizedRow);
+
+            values.push(escapeCsvField(errorMessage));
+            return values.join(',');
+          })
+          .join('\n') + '\n';
+
+      await writeChunk(chunk);
+    },
+
+    async finalize() {
+      if (streamError) {
+        throw streamError;
+      }
+
+      await new Promise<void>((resolve, reject) => {
+        stream.end((err: any) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          resolve();
+        });
+      });
+
+      if (streamError) {
+        throw streamError;
+      }
+    },
+
+    async cleanup() {
+      if (!stream.destroyed) {
+        stream.destroy();
+      }
+    },
+
+    getErrorRows() {
+      return bufferedErrorRows;
+    },
+
+    hasErrors() {
+      return bufferedErrorRows.length > 0;
+    },
+  };
+};
+
 export const createImportBatchProcessor = (
   config: TImportHandlers,
   coreClient: CoreImportClient,
@@ -48,81 +239,112 @@ export const createImportBatchProcessor = (
       { subdomain, processId },
       config,
     );
+    let dataRowIndex = 0;
+    let totalRows = 0;
+    let processedRows = 0;
+    let successRows = 0;
+    let errorRows = 0;
+    const startedAt = Date.now();
 
-    let errorFilePath: string | null = null;
-    let errorFileInitialized = false;
+    logImportExportEvent({
+      entity: 'import',
+      id: importId,
+      subdomain,
+      stage: 'START',
+      event: 'job_started',
+      extra: {
+        entityType,
+        fileKey,
+      },
+    });
 
     try {
-      await coreClient.updateImportProgress(subdomain, importId, {
-        status: 'validating',
+      await safeProgressUpdate({
+        entity: 'import',
+        id: importId,
+        subdomain,
+        stage: 'validating',
+        update: async () => {
+          await coreClient.updateImportProgress(subdomain, importId, {
+            status: 'validating',
+          });
+        },
       });
 
-      const importDoc = await coreClient.getImport(subdomain, importId);
+      const importDoc = await withImportExportStage({
+        stage: 'LOAD_DOCUMENT',
+        fallbackMessage: 'Failed to load import document',
+        retryable: false,
+        run: async () => await coreClient.getImport(subdomain, importId),
+      });
       if (!importDoc) {
-        throw new Error('Import not found');
+        throw new ImportExportError({
+          stage: 'LOAD_DOCUMENT',
+          message: 'Import not found',
+          code: 'IMPORT_NOT_FOUND',
+          retryable: false,
+        });
       }
 
       const fileName = importDoc.fileName || fileKey;
       const isCSV = fileName.toLowerCase().endsWith('.csv');
+      const resumeFromRow = importDoc.lastProcessedRow || 0;
 
-      let fileBuffer = await readFileFromStorage({ subdomain, key: fileKey });
-      if (!fileBuffer) {
-        throw new Error('File not found');
-      }
-
-      let totalRows = 0;
-      const batchSize = 5000;
-      let batch: any[] = [];
-      let processedRows = 0;
-      let successRows = 0;
-      let errorRows = 0;
-
-      await coreClient.updateImportProgress(subdomain, importId, {
-        status: 'processing',
+      // Native Readable stream from storage — the file is never fully
+      // buffered in memory. Storage errors (NoSuchKey, connection drop,
+      // etc.) surface via the stream's 'error' event, which is forwarded
+      // into the parser by processCSVStream/processXLSXStream and then
+      // thrown out of the for-await loop below, landing in the outer catch.
+      const fileStream = await withImportExportStage({
+        stage: 'FETCH_FILE',
+        fallbackMessage: 'Failed to fetch import file',
+        run: async () =>
+          await readFileStreamFromStorage({
+            subdomain,
+            key: fileKey,
+          }),
       });
 
-      const importHeaders = await config.getImportHeaders(
-        {
-          subdomain,
-          data: {
-            moduleName,
-            collectionName,
-          },
+      const batchSize = 5000;
+      let batch: any[] = [];
+
+      await safeProgressUpdate({
+        entity: 'import',
+        id: importId,
+        subdomain,
+        stage: 'processing',
+        update: async () => {
+          await coreClient.updateImportProgress(subdomain, importId, {
+            status: 'processing',
+          });
         },
-        context,
-      );
+      });
+
+      const importHeaders = await withImportExportStage({
+        stage: 'FETCH_HEADERS',
+        fallbackMessage: 'Failed to fetch import headers',
+        retryable: false,
+        run: async () =>
+          await config.getImportHeaders(
+            {
+              subdomain,
+              data: {
+                moduleName,
+                collectionName,
+              },
+            },
+            context,
+          ),
+      });
 
       const rowIterator = isCSV
-        ? processCSVFile(fileBuffer)
-        : processXLSXFile(fileBuffer);
-
-      fileBuffer = null as any;
+        ? processCSVStream(fileStream)
+        : processXLSXStream(fileStream);
 
       let rowIndex = 0;
       let headerRow: string[] = [];
       const columnToKeyMap: Record<number, string> = {};
       const keyToHeaderMap: Record<string, string> = {};
-
-      const escapeCsvField = (
-        field: string | number | boolean | null | undefined,
-      ): string => {
-        const value =
-          field === null || field === undefined
-            ? ''
-            : typeof field === 'string'
-            ? field
-            : String(field);
-
-        if (
-          value.includes('"') ||
-          value.includes(',') ||
-          value.includes('\n')
-        ) {
-          return `"${value.replace(/"/g, '""')}"`;
-        }
-
-        return value;
-      };
 
       const getCsvHeaders = (): string[] => {
         return headerRow && headerRow.length > 0
@@ -130,127 +352,178 @@ export const createImportBatchProcessor = (
           : Object.values(keyToHeaderMap);
       };
 
-      const writeErrorRow = async (row: any) => {
-        if (!errorFilePath) {
-          errorFilePath = path.join(
-            os.tmpdir(),
-            `import-errors-${importId}-${nanoid()}.csv`,
-          );
-        }
+      const tempWorkspace = await createImportExportTempWorkspace({
+        kind: 'import',
+      });
 
-        if (!errorFileInitialized) {
-          const csvHeaders = getCsvHeaders();
-          const finalHeaders = [...csvHeaders, 'Error'];
-          await fs.promises.writeFile(
-            errorFilePath,
-            finalHeaders.map(escapeCsvField).join(',') + '\n',
-            'utf8',
-          );
-          errorFileInitialized = true;
-        }
-
-        const csvHeaders = getCsvHeaders();
-        const headerToKeyMap: Record<string, string> = {};
-        Object.entries(keyToHeaderMap).forEach(([key, header]) => {
-          headerToKeyMap[header] = key;
+      try {
+        const errorRowWriter = await withImportExportStage({
+          stage: 'WRITE_TEMP_FILE',
+          fallbackMessage: 'Failed to initialize import error writer',
+          run: async () =>
+            await createImportErrorRowWriter({
+              importId,
+              getCsvHeaders,
+              keyToHeaderMap,
+              tempWorkspace,
+            }),
         });
+        let errorRowWriterFinalized = false;
 
-        const dataValues = csvHeaders.map((header) => {
-          const lookupKey = headerToKeyMap[header] || header;
-          return escapeCsvField(row?.[lookupKey]);
-        });
-
-        const errorMessage =
-          row?.error || row?.errorMessage || row?.message || 'Unknown error';
-
-        dataValues.push(escapeCsvField(errorMessage));
-        await fs.promises.appendFile(
-          errorFilePath,
-          dataValues.join(',') + '\n',
-          'utf8',
-        );
-      };
-
-      const parseCSVLine = (line: string): string[] => {
-        const values: string[] = [];
-        let currentValue = '';
-        let insideQuotes = false;
-
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          const nextChar = line[i + 1];
-
-          if (char === '"') {
-            if (insideQuotes && nextChar === '"') {
-              currentValue += '"';
-              i++;
-            } else {
-              insideQuotes = !insideQuotes;
-            }
-          } else if (char === ',' && !insideQuotes) {
-            values.push(currentValue);
-            currentValue = '';
-          } else {
-            currentValue += char;
+        for await (const row of rowIterator) {
+          if (rowIndex === 0) {
+            headerRow = row;
+            headerRow.forEach((headerText, index) => {
+              if (headerText) {
+                const matchedHeader = importHeaders.find(
+                  (h) => h.label === headerText,
+                );
+                if (matchedHeader) {
+                  columnToKeyMap[index] = matchedHeader.key;
+                  keyToHeaderMap[matchedHeader.key] = headerText;
+                }
+              }
+            });
+            rowIndex++;
+            continue;
           }
-        }
 
-        values.push(currentValue);
-        return values;
-      };
+          dataRowIndex++;
+          rowIndex++;
 
-      for await (const row of rowIterator) {
-        if (rowIndex === 0) {
-          headerRow = row;
-          headerRow.forEach((headerText, index) => {
-            if (headerText) {
-              const matchedHeader = importHeaders.find(
-                (h) => h.label === headerText,
-              );
-              if (matchedHeader) {
-                columnToKeyMap[index] = matchedHeader.key;
-                keyToHeaderMap[matchedHeader.key] = headerText;
+          if (dataRowIndex <= resumeFromRow) {
+            continue;
+          }
+
+          totalRows++;
+
+          const rowData: Record<string, any> = {};
+          row.forEach((value: any, index: number) => {
+            if (
+              index >= 0 &&
+              value !== null &&
+              value !== undefined &&
+              value !== ''
+            ) {
+              const key = columnToKeyMap[index];
+              if (key) {
+                rowData[key] = value;
               }
             }
           });
-          rowIndex++;
-          continue;
-        }
 
-        totalRows++;
-        rowIndex++;
-
-        const rowData: Record<string, any> = {};
-        row.forEach((value: any, index: number) => {
-          if (
-            index >= 0 &&
-            value !== null &&
-            value !== undefined &&
-            value !== ''
-          ) {
-            const key = columnToKeyMap[index];
-            if (key) {
-              rowData[key] = value;
-            }
+          if (Object.keys(rowData).length > 0) {
+            batch.push(rowData);
           }
-        });
 
-        if (Object.keys(rowData).length > 0) {
-          batch.push(rowData);
+          if (batch.length >= batchSize) {
+            if (
+              config.batchSkipRow &&
+              (await config.batchSkipRow(
+                {
+                  subdomain,
+                  data: {
+                    moduleName,
+                    collectionName,
+                    rowData,
+                  },
+                },
+                context,
+              ))
+            ) {
+              continue;
+            }
+            const result = await withImportExportStage({
+              stage: 'PROCESS_BATCH',
+              fallbackMessage: 'Failed to process import batch',
+              run: async () =>
+                await config.insertImportRows(
+                  {
+                    subdomain,
+                    data: {
+                      moduleName,
+                      collectionName,
+                      rows: batch,
+                    },
+                  },
+                  context,
+                ),
+            });
+
+            const successIds =
+              result.successRows
+                ?.map((r: any) => r._id || r.id)
+                .filter(Boolean) || [];
+
+            successRows += successIds.length;
+            errorRows += result.errorRows.length;
+            processedRows += batch.length;
+
+            if (result.errorRows.length) {
+              await withImportExportStage({
+                stage: 'WRITE_TEMP_FILE',
+                fallbackMessage: 'Failed to write import error rows',
+                run: async () =>
+                  await errorRowWriter.writeRows(result.errorRows),
+              });
+            }
+
+            await safeProgressUpdate({
+              entity: 'import',
+              id: importId,
+              subdomain,
+              stage: 'batch-progress',
+              update: async () => {
+                await coreClient.updateImportProgress(subdomain, importId, {
+                  processedRows,
+                  successRows,
+                  errorRows,
+                  totalRows,
+                  lastProcessedRow: dataRowIndex,
+                });
+              },
+            });
+
+            logImportExportEvent({
+              entity: 'import',
+              id: importId,
+              subdomain,
+              stage: 'PROCESS_BATCH',
+              event: 'batch_processed',
+              extra: {
+                processedRows,
+                successRows,
+                errorRows,
+                totalRows,
+                lastProcessedRow: dataRowIndex,
+              },
+            });
+
+            if (successIds.length) {
+              await coreClient.addImportedIds(subdomain, importId, successIds);
+            }
+
+            batch = [];
+          }
         }
 
-        if (batch.length >= batchSize) {
-          const result = await config.insertImportRows(
-            {
-              subdomain,
-              data: {
-                moduleName,
-                collectionName,
-                rows: batch,
-              },
-            },
-            context,
-          );
+        if (batch.length > 0) {
+          const result = await withImportExportStage({
+            stage: 'PROCESS_BATCH',
+            fallbackMessage: 'Failed to process final import batch',
+            run: async () =>
+              await config.insertImportRows(
+                {
+                  subdomain,
+                  data: {
+                    moduleName,
+                    collectionName,
+                    rows: batch,
+                  },
+                },
+                context,
+              ),
+          });
 
           const successIds =
             result.successRows
@@ -261,131 +534,147 @@ export const createImportBatchProcessor = (
           errorRows += result.errorRows.length;
           processedRows += batch.length;
 
-          for (const errorRow of result.errorRows) {
-            await writeErrorRow(errorRow);
+          if (result.errorRows.length) {
+            await withImportExportStage({
+              stage: 'WRITE_TEMP_FILE',
+              fallbackMessage: 'Failed to write final import error rows',
+              run: async () => await errorRowWriter.writeRows(result.errorRows),
+            });
           }
 
-          await coreClient.updateImportProgress(subdomain, importId, {
-            processedRows,
-            successRows,
-            errorRows,
-            totalRows,
+          await safeProgressUpdate({
+            entity: 'import',
+            id: importId,
+            subdomain,
+            stage: 'final-batch-progress',
+            update: async () => {
+              await coreClient.updateImportProgress(subdomain, importId, {
+                processedRows,
+                successRows,
+                errorRows,
+                totalRows,
+                lastProcessedRow: dataRowIndex,
+              });
+            },
+          });
+
+          logImportExportEvent({
+            entity: 'import',
+            id: importId,
+            subdomain,
+            stage: 'PROCESS_BATCH',
+            event: 'final_batch_processed',
+            extra: {
+              processedRows,
+              successRows,
+              errorRows,
+              totalRows,
+              lastProcessedRow: dataRowIndex,
+            },
           });
 
           if (successIds.length) {
             await coreClient.addImportedIds(subdomain, importId, successIds);
           }
-
-          batch = [];
         }
-      }
 
-      if (batch.length > 0) {
-        const result = await config.insertImportRows(
-          {
-            subdomain,
-            data: {
-              moduleName,
-              collectionName,
-              rows: batch,
-            },
-          },
-          context,
-        );
+        let errorFileUrl: string | null = null;
+        await withImportExportStage({
+          stage: 'FINALIZE_UPLOAD',
+          fallbackMessage: 'Failed to finalize import error file',
+          run: async () => await errorRowWriter.finalize(),
+        });
 
-        const successIds =
-          result.successRows?.map((r: any) => r._id || r.id).filter(Boolean) ||
-          [];
-
-        successRows += successIds.length;
-        errorRows += result.errorRows.length;
-        processedRows += batch.length;
-
-        for (const errorRow of result.errorRows) {
-          await writeErrorRow(errorRow);
+        if (errorRowWriter.hasErrors()) {
+          errorFileUrl = await withImportExportStage({
+            stage: 'SAVE_RESULT',
+            fallbackMessage: 'Failed to save import error file',
+            run: async () =>
+              await coreClient.saveErrorFile(subdomain, {
+                importId,
+                headerRow,
+                errorRows: errorRowWriter.getErrorRows(),
+                keyToHeaderMap,
+              }),
+          });
         }
 
         await coreClient.updateImportProgress(subdomain, importId, {
+          status: 'completed',
           processedRows,
           successRows,
           errorRows,
           totalRows,
+          lastProcessedRow: dataRowIndex,
+          terminalError: undefined,
+          ...(errorFileUrl && { errorFileUrl }),
         });
 
-        if (successIds.length) {
-          await coreClient.addImportedIds(subdomain, importId, successIds);
-        }
+        logImportExportEvent({
+          entity: 'import',
+          id: importId,
+          subdomain,
+          stage: 'COMPLETE',
+          event: 'job_completed',
+          extra: {
+            processedRows,
+            successRows,
+            errorRows,
+            totalRows,
+            lastProcessedRow: dataRowIndex,
+            durationMs: Date.now() - startedAt,
+          },
+        });
+
+        return { success: true };
+      } finally {
+        await safeCleanup({
+          label: `import temp workspace ${importId}`,
+          run: async () => {
+            await tempWorkspace.cleanup();
+          },
+        });
       }
-
-      let errorFileUrl: string | null = null;
-      if (errorFilePath && errorFileInitialized) {
-        const errorFileContent = await fs.promises.readFile(
-          errorFilePath,
-          'utf8',
-        );
-        const errorLines = errorFileContent.trim().split('\n');
-
-        if (errorLines.length > 1) {
-          const allErrorRows: any[] = [];
-          const csvHeaders =
-            headerRow && headerRow.length > 0
-              ? headerRow
-              : Object.values(keyToHeaderMap);
-          const headerToKeyMap: Record<string, string> = {};
-          Object.entries(keyToHeaderMap).forEach(([key, header]) => {
-            headerToKeyMap[header] = key;
-          });
-
-          for (let i = 1; i < errorLines.length; i++) {
-            const line = errorLines[i];
-            const values = parseCSVLine(line);
-            const errorMessage = values.pop() || 'Unknown error';
-            const errorRow: any = { error: errorMessage };
-            csvHeaders.forEach((header, idx) => {
-              if (values[idx] !== undefined) {
-                const key = headerToKeyMap[header] || header;
-                errorRow[key] = values[idx];
-              }
-            });
-            allErrorRows.push(errorRow);
-          }
-
-          errorFileUrl = await coreClient.saveErrorFile(subdomain, {
-            importId,
-            headerRow,
-            errorRows: allErrorRows,
-            keyToHeaderMap,
-          });
-        }
-
-        try {
-          if (errorFilePath) {
-            await fs.promises.unlink(errorFilePath);
-          }
-        } catch {}
-      }
-
-      await coreClient.updateImportProgress(subdomain, importId, {
-        status: 'completed',
-        processedRows,
-        successRows,
-        errorRows,
-        totalRows,
-        ...(errorFileUrl && { errorFileUrl }),
-      });
-
-      return { success: true };
     } catch (error: any) {
-      if (errorFilePath) {
-        try {
-          await fs.promises.unlink(errorFilePath);
-        } catch {}
-      }
+      const importExportError =
+        error instanceof ImportExportError ? error : undefined;
+      const terminalError = toTerminalImportExportError(error);
+      const errorCode = `${terminalError.code} @ ${terminalError.stage}`;
 
+      logImportExportEvent({
+        level: 'error',
+        entity: 'import',
+        id: importId,
+        subdomain,
+        stage: terminalError.stage || 'FAILED',
+        event: 'job_failed',
+        extra: {
+          code: terminalError.code,
+          retryable: terminalError.retryable,
+          message: terminalError.message,
+          processedRows,
+          successRows,
+          errorRows,
+          totalRows,
+          lastProcessedRow: dataRowIndex,
+          durationMs: Date.now() - startedAt,
+        },
+      });
       await coreClient.updateImportProgress(subdomain, importId, {
         status: 'failed',
-        errorMessage: error?.message || 'Import worker failed',
+        lastProcessedRow: dataRowIndex,
+        errorMessage: `${errorCode}: ${
+          error?.message || 'Import worker failed'
+        }`,
+        terminalError: {
+          code: terminalError.code,
+          stage: terminalError.stage,
+          retryable: terminalError.retryable,
+        },
       });
+      if (importExportError && !importExportError.retryable) {
+        throw new UnrecoverableError(importExportError.message);
+      }
       throw error;
     }
   };

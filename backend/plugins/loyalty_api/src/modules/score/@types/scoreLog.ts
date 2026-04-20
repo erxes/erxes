@@ -14,12 +14,12 @@ export interface IScoreLog {
   sourceScoreLogId?: string;
   targetId?: string;
   action?: string;
+  amount?: number;
+  quantity?: number;
 }
 
 export interface IScoreLogDocument
-  extends IScoreLog,
-    ICommonDocument,
-    Document {
+  extends IScoreLog, ICommonDocument, Document {
   _id: string;
 }
 
@@ -30,7 +30,11 @@ export interface IScoreLogParams extends ICursorPaginateParams {
   toDate?: string;
   campaignId?: string;
   action?: string;
+  orderType?: string;
   number?: string;
+  description?: string;
+  boardId?: string;
+  pipelineId?: string;
   stageId?: string;
   contentId?: string;
   contentType?: string;

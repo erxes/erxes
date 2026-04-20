@@ -1,53 +1,38 @@
-import { AutomationAiAgentRecordTable } from '@/automations/components/settings/components/agents/components/AutomationAiAgentRecordTable';
-import { AutomationAiAgentsEmptyState } from '@/automations/components/settings/components/agents/components/AutomationAiAgentsEmptyState';
 import { AutomationAiAgentKindsGrid } from '@/automations/components/settings/components/agents/components/AutomationAiAgentKindsGrid';
+import { AutomationAiAgentRecordTable } from '@/automations/components/settings/components/agents/components/AutomationAiAgentRecordTable';
 import { AI_AGENT_KINDS } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
-import { ScrollArea, useQueryState } from 'erxes-ui';
+import { Card, useQueryState } from 'erxes-ui';
 
 export const AutomationAiAgentsList = () => {
   const [kind, setKind] = useQueryState<string>('kind');
+  const activeKind = kind || AI_AGENT_KINDS[0]?.type || null;
 
   const handleKind = (value: string | null) => {
     setKind(value && kind === value ? null : value);
   };
 
   return (
-    <div className="h-full w-full grid grid-cols-12 gap-6 bg-muted/20 p-6 rounded-lg">
-      {/* Left Panel - Agent Types */}
-      <div className="col-span-12 lg:col-span-5">
-        <ScrollArea className="h-full">
-          <div className="h-full w-full px-6 py-6 flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-lg font-semibold">AI Agents</h1>
-              <span className="font-normal text-muted-foreground text-sm">
-                Set up your AI agents and start automating conversations with
-                your customers.
-              </span>
-            </div>
-
-            <AutomationAiAgentKindsGrid
-              kinds={AI_AGENT_KINDS}
-              selectedKind={kind}
-              onKindSelect={handleKind}
-            />
-          </div>
-        </ScrollArea>
+    <div className="flex h-full w-full flex-col gap-6 rounded-lg bg-muted/20 p-6">
+      <div className="space-y-2">
+        <h1 className="text-lg font-semibold">AI Agents</h1>
+        <p className="max-w-3xl text-sm text-muted-foreground">
+          Configure credential-backed AI agents, attach context files, and
+          validate provider readiness before wiring them into automation
+          actions.
+        </p>
       </div>
 
-      {/* Right Panel - Agent Records Table or Empty State */}
-      <div className="col-span-12 lg:col-span-7">
-        <div className="h-full px-6 py-6 bg-background rounded-lg border">
-          <AutomationAiAgentsListContent kind={kind} />
-        </div>
+      <div className="max-w-2xl">
+        <AutomationAiAgentKindsGrid
+          kinds={AI_AGENT_KINDS}
+          selectedKind={activeKind}
+          onKindSelect={handleKind}
+        />
       </div>
+
+      <Card className="flex-1 p-6">
+        <AutomationAiAgentRecordTable kind={activeKind} />
+      </Card>
     </div>
   );
-};
-
-const AutomationAiAgentsListContent = ({ kind }: { kind: string | null }) => {
-  if (!kind) {
-    return <AutomationAiAgentsEmptyState />;
-  }
-
-  return <AutomationAiAgentRecordTable />;
 };

@@ -22,6 +22,19 @@ export const types = `
           scheduledDate
           publishedDate
       }
+
+      enum PostReactionType {
+          like
+          love
+          angry
+          sad
+          happy
+      }
+
+      enum ReactionModifyType {
+          inc
+          dec
+      }
   
       union Author = User
   
@@ -48,7 +61,9 @@ export const types = `
           scheduledDate: Date
           publishedDate: Date
           autoArchiveDate: Date
-          reactions: [String]
+          viewCount: Int
+          recentViewCount: Int
+          reactions: [PostReactionType]
           reactionCounts: JSON
           thumbnail: Attachment
           images: [Attachment]
@@ -106,7 +121,7 @@ export const inputs = `
           scheduledDate: Date
           publishedDate: Date
           autoArchiveDate: Date
-          reactions: [String]
+          reactions: [PostReactionType]
           reactionCounts: JSON
           thumbnail: AttachmentInput
           images: [AttachmentInput]
@@ -160,15 +175,17 @@ const commonPostQuerySelectorPagination = `
   `;
 
 export const queries = `
-      cmsPost(_id: String, slug: String, language: String): Post
+      cmsPost(_id: String, slug: String, identifier: String, language: String, clientPortalId: String): Post
       cmsPosts(clientPortalId: String, ${commonPostQuerySelector}): [Post]
       cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList
+      cmsMostViewedPosts(clientPortalId: String!, days: Int!, limit: Int, language: String, webId: String, type: String): [Post]
       cmsTranslations(objectId: String, type: String): [Translation]
   
       cpPosts(language: String, webId: String, ${commonPostQuerySelector}): [Post]
       cpPostList(language: String, webId: String, ${commonPostQuerySelector}): PostList
-      cpPost(_id: String, slug: String, language: String, clientPortalId: String): Post
+      cpPost(_id: String, slug: String, identifier: String, language: String, clientPortalId: String): Post
       cpPostListWithPagination(language: String, ${commonPostQuerySelectorPagination}): PostListPagination
+      cpMostViewedPosts(days: Int!, limit: Int, language: String, webId: String, type: String): [Post]
   `;
 
 export const mutations = `
@@ -180,6 +197,7 @@ export const mutations = `
       cmsPostsToggleFeatured(_id: String!): Post
   
       cpPostsIncrementViewCount(_id: String!): Post
+      cpPostsReact(_id: String!, reaction: PostReactionType!, action: ReactionModifyType!): Post
   
       cmsAddTranslation(input: TranslationInput!): Translation
       cmsEditTranslation(input: TranslationInput!): Translation

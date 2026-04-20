@@ -1,5 +1,6 @@
 import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
+import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
 import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
@@ -22,6 +23,7 @@ import { relationsQueries } from '@/relations/graphql/queries';
 import { segmentQueries } from '@/segments/graphql/resolvers';
 import { tagQueries } from '@/tags/graphql/queries';
 import {
+  importExportCommonQueries,
   importQueries,
   exportQueries,
 } from '~/modules/import-export/graphql/resolvers';
@@ -34,6 +36,7 @@ import { templateQueries } from '@/template/graphql/queries';
 export const queries = {
   ...contactQueries,
   ...authQueries,
+  ...oauthClientAppQueries,
   ...userQueries,
   ...tagQueries,
   ...productQueries,
@@ -54,6 +57,7 @@ export const queries = {
   ...broadcastQueries,
   ...propertiesQueries,
   ...clientPortalQueries,
+  ...importExportCommonQueries,
   ...importQueries,
   ...exportQueries,
   ...cpUserQueries,

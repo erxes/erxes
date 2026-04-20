@@ -1,11 +1,5 @@
 import { activeJournalState, followTrDocsState } from '../states/trStates';
-import {
-  DatePicker,
-  Form,
-  Input,
-  Spinner,
-  useQueryState
-} from 'erxes-ui';
+import { DatePicker, Form, Input, Spinner, useQueryState } from 'erxes-ui';
 import { JOURNALS_BY_JOURNAL } from '../contants/defaultValues';
 import { memo, useEffect } from 'react';
 import { Summary } from './Summary';
@@ -16,7 +10,7 @@ import { TrJournalEnum } from '../../types/constants';
 import { useForm } from 'react-hook-form';
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { useSetAtom } from 'jotai';
-import { useTransactionDetail } from '../hooks/useTransactionDetail';
+import { useTransactionsDetail } from '../hooks/useTransactionsDetail';
 import { useTransactionsCreate } from '../hooks/useTransactionsCreate';
 import { useTransactionsUpdate } from '../hooks/useTransactionsUpdate';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -66,7 +60,7 @@ FormFields.displayName = 'FormFields';
 export const TransactionsGroupForm = () => {
   // const parentId = useParams().parentId;
   const [parentId] = useQueryState<string>('parentId');
-  const { activeTrs, followTrs, loading } = useTransactionDetail({
+  const { activeTrs, followTrs, loading } = useTransactionsDetail({
     variables: { _id: parentId },
     skip: !parentId,
   });
@@ -98,7 +92,7 @@ export const TransactionsGroupForm = () => {
       });
     } else {
       createTransaction({
-        variables: { trDocs }
+        variables: { trDocs },
       });
     }
   };

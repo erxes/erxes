@@ -16,7 +16,7 @@ export function DepartmentSettings() {
       <RecordTable.Provider
         data={sortedDepartments || []}
         columns={DepartmentColumns}
-        stickyColumns={['checkbox', 'code', 'title']}
+        stickyColumns={['more', 'checkbox', 'code', 'title']}
         className="m-3"
       >
         <RecordTableTree id="departments-list" ordered>

@@ -1,6 +1,28 @@
+export interface IGroupDayTranslation {
+  day: number;
+  title?: string;
+  content?: string;
+}
+
+export interface IItineraryTranslation {
+  _id?: string;
+  objectId?: string;
+  language: string;
+  name?: string;
+  content?: string;
+  foodCost?: number;
+  personCost?: Record<string, number>;
+  gasCost?: number;
+  driverCost?: number;
+  guideCost?: number;
+  guideCostExtra?: number;
+  groupDays?: IGroupDayTranslation[];
+}
+
 export interface IItinerary {
   _id: string;
   branchId?: string;
+  language?: string;
   name?: string;
   duration?: number;
   createdAt?: string;
@@ -32,4 +54,5 @@ export interface IItinerary {
     }>;
     images?: string[];
   }>;
+  translations?: IItineraryTranslation[];
 }

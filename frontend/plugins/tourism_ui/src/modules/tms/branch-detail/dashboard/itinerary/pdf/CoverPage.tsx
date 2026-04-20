@@ -1,16 +1,21 @@
 import React from 'react';
 import { Page, Text, View, Image } from '@react-pdf/renderer';
-import type { IItineraryPDFData, IBranchPDFData } from './types';
+import type {
+  IItineraryPDFData,
+  IBranchPDFData,
+  ItineraryPdfRenderConfig,
+} from './types';
 import { styles, COLORS } from './styles';
 
 interface CoverPageProps {
   itinerary: IItineraryPDFData;
   branch?: IBranchPDFData;
   coverImageBase64?: string;
+  config: ItineraryPdfRenderConfig;
 }
 
 export const CoverPage: React.FC<CoverPageProps> = React.memo(
-  function CoverPage({ itinerary, branch, coverImageBase64 }) {
+  function CoverPage({ itinerary, branch, coverImageBase64, config }) {
     const primaryColor = itinerary.color || COLORS.primary;
     const title = itinerary.name || 'Untitled Itinerary';
     const duration = itinerary.duration;
@@ -45,7 +50,10 @@ export const CoverPage: React.FC<CoverPageProps> = React.memo(
           >
             <Text style={styles.coverTitle}>{title}</Text>
             <View style={styles.coverDivider} />
-            <Text style={styles.coverDateText}>Duration: {duration} Days</Text>
+            <Text style={styles.coverDateText}>
+              {config.labels.coverDurationLabel}: {duration}{' '}
+              {config.labels.coverDaysLabel}
+            </Text>
           </View>
         </View>
       </Page>

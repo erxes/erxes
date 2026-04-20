@@ -1,6 +1,6 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -51,28 +51,43 @@ export const AmenityCreateSheet = ({
   const { createAmenity, loading } = useCreateAmenity();
   const { toast } = useToast();
 
+  // Compute translation languages early so defaultValues has correct translations
+  const allLanguages = useMemo(() => {
+    const base =
+      branchLanguages && branchLanguages.length > 0
+        ? branchLanguages
+        : mainLanguage
+          ? [mainLanguage]
+          : [];
+    if (mainLanguage && !base.includes(mainLanguage)) {
+      return [mainLanguage, ...base];
+    }
+    return base;
+  }, [branchLanguages, mainLanguage]);
+
+  const primaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
+
+  const translationLanguages = useMemo(
+    () => allLanguages.filter((l) => l !== primaryLanguage),
+    [allLanguages, primaryLanguage],
+  );
+
   const form = useForm<AmenityCreateFormType>({
     resolver: zodResolver(AmenityCreateFormSchema),
     defaultValues: {
       name: '',
       icon: '',
-      translations: [],
+      translations: buildEmptyAmenityTranslations(translationLanguages),
     },
   });
 
-  const { fields } = useFieldArray({
+  useFieldArray({
     control: form.control,
     name: 'translations',
   });
 
-  const {
-    allLanguages,
-    translationLanguages,
-    selectedLang,
-    setSelectedLang,
-    labelSuffix,
-    fieldPaths,
-  } = useAmenityLanguage({ branchLanguages, mainLanguage, fields });
+  const { selectedLang, setSelectedLang, labelSuffix, fieldPaths } =
+    useAmenityLanguage({ branchLanguages, mainLanguage });
 
   useEffect(() => {
     if (!translationLanguages.length) return;
@@ -179,6 +194,7 @@ export const AmenityCreateSheet = ({
               <div key={selectedLang} className="flex flex-col gap-6">
                 <div className="space-y-4">
                   <AmenityNameField
+                    key={fieldPaths.name}
                     control={form.control}
                     name={fieldPaths.name}
                     labelSuffix={labelSuffix}

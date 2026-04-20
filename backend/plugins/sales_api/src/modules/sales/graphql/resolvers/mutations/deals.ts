@@ -70,7 +70,7 @@ export const dealMutations: Record<string, Resolver> = {
       destinationStageId: string;
       sourceStageId: string;
     },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const { itemId, aboveItemId, sourceStageId, destinationStageId } = doc;
 
@@ -99,17 +99,16 @@ export const dealMutations: Record<string, Resolver> = {
 
       checkMovePermission(destinationStage, user);
 
-      //   await doScoreCampaign(subdomain, models, itemId, {
-      //     ...item.toObject(),
-      //     ...extendedDoc,
-      //   });
-
       extendedDoc.stageChangedDate = new Date();
     }
 
     const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
 
+    // Do not call mongolian plugin directly from sales.
+    // Instead, emit an event (via logs) that will be handled by afterProcess.
+
     await itemMover(models, user._id, item, destinationStageId);
+
     await subscriptionWrapper(models, {
       action: 'update',
       deal: updatedItem,
@@ -123,11 +122,27 @@ export const dealMutations: Record<string, Resolver> = {
   /**
    * Remove deal
    */
-  async dealsRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+  async dealsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models }: IContext,
+  ) {
     const item = await models.Deals.findOne({ _id });
 
     if (!item) {
       throw new Error('Deal not found');
+    }
+
+    const stage = await models.Stages.getStage(item.stageId);
+
+    const { canEditMemberIds } = stage;
+
+    if (
+      canEditMemberIds &&
+      canEditMemberIds.length > 0 &&
+      !canEditMemberIds.includes(user._id)
+    ) {
+      throw new Error('Permission denied');
     }
 
     const removed = await models.Deals.removeDeals([item._id]);

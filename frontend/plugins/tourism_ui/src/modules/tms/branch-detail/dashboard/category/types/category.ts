@@ -6,6 +6,12 @@ export interface IAttachment {
   duration?: number;
 }
 
+export interface ICategoryTranslation {
+  _id?: string;
+  language: string;
+  name?: string;
+}
+
 export interface ICategory {
   _id: string;
   name?: string;
@@ -15,4 +21,8 @@ export interface ICategory {
   branchId?: string;
   order?: string;
   attachment?: IAttachment;
+  language?: string;
+  translations?: ICategoryTranslation[];
+  createdAt?: string;
+  modifiedAt?: string;
 }

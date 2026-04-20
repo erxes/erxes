@@ -124,6 +124,7 @@ const updateTicketParams = `
   targetDate: Date
   isSubscribed: Boolean
   state: String
+  propertiesData: JSON
   attachments: [AttachmentInput]
   companyIds: [String]
   customerFieldData: JSON
@@ -135,6 +136,7 @@ export const queries = `
 
   cpGetTickets(filter: ICpTicketFilter): [Ticket]
   cpGetTicket(_id: String!): Ticket
+  cpGetTicketTotalCount(filter: ICpTicketFilter): Int
 `;
 
 export const mutations = `

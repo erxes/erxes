@@ -10,6 +10,7 @@ interface SelectItineraryProps {
   value?: string;
   onValueChange?: (value: string | null) => void;
   branchId?: string;
+  language?: string;
   placeholder?: string;
   className?: string;
 }
@@ -18,6 +19,7 @@ export const SelectItinerary = ({
   value,
   onValueChange,
   branchId,
+  language,
   placeholder = 'Select itinerary',
   className,
 }: SelectItineraryProps) => {
@@ -26,7 +28,7 @@ export const SelectItinerary = ({
   const [debouncedSearch] = useDebounce(search, 300);
 
   const { itineraries, loading } = useItineraries({
-    variables: { branchId },
+    variables: { branchId, language },
   });
 
   const filteredItineraries = React.useMemo(() => {

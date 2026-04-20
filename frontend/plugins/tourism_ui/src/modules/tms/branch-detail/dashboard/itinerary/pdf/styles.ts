@@ -50,8 +50,8 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   coverLogo: {
-    width: 40,
-    height: 40,
+    width: 64,
+    height: 64,
     objectFit: 'contain',
   },
   coverBranchName: {
@@ -118,10 +118,10 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   pageHeaderLogo: {
-    width: 80,
-    height: 35,
+    width: 116,
+    height: 48,
     objectFit: 'contain',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   pageHeaderTitle: {
     fontFamily: PDF_FONT_FAMILY,
@@ -139,19 +139,20 @@ export const styles = StyleSheet.create({
 
   /* ---- Day Block ---- */
   dayBlock: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   dayTitle: {
     fontFamily: PDF_FONT_FAMILY,
     fontWeight: 'bold',
     fontSize: 10,
     color: COLORS.black,
-    marginBottom: 10,
+    marginBottom: 6,
     textTransform: 'uppercase',
   },
   dayTwoColumn: {
     flexDirection: 'row',
-    gap: 16,
+    alignItems: 'flex-start',
+    gap: 12,
   },
   dayImageColumn: {
     width: '42%',
@@ -177,6 +178,25 @@ export const styles = StyleSheet.create({
     lineHeight: 1.6,
     textAlign: 'justify',
   },
+  dayContentGroup: {
+    width: '100%',
+  },
+  daySection: {
+    width: '100%',
+    marginBottom: 8,
+  },
+  daySectionTitle: {
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
+    fontSize: 8,
+    color: COLORS.primaryDark,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+    letterSpacing: 0.8,
+  },
+  dayContentParagraph: {
+    marginBottom: 4,
+  },
   dayContentBold: {
     fontFamily: PDF_FONT_FAMILY,
     fontWeight: 'bold',
@@ -185,6 +205,32 @@ export const styles = StyleSheet.create({
   },
   dayNoImage: {
     width: '100%',
+  },
+  dayElementItem: {
+    marginBottom: 5,
+  },
+  dayElementTitle: {
+    fontFamily: PDF_FONT_FAMILY,
+    fontSize: 8.6,
+    color: COLORS.black,
+    marginBottom: 1,
+  },
+  dayElementMeta: {
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
+    fontSize: 8.6,
+    color: COLORS.primaryDark,
+  },
+  dayElementDescription: {
+    fontSize: 8,
+    color: COLORS.textLight,
+    lineHeight: 1.5,
+  },
+  dayAmenityItem: {
+    fontSize: 8.2,
+    color: COLORS.textLight,
+    lineHeight: 1.5,
+    marginBottom: 2,
   },
   noItineraryText: {
     fontSize: 11,

@@ -17,10 +17,12 @@ class InvMoveInTrs {
   private readonly models: IModels;
   private readonly trDoc: ITransaction;
   private moveInAccount?: IAccountDocument;
+  private readonly userId: string;
 
-  constructor(models: IModels, trDoc: ITransaction) {
+  constructor(models: IModels, userId: string, trDoc: ITransaction) {
     this.models = models;
     this.trDoc = trDoc;
+    this.userId = userId;
   }
 
   public async checkValidation() {
@@ -106,7 +108,6 @@ class InvMoveInTrs {
 
         originType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
         accountId: this.moveInAccount?._id ?? '',
-        side: TR_SIDES.DEBIT,
       });
     }
 
@@ -114,11 +115,13 @@ class InvMoveInTrs {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_MOVE_IN,
       journal: JOURNALS.INV_MOVE_IN,
+      side: TR_SIDES.DEBIT,
       details: followInDetails,
     };
 
     const invMoveInTr = await createOrUpdateTr(
       this.models,
+      this.userId,
       inTrDoc,
       oldFollowInTr,
     );

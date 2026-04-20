@@ -18,7 +18,9 @@ const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Brands]: 'brands',
   [SettingsWorkspacePath.Properties]: 'properties',
   [SettingsWorkspacePath.Products]: 'products',
+  [SettingsWorkspacePath.Automations]: 'automations',
   [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
+  [SettingsWorkspacePath.OAuthClients]: 'apps',
   [SettingsWorkspacePath.Permissions]: 'permissions',
 };
 

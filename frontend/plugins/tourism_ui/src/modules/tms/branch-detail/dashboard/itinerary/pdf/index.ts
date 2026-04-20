@@ -5,10 +5,15 @@ export { CoverPage } from './CoverPage';
 export { DayBlock } from './DayBlock';
 export { ItineraryPage } from './ItineraryPage';
 export { FooterPage } from './FooterPage';
+export { ITINERARY_PDF_TEMPLATES } from './templates';
 export type {
   IItineraryPDFData,
   IBranchPDFData,
   IGroupDayWithImages,
+  ItineraryPdfAmenityData,
+  ItineraryPdfElementData,
+  ItineraryPdfRenderConfig,
+  ItineraryPdfTemplate,
   ItineraryPDFProps,
 } from './types';
 export {

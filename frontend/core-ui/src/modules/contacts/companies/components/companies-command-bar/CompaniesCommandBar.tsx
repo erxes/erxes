@@ -61,8 +61,8 @@ export const CompaniesCommandBar = () => {
         <Separator.Inline />
         <Export
           pluginName="core"
-          moduleName="contact"
-          collectionName="company"
+          moduleName="contacts"
+          collectionName="companies"
           buttonVariant="secondary"
           ids={companyIds}
         />
@@ -77,7 +77,7 @@ export const CompaniesCommandBar = () => {
         <Can action="contactsDelete">
           <>
             <Separator.Inline />
-            <CompaniesDelete companyIds={companyIds} rows={selectedRows} />
+            <CompaniesDelete companyIds={companyIds} />
           </>
         </Can>
       </CommandBar.Bar>

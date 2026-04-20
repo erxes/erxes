@@ -1,5 +1,3 @@
-import { TAutomationActionFolks } from './types';
-
 export const AUTOMATION_PROPERTY_OPERATORS = {
   SET: 'set',
   CONCAT: 'concat',
@@ -36,12 +34,18 @@ export const AUTOMATION_CORE_ACTIONS = {
 };
 
 export const AUTOMATION_CORE_TRIGGER_TYPES = {
-  INCOMING_WEBHOOK: 'core:incoming_webhook',
-  USER: 'core:team.user',
-  CUSTOMER: 'core:contact.customer',
-  LEAD: 'core:contact.lead',
-  COMPANY: 'core:contact.company',
+  INCOMING_WEBHOOK: 'core:webhooks.incoming',
+  USER: 'core:organization.users',
+  CUSTOMER: 'core:contacts.customers',
+  LEAD: 'core:contacts.leads',
+  COMPANY: 'core:contacts.companies',
 };
+
+export enum TAutomationFindObjectType {
+  COMPANY = 'core:contacts.companies',
+  CUSTOMER = 'core:contacts.customers',
+  USER = 'core:organization.users',
+}
 
 export const AUTOMATION_EMAIL_RECIPIENTS_TYPES = [
   {
@@ -78,152 +82,5 @@ export const AUTOMATION_EMAIL_RECIPIENTS_TYPES = [
     type: 'company',
     name: 'companyIds',
     label: 'Companies',
-  },
-];
-
-export const AUTOMATION_ACTIONS = [
-  {
-    type: AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK,
-    icon: 'IconWebhook',
-    label: 'Outgoing webhook',
-    description: 'Outgoing webhook',
-    allowTargetFromActions: true,
-  },
-  {
-    type: AUTOMATION_CORE_ACTIONS.IF,
-    icon: 'IconSitemap',
-    label: 'Branches',
-    description: 'Create simple or if/then branches',
-    folks: [
-      { key: 'yes', label: 'Yes', type: TAutomationActionFolks.SUCCESS },
-      { key: 'no', label: 'No', type: TAutomationActionFolks.ERROR },
-    ],
-  },
-  {
-    type: AUTOMATION_CORE_ACTIONS.FIND_OBJECT,
-    icon: 'IconSearch',
-    label: 'Find object',
-    description: 'Find object',
-    folks: [
-      { key: 'isExists', label: 'Has', type: TAutomationActionFolks.SUCCESS },
-      { key: 'notExists', label: 'None', type: TAutomationActionFolks.ERROR },
-    ],
-    isTargetSource: true,
-  },
-  {
-    type: AUTOMATION_CORE_ACTIONS.SET_PROPERTY,
-    icon: 'IconFlask',
-    label: 'Manage properties',
-    description: 'Update record properties.',
-    allowTargetFromActions: true,
-  },
-  {
-    type: AUTOMATION_CORE_ACTIONS.DELAY,
-    icon: 'IconHourglass',
-    label: 'Delay',
-    description: 'Delay the next action.',
-  },
-  {
-    type: AUTOMATION_CORE_ACTIONS.SEND_EMAIL,
-    icon: 'IconMailFast',
-    label: 'Send Email',
-    description: 'Send Email',
-    emailRecipientsConst: AUTOMATION_EMAIL_RECIPIENTS_TYPES,
-    allowTargetFromActions: true,
-  },
-  {
-    type: AUTOMATION_CORE_ACTIONS.WAIT_EVENT,
-    icon: 'IconClockPlay',
-    label: 'Wait event',
-    description: 'Delay until event is triggered',
-  },
-
-  // TODO: Uncomment this when we have a way to embed files
-
-  // {
-  //   type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
-  //   icon: 'IconAi',
-  //   label: 'Ai Agent',
-  //   description:
-  //     'Handle workflow conversations by topic using AI agents with embedded knowledge',
-  // },
-];
-
-export const AUTOMATION_TRIGGERS = [
-  {
-    type: AUTOMATION_CORE_TRIGGER_TYPES.INCOMING_WEBHOOK,
-    icon: 'IconWebhook',
-    label: 'Incoming Webhook',
-    description:
-      'Trigger automation workflows when external systems send HTTP requests to your webhook endpoint',
-    isCustom: true,
-  },
-  {
-    type: AUTOMATION_CORE_TRIGGER_TYPES.USER,
-    icon: 'IconUsers',
-    label: 'Team member',
-    description:
-      'Start with a blank workflow that enrolls and is triggered off team members',
-  },
-  {
-    type: AUTOMATION_CORE_TRIGGER_TYPES.CUSTOMER,
-    icon: 'IconUsersGroup',
-    label: 'Customer',
-    description:
-      'Start with a blank workflow that enrolls and is triggered off Customers',
-  },
-  {
-    type: AUTOMATION_CORE_TRIGGER_TYPES.LEAD,
-    icon: 'IconUsersGroup',
-    label: 'Lead',
-    description:
-      'Start with a blank workflow that enrolls and is triggered off Leads',
-  },
-  {
-    type: AUTOMATION_CORE_TRIGGER_TYPES.COMPANY,
-    icon: 'IconBuilding',
-    label: 'Company',
-    description:
-      'Start with a blank workflow that enrolls and is triggered off company',
-  },
-];
-
-export const AUTOMATION_CORE_PROPERTY_TYPES = [
-  {
-    value: 'core:customer',
-    label: 'Customer',
-    fields: [
-      { label: 'ID', value: '_id', type: 'Id' },
-      { label: 'Name', value: 'name', type: 'String' },
-      { label: 'Email', value: 'email', type: 'String' },
-      { label: 'Phone', value: 'phone', type: 'String' },
-    ],
-  },
-  {
-    value: 'core:company',
-    label: 'Company',
-    fields: [
-      { label: 'ID', value: '_id', type: 'Id' },
-      { label: 'Name', value: 'name', type: 'String' },
-      { label: 'Email', value: 'email', type: 'String' },
-      { label: 'Phone', value: 'phone', type: 'String' },
-    ],
-  },
-  {
-    value: 'core:product',
-    label: 'Product',
-    fields: [
-      { label: 'ID', value: '_id', type: 'Id' },
-      { label: 'Name', value: 'name', type: 'String' },
-      { label: 'Code', value: 'code', type: 'String' },
-    ],
-  },
-  {
-    value: 'core:tag',
-    label: 'Tag',
-    fields: [
-      { label: 'ID', value: '_id', type: 'Id' },
-      { label: 'Name', value: 'name', type: 'String' },
-    ],
   },
 ];

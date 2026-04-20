@@ -1,4 +1,5 @@
 import { Resolver } from 'erxes-api-shared/core-types';
+import { POST_REACTION_TYPES, PostReactionType } from '@/cms/@types/posts';
 import { IContext } from '~/connectionResolvers';
 
 const getDefaultLanguage = async (
@@ -183,8 +184,46 @@ export const postMutations: Record<string, Resolver> = {
   },
 
   cpPostsIncrementViewCount: async (_parent, args, context: IContext) => {
-    const { models } = context;
+    const { models, clientPortal } = context;
     const { _id } = args;
+
+    const post = await models.Posts.findOne({
+      _id,
+      clientPortalId: clientPortal._id,
+    }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
     return models.Posts.increaseViewCount(_id);
   },
+
+  cpPostsReact: async (_parent, args, context: IContext) => {
+    const { models, clientPortal } = context;
+    const { _id, reaction, action } = args as {
+      _id: string;
+      reaction: PostReactionType;
+      action: 'inc' | 'dec';
+    };
+
+    if (!POST_REACTION_TYPES.includes(reaction)) {
+      throw new Error('Invalid reaction type');
+    }
+
+    const post = await models.Posts.findOne({
+      _id,
+      clientPortalId: clientPortal._id,
+    }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    return models.Posts.updateReactionCount(_id, reaction, action);
+  },
+};
+
+postMutations.cpPostsReact.wrapperConfig = {
+  forClientPortal: true,
 };

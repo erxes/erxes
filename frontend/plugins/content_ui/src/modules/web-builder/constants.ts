@@ -176,7 +176,21 @@ export const TEMPLATES = [
     name: 'Template Boilerplate',
     thumbnail: ecommerceBoilerplate,
     description:
-      'A unified boilerplate that blends ecommerce and tour flows with a clean, modern UI. Supports build-time live updates and production SSR rendering.',
+      'A unified boilerplate that blends ecommerce, hotel and tour flows with a clean, modern UI. Supports build-time live updates and production SSR rendering.',
+    primaryColor: '#34495e',
+    secondaryColor: '#2c3e50',
+    author: 'erxes',
+    authorUrl: 'https://erxes.io',
+    version: '1.0.0',
+    review: 'A flexible starter for multi-vertical sites with SSR support.',
+  },
+  {
+    id: 'template-boilerplate',
+    type: 'hotel',
+    name: 'Template Boilerplate',
+    thumbnail: ecommerceBoilerplate,
+    description:
+      'A unified boilerplate that blends ecommerce, hotel and tour flows with a clean, modern UI. Supports build-time live updates and production SSR rendering.',
     primaryColor: '#34495e',
     secondaryColor: '#2c3e50',
     author: 'erxes',
@@ -190,7 +204,7 @@ export const TEMPLATES = [
     name: 'Template Boilerplate',
     thumbnail: ecommerceBoilerplate,
     description:
-      'A unified boilerplate that blends ecommerce and tour flows with a clean, modern UI. Supports build-time live updates and production SSR rendering.',
+      'A unified boilerplate that blends ecommerce, hotel and tour flows with a clean, modern UI. Supports build-time live updates and production SSR rendering.',
     primaryColor: '#34495e',
     secondaryColor: '#2c3e50',
     author: 'erxes',

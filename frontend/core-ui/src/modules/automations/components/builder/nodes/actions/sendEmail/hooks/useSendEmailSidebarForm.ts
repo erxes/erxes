@@ -1,10 +1,14 @@
 import { TAutomationActionConfigFieldPrefix } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
+import { TAutomationVariableSourceNode } from '@/automations/components/builder/components/AutomationVariableBrowser';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
-import { AutomationNodesType } from '@/automations/types';
-import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import { AutomationNodeType, AutomationNodesType } from '@/automations/types';
+import {
+  getConnectedPreviousActions,
+  getTriggerOfAction,
+} from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, useMemo } from 'react';
 import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import {
   sendEmailConfigFormSchema,
@@ -46,8 +50,36 @@ export const useSendEmailSidebarForm = (
     actionId: currentAction?.id,
     targetActionId: currentAction?.targetActionId,
   });
+  const connectedPreviousActions = useMemo(
+    () => getConnectedPreviousActions(currentAction?.id, actions, actionFolks),
+    [actionFolks, actions, currentAction?.id],
+  );
 
-  return { form, contentType: selectedActionType || triggerType };
+  const availableVariableSourceNodes = useMemo<TAutomationVariableSourceNode[]>(
+    () => [
+      ...triggers.map((trigger) => ({
+        id: trigger.id,
+        type: trigger.type,
+        label: trigger.label,
+        icon: trigger.icon,
+        nodeType: AutomationNodeType.Trigger,
+      })),
+      ...connectedPreviousActions.map((action) => ({
+        id: action.id,
+        type: action.type,
+        label: action.label,
+        icon: action.icon,
+        nodeType: AutomationNodeType.Action,
+      })),
+    ],
+    [connectedPreviousActions, triggers],
+  );
+
+  return {
+    form,
+    contentType: selectedActionType || triggerType,
+    availableVariableSourceNodes,
+  };
 };
 
 export const useSendEmailCustomMailField = (currentActionIndex: number) => {

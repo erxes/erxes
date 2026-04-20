@@ -31,7 +31,8 @@ export const MESSAGE_TRIGGER_CONDITIONS = [
     type: 'direct',
     icon: IconMessage,
     label: 'Direct Message',
-    description: 'User sends direct message with keyword',
+    description:
+      'User sends a direct message. Add keyword conditions only if needed.',
   },
   {
     type: 'open_thread',

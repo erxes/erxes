@@ -1,4 +1,3 @@
-
 export type MNConfig<T = any> = {
   _id: string;
   code: string;
@@ -9,7 +8,6 @@ export type MNConfig<T = any> = {
 export interface MNConfigQueryResponse {
   mnConfig: MNConfig | null;
 }
-
 
 export interface MNConfigsCreateMutationResponse {
   mnConfigsCreate: MNConfig;
@@ -24,7 +22,6 @@ export interface MNConfigsRemoveMutationResponse {
     _id: string;
   };
 }
-
 
 export type Condition = {
   id: string;
@@ -68,7 +65,7 @@ export type IConfigsMap = {
   dealsProductsDefaultFilter?: DefaultFilterConfig[];
   // Allow other string keys for flexibility
   [key: string]: any;
-}
+};
 
 export type IConfig = {
   _id: string;

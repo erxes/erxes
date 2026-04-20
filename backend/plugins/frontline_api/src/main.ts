@@ -21,6 +21,13 @@ import { notifications } from './meta/notifications';
 import { ticketImportHandlers } from './meta/import-export/import/importHandlers';
 import { ticketExportHandlers } from './meta/import-export/export/exportHandlers';
 
+const ticketImportExportTypes = [
+  {
+    label: 'Ticket',
+    contentType: 'frontline:ticket.ticket',
+  },
+];
+
 startPlugin({
   name: 'frontline',
   port: 3304,
@@ -68,6 +75,7 @@ startPlugin({
 
   importExport: {
     import: {
+      types: ticketImportExportTypes,
       insertImportRows: createCoreModuleProducerHandler({
         moduleName: 'importExport',
         modules: { ticket: ticketImportHandlers },
@@ -84,6 +92,7 @@ startPlugin({
       }),
     },
     export: {
+      types: ticketImportExportTypes,
       getExportData: createCoreModuleProducerHandler({
         moduleName: 'importExport',
         modules: { ticket: ticketExportHandlers },

@@ -39,10 +39,9 @@ export const baseTrDetailSchema = z.object({
   accountId: undefed(z.string()).refine((val) => val?.length, {
     message: 'Must fill account',
   }),
+  branchId: undefed(z.string()),
+  departmentId: undefed(z.string()),
   amount: z.number().min(0),
-  side: z.string().refine((val) => TR_SIDES.ALL.includes(val), {
-    message: 'wrong side aaaa',
-  }),
 
   followInfos: undefed(z.object({})), // rel backend
   followExtras: undefed(z.object({})), // followInfos to object
@@ -88,11 +87,22 @@ export const baseTransactionSchema = z.object({
   departmentId: undefed(z.string()),
   assignedUserIds: undefed(z.array(z.string())),
   details: z.array(baseTrDetailSchema).min(1),
+  side: z.string().refine((val) => TR_SIDES.ALL.includes(val), {
+    message: 'wrong side',
+  }),
+  relAccounts: undefed(
+    z.object({
+      dt: undefed(z.array(z.string())),
+      ct: undefed(z.array(z.string())),
+      customDt: z.array(z.string()).nullish(),
+      customCt: z.array(z.string()).nullish(),
+    }),
+  ),
 
   ...vatSchema.shape,
   ...ctaxSchema.shape,
 
-  extraData: undefed(z.object({})),
+  extraData: undefed(z.any()),
 });
 //#endregion common
 
@@ -121,6 +131,11 @@ export const transactionCashSchema = z
     hasCtax: z.boolean(),
   });
 
+export const extraDataBankSchema = z.object({
+  bank: undefed(z.string()),
+  bankAccount: undefed(z.string()),
+});
+
 export const transactionBankSchema = z
   .object({
     journal: z.literal(TrJournalEnum.BANK),
@@ -130,6 +145,9 @@ export const transactionBankSchema = z
     customerId: z.string(),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
+  })
+  .extend({
+    extraData: undefed(z.object({ ...extraDataBankSchema.shape })),
   });
 
 export const transactionReceivableSchema = z

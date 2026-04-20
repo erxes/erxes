@@ -53,99 +53,106 @@ const Cover = () => {
     paymentTypes?.find((pt) => pt.type === type)?.title
 
   return (
-    <>
-      <h1 className="text-xs font-semibold">Хаалтын баримт</h1>
-      <div className="flex items-center">
-        Үүсгэсэн: {createdUser?.email} /{formatDate(createdAt)}/
-      </div>
-      <div className="flex items-center">
-        Баталгаажуулсан: {modifiedUser?.email} /{formatDate(modifiedAt)}/
-      </div>
-      <div className="flex items-center">
-        Огноо: {formatDate(beginDate)} - {formatDate(endDate)}
-      </div>
+    <div className="receipt-print space-y-2">
+      <header className="border-b border-black/15 pb-2">
+        <h1 className="receipt-print__title">Хаалтын баримт</h1>
+        <p className="receipt-print__meta">
+          <span className="font-semibold">Үүсгэсэн:</span> {createdUser?.email}{" "}
+          /{formatDate(createdAt)}/
+        </p>
+        <p className="receipt-print__meta">
+          <span className="font-semibold">Баталгаажуулсан:</span>{" "}
+          {modifiedUser?.email} /{formatDate(modifiedAt)}/
+        </p>
+        <p className="receipt-print__meta">
+          <span className="font-semibold">Огноо:</span> {formatDate(beginDate)}{" "}
+          - {formatDate(endDate)}
+        </p>
+      </header>
 
       {cashDetail && (
-        <div>
+        <div className="receipt-print__section space-y-1">
           <div className="font-semibold">Бэлнээр</div>
-          <div className="flex items-center">
+          <div className="flex items-center font-semibold">
             <span className="w-1/3">Дэвсгэрт</span>
             <span className="w-1/3 text-center">Тоо ширхэг</span>
             <span className="w-1/3 text-right">Дүн</span>
           </div>
-          <Separator />
+          <Separator className="bg-black/15" />
           {cashDetail?.paidSummary.map((ps: PaidSum, i: number) => (
-            <div className="flex items-center" key={i}>
+            <div className="flex items-center receipt-print__row" key={i}>
               <span className="w-1/3">{ps.kindOfVal}</span>
-              <span className="w-1/3 text-center">{ps.value}</span>
-              <span className="w-1/3 text-right">
+              <span className="w-1/3 text-center tabular-nums">{ps.value}</span>
+              <span className="w-1/3 text-right tabular-nums font-semibold">
                 {(ps.amount || ps.kindOfVal * (ps.value || 0)).toLocaleString()}
               </span>
             </div>
           ))}
 
-          <Separator />
-          <div className="flex items-center">
+          <Separator className="bg-black/15" />
+          <div className="flex items-center font-semibold">
             <span className="w-1/3">Систем дүн</span>
             <span className="w-1/3 text-center">Зөрүү</span>
             <span className="w-1/3 text-right">Нийт</span>
           </div>
-          <Separator />
-          <div className="flex items-center">
-            <span className="w-1/3">{cashDetail.paidDetail || 0}</span>
-            <span className="w-1/3 text-center">
+          <Separator className="bg-black/15" />
+          <div className="flex items-center receipt-print__row">
+            <span className="w-1/3 tabular-nums">
+              {cashDetail.paidDetail || 0}
+            </span>
+            <span className="w-1/3 text-center tabular-nums">
               {(cashDetail.paidDetail - totalCash).toLocaleString()}
             </span>
-            <span className="w-1/3 text-right">
+            <span className="w-1/3 text-right tabular-nums font-semibold">
               {totalCash.toLocaleString()}
             </span>
           </div>
-          <Separator />
+          <Separator className="bg-black/15" />
         </div>
       )}
 
       {nonCash.map((ps: Detail, i: number) => (
-        <div key={i}>
+        <div key={i} className="receipt-print__section space-y-1">
           <div className="font-semibold">{getTitle(ps.paidType)}</div>
-          <div className="flex items-center">
+          <div className="flex items-center font-semibold">
             <span className="w-1/3">Систем дүн</span>
             <span className="w-1/3 text-center">Зөрүү</span>
             <span className="w-1/3 text-right">Нийт</span>
           </div>
-          <Separator />
-          <div className="flex items-center">
+          <Separator className="bg-black/15" />
+          <div className="flex items-center receipt-print__row">
             {!ALL_BANK_CARD_TYPES.includes(ps.paidType) ? (
               <>
-                <span className="w-1/3">{ps.paidDetail}</span>
-                <span className="w-1/3 text-center">
+                <span className="w-1/3 tabular-nums">{ps.paidDetail}</span>
+                <span className="w-1/3 text-center tabular-nums">
                   {Number(ps.paidDetail) - (ps.paidSummary[0]?.amount || 0)}
                 </span>
               </>
             ) : (
               <div className="w-2/3" />
             )}
-            <span className="w-1/3 text-right">
+            <span className="w-1/3 text-right tabular-nums font-semibold">
               {ps.paidSummary[0]?.amount}
             </span>
           </div>
-          <Separator />
+          <Separator className="bg-black/15" />
           {ALL_BANK_CARD_TYPES.includes(ps.paidType) && (
             <>
-              <div>Тэмдэглэл: </div>
+              <div className="font-semibold">Тэмдэглэл:</div>
               <div
                 dangerouslySetInnerHTML={{ __html: ps.paidDetail + "" }}
               ></div>
-              <Separator />
+              <Separator className="bg-black/15" />
             </>
           )}
         </div>
       ))}
 
-      <div>
+      <div className="receipt-print__section">
         <div className="font-semibold">Тэмдэглэл:</div>
         <div dangerouslySetInnerHTML={{ __html: description }}></div>
       </div>
-      <div>
+      <div className="receipt-print__section">
         <span className="font-semibold">Гарын үсэг:</span>{" "}
         ________________________
       </div>
@@ -157,7 +164,7 @@ const Cover = () => {
       >
         Хэвлэх
       </Button>
-    </>
+    </div>
   )
 }
 

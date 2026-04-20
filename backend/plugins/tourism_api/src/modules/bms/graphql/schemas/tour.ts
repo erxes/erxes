@@ -25,6 +25,7 @@ export const types = `
     branchId: String
     attachment: Attachment
     tourCount: Int
+    language: String
     createdAt: Date
     modifiedAt: Date
     translations(language: String): [TourCategoryTranslation]
@@ -58,6 +59,9 @@ export const types = `
     title: String
     note: String
     accommodationType: String
+    pricePerPerson: Float
+    domesticFlightPerPerson: Float
+    singleSupplement: Float
   }
 
   type TourTranslation {
@@ -82,6 +86,9 @@ export const types = `
     title: String
     note: String
     accommodationType: String
+    pricePerPerson: Float
+    domesticFlightPerPerson: Float
+    singleSupplement: Float
   }
 
   input TourTranslationInput {
@@ -107,6 +114,7 @@ export const types = `
   type Tour {
     _id: String!
     branchId: String
+    language: String
     name: String
     refNumber: String
     groupCode: String
@@ -158,6 +166,7 @@ export const types = `
     amount: Float
     status: String
     note: String
+    internalNote: String
     numberOfPeople: Int
     type: String
     additionalCustomers: [String]
@@ -173,6 +182,7 @@ export const types = `
     amount: Float
     status: String
     note: String
+    internalNote: String
     numberOfPeople: Int
     type: String
     additionalCustomers: [String]
@@ -207,6 +217,7 @@ export const types = `
   type GroupTourItem {
     items: [Tour]
     _id: String
+    name: String
   }
   type GroupTour {
     list: [GroupTourItem]
@@ -221,14 +232,16 @@ export const queries = `
   bmsTourCategories(parentId: String, name: String, branchId: String, language: String): [TourCategory]
   bmsOrders(tourId: String, customerId: String, branchId: String, ${GQL_CURSOR_PARAM_DEFS}): BmsOrderListResponse
   bmsOrderDetail(_id: String!): BmsOrder
-  bmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS): GroupTour
-  bmToursGroupDetail(groupCode: String, status: String): GroupTourItem
+  bmsOrderCustomerIds(tourId: String!): [String]
+  bmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, language: String): GroupTour
+  bmToursGroupDetail(groupCode: String, status: String, language: String): GroupTourItem
 
+  cpBmsTourCategories(parentId: String, name: String, branchId: String, language: String): [TourCategory]
   cpBmsTours(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, webId: String, language: String): TourListResponse
   cpBmsToursTotalCount(branchId: String, webId: String): Int
   cpBmsTourDetail(_id: String!, branchId: String, language: String): Tour
-  cpBmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, webId: String): GroupTour
-  cpBmToursGroupDetail(groupCode: String, status: String): GroupTourItem
+  cpBmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, webId: String, language: String): GroupTour
+  cpBmToursGroupDetail(groupCode: String, status: String, language: String): GroupTourItem
   cpBmsOrders(tourId: String, customerId: String, branchId: String, ${GQL_CURSOR_PARAM_DEFS}): BmsOrderListResponse
 `;
 
@@ -238,11 +251,13 @@ const categoryParams = `
   parentId: String
   branchId: String
   attachment: AttachmentInput
+  language: String
   translations: [TourCategoryTranslationInput]
 `;
 
 const params = `
   branchId: String,
+  language: String,
   name: String,
   groupCode: String,
   content: String,

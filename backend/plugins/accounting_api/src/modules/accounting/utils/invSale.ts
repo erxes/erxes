@@ -22,11 +22,18 @@ class InvSaleOutCostTrs {
   private outAccount?: IAccountDocument;
   private costAccount?: IAccountDocument;
   private readonly subdomain: string;
+  private readonly userId: string;
 
-  constructor(subdomain: string, models: IModels, trDoc: ITransaction) {
+  constructor(
+    subdomain: string,
+    models: IModels,
+    userId: string,
+    trDoc: ITransaction,
+  ) {
     this.models = models;
     this.trDoc = trDoc;
     this.subdomain = subdomain;
+    this.userId = userId;
   }
 
   public async checkValidation() {
@@ -137,7 +144,6 @@ class InvSaleOutCostTrs {
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_OUT,
         accountId: this.outAccount?._id ?? '',
-        side: TR_SIDES.CREDIT,
       });
 
       followCostDetails.push({
@@ -145,7 +151,6 @@ class InvSaleOutCostTrs {
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_COST,
         accountId: this.costAccount?._id ?? '',
-        side: TR_SIDES.DEBIT,
       });
     }
 
@@ -153,6 +158,7 @@ class InvSaleOutCostTrs {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_SALE_OUT,
       journal: JOURNALS.INV_SALE_OUT,
+      side: TR_SIDES.CREDIT,
       details: followOutDetails,
     };
 
@@ -160,12 +166,19 @@ class InvSaleOutCostTrs {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_SALE_COST,
       journal: JOURNALS.INV_SALE_COST,
+      side: TR_SIDES.DEBIT,
       details: followCostDetails,
     };
 
-    const outTr = await createOrUpdateTr(this.models, outTrDoc, oldFollowOutTr);
+    const outTr = await createOrUpdateTr(
+      this.models,
+      this.userId,
+      outTrDoc,
+      oldFollowOutTr,
+    );
     const costTr = await createOrUpdateTr(
       this.models,
+      this.userId,
       costTrDoc,
       oldFollowCostTr,
     );

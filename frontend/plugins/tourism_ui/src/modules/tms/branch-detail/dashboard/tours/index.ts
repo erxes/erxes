@@ -11,6 +11,7 @@ export { TourDuplicateSheet } from './_components/TourDuplicateSheet';
 export { GroupedTourColumns } from './_components/TourGroupColumns';
 export { TourCalendar } from './_components/TourCalendar';
 export { ToursView, ToursViewControl } from './_components/ToursView';
+export { ExportTourPDFButton, TourPDF } from './pdf';
 
 // Hooks
 export { useTours } from './hooks/useTours';
@@ -22,7 +23,10 @@ export { useRemoveTours } from './hooks/useRemoveTours';
 
 // Types
 export type { ITour, ITourGroup } from './types/tour';
-export type { TourCreateFormType } from './constants/formSchema';
+export type {
+  TourCreateFormType,
+  TourFormValues,
+} from './constants/formSchema';
 export type { TourGroupRow } from './_components/TourGroupColumns';
 
 // Constants

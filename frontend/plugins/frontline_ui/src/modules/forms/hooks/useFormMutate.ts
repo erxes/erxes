@@ -14,7 +14,7 @@ import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 
 export const useFormMutate = () => {
-  const { formId: id } = useParams();
+  const { formId: id, id: channelId } = useParams();
   const navigate = useNavigate();
   const formSetupValues = useAtomValue(formSetupValuesAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
@@ -71,8 +71,15 @@ export const useFormMutate = () => {
         },
       });
     } else {
+      if (!channelId) {
+        toast({
+          variant: 'destructive',
+          title: 'Channel ID is required to create a form',
+        });
+        return;
+      }
       await addForm({
-        variables: { ...formValues },
+        variables: { ...formValues, channelId },
         onCompleted: ({ formsAdd }) => {
           fieldsBulkAction({
             variables: {
@@ -93,7 +100,7 @@ export const useFormMutate = () => {
       });
     }
     resetFormSetup();
-    navigate(`/frontline/forms`);
+    navigate(`/settings/frontline/channels/${channelId}/forms`);
   };
 
   return {

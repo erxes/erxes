@@ -6,7 +6,7 @@ import validator from 'validator';
 
 dotenv.config();
 
-export const readFileUrl = (value: string) => {
+export const readFileUrl = (value: string, subdomain: string) => {
   if (!value || isValidURL(value) || validator.isURL(value)) {
     return value;
   }
@@ -15,13 +15,15 @@ export const readFileUrl = (value: string) => {
     name: 'DOMAIN',
   });
 
-  return `${DOMAIN}/gateway/read-file?key=${value}`;
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+  return `${domain}/gateway/read-file?key=${encodeURIComponent(value)}`;
 };
 
-const prepareAttachments = (attachments: IAttachment[] = []) => {
+const prepareAttachments = (attachments: IAttachment[] = [], subdomain: string) => {
   return attachments.map((file) => ({
     filename: file.name || '',
-    path: readFileUrl(file.url || ''),
+    path: readFileUrl(file.url || '', subdomain),
   }));
 };
 
@@ -33,9 +35,6 @@ const prepareContentAndSubject = (
   let replacedContent = content;
   let replacedSubject = subject;
 
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-  const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
-
   if (customer.replacers) {
     for (const replacer of customer.replacers) {
       const regex = new RegExp(replacer.key, 'gi');
@@ -43,14 +42,6 @@ const prepareContentAndSubject = (
       replacedSubject = replacedSubject.replace(regex, replacer.value);
     }
   }
-
-  replacedContent += `
-    <div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">
-      You are receiving this email because you have signed up for our services.
-      <br />
-      <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a>
-    </div>
-  `;
 
   return { replacedContent, replacedSubject };
 };
@@ -64,7 +55,8 @@ export const prepareEmailHeader = (
   const DOMAIN = getEnv({ name: 'DOMAIN' })
     ? `${getEnv({ name: 'DOMAIN' })}/gateway`
     : 'http://localhost:4000';
-  const callbackUrl = DOMAIN.replace('<subdomain>', subdomain);
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
+  const callbackUrl = `${domain}/pl:core`;
 
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
@@ -100,7 +92,7 @@ export const prepareEmailParams = (
     to: (customer?.primaryEmail || '').toLocaleLowerCase().trim(),
     replyTo,
     subject: replacedSubject,
-    attachments: prepareAttachments(attachments),
+    attachments: prepareAttachments(attachments, subdomain),
     html: replacedContent,
     headers: prepareEmailHeader(subdomain, customer._id, _id, configSet),
   };

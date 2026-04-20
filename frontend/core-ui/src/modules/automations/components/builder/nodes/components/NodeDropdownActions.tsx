@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { AutomationNodesType, NodeData } from '@/automations/types';
 import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
+import { useTranslation } from 'react-i18next';
 
 export const NodeDropdownActions = ({
   id,
@@ -75,6 +76,7 @@ export const NodeRemoveActionDialog = ({
   isOpenRemoveAlert: boolean;
   setOpenRemoveAlert: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <AlertDialog open={isOpenRemoveAlert} onOpenChange={setOpenRemoveAlert}>
       <AlertDialog.Trigger asChild>
@@ -87,21 +89,21 @@ export const NodeRemoveActionDialog = ({
             onDoubleClick={(e) => e.stopPropagation()}
           >
             <IconTrash className="size-4" />
-            Delete
+            {t('delete')}
           </Button>
         </DropdownMenu.Item>
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+          <AlertDialog.Title>{t('delete-confirm-title')}</AlertDialog.Title>
           <AlertDialog.Description>
-            This action cannot be undone.
+            {t('delete-confirm-description')}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
-          <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+          <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
           <AlertDialog.Action onClick={onRemoveNode}>
-            Continue
+            {t('continue')}
           </AlertDialog.Action>
         </AlertDialog.Footer>
       </AlertDialog.Content>
@@ -125,6 +127,7 @@ const NodeEditMetaDataDialog = ({
     | AutomationNodesType.Actions
     | AutomationNodesType.Workflows;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <Dialog open={isOpenDialog} onOpenChange={setOpenDialog}>
       <Dialog.Trigger asChild>
@@ -137,7 +140,7 @@ const NodeEditMetaDataDialog = ({
             onDoubleClick={(e) => e.stopPropagation()}
           >
             <IconEdit className="size-4" />
-            Edit
+            {t('edit')}
           </Button>
         </DropdownMenu.Item>
       </Dialog.Trigger>

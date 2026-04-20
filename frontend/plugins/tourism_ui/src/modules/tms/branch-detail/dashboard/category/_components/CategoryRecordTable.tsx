@@ -1,15 +1,30 @@
 import { IconLayoutGrid } from '@tabler/icons-react';
 import { RecordTable, RecordTableTree } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { CategoryCreateSheet } from './CategoryCreateSheet';
 import { categoryColumns } from './CategoryColumns';
 import { useCategories } from '../hooks/useCategories';
 import { CategoryCommandBar } from './CategoryCommandBar';
 import { useMemo } from 'react';
 import { ICategory } from '../types/category';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
-export const CategoryRecordTable = ({ branchId }: { branchId?: string }) => {
+interface CategoryRecordTableProps {
+  branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}
+
+export const CategoryRecordTable = ({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: CategoryRecordTableProps) => {
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
+
   const { categories, loading } = useCategories({
-    variables: { branchId },
+    variables: { branchId, language },
   });
 
   const categoriesWithChildren = categories?.map((category: ICategory) => ({
@@ -30,12 +45,18 @@ export const CategoryRecordTable = ({ branchId }: { branchId?: string }) => {
   }, [categoriesWithChildren]);
 
   if (!loading && (categories?.length ?? 0) === 0) {
-    return <EmptyStateRow branchId={branchId} />;
+    return (
+      <EmptyStateRow
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
+    );
   }
 
   return (
     <RecordTable.Provider
-      columns={categoryColumns(categoryObject)}
+      columns={categoryColumns(categoryObject, branchLanguages, mainLanguage)}
       data={categoriesWithChildren || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
@@ -56,7 +77,15 @@ export const CategoryRecordTable = ({ branchId }: { branchId?: string }) => {
   );
 };
 
-function EmptyStateRow({ branchId }: Readonly<{ branchId?: string }>) {
+function EmptyStateRow({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: Readonly<{
+  branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}>) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconLayoutGrid
@@ -73,7 +102,11 @@ function EmptyStateRow({ branchId }: Readonly<{ branchId?: string }>) {
         Create your first category to get started.
       </p>
 
-      <CategoryCreateSheet branchId={branchId} />
+      <CategoryCreateSheet
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
     </div>
   );
 }
