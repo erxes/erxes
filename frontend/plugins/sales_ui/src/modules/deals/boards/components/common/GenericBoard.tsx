@@ -1,8 +1,11 @@
-import { useState, useCallback, useMemo, memo, useEffect } from 'react';
+import { useState, useCallback, useMemo, memo, useEffect, useRef } from 'react';
 import {
   DndContext,
   DragOverlay,
   closestCorners,
+  pointerWithin,
+  rectIntersection,
+  getFirstCollision,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -10,6 +13,8 @@ import {
   type DragStartEvent,
   type DragEndEvent,
   type DragOverEvent,
+  type CollisionDetection,
+  type UniqueIdentifier,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -42,6 +47,8 @@ function GenericBoardInner<
   const [activeItem, setActiveItem] = useState<TItem | null>(null);
   const [activeColumn, setActiveColumn] = useState<TColumn | null>(null);
   const [snapshot, setSnapshot] = useState<typeof state | null>(null);
+  const lastOverId = useRef<UniqueIdentifier | null>(null);
+  const recentlyMovedToNewContainer = useRef(false);
 
   useEffect(() => {
     setState(initialState);
@@ -55,6 +62,45 @@ function GenericBoardInner<
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
+
+  const collisionDetectionStrategy: CollisionDetection = useCallback(
+    (args) => {
+      if (activeColumn) {
+        return closestCorners(args);
+      }
+
+      const pointerCollisions = pointerWithin(args);
+      if (pointerCollisions.length > 0) {
+        const overId = getFirstCollision(pointerCollisions, 'id');
+        if (overId != null) {
+          lastOverId.current = overId;
+          return [{ id: overId }];
+        }
+      }
+
+      if (recentlyMovedToNewContainer.current && lastOverId.current != null) {
+        return [{ id: lastOverId.current }];
+      }
+
+      const rectCollisions = rectIntersection(args);
+      if (rectCollisions.length > 0) {
+        const overId = getFirstCollision(rectCollisions, 'id');
+        if (overId != null) {
+          lastOverId.current = overId;
+          return [{ id: overId }];
+        }
+      }
+
+      return lastOverId.current != null ? [{ id: lastOverId.current }] : [];
+    },
+    [activeColumn],
+  );
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      recentlyMovedToNewContainer.current = false;
+    });
+  }, [state.columnItems]);
 
   const columnIds = useMemo(
     () => state.columns.map((col) => col._id),
@@ -122,25 +168,32 @@ function GenericBoardInner<
     // Card movement between columns
     if (activeData?.type !== 'card') return;
 
-    const activeItem = activeData.item as TItem;
-    const activeColumnId = activeItem.columnId;
+    const activeId = active.id as string;
 
-    let overColumnId: string;
+    let targetColumnId: string | undefined;
     if (overData?.type === 'column') {
-      overColumnId = overData.columnId;
+      targetColumnId = overData.columnId;
     } else if (overData?.type === 'card') {
-      overColumnId = (overData.item as TItem).columnId;
-    } else {
-      return;
+      targetColumnId = (overData.item as TItem).columnId;
     }
-
-    if (activeColumnId === overColumnId) return;
+    if (!targetColumnId) return;
+    const overColumnId: string = targetColumnId;
 
     setState((prev) => {
+      let activeColumnId: string | null = null;
+      for (const [colId, itemIds] of Object.entries(prev.columnItems)) {
+        if (itemIds.includes(activeId)) {
+          activeColumnId = colId;
+          break;
+        }
+      }
+
+      if (!activeColumnId || activeColumnId === overColumnId) return prev;
+
       const activeItems = [...(prev.columnItems[activeColumnId] || [])];
       const overItems = [...(prev.columnItems[overColumnId] || [])];
 
-      const activeIndex = activeItems.indexOf(activeItem._id);
+      const activeIndex = activeItems.indexOf(activeId);
       if (activeIndex === -1) return prev;
       activeItems.splice(activeIndex, 1);
 
@@ -151,13 +204,15 @@ function GenericBoardInner<
         if (overIndex !== -1) insertIndex = overIndex;
       }
 
-      overItems.splice(insertIndex, 0, activeItem._id);
+      overItems.splice(insertIndex, 0, activeId);
 
-      const updatedItem = { ...activeItem, columnId: overColumnId };
+      const updatedItem = { ...prev.items[activeId], columnId: overColumnId };
+
+      recentlyMovedToNewContainer.current = true;
 
       return {
         ...prev,
-        items: { ...prev.items, [activeItem._id]: updatedItem },
+        items: { ...prev.items, [activeId]: updatedItem as TItem },
         columnItems: {
           ...prev.columnItems,
           [activeColumnId]: activeItems,
@@ -186,6 +241,8 @@ function GenericBoardInner<
       const { active, over } = event;
       setActiveItem(null);
       setActiveColumn(null);
+      lastOverId.current = null;
+      recentlyMovedToNewContainer.current = false;
       const activeData = active.data.current;
 
       if (
@@ -197,65 +254,71 @@ function GenericBoardInner<
           setState(snapshot);
           setSnapshot(null);
         }
-        setActiveItem(null);
-        setActiveColumn(null);
         return;
       }
 
-      const overData = over.data.current;
       const draggedId =
         typeof active.id === 'string' ? active.id : String(active.id);
 
       if (activeData?.type === 'column') {
+        let columnState: typeof initialState | null = null;
         setState((prev) => {
-          onStateChange?.(prev, initialState);
+          columnState = prev;
           return prev;
         });
+        if (columnState) onStateChange?.(columnState, initialState);
         return;
       }
 
-      // Card reordering within same column
-      if (activeData?.type === 'card' && overData?.type === 'card') {
-        const activeItem = activeData.item as TItem;
-        const overItem = overData.item as TItem;
+      if (activeData?.type === 'card') {
+        const overData = over.data.current;
+        let resolvedState: typeof initialState | null = null;
 
-        if (
-          activeItem.columnId === overItem.columnId &&
-          active.id !== over.id
-        ) {
-          setState((prev) => {
-            const columnId = activeItem.columnId;
-            const columnItems = [...(prev.columnItems[columnId] || [])];
-            const oldIndex = columnItems.indexOf(activeItem._id);
-            const newIndex = columnItems.indexOf(overItem._id);
+        setState((prev) => {
+          let finalState = prev;
+          if (overData?.type === 'card' && active.id !== over.id) {
+            const overId = (overData.item as TItem)._id;
+            const dragColumnId = Object.entries(prev.columnItems).find(
+              ([, ids]) => ids.includes(draggedId),
+            )?.[0];
+            const overColumnId = Object.entries(prev.columnItems).find(
+              ([, ids]) => ids.includes(overId),
+            )?.[0];
 
-            if (oldIndex !== -1 && newIndex !== -1) {
-              const newColumnItems = arrayMove(columnItems, oldIndex, newIndex);
-              const newState = {
-                ...prev,
-                columnItems: {
-                  ...prev.columnItems,
-                  [columnId]: newColumnItems,
-                },
-              };
-              onStateChange?.(newState, initialState, draggedId);
-              return newState;
+            if (dragColumnId && dragColumnId === overColumnId) {
+              const columnItems = [...(prev.columnItems[dragColumnId] || [])];
+              const oldIndex = columnItems.indexOf(draggedId);
+              const newIndex = columnItems.indexOf(overId);
+
+              if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+                finalState = {
+                  ...prev,
+                  columnItems: {
+                    ...prev.columnItems,
+                    [dragColumnId]: arrayMove(columnItems, oldIndex, newIndex),
+                  },
+                };
+              }
             }
-            return prev;
-          });
+          }
+
+          resolvedState = finalState;
+          return finalState;
+        });
+
+        if (resolvedState) {
+          onStateChange?.(resolvedState, initialState, draggedId);
         }
       }
-
-      onStateChange?.(state, initialState, draggedId);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onStateChange, state, initialState, snapshot],
+    [onStateChange, initialState, snapshot],
   );
 
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetectionStrategy}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
