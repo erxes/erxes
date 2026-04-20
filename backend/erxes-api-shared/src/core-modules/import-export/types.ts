@@ -25,6 +25,15 @@ export interface InsertImportRowsInputData {
   collectionName: string;
   rows: any[];
 }
+export interface BatchSkipRowInputData {
+  moduleName: string;
+  collectionName: string;
+  rowData: any;
+}
+export interface BatchSkipRowArgs {
+  subdomain: string;
+  data: BatchSkipRowInputData;
+}
 
 export interface InsertImportRowsArgs {
   subdomain: string;
@@ -54,6 +63,10 @@ export interface TImportHandlers {
   ) => Promise<ImportHeaderDefinition[]>;
 
   whenReady?: () => void;
+  batchSkipRow?: (
+    args: BatchSkipRowArgs,
+    ctx: IImportExportContext,
+  ) => Promise<boolean>;
 }
 
 export interface ImportConfig extends TImportHandlers {
@@ -142,6 +155,7 @@ export interface ExportJobData {
 
 export type TGetImportHeadersOutput = ImportHeaderDefinition[];
 export type TInsertImportRowsInput = InsertImportRowsInputData;
+export type TBatchSkipRowInput = BatchSkipRowInputData;
 
 export const InsertImportRowsInputSchema = z.object({
   subdomain: z.string(),
@@ -155,6 +169,7 @@ export const InsertImportRowsInputSchema = z.object({
 export enum TImportExportProducers {
   INSERT_IMPORT_ROWS = 'insertImportRows',
   GET_IMPORT_HEADERS = 'getImportHeaders',
+  BATCH_SKIP_ROW = 'batchSkipRow',
   GET_EXPORT_HEADERS = 'getExportHeaders',
   GET_EXPORT_DATA = 'getExportData',
 }
