@@ -87,14 +87,13 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
 
   return wrappedResolvers;
 };
+type TResolverMap<TContext = any> = Record<
+  string,
+  Resolver<any, any, TContext & { subdomain: string } & IMainContext, any>
+>;
 
-export const markResolvers = <
-  Parent = any,
-  Args = any,
-  Context = { subdomain: string } & IMainContext,
-  Result = any,
->(
-  resolvers: Record<string, Resolver<Parent, Args, Context, Result>>,
+export const markResolvers = <TContext = any>(
+  resolvers: TResolverMap<TContext>,
   symbols: IResolverSymbol,
 ) => {
   for (const key in resolvers) {

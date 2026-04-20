@@ -70,6 +70,7 @@ export const GET_TOUR_ORDER_DETAIL = gql`
       amount
       status
       note
+      internalNote
       numberOfPeople
       type
       additionalCustomers
@@ -243,6 +244,7 @@ export const GET_TOUR_ORDERS = gql`
         amount
         status
         note
+        internalNote
         numberOfPeople
         type
         additionalCustomers

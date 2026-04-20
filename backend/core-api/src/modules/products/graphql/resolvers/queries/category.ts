@@ -67,7 +67,7 @@ const generateFilter = async (
   return filter;
 };
 
-export const categoryQueries: Record<string, Resolver> = {
+export const categoryQueries: Record<string, Resolver<any, any, IContext>> = {
   async productCategories(
     _parent: undefined,
     params: IProductCategoryParams,

@@ -8,7 +8,7 @@ import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { customersCount, generateFilter } from '~/modules/contacts/utils';
 
-export const customerQueries: Record<string, Resolver> = {
+export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Customers list
    */

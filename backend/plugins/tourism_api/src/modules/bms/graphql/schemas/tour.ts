@@ -173,6 +173,7 @@ export const types = `
     amount: Float
     status: String
     note: String
+    internalNote: String
     numberOfPeople: Int
     type: String
     additionalCustomers: [String]
@@ -188,6 +189,7 @@ export const types = `
     amount: Float
     status: String
     note: String
+    internalNote: String
     numberOfPeople: Int
     type: String
     additionalCustomers: [String]
