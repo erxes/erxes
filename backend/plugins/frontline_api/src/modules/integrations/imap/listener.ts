@@ -240,11 +240,9 @@ export const listenIntegration = async (
             try {
               await lock.extend(60000);
             } catch (e) {
-              console.log('Lock extension failed:', e.message);
-              reconnect = false;
-              result = `Integration ${integration._id} lock extension failed`;
-              await cleanupLock();
-              imap.end();
+              // Lock expired — just drop it and keep the IMAP connection alive
+              console.log('Lock extension failed, continuing without lock:', e.message);
+              lock = null;
             }
           }
         }, 30_000);
@@ -256,8 +254,9 @@ export const listenIntegration = async (
             try {
               await lock.release();
             } catch (e) {
-              console.log('Lock release error:', e.message);
+              // Best-effort release — ignore errors
             }
+            lock = null;
           }
         };
 
