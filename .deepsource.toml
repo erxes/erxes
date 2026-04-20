@@ -4,6 +4,7 @@ version = 1
 name = "javascript"
 
   [analyzers.meta]
+  skip_doc_coverage = ["class-expression", "method-definition"]
   dialect = "typescript"
   plugins = ["react"]
   environment = [

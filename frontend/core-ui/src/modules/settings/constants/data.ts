@@ -183,6 +183,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.AppTokens,
     },
     {
+      name: 'OAuth clients',
+      icon: IconBuilding,
+      path: SettingsWorkspacePath.OAuthClients,
+    },
+    {
       name: 'System Logs',
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,

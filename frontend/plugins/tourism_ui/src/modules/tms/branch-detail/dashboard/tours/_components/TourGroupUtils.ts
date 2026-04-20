@@ -14,17 +14,41 @@ const formatDate = (value?: string) => {
   return dateFormatter.format(date);
 };
 
+const getTourStartTime = (tour: ITour) => {
+  const rawValue =
+    tour.dateType === 'flexible' ? tour.availableFrom : tour.startDate;
+
+  return rawValue ? new Date(rawValue).getTime() : 0;
+};
+
+const getTourStartLabel = (tour: ITour) => {
+  const rawValue =
+    tour.dateType === 'flexible' ? tour.availableFrom : tour.startDate;
+
+  return formatDate(rawValue);
+};
+
+const sortTours = (items: ITour[]) => {
+  return [...items].sort((a, b) => getTourStartTime(a) - getTourStartTime(b));
+};
+
 const getGroupDateRangeLabel = (items: ITour[]) => {
   if (!items.length) return '-';
 
-  const sortedItems = [...items].sort((a, b) => {
-    const aTime = a.startDate ? new Date(a.startDate).getTime() : 0;
-    const bTime = b.startDate ? new Date(b.startDate).getTime() : 0;
-    return aTime - bTime;
-  });
+  const sortedItems = sortTours(items);
 
-  const startLabel = formatDate(sortedItems[0]?.startDate);
-  const endLabel = formatDate(sortedItems[sortedItems.length - 1]?.endDate);
+  const firstItem = sortedItems[0];
+  const lastItem = sortedItems[sortedItems.length - 1];
+  const startLabel = formatDate(
+    firstItem?.dateType === 'flexible'
+      ? firstItem?.availableFrom
+      : firstItem?.startDate,
+  );
+  const endLabel = formatDate(
+    lastItem?.dateType === 'flexible'
+      ? lastItem?.availableTo
+      : lastItem?.endDate,
+  );
 
   if (startLabel === '-' && endLabel === '-') return '-';
 
@@ -53,23 +77,48 @@ const sortGroups = (groups: ITourGroup[]) => {
 export const flattenGroups = (groups: ITourGroup[]): TourGroupRow[] => {
   return sortGroups(groups).flatMap((group) => {
     const groupId = group._id || 'Ungrouped';
+    const groupName =
+      group.name?.trim() ||
+      group.items.find((item) => item.name?.trim())?.name?.trim() ||
+      groupId;
+    const sortedItems = sortTours(group.items);
+
     const parentRow: TourGroupRow = {
       _id: `${groupId}`,
-      name: groupId,
+      name: groupName,
+      groupCode: groupId,
+      templateTourId: sortedItems[0]?._id,
       order: groupId,
       hasChildren: group.items.length > 0,
       isGroup: true,
       childCount: group.items.length,
-      dateRangeLabel: getGroupDateRangeLabel(group.items),
-      statusLabel: `${group.items.length} tours`,
+      dateRangeLabel: getGroupDateRangeLabel(sortedItems),
+      statusLabel: `${group.items.length} departures`,
     };
 
-    const childRows: TourGroupRow[] = group.items.map((tour, index) => ({
-      ...tour,
-      order: `${groupId}/${index + 1}`,
-      hasChildren: false,
-      isGroup: false,
-    }));
+    const childRows: TourGroupRow[] = sortedItems.map((tour, index) => {
+      const tourName = tour.name?.trim();
+      const isSameAsGroupName =
+        !tourName ||
+        tourName.localeCompare(groupName, undefined, {
+          sensitivity: 'base',
+        }) === 0;
+      const startLabel = getTourStartLabel(tour);
+      const fallbackLabel =
+        startLabel !== '-'
+          ? startLabel
+          : tour.refNumber?.trim() || `#${index + 1}`;
+
+      return {
+        ...tour,
+        name: isSameAsGroupName ? fallbackLabel : tourName,
+        groupCode: tour.groupCode || groupId,
+        templateTourId: tour._id,
+        order: `${groupId}/${index + 1}`,
+        hasChildren: false,
+        isGroup: false,
+      };
+    });
 
     return [parentRow, ...childRows];
   });

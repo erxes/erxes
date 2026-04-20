@@ -180,7 +180,7 @@ const createImportErrorRowWriter = async ({
       }
 
       await new Promise<void>((resolve, reject) => {
-        stream.end((err) => {
+        stream.end((err: any) => {
           if (err) {
             reject(err);
             return;
@@ -417,6 +417,22 @@ export const createImportBatchProcessor = (
           }
 
           if (batch.length >= batchSize) {
+            if (
+              config.batchSkipRow &&
+              (await config.batchSkipRow(
+                {
+                  subdomain,
+                  data: {
+                    moduleName,
+                    collectionName,
+                    rowData,
+                  },
+                },
+                context,
+              ))
+            ) {
+              continue;
+            }
             const result = await withImportExportStage({
               stage: 'PROCESS_BATCH',
               fallbackMessage: 'Failed to process import batch',
