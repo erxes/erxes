@@ -7,7 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { type ComponentType, useId } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Popover, cn } from 'erxes-ui';
+import { Button, Popover, Sheet, cn } from 'erxes-ui';
 import { Badge } from 'erxes-ui/components/badge';
 import { useImportUploadHandler } from '../../hooks/import/useImportUploadHandler';
 import { formatEntityLabel } from '../../utils/entityLabel';
@@ -62,7 +62,10 @@ export const Import = ({
           )}
         </Button>
       </Popover.Trigger>
-      <Popover.Content align="end" className="w-[420px] overflow-hidden p-0">
+      <Popover.Content
+        align="end"
+        className="w-92 max-h-[80vh] overflow-y-auto p-0"
+      >
         <div className="border-b bg-muted/30 px-5 py-4">
           <div className="flex items-start gap-3">
             <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
@@ -80,46 +83,79 @@ export const Import = ({
             </div>
           </div>
         </div>
+        <div className="grid grid-cols-2 gap-2 px-5 py-4">
+          <Sheet>
+            <Sheet.Trigger asChild>
+              <Button className="w-full">Import now</Button>
+            </Sheet.Trigger>
+            <Sheet.View className="w-full sm:w-[440px] max-h-[50vh]">
+              <Sheet.Header>
+                <Sheet.Title>{resolvedTitle}</Sheet.Title>
+                <Sheet.Close />
+              </Sheet.Header>
+              <Sheet.Content className="space-y-5 p-4">
+                <div className="rounded-xl border bg-muted/20 px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    How it works
+                  </p>
+                  <div className="mt-2 divide-y">
+                    <StepRow
+                      icon={IconDownload}
+                      title="Download the CSV template"
+                      description={`Start with the template so your ${entityPluralLabel} columns match the importer.`}
+                    />
+                    <StepRow
+                      icon={IconFileSpreadsheet}
+                      title={`Add your ${entityPluralLabel}`}
+                      description="Fill in each row with the values you want to create or update."
+                    />
+                    <StepRow
+                      icon={IconUpload}
+                      title="Upload the completed file"
+                      description="We will validate the file and begin the import right away."
+                    />
+                  </div>
+                </div>
+
+                <ImportUploader
+                  inputId={inputId}
+                  entityLabel={entityLabel}
+                  {...{
+                    isDragOver,
+                    handleDragOver,
+                    handleDragLeave,
+                    handleDrop,
+                    handleFileSelect,
+                    handleClickUpload,
+                    handleDownloadTemplate,
+                    isLoading,
+                  }}
+                />
+
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-between"
+                >
+                  <Link
+                    to={`/settings/import-export/import?type=${contentType}`}
+                  >
+                    Open import history
+                    <IconArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              </Sheet.Content>
+            </Sheet.View>
+          </Sheet>
+
+          <Button asChild variant="outline" className="w-full justify-between">
+            <Link to={`/settings/import-export/import?type=${contentType}`}>
+              History
+              <IconArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
         <div className="space-y-5 p-5">
-          <div className="rounded-xl border bg-muted/20 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              How it works
-            </p>
-            <div className="mt-3 space-y-3">
-              <StepRow
-                icon={IconDownload}
-                title="Download the CSV template"
-                description={`Start with the template so your ${entityPluralLabel} columns match the importer.`}
-              />
-              <StepRow
-                icon={IconFileSpreadsheet}
-                title={`Add your ${entityPluralLabel}`}
-                description="Fill in each row with the values you want to create or update."
-              />
-              <StepRow
-                icon={IconUpload}
-                title="Upload the completed file"
-                description="We will validate the file and begin the import right away."
-                isLast
-              />
-            </div>
-          </div>
-
-          <ImportUploader
-            inputId={inputId}
-            entityLabel={entityLabel}
-            {...{
-              isDragOver,
-              handleDragOver,
-              handleDragLeave,
-              handleDrop,
-              handleFileSelect,
-              handleClickUpload,
-              handleDownloadTemplate,
-              isLoading,
-            }}
-          />
-
           {activeImports.length > 0 ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3">
@@ -131,12 +167,14 @@ export const Import = ({
                 </div>
                 <Badge variant="secondary">{activeImports.length}</Badge>
               </div>
-              {activeImports.map((importProgress: any) => (
-                <ImportProgress
-                  key={importProgress._id}
-                  importProgress={importProgress}
-                />
-              ))}
+              <div className="max-h-92 space-y-2 overflow-y-auto pr-1">
+                {activeImports.map((importProgress: any) => (
+                  <ImportProgress
+                    key={importProgress._id}
+                    importProgress={importProgress}
+                  />
+                ))}
+              </div>
             </div>
           ) : (
             <div className="rounded-xl border bg-muted/20 p-4">
@@ -154,13 +192,6 @@ export const Import = ({
               </div>
             </div>
           )}
-
-          <Button asChild variant="outline" className="w-full justify-between">
-            <Link to={`/settings/import-export/import?type=${contentType}`}>
-              Open import history
-              <IconArrowRight className="size-4" />
-            </Link>
-          </Button>
         </div>
       </Popover.Content>
     </Popover>
@@ -193,7 +224,7 @@ const ImportUploader = ({
   return (
     <div
       className={cn(
-        'w-full rounded-xl border-2 border-dashed p-5 transition-colors duration-200',
+        'w-full rounded-xl border-2 border-dashed bg-muted/10 p-4 transition-colors duration-200',
         isDragOver
           ? 'border-primary bg-primary/5'
           : 'border-muted-foreground/25 hover:border-muted-foreground/50',
@@ -209,9 +240,9 @@ const ImportUploader = ({
         id={inputId}
         accept=".csv"
       />
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="rounded-full bg-background p-3 shadow-sm">
-          <IconUpload className="size-6 text-primary" />
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div className="rounded-full bg-background p-2.5 shadow-sm">
+          <IconUpload className="size-5 text-primary" />
         </div>
         <div className="space-y-1">
           <p className="text-sm font-medium">
@@ -230,7 +261,7 @@ const ImportUploader = ({
             </span>
           </div>
         ) : (
-          <div className="flex w-full flex-col gap-2 sm:flex-row">
+          <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
             <Button
               className="w-full"
               onClick={() => handleClickUpload(inputId)}
@@ -259,16 +290,14 @@ const StepRow = ({
   icon: Icon,
   title,
   description,
-  isLast = false,
 }: {
   icon: ComponentType<{ className?: string }>;
   title: string;
   description: string;
-  isLast?: boolean;
 }) => {
   return (
-    <div className={cn('flex items-start gap-3', !isLast && 'pb-3')}>
-      <div className="rounded-full bg-background p-2 shadow-sm">
+    <div className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+      <div className="rounded-full bg-background p-1.5 shadow-sm">
         <Icon className="size-4 text-primary" />
       </div>
       <div className="space-y-1">
