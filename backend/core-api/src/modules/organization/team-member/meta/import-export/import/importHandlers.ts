@@ -7,7 +7,8 @@ import { IModels } from '~/connectionResolvers';
 import { processUserRows } from './processUserRows';
 
 const userImportMap = {
-  user: {
+  users: {
+    fileName: 'team-members-template.csv',
     headers: [
       { label: 'Username', key: 'username' },
       { label: 'Email', key: 'email' },
@@ -29,7 +30,8 @@ const userImportMap = {
       { label: 'Departments', key: 'departments' },
       { label: 'Branches', key: 'branches' },
     ],
-    processRows: (models: IModels, rows: any[]) => processUserRows(models, rows),
+    processRows: (models: IModels, rows: any[]) =>
+      processUserRows(models, rows),
   },
 };
 
@@ -39,7 +41,8 @@ export const userImportHandlers = {
     _ctx: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
     const handler = (userImportMap as any)[collectionName];
-    if (!handler) throw new Error(`Import headers handler not found for ${collectionName}`);
+    if (!handler)
+      throw new Error(`Import headers handler not found for ${collectionName}`);
     return handler.headers;
   },
 
@@ -48,7 +51,8 @@ export const userImportHandlers = {
     { models }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = (userImportMap as any)[collectionName];
-    if (!handler) throw new Error(`Import handler not found for ${collectionName}`);
+    if (!handler)
+      throw new Error(`Import handler not found for ${collectionName}`);
     if (!models) throw new Error('Models not available in context');
     return handler.processRows(models, rows);
   },

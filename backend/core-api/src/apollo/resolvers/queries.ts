@@ -1,5 +1,6 @@
 import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
+import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
 import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
@@ -35,6 +36,7 @@ import { templateQueries } from '@/template/graphql/queries';
 export const queries = {
   ...contactQueries,
   ...authQueries,
+  ...oauthClientAppQueries,
   ...userQueries,
   ...tagQueries,
   ...productQueries,

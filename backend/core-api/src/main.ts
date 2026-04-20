@@ -20,7 +20,7 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
-import initImportExport from './meta/import-export/import';
+import initImportExport from './meta/import-export';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
 

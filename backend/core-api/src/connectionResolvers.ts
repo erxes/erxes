@@ -1,4 +1,9 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
+import { IOAuthClientAppDocument } from '@/auth/db/definitions/oauthClientApps';
+import {
+  IOAuthClientAppModel,
+  loadOAuthClientAppClass,
+} from '@/auth/db/models/OAuthClientApps';
 import { IBundleConditionDocument, IBundleRuleDocument } from '@/bundle/@types';
 import {
   IBundleConditionModel,
@@ -133,6 +138,14 @@ import {
   IConfigModel,
   loadConfigClass,
 } from '~/modules/organization/settings/db/models/Configs';
+import {
+  IOAuthDeviceCodeDocument,
+  oauthDeviceCodeSchema,
+} from '~/modules/auth/db/definitions/oauthDeviceCodes';
+import {
+  IOAuthRefreshTokenDocument,
+  oauthRefreshTokenSchema,
+} from '~/modules/auth/db/definitions/oauthRefreshTokens';
 
 import {
   IAutomationEmailTemplateModel,
@@ -270,6 +283,7 @@ export interface IModels {
   Branches: IBranchModel;
   Positions: IPositionModel;
   Apps: IAppModel;
+  OAuthClientApps: IOAuthClientAppModel;
   Fields: IFieldModel;
   FieldsGroups: IFieldGroupModel;
   Forms: IFormModel;
@@ -310,6 +324,8 @@ export interface IModels {
 
   Template: ITemplateModal;
   TemplateCategory: ITemplateCategoryModal;
+  OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
+  OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -464,6 +480,17 @@ export const loadClasses = (
     ),
   );
 
+  models.OAuthClientApps = db.model<
+    IOAuthClientAppDocument,
+    IOAuthClientAppModel
+  >(
+    'oauth_client_apps',
+    loadOAuthClientAppClass(
+      models,
+      coreEventHandlers('oauth_client_apps', 'oauth_client_apps'),
+    ),
+  );
+
   models.Fields = db.model<IFieldDocument, IFieldModel>(
     'properties_fields',
     loadFieldClass(models),
@@ -555,10 +582,10 @@ export const loadClasses = (
     loadStatsClass(models),
   );
 
-  models.BroadcastTraces = db.model<IBroadcastTraceDocument, IBroadcastTraceModel>(
-    'broadcast_traces',
-    loadBroadcastTraceClass(models),
-  );
+  models.BroadcastTraces = db.model<
+    IBroadcastTraceDocument,
+    IBroadcastTraceModel
+  >('broadcast_traces', loadBroadcastTraceClass(models));
 
   models.SmsRequests = db.model<ISmsRequestDocument, ISmsRequestModel>(
     'broadcast_engage_sms_requests',
@@ -629,6 +656,16 @@ export const loadClasses = (
     ITemplateCategoryDocument,
     ITemplateCategoryModal
   >('template_categories', loadTemplateCategoryClass(models));
+
+  models.OAuthDeviceCodes = db.model<
+    IOAuthDeviceCodeDocument,
+    Model<IOAuthDeviceCodeDocument>
+  >('oauth_device_codes', oauthDeviceCodeSchema);
+
+  models.OAuthRefreshTokens = db.model<
+    IOAuthRefreshTokenDocument,
+    Model<IOAuthRefreshTokenDocument>
+  >('oauth_refresh_tokens', oauthRefreshTokenSchema);
 
   const db_name = db.name;
 

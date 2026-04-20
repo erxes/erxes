@@ -12,6 +12,7 @@ export const GET_IMPORT_HISTORIES = gql`
         _id
         entityType
         fileName
+        fileKey
         status
         totalRows
         processedRows

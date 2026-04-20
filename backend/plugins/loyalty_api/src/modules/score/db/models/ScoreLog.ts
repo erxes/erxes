@@ -79,6 +79,14 @@ const generateFilter = async (
     filter['target.stageId'] = params.stageId;
   }
 
+  if (params.pipelineId) {
+    filter['target.pipelineId'] = params.pipelineId;
+  }
+
+  if (params.boardId) {
+    filter['target.boardId'] = params.boardId;
+  }
+
   if (params.number) {
     filter['target.number'] = params.number;
   }
@@ -103,13 +111,13 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getScoreLogs(doc: IScoreLogParams) {
-      const { stageId, number, orderType } = doc;
+      const { stageId, pipelineId, boardId, number, orderType } = doc;
 
       const filter = await generateFilter(doc, models, subdomain);
 
       let filterAggregate: any[] = [];
 
-      if (stageId || number) {
+      if (stageId || pipelineId || boardId || number) {
         const lookup = [
           {
             $lookup: {

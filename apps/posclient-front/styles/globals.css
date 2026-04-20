@@ -79,3 +79,174 @@
     --radius: 0.5rem;
   }
 }
+
+.report-print {
+  color: #000;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.report-print__title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.25rem;
+}
+
+.report-print__meta {
+  margin: 0;
+  line-height: 1.3;
+}
+
+.report-print__user {
+  margin-top: 0.5rem;
+}
+
+.report-print__section {
+  margin-top: 0.125rem;
+}
+
+.report-print__category {
+  margin-top: 0.375rem;
+}
+
+.report-print__row {
+  line-height: 1.3;
+}
+
+.report-print__value {
+  min-width: 3.5rem;
+  text-align: right;
+  font-weight: 600;
+}
+
+.report-print__signature {
+  margin-top: 0.625rem;
+  padding-top: 0.375rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+@media print {
+  .report-print,
+  .report-print * {
+    color: #000 !important;
+    text-shadow: none !important;
+  }
+
+  .report-print {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+.receipt-print {
+  color: #000;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.receipt-print__title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.receipt-print__header {
+  column-gap: 0.75rem;
+  padding-bottom: 0.375rem;
+  margin-bottom: 0.375rem;
+}
+
+.receipt-print__header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.receipt-print__subtitle {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.receipt-print__meta {
+  margin: 0;
+  line-height: 1.3;
+}
+
+.receipt-print__section {
+  margin-top: 0.5rem;
+  padding-top: 0.375rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.receipt-print__section--flush {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.receipt-print__row {
+  line-height: 1.3;
+}
+
+.receipt-print__meta-row {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  align-items: center;
+  column-gap: 0.625rem;
+  padding: 0.1875rem 0.375rem;
+}
+
+.receipt-print__meta-label {
+  font-weight: 600;
+}
+
+.receipt-print__meta-value {
+  text-align: right;
+}
+
+.receipt-print__meta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  margin: 0.375rem 0 0.5rem;
+}
+
+.receipt-print__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.375rem;
+}
+
+.receipt-print__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  column-gap: 0.75rem;
+  padding: 0.125rem 0.25rem;
+}
+
+.receipt-print__qty {
+  min-width: 1.75rem;
+  text-align: right;
+}
+
+.receipt-print__value {
+  min-width: 3.5rem;
+  text-align: right;
+  font-weight: 600;
+}
+
+@media print {
+  .receipt-print,
+  .receipt-print * {
+    color: #000 !important;
+    text-shadow: none !important;
+  }
+
+  .receipt-print {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

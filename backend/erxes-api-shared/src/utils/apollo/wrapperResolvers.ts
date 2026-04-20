@@ -2,7 +2,11 @@ import {
   wrapPermission,
   wrapPublicResolver,
 } from '../../core-modules/permissions/utils';
-import { IResolverSymbol, Resolver } from '../../core-types/common';
+import {
+  IMainContext,
+  IResolverSymbol,
+  Resolver,
+} from '../../core-types/common';
 import { logHandler } from '../logs';
 
 const withLogging = (resolver: Resolver): Resolver => {
@@ -84,8 +88,13 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
   return wrappedResolvers;
 };
 
-export const markResolvers = (
-  resolvers: Record<string, Resolver>,
+export const markResolvers = <
+  Parent = any,
+  Args = any,
+  Context = { subdomain: string } & IMainContext,
+  Result = any,
+>(
+  resolvers: Record<string, Resolver<Parent, Args, Context, Result>>,
   symbols: IResolverSymbol,
 ) => {
   for (const key in resolvers) {
