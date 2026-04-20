@@ -6,13 +6,15 @@ import {
   GET_TOUR_DETAIL,
 } from '../graphql/queries';
 import { ITourTranslationInput } from '../utils/translationHelpers';
+import type { PricingOptionPrice } from '../utils/pricing';
 
 export interface IPricingOption {
   _id?: string;
   title: string;
   minPersons: number;
   maxPersons?: number;
-  pricePerPerson: number;
+  prices: Array<PricingOptionPrice & { price: number }>;
+  pricePerPerson?: number;
   accommodationType?: string;
   domesticFlightPerPerson?: number;
   singleSupplement?: number;
@@ -53,7 +55,7 @@ export interface IEditTourVariables {
   info3?: string;
   info4?: string;
   info5?: string;
-  personCost?: Record<string, any>;
+  personCost?: Record<string, unknown>;
   images?: string[];
   imageThumbnail?: string;
   attachment?: { url: string; name: string; type: string; size: number } | null;

@@ -5,6 +5,10 @@ export interface IPricingOptionTranslation {
   title?: string;
   note?: string;
   accommodationType?: string;
+  prices?: Array<{
+    type: string;
+    price: number;
+  }>;
   pricePerPerson?: number;
   domesticFlightPerPerson?: number;
   singleSupplement?: number;

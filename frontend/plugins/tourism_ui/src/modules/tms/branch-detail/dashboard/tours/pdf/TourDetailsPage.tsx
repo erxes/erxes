@@ -9,6 +9,7 @@ import type {
   TourPdfRenderConfig,
 } from './types';
 import { COLORS, sharedStyles, styles } from './styles';
+import { getPassengerPrice, PASSENGER_PRICE_FIELDS } from '../utils/pricing';
 
 interface TourDetailsPageProps {
   tour: ITourPDFData;
@@ -128,8 +129,8 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
           typeof tour.duration === 'number'
             ? formatDurationValue(tour.duration)
             : typeof itinerary?.duration === 'number'
-              ? formatDurationValue(itinerary.duration)
-              : '-',
+            ? formatDurationValue(itinerary.duration)
+            : '-',
       },
       {
         label: travelDateLabel,
@@ -220,14 +221,20 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
             </View>
             {pricingOptions.map((option, index) => {
               const pricingFacts: PricingFact[] = [
-                typeof option.pricePerPerson === 'number'
-                  ? {
-                      label: config.labels.pricingPerPersonLabel,
-                      value: `${currencySymbol}${formatPrice(
-                        option.pricePerPerson,
-                      )}`,
-                    }
-                  : null,
+                ...PASSENGER_PRICE_FIELDS.map((priceField) => {
+                  const price = getPassengerPrice(option, priceField.type);
+                  if (typeof price !== 'number') return null;
+
+                  return {
+                    label:
+                      priceField.type === 'adult'
+                        ? config.labels.pricingAdultLabel
+                        : priceField.type === 'child'
+                        ? config.labels.pricingChildLabel
+                        : config.labels.pricingInfantLabel,
+                    value: `${currencySymbol}${formatPrice(price)}`,
+                  };
+                }),
                 option.accommodationType
                   ? {
                       label: config.labels.pricingAccommodationLabel,

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DEFAULT_PASSENGER_TYPES } from '../utils/pricing';
 
 const emptyStringOrNullToUndefined = (value: unknown) => {
   if (value === '' || value === null) return undefined;
@@ -24,11 +25,17 @@ const optionalString = (schema: z.ZodString = z.string()) =>
 
 /* ================= PRICING OPTION TRANSLATION ================= */
 
+export const PricingOptionPriceSchema = z.object({
+  type: z.string().trim().min(1, 'Passenger type is required'),
+  price: optionalNumber(z.number().min(0.01, 'Price must be greater than 0')),
+});
+
 export const PricingOptionTranslationSchema = z.object({
   optionId: z.string(),
   title: z.string().optional(),
   accommodationType: z.string().optional(),
   note: z.string().optional(),
+  prices: z.array(PricingOptionPriceSchema).optional(),
   pricePerPerson: optionalNumber(z.number()),
   domesticFlightPerPerson: optionalNumber(z.number()),
   singleSupplement: optionalNumber(z.number()),
@@ -51,13 +58,13 @@ export const TourTranslationSchema = z.object({
 
 /* ================= PRICING ================= */
 
-export const PricingOptionSchema = z.object({
-  _id: z.string(),
+export const PricingOptionSchema = z
+  .object({
+    _id: z.string(),
 
-  title: z.string().trim().min(1, 'Title is required'),
+    title: z.string().trim().min(1, 'Title is required'),
 
-  minPersons: z.preprocess(
-    (value) => {
+    minPersons: z.preprocess((value) => {
       if (value === '' || value === null || value === undefined)
         return undefined;
       if (typeof value === 'string') {
@@ -65,39 +72,70 @@ export const PricingOptionSchema = z.object({
         return Number.isNaN(num) ? undefined : num;
       }
       return value;
-    },
-    z.coerce.number().min(1, 'Min persons must be at least 1'),
-  ),
+    }, z.coerce.number().min(1, 'Min persons must be at least 1')),
 
-  maxPersons: optionalNumber(
-    z.number().min(1, 'Max persons must be at least 1'),
-  ),
+    maxPersons: optionalNumber(
+      z.number().min(1, 'Max persons must be at least 1'),
+    ),
 
-  pricePerPerson: z.preprocess(
-    (value) => {
-      if (value === '' || value === null || value === undefined)
-        return undefined;
-      if (typeof value === 'string') {
-        const num = Number(value);
-        return Number.isNaN(num) ? undefined : num;
-      }
-      return value;
-    },
-    z.coerce.number().min(0.01, 'Price must be greater than 0'),
-  ),
+    prices: z
+      .array(PricingOptionPriceSchema)
+      .min(1, 'At least one passenger price is required'),
 
-  accommodationType: optionalString(),
+    pricePerPerson: optionalNumber(
+      z.number().min(0.01, 'Price must be greater than 0'),
+    ),
 
-  domesticFlightPerPerson: optionalNumber(
-    z.number().min(0, 'Domestic flight must be 0 or greater'),
-  ),
+    accommodationType: optionalString(),
 
-  singleSupplement: optionalNumber(
-    z.number().min(0, 'Single supplement must be 0 or greater'),
-  ),
+    domesticFlightPerPerson: optionalNumber(
+      z.number().min(0, 'Domestic flight must be 0 or greater'),
+    ),
 
-  note: optionalString(),
-});
+    singleSupplement: optionalNumber(
+      z.number().min(0, 'Single supplement must be 0 or greater'),
+    ),
+
+    note: optionalString(),
+  })
+  .superRefine((option, ctx) => {
+    if (
+      typeof option.maxPersons === 'number' &&
+      option.maxPersons < option.minPersons
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Max persons must be greater than or equal to min persons',
+        path: ['maxPersons'],
+      });
+    }
+
+    const normalizedPrices = new Map(
+      (option.prices || []).map((price) => [
+        price.type.trim().toLowerCase(),
+        price.price,
+      ]),
+    );
+    const adultPrice = normalizedPrices.get('adult') ?? option.pricePerPerson;
+
+    if (typeof adultPrice !== 'number' || adultPrice <= 0) {
+      const adultIndex = option.prices?.findIndex(
+        (price) => price.type.trim().toLowerCase() === 'adult',
+      );
+
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Adult price is required',
+        path: [
+          'prices',
+          adultIndex && adultIndex >= 0
+            ? adultIndex
+            : DEFAULT_PASSENGER_TYPES.indexOf('adult'),
+          'price',
+        ],
+      });
+    }
+  });
 
 /* ================= GUIDE ================= */
 
@@ -233,6 +271,28 @@ export const TourCreateFormSchema = z
 
 export type TourCreateFormType = z.infer<typeof TourCreateFormSchema>;
 
+type InferredPricingOption = TourCreateFormType['pricingOptions'][number];
+
+export type PricingOptionFormValue = Omit<
+  InferredPricingOption,
+  | 'prices'
+  | 'minPersons'
+  | 'pricePerPerson'
+  | 'maxPersons'
+  | 'domesticFlightPerPerson'
+  | 'singleSupplement'
+> & {
+  minPersons: number | string;
+  maxPersons?: number | string;
+  prices: Array<{
+    type: string;
+    price?: number | string;
+  }>;
+  pricePerPerson?: number | string;
+  domesticFlightPerPerson?: number | string;
+  singleSupplement?: number | string;
+};
+
 /**
  * Form-level translation pricing type – allows `''` (empty string)
  * so React Hook Form can track the field as "set but empty".
@@ -243,6 +303,10 @@ export type PricingOptionTranslationFormValue = {
   title?: string;
   accommodationType?: string;
   note?: string;
+  prices?: Array<{
+    type: string;
+    price?: number | string;
+  }>;
   pricePerPerson?: number | string;
   domesticFlightPerPerson?: number | string;
   singleSupplement?: number | string;
@@ -260,7 +324,11 @@ export type TourTranslationFormValue = Omit<
   pricingOptions?: PricingOptionTranslationFormValue[];
 };
 
-/** Form values type – same as `TourCreateFormType` but translations allow `''` in pricing numerics. */
-export type TourFormValues = Omit<TourCreateFormType, 'translations'> & {
+/** Form values type allows `''` in pricing numerics while Zod keeps submitted values strict. */
+export type TourFormValues = Omit<
+  TourCreateFormType,
+  'translations' | 'pricingOptions'
+> & {
+  pricingOptions: PricingOptionFormValue[];
   translations?: TourTranslationFormValue[];
 };

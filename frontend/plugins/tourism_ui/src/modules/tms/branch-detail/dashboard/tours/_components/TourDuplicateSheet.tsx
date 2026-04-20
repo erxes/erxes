@@ -17,11 +17,11 @@ import {
   buildTranslationsFromTour,
   sanitizeTourTranslations,
 } from '../utils/translationHelpers';
+import { sanitizePricingOptionForSubmit } from '../utils/pricing';
 
-const stripTypename = <T extends Record<string, any>>(
-  obj: T,
-): Omit<T, '__typename'> => {
-  const { __typename, ...rest } = obj as any;
+const stripTypename = <T extends object>(obj: T): Omit<T, '__typename'> => {
+  const rest = { ...(obj as T & { __typename?: unknown }) };
+  delete rest.__typename;
   return rest;
 };
 
@@ -202,10 +202,12 @@ const FixedDuplicateSheet = ({
   );
   const normalizedPricingOptions = useMemo(
     () =>
-      (tour.pricingOptions ?? []).map((opt) => ({
-        ...stripTypename(opt),
-        _id: opt._id || nanoid(8),
-      })),
+      (tour.pricingOptions ?? []).map((opt) =>
+        sanitizePricingOptionForSubmit({
+          ...stripTypename(opt),
+          _id: opt._id || nanoid(8),
+        }),
+      ),
     [tour.pricingOptions],
   );
   const duplicateTranslations = useMemo(
@@ -220,8 +222,12 @@ const FixedDuplicateSheet = ({
   const form = useForm<FixedFormType>({
     resolver: zodResolver(FixedFormSchema),
     defaultValues: {
-      name: `${primaryTranslation?.name || tour.name || ''}${duplicateNameSuffix}`,
-      refNumber: `${primaryTranslation?.refNumber || tour.refNumber || ''}${duplicateRefNumberSuffix}`,
+      name: `${
+        primaryTranslation?.name || tour.name || ''
+      }${duplicateNameSuffix}`,
+      refNumber: `${
+        primaryTranslation?.refNumber || tour.refNumber || ''
+      }${duplicateRefNumberSuffix}`,
       startDate: tour.startDate ? new Date(tour.startDate) : undefined,
       translations: duplicateTranslations,
     },
@@ -235,8 +241,12 @@ const FixedDuplicateSheet = ({
     if (!open) return;
 
     form.reset({
-      name: `${primaryTranslation?.name || tour.name || ''}${duplicateNameSuffix}`,
-      refNumber: `${primaryTranslation?.refNumber || tour.refNumber || ''}${duplicateRefNumberSuffix}`,
+      name: `${
+        primaryTranslation?.name || tour.name || ''
+      }${duplicateNameSuffix}`,
+      refNumber: `${
+        primaryTranslation?.refNumber || tour.refNumber || ''
+      }${duplicateRefNumberSuffix}`,
       startDate: tour.startDate ? new Date(tour.startDate) : undefined,
       translations: duplicateTranslations,
     });
@@ -439,10 +449,12 @@ const FlexibleDuplicateSheet = ({
   );
   const normalizedPricingOptions = useMemo(
     () =>
-      (tour.pricingOptions ?? []).map((opt) => ({
-        ...stripTypename(opt),
-        _id: opt._id || nanoid(8),
-      })),
+      (tour.pricingOptions ?? []).map((opt) =>
+        sanitizePricingOptionForSubmit({
+          ...stripTypename(opt),
+          _id: opt._id || nanoid(8),
+        }),
+      ),
     [tour.pricingOptions],
   );
   const duplicateTranslations = useMemo(
@@ -457,8 +469,12 @@ const FlexibleDuplicateSheet = ({
   const form = useForm<FlexibleFormType>({
     resolver: zodResolver(FlexibleFormSchema),
     defaultValues: {
-      name: `${primaryTranslation?.name || tour.name || ''}${duplicateNameSuffix}`,
-      refNumber: `${primaryTranslation?.refNumber || tour.refNumber || ''}${duplicateRefNumberSuffix}`,
+      name: `${
+        primaryTranslation?.name || tour.name || ''
+      }${duplicateNameSuffix}`,
+      refNumber: `${
+        primaryTranslation?.refNumber || tour.refNumber || ''
+      }${duplicateRefNumberSuffix}`,
       availableFrom: tour.availableFrom
         ? new Date(tour.availableFrom)
         : undefined,
@@ -475,8 +491,12 @@ const FlexibleDuplicateSheet = ({
     if (!open) return;
 
     form.reset({
-      name: `${primaryTranslation?.name || tour.name || ''}${duplicateNameSuffix}`,
-      refNumber: `${primaryTranslation?.refNumber || tour.refNumber || ''}${duplicateRefNumberSuffix}`,
+      name: `${
+        primaryTranslation?.name || tour.name || ''
+      }${duplicateNameSuffix}`,
+      refNumber: `${
+        primaryTranslation?.refNumber || tour.refNumber || ''
+      }${duplicateRefNumberSuffix}`,
       availableFrom: tour.availableFrom
         ? new Date(tour.availableFrom)
         : undefined,

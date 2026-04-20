@@ -33,6 +33,10 @@ import { SelectTourCategory } from './SelectTourCategory';
 import { toOptionalString, toOptionalNumber } from '../utils/fieldConverters';
 import { LANGUAGES } from '@/tms/constants/languages';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import {
+  getDefaultPricingOptionPrices,
+  PASSENGER_PRICE_FIELDS,
+} from '../utils/pricing';
 
 type TourTextFieldPath = FieldPathByValue<TourFormValues, string | undefined>;
 
@@ -41,6 +45,22 @@ interface TourTextFieldProps {
   name?: TourTextFieldPath;
   labelSuffix?: string;
 }
+
+type AttachmentFileInfo = {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+};
+
+const isAttachmentFileInfo = (value: unknown): value is AttachmentFileInfo =>
+  typeof value === 'object' &&
+  value !== null &&
+  'url' in value &&
+  typeof (value as { url?: unknown }).url === 'string';
+
+const getFormInputValue = (value: unknown) =>
+  typeof value === 'string' || typeof value === 'number' ? value : '';
 
 export const TourNameField = ({
   control,
@@ -603,10 +623,10 @@ export const TourAttachmentsField = ({
           <Form.Control>
             <Upload.Root
               value={field.value?.url || ''}
-              onChange={(fileInfo: any) => {
+              onChange={(fileInfo: unknown) => {
                 if (!fileInfo || fileInfo === '') {
                   field.onChange(null);
-                } else if (typeof fileInfo === 'object' && 'url' in fileInfo) {
+                } else if (isAttachmentFileInfo(fileInfo)) {
                   field.onChange({
                     url: fileInfo.url,
                     name: fileInfo.name || '',
@@ -678,7 +698,7 @@ const TourPricingOptionsFieldContent = ({
   labelSuffix = '',
   currencySymbol,
 }: {
-  control: Control<any>;
+  control: Control<TourFormValues>;
   translationIndex?: number;
   labelSuffix?: string;
   currencySymbol?: string;
@@ -699,6 +719,7 @@ const TourPricingOptionsFieldContent = ({
       title: '',
       minPersons: '',
       maxPersons: '',
+      prices: getDefaultPricingOptionPrices(),
       pricePerPerson: '',
       accommodationType: '',
       domesticFlightPerPerson: '',
@@ -718,6 +739,16 @@ const TourPricingOptionsFieldContent = ({
       return `translations.${translationIndex}.pricingOptions.${index}.${field}` as FieldPath<TourFormValues>;
     }
     return `pricingOptions.${index}.${field}` as FieldPath<TourFormValues>;
+  };
+
+  const getPassengerPriceFieldName = (
+    optionIndex: number,
+    priceIndex: number,
+  ) => {
+    if (isTranslation) {
+      return `translations.${translationIndex}.pricingOptions.${optionIndex}.prices.${priceIndex}.price` as FieldPath<TourFormValues>;
+    }
+    return `pricingOptions.${optionIndex}.prices.${priceIndex}.price` as FieldPath<TourFormValues>;
   };
 
   return (
@@ -777,7 +808,7 @@ const TourPricingOptionsFieldContent = ({
                     </Form.Label>
                     <Input
                       {...field}
-                      value={field.value ?? ''}
+                      value={getFormInputValue(field.value)}
                       placeholder="e.g., Standard - Solo, Standard - Group"
                     />
                     <Form.Message>{fieldState.error?.message}</Form.Message>
@@ -815,7 +846,7 @@ const TourPricingOptionsFieldContent = ({
                       <Input
                         type="number"
                         {...field}
-                        value={field.value ?? ''}
+                        value={getFormInputValue(field.value)}
                         onChange={(e) =>
                           field.onChange(toOptionalNumber(e.target.value))
                         }
@@ -828,7 +859,7 @@ const TourPricingOptionsFieldContent = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1">
               <Form.Field
                 control={control}
                 name={getFieldName(index, 'accommodationType')}
@@ -842,7 +873,7 @@ const TourPricingOptionsFieldContent = ({
                     </Form.Label>
                     <Input
                       {...field}
-                      value={field.value ?? ''}
+                      value={getFormInputValue(field.value)}
                       onChange={(e) =>
                         field.onChange(toOptionalString(e.target.value))
                       }
@@ -852,39 +883,48 @@ const TourPricingOptionsFieldContent = ({
                   </div>
                 )}
               />
+            </div>
 
-              <Form.Field
-                control={control}
-                name={getFieldName(index, 'pricePerPerson')}
-                render={({ field, fieldState }) => (
-                  <div className="space-y-2">
-                    <Form.Label
-                      className={fieldState.error ? 'text-destructive' : ''}
-                    >
-                      Price per Person{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <div className="relative">
-                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
-                        {symbol}
-                      </span>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        {...field}
-                        value={field.value ?? ''}
-                        onChange={(e) =>
-                          field.onChange(toOptionalNumber(e.target.value))
-                        }
-                        placeholder="0.00"
-                        className="pl-7"
-                      />
+            <div className="grid grid-cols-3 gap-3">
+              {PASSENGER_PRICE_FIELDS.map((priceField, priceIndex) => (
+                <Form.Field
+                  key={priceField.type}
+                  control={control}
+                  name={getPassengerPriceFieldName(index, priceIndex)}
+                  render={({ field, fieldState }) => (
+                    <div className="space-y-2">
+                      <Form.Label
+                        className={fieldState.error ? 'text-destructive' : ''}
+                      >
+                        {priceField.label}
+                        {priceField.required ? (
+                          <span className="text-destructive"> *</span>
+                        ) : null}
+                      </Form.Label>
+                      <div className="relative">
+                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                          {symbol}
+                        </span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          {...field}
+                          value={getFormInputValue(field.value)}
+                          onChange={(e) =>
+                            field.onChange(toOptionalNumber(e.target.value))
+                          }
+                          placeholder={
+                            priceField.required ? '0.00' : 'Optional'
+                          }
+                          className="pl-7"
+                        />
+                      </div>
+                      <Form.Message>{fieldState.error?.message}</Form.Message>
                     </div>
-                    <Form.Message>{fieldState.error?.message}</Form.Message>
-                  </div>
-                )}
-              />
+                  )}
+                />
+              ))}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -905,7 +945,7 @@ const TourPricingOptionsFieldContent = ({
                       <Input
                         type="number"
                         {...field}
-                        value={field.value ?? ''}
+                        value={getFormInputValue(field.value)}
                         onChange={(e) =>
                           field.onChange(toOptionalNumber(e.target.value))
                         }
@@ -935,7 +975,7 @@ const TourPricingOptionsFieldContent = ({
                       <Input
                         type="number"
                         {...field}
-                        value={field.value ?? ''}
+                        value={getFormInputValue(field.value)}
                         onChange={(e) =>
                           field.onChange(toOptionalNumber(e.target.value))
                         }
@@ -961,7 +1001,7 @@ const TourPricingOptionsFieldContent = ({
                   </Form.Label>
                   <Textarea
                     {...field}
-                    value={field.value ?? ''}
+                    value={getFormInputValue(field.value)}
                     onChange={(e) =>
                       field.onChange(toOptionalString(e.target.value))
                     }

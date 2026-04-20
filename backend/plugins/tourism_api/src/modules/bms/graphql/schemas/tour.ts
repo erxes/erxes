@@ -42,11 +42,16 @@ export const types = `
     fixed
     flexible
   }
+  type PricingOptionPrice {
+    type: String!
+    price: Float!
+  }
   type PricingOption {
     _id: ID!
     title: String!
     minPersons: Int!
     maxPersons: Int
+    prices: [PricingOptionPrice]
     pricePerPerson: Float!
     accommodationType: String
     domesticFlightPerPerson: Float
@@ -59,6 +64,7 @@ export const types = `
     title: String
     note: String
     accommodationType: String
+    prices: [PricingOptionPrice]
     pricePerPerson: Float
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -86,6 +92,7 @@ export const types = `
     title: String
     note: String
     accommodationType: String
+    prices: [PricingOptionPriceInput]
     pricePerPerson: Float
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -191,12 +198,17 @@ export const types = `
     guideId: String
     type: String
   }
+  input PricingOptionPriceInput {
+    type: String!
+    price: Float!
+  }
   input PricingOptionInput {
     _id: ID
     title: String!
     minPersons: Int!
     maxPersons: Int
-    pricePerPerson: Float!
+    prices: [PricingOptionPriceInput]
+    pricePerPerson: Float
     accommodationType: String
     domesticFlightPerPerson: Float
     singleSupplement: Float

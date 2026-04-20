@@ -54,13 +54,10 @@ export async function shouldSkipTranslation(
 }
 
 function buildTranslationMap(translations: any[]): Record<string, any> {
-  return translations.reduce(
-    (acc, t) => {
-      acc[String(t.objectId)] = t;
-      return acc;
-    },
-    {} as Record<string, any>,
-  );
+  return translations.reduce((acc, t) => {
+    acc[String(t.objectId)] = t;
+    return acc;
+  }, {} as Record<string, any>);
 }
 
 export function applyTranslationToItem<T extends { _id: string }>(
@@ -144,6 +141,16 @@ export function applyPricingOptionsTranslation<T extends { _id: string }>(
       ...(pt.note ? { note: pt.note } : {}),
       ...(pt.accommodationType
         ? { accommodationType: pt.accommodationType }
+        : {}),
+      ...(pt.prices?.length ? { prices: pt.prices } : {}),
+      ...(typeof pt.pricePerPerson === 'number'
+        ? { pricePerPerson: pt.pricePerPerson }
+        : {}),
+      ...(typeof pt.domesticFlightPerPerson === 'number'
+        ? { domesticFlightPerPerson: pt.domesticFlightPerPerson }
+        : {}),
+      ...(typeof pt.singleSupplement === 'number'
+        ? { singleSupplement: pt.singleSupplement }
         : {}),
     };
   });

@@ -16,6 +16,7 @@ import {
   buildTranslationsFromTour,
   sanitizeTourTranslations,
 } from '../utils/translationHelpers';
+import { sanitizePricingOptionForSubmit } from '../utils/pricing';
 import { RHFDatePicker } from './RHFDatePicker';
 
 const GroupTourAddSchema = z.object({
@@ -42,10 +43,8 @@ interface TourGroupAddSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const stripTypename = <T extends Record<string, any>>(
-  obj: T,
-): Omit<T, '__typename'> => {
-  const rest = { ...(obj as any) };
+const stripTypename = <T extends object>(obj: T): Omit<T, '__typename'> => {
+  const rest = { ...(obj as T & { __typename?: unknown }) };
   delete rest.__typename;
   return rest;
 };
@@ -165,10 +164,12 @@ export const TourGroupAddSheet = ({
 
   const normalizedPricingOptions = useMemo(
     () =>
-      (tourDetail?.pricingOptions ?? []).map((option) => ({
-        ...stripTypename(option),
-        _id: option._id || nanoid(8),
-      })),
+      (tourDetail?.pricingOptions ?? []).map((option) =>
+        sanitizePricingOptionForSubmit({
+          ...stripTypename(option),
+          _id: option._id || nanoid(8),
+        }),
+      ),
     [tourDetail?.pricingOptions],
   );
 

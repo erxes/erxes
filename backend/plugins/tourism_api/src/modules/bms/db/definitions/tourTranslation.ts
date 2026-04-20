@@ -8,6 +8,23 @@ const pricingOptionTranslationSchema = new Schema(
     title: { type: String, default: '' },
     note: { type: String, default: '' },
     accommodationType: { type: String, default: '' },
+    prices: {
+      type: [
+        new Schema(
+          {
+            type: {
+              type: String,
+              required: true,
+              trim: true,
+              lowercase: true,
+            },
+            price: { type: Number, required: true, min: 0.01 },
+          },
+          { _id: false },
+        ),
+      ],
+      default: [],
+    },
     pricePerPerson: { type: Number },
     domesticFlightPerPerson: { type: Number },
     singleSupplement: { type: Number },

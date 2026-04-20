@@ -1,12 +1,14 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TOUR_DETAIL } from '../graphql/queries';
+import type { PricingOptionPrice } from '../utils/pricing';
 
 export interface IPricingOption {
   _id: string;
   title: string;
   minPersons: number;
   maxPersons?: number;
-  pricePerPerson: number;
+  prices?: Array<PricingOptionPrice & { price: number }>;
+  pricePerPerson?: number;
   accommodationType?: string;
   domesticFlightPerPerson?: number;
   singleSupplement?: number;
@@ -18,6 +20,7 @@ export interface IPricingOptionTranslation {
   title?: string;
   accommodationType?: string;
   note?: string;
+  prices?: Array<PricingOptionPrice & { price: number }>;
   pricePerPerson?: number;
   domesticFlightPerPerson?: number;
   singleSupplement?: number;
@@ -75,7 +78,7 @@ export interface ITourDetail {
   itineraryId?: string;
   joinPercent?: number;
   name?: string;
-  personCost?: Record<string, any>;
+  personCost?: Record<string, unknown>;
   refNumber?: string;
   startDate?: string;
   status?: string;

@@ -19,6 +19,10 @@ import {
 } from '../utils/translationHelpers';
 
 import { TourCreateFormSchema, TourFormValues } from '../constants/formSchema';
+import {
+  normalizePricingOptionForForm,
+  sanitizePricingOptionForSubmit,
+} from '../utils/pricing';
 
 import {
   TourDescriptionField,
@@ -242,7 +246,9 @@ export const TourEditForm = ({
         imageThumbnail: tour.imageThumbnail ?? '',
         attachment: tour.attachment ?? null,
         guides: [],
-        pricingOptions: tour.pricingOptions ?? [],
+        pricingOptions: (tour.pricingOptions ?? []).map(
+          normalizePricingOptionForForm,
+        ),
         isFlexibleDate: tour.dateType === 'flexible',
         isGroupTour: false,
         startDate: tour.startDate ? new Date(tour.startDate) : undefined,
@@ -293,25 +299,32 @@ export const TourEditForm = ({
     }
 
     try {
-      const {
-        startDate: _startDate,
-        endDate: _endDate,
-        availableFrom: _availableFrom,
-        availableTo: _availableTo,
-        isFlexibleDate: _isFlexibleDate,
-        isGroupTour: _isGroupTour,
-        pricingOptions,
-        translations: rawTranslations,
-        ...restValues
-      } = values;
+      const { pricingOptions, translations: rawTranslations } = values;
+      const restValues = { ...values };
+      const localOnlyFields = [
+        'startDate',
+        'endDate',
+        'availableFrom',
+        'availableTo',
+        'isFlexibleDate',
+        'isGroupTour',
+        'pricingOptions',
+        'translations',
+      ] as const;
 
-      const normalizedPricingOptions = pricingOptions.map((opt) => ({
-        ...opt,
-        _id: opt._id || nanoid(8),
-        accommodationType: opt.accommodationType
-          ? opt.accommodationType.trim().toLowerCase()
-          : opt.accommodationType,
-      }));
+      localOnlyFields.forEach((fieldName) => {
+        delete (restValues as Partial<TourFormValues>)[fieldName];
+      });
+
+      const normalizedPricingOptions = pricingOptions.map((opt) =>
+        sanitizePricingOptionForSubmit({
+          ...opt,
+          _id: opt._id || nanoid(8),
+          accommodationType: opt.accommodationType
+            ? opt.accommodationType.trim().toLowerCase()
+            : opt.accommodationType,
+        }),
+      );
 
       const sanitizedTranslations = sanitizeTourTranslations(
         rawTranslations ?? [],
@@ -334,8 +347,8 @@ export const TourEditForm = ({
         endDate: isFlexible
           ? undefined
           : normalizedStartDate && values.duration
-            ? calculateEndDate(normalizedStartDate, values.duration)
-            : undefined,
+          ? calculateEndDate(normalizedStartDate, values.duration)
+          : undefined,
         availableFrom: isFlexible ? values.availableFrom : undefined,
         availableTo: isFlexible ? values.availableTo : undefined,
         dateStatus: isFlexible

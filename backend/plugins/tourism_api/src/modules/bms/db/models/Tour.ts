@@ -33,6 +33,46 @@ export interface IBmsTourCategoryModel extends Model<ITourCategoryDocument> {
 
 export const loadTourClass = (models: IModels) => {
   class Tour {
+    private static normalizePassengerType(type?: string) {
+      return (type || '').trim().toLowerCase();
+    }
+
+    private static normalizePricingOptions(
+      pricingOptions: IPricingOption[] = [],
+    ): IPricingOption[] {
+      return pricingOptions.map((option) => {
+        const priceMap = new Map<string, number>();
+
+        for (const price of option.prices || []) {
+          const type = this.normalizePassengerType(String(price.type));
+          if (!type) continue;
+          priceMap.set(type, price.price);
+        }
+
+        if (
+          !priceMap.has('adult') &&
+          typeof option.pricePerPerson === 'number'
+        ) {
+          priceMap.set('adult', option.pricePerPerson);
+        }
+
+        const prices = Array.from(priceMap.entries()).map(([type, price]) => ({
+          type,
+          price,
+        }));
+        const adultPrice = priceMap.get('adult');
+
+        return {
+          ...option,
+          prices,
+          pricePerPerson: adultPrice,
+          accommodationType: option.accommodationType
+            ? option.accommodationType.trim().toLowerCase()
+            : option.accommodationType,
+        };
+      });
+    }
+
     /**
      * Retrieves tour
      */
@@ -65,6 +105,7 @@ export const loadTourClass = (models: IModels) => {
       // }
 
       if (doc.pricingOptions) {
+        doc.pricingOptions = this.normalizePricingOptions(doc.pricingOptions);
         if (doc.pricingOptions.length > 0) {
           this.validatePricingOptions(doc.pricingOptions);
         }
@@ -112,6 +153,7 @@ export const loadTourClass = (models: IModels) => {
       }
 
       if (doc.pricingOptions) {
+        doc.pricingOptions = this.normalizePricingOptions(doc.pricingOptions);
         if (doc.pricingOptions.length > 0) {
           this.validatePricingOptions(doc.pricingOptions);
         }
@@ -136,7 +178,11 @@ export const loadTourClass = (models: IModels) => {
         return undefined;
       }
       const prices = pricingOptions
-        .map((opt) => opt.pricePerPerson)
+        .map(
+          (opt) =>
+            opt.prices?.find((price) => price.type === 'adult')?.price ??
+            opt.pricePerPerson,
+        )
         .filter((p): p is number => typeof p === 'number');
       return prices.length ? Math.min(...prices) : undefined;
     }
@@ -168,26 +214,54 @@ export const loadTourClass = (models: IModels) => {
           );
         }
 
-        // 3. price validation
-        if (
-          option.pricePerPerson === undefined ||
-          option.pricePerPerson === null ||
-          option.pricePerPerson <= 0
-        ) {
+        // 3. price validation. Adult is required; other passenger types are optional.
+        const prices = option.prices || [];
+        const adultPrice = prices.find((price) => price.type === 'adult');
+
+        if (!adultPrice || adultPrice.price <= 0) {
           throw new Error(
-            `Invalid pricing option "${option.title}": pricePerPerson must be > 0`,
+            `Invalid pricing option "${option.title}": adult price must be > 0`,
           );
+        }
+
+        const seenPassengerTypes = new Set<string>();
+        for (const price of prices) {
+          const type = this.normalizePassengerType(String(price.type));
+
+          if (!type) {
+            throw new Error(
+              `Invalid pricing option "${option.title}": passenger type is required`,
+            );
+          }
+
+          if (seenPassengerTypes.has(type)) {
+            throw new Error(
+              `Invalid pricing option "${option.title}": duplicate passenger type "${type}"`,
+            );
+          }
+
+          if (typeof price.price !== 'number' || price.price <= 0) {
+            throw new Error(
+              `Invalid pricing option "${option.title}": ${type} price must be > 0`,
+            );
+          }
+
+          seenPassengerTypes.add(type);
         }
 
         // 4. normalize accommodationType (optional safety)
         const accommodationType = option.accommodationType
           ? option.accommodationType.trim().toLowerCase()
           : '';
+        const priceSignature = prices
+          .map((price) => `${price.type}:${price.price}`)
+          .sort()
+          .join(',');
 
         // 5. duplicate check – normalize for comparison
         const key = `${option.minPersons}|${
           option.maxPersons ?? ''
-        }|${accommodationType}|${option.pricePerPerson}`;
+        }|${accommodationType}|${priceSignature}`;
 
         if (combinations.has(key)) {
           throw new Error(

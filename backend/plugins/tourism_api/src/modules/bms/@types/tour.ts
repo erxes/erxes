@@ -10,12 +10,20 @@ export interface IGuideItem {
 
 export type DateType = 'fixed' | 'flexible';
 
+export type PassengerType = 'adult' | 'child' | 'infant' | (string & {});
+
+export interface IPricingOptionPrice {
+  type: PassengerType;
+  price: number;
+}
+
 export interface IPricingOption {
   _id: string;
   title: string;
   minPersons: number;
   maxPersons?: number;
-  pricePerPerson: number;
+  prices?: IPricingOptionPrice[];
+  pricePerPerson?: number;
   accommodationType?: string;
   domesticFlightPerPerson?: number;
   singleSupplement?: number;
@@ -53,7 +61,7 @@ export interface ITour {
   info3?: string;
   info4?: string;
   info5?: string;
-  extra?: any;
+  extra?: Record<string, unknown>;
   images?: string[];
   imageThumbnail?: string;
   attachment?: IAttachment;
@@ -95,7 +103,7 @@ export interface TourFilterParams {
   endDate1?: Date;
   startDate2?: Date;
   endDate2?: Date;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface TourListResponse {

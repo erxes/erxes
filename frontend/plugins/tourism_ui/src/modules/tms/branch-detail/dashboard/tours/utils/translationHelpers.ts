@@ -2,6 +2,11 @@ import {
   TourFormValues,
   TourTranslationFormValue,
 } from '../constants/formSchema';
+import {
+  getDefaultPricingOptionPrices,
+  normalizePricingOptionForForm,
+  sanitizePricingOptionForSubmit,
+} from './pricing';
 
 export interface ITourTranslationInput {
   language: string;
@@ -18,6 +23,10 @@ export interface ITourTranslationInput {
     title?: string;
     accommodationType?: string;
     note?: string;
+    prices?: Array<{
+      type: string;
+      price?: number;
+    }>;
     pricePerPerson?: number;
     domesticFlightPerPerson?: number;
     singleSupplement?: number;
@@ -45,6 +54,7 @@ export const buildEmptyTourTranslations = (
       title: '',
       accommodationType: '',
       note: '',
+      prices: getDefaultPricingOptionPrices(),
       pricePerPerson: '',
       domesticFlightPerPerson: '',
       singleSupplement: '',
@@ -68,6 +78,10 @@ export const buildTranslationsFromTour = (
         title?: string;
         accommodationType?: string;
         note?: string;
+        prices?: Array<{
+          type: string;
+          price?: number;
+        }>;
         pricePerPerson?: number;
         domesticFlightPerPerson?: number;
         singleSupplement?: number;
@@ -91,6 +105,7 @@ export const buildTranslationsFromTour = (
         title: existingOpt?.title || '',
         accommodationType: existingOpt?.accommodationType || '',
         note: existingOpt?.note || '',
+        prices: normalizePricingOptionForForm(existingOpt || {}).prices,
         pricePerPerson: existingOpt?.pricePerPerson ?? '',
         domesticFlightPerPerson: existingOpt?.domesticFlightPerPerson ?? '',
         singleSupplement: existingOpt?.singleSupplement ?? '',
@@ -131,6 +146,7 @@ export const sanitizeTourTranslations = (
             p.title ||
             p.accommodationType ||
             p.note ||
+            (p.prices || []).some((price) => typeof price.price === 'number') ||
             typeof p.pricePerPerson === 'number' ||
             typeof p.domesticFlightPerPerson === 'number' ||
             typeof p.singleSupplement === 'number',
@@ -152,26 +168,35 @@ export const sanitizeTourTranslations = (
             p.title ||
             p.accommodationType ||
             p.note ||
+            (p.prices || []).some((price) => typeof price.price === 'number') ||
             typeof p.pricePerPerson === 'number' ||
             typeof p.domesticFlightPerPerson === 'number' ||
             typeof p.singleSupplement === 'number',
         )
-        .map((p) => ({
-          optionId: p.optionId,
-          title: p.title || undefined,
-          accommodationType: p.accommodationType || undefined,
-          note: p.note || undefined,
-          pricePerPerson:
-            typeof p.pricePerPerson === 'number' ? p.pricePerPerson : undefined,
-          domesticFlightPerPerson:
-            typeof p.domesticFlightPerPerson === 'number'
-              ? p.domesticFlightPerPerson
-              : undefined,
-          singleSupplement:
-            typeof p.singleSupplement === 'number'
-              ? p.singleSupplement
-              : undefined,
-        })),
+        .map((p) => {
+          const sanitizedPricing = sanitizePricingOptionForSubmit({
+            ...p,
+            title: p.title || '',
+            minPersons: 1,
+          });
+
+          return {
+            optionId: p.optionId,
+            title: p.title || undefined,
+            accommodationType: p.accommodationType || undefined,
+            note: p.note || undefined,
+            prices: sanitizedPricing.prices,
+            pricePerPerson: sanitizedPricing.pricePerPerson,
+            domesticFlightPerPerson:
+              typeof p.domesticFlightPerPerson === 'number'
+                ? p.domesticFlightPerPerson
+                : undefined,
+            singleSupplement:
+              typeof p.singleSupplement === 'number'
+                ? p.singleSupplement
+                : undefined,
+          };
+        }),
     }));
 
   return cleaned.length ? cleaned : undefined;
@@ -196,6 +221,7 @@ export const syncTranslationPricingOptions = (
           title: '',
           accommodationType: '',
           note: '',
+          prices: getDefaultPricingOptionPrices(),
           pricePerPerson: '',
           domesticFlightPerPerson: '',
           singleSupplement: '',

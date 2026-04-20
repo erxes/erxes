@@ -26,6 +26,9 @@ export interface TourPdfLabels {
   pricingSectionTitle: string;
   pricingUntitledOptionLabel: string;
   pricingPerPersonLabel: string;
+  pricingAdultLabel: string;
+  pricingChildLabel: string;
+  pricingInfantLabel: string;
   pricingAccommodationLabel: string;
   pricingDomesticFlightLabel: string;
   pricingSingleSupplementLabel: string;
@@ -63,6 +66,9 @@ export const DEFAULT_TOUR_PDF_LABELS: TourPdfLabels = {
   pricingSectionTitle: 'Pricing Options',
   pricingUntitledOptionLabel: 'Untitled option',
   pricingPerPersonLabel: 'Price / Person',
+  pricingAdultLabel: 'Adult',
+  pricingChildLabel: 'Child',
+  pricingInfantLabel: 'Infant',
   pricingAccommodationLabel: 'Accommodation',
   pricingDomesticFlightLabel: 'Domestic Flight',
   pricingSingleSupplementLabel: 'Single Supplement',
@@ -92,10 +98,8 @@ export interface ITourPDFData extends ITourDetail {
   currencySymbol?: string;
 }
 
-export interface ITourItineraryPDFData extends Omit<
-  IItineraryDetail,
-  'groupDays'
-> {
+export interface ITourItineraryPDFData
+  extends Omit<IItineraryDetail, 'groupDays'> {
   groupDays?: IGroupDayWithImages[];
 }
 

@@ -33,6 +33,23 @@ export const guideItemSchema = new Schema(
   { _id: false },
 );
 
+export const pricingOptionPriceSchema = new Schema(
+  {
+    type: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0.01,
+    },
+  },
+  { _id: false },
+);
+
 export const pricingOptionSchema = new Schema(
   {
     _id: { type: String },
@@ -56,9 +73,13 @@ export const pricingOptionSchema = new Schema(
       },
     },
 
+    prices: {
+      type: [pricingOptionPriceSchema],
+      default: [],
+    },
+
     pricePerPerson: {
       type: Number,
-      required: true,
       min: 0.01,
     },
 
@@ -184,8 +205,18 @@ export const tourSchema = new Schema({
 
 tourSchema.pre('save', function (next) {
   if (Array.isArray(this.pricingOptions) && this.pricingOptions.length > 0) {
-    const prices = this.pricingOptions
-      .map((p: { pricePerPerson?: number }) => p.pricePerPerson)
+    const pricingOptions = this.pricingOptions as unknown as Array<{
+      prices?: Array<{ type?: string | null; price?: number | null }>;
+      pricePerPerson?: number | null;
+    }>;
+
+    const prices = pricingOptions
+      .map((option) => {
+        const adultPrice = option.prices?.find(
+          (price) => price.type === 'adult',
+        )?.price;
+        return adultPrice ?? option.pricePerPerson;
+      })
       .filter((price): price is number => typeof price === 'number');
 
     if (prices.length > 0) {

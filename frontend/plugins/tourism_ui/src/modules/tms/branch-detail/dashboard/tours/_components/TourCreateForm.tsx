@@ -16,6 +16,10 @@ import {
 } from '../utils/translationHelpers';
 
 import { TourCreateFormSchema, TourFormValues } from '../constants/formSchema';
+import {
+  getDefaultPricingOptionPrices,
+  sanitizePricingOptionForSubmit,
+} from '../utils/pricing';
 
 import {
   TourDescriptionField,
@@ -120,7 +124,8 @@ export const TourCreateForm = ({
           title: '',
           minPersons: 1,
           maxPersons: undefined,
-          pricePerPerson: 0,
+          prices: getDefaultPricingOptionPrices(),
+          pricePerPerson: undefined,
           accommodationType: '',
           domesticFlightPerPerson: undefined,
           singleSupplement: undefined,
@@ -262,27 +267,34 @@ export const TourCreateForm = ({
     }
 
     try {
-      const {
-        startDate: _startDate,
-        endDate: _endDate,
-        availableFrom: _availableFrom,
-        availableTo: _availableTo,
-        isFlexibleDate: _isFlexibleDate,
-        isGroupTour: _isGroupTour,
-        pricingOptions,
-        translations,
-        ...restValues
-      } = values;
+      const { pricingOptions, translations } = values;
+      const restValues = { ...values };
+      const localOnlyFields = [
+        'startDate',
+        'endDate',
+        'availableFrom',
+        'availableTo',
+        'isFlexibleDate',
+        'isGroupTour',
+        'pricingOptions',
+        'translations',
+      ] as const;
+
+      localOnlyFields.forEach((fieldName) => {
+        delete (restValues as Partial<TourFormValues>)[fieldName];
+      });
 
       const isFlexible = values.isFlexibleDate;
 
-      const normalizedPricingOptions = pricingOptions.map((opt) => ({
-        ...opt,
-        _id: opt._id || nanoid(8),
-        accommodationType: opt.accommodationType
-          ? opt.accommodationType.trim().toLowerCase()
-          : opt.accommodationType,
-      }));
+      const normalizedPricingOptions = pricingOptions.map((opt) =>
+        sanitizePricingOptionForSubmit({
+          ...opt,
+          _id: opt._id || nanoid(8),
+          accommodationType: opt.accommodationType
+            ? opt.accommodationType.trim().toLowerCase()
+            : opt.accommodationType,
+        }),
+      );
 
       const sanitizedTranslations = sanitizeTourTranslations(translations);
 
