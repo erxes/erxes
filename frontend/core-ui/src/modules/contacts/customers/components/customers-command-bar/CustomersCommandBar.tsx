@@ -68,8 +68,8 @@ export const CustomersCommandBar = () => {
         <Separator.Inline />
         <Export
           pluginName="core"
-          moduleName="contact"
-          collectionName="customer"
+          moduleName="contacts"
+          collectionName="customers"
           buttonVariant="secondary"
           ids={customerIds}
         />

@@ -89,7 +89,7 @@ const aiAgentConnectionSchema = new Schema<IAiAgentConnection>(
     provider: {
       type: String,
       required: true,
-      enum: ['openai-compatible'],
+      enum: ['openai'],
     },
     model: { type: String, required: true },
     config: {

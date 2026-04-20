@@ -1,42 +1,18 @@
-import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Button, Form, Input, Select } from 'erxes-ui';
-import { useMemo, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-
-const OPENAI_COMPATIBLE_MODELS = [
-  'gpt-5',
-  'gpt-5-mini',
-  'gpt-5-nano',
-  'gpt-4.1',
-  'gpt-4.1-mini',
-  'gpt-4o-mini',
-];
-
-const formatModelLabel = (model: string) => {
-  if (model.startsWith('gpt-')) {
-    return model.toUpperCase();
-  }
-
-  return model;
-};
+import { useAiAgentConnectionForm } from '../../hooks/useAiAgentConnectionForm';
 
 export const AiAgentConnectionForm = ({
   existingApiKeyMask,
 }: {
   existingApiKeyMask?: string;
 }) => {
-  const { control, watch, setValue } = useFormContext<TAiAgentForm>();
-  const [isReplacingApiKey, setIsReplacingApiKey] = useState(false);
-  const currentModel = watch('connection.model');
-  const modelOptions = useMemo(() => {
-    const options = [...OPENAI_COMPATIBLE_MODELS];
-
-    if (currentModel && !options.includes(currentModel)) {
-      options.unshift(currentModel);
-    }
-
-    return options;
-  }, [currentModel]);
+  const {
+    control,
+    setValue,
+    modelOptions,
+    isReplacingApiKey,
+    setIsReplacingApiKey,
+  } = useAiAgentConnectionForm();
   const hasStoredApiKey = !!existingApiKeyMask?.trim();
 
   return (
@@ -57,9 +33,7 @@ export const AiAgentConnectionForm = ({
                   <Select.Value placeholder="Select provider" />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="openai-compatible">
-                    OpenAI Compatible
-                  </Select.Item>
+                  <Select.Item value="openai">OpenAI</Select.Item>
                 </Select.Content>
               </Select>
             </Form.Control>
@@ -89,7 +63,7 @@ export const AiAgentConnectionForm = ({
                 <Select.Content>
                   {modelOptions.map((model) => (
                     <Select.Item key={model} value={model}>
-                      {formatModelLabel(model)}
+                      {model.toUpperCase()}
                     </Select.Item>
                   ))}
                 </Select.Content>

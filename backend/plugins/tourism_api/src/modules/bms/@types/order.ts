@@ -7,6 +7,7 @@ export interface IOrder {
   amount: number;
   status: string;
   note: string;
+  internalNote?: string;
   branchId?: string;
   numberOfPeople: number;
   type?: string;
