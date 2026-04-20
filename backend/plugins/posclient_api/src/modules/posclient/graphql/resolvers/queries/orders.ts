@@ -149,7 +149,7 @@ const filterOrders = (params: ISearchParams, models, config) => {
   );
 };
 
-const orderQueries: Record<string, Resolver> = {
+const orderQueries = {
   async orders(
     _root,
     params: ISearchParams,
@@ -425,7 +425,7 @@ const orderQueries: Record<string, Resolver> = {
     return info;
   },
 };
-markResolvers(orderQueries, {
+markResolvers<IContext>(orderQueries, {
   wrapperConfig: {
     skipPermission: true,
   },

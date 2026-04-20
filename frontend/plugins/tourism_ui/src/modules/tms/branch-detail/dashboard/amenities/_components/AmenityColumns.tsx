@@ -10,9 +10,9 @@ import {
   RecordTableInlineCell,
   TextOverflowTooltip,
   Badge,
-  IconComponent,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { getAmenityIconOption } from '../constants/amenityIcons';
 import { IAmenity } from '../types/amenity';
 import { AmenityEditSheet } from './AmenityEditSheet';
 import { amenityMoreColumn } from './AmenityMoreCell';
@@ -32,11 +32,14 @@ export const amenityColumns = (
     ),
     cell: ({ cell }: { cell: any }) => {
       const iconName = cell.getValue() as string;
+      const selectedOption = getAmenityIconOption(iconName);
+      const Icon = selectedOption?.icon;
+
       return (
         <div className="flex justify-center items-center h-8">
-          {iconName ? (
+          {Icon ? (
             <div className="flex justify-center items-center w-7 h-7 p-0.5 rounded border bg-muted/50">
-              <IconComponent name={iconName} size={18} />
+              <Icon size={18} />
             </div>
           ) : (
             <div className="flex justify-center items-center w-7 h-7 p-0.5 rounded border bg-muted/50 text-muted-foreground">
