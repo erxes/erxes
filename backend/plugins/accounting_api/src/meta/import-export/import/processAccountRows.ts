@@ -54,7 +54,7 @@ export async function prepareAccountDoc(
   );
 
   // STATUS
-  doc.status = ['deleted', 1, '1'].includes(normalize(row.status))
+  doc.status = ['deleted', 0, '0'].includes(normalize(row.status))
     ? ACCOUNT_STATUSES.DELETED
     : ACCOUNT_STATUSES.ACTIVE;
 
