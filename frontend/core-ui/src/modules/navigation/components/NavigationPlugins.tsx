@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { activePluginState, NavigationMenuGroup, Sidebar } from 'erxes-ui';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -6,35 +6,33 @@ import { loadRemote } from '@module-federation/enhanced/runtime';
 import { usePluginsNavigationGroups } from '../hooks/usePluginsNavigationGroups';
 import { useAtom } from 'jotai';
 
-/** Loads a remote Module Federation component by path. */
-function useRemoteComponent(remotePath: string) {
-  const [Component, setComponent] =
-    useState<React.ComponentType | null>(null);
+type RemoteModule = { default: React.ComponentType };
 
-  useEffect(() => {
-    let cancelled = false;
+// Cache lazy components so re-renders don't recreate them — a fresh
+// React.lazy() on every render would tear down its own Suspense boundary
+// and cause an infinite loading flash.
+const remoteCache = new Map<
+  string,
+  React.LazyExoticComponent<React.ComponentType>
+>();
 
-    loadRemote<{ default: React.ComponentType }>(remotePath, {
-      from: 'runtime',
-    })
-      .then((mod) => {
-        if (!cancelled && mod?.default) {
-          setComponent(() => mod.default);
-        }
-      })
-      .catch(() => {
-        /* sub-navigation is non-critical */
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [remotePath]);
-
+function getRemoteComponent(remotePath: string) {
+  let Component = remoteCache.get(remotePath);
+  if (!Component) {
+    Component = lazy(async () => {
+      const mod = await loadRemote<RemoteModule>(remotePath);
+      if (!mod?.default) {
+        throw new Error(
+          `Module Federation remote '${remotePath}' did not provide a default export`,
+        );
+      }
+      return mod;
+    });
+    remoteCache.set(remotePath, Component);
+  }
   return Component;
 }
 
-/** Renders a sub-navigation component loaded from a remote plugin via loadRemote. */
 function RemoteSubNavigation({
   pluginName,
   exposeName,
@@ -42,28 +40,14 @@ function RemoteSubNavigation({
   pluginName: string;
   exposeName: string;
 }) {
-  const Component = useRemoteComponent(`${pluginName}_ui/${exposeName}`);
-
-  if (!Component) return null;
-
-  return (
-    <Suspense fallback={null}>
-      <Component />
-    </Suspense>
-  );
+  const Component = getRemoteComponent(`${pluginName}_ui/${exposeName}`);
+  return <Component />;
 }
 
-/** Logs remote component render errors in development. */
-function handleRemoteError(error: Error) {
-  if (process.env.NODE_ENV === 'development') {
-    console.warn(
-      '[NavigationPlugins] Remote component failed to render:',
-      error.message,
-    );
-  }
+function reportRemoteError(error: Error, context: string) {
+  console.error(`[NavigationPlugins] ${context} failed to render:`, error);
 }
 
-/** Back button shown when a plugin navigation group is expanded. */
 export const NavigationPluginExitButton = () => {
   const [activePlugin, setActivePlugin] = useAtom(activePluginState);
 
@@ -88,7 +72,6 @@ export const NavigationPluginExitButton = () => {
   );
 };
 
-/** Renders plugin navigation groups in the sidebar with remote sub-navigation. */
 export const NavigationPlugins = () => {
   const navigationGroups = usePluginsNavigationGroups();
   const [activePlugin, setActivePlugin] = useAtom(activePluginState);
@@ -114,7 +97,12 @@ export const NavigationPlugins = () => {
               <ErrorBoundary
                 key={pluginName}
                 fallbackRender={() => null}
-                onError={handleRemoteError}
+                onError={(error) =>
+                  reportRemoteError(
+                    error,
+                    `navigation content for plugin '${pluginName}'`,
+                  )
+                }
               >
                 <Content />
               </ErrorBoundary>
@@ -125,12 +113,19 @@ export const NavigationPlugins = () => {
           <ErrorBoundary
             key={`${pluginName}-${exposeName}`}
             fallbackRender={() => null}
-            onError={handleRemoteError}
+            onError={(error) =>
+              reportRemoteError(
+                error,
+                `sub-navigation '${pluginName}_ui/${exposeName}'`,
+              )
+            }
           >
-            <RemoteSubNavigation
-              pluginName={pluginName}
-              exposeName={exposeName}
-            />
+            <Suspense fallback={null}>
+              <RemoteSubNavigation
+                pluginName={pluginName}
+                exposeName={exposeName}
+              />
+            </Suspense>
           </ErrorBoundary>
         ))}
       </>
