@@ -22,7 +22,7 @@ export async function prepareAccountDoc(
         { _id: row.parentId }, { code: row.parentId }]
     }).lean();
     if (!parentCategory) {
-      throw new Error(`Not fount parent category (fear, code) for the line with code "${row.code}"`)
+      throw new Error(`Parent category (by _id or code) not found for line with code "${row.code}"`)
     }
 
     doc.parentId = parentCategory._id;
