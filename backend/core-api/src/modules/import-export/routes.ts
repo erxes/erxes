@@ -39,9 +39,9 @@ const csvEscape = (value: string) => {
 };
 
 router.get('/import-export/download-template', async (req, res) => {
-  const entityType = req.query.entityType as string;
+  const entityType = req.query.entityType;
 
-  if (!entityType) {
+  if (typeof entityType !== 'string' || !entityType) {
     return res.status(400).send('entityType is required');
   }
 
