@@ -45,6 +45,7 @@ export const useImportUploadHandler = (
 
       upload({
         files,
+        kind: 'import',
         afterUpload: async ({ fileInfo, response }) => {
           onFileUploaded?.(file);
 
