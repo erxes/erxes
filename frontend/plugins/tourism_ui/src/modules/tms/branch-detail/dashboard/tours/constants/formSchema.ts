@@ -53,35 +53,28 @@ export const TourTranslationSchema = z.object({
 
 /* ================= PRICING ================= */
 
-const requiredPrice = z.preprocess(
-  (value) => {
-    if (value === '' || value === null || value === undefined) return undefined;
-    if (typeof value === 'string') {
-      const num = Number(value);
-      return Number.isNaN(num) ? undefined : num;
-    }
-    return value;
-  },
-  z.number({ required_error: 'Price is required' }).min(0.01, 'Price must be greater than 0'),
-);
+const requiredPrice = z.preprocess((value) => {
+  if (value === '' || value === null || value === undefined) return undefined;
+  if (typeof value === 'string') {
+    const num = Number(value);
+    return Number.isNaN(num) ? undefined : num;
+  }
+  return value;
+}, z.number({ required_error: 'Price is required' }).min(0.01, 'Price must be greater than 0'));
 
 export const PricingOptionSchema = z.object({
   _id: z.string(),
 
   title: z.string().trim().min(1, 'Title is required'),
 
-  minPersons: z.preprocess(
-    (value) => {
-      if (value === '' || value === null || value === undefined)
-        return undefined;
-      if (typeof value === 'string') {
-        const num = Number(value);
-        return Number.isNaN(num) ? undefined : num;
-      }
-      return value;
-    },
-    z.coerce.number().min(1, 'Min persons must be at least 1'),
-  ),
+  minPersons: z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    if (typeof value === 'string') {
+      const num = Number(value);
+      return Number.isNaN(num) ? undefined : num;
+    }
+    return value;
+  }, z.coerce.number().min(1, 'Min persons must be at least 1')),
 
   maxPersons: optionalNumber(
     z.number().min(1, 'Max persons must be at least 1'),
@@ -91,10 +84,14 @@ export const PricingOptionSchema = z.object({
   adultPrice: requiredPrice,
 
   /** Child price is optional. Set to undefined/empty to omit from prices array. */
-  childPrice: optionalNumber(z.number().min(0, 'Child price must be 0 or greater')),
+  childPrice: optionalNumber(
+    z.number().min(0, 'Child price must be 0 or greater'),
+  ),
 
   /** Infant price is optional. Set to undefined/empty to omit from prices array. */
-  infantPrice: optionalNumber(z.number().min(0, 'Infant price must be 0 or greater')),
+  infantPrice: optionalNumber(
+    z.number().min(0, 'Infant price must be 0 or greater'),
+  ),
 
   accommodationType: optionalString(),
 
@@ -243,6 +240,23 @@ export const TourCreateFormSchema = z
 
 export type TourCreateFormType = z.infer<typeof TourCreateFormSchema>;
 
+type InferredPricingOption = TourCreateFormType['pricingOptions'][number];
+
+export type PricingOptionFormValue = Omit<
+  InferredPricingOption,
+  | 'adultPrice'
+  | 'childPrice'
+  | 'infantPrice'
+  | 'domesticFlightPerPerson'
+  | 'singleSupplement'
+> & {
+  adultPrice?: number | string;
+  childPrice?: number | string;
+  infantPrice?: number | string;
+  domesticFlightPerPerson?: number | string;
+  singleSupplement?: number | string;
+};
+
 /**
  * Form-level translation pricing type – allows `''` (empty string)
  * so React Hook Form can track the field as "set but empty".
@@ -272,7 +286,11 @@ export type TourTranslationFormValue = Omit<
   pricingOptions?: PricingOptionTranslationFormValue[];
 };
 
-/** Form values type – same as `TourCreateFormType` but translations allow `''` in pricing numerics. */
-export type TourFormValues = Omit<TourCreateFormType, 'translations'> & {
+/** Form values type – same as `TourCreateFormType` but pricing numerics allow `''` in form state. */
+export type TourFormValues = Omit<
+  TourCreateFormType,
+  'pricingOptions' | 'translations'
+> & {
+  pricingOptions: PricingOptionFormValue[];
   translations?: TourTranslationFormValue[];
 };
