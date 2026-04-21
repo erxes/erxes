@@ -149,7 +149,7 @@ const filterOrders = (params: ISearchParams, models, config) => {
   );
 };
 
-const orderQueries = {
+const orderQueries: Record<string, Resolver<any, any, IContext>> = {
   async orders(
     _root,
     params: ISearchParams,
