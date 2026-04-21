@@ -293,7 +293,7 @@ const params = `
   joinPercent: Float,
   advanceCheck: Boolean,
   status: String,
-  date_status: DATE_STATUS!
+  date_status: DATE_STATUS
   cost: Float,
   location: [BMSLocationInput],
   guides: [GuideItemInput],

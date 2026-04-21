@@ -1,5 +1,9 @@
 import { IContext } from '~/connectionResolvers';
 import { ITour, IPricingOption, ITourCategory } from '@/bms/@types/tour';
+import {
+  getTourTimezone,
+  resolveTourDateStatus,
+} from '@/bms/utils/dateStatus';
 
 const validateTranslationPricingOptions = (
   pricingOptions: IPricingOption[] = [],
@@ -51,12 +55,18 @@ const tourMutations = {
   bmsTourAdd: async (
     _root,
     { translations, ...doc }: { translations?: any[] } & ITour,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) => {
     validateTranslationPricingOptions(
       doc.pricingOptions || [],
       translations ?? [],
     );
+
+    const timezone = await getTourTimezone(subdomain);
+    doc.date_status = resolveTourDateStatus({
+      doc,
+      timezone,
+    });
 
     const tour = await models.Tours.createTour(doc, user);
     await saveTourTranslations(models, tour._id, translations ?? []);
@@ -70,7 +80,7 @@ const tourMutations = {
       translations,
       ...doc
     }: { _id: string; translations?: any[] } & Partial<ITour>,
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
     const existingTour = await models.Tours.findOne({ _id });
     if (!existingTour) throw new Error('Tour not found');
@@ -78,6 +88,13 @@ const tourMutations = {
     const finalPricingOptions =
       doc.pricingOptions ?? existingTour.pricingOptions ?? [];
     validateTranslationPricingOptions(finalPricingOptions, translations ?? []);
+
+    const timezone = await getTourTimezone(subdomain);
+    doc.date_status = resolveTourDateStatus({
+      doc,
+      existingTour,
+      timezone,
+    });
 
     const tour = await models.Tours.updateTour(_id, doc as ITour);
     await saveTourTranslations(models, _id, translations ?? []);
