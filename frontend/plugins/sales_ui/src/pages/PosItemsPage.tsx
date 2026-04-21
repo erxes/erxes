@@ -37,8 +37,8 @@ export const PosItemsPage = () => {
             <PosItemsFilter />
             <Export
               pluginName="sales"
-              moduleName="posItem"
-              collectionName="posItem"
+              moduleName="pos"
+              collectionName="posItems"
               getFilters={getFilters}
             />
           </PageSubHeader>

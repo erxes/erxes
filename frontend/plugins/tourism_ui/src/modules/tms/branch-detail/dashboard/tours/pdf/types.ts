@@ -26,6 +26,9 @@ export interface TourPdfLabels {
   pricingSectionTitle: string;
   pricingUntitledOptionLabel: string;
   pricingPerPersonLabel: string;
+  pricingAdultLabel: string;
+  pricingChildLabel: string;
+  pricingInfantLabel: string;
   pricingAccommodationLabel: string;
   pricingDomesticFlightLabel: string;
   pricingSingleSupplementLabel: string;
@@ -63,6 +66,9 @@ export const DEFAULT_TOUR_PDF_LABELS: TourPdfLabels = {
   pricingSectionTitle: 'Pricing Options',
   pricingUntitledOptionLabel: 'Untitled option',
   pricingPerPersonLabel: 'Price / Person',
+  pricingAdultLabel: 'Adult Price',
+  pricingChildLabel: 'Child Price',
+  pricingInfantLabel: 'Infant Price',
   pricingAccommodationLabel: 'Accommodation',
   pricingDomesticFlightLabel: 'Domestic Flight',
   pricingSingleSupplementLabel: 'Single Supplement',

@@ -186,7 +186,7 @@ export const CustomizePdfDialog: React.FC<CustomizePdfDialogProps> = ({
 
                 <div className="space-y-4">
                   {LABEL_FIELDS.map((field) => (
-                    <div key={field.key} className="space-y-1.5">
+                    <div key={field.key} className="space-y-2">
                       <Label htmlFor={`pdf-label-${field.key}`}>
                         {field.label}
                       </Label>
