@@ -28,9 +28,6 @@ export const PosByItemsRecordTable = () => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && posByItemsList.length === 0 && (
-              <RecordTable.RowSkeleton rows={20} />
-            )}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}

@@ -18,7 +18,7 @@ const getHourCount = (
   counts: Record<string, number> | undefined,
   hours: number[],
 ): string => {
-  if (!counts) return '0';
+  if (!counts) return '';
   const total = hours.reduce((sum, h) => sum + (counts[String(h)] || 0), 0);
   return total === 0 ? '' : String(total);
 };

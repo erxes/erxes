@@ -17,17 +17,18 @@ import { IPosItem } from '@/pos/pos-items/types/posItem';
 import { PosItemMoreColumn } from '@/pos/pos-items/components/PosItemMoreColumns';
 import { ClickableBillNumber } from './ClickableBillNumber';
 
+const fmt = (val: number | null | undefined) =>
+  val != null ? val.toLocaleString() : '0';
+
 export const PosItemColumns: ColumnDef<IPosItem>[] = [
   PosItemMoreColumn,
   {
     id: 'number',
     accessorKey: 'number',
     header: () => <RecordTable.InlineHead icon={IconLabel} label="Number" />,
-    cell: ({ cell, row }) => {
-      return (
-        <ClickableBillNumber value={cell.getValue() as string} row={row} />
-      );
-    },
+    cell: ({ cell, row }) => (
+      <ClickableBillNumber value={cell.getValue() as string} row={row} />
+    ),
   },
   {
     id: 'createdAt',
@@ -36,11 +37,12 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       <RecordTable.InlineHead icon={IconLabel} label="Created Date" />
     ),
     cell: ({ cell }) => {
-      const createdAt = cell.getValue() as string;
-      const date = createdAt ? new Date(createdAt).toLocaleDateString() : '';
+      const val = cell.getValue() as string;
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          <TextOverflowTooltip value={date} />
+          <TextOverflowTooltip
+            value={val ? new Date(val).toLocaleDateString() : ''}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -53,24 +55,24 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       <RecordTable.InlineHead icon={IconLabel} label="Created Time" />
     ),
     cell: ({ cell }) => {
-      const createdAt = cell.getValue() as string;
-      const time = createdAt ? new Date(createdAt).toLocaleTimeString() : '';
+      const val = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={time} />
+          <TextOverflowTooltip
+            value={val ? new Date(val).toLocaleTimeString() : ''}
+          />
         </RecordTableInlineCell>
       );
     },
     size: 150,
   },
-
   {
     id: 'posName',
     accessorKey: 'posName',
     header: () => <RecordTable.InlineHead icon={IconBuilding} label="Pos" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
       </RecordTableInlineCell>
     ),
     size: 150,
@@ -78,13 +80,14 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'branch',
     accessorKey: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="Branch" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconChartBar} label="Branch" />
+    ),
     cell: ({ row }) => {
-      const branch = row.original.branch;
-      const branchDisplay = branch ? `${branch.order} - ${branch.title}` : '';
+      const b = row.original.branch;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={branchDisplay} />
+          <TextOverflowTooltip value={b ? `${b.order} - ${b.title}` : ''} />
         </RecordTableInlineCell>
       );
     },
@@ -97,13 +100,10 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       <RecordTable.InlineHead icon={IconClock} label="Department" />
     ),
     cell: ({ row }) => {
-      const department = row.original.department;
-      const departmentDisplay = department
-        ? `${department.order} - ${department.title}`
-        : '';
+      const d = row.original.department;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={departmentDisplay} />
+          <TextOverflowTooltip value={d ? `${d.order} - ${d.title}` : ''} />
         </RecordTableInlineCell>
       );
     },
@@ -113,14 +113,11 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     id: 'user',
     accessorKey: 'user',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Cashier" />,
-    cell: ({ row }) => {
-      const user = row.original.user;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={user?.email || ''} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={row.original.user?.email || ''} />
+      </RecordTableInlineCell>
+    ),
     size: 200,
   },
   {
@@ -129,7 +126,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     header: () => <RecordTable.InlineHead icon={IconUser} label="Type" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <Badge variant="default">{cell.getValue() as string}</Badge>
+        <Badge variant="default">{(cell.getValue() as string) || ''}</Badge>
       </RecordTableInlineCell>
     ),
     size: 150,
@@ -137,10 +134,12 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'billType',
     accessorKey: 'billType',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Bill Type" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label="Bill Type" />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
       </RecordTableInlineCell>
     ),
     size: 120,
@@ -148,10 +147,12 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'registerNumber',
     accessorKey: 'registerNumber',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Company RD" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label="Company RD" />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
       </RecordTableInlineCell>
     ),
     size: 150,
@@ -178,7 +179,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     header: () => <RecordTable.InlineHead icon={IconUser} label="Customer" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
       </RecordTableInlineCell>
     ),
     size: 150,
@@ -187,24 +188,32 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     id: 'barcode',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Barcode" />,
     cell: ({ row }) => {
-      const barcodes = (row.original.items as any)?.product?.barcodes as
-        | string[]
-        | undefined;
+      const item = row.original.items;
+      const barcodes = item?.barcodes ?? item?.product?.barcodes ?? [];
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={(barcodes || []).join(', ')} />
+          <TextOverflowTooltip value={barcodes.join(', ')} />
         </RecordTableInlineCell>
       );
     },
     size: 150,
   },
   {
+    id: 'factor',
+    accessorKey: 'factor',
+    header: () => <RecordTable.InlineHead icon={IconUser} label="Factor" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={fmt(cell.getValue() as number)} />
+      </RecordTableInlineCell>
+    ),
+    size: 150,
+  },
+  {
     id: 'code',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Code" />,
     cell: ({ row }) => {
-      const code = (row.original.items as any)?.product?.code as
-        | string
-        | undefined;
+      const item = row.original.items;
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={item?.product?.code || ''} />
@@ -219,12 +228,16 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       <RecordTable.InlineHead icon={IconUser} label="Category Code" />
     ),
     cell: ({ row }) => {
-      const code = (row.original.items as any)?.productCategory?.code as
-        | string
-        | undefined;
+      const item = row.original.items;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={item?.productCategoryCode || ''} />
+          <TextOverflowTooltip
+            value={
+              item?.productCategoryCode ||
+              item?.product?.productCategory?.code ||
+              ''
+            }
+          />
         </RecordTableInlineCell>
       );
     },
@@ -236,12 +249,16 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       <RecordTable.InlineHead icon={IconUser} label="Category Name" />
     ),
     cell: ({ row }) => {
-      const name = (row.original.items as any)?.productCategory?.name as
-        | string
-        | undefined;
+      const item = row.original.items;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={item?.productCategoryName || ''} />
+          <TextOverflowTooltip
+            value={
+              item?.productCategoryName ||
+              item?.product?.productCategory?.name ||
+              ''
+            }
+          />
         </RecordTableInlineCell>
       );
     },
@@ -251,9 +268,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     id: 'name',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
     cell: ({ row }) => {
-      const name = (row.original.items as any)?.product?.name as
-        | string
-        | undefined;
+      const item = row.original.items;
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={item?.product?.name || ''} />
@@ -266,7 +281,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     id: 'count',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Count" />,
     cell: ({ row }) => {
-      const item = row.original.items?.[0];
+      const item = row.original.items;
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip
@@ -278,17 +293,15 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     size: 150,
   },
   {
-    id: 'unitPrice',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Unit Price" />,
+    id: 'firstPrice',
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label="First Price" />
+    ),
     cell: ({ row }) => {
-      const price = (row.original.items as any)?.unitPrice as
-        | number
-        | undefined;
+      const item = row.original.items;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={price != null ? price.toLocaleString() : '0'}
-          />
+          <TextOverflowTooltip value={fmt(item?.unitPrice)} />
         </RecordTableInlineCell>
       );
     },
@@ -298,66 +311,73 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     id: 'discount',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Discount" />,
     cell: ({ row }) => {
-      const discount = (row.original.items as any)?.discountAmount as
-        | number
-        | undefined;
+      const item = row.original.items;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={discount != null ? discount.toLocaleString() : '0'}
-          />
+          <TextOverflowTooltip value={fmt(item?.discountAmount)} />
         </RecordTableInlineCell>
       );
     },
     size: 150,
   },
   {
-    id: 'discountPercent',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Discount %" />,
-    cell: ({ row }) => {
-      const pct = (row.original.items as any)?.discountPercent as
-        | number
-        | undefined;
+    id: 'discountType',
+    accessorKey: 'discountType',
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label="Discount Type" />
+    ),
+    cell: ({ cell }) => {
+      const value = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={
-              item?.discountPercent != null ? `${item.discountPercent}%` : '0%'
-            }
-          />
+          {value ? <Badge variant="default">{value}</Badge> : ''}
         </RecordTableInlineCell>
       );
     },
-    size: 120,
+    size: 150,
+  },
+  {
+    id: 'salePrice',
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label="Sale Price" />
+    ),
+    cell: ({ row }) => {
+      const item = row.original.items;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={fmt(item?.unitPrice)} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 150,
   },
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Amount" />,
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={val != null ? val.toLocaleString() : '0'}
-          />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={fmt(cell.getValue() as number)} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'paymentType',
+    accessorKey: 'paidAmounts',
     header: () => (
       <RecordTable.InlineHead icon={IconUser} label="Payment Type" />
     ),
     cell: ({ row }) => {
-      const paidAmounts = row.original.paidAmounts as
-        | Array<{ type?: string }>
-        | undefined;
-      const types = (paidAmounts || [])
+      const raw = row.original.paidAmounts;
+      const paidAmounts: Array<{ type?: string }> = Array.isArray(raw)
+        ? raw
+        : raw
+          ? [raw as { type?: string }]
+          : [];
+      const types = paidAmounts
         .map((pa) => pa.type)
-        .filter((t): t is string => !!t)
+        .filter((t): t is string => Boolean(t))
         .join(', ');
       return (
         <RecordTableInlineCell>

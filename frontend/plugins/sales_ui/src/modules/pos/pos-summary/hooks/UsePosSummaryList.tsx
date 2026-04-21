@@ -115,30 +115,22 @@ export const usePosSummaryList = (
   const posSummaryList = useMemo<IPosSummary[]>(
     () =>
       data?.posOrdersGroupSummary?.amounts?.map((item: any) => {
-        const {
-          paidDate,
-          count,
-          cashAmount,
-          mobileAmount,
-          totalAmount,
-          finalAmount,
-          ...rest
-        } = item;
-        const groupKey = paidDate || '-';
+        const groupKey = item.paidDate || '-';
         return {
           _id: groupKey,
           paidDate: groupKey,
           number: groupKey,
           billId: '',
-          cashAmount: cashAmount || 0,
-          mobileAmount: mobileAmount || 0,
-          totalAmount: totalAmount || 0,
-          finalAmount: finalAmount || 0,
+          cashAmount: item.cashAmount || 0,
+          mobileAmount: item.mobileAmount || 0,
+          totalAmount: item.totalAmount || 0,
+          finalAmount: item.finalAmount || 0,
           amounts: {
-            count: count || 0,
-            cashAmount: cashAmount || 0,
-            mobileAmount: mobileAmount || 0,
-            ...rest,
+            count: item.count || 0,
+            cashAmount: item.cashAmount || 0,
+            mobileAmount: item.mobileAmount || 0,
+            invoice: item.invoice || 0,
+            qpayAmount: item.qpayAmount || 0,
           },
         };
       }) || [],

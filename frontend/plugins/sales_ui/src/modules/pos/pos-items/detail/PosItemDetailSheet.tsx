@@ -23,7 +23,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { TPosItemFormData } from '../types/posItemType';
 import { IPosItem } from '../types/posItem';
 
-const itemColumns: ColumnDef<NonNullable<IPosItem['items']>[0]>[] = [
+const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
   {
     id: 'productName',
     accessorKey: 'productName',
@@ -193,13 +193,13 @@ export const PosItemDetailSheet = () => {
   }, [posItem]);
 
   const renderItemsTable = React.useMemo(() => {
-    if (!posItem?.items || posItem.items.length === 0) return null;
+    if (!posItem?.items) return null;
 
     return (
       <div className="rounded-md overflow-hidden">
         <RecordTable.Provider
           columns={itemColumns}
-          data={posItem.items}
+          data={[posItem.items]}
           className="w-full"
         >
           <RecordTable>
@@ -245,8 +245,8 @@ export const PosItemDetailSheet = () => {
         }
 
         // 'cash' type → cashAmount, 'mobile' type → mobileAmount, rest → paidAmounts array
-        const cashAmount = Number(data.cash) || 0;
-        const mobileAmount = Number(data.mobile) || 0;
+        const cashAmount = Number(data?.cash ?? 0) || 0;
+        const mobileAmount = Number(data?.mobile ?? 0) || 0;
 
         const paidAmounts = Object.entries(data)
           .filter(([key]) => !['cash', 'mobile'].includes(key))

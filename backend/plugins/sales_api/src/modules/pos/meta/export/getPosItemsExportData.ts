@@ -88,20 +88,35 @@ export async function getPosItemsExportData(
     throw new Error('Models not available in context');
   }
 
-  const params: Record<string, unknown> = {
-    ...(filters ?? {}),
-    perPage: limit,
-    page: 1,
-  };
-
-  if (ids && ids.length > 0) {
-    params.ids = ids;
+  if (ids && ids.length > 0 && filters) {
+    (filters as Record<string, unknown>).ids = ids;
   }
 
-  const orders = (await posOrderRecordsQuery(models, subdomain, params)) as IOrderRecord[];
+  const allOrders: IOrderRecord[] = [];
+  let page = 1;
+  const perPage = 500;
+  const maxLimit = Math.min(limit, 5000);
+
+  while (allOrders.length < maxLimit) {
+    const params: Record<string, unknown> = {
+      ...(filters ?? {}),
+      perPage: Math.min(perPage, maxLimit - allOrders.length),
+      page: page++,
+    };
+
+    if (ids && ids.length > 0) {
+      params.ids = ids;
+    }
+
+    const batch = (await posOrderRecordsQuery(models, subdomain, params)) as IOrderRecord[];
+    if (!Array.isArray(batch) || batch.length === 0) break;
+    allOrders.push(...batch);
+    if (batch.length < perPage) break;
+  }
+
   const fields = selectedFields && selectedFields.length > 0 ? selectedFields : DEFAULT_FIELDS;
 
-  return orders.map((order) => {
+  return allOrders.map((order) => {
     const row: ExportRow = {};
     for (const field of fields) {
       row[field] = extractOrderField(order, field);
