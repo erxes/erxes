@@ -80,6 +80,8 @@ export const queries = `
   adjustClosingsCount(${adjustClosingQueryParams}): Int
 
   adjustClosingDetail(_id: String!): AdjustClosing
+
+  adjustClosingEntriesCount(_id: String!): Int
 `;
 
 export const mutations = `

@@ -9,6 +9,15 @@ export interface IClosingDetailEntry {
   integrateTrId?: string;
 }
 
+export interface IAdjustClosingEntry {
+  _id: string;
+  accountId?: string;
+  balance?: number;
+  percent?: number;
+  mainAccTrId?: string;
+  integrateTrId?: string;
+}
+
 export interface IAdjustClosingDetail {
   _id?: string;
   branchId?: string;
@@ -41,6 +50,8 @@ export interface IAdjustClosing {
   description?: string;
 
   details?: IAdjustClosingDetail[];
+
+  entries?: IAdjustClosingEntry[];
 
   integrateAccountId: string;
   periodGLAccountId: string;

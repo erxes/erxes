@@ -44,6 +44,6 @@ export const ADJUST_CLOSING_DETAILS = gql`
       createdAt
       updatedAt
     }
-    adjustClosingEntriesCount
+    adjustClosingEntriesCount(_id: $_id)
   }
 `;

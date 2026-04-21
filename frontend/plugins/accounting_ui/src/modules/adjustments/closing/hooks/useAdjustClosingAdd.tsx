@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { ADJUST_CLOSING_ADD } from '../graphql/adjustClosingAdd';
 import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_QUERY } from '../graphql/adjustClosingQueries';
+import { ACC_TRS__PER_PAGE } from '~/modules/transactions/types/constants';
 
 export const useAdjustClosingAdd = (options?: OperationVariables) => {
   const navigate = useNavigate();
@@ -12,43 +13,42 @@ export const useAdjustClosingAdd = (options?: OperationVariables) => {
     options,
   );
 
-  const addAdjustClosing = (options?: OperationVariables) => {
+  const addAdjustClosing = (mutationOptions?: OperationVariables) => {
     return _addAdjustClosing({
-      ...options,
+      ...mutationOptions,
       onError: (error: Error) => {
         toast({
           title: 'Error',
           description: error.message,
           variant: 'destructive',
         });
-        options?.onError?.(error);
+        mutationOptions?.onError?.(error);
       },
-      onCompleted: () => {
+      onCompleted: (data: any) => {
         toast({
           title: 'Success',
           description: 'Adjust Closing created successfully',
         });
-        options?.onCompleted();
+
+        const newId = data?.adjustClosingAdd?._id;
+
+        const pathname = newId
+          ? `/accounting/adjustment/closing/${newId}`
+          : '/accounting/adjustment/closing';
+        navigate(pathname);
+
+        mutationOptions?.onCompleted?.(data);
       },
       refetchQueries: [
         {
           query: ADJUST_CLOSING_QUERY,
           variables: {
             page: 1,
-            perPage: 20,
+            perPage: ACC_TRS__PER_PAGE,
           },
         },
       ],
-      awaitRefetchQueries: true,
-      update: (_cache, { data }) => {
-        const newId = data?.adjustClosingEntriesAdd?._id;
-
-        const pathname = newId
-          ? `/accounting/adjustment/closing/edit?id=${newId}`
-          : '/accounting/adjustment/closing';
-
-        navigate(pathname);
-      },
+      awaitRefetchQueries: false,
     });
   };
 

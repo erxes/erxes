@@ -27,7 +27,7 @@ const adjustClosingQueries = {
 
     const { sortField, sortDirection } = params;
 
-    let sort: any = { code: 1 };
+    let sort: any = { createdAt: -1 };
     if (sortField) {
       sort = { [sortField]: sortDirection ?? 1 };
     }
@@ -38,7 +38,7 @@ const adjustClosingQueries = {
     );
   },
 
-  async adjustClosingCount(
+  async adjustClosingsCount(
     _root: undefined,
     params: IQueryParams,
     { models }: IContext,
@@ -53,6 +53,18 @@ const adjustClosingQueries = {
     { models }: IContext,
   ) {
     return models.AdjustClosings.findById(_id).lean();
+  },
+
+  async adjustClosingEntriesCount(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    const detail = await models.AdjustClosings.findById(_id).lean();
+    if (!detail || !detail.entries) {
+      return 0;
+    }
+    return detail.entries.length;
   },
 };
 
