@@ -1,17 +1,10 @@
-import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/integrations';
 import { getConfig } from '@/integrations/instagram/commonUtils';
-import {
-  INSTAGRAM_POST_TYPES,
-  INTEGRATION_KINDS,
-} from '@/integrations/instagram/constants';
 import { receiveComment } from '@/integrations/instagram/controller/receiveComment';
 import { receiveMessage } from '@/integrations/instagram/controller/receiveMessage';
-import { receivePost } from '@/integrations/instagram/controller/receivePost';
 import { debugError, debugInstagram } from '@/integrations/instagram/debuggers';
-import { getPageAccessTokenFromMap } from '@/integrations/instagram/utils';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { NextFunction, Response } from 'express';
-import { generateModels, IModels } from '~/connectionResolvers';
+import { generateModels } from '~/connectionResolvers';
 
 export const instagramGetPost = async (req, res, next) => {
   try {
@@ -62,7 +55,6 @@ export const instagramGetStatus = async (req, res, next) => {
   }
 };
 
-const accessTokensByPageId = {};
 export const instagramSubscription = async (req, res, next) => {
   try {
     const subdomain = getSubdomain(req);
@@ -72,9 +64,6 @@ export const instagramSubscription = async (req, res, next) => {
       models,
       'INSTAGRAM_VERIFY_TOKEN',
     );
-
-    // when the endpoint is registered as a webhook, it must echo back
-    // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {
       if (req.query['hub.verify_token'] === INSTAGRAM_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
@@ -86,7 +75,7 @@ export const instagramSubscription = async (req, res, next) => {
     next(e);
   }
 };
-export const instagramWebhook = async (req, res, next) => {
+export const instagramWebhook = async (req, res) => {
   const subdomain = isDev ? 'localhost' : getSubdomain(req);
 
   debugInstagram(`Received webhook request for subdomain: ${subdomain}`);
@@ -96,12 +85,17 @@ export const instagramWebhook = async (req, res, next) => {
     return;
   }
   for (const entry of data.entry) {
-    // receive chat
+    // receive direct messages
     if (entry.messaging) {
       const messageData = entry.messaging[0];
       if (messageData) {
         try {
-          await receiveMessage(models, subdomain, messageData);
+          const integration = await models.InstagramIntegrations.findOne({
+            instagramPageId: messageData.recipient?.id,
+          });
+          if (integration) {
+            await receiveMessage(models, subdomain, integration, messageData);
+          }
           return res.send('success');
         } catch (e) {
           return res.send('error ' + e);
@@ -114,7 +108,11 @@ export const instagramWebhook = async (req, res, next) => {
         try {
           // Process each item in standbyData
           for (const data of standbyData) {
-            await receiveMessage(models, subdomain, data); // Pass the current item
+            const integration = await models.InstagramIntegrations.findOne({
+              instagramPageId: data.recipient?.id,
+            });
+            if (!integration) continue;
+            await receiveMessage(models, subdomain, integration, data);
           }
           return res.send('success');
         } catch (e) {

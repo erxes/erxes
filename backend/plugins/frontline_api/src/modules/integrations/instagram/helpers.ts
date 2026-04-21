@@ -82,18 +82,17 @@ export const removeIntegration = async (
     await models.InstagramConversationMessages.deleteMany({
       conversationId: { $in: conversationIds },
     });
-
-    await models.Integrations.deleteOne({ _id });
   }
+
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-  let domain = `${DOMAIN}/gateway/pl:instagram`;
+  let domain = `${DOMAIN}/gateway/pl:frontline`;
 
   if (process.env.NODE_ENV !== 'production') {
-    domain = `${DOMAIN}/pl:instagram`;
+    domain = `${DOMAIN}/pl:frontline`;
   }
+
   if (ENDPOINT_URL) {
-    // send domain to core endpoints
     try {
       await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
         method: 'POST',
@@ -188,10 +187,10 @@ export const repairIntegrations = async (
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  let domain = `${DOMAIN}/gateway/pl:instagram`;
+  let domain = `${DOMAIN}/gateway/pl:frontline`;
 
   if (process.env.NODE_ENV !== 'production') {
-    domain = `${DOMAIN}/pl:instagram`;
+    domain = `${DOMAIN}/pl:frontline`;
   }
   if (ENDPOINT_URL) {
     // send domain to core endpoints
@@ -309,10 +308,10 @@ export const instagramCreateIntegration = async (
     const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
     const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-    let domain = `${DOMAIN}/gateway/pl:instagram`;
+    let domain = `${DOMAIN}/gateway/pl:frontline`;
 
     if (process.env.NODE_ENV !== 'production') {
-      domain = `${DOMAIN}/pl:instagram`;
+      domain = `${DOMAIN}/pl:frontline`;
     }
 
     if (ENDPOINT_URL) {

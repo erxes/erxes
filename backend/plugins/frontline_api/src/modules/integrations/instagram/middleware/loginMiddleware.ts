@@ -27,7 +27,7 @@ export const loginMiddleware = async (req, res) => {
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${API_DOMAIN}/pl:instagram/iglogin`,
+    `${API_DOMAIN}/pl:frontline/instagram/iglogin`,
   );
   const conf = {
     client_id: INSTAGRAM_APP_ID,
@@ -43,7 +43,7 @@ export const loginMiddleware = async (req, res) => {
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: `${API_DOMAIN}/pl:instagram`,
+      state: `${API_DOMAIN}/pl:frontline/instagram`,
     });
 
     // checks whether a user denied the app instagram login/permissions
@@ -112,3 +112,5 @@ export const loginMiddleware = async (req, res) => {
     return res.redirect(url);
   });
 };
+
+

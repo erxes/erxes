@@ -26,7 +26,7 @@ export const generateAttachmentUrl = (subdomain: string, urlOrName: string) => {
 
 export const getConfigs = async (models: IModels) => {
   const configsMap: Record<string, string> = {};
-  const configs = await models.FacebookConfigs.find({});
+  const configs = await models.InstagramConfigs.find({});
 
   for (const config of configs) {
     configsMap[config.code] = config.value;

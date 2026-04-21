@@ -1,5 +1,7 @@
 import { facebookConstants } from '@/integrations/facebook/meta/automation/constants';
 import { facebookAutomationWorkers } from '@/integrations/facebook/meta/automation/workers';
+import { instagramConstants } from '@/integrations/instagram/meta/constants';
+import { instagramAutomationWorkers } from '@/integrations/instagram/meta/automation/workers';
 
 import {
   AutomationConfigs,
@@ -10,13 +12,14 @@ import { generateModels } from '~/connectionResolvers';
 
 const modules = {
   facebook: facebookAutomationWorkers,
+  instagram: instagramAutomationWorkers,
 };
 
 export default {
   constants: {
-    actions: [...facebookConstants.actions],
-    triggers: [...facebookConstants.triggers],
-    bots: [...facebookConstants.bots],
+    actions: [...facebookConstants.actions, ...instagramConstants.actions],
+    triggers: [...facebookConstants.triggers, ...instagramConstants.triggers],
+    bots: [...facebookConstants.bots, ...instagramConstants.bots],
   },
 
   receiveActions: createCoreModuleProducerHandler({

@@ -39,6 +39,14 @@ const CallIntegrationDetail = lazy(() =>
   ),
 );
 
+const InstagramIntegrationDetail = lazy(() =>
+  import(
+    '@/integrations/instagram/components/InstagramIntegrationDetail'
+  ).then((module) => ({
+    default: module.InstagramIntegrationDetail,
+  })),
+);
+
 export const IntegrationDetailPage = () => {
   const { integrationType, id } = useParams<{
     integrationType: string;
@@ -91,6 +99,12 @@ export const IntegrationDetailPage = () => {
         )}
         {integrationType === IntegrationType.CALL && <CallIntegrationDetail />}
         {integrationType === IntegrationType.IMAP && <ImapIntegrationDetail />}
+        {integrationType === IntegrationType.INSTAGRAM_MESSENGER && (
+          <InstagramIntegrationDetail />
+        )}
+        {integrationType === IntegrationType.INSTAGRAM_POST && (
+          <InstagramIntegrationDetail isPost />
+        )}
       </Suspense>
       <IntegrationsRecordTable />
     </div>

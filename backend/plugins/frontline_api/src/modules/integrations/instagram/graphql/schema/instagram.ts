@@ -17,7 +17,7 @@ const commonBotMutationParams = `
   name:String,
   accountId:String,
   pageId:String,
-  persistentMenus:[BotPersistentMenuInput],
+  persistentMenus:[InstagramBotPersistentMenuInput],
   greetText:String
   tag:String,
   isEnabledBackBtn:Boolean,
@@ -96,14 +96,14 @@ export const types = `
     content:String
   }
 
-  type BotPersistentMenuType {
+  type InstagramBotPersistentMenuType {
     _id:String
     type:String
     text: String
     link: String
   }
 
-  input BotPersistentMenuInput {
+  input InstagramBotPersistentMenuInput {
     _id:String
     type:String
     text: String
@@ -118,7 +118,7 @@ export const types = `
     pageId: String
     page: JSON
     createdAt: Date
-    persistentMenus:[BotPersistentMenuType]
+    persistentMenus:[InstagramBotPersistentMenuType]
     profileUrl:String
     greetText:String
     tag:String

@@ -29,6 +29,7 @@ export const receivePost = async (
     subdomain,
     pageId,
     userId,
+    undefined,
     INTEGRATION_KINDS.POST,
   );
   if (!customer) {

@@ -54,6 +54,7 @@ export const receiveMessage = async (
       subdomain,
       pageId,
       userId,
+      undefined,
       kind,
     );
     if (!customer) {

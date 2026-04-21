@@ -33,7 +33,7 @@ export interface IBotModel extends Model<IInstagramBotDocument> {
   repair(_id: string): Promise<IInstagramBotDocument>;
 }
 
-export const loadBotClass = (models: IModels) => {
+export const loadInstagramBotClass = (models: IModels) => {
   class Bot {
     static async getBot(_id) {
       const bot = await models.InstagramBots.findOne({ _id });

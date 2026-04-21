@@ -7,6 +7,7 @@ import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration
 import { RemoveIntegration } from '@/integrations/components/RemoveIntegration';
 import { IntegrationType } from '@/types/Integration';
 import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegrationRepair';
+import { InstagramIntegrationRepair } from '../instagram/components/InstagramIntegrationRepair';
 import { EMInstallScript } from '../erxes-messenger/components/EMInstallScript';
 import { lazy, Suspense } from 'react';
 
@@ -34,6 +35,14 @@ const ImapIntegrationActions = lazy(() =>
   import('../imap/components/ImapIntegrationDetail').then((module) => ({
     default: module.ImapIntegrationActions,
   })),
+);
+
+const InstagramIntegrationActions = lazy(() =>
+  import('../instagram/components/InstagramIntegrationDetail').then(
+    (module) => ({
+      default: module.InstagramIntegrationActions,
+    }),
+  ),
 );
 
 export const IntegrationMoreColumnCell = ({
@@ -67,6 +76,10 @@ export const IntegrationMoreColumnCell = ({
                 {integrationType === IntegrationType.IMAP && (
                   <ImapIntegrationActions cell={cell} />
                 )}
+                {(integrationType === IntegrationType.INSTAGRAM_MESSENGER ||
+                  integrationType === IntegrationType.INSTAGRAM_POST) && (
+                  <InstagramIntegrationActions cell={cell} />
+                )}
               </Suspense>
             </Command.Item>
             {integrationType === IntegrationType.ERXES_MESSENGER && (
@@ -78,6 +91,12 @@ export const IntegrationMoreColumnCell = ({
             IntegrationType.FACEBOOK_POST === integrationType ? (
               <Command.Item value="repair">
                 <FacebookIntegrationRepair cell={cell} />
+              </Command.Item>
+            ) : null}
+            {IntegrationType.INSTAGRAM_MESSENGER === integrationType ||
+            IntegrationType.INSTAGRAM_POST === integrationType ? (
+              <Command.Item value="repair">
+                <InstagramIntegrationRepair cell={cell} />
               </Command.Item>
             ) : null}
             <Command.Item value="archive">

@@ -93,10 +93,7 @@ export const actionCreateMessage = async ({
   const { config, id: actionId } = action || {};
   const [_pluginName, moduleName, collectionType] = splitType(triggerType);
 
-  if (
-    moduleName !== 'facebook' &&
-    !['messages', 'comments', 'ads'].includes(collectionType)
-  ) {
+  if (!['messages', 'comments', 'ads'].includes(collectionType)) {
     throw new Error('Unsupported trigger type');
   }
   const {

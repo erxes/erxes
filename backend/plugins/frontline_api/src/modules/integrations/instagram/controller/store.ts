@@ -7,15 +7,14 @@ import {
   IPostParams,
 } from '@/integrations/instagram/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
-import { debugInstagramError } from '@/integrations/instagram/debuggers';
+import { debugError } from '@/integrations/instagram/debuggers';
 import {
   getInstagramUser,
-  getInstagramUserProfilePic,
+  getPageAccessTokenFromMap,
   getPostDetails,
   getPostLink,
-  uploadMedia,
 } from '@/integrations/instagram/utils';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 export const getOrCreateCustomer = async (
@@ -48,14 +47,14 @@ export const getOrCreateCustomer = async (
   try {
     instagramUser = await getInstagramUser(
       userId,
-      facebookPageId || '',
-      facebookPageTokensMap,
+      integration.facebookPageId || '',
+      integration.facebookPageTokensMap,
     );
     if (instagramUser) {
       firstName = instagramUser.username || instagramUser.name;
     }
   } catch (e) {
-    console.log(e);
+    debugError(`Failed to fetch Instagram user profile: ${e.message}`);
   }
   if (firstName) {
     try {
@@ -223,69 +222,22 @@ export const getOrCreateComment = async (
     );
   }
 };
-export const generatePostDoc = async (
+export const generatePostDoc = (
   postParams: any,
   pageId: string,
   userId: string,
-  subdomain: string,
 ) => {
-  const {
-    post_id,
-    id,
-    link,
-    photos,
-    created_time,
-    message,
-    photo_id,
-    video_id,
-  } = postParams;
-  let generatedMediaUrls: string[] = [];
+  const { post_id, id, created_time, message } = postParams;
 
-  const uploadConfig = await sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'core',
-    method: 'query',
-    module: 'configs',
-    action: 'getFileUploadConfigs',
-    input: {},
-  });
-
-  const { UPLOAD_SERVICE_TYPE } = (uploadConfig as any) || {};
-
-  if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    if (link) {
-      if (video_id) {
-        const mediaUrl = await uploadMedia(subdomain, link, true);
-        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
-      } else if (photo_id) {
-        const mediaUrl = await uploadMedia(subdomain, link, false);
-        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
-      }
-    }
-
-    if (photos && photos.length > 0) {
-      const mediaUrls = await Promise.all(
-        photos.map((url) => uploadMedia(subdomain, url, false)),
-      );
-
-      generatedMediaUrls = mediaUrls.filter(
-        (url): url is string => url !== null && typeof url === 'string',
-      );
-    }
-  }
-
-  const doc = {
+  return {
     postId: post_id || id,
     content: message || '...',
     recipientId: pageId,
     senderId: userId,
     permalink_url: '',
-    attachments: generatedMediaUrls.length > 0 ? generatedMediaUrls : [],
+    attachments: [],
     timestamp: created_time ? new Date(created_time) : undefined,
   };
-
-  return doc;
 };
 
 export const getOrCreatePostConversation = async (
@@ -356,15 +308,12 @@ export const getOrCreatePost = async (
   }
 
   const { facebookPageTokensMap = {} } = integration;
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, facebookPageTokensMap);
 
-  const postUrl = await getPostLink(
-    pageId,
-    facebookPageTokensMap,
-    postParams.post_id || '',
-  );
-  const doc = await generatePostDoc(postParams, pageId, userId, subdomain);
-  if (!doc.attachments && doc.content === '...') {
-    throw new Error('Invalid post document: missing attachments and content');
+  const postUrl = await getPostLink(pageAccessToken, postParams.post_id || '');
+  const doc = generatePostDoc(postParams, pageId, userId);
+  if (!doc.content || doc.content === '...') {
+    throw new Error('Invalid post document: missing content');
   }
 
   doc.permalink_url = postUrl;
@@ -373,42 +322,40 @@ export const getOrCreatePost = async (
   return post;
 };
 
-export default async function fetchInstagramPostDetails(
+export async function fetchInstagramPostDetails(
   pageId: string,
   models: IModels,
   params: ICommentParams,
 ) {
-  try {
-    const integration = await models.InstagramIntegrations.findOne({
-      $and: [
-        { facebookPageIds: { $in: pageId } },
-        { kind: INTEGRATION_KINDS.POST },
-      ],
-    });
+  const integration = await models.InstagramIntegrations.findOne({
+    $and: [
+      { facebookPageId: pageId },
+      { kind: INTEGRATION_KINDS.POST },
+    ],
+  });
 
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-
-    const { facebookPageTokensMap = {} } = integration;
-
-    const getPostDetail = await getPostDetails(
-      pageId,
-      facebookPageTokensMap,
-      params.post_id || '',
-    );
-
-    const facebookPost = {
-      postId: params.post_id,
-      content: getPostDetail.message || '',
-      recipientId: pageId,
-      senderId: pageId,
-      permalink_url: getPostDetail.permalink_url || '',
-      timestamp: getPostDetail.created_time,
-    };
-
-    return facebookPost;
-  } catch (error) {
-    throw new Error(`Failed to fetch post details: ${error.message}`);
+  if (!integration) {
+    throw new Error('Integration not found');
   }
+
+  const { facebookPageTokensMap = {} } = integration;
+
+  const postDetail = await getPostDetails(
+    pageId,
+    facebookPageTokensMap,
+    params.post_id || '',
+  );
+
+  if (!postDetail) {
+    throw new Error(`Failed to fetch post details for post ${params.post_id}`);
+  }
+
+  return {
+    postId: params.post_id,
+    content: postDetail.message || '',
+    recipientId: pageId,
+    senderId: pageId,
+    permalink_url: postDetail.permalink_url || '',
+    timestamp: postDetail.created_time,
+  };
 }

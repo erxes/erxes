@@ -295,12 +295,10 @@ export const getProfile = async (facebookPageId: string, accessToken?: any) => {
   );
   return accounInfo;
 };
-export const sendReply = async (
+const getIntegrationPageToken = async (
   models: IModels,
-  url: string,
-  data: any,
   integrationId: string | undefined,
-) => {
+): Promise<string> => {
   const integration = await models.InstagramIntegrations.findOne({
     erxesApiId: integrationId,
   });
@@ -308,46 +306,38 @@ export const sendReply = async (
     throw new Error('Integration not found');
   }
   const { facebookPageTokensMap = {}, facebookPageId } = integration;
+  if (!facebookPageId) {
+    throw new Error('Facebook page ID is not defined.');
+  }
+  const pageAccessToken = getPageAccessTokenFromMap(facebookPageId, facebookPageTokensMap);
+  if (!pageAccessToken) {
+    throw new Error('Page access token not found.');
+  }
+  return pageAccessToken;
+};
 
-  let pageAccessToken: string | undefined;
-
+export const sendReply = async (
+  models: IModels,
+  url: string,
+  data: any,
+  integrationId: string | undefined,
+) => {
+  let pageAccessToken: string;
   try {
-    if (!facebookPageId) {
-      throw new Error('Facebook page ID is not defined.');
-    }
-
-    pageAccessToken = getPageAccessTokenFromMap(
-      facebookPageId,
-      facebookPageTokensMap,
-    );
-
-    if (!pageAccessToken) {
-      throw new Error('Page access token not found.');
-    }
-
-    // Continue processing with `pageAccessToken`
+    pageAccessToken = await getIntegrationPageToken(models, integrationId);
   } catch (e) {
-    debugError(
-      `Error occurred while trying to get page access token: ${e.message}`,
-    );
+    debugError(`Error occurred while trying to get page access token: ${e.message}`);
     return e;
   }
 
   try {
-    const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...data,
-    });
-    debugInstagram(
-      `Successfully sent data to instagram ${JSON.stringify(data)}`,
-    );
+    const response = await graphRequest.post(`${url}`, pageAccessToken, { ...data });
+    debugInstagram(`Successfully sent data to instagram ${JSON.stringify(data)}`);
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to instagram ${
-        e.message
-      } data: ${JSON.stringify(data)}`,
+      `Error occurred while trying to send post request to instagram ${e.message} data: ${JSON.stringify(data)}`,
     );
-
     throw new Error(e.message);
   }
 };
@@ -358,62 +348,31 @@ export const sendReplyComment = async (
   data: any,
   integrationId: string,
 ) => {
-  const integration = await models.InstagramIntegrations.findOne({
-    erxesApiId: integrationId,
-  });
-  if (!integration) {
-    throw new Error('Integration not found');
-  }
-  const { facebookPageTokensMap = {}, facebookPageId } = integration;
-
-  let pageAccessToken: string | undefined;
-
+  let pageAccessToken: string;
   try {
-    if (!facebookPageId) {
-      throw new Error('Facebook page ID is not defined.');
-    }
-
-    pageAccessToken = getPageAccessTokenFromMap(
-      facebookPageId,
-      facebookPageTokensMap,
-    );
-
-    if (!pageAccessToken) {
-      throw new Error('Page access token not found.');
-    }
-
-    // Continue processing with `pageAccessToken`
+    pageAccessToken = await getIntegrationPageToken(models, integrationId);
   } catch (e) {
-    debugError(
-      `Error occurred while trying to get page access token: ${e.message}`,
-    );
+    debugError(`Error occurred while trying to get page access token: ${e.message}`);
     return e;
   }
-  const user = data.senderId;
+
   const nameResponse = await graphRequest.get(
-    `/${user}?fields=name,username&access_token=${pageAccessToken}`,
+    `/${data.senderId}?fields=name,username&access_token=${pageAccessToken}`,
   );
   const name = nameResponse.username || nameResponse.name;
   const messageData = {
-    message: `@${name} ${data.message}`, // Insert the user's name dynamically into the messa
-    attachment_url: data.attachmentUrl, // Include the attachment URL
+    message: `@${name} ${data.message}`,
+    attachment_url: data.attachmentUrl,
   };
 
   try {
-    const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...messageData,
-    });
-    debugInstagram(
-      `Successfully sent data to instagram ${JSON.stringify(data)}`,
-    );
+    const response = await graphRequest.post(`${url}`, pageAccessToken, { ...messageData });
+    debugInstagram(`Successfully sent data to instagram ${JSON.stringify(data)}`);
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to facebook ${
-        e.message
-      } data: ${JSON.stringify(data)}`,
+      `Error occurred while trying to send post request to instagram ${e.message} data: ${JSON.stringify(data)}`,
     );
-
     throw new Error(e.message);
   }
 };

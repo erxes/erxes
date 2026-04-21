@@ -28,4 +28,16 @@ export const INTEGRATIONS = {
     description: 'Connect and manage IMAP right from your Team Inbox',
     img: 'email.webp',
   },
+  [IntegrationType.INSTAGRAM_MESSENGER]: {
+    name: 'Instagram Messenger',
+    description:
+      'Connect and manage Instagram Messages right from your Team Inbox',
+    img: 'ig.svg',
+  },
+  [IntegrationType.INSTAGRAM_POST]: {
+    name: 'Instagram Post',
+    description:
+      'Connect and manage Instagram Post comments right from your Team Inbox',
+    img: 'ig.svg',
+  },
 };

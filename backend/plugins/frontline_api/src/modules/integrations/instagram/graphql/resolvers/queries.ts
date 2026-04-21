@@ -47,7 +47,7 @@ export const instagramQueries = {
   },
 
   async instagramGetConfigs(_root, _args, { models }: IContext) {
-    return models.Configs.find({}).lean();
+    return models.InstagramConfigs.find({}).lean();
   },
 
   async instagramGetComments(
