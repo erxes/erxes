@@ -14,6 +14,7 @@ import {
   sanitizeTourTranslations,
   syncTranslationPricingOptions,
 } from '../utils/translationHelpers';
+import { normalizePricingOptionsForApi } from '../utils/pricingOptions';
 
 import { TourCreateFormSchema, TourFormValues } from '../constants/formSchema';
 
@@ -278,22 +279,8 @@ export const TourCreateForm = ({
 
       const isFlexible = values.isFlexibleDate;
 
-      const normalizedPricingOptions = pricingOptions.map((opt) => {
-        const { adultPrice, childPrice, infantPrice, ...rest } = opt as any;
-        const prices = [
-          { type: 'adult', price: adultPrice },
-          ...(childPrice != null ? [{ type: 'child', price: childPrice }] : []),
-          ...(infantPrice != null ? [{ type: 'infant', price: infantPrice }] : []),
-        ];
-        return {
-          ...rest,
-          prices,
-          _id: rest._id || nanoid(8),
-          accommodationType: rest.accommodationType
-            ? rest.accommodationType.trim().toLowerCase()
-            : rest.accommodationType,
-        };
-      });
+      const normalizedPricingOptions =
+        normalizePricingOptionsForApi(pricingOptions);
 
       const sanitizedTranslations = sanitizeTourTranslations(translations);
 

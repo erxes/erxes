@@ -170,6 +170,7 @@ export const GET_TOUR_DETAIL = gql`
           type
           price
         }
+        pricePerPerson
         accommodationType
         domesticFlightPerPerson
         singleSupplement
@@ -196,6 +197,7 @@ export const GET_TOUR_DETAIL = gql`
             type
             price
           }
+          pricePerPerson
           domesticFlightPerPerson
           singleSupplement
         }
