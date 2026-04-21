@@ -42,12 +42,24 @@ export const types = `
     fixed
     flexible
   }
+  enum PASSENGER_TYPE {
+    adult
+    child
+    infant
+  }
+
+  type PricingOptionPrice {
+    type: PASSENGER_TYPE!
+    price: Float!
+  }
+
   type PricingOption {
     _id: ID!
     title: String!
     minPersons: Int!
     maxPersons: Int
-    pricePerPerson: Float!
+    prices: [PricingOptionPrice!]!
+    pricePerPerson: Float
     accommodationType: String
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -59,6 +71,7 @@ export const types = `
     title: String
     note: String
     accommodationType: String
+    prices: [PricingOptionPrice]
     pricePerPerson: Float
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -81,11 +94,17 @@ export const types = `
     updatedAt: Date
   }
 
+  input PricingOptionPriceInput {
+    type: PASSENGER_TYPE!
+    price: Float!
+  }
+
   input PricingOptionTranslationInput {
     optionId: String!
     title: String
     note: String
     accommodationType: String
+    prices: [PricingOptionPriceInput]
     pricePerPerson: Float
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -166,6 +185,7 @@ export const types = `
     amount: Float
     status: String
     note: String
+    internalNote: String
     numberOfPeople: Int
     type: String
     additionalCustomers: [String]
@@ -181,6 +201,7 @@ export const types = `
     amount: Float
     status: String
     note: String
+    internalNote: String
     numberOfPeople: Int
     type: String
     additionalCustomers: [String]
@@ -196,7 +217,8 @@ export const types = `
     title: String!
     minPersons: Int!
     maxPersons: Int
-    pricePerPerson: Float!
+    prices: [PricingOptionPriceInput!]!
+    pricePerPerson: Float
     accommodationType: String
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -215,6 +237,7 @@ export const types = `
   type GroupTourItem {
     items: [Tour]
     _id: String
+    name: String
   }
   type GroupTour {
     list: [GroupTourItem]
@@ -233,6 +256,7 @@ export const queries = `
   bmToursGroup(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, language: String): GroupTour
   bmToursGroupDetail(groupCode: String, status: String, language: String): GroupTourItem
 
+  cpBmsTourCategories(parentId: String, name: String, branchId: String, language: String): [TourCategory]
   cpBmsTours(branchId: String, categoryIds: [String], name: String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String], startDate1: Date, startDate2: Date, endDate1: Date, endDate2: Date, date_status: DATE_STATUS, webId: String, language: String): TourListResponse
   cpBmsToursTotalCount(branchId: String, webId: String): Int
   cpBmsTourDetail(_id: String!, branchId: String, language: String): Tour

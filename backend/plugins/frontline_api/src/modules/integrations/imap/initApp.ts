@@ -1,4 +1,9 @@
-import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
+import {
+  getEnv,
+  getSubdomain,
+  getSaasOrganizations,
+  getSaasCoreConnection,
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { routeErrorHandling, findAttachmentParts, toUpper } from './utils';
 import { imapListen } from './messageBroker';
@@ -199,9 +204,29 @@ const onServerInitImap = async (app) => {
 
   if (VERSION && VERSION === 'saas') {
     console.log(
-      'SAAS mode detected, but organization handling not implemented',
+      'SAAS mode: starting IMAP job distributor for all organizations',
     );
-    // startDistributingJobs('os');
+
+    (async () => {
+      try {
+        await getSaasCoreConnection();
+        const organizations = await getSaasOrganizations();
+
+        console.log(
+          `[IMAP] Found ${organizations.length} organizations in SAAS mode`,
+        );
+
+        for (const org of organizations) {
+          if (!org.subdomain) continue;
+          console.log(
+            `[IMAP] Starting job distributor for org: ${org.subdomain}`,
+          );
+          startDistributingJobs(org.subdomain);
+        }
+      } catch (err) {
+        console.error('[IMAP] Failed to start SAAS job distributors:', err);
+      }
+    })();
   } else {
     console.log('Starting IMAP job distributor for default subdomain');
     startDistributingJobs('os');

@@ -1,6 +1,7 @@
 import { Control, FieldPathByValue } from 'react-hook-form';
-import { Form, Input, IconPicker } from 'erxes-ui';
+import { Form, Input } from 'erxes-ui';
 import { AmenityCreateFormType } from '../constants/formSchema';
+import { AmenityIconPicker } from './AmenityIconPicker';
 
 type AmenityTextFieldPath = FieldPathByValue<
   AmenityCreateFormType,
@@ -54,7 +55,7 @@ export const AmenityIconField = ({
         <Form.Item>
           <Form.Label>Icon</Form.Label>
           <Form.Control>
-            <IconPicker
+            <AmenityIconPicker
               value={field.value}
               onValueChange={field.onChange}
               className="w-[42px] border bg-background"

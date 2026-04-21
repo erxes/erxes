@@ -4,10 +4,11 @@ import { CustomersVerificationStatus } from '@/contacts/customers/components/cus
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
-import { Can, Export, ICustomer, TagsSelect } from 'ui-modules';
+import { Can, Export, ICustomer, TagsSelect, useVersion } from 'ui-modules';
 
 export const CustomersCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
+  const isOs = useVersion();
   const intersection = (arrays: string[][]): string[] => {
     if (arrays.length === 0) return [];
     return arrays.reduce((common, current) =>
@@ -68,20 +69,22 @@ export const CustomersCommandBar = () => {
         <Separator.Inline />
         <Export
           pluginName="core"
-          moduleName="contact"
-          collectionName="customer"
+          moduleName="contacts"
+          collectionName="customers"
           buttonVariant="secondary"
           ids={customerIds}
         />
-        <Can action="contactsUpdate">
-          <>
-            <Separator.Inline />
-            <CustomersVerificationStatus
-              customerIds={customerIds}
-              rows={table.getFilteredSelectedRowModel().rows}
-            />
-          </>
-        </Can>
+        {isOs && (
+          <Can action="contactsUpdate">
+            <>
+              <Separator.Inline />
+              <CustomersVerificationStatus
+                customerIds={customerIds}
+                rows={table.getFilteredSelectedRowModel().rows}
+              />
+            </>
+          </Can>
+        )}
         <Can action="contactsMerge">
           <>
             <Separator.Inline />

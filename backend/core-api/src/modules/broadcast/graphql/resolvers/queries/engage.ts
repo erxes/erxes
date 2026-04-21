@@ -318,4 +318,22 @@ export const engageQueries = {
 
     return { list: data, totalCount };
   },
+  async engageVerifiedEmails(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+
+  ){
+    const users = await models.Users.find({
+      isActive: true,
+    })
+    const userEmails = users?.map(u => u.email);
+    const allVerifiedEmails: any =
+      (await awsRequests.getVerifiedEmails(models)) || [];
+
+    if (!allVerifiedEmails) {
+      return [];
+    }
+
+    return allVerifiedEmails.filter(email => userEmails.includes(email));  }
 };

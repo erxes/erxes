@@ -22,7 +22,7 @@ const baseAiAgentFormSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string().max(500).default(''),
   connection: z.object({
-    provider: z.enum(['openai-compatible']),
+    provider: z.enum(['openai']),
     model: z.string().trim().min(1, 'Model is required'),
     config: z.object({
       apiKey: z.string().optional().default(''),
@@ -98,24 +98,24 @@ type TAiAgentFormFileInput = TAiAgentFormFileVersionInput & {
 
 export type TAiAgentFormDetail = {
   _id?: string;
-  name?: unknown;
-  description?: unknown;
+  name?: string;
+  description?: string;
   connection?: {
-    provider?: unknown;
-    model?: unknown;
+    provider?: 'openai';
+    model?: string;
     config?: {
-      apiKey?: unknown;
-      baseUrl?: unknown;
-      headers?: unknown;
+      apiKey?: string;
+      baseUrl?: string;
+      headers?: string;
     };
   };
   runtime?: {
-    temperature?: unknown;
-    maxTokens?: unknown;
-    timeoutMs?: unknown;
+    temperature?: number;
+    maxTokens?: number;
+    timeoutMs?: number;
   };
   context?: {
-    systemPrompt?: unknown;
+    systemPrompt?: string;
     files?: unknown;
   };
 };
@@ -195,7 +195,7 @@ export const normalizeAiAgentFormValues = (
   name: detail?.name || '',
   description: detail?.description || '',
   connection: {
-    provider: detail?.connection?.provider || 'openai-compatible',
+    provider: detail?.connection?.provider || 'openai',
     model: detail?.connection?.model || '',
     config: {
       apiKey: '',

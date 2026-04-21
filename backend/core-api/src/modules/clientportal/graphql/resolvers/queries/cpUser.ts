@@ -18,7 +18,7 @@ interface IClientPortalUserFilterParams {
   aggregationPipeline?: unknown[];
 }
 
-export const cpUserQueries: Record<string, Resolver> = {
+export const cpUserQueries: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalCurrentUser(
     _root: unknown,
     _args: unknown,
