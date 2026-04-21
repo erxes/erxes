@@ -4,10 +4,11 @@ import { CustomersVerificationStatus } from '@/contacts/customers/components/cus
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
-import { Can, Export, ICustomer, TagsSelect } from 'ui-modules';
+import { Can, Export, ICustomer, TagsSelect, useVersion } from 'ui-modules';
 
 export const CustomersCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
+  const isOs = useVersion();
   const intersection = (arrays: string[][]): string[] => {
     if (arrays.length === 0) return [];
     return arrays.reduce((common, current) =>
@@ -73,7 +74,7 @@ export const CustomersCommandBar = () => {
           buttonVariant="secondary"
           ids={customerIds}
         />
-        {!process.env.REACT_APP_SAAS_MODE && (
+        {isOs && (
           <Can action="contactsUpdate">
             <>
               <Separator.Inline />
