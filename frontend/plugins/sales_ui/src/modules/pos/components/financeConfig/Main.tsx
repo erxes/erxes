@@ -18,6 +18,9 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
   const [account, setAccount] = useState('');
   const [location, setLocation] = useState('');
   const [getRemainder, setGetRemainder] = useState(false);
+  const [paymentTypeConfigs, setPaymentTypeConfigs] = useState<
+    Record<string, string>
+  >({});
   const [hasChanges, setHasChanges] = useState(false);
 
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
@@ -32,6 +35,18 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
       setAccount(posDetail.erkhetConfig.account || '');
       setLocation(posDetail.erkhetConfig.location || '');
       setGetRemainder(posDetail.erkhetConfig.getRemainder ?? false);
+
+      const ptConfigs: Record<string, string> = {};
+      for (const key of Object.keys(posDetail.erkhetConfig)) {
+        if (key.startsWith('_')) {
+          const val =
+            posDetail.erkhetConfig[key as keyof typeof posDetail.erkhetConfig];
+          if (typeof val === 'string') {
+            ptConfigs[key] = val;
+          }
+        }
+      }
+      setPaymentTypeConfigs(ptConfigs);
     }
   }, [posDetail]);
 
@@ -78,6 +93,7 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
             account,
             location,
             getRemainder,
+            ...paymentTypeConfigs,
           },
         },
       });
@@ -215,6 +231,37 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
               />
             </div>
           </div>
+
+          {(posDetail?.paymentTypes || []).length > 0 && (
+            <div className="grid grid-cols-3 gap-4">
+              {(posDetail?.paymentTypes || []).map((pt) => (
+                <div className="space-y-2" key={pt.type}>
+                  <Label>{pt.title}</Label>
+                  <Select
+                    value={paymentTypeConfigs[`_${pt.type}`] || ''}
+                    onValueChange={(val) => {
+                      setPaymentTypeConfigs((prev) => ({
+                        ...prev,
+                        [`_${pt.type}`]: val,
+                      }));
+                      setHasChanges(true);
+                    }}
+                  >
+                    <Select.Trigger className="w-full">
+                      <Select.Value placeholder="Select account" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {options.map((opt) => (
+                        <Select.Item key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
