@@ -39,7 +39,7 @@ export const PropertyInput = ({
     choiceOptions = [],
   } = selectedField || {};
 
-  if (['is', 'ins', 'it', 'if'].indexOf(value) >= 0) {
+  if (['is', 'ins', 'it', 'if'].includes(value)) {
     return null;
   }
 
