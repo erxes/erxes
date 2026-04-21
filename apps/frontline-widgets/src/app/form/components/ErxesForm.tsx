@@ -15,7 +15,7 @@ import { IFormFieldLogic, IFormStep } from '../types/formTypes';
 import { useForm } from 'react-hook-form';
 import { useErxesForm } from '../context/erxesFormContext';
 import { ErxesSteps } from './steps';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
   formValuesAtom,
@@ -94,6 +94,7 @@ export const ErxesForm = ({
   const [activeStep, setActiveStep] = useAtom(activeStepAtom);
   const setShowConfirmation = useSetAtom(showConfirmationAtom);
   const setFormValues = useSetAtom(formValuesAtom);
+  const globalFormValues = useAtomValue(formValuesAtom);
   const fields = formData.fields.filter(
     (field) => field.pageNumber === step.order,
   );
@@ -102,7 +103,17 @@ export const ErxesForm = ({
     resolver: zodResolver(schema),
   });
 
-  const formValues = form.watch();
+  const currentStepValues = form.watch();
+
+  // Merge saved values from all steps with the current step's live values so
+  // that logic referencing fields on other pages resolves correctly.
+  const formValues = {
+    ...Object.values(globalFormValues || {}).reduce<Record<string, any>>(
+      (acc, stepValues) => ({ ...acc, ...stepValues }),
+      {},
+    ),
+    ...currentStepValues,
+  };
 
   const handleSubmit = (values: any) => {
     setFormValues((prev) => ({ ...(prev || {}), [step.order]: values }));

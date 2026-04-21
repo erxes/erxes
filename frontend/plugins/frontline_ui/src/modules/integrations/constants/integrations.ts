@@ -28,4 +28,9 @@ export const INTEGRATIONS = {
     description: 'Connect and manage IMAP right from your Team Inbox',
     img: 'email.webp',
   },
+  [IntegrationType.MESSAGE_PRO]: {
+    name: 'MessagePro',
+    description: 'Connect and manage Message Pro right from your Team Inbox',
+    img: 'callpro.png',
+  },
 };
