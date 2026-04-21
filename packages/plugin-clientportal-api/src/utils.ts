@@ -12,7 +12,7 @@ import {
   sendPurchasesMessage,
   sendSalesMessage,
   sendTasksMessage,
-  sendTicketsMessage,
+  sendTicketsMessage
 } from "./messageBroker";
 import fetch from "node-fetch";
 
@@ -32,7 +32,7 @@ export const getConfig = async (
     action: "getConfigs",
     data: {},
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (!configs[code]) {
@@ -69,7 +69,7 @@ export const generateFields = async ({ subdomain }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
         ];
       }
     }
@@ -108,7 +108,7 @@ export const sendSms = async (
             key: MESSAGE_PRO_API_KEY,
             from: MESSAGE_PRO_PHONE_NUMBER,
             to: phoneNumber,
-            text: content,
+            text: content
           })
       );
 
@@ -131,8 +131,8 @@ export const sendSms = async (
     action: "sendSms",
     data: {
       phoneNumber,
-      content,
-    },
+      content
+    }
   });
 };
 
@@ -206,8 +206,8 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
 
     if (privateKey) {
       serviceAccount.private_key = privateKey
-        .replace(/\r\n/g, '\n')
-        .replace(/\\n/g, '\n')
+        .replace(/\r\n/g, "\n")
+        .replace(/\\n/g, "\n")
         .trim();
     }
 
@@ -219,11 +219,11 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
     action: "configs.findOne",
     data: {
       query: {
-        code: "GOOGLE_APPLICATION_CREDENTIALS_JSON",
-      },
+        code: "GOOGLE_APPLICATION_CREDENTIALS_JSON"
+      }
     },
     isRPC: true,
-    defaultValue: null,
+    defaultValue: null
   });
 
   if (!config) {
@@ -238,7 +238,7 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
     if (serviceAccount.private_key) {
       try {
         await admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
+          credential: admin.credential.cert(serviceAccount)
         });
       } catch (e) {
         console.error(`initFireBase error: ${e.message}`);
@@ -278,7 +278,7 @@ export const sendNotification = async (
     isMobile,
     eventData,
     mobileConfig,
-    type,
+    type
   } = doc;
 
   const link = doc.link;
@@ -288,7 +288,7 @@ export const sendNotification = async (
 
   // collecting emails
   const recipients = await models.ClientPortalUsers.find({
-    _id: { $in: receiverIds },
+    _id: { $in: receiverIds }
   }).lean();
 
   // collect recipient emails
@@ -314,7 +314,7 @@ export const sendNotification = async (
           notifType,
           clientPortalId: recipient.clientPortalId,
           eventData,
-          groupId: doc?.groupId || "",
+          groupId: doc?.groupId || ""
         },
         createdUser && createdUser._id
       );
@@ -328,8 +328,8 @@ export const sendNotification = async (
         content: notification.content,
         link: notification.link,
         groupId: notification.groupId,
-        eventData,
-      },
+        eventData
+      }
     });
   }
 
@@ -342,8 +342,8 @@ export const sendNotification = async (
       template: {
         name: "notification",
         data: {
-          notification: { ...doc, link },
-        },
+          notification: { ...doc, link }
+        }
       },
       modifier: (data: any, email: string) => {
         const user = recipients.find((item) => item.email === email);
@@ -351,8 +351,8 @@ export const sendNotification = async (
         if (user) {
           data.uid = user._id;
         }
-      },
-    },
+      }
+    }
   });
 
   if (isMobile) {
@@ -392,16 +392,16 @@ export const sendNotification = async (
             android: {
               notification: {
                 sound: mobileConfig?.sound,
-                channelId: mobileConfig?.channelId,
-              },
+                channelId: mobileConfig?.channelId
+              }
             },
             apns: {
               payload: {
                 aps: {
-                  sound: mobileConfig?.sound,
-                },
-              },
-            },
+                  sound: mobileConfig?.sound
+                }
+              }
+            }
           };
 
           await transporter.sendEachForMulticast(multicastMessage);
@@ -418,7 +418,7 @@ export const sendNotification = async (
           await transporter.send({
             token,
             notification: { title, body: content },
-            data: eventData || {},
+            data: eventData || {}
           });
         } catch (e) {
           debugError(`Error occurred during firebase send: ${e.message}`);
@@ -449,11 +449,11 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
     action: "fields.find",
     data: {
       query: {
-        _id: { $in: fieldIds },
-      },
+        _id: { $in: fieldIds }
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const fieldCodesById = {};
@@ -466,7 +466,7 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
 
   for (const data of customFieldsData) {
     results[fieldCodesById[data.field]] = {
-      ...data,
+      ...data
     };
   }
 
@@ -499,8 +499,8 @@ export const sendAfterMutation = async (
           action,
           object,
           newData,
-          extraDesc,
-        },
+          extraDesc
+        }
       });
     }
   }
@@ -528,9 +528,9 @@ export const getCards = async (
     subdomain,
     action: "customers.findOne",
     data: {
-      _id: cpUser.erxesCustomerId,
+      _id: cpUser.erxesCustomerId
     },
-    isRPC: true,
+    isRPC: true
   });
 
   if (!customer) {
@@ -543,10 +543,10 @@ export const getCards = async (
     data: {
       mainType: "customer",
       mainTypeIds: [customer._id],
-      relTypes: [type],
+      relTypes: [type]
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (conformities.length === 0) {
@@ -573,10 +573,10 @@ export const getCards = async (
         subdomain,
         action: "stages.find",
         data: {
-          pipelineId,
+          pipelineId
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
       break;
     case "deal":
@@ -584,10 +584,10 @@ export const getCards = async (
         subdomain,
         action: "stages.find",
         data: {
-          pipelineId,
+          pipelineId
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
       break;
     case "task":
@@ -595,10 +595,10 @@ export const getCards = async (
         subdomain,
         action: "stages.find",
         data: {
-          pipelineId,
+          pipelineId
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
       break;
     case "purchase":
@@ -606,10 +606,10 @@ export const getCards = async (
         subdomain,
         action: "stages.find",
         data: {
-          pipelineId,
+          pipelineId
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
       break;
   }
@@ -642,7 +642,7 @@ export const getCards = async (
 
     return {
       $gte: start,
-      $lte: end,
+      $lte: end
     };
   };
 
@@ -656,13 +656,13 @@ export const getCards = async (
       ...(args?.priority && { priority: { $in: args?.priority || [] } }),
       ...(args?.labelIds && { labelIds: { $in: args?.labelIds || [] } }),
       ...(args?.closeDateType && {
-        closeDate: getCloseDateByType(args.closeDateType),
+        closeDate: getCloseDateByType(args.closeDateType)
       }),
       ...(args?.userIds && { assignedUserIds: { $in: args?.userIds || [] } }),
-      ...(args?.date && { closeDate: dateSelector(args.date) }),
+      ...(args?.date && { closeDate: dateSelector(args.date) })
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   };
 
   switch (type) {
@@ -683,7 +683,7 @@ export const getCloseDateByType = (closeDateType: string) => {
 
     return {
       $gte: new Date(tommorrow.startOf("day").toISOString()),
-      $lte: new Date(tommorrow.endOf("day").toISOString()),
+      $lte: new Date(tommorrow.endOf("day").toISOString())
     };
   }
 
@@ -697,7 +697,7 @@ export const getCloseDateByType = (closeDateType: string) => {
 
     return {
       $gte: new Date(monday),
-      $lte: new Date(nextSunday),
+      $lte: new Date(nextSunday)
     };
   }
 
@@ -707,7 +707,7 @@ export const getCloseDateByType = (closeDateType: string) => {
 
     return {
       $gte: new Date(start),
-      $lte: new Date(end),
+      $lte: new Date(end)
     };
   }
 
@@ -747,17 +747,17 @@ export const getUserCards = async (
 ) => {
   const cardIds = await models.ClientPortalUserCards.find({
     cpUserId: userId,
-    contentType,
+    contentType
   }).distinct("contentTypeId");
 
   const message = {
     subdomain,
     action: `${contentType}s.find`,
     data: {
-      _id: { $in: cardIds },
+      _id: { $in: cardIds }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   };
 
   let cards = [];
@@ -797,6 +797,7 @@ export const fetchUserFromToki = async (
 
   const apiKey = clientPortal.tokiConfig.apiKey;
   const apiUrl = clientPortal.tokiConfig.production ? prodApiUrl : testApiUrl;
+  console.log({ apiUrl, token, apiKey });
 
   try {
     const response = await fetch(
@@ -806,8 +807,8 @@ export const fetchUserFromToki = async (
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-          "api-key": apiKey,
-        },
+          "api-key": apiKey
+        }
       }
     );
 
