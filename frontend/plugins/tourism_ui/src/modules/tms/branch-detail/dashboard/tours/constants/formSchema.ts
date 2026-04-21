@@ -121,7 +121,7 @@ export const TourCreateFormSchema = z
     refNumber: z.string().min(1, 'Ref number is required'),
 
     status: z.string().optional(),
-    content: z.string().max(500).optional(),
+    content: z.string().optional(),
     itineraryId: z.string().min(1, 'Itinerary is required'),
     categoryIds: z.array(z.string()).optional(),
 
@@ -250,7 +250,7 @@ export type PricingOptionFormValue = Omit<
   | 'domesticFlightPerPerson'
   | 'singleSupplement'
 > & {
-  adultPrice?: number | string;
+  adultPrice: number | string;
   childPrice?: number | string;
   infantPrice?: number | string;
   domesticFlightPerPerson?: number | string;

@@ -14,6 +14,7 @@ type TourDatePickerProps = {
   mode?: 'single' | 'multiple' | 'range';
   format?: string;
   variant?: 'outline' | 'default' | 'ghost';
+  isDisabled?: boolean;
 } & Omit<CalendarProps, 'mode' | 'selected' | 'onSelect'>;
 
 const TourDatePicker = ({
@@ -26,6 +27,7 @@ const TourDatePicker = ({
   mode = 'single',
   format = 'MMM DD, YYYY',
   variant = 'outline',
+  isDisabled = false,
   ...props
 }: TourDatePickerProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -85,12 +87,10 @@ const TourDatePicker = ({
       <Popover.Trigger asChild={true}>
         <Combobox.Trigger
           variant={variant}
-          disabled={typeof disabled === 'boolean' ? disabled : false}
+          disabled={isDisabled}
           className={cn(
             !value && 'text-accent-foreground',
-            typeof disabled === 'boolean' &&
-              disabled &&
-              'cursor-not-allowed opacity-50',
+            isDisabled && 'cursor-not-allowed opacity-50',
             className,
           )}
         >
@@ -168,6 +168,7 @@ export const RHFDatePicker = <T extends FieldValues>({
             <TourDatePicker
               mode="single"
               value={toDate(field.value)}
+              isDisabled={disabled}
               disabled={(date: Date) =>
                 !!disabled || isDateDisabled(date, fromDate)
               }
@@ -180,6 +181,7 @@ export const RHFDatePicker = <T extends FieldValues>({
           <TourDatePicker
             mode="multiple"
             value={toDates(field.value)}
+            isDisabled={disabled}
             disabled={(date: Date) =>
               !!disabled || isDateDisabled(date, fromDate)
             }
