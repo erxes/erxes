@@ -37,6 +37,10 @@ export default composePlugins(
         'process.env.REACT_APP_HIDE_CORE_MODULES': JSON.stringify(
           process.env.REACT_APP_HIDE_CORE_MODULES,
         ),
+
+        'process.env.REACT_APP_SAAS_MODE': JSON.stringify(
+          process.env.REACT_APP_SAAS_MODE,
+        ),
       }),
     );
 

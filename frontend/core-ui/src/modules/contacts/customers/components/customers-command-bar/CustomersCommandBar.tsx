@@ -73,15 +73,17 @@ export const CustomersCommandBar = () => {
           buttonVariant="secondary"
           ids={customerIds}
         />
-        <Can action="contactsUpdate">
-          <>
-            <Separator.Inline />
-            <CustomersVerificationStatus
-              customerIds={customerIds}
-              rows={table.getFilteredSelectedRowModel().rows}
-            />
-          </>
-        </Can>
+        {!process.env.REACT_APP_SAAS_MODE && (
+          <Can action="contactsUpdate">
+            <>
+              <Separator.Inline />
+              <CustomersVerificationStatus
+                customerIds={customerIds}
+                rows={table.getFilteredSelectedRowModel().rows}
+              />
+            </>
+          </Can>
+        )}
         <Can action="contactsMerge">
           <>
             <Separator.Inline />

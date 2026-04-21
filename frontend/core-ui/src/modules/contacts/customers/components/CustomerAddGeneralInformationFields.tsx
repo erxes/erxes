@@ -29,7 +29,7 @@ export const CustomerAddGeneralInformationFields = ({
         <CodeField control={form.control} />
         <OwnerIdField control={form.control} />
         <PrimaryEmailField control={form.control} />
-        <EmailValidationStatusField control={form.control} />
+        <EmailValidationStatusField control={form.control} disabled={!!process.env.REACT_APP_SAAS_MODE} />
         <PrimaryPhoneField control={form.control} />
         <PhoneValidationStatusField control={form.control} />
       </div>
