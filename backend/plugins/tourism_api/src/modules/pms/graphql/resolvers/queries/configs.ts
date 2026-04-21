@@ -35,7 +35,7 @@ const configQueries: Record<string, Resolver> = {
       page: number;
       skipStageIds: string[];
     },
-    { models, subdomain }: IContext,
+    { subdomain }: IContext,
   ) {
     const stages = await sendTRPCMessage({
       subdomain,
