@@ -52,14 +52,12 @@ const POST_URL_FIELD_OPTIONS = [
   { value: 'slug', label: 'Post Slug' },
 ] as const;
 
-const POST_URL_FIELD_EXAMPLES: Record<
-  WebsiteFormType['postUrlField'],
-  string
-> = {
-  _id: 'fSY5zj2QmcnXUNSnF9sYo',
-  count: '1',
-  slug: 'my-first-post',
-};
+const POST_URL_FIELD_EXAMPLES: Record<WebsiteFormType['postUrlField'], string> =
+  {
+    _id: 'fSY5zj2QmcnXUNSnF9sYo',
+    count: '1',
+    slug: 'my-first-post',
+  };
 
 export function WebsiteDrawer({
   website,
@@ -361,10 +359,7 @@ export function WebsiteDrawer({
                 <Form.Item>
                   <Form.Label>Post URL Field</Form.Label>
                   <Form.Control>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
                         <Select.Value placeholder="Select post URL field" />
                       </Select.Trigger>
