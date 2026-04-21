@@ -307,7 +307,7 @@ export const deploy = async (
         ? 'index'
         : page.slug;
       const pagePath = path.join(tmpDir, 'data', 'pages', `${fileName}.json`);
-      fs.writeFileSync(pagePath, JSON.stringify(buildPageConfigs(page as any)));
+      fs.writeFileSync(pagePath, JSON.stringify(buildPageConfigs(page)));
     }
     console.log('wrote all pages');
 
@@ -324,7 +324,7 @@ export const deploy = async (
     // Collect all files for Vercel upload
     const binaryExts = /\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/;
     const files = allFilePaths(tmpDir).map((filePath) => {
-      const relPath = path.relative(tmpDir, filePath).replace(/\\/g, '/');
+      const relPath = path.relative(tmpDir, filePath).replaceAll('\\', '/');
       const isBinary = binaryExts.test(path.extname(filePath));
       const fileData = fs.readFileSync(filePath);
       return isBinary
@@ -429,14 +429,14 @@ export const deploy = async (
     );
 
     const domainResult = await domainRes.json();
-    if (!domainRes.ok) {
+    if (domainRes.ok) {
+      console.log('domain assigned:', domainAlias);
+    } else {
       // Non-fatal — deployment succeeded, alias may already be assigned
       console.warn(
         'Domain assignment warning:',
         domainResult.error?.message || JSON.stringify(domainResult),
       );
-    } else {
-      console.log('domain assigned:', domainAlias);
     }
 
     return { ...result, assignedDomain: domainAlias };
