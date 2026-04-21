@@ -22,7 +22,7 @@ const App = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/" element={<Navigate to="tms" replace />} />
+        <Route index element={<Navigate to="tms" replace />} />
         <Route path="tms" element={<Tms />} />
         <Route path="tms/branches/:branchId" element={<TmsBranchDetail />} />
         <Route path="pms" element={<Pms />} />

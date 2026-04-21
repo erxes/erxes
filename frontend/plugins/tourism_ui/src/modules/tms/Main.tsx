@@ -13,20 +13,12 @@ const TmsBranchDetail = lazy(() =>
   })),
 );
 
-const Pms = lazy(() =>
-  import('~/pages/pms/IndexPage').then((module) => ({
-    default: module.IndexPage,
-  })),
-);
-
 const TmsMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/tms" element={<Tms />} />
-        <Route path="/tms/branches/:branchId" element={<TmsBranchDetail />} />
+        <Route index element={<Tms />} />
         <Route path="branches/:branchId" element={<TmsBranchDetail />} />
-        <Route path="/pms" element={<Pms />} />
       </Routes>
     </Suspense>
   );

@@ -11,7 +11,7 @@ const PmsMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/" element={<Pms />} />
+        <Route index element={<Pms />} />
       </Routes>
     </Suspense>
   );
