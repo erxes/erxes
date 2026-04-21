@@ -1,18 +1,19 @@
-import { Button, Form, Input, Select } from 'erxes-ui';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Accordion, Button, Form, Input, Select } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
+import { useToast } from 'erxes-ui';
+import { TMovementErkhetConfig } from '../types';
+import { addStageInMovementErkhetConfigSchema } from '../constants/addStageInErkhetMovementConfigSchema';
+import { SelectSalesBoard } from './selects/SelectBoard';
 import { SelectPipeline } from './selects/SelectPipeline';
 import { SelectStage } from './selects/SelectStage';
 import { CHOOSE_RESPONSE_FIELD_DATA } from '../constants/chooseResponseFieldData';
-import { useCreateStageInErkhetMovementConfig } from '../hooks/useCreateStageInErkhetMovementConfig';
-import { TMovementErkhetConfig } from '../types';
-import { SelectSalesBoard } from './selects/SelectBoard';
-import { addStageInMovementErkhetConfigSchema } from '../constants/addStageInErkhetMovementConfigSchema';
 import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/useStageInErkhetMovementConfigQuery';
+import { CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG } from '../graphql/mutations/createStageInErkhetMovementConfigMutations';
 
-const defaultValues = {
+const DEFAULT_VALUES: TMovementErkhetConfig = {
   title: '',
   boardId: '',
   pipelineId: '',
@@ -22,419 +23,300 @@ const defaultValues = {
   defaultCustomer: '',
 };
 
-const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
-  const form = useForm({
-    resolver: zodResolver(addStageInMovementErkhetConfigSchema),
-    defaultValues: {
-      title: config?.title || '',
-      boardId: config?.boardId || '',
-      pipelineId: config?.pipelineId || '',
-      stageId: config?.stageId || '',
-      userEmail: config?.userEmail || '',
-      chooseResponseField: config?.chooseResponseField || '',
-      defaultCustomer: config?.defaultCustomer || '',
-    },
-  });
-
-  const selectedBoardId = form.watch('boardId');
-  const selectedPipelineId = form.watch('pipelineId');
-
-  return (
-    <div className="">
-      <Form {...form}>
-        <form
-          className="h-full w-full mx-auto max-w-6xl px-9 py-5 flex flex-col gap-6"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          <div className="flex justify-between items-center">
-            <h1 className="text-lg font-semibold">New Erkhet Move Config</h1>
-            <Button type="button" onClick={onNewConfig}>
-              New Config
-            </Button>
-          </div>
-          <Form.Field
-            name="title"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Title</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="Title" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid grid-cols-1 gap-4">
-              <Form.Field
-                control={form.control}
-                name="boardId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Board</Form.Label>
-                    <SelectSalesBoard
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        form.setValue('pipelineId', '');
-                        form.setValue('stageId', '');
-                      }}
-                    />
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="pipelineId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Pipeline</Form.Label>
-                    <SelectPipeline
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        form.setValue('stageId', '');
-                      }}
-                      boardId={selectedBoardId}
-                      disabled={!selectedBoardId}
-                    />
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="stageId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Stage</Form.Label>
-                    <SelectStage
-                      id="stageId"
-                      variant="form"
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      pipelineId={selectedPipelineId}
-                      disabled={!selectedPipelineId}
-                    />
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              <Form.Field
-                name="userEmail"
-                control={form.control}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>User Email</Form.Label>
-                    <Form.Control>
-                      <Input {...field} placeholder="User Email" />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name="defaultCustomer"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Default Customer</Form.Label>
-                    <Form.Control>
-                      <Input {...field} placeholder="Default Customer" />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name="chooseResponseField"
-                render={({ field }) => (
-                  <Form.Item className="w-full">
-                    <Form.Label>Choose Response Field</Form.Label>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                    >
-                      <Select.Trigger className="w-full">
-                        <Select.Value placeholder="Choose Response Field" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
-                          <Select.Item key={type.value} value={type.value}>
-                            {type.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
-  );
+const parseConfigs = (value: any): TMovementErkhetConfig[] => {
+  if (!value) return [];
+  const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+  return Array.isArray(parsed) ? parsed : [parsed];
 };
 
-const NewConfigForm = ({
-  onCancel,
-  onSubmit,
-  loading,
-}: {
-  onCancel: () => void;
-  onSubmit: (data: any) => void;
-  loading: boolean;
+interface ConfigItemFormProps {
+  config: TMovementErkhetConfig;
+  index: number;
+  isNew: boolean;
+  saving: boolean;
+  onSave: (index: number, data: TMovementErkhetConfig) => void;
+  onDelete: (index: number) => void;
+  onCancelNew: () => void;
+}
+
+const ConfigItemForm: React.FC<ConfigItemFormProps> = ({
+  config,
+  index,
+  isNew,
+  saving,
+  onSave,
+  onDelete,
+  onCancelNew,
 }) => {
-  const form = useForm({
+  const form = useForm<TMovementErkhetConfig>({
     resolver: zodResolver(addStageInMovementErkhetConfigSchema),
-    defaultValues,
+    defaultValues: config,
   });
 
   const selectedBoardId = form.watch('boardId');
   const selectedPipelineId = form.watch('pipelineId');
+  const titleValue = form.watch('title');
 
   return (
-    <div className="">
-      <Form {...form}>
-        <form
-          className="w-full mx-auto max-w-6xl flex flex-col gap-6 px-9 py-5"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          <h1 className="text-lg font-semibold">New Erkhet Move Config</h1>
+    <Accordion.Item value={`config-${index}`}>
+      <Accordion.Trigger className="text-base font-medium no-underline hover:no-underline">
+        {titleValue || (
+          <span className="text-muted-foreground italic">Untitled config</span>
+        )}
+      </Accordion.Trigger>
+      <Accordion.Content>
+        <Form {...form}>
+          <form
+            className="flex flex-col gap-6 pt-2 pb-4"
+            onSubmit={form.handleSubmit((data) => onSave(index, data))}
+          >
+            <Form.Field
+              name="title"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control>
+                    <Input {...field} placeholder="Title" />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
 
-          <Form.Field
-            name="title"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Title</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="Title" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-4">
+                <Form.Field
+                  control={form.control}
+                  name="boardId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Board</Form.Label>
+                      <SelectSalesBoard
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.setValue('pipelineId', '');
+                          form.setValue('stageId', '');
+                        }}
+                      />
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid grid-cols-1 gap-4">
-              <Form.Field
-                control={form.control}
-                name="boardId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Board</Form.Label>
-                    <SelectSalesBoard
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        form.setValue('pipelineId', '');
-                        form.setValue('stageId', '');
-                      }}
-                    />
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+                <Form.Field
+                  control={form.control}
+                  name="pipelineId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Pipeline</Form.Label>
+                      <SelectPipeline
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.setValue('stageId', '');
+                        }}
+                        boardId={selectedBoardId}
+                        disabled={!selectedBoardId}
+                      />
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-              <Form.Field
-                control={form.control}
-                name="pipelineId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Pipeline</Form.Label>
-                    <SelectPipeline
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        form.setValue('stageId', '');
-                      }}
-                      boardId={selectedBoardId}
-                      disabled={!selectedBoardId}
-                    />
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+                <Form.Field
+                  control={form.control}
+                  name="stageId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Stage</Form.Label>
+                      <SelectStage
+                        id="stageId"
+                        variant="form"
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        pipelineId={selectedPipelineId}
+                        disabled={!selectedPipelineId}
+                      />
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
 
-              <Form.Field
-                control={form.control}
-                name="stageId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Stage</Form.Label>
-                    <SelectStage
-                      id="stageId"
-                      variant="form"
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      pipelineId={selectedPipelineId}
-                      disabled={!selectedPipelineId}
-                    />
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+              <div className="flex flex-col gap-4">
+                <Form.Field
+                  name="userEmail"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>User Email</Form.Label>
+                      <Form.Control>
+                        <Input {...field} placeholder="User Email" />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  name="defaultCustomer"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Default Customer</Form.Label>
+                      <Form.Control>
+                        <Input {...field} placeholder="Default Customer" />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="chooseResponseField"
+                  render={({ field }) => (
+                    <Form.Item className="w-full">
+                      <Form.Label>Choose Response Field</Form.Label>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <Select.Trigger className="w-full">
+                          <Select.Value placeholder="Choose Response Field" />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
+                            <Select.Item key={type.value} value={type.value}>
+                              {type.label}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
             </div>
-            <div className="grid grid-cols-1 gap-4">
-              <Form.Field
-                name="userEmail"
-                control={form.control}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>User Email</Form.Label>
-                    <Form.Control>
-                      <Input {...field} placeholder="User Email" />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name="defaultCustomer"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Default Customer</Form.Label>
-                    <Form.Control>
-                      <Input {...field} placeholder="Default Customer" />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name="chooseResponseField"
-                render={({ field }) => (
-                  <Form.Item className="w-full">
-                    <Form.Label>Choose Response Field</Form.Label>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                    >
-                      <Select.Trigger className="w-full">
-                        <Select.Value placeholder="Choose Response Field" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
-                          <Select.Item key={type.value} value={type.value}>
-                            {type.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </div>
-          </div>
 
-          <div className="flex justify-end gap-2 mt-6">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+            <div className="flex justify-end gap-2">
+              {isNew && (
+                <Button type="button" variant="outline" onClick={onCancelNew}>
+                  Cancel
+                </Button>
+              )}
+              {!isNew && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => onDelete(index)}
+                  disabled={saving}
+                >
+                  Delete
+                </Button>
+              )}
+              <Button type="submit" disabled={saving}>
+                {saving ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </Accordion.Content>
+    </Accordion.Item>
   );
 };
 
 export const StageInErkhetMovementConfigForm = () => {
-  const [showNewConfig, setShowNewConfig] = useState(false);
-  const { createStageInErkhetMovementConfig, loading: createLoading } =
-    useCreateStageInErkhetMovementConfig();
+  const { toast } = useToast();
+  const [newConfig, setNewConfig] = useState<TMovementErkhetConfig | null>(null);
+
   const { data, refetch, loading } = useQuery(GET_CONFIGS_GET_VALUE, {
     variables: { code: 'stageInMoveConfig' },
     fetchPolicy: 'network-only',
   });
 
-  const configValue = data?.configsGetValue?.value;
+  const [saveConfig, { loading: saving }] = useMutation(
+    CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG,
+    {
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Stage in movement config saved successfully',
+          variant: 'default',
+        });
+        refetch();
+      },
+      onError: (e) => {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
+      },
+    },
+  );
 
-  const parseConfigValue = (value: any) => {
-    if (!value) return null;
-    return typeof value === 'string' ? JSON.parse(value) : value;
-  };
+  const configs = parseConfigs(
+    data?.configsGetValue?.value ?? data?.configsGetValue,
+  );
 
-  const parsedConfig = parseConfigValue(configValue);
+  const persistConfigs = (updated: TMovementErkhetConfig[]) =>
+    saveConfig({ variables: { configsMap: { stageInMoveConfig: updated } } });
 
-  const handleSubmit = async (formData: TMovementErkhetConfig) => {
-    try {
-      const configsMapString = {
-        stageInMoveConfig: {
-          title: formData.title,
-          boardId: formData.boardId,
-          pipelineId: formData.pipelineId,
-          stageId: formData.stageId,
-          userEmail: formData.userEmail,
-          chooseResponseField: formData.chooseResponseField,
-          defaultCustomer: formData.defaultCustomer,
-        },
-      };
-
-      await createStageInErkhetMovementConfig({
-        variables: {
-          configsMap: configsMapString,
-        },
-      });
-
-      await refetch();
-
-      setShowNewConfig(false);
-    } catch (error) {
-      console.error('Error saving config:', error);
+  const handleSave = async (index: number, formData: TMovementErkhetConfig) => {
+    if (newConfig && index === configs.length) {
+      await persistConfigs([...configs, formData]);
+      setNewConfig(null);
+    } else {
+      const updated = configs.map((c, i) => (i === index ? formData : c));
+      await persistConfigs(updated);
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const handleDelete = async (index: number) => {
+    const updated = configs.filter((_, i) => i !== index);
+    await persistConfigs(updated);
+  };
+
+  const allItems = newConfig ? [...configs, newConfig] : configs;
+  const defaultOpen = allItems.map((_, i) => `config-${i}`);
 
   return (
-    <div className="h-full w-full mx-auto max-w-6xl flex flex-col">
-      {!parsedConfig || showNewConfig ? (
-        <NewConfigForm
-          onCancel={() => {
-            if (parsedConfig) {
-              setShowNewConfig(false);
-            }
-          }}
-          onSubmit={handleSubmit}
-          loading={createLoading}
-        />
-      ) : (
-        <EditConfigForm
-          config={parsedConfig}
-          onNewConfig={() => setShowNewConfig(true)}
-          onSubmit={handleSubmit}
-          loading={createLoading}
-        />
-      )}
+    <div className="h-full w-full mx-auto max-w-6xl px-9 py-5 overflow-y-auto">
+      <Accordion type="multiple" defaultValue={defaultOpen} className="w-full">
+        <div className="flex items-center justify-between py-3 border-b">
+          <span className="text-xl font-semibold">Stage in movement configs</span>
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setNewConfig({ ...DEFAULT_VALUES })}
+            disabled={!!newConfig}
+          >
+            New Config
+          </Button>
+        </div>
+
+        {loading ? (
+          <div className="py-4 text-sm text-muted-foreground">Loading...</div>
+        ) : (
+          allItems.map((config, index) => (
+            <ConfigItemForm
+              key={
+                newConfig && index === configs.length
+                  ? 'new'
+                  : `${config.title}-${index}`
+              }
+              config={config}
+              index={index}
+              isNew={!!(newConfig && index === configs.length)}
+              saving={saving}
+              onSave={handleSave}
+              onDelete={handleDelete}
+              onCancelNew={() => setNewConfig(null)}
+            />
+          ))
+        )}
+      </Accordion>
     </div>
   );
 };

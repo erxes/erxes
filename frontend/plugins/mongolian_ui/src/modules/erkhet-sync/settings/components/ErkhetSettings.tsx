@@ -34,11 +34,11 @@ const StageInErkhetMovementConfig = lazy(() =>
   })),
 );
 
-const StageInErkhetIncomeConfig = lazy(() =>
-  import('~/pages/StageInErkhetIncomeConfigPage').then((module) => ({
-    default: module.StageInErkhetIncomeConfig,
-  })),
-);
+// const StageInErkhetIncomeConfig = lazy(() =>
+//   import('~/pages/StageInErkhetIncomeConfigPage').then((module) => ({
+//     default: module.StageInErkhetIncomeConfig,
+//   })),
+// );
 
 const ErkhetSettings = () => {
   return (
@@ -63,7 +63,7 @@ const ErkhetSettings = () => {
                 path="/movement"
                 element={<StageInErkhetMovementConfig />}
               />
-              <Route path="/income" element={<StageInErkhetIncomeConfig />} />
+              {/* <Route path="/income" element={<StageInErkhetIncomeConfig />} /> */}
             </Routes>
           </Suspense>
         </div>

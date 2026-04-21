@@ -6,11 +6,11 @@ export interface SyncErkhetGeneralConfigFormData {
   costAccount: string;
   salesAccount: string;
   productCategoryCode: string;
-  customerDefaultName: string;
+  consumeDescription: string;
   checkCompanyUrl: string;
+  customerDefaultName: string;
   customerCategoryCode: string;
   companyCategoryCode: string;
-  consumeDescription: string;
   debtAccounts: string;
   userEmail: string;
   defaultCustomer: string;
