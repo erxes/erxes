@@ -3,6 +3,16 @@ import {
   TourTranslationFormValue,
 } from '../constants/formSchema';
 
+export interface IPricingOptionTranslationInput {
+  optionId: string;
+  title?: string;
+  accommodationType?: string;
+  note?: string;
+  prices?: Array<{ type: 'adult' | 'child' | 'infant'; price: number }>;
+  domesticFlightPerPerson?: number;
+  singleSupplement?: number;
+}
+
 export interface ITourTranslationInput {
   language: string;
   name?: string;
@@ -13,15 +23,7 @@ export interface ITourTranslationInput {
   info3?: string;
   info4?: string;
   info5?: string;
-  pricingOptions?: Array<{
-    optionId: string;
-    title?: string;
-    accommodationType?: string;
-    note?: string;
-    pricePerPerson?: number;
-    domesticFlightPerPerson?: number;
-    singleSupplement?: number;
-  }>;
+  pricingOptions?: IPricingOptionTranslationInput[];
 }
 
 type TourTranslation = TourTranslationFormValue;
@@ -45,7 +47,9 @@ export const buildEmptyTourTranslations = (
       title: '',
       accommodationType: '',
       note: '',
-      pricePerPerson: '',
+      adultPrice: '',
+      childPrice: '',
+      infantPrice: '',
       domesticFlightPerPerson: '',
       singleSupplement: '',
     })),
@@ -68,6 +72,7 @@ export const buildTranslationsFromTour = (
         title?: string;
         accommodationType?: string;
         note?: string;
+        prices?: Array<{ type: string; price: number }>;
         pricePerPerson?: number;
         domesticFlightPerPerson?: number;
         singleSupplement?: number;
@@ -86,12 +91,26 @@ export const buildTranslationsFromTour = (
       const existingOpt = (existing?.pricingOptions || []).find(
         (p) => p.optionId === optionId,
       );
+
+      const adultPrice =
+        existingOpt?.prices?.find((p) => p.type === 'adult')?.price ??
+        existingOpt?.pricePerPerson ??
+        '';
+
+      const childPrice =
+        existingOpt?.prices?.find((p) => p.type === 'child')?.price ?? '';
+
+      const infantPrice =
+        existingOpt?.prices?.find((p) => p.type === 'infant')?.price ?? '';
+
       return {
         optionId,
         title: existingOpt?.title || '',
         accommodationType: existingOpt?.accommodationType || '',
         note: existingOpt?.note || '',
-        pricePerPerson: existingOpt?.pricePerPerson ?? '',
+        adultPrice,
+        childPrice,
+        infantPrice,
         domesticFlightPerPerson: existingOpt?.domesticFlightPerPerson ?? '',
         singleSupplement: existingOpt?.singleSupplement ?? '',
       };
@@ -131,7 +150,9 @@ export const sanitizeTourTranslations = (
             p.title ||
             p.accommodationType ||
             p.note ||
-            typeof p.pricePerPerson === 'number' ||
+            typeof p.adultPrice === 'number' ||
+            typeof p.childPrice === 'number' ||
+            typeof p.infantPrice === 'number' ||
             typeof p.domesticFlightPerPerson === 'number' ||
             typeof p.singleSupplement === 'number',
         ),
@@ -152,26 +173,33 @@ export const sanitizeTourTranslations = (
             p.title ||
             p.accommodationType ||
             p.note ||
-            typeof p.pricePerPerson === 'number' ||
+            typeof p.adultPrice === 'number' ||
+            typeof p.childPrice === 'number' ||
+            typeof p.infantPrice === 'number' ||
             typeof p.domesticFlightPerPerson === 'number' ||
             typeof p.singleSupplement === 'number',
         )
-        .map((p) => ({
-          optionId: p.optionId,
-          title: p.title || undefined,
-          accommodationType: p.accommodationType || undefined,
-          note: p.note || undefined,
-          pricePerPerson:
-            typeof p.pricePerPerson === 'number' ? p.pricePerPerson : undefined,
-          domesticFlightPerPerson:
-            typeof p.domesticFlightPerPerson === 'number'
-              ? p.domesticFlightPerPerson
-              : undefined,
-          singleSupplement:
-            typeof p.singleSupplement === 'number'
-              ? p.singleSupplement
-              : undefined,
-        })),
+        .map((p) => {
+          const prices: Array<{ type: 'adult' | 'child' | 'infant'; price: number }> = [];
+          if (typeof p.adultPrice === 'number') prices.push({ type: 'adult', price: p.adultPrice });
+          if (typeof p.childPrice === 'number') prices.push({ type: 'child', price: p.childPrice });
+          if (typeof p.infantPrice === 'number') prices.push({ type: 'infant', price: p.infantPrice });
+          return {
+            optionId: p.optionId,
+            title: p.title || undefined,
+            accommodationType: p.accommodationType || undefined,
+            note: p.note || undefined,
+            prices: prices.length > 0 ? prices : undefined,
+            domesticFlightPerPerson:
+              typeof p.domesticFlightPerPerson === 'number'
+                ? p.domesticFlightPerPerson
+                : undefined,
+            singleSupplement:
+              typeof p.singleSupplement === 'number'
+                ? p.singleSupplement
+                : undefined,
+          };
+        }),
     }));
 
   return cleaned.length ? cleaned : undefined;
@@ -196,7 +224,9 @@ export const syncTranslationPricingOptions = (
           title: '',
           accommodationType: '',
           note: '',
-          pricePerPerson: '',
+          adultPrice: '',
+          childPrice: '',
+          infantPrice: '',
           domesticFlightPerPerson: '',
           singleSupplement: '',
         }
@@ -209,10 +239,6 @@ export const syncTranslationPricingOptions = (
 
 /**
  * Returns the main-language name for form initialization.
- *
- * The backend always includes the main language entry in `translations`,
- * so we look it up there first. This works regardless of whether the
- * list query swapped `tour.name` to another language.
  *
  * Fallback chain: translations[mainLang] → tour.name → ''
  */

@@ -102,7 +102,7 @@ export interface IMainContext {
   user: IUserDocument;
   cpUser?: any;
   clientPortal?: any;
-  models: any;
+  models?: any;
   __: <T extends object>(doc: T) => T & { processId: string };
   processId: string;
   eventHandlers: ScopedEventHandlers;

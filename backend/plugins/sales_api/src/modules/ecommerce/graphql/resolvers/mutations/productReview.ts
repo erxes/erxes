@@ -1,3 +1,4 @@
+import { markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const productReviewMutations = {
@@ -83,5 +84,11 @@ export const productReviewMutations = {
     return removed;
   },
 };
+
+markResolvers(productReviewMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 
 export default productReviewMutations;

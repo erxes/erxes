@@ -42,12 +42,24 @@ export const types = `
     fixed
     flexible
   }
+  enum PASSENGER_TYPE {
+    adult
+    child
+    infant
+  }
+
+  type PricingOptionPrice {
+    type: PASSENGER_TYPE!
+    price: Float!
+  }
+
   type PricingOption {
     _id: ID!
     title: String!
     minPersons: Int!
     maxPersons: Int
-    pricePerPerson: Float!
+    prices: [PricingOptionPrice!]!
+    pricePerPerson: Float
     accommodationType: String
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -59,6 +71,7 @@ export const types = `
     title: String
     note: String
     accommodationType: String
+    prices: [PricingOptionPrice]
     pricePerPerson: Float
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -81,11 +94,17 @@ export const types = `
     updatedAt: Date
   }
 
+  input PricingOptionPriceInput {
+    type: PASSENGER_TYPE!
+    price: Float!
+  }
+
   input PricingOptionTranslationInput {
     optionId: String!
     title: String
     note: String
     accommodationType: String
+    prices: [PricingOptionPriceInput]
     pricePerPerson: Float
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -198,7 +217,8 @@ export const types = `
     title: String!
     minPersons: Int!
     maxPersons: Int
-    pricePerPerson: Float!
+    prices: [PricingOptionPriceInput!]!
+    pricePerPerson: Float
     accommodationType: String
     domesticFlightPerPerson: Float
     singleSupplement: Float

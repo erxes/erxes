@@ -10,6 +10,10 @@ import {
 } from '@/bms/@types/tour';
 import { tourCategorySchema, tourSchema } from '@/bms/db/definitions/tour';
 
+const getAdultPrice = (option: IPricingOption): number | undefined =>
+  option.prices?.find((price) => price.type === 'adult')?.price ??
+  option.pricePerPerson;
+
 export interface ITourModel extends Model<ITourDocument> {
   createTour(doc: ITour, user: any): Promise<ITourDocument>;
   getTour(_id: string): Promise<ITourDocument>;
@@ -136,7 +140,7 @@ export const loadTourClass = (models: IModels) => {
         return undefined;
       }
       const prices = pricingOptions
-        .map((opt) => opt.pricePerPerson)
+        .map(getAdultPrice)
         .filter((p): p is number => typeof p === 'number');
       return prices.length ? Math.min(...prices) : undefined;
     }
@@ -169,13 +173,11 @@ export const loadTourClass = (models: IModels) => {
         }
 
         // 3. price validation
-        if (
-          option.pricePerPerson === undefined ||
-          option.pricePerPerson === null ||
-          option.pricePerPerson <= 0
-        ) {
+        const adultPrice = getAdultPrice(option);
+
+        if (adultPrice === undefined || adultPrice <= 0) {
           throw new Error(
-            `Invalid pricing option "${option.title}": pricePerPerson must be > 0`,
+            `Invalid pricing option "${option.title}": adult price must be > 0`,
           );
         }
 
@@ -187,7 +189,7 @@ export const loadTourClass = (models: IModels) => {
         // 5. duplicate check – normalize for comparison
         const key = `${option.minPersons}|${
           option.maxPersons ?? ''
-        }|${accommodationType}|${option.pricePerPerson}`;
+        }|${accommodationType}|${adultPrice}`;
 
         if (combinations.has(key)) {
           throw new Error(

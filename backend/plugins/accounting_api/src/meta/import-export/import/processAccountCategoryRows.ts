@@ -61,47 +61,29 @@ export async function processAccountCategoryRows(
       if (doc.code) existingByCode.set(doc.code, doc);
     }
 
-    const operations: any[] = [];
-    const rowToMetaMap = new Map<any, { _id?: any; operationIndex?: number }>();
-
     for (const row of rows) {
       try {
         const doc = await prepareAccountDoc(models, row);
         const existing = existingByCode.get(doc.code);
 
         if (existing) {
-          operations.push({
-            updateOne: {
-              filter: { _id: existing._id },
-              update: { $set: { ...doc, updatedAt: new Date() } },
-            },
-          });
-          rowToMetaMap.set(row, { _id: existing._id });
+          await models.AccountCategories.updateOne(
+            { _id: existing._id },
+            { $set: { ...doc, updatedAt: new Date() } },
+          );
+          successRows.push({ ...row, _id: existing._id });
+          existingByCode.set(doc.code, { ...existing, ...doc, _id: existing._id });
         } else {
-          const opIndex = operations.length;
-          operations.push({ insertOne: { document: doc } });
-          rowToMetaMap.set(row, { operationIndex: opIndex });
+
+          const newCat = await models.AccountCategories.create({ ...doc });
+          successRows.push({ ...row, _id: newCat._id });
+          existingByCode.set(doc.code, { ...doc, _id: newCat._id });
         }
       } catch (e: any) {
         errorRows.push({
           ...row,
           error: e?.message || 'Failed to prepare row',
         });
-      }
-    }
-
-    if (operations.length) {
-      const result = await models.AccountCategories.bulkWrite(operations);
-
-      for (const [row, meta] of rowToMetaMap.entries()) {
-        if (meta.operationIndex !== undefined) {
-          successRows.push({
-            ...row,
-            _id: result.insertedIds[meta.operationIndex],
-          });
-        } else {
-          successRows.push({ ...row, _id: meta._id });
-        }
       }
     }
 
