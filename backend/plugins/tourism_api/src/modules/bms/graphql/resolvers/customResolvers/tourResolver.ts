@@ -1,5 +1,46 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import type { IPricingOptionPrice, PassengerType } from '@/bms/@types/tour';
+
+export interface PricingOptionPriceSource {
+  type?: string | null;
+  price?: number | null;
+}
+
+export interface PricingOptionSource {
+  prices?: PricingOptionPriceSource[] | null;
+  pricePerPerson?: number | null;
+}
+
+const isPassengerType = (
+  value: string | null | undefined,
+): value is PassengerType =>
+  value === 'adult' || value === 'child' || value === 'infant';
+
+const normalizePricingOptionPrices = (
+  option: PricingOptionSource,
+): IPricingOptionPrice[] => {
+  const prices = Array.isArray(option.prices)
+    ? option.prices
+        .filter(
+          (
+            price,
+          ): price is PricingOptionPriceSource & {
+            type: PassengerType;
+            price: number;
+          } => isPassengerType(price.type) && typeof price.price === 'number',
+        )
+        .map((price) => ({ type: price.type, price: price.price }))
+    : [];
+
+  if (prices.length > 0) {
+    return prices;
+  }
+
+  return typeof option.pricePerPerson === 'number'
+    ? [{ type: 'adult', price: option.pricePerPerson }]
+    : [];
+};
 
 const item = {
   async itinerary(touritem: any, _args, { models }: IContext) {
@@ -22,6 +63,14 @@ const item = {
     if (touritem.tagIds?.length) return touritem.tagIds;
     if (touritem.categoryIds?.length) return touritem.categoryIds;
     return [];
+  },
+
+  pricingOptions(touritem: any) {
+    return Array.isArray(touritem.pricingOptions)
+      ? touritem.pricingOptions.filter(
+          (option): option is PricingOptionSource => Boolean(option),
+        )
+      : [];
   },
 
   async categoriesObject(touritem: any, _args, { models }: IContext) {
@@ -90,3 +139,11 @@ const item = {
 };
 
 export default item;
+
+export const PricingOption = {
+  prices: normalizePricingOptionPrices,
+};
+
+export const PricingOptionTranslation = {
+  prices: normalizePricingOptionPrices,
+};
