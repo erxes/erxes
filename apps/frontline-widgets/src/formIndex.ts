@@ -156,6 +156,7 @@ const createIframe = (settings: Settings) => {
   const embedContainer = document.querySelector(
     `[data-erxes-embed="${formId}"]`,
   );
+  console.log('embedContainer', embedContainer);
 
   if (embedContainer) {
     embedContainer.appendChild(container);
