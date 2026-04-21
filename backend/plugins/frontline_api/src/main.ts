@@ -111,20 +111,7 @@ startPlugin({
   },
 
   meta: {
-    automations: {
-      constants: {
-        actions: [
-          ...automations.constants.actions,
-        ],
-        triggers: [...(automations.constants as any).triggers ?? []],
-        bots: [...(automations.constants as any).bots ?? []],
-      },
-      receiveActions: automations.receiveActions,
-      checkCustomTrigger: automations.checkCustomTrigger,
-      getAdditionalAttributes: automations.getAdditionalAttributes,
-      generateAiContext: automations.generateAiContext,
-      setProperties: automations.setProperties,
-    },
+    automations,
     afterProcess,
     notifications,
     tags: {
