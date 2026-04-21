@@ -46,8 +46,12 @@ export const MessageTriggerConditionsList = ({
             <IconBrandInstagram />
           </div>
           <div>
-            <p className="font-semibold text-muted-foreground text-sm">{label}</p>
-            <span className="font-mono text-muted-foreground text-xs">{description}</span>
+            <p className="font-semibold text-muted-foreground text-sm">
+              {label}
+            </p>
+            <span className="font-mono text-muted-foreground text-xs">
+              {description}
+            </span>
             {errors[type] && (
               <p className="text-destructive text-xs">{errors[type] || ''}</p>
             )}

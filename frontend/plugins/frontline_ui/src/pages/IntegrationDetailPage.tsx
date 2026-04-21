@@ -40,11 +40,11 @@ const CallIntegrationDetail = lazy(() =>
 );
 
 const InstagramIntegrationDetail = lazy(() =>
-  import(
-    '@/integrations/instagram/components/InstagramIntegrationDetail'
-  ).then((module) => ({
-    default: module.InstagramIntegrationDetail,
-  })),
+  import('@/integrations/instagram/components/InstagramIntegrationDetail').then(
+    (module) => ({
+      default: module.InstagramIntegrationDetail,
+    }),
+  ),
 );
 
 export const IntegrationDetailPage = () => {

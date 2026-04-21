@@ -49,11 +49,18 @@ export const CommentTriggerForm = ({
 
   useImperativeHandle(formRef, () => ({
     submit: form.handleSubmit(onSaveTriggerConfig, () =>
-      toast({ title: 'There is some error in the form', variant: 'destructive' }),
+      toast({
+        title: 'There is some error in the form',
+        variant: 'destructive',
+      }),
     ),
   }));
 
-  const [botId, checkContent, postType] = watch(['botId', 'checkContent', 'postType']);
+  const [botId, checkContent, postType] = watch([
+    'botId',
+    'checkContent',
+    'postType',
+  ]);
 
   return (
     <div className="h-full w-2xl">
@@ -62,7 +69,10 @@ export const CommentTriggerForm = ({
           control={control}
           name="botId"
           render={({ field }) => (
-            <InstagramBotSelector botId={field.value} onSelect={field.onChange} />
+            <InstagramBotSelector
+              botId={field.value}
+              onSelect={field.onChange}
+            />
           )}
         />
         <div className={cn('flex flex-col gap-2 p-4', { blur: !botId })}>
@@ -79,7 +89,9 @@ export const CommentTriggerForm = ({
                     </Select.Trigger>
                     <Select.Content>
                       {POST_TYPES.map(({ label, value }) => (
-                        <Select.Item key={value} value={value}>{label}</Select.Item>
+                        <Select.Item key={value} value={value}>
+                          {label}
+                        </Select.Item>
                       ))}
                     </Select.Content>
                   </Select>
@@ -109,7 +121,10 @@ export const CommentTriggerForm = ({
               <Form.Item className="flex items-center justify-between">
                 <Form.Label>Track first level comments only</Form.Label>
                 <Form.Control>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </Form.Control>
               </Form.Item>
             )}
@@ -119,9 +134,14 @@ export const CommentTriggerForm = ({
             name="checkContent"
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
-                <Form.Label>Check comment text contains with keywords</Form.Label>
+                <Form.Label>
+                  Check comment text contains with keywords
+                </Form.Label>
                 <Form.Control>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </Form.Control>
               </Form.Item>
             )}

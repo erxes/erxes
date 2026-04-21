@@ -45,7 +45,8 @@ export const triggerFormSchema = z.object({
             if (type === 'direct' && (!conditions || conditions.length === 0)) {
               ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'You should provide at least one keyword on direct message',
+                message:
+                  'You should provide at least one keyword on direct message',
                 path: ['conditions'],
               });
             }

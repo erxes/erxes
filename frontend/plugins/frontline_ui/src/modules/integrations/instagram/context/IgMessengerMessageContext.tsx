@@ -18,7 +18,8 @@ export const useIgMessengerMessageContext = () => {
     );
   }
 
-  const { previousMessage, nextMessage, userId, customerId, createdAt } = context;
+  const { previousMessage, nextMessage, userId, customerId, createdAt } =
+    context;
 
   const checkHasSibling = (message?: IInstagramConversationMessage) => {
     if (!message) return false;

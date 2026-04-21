@@ -171,7 +171,8 @@ export async function instagramStatus({
     return {
       data: {
         status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
       },
       status: 'error',
     };

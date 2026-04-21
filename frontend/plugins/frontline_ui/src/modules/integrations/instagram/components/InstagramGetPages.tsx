@@ -69,7 +69,9 @@ export const InstagramGetPages = () => {
                   key={page.id}
                   value={page.name}
                   onSelect={() =>
-                    setSelectedPage(selectedPage === page.id ? undefined : page.id)
+                    setSelectedPage(
+                      selectedPage === page.id ? undefined : page.id,
+                    )
                   }
                   className={cn(
                     'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3',

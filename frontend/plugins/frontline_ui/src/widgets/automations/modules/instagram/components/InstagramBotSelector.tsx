@@ -6,7 +6,14 @@ import {
   IconRobotFace,
   IconSettings,
 } from '@tabler/icons-react';
-import { Avatar, Button, Collapsible, Label, Separator, Spinner } from 'erxes-ui';
+import {
+  Avatar,
+  Button,
+  Collapsible,
+  Label,
+  Separator,
+  Spinner,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
@@ -35,8 +42,12 @@ export const InstagramBotSelector = ({ botId, onSelect }: Props) => {
         <div className="w-full flex flex-row justify-between items-center px-4 py-6 cursor-pointer">
           <div className="flex flex-row items-center gap-4">
             <Avatar className="w-8 h-8">
-              <Avatar.Image src={selectedBot?.profileUrl || '/images/erxes-bot.svg'} />
-              <Avatar.Fallback>{(selectedBot?.name || '').charAt(0)}</Avatar.Fallback>
+              <Avatar.Image
+                src={selectedBot?.profileUrl || '/images/erxes-bot.svg'}
+              />
+              <Avatar.Fallback>
+                {(selectedBot?.name || '').charAt(0)}
+              </Avatar.Fallback>
             </Avatar>
             <Label className="text-lg text-muted-foreground">
               {selectedBot?.name || 'Select a bot'}
@@ -94,7 +105,9 @@ const InstagramBotList = ({
         </Avatar>
         {name}
       </div>
-      <Link to={`/settings/automations/bots/instagram-messenger-bots?instagramBotId=${_id}`}>
+      <Link
+        to={`/settings/automations/bots/instagram-messenger-bots?instagramBotId=${_id}`}
+      >
         <IconSettings className="w-4 h-4 text-muted-foreground" />
       </Link>
     </div>

@@ -8,7 +8,13 @@ import {
   TCommentActionForm,
 } from '../../states/replyCommentActionForm';
 
-const InputTextCounter = ({ count, limit }: { count: number; limit: number }) => (
+const InputTextCounter = ({
+  count,
+  limit,
+}: {
+  count: number;
+  limit: number;
+}) => (
   <span className="text-xs text-muted-foreground ml-1">
     {count}/{limit}
   </span>
@@ -27,7 +33,10 @@ export const CommentActionForm = ({
 
   useImperativeHandle(formRef, () => ({
     submit: form.handleSubmit(onSaveActionConfig, () =>
-      toast({ title: 'There is some error in the form', variant: 'destructive' }),
+      toast({
+        title: 'There is some error in the form',
+        variant: 'destructive',
+      }),
     ),
   }));
 
@@ -42,7 +51,10 @@ export const CommentActionForm = ({
               <Form.Label className="flex flex-row justify-between">
                 <div className="flex flex-row gap-2 items-center">
                   Text
-                  <InputTextCounter count={field.value?.length || 0} limit={8000} />
+                  <InputTextCounter
+                    count={field.value?.length || 0}
+                    limit={8000}
+                  />
                 </div>
               </Form.Label>
               <Form.Control>
@@ -59,7 +71,9 @@ export const CommentActionForm = ({
             <Form.Item>
               <Form.Label>Attachments</Form.Label>
               <Form.Control>
-                <Button disabled variant="secondary">Upload Attachments (Work in progress)</Button>
+                <Button disabled variant="secondary">
+                  Upload Attachments (Work in progress)
+                </Button>
               </Form.Control>
             </Form.Item>
           )}

@@ -42,6 +42,7 @@ export function useIgIntegrations({
     integrationDetail: detailData?.instagramGetIntegrationDetail,
     pages: pagesData?.instagramGetPages || [],
     accounts: accountsData?.instagramGetAccounts || [],
-    loading: integrationsLoading || detailLoading || pagesLoading || accountsLoading,
+    loading:
+      integrationsLoading || detailLoading || pagesLoading || accountsLoading,
   };
 }

@@ -28,7 +28,10 @@ const renderActiveItemContent = ({
   onConditionChange: (
     conditionType: string,
     fieldName: 'persistentMenuIds' | 'conditions' | 'isSelected',
-    fieldValue: TMessageTriggerFormDirectMessage | TMessageTriggerFormPersistentMenu | boolean,
+    fieldValue:
+      | TMessageTriggerFormDirectMessage
+      | TMessageTriggerFormPersistentMenu
+      | boolean,
   ) => void;
   activeItemType: string;
   setActiveItemType: React.Dispatch<React.SetStateAction<string>>;
@@ -37,12 +40,16 @@ const renderActiveItemContent = ({
 }) => {
   const onConditionItemChange = (
     fieldName: 'persistentMenuIds' | 'conditions',
-    fieldValue: TMessageTriggerFormDirectMessage | TMessageTriggerFormPersistentMenu,
+    fieldValue:
+      | TMessageTriggerFormDirectMessage
+      | TMessageTriggerFormPersistentMenu,
   ) => {
     onConditionChange(activeItemType, fieldName, fieldValue);
   };
 
-  const currentCondition = formState.conditions?.find(({ type }) => type === activeItemType);
+  const currentCondition = formState.conditions?.find(
+    ({ type }) => type === activeItemType,
+  );
 
   return (
     <div className="border border-md m-4 py-2 px-4">
@@ -89,19 +96,30 @@ const renderConditionsContent = ({
   const onConditionChange = (
     conditionType: string,
     fieldName: 'persistentMenuIds' | 'conditions' | 'isSelected',
-    fieldValue: TMessageTriggerFormDirectMessage | TMessageTriggerFormPersistentMenu | boolean,
+    fieldValue:
+      | TMessageTriggerFormDirectMessage
+      | TMessageTriggerFormPersistentMenu
+      | boolean,
   ) => {
-    const condition = (formState?.conditions || []).find(({ type }) => type === conditionType);
+    const condition = (formState?.conditions || []).find(
+      ({ type }) => type === conditionType,
+    );
 
     if (!condition) {
       setFormValue('conditions', [
         ...(formState?.conditions || []),
-        { _id: generateAutomationElementId(), type: conditionType, [fieldName]: fieldValue },
+        {
+          _id: generateAutomationElementId(),
+          type: conditionType,
+          [fieldName]: fieldValue,
+        },
       ]);
     } else {
       setFormValue('conditions', [
         ...(formState?.conditions || []).map((cond) =>
-          cond.type === conditionType ? { ...cond, [fieldName]: fieldValue } : cond,
+          cond.type === conditionType
+            ? { ...cond, [fieldName]: fieldValue }
+            : cond,
         ),
       ]);
     }
@@ -149,7 +167,10 @@ export const MessageTriggerForm = ({
     formRef,
     callback: () => {
       handleSubmit(onSaveTriggerConfig, () =>
-        toast({ title: 'There is some error in the form', variant: 'destructive' }),
+        toast({
+          title: 'There is some error in the form',
+          variant: 'destructive',
+        }),
       )();
     },
   });
@@ -161,11 +182,18 @@ export const MessageTriggerForm = ({
           control={form.control}
           name="botId"
           render={({ field }) => (
-            <InstagramBotSelector botId={field.value} onSelect={field.onChange} />
+            <InstagramBotSelector
+              botId={field.value}
+              onSelect={field.onChange}
+            />
           )}
         />
         <Label className="ml-4 mt-2">Triggers</Label>
-        <div className={cn('flex-1 flex flex-col relative', { blur: !formState.botId })}>
+        <div
+          className={cn('flex-1 flex flex-col relative', {
+            blur: !formState.botId,
+          })}
+        >
           {renderConditionsContent({
             activeItemType,
             setActiveItemType,

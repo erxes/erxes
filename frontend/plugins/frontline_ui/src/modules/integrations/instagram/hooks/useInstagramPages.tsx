@@ -8,7 +8,10 @@ interface UseInstagramPagesProps {
   accountId?: string;
 }
 
-export const useInstagramPages = ({ kind, accountId }: UseInstagramPagesProps = {}) => {
+export const useInstagramPages = ({
+  kind,
+  accountId,
+}: UseInstagramPagesProps = {}) => {
   const selectedAccount = useAtomValue(selectedInstagramAccountAtom);
   const resolvedAccountId = accountId ?? selectedAccount;
   const resolvedKind = kind ?? 'instagram-post';

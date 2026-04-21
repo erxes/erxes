@@ -12,7 +12,9 @@ type Props = {
   selectedPersistentMenuIds?: string[];
   onConditionChange: (
     fieldName: 'persistentMenuIds' | 'conditions',
-    fieldValue: TMessageTriggerFormDirectMessage | TMessageTriggerFormPersistentMenu,
+    fieldValue:
+      | TMessageTriggerFormDirectMessage
+      | TMessageTriggerFormPersistentMenu,
   ) => void;
 };
 
@@ -43,7 +45,9 @@ export const InstagramBotPersistenceMenuSelector = ({
       <div className="text-muted-foreground flex justify-center">
         <IconList className="w-6 h-6" />
         <p>No persistent menus in selected bot</p>
-        <span>Persistent menu with link can't display as selectable condition</span>
+        <span>
+          Persistent menu with link can't display as selectable condition
+        </span>
       </div>
     );
   }
@@ -58,23 +62,24 @@ export const InstagramBotPersistenceMenuSelector = ({
 
   return (
     <div className="p-4">
-      {persistentMenus.map(({ _id, text, type }: any, index: number) =>
-        type !== 'link' && (
-          <div
-            key={_id}
-            className={cn(
-              'flex flex-row gap-4 border rounded-lg w-full px-4 py-2 font-semibold text-muted-foreground text-sm',
-              { 'mt-2': index > 0 },
-            )}
-          >
-            <Checkbox
-              className="data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500 rounded-full border-2 border-pink-500"
-              checked={selectedPersistentMenuIds?.includes(_id)}
-              onCheckedChange={() => onCheck(_id)}
-            />
-            <span>{text}</span>
-          </div>
-        ),
+      {persistentMenus.map(
+        ({ _id, text, type }: any, index: number) =>
+          type !== 'link' && (
+            <div
+              key={_id}
+              className={cn(
+                'flex flex-row gap-4 border rounded-lg w-full px-4 py-2 font-semibold text-muted-foreground text-sm',
+                { 'mt-2': index > 0 },
+              )}
+            >
+              <Checkbox
+                className="data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500 rounded-full border-2 border-pink-500"
+                checked={selectedPersistentMenuIds?.includes(_id)}
+                onCheckedChange={() => onCheck(_id)}
+              />
+              <span>{text}</span>
+            </div>
+          ),
       )}
     </div>
   );

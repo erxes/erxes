@@ -10,7 +10,9 @@ type Props = {
   conditions: TMessageTriggerFormCondition[];
 };
 
-export const TriggerConfigContent = ({ config }: AutomationTriggerConfigProps<Props>) => {
+export const TriggerConfigContent = ({
+  config,
+}: AutomationTriggerConfigProps<Props>) => {
   const { conditions = [], botId } = config || {};
   const { bot, loading } = useInstagramBot(botId);
 
@@ -18,20 +20,30 @@ export const TriggerConfigContent = ({ config }: AutomationTriggerConfigProps<Pr
     <div className="p-2">
       <BotProfile bot={bot} loading={loading} />
       <Separator />
-      {conditions.map((condition: TMessageTriggerFormCondition, index: number) => (
-        <Condition
-          key={index}
-          bot={bot}
-          condition={condition}
-          totalCount={conditions.filter(({ isSelected }) => isSelected).length}
-          index={index}
-        />
-      ))}
+      {conditions.map(
+        (condition: TMessageTriggerFormCondition, index: number) => (
+          <Condition
+            key={index}
+            bot={bot}
+            condition={condition}
+            totalCount={
+              conditions.filter(({ isSelected }) => isSelected).length
+            }
+            index={index}
+          />
+        ),
+      )}
     </div>
   );
 };
 
-const BotProfile = ({ bot, loading }: { bot?: IInstagramBot; loading: boolean }) => {
+const BotProfile = ({
+  bot,
+  loading,
+}: {
+  bot?: IInstagramBot;
+  loading: boolean;
+}) => {
   if (loading) return <Spinner />;
   if (!bot) return null;
 
@@ -41,12 +53,17 @@ const BotProfile = ({ bot, loading }: { bot?: IInstagramBot; loading: boolean })
         <Avatar.Image src={bot?.profileUrl || '/images/erxes-bot.svg'} />
         <Avatar.Fallback>{(bot?.name || '').charAt(0)}</Avatar.Fallback>
       </Avatar>
-      <Label className="text-muted-foreground">{bot?.name || 'Not found bot'}</Label>
+      <Label className="text-muted-foreground">
+        {bot?.name || 'Not found bot'}
+      </Label>
     </div>
   );
 };
 
-const renderDescriptionContent = (condition: TMessageTriggerFormCondition, bot?: IInstagramBot) => {
+const renderDescriptionContent = (
+  condition: TMessageTriggerFormCondition,
+  bot?: IInstagramBot,
+) => {
   if (condition.type === 'direct') {
     return (condition?.conditions || []).map(({ keywords = [] }) =>
       keywords.map(({ text }) => text).join(','),
@@ -80,7 +97,8 @@ const Condition = ({
   if (!condition?.isSelected) return null;
 
   const { label, description } =
-    MESSAGE_TRIGGER_CONDITIONS.find((c: any) => c.type === condition.type) || {};
+    MESSAGE_TRIGGER_CONDITIONS.find((c: any) => c.type === condition.type) ||
+    {};
 
   const renderORSeparator = () => {
     if (totalCount > 1 && index + 1 !== totalCount) {

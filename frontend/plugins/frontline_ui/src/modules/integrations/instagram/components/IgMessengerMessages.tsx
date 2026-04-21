@@ -55,7 +55,11 @@ export const IgMessengerMessage = () => {
   );
 };
 
-export const IgMessageWrapper = ({ children }: { children: React.ReactNode }) => {
+export const IgMessageWrapper = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const { separateNext, customerId, userId } = useIgMessengerMessageContext();
   const { customer } = useAtomValue(activeConversationState) || {};
 

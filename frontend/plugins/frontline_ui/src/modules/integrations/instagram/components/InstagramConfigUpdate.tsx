@@ -60,7 +60,8 @@ export const InstagramConfigUpdate = () => {
       INSTAGRAM_PERMISSIONS: '',
     },
   });
-  const { instagramConfigs, loading: loadingInstagramConfigs } = useInstagramGetConfigs();
+  const { instagramConfigs, loading: loadingInstagramConfigs } =
+    useInstagramGetConfigs();
   const { updateConfigs, loading } = useInstagramUpdateConfigs();
 
   useEffect(() => {
@@ -92,7 +93,10 @@ export const InstagramConfigUpdate = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="grid grid-cols-2 gap-3"
+      >
         <Form.Field
           name="INSTAGRAM_APP_ID"
           render={({ field }) => (

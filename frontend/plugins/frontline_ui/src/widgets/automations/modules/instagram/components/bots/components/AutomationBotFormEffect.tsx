@@ -9,7 +9,9 @@ import { useIgBotFormContext } from '../context/IgBotFormContext';
 export const AutomationBotFormEffect = () => {
   const { instagramMessengerBot, form } = useIgBotFormContext();
   const { setValue } = form;
-  const [atomAccountId, setAtomAccountId] = useAtom(selectedInstagramAccountAtom);
+  const [atomAccountId, setAtomAccountId] = useAtom(
+    selectedInstagramAccountAtom,
+  );
   const [atomPageId, setAtomPageId] = useAtom(selectedInstagramPageAtom);
 
   useEffect(() => {

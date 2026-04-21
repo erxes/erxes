@@ -21,10 +21,7 @@ export const receiveComment = async (
   }
 
   const integration = await models.InstagramIntegrations.findOne({
-    $and: [
-      { facebookPageId: pageId },
-      { kind: INTEGRATION_KINDS.POST },
-    ],
+    $and: [{ facebookPageId: pageId }, { kind: INTEGRATION_KINDS.POST }],
   });
 
   if (!integration) {

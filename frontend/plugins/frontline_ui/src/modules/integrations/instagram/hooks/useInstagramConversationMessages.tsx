@@ -38,7 +38,9 @@ export const useInstagramConversationMessages = () => {
   const handleFetchMore = () => {
     if (
       instagramConversationMessages?.length &&
-      instagramConversationMessages?.length % INSTAGRAM_CONVERSATION_MESSAGES_LIMIT === 0
+      instagramConversationMessages?.length %
+        INSTAGRAM_CONVERSATION_MESSAGES_LIMIT ===
+        0
     ) {
       fetchMore({
         variables: {

@@ -21,7 +21,9 @@ export const InstagramIntegrationFormSheet = ({
 }: {
   isPost?: boolean;
 }) => {
-  const [instagramFormSheet, setInstagramFormSheet] = useAtom(instagramFormSheetAtom);
+  const [instagramFormSheet, setInstagramFormSheet] = useAtom(
+    instagramFormSheetAtom,
+  );
 
   return (
     <IgIntegrationProvider isPost={isPost}>

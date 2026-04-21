@@ -23,13 +23,16 @@ export const InstagramPostSelector = ({
     <Collapsible open={isOpen} onOpenChange={setOpen}>
       <Collapsible.Trigger asChild>
         <div className="w-full">
-          <InstagramSelectedPost botId={botId} selectedPostId={selectedPostId} />
+          <InstagramSelectedPost
+            botId={botId}
+            selectedPostId={selectedPostId}
+          />
           <Button className="w-full mt-2">
             {isOpen
               ? 'Hide posts'
               : selectedPostId
-              ? 'Change selected post'
-              : 'Select post'}
+                ? 'Change selected post'
+                : 'Select post'}
           </Button>
         </div>
       </Collapsible.Trigger>
@@ -89,7 +92,9 @@ const InstagramSelectedPost = ({
         )}
       </div>
       <div className="flex flex-col justify-between p-2 w-full overflow-hidden">
-        <h5 className="truncate text-sm font-medium">{instagramGetBotPost?.message}</h5>
+        <h5 className="truncate text-sm font-medium">
+          {instagramGetBotPost?.message}
+        </h5>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>Created at</span>
           <span>
@@ -174,7 +179,10 @@ const InstagramPost = ({
     >
       <div className="aspect-video overflow-hidden">
         {post?.full_picture ? (
-          <img src={post?.full_picture} className="object-cover w-full h-full" />
+          <img
+            src={post?.full_picture}
+            className="object-cover w-full h-full"
+          />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-accent-foreground">
             <IconImageInPicture size={36} />

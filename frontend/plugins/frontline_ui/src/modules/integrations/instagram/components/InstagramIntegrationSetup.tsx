@@ -55,7 +55,10 @@ export const InstagramIntegrationSetup = () => {
 
   return (
     <Form {...form}>
-      <form className="flex flex-col flex-1" onSubmit={form.handleSubmit(onNext)}>
+      <form
+        className="flex flex-col flex-1"
+        onSubmit={form.handleSubmit(onNext)}
+      >
         <InstagramIntegrationFormLayout
           actions={
             <>

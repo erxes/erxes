@@ -28,7 +28,11 @@ import {
   activeInstagramFormStepAtom,
 } from '../states/instagramStates';
 
-export const InstagramIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
+export const InstagramIntegrationDetail = ({
+  isPost,
+}: {
+  isPost?: boolean;
+}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const setInstagramFormSheet = useSetAtom(instagramFormSheetAtom);
   const setSelectedAccount = useSetAtom(selectedInstagramAccountAtom);
@@ -50,7 +54,13 @@ export const InstagramIntegrationDetail = ({ isPost }: { isPost?: boolean }) => 
       searchParams.delete('accountId');
       setSearchParams(searchParams, { replace: true });
     }
-  }, [searchParams, setSearchParams, setInstagramFormSheet, setSelectedAccount, setActiveStep]);
+  }, [
+    searchParams,
+    setSearchParams,
+    setInstagramFormSheet,
+    setSelectedAccount,
+    setActiveStep,
+  ]);
 
   return (
     <div>
@@ -91,7 +101,9 @@ export const InstagramIntegrationEditForm = ({
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { loading, integrationDetail } = useIntegrationDetail({ integrationId: id });
+  const { loading, integrationDetail } = useIntegrationDetail({
+    integrationId: id,
+  });
   const { editIntegration, loading: editLoading } = useIntegrationEdit();
   const form = useForm<z.infer<typeof INSTAGRAM_INTEGRATION_SCHEMA>>({
     resolver: zodResolver(INSTAGRAM_INTEGRATION_SCHEMA),

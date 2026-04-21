@@ -309,7 +309,10 @@ const getIntegrationPageToken = async (
   if (!facebookPageId) {
     throw new Error('Facebook page ID is not defined.');
   }
-  const pageAccessToken = getPageAccessTokenFromMap(facebookPageId, facebookPageTokensMap);
+  const pageAccessToken = getPageAccessTokenFromMap(
+    facebookPageId,
+    facebookPageTokensMap,
+  );
   if (!pageAccessToken) {
     throw new Error('Page access token not found.');
   }
@@ -326,13 +329,19 @@ export const sendReply = async (
   try {
     pageAccessToken = await getIntegrationPageToken(models, integrationId);
   } catch (e) {
-    debugError(`Error occurred while trying to get page access token: ${e.message}`);
+    debugError(
+      `Error occurred while trying to get page access token: ${e.message}`,
+    );
     return e;
   }
 
   try {
-    const response = await graphRequest.post(`${url}`, pageAccessToken, { ...data });
-    debugInstagram(`Successfully sent data to instagram ${JSON.stringify(data)}`);
+    const response = await graphRequest.post(`${url}`, pageAccessToken, {
+      ...data,
+    });
+    debugInstagram(
+      `Successfully sent data to instagram ${JSON.stringify(data)}`,
+    );
     return response;
   } catch (e) {
     debugError(
@@ -352,7 +361,9 @@ export const sendReplyComment = async (
   try {
     pageAccessToken = await getIntegrationPageToken(models, integrationId);
   } catch (e) {
-    debugError(`Error occurred while trying to get page access token: ${e.message}`);
+    debugError(
+      `Error occurred while trying to get page access token: ${e.message}`,
+    );
     return e;
   }
 
@@ -366,8 +377,12 @@ export const sendReplyComment = async (
   };
 
   try {
-    const response = await graphRequest.post(`${url}`, pageAccessToken, { ...messageData });
-    debugInstagram(`Successfully sent data to instagram ${JSON.stringify(data)}`);
+    const response = await graphRequest.post(`${url}`, pageAccessToken, {
+      ...messageData,
+    });
+    debugInstagram(
+      `Successfully sent data to instagram ${JSON.stringify(data)}`,
+    );
     return response;
   } catch (e) {
     debugError(

@@ -25,7 +25,9 @@ import { useIgAuthPopup } from '../hooks/useIgAuthPopup';
 export const InstagramGetAccounts = () => {
   const { instagramGetAccounts, loading, refetch } = useInstagramAccounts();
   const { instagramGetPages } = useInstagramPages();
-  const [selectedAccount, setSelectedAccount] = useAtom(selectedInstagramAccountAtom);
+  const [selectedAccount, setSelectedAccount] = useAtom(
+    selectedInstagramAccountAtom,
+  );
   const setActiveStep = useSetAtom(activeInstagramFormStepAtom);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);

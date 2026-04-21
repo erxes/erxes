@@ -1,7 +1,10 @@
 import { stripHtml } from 'string-strip-html';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { sendReply, generateAttachmentMessages } from '@/integrations/instagram/utils';
+import {
+  sendReply,
+  generateAttachmentMessages,
+} from '@/integrations/instagram/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 
 export const handleInstagramMessage = async (
@@ -33,9 +36,10 @@ export const handleInstagramMessage = async (
   if (action === 'reply-post') {
     const { conversationId, content = '', attachments = [], userId } = doc;
 
-    const commentConversation = await models.InstagramCommentConversation.findOne({
-      erxesApiId: conversationId,
-    });
+    const commentConversation =
+      await models.InstagramCommentConversation.findOne({
+        erxesApiId: conversationId,
+      });
 
     if (!commentConversation) {
       throw new Error('Comment not found');
@@ -65,7 +69,8 @@ export const handleInstagramMessage = async (
       parentId: commentConversation.comment_id,
     });
 
-    let attachment: { url?: string; type?: string; payload?: { url: string } } = {};
+    let attachment: { url?: string; type?: string; payload?: { url: string } } =
+      {};
     if (attachments.length > 0) {
       attachment = {
         type: 'file',
@@ -191,7 +196,10 @@ export const handleInstagramMessage = async (
         }
       }
 
-      for (const message of generateAttachmentMessages(subdomain, attachments)) {
+      for (const message of generateAttachmentMessages(
+        subdomain,
+        attachments,
+      )) {
         const resp = await sendReply(
           models,
           'me/messages',

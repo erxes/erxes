@@ -49,7 +49,13 @@ export const GET_COMMENTS = gql`
 `;
 
 export const GET_COMMENT_COUNT = gql`
-  query InstagramGetCommentCount($conversationId: String!, $isResolved: Boolean) {
-    instagramGetCommentCount(conversationId: $conversationId, isResolved: $isResolved)
+  query InstagramGetCommentCount(
+    $conversationId: String!
+    $isResolved: Boolean
+  ) {
+    instagramGetCommentCount(
+      conversationId: $conversationId
+      isResolved: $isResolved
+    )
   }
 `;

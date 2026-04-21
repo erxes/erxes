@@ -307,7 +307,10 @@ export const getOrCreatePost = async (
   }
 
   const { facebookPageTokensMap = {} } = integration;
-  const pageAccessToken = getPageAccessTokenFromMap(pageId, facebookPageTokensMap);
+  const pageAccessToken = getPageAccessTokenFromMap(
+    pageId,
+    facebookPageTokensMap,
+  );
 
   const postUrl = await getPostLink(pageAccessToken, postParams.post_id || '');
   const doc = generatePostDoc(postParams, pageId, userId);
@@ -327,10 +330,7 @@ export async function fetchInstagramPostDetails(
   params: ICommentParams,
 ) {
   const integration = await models.InstagramIntegrations.findOne({
-    $and: [
-      { facebookPageId: pageId },
-      { kind: INTEGRATION_KINDS.POST },
-    ],
+    $and: [{ facebookPageId: pageId }, { kind: INTEGRATION_KINDS.POST }],
   });
 
   if (!integration) {
