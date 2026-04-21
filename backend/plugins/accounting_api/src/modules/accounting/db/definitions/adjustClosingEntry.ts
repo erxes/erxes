@@ -63,7 +63,7 @@ export const adjustClosingSchema = schemaWrapper(
       default: 'draft',
       enum: ADJ_CLOSING_STATUSES.all,
     }, // #
-    date: { type: Date, label: 'date' }, // хэднээр ханш тэгшитгэж байна вэ? буюу хүртэлх огноо #
+    date: { type: Date, label: 'date' }, // хэднээр хаалт хийж байна вэ? буюу хүртэлх огноо #
     beginDate: { type: Date, label: 'date' }, // өмнөх хаалтын огноо эсвэл анхны гүйлгээний огноо
     description: { type: String, optional: true, label: 'description' }, // #
 
