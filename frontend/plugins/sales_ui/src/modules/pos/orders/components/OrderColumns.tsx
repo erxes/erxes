@@ -36,7 +36,9 @@ interface IPaidAmount {
   title?: string;
 }
 
-const getPaidAmountsMap = (paidAmounts: IPaidAmount[] | null | undefined): Record<string, number> => {
+const getPaidAmountsMap = (
+  paidAmounts: IPaidAmount[] | null | undefined,
+): Record<string, number> => {
   if (!paidAmounts || !Array.isArray(paidAmounts)) return {};
 
   return paidAmounts.reduce<Record<string, number>>((acc, item) => {
