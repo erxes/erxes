@@ -72,7 +72,7 @@ export const accountImportHandlers = {
   ) => {
     const handler = accountImportMap[collectionName];
     if (!handler)
-      throw new Error(`Import handler not found for ${collectionName}`);
+      return false;
     return handler.batchSkipRow(subdomain, models, rowData);
   },
 };
