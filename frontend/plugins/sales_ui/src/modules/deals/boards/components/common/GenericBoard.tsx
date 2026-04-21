@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, memo, useEffect, useRef } from 'react';
 import {
   DndContext,
   DragOverlay,
+  closestCenter,
   closestCorners,
   pointerWithin,
   rectIntersection,
@@ -44,15 +45,59 @@ function GenericBoardInner<
   onLoadMore,
 }: GenericBoardProps<TItem, TColumn>) {
   const [state, setState] = useState(initialState);
+  const stateRef = useRef(state);
   const [activeItem, setActiveItem] = useState<TItem | null>(null);
   const [activeColumn, setActiveColumn] = useState<TColumn | null>(null);
   const [snapshot, setSnapshot] = useState<typeof state | null>(null);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
   const recentlyMovedToNewContainer = useRef(false);
 
+  const updateState = useCallback(
+    (updater: (prevState: typeof initialState) => typeof initialState) => {
+      setState((prev) => {
+        const nextState = updater(prev);
+        stateRef.current = nextState;
+        return nextState;
+      });
+    },
+    [],
+  );
+
   useEffect(() => {
+    stateRef.current = initialState;
     setState(initialState);
   }, [initialState]);
+
+  const findContainerId = useCallback(
+    (
+      id: UniqueIdentifier | null,
+      boardState: typeof initialState = stateRef.current,
+    ): string | null => {
+      if (id == null) return null;
+
+      const resolvedId = String(id);
+
+      if (resolvedId in boardState.columnItems) {
+        return resolvedId;
+      }
+
+      if (resolvedId.endsWith('-droppable')) {
+        const columnId = resolvedId.slice(0, -'-droppable'.length);
+        return columnId in boardState.columnItems ? columnId : null;
+      }
+
+      for (const [columnId, itemIds] of Object.entries(
+        boardState.columnItems,
+      )) {
+        if (itemIds.includes(resolvedId)) {
+          return columnId;
+        }
+      }
+
+      return null;
+    },
+    [],
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -69,31 +114,49 @@ function GenericBoardInner<
         return closestCorners(args);
       }
 
-      const pointerCollisions = pointerWithin(args);
-      if (pointerCollisions.length > 0) {
-        const overId = getFirstCollision(pointerCollisions, 'id');
-        if (overId != null) {
-          lastOverId.current = overId;
-          return [{ id: overId }];
+      const currentState = stateRef.current;
+      const pointerIntersections = pointerWithin(args);
+      const intersections =
+        pointerIntersections.length > 0
+          ? pointerIntersections
+          : rectIntersection(args);
+      let overId = getFirstCollision(intersections, 'id');
+
+      if (overId != null) {
+        const overContainerId = findContainerId(overId, currentState);
+        const containerItems = overContainerId
+          ? currentState.columnItems[overContainerId] || []
+          : [];
+
+        if (
+          overContainerId &&
+          containerItems.length > 0 &&
+          (String(overId) === overContainerId ||
+            String(overId) === `${overContainerId}-droppable`)
+        ) {
+          const closestItem = closestCenter({
+            ...args,
+            droppableContainers: args.droppableContainers.filter((container) =>
+              containerItems.includes(String(container.id)),
+            ),
+          })[0]?.id;
+
+          if (closestItem != null) {
+            overId = closestItem;
+          }
         }
+
+        lastOverId.current = overId;
+        return [{ id: overId }];
       }
 
-      if (recentlyMovedToNewContainer.current && lastOverId.current != null) {
-        return [{ id: lastOverId.current }];
-      }
-
-      const rectCollisions = rectIntersection(args);
-      if (rectCollisions.length > 0) {
-        const overId = getFirstCollision(rectCollisions, 'id');
-        if (overId != null) {
-          lastOverId.current = overId;
-          return [{ id: overId }];
-        }
+      if (recentlyMovedToNewContainer.current) {
+        lastOverId.current = activeItem?._id ?? null;
       }
 
       return lastOverId.current != null ? [{ id: lastOverId.current }] : [];
     },
-    [activeColumn],
+    [activeColumn, activeItem?._id, findContainerId],
   );
 
   useEffect(() => {
@@ -129,111 +192,93 @@ function GenericBoardInner<
     [onDragStartProp, state],
   );
 
-  const handleDragOver = useCallback((event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { active, over } = event;
+      if (!over) return;
 
-    const activeData = active.data.current;
-    const overData = over.data.current;
+      const activeData = active.data.current;
+      const overData = over.data.current;
 
-    // Column reordering
-    if (activeData?.type === 'column') {
-      const overColumnId = (() => {
-        if (overData?.type === 'column') return overData.column?.id;
-        if (overData?.columnId) return overData.columnId;
-        if (overData?.type === 'card') return (overData.item as TItem).columnId;
-        if (typeof over.id === 'string' && over.id.endsWith('-droppable')) {
-          return over.id.slice(0, -'-droppable'.length);
-        }
-        return typeof over.id === 'string' ? over.id : null;
-      })();
+      // Column reordering
+      if (activeData?.type === 'column') {
+        const overColumnId = (() => {
+          if (overData?.type === 'column') return overData.column?.id;
+          if (overData?.columnId) return overData.columnId;
+          if (overData?.type === 'card')
+            return (overData.item as TItem).columnId;
+          if (typeof over.id === 'string' && over.id.endsWith('-droppable')) {
+            return over.id.slice(0, -'-droppable'.length);
+          }
+          return typeof over.id === 'string' ? over.id : null;
+        })();
 
-      if (!overColumnId) return;
+        if (!overColumnId) return;
 
-      setState((prev) => {
-        const oldIndex = prev.columns.findIndex((col) => col._id === active.id);
-        const newIndex = prev.columns.findIndex(
-          (col) => col._id === overColumnId,
-        );
-        if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex)
+        updateState((prev) => {
+          const oldIndex = prev.columns.findIndex(
+            (col) => col._id === active.id,
+          );
+          const newIndex = prev.columns.findIndex(
+            (col) => col._id === overColumnId,
+          );
+          if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex)
+            return prev;
+          return {
+            ...prev,
+            columns: arrayMove(prev.columns, oldIndex, newIndex),
+          };
+        });
+        return;
+      }
+
+      // Card movement between columns
+      if (activeData?.type !== 'card') return;
+
+      const activeId = active.id as string;
+
+      updateState((prev) => {
+        const activeColumnId = findContainerId(activeId, prev);
+        const overColumnId = findContainerId(over.id, prev);
+
+        if (!activeColumnId || !overColumnId || activeColumnId === overColumnId)
           return prev;
+
+        const activeItems = [...(prev.columnItems[activeColumnId] || [])];
+        const overItems = [...(prev.columnItems[overColumnId] || [])];
+
+        const activeIndex = activeItems.indexOf(activeId);
+        if (activeIndex === -1) return prev;
+        activeItems.splice(activeIndex, 1);
+
+        let insertIndex = overItems.length;
+        if (overData?.type === 'card') {
+          const overIndex = overItems.indexOf(String(over.id));
+          if (overIndex !== -1) insertIndex = overIndex;
+        }
+
+        overItems.splice(insertIndex, 0, activeId);
+
+        const updatedItem = { ...prev.items[activeId], columnId: overColumnId };
+
+        recentlyMovedToNewContainer.current = true;
+
         return {
           ...prev,
-          columns: arrayMove(prev.columns, oldIndex, newIndex),
+          items: { ...prev.items, [activeId]: updatedItem as TItem },
+          columnItems: {
+            ...prev.columnItems,
+            [activeColumnId]: activeItems,
+            [overColumnId]: overItems,
+          },
         };
       });
-      return;
-    }
-
-    // Card movement between columns
-    if (activeData?.type !== 'card') return;
-
-    const activeId = active.id as string;
-
-    let targetColumnId: string | undefined;
-    if (overData?.type === 'column') {
-      targetColumnId = overData.columnId;
-    } else if (overData?.type === 'card') {
-      targetColumnId = (overData.item as TItem).columnId;
-    }
-    if (!targetColumnId) return;
-    const overColumnId: string = targetColumnId;
-
-    setState((prev) => {
-      let activeColumnId: string | null = null;
-      for (const [colId, itemIds] of Object.entries(prev.columnItems)) {
-        if (itemIds.includes(activeId)) {
-          activeColumnId = colId;
-          break;
-        }
-      }
-
-      if (!activeColumnId || activeColumnId === overColumnId) return prev;
-
-      const activeItems = [...(prev.columnItems[activeColumnId] || [])];
-      const overItems = [...(prev.columnItems[overColumnId] || [])];
-
-      const activeIndex = activeItems.indexOf(activeId);
-      if (activeIndex === -1) return prev;
-      activeItems.splice(activeIndex, 1);
-
-      let insertIndex = overItems.length;
-      if (overData?.type === 'card') {
-        const overItem = overData.item as TItem;
-        const overIndex = overItems.indexOf(overItem._id);
-        if (overIndex !== -1) insertIndex = overIndex;
-      }
-
-      overItems.splice(insertIndex, 0, activeId);
-
-      const updatedItem = { ...prev.items[activeId], columnId: overColumnId };
-
-      recentlyMovedToNewContainer.current = true;
-
-      return {
-        ...prev,
-        items: { ...prev.items, [activeId]: updatedItem as TItem },
-        columnItems: {
-          ...prev.columnItems,
-          [activeColumnId]: activeItems,
-          [overColumnId]: overItems,
-        },
-      };
-    });
-  }, []);
+    },
+    [findContainerId, updateState],
+  );
 
   function getValidColumnId(over: any): string | null {
-    const overData = over.data.current;
-    if (!overData) return null;
-
-    if (overData?.type === 'column')
-      return overData.columnId || overData.column?._id || null;
-    if (overData?.type === 'card')
-      return (overData.item as TItem).columnId || null;
-    if (typeof over.id === 'string' && over.id.endsWith('-droppable'))
-      return over.id.replace('-droppable', '');
-
-    return null;
+    return findContainerId(over?.id ?? null);
   }
 
   const handleDragEnd = useCallback(
@@ -251,6 +296,7 @@ function GenericBoardInner<
         (activeData?.type === 'card' && !getValidColumnId(over))
       ) {
         if (snapshot) {
+          stateRef.current = snapshot;
           setState(snapshot);
           setSnapshot(null);
         }
@@ -261,54 +307,49 @@ function GenericBoardInner<
         typeof active.id === 'string' ? active.id : String(active.id);
 
       if (activeData?.type === 'column') {
-        let columnState: typeof initialState | null = null;
-        setState((prev) => {
-          columnState = prev;
-          return prev;
-        });
-        if (columnState) onStateChange?.(columnState, initialState);
+        onStateChange?.(stateRef.current, initialState);
         return;
       }
 
       if (activeData?.type === 'card') {
         const overData = over.data.current;
-        let resolvedState: typeof initialState | null = null;
+        const currentState = stateRef.current;
+        let finalState = currentState;
 
-        setState((prev) => {
-          let finalState = prev;
-          if (overData?.type === 'card' && active.id !== over.id) {
-            const overId = (overData.item as TItem)._id;
-            const dragColumnId = Object.entries(prev.columnItems).find(
-              ([, ids]) => ids.includes(draggedId),
-            )?.[0];
-            const overColumnId = Object.entries(prev.columnItems).find(
-              ([, ids]) => ids.includes(overId),
-            )?.[0];
+        if (overData?.type === 'card' && active.id !== over.id) {
+          const overId = String(over.id);
+          const dragColumnId = Object.entries(currentState.columnItems).find(
+            ([, ids]) => ids.includes(draggedId),
+          )?.[0];
+          const overColumnId = Object.entries(currentState.columnItems).find(
+            ([, ids]) => ids.includes(overId),
+          )?.[0];
 
-            if (dragColumnId && dragColumnId === overColumnId) {
-              const columnItems = [...(prev.columnItems[dragColumnId] || [])];
-              const oldIndex = columnItems.indexOf(draggedId);
-              const newIndex = columnItems.indexOf(overId);
+          if (dragColumnId && dragColumnId === overColumnId) {
+            const columnItems = [
+              ...(currentState.columnItems[dragColumnId] || []),
+            ];
+            const oldIndex = columnItems.indexOf(draggedId);
+            const newIndex = columnItems.indexOf(overId);
 
-              if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-                finalState = {
-                  ...prev,
-                  columnItems: {
-                    ...prev.columnItems,
-                    [dragColumnId]: arrayMove(columnItems, oldIndex, newIndex),
-                  },
-                };
-              }
+            if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+              finalState = {
+                ...currentState,
+                columnItems: {
+                  ...currentState.columnItems,
+                  [dragColumnId]: arrayMove(columnItems, oldIndex, newIndex),
+                },
+              };
             }
           }
-
-          resolvedState = finalState;
-          return finalState;
-        });
-
-        if (resolvedState) {
-          onStateChange?.(resolvedState, initialState, draggedId);
         }
+
+        if (finalState !== currentState) {
+          stateRef.current = finalState;
+          setState(finalState);
+        }
+
+        onStateChange?.(finalState, initialState, draggedId);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
