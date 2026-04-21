@@ -198,40 +198,6 @@ export const loadCPUserClass = (
         // Activity log failure should not fail the mutation
       }
     }
-
-    public static async verifyUsers(
-      models: IModels,
-      type: 'email' | 'phone',
-      userIds: string[],
-    ): Promise<string> {
-      if (!userIds || userIds.length === 0) {
-        throw new ValidationError('No users selected');
-      }
-
-      const updateFields: any = {
-        isVerified: true,
-      };
-
-      if (type === 'email') {
-        updateFields.isEmailVerified = true;
-      } else if (type === 'phone') {
-        updateFields.isPhoneVerified = true;
-      }
-
-      await models.CPUser.updateMany(
-        { _id: { $in: userIds } },
-        { $set: updateFields },
-      );
-
-      const users = await models.CPUser.find({ _id: { $in: userIds } });
-      for (const user of users) {
-        if (user.erxesCustomerId) {
-          await updateCustomerStateToCustomer(user.erxesCustomerId, models);
-        }
-      }
-
-      return 'success';
-    }
   }
 
   cpUserSchema.loadClass(CPUser);

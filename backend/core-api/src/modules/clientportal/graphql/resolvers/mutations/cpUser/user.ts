@@ -40,7 +40,18 @@ export const userMutations: Record<string, Resolver> = {
     params: { type: 'email' | 'phone'; userIds: string[] },
     { models }: IContext,
   ) {
-    return cpUserService.verifyUser(models, params);
+    const { type, userIds } = params;
+
+    // Зөвхөн true/false flag-аар шинэчлэх
+    const updateField =
+      type === 'email' ? { isEmailVerified: true } : { isPhoneVerified: true };
+
+    await models.ClientPortal.updateMany(
+      { _id: { $in: userIds } },
+      { $set: updateField },
+    );
+
+    return { success: true };
   },
 
   async clientPortalCustomerEdit(
