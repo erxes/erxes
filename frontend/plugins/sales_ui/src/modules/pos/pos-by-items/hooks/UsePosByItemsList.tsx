@@ -15,7 +15,7 @@ const POS_PER_PAGE = 30;
 
 interface UsePosByItemsListOptions {
   posId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UsePosByItemsListReturn {
@@ -110,6 +110,7 @@ export const usePosByItemsList = (
   const setPosByItemsTotalCount = useSetAtom(posByItemsTotalCountAtom);
   const { data, loading, fetchMore } = useQuery(POS_BY_ITEMS_QUERY, {
     variables,
+    fetchPolicy: 'network-only',
   });
 
   const posByItemsList = useMemo<IProduct[]>(
