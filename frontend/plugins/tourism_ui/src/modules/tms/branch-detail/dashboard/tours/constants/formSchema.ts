@@ -29,7 +29,9 @@ export const PricingOptionTranslationSchema = z.object({
   title: z.string().optional(),
   accommodationType: z.string().optional(),
   note: z.string().optional(),
-  pricePerPerson: optionalNumber(z.number()),
+  adultPrice: optionalNumber(z.number()),
+  childPrice: optionalNumber(z.number()),
+  infantPrice: optionalNumber(z.number()),
   domesticFlightPerPerson: optionalNumber(z.number()),
   singleSupplement: optionalNumber(z.number()),
 });
@@ -50,6 +52,18 @@ export const TourTranslationSchema = z.object({
 });
 
 /* ================= PRICING ================= */
+
+const requiredPrice = z.preprocess(
+  (value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    if (typeof value === 'string') {
+      const num = Number(value);
+      return Number.isNaN(num) ? undefined : num;
+    }
+    return value;
+  },
+  z.number({ required_error: 'Price is required' }).min(0.01, 'Price must be greater than 0'),
+);
 
 export const PricingOptionSchema = z.object({
   _id: z.string(),
@@ -73,18 +87,14 @@ export const PricingOptionSchema = z.object({
     z.number().min(1, 'Max persons must be at least 1'),
   ),
 
-  pricePerPerson: z.preprocess(
-    (value) => {
-      if (value === '' || value === null || value === undefined)
-        return undefined;
-      if (typeof value === 'string') {
-        const num = Number(value);
-        return Number.isNaN(num) ? undefined : num;
-      }
-      return value;
-    },
-    z.coerce.number().min(0.01, 'Price must be greater than 0'),
-  ),
+  /** Adult price is required. */
+  adultPrice: requiredPrice,
+
+  /** Child price is optional. Set to undefined/empty to omit from prices array. */
+  childPrice: optionalNumber(z.number().min(0, 'Child price must be 0 or greater')),
+
+  /** Infant price is optional. Set to undefined/empty to omit from prices array. */
+  infantPrice: optionalNumber(z.number().min(0, 'Infant price must be 0 or greater')),
 
   accommodationType: optionalString(),
 
@@ -243,7 +253,9 @@ export type PricingOptionTranslationFormValue = {
   title?: string;
   accommodationType?: string;
   note?: string;
-  pricePerPerson?: number | string;
+  adultPrice?: number | string;
+  childPrice?: number | string;
+  infantPrice?: number | string;
   domesticFlightPerPerson?: number | string;
   singleSupplement?: number | string;
 };

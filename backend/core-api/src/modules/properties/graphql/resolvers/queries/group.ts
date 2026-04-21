@@ -28,7 +28,7 @@ const generateFilter = async (params: Partial<IFieldGroupParams>) => {
   return filter;
 };
 
-export const groupQueries: Record<string, Resolver> = {
+export const groupQueries: Record<string, Resolver<any, any, IContext>> = {
   fieldGroups: async (
     _: undefined,
     { params }: { params: IFieldGroupCursorParams },
