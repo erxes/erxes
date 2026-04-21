@@ -56,10 +56,11 @@ export const MemberGeneral = () => {
             </DataListItem>
             <DataListItem label="Score">
               <TextFieldUserDetail
-                value={score?.toString() || ''}
+                value={score ?? ''}
                 placeholder="Add Score"
                 field="score"
                 _id={_id}
+                type="number"
               />
             </DataListItem>
           </div>

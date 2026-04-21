@@ -24,7 +24,7 @@ import { generateCustomerSelector } from './engage';
 export const isUsingElk = () => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
-  return ELK_SYNCER === 'false' ? false : true;
+  return ELK_SYNCER !== 'false';
 };
 
 export interface IUser {
@@ -44,46 +44,32 @@ interface IEngageParams {
   user;
 }
 
-export const subscribeEngage = (models: IModels) => {
-  return new Promise(async (resolve, reject) => {
-    const snsApi = await getApi(models, 'sns');
-    const sesApi = await getApi(models, 'ses');
-    const configSet = await getValueAsString(
-      models,
-      'configSet',
-      'AWS_SES_CONFIG_SET',
-      'erxes',
-    );
+export const subscribeEngage = async (models: IModels) => {
+  const snsApi = await getApi(models, 'sns');
+  const sesApi = await getApi(models, 'ses');
+  const configSet = await getValueAsString(
+    models,
+    'BROADCAST_AWS_SES_CONFIG_SET',
+    'AWS_SES_CONFIG_SET',
+    'erxes',
+  );
 
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    const topicArn = await snsApi
-      .createTopic({ Name: configSet })
-      .promise()
-      .catch((e) => {
-        console.log(e.message);
-
-        return reject(e.message);
-      });
+  try {
+    const topicArn = await snsApi.createTopic({ Name: configSet }).promise();
 
     if (!topicArn) {
-      return reject('Error occurred');
+      throw new Error('Error occurred');
     }
 
     await snsApi
       .subscribe({
         TopicArn: topicArn.TopicArn,
         Protocol: 'https',
-        Endpoint: `${DOMAIN}/gateway/pl:engages/service/engage/tracker`,
+        Endpoint: `${DOMAIN}/gateway/pl:core/service/engage/tracker`,
       })
-      .promise()
-      .then((response: Response) => {
-        console.log(response);
-      })
-      .catch((e: Error) => {
-        console.log(e.message);
-        return reject(e.message);
-      });
+      .promise();
 
     await sesApi
       .createConfigurationSet({
@@ -93,13 +79,9 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .catch((e: Error) => {
-        console.log(e.message);
-
-        if (e.message.includes('already exists')) {
-          return;
+        if (!e.message.includes('already exists')) {
+          throw e;
         }
-
-        return reject(e.message);
       });
 
     await sesApi
@@ -125,28 +107,27 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .catch((e: Error) => {
-        console.log(e.message);
-
-        if (e.message.includes('already exists')) {
-          return;
+        if (!e.message.includes('already exists')) {
+          throw e;
         }
-
-        return reject(e.message);
       });
 
-    return resolve(true);
-  });
+    return true;
+  } catch (e: any) {
+    console.log(`Error occurred while subscribe: ${e.message}`);
+    throw e;
+  }
 };
 
 export const updateConfigs = async (
   models: IModels,
   configsMap,
 ): Promise<void> => {
-  const prevSESConfigs = await models.Configs.getSESConfigs();
+  const prevSESConfigs = await models.EngageMessages.broadcastConfigs();
 
   await models.Configs.updateConfigs(configsMap);
 
-  const updatedSESConfigs = await models.Configs.getSESConfigs();
+  const updatedSESConfigs = await models.EngageMessages.broadcastConfigs();
 
   if (JSON.stringify(prevSESConfigs) !== JSON.stringify(updatedSESConfigs)) {
     await subscribeEngage(models);
@@ -225,9 +206,7 @@ export const cleanIgnoredCustomers = async (
     });
 
     return {
-      customers: customers.filter(
-        (c) => ignoredCustomerIds.indexOf(c._id) === -1,
-      ),
+      customers: customers.filter((c) => !ignoredCustomerIds.includes(c._id)),
       ignoredCustomerIds,
     };
   }
@@ -309,8 +288,7 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
       {
         $set: {
           // valid count must never exceed total count
-          validCustomersCount:
-            validSum > totalCustomersCount ? totalCustomersCount : validSum,
+          validCustomersCount: Math.min(validSum, totalCustomersCount),
           lastRunAt: new Date(),
         },
         $inc: { runCount: 1 },
@@ -324,7 +302,7 @@ export const getEditorAttributeUtil = async (subdomain: string) => {
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  const editor: any = await new EditorAttributeUtil(
+  const editor: any = new EditorAttributeUtil(
     `${DOMAIN}/gateway/pl:core`,
     services,
     subdomain,
@@ -420,7 +398,7 @@ export const timeCheckScheduledBroadcast = async (
   scheduleDate?: IScheduleDateDocument,
 ) => {
   const isValidScheduledBroadcast =
-    scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime;
+    scheduleDate?.type === 'pre' && scheduleDate?.dateTime;
   // Check for pre scheduled engages
 
   if (isValidScheduledBroadcast) {
@@ -599,9 +577,8 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || '';
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
-  const customerFields = await editorAttributeUtil.getCustomerFields(
-    emailContent,
-  );
+  const customerFields =
+    await editorAttributeUtil.getCustomerFields(emailContent);
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
 
@@ -769,9 +746,8 @@ const sendNotifications = async (
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
 
-  const erxesCustomerIds = await models.Customers.find(
-    customersSelector,
-  ).distinct('_id');
+  const erxesCustomerIds =
+    await models.Customers.find(customersSelector).distinct('_id');
 
   const cpUserIds = await models.CPUser.find({
     clientPortalId: cpId,

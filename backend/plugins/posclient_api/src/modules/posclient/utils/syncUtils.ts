@@ -32,7 +32,7 @@ export const importUsers = async (
   models: IModels,
   users: IPosUserDocument[],
   token: string,
-  isAdmin: boolean = false,
+  isAdmin = false,
 ) => {
   for (const user of users) {
     await models.PosUsers.createOrUpdateUser(
@@ -143,21 +143,26 @@ export const importProducts = async (
 ) => {
   const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
 
-  const attachmentUrlChanger = (attachment) => {
-    return attachment && attachment.url && !attachment.url.includes('http')
-      ? { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` }
-      : attachment;
+  const attachmentUrlChanger = (attachment?: any) => {
+    if (!attachment) {
+      return;
+    }
+    return attachment.url?.includes('http')
+      ? attachment
+      : { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` };
   };
 
   for (const group of groups) {
     const categories = group.categories || [];
 
     for (const category of categories) {
-      if (category._id) {
+      const { products, ...categoryDoc } = category;
+
+      if (categoryDoc._id) {
         await models.ProductCategories.updateOne(
-          { _id: category._id },
+          { _id: categoryDoc._id },
           {
-            $set: { ...category, products: undefined },
+            $set: { ...categoryDoc },
             $addToSet: { tokens: token },
           },
           { upsert: true },
@@ -172,13 +177,14 @@ export const importProducts = async (
         };
       }[] = [];
 
-      for (const product of category.products) {
+      for (const product of products) {
+        const { _id, ...productDoc } = product;
         bulkOps.push({
           updateOne: {
-            filter: { _id: product._id },
+            filter: { _id },
             update: {
               $set: {
-                ...product,
+                ...productDoc,
                 [`prices.${token}`]: product.unitPrice,
                 [`taxRules.${token}`]: product.taxRule || null,
                 uom: product.uom || 'ш',
@@ -323,7 +329,7 @@ export const receiveProduct = async (models: IModels, data) => {
       tokens.push(token);
     }
     const info = action === 'update' ? updatedDocument : object;
-    if (info.attachment && info.attachment.url) {
+    if (info?.attachment?.url) {
       const FILE_PATH = `${await getServerAddress(
         'localhost',
         'core',
@@ -383,7 +389,7 @@ export const receiveProductCategory = async (models: IModels, data) => {
   }
 
   if (action === 'delete') {
-    if (!category || category.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
+    if (category?.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
       return;
     }
 

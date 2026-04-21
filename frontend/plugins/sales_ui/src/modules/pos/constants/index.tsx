@@ -11,12 +11,17 @@ import { CustomNode } from '../slot/types';
 import { isStepVisible } from './fieldConfig';
 
 export {
-  FIELD_VISIBILITY_CONFIG, isFieldVisible,
+  FIELD_VISIBILITY_CONFIG,
+  isFieldVisible,
   isStepVisible,
-  posTypeToContext, STEP_VISIBILITY_CONFIG
+  posTypeToContext,
+  STEP_VISIBILITY_CONFIG,
 } from './fieldConfig';
 export type {
-  CategoryFieldConfig, FieldConfig, FieldContext, PosTypeValue
+  CategoryFieldConfig,
+  FieldConfig,
+  FieldContext,
+  PosTypeValue,
 } from './fieldConfig';
 
 export type AllowedPosType =

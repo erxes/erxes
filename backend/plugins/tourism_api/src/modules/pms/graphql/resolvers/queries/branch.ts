@@ -1,5 +1,5 @@
 import { IModels } from '~/connectionResolvers';
-import { cursorPaginate, paginate } from 'erxes-api-shared/utils';
+import { paginate } from 'erxes-api-shared/utils';
 
 const queries = {
   pmsBranchList: async (

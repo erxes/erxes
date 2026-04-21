@@ -3,7 +3,10 @@ import {
   ICMSPageDocument,
   IContentCMSDocument,
 } from '@/cms/@types/cms';
-import { customFieldSchema } from 'erxes-api-shared/core-modules';
+import {
+  attachmentSchema,
+  customFieldSchema,
+} from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import mongoose, { Schema } from 'mongoose';
 
@@ -15,6 +18,7 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     content: { type: String, required: true },
     language: { type: String, optional: true },
     languages: { type: [String], optional: true },
+    postUrlField: { type: String, optional: true, default: '_id' },
   },
   { timestamps: true },
 );
@@ -23,9 +27,10 @@ export const cmsMenuSchema = new mongoose.Schema<ICMSMenuDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
+    webId: { type: String, optional: true },
     label: { type: String, required: true },
-    objectType: { type: String },
-    objectId: { type: String },
+    contentType: { type: String },
+    contentTypeId: { type: String },
     kind: { type: String, required: true },
     icon: { type: String },
     url: { type: String },
@@ -40,6 +45,7 @@ export const cmsPageSchema = new mongoose.Schema<ICMSPageDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
+    parentId: { type: String },
     name: { type: String, required: true },
     description: { type: String },
     content: { type: String },
@@ -48,6 +54,16 @@ export const cmsPageSchema = new mongoose.Schema<ICMSPageDocument>(
     status: { type: String },
     createdUserId: { type: String, ref: 'User' },
     coverImage: { type: String },
+
+    thumbnail: { type: attachmentSchema, label: 'Thumbnail' },
+    pageImages: [{ type: attachmentSchema, label: 'Image Gallery' }],
+    video: { type: attachmentSchema, label: 'Video' },
+    audio: { type: attachmentSchema, label: 'Audio' },
+    documents: [{ type: attachmentSchema, label: 'Documents' }],
+    attachments: [{ type: attachmentSchema, label: 'Attachments' }],
+    pdfAttachment: { type: Object, optional: true, label: 'PDF attachment' },
+    videoUrl: { type: String, label: 'Video URL' },
+
     customFieldsData: { type: [customFieldSchema], optional: true },
     pageItems: [
       {

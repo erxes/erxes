@@ -3,6 +3,7 @@ import { CallConfigUpdateCollapse } from '@/integrations/call/components/CallCon
 import { InstagramConfigUpdateCollapse } from '@/integrations/instagram/components/InstagramConfigUpdate';
 import { useAtomValue } from 'jotai';
 import { currentOrganizationState } from 'ui-modules';
+import { MessageProConfigUpdateCollapse } from '@/integrations/message-pro/components/MessageProConfigUpdate';
 
 export const IntegrationConfigPage = () => {
   const org = useAtomValue(currentOrganizationState);
@@ -12,6 +13,7 @@ export const IntegrationConfigPage = () => {
       {!isSaas && <FacebookConfigUpdateCollapse />}
       {!isSaas && <InstagramConfigUpdateCollapse />}
       <CallConfigUpdateCollapse />
+      <MessageProConfigUpdateCollapse />
     </div>
   );
 };

@@ -253,11 +253,11 @@ export const generateContactsFields = async ({ subdomain, data }) => {
   }> = [];
 
   switch (collectionType) {
-    case 'lead':
-    case 'customer':
+    case 'leads':
+    case 'customers':
       schema = Customers.schema;
       break;
-    case 'company':
+    case 'companies':
       schema = Companies.schema;
       break;
   }

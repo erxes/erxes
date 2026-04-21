@@ -1,46 +1,46 @@
+import { TAiAgentKind } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
 import { Card, cn } from 'erxes-ui';
 
-// Individual AI Agent Kind Card Component
 interface AutomationAiAgentKindCardProps {
-  type: string;
-  img: string;
-  label: string;
+  kind: TAiAgentKind;
   isSelected: boolean;
   onClick: () => void;
 }
 
 const AutomationAiAgentKindCard = ({
-  type,
-  img,
-  label,
+  kind,
   isSelected,
   onClick,
 }: AutomationAiAgentKindCardProps) => {
+  const Icon = kind.icon;
+
   return (
     <Card
-      className={cn('p-3 cursor-pointer transition-colors', {
+      className={cn('cursor-pointer p-3 transition-colors', {
         'ring-2 ring-primary bg-primary/5': isSelected,
         'hover:bg-muted/50': !isSelected,
       })}
       onClick={onClick}
     >
-      <div className="flex gap-3 items-center">
-        <div className="size-8 rounded-lg overflow-hidden bg-background border">
+      <div className="flex items-center gap-3">
+        <div className="flex size-10 items-center justify-center rounded-lg border bg-background">
           <img
-            src={img}
-            alt={type}
-            className="w-full h-full object-contain p-1"
+            src={`/assets/${kind.image}`}
+            alt={kind.label}
+            className="size-5"
           />
         </div>
-        <h6 className="font-medium text-sm">{label}</h6>
+        <div className="space-y-1">
+          <h6 className="text-sm font-medium">{kind.label}</h6>
+          <p className="text-xs text-muted-foreground">{kind.description}</p>
+        </div>
       </div>
     </Card>
   );
 };
 
-// AI Agent Kinds Grid Component
 interface AutomationAiAgentKindsGridProps {
-  kinds: Array<{ type: string; img: string; label: string }>;
+  kinds: TAiAgentKind[];
   selectedKind: string | null;
   onKindSelect: (value: string | null) => void;
 }
@@ -51,15 +51,15 @@ export const AutomationAiAgentKindsGrid = ({
   onKindSelect,
 }: AutomationAiAgentKindsGridProps) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {kinds.map(({ type, img, label }) => (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {kinds.map((kind) => (
         <AutomationAiAgentKindCard
-          key={type}
-          type={type}
-          img={img}
-          label={label}
-          isSelected={selectedKind === type}
-          onClick={() => onKindSelect(selectedKind === type ? null : type)}
+          key={kind.type}
+          kind={kind}
+          isSelected={selectedKind === kind.type}
+          onClick={() =>
+            onKindSelect(selectedKind === kind.type ? null : kind.type)
+          }
         />
       ))}
     </div>

@@ -8,9 +8,11 @@ import {
   USER_ROLES,
   userMovemmentSchema,
   userSchema,
+  buildBranchAssignmentActivity,
+  buildDepartmentAssignmentActivity,
+  buildPositionAssignmentActivity,
 } from 'erxes-api-shared/core-modules';
 import {
-  IAppDocument,
   IDetail,
   IEmailSignature,
   ILink,
@@ -19,7 +21,7 @@ import {
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
-import { redis, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { redis } from 'erxes-api-shared/utils';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -27,9 +29,9 @@ import { sendOnboardNotification } from '~/modules/notifications/utils';
 import {
   generateLoginActivityLog,
   generateLogoutActivityLog,
-  generateUserActivityLogs,
+  generateUserUpdateActivityLogs,
   generateUserInvitationActivityLog,
-} from '../../utils/activityLogs';
+} from '../../meta/activity-log';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -48,6 +50,7 @@ interface IUpdateUser extends IEditProfile {
   password?: string;
   groupIds?: string[];
   brandIds?: string[];
+  permissionGroupIds?: string[];
 }
 
 interface IInviteParams {
@@ -78,7 +81,7 @@ export interface IUserModel extends Model<IUserDocument> {
     username?: string;
   }): Promise<never>;
   getSecret(): string;
-  generateToken(duration?: number): { token: string; expires: Date };
+  generateToken(duration?: number): Promise<{ token: string; expires: Date }>;
   createUser(doc: IUser & { notUsePassword?: boolean }): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -94,9 +97,9 @@ export interface IUserModel extends Model<IUserDocument> {
   ): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
-  invite(params: IInviteParams): string;
+  invite(params: IInviteParams): Promise<string>;
   resendInvitation({ email }: { email: string }): Promise<string>;
-  comparePassword(password: string, userPassword: string): boolean;
+  comparePassword(password: string, userPassword: string): Promise<boolean>;
   resetPassword(params: {
     token: string;
     newPassword: string;
@@ -106,12 +109,15 @@ export interface IUserModel extends Model<IUserDocument> {
     params: IPasswordParams & { currentPassword: string },
   ): Promise<IUserDocument>;
   forgotPassword(email: string): Promise<string>;
-  createTokens(_user: IUserDocument, secret: string): string[];
-  refreshTokens(refreshToken: string): {
-    token: string;
-    refreshToken: string;
-    user: IUserDocument;
-  };
+  createTokens(_user: IUserDocument, secret: string): Promise<string[]>;
+  refreshTokens(refreshToken: string): Promise<
+    | {
+        token: string;
+        refreshToken: string;
+        user: IUserDocument;
+      }
+    | Record<string, never>
+  >;
   login(params: ILoginParams): Promise<{ token: string; refreshToken: string }>;
   checkLoginAuth({
     email,
@@ -123,15 +129,22 @@ export interface IUserModel extends Model<IUserDocument> {
   getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
   logout(_user: IUserDocument, token: string): Promise<string>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
-  createSystemUser(doc: IAppDocument): IUserDocument;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
 }
 
 export const loadUserClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  // { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  coreEventHandlers: (
+    moduleName: string,
+    collectionName: string,
+  ) => EventDispatcherReturn,
 ) => {
+  const { sendDbEventLog, createActivityLog } = coreEventHandlers(
+    'organization',
+    'users',
+  );
   class User {
     public static async getUser(_id: string) {
       const user = await models.Users.findOne({ _id });
@@ -328,7 +341,12 @@ export const loadUserClass = (
         });
 
         // Generate activity logs for changed activity fields
-        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+        generateUserUpdateActivityLogs(
+          { models, subdomain },
+          user,
+          updatedUser,
+          createActivityLog,
+        );
       }
       return updatedUser;
     }
@@ -451,7 +469,13 @@ export const loadUserClass = (
           prevDocument: user.toObject(),
         });
 
-        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+        await generateUserUpdateActivityLogs(
+          { models, subdomain },
+          user,
+          updatedUser,
+
+          createActivityLog,
+        );
       }
       return updatedUser;
     }
@@ -507,10 +531,10 @@ export const loadUserClass = (
             currentDocument: updatedUser.toObject(),
             prevDocument: user.toObject(),
           });
-          generateUserActivityLogs(
+          await generateUserUpdateActivityLogs(
+            { models, subdomain },
             user,
             updatedUser,
-            models,
             createActivityLog,
           );
         }
@@ -526,10 +550,10 @@ export const loadUserClass = (
             currentDocument: updatedUser.toObject(),
             prevDocument: user.toObject(),
           });
-          generateUserActivityLogs(
+          await generateUserUpdateActivityLogs(
+            { models, subdomain },
             user,
             updatedUser,
-            models,
             createActivityLog,
           );
         }
@@ -749,13 +773,21 @@ export const loadUserClass = (
         return {};
       }
 
-      const dbUser = await models.Users.getUser(_id);
+      const dbUser = await models.Users.findOne({ _id, isActive: true });
+
+      if (!dbUser) {
+        return {};
+      }
 
       // recreate tokens
       const [newToken, newRefreshToken] = await this.createTokens(
         dbUser,
         this.getSecret(),
       );
+
+      if (newToken) {
+        await saveValidatedToken(newToken, dbUser);
+      }
 
       return {
         token: newToken,
@@ -786,7 +818,7 @@ export const loadUserClass = (
         isActive: true,
       });
 
-      if (!user || !user.password) {
+      if (!user?.password) {
         // user with provided email not found
         throw new Error('Invalid login');
       }
@@ -920,33 +952,7 @@ export const loadUserClass = (
 
       return models.Users.find(filter, options).lean();
     }
-    public static async createSystemUser(app: IAppDocument) {
-      const user = await models.Users.findOne({ appId: app._id });
 
-      if (user) {
-        return user;
-      }
-
-      const newUser = await models.Users.create({
-        role: USER_ROLES.SYSTEM,
-        password: await this.generatePassword(app._id),
-        username: app.name,
-        code: await this.generateUserCode(),
-        groupIds: [app.userGroupId],
-        appId: app._id,
-        isActive: true,
-        email: `${app._id}@domain.com`,
-        details: {
-          fullName: app.name,
-        },
-      });
-      sendDbEventLog({
-        action: 'create',
-        docId: newUser._id,
-        currentDocument: newUser.toObject(),
-      });
-      return newUser;
-    }
     public static async checkLoginAuth({
       email,
       password,
@@ -962,7 +968,7 @@ export const loadUserClass = (
         isActive: true,
       });
 
-      if (!user || !user.password) {
+      if (!user?.password) {
         // user with provided email not found
         throw new Error('Invalid login');
       }
@@ -990,7 +996,12 @@ export const loadUserClass = (
           currentDocument: updatedUser.toObject(),
           prevDocument: user.toObject(),
         });
-        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+        await generateUserUpdateActivityLogs(
+          { models, subdomain },
+          user,
+          updatedUser,
+          createActivityLog,
+        );
       }
       return updatedUser;
     }
@@ -1032,8 +1043,124 @@ export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
   ): Promise<IUserMovementDocument>;
 }
 
-export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
+export const loadUserMovemmentClass = (
+  models: IModels,
+  subdomain: string,
+  coreEventHandlers: (
+    moduleName: string,
+    collectionName: string,
+  ) => EventDispatcherReturn,
+) => {
+  const { createActivityLog } = coreEventHandlers(
+    'organization',
+    'userMovements',
+  );
   class UserMovemment {
+    static getAssignmentConfig() {
+      return {
+        branch: {
+          model: models.Branches,
+          collectionName: 'branches',
+          assignedType: 'branch.assigned',
+          unassignedType: 'branch.unassigned',
+          build: buildBranchAssignmentActivity,
+        },
+        department: {
+          model: models.Departments,
+          collectionName: 'departments',
+          assignedType: 'department.assigned',
+          unassignedType: 'department.unassigned',
+          build: buildDepartmentAssignmentActivity,
+        },
+        position: {
+          model: models.Positions,
+          collectionName: 'positions',
+          assignedType: 'position.assigned',
+          unassignedType: 'position.unassigned',
+          build: buildPositionAssignmentActivity,
+        },
+      } as const;
+    }
+
+    static async getAssignmentContentLabel(params: {
+      contentType: string;
+      contentTypeId: string;
+    }) {
+      const { contentType, contentTypeId } = params;
+      const config = this.getAssignmentConfig()[contentType];
+
+      const content = await config.model
+        .findOne({ _id: contentTypeId }, { title: 1 })
+        .lean();
+
+      return content?.title || `unknown ${contentType}`;
+    }
+
+    static async buildAssignmentActivities(params: {
+      targetUserIds: string[];
+      contentType: string;
+      contentTypeId: string;
+      action: string;
+      createdBy?: string;
+    }) {
+      const { targetUserIds, contentType, contentTypeId, action, createdBy } =
+        params;
+      const config = this.getAssignmentConfig()[contentType];
+      const label = await this.getAssignmentContentLabel({
+        contentType,
+        contentTypeId,
+      });
+
+      return targetUserIds.map((userId) =>
+        config.build({
+          activityType:
+            action === 'assigned' ? config.assignedType : config.unassignedType,
+          target: {
+            moduleName: 'organization',
+            collectionName: 'users',
+            _id: userId,
+          },
+          context: {
+            moduleName: 'organization',
+            collectionName: config.collectionName,
+            text: label,
+          },
+          ids: [contentTypeId],
+          labels: [label],
+          metadata: {
+            contentType,
+            contentTypeId,
+            action,
+            createdBy,
+          },
+        }),
+      );
+    }
+
+    static async createAssignmentActivities(params: {
+      createdBy?: string;
+      targetUserIds: string[];
+      contentType: string;
+      contentTypeId: string;
+      action: string;
+    }) {
+      const { createdBy, targetUserIds, contentType, contentTypeId, action } =
+        params;
+
+      const activities = await this.buildAssignmentActivities({
+        targetUserIds,
+        contentType,
+        contentTypeId,
+        action,
+        createdBy,
+      });
+
+      if (!activities.length) {
+        return;
+      }
+      createActivityLog(activities);
+    }
+
     public static async manageUserMovement(params: ICommonUserMovement) {
       const user = params.user as IUserDocument;
 
@@ -1222,56 +1349,12 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
           );
 
           if (contentType && contentTypeId) {
-            const schemas = {
-              branch: models.Branches,
-              department: models.Departments,
-              position: models.Positions,
-            };
-
-            const schema = schemas[contentType];
-
-            const content = await schema
-              .find({ _id: contentTypeId }, { title: 1 })
-              .lean();
-            const contextNames = content?.title || `unknown ${contentType}`;
-            const activities = targetUserIds.map((userId) => ({
-              activityType: 'assignment',
-              target: {
-                moduleName: 'organization',
-                collectionName: 'users',
-                _id: userId,
-              },
-              action: {
-                type: action === 'assigned' ? 'assigned' : 'unassigned',
-                description:
-                  action === 'assigned'
-                    ? `assigned to ${contextNames}`
-                    : `unassigned from ${contextNames}`,
-              },
-              changes: {
-                [action === 'assigned' ? 'added' : 'removed']: {
-                  [fieldName]: contentTypeId,
-                },
-              },
-              metadata: {
-                contentType,
-                contentTypeId,
-                action,
-                createdBy,
-              },
-            }));
-
-            sendTRPCMessage({
-              subdomain,
-              pluginName: 'core',
-              method: 'mutation',
-              module: 'activityLog',
-              action: 'createActivityLog',
-              input: activities,
-              context: {
-                processId,
-                userId: createdBy,
-              },
+            await this.createAssignmentActivities({
+              createdBy,
+              targetUserIds,
+              contentType,
+              contentTypeId,
+              action,
             });
 
             if (createdBy) {

@@ -1,3 +1,4 @@
+import { JournalEnum } from '@/settings/account/types/Account';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 import {
   AccountField,
@@ -7,8 +8,8 @@ import {
   DescriptionField,
 } from '../../GeneralFormFields';
 import { CustomerFields } from '../../helpers/CustomerFields';
+import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { InventoryForm } from './InventoryForm';
-import { JournalEnum } from '@/settings/account/types/Account';
 
 export const InvOutForm = ({
   form,
@@ -33,10 +34,11 @@ export const InvOutForm = ({
         <DescriptionField form={form} index={index} />
       </div>
 
-      <InventoryForm
-        form={form}
-        journalIndex={index}
-      />
+      <div className="pt-3">
+        <RelAccountsForm form={form} index={index} />
+      </div>
+
+      <InventoryForm form={form} journalIndex={index} />
     </>
   );
 };

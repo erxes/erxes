@@ -8,7 +8,8 @@ import {
 import { IConfig } from '~/modules/posclient/@types/configs';
 import { IContext } from '~/modules/posclient/@types/types';
 import { getCompanyInfo } from '~/modules/posclient/db/models/PutData';
-
+import { Resolver } from 'erxes-api-shared/core-types';
+import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 export interface ISearchParams {
   searchValue?: string;
   startDate?: Date;
@@ -148,20 +149,51 @@ const filterOrders = (params: ISearchParams, models, config) => {
   );
 };
 
-const orderQueries = {
-  async orders(_root, params: ISearchParams, { models, config }: IContext) {
+const orderQueries: Record<string, Resolver<any, any, IContext>> = {
+  async orders(
+    _root,
+    params: ISearchParams,
+    { models, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
     return filterOrders(params, models, config);
   },
 
-  async fullOrders(_root, params: ISearchParams, { models, config }: IContext) {
+  async cpCurrentOrder(
+    _root,
+    params: ISearchParams,
+    { models, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    return filterOrders(params, models, config);
+  },
+
+  async fullOrders(
+    _root,
+    params: ISearchParams,
+    { models, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    return filterOrders(params, models, config);
+  },
+
+  async cpFullOrders(
+    _root,
+    params: ISearchParams,
+    { models, config, posUser }: IContext,
+  ) {
     return filterOrders(params, models, config);
   },
 
   async ordersTotalCount(
     _root,
     params: ISearchParams,
-    { models, config }: IContext,
+    { models, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const filter = generateFilter(config, params);
     return await models.Orders.find({
       ...filter,
@@ -169,6 +201,94 @@ const orderQueries = {
   },
 
   async fullOrderItems(
+    _root,
+    {
+      searchValue,
+      statuses,
+      page,
+      perPage,
+      sortField,
+      sortDirection,
+    }: ISearchParams,
+    { models, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.number = { $regex: new RegExp(escapeRegExp(searchValue), 'i') };
+    }
+    const sort: { [key: string]: any } = {};
+
+    if (sortField) {
+      sort[sortField] = sortDirection;
+    } else {
+      sort.createdAt = 1;
+    }
+
+    return paginate(
+      models.OrderItems.find({
+        ...filter,
+        status: { $in: statuses },
+      })
+        .sort(sort)
+        .lean(),
+      { page, perPage },
+    );
+  },
+
+  async orderDetail(
+    _root,
+    { _id, customerId }: { _id: string; customerId?: string },
+    { models, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    const tokenFilter = {
+      $or: [{ posToken: config.token }, { subToken: config.token }],
+    };
+    if (posUser) {
+      return models.Orders.findOne({ _id, ...tokenFilter });
+    }
+
+    const order = await models.Orders.findOne({ _id, ...tokenFilter }).lean();
+
+    if (
+      !order ||
+      !(order.customerType === 'visitor' || order.customerId === customerId)
+    ) {
+      throw new Error('Not found');
+    }
+
+    return order;
+  },
+
+  async cpOrderDetail(
+    _root,
+    { _id, customerId }: { _id: string; customerId?: string },
+    { posUser, models, config }: IContext,
+  ) {
+    const tokenFilter = {
+      $or: [{ posToken: config.token }, { subToken: config.token }],
+    };
+    if (posUser) {
+      return models.Orders.findOne({ _id, ...tokenFilter });
+    }
+
+    const order = await models.Orders.findOne({ _id, ...tokenFilter }).lean();
+
+    if (
+      !order ||
+      !(order.customerType === 'visitor' || order.customerId === customerId)
+    ) {
+      throw new Error('Not found');
+    }
+
+    return order;
+  },
+
+  async cpOrderItemDetail(
     _root,
     {
       searchValue,
@@ -204,31 +324,13 @@ const orderQueries = {
     );
   },
 
-  async orderDetail(
+  async ordersCheckCompany(
     _root,
-    { _id, customerId }: { _id: string; customerId?: string },
-    { posUser, models, config }: IContext,
+    { registerNumber },
+    { config, posUser }: IContext,
   ) {
-    const tokenFilter = {
-      $or: [{ posToken: config.token }, { subToken: config.token }],
-    };
-    if (posUser) {
-      return models.Orders.findOne({ _id, ...tokenFilter });
-    }
+    assertPosUser(posUser);
 
-    const order = await models.Orders.findOne({ _id, ...tokenFilter }).lean();
-
-    if (
-      !order ||
-      !(order.customerType === 'visitor' || order.customerId === customerId)
-    ) {
-      throw new Error('Not found');
-    }
-
-    return order;
-  },
-
-  async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
     const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
 
     if (!checkTaxpayerUrl) {
@@ -243,15 +345,69 @@ const orderQueries = {
     return resp.result?.data;
   },
 
-  async ordersDeliveryInfo(_root, { orderId }, { subdomain }: IContext) {
-    // const info = await sendPosMessage({
-    //   subdomain,
-    //   action: 'ordersDeliveryInfo',
-    //   data: {
-    //     orderId: orderId,
-    //   },
-    //   isRPC: true,
-    // });
+  async cpOrdersCheckCompany(_root, { registerNumber }, { config }: IContext) {
+    const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
+
+    if (!checkTaxpayerUrl) {
+      throw new Error('Not found check taxpayer url');
+    }
+    const resp = await getCompanyInfo({ checkTaxpayerUrl, no: registerNumber });
+
+    if (resp.status !== 'checked' || !resp.tin) {
+      throw new Error('Company register number required for checking');
+    }
+
+    return resp.result?.data;
+  },
+
+  async cpGetLastProductView(
+    _root,
+    { customerId }: { customerId?: string },
+    { models, config }: IContext,
+  ) {
+    const tokenFilter = {
+      $or: [{ posToken: config.token }, { subToken: config.token }],
+    };
+
+    const order = await models.Orders.findOne({
+      ...tokenFilter,
+      ...(customerId ? { customerId } : {}),
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (!order) {
+      return null;
+    }
+
+    return await models.OrderItems.find({ orderId: order._id }).lean();
+  },
+
+  async cpAddresses(_root, { orderId }, { subdomain }: IContext) {
+    const info = await sendTRPCMessage({
+      subdomain,
+
+      method: 'query',
+      pluginName: 'sales',
+      module: 'pos',
+      action: 'ordersDeliveryInfo',
+      input: { orderId: orderId },
+      defaultValue: {},
+    });
+    if (info.error) {
+      throw new Error(info.error);
+    }
+
+    return info;
+  },
+
+  async ordersDeliveryInfo(
+    _root,
+    { orderId },
+    { subdomain, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
     const info = await sendTRPCMessage({
       subdomain,
 
@@ -269,9 +425,30 @@ const orderQueries = {
     return info;
   },
 };
-markResolvers(orderQueries, {
+markResolvers<IContext>(orderQueries, {
   wrapperConfig: {
     skipPermission: true,
   },
 });
+
+orderQueries.cpAddresses.wrapperConfig = {
+  forClientPortal: true,
+};
+orderQueries.cpCurrentOrder.wrapperConfig = {
+  forClientPortal: true,
+};
+orderQueries.cpFullOrders.wrapperConfig = {
+  forClientPortal: true,
+};
+orderQueries.cpGetLastProductView.wrapperConfig = {
+  forClientPortal: true,
+};
+
+orderQueries.cpOrderDetail.wrapperConfig = {
+  forClientPortal: true,
+};
+orderQueries.cpOrdersCheckCompany.wrapperConfig = {
+  forClientPortal: true,
+};
+
 export default orderQueries;

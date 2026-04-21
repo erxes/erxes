@@ -27,7 +27,15 @@ export const types = `
     status: TicketStatus
     assignee: User
     isSubscribed: Boolean
+    propertiesData: JSON
     state: String
+    attachments: [Attachment]
+    companyIds: [String]
+    customerFieldData: JSON
+  }
+  type RemoveResponse {
+    ok: Int!
+    removedIds: [String!]!
   }
 
   type TicketListResponse {
@@ -86,6 +94,7 @@ const createTicketParams = `
   channelId: String!
   pipelineId:String!
   statusId: String!
+  stageId: String
   priority: Int
   labelIds: [String]
   tagIds: [String]
@@ -93,6 +102,10 @@ const createTicketParams = `
   targetDate: Date
   assigneeId: String
   state: String
+  propertiesData: JSON
+  attachments: [AttachmentInput]
+  companyIds: [String]
+  customerFieldData: JSON
 `;
 
 const updateTicketParams = `
@@ -102,6 +115,7 @@ const updateTicketParams = `
   channelId: String
   pipelineId: String
   statusId: String
+  destinationStatusId: String
   priority: Int
   labelIds: [String]
   tagIds: [String]
@@ -110,6 +124,10 @@ const updateTicketParams = `
   targetDate: Date
   isSubscribed: Boolean
   state: String
+  propertiesData: JSON
+  attachments: [AttachmentInput]
+  companyIds: [String]
+  customerFieldData: JSON
 `;
 
 export const queries = `
@@ -118,12 +136,13 @@ export const queries = `
 
   cpGetTickets(filter: ICpTicketFilter): [Ticket]
   cpGetTicket(_id: String!): Ticket
+  cpGetTicketTotalCount(filter: ICpTicketFilter): Int
 `;
 
 export const mutations = `
   createTicket(${createTicketParams}): Ticket
   updateTicket(${updateTicketParams}): Ticket
-  removeTicket(_id: String!): Ticket
-
+  removeTicket(_id: [String!]!): RemoveResponse!
   cpCreateTicket(${createTicketParams}): Ticket
+  cpUpdateTicket(${updateTicketParams}): Ticket
 `;

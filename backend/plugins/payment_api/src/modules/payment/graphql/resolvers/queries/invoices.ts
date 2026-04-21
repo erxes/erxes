@@ -1,8 +1,7 @@
-
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
+import { Resolver } from 'erxes-api-shared/core-types';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 
 export interface IParam {
   searchValue?: string;
@@ -44,20 +43,27 @@ const generateFilterQuery = (params: IParam) => {
   return query;
 };
 
-const queries = {
-  async invoices(
-    _root,
-    params: any,
-    { models }: IContext
-  ) {
+const queries: Record<string, Resolver> = {
+  async invoices(_root, params: any, { models }: IContext) {
     const query = generateFilterQuery(params);
 
-    const { list, pageInfo, totalCount } =
-      await cursorPaginate({
-        model: models.Invoices,
-        params,
-        query,
-      });
+    const { list, pageInfo, totalCount } = await cursorPaginate({
+      model: models.Invoices,
+      params,
+      query,
+    });
+
+    return { list, pageInfo, totalCount };
+  },
+
+  async cpInvoices(_root, params: any, { models }: IContext) {
+    const query = generateFilterQuery(params);
+
+    const { list, pageInfo, totalCount } = await cursorPaginate({
+      model: models.Invoices,
+      params,
+      query,
+    });
 
     return { list, pageInfo, totalCount };
   },
@@ -104,16 +110,30 @@ const queries = {
     return models.Invoices.getInvoice({ _id });
   },
 
+  async cpInvoiceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Invoices.getInvoice({ _id });
+  },
+
   async invoiceDetailByContent(
     _root,
     { contentType, contentTypeId },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Invoices.find({ contentType, contentTypeId }).lean();
   },
 };
 
-requireLogin(queries, 'invoices');
-checkPermission(queries, 'invoices', 'showInvoices', []);
+queries.invoiceDetail.wrapperConfig = {
+  skipPermission: true,
+};
+
+queries.cpInvoiceDetail.wrapperConfig = {
+  skipPermission: true,
+  forClientPortal: true,
+};
+
+queries.cpInvoices.wrapperConfig = {
+  forClientPortal: true,
+};
 
 export default queries;

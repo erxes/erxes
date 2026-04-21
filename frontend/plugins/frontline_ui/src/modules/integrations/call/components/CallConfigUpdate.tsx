@@ -1,4 +1,12 @@
+import { CALL_CONFIG_SCHEMA } from '@/integrations/call/constants/callConfigSchema';
+import { useCallGetConfigs } from '@/integrations/call/hooks/useCallGetConfigs';
+import { useCallUpdateConfigs } from '@/integrations/call/hooks/useCallUpdateConfigs';
+import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
+import { INTEGRATIONS } from '@/integrations/constants/integrations';
+import { IntegrationType } from '@/types/Integration';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  Button,
   Collapsible,
   Dialog,
   Form,
@@ -6,18 +14,11 @@ import {
   Input,
   Skeleton,
   Spinner,
+  toast,
 } from 'erxes-ui';
-import { Button } from 'erxes-ui';
-import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
-import { INTEGRATIONS } from '@/integrations/constants/integrations';
-import { IntegrationType } from '@/types/Integration';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { CALL_CONFIG_SCHEMA } from '@/integrations/call/constants/callConfigSchema';
-import { useCallGetConfigs } from '@/integrations/call/hooks/useCallGetConfigs';
-import { useEffect } from 'react';
-import { useCallUpdateConfigs } from '@/integrations/call/hooks/useCallUpdateConfigs';
 
 export const CallConfigUpdateCollapse = () => {
   return (
@@ -71,6 +72,12 @@ export const CallConfigUpdate = () => {
     updateConfigs({
       variables: {
         configsMap: data,
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Call configs updated successfully',
+          variant: 'success',
+        });
       },
     });
   };

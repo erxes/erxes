@@ -10,7 +10,6 @@ import { currentStepAtom } from '@/tms/states/tmsInformationFieldsAtoms';
 interface PermissionConfig {
   type: string;
   title: string;
-  icon: string;
   config?: string;
 }
 
@@ -69,7 +68,6 @@ export function useBranchSubmit({
       data.otherPayments?.map((payment: PermissionConfig) => ({
         type: payment.type,
         title: payment.title,
-        icon: payment.icon,
         config: payment.config,
       })) || [];
 
@@ -77,12 +75,12 @@ export function useBranchSubmit({
       name: data.name,
       generalManagerIds: data.generalManager || [],
       managerIds: data.managers || [],
-      paymentIds: Array.isArray(data.payment)
-        ? data.payment
-        : data.payment
-        ? [data.payment]
-        : [],
+      paymentIds: Array.isArray(data.payment) ? data.payment : [],
+      prepaid: data.prepaid ?? false,
+      prepaidPercent: data.prepaid ? (data.prepaidPercent ?? null) : null,
       permissionConfig,
+      language: data.mainLanguage || '',
+      languages: Array.isArray(data.language) ? data.language : [],
       erxesAppToken: data.token,
       uiOptions: {
         logo: data.logo || '',

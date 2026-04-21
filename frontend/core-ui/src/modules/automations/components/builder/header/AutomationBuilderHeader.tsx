@@ -4,12 +4,14 @@ import { AutomationBuilderNameInput } from '@/automations/components/builder/hea
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader } from 'ui-modules';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderHeader = () => {
   const { loading, handleSubmit, handleSave, handleError, toggleTabs } =
     useAutomationHeader();
+  const { t } = useTranslation('automations');
 
   return (
     <div>
@@ -21,7 +23,7 @@ export const AutomationBuilderHeader = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/automations">
                     <IconAffiliate />
-                    Automations
+                    {t('automations')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -32,15 +34,17 @@ export const AutomationBuilderHeader = () => {
           <Button variant="outline" asChild>
             <Link to="/settings/automations">
               <IconSettings />
-              Go to settings
+              {t('go-to-settings')}
             </Link>
           </Button>
-          <Button
-            disabled={loading}
-            onClick={handleSubmit(handleSave, handleError)}
-          >
-            {loading ? <Spinner /> : `Save`}
-          </Button>
+          <Can actions={['automationsCreate', 'automationsUpdate']}>
+            <Button
+              disabled={loading}
+              onClick={handleSubmit(handleSave, handleError)}
+            >
+              {loading ? <Spinner /> : t('save')}
+            </Button>
+          </Can>
         </PageHeader.End>
       </PageHeader>
       <PageSubHeader className="flex items-center justify-between overflow-x-auto styled-scroll">

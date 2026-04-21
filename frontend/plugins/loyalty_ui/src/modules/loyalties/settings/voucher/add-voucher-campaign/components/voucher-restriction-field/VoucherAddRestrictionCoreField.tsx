@@ -22,9 +22,16 @@ export const VoucherAddRestrictionCoreField: React.FC<
               <Form.Label>Minimum Spend</Form.Label>
               <Form.Control>
                 <Input
-                  type="text"
+                  type="number"
                   placeholder="Enter minimum spend"
-                  {...field}
+                  value={field.value ?? ''}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ''
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
                 />
               </Form.Control>
               <Form.Message />
@@ -60,9 +67,16 @@ export const VoucherAddRestrictionCoreField: React.FC<
               <Form.Label>Maximum Spend</Form.Label>
               <Form.Control>
                 <Input
-                  type="text"
+                  type="number"
                   placeholder="Enter maximum spend"
-                  {...field}
+                  value={field.value ?? ''}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ''
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
                 />
               </Form.Control>
               <Form.Message />

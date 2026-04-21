@@ -12,6 +12,8 @@ import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
 import { TAddTask, addTaskSchema } from '@/task/types';
 import { SelectTeam } from '@/team/components/SelectTeam';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
+import { SelectTemplate } from '@/template/components/SelectTemplate';
+import { IOperationTemplate } from '@/template/types';
 import { Block } from '@blocknote/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconChevronRight } from '@tabler/icons-react';
@@ -23,18 +25,15 @@ import {
   Input,
   Separator,
   Sheet,
-  useToast,
   useBlockEditor,
+  useToast,
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
-import { currentUserState } from 'ui-modules';
+import { SelectTags, currentUserState } from 'ui-modules';
 import { SelectMilestone } from '../task-selects/SelectMilestone';
-import { SelectTags } from 'ui-modules';
-import { SelectTemplate } from '@/template/components/SelectTemplate';
-import { IOperationTemplate } from '@/template/types';
 
 export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const { teamId, projectId, cycleId } = useParams<{

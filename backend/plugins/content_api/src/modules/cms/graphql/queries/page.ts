@@ -7,9 +7,10 @@ class PageQueryResolver extends BaseQueryResolver {
   async cmsPages(_parent: any, args: any, context: IContext) {
     const { language, clientPortalId } = args;
     const { models } = context;
-    if (!clientPortalId) {
-      throw new Error('clientPortalId is required');
-    }
+
+    if (!clientPortalId) throw new Error('clientPortalId is required');
+
+    const orderBy = args.orderBy || { createdAt: -1 };
 
     const queryBuilder = getQueryBuilder('page', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
@@ -17,8 +18,9 @@ class PageQueryResolver extends BaseQueryResolver {
     const { list } = await this.getListWithTranslations(
       models.Pages,
       query,
-      { ...args, clientPortalId, language },
+      { ...args, clientPortalId, language, orderBy },
       FIELD_MAPPINGS.PAGE,
+      'page',
     );
 
     return list;
@@ -27,9 +29,10 @@ class PageQueryResolver extends BaseQueryResolver {
   async cmsPageList(_parent: any, args: any, context: IContext) {
     const { language, clientPortalId } = args;
     const { models } = context;
-    if (!clientPortalId) {
-      throw new Error('clientPortalId is required');
-    }
+
+    if (!clientPortalId) throw new Error('clientPortalId is required');
+
+    const orderBy = args.orderBy || { createdAt: -1 };
 
     const queryBuilder = getQueryBuilder('page', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
@@ -37,8 +40,9 @@ class PageQueryResolver extends BaseQueryResolver {
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Pages,
       query,
-      { ...args, clientPortalId, language },
+      { ...args, clientPortalId, language, orderBy },
       FIELD_MAPPINGS.PAGE,
+      'page',
     );
 
     return { pages: list, totalCount, pageInfo };
@@ -48,58 +52,77 @@ class PageQueryResolver extends BaseQueryResolver {
     const { models } = context;
     const { _id, slug, language, clientPortalId } = args;
 
-    if (!_id && !slug) {
-      return null;
-    }
+    if (!_id && !slug) return null;
 
-    let query: any = {};
-    if (slug) {
-      query = { slug, clientPortalId };
-    } else {
-      query = { _id };
-    }
+    const query = slug
+      ? { slug, ...(clientPortalId ? { clientPortalId } : {}) }
+      : { _id };
 
     return this.getItemWithTranslation(
       models.Pages,
       query,
       language,
       FIELD_MAPPINGS.PAGE,
+      clientPortalId,
+      'page',
     );
   }
 
   async cpPages(_parent: any, args: any, context: IContext) {
     const { models, clientPortal } = context;
     const { language } = args;
+    const clientPortalId = clientPortal._id;
 
-    const query: any = {
-      clientPortalId: clientPortal._id,
-      isActive: true,
-    };
+    const query: any = { clientPortalId };
 
     const { list } = await this.getListWithTranslations(
       models.Pages,
       query,
-      { ...args, clientPortalId: clientPortal._id, language },
+      { ...args, clientPortalId, language },
       FIELD_MAPPINGS.PAGE,
+      'page',
     );
 
     return list;
+  }
+
+  async cpPageList(_parent: any, args: any, context: IContext) {
+    const { models, clientPortal } = context;
+    const { language } = args;
+    const clientPortalId = clientPortal._id;
+
+    const query: any = { clientPortalId };
+
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+      models.Pages,
+      query,
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.PAGE,
+      'page',
+    );
+
+    return { pages: list, totalCount, pageInfo };
   }
 }
 
 const queries: Record<string, Resolver> = {
   cmsPages: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cmsPages(_parent, args, context),
+
   cmsPageList: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cmsPageList(_parent, args, context),
+
   cmsPage: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cmsPage(_parent, args, context),
+
   cpPages: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cpPages(_parent, args, context),
+
+  cpPageList: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cpPageList(_parent, args, context),
 };
 
-queries.cmsPages.wrapperConfig = {
-  forClientPortal: true,
-};
+queries.cpPages.wrapperConfig = { forClientPortal: true };
+queries.cpPageList.wrapperConfig = { forClientPortal: true };
 
 export default queries;

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -54,22 +54,15 @@
     <script>
       window.erxesSettings = {
         messenger: {
-          integrationId: '4nOWyqg7SZgmdLHs0rLQN',
+          integrationId: 'l1LLS8hQgm7elf3YDVZID',
         },
-        forms: [
-          {
-            form_id: 'GGQY5i',
-            channel_id: '0CdBWjlmo0p7acYcFKnZc',
-          },
-        ],
       };
 
       (function () {
-        var script = document.createElement('script');
-        script.src = 'http://localhost:4200/formBundle.js';
+        const script = document.createElement('script');
+        script.src = 'http://localhost:4000/messengerBundle.js';
         script.async = true;
-
-        var entry = document.getElementsByTagName('script')[0];
+        const entry = document.getElementsByTagName('script')[0];
         entry.parentNode.insertBefore(script, entry);
       })();
     </script>

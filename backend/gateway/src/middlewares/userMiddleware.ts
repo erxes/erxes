@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 
-import { USER_ROLES, userActionsMap } from 'erxes-api-shared/core-modules';
 import {
   getSubdomain,
   redis,
@@ -14,6 +13,22 @@ import fetch from 'node-fetch';
 import { generateModels, IModels } from '../connectionResolver';
 
 dotenv.config();
+
+const getBearerToken = (req: Request) => {
+  const authorization = req.headers.authorization;
+
+  if (!authorization) {
+    return '';
+  }
+
+  if (Array.isArray(authorization)) {
+    throw new Error('Multiple authorization headers');
+  }
+
+  const match = authorization.match(/^Bearer\s+(\S+)$/i);
+
+  return match?.[1] || '';
+};
 
 export default async function userMiddleware(
   req: Request & { user?: any; cpUser?: any; clientPortal?: any },
@@ -86,68 +101,19 @@ export default async function userMiddleware(
 
   if (appToken) {
     try {
-      const { app }: any = jwt.verify(
-        appToken,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
+      const appInDb = await models.Apps.findOne({
+        token: appToken,
+        status: 'active',
+      });
 
-      if (app && app._id) {
-        const appInDb = await models.Apps.findOne({ _id: app._id });
-
-        if (appInDb) {
-          const permissions = await models.Permissions.find({
-            groupId: appInDb.userGroupId,
-            allowed: true,
-          }).lean();
-
-          const user = await models.Users.findOne({
-            role: USER_ROLES.SYSTEM,
-            groupIds: { $in: [app.userGroupId] },
-            appId: app._id,
-          }).lean();
-
-          if (user) {
-            const key = `user_permissions_${user._id}`;
-            const cachedPermissions = await redis.get(key);
-
-            if (
-              !cachedPermissions ||
-              (cachedPermissions && cachedPermissions === '{}')
-            ) {
-              const userPermissions = await models.Permissions.find({
-                userId: user._id,
-              });
-              const groupPermissions = await models.Permissions.find({
-                groupId: { $in: user.groupIds },
-              });
-
-              const actionMap = await userActionsMap(
-                userPermissions,
-                groupPermissions,
-                user,
-              );
-
-              await redis.set(key, JSON.stringify(actionMap));
-            }
-
-            req.user = {
-              _id: user._id || 'userId',
-              ...user,
-              role: USER_ROLES.SYSTEM,
-              isOwner: appInDb.allowAllPermission || false,
-              customPermissions: permissions.map((p) => ({
-                action: p.action,
-                allowed: p.allowed,
-                requiredActions: p.requiredActions,
-              })),
-            };
-          }
-        }
+      if (!appInDb) {
+        return res.status(401).json({ error: 'Invalid app token' });
       }
 
-      setUserHeader(req.headers, req.user);
-
-      return next();
+      await models.Apps.updateOne(
+        { _id: appInDb._id },
+        { $set: { lastUsedAt: new Date() } },
+      );
     } catch (e) {
       console.error(e);
 
@@ -207,7 +173,7 @@ export default async function userMiddleware(
         }
       }
 
-      return next();
+      // return next();
     } catch (e) {
       console.error(e);
 
@@ -215,7 +181,17 @@ export default async function userMiddleware(
     }
   }
 
-  const token = req.cookies['auth-token'];
+  let bearerToken = '';
+
+  try {
+    bearerToken = getBearerToken(req);
+  } catch (e) {
+    if (e instanceof Error) {
+      return res.status(400).json({ error: e.message });
+    }
+  }
+
+  const token = bearerToken || req.cookies['auth-token'];
 
   if (!token) {
     return next();
@@ -231,7 +207,7 @@ export default async function userMiddleware(
 
     const userDoc = await models.Users.findOne(
       { _id: user._id },
-      '_id email details isOwner groupIds brandIds username code departmentIds',
+      '_id email details isOwner groupIds brandIds username code departmentIds permissionGroupIds',
     ).lean();
 
     if (!userDoc) {
@@ -249,6 +225,14 @@ export default async function userMiddleware(
     req.user = { ...userDoc };
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
+
+    if (decoded.typ === 'oauth_access') {
+      req.user.oauthClientId = decoded.clientId || '';
+      req.user.oauthScopes = String(decoded.scope || '')
+        .split(/\s|,/)
+        .map((scope) => scope.trim())
+        .filter(Boolean);
+    }
 
     const hostname = await redis.get('hostname');
 

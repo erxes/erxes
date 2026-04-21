@@ -7,7 +7,18 @@ export type IReportFilters = {
   limit?: number;
   status?: string;
   source?: string;
+  callStatus?: string;
   page?: number;
+  pipelineIds?: string[];
+  tagIds?: string[];
+  state?: string;
+  priority?: number[];
+  startDate?: string;
+  targetDate?: string;
+  companyIds?: string[];
+  customerIds?: string[];
+  frequency?: string;
+  branchIds?: string[];
 };
 
 export type IReportTagsFilters = {

@@ -1,4 +1,4 @@
-import { IconCurrencyDollar } from '@tabler/icons-react';
+import { IconCurrencyDollar, IconInvoice } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
@@ -23,13 +23,15 @@ export const InvoicesPage = () => {
               <Breadcrumb.Separator />
 
               <Breadcrumb.Item>
-                <Breadcrumb.Page>Invoices</Breadcrumb.Page>
+                <Button variant="ghost" asChild>
+                  <Link to="/settings/payment/invoices">
+                    <IconInvoice />
+                    Invoices
+                  </Link>
+                </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
 
         <PageHeader.End>

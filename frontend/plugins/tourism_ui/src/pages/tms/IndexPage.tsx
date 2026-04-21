@@ -1,4 +1,4 @@
-import { IconBox, IconSettings } from '@tabler/icons-react';
+import { IconBox } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
@@ -14,7 +14,7 @@ export const IndexPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/tms">
+                  <Link to="/tourism/tms">
                     <IconBox />
                     Tour management system
                   </Link>
@@ -26,12 +26,12 @@ export const IndexPage = () => {
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
         <PageHeader.End>
-          <Button variant="outline" asChild>
+          {/* <Button variant="outline" asChild>
             <Link to="/settings/tms">
               <IconSettings />
               Go to settings
             </Link>
-          </Button>
+          </Button> */}
 
           <TmsCreateSheet />
         </PageHeader.End>

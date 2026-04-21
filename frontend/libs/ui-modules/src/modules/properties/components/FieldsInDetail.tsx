@@ -1,10 +1,11 @@
-import { IconPlus } from '@tabler/icons-react';
+import { IconListDetails, IconPlus } from '@tabler/icons-react';
 import { Button, cn, Collapsible, InfoCard, Spinner, Tooltip } from 'erxes-ui';
 import { useState } from 'react';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { useFields } from '../hooks/useFields';
 import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
 import { Field, FieldMultiple } from './Field';
+import { useNavigate } from 'react-router-dom';
 
 const FieldGroupContent = ({
   group,
@@ -81,21 +82,26 @@ export const FieldsInDetail = ({
   if (fieldGroupsLoading) {
     return <Spinner containerClassName="py-6" />;
   }
+  const [, propertyName] = fieldContentType.split(':');
 
   return (
     <div className={cn('flex flex-col gap-4', className)}>
-      <InfoCard title="Product Properties">
+      <InfoCard title={`${propertyName} Properties`}>
         <InfoCard.Content>
-          {fieldGroups.map((group) => (
-            <FieldGroupContent
-              key={group._id}
-              group={group}
-              id={id}
-              contentType={fieldContentType}
-              propertiesData={propertiesData}
-              mutateHook={mutateHook}
-            />
-          ))}
+          {fieldGroups.length === 0 ? (
+            <EmptyProperties fieldContentType={fieldContentType} />
+          ) : (
+            fieldGroups.map((group) => (
+              <FieldGroupContent
+                key={group._id}
+                group={group}
+                id={id}
+                contentType={fieldContentType}
+                propertiesData={propertiesData}
+                mutateHook={mutateHook}
+              />
+            ))
+          )}
         </InfoCard.Content>
       </InfoCard>
     </div>
@@ -218,5 +224,38 @@ export const MultipleFieldsInGroup = ({
         </div>
       </Collapsible.Content>
     </Collapsible>
+  );
+};
+
+const EmptyProperties = ({
+  fieldContentType,
+}: {
+  fieldContentType: string;
+}) => {
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-col justify-center items-center flex-1 w-full gap-2">
+      <IconListDetails
+        className="text-muted-foreground"
+        size={64}
+        stroke={1.5}
+      />
+      <h3 className="font-semibold text-muted-foreground">
+        No properties found{' '}
+      </h3>
+      <div className="flex flex-col justify-center items-center gap-2 my-2">
+        <p className="text-muted-foreground">
+          Get started by creating your first property.
+        </p>
+        <Button
+          size="sm"
+          onClick={() => {
+            navigate(`/settings/properties/${fieldContentType}`);
+          }}
+        >
+          Create property
+        </Button>
+      </div>
+    </div>
   );
 };

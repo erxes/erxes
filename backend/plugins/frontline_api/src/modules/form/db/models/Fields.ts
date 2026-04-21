@@ -96,8 +96,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const fieldObj = await models.Fields.findOne({ _id });
 
       // Checking if the field is defined by the erxes
-      if (fieldObj && fieldObj.isDefinedByErxes) {
-        throw new Error('Cant update this field');
+      if (fieldObj?.isDefinedByErxes) {
+        throw new Error("Can't update this field");
       }
     }
 
@@ -105,8 +105,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const fieldObj = await models.Fields.findOne({ _id });
 
       // Checking if the field is defined by the erxes
-      if (fieldObj && !fieldObj.canHide) {
-        throw new Error('You cant update this field');
+      if (!fieldObj?.canHide) {
+        throw new Error("You can't update this field");
       }
     }
 
@@ -311,7 +311,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         if (type === 'objectList') {
           const { objectListConfigs = [] } = field;
 
-          if (!objectListConfigs || !objectListConfigs.length) {
+          if (!objectListConfigs?.length) {
             throw new Error(throwMsg("Object List don't have any keys"));
           }
 
@@ -354,7 +354,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           fixedValues[_id] = await this.clean(_id, data[_id]);
         } catch (e) {
           console.log(
-            `An error occured in CLEAN while cleanMulti: ${
+            `An error occurred in CLEAN while cleanMulti: ${
               e.message
             } ::: customFieldData ::: ${JSON.stringify(data)}`,
           );

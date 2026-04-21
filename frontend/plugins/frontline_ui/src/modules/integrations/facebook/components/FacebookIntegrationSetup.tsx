@@ -1,24 +1,24 @@
+import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
+import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
+import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
+import { IntegrationType } from '@/types/Integration';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input } from 'erxes-ui';
-import {
-  FacebookIntegrationFormSteps,
-  FacebookIntegrationFormLayout,
-} from './FacebookIntegrationForm';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useForm } from 'react-hook-form';
+import { useParams } from 'react-router';
+import { SelectBrand } from 'ui-modules';
+import { z } from 'zod';
 import {
   activeFacebookFormStepAtom,
   resetFacebookAddStateAtom,
+  selectedFacebookAccountAtom,
   selectedFacebookPageAtom,
 } from '../states/facebookStates';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { FACEBOOK_INTEGRATION_SCHEMA } from '../constants/FbMessengerSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
-import { useAtomValue } from 'jotai';
-import { selectedFacebookAccountAtom } from '../states/facebookStates';
-import { IntegrationType } from '@/types/Integration';
-import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
-import { useParams } from 'react-router';
+import {
+  FacebookIntegrationFormLayout,
+  FacebookIntegrationFormSteps,
+} from './FacebookIntegrationForm';
 
 export const FacebookIntegrationSetup = () => {
   const { id: channelId } = useParams();
@@ -27,6 +27,7 @@ export const FacebookIntegrationSetup = () => {
     resolver: zodResolver(FACEBOOK_INTEGRATION_SCHEMA),
     defaultValues: {
       name: '',
+      brandId: '',
     },
   });
 
@@ -47,6 +48,7 @@ export const FacebookIntegrationSetup = () => {
         name: data.name,
         accountId,
         channelId: channelId as string,
+        brandId: data.brandId,
         data: {
           pageIds: [pageId],
         },
@@ -94,6 +96,27 @@ export const FacebookIntegrationSetup = () => {
                   </Form.Control>
                   <Form.Description>
                     Name this integration to differentiate from the rest
+                  </Form.Description>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              name="brandId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Brand</Form.Label>
+                  <Form.Control>
+                    <SelectBrand
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select a brand"
+                      className="w-full h-10 rounded-lg border bg-background"
+                    />
+                  </Form.Control>
+                  <Form.Description>
+                    Choose the brand for this integration
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>

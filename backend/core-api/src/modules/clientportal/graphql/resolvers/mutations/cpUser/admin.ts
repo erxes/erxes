@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 
@@ -10,12 +9,13 @@ import type {
 import { getCPUserByIdOrThrow } from '~/modules/clientportal/services/helpers/userUtils';
 import { validatePassword } from '~/modules/clientportal/services/helpers/validators';
 
-export const adminMutations: Record<string, Resolver> = {
+export const adminMutations: Record<string, Resolver<any, any, IContext>> = {
   async cpUsersAdd(
     _root: unknown,
     params: CpUsersAddParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('clientPortalManage');
     return models.CPUser.createUserAsAdmin(
       params.clientPortalId,
       {
@@ -25,7 +25,7 @@ export const adminMutations: Record<string, Resolver> = {
         password: params.password,
         firstName: params.firstName,
         lastName: params.lastName,
-        type: params.userType as 'customer' | 'company' | undefined,
+        userType: params.userType as 'customer' | 'company' | undefined,
       },
       models,
     );
@@ -34,16 +34,19 @@ export const adminMutations: Record<string, Resolver> = {
   async cpUsersEdit(
     _root: unknown,
     { _id, ...params }: CpUsersEditParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('clientPortalManage');
     return models.CPUser.updateUser(_id, params, models);
   },
 
   async cpUsersRemove(
     _root: unknown,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('clientPortalManage');
+
     await models.CPUser.removeUser(_id, models);
     return { _id };
   },
@@ -51,8 +54,9 @@ export const adminMutations: Record<string, Resolver> = {
   async cpUsersSetPassword(
     _root: unknown,
     { _id, newPassword }: CpUsersSetPasswordParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('clientPortalManage');
     await getCPUserByIdOrThrow(_id, models);
 
     validatePassword(newPassword);
@@ -67,12 +71,3 @@ export const adminMutations: Record<string, Resolver> = {
     return getCPUserByIdOrThrow(_id, models);
   },
 };
-
-checkPermission(adminMutations, 'cpUsersAdd', 'manageClientPortalUsers');
-checkPermission(adminMutations, 'cpUsersEdit', 'manageClientPortalUsers');
-checkPermission(adminMutations, 'cpUsersRemove', 'manageClientPortalUsers');
-checkPermission(
-  adminMutations,
-  'cpUsersSetPassword',
-  'manageClientPortalUsers',
-);

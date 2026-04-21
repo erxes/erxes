@@ -5,6 +5,19 @@ import {
 } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
+export const POST_REACTION_TYPES = [
+  'like',
+  'love',
+  'angry',
+  'sad',
+  'happy',
+  'haha',
+  'wow',
+] as const;
+
+export type PostReactionType = (typeof POST_REACTION_TYPES)[number];
+export type IPostReactionCounts = Partial<Record<PostReactionType, number>>;
+
 export interface IPostTag {
   clientPortalId: string;
   name: string;
@@ -35,6 +48,8 @@ export interface IPostCategoryDocument extends IPostCategory, Document {
 
 export interface IPost {
   clientPortalId: string;
+  webId?: string;
+  count?: number;
   title: string;
   slug: string;
   content?: string;
@@ -52,9 +67,10 @@ export interface IPost {
   publishedDate?: Date;
 
   viewCount?: number;
+  recentViewCount?: number;
 
-  reactions?: string[];
-  reactionCounts?: { [key: string]: number };
+  reactions?: PostReactionType[];
+  reactionCounts?: IPostReactionCounts;
 
   thumbnail?: IAttachment;
   images?: IAttachment[];

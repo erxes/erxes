@@ -6,20 +6,28 @@ export const CREATE_BRANCH = gql`
     $generalManagerIds: [String]
     $managerIds: [String]
     $paymentIds: [String]
+    $prepaid: Boolean
+    $prepaidPercent: Float
     $token: String
     $erxesAppToken: String
     $permissionConfig: JSON
     $uiOptions: JSON
+    $language: String
+    $languages: [String]
   ) {
     bmsBranchAdd(
       name: $name
       generalManagerIds: $generalManagerIds
       managerIds: $managerIds
       paymentIds: $paymentIds
+      prepaid: $prepaid
+      prepaidPercent: $prepaidPercent
       token: $token
       erxesAppToken: $erxesAppToken
       permissionConfig: $permissionConfig
       uiOptions: $uiOptions
+      language: $language
+      languages: $languages
     ) {
       _id
     }
@@ -33,10 +41,14 @@ export const EDIT_BRANCH = gql`
     $generalManagerIds: [String]
     $managerIds: [String]
     $paymentIds: [String]
+    $prepaid: Boolean
+    $prepaidPercent: Float
     $token: String
     $erxesAppToken: String
     $permissionConfig: JSON
     $uiOptions: JSON
+    $language: String
+    $languages: [String]
   ) {
     bmsBranchEdit(
       _id: $id
@@ -44,10 +56,14 @@ export const EDIT_BRANCH = gql`
       generalManagerIds: $generalManagerIds
       managerIds: $managerIds
       paymentIds: $paymentIds
+      prepaid: $prepaid
+      prepaidPercent: $prepaidPercent
       token: $token
       erxesAppToken: $erxesAppToken
       permissionConfig: $permissionConfig
       uiOptions: $uiOptions
+      language: $language
+      languages: $languages
     ) {
       _id
     }

@@ -1,78 +1,21 @@
-import { Cell, ColumnDef } from '@tanstack/table-core';
-import { IUnitListItem } from '../../types/unit';
-import { IconEdit, IconHash, IconTrash } from '@tabler/icons-react';
+import { useState } from 'react';
+import { ColumnDef } from '@tanstack/table-core';
+import { IconHash } from '@tabler/icons-react';
 import {
   Badge,
-  Button,
   Input,
   RecordTable,
   RecordTableInlineCell,
   Popover,
-  Spinner,
   TextOverflowTooltip,
-  useConfirm,
-  useQueryState,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
-import { renderingUnitDetailAtom } from '../../states/renderingUnitDetail';
 import { SelectDepartments, SelectMember } from 'ui-modules';
-import { useRemoveUnit, useUnitInlineEdit } from '../../hooks/useUnitActions';
-import { useState } from 'react';
-
-export const UnitEditColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IUnitListItem, unknown>;
-}) => {
-  const [, setOpen] = useQueryState('unit_id');
-  const setRenderingCustomerDetail = useSetAtom(renderingUnitDetailAtom);
-  const { _id } = cell.row.original;
-  return (
-    <Button
-      onClick={() => {
-        setOpen(_id);
-        setRenderingCustomerDetail(false);
-      }}
-      variant={'outline'}
-    >
-      <IconEdit size={12} />
-    </Button>
-  );
-};
-
-export const UnitRemoveCell = ({
-  cell,
-}: {
-  cell: Cell<IUnitListItem, unknown>;
-}) => {
-  const { confirm } = useConfirm();
-  const { _id, title } = cell.row.original;
-  const { handleRemove, loading } = useRemoveUnit();
-  const onRemove = () => {
-    confirm({
-      message: `Are you sure you want to remove '${title}'`,
-      options: { confirmationValue: 'delete' },
-    }).then(() =>
-      handleRemove({
-        variables: {
-          ids: [_id],
-        },
-      }),
-    );
-  };
-  return (
-    <Button
-      variant={'outline'}
-      disabled={loading}
-      onClick={onRemove}
-      className="text-destructive bg-destructive/10"
-    >
-      {loading ? <Spinner /> : <IconTrash size={12} />}
-    </Button>
-  );
-};
+import { IUnitListItem } from '../../types/unit';
+import { useUnitInlineEdit } from '../../hooks/useUnitActions';
+import { UnitsMoreColumn } from './UnitsMoreColumn';
 
 export const UnitsColumns: ColumnDef<IUnitListItem>[] = [
+  UnitsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IUnitListItem>,
   {
     id: 'code',
@@ -236,18 +179,6 @@ export const UnitsColumns: ColumnDef<IUnitListItem>[] = [
       return (
         <RecordTableInlineCell className="justify-center">
           <Badge variant={'secondary'}>{cell.getValue() as number}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'action-group',
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="justify-center gap-1 [&>button]:px-2">
-          <UnitEditColumnCell cell={cell} />
-          <UnitRemoveCell cell={cell} />
         </RecordTableInlineCell>
       );
     },

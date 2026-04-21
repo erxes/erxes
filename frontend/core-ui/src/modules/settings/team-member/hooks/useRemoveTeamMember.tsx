@@ -16,7 +16,9 @@ export const useTeamMemberRemove = () => {
           {
             query: queries.GET_USERS_QUERY,
           },
-          ({ users }) => {
+          (data) => {
+            if (!data) return;
+            const { users } = data;
             const updatedUsers = users.list.filter(
               (user: any) => !teamMemberIds.includes(user._id),
             );

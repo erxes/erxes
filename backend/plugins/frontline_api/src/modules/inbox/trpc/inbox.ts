@@ -938,8 +938,9 @@ export const inboxTrpcRouter = t.router({
     sendNotifications: t.procedure
       .input(z.any()) // Consider replacing with proper input validation
       .mutation(async ({ ctx, input }) => {
+        const { subdomain } = ctx;
         try {
-          await sendNotifications(input);
+          await sendNotifications(subdomain, input);
           return {
             status: 'success',
             message: 'Notifications sent successfully',

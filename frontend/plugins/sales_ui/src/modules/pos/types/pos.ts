@@ -77,6 +77,7 @@ export interface EbarimtConfig {
   merchantTin?: string;
   posNo?: string;
   branchNo?: string;
+  isCleanTaxPrice?: boolean;
 }
 
 export interface ErkhetConfig {
@@ -138,6 +139,8 @@ export interface IPos {
   pdomain?: string;
   beginNumber?: string;
   paymentIds?: string[];
+  serviceCharge?: number;
+  serviceChargeApplicableProductId?: string;
   paymentTypes?: Array<{
     _id?: string;
     type: string;

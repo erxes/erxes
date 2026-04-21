@@ -3,8 +3,13 @@ import { TAutomationSendEmailConfig } from '@/automations/components/builder/nod
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { Collapsible, Form, Label, RadioGroup, Separator } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
-import { PlaceholderInput, TAutomationActionProps, useFormValidationErrorHandler } from 'ui-modules';
+import {
+  PlaceholderInput,
+  TAutomationActionProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
 import { SendEmailEmailContentBuilder } from './SendEmailEmailContentBuilder';
+import { useTranslation } from 'react-i18next';
 
 export const SendEmailConfigForm = ({
   currentActionIndex,
@@ -14,10 +19,9 @@ export const SendEmailConfigForm = ({
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Send email Configuration',
   });
-  const { form, contentType } = useSendEmailSidebarForm(
-    currentActionIndex,
-    currentAction,
-  );
+  const { form, contentType, availableVariableSourceNodes } =
+    useSendEmailSidebarForm(currentActionIndex, currentAction);
+  const { t } = useTranslation('automations');
   return (
     <FormProvider {...form}>
       <AutomationConfigFormWrapper
@@ -29,7 +33,8 @@ export const SendEmailConfigForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>
-                Sender<span className="text-destructive">*</span>
+                {t('sender')}
+                <span className="text-destructive">*</span>
               </Form.Label>
               <RadioGroup
                 value={field.value}
@@ -37,11 +42,13 @@ export const SendEmailConfigForm = ({
               >
                 <label className="flex space-x-2 items-center">
                   <RadioGroup.Item value="default" id="env-sender" />
-                  <Label htmlFor="env-sender">Use company email</Label>
+                  <Label htmlFor="env-sender">{t('use-company-email')}</Label>
                 </label>
                 <label className="flex space-x-2 items-center">
                   <RadioGroup.Item value="custom" id="custom-sender" />
-                  <Label htmlFor="custom-sender">Custom sender email</Label>
+                  <Label htmlFor="custom-sender">
+                    {t('custom-sender-email')}
+                  </Label>
                 </label>
               </RadioGroup>
             </Form.Item>
@@ -61,6 +68,7 @@ export const SendEmailConfigForm = ({
                       <PlaceholderInput
                         propertyType={contentType || ''}
                         {...field}
+                        disabled={{ attribute: true }}
                         enabled={{
                           attribute: true,
                           call_user: true,
@@ -92,17 +100,19 @@ export const SendEmailConfigForm = ({
               <Form.Item>
                 <Form.Label className="flex justify-between">
                   <div>
-                    To<span className="text-destructive">*</span>
+                    {t('to')}
+                    <span className="text-destructive">*</span>
                   </div>
                   <Collapsible.Trigger className="group">
                     <Form.Label className="group-data-[state=open]:text-destructive cursor-pointer pb-2">
-                      CC
+                      {t('cc')}
                     </Form.Label>
                   </Collapsible.Trigger>
                 </Form.Label>
                 <PlaceholderInput
                   propertyType={contentType || ''}
                   {...field}
+                  disabled={{ attribute: true }}
                   enabled={{
                     attribute: true,
                     call_user: true,
@@ -126,6 +136,7 @@ export const SendEmailConfigForm = ({
                   <PlaceholderInput
                     propertyType={contentType || ''}
                     {...field}
+                    disabled={{ attribute: true }}
                     enabled={{
                       attribute: true,
                       call_user: true,
@@ -146,12 +157,17 @@ export const SendEmailConfigForm = ({
         <Form.Field
           name="subject"
           control={form.control}
-          render={({ field }) => (
+          render={({ field: { disabled: _disabled, ...field } }) => (
             <Form.Item>
               <Form.Label>
-                Subject<span className="text-destructive">*</span>
+                {t('subject')}
+                <span className="text-destructive">*</span>
               </Form.Label>
-              <PlaceholderInput propertyType={contentType || ''} {...field} />
+              <PlaceholderInput
+                propertyType={contentType || ''}
+                disabled={{ attribute: true }}
+                {...field}
+              />
             </Form.Item>
           )}
         />
@@ -162,11 +178,13 @@ export const SendEmailConfigForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>
-                Email Content<span className="text-destructive">*</span>
+                {t('email-content')}
+                <span className="text-destructive">*</span>
               </Form.Label>
               <SendEmailEmailContentBuilder
-                contentType={contentType}
+                contentType={contentType || ''}
                 content={field.value || ''}
+                variableSourceNodes={availableVariableSourceNodes}
                 onChange={field.onChange}
               />
             </Form.Item>

@@ -7,6 +7,7 @@ export const types = `
     content: String
     language: String
     languages: [String]
+    postUrlField: String
     createdAt: Date
     updatedAt: Date
 
@@ -21,6 +22,7 @@ export const inputs = `
     content: String
     language: String
     languages: [String]
+    postUrlField: String
   }
 `;
 

@@ -5,7 +5,7 @@ import { REMOVE_TICKET } from '../graphql/mutations/removeTicket';
 export const useTicketRemove = () => {
   const [_removeTicket, { loading }] = useMutation(REMOVE_TICKET);
 
-  const removeTicket = async (ticketId: string) => {
+  const removeTicket = async (ticketId: string[]) => {
     await _removeTicket({
       variables: { _id: ticketId },
       refetchQueries: [GET_TICKETS],

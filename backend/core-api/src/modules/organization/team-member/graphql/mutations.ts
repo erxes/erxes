@@ -14,14 +14,13 @@ import { IContext } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
-import { generateUserActivityLogs } from '../utils/activityLogs';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
   _id: string;
 }
 
-export const userMutations: Record<string, Resolver> = {
+export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersCreateOwner(
     _parent: undefined,
     {
@@ -82,8 +81,10 @@ export const userMutations: Record<string, Resolver> = {
   async usersResetMemberPassword(
     _parent: undefined,
     args: { _id: string; newPassword: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersResetPassword');
+
     return models.Users.resetMemberPassword(args);
   },
 
@@ -101,8 +102,16 @@ export const userMutations: Record<string, Resolver> = {
   /*
    * Update user
    */
-  async usersEdit(_parent: undefined, args: IUsersEdit, { models }: IContext) {
+  async usersEdit(
+    _parent: undefined,
+    args: IUsersEdit,
+    { user, models, checkPermission }: IContext,
+  ) {
     const { _id, ...doc } = args;
+
+    if (user._id !== _id) {
+      await checkPermission('teamMembersUpdate', _id);
+    }
 
     let updatedDoc = doc;
 
@@ -174,8 +183,10 @@ export const userMutations: Record<string, Resolver> = {
   async usersSetActiveStatus(
     _parent: undefined,
     { _id }: { _id: string },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersRemove');
+
     if (user._id === _id) {
       throw new Error('You can not delete yourself');
     }
@@ -183,6 +194,30 @@ export const userMutations: Record<string, Resolver> = {
     const updatedUser = await models.Users.setUserActiveOrInactive(_id);
 
     return updatedUser;
+  },
+
+  async usersSetActiveStatusBatch(
+    _parent: undefined,
+    { _ids }: { _ids: string[] },
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersRemove');
+
+    for (const _id of _ids) {
+      if (user._id === _id) {
+        throw new Error('You can not delete yourself');
+      }
+    }
+
+    for (const _id of _ids) {
+      const targetUser = await models.Users.findOne({ _id });
+
+      if (targetUser && targetUser.isActive !== false) {
+        await models.Users.setUserActiveOrInactive(_id);
+      }
+    }
+
+    return true;
   },
 
   /*
@@ -198,8 +233,10 @@ export const userMutations: Record<string, Resolver> = {
         password: string;
       }>;
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersInvite');
+
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
 

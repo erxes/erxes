@@ -5,7 +5,6 @@ import {
   sendTRPCMessage,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
-import { tz } from 'moment-timezone';
 import { generateModels } from '~/connectionResolvers';
 import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
 import { syncRemainders } from '~/modules/posclient/utils/products';
@@ -23,7 +22,6 @@ export const mainScheduler = async () => {
       });
     }
 
-    return 'success';
   } else {
     const timezone = await sendTRPCMessage({
       subdomain: 'os',
@@ -42,8 +40,8 @@ export const mainScheduler = async () => {
       subdomain: 'os',
       timezone,
     });
-    return 'success';
   }
+  return 'success';
 };
 
 export const runner = async (job: Job) => {

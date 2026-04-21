@@ -1,7 +1,7 @@
 import { ErxesForm } from './ErxesForm';
 import { IFormStep } from '../types/formTypes';
 import { z } from 'zod';
-import { useErxesForm } from '../ context/erxesFormContext';
+import { useErxesForm } from '../context/erxesFormContext';
 import { useAtomValue } from 'jotai';
 import { formValuesAtom } from '../states/erxesFormStates';
 
@@ -24,7 +24,7 @@ export const ErxesFormValues = ({
   const formSchema: Record<string, z.ZodType> = {};
 
   fields.forEach((field) => {
-    if (!field || !field.type) return;
+    if (!field?.type) return;
     if (field.type === 'text' || field.type === 'textarea') {
       formSchema[field._id] = field.isRequired ? z.string().min(1) : z.string();
     } else if (field.type === 'email') {
@@ -39,7 +39,7 @@ export const ErxesFormValues = ({
         : z.date();
     } else if (field.type === 'boolean') {
       formSchema[field._id] = z.boolean();
-    } else if (field.type === 'select') {
+    } else if (field.type === 'select' || field.type === 'radio') {
       formSchema[field._id] = field.isRequired ? z.string().min(1) : z.string();
     }
   });
@@ -47,7 +47,7 @@ export const ErxesFormValues = ({
   const defaultValues: Record<string, any> = {};
 
   fields.forEach((field) => {
-    if (!field || !field.type) return;
+    if (!field?.type) return;
     if (
       field.type === 'text' ||
       field.type === 'textarea' ||
@@ -61,6 +61,8 @@ export const ErxesFormValues = ({
       defaultValues[field._id] = new Date();
     } else if (field.type === 'boolean') {
       defaultValues[field._id] = false;
+    } else if (field.type === 'radio') {
+      defaultValues[field._id] = '';
     }
   });
 

@@ -21,6 +21,7 @@ export function AddLoyaltyScoreForm({
       title: '',
       description: '',
       conditions: {
+        serviceName: '',
         productCategoryIds: [],
         productIds: [],
         tagIds: [],
@@ -28,12 +29,20 @@ export function AddLoyaltyScoreForm({
         excludeProductIds: [],
         excludeTagIds: [],
       },
+      add: { placeholder: '', currencyRatio: '' },
+      subtract: { placeholder: '', currencyRatio: '' },
+      ownerType: '',
+      onlyClientPortal: false,
+      fieldGroupId: '',
+      fieldOrigin: 'new' as const,
     },
   });
 
   async function onSubmit(data: LoyaltyScoreFormValues) {
     const variables: AddScoreVariables = {
-      name: data.title,
+      title: data.title,
+      description: data.description || '',
+      serviceName: data.conditions.serviceName,
       restrictions: {
         productCategoryIds: data.conditions.productCategoryIds?.join(','),
         productIds: data.conditions.productIds?.join(','),
@@ -43,6 +52,14 @@ export function AddLoyaltyScoreForm({
         excludeProductIds: data.conditions.excludeProductIds?.join(','),
         excludeTagIds: data.conditions.excludeTagIds?.join(','),
       },
+      add: data.add,
+      subtract: data.subtract,
+      ownerType: data.ownerType,
+      onlyClientPortal: data.onlyClientPortal,
+      fieldGroupId: data.fieldGroupId,
+      fieldOrigin: data.fieldOrigin,
+      fieldName: data.fieldName,
+      fieldId: data.fieldId,
     };
 
     scoreAdd({

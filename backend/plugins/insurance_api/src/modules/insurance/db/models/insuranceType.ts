@@ -5,8 +5,8 @@ import { IInsuranceTypeDocument } from '@/insurance/@types/insuranceType';
 
 export type IInsuranceTypeModel = Model<IInsuranceTypeDocument>;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const loadInsuranceTypeClass = (_models: IModels) => {
-  void _models;
   class InsuranceType {}
 
   insuranceTypeSchema.loadClass(InsuranceType);

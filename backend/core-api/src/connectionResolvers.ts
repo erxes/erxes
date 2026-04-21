@@ -1,4 +1,9 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
+import { IOAuthClientAppDocument } from '@/auth/db/definitions/oauthClientApps';
+import {
+  IOAuthClientAppModel,
+  loadOAuthClientAppClass,
+} from '@/auth/db/models/OAuthClientApps';
 import { IBundleConditionDocument, IBundleRuleDocument } from '@/bundle/@types';
 import {
   IBundleConditionModel,
@@ -20,11 +25,6 @@ import {
   ICustomerModel,
   loadCustomerClass,
 } from '@/contacts/db/models/Customers';
-import { IExchangeRateDocument } from '@/exchangeRates/@types/exchangeRate';
-import {
-  IExchangeRateModel,
-  loadExchangeRateClass,
-} from '@/exchangeRates/db/models/ExchangeRates';
 import {
   IInternalNoteModel,
   loadInternalNoteClass,
@@ -86,17 +86,16 @@ import {
 } from '@/relations/db/models/Relations';
 import { ITagModel, loadTagClass } from '@/tags/db/models/Tags';
 import {
-  activityLogsSchema,
   AiAgentDocument,
   aiAgentSchema,
-  aiEmbeddingSchema,
   IActivityLogDocument,
-  IAiEmbeddingDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
   INotificationDocument,
   notificationSchema,
+  NotificationSettings,
+  notificationSettingsSchema,
 } from 'erxes-api-shared/core-modules';
 import {
   IAppDocument,
@@ -106,6 +105,7 @@ import {
   ICustomerDocument,
   ILogDocument,
   IMainContext,
+  IPermissionGroupDocument,
   IProductCategoryDocument,
   IProductDocument,
   IProductsConfigDocument,
@@ -114,7 +114,6 @@ import {
   IUomDocument,
   IUserDocument,
   IUserMovementDocument,
-  IPermissionGroupDocument,
 } from 'erxes-api-shared/core-types';
 
 import { createGenerateModels } from 'erxes-api-shared/utils';
@@ -139,6 +138,14 @@ import {
   IConfigModel,
   loadConfigClass,
 } from '~/modules/organization/settings/db/models/Configs';
+import {
+  IOAuthDeviceCodeDocument,
+  oauthDeviceCodeSchema,
+} from '~/modules/auth/db/definitions/oauthDeviceCodes';
+import {
+  IOAuthRefreshTokenDocument,
+  oauthRefreshTokenSchema,
+} from '~/modules/auth/db/definitions/oauthRefreshTokens';
 
 import {
   IAutomationEmailTemplateModel,
@@ -159,6 +166,11 @@ import {
   IStatsDocument,
 } from './modules/broadcast/@types';
 import { deliveryReportsSchema } from './modules/broadcast/db/definitions/deliveryReports';
+import {
+  IBroadcastTraceDocument,
+  IBroadcastTraceModel,
+  loadBroadcastTraceClass,
+} from './modules/broadcast/db/models/BroadcastTraces';
 import {
   IDeliveryReportModel,
   IStatsModel,
@@ -232,9 +244,26 @@ import {
 import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 
 import {
-  loadPermissionGroupClass,
   IPermissionGroupModel,
+  loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
+import {
+  ITemplateCategoryModal,
+  loadTemplateCategoryClass,
+} from '@/template/db/models/Category';
+import {
+  ITemplateModal,
+  loadTemplateClass,
+} from '@/template/db/models/Template';
+import {
+  ITemplateCategoryDocument,
+  ITemplateDocument,
+} from '@/template/@types';
+import {
+  IActivityLogsModel,
+  loadActivityLogsClass,
+} from '@/logs/db/models/ActivityLogs';
+
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -254,6 +283,7 @@ export interface IModels {
   Branches: IBranchModel;
   Positions: IPositionModel;
   Apps: IAppModel;
+  OAuthClientApps: IOAuthClientAppModel;
   Fields: IFieldModel;
   FieldsGroups: IFieldGroupModel;
   Forms: IFormModel;
@@ -262,7 +292,6 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
-  ExchangeRates: IExchangeRateModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
@@ -278,10 +307,10 @@ export interface IModels {
   CPNotifications: ICPNotificationModel;
 
   AiAgents: Model<AiAgentDocument>;
-  AiEmbeddings: Model<IAiEmbeddingDocument>;
-  ActivityLogs: Model<IActivityLogDocument>;
+  ActivityLogs: IActivityLogsModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
+  BroadcastTraces: IBroadcastTraceModel;
   SmsRequests: ISmsRequestModel;
   DeliveryReports: IDeliveryReportModel;
   OrgWhiteLabel: IOrgWhiteLabelModel;
@@ -290,6 +319,13 @@ export interface IModels {
   BundleRule: IBundleRuleModel;
   ProductRules: IProductRuleModel;
   PermissionGroups: IPermissionGroupModel;
+
+  NotificationSettings: Model<NotificationSettings>;
+
+  Template: ITemplateModal;
+  TemplateCategory: ITemplateCategoryModal;
+  OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
+  OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -301,21 +337,17 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
-  eventDispatcher: <TDocument extends Document = any>(
+  eventHandlers: <TDocument extends Document = any>(
     pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ) => any,
+  ) => (moduleName: string, collectionName: string) => any,
 ): IModels => {
   const models = {} as IModels;
 
+  const coreEventHandlers = eventHandlers('core');
+
   models.Users = db.model<IUserDocument, IUserModel>(
     'users',
-    loadUserClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'organization', 'users'),
-    ),
+    loadUserClass(models, subdomain, coreEventHandlers),
   );
 
   models.Brands = db.model<IBrandDocument, IBrandModel>(
@@ -323,7 +355,7 @@ export const loadClasses = (
     loadBrandClass(
       subdomain,
       models,
-      eventDispatcher('core', 'organization', 'brands'),
+      coreEventHandlers('organization', 'brands'),
     ),
   );
 
@@ -337,7 +369,7 @@ export const loadClasses = (
     loadCustomerClass(
       models,
       subdomain,
-      eventDispatcher('core', 'contacts', 'customers'),
+      coreEventHandlers('contacts', 'customers'),
     ),
   );
 
@@ -346,13 +378,13 @@ export const loadClasses = (
     loadCompanyClass(
       subdomain,
       models,
-      eventDispatcher('core', 'contacts', 'companies'),
+      coreEventHandlers('contacts', 'companies'),
     ),
   );
 
   models.UserMovements = db.model<IUserMovementDocument, IUserMovemmentModel>(
     'user_movements',
-    loadUserMovemmentClass(models, subdomain),
+    loadUserMovemmentClass(models, subdomain, coreEventHandlers),
   );
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
@@ -360,13 +392,13 @@ export const loadClasses = (
     loadConfigClass(
       subdomain,
       models,
-      eventDispatcher('core', 'organization', 'configs'),
+      coreEventHandlers('organization', 'configs'),
     ),
   );
 
   models.Tags = db.model<ITagDocument, ITagModel>(
     'tags',
-    loadTagClass(subdomain, models, eventDispatcher('core', 'tags', 'tags')),
+    loadTagClass(subdomain, models, coreEventHandlers('tags', 'tags')),
   );
 
   models.InternalNotes = db.model<IInternalNoteDocument, IInternalNoteModel>(
@@ -374,7 +406,7 @@ export const loadClasses = (
     loadInternalNoteClass(
       models,
       subdomain,
-      eventDispatcher('core', 'internalNote', 'internal_notes'),
+      coreEventHandlers('internalNote', 'internal_notes'),
     ),
   );
 
@@ -383,17 +415,13 @@ export const loadClasses = (
     loadProductClass(
       models,
       subdomain,
-      eventDispatcher('core', 'products', 'products'),
+      coreEventHandlers('products', 'products'),
     ),
   );
 
   models.Uoms = db.model<IUomDocument, IUomModel>(
     'uoms',
-    loadUomClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'products', 'uoms'),
-    ),
+    loadUomClass(models, subdomain, coreEventHandlers('products', 'uoms')),
   );
 
   models.ProductsConfigs = db.model<
@@ -404,7 +432,7 @@ export const loadClasses = (
     loadProductsConfigClass(
       models,
       subdomain,
-      eventDispatcher('core', 'products', 'products_configs'),
+      coreEventHandlers('products', 'products_configs'),
     ),
   );
 
@@ -416,7 +444,7 @@ export const loadClasses = (
     loadProductCategoryClass(
       models,
       subdomain,
-      eventDispatcher('core', 'products', 'product_categories'),
+      coreEventHandlers('products', 'product_categories'),
     ),
   );
 
@@ -428,7 +456,7 @@ export const loadClasses = (
     'departments',
     loadDepartmentClass(
       models,
-      eventDispatcher('core', 'organization', 'departments'),
+      coreEventHandlers('organization', 'departments'),
     ),
   );
   models.Units = db.model<IUnitDocument, IUnitModel>(
@@ -437,21 +465,30 @@ export const loadClasses = (
   );
   models.Branches = db.model<IBranchDocument, IBranchModel>(
     'branches',
-    loadBranchClass(
-      models,
-      eventDispatcher('core', 'organization', 'branches'),
-    ),
+    loadBranchClass(models, coreEventHandlers('organization', 'branches')),
   );
   models.Positions = db.model<IPositionDocument, IPositionModel>(
     'positions',
-    loadPositionClass(
-      models,
-      eventDispatcher('core', 'organization', 'positions'),
-    ),
+    loadPositionClass(models, coreEventHandlers('organization', 'positions')),
   );
   models.Apps = db.model<IAppDocument, IAppModel>(
-    'apps',
-    loadAppClass(subdomain, models, eventDispatcher('core', 'apps', 'apps')),
+    'app_tokens',
+    loadAppClass(
+      models,
+      coreEventHandlers('app_tokens', 'app_tokens'),
+      subdomain,
+    ),
+  );
+
+  models.OAuthClientApps = db.model<
+    IOAuthClientAppDocument,
+    IOAuthClientAppModel
+  >(
+    'oauth_client_apps',
+    loadOAuthClientAppClass(
+      models,
+      coreEventHandlers('oauth_client_apps', 'oauth_client_apps'),
+    ),
   );
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
@@ -485,11 +522,6 @@ export const loadClasses = (
     loadFavoritesClass(models),
   );
 
-  models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
-    'exchange_rates',
-    loadExchangeRateClass(models, subdomain),
-  );
-
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
     'documents',
     loadDocumentClass(models, subdomain),
@@ -515,6 +547,11 @@ export const loadClasses = (
     Model<INotificationDocument>
   >('notifications', notificationSchema);
 
+  models.NotificationSettings = db.model<
+    NotificationSettings,
+    Model<NotificationSettings>
+  >('notification_settings', notificationSettingsSchema);
+
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,
     IEmailDeliveryModel
@@ -525,15 +562,11 @@ export const loadClasses = (
     aiAgentSchema,
   );
 
-  models.AiEmbeddings = db.model<
-    IAiEmbeddingDocument,
-    Model<IAiEmbeddingDocument>
-  >('ai_embeddings', aiEmbeddingSchema);
+  models.ActivityLogs = db.model<IActivityLogDocument, IActivityLogsModel>(
+    'activity_logs',
+    loadActivityLogsClass(models),
+  );
 
-  models.ActivityLogs = db.model<
-    IActivityLogDocument,
-    Model<IActivityLogDocument>
-  >('activity_logs', activityLogsSchema);
   models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(
     'broadcast_engage_messages',
     loadEngageMessageClass(models, subdomain),
@@ -549,6 +582,11 @@ export const loadClasses = (
     loadStatsClass(models),
   );
 
+  models.BroadcastTraces = db.model<
+    IBroadcastTraceDocument,
+    IBroadcastTraceModel
+  >('broadcast_traces', loadBroadcastTraceClass(models));
+
   models.SmsRequests = db.model<ISmsRequestDocument, ISmsRequestModel>(
     'broadcast_engage_sms_requests',
     loadSmsRequestClass(models),
@@ -556,18 +594,12 @@ export const loadClasses = (
 
   models.Imports = db.model<IImportDocument, IImportModel>(
     'imports',
-    loadImportClass(
-      models,
-      eventDispatcher('core', 'import-export', 'imports'),
-    ),
+    loadImportClass(models, coreEventHandlers('import-export', 'imports')),
   );
 
   models.Exports = db.model<IExportDocument, IExportModel>(
     'exports',
-    loadExportClass(
-      models,
-      eventDispatcher('core', 'import-export', 'exports'),
-    ),
+    loadExportClass(models, coreEventHandlers('import-export', 'exports')),
   );
   models.OrgWhiteLabel = db.model<IOrgWhiteLabelDocument, IOrgWhiteLabelModel>(
     'org_white_labels',
@@ -583,16 +615,12 @@ export const loadClasses = (
     loadCPUserClass(
       models,
       subdomain,
-      eventDispatcher('core', 'clientportal', 'cpUser'),
+      coreEventHandlers('clientportal', 'cpUser'),
     ),
   );
   models.CPComments = db.model<ICPCommentDocument, ICPCommentsModel>(
     'client_portal_comments',
-    loadCommentClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'clientportal', 'client_portal_comments'),
-    ),
+    loadCommentClass(models, subdomain),
   );
 
   models.CPNotifications = db.model<
@@ -614,6 +642,30 @@ export const loadClasses = (
     'product_rules',
     loadProductRuleClass(models, subdomain),
   );
+  models.PermissionGroups = db.model<
+    IPermissionGroupDocument,
+    IPermissionGroupModel
+  >('permission_groups', loadPermissionGroupClass(models));
+
+  models.Template = db.model<ITemplateDocument, ITemplateModal>(
+    'templates',
+    loadTemplateClass(models, subdomain),
+  );
+
+  models.TemplateCategory = db.model<
+    ITemplateCategoryDocument,
+    ITemplateCategoryModal
+  >('template_categories', loadTemplateCategoryClass(models));
+
+  models.OAuthDeviceCodes = db.model<
+    IOAuthDeviceCodeDocument,
+    Model<IOAuthDeviceCodeDocument>
+  >('oauth_device_codes', oauthDeviceCodeSchema);
+
+  models.OAuthRefreshTokens = db.model<
+    IOAuthRefreshTokenDocument,
+    Model<IOAuthRefreshTokenDocument>
+  >('oauth_refresh_tokens', oauthRefreshTokenSchema);
 
   const db_name = db.name;
 
@@ -623,11 +675,6 @@ export const loadClasses = (
     'logs',
     loadLogsClass(models),
   );
-
-  models.PermissionGroups = db.model<
-    IPermissionGroupDocument,
-    IPermissionGroupModel
-  >('permission_groups', loadPermissionGroupClass(models));
 
   return models;
 };

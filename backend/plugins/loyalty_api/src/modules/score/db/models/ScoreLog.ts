@@ -68,6 +68,8 @@ const generateFilter = async (
 
     if (params.action === 'manual') {
       filter.description = /^manual/i;
+    } else if (params.action === 'hasDescription') {
+      filter.description = { $exists: true, $nin: [null, ''] };
     } else {
       filter.action = params.action;
     }
@@ -77,8 +79,20 @@ const generateFilter = async (
     filter['target.stageId'] = params.stageId;
   }
 
+  if (params.pipelineId) {
+    filter['target.pipelineId'] = params.pipelineId;
+  }
+
+  if (params.boardId) {
+    filter['target.boardId'] = params.boardId;
+  }
+
   if (params.number) {
     filter['target.number'] = params.number;
+  }
+
+  if (params.description) {
+    filter.description = { $regex: params.description, $options: 'i' };
   }
 
   return filter;
@@ -97,13 +111,13 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getScoreLogs(doc: IScoreLogParams) {
-      const { stageId, number } = doc;
+      const { stageId, pipelineId, boardId, number, orderType } = doc;
 
       const filter = await generateFilter(doc, models, subdomain);
 
       let filterAggregate: any[] = [];
 
-      if (stageId || number) {
+      if (stageId || pipelineId || boardId || number) {
         const lookup = [
           {
             $lookup: {
@@ -141,9 +155,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           $group: {
             _id: '$ownerId',
             ownerType: { $first: '$ownerType' },
-            scoreLogs: { $push: '$$ROOT' },
+            logs: { $push: '$$ROOT' },
             createdAt: { $max: '$createdAt' },
-            changeScore: { $sum: '$signedScore' },
+            totalScore: { $sum: '$signedScore' },
           },
         },
         {
@@ -151,21 +165,20 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             _id: 0,
             ownerId: '$_id',
             ownerType: 1,
-            scoreLogs: 1,
-            totalScore: '$changeScore',
+            logs: 1,
+            createdAt: 1,
+            totalScore: 1,
           },
         },
         {
-          $project: {
-            list: 1,
-            total: { $ifNull: [{ $arrayElemAt: ['$total.count', 0] }, 0] },
-          },
+          $sort:
+            orderType === 'createdAt' ? { createdAt: -1 } : { totalScore: -1 },
         },
       ];
 
-      const [result] = await models.ScoreLogs.aggregate(aggregation);
+      const list = await models.ScoreLogs.aggregate(aggregation);
 
-      return result;
+      return { list, total: list.length };
     }
 
     public static async getStatistic(doc: IScoreLogParams) {
@@ -251,6 +264,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         campaignId,
         targetId,
         serviceName,
+        amount,
+        quantity,
       } = doc;
 
       const score = Number(changeScore);
@@ -321,6 +336,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         action: 'add',
         targetId,
         serviceName,
+        amount,
+        quantity,
       });
     }
 
@@ -424,9 +441,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           pluginName: 'core',
           method: 'query',
           module: 'cpUsers',
-          action: 'findOne',
+          action: 'get',
           input: {
-            _id: ownerId,
+            id: ownerId,
           },
           defaultValue: null,
         });

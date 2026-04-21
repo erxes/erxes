@@ -1,7 +1,7 @@
 import { Spinner } from 'erxes-ui';
 
 interface LogLoadingProps {
-  message?: string;
+  readonly message?: string;
 }
 
 export function LogLoading({ message = 'Loading...' }: LogLoadingProps) {

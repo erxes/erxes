@@ -19,7 +19,7 @@ export const loyaltyConfigMutations = {
 
       const doc = { code, value };
 
-      models.LoyaltyConfigs.createOrUpdateConfig(doc);
+      await models.LoyaltyConfigs.createOrUpdateConfig(doc);
     }
   },
 };

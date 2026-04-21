@@ -1,10 +1,7 @@
 import { Model } from 'mongoose';
 import { ICPComment, ICPCommentDocument } from '../../types/comment';
 import { IModels } from '~/connectionResolvers';
-import {
-  commentSchema,
-  EventDispatcherReturn,
-} from 'erxes-api-shared/core-modules';
+import { commentSchema } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export interface ICPCommentsModel extends Model<ICPCommentDocument> {
@@ -14,17 +11,13 @@ export interface ICPCommentsModel extends Model<ICPCommentDocument> {
     _id: string,
     doc: Partial<ICPComment>,
   ): Promise<ICPCommentDocument>;
-  deleteComment(_id: string): void;
+  deleteComment(_id: string): Promise<void>;
 }
 
-export const loadCommentClass = (
-  models: IModels,
-  subdomain: string,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
-) => {
+export const loadCommentClass = (models: IModels, subdomain: string) => {
   class Comment {
     /**
-     * Retreives comment
+     * Retrieves comment
      */
     public static async getComment(_id: string) {
       const comment = await models.CPComments.findOne({ _id });

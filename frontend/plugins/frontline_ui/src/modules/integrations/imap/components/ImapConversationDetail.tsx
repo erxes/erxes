@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import {
   Avatar,
@@ -13,6 +13,11 @@ import { IMAP_CONVERSATION_DETAIL_QUERY } from '../graphql/queries/imapQueries';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { formatDate } from 'date-fns';
 import { IconArrowBackUp, IconMailForward } from '@tabler/icons-react';
+import { useSetAtom } from 'jotai';
+import {
+  isInternalState,
+  onlyInternalState,
+} from '@/inbox/conversations/conversation-detail/states/isInternalState';
 
 /* =====================
    Types
@@ -47,7 +52,7 @@ interface ImapConversationDetailResponse {
 ===================== */
 
 const formatEmails = (emails?: EmailAddress[]) => {
-  if (!emails || !emails.length) return '';
+  if (!emails?.length) return '';
   return emails.map((e) => e.email).join(', ');
 };
 
@@ -174,6 +179,13 @@ export const ImapConversationDetail: React.FC = () => {
   const viewportRef = useRef<HTMLDivElement>(null);
   const [reply, setReply] = useState(false);
   const { _id } = useConversationContext();
+  const setIsInternalNote = useSetAtom(isInternalState);
+  const setOnlyInternal = useSetAtom(onlyInternalState);
+
+  useEffect(() => {
+    setIsInternalNote(true);
+    setOnlyInternal(true);
+  }, []);
 
   const { data, loading, error } = useQuery<ImapConversationDetailResponse>(
     IMAP_CONVERSATION_DETAIL_QUERY,

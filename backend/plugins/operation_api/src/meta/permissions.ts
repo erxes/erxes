@@ -53,6 +53,48 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'triage',
+      description: 'Triage management',
+      scopeField: 'teamId',
+      ownerFields: ['createdBy'],
+
+      scopes: [
+        {
+          name: 'own',
+          description: 'Records user created',
+        },
+        {
+          name: 'group',
+          description: 'Records in user teams',
+        },
+        { name: 'all', description: 'All records' },
+      ],
+
+      actions: [
+        {
+          title: 'View triage records',
+          name: 'triageRead',
+          description: 'View triage records',
+          always: true,
+        },
+        {
+          title: 'Create triage records',
+          name: 'triageCreate',
+          description: 'Create triage records',
+        },
+        {
+          title: 'Edit triage records',
+          name: 'triageUpdate',
+          description: 'Edit triage records',
+        },
+        {
+          title: 'Convert triage to task',
+          name: 'triageConvert',
+          description: 'Convert triage to task',
+        },
+      ],
+    },
+    {
       name: 'project',
       description: 'Project management',
       scopeField: 'teamId',
@@ -96,6 +138,48 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'milestone',
+      description: 'Milestone management',
+      scopeField: null,
+      ownerFields: ['createdBy'],
+
+      scopes: [
+        {
+          name: 'own',
+          description: 'Records user created',
+        },
+        {
+          name: 'group',
+          description: 'Records in user projects',
+        },
+        { name: 'all', description: 'All records' },
+      ],
+
+      actions: [
+        {
+          title: 'View milestones records',
+          name: 'milestoneRead',
+          description: 'View milestones',
+          always: true,
+        },
+        {
+          title: 'Create milestones records',
+          name: 'milestoneCreate',
+          description: 'Create milestones',
+        },
+        {
+          title: 'Edit milestones records',
+          name: 'milestoneUpdate',
+          description: 'Edit milestones',
+        },
+        {
+          title: 'Delete milestones records',
+          name: 'milestoneRemove',
+          description: 'Delete milestones',
+        },
+      ],
+    },
+    {
       name: 'cycle',
       description: 'Cycle management',
       scopeField: 'teamId',
@@ -134,6 +218,11 @@ export const permissions: IPermissionConfig = {
           title: 'Delete cycles records',
           name: 'cycleRemove',
           description: 'Delete cycles records',
+        },
+        {
+          title: 'End cycles',
+          name: 'cycleEnd',
+          description: 'End active cycles',
         },
       ],
     },
@@ -176,6 +265,87 @@ export const permissions: IPermissionConfig = {
           name: 'teamRemove',
           description: 'Delete teams records',
         },
+        {
+          title: 'Manage team members',
+          name: 'teamMemberManage',
+          description: 'Add, remove, and update team members',
+        },
+      ],
+    },
+    {
+      name: 'note',
+      description: 'Note management',
+      scopeField: null,
+      ownerFields: ['createdBy'],
+
+      scopes: [
+        {
+          name: 'own',
+          description: 'Notes user created',
+        },
+        { name: 'all', description: 'All notes' },
+      ],
+
+      actions: [
+        {
+          title: 'View notes',
+          name: 'noteRead',
+          description: 'View notes',
+          always: true,
+        },
+        {
+          title: 'Create notes',
+          name: 'noteCreate',
+          description: 'Create notes',
+        },
+        {
+          title: 'Edit notes',
+          name: 'noteUpdate',
+          description: 'Edit notes',
+        },
+        {
+          title: 'Delete notes',
+          name: 'noteRemove',
+          description: 'Delete notes',
+        },
+      ],
+    },
+    {
+      name: 'status',
+      description: 'Status management',
+      scopeField: 'teamId',
+      ownerFields: [],
+
+      scopes: [
+        {
+          name: 'group',
+          description: 'Statuses in user teams',
+        },
+        { name: 'all', description: 'All statuses' },
+      ],
+
+      actions: [
+        {
+          title: 'View statuses',
+          name: 'statusRead',
+          description: 'View statuses',
+          always: true,
+        },
+        {
+          title: 'Create statuses',
+          name: 'statusCreate',
+          description: 'Create statuses',
+        },
+        {
+          title: 'Edit statuses',
+          name: 'statusUpdate',
+          description: 'Edit statuses',
+        },
+        {
+          title: 'Delete statuses',
+          name: 'statusRemove',
+          description: 'Delete statuses',
+        },
       ],
     },
   ],
@@ -186,6 +356,7 @@ export const permissions: IPermissionConfig = {
       description: 'Full access to Operation plugin',
       permissions: [
         {
+          plugin: 'operation',
           module: 'task',
           actions: [
             'taskRead',
@@ -197,6 +368,18 @@ export const permissions: IPermissionConfig = {
           scope: 'all',
         },
         {
+          plugin: 'operation',
+          module: 'triage',
+          actions: [
+            'triageRead',
+            'triageCreate',
+            'triageUpdate',
+            'triageConvert',
+          ],
+          scope: 'all',
+        },
+        {
+          plugin: 'operation',
           module: 'project',
           actions: [
             'projectRead',
@@ -207,13 +390,55 @@ export const permissions: IPermissionConfig = {
           scope: 'all',
         },
         {
-          module: 'cycle',
-          actions: ['cycleRead', 'cycleCreate', 'cycleUpdate', 'cycleRemove'],
+          plugin: 'operation',
+          module: 'milestone',
+          actions: [
+            'milestoneRead',
+            'milestoneCreate',
+            'milestoneUpdate',
+            'milestoneRemove',
+          ],
           scope: 'all',
         },
         {
+          plugin: 'operation',
+          module: 'cycle',
+          actions: [
+            'cycleRead',
+            'cycleCreate',
+            'cycleUpdate',
+            'cycleRemove',
+            'cycleEnd',
+          ],
+          scope: 'all',
+        },
+        {
+          plugin: 'operation',
           module: 'team',
-          actions: ['teamRead', 'teamCreate', 'teamUpdate', 'teamRemove'],
+          actions: [
+            'teamRead',
+            'teamCreate',
+            'teamUpdate',
+            'teamRemove',
+            'teamMemberManage',
+          ],
+          scope: 'all',
+        },
+        {
+          plugin: 'operation',
+          module: 'note',
+          actions: ['noteRead', 'noteCreate', 'noteUpdate', 'noteRemove'],
+          scope: 'all',
+        },
+        {
+          plugin: 'operation',
+          module: 'status',
+          actions: [
+            'statusRead',
+            'statusCreate',
+            'statusUpdate',
+            'statusRemove',
+          ],
           scope: 'all',
         },
       ],
@@ -224,13 +449,53 @@ export const permissions: IPermissionConfig = {
       description: 'Standard team member',
       permissions: [
         {
+          plugin: 'operation',
           module: 'task',
           actions: ['taskRead', 'taskCreate', 'taskUpdate'],
           scope: 'group',
         },
-        { module: 'project', actions: ['projectRead'], scope: 'group' },
-        { module: 'cycle', actions: ['cycleRead'], scope: 'group' },
-        { module: 'team', actions: ['teamRead'], scope: 'group' },
+        {
+          plugin: 'operation',
+          module: 'triage',
+          actions: ['triageRead', 'triageCreate', 'triageUpdate'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'project',
+          actions: ['projectRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'milestone',
+          actions: ['milestoneRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'cycle',
+          actions: ['cycleRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'team',
+          actions: ['teamRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'note',
+          actions: ['noteRead', 'noteCreate', 'noteUpdate'],
+          scope: 'own',
+        },
+        {
+          plugin: 'operation',
+          module: 'status',
+          actions: ['statusRead'],
+          scope: 'group',
+        },
       ],
     },
     {
@@ -238,8 +503,48 @@ export const permissions: IPermissionConfig = {
       name: 'Operation Viewer',
       description: 'Read-only access',
       permissions: [
-        { module: 'task', actions: ['taskRead'], scope: 'group' },
-        { module: 'project', actions: ['projectRead'], scope: 'group' },
+        {
+          plugin: 'operation',
+          module: 'task',
+          actions: ['taskRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'project',
+          actions: ['projectRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'milestone',
+          actions: ['milestoneRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'cycle',
+          actions: ['cycleRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'team',
+          actions: ['teamRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'note',
+          actions: ['noteRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'status',
+          actions: ['statusRead'],
+          scope: 'group',
+        },
       ],
     },
   ],

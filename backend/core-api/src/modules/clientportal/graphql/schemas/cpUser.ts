@@ -18,6 +18,7 @@ export const types = `
     erxesCustomerId: String
     erxesCompanyId: String
     customFieldsData: JSON
+    propertiesData: JSON
     verificationRequest: VerificationRequest
     isVerified: Boolean!
     isPhoneVerified: Boolean!
@@ -30,6 +31,8 @@ export const types = `
     primaryAuthMethod: AuthMethod
     otpResendAttempts: Int
     otpResendLastAttempt: Date
+    customer: Customer
+    company: Company
     createdAt: Date
     updatedAt: Date
   }
@@ -129,6 +132,8 @@ const userRegisterParams = `
   firstName: String,
   lastName: String,
   userType: CPUserType,
+  code: String,
+  propertiesData: JSON
 `;
 
 const userEditParams = `
@@ -140,6 +145,41 @@ const userEditParams = `
   username: String,
   companyName: String,
   companyRegistrationNumber: String,
+`;
+
+const clientPortalCustomerEditParams = `
+  firstName: String,
+  lastName: String,
+  primaryEmail: String,
+  emails: [String],
+  primaryPhone: String,
+  phones: [String],
+  primaryAddress: JSON,
+  addresses: [JSON],
+  propertiesData: JSON,
+`;
+
+const clientPortalCompanyEditParams = `
+  primaryName: String,
+  names: [String],
+  primaryEmail: String,
+  emails: [String],
+  primaryPhone: String,
+  phones: [String],
+  primaryAddress: JSON,
+  addresses: [JSON],
+  size: Int,
+  website: String,
+  industry: [String],
+  ownerId: String,
+  businessType: String,
+  description: String,
+  isSubscribed: String,
+  links: JSON,
+  tagIds: [String],
+  propertiesData: JSON,
+  code: String,
+  location: String,
 `;
 
 const cpUsersAddParams = `
@@ -173,6 +213,8 @@ export const mutations = `
   cpUsersSetPassword(_id: String!, newPassword: String!): CPUser
   clientPortalUserRegister(${userRegisterParams}): CPUser
   clientPortalUserEdit(${userEditParams}): CPUser
+  clientPortalCustomerEdit(${clientPortalCustomerEditParams}): Customer
+  clientPortalCompanyEdit(${clientPortalCompanyEditParams}): Company
   clientPortalUserVerify(userId: String, code: String!, email: String, phone: String): CPUser
   clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): JSON
   clientPortalLogout: String

@@ -18,7 +18,7 @@ export const useLoyaltyScoreEdit = () => {
           variant: 'destructive',
         });
       },
-      refetchQueries: ['score'],
+      refetchQueries: ['GetScoreCampaigns'],
     });
   };
   return { editStatus: mutate, loading };

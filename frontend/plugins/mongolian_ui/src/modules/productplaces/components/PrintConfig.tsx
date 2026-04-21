@@ -1,23 +1,48 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Button, Label, Form } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
+import { useMutation, useQuery } from '@apollo/client';
+import { Button, Label } from 'erxes-ui';
 import { nanoid } from 'nanoid';
-
-import { PerPrintConfig, Condition } from '../types';
-import PerPrintConditions from './PerPrintConditions';
-
-import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
+import { useCallback, useEffect, useState } from 'react';
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
+import { SelectSalesBoard } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
+import {
+  MN_CONFIGS_CREATE,
+  MN_CONFIGS_REMOVE,
+  MN_CONFIGS_UPDATE,
+} from '../graphql/clientMutations';
+import { MN_CONFIGS } from '../graphql/clientQueries';
+import { Condition } from '../types';
+import {
+  keyValueArrayToObject,
+  objectToKeyValueArray,
+} from '../utils/transformers';
+import PerPrintConditions from './PerPrintConditions';
+import ConfigHeader from './shared/ConfigHeader';
+import SavedConfigsList from './shared/SavedConfigsList';
 
-type Props = {
-  config: PerPrintConfig | null;
-  currentStageId: string;
-  save: (config: PerPrintConfig) => void;
-  delete: () => void;
-};
+// ---------- Types ----------
+export interface PrintConfigData {
+  _id?: string;
+  subId?: string;
+  title: string;
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
+  conditions: Condition[];
+}
 
-const emptyForm: PerPrintConfig = {
+interface MnConfig {
+  _id: string;
+  subId?: string;
+  value: { key: string; value: any }[];
+}
+
+interface MnConfigsQueryResponse {
+  mnConfigs: MnConfig[];
+}
+
+// ---------- Defaults ----------
+const emptyForm: PrintConfigData = {
   title: '',
   boardId: '',
   pipelineId: '',
@@ -25,64 +50,75 @@ const emptyForm: PerPrintConfig = {
   conditions: [],
 };
 
-const PrintConfig: React.FC<Props> = ({
-  config,
-  currentStageId,
-  save,
-  delete: deleteConfig,
-}) => {
-  const form = useForm();
-
-  /** UI-only saved list */
-  const [savedConfigs, setSavedConfigs] = useState<PerPrintConfig[]>([]);
+const PrintConfig: React.FC = () => {
+  const [savedConfigs, setSavedConfigs] = useState<PrintConfigData[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [formData, setFormData] = useState<PrintConfigData>(emptyForm);
+  const [loading, setLoading] = useState(false);
 
-  /** active form */
-  const [formData, setFormData] = useState<PerPrintConfig>({
-    ...emptyForm,
-    stageId: currentStageId,
-  });
-
-  /** sync form */
-  useEffect(() => {
-    if (activeIndex !== null) {
-      const selected = savedConfigs[activeIndex];
-      if (selected) setFormData(selected);
-      return;
-    }
-
-    if (!config) {
-      setFormData({ ...emptyForm, stageId: currentStageId });
-      return;
-    }
-
-    setFormData({
-      title: config.title ?? '',
-      boardId: config.boardId ?? '',
-      pipelineId: config.pipelineId ?? '',
-      stageId: config.stageId ?? currentStageId,
-      conditions: config.conditions ?? [],
-    });
-  }, [config, activeIndex, savedConfigs, currentStageId]);
-
-  /* ---------- helpers ---------- */
-  const updateField = useCallback(
-    <K extends keyof PerPrintConfig>(key: K, value: PerPrintConfig[K]) => {
-      setFormData((prev) => ({ ...prev, [key]: value }));
+  const { data, loading: queryLoading } = useQuery<MnConfigsQueryResponse>(
+    MN_CONFIGS,
+    {
+      variables: { code: 'dealsProductsDataPrint' },
+      fetchPolicy: 'network-only',
     },
-    [],
   );
 
-  const addCondition = () => {
-    const condition: Condition = {
-      id: nanoid(),
-      branchId: '',
-      departmentId: '',
-    };
+  const [createConfig] = useMutation(MN_CONFIGS_CREATE);
+  const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
+  const [deleteConfig] = useMutation(MN_CONFIGS_REMOVE);
 
+  useEffect(() => {
+    if (data?.mnConfigs) {
+      const transformed = data.mnConfigs.map((cfg) => ({
+        _id: cfg._id,
+        subId: cfg.subId,
+        ...keyValueArrayToObject(cfg.value),
+      }));
+      setSavedConfigs(transformed as PrintConfigData[]);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (activeIndex === null) {
+      setFormData(emptyForm);
+    } else {
+      setFormData(savedConfigs[activeIndex] ?? emptyForm);
+    }
+  }, [activeIndex, savedConfigs]);
+
+  const updateField = useCallback((key: keyof PrintConfigData, value: any) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const handleBoardChange = (boardId: string) => {
     setFormData((prev) => ({
       ...prev,
-      conditions: [...prev.conditions, condition],
+      boardId,
+      pipelineId: '',
+      stageId: '',
+    }));
+  };
+
+  const handlePipelineChange = (pipelineId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      pipelineId,
+      stageId: '',
+    }));
+  };
+
+  const addCondition = () => {
+    setFormData((prev) => ({
+      ...prev,
+      conditions: [
+        ...prev.conditions,
+        {
+          id: nanoid(),
+          branchId: '',
+          departmentId: '',
+        },
+      ],
     }));
   };
 
@@ -100,173 +136,121 @@ const PrintConfig: React.FC<Props> = ({
     }));
   };
 
-  /* ---------- actions ---------- */
-  const handleSave = () => {
-    save(formData);
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const { _id, ...rest } = formData;
+      const valueArray = objectToKeyValueArray(rest);
 
-    setSavedConfigs((prev) => {
-      if (activeIndex === null) {
-        return [...prev, formData];
+      if (_id) {
+        await updateConfig({ variables: { _id, value: valueArray } });
+      } else {
+        await createConfig({
+          variables: {
+            code: 'dealsProductsDataPrint',
+            subId: rest.stageId,
+            value: valueArray,
+          },
+        });
       }
 
-      const next = [...prev];
-      next[activeIndex] = formData;
-      return next;
-    });
-
-    setActiveIndex(null);
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Delete this print config?')) return;
+    if (activeIndex === null) return;
+    const config = savedConfigs[activeIndex];
+    if (!config._id) return;
 
-    await deleteConfig();
-    setSavedConfigs([]);
+    await deleteConfig({ variables: { _id: config._id } });
     setActiveIndex(null);
-    setFormData({ ...emptyForm, stageId: currentStageId });
+    setFormData(emptyForm);
   };
 
-  const handleNewConfig = () => {
-    setActiveIndex(null);
-    setFormData({ ...emptyForm, stageId: currentStageId });
-  };
-
-  /* ================= RENDER ================= */
+  if (queryLoading && savedConfigs.length === 0) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <Form {...form}>
-      <div className="space-y-6">
-        {/* HEADER */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Print Configuration</h2>
+    <div className="w-full h-full overflow-y-auto">
+      <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
+        {/* ✅ HEADER (reused) */}
+        <ConfigHeader
+          title="Print Configuration"
+          onNew={() => setActiveIndex(null)}
+          disabled={loading}
+        />
 
-          <Button type="button" variant="outline" onClick={handleNewConfig}>
-            + New Config
-          </Button>
-        </div>
-
-        {/* SAVED LIST */}
-        {savedConfigs.length > 0 && (
-          <div className="rounded border bg-background p-4 space-y-2">
-            <h3 className="font-medium">Saved configs</h3>
-
-            {savedConfigs.map((cfg, index) => (
-              <div
-                key={`${cfg.stageId}-${index}`}
-                className={`cursor-pointer rounded px-3 py-2 border
-                  ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
-                onClick={() => setActiveIndex(index)}
-              >
-                <div className="font-medium">
-                  {cfg.title || '(Untitled config)'}
-                </div>
-                <div className="text-xs text-gray-500">
-                  Stage: {cfg.stageId || '—'}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* ✅ SAVED CONFIGS (reused) */}
+        <SavedConfigsList
+          configs={savedConfigs}
+          activeIndex={activeIndex}
+          onSelect={setActiveIndex}
+        />
 
         {/* FORM */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <div className="space-y-2">
-            <Label>Title</Label>
-            <input
-              className="w-full p-2 border rounded"
-              value={formData.title}
-              onChange={(e) => updateField('title', e.target.value)}
-            />
-          </div>
+        <div className="bg-white border p-6 space-y-4">
+          <Label className="text-sm font-medium">Title</Label>
+          <input
+            className="w-full border px-3 py-2"
+            value={formData.title}
+            onChange={(e) => updateField('title', e.target.value)}
+          />
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Board</Label>
-              <SelectSalesBoard
-                variant="form"
-                value={formData.boardId || ''}
-                onValueChange={(boardId: string) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    boardId,
-                    pipelineId: '',
-                    stageId: '',
-                  }));
-                }}
-              />
-            </div>
+          <Label className="text-sm font-medium">Board</Label>
+          <SelectSalesBoard
+            variant="form"
+            value={formData.boardId || ''}
+            onValueChange={handleBoardChange}
+          />
 
-            <div className="space-y-2">
-              <Label>Pipeline</Label>
-              <SelectPipeline
-                variant="form"
-                boardId={formData.boardId || ''}
-                value={formData.pipelineId || ''}
-                disabled={!formData.boardId}
-                onValueChange={(pipelineId: string) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    pipelineId,
-                    stageId: '',
-                  }));
-                }}
-              />
-            </div>
+          <Label className="text-sm font-medium">Pipeline</Label>
+          <SelectPipeline
+            variant="form"
+            boardId={formData.boardId || ''}
+            value={formData.pipelineId || ''}
+            onValueChange={handlePipelineChange}
+          />
 
-            <div className="space-y-2">
-              <Label>Stage</Label>
-              <SelectStage
-                id="print-stage"
-                variant="form"
-                pipelineId={formData.pipelineId || ''}
-                value={formData.stageId || ''}
-                disabled={!formData.pipelineId}
-                onValueChange={(stageId: string) =>
-                  updateField('stageId', stageId)
-                }
-              />
-            </div>
-          </div>
+          <Label className="text-sm font-medium">Stage</Label>
+          <SelectStage
+            id="print-stage"
+            variant="form"
+            pipelineId={formData.pipelineId || ''}
+            value={formData.stageId || ''}
+            onValueChange={(v) => updateField('stageId', v)}
+          />
         </div>
 
         {/* CONDITIONS */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="font-medium">Print Conditions</h3>
+        <div className="bg-white border p-6 space-y-4">
+          <Button onClick={addCondition}>+ Add condition</Button>
 
-            <Button type="button" variant="outline" size="sm" onClick={addCondition}>
-              + Add condition
-            </Button>
-          </div>
-
-          {formData.conditions.length === 0 ? (
-            <div className="text-center py-4 text-gray-400">
-              No conditions added
-            </div>
-          ) : (
-            formData.conditions.map((condition) => (
-              <PerPrintConditions
-                key={condition.id}
-                condition={condition}
-                onChange={updateCondition}
-                onRemove={removeCondition}
-              />
-            ))
-          )}
+          {formData.conditions.map((c) => (
+            <PerPrintConditions
+              key={c.id}
+              condition={c}
+              onChange={updateCondition}
+              onRemove={removeCondition}
+            />
+          ))}
         </div>
 
         {/* ACTIONS */}
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="destructive" onClick={handleDelete}>
-            Delete
-          </Button>
-
-          <Button type="button" onClick={handleSave}>
-            Save
-          </Button>
+        <div className="flex justify-end gap-2">
+          {activeIndex !== null && (
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          )}
+          <Button onClick={handleSave}>{loading ? 'Saving...' : 'Save'}</Button>
         </div>
       </div>
-    </Form>
+    </div>
   );
 };
 

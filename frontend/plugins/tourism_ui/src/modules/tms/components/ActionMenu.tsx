@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   IconEdit,
   IconCopy,
@@ -15,7 +16,7 @@ interface ActionMenuProps {
 
 interface DropdownItem {
   label: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   onClick: () => void;
   disabled?: boolean;
 }
@@ -26,7 +27,7 @@ export const ActionMenu = ({
   onDelete,
   duplicateLoading,
 }: ActionMenuProps) => {
-  const dropdownItems = [
+  const dropdownItems: DropdownItem[] = [
     {
       label: 'Edit',
       icon: <IconEdit size={16} stroke={1.5} />,
@@ -42,11 +43,6 @@ export const ActionMenu = ({
       onClick: () => onDuplicate(),
       disabled: duplicateLoading,
     },
-    // {
-    //   label: 'Visit website',
-    //   icon: <IconWorld size={16} stroke={1.5} />,
-    //   onClick: () => window.open(branch.website, '_blank'),
-    // },
     {
       label: 'Delete',
       icon: <IconTrash size={16} stroke={1.5} />,

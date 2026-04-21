@@ -53,7 +53,7 @@ export const generateElkIds = async (ids: string[], subdomain: string) => {
   const VERSION = getEnv({ name: 'VERSION' });
 
   if (VERSION && VERSION === 'saas') {
-    if (ids && ids.length) {
+    if (ids?.length) {
       const organizationId = await getSaasOrganizationIdBySubdomain(subdomain);
 
       return ids.map((_id) => `${organizationId}__${_id}`);
@@ -128,7 +128,7 @@ export const fetchEs = async ({
     if (VERSION && VERSION === 'saas') {
       organizationId = await getSaasOrganizationIdBySubdomain(subdomain);
 
-      if (body && body.query) {
+      if (body?.query) {
         if (body.query.bool) {
           if (body.query.bool.must) {
             const extraQuery = {
@@ -305,7 +305,7 @@ export const getPluginSegmentConfig = async (contentType: string) => {
   let mongoConnectionString = '';
   for (const pluginName of pluginNames) {
     const plugin = await getPlugin(pluginName);
-    const segmentMeta = (plugin.config.meta || {}).segments;
+    const segmentMeta = plugin.config?.meta?.segments;
     if (
       contentType.includes(`${pluginName}:`) &&
       getDbNameFromConnectionString(
@@ -329,7 +329,7 @@ export const getEsIndexByContentType = async (contentType: string) => {
 
   const plugin = await getPlugin(pluginName);
 
-  const segmentMeta = (plugin.config.meta || {}).segments;
+  const segmentMeta = plugin.config?.meta?.segments;
 
   if (segmentMeta) {
     const { contentTypes } = segmentMeta;

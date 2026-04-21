@@ -4,6 +4,36 @@ import { AutomationNodeType } from '@/automations/types';
 import { Command, Tabs, Separator, Button } from 'erxes-ui';
 import { useAutomationBuilderSidebarHooks } from '../../hooks/useAutomationBuilderSidebarHooks';
 import { IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+
+const SidebarPanelHeader = ({
+  title,
+  description,
+  onClose,
+}: {
+  title: string;
+  description: string;
+  onClose: () => void;
+}) => {
+  return (
+    <>
+      <div className="shrink-0 px-5 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h3 className="text-lg font-semibold leading-none">{title}</h3>
+            <p className="max-w-sm text-sm leading-5 text-muted-foreground">
+              {description}
+            </p>
+          </div>
+          <Button size="icon" variant="secondary" onClick={onClose}>
+            <IconX className="size-4" />
+          </Button>
+        </div>
+      </div>
+      <Separator />
+    </>
+  );
+};
 
 export const AutomationNodeLibrarySidebar = () => {
   const {
@@ -17,6 +47,7 @@ export const AutomationNodeLibrarySidebar = () => {
     onDragStart,
   } = useAutomationNodeLibrarySidebar();
   const { handleClose } = useAutomationBuilderSidebarHooks();
+  const { t } = useTranslation('automations');
   const commonTabContentProps = {
     loading,
     error,
@@ -31,50 +62,39 @@ export const AutomationNodeLibrarySidebar = () => {
       onValueChange={(value) =>
         setQueryParams({ activeNodeTab: value as AutomationNodeType })
       }
-      className="flex-1 flex flex-col overflow-auto"
+      className="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
       <Tabs.Content
         value={AutomationNodeType.Trigger}
-        className="bg-background"
+        className="shrink-0 bg-background"
       >
-        <div className="flex-col p-5 font-semibold ">
-          <div className="flex justify-between">
-            <h3 className="text-lg font-semibold">Choose your trigger type</h3>
-            <Button size="icon" variant="secondary" onClick={handleClose}>
-              <IconX className="size-4" />
-            </Button>
-          </div>
-          <p className="text-sm text-muted-foreground font-normal whitespace-pre-wrap">
-            {`Start with an automation type that enrolls and
-triggers off`}
-          </p>
-        </div>
-        <Separator />
+        <SidebarPanelHeader
+          title={t('choose-trigger-type')}
+          description={t('trigger-type-description')}
+          onClose={handleClose}
+        />
       </Tabs.Content>
-      <Tabs.Content value={AutomationNodeType.Action} className="bg-background">
-        <div className="flex-col p-5 font-semibold ">
-          <div className="flex justify-between">
-            <h3 className="text-lg font-semibold">Choose your action type</h3>
-            <Button size="icon" variant="secondary" onClick={handleClose}>
-              <IconX className="size-4" />
-            </Button>
-          </div>
-          <p className="text-sm text-muted-foreground font-normal whitespace-pre-wrap">
-            {`Start with an automation type that enrolls and 
-triggers off`}
-          </p>
-        </div>
-        <Separator />
+      <Tabs.Content
+        value={AutomationNodeType.Action}
+        className="shrink-0 bg-background"
+      >
+        <SidebarPanelHeader
+          title={t('choose-action-type')}
+          description={t('action-type-description')}
+          onClose={handleClose}
+        />
       </Tabs.Content>
-      <div className="p-5">
-        <Command className="h-full w-2xl gap-3 bg-sidebar">
-          <Command.Input
-            placeholder="Search..."
-            variant="primary"
-            wrapperClassName=" bg-white m-1 rounded-md shadow-xs"
-            autoFocus
-          />
-          <div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
+          <div className="shrink-0 px-5 py-4">
+            <Command.Input
+              placeholder={t('search')}
+              variant="primary"
+              wrapperClassName="m-0 rounded-md bg-white shadow-xs"
+              autoFocus
+            />
+          </div>
+          <div className="min-h-0 flex-1 overflow-hidden px-4 pb-4">
             {[
               {
                 type: AutomationNodeType.Trigger,
@@ -85,9 +105,9 @@ triggers off`}
               <Tabs.Content
                 key={index}
                 value={type}
-                className="flex-1 p-0 w-full overflow-auto"
+                className="h-full w-full overflow-auto p-0 pr-1"
               >
-                <Command.Group className="flex p-0">
+                <Command.Group className="p-0 [&_[cmdk-group-items]]:flex [&_[cmdk-group-items]]:flex-col [&_[cmdk-group-items]]:gap-3">
                   <TabContentWrapper
                     {...commonTabContentProps}
                     type={type}

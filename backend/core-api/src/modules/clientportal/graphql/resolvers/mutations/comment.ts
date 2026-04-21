@@ -25,7 +25,7 @@ interface DeleteCommentParams {
   _id: string;
 }
 
-export const commentMutations: Record<string, Resolver> = {
+export const commentMutations: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalCommentAdd(
     _root: unknown,
     { comment }: CreateCommentParams,
@@ -38,7 +38,7 @@ export const commentMutations: Record<string, Resolver> = {
 
     // Determine user ID and type based on which user is authenticated
     const userId = user?._id || cpUser?._id;
-    const userType = user ? 'team' : (cpUser?.type || 'client');
+    const userType = user ? 'team' : 'client';
 
     // Always use the authenticated user's ID and type for security
     const commentDoc: ICPComment = {

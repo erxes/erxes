@@ -6,8 +6,7 @@ const BASE = '/settings/mongolian/product-places';
 const ProductPlacesSidebar = () => {
   const location = useLocation();
 
-  const isActive = (path: string) =>
-    location.pathname === path;
+  const isActive = (path: string) => location.pathname === path;
 
   const Item = ({ to, label }: { to: string; label: string }) => {
     const path = `${BASE}/${to}`;
@@ -24,9 +23,7 @@ const ProductPlacesSidebar = () => {
   return (
     <Sidebar collapsible="none" className="border-r flex-none">
       <Sidebar.Group>
-        <Sidebar.GroupLabel className="h-4">
-          Product Places
-        </Sidebar.GroupLabel>
+        <Sidebar.GroupLabel className="h-4">Product Places</Sidebar.GroupLabel>
 
         <Sidebar.GroupContent className="pt-1">
           <Sidebar.Menu>

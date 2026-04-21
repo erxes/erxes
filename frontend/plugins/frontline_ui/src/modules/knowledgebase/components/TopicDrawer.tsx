@@ -1,13 +1,23 @@
 import { useMutation } from '@apollo/client';
 import { IconUpload, IconCode } from '@tabler/icons-react';
-import { Button, Form, Input, Select, Sheet, Textarea, Upload, Badge, Dialog } from 'erxes-ui';
+import {
+  Button,
+  Form,
+  Input,
+  Select,
+  Sheet,
+  Textarea,
+  Upload,
+  Badge,
+  Dialog,
+} from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ADD_TOPIC, EDIT_TOPIC } from '../graphql/mutations';
 import { TOPICS } from '../graphql/queries';
 import { SelectBrand } from 'ui-modules';
 import { LANGUAGES } from '../constants';
-import { REACT_APP_WIDGETS_URL } from '@/utils'; 
+import { REACT_APP_WIDGETS_URL } from '@/utils';
 
 interface Topic {
   _id: string;
@@ -22,10 +32,10 @@ interface Topic {
 }
 
 interface TopicDrawerProps {
-  topic?: Topic;
-  isOpen: boolean;
-  onClose: () => void;
-  onSaved?: () => void;
+  readonly topic?: Topic;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly onSaved?: () => void;
 }
 
 interface TopicFormData {
@@ -39,7 +49,12 @@ interface TopicFormData {
   notificationSegmentId: string;
 }
 
-export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProps) {
+export function TopicDrawer({
+  topic,
+  isOpen,
+  onClose,
+  onSaved,
+}: TopicDrawerProps) {
   const isEditing = !!topic;
   const [scriptDialogOpen, setScriptDialogOpen] = useState(false);
 
@@ -54,10 +69,10 @@ export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProp
   };
 
   (function () {
-    var script = document.createElement("script");
+    const script = document.createElement("script");
     script.src = "${API}/knowledgeBaseBundle.js";
     script.async = true;
-    var entry = document.getElementsByTagName("script")[0];
+    const entry = document.getElementsByTagName("script")[0];
     entry.parentNode.insertBefore(script, entry);
   })();
 </script>`;
@@ -211,7 +226,10 @@ export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProp
                 <Form.Item>
                   <Form.Label>Description</Form.Label>
                   <Form.Control>
-                    <Textarea {...field} placeholder="Enter topic description" />
+                    <Textarea
+                      {...field}
+                      placeholder="Enter topic description"
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -260,7 +278,10 @@ export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProp
                   <Form.Item>
                     <Form.Label>Language *</Form.Label>
                     <Form.Control>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <Select.Trigger>
                           <Select.Value placeholder="Select language" />
                         </Select.Trigger>
@@ -289,18 +310,30 @@ export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProp
                     <Upload.Root
                       value={field.value}
                       onChange={(fileInfo) => {
-                        if (fileInfo && typeof fileInfo === 'object' && 'url' in fileInfo) {
-                          field.onChange((fileInfo as any).url);
+                        if (
+                          fileInfo &&
+                          typeof fileInfo === 'object' &&
+                          'url' in fileInfo
+                        ) {
+                          field.onChange(fileInfo.url);
                         }
                       }}
                     >
                       <Upload.Preview />
                       <div className="flex flex-col gap-2">
-                        <Upload.Button size="sm" variant="outline" type="button">
+                        <Upload.Button
+                          size="sm"
+                          variant="outline"
+                          type="button"
+                        >
                           <IconUpload className="h-4 w-4 mr-2" />
                           Upload image
                         </Upload.Button>
-                        <Upload.RemoveButton size="sm" variant="outline" type="button" />
+                        <Upload.RemoveButton
+                          size="sm"
+                          variant="outline"
+                          type="button"
+                        />
                       </div>
                     </Upload.Root>
                   </Form.Control>
@@ -325,7 +358,8 @@ export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProp
                 </div>
                 <Badge variant="info" className="block w-full h-auto p-3">
                   <p className="text-sm">
-                    Embed this knowledge base topic into your website using the script below.
+                    Embed this knowledge base topic into your website using the
+                    script below.
                   </p>
                 </Badge>
               </div>
@@ -334,11 +368,26 @@ export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProp
         </Form>
 
         <div className="border-t gap-3 p-4 bg-white flex-shrink-0 flex justify-end">
-          <Button type="button" onClick={onClose} variant="outline" disabled={busy}>
+          <Button
+            type="button"
+            onClick={onClose}
+            variant="outline"
+            disabled={busy}
+          >
             Cancel
           </Button>
-          <Button type="submit" disabled={busy} onClick={form.handleSubmit(onSubmit)}>
-            {busy ? (isEditing ? 'Saving...' : 'Creating...') : isEditing ? 'Save Changes' : 'Create Topic'}
+          <Button
+            type="submit"
+            disabled={busy}
+            onClick={form.handleSubmit(onSubmit)}
+          >
+            {busy
+              ? isEditing
+                ? 'Saving...'
+                : 'Creating...'
+              : isEditing
+                ? 'Save Changes'
+                : 'Create Topic'}
           </Button>
         </div>
       </Sheet.View>
@@ -349,7 +398,8 @@ export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProp
             <Dialog.Header>
               <Dialog.Title>Knowledge Base Embed Script</Dialog.Title>
               <Dialog.Description>
-                Copy and paste this script into your website's HTML to embed this knowledge base topic.
+                Copy and paste this script into your website's HTML to embed
+                this knowledge base topic.
               </Dialog.Description>
             </Dialog.Header>
 
@@ -362,25 +412,34 @@ export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProp
                   size="sm"
                   variant="secondary"
                   className="absolute top-2 right-2"
-                  onClick={() => handleCopyScript(generateTopicScript(topic._id))}
+                  onClick={() =>
+                    handleCopyScript(generateTopicScript(topic._id))
+                  }
                 >
                   Copy Script
                 </Button>
               </div>
 
               <Badge variant="info" className="block w-full h-auto p-3">
-                <h4 className="font-medium text-sm mb-2">Installation Steps:</h4>
+                <h4 className="font-medium text-sm mb-2">
+                  Installation Steps:
+                </h4>
                 <ol className="text-sm space-y-1 list-decimal list-inside text-muted-foreground">
                   <li>Copy the script above</li>
                   <li>Paste it into your website's HTML</li>
                   <li>Place it just before the closing {'</body>'} tag</li>
-                  <li>The knowledge base topic widget will appear on your site</li>
+                  <li>
+                    The knowledge base topic widget will appear on your site
+                  </li>
                 </ol>
               </Badge>
             </div>
 
             <Dialog.Footer>
-              <Button variant="secondary" onClick={() => setScriptDialogOpen(false)}>
+              <Button
+                variant="secondary"
+                onClick={() => setScriptDialogOpen(false)}
+              >
                 Close
               </Button>
             </Dialog.Footer>

@@ -8,12 +8,18 @@ import {
   IWidgetUiOptions,
 } from '../types/connection';
 import { IHeaderItem, IMessage } from '../types';
+import type { INotificationItem } from '../hooks/useWidgetNotifications';
 import { HEADER_ITEMS } from '../constants';
 import { ITicketCheckProgress } from '../ticket/types';
+import { atomWithStorage } from 'jotai/utils';
+import { set } from 'date-fns';
 
 export const customerIdAtom = atom<string | null>(null);
 
-export const customerDataAtom = atom<ICustomerData | null>(null);
+export const customerDataAtom = atomWithStorage<ICustomerData | null>(
+  'customerData',
+  null,
+);
 
 export const messengerTabAtom = atom<string>('default');
 export const setActiveTabAtom = atom(null, (get, set, tab: string) => {
@@ -30,8 +36,8 @@ export const connectionAtom = atom<IConnectionInfo>({
 
 export const uiOptionsAtom = atom<IWidgetUiOptions>({
   primary: {
-    DEFAULT: '#000',
-    foreground: '#fff',
+    DEFAULT: '#000000',
+    foreground: '#ffffff',
   },
   logo: '',
 });
@@ -73,3 +79,7 @@ export const toastUserAtom = atom<boolean>(false);
 export const ticketProgressAtom = atom<ITicketCheckProgress | null>(null);
 
 export const userTicketCreatedNumberAtom = atom<string | null>(null);
+
+export const unreadNotificationCountAtom = atom<number>(0);
+
+export const notificationsAtom = atom<INotificationItem[]>([]);

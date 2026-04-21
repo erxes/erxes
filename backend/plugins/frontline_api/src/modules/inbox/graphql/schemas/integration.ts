@@ -50,7 +50,7 @@ export const types = `
     tagIds: [String]
     createdAt: Date
     tags: [Tag]
-
+    brandId: String
     leadData: JSON
     messengerData: JSON
     ticketConfigId: JSON
@@ -208,6 +208,7 @@ export const mutations = `
     _id: String!,
     channelId: String!,
     languageCode: String
+    brandId: String!
     color: String
     logo:String
   ): Integration
@@ -216,11 +217,13 @@ export const mutations = `
     channelId: String!,
     name: String!,
     languageCode: String
+    brandId: String!
     ): Integration
 
   integrationsEditMessengerIntegration(
     _id: String!,
     channelId: String!,
+    brandId: String!
     name: String!,
     languageCode: String
   ): Integration
@@ -228,7 +231,8 @@ export const mutations = `
   integrationsSaveMessengerAppearanceData(
     _id: String!,
     channelId: String!,
-    uiOptions: MessengerUiOptions): Integration
+    uiOptions: MessengerUiOptions,
+    brandId: String!): Integration
 
   integrationsSaveMessengerColorTheme(
     _id: String!,
@@ -238,6 +242,7 @@ export const mutations = `
   integrationsSaveMessengerConfigs(
     _id: String!,
     channelId: String!,
+    brandId: String!,
     messengerData: IntegrationMessengerData,
     callData: IntegrationCallData
     ): Integration
@@ -247,9 +252,10 @@ export const mutations = `
     channelId: String!,
     name: String!,
     accountId: String,
+    brandId: String!,
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, channelId: String, details: JSON): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, channelId: String, brandId: String, details: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!, kind: String): JSON
