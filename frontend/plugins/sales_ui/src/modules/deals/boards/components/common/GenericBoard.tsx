@@ -202,16 +202,7 @@ function GenericBoardInner<
 
       // Column reordering
       if (activeData?.type === 'column') {
-        const overColumnId = (() => {
-          if (overData?.type === 'column') return overData.column?.id;
-          if (overData?.columnId) return overData.columnId;
-          if (overData?.type === 'card')
-            return (overData.item as TItem).columnId;
-          if (typeof over.id === 'string' && over.id.endsWith('-droppable')) {
-            return over.id.slice(0, -'-droppable'.length);
-          }
-          return typeof over.id === 'string' ? over.id : null;
-        })();
+        const overColumnId = findContainerId(over.id);
 
         if (!overColumnId) return;
 
