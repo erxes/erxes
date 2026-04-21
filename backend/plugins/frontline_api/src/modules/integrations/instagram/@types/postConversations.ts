@@ -15,5 +15,4 @@ export interface IInstagramPostConversation {
 }
 
 export interface IInstagramPostConversationDocument
-  extends IInstagramPostConversation,
-    Document {}
+  extends IInstagramPostConversation, Document {}

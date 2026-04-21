@@ -4,10 +4,13 @@ import { getConfig } from '@/integrations/instagram/utils';
 import { receiveMessage } from './receiveMessage';
 import { receiveComment } from './receiveComment';
 import { receivePost } from './receivePost';
-import { debugInstagram, debugInstagramError } from '@/integrations/instagram/debuggers';
-import { 
+import {
+  debugInstagram,
+  debugInstagramError,
+} from '@/integrations/instagram/debuggers';
+import {
   INSTAGRAM_WEBHOOK_EVENTS,
-  INSTAGRAM_MESSAGE_TYPES 
+  INSTAGRAM_MESSAGE_TYPES,
 } from '@/integrations/instagram/constants';
 
 export const instagramWebhookHandler = async (
@@ -67,7 +70,8 @@ const processMessagingEvent = async (
   subdomain: string,
   messagingEvent: any,
 ) => {
-  const { sender, recipient, timestamp, message, postback, delivery, read } = messagingEvent;
+  const { sender, recipient, timestamp, message, postback, delivery, read } =
+    messagingEvent;
 
   if (!sender || !recipient) {
     debugInstagramError('Invalid messaging event: missing sender or recipient');
@@ -105,7 +109,10 @@ const processMessagingEvent = async (
       debugInstagram(`Message read by ${userId}`);
     }
   } catch (error) {
-    debugInstagramError(`Error processing messaging event: ${error.message}`, error);
+    debugInstagramError(
+      `Error processing messaging event: ${error.message}`,
+      error,
+    );
   }
 };
 
@@ -164,14 +171,18 @@ export const instagramGetStatus = async (req, res, next) => {
 
 export const instagramGetPost = async (req, res, next) => {
   try {
-    debugInstagram(`Request to get Instagram post data with: ${JSON.stringify(req.query)}`);
+    debugInstagram(
+      `Request to get Instagram post data with: ${JSON.stringify(req.query)}`,
+    );
 
     const subdomain = req.getSubdomain();
     const models = await req.generateModels(subdomain);
 
     const { erxesApiId } = req.query;
 
-    const post = await models.InstagramPostConversations.findOne({ erxesApiId });
+    const post = await models.InstagramPostConversations.findOne({
+      erxesApiId,
+    });
 
     return res.json({ ...post });
   } catch (e) {

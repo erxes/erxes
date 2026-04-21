@@ -3,8 +3,7 @@ import { IModels } from '~/connectionResolvers';
 import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/integrations';
 import { integrationSchema } from '../definitions/integrations';
 
-export interface IInstagramIntegrationModel
-  extends Model<IInstagramIntegrationDocument> {
+export interface IInstagramIntegrationModel extends Model<IInstagramIntegrationDocument> {
   getIntegration(selector): Promise<IInstagramIntegrationDocument>;
 }
 

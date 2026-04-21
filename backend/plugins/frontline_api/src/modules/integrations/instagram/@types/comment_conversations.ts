@@ -13,7 +13,6 @@ export interface IInstagramCommentConversation {
 }
 
 export interface IInstagramCommentConversationDocument
-  extends IInstagramCommentConversation,
-    Document {
+  extends IInstagramCommentConversation, Document {
   isResolved: any;
 }

@@ -8,8 +8,7 @@ import {
   IInstagramConversationMessage,
 } from '@/integrations/instagram/@types/conversationMessages';
 
-export interface IInstagramConversationMessageModel
-  extends Model<IInstagramConversationMessageDocument> {
+export interface IInstagramConversationMessageModel extends Model<IInstagramConversationMessageDocument> {
   getMessage(_id: string): Promise<IInstagramConversationMessageDocument>;
   createMessage(
     doc: IInstagramConversationMessage,

@@ -15,5 +15,4 @@ export interface IInstagramIntegration {
 }
 
 export interface IInstagramIntegrationDocument
-  extends IInstagramIntegration,
-    Document {}
+  extends IInstagramIntegration, Document {}

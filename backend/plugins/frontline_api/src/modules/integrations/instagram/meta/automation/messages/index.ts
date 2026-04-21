@@ -1,14 +1,8 @@
 import { debugError } from '@/integrations/instagram/debuggers';
 import { checkContentConditions } from '@/integrations/instagram/meta/automation/utils/messageUtils';
 import { IModels } from '~/connectionResolvers';
-import {
-  generateMessages,
-  getData,
-  sendMessage,
-} from './utils';
-import {
-  IInstagramConversationDocument,
-} from '../../../@types/conversations';
+import { generateMessages, getData, sendMessage } from './utils';
+import { IInstagramConversationDocument } from '../../../@types/conversations';
 import { IInstagramCustomerDocument } from '../../../@types/customers';
 import { TAutomationActionConfig } from '@/integrations/instagram/meta/automation/types/automationTypes';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';

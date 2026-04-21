@@ -8,8 +8,7 @@ type InstagramCustomerDoc = HydratedDocument<IInstagramCustomerDocument>;
 
 type InstagramCustomerLean = IInstagramCustomerDocument;
 
-export interface IInstagramCustomerModel
-  extends Model<IInstagramCustomerDocument> {
+export interface IInstagramCustomerModel extends Model<IInstagramCustomerDocument> {
   getCustomer(selector: any, isLean: true): Promise<InstagramCustomerLean>;
 
   getCustomer(selector: any, isLean?: false): Promise<InstagramCustomerDoc>;
@@ -22,9 +21,10 @@ export const loadInstagramCustomerClass = (models: IModels) => {
       isLean = false,
     ): Promise<InstagramCustomerDoc | InstagramCustomerLean> {
       if (isLean) {
-        const customer = await models.InstagramCustomers.findOne(
-          selector,
-        ).lean<InstagramCustomerLean>();
+        const customer =
+          await models.InstagramCustomers.findOne(
+            selector,
+          ).lean<InstagramCustomerLean>();
 
         if (!customer) {
           throw new Error('Customer not found');
