@@ -5,7 +5,6 @@ import {
 } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { ADD_TAG } from 'ui-modules/modules/tags-new/graphql/tagMutations';
-import { TAGS_QUERY } from 'ui-modules/modules/tags-new/graphql/tagQueries';
 import { AddTagMutationResponse } from 'ui-modules/modules/tags-new/types/TagMutationTypes';
 
 export const useTagAdd = () => {
@@ -52,26 +51,7 @@ export const useTagAdd = () => {
         });
         options?.onCompleted?.(data);
       },
-      update: (cache, { data }) => {
-        const tagsAdd = data?.tagsAdd;
-        if (!tagsAdd) return;
-        try {
-          cache.updateQuery(
-            {
-              query: TAGS_QUERY,
-              variables: {
-                excludeWorkspaceTags: true,
-                type: variables?.type,
-              },
-            },
-            (data) => ({
-              tagsMain: [tagsAdd, ...(data?.tagsMain || [])],
-            }),
-          );
-        } catch (error) {
-          console.error(error);
-        }
-      },
+      refetchQueries: ['TagsMain'],
     });
   };
 

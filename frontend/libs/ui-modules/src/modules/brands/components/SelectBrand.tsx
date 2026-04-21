@@ -18,7 +18,8 @@ import {
   useSelectBrandContext,
 } from '../contexts/SelectBrandContext';
 import { BrandsInline } from '../components/BrandsInline';
-import { IconLabel } from '@tabler/icons-react';
+import { IconLabel, IconPlus } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 
 export const SelectBrandProvider = ({
   children,
@@ -105,7 +106,7 @@ const SelectBrandContent = () => {
   const [search, setSearch] = React.useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { brands: selectedBrands } = useSelectBrandContext();
-
+  const navigate = useNavigate();
   const {
     brands = [],
     loading,
@@ -116,6 +117,14 @@ const SelectBrandContent = () => {
       searchValue: debouncedSearch,
     },
   });
+
+  const unselectedBrands = brands.filter(
+    (brand) => !selectedBrands.some((b) => b._id === brand._id),
+  );
+
+  const handleCreateBrand = () => {
+    navigate('/settings/brands?create_brand=true');
+  };
 
   return (
     <Command shouldFilter={false} id="brand-command-menu">
@@ -137,11 +146,15 @@ const SelectBrandContent = () => {
             <Command.Separator className="my-1" />
           </>
         )}
-        {brands
-          .filter((brand) => !selectedBrands.some((b) => b._id === brand._id))
-          .map((brand) => (
-            <SelectBrandCommandItem key={brand._id} brand={brand} />
-          ))}
+        {unselectedBrands.map((brand) => (
+          <SelectBrandCommandItem key={brand._id} brand={brand} />
+        ))}
+        {!loading && unselectedBrands.length === 0 && (
+          <Command.Item onSelect={handleCreateBrand} className="gap-2">
+            <IconPlus className="shrink-0" />
+            Create "{search}"
+          </Command.Item>
+        )}
         <Combobox.FetchMore
           fetchMore={handleFetchMore}
           totalCount={totalCount}
