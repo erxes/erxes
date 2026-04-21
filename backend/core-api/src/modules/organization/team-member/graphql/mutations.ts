@@ -20,7 +20,7 @@ export interface IUsersEdit extends IUser {
   _id: string;
 }
 
-export const userMutations: Record<string, Resolver> = {
+export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersCreateOwner(
     _parent: undefined,
     {

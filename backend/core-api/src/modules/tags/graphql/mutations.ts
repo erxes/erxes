@@ -1,7 +1,7 @@
 import { ITag, Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
-export const tagMutations: Record<string, Resolver> = {
+export const tagMutations: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Creates a new tag
    */

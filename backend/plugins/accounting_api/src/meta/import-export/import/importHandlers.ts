@@ -4,12 +4,23 @@ import {
   TGetImportHeadersOutput,
   TInsertImportRowsInput,
 } from 'erxes-api-shared/core-modules';
-import { processAccountRows } from './processAccountRows';
 import { IModels } from '~/connectionResolvers';
+import { processAccountCategoryRows } from './processAccountCategoryRows';
+import { processAccountRows } from './processAccountRows';
 
 const accountImportMap = {
-  accountCategory: {},
-  account: {
+  accountCategories: {
+    headers: [
+      { label: 'Code', key: 'code' },
+      { label: 'Name', key: 'name' },
+      { label: 'Parent ID', key: 'parentId' },
+      { label: 'Description', key: 'description' },
+      { label: 'Status', key: 'status' },
+    ],
+    processRows: (subdomain: string, models: IModels, rows: any[]) =>
+      processAccountCategoryRows(subdomain, models, rows),
+  },
+  accounts: {
     headers: [
       { label: 'Code', key: 'code' },
       { label: 'Name', key: 'name' },
@@ -61,7 +72,7 @@ export const accountImportHandlers = {
   ) => {
     const handler = accountImportMap[collectionName];
     if (!handler)
-      throw new Error(`Import handler not found for ${collectionName}`);
+      return false;
     return handler.batchSkipRow(subdomain, models, rowData);
   },
 };

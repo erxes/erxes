@@ -29,6 +29,7 @@ export const generateIntegrationUrl = (): string => {
 // calling generateIntegrationUrl() there would fall back to the last <script>
 // in the DOM — which is often the inline install script whose .src is '',
 // causing iframe.src to be set to '' and the iframe to reload the host page.
+const INTEGRATION_URL = generateIntegrationUrl();
 
 export const setErxesProperty = (name: string, value: any) => {
   const erxes = window.Erxes || {};
@@ -147,7 +148,6 @@ const createIframe = (settings: Settings) => {
     iframe.allowFullscreen = true;
   }
 
-  const INTEGRATION_URL = generateIntegrationUrl();
   iframe.src = INTEGRATION_URL;
 
   container.appendChild(iframe);
@@ -156,6 +156,7 @@ const createIframe = (settings: Settings) => {
   const embedContainer = document.querySelector(
     `[data-erxes-embed="${formId}"]`,
   );
+  console.log('embedContainer', embedContainer);
 
   if (embedContainer) {
     embedContainer.appendChild(container);

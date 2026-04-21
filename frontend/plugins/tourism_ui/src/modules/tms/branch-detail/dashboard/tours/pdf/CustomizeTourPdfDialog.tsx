@@ -128,6 +128,21 @@ const LABEL_FIELDS: Array<{
     placeholder: 'Price / Person',
   },
   {
+    key: 'pricingAdultLabel',
+    label: 'Adult price label',
+    placeholder: 'Adult Price',
+  },
+  {
+    key: 'pricingChildLabel',
+    label: 'Child price label',
+    placeholder: 'Child Price',
+  },
+  {
+    key: 'pricingInfantLabel',
+    label: 'Infant price label',
+    placeholder: 'Infant Price',
+  },
+  {
     key: 'pricingAccommodationLabel',
     label: 'Accommodation label',
     placeholder: 'Accommodation',
@@ -239,10 +254,10 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="max-w-5xl overflow-hidden p-0">
+      <Dialog.Content className="max-w-5xl p-0 overflow-hidden">
         <div className="grid max-h-[80vh] md:grid-cols-[1.05fr_0.95fr]">
           <section className="min-h-0 overflow-y-auto bg-background">
-            <Dialog.Header className="border-b bg-muted/30 px-6 py-6">
+            <Dialog.Header className="px-6 py-6 border-b bg-muted/30">
               <Dialog.Title className="text-xl">
                 Customize Tour PDF
               </Dialog.Title>
@@ -252,7 +267,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
               </Dialog.Description>
             </Dialog.Header>
 
-            <div className="space-y-4 px-6 py-5">
+            <div className="px-6 py-5 space-y-4">
               <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 <IconLayoutGrid size={14} />
                 Visible Sections
@@ -262,7 +277,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
                 {TOGGLE_OPTIONS.map((option) => (
                   <div
                     key={option.key}
-                    className="rounded-2xl border border-border/60 bg-background px-4 py-4 shadow-sm transition-colors hover:border-primary/30"
+                    className="px-4 py-4 transition-colors border shadow-sm rounded-2xl border-border/60 bg-background hover:border-primary/30"
                   >
                     <div className="flex items-start gap-3">
                       <Checkbox
@@ -300,7 +315,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
                   {ITINERARY_TOGGLE_OPTIONS.map((option) => (
                     <div
                       key={option.key}
-                      className="rounded-2xl border border-border/60 bg-background px-4 py-4 shadow-sm transition-colors hover:border-primary/30"
+                      className="px-4 py-4 transition-colors border shadow-sm rounded-2xl border-border/60 bg-background hover:border-primary/30"
                     >
                       <div className="flex items-start gap-3">
                         <Checkbox
@@ -332,7 +347,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
           </section>
 
           <aside className="min-h-0 overflow-y-auto border-l bg-muted/20">
-            <div className="border-b bg-background/70 px-6 py-6 backdrop-blur">
+            <div className="px-6 py-6 border-b bg-background/70 backdrop-blur">
               <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 <IconForms size={14} />
                 Static Text
@@ -343,8 +358,8 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
               </p>
             </div>
 
-            <div className="space-y-4 px-6 py-5">
-              <div className="rounded-2xl border border-border/60 bg-background px-4 py-4 shadow-sm">
+            <div className="px-6 py-5 space-y-4">
+              <div className="px-4 py-4 border shadow-sm rounded-2xl border-border/60 bg-background">
                 <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <IconFileDescription size={14} />
                   Tour Labels
@@ -352,7 +367,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
 
                 <div className="space-y-4">
                   {LABEL_FIELDS.map((field) => (
-                    <div key={field.key} className="space-y-1.5">
+                    <div key={field.key} className="space-y-2">
                       <Label htmlFor={`tour-pdf-label-${field.key}`}>
                         {field.label}
                       </Label>
@@ -370,7 +385,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border/60 bg-background px-4 py-4 shadow-sm">
+              <div className="px-4 py-4 border shadow-sm rounded-2xl border-border/60 bg-background">
                 <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <IconFileDescription size={14} />
                   Itinerary Labels
@@ -378,7 +393,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
 
                 <div className="space-y-4">
                   {ITINERARY_LABEL_FIELDS.map((field) => (
-                    <div key={field.key} className="space-y-1.5">
+                    <div key={field.key} className="space-y-2">
                       <Label htmlFor={`tour-itinerary-pdf-label-${field.key}`}>
                         {field.label}
                       </Label>
@@ -396,7 +411,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-dashed border-border/70 bg-background/70 px-4 py-4">
+              <div className="px-4 py-4 border border-dashed rounded-2xl border-border/70 bg-background/70">
                 <p className="text-sm leading-6 text-muted-foreground">
                   Preview refreshes automatically when these values change.
                   Short labels usually fit best in the exported layout.
@@ -404,7 +419,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
               </div>
             </div>
 
-            <Dialog.Footer className="sticky bottom-0 border-t bg-background/95 px-6 py-4 backdrop-blur">
+            <Dialog.Footer className="sticky bottom-0 px-6 py-4 border-t bg-background/95 backdrop-blur">
               <Button variant="outline" onClick={onReset}>
                 Reset to defaults
               </Button>

@@ -39,7 +39,7 @@ export const ErxesFormValues = ({
         : z.date();
     } else if (field.type === 'boolean') {
       formSchema[field._id] = z.boolean();
-    } else if (field.type === 'select') {
+    } else if (field.type === 'select' || field.type === 'radio') {
       formSchema[field._id] = field.isRequired ? z.string().min(1) : z.string();
     }
   });
@@ -61,6 +61,8 @@ export const ErxesFormValues = ({
       defaultValues[field._id] = new Date();
     } else if (field.type === 'boolean') {
       defaultValues[field._id] = false;
+    } else if (field.type === 'radio') {
+      defaultValues[field._id] = '';
     }
   });
 

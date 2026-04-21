@@ -12,7 +12,7 @@ export const AccountPage = () => {
         <Import
           pluginName="accounting"
           moduleName="account"
-          collectionName="account"
+          collectionName="accounts"
         />
       </PageSubHeader>
       <AccountsTable />

@@ -90,6 +90,7 @@ export const queries = `
     cmsPageList(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): PageList
 
     cpPages(language: String): [Page]
+    cpPageList(language: String, ${GQL_CURSOR_PARAM_DEFS}): PageList
 `;
 
 export const mutations = `
