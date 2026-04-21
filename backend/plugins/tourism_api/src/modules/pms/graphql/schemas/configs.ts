@@ -22,10 +22,10 @@ export const types = `
 export const queries = `
   pmsConfigs: [PmsConfig]
   pmsConfigsGetValue(code:String): PmsConfig
-  pmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date ): [Deal]
+  pmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate:Date, startDate:Date ): [Deal]
   pmsCheckRooms(skipStageIds : [String],pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
 
-  cpPmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date ): [Deal]
+  cpPmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate:Date, startDate:Date ): [Deal]
   cpPmsCheckRooms(skipStageIds : [String],pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
 `;
 
