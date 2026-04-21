@@ -363,12 +363,12 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       return await models.ScoreLogs.create({
         ownerId,
         ownerType,
-        changeScore: score,
+        changeScore: Math.abs(score),
         createdAt: new Date(),
         description,
         createdBy,
         campaignId,
-        action: "add",
+        action: score < 0 ? "subtract" : "add",
         targetId,
         serviceName,
       });
@@ -399,12 +399,22 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       let updatedCustomFieldsData = owner.customFieldsData;
       if (score > 0) {
-        updatedCustomFieldsData = updatedCustomFieldsData.map(cfd => cfd.field === usedCustomFieldIds[0] ? {
-          ...cfd,
-          value: Number(cfd.value) + score,
-          stringValue: `${Number(cfd.value) + score}`,
-          numberValue: Number(cfd.value) + score,
-        } : cfd)
+        const hasOldFieldData = updatedCustomFieldsData.find(cfd => cfd.field === usedCustomFieldIds[0]);
+        if (hasOldFieldData) {
+          updatedCustomFieldsData = updatedCustomFieldsData.map(cfd => cfd.field === usedCustomFieldIds[0] ? {
+            ...cfd,
+            value: Number(cfd.value) + score,
+            stringValue: `${Number(cfd.value) + score}`,
+            numberValue: Number(cfd.value) + score,
+          } : cfd)
+        } else {
+          updatedCustomFieldsData.push({
+            field: usedCustomFieldIds[0],
+            value: score,
+            stringValue: `${score}`,
+            numberValue: score,
+          })
+        }
       } else {
         let remaining = Math.abs(score);
         for (const cfd of updatedCustomFieldsData) {
@@ -420,6 +430,24 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           cfd.stringValue = `${newValue}`;
           cfd.numberValue = newValue;
           remaining -= deduct;
+        }
+        if (remaining) {
+          const hasOldFieldData = updatedCustomFieldsData.find(cfd => cfd.field === usedCustomFieldIds[0]);
+          if (hasOldFieldData) {
+            updatedCustomFieldsData = updatedCustomFieldsData.map(cfd => cfd.field === usedCustomFieldIds[0] ? {
+              ...cfd,
+              value: Number(cfd.value) - remaining,
+              stringValue: `${Number(cfd.value) - remaining}`,
+              numberValue: Number(cfd.value) - remaining,
+            } : cfd)
+          } else {
+            updatedCustomFieldsData.push({
+              field: usedCustomFieldIds[0],
+              value: -1 * remaining,
+              stringValue: `${-1 * remaining}`,
+              numberValue: -1 * remaining,
+            })
+          }
         }
       }
 
