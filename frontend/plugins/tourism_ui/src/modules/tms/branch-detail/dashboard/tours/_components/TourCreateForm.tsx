@@ -121,7 +121,7 @@ export const TourCreateForm = ({
           title: '',
           minPersons: 1,
           maxPersons: undefined,
-          adultPrice: 0,
+          adultPrice: '',
           childPrice: undefined,
           infantPrice: undefined,
           accommodationType: '',
