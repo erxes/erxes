@@ -38,7 +38,12 @@ export const TourRecordTable = ({
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const rowData = tours || [];
 
-  const { categories } = useCategories();
+  const { categories } = useCategories({
+    variables: {
+      branchId,
+      language,
+    },
+  });
 
   const handleEdit = useCallback((tourId: string) => {
     setEditTourId(tourId);

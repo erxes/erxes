@@ -1,6 +1,7 @@
 import { REACT_APP_API_URL, toast, useUpload } from 'erxes-ui';
 import { useCallback, useState } from 'react';
 import { useImport } from './useImport';
+
 export const useImportUploadHandler = (
   entityType?: string,
   onFileUploaded?: (file: File) => void,
@@ -44,6 +45,7 @@ export const useImportUploadHandler = (
 
       upload({
         files,
+        kind: 'import',
         afterUpload: async ({ fileInfo, response }) => {
           onFileUploaded?.(file);
 
@@ -147,20 +149,21 @@ export const useImportUploadHandler = (
       const filename = match?.[1] || 'import-template.csv';
 
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const blobUrl = window.URL.createObjectURL(blob);
 
       const a = document.createElement('a');
-      a.href = url;
+      a.href = blobUrl;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
 
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(blobUrl);
       document.body.removeChild(a);
-    } catch {
+    } catch (e: any) {
       toast({
         title: 'Failed to download template',
-        description: 'An error occurred while downloading the template',
+        description:
+          e?.message || 'An error occurred while downloading the template',
         variant: 'destructive',
       });
     }

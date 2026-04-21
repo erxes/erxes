@@ -3,7 +3,10 @@ import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-export const clientPortalQueries: Record<string, Resolver> = {
+export const clientPortalQueries: Record<
+  string,
+  Resolver<any, any, IContext>
+> = {
   async getClientPortals(
     _root: unknown,
     params: ICursorPaginateParams,

@@ -154,6 +154,7 @@ const Progress = () => {
   }, [categoryOrders, categories])
 
   const { number, modifiedAt, items, slotCode } = data?.orderDetail || {}
+  const normalizedSlotCode = `${slotCode || ""}`.trim()
 
   const totalAmount = useMemo(() => {
     return (items || []).reduce(
@@ -256,63 +257,78 @@ const Progress = () => {
   const renderGroups = forCustomer
     ? [{ items: items || [], title: "" }]
     : printSeparately && currentGroupIndex !== null
-      ? [
-          {
-            items: itemsToPrint[currentGroupIndex] || [],
-            title: groupTitles[currentGroupIndex],
-          },
-        ]
-      : itemsToPrint
-          .map((g, i) => ({
-            items: g,
-            title: groupTitles[i],
-          }))
-          .filter((g) => g.items.length > 0)
+    ? [
+        {
+          items: itemsToPrint[currentGroupIndex] || [],
+          title: groupTitles[currentGroupIndex],
+        },
+      ]
+    : itemsToPrint
+        .map((g, i) => ({
+          items: g,
+          title: groupTitles[i],
+        }))
+        .filter((g) => g.items.length > 0)
 
   return (
-    <div className="space-y-1 text-[12px]">
+    <div className="receipt-print space-y-2 text-[11px]">
       {renderGroups.map(({ items: groupItems, title }, i) => (
         <div key={i}>
-          {i > 0 && <div className="my-3 border-t border-dashed" />}
+          {i > 0 && (
+            <div className="my-3 border-t border-dashed border-black/20" />
+          )}
 
-          <div className="flex justify-between text-xs font-semibold">
-            <div>
-              <div>{name}</div>
+          <div className="receipt-print__header receipt-print__row flex justify-between border-b border-black/15">
+            <div className="receipt-print__header-content">
+              <div className="receipt-print__title">{name}</div>
               {!forCustomer && title && (
-                <div className="text-[10px] text-muted-foreground">{title}</div>
+                <div className="receipt-print__subtitle">{title}</div>
               )}
             </div>
-            <span>#{(number || "").split("_")[1]}</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span>Огноо:</span>
-            <span>
-              {modifiedAt &&
-                format(new Date(modifiedAt), "yyyy.MM.dd HH:mm:ss")}
+            <span className="font-semibold tabular-nums">
+              #{(number || "").split("_")[1]}
             </span>
           </div>
 
-          {slotCode && (
-            <div className="flex justify-between font-semibold">
-              <span>Ширээ:</span>
-              <span>{slotCode}</span>
+          <div className="receipt-print__meta-block">
+            <div className="receipt-print__row receipt-print__meta-row">
+              <span className="receipt-print__meta-label">Огноо:</span>
+              <span className="receipt-print__meta-value tabular-nums">
+                {modifiedAt &&
+                  format(new Date(modifiedAt), "yyyy.MM.dd HH:mm:ss")}
+              </span>
             </div>
-          )}
 
-          <Separator />
+            {!!normalizedSlotCode && (
+              <div className="receipt-print__row receipt-print__meta-row">
+                <span className="receipt-print__meta-label">Ширээ:</span>
+                <span className="receipt-print__meta-value tabular-nums">
+                  {normalizedSlotCode}
+                </span>
+              </div>
+            )}
+          </div>
 
-          {groupItems.map((item: OrderItem) => (
-            <div key={item._id} className="flex justify-between">
-              <span>{item.productName}</span>
-              <span>x{item.count}</span>
-            </div>
-          ))}
+          <Separator className="bg-black/15" />
+
+          <div className="receipt-print__items">
+            {groupItems.map((item: OrderItem) => (
+              <div
+                key={item._id}
+                className="receipt-print__row receipt-print__item"
+              >
+                <span>{item.productName}</span>
+                <span className="receipt-print__qty tabular-nums font-semibold">
+                  x{item.count}
+                </span>
+              </div>
+            ))}
+          </div>
 
           {forCustomer && (
-            <div className="flex justify-between pt-1 mt-2 font-semibold border-t">
+            <div className="receipt-print__section receipt-print__row flex justify-between font-semibold">
               <span>Нийт</span>
-              <span>{formatNum(totalAmount)}</span>
+              <span className="tabular-nums">{formatNum(totalAmount)}</span>
             </div>
           )}
         </div>

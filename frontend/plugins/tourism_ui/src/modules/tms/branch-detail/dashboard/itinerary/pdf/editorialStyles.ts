@@ -30,13 +30,14 @@ export const editorialStyles = StyleSheet.create({
     backgroundColor: '#ece3d8',
   },
   headerLogoRow: {
+    width: 108,
     minHeight: 40,
     justifyContent: 'center',
-    marginBottom: 18,
+    flexShrink: 0,
   },
   itineraryNameBanner: {
-    marginBottom: 30,
-    paddingRight: 32,
+    flex: 1,
+    paddingTop: 2,
   },
   itineraryNameText: {
     fontFamily: PDF_FONT_FAMILY_SERIF,
@@ -159,6 +160,9 @@ export const editorialStyles = StyleSheet.create({
     position: 'relative',
   },
   pageHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 20,
     marginBottom: 28,
   },
   pageHeaderLogo: {
@@ -218,6 +222,43 @@ export const editorialStyles = StyleSheet.create({
   dayContentGroup: {
     width: '100%',
   },
+  dayElementsGroup: {
+    marginTop: 10,
+  },
+  dayElementsTitle: {
+    fontSize: 8,
+    color: '#7c685d',
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: 5,
+    fontWeight: 'bold',
+  },
+  dayElementItem: {
+    marginBottom: 6,
+  },
+  dayElementTitle: {
+    fontFamily: PDF_FONT_FAMILY_SERIF,
+    fontSize: 10.5,
+    color: '#2f2621',
+    marginBottom: 2,
+  },
+  dayElementMeta: {
+    fontFamily: PDF_FONT_FAMILY_SERIF,
+    fontSize: 10.5,
+    color: '#7a675d',
+    fontWeight: 'bold',
+  },
+  dayElementDescription: {
+    fontSize: 8.4,
+    color: '#5a4e47',
+    lineHeight: 1.55,
+  },
+  dayAmenityItem: {
+    fontSize: 8.5,
+    color: '#5a4e47',
+    lineHeight: 1.55,
+    marginBottom: 3,
+  },
   dayContent: {
     fontSize: 9.1,
     color: '#5a4e47',
@@ -261,6 +302,10 @@ export const editorialStyles = StyleSheet.create({
   },
   footerBody: {
     marginTop: 18,
+    flexDirection: 'row',
+    gap: 24,
+    alignItems: 'flex-start',
+    flex: 1,
   },
   footerNotesBlock: {
     marginBottom: 16,
@@ -269,5 +314,6 @@ export const editorialStyles = StyleSheet.create({
     fontSize: 9,
     color: '#665951',
     lineHeight: 1.7,
+    marginTop: 8,
   },
 });

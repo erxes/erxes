@@ -36,6 +36,12 @@ export const importHistoryColumns = (
   contentTypes: ImportExportContentType[] = [],
 ): ColumnDef<TImportProgress>[] => [
   {
+    id: 'actions',
+    size: 34,
+    minSize: 34,
+    cell: ({ row }) => <ImportHistoryActionsCell importItem={row.original} />,
+  },
+  {
     id: 'fileName',
     accessorKey: 'fileName',
     size: 220,
@@ -72,7 +78,11 @@ export const importHistoryColumns = (
     minSize: 90,
     header: () => <RecordTable.InlineHead label="Status" />,
     cell: ({ row }) => {
-      const status = row.original.status;
+      const rawStatus = row.original.status;
+      const status =
+        rawStatus === 'completed' && (row.original.errorRows || 0) > 0
+          ? 'failed'
+          : rawStatus;
       const statusMeta =
         IMPORT_STATUS_META[status] || IMPORT_STATUS_META.pending;
 
@@ -184,12 +194,5 @@ export const importHistoryColumns = (
         </RecordTableInlineCell>
       );
     },
-  },
-  {
-    id: 'actions',
-    size: 56,
-    minSize: 56,
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ row }) => <ImportHistoryActionsCell importItem={row.original} />,
   },
 ];

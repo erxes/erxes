@@ -11,6 +11,8 @@ export interface ICreateBranchVariables {
   generalManagerIds?: string[];
   managerIds?: string[];
   paymentIds?: string[];
+  prepaid?: boolean;
+  prepaidPercent?: number | null;
   token?: string;
   erxesAppToken?: string;
   permissionConfig?: {

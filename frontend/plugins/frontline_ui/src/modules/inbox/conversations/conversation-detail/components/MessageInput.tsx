@@ -22,6 +22,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import {
+  hideMessageInputState,
   isInternalState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
@@ -46,6 +47,7 @@ export const MessageInput = ({
 }) => {
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
+  const hideInput = useAtomValue(hideMessageInputState);
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const { channels: availableChannels } = useGetChannels();
   const { responses } = useGetResponses({});
@@ -278,6 +280,8 @@ export const MessageInput = ({
   ]);
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
+
+  if (hideInput) return null;
 
   return (
     <div className="p-2 h-full">

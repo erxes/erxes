@@ -251,12 +251,14 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
+
 }
 
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
   serverTiming: any;
+  commonQuerySelector: Record<string, any>;
 }
 
 export const loadClasses = (

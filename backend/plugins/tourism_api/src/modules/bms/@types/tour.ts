@@ -10,12 +10,20 @@ export interface IGuideItem {
 
 export type DateType = 'fixed' | 'flexible';
 
+export type PassengerType = 'adult' | 'child' | 'infant';
+
+export interface IPricingOptionPrice {
+  type: PassengerType;
+  price: number;
+}
+
 export interface IPricingOption {
   _id: string;
   title: string;
   minPersons: number;
   maxPersons?: number;
-  pricePerPerson: number;
+  prices: IPricingOptionPrice[];
+  pricePerPerson?: number;
   accommodationType?: string;
   domesticFlightPerPerson?: number;
   singleSupplement?: number;

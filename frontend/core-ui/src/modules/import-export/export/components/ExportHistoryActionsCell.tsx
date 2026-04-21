@@ -1,4 +1,4 @@
-import { IconDotsVertical, IconDownload } from '@tabler/icons-react';
+import { IconDots, IconDownload } from '@tabler/icons-react';
 import {
   DropdownMenu,
   REACT_APP_API_URL,
@@ -11,7 +11,7 @@ export function ExportHistoryActionsCell({
 }: {
   exportItem: TExportProgress;
 }) {
-  const canDownload = exportItem.status === 'completed' && !!exportItem.fileKey;
+  const canDownload = !!exportItem.fileKey;
 
   if (!canDownload) {
     return (
@@ -35,7 +35,7 @@ export function ExportHistoryActionsCell({
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
         <RecordTableInlineCell className="justify-center cursor-pointer">
-          <IconDotsVertical className="size-4 text-muted-foreground" />
+          <IconDots className="size-4 text-muted-foreground" />
         </RecordTableInlineCell>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
