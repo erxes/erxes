@@ -24,10 +24,14 @@ export const PosSummaryPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <PageSubHeader>
-        <PosSummaryFilter />
-      </PageSubHeader>
-      <PosSummaryRecordTable posId={posId} />
+      <div className="flex overflow-hidden w-full h-full">
+        <div className="flex flex-col overflow-hidden w-full h-full">
+          <PageSubHeader>
+            <PosSummaryFilter />
+          </PageSubHeader>
+          <PosSummaryRecordTable posId={posId} />
+        </div>
+      </div>
     </>
   );
 };

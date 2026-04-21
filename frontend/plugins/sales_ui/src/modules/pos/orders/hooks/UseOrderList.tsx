@@ -14,7 +14,7 @@ const POS_PER_PAGE = 30;
 
 interface UseOrdersListOptions {
   posId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UseOrdersListReturn {
@@ -108,8 +108,8 @@ export const useOrdersList = (
   );
 
   const totalCount = useMemo(
-    () => data?.posOrders?.length || 0,
-    [data?.posOrders],
+    () => data?.posOrdersTotalCount || 0,
+    [data?.posOrdersTotalCount],
   );
 
   const handleFetchMore = useCallback(() => {
