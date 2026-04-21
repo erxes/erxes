@@ -338,6 +338,7 @@ const clientPortalMutations = {
 
     const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
     const { apiKey } = tokiConfig;
+    console.log({ apiUrl, token, apiKey });
     const response = await fetch(
       `https://${apiUrl}/third-party-service/v1/shoppy/user`,
       {
