@@ -16,6 +16,7 @@
   "dependencies": {
     "@stripe/react-stripe-js": "^2.8.1",
     "@stripe/stripe-js": "^4.9.0",
+    "erxes-api-shared": "workspace:^",
     "qrcode": "^1.5.4",
     "stripe": "^17.2.1"
   }

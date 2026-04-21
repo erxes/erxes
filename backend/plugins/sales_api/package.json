@@ -14,5 +14,7 @@
   "dependencies": {
     "erxes-api-shared": "workspace:^"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "preconstruct": "^2.0.0"
+  }
 }
