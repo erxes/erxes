@@ -166,7 +166,10 @@ export const GET_TOUR_DETAIL = gql`
         title
         minPersons
         maxPersons
-        pricePerPerson
+        prices {
+          type
+          price
+        }
         accommodationType
         domesticFlightPerPerson
         singleSupplement
@@ -189,7 +192,10 @@ export const GET_TOUR_DETAIL = gql`
           title
           accommodationType
           note
-          pricePerPerson
+          prices {
+            type
+            price
+          }
           domesticFlightPerPerson
           singleSupplement
         }

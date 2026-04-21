@@ -242,7 +242,15 @@ export const TourEditForm = ({
         imageThumbnail: tour.imageThumbnail ?? '',
         attachment: tour.attachment ?? null,
         guides: [],
-        pricingOptions: tour.pricingOptions ?? [],
+        pricingOptions: (tour.pricingOptions ?? []).map((opt: any) => ({
+          ...opt,
+          adultPrice:
+            opt.prices?.find((p: any) => p.type === 'adult')?.price ??
+            opt.pricePerPerson ??
+            0,
+          childPrice: opt.prices?.find((p: any) => p.type === 'child')?.price,
+          infantPrice: opt.prices?.find((p: any) => p.type === 'infant')?.price,
+        })),
         isFlexibleDate: tour.dateType === 'flexible',
         isGroupTour: false,
         startDate: tour.startDate ? new Date(tour.startDate) : undefined,
@@ -305,13 +313,22 @@ export const TourEditForm = ({
         ...restValues
       } = values;
 
-      const normalizedPricingOptions = pricingOptions.map((opt) => ({
-        ...opt,
-        _id: opt._id || nanoid(8),
-        accommodationType: opt.accommodationType
-          ? opt.accommodationType.trim().toLowerCase()
-          : opt.accommodationType,
-      }));
+      const normalizedPricingOptions = pricingOptions.map((opt) => {
+        const { adultPrice, childPrice, infantPrice, ...rest } = opt as any;
+        const prices = [
+          { type: 'adult', price: adultPrice },
+          ...(childPrice != null ? [{ type: 'child', price: childPrice }] : []),
+          ...(infantPrice != null ? [{ type: 'infant', price: infantPrice }] : []),
+        ];
+        return {
+          ...rest,
+          prices,
+          _id: rest._id || nanoid(8),
+          accommodationType: rest.accommodationType
+            ? rest.accommodationType.trim().toLowerCase()
+            : rest.accommodationType,
+        };
+      });
 
       const sanitizedTranslations = sanitizeTourTranslations(
         rawTranslations ?? [],

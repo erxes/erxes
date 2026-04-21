@@ -120,7 +120,9 @@ export const TourCreateForm = ({
           title: '',
           minPersons: 1,
           maxPersons: undefined,
-          pricePerPerson: 0,
+          adultPrice: 0,
+          childPrice: undefined,
+          infantPrice: undefined,
           accommodationType: '',
           domesticFlightPerPerson: undefined,
           singleSupplement: undefined,
@@ -276,13 +278,22 @@ export const TourCreateForm = ({
 
       const isFlexible = values.isFlexibleDate;
 
-      const normalizedPricingOptions = pricingOptions.map((opt) => ({
-        ...opt,
-        _id: opt._id || nanoid(8),
-        accommodationType: opt.accommodationType
-          ? opt.accommodationType.trim().toLowerCase()
-          : opt.accommodationType,
-      }));
+      const normalizedPricingOptions = pricingOptions.map((opt) => {
+        const { adultPrice, childPrice, infantPrice, ...rest } = opt as any;
+        const prices = [
+          { type: 'adult', price: adultPrice },
+          ...(childPrice != null ? [{ type: 'child', price: childPrice }] : []),
+          ...(infantPrice != null ? [{ type: 'infant', price: infantPrice }] : []),
+        ];
+        return {
+          ...rest,
+          prices,
+          _id: rest._id || nanoid(8),
+          accommodationType: rest.accommodationType
+            ? rest.accommodationType.trim().toLowerCase()
+            : rest.accommodationType,
+        };
+      });
 
       const sanitizedTranslations = sanitizeTourTranslations(translations);
 
