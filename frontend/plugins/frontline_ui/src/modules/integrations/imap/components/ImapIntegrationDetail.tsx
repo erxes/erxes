@@ -1,43 +1,41 @@
 import { CellContext } from '@tanstack/react-table';
 import { IIntegrationDetail } from '@/integrations/types/Integration';
-import {
-  Button,
-  Dialog,
-  Form,
-  Input,
-  toast,
-  Spinner,
-  Separator,
-} from 'erxes-ui';
+import { Button, Dialog, Form, Separator, Spinner, toast } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useEffect, useState } from 'react';
-import { imapFormSchema } from './ImapIntegrationForm';
-import { ImapIntegrationFormLayout } from '@/integrations/imap/components/ImapIntegrationFormLayout';
 import { SelectBrand } from 'ui-modules';
+import {
+  IMAP_FORM_FIELDS,
+  ImapFormField,
+  ImapFormValues,
+  imapFormSchema,
+} from './ImapIntegrationForm';
+import { ImapIntegrationFormLayout } from './ImapIntegrationFormLayout';
 
-export const ImapIntegrationDetail = () => {
-  return <ImapIntegrationFormLayout />;
-};
+/* ── Page ────────────────────────────────────────────────────────────── */
+
+export const ImapIntegrationDetail = () => <ImapIntegrationFormLayout />;
+
+/* ── Table action ────────────────────────────────────────────────────── */
 
 export const ImapIntegrationActions = ({
   cell,
 }: {
   cell: CellContext<IIntegrationDetail, unknown>;
-}) => {
-  return <ImapIntegrationEditSheet id={cell.row.original._id} />;
-};
+}) => <ImapIntegrationEditSheet id={cell.row.original._id} />;
+
+/* ── Edit sheet ──────────────────────────────────────────────────────── */
 
 export const ImapIntegrationEditSheet = ({ id }: { id: string }) => {
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <div className="flex items-center gap-2 w-full">
+        <div className="flex items-center gap-2 w-full cursor-pointer">
           <IconEdit size={16} />
           Edit
         </div>
@@ -49,6 +47,8 @@ export const ImapIntegrationEditSheet = ({ id }: { id: string }) => {
   );
 };
 
+/* ── Edit form ───────────────────────────────────────────────────────── */
+
 export const ImapIntegrationEditForm = ({
   id,
   setOpen,
@@ -56,37 +56,34 @@ export const ImapIntegrationEditForm = ({
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { loading, integrationDetail } = useIntegrationDetail({
-    integrationId: id,
-  });
-
+  const { loading, integrationDetail } = useIntegrationDetail({ integrationId: id });
   const { editIntegration, loading: editLoading } = useIntegrationEdit();
-  const form = useForm<z.infer<typeof imapFormSchema>>({
+
+  const form = useForm<ImapFormValues>({
     resolver: zodResolver(imapFormSchema),
   });
 
   useEffect(() => {
-    if (integrationDetail) {
-      const details = integrationDetail.details.data || {};
-      form.reset({
-        name: integrationDetail.name || '',
-        host: details.host || '',
-        smtpHost: details.smtpHost || '',
-        smtpPort: details.smtpPort || '',
-        mainUser: details.mainUser || '',
-        user: details.user || '',
-        password: details.password || '',
-        brandId: integrationDetail.brandId || '',
-      });
-    }
+    if (!integrationDetail) return;
+    const d = integrationDetail.details?.data ?? {};
+    form.reset({
+      name: integrationDetail.name ?? '',
+      host: d.host ?? '',
+      smtpHost: d.smtpHost ?? '',
+      smtpPort: d.smtpPort ?? '',
+      mainUser: d.mainUser ?? '',
+      user: d.user ?? '',
+      password: d.password ?? '',
+      brandId: integrationDetail.brandId ?? '',
+    });
   }, [integrationDetail, form]);
 
-  const onSubmit = (data: z.infer<typeof imapFormSchema>) => {
+  const onSubmit = (data: ImapFormValues) => {
     editIntegration({
       variables: {
         _id: id,
         name: data.name,
-        channelId: integrationDetail?.channelId || '',
+        channelId: integrationDetail?.channelId ?? '',
         brandId: data.brandId,
         details: {
           host: data.host,
@@ -102,8 +99,8 @@ export const ImapIntegrationEditForm = ({
         setOpen(false);
         toast({ title: 'IMAP Integration updated' });
       },
-      onError: (error) => {
-        toast({ title: error.message, variant: 'destructive' });
+      onError: (err) => {
+        toast({ title: err.message, variant: 'destructive' });
       },
     });
   };
@@ -121,92 +118,12 @@ export const ImapIntegrationEditForm = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="p-6 flex-auto overflow-auto"
+          className="p-6 flex-auto overflow-auto grid grid-cols-1 gap-3"
         >
-          <Form.Field
-            name="name"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Name</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="host"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>IMAP Host</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="smtpHost"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>SMTP Host</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="smtpPort"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>SMTP Port</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="mainUser"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Main User </Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="user"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>User</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="password"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Password</Form.Label>
-                <Form.Control>
-                  <Input type="password" {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          {IMAP_FORM_FIELDS.map((field) => (
+            <ImapFormField key={field.name} {...field} control={form.control} />
+          ))}
+
           <Form.Field
             name="brandId"
             control={form.control}
@@ -225,15 +142,16 @@ export const ImapIntegrationEditForm = ({
               </Form.Item>
             )}
           />
+
           <Separator />
-          <Dialog.Footer className="flex justify-end py-4 px-6">
+          <Dialog.Footer className="flex justify-end gap-2 py-4">
             <Dialog.Close asChild>
-              <Button disabled={loading || editLoading} variant="ghost">
+              <Button variant="ghost" disabled={editLoading}>
                 Close
               </Button>
             </Dialog.Close>
-            <Button type="submit" disabled={loading || editLoading}>
-              Save
+            <Button type="submit" disabled={editLoading}>
+              {editLoading ? 'Saving…' : 'Save'}
             </Button>
           </Dialog.Footer>
         </form>

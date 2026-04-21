@@ -100,8 +100,10 @@ export const types = `
     ${ReportInboxTypes}
     ${ReportTicketTypes}
     ${FormTypes}
-    ${FieldTypes}    ${KnowledgeBaseTypes}
+    ${FieldTypes}
+    ${KnowledgeBaseTypes}
   `;
+
 export const queries = `
     ${ChannelsQueries}
     ${ConversationsQueries}
@@ -135,4 +137,5 @@ export const mutations = `
    ${FieldMutations}
    ${KnowledgeBaseMutations}
 `;
+
 export default { types, queries, mutations };

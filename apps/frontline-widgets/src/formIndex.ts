@@ -258,18 +258,41 @@ const getSettings = (settings: Settings) =>
       s.channel_id === settings.channel_id && s.form_id === settings.form_id,
   );
 
-const initForms = () => {
-  formSettings.forEach((formSettings: Settings) => {
-    iframesMapping[getMappingKey(formSettings)] = createIframe(formSettings);
-  });
+const initForm = (settings: Settings) => {
+  const key = getMappingKey(settings);
+  if (!iframesMapping[key]) {
+    iframesMapping[key] = createIframe(settings);
+  }
 };
 
-// Defer iframe creation until DOM is ready so that data-erxes-embed
-// elements are available before querySelector runs
+const initForms = () => {
+  formSettings.forEach(initForm);
+};
+
+// Watch for embed containers added after initial load (e.g. React/SPA rendering)
+const observeEmbedContainers = () => {
+  const observer = new MutationObserver(() => {
+    formSettings.forEach((settings: Settings) => {
+      const embedContainer = document.querySelector(
+        `[data-erxes-embed="${settings.form_id}"]`,
+      );
+      if (embedContainer) {
+        initForm(settings);
+      }
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+};
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initForms);
+  document.addEventListener('DOMContentLoaded', () => {
+    initForms();
+    observeEmbedContainers();
+  });
 } else {
   initForms();
+  observeEmbedContainers();
 }
 
 // listen for messages from widget
