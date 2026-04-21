@@ -17,10 +17,10 @@ type ProductCategory = {
 };
 
 type Props = {
-  value?: string[];
-  onChange: (ids: string[]) => void;
-  status?: string;
-  disabled?: boolean;
+  readonly value?: string[];
+  readonly onChange: (ids: string[]) => void;
+  readonly status?: string;
+  readonly disabled?: boolean;
 };
 
 const MULTI_VALUE = '__multi__';
@@ -69,9 +69,7 @@ export default function SelectProductCategories({
             !selectedLabels && 'text-accent-foreground/70',
           )}
         >
-          {loading
-            ? 'Loading...'
-            : selectedLabels || 'Choose product category'}
+          {loading ? 'Loading...' : selectedLabels || 'Choose product category'}
         </span>
       </Select.Trigger>
 

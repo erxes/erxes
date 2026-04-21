@@ -14,9 +14,9 @@ const PRODUCTS_QUERY = gql`
 type Product = { _id: string; name: string };
 
 type Props = {
-  value?: string[];
-  onChange: (ids: string[]) => void;
-  disabled?: boolean;
+  readonly value?: string[];
+  readonly onChange: (ids: string[]) => void;
+  readonly disabled?: boolean;
 };
 
 const MULTI_VALUE = '__multi__';
@@ -40,7 +40,9 @@ export default function SelectProducts({
       .map((id) => products.find((p) => p._id === id)?.name || id)
       .slice(0, 2);
 
-    return value.length > 2 ? `${names.join(', ')} +${value.length - 2}` : names.join(', ');
+    return value.length > 2
+      ? `${names.join(', ')} +${value.length - 2}`
+      : names.join(', ');
   }, [value, products]);
 
   const toggle = (id: string) => {
@@ -62,7 +64,8 @@ export default function SelectProducts({
             !selectedLabel && 'text-accent-foreground/70',
           )}
         >
-          {selectedLabel || (loading ? 'Loading...' : 'Choose products to exclude')}
+          {selectedLabel ||
+            (loading ? 'Loading...' : 'Choose products to exclude')}
         </span>
       </Select.Trigger>
 
