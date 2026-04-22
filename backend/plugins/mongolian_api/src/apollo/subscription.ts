@@ -4,8 +4,8 @@ export default {
   name: 'mongolian',
 
   typeDefs: `
-    ebarimtResponded(userId: String, processId: String): String
-    productPlacesResponded(userId: String, sessionCode: String): String
+    ebarimtResponded(userId: String, processId: String): EbarimtResponse
+    productPlacesResponded(userId: String, sessionCode: String): JSON
   `,
 
   generateResolvers: (graphqlPubsub) => {
