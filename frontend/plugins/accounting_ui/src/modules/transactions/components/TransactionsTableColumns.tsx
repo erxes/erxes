@@ -1,24 +1,24 @@
-import dayjs from 'dayjs';
+import { IconCalendar, IconEdit, IconFile, IconMoneybag, IconTrash } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
-import { ITransaction } from '../types/Transaction';
-import { useNavigate } from 'react-router-dom';
-import { TR_JOURNAL_LABELS, TrJournalEnum } from '../types/constants';
-import { useState } from 'react';
+import dayjs from 'dayjs';
 import {
-  RecordTable,
-  Input,
-  CurrencyCode,
-  CurrencyFormatedDisplay,
-  RecordTableInlineCell,
-  PopoverScoped,
-  Popover,
   Combobox,
   Command,
+  CurrencyCode,
+  CurrencyFormatedDisplay,
+  Input,
+  Popover,
+  PopoverScoped,
+  RecordTable,
+  RecordTableInlineCell,
   useConfirm,
 } from 'erxes-ui';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { TR_JOURNAL_LABELS, TrJournalEnum } from '../types/constants';
+import { ITransaction } from '../types/Transaction';
+
 // Create named components for cell renderers to fix React Hook usage
 const NumberCell = ({ getValue, row }: any) => {
   const [number, setNumber] = useState(getValue() as string);
