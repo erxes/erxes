@@ -5,7 +5,7 @@ import {
   IconHistory,
   IconUpload,
 } from '@tabler/icons-react';
-import { type ComponentType, useId } from 'react';
+import { type ReactNode, type ComponentType, useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Popover, ScrollArea, Sheet, cn } from 'erxes-ui';
 import { Badge } from 'erxes-ui/components/badge';
@@ -19,12 +19,14 @@ export const Import = ({
   moduleName,
   collectionName,
   onFileUploaded,
+  additionContent,
 }: {
   title?: string;
   pluginName: string;
   moduleName: string;
   collectionName: string;
   onFileUploaded?: (file: File) => void;
+  additionContent?: () => ReactNode
 }) => {
   const inputId = useId();
   const contentType = `${pluginName}:${moduleName}.${collectionName}`;
@@ -37,6 +39,7 @@ export const Import = ({
         capitalize: true,
       })}`
       : title;
+  const [showAddition, setShoAddition] = useState(false)
   const {
     activeImports,
     isDragOver,
@@ -48,6 +51,23 @@ export const Import = ({
     handleDownloadTemplate,
     isLoading,
   } = useImportUploadHandler(contentType, onFileUploaded);
+
+  const renderAdditionInfo = () => {
+    if (!additionContent) {
+      return;
+    }
+
+    if (!showAddition) {
+      return <Button variant={'ghost'} onClick={() => setShoAddition(true)}>Show helper</Button>
+    }
+
+    return (
+      <div>
+        {additionContent()}
+        <Button variant={'ghost'} onClick={() => setShoAddition(false)}>Hide helper</Button>
+      </div>
+    );
+  }
 
   return (
     <Popover>
@@ -81,6 +101,7 @@ export const Import = ({
                   Download the template, add your {entityPluralLabel}, then upload
                   the file to create or update {entityPluralLabel} in bulk.
                 </p>
+                {renderAdditionInfo()}
               </div>
             </div>
           </div>
@@ -97,56 +118,56 @@ export const Import = ({
                 <Sheet.Content className="min-h-0 flex-1 p-4">
                   <ScrollArea className="h-full">
                     <div className="space-y-5">
-                    <div className="rounded-xl border bg-muted/20 px-4 py-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        How it works
-                      </p>
-                      <div className="mt-2 divide-y">
-                        <StepRow
-                          icon={IconDownload}
-                          title="Download the CSV template"
-                          description={`Start with the template so your ${entityPluralLabel} columns match the importer.`}
-                        />
-                        <StepRow
-                          icon={IconFileSpreadsheet}
-                          title={`Add your ${entityPluralLabel}`}
-                          description="Fill in each row with the values you want to create or update."
-                        />
-                        <StepRow
-                          icon={IconUpload}
-                          title="Upload the completed file"
-                          description="We will validate the file and begin the import right away."
-                        />
+                      <div className="rounded-xl border bg-muted/20 px-4 py-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          How it works
+                        </p>
+                        <div className="mt-2 divide-y">
+                          <StepRow
+                            icon={IconDownload}
+                            title="Download the CSV template"
+                            description={`Start with the template so your ${entityPluralLabel} columns match the importer.`}
+                          />
+                          <StepRow
+                            icon={IconFileSpreadsheet}
+                            title={`Add your ${entityPluralLabel}`}
+                            description="Fill in each row with the values you want to create or update."
+                          />
+                          <StepRow
+                            icon={IconUpload}
+                            title="Upload the completed file"
+                            description="We will validate the file and begin the import right away."
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <ImportUploader
-                      inputId={inputId}
-                      entityLabel={entityLabel}
-                      {...{
-                        isDragOver,
-                        handleDragOver,
-                        handleDragLeave,
-                        handleDrop,
-                        handleFileSelect,
-                        handleClickUpload,
-                        handleDownloadTemplate,
-                        isLoading,
-                      }}
-                    />
+                      <ImportUploader
+                        inputId={inputId}
+                        entityLabel={entityLabel}
+                        {...{
+                          isDragOver,
+                          handleDragOver,
+                          handleDragLeave,
+                          handleDrop,
+                          handleFileSelect,
+                          handleClickUpload,
+                          handleDownloadTemplate,
+                          isLoading,
+                        }}
+                      />
 
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="w-full justify-between"
-                    >
-                      <Link
-                        to={`/settings/import-export/import?type=${contentType}`}
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="w-full justify-between"
                       >
-                        Open import history
-                        <IconArrowRight className="size-4" />
-                      </Link>
-                    </Button>
+                        <Link
+                          to={`/settings/import-export/import?type=${contentType}`}
+                        >
+                          Open import history
+                          <IconArrowRight className="size-4" />
+                        </Link>
+                      </Button>
                     </div>
                   </ScrollArea>
                 </Sheet.Content>

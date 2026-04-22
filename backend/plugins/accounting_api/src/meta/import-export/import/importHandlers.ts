@@ -7,6 +7,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { processAccountCategoryRows } from './processAccountCategoryRows';
 import { processAccountRows } from './processAccountRows';
+import { processTransactionRows } from './processAccountTransactions';
 
 const accountImportMap = {
   accountCategories: {
@@ -40,10 +41,48 @@ const accountImportMap = {
       processAccountRows(subdomain, models, rows),
   },
   transactions: {
+    transactions: {
+      headers: [
+        { label: '* Date', key: 'date' },
+        { label: '* Number', key: 'number' },
+        { label: '* Status', key: 'status' },
+        { label: '* Journal', key: 'journal' },
+        { label: '* Customer Type', key: 'customerType' },
+        { label: '* Email', key: 'email' },
+        { label: '* Phone', key: 'phone' },
+        { label: '* Assigned User Emails', key: 'assignedUserIds' },
+        { label: '* Side', key: 'side' },
+
+        { label: 'HasVat', key: 'hasVat' },
+        { label: 'VatRowId', key: 'vatRowId' },
+        { label: 'AfterVat', key: 'afterVat' },
+        { label: 'AfterVatAccountId', key: 'afterVatAccountId' },
+        { label: 'IsHandleVat', key: 'isHandleVat' },
+        { label: 'VatAmount', key: 'vatAmount' },
+        { label: 'HasCtax', key: 'hasCtax' },
+        { label: 'CtaxRowId', key: 'ctaxRowId' },
+        { label: 'IsHandleCtax', key: 'isHandleCtax' },
+        { label: 'CtaxAmount', key: 'ctaxAmount' },
+
+        // //details
+        { label: 'Account ID', key: 'accountId' },
+        { label: 'Branch ID', key: 'branchId' },
+        { label: 'Department ID', key: 'departmentId' },
+        { label: 'Amount', key: 'amount' },
+        { label: 'Currency', key: 'currency' },
+        { label: 'CurrencyAmount', key: 'currencyAmount' },
+        { label: 'CustomRate', key: 'customRate' },
+        { label: 'AssignUser ID', key: 'assignUserId' },
+        { label: 'Product ID', key: 'productId' },
+        { label: 'Count', key: 'count' },
+        { label: 'UnitPrice', key: 'unitPrice' },
+      ]
+    },
     processRows: (subdomain: string, models: IModels, rows: any[]) =>
-      processAccountRows(subdomain, models, rows),
-    batchSkipRow: (_subdomain: string, _models: IModels, rowData: any) =>
-      !rowData?.date,
+      processTransactionRows(subdomain, models, rows),
+    batchSkipRow: (_subdomain: string, _models: IModels, rowData: any) => {
+      return !rowData?.date
+    }
   },
 };
 export const accountImportHandlers = {
