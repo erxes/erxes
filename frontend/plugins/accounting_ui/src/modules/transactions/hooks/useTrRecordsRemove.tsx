@@ -37,10 +37,6 @@ export const useTrRecordsRemove = (options?: OperationVariables) => {
         },
       ],
       awaitRefetchQueries: true,
-      // update: (cache) => {
-      //   const pathname = '/accounting/main';
-      //   navigate(pathname);
-      // },
     });
   };
 
