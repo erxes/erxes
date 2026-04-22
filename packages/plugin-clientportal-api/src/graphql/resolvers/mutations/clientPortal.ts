@@ -276,6 +276,8 @@ const clientPortalMutations = {
       "base64"
     );
 
+    console.log({ apiUrl, Authorization: `Basic ${authString}` });
+
     const response = await fetch(
       `https://${apiUrl}/third-party-service/v1/auth/token`,
       {
@@ -288,6 +290,7 @@ const clientPortalMutations = {
       }
     );
 
+    console.log({ response });
     const contentType = response.headers.get("content-type");
 
     if (!response.ok) {
@@ -298,6 +301,11 @@ const clientPortalMutations = {
     if (contentType && contentType.includes("application/json")) {
       const data: any = await response.json();
       const { accessToken } = data.data;
+      console.log({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        "api-key": apiKey
+      });
       const invoiceResponse = await fetch(
         `https://${apiUrl}/third-party-service/v1/payment-request/status?requestId=${transactionId}`,
         {
@@ -309,6 +317,8 @@ const clientPortalMutations = {
           }
         }
       );
+
+      console.log({ invoiceResponse: await invoiceResponse.json() });
 
       return await invoiceResponse.json();
     } else {
@@ -338,7 +348,6 @@ const clientPortalMutations = {
 
     const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
     const { apiKey } = tokiConfig;
-    console.log({ apiUrl, token, apiKey });
     const response = await fetch(
       `https://${apiUrl}/third-party-service/v1/shoppy/user`,
       {
@@ -354,7 +363,6 @@ const clientPortalMutations = {
     const { data = {} } = ((await response.json()) || {}) as any;
 
     const isAdult = data?.isAdult;
-    console.log("Toki user legal age check result:", { isAdult });
 
     return Boolean(isAdult);
   }
