@@ -13,6 +13,7 @@ import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { ProductDetail } from '../types/detailTypes';
+import { toProductAttachmentList } from 'ui-modules/modules/products/components/ProductImageUploads';
 
 type BarcodeItem = {
   code: string;
@@ -51,6 +52,7 @@ export const ProductDetailBarcode = ({
   const formBarcodes = normalizeBarcodes(form.watch('barcodes'));
   const formVariants = variants;
   const formBarcodeDescription = form.watch('barcodeDescription') ?? '';
+  const formAttachmentMore = form.watch('attachmentMore');
 
   const [hasEditedVariants, setHasEditedVariants] = useState(false);
 
@@ -65,12 +67,10 @@ export const ProductDetailBarcode = ({
     ? formVariants
     : variantsFromProduct;
 
-  const rawAttachment = productDetail?.attachmentMore;
-  const attachmentMore = Array.isArray(rawAttachment)
-    ? rawAttachment
-    : rawAttachment != null && typeof rawAttachment === 'object'
-    ? [rawAttachment]
-    : [];
+  const attachmentMore = useMemo(
+    () => toProductAttachmentList(formAttachmentMore),
+    [formAttachmentMore],
+  );
 
   const availableImages = useMemo(() => {
     return attachmentMore.filter(

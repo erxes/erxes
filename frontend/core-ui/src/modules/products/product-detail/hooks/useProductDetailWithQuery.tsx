@@ -7,6 +7,7 @@ import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 export const useProductDetailWithQuery = (options?: QueryHookOptions) => {
   const [_id] = useQueryState<string>(PRODUCT_QUERY_KEY);
   const queryProductId = _id ?? undefined;
+  const shouldSkip = !queryProductId || !!options?.skip;
 
   const { productDetail, productId, loading, error } = useProductDetail({
     ...options,
@@ -14,7 +15,7 @@ export const useProductDetailWithQuery = (options?: QueryHookOptions) => {
       ...options?.variables,
       _id: queryProductId,
     },
-    skip: !queryProductId,
+    skip: shouldSkip,
   });
 
   useEffect(() => {
