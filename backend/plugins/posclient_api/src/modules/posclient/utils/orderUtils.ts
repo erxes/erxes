@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { nanoid } from 'nanoid';
+import * as crypto from 'node:crypto';
 
 import { checkDirectDiscount } from './directDiscount';
 import { checkLoyalties } from './loyalties';
@@ -30,7 +31,31 @@ import { getCompanyInfo } from '~/modules/posclient/db/models/PutData';
 import { IOrderInput, IOrderItemInput } from '~/modules/posclient/@types/types';
 import { IProductDocument } from '~/modules/posclient/@types/products';
 import { IPayment } from '~/modules/posclient/graphql/resolvers/mutations/orders';
-import { cryptoRandom } from '~/modules/posclient/utils';
+
+/**
+ * Returns an unbiased positive integer in `[1, maxSkipNumber]` for jittering
+ * sequential order numbers, using Node's cryptographically secure RNG.
+ *
+ * Falls back to `1` when no valid bound is supplied so callers keep the
+ * original "skip by at least one" behavior for missing or malformed config.
+ *
+ * @param maxSkipNumber - Upper bound (inclusive). Must be a finite number
+ *                        strictly greater than 1; non-integers are floored.
+ * @returns An integer in `[1, maxSkipNumber]`, or `1` when the bound is
+ *          missing, non-finite, or ≤ 1.
+ */
+const getRandomSkipAddend = (maxSkipNumber: number | undefined): number => {
+  if (
+    typeof maxSkipNumber !== 'number' ||
+    !Number.isFinite(maxSkipNumber) ||
+    maxSkipNumber <= 1
+  ) {
+    return 1;
+  }
+  const upperExclusive = Math.floor(maxSkipNumber) + 1;
+  // crypto.randomInt(min, max) returns an unbiased integer in [min, max).
+  return crypto.randomInt(1, upperExclusive);
+};
 
 export const generateOrderNumber = async (
   models: IModels,
@@ -79,11 +104,7 @@ export const generateOrderNumber = async (
       (suffixParts.length === 2 && suffixParts[1]) || suffixParts[0];
 
     const latestNum = Number.parseInt(latestSuffix, 10);
-    const addend =
-      (config?.maxSkipNumber &&
-        config?.maxSkipNumber > 1 &&
-        Math.round(cryptoRandom() * (config.maxSkipNumber - 1) + 1)) ||
-      1;
+    const addend = getRandomSkipAddend(config?.maxSkipNumber);
 
     suffix = String(latestNum + addend).padStart(4, '0');
     number = `${todayStr}_${beginNumber}${suffix}`;
@@ -637,7 +658,7 @@ export const prepareOrderDoc = async (
           Number(addProduct.prices?.[config.token]?.toFixed(2)) || 0;
 
         items.push({
-          _id: cryptoRandom().toString(),
+          _id: nanoid(),
           productId: addProduct._id,
           count: toAddItem.count,
           unitPrice: fixedUnitPrice,
@@ -658,7 +679,7 @@ export const prepareOrderDoc = async (
     if (deliveryProd) {
       const deliveryUnitPrice = deliveryProd.prices?.[config.token || ''] || 0;
       items.push({
-        _id: cryptoRandom().toString(),
+        _id: nanoid(),
         productId: deliveryProd._id,
         count: 1,
         unitPrice: deliveryUnitPrice,

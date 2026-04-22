@@ -377,7 +377,7 @@ export const prepareSettlePayment = async (
         }
       } catch (e) {
         ebarimtResponses.push({
-          _id: `Err${cryptoRandom()}`,
+          _id: `Err${crypto.randomUUID()}`,
           id: 'Error',
           type: ebarimtData.type,
           date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
@@ -555,10 +555,3 @@ export const prepareSettlePayment = async (
   }
 };
 
-export function cryptoRandom() {
-  // Generate a random 6-byte buffer (48 bits of entropy)
-  const randomBuffer = crypto.randomBytes(6);
-  // Convert to a number between 0 and 1
-  const randomNumber = randomBuffer.readUIntBE(0, 6) / 0x1000000000000; // 2^48
-  return randomNumber;
-}
