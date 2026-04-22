@@ -211,7 +211,6 @@ export async function executeOutgoingWebhook({
 
   const [pluginName, moduleName] = splitType(targetType);
   const timeoutMs = options.timeout ?? 10000;
-  const ignoreSSL = options.ignoreSSL ?? false;
   const followRedirect = options.followRedirect ?? false;
   const maxRedirects = options.maxRedirects ?? 5;
   const retryOpts: OutgoingRetryOptions = {
@@ -342,7 +341,7 @@ export async function executeOutgoingWebhook({
   currentUrl = authApplied.url;
   requestBody = authApplied.body;
 
-  const agent = generateFetchAgent(options, ignoreSSL);
+  const agent = generateFetchAgent(options);
   const requestUrl = currentUrl.toString();
   const requestBodyText =
     requestBody === undefined || requestBody === null

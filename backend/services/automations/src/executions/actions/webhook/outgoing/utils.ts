@@ -4,33 +4,48 @@ import {
   OutgoingRetryOptions,
   TOutgoinWebhookActionConfig,
 } from '../../../../types';
-import * as https from 'https';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import jwt, { Algorithm, JwtHeader, SignOptions } from 'jsonwebtoken';
 
+/**
+ * Build an HTTP(S) agent for an outgoing webhook request.
+ *
+ * Only an HTTPS proxy agent is ever returned. TLS certificate validation is
+ * always enforced — there is intentionally no opt-out, to prevent
+ * man-in-the-middle attacks (CWE-295/297).
+ *
+ * If proxy construction fails (bad URL, missing module, etc.) the error is
+ * logged and `undefined` is returned so the request falls back to a direct
+ * connection rather than hard-failing the automation run.
+ *
+ * @param options - The outgoing webhook `options` block from the action config.
+ * @returns A configured {@link HttpsProxyAgent} when a proxy is specified, or
+ *          `undefined` to use the default global agent.
+ */
 export const generateFetchAgent = (
   options: TOutgoinWebhookActionConfig['options'],
-  ignoreSSL: boolean,
-) => {
+): HttpsProxyAgent<string> | undefined => {
   const { proxy } = options || {};
-  let agent: https.Agent | HttpsProxyAgent<string> | undefined;
-  if (proxy?.host && proxy?.port) {
-    try {
-      const authStr = proxy.auth?.username
-        ? `${encodeURIComponent(proxy.auth.username)}:${encodeURIComponent(
-            proxy.auth.password || '',
-          )}@`
-        : '';
-      const proxyUrl = `http://${authStr}${proxy.host}:${proxy.port}`;
-      agent = new HttpsProxyAgent(proxyUrl);
-    } catch {
-      // Fallback: ignore proxy if module is unavailable
-    }
-  } else if (ignoreSSL) {
-    agent = new https.Agent({ rejectUnauthorized: false });
+
+  if (!proxy?.host || !proxy?.port) {
+    return undefined;
   }
 
-  return agent;
+  try {
+    const authStr = proxy.auth?.username
+      ? `${encodeURIComponent(proxy.auth.username)}:${encodeURIComponent(
+          proxy.auth.password || '',
+        )}@`
+      : '';
+    const proxyUrl = `http://${authStr}${proxy.host}:${proxy.port}`;
+    return new HttpsProxyAgent(proxyUrl);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(
+      `[outgoing-webhook] failed to construct proxy agent, falling back to direct connection: ${message}`,
+    );
+    return undefined;
+  }
 };
 
 export function buildQuery(
