@@ -37,7 +37,8 @@ export const ProductDetailSheet = () => {
   });
   const { toast } = useToast();
   const [open, setOpen] = useQueryState<string>(PRODUCT_QUERY_KEY);
-  const { productDetail, loading, error } = useProductDetailWithQuery();
+  const { productDetail, productId, loading, error } =
+    useProductDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { productsEdit, loading: editLoading } = useProductsEdit();
   const { uoms } = useUom({});
@@ -47,7 +48,7 @@ export const ProductDetailSheet = () => {
     defaultValues: EMPTY_PRODUCT_FORM_VALUES,
   });
 
-  useProductFormData(productDetail, form);
+  const formVersion = useProductFormData(productDetail, form, productId);
 
   const toAttachmentInput = (
     obj: Record<string, unknown> | null | undefined,
@@ -172,13 +173,17 @@ export const ProductDetailSheet = () => {
                       value="overview"
                       className="data-[state=active]:min-h-0"
                     >
-                      <ProductDetailFields />
+                      <ProductDetailFields
+                        key={`${productDetail?._id || productId || 'empty'}-${formVersion}`}
+                        productDetail={productDetail}
+                      />
                     </Tabs.Content>
                     <Tabs.Content
                       value="properties"
                       className="p-4 data-[state=active]:min-h-0"
                     >
                       <FieldsInDetail
+                        key={productDetail?._id || productId || 'empty'}
                         fieldContentType="core:product"
                         propertiesData={productDetail?.propertiesData || {}}
                         mutateHook={useProductCustomFieldEdit}
@@ -192,11 +197,13 @@ export const ProductDetailSheet = () => {
                       <div className="flex flex-col mb-12">
                         {!!productDetail?._id && (
                           <AddInternalNote
+                            key={`note-${productDetail._id}`}
                             contentTypeId={productDetail._id}
                             contentType="core:product"
                           />
                         )}
                         <ActivityLogs
+                          key={`activity-${productDetail?._id || productId || 'empty'}`}
                           targetId={productDetail?._id || ''}
                           customActivities={productCustomActivities}
                         />
