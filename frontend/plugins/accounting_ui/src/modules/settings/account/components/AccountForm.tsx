@@ -2,7 +2,6 @@ import {
   Button,
   Checkbox,
   CurrencyField,
-  Dialog,
   Form,
   Input,
   Select,
@@ -20,14 +19,16 @@ export const AccountForm = ({
   form,
   handleSubmit,
   loading,
+  onClose,
 }: {
   form: UseFormReturn<TAccountForm>;
   handleSubmit: (data: TAccountForm) => void;
   loading: boolean;
+  onClose?: () => void;
 }) => {
   const status = useWatch({
     control: form.control,
-    name: 'status'
+    name: 'status',
   });
 
   return (
@@ -263,17 +264,15 @@ export const AccountForm = ({
           />
         )}
 
-        <Dialog.Footer className="col-span-2 mt-4">
-          <Dialog.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              Cancel
-            </Button>
-          </Dialog.Close>
+        <div className="col-span-2 mt-4 flex justify-end gap-2">
+          <Button variant="outline" type="button" size="lg" onClick={onClose}>
+            Cancel
+          </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
             Save Account
           </Button>
-        </Dialog.Footer>
+        </div>
       </form>
     </Form>
   );
