@@ -1,4 +1,4 @@
-import { IAttachment, InfoCard } from 'erxes-ui';
+import { InfoCard } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -11,13 +11,14 @@ import {
   type ProductAttachmentItem,
 } from 'ui-modules/modules/products/components/ProductImageUploads';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
+import { ProductAttachment } from '../types/detailTypes';
 
 export const ProductDetailAttachment = ({
   attachment,
   attachmentMore = [],
 }: {
-  attachment?: IAttachment | null;
-  attachmentMore?: IAttachment[];
+  attachment?: ProductAttachment | null;
+  attachmentMore?: ProductAttachment[] | ProductAttachment | null;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const form = useFormContext<ProductFormValues>();

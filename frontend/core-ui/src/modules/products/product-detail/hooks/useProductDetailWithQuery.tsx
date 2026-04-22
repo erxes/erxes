@@ -6,13 +6,15 @@ import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 
 export const useProductDetailWithQuery = (options?: QueryHookOptions) => {
   const [_id] = useQueryState<string>(PRODUCT_QUERY_KEY);
+  const queryProductId = _id ?? undefined;
 
-  const { productDetail, loading, error } = useProductDetail({
+  const { productDetail, productId, loading, error } = useProductDetail({
     ...options,
     variables: {
-      _id,
+      ...options?.variables,
+      _id: queryProductId,
     },
-    skip: !_id,
+    skip: !queryProductId,
   });
 
   useEffect(() => {
@@ -25,5 +27,5 @@ export const useProductDetailWithQuery = (options?: QueryHookOptions) => {
     }
   }, [error]);
 
-  return { productDetail, loading, error };
+  return { productDetail, productId, loading, error };
 };

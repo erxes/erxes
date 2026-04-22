@@ -11,8 +11,8 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useProductDetailWithQuery } from '../hooks/useProductDetailWithQuery';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
+import { ProductDetail } from '../types/detailTypes';
 
 type BarcodeItem = {
   code: string;
@@ -36,13 +36,15 @@ type VariantsMap = Record<
   { name?: string; image?: { url: string; name?: string } }
 >;
 
-export const ProductDetailBarcode = () => {
+export const ProductDetailBarcode = ({
+  productDetail,
+}: {
+  productDetail: ProductDetail;
+}) => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
   const { toast } = useToast();
-  const { productDetail } = useProductDetailWithQuery();
-
   const form = useFormContext<ProductFormValues>();
   const variants = (form.watch('variants') as VariantsMap) ?? {};
 
