@@ -115,13 +115,13 @@ export function ProductPrimaryImageUpload({
   }, [onChange, removeFile, value]);
 
   return (
-    <div className="space-y-2">
-      <div className="relative group">
+    <div className="flex flex-col gap-2 h-full min-h-24">
+      <div className="relative flex-1 min-h-24 group">
         <button
           type="button"
           onClick={uploadProps.open}
           disabled={uploadProps.loading}
-          className="overflow-hidden relative flex justify-center items-center w-full h-24 rounded-md border border-dashed transition bg-background hover:bg-accent disabled:cursor-not-allowed disabled:opacity-70"
+          className="overflow-hidden relative flex justify-center items-center w-full h-full min-h-24 rounded-md border border-dashed transition bg-background hover:bg-accent disabled:cursor-not-allowed disabled:opacity-70"
           style={
             value?.url
               ? {
@@ -186,7 +186,7 @@ export function ProductSecondaryImagesUpload({
   onChange: (value: ProductAttachmentItem[]) => void;
   maxImages?: number;
 }) {
-  const images = value || [];
+  const images = useMemo(() => value || [], [value]);
   const { removeFile, isLoading } = useRemoveFile();
 
   const uploadProps = useErxesUpload({
@@ -243,8 +243,8 @@ export function ProductSecondaryImagesUpload({
   );
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-4">
+    <div className="flex flex-col gap-3 h-full min-h-24">
+      <div className="flex flex-1 flex-wrap gap-4 min-h-24">
         {images.map((item, index) => (
           <div
             key={`${item.url}-${index}`}
@@ -289,7 +289,7 @@ export function ProductSecondaryImagesUpload({
             type="button"
             onClick={uploadProps.open}
             disabled={uploadProps.loading}
-            className="flex flex-col justify-center items-center w-24 rounded-md border border-dashed transition cursor-pointer aspect-square text-muted-foreground bg-background hover:bg-accent disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex flex-col justify-center items-center w-24 h-full min-h-24 rounded-md border border-dashed transition cursor-pointer text-muted-foreground bg-background hover:bg-accent disabled:cursor-not-allowed disabled:opacity-70"
           >
             {uploadProps.loading ? (
               <span className="text-xs">Uploading...</span>

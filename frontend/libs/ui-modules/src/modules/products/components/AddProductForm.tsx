@@ -835,8 +835,8 @@ function AddProductFeaturedImage({
   );
 
   return (
-    <InfoCard title={t('primary-upload') || 'Primary Image'}>
-      <InfoCard.Content>
+    <InfoCard title={t('primary-upload') || 'Primary Image'} className="h-full">
+      <InfoCard.Content className="h-full">
         <ProductPrimaryImageUpload value={file} onChange={syncForm} />
       </InfoCard.Content>
     </InfoCard>
@@ -867,8 +867,11 @@ function AddProductAttachmentMore({
   );
 
   return (
-    <InfoCard title={t('secondary-upload') || 'Secondary Images'}>
-      <InfoCard.Content>
+    <InfoCard
+      title={t('secondary-upload') || 'Secondary Images'}
+      className="h-full"
+    >
+      <InfoCard.Content className="h-full">
         <ProductSecondaryImagesUpload
           value={files}
           onChange={syncForm}
@@ -887,11 +890,11 @@ function AddProductFormAttachmentsAndExtra({
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   return (
     <>
-      <div className="grid grid-cols-3 gap-4 items-start pt-4">
-        <div className="col-span-1">
+      <div className="grid grid-cols-3 gap-4 items-stretch pt-4">
+        <div className="col-span-1 h-full">
           <AddProductFeaturedImage form={form} />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-2 h-full">
           <AddProductAttachmentMore form={form} />
         </div>
       </div>

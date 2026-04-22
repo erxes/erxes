@@ -45,10 +45,10 @@ export const ProductDetailAttachment = ({
   }, [secondary]);
 
   return (
-    <div className="grid grid-cols-1 gap-4 items-start md:grid-cols-3">
-      <div className="md:col-span-1">
-        <InfoCard title={t('featured-image')}>
-          <InfoCard.Content>
+    <div className="grid grid-cols-1 gap-4 items-stretch md:grid-cols-3">
+      <div className="h-full md:col-span-1">
+        <InfoCard title={t('featured-image')} className="h-full">
+          <InfoCard.Content className="h-full">
             <ProductPrimaryImageUpload
               value={featured}
               onChange={setFeatured}
@@ -56,9 +56,9 @@ export const ProductDetailAttachment = ({
           </InfoCard.Content>
         </InfoCard>
       </div>
-      <div className="md:col-span-2">
-        <InfoCard title={t('secondary-images')}>
-          <InfoCard.Content>
+      <div className="h-full md:col-span-2">
+        <InfoCard title={t('secondary-images')} className="h-full">
+          <InfoCard.Content className="h-full">
             <ProductSecondaryImagesUpload
               value={secondary}
               onChange={setSecondary}
