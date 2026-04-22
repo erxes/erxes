@@ -22,13 +22,13 @@ export const CustomersIndexPage = () => {
         <CustomersFilter />
         <Import
           pluginName="core"
-          moduleName="contact"
-          collectionName="customer"
+          moduleName="contacts"
+          collectionName="customers"
         />
         <Export
           pluginName="core"
-          moduleName="contact"
-          collectionName="customer"
+          moduleName="contacts"
+          collectionName="customers"
           getFilters={getFilters}
         />
       </PageSubHeader>

@@ -169,6 +169,12 @@ export const BROADCAST_TRACES = gql`
   }
 `;
 
+export const BROADCAST_VERIFIED_EMAILS = gql`
+  query BroadcastVerifiedEmails {
+    engageVerifiedEmails
+  }
+`;
+
 export const BROADCAST_STATISTIC = gql`
   query BroadcastStatistic {
     engageEmailPercentages {

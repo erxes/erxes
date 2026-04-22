@@ -25,7 +25,7 @@ interface DeleteCommentParams {
   _id: string;
 }
 
-export const commentMutations: Record<string, Resolver> = {
+export const commentMutations: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalCommentAdd(
     _root: unknown,
     { comment }: CreateCommentParams,

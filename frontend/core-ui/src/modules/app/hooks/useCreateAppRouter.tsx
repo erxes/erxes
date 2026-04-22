@@ -36,6 +36,9 @@ const UserConfirmInvitationPage = lazy(
 );
 const LoginPage = lazy(() => import('~/pages/auth/LoginPage'));
 const ResetPasswordPage = lazy(() => import('~/pages/auth/ResetPasswordPage'));
+const DeviceAuthorizePage = lazy(
+  () => import('~/pages/oauth/DeviceAuthorizePage'),
+);
 const CreateOwnerPage = lazy(
   () => import('~/pages/organization/CreateOwnerPage'),
 );
@@ -69,6 +72,10 @@ export const useCreateAppRouter = () => {
             element={<UserConfirmInvitationPage />}
           />
           <Route element={<UserProvider />}>
+            <Route
+              path={AppPath.OAuthDevice}
+              element={<DeviceAuthorizePage />}
+            />
             <Route
               element={
                 <OnboardingGuard>

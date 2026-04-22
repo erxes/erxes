@@ -55,6 +55,7 @@ export const CONFIG: IUIConfig = {
       name: 'sales',
       icon: IconBriefcase,
       path: 'sales',
+      hasAutomation: true,
     },
     {
       name: 'deals',

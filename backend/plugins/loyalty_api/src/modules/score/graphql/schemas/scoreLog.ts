@@ -55,6 +55,8 @@ const queryParams = `
   orderType: String,
   fromDate: String,
   toDate: String,
+  boardId: String,
+  pipelineId: String,
   stageId: String,
   number: String,
   description: String,

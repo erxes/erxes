@@ -37,6 +37,7 @@ export const InvIncomeExpenseTrs = async (
       date: transaction.date,
       description: transaction.description,
       journal: getSingleJournalByAccount(account.journal, account.kind),
+      side: TR_SIDES.CREDIT,
       branchId: transaction.branchId,
       departmentId: transaction.departmentId,
       customerType: transaction.customerType,
@@ -45,7 +46,6 @@ export const InvIncomeExpenseTrs = async (
         {
           _id: nanoid(),
           accountId: expenseInfo.accountId,
-          side: TR_SIDES.CREDIT,
           amount: expenseInfo.amount ?? 0,
         },
       ],

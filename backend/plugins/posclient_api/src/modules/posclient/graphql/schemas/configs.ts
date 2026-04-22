@@ -26,6 +26,7 @@ export const types = `
     headerText: String
     hasCopy: Boolean
     hasSumQty: Boolean
+    isCleanTaxPrice: Boolean
   }
 
   type PoscCatProd {

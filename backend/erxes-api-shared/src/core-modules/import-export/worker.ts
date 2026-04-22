@@ -6,6 +6,7 @@ import { z } from 'zod';
 import {
   createMQWorkerWithListeners,
   createTRPCContext,
+  getEnv,
   initializePluginConfig,
   redis,
 } from '../../utils';
@@ -19,12 +20,62 @@ const EXPORT_QUEUE = 'export-processor';
 
 const startedWorkers = new Set<string>();
 
+const parsePositiveInteger = (value: string, fallback: number): number => {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const getImportExportWorkerOptions = (kind: 'import' | 'export') => {
+  const upperKind = kind.toUpperCase();
+  const concurrency = parsePositiveInteger(
+    getEnv({
+      name: `IMPORT_EXPORT_${upperKind}_CONCURRENCY`,
+      defaultValue: '1',
+    }),
+    1,
+  );
+
+  const limiterMax = parsePositiveInteger(
+    getEnv({
+      name: `IMPORT_EXPORT_${upperKind}_LIMITER_MAX`,
+      defaultValue: '0',
+    }),
+    0,
+  );
+
+  const limiterDuration = parsePositiveInteger(
+    getEnv({
+      name: `IMPORT_EXPORT_${upperKind}_LIMITER_DURATION_MS`,
+      defaultValue: '0',
+    }),
+    0,
+  );
+
+  return {
+    concurrency,
+    ...(limiterMax > 0 && limiterDuration > 0
+      ? {
+          limiter: {
+            max: limiterMax,
+            duration: limiterDuration,
+          },
+        }
+      : {}),
+  };
+};
+
 const generateImportExportRouter = (
-  { getImportHeaders }: TImportHandlers | undefined = {} as TImportHandlers,
+  {
+    getImportHeaders,
+    batchSkipRow,
+  }: TImportHandlers | undefined = {} as TImportHandlers,
   { getExportHeaders }: TExportHandlers | undefined = {} as TExportHandlers,
 ) => {
   const routerConfig: Partial<
-    Record<'getImportHeaders' | 'getExportHeaders', AnyProcedure>
+    Record<
+      'getImportHeaders' | 'getExportHeaders' | 'batchSkipRow',
+      AnyProcedure
+    >
   > = {};
   const trpcRouter = initTRPC
     .context<{ subdomain: string; processId: string }>()
@@ -61,6 +112,23 @@ const generateImportExportRouter = (
       });
   }
 
+  if (batchSkipRow) {
+    routerConfig.batchSkipRow = trpcRouter.procedure
+      .input(
+        z.object({
+          subdomain: z.string(),
+          data: z.object({
+            moduleName: z.string(),
+            collectionName: z.string(),
+            rowData: z.object({}),
+          }),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
+        return await batchSkipRow(input, ctx);
+      });
+  }
+
   const trpcMiddleware = trpcExpress.createExpressMiddleware({
     router: trpcRouter.router(routerConfig),
     createContext: createTRPCContext(async (_subdomain, context) => {
@@ -93,11 +161,14 @@ export const startImportExportWorker = ({
       configured: !!importConfig,
       hasGetImportHeaders: !!importConfig?.getImportHeaders,
       hasInsertImportRows: !!importConfig?.insertImportRows,
+      types: importConfig?.types || [],
+      hasSkipBatch: !!importConfig?.batchSkipRow,
     },
     export: {
       configured: !!exportConfig,
       hasGetExportHeaders: !!exportConfig?.getExportHeaders,
       hasGetExportData: !!exportConfig?.getExportData,
+      types: exportConfig?.types || [],
     },
   });
 
@@ -105,6 +176,7 @@ export const startImportExportWorker = ({
   const trpcMiddleware = generateImportExportRouter(importConfig, exportConfig);
 
   if (exportConfig) {
+    const exportWorkerOptions = getImportExportWorkerOptions('export');
     createMQWorkerWithListeners(
       pluginName,
       EXPORT_QUEUE,
@@ -116,9 +188,11 @@ export const startImportExportWorker = ({
         );
         exportConfig.whenReady?.();
       },
+      exportWorkerOptions,
     );
   }
   if (importConfig) {
+    const importWorkerOptions = getImportExportWorkerOptions('import');
     createMQWorkerWithListeners(
       pluginName,
       IMPORT_QUEUE,
@@ -130,6 +204,7 @@ export const startImportExportWorker = ({
         );
         importConfig.whenReady?.();
       },
+      importWorkerOptions,
     );
   }
 

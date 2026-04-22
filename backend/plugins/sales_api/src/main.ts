@@ -9,6 +9,13 @@ import { afterProcess } from '~/meta/afterProcess';
 import { typeDefs } from './apollo/typeDefs';
 import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
 import { notifications } from './meta/notifications';
+import {
+  createCoreModuleProducerHandler,
+  TImportExportProducers,
+  TGetExportDataInput,
+  TGetExportHeadersInput,
+} from 'erxes-api-shared/core-modules';
+import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
 
 startPlugin({
   name: 'sales',
@@ -61,13 +68,42 @@ startPlugin({
     },
     notifications,
     afterProcess,
-
     importExport: {
       export: {
         configured: true,
         hasGetExportHeaders: true,
         hasGetExportData: true,
+        types: [
+          {
+            label: 'POS Items',
+            contentType: 'sales:pos.posItems',
+          },
+        ],
       },
     },
   } as any,
+  importExport: {
+    export: {
+      types: [
+        {
+          label: 'POS Items',
+          contentType: 'sales:pos.posItems',
+        },
+      ],
+      getExportHeaders: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { pos: posExportHandlers },
+        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
+        generateModels,
+      }),
+      getExportData: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { pos: posExportHandlers },
+        methodName: TImportExportProducers.GET_EXPORT_DATA,
+        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+        generateModels,
+      }),
+    },
+  },
 });

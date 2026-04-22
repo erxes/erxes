@@ -1,6 +1,6 @@
 import { fixNum } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
+import { JOURNALS } from '~/modules/accounting/@types/constants';
 import { ITrDetail } from '~/modules/accounting/@types/transaction';
 import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants';
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
@@ -170,7 +170,6 @@ const safeRemainderMutations = {
         const incomeCount = count - preCount;
         incomeDetails.push({
           accountId: incomeRule?.accountId ?? '',
-          side: TR_SIDES.DEBIT,
           amount: fixNum(incomeCount * (item.trInfo?.unitCost ?? 0), 6),
           productId,
           count: incomeCount,
@@ -182,7 +181,6 @@ const safeRemainderMutations = {
       if (item.trInfo?.isSale) {
         saleDetails.push({
           accountId: saleRule?.accountId ?? '',
-          side: TR_SIDES.CREDIT,
           amount: fixNum(outCount * (item.trInfo?.unitPrice ?? 0), 6),
           productId,
           count: outCount,
@@ -192,7 +190,6 @@ const safeRemainderMutations = {
 
       outDetails.push({
         accountId: outRule?.accountId ?? '',
-        side: TR_SIDES.CREDIT,
         amount: fixNum(outCount * (item.trInfo?.unitCost ?? 0), 6),
         productId,
         count: outCount,

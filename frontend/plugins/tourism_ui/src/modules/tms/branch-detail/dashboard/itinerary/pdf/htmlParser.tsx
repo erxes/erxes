@@ -11,6 +11,11 @@ interface ParsedNode {
 
 type TextAlignment = 'left' | 'center' | 'right' | 'justify';
 
+interface ParseHtmlToPdfOptions {
+  defaultAlignment?: TextAlignment;
+  forceAlignment?: TextAlignment;
+}
+
 interface ParsedParagraph {
   alignment: TextAlignment;
   nodes: ParsedNode[];
@@ -108,7 +113,11 @@ const pushIfNonEmpty = (
   }
 };
 
-const parseParagraphs = (html: string): ParsedParagraph[] => {
+const parseParagraphs = (
+  html: string,
+  defaultAlignment: TextAlignment,
+  forceAlignment?: TextAlignment,
+): ParsedParagraph[] => {
   const paragraphs: ParsedParagraph[] = [];
 
   const pRegex = /<p([^>]*)>([\s\S]*?)<\/p>/gi;
@@ -118,11 +127,11 @@ const parseParagraphs = (html: string): ParsedParagraph[] => {
   while ((match = pRegex.exec(html)) !== null) {
     if (match.index > lastIndex) {
       const between = html.slice(lastIndex, match.index).trim();
-      if (between) pushIfNonEmpty(paragraphs, between);
+      if (between) pushIfNonEmpty(paragraphs, between, defaultAlignment);
     }
     lastIndex = pRegex.lastIndex;
 
-    const alignment = extractAlignment(match[1]);
+    const alignment = forceAlignment || extractAlignment(match[1]);
     const nodes = parseInlineNodes(match[2]);
     const hasContent = nodes.some((n) => n.content.trim().length > 0);
     if (hasContent) {
@@ -132,11 +141,11 @@ const parseParagraphs = (html: string): ParsedParagraph[] => {
 
   if (lastIndex < html.length) {
     const remaining = html.slice(lastIndex).trim();
-    if (remaining) pushIfNonEmpty(paragraphs, remaining);
+    if (remaining) pushIfNonEmpty(paragraphs, remaining, defaultAlignment);
   }
 
   if (paragraphs.length === 0 && html.trim()) {
-    pushIfNonEmpty(paragraphs, html);
+    pushIfNonEmpty(paragraphs, html, defaultAlignment);
   }
 
   return paragraphs;
@@ -146,11 +155,18 @@ const parseParagraphs = (html: string): ParsedParagraph[] => {
  * Parses HTML content into react-pdf <Text>/<View> elements.
  * Supports <p>, <strong>/<b>, <br>, and data-text-alignment.
  */
-export const parseHtmlToPdfElements = (html: string): React.ReactNode[] => {
+export const parseHtmlToPdfElements = (
+  html: string,
+  options?: ParseHtmlToPdfOptions,
+): React.ReactNode[] => {
   if (!html?.trim()) return [];
 
   try {
-    const paragraphs = parseParagraphs(html);
+    const paragraphs = parseParagraphs(
+      html,
+      options?.defaultAlignment || 'center',
+      options?.forceAlignment,
+    );
 
     return paragraphs.map((para, pIdx) => (
       <View key={`p-${pIdx}-${para.alignment}`} style={PARAGRAPH_SPACING}>
@@ -174,7 +190,16 @@ export const parseHtmlToPdfElements = (html: string): React.ReactNode[] => {
     ));
   } catch {
     return [
-      <Text key="fallback" style={BASE_STYLE}>
+      <Text
+        key="fallback"
+        style={[
+          BASE_STYLE,
+          {
+            textAlign:
+              options?.forceAlignment || options?.defaultAlignment || 'center',
+          },
+        ]}
+      >
         {stripHtml(html)}
       </Text>,
     ];

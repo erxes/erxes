@@ -1,10 +1,12 @@
 import { IProductCategory } from '@/products/types/productTypes';
-import { ColumnDef } from '@tanstack/react-table';
+import { CellContext, ColumnDef } from '@tanstack/react-table';
 import {
   Avatar,
+  Badge,
   RecordTable,
   RecordTableInlineCell,
   RecordTableTree,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 import { useProductCategories } from '../hooks/useProductCategories';
 import {
@@ -13,10 +15,13 @@ import {
   IconLabelFilled,
   IconPackage,
 } from '@tabler/icons-react';
-import { useMemo } from 'react';
+import { useMemo, type MouseEvent } from 'react';
+import { useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
 import { categoryMoreColumn } from './ProductCategoryMoreColumn';
 import { CategoryCommandBar } from './product-command-bar/CategoryCommandBar';
 import { PRODUCTS_PER_PAGE } from '@/products/hooks/useProducts';
+import { renderingCategoryDetailAtom } from '../states/ProductCategory';
 
 export const ProductCategoriesRecordTable = () => {
   const { productCategories, loading } = useProductCategories();
@@ -93,21 +98,7 @@ export const productCategoryColumns: (
       <RecordTable.InlineHead icon={IconLabelFilled} label="Name" />
     ),
     accessorKey: 'name',
-    cell: ({ cell }) => {
-      const name = (cell.getValue() as string) || '';
-
-      return (
-        <RecordTableInlineCell>
-          <RecordTableTree.Trigger
-            order={cell.row.original.order}
-            name={name}
-            hasChildren={cell.row.original.hasChildren}
-          >
-            {cell.getValue() as string}
-          </RecordTableTree.Trigger>
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ProductCategoryNameCell,
     size: 300,
   },
   {
@@ -147,3 +138,40 @@ export const productCategoryColumns: (
     },
   },
 ];
+
+const ProductCategoryNameCell = ({
+  cell,
+}: CellContext<IProductCategory & { hasChildren: boolean }, unknown>) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const setRenderingCategoryDetail = useSetAtom(renderingCategoryDetailAtom);
+  const { _id, order, hasChildren } = cell.row.original;
+  const name = (cell.getValue() as string) || '';
+
+  const handleOpen = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('category_id', _id);
+    setSearchParams(newSearchParams);
+    setRenderingCategoryDetail(false);
+  };
+
+  return (
+    <RecordTableInlineCell>
+      <RecordTableTree.Trigger
+        order={order}
+        name={name}
+        hasChildren={hasChildren}
+      >
+        <Badge
+          onClick={handleOpen}
+          variant="secondary"
+          className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+        >
+          <TextOverflowTooltip value={name} />
+        </Badge>
+      </RecordTableTree.Trigger>
+    </RecordTableInlineCell>
+  );
+};

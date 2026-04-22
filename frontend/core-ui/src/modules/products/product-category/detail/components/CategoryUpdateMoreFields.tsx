@@ -1,26 +1,17 @@
 import { UseFormReturn } from 'react-hook-form';
 import { useEffect } from 'react';
 
-import { IconX } from '@tabler/icons-react';
-
-import {
-  Form,
-  Input,
-  Editor,
-  Select,
-  Button,
-  Checkbox,
-  Dropzone,
-  DropzoneContent,
-  DropzoneEmptyState,
-  readImage,
-  IAttachment,
-  Label,
-} from 'erxes-ui';
+import { Form, Input, Editor, Select, Checkbox, Label } from 'erxes-ui';
 
 import { CategoryHotKeyScope } from '../../types/CategoryHotKeyScope';
 import { ProductFormValues } from '../../add-category/components/formSchema';
-import { SelectBrand, useFieldGroups, useFields } from 'ui-modules';
+import {
+  ProductPrimaryImageUpload,
+  SelectBrand,
+  type ProductAttachmentItem,
+  useFieldGroups,
+  useFields,
+} from 'ui-modules';
 import { nanoid } from 'nanoid';
 
 export const ACCOUNT_CATEGORY_MASK_TYPES = [
@@ -39,17 +30,13 @@ export const PRODUCT_CATEGORIES_STATUS = [
 export const CategoryUpdateMoreFields = ({
   form,
   categoryDetail,
-  files = [],
-  isLoading = false,
-  uploadProps,
-  onRemoveFile,
+  attachment,
+  onAttachmentChange,
 }: {
   form: UseFormReturn<ProductFormValues>;
   categoryDetail?: any;
-  files?: IAttachment[];
-  isLoading?: boolean;
-  uploadProps?: any;
-  onRemoveFile?: (file: IAttachment) => void;
+  attachment?: ProductAttachmentItem | null;
+  onAttachmentChange?: (attachment: ProductAttachmentItem | null) => void;
 }) => {
   const isSimilarityChecked = form.watch('isSimilarity');
   const similarities = form.watch('similarities') || [];
@@ -273,38 +260,10 @@ export const CategoryUpdateMoreFields = ({
           <Form.Item className="mb-5">
             <Form.Label>UPLOAD</Form.Label>
             <Form.Control>
-              <div className="space-y-4">
-                <div className="flex flex-wrap gap-4">
-                  {files.map((f) => (
-                    <div
-                      key={f.url}
-                      className="overflow-hidden relative w-32 rounded-md aspect-square shadow-xs"
-                    >
-                      <img
-                        src={readImage(f.url)}
-                        alt={f.name}
-                        className="object-contain w-full h-full"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-0 right-0"
-                        disabled={isLoading}
-                        onClick={() => onRemoveFile?.(f)}
-                      >
-                        <IconX size={12} />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                {uploadProps && (
-                  <Dropzone {...uploadProps}>
-                    <DropzoneEmptyState />
-                    <DropzoneContent />
-                  </Dropzone>
-                )}
-              </div>
+              <ProductPrimaryImageUpload
+                value={attachment}
+                onChange={(value) => onAttachmentChange?.(value)}
+              />
             </Form.Control>
             <Form.Message className="text-destructive" />
           </Form.Item>

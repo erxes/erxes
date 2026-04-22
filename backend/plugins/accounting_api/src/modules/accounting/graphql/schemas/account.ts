@@ -14,7 +14,6 @@ export const types = () => `
     accountCount: Int
     maskType: String
     mask: JSON
-
     parent: AccountCategory
   }
 
@@ -35,7 +34,7 @@ export const types = () => `
     parentId: String
     createdAt: Date
     scopeBrandIds: [String]
-    
+    extra:JSON,
     category: AccountCategory
   }
 
@@ -60,6 +59,7 @@ const accountParams = `
   isTemp: Boolean,
   isOutBalance: Boolean,
   scopeBrandIds: [String],
+  extra:JSON
   status: String,
 `;
 
@@ -91,6 +91,7 @@ const accountsQueryParams = `
   kind: String
   code: String
   name: String
+  extra:JSON
 `;
 
 export const queries = `

@@ -6,7 +6,9 @@ const accountsMutations = {
    * Creates a new account
    * @param {Object} doc Account document
    */
-  async accountsAdd(_root, doc: IAccount, { models }: IContext) {
+  async accountsAdd(_root, doc: IAccount, { models, checkPermission }: IContext) {
+    await checkPermission('manageAccounts');
+
     const account = await models.Accounts.createAccount(doc);
     return account;
   },
@@ -19,8 +21,10 @@ const accountsMutations = {
   async accountsEdit(
     _root,
     { _id, ...doc }: { _id: string } & IAccount,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAccounts');
+
     await models.Accounts.getAccount({ _id });
     const updated = await models.Accounts.updateAccount(_id, {
       ...doc,
@@ -37,8 +41,10 @@ const accountsMutations = {
   async accountsRemove(
     _root,
     { accountIds }: { accountIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('removeAccounts');
+
     const response = await models.Accounts.removeAccounts(accountIds);
 
     return response;
@@ -53,8 +59,10 @@ const accountsMutations = {
       accountIds,
       accountFields,
     }: { accountIds: string[]; accountFields: IAccount },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('accountsMerge');
+
     return models.Accounts.mergeAccounts(accountIds, { ...accountFields });
   },
 };
