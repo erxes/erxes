@@ -1,4 +1,8 @@
-import { getPlugin, getPlugins, IAfterProcessRule } from 'erxes-api-shared/utils';
+import {
+  getPlugin,
+  getPlugins,
+  IAfterProcessRule,
+} from 'erxes-api-shared/utils';
 import { AfterProcessProps } from '~/types';
 import { AfterProcessContext, HandlerContext } from './types';
 import { findMatchingHandler } from './registry';
@@ -12,6 +16,7 @@ async function processPluginRules(
   for (const rule of rules) {
     try {
       const handlerConfig = findMatchingHandler(rule, context);
+      console.log({ handlerConfig });
 
       if (!handlerConfig) {
         continue;
@@ -81,4 +86,3 @@ export async function handleAfterProcess(
     throw error;
   }
 }
-
