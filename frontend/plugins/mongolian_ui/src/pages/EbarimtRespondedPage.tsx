@@ -17,7 +17,7 @@ export const EbarimtRespondedPage = () => {
     shouldResubscribe: false,
     skip: !currentUser?._id,
     onData: ({ data }) => {
-      const { ebarimtResponded } = data?.data;
+      const { ebarimtResponded } = data?.data ?? {};
       const { content: contents } = ebarimtResponded;
 
       if (!contents?.length) {

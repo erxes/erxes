@@ -138,8 +138,8 @@ export const afterMutationHandlers = async (
         userId,
       );
 
-      putData && ebarimtResponses.push(putData);
-      innerData && ebarimtResponses.push(innerData);
+      if (putData) ebarimtResponses.push(putData);
+      if (innerData) ebarimtResponses.push(innerData);
     } catch (e) {
       ebarimtResponses.push({
         _id: nanoid(),
