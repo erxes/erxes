@@ -26,12 +26,12 @@ export const instagramMutations = {
   async instagramReplyToComment(
     _root,
     params: IReplyParams,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const { commentId, content, attachments, conversationId } = params;
 
     const comment = await models.InstagramCommentConversation.findOne({
-      commentId,
+      comment_id: commentId,
     });
     const post = await models.InstagramPostConversations.findOne({
       $or: [
@@ -90,7 +90,7 @@ export const instagramMutations = {
         inboxConversation?.integrationId || undefined,
       );
 
-      await sendNotifications({
+      await sendNotifications(subdomain, {
         user,
         conversations: [inboxConversation],
         type: 'conversationStateChange',

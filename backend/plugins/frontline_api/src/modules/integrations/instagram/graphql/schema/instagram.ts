@@ -139,6 +139,7 @@ export const queries = `
   instagramConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramConversationMessage]
   instagramConversationMessagesCount(conversationId: String!): Int
   instagramGetPost(erxesApiId: String): InstagramPost
+  instagramGetPosts(brandIds: [String], channelIds: [String], limit: Int): [InstagramPosts]
   instagramHasTaggedMessages(conversationId: String!): Boolean
 
   instagramPostMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramPostMessage]

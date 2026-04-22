@@ -44,9 +44,11 @@ export const triggerInstagramAutomation = async (
       repeatOptions,
     },
     {
-      priority: 1,
-      removeOnComplete: true,
-      removeOnFail: true,
+      jobOptions: {
+        priority: 1,
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
     },
   );
 };

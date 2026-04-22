@@ -18,6 +18,18 @@ export const INTEGRATIONS = {
     description: 'Connect and manage Facebook Posts right from your Team Inbox',
     img: 'fb.svg',
   },
+  [IntegrationType.INSTAGRAM_MESSENGER]: {
+    name: 'Instagram Messenger',
+    description:
+      'Connect and manage Instagram Messages right from your Team Inbox',
+    img: 'ig.svg',
+  },
+  [IntegrationType.INSTAGRAM_POST]: {
+    name: 'Instagram Post',
+    description:
+      'Connect and manage Instagram Post comments right from your Team Inbox',
+    img: 'ig.svg'
+  },
   [IntegrationType.CALL]: {
     name: 'Call',
     description: 'Connect and manage calls right from your Team Inbox',
@@ -32,17 +44,5 @@ export const INTEGRATIONS = {
     name: 'MessagePro',
     description: 'Connect and manage Message Pro right from your Team Inbox',
     img: 'callpro.png',
-  },
-  [IntegrationType.INSTAGRAM_MESSENGER]: {
-    name: 'Instagram Messenger',
-    description:
-      'Connect and manage Instagram Messages right from your Team Inbox',
-    img: 'ig.svg',
-  },
-  [IntegrationType.INSTAGRAM_POST]: {
-    name: 'Instagram Post',
-    description:
-      'Connect and manage Instagram Post comments right from your Team Inbox',
-    img: 'ig.svg'
   },
 };

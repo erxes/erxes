@@ -81,11 +81,13 @@ export const instagramWebhook = async (req, res) => {
   debugInstagram(`Received webhook request for subdomain: ${subdomain}`);
   const models = await generateModels(subdomain);
   const data = req.body;
+  debugInstagram('Received webhook data:' + JSON.stringify(data));
+
   if (data.object !== 'instagram') {
-    return;
+    return res.send('OK');
   }
+
   for (const entry of data.entry) {
-    // receive direct messages
     if (entry.messaging) {
       const messageData = entry.messaging[0];
       if (messageData) {
@@ -96,32 +98,25 @@ export const instagramWebhook = async (req, res) => {
           if (integration) {
             await receiveMessage(models, subdomain, integration, messageData);
           }
-          return res.send('success');
         } catch (e) {
-          return res.send('error ' + e);
+          debugError(`Error processing message: ${e.message}`);
         }
       }
     } else if (entry.standby) {
-      // Handle standby data if entry.messaging does not exist
       const standbyData = entry.standby;
-      if (standbyData && standbyData.length > 0) {
+      for (const item of standbyData || []) {
         try {
-          // Process each item in standbyData
-          for (const data of standbyData) {
-            const integration = await models.InstagramIntegrations.findOne({
-              instagramPageId: data.recipient?.id,
-            });
-            if (!integration) continue;
-            await receiveMessage(models, subdomain, integration, data);
-          }
-          return res.send('success');
+          const integration = await models.InstagramIntegrations.findOne({
+            instagramPageId: item.recipient?.id,
+          });
+          if (!integration) continue;
+          await receiveMessage(models, subdomain, integration, item);
         } catch (e) {
-          return res.send('error ' + e);
+          debugError(`Error processing standby: ${e.message}`);
         }
-      } else {
-        return res.send('no standby data'); // Handle case when standbyData is empty
       }
     }
+
     if (entry.changes) {
       for (const event of entry.changes) {
         if (event.field === 'comments') {
@@ -130,16 +125,14 @@ export const instagramWebhook = async (req, res) => {
           );
           try {
             await receiveComment(models, subdomain, event.value, entry.id);
-            debugInstagram(
-              `Successfully saved  ${JSON.stringify(event.value)}`,
-            );
-            return res.end('success');
+            debugInstagram(`Successfully saved ${JSON.stringify(event.value)}`);
           } catch (e) {
             debugError(`Error processing comment: ${e.message}`);
-            return res.end('success');
           }
         }
       }
     }
   }
+
+  return res.send('success');
 };

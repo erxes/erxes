@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { INSTAGRAM_INTEGRATION_SCHEMA } from '../constants/IgMessengerSchema';
 import { useSearchParams } from 'react-router-dom';
+import { SelectBrand } from 'ui-modules';
 import { useSetAtom } from 'jotai';
 import {
   instagramFormSheetAtom,
@@ -111,7 +112,10 @@ export const InstagramIntegrationEditForm = ({
 
   useEffect(() => {
     if (integrationDetail) {
-      form.reset({ name: integrationDetail.name });
+      form.reset({
+        name: integrationDetail.name,
+        brandId: integrationDetail.brandId ?? '',
+      });
     }
   }, [integrationDetail, form]);
 
@@ -121,6 +125,7 @@ export const InstagramIntegrationEditForm = ({
         _id: id,
         name: data.name,
         channelId: integrationDetail?.channelId || '',
+        brandId: data.brandId,
       },
       onCompleted: () => {
         setOpen(false);
@@ -149,7 +154,7 @@ export const InstagramIntegrationEditForm = ({
               <Label htmlFor="pageName">Page Name</Label>
               <Input
                 id="pageName"
-                value={integrationDetail?.instagramPage?.[0]?.name}
+                value={(integrationDetail as any)?.instagramPage?.[0]?.name ?? ''}
                 className="mt-2"
                 readOnly
               />
@@ -162,6 +167,21 @@ export const InstagramIntegrationEditForm = ({
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="brandId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Brand</Form.Label>
+                  <SelectBrand
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select a brand"
+                    className="w-full h-10 rounded-lg border bg-background"
+                  />
+                  <Form.Message />
                 </Form.Item>
               )}
             />

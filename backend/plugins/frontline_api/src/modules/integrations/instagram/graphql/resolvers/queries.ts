@@ -185,7 +185,7 @@ export const instagramQueries = {
       pages = await getPageList(models, accessToken, kind);
     } catch (e) {
       if (!e.message.includes('Application request limit reached')) {
-        await models.Integrations.updateOne(
+        await models.InstagramIntegrations.updateOne(
           { accountId },
           { $set: { healthStatus: 'account-token', error: `${e.message}` } },
         );

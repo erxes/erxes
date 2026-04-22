@@ -69,9 +69,11 @@ export const receiveMessage = async (
     const bot = await checkIsBot(models, message, recipient.id);
     const botId = bot?._id;
 
+    let isNewConversation = false;
+
     // create conversation
     if (!conversation) {
-      // save on integrations db
+      isNewConversation = true;
       try {
         conversation = await models.InstagramConversations.create({
           timestamp,
@@ -91,11 +93,11 @@ export const receiveMessage = async (
       }
     } else {
       const bot = await models.InstagramBots.findOne({ _id: botId });
-
       if (bot) {
         conversation.botId = botId;
       }
       conversation.content = text || '';
+      await conversation.save();
     }
 
     const formattedAttachments = (attachments || [])
@@ -126,17 +128,16 @@ export const receiveMessage = async (
 
       if (apiConversationResponse.status === 'success') {
         conversation.erxesApiId = apiConversationResponse.data._id;
-
         await conversation.save();
       } else {
         throw new Error(
-          `Conversation creation failed: ${JSON.stringify(
-            apiConversationResponse,
-          )}`,
+          `Conversation creation failed: ${JSON.stringify(apiConversationResponse)}`,
         );
       }
     } catch (e) {
-      await models.InstagramConversations.deleteOne({ _id: conversation._id });
+      if (isNewConversation) {
+        await models.InstagramConversations.deleteOne({ _id: conversation._id });
+      }
       throw new Error(e);
     }
     // get conversation message

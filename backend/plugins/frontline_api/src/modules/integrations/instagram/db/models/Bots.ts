@@ -1,6 +1,9 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { getPageAccessToken } from '@/integrations/instagram/utils';
+import {
+  getPageAccessToken,
+  graphRequest,
+} from '@/integrations/instagram/utils';
 import { IInstagramBotDocument } from '@/integrations/instagram/@types/bots';
 import { instagramBotSchema } from '@/integrations/instagram/db/definitions/bots';
 const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
@@ -26,7 +29,7 @@ const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   }
 };
 
-export interface IBotModel extends Model<IInstagramBotDocument> {
+export interface IInstagramBotModel extends Model<IInstagramBotDocument> {
   addBot(doc: any): Promise<IInstagramBotDocument>;
   updateBot(_id: string, doc: any): Promise<IInstagramBotDocument>;
   removeBot(_id: string): Promise<IInstagramBotDocument>;
@@ -264,10 +267,26 @@ export const loadInstagramBotClass = (models: IModels) => {
           },
         ];
       }
+
+      await graphRequest.post('me/messenger_profile', pageAccessToken, doc);
+
       return { status: 'success' };
     }
 
     static async disconnectBotPageMessenger(_id) {
+      const bot = await models.InstagramBots.findOne({ _id });
+
+      if (bot?.token) {
+        try {
+          await graphRequest.delete('me/messenger_profile', bot.token, {
+            fields: ['get_started', 'persistent_menu', 'greeting'],
+          });
+        } catch (e) {
+          // log but don't throw — DB cleanup should still proceed
+          console.error(`Failed to remove Instagram messenger profile: ${e.message}`);
+        }
+      }
+
       await models.InstagramBots.deleteOne({ _id });
       return { status: 'success' };
     }

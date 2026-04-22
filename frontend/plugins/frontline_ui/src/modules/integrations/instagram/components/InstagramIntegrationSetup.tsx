@@ -1,4 +1,5 @@
 import { Button, Form, Input } from 'erxes-ui';
+import { SelectBrand } from 'ui-modules';
 import {
   InstagramIntegrationFormSteps,
   InstagramIntegrationFormLayout,
@@ -21,7 +22,7 @@ import { useParams } from 'react-router';
 
 const INTEGRATION_KINDS = {
   POST: 'instagram-post',
-  MESSENGER: 'instagram',
+  MESSENGER: 'instagram-messenger',
 };
 
 export const InstagramIntegrationSetup = () => {
@@ -29,7 +30,7 @@ export const InstagramIntegrationSetup = () => {
   const { isPost } = useIgIntegrationContext();
   const form = useForm<z.infer<typeof INSTAGRAM_INTEGRATION_SCHEMA>>({
     resolver: zodResolver(INSTAGRAM_INTEGRATION_SCHEMA),
-    defaultValues: { name: '' },
+    defaultValues: { name: '', brandId: '' },
   });
 
   const accountId = useAtomValue(selectedInstagramAccountAtom);
@@ -40,17 +41,20 @@ export const InstagramIntegrationSetup = () => {
   const setActiveStep = useSetAtom(activeInstagramFormStepAtom);
 
   const onNext = (data: z.infer<typeof INSTAGRAM_INTEGRATION_SCHEMA>) => {
+    if (!channelId) return;
+
     addIntegration({
       variables: {
         kind: isPost ? INTEGRATION_KINDS.POST : INTEGRATION_KINDS.MESSENGER,
         name: data.name,
         accountId,
-        channelId: channelId as string,
+        channelId,
+        brandId: data.brandId,
         data: { pageIds: [pageId] },
       },
       refetchQueries: ['Integrations'],
+      onCompleted: () => resetInstagramForm(),
     });
-    resetInstagramForm();
   };
 
   return (
@@ -91,6 +95,27 @@ export const InstagramIntegrationSetup = () => {
                   </Form.Control>
                   <Form.Description>
                     Name this integration to differentiate from the rest
+                  </Form.Description>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              name="brandId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Brand</Form.Label>
+                  <Form.Control>
+                    <SelectBrand
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select a brand"
+                      className="w-full h-10 rounded-lg border bg-background"
+                    />
+                  </Form.Control>
+                  <Form.Description>
+                    Choose the brand for this integration
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>

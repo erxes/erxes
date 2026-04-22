@@ -15,7 +15,7 @@ export const InstagramGetPages = () => {
   const { isPost } = useIgIntegrationContext();
   const [selectedPage, setSelectedPage] = useAtom(selectedInstagramPageAtom);
   const { instagramGetPages } = useInstagramPages({
-    kind: isPost ? 'instagram-post' : 'instagram',
+    kind: isPost ? 'instagram-post' : 'instagram-messenger',
   });
   const setActiveStep = useSetAtom(activeInstagramFormStepAtom);
 

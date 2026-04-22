@@ -14,7 +14,6 @@ import {
   getPostDetails,
   getPostLink,
 } from '@/integrations/instagram/utils';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 export const getOrCreateCustomer = async (
@@ -27,7 +26,8 @@ export const getOrCreateCustomer = async (
   facebookPageTokensMap?: { [key: string]: string },
 ) => {
   const integration = await models.InstagramIntegrations.findOne({
-    $and: [{ instagramPageId: { $in: pageId } }, { kind }],
+    instagramPageId: pageId,
+    kind,
   });
   if (!integration) {
     throw new Error('Instagram Integration not found ');
@@ -161,15 +161,20 @@ export const getOrCreateComment = async (
       ...doc,
     });
   }
-  let conversation;
-  conversation = await models.InstagramCommentConversation.findOne({
-    comment_id: commentParams.comment_id,
-  });
-  if (conversation === null) {
-    conversation = await models.InstagramCommentConversation.findOne({
+  const conversation =
+    (await models.InstagramCommentConversation.findOne({
+      comment_id: commentParams.comment_id,
+    })) ||
+    (await models.InstagramCommentConversation.findOne({
       comment_id: commentParams.parent_id,
-    });
+    }));
+
+  if (!conversation) {
+    throw new Error('Comment conversation not found after creation');
   }
+
+  const isNewConversation = !conversation.erxesApiId;
+
   try {
     const data = {
       action: 'create-or-update-conversation',
@@ -189,33 +194,30 @@ export const getOrCreateComment = async (
       await conversation.save();
     } else {
       throw new Error(
-        `Conversation creation failed: ${JSON.stringify(
-          apiConversationResponse,
-        )}`,
+        `Conversation creation failed: ${JSON.stringify(apiConversationResponse)}`,
       );
     }
   } catch (error) {
-    await models.InstagramCommentConversation.deleteOne({
-      _id: conversation?._id,
-    });
+    if (isNewConversation) {
+      await models.InstagramCommentConversation.deleteOne({
+        _id: conversation._id,
+      });
+    }
     throw new Error(error.message);
   }
   try {
-    const doc = {
-      ...conversation?.toObject(),
+    const message = await models.ConversationMessages.createMessage({
       conversationId: conversation.erxesApiId,
-    };
-    await pConversationClientMessageInserted(subdomain, doc);
+      content: commentParams.message || '',
+      customerId: customer.erxesApiId,
+      attachments: attachment,
+      createdAt: new Date(),
+    } as any);
 
-    await graphqlPubsub.publish(
-      `conversationMessageInserted:${conversation.erxesApiId}`,
-      {
-        conversationMessageInserted: {
-          ...conversation?.toObject(),
-          conversationId: conversation.erxesApiId,
-        },
-      },
-    );
+    await pConversationClientMessageInserted(subdomain, {
+      ...message.toObject(),
+      conversationId: conversation.erxesApiId,
+    });
   } catch {
     throw new Error(
       `Failed to update the database with the Erxes API response for this conversation.`,

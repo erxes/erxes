@@ -108,7 +108,7 @@ export const removeIntegration = async (
     }
   }
 
-  await models.Integrations.deleteOne({ _id });
+  await models.InstagramIntegrations.deleteOne({ _id });
 
   return erxesApiId;
 };

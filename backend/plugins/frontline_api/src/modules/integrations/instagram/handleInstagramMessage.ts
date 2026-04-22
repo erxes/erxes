@@ -117,7 +117,7 @@ export const handleInstagramMessage = async (
         throw new Error('User not found');
       }
 
-      sendNotifications({
+      sendNotifications(subdomain, {
         user,
         conversations: [inboxConversation],
         type: 'conversationStateChange',
