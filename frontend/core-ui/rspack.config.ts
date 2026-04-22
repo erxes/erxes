@@ -49,19 +49,19 @@ export default composePlugins(
     });
 
     config.devServer = {
-      ...(config.devServer || {}),
+      ...(config.devServer),
       client: {
-        ...(config.devServer?.client || {}),
+        ...(config.devServer?.client),
         logging: 'error',
       },
       devMiddleware: {
-        ...(config.devServer?.devMiddleware || {}),
+        ...(config.devServer?.devMiddleware),
         stats: 'errors-warnings',
       },
     };
 
     config.infrastructureLogging = {
-      ...(config.infrastructureLogging || {}),
+      ...(config.infrastructureLogging),
       level: 'error',
     };
 
