@@ -10,7 +10,7 @@ import { IItinerary } from '../types/itinerary';
 
 // ─── Provider ────────────────────────────────────────────────────────────────
 
-interface SelectItineraryProviderProps {
+interface ISelectItineraryProviderProps {
   children: React.ReactNode;
   value?: string;
   onValueChange?: (value: string | null) => void;
@@ -24,23 +24,17 @@ const SelectItineraryProvider = ({
   onValueChange,
   branchId,
   language,
-}: SelectItineraryProviderProps) => {
-  const [selectedItinerary, setSelectedItinerary] = useState<IItinerary | null>(
-    null,
-  );
-
+}: ISelectItineraryProviderProps) => {
   const { data } = useQuery(GET_ITINERARY_DETAIL, {
     variables: { id: value, language },
     skip: !value,
     fetchPolicy: 'cache-first',
   });
 
-  const resolvedItinerary: IItinerary | null =
-    selectedItinerary || data?.bmsItineraryDetail || null;
+  const resolvedItinerary: IItinerary | null = data?.bmsItineraryDetail || null;
 
   const onSelect = useCallback(
     (itinerary: IItinerary) => {
-      setSelectedItinerary(itinerary);
       onValueChange?.(itinerary._id);
     },
     [onValueChange],
@@ -105,6 +99,17 @@ const SelectItineraryContent = () => {
       search: debouncedSearch || undefined,
     });
 
+  // Client-side filter covers cases where the server name match isn't a
+  // case-insensitive partial contains (e.g. "sha" → "Shanghai City Tour").
+  const displayItineraries = React.useMemo(() => {
+    const term = debouncedSearch.toLowerCase();
+    return itineraries.filter(
+      (it) =>
+        it._id !== itineraryId &&
+        (!term || it.name?.toLowerCase().includes(term)),
+    );
+  }, [itineraries, itineraryId, debouncedSearch]);
+
   return (
     <Command shouldFilter={false}>
       <Command.Input
@@ -124,14 +129,12 @@ const SelectItineraryContent = () => {
         )}
         <Combobox.Empty loading={isInitialLoading} />
         {!isInitialLoading &&
-          itineraries
-            .filter((it) => it._id !== itineraryId)
-            .map((itinerary) => (
-              <SelectItineraryCommandItem
-                key={itinerary._id}
-                itinerary={itinerary}
-              />
-            ))}
+          displayItineraries.map((itinerary) => (
+            <SelectItineraryCommandItem
+              key={itinerary._id}
+              itinerary={itinerary}
+            />
+          ))}
         <Combobox.FetchMore
           fetchMore={handleFetchMore}
           currentLength={itineraries.length}
@@ -174,7 +177,7 @@ const SelectItineraryRoot = ({
   className,
   placeholder,
   ...props
-}: Omit<SelectItineraryProviderProps, 'children'> & {
+}: Omit<ISelectItineraryProviderProps, 'children'> & {
   className?: string;
   placeholder?: string;
 }) => {
@@ -207,7 +210,7 @@ const SelectItineraryFormItem = ({
   className,
   placeholder,
   ...props
-}: Omit<SelectItineraryProviderProps, 'children'> & {
+}: Omit<ISelectItineraryProviderProps, 'children'> & {
   className?: string;
   placeholder?: string;
 }) => {

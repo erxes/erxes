@@ -20,7 +20,7 @@ interface IItinerariesData {
   };
 }
 
-interface UseItinerariesForSelectOptions {
+interface IUseItinerariesForSelectOptions {
   branchId?: string;
   language?: string;
   search?: string;
@@ -30,7 +30,7 @@ export const useItinerariesForSelect = ({
   branchId,
   language,
   search,
-}: UseItinerariesForSelectOptions) => {
+}: IUseItinerariesForSelectOptions) => {
   const { data, loading, fetchMore, networkStatus } =
     useQuery<IItinerariesData>(GET_ITINERARIES, {
       variables: {
