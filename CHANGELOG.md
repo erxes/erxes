@@ -1,3 +1,31 @@
+
+
+## [3.0.16](https://github.com/erxes/erxes/compare/3.0.15...3.0.16) (2026-04-21)
+
+
+### Bug Fixes
+
+* **accounting:** account category import ([#7501](https://github.com/erxes/erxes/issues/7501)) ([d57ac90](https://github.com/erxes/erxes/commit/d57ac907a0f77342f0665c22dbaa777b02177672))
+* add missing dependencies installation in Dockerfile for runtime stage ([6a62f30](https://github.com/erxes/erxes/commit/6a62f3005bb46489843d3322c27de05ce39c1c2e))
+* disable hotkeys on form tags by default ([#7478](https://github.com/erxes/erxes/issues/7478)) ([dd5cb6f](https://github.com/erxes/erxes/commit/dd5cb6fe1b7a9a93b7ab05556471b9cf404257be))
+* form widget ([c8377b9](https://github.com/erxes/erxes/commit/c8377b9db3aaab11144741c879bc21ea7173497c))
+* make models property optional in IMainContext interface ([c4acd30](https://github.com/erxes/erxes/commit/c4acd302a469574203e6d63e9f9264f0b2db57d1))
+* pms room queries to use a single date range and return rooms overlapping that range ([#7519](https://github.com/erxes/erxes/issues/7519)) ([8d86470](https://github.com/erxes/erxes/commit/8d864707a279b8ed8f72cb09c7ad16630fbfcb44))
+* specify type for orderQueries to enhance type safety ([360c83d](https://github.com/erxes/erxes/commit/360c83d937943d103051ce96aa779be1f429d165))
+
+
+### Features
+
+* **accounting:** import accounts and some fix upload and read file([#7491](https://github.com/erxes/erxes/issues/7491)) ([a453c5c](https://github.com/erxes/erxes/commit/a453c5cb0c01251df13f837468ed6114138f1830))
+* add cpPageList query  ([14f4168](https://github.com/erxes/erxes/commit/14f41689b371a5614f6138bcd62af632161123f6))
+* hide verify button and disable email validation status based on version ([#7504](https://github.com/erxes/erxes/issues/7504)) ([a4c852f](https://github.com/erxes/erxes/commit/a4c852f52a0d42939da1905d35c61e360dad8dbd))
+* imap conversation ([d31fa35](https://github.com/erxes/erxes/commit/d31fa350bfc0a78a5666ff24949993ed60da36a9))
+* implements pos order item export support and refines multiple pos-related UIs ([#7486](https://github.com/erxes/erxes/issues/7486)) ([1547427](https://github.com/erxes/erxes/commit/15474275348302c0567106f7bb224e77411f10c2))
+* show paymentTypes in erkhet config with account mapping ([#7495](https://github.com/erxes/erxes/issues/7495)) ([a1d6bd6](https://github.com/erxes/erxes/commit/a1d6bd6087d854a8b9cacfb7e7bf7852f2cc0ab6))
+* **tourism:** add amenity-specific icon picker matching base design  ([0d98a75](https://github.com/erxes/erxes/commit/0d98a753a29adde6f0693e4582ffa9653aa0cdc1))
+* **tour:** support adult/child/infant pricing per package ([b90e952](https://github.com/erxes/erxes/commit/b90e95273435c31d38e3d1a6d09bc0ede85ee73e))
+* update resolver types to include IContext and refactor AI agent components ([3fad7a0](https://github.com/erxes/erxes/commit/3fad7a0dd02a21c821d9af5b4c478350bfb172fe))
+
 # Changelog
 
 ## [3.0.15](https://github.com/erxes/erxes/compare/3.0.14...3.0.15) (2026-04-19)
