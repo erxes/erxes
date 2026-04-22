@@ -140,7 +140,7 @@ export const actionCreateMessage = async ({
         });
 
       pConversationClientMessageInserted(subdomain, {
-        ...conversationMessage,
+        ...conversationMessage.toObject(),
         conversationId: conversation.erxesApiId,
       });
 
