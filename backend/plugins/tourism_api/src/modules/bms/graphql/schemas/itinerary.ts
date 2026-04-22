@@ -111,6 +111,8 @@ export const types = `
 export const queries = `
   bmsItineraries(${GQL_CURSOR_PARAM_DEFS}, branchId: String, name: String, language: String): ItineraryListResponse
   bmsItineraryDetail(_id: String!, language: String): Itinerary
+  cpBmsItineraries(${GQL_CURSOR_PARAM_DEFS}, branchId: String, name: String, language: String): ItineraryListResponse
+  cpBmsItineraryDetail(_id: String!, language: String): Itinerary
 `;
 
 const params = `
