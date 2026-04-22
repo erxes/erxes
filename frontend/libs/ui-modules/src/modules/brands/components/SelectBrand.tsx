@@ -271,7 +271,9 @@ export const SelectBrandFilterBar = ({
           } else {
             setBrand(null);
           }
-          setOpen(false);
+          if (mode !== 'multiple') {
+            setOpen(false);
+          }
           onValueChange?.(value);
         }}
       >
@@ -302,7 +304,9 @@ export const SelectBrandInlineCell = ({
     <SelectBrandProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        if (props.mode !== 'multiple') {
+          setOpen(false);
+        }
       }}
       {...props}
     >
@@ -332,7 +336,9 @@ export const SelectBrandFormItem = ({
     <SelectBrandProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        if (props.mode !== 'multiple') {
+          setOpen(false);
+        }
       }}
       {...props}
     >
