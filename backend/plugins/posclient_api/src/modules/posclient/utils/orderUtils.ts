@@ -33,16 +33,29 @@ import { IProductDocument } from '~/modules/posclient/@types/products';
 import { IPayment } from '~/modules/posclient/graphql/resolvers/mutations/orders';
 
 /**
+ * Upper limit for the range passed to `crypto.randomInt`. Node's
+ * `crypto.randomInt(min, max)` requires `max - min <= 2**48 - 1`, and throws
+ * `ERR_OUT_OF_RANGE` otherwise. We clamp the caller-supplied bound below this
+ * ceiling so a misconfigured large value degrades gracefully instead of
+ * crashing order creation.
+ */
+const MAX_RANDOM_SKIP_ADDEND = 2 ** 48 - 1;
+
+/**
  * Returns an unbiased positive integer in `[1, maxSkipNumber]` for jittering
  * sequential order numbers, using Node's cryptographically secure RNG.
  *
  * Falls back to `1` when no valid bound is supplied so callers keep the
  * original "skip by at least one" behavior for missing or malformed config.
+ * Oversized bounds are clamped to {@link MAX_RANDOM_SKIP_ADDEND} to stay
+ * within `crypto.randomInt`'s documented range.
  *
  * @param maxSkipNumber - Upper bound (inclusive). Must be a finite number
- *                        strictly greater than 1; non-integers are floored.
- * @returns An integer in `[1, maxSkipNumber]`, or `1` when the bound is
- *          missing, non-finite, or ≤ 1.
+ *                        strictly greater than 1; non-integers are floored
+ *                        and values above {@link MAX_RANDOM_SKIP_ADDEND}
+ *                        are clamped to it.
+ * @returns An integer in `[1, min(floor(maxSkipNumber), MAX_RANDOM_SKIP_ADDEND)]`,
+ *          or `1` when the bound is missing, non-finite, or ≤ 1.
  */
 const getRandomSkipAddend = (maxSkipNumber: number | undefined): number => {
   if (
@@ -52,9 +65,15 @@ const getRandomSkipAddend = (maxSkipNumber: number | undefined): number => {
   ) {
     return 1;
   }
-  const upperExclusive = Math.floor(maxSkipNumber) + 1;
+  const upperBound = Math.min(
+    Math.floor(maxSkipNumber),
+    MAX_RANDOM_SKIP_ADDEND,
+  );
+  if (upperBound <= 1) {
+    return 1;
+  }
   // crypto.randomInt(min, max) returns an unbiased integer in [min, max).
-  return crypto.randomInt(1, upperExclusive);
+  return crypto.randomInt(1, upperBound + 1);
 };
 
 export const generateOrderNumber = async (
