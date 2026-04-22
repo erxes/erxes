@@ -14,13 +14,16 @@ import jwt, { Algorithm, JwtHeader, SignOptions } from 'jsonwebtoken';
  * always enforced — there is intentionally no opt-out, to prevent
  * man-in-the-middle attacks (CWE-295/297).
  *
- * If proxy construction fails (bad URL, missing module, etc.) the error is
- * logged and `undefined` is returned so the request falls back to a direct
- * connection rather than hard-failing the automation run.
+ * Proxy behavior is fail-closed: if a proxy is configured but the agent
+ * cannot be constructed (typically because of a malformed proxy URL or
+ * invalid host/port), the function throws a descriptive `Error` so the
+ * webhook run surfaces the configuration problem instead of silently
+ * bypassing the configured egress path.
  *
  * @param options - The outgoing webhook `options` block from the action config.
  * @returns A configured {@link HttpsProxyAgent} when a proxy is specified, or
- *          `undefined` to use the default global agent.
+ *          `undefined` to use the default global agent (direct connection).
+ * @throws Error if a proxy is configured but cannot be constructed.
  */
 export const generateFetchAgent = (
   options: TOutgoinWebhookActionConfig['options'],
@@ -41,10 +44,9 @@ export const generateFetchAgent = (
     return new HttpsProxyAgent(proxyUrl);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.warn(
-      `[outgoing-webhook] failed to construct proxy agent, falling back to direct connection: ${message}`,
+    throw new Error(
+      `Outgoing webhook proxy configuration is invalid (host=${proxy.host}, port=${proxy.port}): ${message}`,
     );
-    return undefined;
   }
 };
 
