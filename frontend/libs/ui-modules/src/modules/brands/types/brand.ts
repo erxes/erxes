@@ -17,7 +17,7 @@ export interface BrandsInlineProps {
   brandIds?: string[];
   brands?: IBrand[];
   placeholder?: string;
-  updateBrands?: (brands: IBrand[]) => void;
+  updateBrands?: React.Dispatch<React.SetStateAction<IBrand[]>>;
 }
 
 export interface ISelectBrandsContext {

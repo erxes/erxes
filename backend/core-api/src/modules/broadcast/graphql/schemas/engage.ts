@@ -109,12 +109,12 @@ export const types = `
     erxesApiId: String
     conversationId: String
     integrationId: String
-  }    
+  }
 
   type DeliveryList {
     list: [SmsDelivery]
     totalCount: Int
-  }  
+  }
 
   input EngageScheduleDateInput {
     type: String,
@@ -194,7 +194,7 @@ const queryParams = `
   brandId: String
   fromUserId: String
   searchValue: String
-  
+
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
@@ -209,6 +209,7 @@ export const queries = `
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
   engageBroadcastTraces(engageMessageId: String!): [BroadcastTrace]
+  engageVerifiedEmails: [String]
 `;
 
 const mutationParams = `
