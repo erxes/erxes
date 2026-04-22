@@ -417,15 +417,13 @@ export const TourItineraryIdField = ({
           <Form.Label>
             Itinerary <span className="text-destructive">*</span>
           </Form.Label>
-          <Form.Control>
-            <SelectItinerary
-              value={field.value}
-              onValueChange={field.onChange}
-              branchId={branchId}
-              language={language}
-              placeholder="Select itinerary"
-            />
-          </Form.Control>
+          <SelectItinerary.FormItem
+            value={field.value}
+            onValueChange={field.onChange}
+            branchId={branchId}
+            language={language}
+            placeholder="Select itinerary"
+          />
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
