@@ -19,6 +19,7 @@ import {
 } from '../contexts/SelectBrandContext';
 import { BrandsInline } from '../components/BrandsInline';
 import { IconLabel } from '@tabler/icons-react';
+import { useBrandInline } from '../hooks/useBrandInline';
 
 export const SelectBrandProvider = ({
   children,
@@ -101,10 +102,57 @@ const SelectBrandCommandItem = ({ brand }: { brand: IBrand }) => {
   );
 };
 
+const SelectBrandSelectedCommandItem = ({ brandId }: { brandId: string }) => {
+  const { brands, brandIds, setBrands, onSelect } = useSelectBrandContext();
+  const cachedBrand = brands.find((brand) => brand._id === brandId);
+  const { brand } = useBrandInline({
+    variables: {
+      _id: brandId,
+    },
+    skip: !!cachedBrand || !brandId,
+  });
+
+  React.useEffect(() => {
+    if (!brand) return;
+
+    setBrands((prevBrands) => {
+      const nextBrands = [
+        ...prevBrands.filter((b) => b._id !== brand._id),
+        brand,
+      ];
+
+      return brandIds
+        .map((id) => nextBrands.find((b) => b._id === id))
+        .filter((b): b is IBrand => !!b);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brand]);
+
+  const selectedBrand = cachedBrand || brand;
+
+  if (!selectedBrand) {
+    return (
+      <Command.Item
+        value={brandId}
+        onSelect={() => onSelect({ _id: brandId, name: brandId })}
+      >
+        <BrandsInline
+          brandIds={[brandId]}
+          brands={[{ _id: brandId, name: brandId }]}
+          placeholder={brandId}
+        />
+        <Combobox.Check checked />
+      </Command.Item>
+    );
+  }
+
+  return <SelectBrandCommandItem brand={selectedBrand} />;
+};
+
 const SelectBrandContent = () => {
   const [search, setSearch] = React.useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { brands: selectedBrands } = useSelectBrandContext();
+  const { brandIds } = useSelectBrandContext();
 
   const {
     brands = [],
@@ -129,16 +177,16 @@ const SelectBrandContent = () => {
       />
       <Command.List>
         <Combobox.Empty loading={loading} />
-        {selectedBrands.length > 0 && (
+        {brandIds.length > 0 && (
           <>
-            {selectedBrands?.map((brand) => (
-              <SelectBrandCommandItem key={brand._id} brand={brand} />
+            {brandIds.map((brandId) => (
+              <SelectBrandSelectedCommandItem key={brandId} brandId={brandId} />
             ))}
             <Command.Separator className="my-1" />
           </>
         )}
         {brands
-          .filter((brand) => !selectedBrands.some((b) => b._id === brand._id))
+          .filter((brand) => !brandIds.includes(brand._id))
           .map((brand) => (
             <SelectBrandCommandItem key={brand._id} brand={brand} />
           ))}
@@ -223,7 +271,9 @@ export const SelectBrandFilterBar = ({
           } else {
             setBrand(null);
           }
-          setOpen(false);
+          if (mode !== 'multiple') {
+            setOpen(false);
+          }
           onValueChange?.(value);
         }}
       >
@@ -254,7 +304,9 @@ export const SelectBrandInlineCell = ({
     <SelectBrandProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        if (props.mode !== 'multiple') {
+          setOpen(false);
+        }
       }}
       {...props}
     >
@@ -284,7 +336,9 @@ export const SelectBrandFormItem = ({
     <SelectBrandProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        if (props.mode !== 'multiple') {
+          setOpen(false);
+        }
       }}
       {...props}
     >
@@ -317,7 +371,9 @@ const SelectBrandRoot = React.forwardRef<
     <SelectBrandProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        if (mode !== 'multiple') {
+          setOpen(false);
+        }
       }}
       mode={mode}
       value={value}
