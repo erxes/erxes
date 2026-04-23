@@ -14,7 +14,7 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
   return (
     <div className="relative">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)}>
-        <Tabs.List className="bg-accent rounded-md mb-4 w-fit px-1 border-none !no-underline">
+        <Tabs.List className="bg-accent rounded-md mb-4 w-fit px-1 border-none no-underline!">
           <Tabs.Trigger
             className="w-20 cursor-pointer font-normal data-[state=active]:bg-background data-[state=active]:shadow after:content-none after:border-none after:shadow-none after:bg-transparent"
             value="product"
