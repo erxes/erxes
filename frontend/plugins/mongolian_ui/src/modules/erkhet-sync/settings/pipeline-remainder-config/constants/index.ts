@@ -1,2 +1,0 @@
-export const PIPELINE_REMAINDER_CONFIG_CURSOR_SESSION_KEY =
-  'pipeline_remainder_config_cursor_session_key';

@@ -6,13 +6,6 @@ export const GET_SALES_BOARDS = gql`
       _id
       name
       order
-      createdAt
-      type
-      pipelines {
-        _id
-        name
-        type
-      }
     }
   }
 `;

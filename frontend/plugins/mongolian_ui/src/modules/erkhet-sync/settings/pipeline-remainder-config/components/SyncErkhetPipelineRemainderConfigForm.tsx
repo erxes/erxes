@@ -1,17 +1,17 @@
-import { Button, Form, Input } from 'erxes-ui';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Accordion, Button, Form, Input, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
+import { TAddPipelineRemainderConfig } from '../types';
+import { addPipelineRemainderConfigSchema } from '../constants/addPipelineRemainderConfigSchema';
+import { SelectSalesBoard } from './selects/SelectBoard';
 import { SelectPipeline } from './selects/SelectPipeline';
 import { SelectStage } from './selects/SelectStage';
-import { SelectSalesBoard } from './selects/SelectBoard';
-import { addPipelineRemainderConfigSchema } from '../constants/addPipelineRemainderConfigSchema';
-import { useCreatePipelineRemainderConfig } from '../hooks/useCreatePipelineRemainderConfig';
-import { AddPipelineRemainderConfig } from '../types';
 import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/usePipelineRemainderConfigQuery';
+import { CREATE_PIPELINE_REMAINDER_CONFIG } from '../graphql/mutations/createPipelineRemainderConfigMutations';
 
-const defaultValues = {
+const DEFAULT_VALUES: TAddPipelineRemainderConfig = {
   title: '',
   boardId: '',
   pipelineId: '',
@@ -20,187 +20,71 @@ const defaultValues = {
   location: '',
 };
 
-const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
-  const form = useForm({
-    resolver: zodResolver(addPipelineRemainderConfigSchema),
-    defaultValues: {
-      title: config?.title || '',
-      boardId: config?.boardId || '',
-      pipelineId: config?.pipelineId || '',
-      stageId: config?.stageId || '',
-      account: config?.account || '',
-      location: config?.location || '',
-    },
-  });
+function parseConfigs(value: unknown): TAddPipelineRemainderConfig[] {
+  if (!value) return [];
 
-  const selectedBoardId = form.watch('boardId');
-  const selectedPipelineId = form.watch('pipelineId');
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return [];
+  }
+}
+interface ConfigItemFormProps {
+  config: TAddPipelineRemainderConfig;
+  index: number;
+  isNew: boolean;
+  saving: boolean;
+  onSave: (index: number, data: TAddPipelineRemainderConfig) => void;
+  onDelete: (index: number) => void;
+  onCancelNew: () => void;
+}
 
-  return (
-    <div className="">
-      <Form {...form}>
-        <form
-          className="h-full w-full mx-auto max-w-2xl px-9 py-5 flex flex-col gap-6"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          <div className="flex justify-between items-center">
-            <h1 className="text-lg font-semibold">Борлуулалт</h1>
-            <Button type="button" onClick={onNewConfig}>
-              New Config
-            </Button>
-          </div>
-
-          <Form.Field
-            name="title"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Title</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="Title" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <div className="grid grid-cols-1 gap-4">
-            <Form.Field
-              control={form.control}
-              name="boardId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Destination Stage Board</Form.Label>
-                  <SelectSalesBoard
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('pipelineId', '');
-                      form.setValue('stageId', '');
-                    }}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="pipelineId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Pipeline</Form.Label>
-                  <SelectPipeline
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('stageId', '');
-                    }}
-                    boardId={selectedBoardId}
-                    disabled={!selectedBoardId}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="stageId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Stage</Form.Label>
-                  <SelectStage
-                    id="stageId"
-                    variant="form"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    pipelineId={selectedPipelineId}
-                    disabled={!selectedPipelineId}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </div>
-          <Form.Field
-            name="account"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Account</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="User Email" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="location"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Location</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="Return Type" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <div className="flex justify-end">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
-  );
-};
-
-const NewConfigForm = ({
-  onCancel,
-  onSubmit,
-  loading,
-}: {
-  onCancel: () => void;
-  onSubmit: (data: any) => void;
-  loading: boolean;
+const ConfigItemForm: React.FC<ConfigItemFormProps> = ({
+  config,
+  index,
+  isNew,
+  saving,
+  onSave,
+  onDelete,
+  onCancelNew,
 }) => {
-  const form = useForm({
+  const form = useForm<TAddPipelineRemainderConfig>({
     resolver: zodResolver(addPipelineRemainderConfigSchema),
-    defaultValues,
+    defaultValues: config,
   });
 
   const selectedBoardId = form.watch('boardId');
   const selectedPipelineId = form.watch('pipelineId');
+  const titleValue = form.watch('title');
 
   return (
-    <div className="">
-      <Form {...form}>
-        <form
-          className="w-full mx-auto max-w-2xl flex flex-col gap-6 px-9 py-5"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          <h1 className="text-lg font-semibold">Борлуулалт</h1>
+    <Accordion.Item value={`config-${index}`}>
+      <Accordion.Trigger className="text-base font-medium no-underline hover:no-underline">
+        {titleValue || (
+          <span className="text-muted-foreground italic">Untitled config</span>
+        )}
+      </Accordion.Trigger>
+      <Accordion.Content>
+        <Form {...form}>
+          <form
+            className="flex flex-col gap-6 pt-2 pb-4"
+            onSubmit={form.handleSubmit((data) => onSave(index, data))}
+          >
+            <Form.Field
+              name="title"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control>
+                    <Input {...field} placeholder="Title" />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
 
-          <Form.Field
-            name="title"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Title</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="Title" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <div className="grid grid-cols-1 gap-4">
             <Form.Field
               control={form.control}
               name="boardId"
@@ -258,9 +142,10 @@ const NewConfigForm = ({
                 </Form.Item>
               )}
             />
+
             <Form.Field
-              control={form.control}
               name="account"
+              control={form.control}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Account</Form.Label>
@@ -271,9 +156,10 @@ const NewConfigForm = ({
                 </Form.Item>
               )}
             />
+
             <Form.Field
-              control={form.control}
               name="location"
+              control={form.control}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Location</Form.Label>
@@ -284,91 +170,137 @@ const NewConfigForm = ({
                 </Form.Item>
               )}
             />
-          </div>
 
-          <div className="flex justify-end gap-2 mt-6">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+            <div className="flex justify-end gap-2">
+              {isNew && (
+                <Button type="button" variant="outline" onClick={onCancelNew}>
+                  Cancel
+                </Button>
+              )}
+              {!isNew && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => onDelete(index)}
+                  disabled={saving}
+                >
+                  Delete
+                </Button>
+              )}
+              <Button type="submit" disabled={saving}>
+                {saving ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </Accordion.Content>
+    </Accordion.Item>
   );
 };
 
 export const SyncErkhetPipelineRemainderConfigForm = () => {
-  const [showNewConfig, setShowNewConfig] = useState(false);
-  const { createPipelineRemainderConfig, loading: createLoading } =
-    useCreatePipelineRemainderConfig();
-  const { data, refetch, loading } = useQuery(GET_CONFIGS_GET_VALUE, {
+  const { toast } = useToast();
+  const [newConfig, setNewConfig] =
+    useState<TAddPipelineRemainderConfig | null>(null);
+
+  const { data, refetch, loading, error } = useQuery(GET_CONFIGS_GET_VALUE, {
     variables: { code: 'remainderConfig' },
     fetchPolicy: 'network-only',
   });
 
-  const configValue = data?.configsGetValue?.value;
+  const [saveConfig, { loading: saving }] = useMutation(
+    CREATE_PIPELINE_REMAINDER_CONFIG,
+    {
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Pipeline remainder config saved successfully',
+          variant: 'default',
+        });
+        refetch();
+      },
+      onError: (e) => {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
+      },
+    },
+  );
 
-  const parseConfigValue = (value: any) => {
-    if (!value) return null;
-    return typeof value === 'string' ? JSON.parse(value) : value;
-  };
+  const configs = parseConfigs(
+    data?.configsGetValue?.value ?? data?.configsGetValue,
+  );
 
-  const parsedConfig = parseConfigValue(configValue);
+  const persistConfigs = (updated: TAddPipelineRemainderConfig[]) =>
+    saveConfig({
+      variables: { configsMap: { remainderConfig: JSON.stringify(updated) } },
+    });
 
-  const handleSubmit = async (formData: AddPipelineRemainderConfig) => {
-    try {
-      const configsMapString = {
-        remainderConfig: {
-          title: formData.title,
-          boardId: formData.boardId,
-          pipelineId: formData.pipelineId,
-          stageId: formData.stageId,
-          account: formData.account,
-          location: formData.location,
-        },
-      };
-
-      await createPipelineRemainderConfig({
-        variables: {
-          configsMap: configsMapString,
-        },
-      });
-
-      await refetch();
-
-      setShowNewConfig(false);
-    } catch (error) {
-      console.error('Error saving config:', error);
+  const handleSave = async (
+    index: number,
+    formData: TAddPipelineRemainderConfig,
+  ) => {
+    if (newConfig && index === configs.length) {
+      await persistConfigs([...configs, formData]);
+      setNewConfig(null);
+    } else {
+      const updated = configs.map((c, i) => (i === index ? formData : c));
+      await persistConfigs(updated);
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const handleDelete = async (index: number) => {
+    const updated = configs.filter((_, i) => i !== index);
+    await persistConfigs(updated);
+  };
+
+  const allItems = newConfig ? [...configs, newConfig] : configs;
+  const defaultOpen = allItems.map((_, i) => `config-${i}`);
 
   return (
-    <div className="h-full w-full mx-auto max-w-2xl flex flex-col">
-      {!parsedConfig || showNewConfig ? (
-        <NewConfigForm
-          onCancel={() => {
-            if (parsedConfig) {
-              setShowNewConfig(false);
-            }
-          }}
-          onSubmit={handleSubmit}
-          loading={createLoading}
-        />
-      ) : (
-        <EditConfigForm
-          config={parsedConfig}
-          onNewConfig={() => setShowNewConfig(true)}
-          onSubmit={handleSubmit}
-          loading={createLoading}
-        />
-      )}
+    <div className="h-full w-full mx-auto max-w-6xl px-9 py-5 overflow-y-auto">
+      <Accordion type="multiple" defaultValue={defaultOpen} className="w-full">
+        <div className="flex items-center justify-between py-3 border-b">
+          <span className="text-xl font-semibold">
+            Pipeline remainder configs
+          </span>
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setNewConfig({ ...DEFAULT_VALUES })}
+            disabled={!!newConfig}
+          >
+            New Config
+          </Button>
+        </div>
+
+        {loading ? (
+          <div className="py-4 text-sm text-muted-foreground">Loading...</div>
+        ) : error ? (
+          <div className="py-4 text-sm text-destructive">
+            Error loading configs: {error.message}
+          </div>
+        ) : (
+          allItems.map((config, index) => (
+            <ConfigItemForm
+              key={
+                newConfig && index === configs.length
+                  ? 'new'
+                  : `${config.title}-${index}`
+              }
+              config={config}
+              index={index}
+              isNew={!!(newConfig && index === configs.length)}
+              saving={saving}
+              onSave={handleSave}
+              onDelete={handleDelete}
+              onCancelNew={() => setNewConfig(null)}
+            />
+          ))
+        )}
+      </Accordion>
     </div>
   );
 };

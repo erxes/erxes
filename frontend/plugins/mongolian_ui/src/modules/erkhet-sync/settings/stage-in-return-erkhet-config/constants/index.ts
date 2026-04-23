@@ -1,2 +1,0 @@
-export const STAGE_IN_RETURN_ERKHET_CONFIG_CURSOR_SESSION_KEY =
-  'stage_in_return_erkhet_config_cursor_session_key';
