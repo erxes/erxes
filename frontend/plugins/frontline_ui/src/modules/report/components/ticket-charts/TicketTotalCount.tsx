@@ -28,7 +28,7 @@ export const TicketTotalCount = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketTotalCountProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const id = title.toLowerCase().replaceAll(' ', '-');
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
   const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
   const [memberFilter] = useAtom(getReportMemberFilterAtom(id));

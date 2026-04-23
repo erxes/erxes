@@ -65,7 +65,7 @@ export const TicketTags = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketTagsProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const id = title.toLowerCase().replaceAll(' ', '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
   const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
