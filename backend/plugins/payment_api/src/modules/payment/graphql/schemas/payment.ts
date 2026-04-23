@@ -4,7 +4,7 @@ export const types = `
     inactive
   }
 
-  type Payment {
+  type PaymentMethod {
     _id: String!
     name: String!
     kind: String!
@@ -13,7 +13,7 @@ export const types = `
     createdAt: Date
   }
 
-  type paymentsTotalCount {
+  type PaymentMethodsTotalCount {
     byKind: JSON
     byStatus: JSON
     total: Int
@@ -36,23 +36,22 @@ export const inputs = `
 `;
 
 export const queries = `
-  payments(status: String, kind: String): [Payment]
+  payments(status: String, kind: String): [PaymentMethod]
 
   paymentsPublic(kind: String, _ids:[String], currency: String): [PaymentPublic]
-  paymentsCountByType: paymentsTotalCount
-  paymentsTotalCount(kind: String, status: String): paymentsTotalCount
+  paymentsCountByType: PaymentMethodsTotalCount
+  paymentsTotalCount(kind: String, status: String): PaymentMethodsTotalCount
 
   qpayGetMerchant(_id: String!): JSON
   qpayGetDistricts(cityCode: String!): JSON
 
   paymentsGetStripeKey(_id: String!): String
 
-
-  cpPayments(status: String, kind: String): [Payment]
+  cpPayments(status: String, kind: String): [PaymentMethod]
 `;
 
 export const mutations = `
-  paymentAdd(input: PaymentInput!): Payment
-  paymentEdit(_id: String!, input: PaymentInput!): Payment
+  paymentAdd(input: PaymentInput!): PaymentMethod
+  paymentEdit(_id: String!, input: PaymentInput!): PaymentMethod
   paymentRemove(_id: String!): String
 `;
