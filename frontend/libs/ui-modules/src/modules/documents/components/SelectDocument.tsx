@@ -195,7 +195,7 @@ export const SelectDocumentFilterView = ({
         mode={mode}
         value={document || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
-          setDocument(value as string[] | string);
+          setDocument(value);
           resetFilterState();
           onValueChange?.(value);
         }}
@@ -240,7 +240,7 @@ export const SelectDocumentFilterBar = ({
         value={document || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
           if (value.length > 0) {
-            setDocument(value as string[] | string);
+            setDocument(value);
           } else {
             setDocument(null);
           }
