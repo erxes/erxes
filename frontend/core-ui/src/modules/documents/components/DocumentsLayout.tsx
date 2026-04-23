@@ -29,7 +29,7 @@ export const DocumentsLayout = ({
       </Resizable.Panel>
       <Resizable.Handle />
       <Resizable.Panel defaultSize={75}>
-        {documentId !== null ? <Editor /> : <Documents viewType={'grid'} />}
+        {documentId === null ? <Documents viewType={'grid'} /> : <Editor />}
       </Resizable.Panel>
     </Resizable.PanelGroup>
   );
