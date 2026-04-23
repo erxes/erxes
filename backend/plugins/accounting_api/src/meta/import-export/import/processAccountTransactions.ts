@@ -376,8 +376,7 @@ const getRelatedDatas = async (subdomain: string, models: IModels, rows: any[]) 
             { code: { $in: customerInfos } },
           ]
         },
-        field: { _id: 1, primaryPhone: 1, primaryEmail: 1 },
-        limit: customerInfos.length
+        fields: { _id: 1, primaryPhone: 1, primaryEmail: 1 },
       },
       defaultValue: [],
     }) : []
@@ -397,8 +396,7 @@ const getRelatedDatas = async (subdomain: string, models: IModels, rows: any[]) 
             { code: { $in: companyInfos } },
           ]
         },
-        field: { _id: 1, primaryPhone: 1, primaryEmail: 1 },
-        limit: companyInfos.length
+        fields: { _id: 1, primaryPhone: 1, primaryEmail: 1 },
       },
       defaultValue: [],
     }) : []
@@ -412,7 +410,7 @@ const getRelatedDatas = async (subdomain: string, models: IModels, rows: any[]) 
       action: 'find',
       input: {
         query: { code: { $in: productCodes } },
-        field: { _id: 1, code: 1 },
+        fields: { _id: 1, code: 1 },
       },
       defaultValue: [],
     }) : []
