@@ -1,4 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  type FC,
+  type ReactNode,
+} from 'react';
 import { InfoCard, Form, Button, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@apollo/client';
@@ -27,6 +33,7 @@ import {
 interface PropertiesProps {
   posId?: string;
   posType?: string;
+  onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
 interface MoreOptionsButtonProps {
@@ -57,7 +64,7 @@ const MoreOptionsButton = ({ showMore, onToggle }: MoreOptionsButtonProps) => (
 );
 
 const LoadingSkeleton = () => (
-  <div className="overflow-y-auto p-6 space-y-6 max-h-screen">
+  <div className="p-6">
     <InfoCard title="Properties">
       <InfoCard.Content>
         <div className="grid grid-cols-2 gap-4">
@@ -72,6 +79,8 @@ const LoadingSkeleton = () => (
     </InfoCard>
   </div>
 );
+
+const PROPERTIES_FORM_ID = 'pos-properties-form';
 
 const DEFAULT_FORM_VALUES: FormData = {
   name: '',
@@ -90,7 +99,11 @@ const DEFAULT_FORM_VALUES: FormData = {
   beginNumber: '',
 };
 
-const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
+const Properties: FC<PropertiesProps> = ({
+  posId,
+  posType,
+  onSaveActionChange,
+}) => {
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const [showMoreFields, setShowMoreFields] = useState(false);
@@ -101,6 +114,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
 
   const form = useForm<FormData>({ defaultValues: DEFAULT_FORM_VALUES });
   const { control, handleSubmit, reset, watch, formState } = form;
+  const { isDirty } = formState;
   const isOnline = watch('isOnline');
 
   useEffect(() => {
@@ -181,6 +195,27 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
     setShowMoreFields((prev) => !prev);
   }, []);
 
+  useEffect(() => {
+    if (!onSaveActionChange) {
+      return;
+    }
+
+    onSaveActionChange(
+      isDirty ? (
+        <Button
+          type="submit"
+          form={PROPERTIES_FORM_ID}
+          size="sm"
+          disabled={saving}
+        >
+          {saving ? 'Saving...' : 'Save Changes'}
+        </Button>
+      ) : null,
+    );
+
+    return () => onSaveActionChange(null);
+  }, [isDirty, onSaveActionChange, saving]);
+
   if (detailLoading) return <LoadingSkeleton />;
 
   if (error) {
@@ -194,15 +229,16 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
   }
 
   return (
-    <div className="overflow-y-auto p-6 space-y-6 max-h-screen">
-      <InfoCard title="General">
+    <div className="p-6">
+      <InfoCard title="General configuration">
         <InfoCard.Content>
           <Form {...form}>
             <form
+              id={PROPERTIES_FORM_ID}
               onSubmit={handleSubmit(handleSaveChanges)}
               className="space-y-6"
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {isFieldVisible('name', posType) && (
                   <NameField control={control} />
                 )}
@@ -237,7 +273,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
                   {isFieldVisible('allowTypes', posType) && (
                     <AllowTypesField control={control} />
                   )}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {isFieldVisible('chooseBranch', posType) && (
                       <BranchField control={control} />
                     )}
@@ -253,7 +289,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
               </div>
 
               {isPosType && showMoreFields && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {isFieldVisible('description', posType) && (
                     <DescriptionField control={control} />
                   )}
@@ -273,7 +309,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
               )}
 
               {isEcomType && showMoreFields && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {isFieldVisible('description', posType) && (
                     <DescriptionField control={control} />
                   )}
@@ -290,7 +326,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
               )}
 
               {isRestaurantType && showMoreFields && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {isFieldVisible('description', posType) && (
                     <DescriptionField control={control} />
                   )}
@@ -309,14 +345,6 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
                   {isFieldVisible('onServer', posType) && (
                     <OnServerField control={control} />
                   )}
-                </div>
-              )}
-
-              {formState.isDirty && (
-                <div className="flex justify-end pt-4 border-t">
-                  <Button type="submit" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save Changes'}
-                  </Button>
                 </div>
               )}
             </form>
