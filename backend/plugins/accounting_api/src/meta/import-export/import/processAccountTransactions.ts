@@ -129,7 +129,6 @@ const getFollowInfos = async (models: IModels, row: any, relatedData) => {
       saleCostAccountId: accounts?.find(acc => acc.code === row.follow3)?._id,
     }
   }
-  return;
 }
 
 const getTrDoc = async (models: IModels, row: any, ptrInfo, relatedData) => {
@@ -263,7 +262,7 @@ const getRelatedDatas = async (subdomain: string, models: IModels, rows: any[]) 
       departmentIds.push(row.departmentId);
 
     if (row.assignedUserEmails) {
-      row.assignedUserEmails.split(',').filter(email => email).forEach(email => {
+      row.assignedUserEmails.split(',').filter(Boolean).forEach(email => {
         if (!userEmails.includes(email))
           userEmails.push(email);
       });

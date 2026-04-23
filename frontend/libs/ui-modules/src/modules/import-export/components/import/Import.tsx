@@ -39,7 +39,7 @@ export const Import = ({
         capitalize: true,
       })}`
       : title;
-  const [showAddition, setShoAddition] = useState(false)
+  const [showAddition, setShowAddition] = useState<boolean>(false)
   const {
     activeImports,
     isDragOver,
@@ -58,13 +58,13 @@ export const Import = ({
     }
 
     if (!showAddition) {
-      return <Button variant={'ghost'} onClick={() => setShoAddition(true)}>Show helper</Button>
+      return <Button variant={'ghost'} onClick={() => setShowAddition(true)}>Show helper</Button>
     }
 
     return (
       <div>
         {additionContent()}
-        <Button variant={'ghost'} onClick={() => setShoAddition(false)}>Hide helper</Button>
+        <Button variant={'ghost'} onClick={() => setShowAddition(false)}>Hide helper</Button>
       </div>
     );
   }
