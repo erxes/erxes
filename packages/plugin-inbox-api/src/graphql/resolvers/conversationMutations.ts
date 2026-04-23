@@ -65,6 +65,7 @@ interface IConversationConvert {
   isHideName?: boolean;
   customFieldsData?: { [key: string]: any };
   branchIds?: string[];
+  departmentIds?: string[];
   priority?: string;
   assignedUserIds?: string[];
   labelIds?: string[];

@@ -252,6 +252,7 @@ const convertParams = `
   isCheckUser: Boolean
   isHideName: Boolean
   branchIds: [String]
+  departmentIds: [String]
   tagIds:[String]
   stageId: String
   customFieldsData: JSON

@@ -473,32 +473,13 @@ export const generateCommonFilters = async (
     const user = await sendCoreMessage({
       subdomain,
       action: "users.findOne",
-      data: {
-        _id: currentUserId,
-      },
+      data: { _id: currentUserId },
       isRPC: true,
     });
-    const tmp =
-      (await sendCoreMessage({
-        subdomain,
-        action: "departments.findWithChild",
-        data: {
-          query: {
-            supervisorId: currentUserId,
-          },
-          fields: {
-            _id: 1,
-          },
-        },
-        isRPC: true,
-      })) || [];
-    const supervisorDepartmentIds = tmp?.map((x) => x._id) || [];
-    const pipelineDepartmentIds = pipeline.departmentIds || [];
 
-    const commonIds =
-      supervisorDepartmentIds.filter((id) =>
-        pipelineDepartmentIds.includes(id),
-      ) || [];
+    const pipelineDepartmentIds = pipeline.departmentIds || [];
+    const userDepartmentIds: string[] = user?.departmentIds || [];
+    const userBranchIds: string[] = user?.branchIds || [];
 
     const isEligibleSeeAllCards =
       user.role === "system" ||
@@ -506,110 +487,45 @@ export const generateCommonFilters = async (
       (pipeline.excludeCheckUserIds || []).includes(currentUserId);
 
     if (
-      commonIds?.length > 0 &&
-      (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
+      (pipeline.isCheckUser || pipeline.isCheckDepartment || pipeline.isCheckBranch) &&
       !isEligibleSeeAllCards
     ) {
-      // current user is supervisor in departments and this pipeline has included that some of user's departments
-      // so user is eligible to see all cards of people who share same department.
-      const otherDepartmentUsers = await sendCoreMessage({
-        subdomain,
-        action: "users.find",
-        data: {
-          query: { departmentIds: { $in: commonIds } },
-        },
-        isRPC: true,
-        defaultValue: [],
-      });
-      let includeCheckUserIds = otherDepartmentUsers.map((x) => x._id) || [];
-      includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
-
-      const uqinueCheckUserIds = [
-        ...new Set(includeCheckUserIds.concat(currentUserId)),
+      // Creator/assignee always sees their own tickets.
+      const orClauses: any[] = [
+        { userId: currentUserId },
+        { assignedUserIds: { $in: [currentUserId] } },
       ];
 
-      Object.assign(filter, {
-        $or: [
-          { assignedUserIds: { $in: uqinueCheckUserIds } },
-          { userId: { $in: uqinueCheckUserIds } },
-        ],
-      });
-    } else {
-      if (
-        (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
-        !isEligibleSeeAllCards
-      ) {
-        let includeCheckUserIds: string[] = [];
+      if (pipeline.isCheckDepartment && userDepartmentIds.length > 0) {
+        // Primary check: ticket must be tagged with one of the user's departments.
+        orClauses.push({ departmentIds: { $in: userDepartmentIds } });
 
-        if (pipeline.isCheckDepartment) {
-          const userDepartmentIds = user?.departmentIds || [];
-          const commonIds = userDepartmentIds.filter((id) =>
-            pipelineDepartmentIds.includes(id),
-          );
-
-          const otherDepartmentUsers = await sendCoreMessage({
+        // Supervisor extension: also show tickets tagged with departments the user
+        // supervises that are configured on the pipeline.
+        const supervisorDepartments =
+          (await sendCoreMessage({
             subdomain,
-            action: "users.find",
+            action: "departments.findWithChild",
             data: {
-              query: { departmentIds: { $in: commonIds } },
+              query: { supervisorId: currentUserId },
+              fields: { _id: 1 },
             },
             isRPC: true,
             defaultValue: [],
-          });
-
-          for (const departmentUser of otherDepartmentUsers) {
-            includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
-          }
-
-          if (
-            !!pipelineDepartmentIds.filter((departmentId) =>
-              userDepartmentIds.includes(departmentId),
-            ).length
-          ) {
-            includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
-          }
+          })) || [];
+        const supervisorOverlap = supervisorDepartments
+          .map((d) => d._id)
+          .filter((id) => pipelineDepartmentIds.includes(id));
+        if (supervisorOverlap.length > 0) {
+          orClauses.push({ departmentIds: { $in: supervisorOverlap } });
         }
-
-        const uqinueCheckUserIds = [
-          ...new Set(includeCheckUserIds.concat(currentUserId)),
-        ];
-
-        Object.assign(filter, {
-          $or: [
-            { assignedUserIds: { $in: uqinueCheckUserIds } },
-            { userId: { $in: uqinueCheckUserIds } },
-          ],
-        });
       }
-    }
 
-    const orConditions: any[] = [{ userId: currentUserId }];
-
-    if (pipeline.isCheckBranch === true && user?.branchIds?.length) {
-      orConditions.push({ branchIds: { $in: user.branchIds } });
-    }
-
-    if (pipeline.isCheckDepartment === true) {
-      // Keep department-based visibility: ticket tagged with user's department is visible.
-      if (user?.departmentIds?.length) {
-        orConditions.push({ departmentIds: { $in: user.departmentIds } });
+      if (pipeline.isCheckBranch && userBranchIds.length > 0) {
+        orClauses.push({ branchIds: { $in: userBranchIds } });
       }
-      // Expand to branch-level visibility: ticket tagged with user's branch is also visible.
-      if (user?.branchIds?.length) {
-        orConditions.push({ branchIds: { $in: user.branchIds } });
-      }
-    }
 
-    if (
-      (pipeline.isCheckBranch === true && user?.branchIds?.length) ||
-      (pipeline.isCheckDepartment === true &&
-        (user?.departmentIds?.length || user?.branchIds?.length))
-    ) {
-      if (filter.$or) {
-        filter.$or = [...filter.$or, ...orConditions];
-      } else {
-        filter.$or = orConditions;
-      }
+      Object.assign(filter, { $or: orClauses });
     }
   }
 

@@ -286,6 +286,7 @@ mutation conversationConvertToCard(
   $isCheckUser: Boolean
   $isHideName: Boolean
   $branchIds: [String]
+  $departmentIds: [String]
   $tagIds: [String]
   $labelIds: [String]
   $priority: String
@@ -306,6 +307,7 @@ mutation conversationConvertToCard(
     isCheckUser: $isCheckUser
     isHideName: $isHideName
     branchIds: $branchIds
+    departmentIds: $departmentIds
     tagIds: $tagIds
     labelIds: $labelIds
     priority: $priority
