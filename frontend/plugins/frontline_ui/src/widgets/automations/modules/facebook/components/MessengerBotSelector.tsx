@@ -23,7 +23,7 @@ type Props = {
 };
 
 export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
-  const [selectedBotId, setBotId] = useState(botId || '');
+  const [selectedBotId, setSelectedBotId] = useState(botId || '');
   const [isOpen, setOpen] = useState(!botId || false);
 
   const { bots, loading } = useFacebookBots();
@@ -35,7 +35,7 @@ export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
 
   const handleSelect = (_id: string) => {
     setOpen(false);
-    setBotId(_id);
+    setSelectedBotId(_id);
     onSelect(_id);
   };
 
@@ -95,10 +95,12 @@ const MessengerBotList = ({
   }
 
   return bots.map(({ _id, profileUrl, name }: any) => (
-    <div
-      className="border rounded-sm px-4 py-2 flex flex-row justify-between items-center"
+    <button
+      type="button"
+      className="border rounded-sm px-4 py-2 flex flex-row justify-between items-center w-full"
       key={_id}
       onClick={() => handleSelect(_id)}
+      aria-pressed={selectedBotId === _id}
     >
       <div className="flex flex-row gap-2 items-center">
         {selectedBotId === _id && <IconCheck className="w-4 h-4" />}
@@ -113,6 +115,6 @@ const MessengerBotList = ({
       >
         <IconSettings className="w-4 h-4 text-muted-foreground" />
       </Link>
-    </div>
+    </button>
   ));
 };
