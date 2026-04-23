@@ -343,12 +343,6 @@ export default class Builder {
             $lte: fixDate(endDate),
           },
         },
-        {
-          updatedAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
-          },
-        },
       ],
     };
   }
