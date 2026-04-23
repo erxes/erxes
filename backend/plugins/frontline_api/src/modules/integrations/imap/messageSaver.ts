@@ -38,7 +38,6 @@ const saveMessage = async (
   integration: IIntegrationImapDocument,
   models: IModels,
 ): Promise<void> => {
-  // Accept mail addressed to either the login user or the alias (mainUser)
   const recipientAddress = msg.to?.value?.[0]?.address;
   const acceptedAddresses = [integration.user, integration.mainUser].filter(
     Boolean,
@@ -47,7 +46,6 @@ const saveMessage = async (
     return;
   }
 
-  // Skip already-saved messages
   const existing = await models.ImapMessages.findOne({
     messageId: msg.messageId,
   });
@@ -103,8 +101,6 @@ const saveMessage = async (
     }
     conversationId = response.data._id;
   } else {
-    // Reset unread state and reopen the conversation so the badge and
-    // notification sound fire for agents when a reply arrives.
     await models.Conversations.reopen(conversationId);
     await models.Conversations.updateConversation(conversationId, {
       content: msg.subject,

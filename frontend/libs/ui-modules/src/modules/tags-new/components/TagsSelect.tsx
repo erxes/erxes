@@ -222,7 +222,7 @@ const TagsSelectContent = () => {
         onValueChange={setSearch}
         focusOnMount
       />
-      <div className="flex flex-wrap gap-x-2 gap-y-1 w-full p-1">
+      <div className="flex flex-wrap gap-x-2 w-full">
         <TagsSelectedList />
       </div>
       {!selectedTags || selectedTags.length === 0 ? null : (

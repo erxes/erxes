@@ -41,48 +41,49 @@ const accountImportMap = {
       processAccountRows(subdomain, models, rows),
   },
   transactions: {
-    transactions: {
-      headers: [
-        { label: '* Date', key: 'date' },
-        { label: '* Number', key: 'number' },
-        { label: '* Status', key: 'status' },
-        { label: '* Journal', key: 'journal' },
-        { label: '* Customer Type', key: 'customerType' },
-        { label: '* Email', key: 'email' },
-        { label: '* Phone', key: 'phone' },
-        { label: '* Assigned User Emails', key: 'assignedUserIds' },
-        { label: '* Side', key: 'side' },
+    headers: [
+      { label: '* Date', key: 'date' },
+      { label: '* Number', key: 'number' },
+      { label: '* Status', key: 'status' },
+      { label: '* Journal', key: 'journal' },
+      { label: '* Customer Type', key: 'customerType' },
+      { label: '* Customer Info /phone, email, code/', key: 'customerInfo' },
+      { label: '* Assigned User Emails', key: 'assignedUserEmails' },
+      { label: '* Side', key: 'side' },
+      { label: '* Condition Field 1', key: 'follow1' },
+      { label: '* Condition Field 2', key: 'follow2' },
+      { label: '* Condition Field 3', key: 'follow3' },
 
-        { label: 'HasVat', key: 'hasVat' },
-        { label: 'VatRowId', key: 'vatRowId' },
-        { label: 'AfterVat', key: 'afterVat' },
-        { label: 'AfterVatAccountId', key: 'afterVatAccountId' },
-        { label: 'IsHandleVat', key: 'isHandleVat' },
-        { label: 'VatAmount', key: 'vatAmount' },
-        { label: 'HasCtax', key: 'hasCtax' },
-        { label: 'CtaxRowId', key: 'ctaxRowId' },
-        { label: 'IsHandleCtax', key: 'isHandleCtax' },
-        { label: 'CtaxAmount', key: 'ctaxAmount' },
+      { label: 'HasVat', key: 'hasVat' },
+      { label: 'VatRowId', key: 'vatRowId' },
+      { label: 'AfterVat', key: 'afterVat' },
+      { label: 'AfterVatAccountId', key: 'afterVatAccountId' },
+      { label: 'IsHandleVat', key: 'isHandleVat' },
+      { label: 'VatAmount', key: 'vatAmount' },
+      { label: 'HasCtax', key: 'hasCtax' },
+      { label: 'CtaxRowId', key: 'ctaxRowId' },
+      { label: 'IsHandleCtax', key: 'isHandleCtax' },
+      { label: 'CtaxAmount', key: 'ctaxAmount' },
 
-        // //details
-        { label: 'Account ID', key: 'accountId' },
-        { label: 'Branch ID', key: 'branchId' },
-        { label: 'Department ID', key: 'departmentId' },
-        { label: 'Amount', key: 'amount' },
-        { label: 'Currency', key: 'currency' },
-        { label: 'CurrencyAmount', key: 'currencyAmount' },
-        { label: 'CustomRate', key: 'customRate' },
-        { label: 'AssignUser ID', key: 'assignUserId' },
-        { label: 'Product ID', key: 'productId' },
-        { label: 'Count', key: 'count' },
-        { label: 'UnitPrice', key: 'unitPrice' },
-      ]
-    },
-    processRows: (subdomain: string, models: IModels, rows: any[]) =>
-      processTransactionRows(subdomain, models, rows),
+      { label: 'Account Code', key: 'accountCode' },
+      { label: 'Branch Code', key: 'branchId' },
+      { label: 'Department Code', key: 'departmentId' },
+      { label: 'Amount', key: 'amount' },
+      { label: 'Currency', key: 'currency' },
+      { label: 'CurrencyAmount', key: 'currencyAmount' },
+      { label: 'CustomRate', key: 'customRate' },
+      { label: 'Assign User Email', key: 'assignUserEmail' },
+      { label: 'Product Code', key: 'productCode' },
+      { label: 'Count', key: 'count' },
+      { label: 'UnitPrice', key: 'unitPrice' },
+      { label: 'ExcludeVat', key: 'excludeVat' },
+      { label: 'ExcludeCtax', key: 'excludeCtax' },
+    ],
+    processRows: (subdomain: string, models: IModels, rows: any[], userId: string) =>
+      processTransactionRows(subdomain, models, rows, userId),
     batchSkipRow: (_subdomain: string, _models: IModels, rowData: any) => {
-      return !rowData?.date
-    }
+      return !rowData?.date;
+    },
   },
 };
 export const accountImportHandlers = {
@@ -97,20 +98,20 @@ export const accountImportHandlers = {
     return handler.headers;
   },
   insertImportRows: async (
-    { collectionName, rows }: TInsertImportRowsInput,
+    { collectionName, rows, userId }: TInsertImportRowsInput,
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = accountImportMap[collectionName];
     if (!handler)
       throw new Error(`Import handler not found for ${collectionName}`);
-    return handler.processRows(subdomain, models, rows);
+    return handler.processRows(subdomain, models, rows, userId);
   },
   batchSkipRow: async (
     { collectionName, rowData }: TBatchSkipRowInput,
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = accountImportMap[collectionName];
-    if (!handler)
+    if (!handler?.batchSkipRow)
       return false;
     return handler.batchSkipRow(subdomain, models, rowData);
   },

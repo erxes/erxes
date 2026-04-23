@@ -218,7 +218,7 @@ export const createImportBatchProcessor = (
 ) => {
   return async (job: Job<ImportJobData>) => {
     const { subdomain, data } = job.data;
-    const { importId, entityType, fileKey } = data;
+    const { importId, entityType, fileKey, userId } = data;
     const [jobPluginName, moduleName, collectionName] = splitType(entityType);
 
     if (jobPluginName !== pluginName) {
@@ -368,7 +368,6 @@ export const createImportBatchProcessor = (
               tempWorkspace,
             }),
         });
-        let errorRowWriterFinalized = false;
 
         for await (const row of rowIterator) {
           if (rowIndex === 0) {
@@ -412,27 +411,22 @@ export const createImportBatchProcessor = (
             }
           });
 
-          if (Object.keys(rowData).length > 0) {
-            batch.push(rowData);
-          }
-
-          if (batch.length >= batchSize) {
-            if (
-              config.batchSkipRow &&
-              (await config.batchSkipRow(
-                {
-                  subdomain,
-                  data: {
-                    moduleName,
-                    collectionName,
-                    rowData,
-                  },
+          const shouldDeferBatchCut =
+            batch.length >= batchSize &&
+            config.batchSkipRow &&
+            (await config.batchSkipRow(
+              {
+                subdomain,
+                data: {
+                  moduleName,
+                  collectionName,
+                  rowData,
                 },
-                context,
-              ))
-            ) {
-              continue;
-            }
+              },
+              context,
+            ));
+
+          if (batch.length >= batchSize && !shouldDeferBatchCut) {
             const result = await withImportExportStage({
               stage: 'PROCESS_BATCH',
               fallbackMessage: 'Failed to process import batch',
@@ -444,6 +438,7 @@ export const createImportBatchProcessor = (
                       moduleName,
                       collectionName,
                       rows: batch,
+                      userId,
                     },
                   },
                   context,
@@ -505,6 +500,10 @@ export const createImportBatchProcessor = (
 
             batch = [];
           }
+
+          if (Object.keys(rowData).length > 0) {
+            batch.push(rowData);
+          }
         }
 
         if (batch.length > 0) {
@@ -519,6 +518,7 @@ export const createImportBatchProcessor = (
                     moduleName,
                     collectionName,
                     rows: batch,
+                    userId
                   },
                 },
                 context,
@@ -663,9 +663,8 @@ export const createImportBatchProcessor = (
       await coreClient.updateImportProgress(subdomain, importId, {
         status: 'failed',
         lastProcessedRow: dataRowIndex,
-        errorMessage: `${errorCode}: ${
-          error?.message || 'Import worker failed'
-        }`,
+        errorMessage: `${errorCode}: ${error?.message || 'Import worker failed'
+          }`,
         terminalError: {
           code: terminalError.code,
           stage: terminalError.stage,
