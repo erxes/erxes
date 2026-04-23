@@ -21,6 +21,7 @@ export const types = `
         customFieldsData: JSON
 
         customFieldsMap: JSON
+        translations: [Translation]
     }
 
     type PostCategoryListResponse {
