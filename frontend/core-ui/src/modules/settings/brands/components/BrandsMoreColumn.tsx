@@ -2,10 +2,11 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable, useConfirm, useQueryState, useToast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { ApolloError } from '@apollo/client';
+import { IBrand } from '../types';
+import { renderingBrandDetailAtom } from '../state';
 import { Can } from 'ui-modules';
 import { useBrandsRemove } from '../hooks/useBrandsRemove';
-import { renderingBrandDetailAtom } from '../state';
-import { IBrand } from '../types';
 
 export const BrandsMoreColumnCell = ({
   cell,
@@ -22,16 +23,19 @@ export const BrandsMoreColumnCell = ({
   const handleDelete = () => {
     confirm({
       message: `Are you sure you want to delete "${name}"?`,
-    }).then(async () => {
-      try {
-        await brandsRemove({ variables: { ids: [_id] } });
-      } catch (e: any) {
-        toast({
-          title: 'Error',
-          description: e.message,
-          variant: 'destructive',
-        });
-      }
+    }).then(() => {
+      brandsRemove({ 
+        variables: { _ids: [_id] },
+        onError: (error: ApolloError) => {
+          toast({
+            title: 'Error',
+            description: error.message || 'Failed to delete brand',
+            variant: 'destructive',
+          });
+        },
+      });
+    }).catch(() => {
+      // User cancelled confirmation - do nothing
     });
   };
 

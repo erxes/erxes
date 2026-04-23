@@ -16,7 +16,7 @@ export const sendPosclientHealthCheck = async ({
   ) {
     return { healthy: 'ok' };
   }
-  sendTRPCMessage({
+  return await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
     method: 'query',
@@ -27,28 +27,45 @@ export const sendPosclientHealthCheck = async ({
   });
 };
 
-export const sendPosclientMessage = async (args: any) => {
-  const { action, pos, data, subdomain } = args;
+interface SendPosclientMessageArgs {
+  action: string;
+  pos: IPosDocument;
+  data: Record<string, unknown>;
+  subdomain: string;
+  isRPC?: boolean;
+  isMQ?: boolean;
+}
+
+/**
+ * Sends a message to posclient service, with optional health-check validation
+ * for RPC flows when POS is not running on server mode.
+ */
+export const sendPosclientMessage = async (args: SendPosclientMessageArgs) => {
+  const { action, pos, data, subdomain, isRPC } = args;
   let lastAction = action;
 
   const { ALL_AUTO_INIT } = process.env;
+
+  // Create a mutable copy of data to avoid modifying the original
+  const messageData = { ...data };
+  // Use local variable for isMQ to avoid mutating args
+  // let isMQ = args.isMQ;
 
   if (
     ![true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') &&
     !pos.onServer
   ) {
     lastAction = `posclient:${action}_${pos.token}`;
-    args.data.thirdService = true;
-    args.isMQ = true;
+    messageData.thirdService = true;
 
-    if (args.isRPC) {
-      const response = await sendPosclientHealthCheck(args);
+    if (isRPC) {
+      const response = await sendPosclientHealthCheck({ subdomain, pos });
       if (response?.healthy !== 'ok') {
         throw new Error('syncing error not connected posclient');
       }
     }
   }
-  args.data.token = pos.token;
+  messageData.token = pos.token;
 
   const ret = await sendTRPCMessage({
     subdomain,
@@ -56,7 +73,7 @@ export const sendPosclientMessage = async (args: any) => {
     method: lastAction === 'crudData' ? 'mutation' : 'query',
     module: 'posclient',
     action: lastAction,
-    input: { ...data, token: pos.token },
+    input: messageData,
     defaultValue: {},
   });
 

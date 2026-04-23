@@ -20,11 +20,34 @@ let hasCustomLogo = false;
 
 const ERXES_WIDGET_CONTAINER_ID = 'erxes-messenger-container';
 const MESSENGER_IFRAME_ID = 'erxes-messenger-iframe';
-const CLOSE_ICON_STRING = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18"/>
-    <line x1="6" y1="6" x2="18" y2="18"/>
-  </svg>`;
+const createCloseIcon = (): SVGSVGElement => {
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('xmlns', svgNS);
+  svg.setAttribute('width', '22');
+  svg.setAttribute('height', '24');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'white');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+
+  const line1 = document.createElementNS(svgNS, 'line');
+  line1.setAttribute('x1', '18');
+  line1.setAttribute('y1', '6');
+  line1.setAttribute('x2', '6');
+  line1.setAttribute('y2', '18');
+
+  const line2 = document.createElementNS(svgNS, 'line');
+  line2.setAttribute('x1', '6');
+  line2.setAttribute('y1', '6');
+  line2.setAttribute('x2', '18');
+  line2.setAttribute('y2', '18');
+
+  svg.append(line1, line2);
+  return svg;
+};
 
 // widget container
 const erxesWidgetContainer = document.createElement('div');
@@ -380,7 +403,7 @@ window.addEventListener('message', async (event) => {
         messengerIframeContainer.classList.add('erxes-messenger-shown');
         messengerIframeContainer.classList.remove('erxes-messenger-hidden');
         (launcher as HTMLElement).style.backgroundImage = 'none';
-        (launcher as HTMLElement).innerHTML = CLOSE_ICON_STRING;
+        (launcher as HTMLElement).replaceChildren(createCloseIcon());
         // hide badge while chat is open — don't overwrite lastUnreadCount
         renderBadge(0);
       } else {
@@ -390,7 +413,7 @@ window.addEventListener('message', async (event) => {
         (launcher as HTMLElement).style.backgroundSize = hasCustomLogo
           ? '32px'
           : '18px';
-        launcher.innerHTML = '';
+        (launcher as HTMLElement).replaceChildren();
         // restore badge using the saved count (not affected by the hide-on-open call)
         renderBadge(lastUnreadCount);
       }
