@@ -42,8 +42,8 @@ const accountImportMap = {
   },
   transactions: {
     headers: [
-      { label: '* Date', key: 'date' },
-      { label: '* Number', key: 'number' },
+      { label: '** Date', key: 'date' },
+      { label: '** Number', key: 'number' },
       { label: '* Status', key: 'status' },
       { label: '* Journal', key: 'journal' },
       { label: '* Customer Type', key: 'customerType' },
