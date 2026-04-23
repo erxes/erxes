@@ -23,8 +23,7 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
           title: 'Success',
           variant: 'success',
         });
-        options?.onCompleted?.(data);
-        const newDocs = data.dealsEditProductData.productData;
+        const nextProductsData = data.dealsEditProductData.productsData;
 
         // Update Apollo cache manually
         client.cache.modify({
@@ -34,10 +33,12 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
           }),
           fields: {
             products(existingProducts = []) {
-              return [...existingProducts, ...newDocs];
+              return [...existingProducts, ...nextProductsData];
             },
           },
         });
+
+        options?.onCompleted?.(data);
       },
       onError: (e) => {
         toast({
