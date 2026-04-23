@@ -18,87 +18,54 @@ dotenv.config();
 
 const { NODE_ENV } = process.env;
 
-const distributeJobForSubdomain = async (subdomain: string) => {
+const startDistributingJobs = async (subdomain: string) => {
   const models = await generateModels(subdomain);
-  let lock;
 
-  try {
-    lock = await redlock.acquire(
-      [`${subdomain}:imap:work_distributor`],
-      60000,
-    );
-  } catch (e) {
-    console.log(e);
-    lock = null;
-  }
+  const distributeJob = async () => {
+    let lock;
 
-  try {
-    const integrations = await models.ImapIntegrations.find({
-      healthStatus: 'healthy',
-    });
-    for (const integration of integrations) {
-      imapListen({
-        subdomain,
-        data: {
-          _id: integration._id,
-        },
-      });
-    }
-  } catch (error) {
-    console.error(`[IMAP] Job distribution error for ${subdomain}:`, error);
-  } finally {
-    if (lock && typeof lock.unlock === 'function') {
-      try {
-        await lock.unlock();
-      } catch (unlockError) {
-        console.error('Lock unlock error:', unlockError);
-      }
-    }
-  }
-};
-
-const SAAS_BATCH_SIZE = parseInt(
-  getEnv({ name: 'IMAP_SAAS_BATCH_SIZE', defaultValue: '20' }),
-  10,
-);
-
-// Single loop that processes all orgs in batches rather than one loop per org.
-// Re-fetches the org list every cycle so new orgs are picked up automatically.
-const startSaasDistributingJobs = async () => {
-  if (NODE_ENV === 'production') {
-    await new Promise((resolve) => setTimeout(resolve, 60000));
-  }
-
-  while (true) {
     try {
-      await getSaasCoreConnection();
-      const organizations = await getSaasOrganizations();
+      lock = await redlock.acquire(
+        [`${subdomain}:imap:work_distributor`],
+        60000,
+      );
+    } catch (e) {
+      console.log(e);
+      lock = null;
+    }
 
-      for (let i = 0; i < organizations.length; i += SAAS_BATCH_SIZE) {
-        const batch = organizations.slice(i, i + SAAS_BATCH_SIZE);
-
-        await Promise.all(
-          batch
-            .filter((org) => org.subdomain)
-            .map((org) => distributeJobForSubdomain(org.subdomain)),
-        );
+    try {
+      const integrations = await models.ImapIntegrations.find({
+        healthStatus: 'healthy',
+      });
+      for (const integration of integrations) {
+        imapListen({
+          subdomain,
+          data: {
+            _id: integration._id,
+          },
+        });
       }
     } catch (error) {
-      console.error('[IMAP] Failed to run SAAS job distribution:', error);
+      console.error('Job distribution error:', error);
+    } finally {
+      if (lock && typeof lock.unlock === 'function') {
+        try {
+          await lock.unlock();
+        } catch (unlockError) {
+          console.error('Lock unlock error:', unlockError);
+        }
+      }
     }
+  };
 
-    await new Promise((resolve) => setTimeout(resolve, 10 * 60 * 1000));
-  }
-};
-
-const startDistributingJobs = async (subdomain: string) => {
   if (NODE_ENV === 'production') {
     await new Promise((resolve) => setTimeout(resolve, 60000));
   }
 
   while (true) {
     try {
-      await distributeJobForSubdomain(subdomain);
+      await distributeJob();
       await new Promise((resolve) => setTimeout(resolve, 10 * 60 * 1000));
     } catch (error) {
       console.error('distributeWork error', error);
@@ -230,9 +197,19 @@ const onServerInitImap = async (app) => {
       'SAAS mode: starting IMAP job distributor for all organizations',
     );
 
-    startSaasDistributingJobs().catch((err) => {
-      console.error('[IMAP] Failed to start SAAS job distributors:', err);
-    });
+    (async () => {
+      try {
+        await getSaasCoreConnection();
+        const organizations = await getSaasOrganizations();
+           for (const org of organizations) {
+          if (!org.subdomain) continue;
+
+          startDistributingJobs("https://tdbnext.next.erxes.io");
+        }
+      } catch (err) {
+        console.error('[IMAP] Failed to start SAAS job distributors:', err);
+      }
+    })();
   } else {
     startDistributingJobs('os');
   }
