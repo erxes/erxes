@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Accordion, Button, Checkbox, Form, Input, Select, useToast } from 'erxes-ui';
+import {
+  Accordion,
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  Select,
+  useToast,
+} from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useMutation } from '@apollo/client';
@@ -317,7 +325,9 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
   return (
     <Accordion type="multiple" defaultValue={defaultOpen} className="w-full">
       <div className="flex items-center justify-between py-3 border-b">
-        <span className="text-xl font-semibold">Erkhet configs</span>
+        <span className="text-xl font-semibold">
+          {title ?? 'Erkhet configs'}
+        </span>
         <Button
           type="button"
           size="sm"
