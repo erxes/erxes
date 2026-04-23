@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Accordion, Button, Form, Input, Select } from 'erxes-ui';
+import { Accordion, Button, Form, Input, Select, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useMutation } from '@apollo/client';
-import { useToast } from 'erxes-ui';
 import { TMovementErkhetConfig } from '../types';
 import { addStageInMovementErkhetConfigSchema } from '../constants/addStageInErkhetMovementConfigSchema';
 import { SelectSalesBoard } from './selects/SelectBoard';

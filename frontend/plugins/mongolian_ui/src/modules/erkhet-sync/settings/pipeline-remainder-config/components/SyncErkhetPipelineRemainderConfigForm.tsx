@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Accordion, Button, Form, Input } from 'erxes-ui';
+import { Accordion, Button, Form, Input, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useMutation } from '@apollo/client';
-import { useToast } from 'erxes-ui';
 import { TAddPipelineRemainderConfig } from '../types';
 import { addPipelineRemainderConfigSchema } from '../constants/addPipelineRemainderConfigSchema';
 import { SelectSalesBoard } from './selects/SelectBoard';
@@ -21,12 +20,16 @@ const DEFAULT_VALUES: TAddPipelineRemainderConfig = {
   location: '',
 };
 
-const parseConfigs = (value: any): TAddPipelineRemainderConfig[] => {
+function parseConfigs(value: unknown): TAddPipelineRemainderConfig[] {
   if (!value) return [];
-  const parsed = typeof value === 'string' ? JSON.parse(value) : value;
-  return Array.isArray(parsed) ? parsed : [parsed];
-};
 
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return [];
+  }
+}
 interface ConfigItemFormProps {
   config: TAddPipelineRemainderConfig;
   index: number;
@@ -197,9 +200,10 @@ const ConfigItemForm: React.FC<ConfigItemFormProps> = ({
 
 export const SyncErkhetPipelineRemainderConfigForm = () => {
   const { toast } = useToast();
-  const [newConfig, setNewConfig] = useState<TAddPipelineRemainderConfig | null>(null);
+  const [newConfig, setNewConfig] =
+    useState<TAddPipelineRemainderConfig | null>(null);
 
-  const { data, refetch, loading } = useQuery(GET_CONFIGS_GET_VALUE, {
+  const { data, refetch, loading, error } = useQuery(GET_CONFIGS_GET_VALUE, {
     variables: { code: 'remainderConfig' },
     fetchPolicy: 'network-only',
   });
@@ -230,9 +234,14 @@ export const SyncErkhetPipelineRemainderConfigForm = () => {
   );
 
   const persistConfigs = (updated: TAddPipelineRemainderConfig[]) =>
-    saveConfig({ variables: { configsMap: { remainderConfig: updated } } });
+    saveConfig({
+      variables: { configsMap: { remainderConfig: JSON.stringify(updated) } },
+    });
 
-  const handleSave = async (index: number, formData: TAddPipelineRemainderConfig) => {
+  const handleSave = async (
+    index: number,
+    formData: TAddPipelineRemainderConfig,
+  ) => {
     if (newConfig && index === configs.length) {
       await persistConfigs([...configs, formData]);
       setNewConfig(null);
@@ -254,7 +263,9 @@ export const SyncErkhetPipelineRemainderConfigForm = () => {
     <div className="h-full w-full mx-auto max-w-6xl px-9 py-5 overflow-y-auto">
       <Accordion type="multiple" defaultValue={defaultOpen} className="w-full">
         <div className="flex items-center justify-between py-3 border-b">
-          <span className="text-xl font-semibold">Pipeline remainder configs</span>
+          <span className="text-xl font-semibold">
+            Pipeline remainder configs
+          </span>
           <Button
             type="button"
             size="sm"
@@ -267,6 +278,10 @@ export const SyncErkhetPipelineRemainderConfigForm = () => {
 
         {loading ? (
           <div className="py-4 text-sm text-muted-foreground">Loading...</div>
+        ) : error ? (
+          <div className="py-4 text-sm text-destructive">
+            Error loading configs: {error.message}
+          </div>
         ) : (
           allItems.map((config, index) => (
             <ConfigItemForm

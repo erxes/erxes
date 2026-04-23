@@ -59,7 +59,7 @@ export const useSyncErkhetGeneralConfig = () => {
   const handleUpdate = async (formData: SyncErkhetGeneralConfigFormData) => {
     setIsUpdating(true);
     await updateConfig({ variables: { configsMap: { ERKHET: formData } } });
-  };
+  };  
 
   useEffect(() => {
     if (loading || !data?.configsGetValue?.value) return;
@@ -74,7 +74,7 @@ export const useSyncErkhetGeneralConfig = () => {
         Object.entries(config).map(([k, v]) => [k, v ?? '']),
       ),
     });
-  }, [data?.configsGetValue?.value, loading]);
+  }, [data?.configsGetValue?.value, loading, form]);
 
   return { form, loading, isUpdating, handleUpdate };
 };

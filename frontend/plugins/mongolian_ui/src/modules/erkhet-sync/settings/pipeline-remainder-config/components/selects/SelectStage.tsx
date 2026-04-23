@@ -172,7 +172,7 @@ const SelectStageRoot = ({
   value: string;
   id: string;
   pipelineId: string;
-  variant: `${SelectTriggerVariant}`;
+  variant?: SelectTriggerVariant;
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;
@@ -194,10 +194,10 @@ const SelectStageRoot = ({
       onValueChange={handleValueChange}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTrigger variant={variant} disabled={disabled}>
+        <SelectTrigger variant={(variant || 'form') as any} disabled={disabled}>
           <SelectStageValue />
         </SelectTrigger>
-        <SelectContent variant={variant}>
+        <SelectContent variant={(variant || 'form') as any}>
           <SelectStageContent />
         </SelectContent>
       </PopoverScoped>
