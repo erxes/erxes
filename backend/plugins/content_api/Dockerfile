@@ -24,6 +24,7 @@ RUN pnpm install --prod --shamefully-hoist \
 # Stage 2: minimal runtime
 FROM node:22-alpine3.22
 WORKDIR /app
+RUN apk add --no-cache git ca-certificates curl
 
 COPY --from=installer /app/node_modules ./node_modules
 

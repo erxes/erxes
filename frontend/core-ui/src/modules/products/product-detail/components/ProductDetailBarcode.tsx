@@ -11,8 +11,9 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useProductDetailWithQuery } from '../hooks/useProductDetailWithQuery';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
+import { ProductDetail } from '../types/detailTypes';
+import { toProductAttachmentList } from 'ui-modules/modules/products/components/ProductImageUploads';
 
 type BarcodeItem = {
   code: string;
@@ -36,19 +37,22 @@ type VariantsMap = Record<
   { name?: string; image?: { url: string; name?: string } }
 >;
 
-export const ProductDetailBarcode = () => {
+export const ProductDetailBarcode = ({
+  productDetail,
+}: {
+  productDetail: ProductDetail;
+}) => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
   const { toast } = useToast();
-  const { productDetail } = useProductDetailWithQuery();
-
   const form = useFormContext<ProductFormValues>();
   const variants = (form.watch('variants') as VariantsMap) ?? {};
 
   const formBarcodes = normalizeBarcodes(form.watch('barcodes'));
   const formVariants = variants;
   const formBarcodeDescription = form.watch('barcodeDescription') ?? '';
+  const formAttachmentMore = form.watch('attachmentMore');
 
   const [hasEditedVariants, setHasEditedVariants] = useState(false);
 
@@ -63,12 +67,10 @@ export const ProductDetailBarcode = () => {
     ? formVariants
     : variantsFromProduct;
 
-  const rawAttachment = productDetail?.attachmentMore;
-  const attachmentMore = Array.isArray(rawAttachment)
-    ? rawAttachment
-    : rawAttachment != null && typeof rawAttachment === 'object'
-    ? [rawAttachment]
-    : [];
+  const attachmentMore = useMemo(
+    () => toProductAttachmentList(formAttachmentMore),
+    [formAttachmentMore],
+  );
 
   const availableImages = useMemo(() => {
     return attachmentMore.filter(
