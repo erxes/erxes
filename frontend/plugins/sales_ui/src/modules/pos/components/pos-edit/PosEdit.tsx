@@ -25,7 +25,7 @@ export const PosEdit = ({ id }: PosEditProps) => {
   }, [searchParams, setSearchParams]);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full min-h-0">
       <PosEditSidebar posType={posDetail?.type} activeTab={activeTab} />
       <MainContent
         activeStep={activeTab}
