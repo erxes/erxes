@@ -3,6 +3,7 @@ import { Button, Breadcrumb, Select } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { IconCashRegister } from '@tabler/icons-react';
 import { PosEdit } from '~/modules/pos/components/pos-edit';
+import PosDelete from '~/modules/pos/components/pos-delete/PosDelete';
 import { usePosList } from '~/modules/pos/hooks/usePosList';
 import { IPos } from '~/modules/pos/types/pos';
 
@@ -55,9 +56,15 @@ export const PosEditPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
+
+        <PageHeader.End>
+          <PosDelete posId={id} />
+        </PageHeader.End>
       </PageHeader>
 
-      <PosEdit id={id} />
+      <div className="flex-1 min-h-0">
+        <PosEdit id={id} />
+      </div>
     </div>
   );
 };

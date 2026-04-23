@@ -30,10 +30,7 @@ const startDistributingJobs = async (subdomain: string) => {
         60000,
       );
     } catch (e) {
-      console.log(
-        'Could not acquire Redis lock, proceeding without distributed lock:',
-        e.message,
-      );
+      console.log(e);
       lock = null;
     }
 
@@ -41,13 +38,7 @@ const startDistributingJobs = async (subdomain: string) => {
       const integrations = await models.ImapIntegrations.find({
         healthStatus: 'healthy',
       });
-
-      console.log(
-        `Found ${integrations.length} healthy IMAP integrations to process`,
-      );
-
       for (const integration of integrations) {
-        console.log(`Starting listener for integration: ${integration._id}`);
         imapListen({
           subdomain,
           data: {
@@ -133,7 +124,6 @@ const onServerInitImap = async (app) => {
               function (err, results) {
                 if (err) {
                   imap.end();
-                  console.log('read-mail-attachment =============', err);
                   return next(err);
                 }
 
@@ -211,24 +201,16 @@ const onServerInitImap = async (app) => {
       try {
         await getSaasCoreConnection();
         const organizations = await getSaasOrganizations();
-
-        console.log(
-          `[IMAP] Found ${organizations.length} organizations in SAAS mode`,
-        );
-
-        for (const org of organizations) {
+           for (const org of organizations) {
           if (!org.subdomain) continue;
-          console.log(
-            `[IMAP] Starting job distributor for org: ${org.subdomain}`,
-          );
-          startDistributingJobs(org.subdomain);
+
+          startDistributingJobs("https://tdbnext.next.erxes.io");
         }
       } catch (err) {
         console.error('[IMAP] Failed to start SAAS job distributors:', err);
       }
     })();
   } else {
-    console.log('Starting IMAP job distributor for default subdomain');
     startDistributingJobs('os');
   }
 };
