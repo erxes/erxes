@@ -1,9 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { ITour, IPricingOption, ITourCategory } from '@/bms/@types/tour';
-import {
-  getTourTimezone,
-  resolveTourDateStatus,
-} from '@/bms/utils/dateStatus';
+import { getTourTimezone, resolveTourDateStatus } from '@/bms/utils/dateStatus';
 import { syncTourDateStatuses } from '~/worker/tourDateStatus';
 
 const validateTranslationPricingOptions = (
