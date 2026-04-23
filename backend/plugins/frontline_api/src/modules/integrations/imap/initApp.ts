@@ -200,10 +200,10 @@ const onServerInitImap = async (app) => {
     (async () => {
       try {
         await getSaasCoreConnection();
-        const organizations = await getSaasOrganizations();
+        const organizations = await getSaasOrganizations("bayasgalanb35@gmail.com");
         for (const org of organizations) {
           if (!org.subdomain) continue;
-      
+
           startDistributingJobs(org.subdomain);
         }
       } catch (err) {
