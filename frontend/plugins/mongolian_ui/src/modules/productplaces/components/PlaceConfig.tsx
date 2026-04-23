@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Label } from 'erxes-ui';
+import { Button, Card, Input, Label } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
-import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
-import { SelectSalesBoard } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
-import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
+import { SelectPipeline } from '../selects/SelectPipeline';
+import { SelectSalesBoard } from '../selects/SelectSalesBoard';
+import { SelectStage } from '../selects/SelectStage';
 import {
   MN_CONFIGS_CREATE,
   MN_CONFIGS_REMOVE,
@@ -19,7 +19,6 @@ import PerConditions from './PerConditions';
 import ConfigHeader from './shared/ConfigHeader';
 import SavedConfigsList from './shared/SavedConfigsList';
 
-// ---------- Types ----------
 export interface PlaceConfigData {
   _id?: string;
   subId?: string;
@@ -62,13 +61,10 @@ const PlaceConfig: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { data, loading: queryLoading } = useQuery<MnConfigsQueryResponse>(
-    MN_CONFIGS,
-    {
-      variables: { code: 'dealsProductsDataPlaces' },
-      fetchPolicy: 'network-only',
-    },
-  );
+  const { data } = useQuery<MnConfigsQueryResponse>(MN_CONFIGS, {
+    variables: { code: 'dealsProductsDataPlaces' },
+    fetchPolicy: 'network-only',
+  });
 
   const [createConfig] = useMutation(MN_CONFIGS_CREATE);
   const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
@@ -188,85 +184,140 @@ const PlaceConfig: React.FC = () => {
     setFormData(emptyForm);
   };
 
-  if (queryLoading && savedConfigs.length === 0) return <div>Loading...</div>;
-
   return (
-    <div className="w-full flex justify-center overflow-y-auto">
-      <div className="w-full max-w-5xl px-6 py-6 space-y-8">
-        {/* ✅ REPLACED HEADER */}
+    <div className="w-full flex justify-center overflow-y-auto ">
+      <div className="w-full max-w-6xl px-6 py-6 space-y-8">
         <ConfigHeader
           title="Product Places Config"
           onNew={handleNewConfig}
           disabled={loading}
         />
-
-        {/* Error */}
         {error && (
-          <div className="bg-red-50 border text-red-700 px-4 py-3 rounded">
-            {error}
+          <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3">
+            <span className="text-lg mt-0.5">⚠</span>
+            <div>
+              <p className="font-medium text-sm">Error</p>
+              <p className="text-xs mt-0.5">{error}</p>
+            </div>
           </div>
         )}
-
-        {/* ✅ REPLACED SAVED LIST */}
         <SavedConfigsList
           configs={savedConfigs}
           activeIndex={activeIndex}
           onSelect={setActiveIndex}
         />
+        <Card>
+          <Card.Content className="space-y-6">
+            <div className="space-y-2 pt-4">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                Title
+              </Label>
+              <Input
+                placeholder="Enter configuration title"
+                value={formData.title}
+                onChange={(e) => updateField('title', e.target.value)}
+              />
+            </div>
 
-        {/* FORM */}
-        <div className="border rounded-xl p-6 bg-white space-y-6">
-          <Label className="text-sm font-medium">Title</Label>
-          <input
-            className="w-full border rounded px-3 py-2"
-            value={formData.title}
-            onChange={(e) => updateField('title', e.target.value)}
-          />
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
+                  Select Board
+                </Label>
+                <SelectSalesBoard
+                  variant="form"
+                  value={formData.boardId}
+                  onValueChange={handleBoardChange}
+                />
+              </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <SelectSalesBoard
-              variant="form"
-              value={formData.boardId}
-              onValueChange={handleBoardChange}
-            />
-            <SelectPipeline
-              variant="form"
-              boardId={formData.boardId}
-              value={formData.pipelineId}
-              onValueChange={handlePipelineChange}
-            />
-            <SelectStage
-              id="place-stage"
-              variant="form"
-              pipelineId={formData.pipelineId}
-              value={formData.stageId}
-              onValueChange={(v) => updateField('stageId', v)}
-            />
-          </div>
-        </div>
+              <div>
+                <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
+                  Choose board first
+                </Label>
+                <SelectPipeline
+                  variant="form"
+                  boardId={formData.boardId}
+                  value={formData.pipelineId}
+                  onValueChange={handlePipelineChange}
+                  disabled={!formData.boardId}
+                />
+              </div>
 
-        {/* CONDITIONS */}
-        <div className="border rounded-xl p-6 bg-white space-y-4">
-          <Button onClick={addCondition}>+ Add condition</Button>
+              <div>
+                <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
+                  Select stage
+                </Label>
+                <SelectStage
+                  id="place-stage"
+                  variant="form"
+                  pipelineId={formData.pipelineId}
+                  value={formData.stageId}
+                  onValueChange={(v) => updateField('stageId', v)}
+                  disabled={!formData.pipelineId}
+                />
+              </div>
+            </div>
+          </Card.Content>
+        </Card>
+        <Card>
+          <Card.Header>
+            <Card.Title>Conditions ({formData.conditions.length})</Card.Title>
+          </Card.Header>
 
-          {formData.conditions.map((c) => (
-            <PerConditions
-              key={c.id}
-              condition={c}
-              onChange={updateCondition}
-              onRemove={deleteCondition}
-            />
-          ))}
-        </div>
-
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-3">
+          <Card.Content>
+            {formData.conditions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground gap-4">
+                <p className="text-sm">
+                  No conditions added yet. Click "Add condition" to get started.
+                </p>
+                <Button
+                  onClick={addCondition}
+                  variant="outline"
+                  className="text-xs"
+                >
+                  + Add condition
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {formData.conditions.map((c, index) => (
+                  <PerConditions
+                    key={c.id}
+                    condition={c}
+                    onChange={updateCondition}
+                    onRemove={deleteCondition}
+                    onAddCondition={index === formData.conditions.length - 1 ? addCondition : undefined}
+                  />
+                ))}
+              </div>
+            )}
+          </Card.Content>
+        </Card>
+        <div className="flex items-center justify-between py-6 border-t">
           {activeIndex !== null && (
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={loading}
+              className="text-xs"
+            >
+              Delete Config
             </Button>
           )}
-          <Button onClick={handleSave}>{loading ? 'Saving...' : 'Save'}</Button>
+          <div className="flex gap-3 ml-auto">
+            <Button
+              variant="outline"
+              onClick={handleNewConfig}
+              disabled={loading}
+              className="text-xs"
+            >
+              Clear
+            </Button>
+            <Button onClick={handleSave} disabled={loading} className="text-xs">
+              {loading ? 'Saving...' : 'Save Config'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
