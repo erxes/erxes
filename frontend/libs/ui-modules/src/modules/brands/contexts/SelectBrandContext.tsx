@@ -1,10 +1,11 @@
 import { createContext, useContext } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import { IBrand } from '../types/brand';
 
 export type ISelectBrandContext = {
   brandIds: string[];
   brands: IBrand[];
-  setBrands: (brands: IBrand[]) => void;
+  setBrands: Dispatch<SetStateAction<IBrand[]>>;
   onSelect: (brand: IBrand) => void;
   loading: boolean;
   error: string | null;

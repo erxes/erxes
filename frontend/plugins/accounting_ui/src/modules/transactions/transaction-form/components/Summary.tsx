@@ -63,11 +63,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
         const pathname = '/accounting/main';
         return navigate(pathname);
       }
-      removeTransactions({
-        variables: {
-          parentId,
-        },
-      });
+      removeTransactions(parentId);
     });
 
   return (

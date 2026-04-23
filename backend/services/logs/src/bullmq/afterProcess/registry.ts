@@ -1,8 +1,4 @@
-import {
-  AfterProcessContext,
-  RuleHandlerConfig,
-  RuleMatcher,
-} from './types';
+import { AfterProcessContext, RuleHandlerConfig, RuleMatcher } from './types';
 import { IAfterProcessRule } from 'erxes-api-shared/utils';
 import { handleAfterMutation } from './handlers/afterMutation';
 import { handleUpdatedDocument } from './handlers/updatedDocument';
@@ -38,10 +34,7 @@ const afterMutationMatcher: RuleMatcher = () => {
   return true;
 };
 
-export const handlerRegistry: Record<
-  string,
-  RuleHandlerConfig
-> = {
+export const handlerRegistry: Record<string, RuleHandlerConfig> = {
   createdDocument: {
     matcher: createDocumentMatcher,
     handler: handleCreateDocument,
@@ -69,10 +62,10 @@ export function findMatchingHandler(
   context: AfterProcessContext,
 ): RuleHandlerConfig | null {
   const config = handlerRegistry[rule.type];
+  console.log({ rule });
   if (!config) {
     return null;
   }
 
   return config.matcher(rule, context) ? config : null;
 }
-
