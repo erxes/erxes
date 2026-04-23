@@ -1,20 +1,20 @@
-import { MutationHookOptions, OperationVariables } from "@apollo/client";
+import { MutationHookOptions, OperationVariables } from '@apollo/client';
 
-import { BOARD_CREATE_SCHEMA } from "@/deals/schemas/boardFormSchema";
-import { IPipeline } from "@/deals/types/pipelines";
-import { z } from "zod";
+import { BOARD_CREATE_SCHEMA } from '@/deals/schemas/boardFormSchema';
+import { IPipeline } from '@/deals/types/pipelines';
+import { z } from 'zod';
 
 export interface IBoard {
-    _id: string;
-    name: string;
-    pipelines?: IPipeline[];
-  }
-  
+  _id: string;
+  name: string;
+  pipelines?: IPipeline[];
+}
+
 export interface IBoardCount {
-    _id: string;
-    name: string;
-    count: number;
-}  
+  _id: string;
+  name: string;
+  count: number;
+}
 
 export interface BaseBoardItem {
   _id: string;
@@ -36,16 +36,22 @@ export interface GenericBoardColumnProps<
   TItem extends BaseBoardItem,
   TColumn extends BaseBoardColumn,
 > {
-  column: TColumn;
-  items: TItem[];
-  renderCard: (item: TItem, isDragOverlay?: boolean) => React.ReactNode;
-  renderColumnHeader?: (column: TColumn, itemCount: number) => React.ReactNode;
-  className?: string;
-  cardClassName?: string;
-  hasMore?: boolean;
-  isLoadingMore?: boolean;
-  onLoadMore?: () => void;
-  totalCount?: number;
+  readonly column: Readonly<TColumn>;
+  readonly items: ReadonlyArray<TItem>;
+  readonly renderCard: (
+    item: TItem,
+    isDragOverlay?: boolean,
+  ) => React.ReactNode;
+  readonly renderColumnHeader?: (
+    column: Readonly<TColumn>,
+    itemCount: number,
+  ) => React.ReactNode;
+  readonly className?: string;
+  readonly cardClassName?: string;
+  readonly hasMore?: boolean;
+  readonly isLoadingMore?: boolean;
+  readonly onLoadMore?: () => void;
+  readonly totalCount?: number;
 }
 
 export interface DealsBoardColumnProps {
@@ -54,23 +60,29 @@ export interface DealsBoardColumnProps {
   pipelineId: string;
   queryVariables?: Record<string, unknown>;
   fetchMoreTrigger?: number;
-  onFetchComplete?: (columnId: string, result: {
-    fetchedCount: number;
-    hasMore: boolean;
-    cursor?: string | null;
-    totalCount?: number;
-  }) => void;
+  onFetchComplete?: (
+    columnId: string,
+    result: {
+      fetchedCount: number;
+      hasMore: boolean;
+      cursor?: string | null;
+      totalCount?: number;
+    },
+  ) => void;
   locallyMovedIdsRef?: any;
 }
 
 export interface VirtualizedCardListProps<TItem extends BaseBoardItem> {
-  columnId: string;
-  items: TItem[];
-  renderCard: (item: TItem, isDragOverlay?: boolean) => React.ReactNode;
-  hasMore?: boolean;
-  isLoadingMore?: boolean;
-  onLoadMore?: () => void;
-  isLoading?: boolean;
+  readonly columnId: string;
+  readonly items: ReadonlyArray<TItem>;
+  readonly renderCard: (
+    item: TItem,
+    isDragOverlay?: boolean,
+  ) => React.ReactNode;
+  readonly hasMore?: boolean;
+  readonly isLoadingMore?: boolean;
+  readonly onLoadMore?: () => void;
+  readonly isLoading?: boolean;
 }
 
 export interface GenericBoardState<
@@ -86,19 +98,25 @@ export interface GenericBoardProps<
   TItem extends BaseBoardItem,
   TColumn extends BaseBoardColumn,
 > {
-  initialState: GenericBoardState<TItem, TColumn>;
-  onStateChange?: (
-    newState: GenericBoardState<TItem, TColumn>, 
+  readonly initialState: GenericBoardState<TItem, TColumn>;
+  readonly onStateChange?: (
+    newState: GenericBoardState<TItem, TColumn>,
     oldState: GenericBoardState<TItem, TColumn>,
-    draggedItemId?: string
+    draggedItemId?: string,
   ) => void;
-  onDragStart?: (itemId: string) => void;
-  renderCard: (item: TItem, isDragOverlay?: boolean) => React.ReactNode;
-  renderColumnHeader?: (column: TColumn, itemCount: number) => React.ReactNode;
-  columnClassName?: string;
-  cardClassName?: string;
-  columnPagination?: Record<string, ColumnPaginationState>;
-  onLoadMore?: (columnId: string) => void;
+  readonly onDragStart?: (itemId: string) => void;
+  readonly renderCard: (
+    item: TItem,
+    isDragOverlay?: boolean,
+  ) => React.ReactNode;
+  readonly renderColumnHeader?: (
+    column: Readonly<TColumn>,
+    itemCount: number,
+  ) => React.ReactNode;
+  readonly columnClassName?: string;
+  readonly cardClassName?: string;
+  readonly columnPagination?: Record<string, ColumnPaginationState>;
+  readonly onLoadMore?: (columnId: string) => void;
 }
 export interface BoardDealColumn extends BaseBoardColumn {
   type: string;
@@ -125,8 +143,8 @@ export interface ISelectBoardsProviderProps {
   >;
 }
 
-export type ActiveDragItem = 
-  | { type: 'column'; column: BoardDealColumn }
+export type ActiveDragItem =
+  | { type: 'column'; column: Readonly<BoardDealColumn> }
   | { type: 'card'; item: any }
   | null;
 
