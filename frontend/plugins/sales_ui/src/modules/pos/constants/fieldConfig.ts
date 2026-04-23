@@ -155,12 +155,12 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
 
   // Permission category fields
   admin: {
-    ecom: false,
+    ecom: true,
     pos: true,
     res: true,
   },
   cashier: {
-    ecom: false,
+    ecom: true,
     pos: true,
     res: true,
   },
@@ -201,14 +201,14 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
   // Appearance category fields
 
   logosFavicon: {
-    ecom: false,
+    ecom: true,
     pos: true,
     res: true,
   },
 
   posMainLogo: {
-    ecom: false,
-    pos: false,
+    ecom: true,
+    pos: true,
     res: true,
   },
 
