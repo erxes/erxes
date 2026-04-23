@@ -41,7 +41,7 @@ export const CustomersCommandBar = () => {
                 ) || []
               }
               targetIds={customerIds}
-              options={(newSelectedTagIds) => ({
+              options={(newSelectedTagIds, action, changedTagId) => ({
                 update: (cache) => {
                   customerIds.forEach((customerId) => {
                     cache.modify({
@@ -50,7 +50,13 @@ export const CustomersCommandBar = () => {
                         _id: customerId,
                       }),
                       fields: {
-                        tagIds: () => newSelectedTagIds,
+                        tagIds: (existingTagIds) => {
+                          const ids = existingTagIds as string[];
+                          if (action === 'remove' && changedTagId) {
+                            return ids.filter((id) => id !== changedTagId);
+                          }
+                          return [...new Set([...ids, ...newSelectedTagIds])];
+                        },
                       },
                     });
                   });

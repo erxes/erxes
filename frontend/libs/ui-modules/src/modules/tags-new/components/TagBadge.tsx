@@ -38,7 +38,7 @@ export const TagBadge = React.forwardRef<
   }
 
   return (
-    <Badge ref={ref} {...props}>
+    <Badge ref={ref} className="max-w-40" {...props}>
       <TagInline tag={tagValue} />
     </Badge>
   );

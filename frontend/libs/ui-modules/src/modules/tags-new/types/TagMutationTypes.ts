@@ -1,8 +1,9 @@
-import { ITag } from "ui-modules/modules/tags-new/types/Tag";
+import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
 export type GiveTagsMutationVariables = {
   type: string | null;
   targetIds: string[];
   tagIds: string[];
+  action?: 'add' | 'remove';
 };
 
 export type GiveTagsMutationResponse = {

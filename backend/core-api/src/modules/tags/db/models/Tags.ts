@@ -16,6 +16,7 @@ export interface ITagModel extends Model<ITagDocument> {
     type: string,
     targetIds: string[],
     tagIds: string[],
+    action?: 'add' | 'remove',
   ): Promise<ITagDocument>;
   getChildTags(tagIds: string[]): Promise<string[]>;
 }
@@ -199,6 +200,7 @@ export const loadTagClass = (
       type: string,
       targetIds: string[],
       tagIds: string[],
+      action: 'add' | 'remove' = 'add',
     ) {
       const [pluginName, moduleName] = type.split(':');
 
@@ -240,7 +242,9 @@ export const loadTagClass = (
 
         const result = await model.updateMany(
           { _id: { $in: targetIds } },
-          { $set: { tagIds: tags.map((tag) => tag._id) } },
+          action === 'remove'
+            ? { $pull: { tagIds: { $in: tags.map((tag) => tag._id) } } }
+            : { $addToSet: { tagIds: { $each: tags.map((tag) => tag._id) } } },
         );
 
         if (['customer', 'user', 'company', 'product'].includes(moduleName)) {

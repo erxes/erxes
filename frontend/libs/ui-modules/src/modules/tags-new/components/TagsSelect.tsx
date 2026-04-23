@@ -95,9 +95,14 @@ const TagsSelectProvider = ({
           variables: {
             type,
             targetIds,
-            tagIds: newTags.map((t) => t._id),
+            tagIds: [tag._id],
+            action: isSelected ? 'remove' : 'add',
           },
-          ...options?.(newTags.map((t) => t._id)),
+          ...options?.(
+            newTags.map((t) => t._id),
+            isSelected ? 'remove' : 'add',
+            tag._id,
+          ),
         });
       }
 
@@ -127,6 +132,7 @@ const TagsSelectProvider = ({
         tagGroups,
         type,
         targetIds,
+        options,
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
@@ -360,6 +366,7 @@ const TagsSelectedList = ({
     mode,
     targetIds,
     type,
+    options,
   } = useTagsSelectContext();
   const { giveTags } = useGiveTags();
   if (!selectedTags || selectedTags.length === 0) return null;
@@ -408,8 +415,14 @@ const TagsSelectedList = ({
                   variables: {
                     type,
                     targetIds,
-                    tagIds: newTags.map((t) => t._id),
+                    tagIds: [tag._id],
+                    action: 'remove',
                   },
+                  ...options?.(
+                    newTags.map((t) => t._id),
+                    'remove',
+                    tag._id,
+                  ),
                 });
               }
             }
