@@ -3,7 +3,7 @@ import { receiveMessage } from './receiveMessage';
 import { receiveComment } from './receiveComment';
 import { receivePost } from './receivePost';
 import { debugInstagram, debugError } from '@/integrations/instagram/debuggers';
-import { Activity } from '@/integrations/instagram/@types/utils';
+import { IMessageData } from '@/integrations/instagram/@types/utils';
 
 export const instagramWebhookHandler = async (
   models: IModels,
@@ -80,24 +80,16 @@ const processMessagingEvent = async (
       return;
     }
 
-    const activity: Activity = {
-      channelId: '',
-      type: message ? 'message' : 'postback',
-      conversation: { id: '' },
-      from: sender,
-      recipient,
-      timestamp: new Date(timestamp),
+    const messageData: IMessageData = {
+      sender: { id: sender.id },
+      recipient: { id: recipient.id },
+      timestamp,
       text: message?.text || postback?.title || '',
-      channelData: {
-        sender: { id: sender.id },
-        recipient: { id: recipient.id },
-        timestamp,
-        message,
-        postback,
-      },
+      message,
+      postback,
     };
 
-    await receiveMessage(models, subdomain, integration, activity);
+    await receiveMessage(models, subdomain, integration, messageData);
   } catch (error) {
     debugError(`Error processing messaging event: ${error.message}`);
   }

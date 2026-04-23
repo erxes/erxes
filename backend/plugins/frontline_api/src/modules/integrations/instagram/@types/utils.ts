@@ -76,12 +76,12 @@ export interface IMessageData {
   recipient: { id: string };
   timestamp: number;
   text?: string;
-  message: {
+  message?: {
     attachments?: Array<{
       type: string;
       payload?: any;
     }>;
-    quick_reply?: any; // Consider defining a type here if you know its structure
+    quick_reply?: any;
     referral?: {
       source: string;
       type: string;
@@ -92,18 +92,18 @@ export interface IMessageData {
         photo_url: string;
       };
     };
-    payload?: any; // Same as above
-    mid: string;
-    text: string;
-    is_deleted: boolean;
+    payload?: any;
+    mid?: string;
+    text?: string;
+    is_deleted?: boolean;
   };
-  postback: {
+  postback?: {
     title: string;
-    mid: string;
+    mid?: string;
     payload: string;
-    quick_reply?: any; // Same as above, consider typing it more specifically
+    quick_reply?: any;
   };
-  comments: {
+  comments?: {
     title: string;
     mid: string;
     payload: string;
