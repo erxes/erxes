@@ -22,6 +22,7 @@ export const GET_INTEGRATION_DETAIL = gql`
       departmentIds
       details
       facebookPage
+      instagramPage
       callData {
         secondPageHeader
         secondPageDescription
