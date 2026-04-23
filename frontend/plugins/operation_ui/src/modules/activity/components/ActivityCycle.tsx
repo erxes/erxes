@@ -12,7 +12,7 @@ export const ActivityCycle = ({
   if (action === ACTIVITY_ACTIONS.CREATED) {
     return (
       <div className="inline-flex items-center gap-1">
-        added cycle
+        added cycle{' '}
         <span className="font-bold">
           <CycleInline cycleId={metadata.newValue} />
         </span>
@@ -21,11 +21,11 @@ export const ActivityCycle = ({
   }
   return (
     <div className="inline-flex items-center gap-1">
-      changed cycle
+      changed cycle{' '}
       <span className="font-bold">
         <CycleInline cycleId={metadata.previousValue || ''} />
-      </span>
-      to
+      </span>{' '}
+      to{' '}
       <span className="font-bold">
         <CycleInline cycleId={metadata.newValue} />
       </span>
