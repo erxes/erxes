@@ -305,7 +305,7 @@ export const createImportBatchProcessor = (
           }),
       });
 
-      const batchSize = 5;
+      const batchSize = 5000;
       let batch: any[] = [];
 
       await safeProgressUpdate({
