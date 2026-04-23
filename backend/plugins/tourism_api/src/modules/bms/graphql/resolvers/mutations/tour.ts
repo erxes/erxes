@@ -4,6 +4,7 @@ import {
   getTourTimezone,
   resolveTourDateStatus,
 } from '@/bms/utils/dateStatus';
+import { syncTourDateStatuses } from '~/worker/tourDateStatus';
 
 const validateTranslationPricingOptions = (
   pricingOptions: IPricingOption[] = [],
@@ -100,6 +101,19 @@ const tourMutations = {
     const tour = await models.Tours.updateTour(_id, doc as ITour);
     await saveTourTranslations(models, _id, translations ?? []);
     return tour;
+  },
+
+  bmsTourDateStatusSync: async (
+    _root,
+    { timezone }: { timezone?: string },
+    { subdomain }: IContext,
+  ) => {
+    const resolvedTimezone = timezone || (await getTourTimezone(subdomain));
+
+    return syncTourDateStatuses({
+      subdomain,
+      timezone: resolvedTimezone,
+    });
   },
 
   bmsTourViewCount: async (_root, { _id }, { models }: IContext) => {

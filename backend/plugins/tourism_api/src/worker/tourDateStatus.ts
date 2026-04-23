@@ -17,6 +17,17 @@ type TourStatusJobData = {
   timezone?: string;
 };
 
+type TourDateStatusSyncParams = {
+  subdomain: string;
+  timezone?: string;
+};
+
+export type TourDateStatusSyncResult = {
+  matchedCount: number;
+  modifiedCount: number;
+  skippedCount: number;
+};
+
 export const scheduleTourDateStatusSync = async () => {
   const version = getEnv({ name: 'VERSION' });
 
@@ -59,11 +70,16 @@ export const scheduleTourDateStatusSync = async () => {
   return 'success';
 };
 
-export const syncTourDateStatus = async (job: Job<TourStatusJobData>) => {
-  const { subdomain, timezone = 'UTC' } = job?.data ?? {};
-
+export const syncTourDateStatuses = async ({
+  subdomain,
+  timezone = 'UTC',
+}: TourDateStatusSyncParams): Promise<TourDateStatusSyncResult> => {
   if (!subdomain) {
-    return;
+    return {
+      matchedCount: 0,
+      modifiedCount: 0,
+      skippedCount: 0,
+    };
   }
 
   const models = await generateModels(subdomain);
@@ -118,12 +134,32 @@ export const syncTourDateStatus = async (job: Job<TourStatusJobData>) => {
   }, []);
 
   if (!operations.length) {
-    return;
+    return {
+      matchedCount: tours.length,
+      modifiedCount: 0,
+      skippedCount: tours.length,
+    };
   }
 
   await models.Tours.bulkWrite(operations);
 
+  return {
+    matchedCount: tours.length,
+    modifiedCount: operations.length,
+    skippedCount: tours.length - operations.length,
+  };
+};
+
+export const syncTourDateStatus = async (job: Job<TourStatusJobData>) => {
+  const { subdomain, timezone = 'UTC' } = job?.data ?? {};
+
+  const result = await syncTourDateStatuses({ subdomain, timezone });
+
+  if (!result.modifiedCount) {
+    return;
+  }
+
   console.log(
-    `[Tourism] Updated date_status for ${operations.length} tours in ${subdomain}`,
+    `[Tourism] Updated date_status for ${result.modifiedCount} tours in ${subdomain}`,
   );
 };
