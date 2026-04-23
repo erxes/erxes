@@ -44,7 +44,7 @@
       "path": "./backend/plugins/payment_api/tsconfig.json"
     },
     {
-      "path": "./backend/plugins/payment_api/src/widget/tsconfig.json"
+      "path":  "apps/payment-widgets"
     },
     {
       "path": "./backend/plugins/operation_api/tsconfig.json"
