@@ -9,12 +9,12 @@ const getDefaultUrl = () => {
   if (process.env.NODE_ENV === 'development') {
     return 'http://localhost:4000';
   } else {
-    return `${window.location.protocol}//${window.location.hostname}/gateway`;
+    return `${globalThis.location.protocol}//${globalThis.location.hostname}/gateway`;
   }
 };
 
 const getSubdomain = () => {
-  return window.location.hostname.split('.')[0];
+  return globalThis.location.hostname.split('.')[0];
 };
 
 let memoizedApiUrl: string | null = null;
