@@ -1,11 +1,9 @@
-import { cn, IAttachment, readImage } from 'erxes-ui';
+import { cn, IAttachment, readImage, RelativeDateDisplay, Button } from 'erxes-ui';
 import { useIgMessengerMessageContext } from '../context/IgMessengerMessageContext';
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
-import { RelativeDateDisplay } from 'erxes-ui';
-import { Button } from 'erxes-ui';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 
 export const IgMessengerMessage = () => {
@@ -92,16 +90,22 @@ export const IgMessageWrapper = ({
 };
 
 const IgAttachments = ({ attachments }: { attachments?: IAttachment[] }) => {
-  if (!attachments) return null;
+  if (!attachments?.length) return null;
+
+  const images = attachments.filter((att) =>
+    att.type?.startsWith('image'),
+  );
+
+  if (!images.length) return null;
 
   return (
     <div
       className={cn(
         'grid grid-cols-3 gap-2',
-        attachments.length === 1 && 'grid-cols-2',
+        images.length === 1 && 'grid-cols-2',
       )}
     >
-      {attachments.map((attachment) => (
+      {images.map((attachment) => (
         <IgAttachment key={attachment.url} attachment={attachment} />
       ))}
     </div>

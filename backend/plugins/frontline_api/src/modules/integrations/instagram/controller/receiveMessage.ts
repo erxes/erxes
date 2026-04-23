@@ -3,8 +3,8 @@ import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/i
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 import { getOrCreateCustomer } from '@/integrations/instagram/controller/store';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { debugInstagram } from '@/integrations/instagram/debuggers';
-import { Activity } from '@/integrations/instagram/@types/utils';
+import { debugError, debugInstagram } from '@/integrations/instagram/debuggers';
+import { IMessageData } from '@/integrations/instagram/@types/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
@@ -12,189 +12,175 @@ import {
   triggerInstagramAutomation,
 } from '@/integrations/instagram/meta/automation/utils/messageUtils';
 
+const HAS_ATTACHMENT = 'This message has an attachment';
+
 export const receiveMessage = async (
   models: IModels,
   subdomain: string,
   integration: IInstagramIntegrationDocument,
-  activity: Activity,
+  activity: IMessageData,
 ) => {
+  const userId = activity.sender.id;
+  const { recipient, timestamp } = activity;
+
+  let message = activity.message as any;
+  const postback = activity.postback as any;
+
+  const pageId = recipient.id;
+  const kind = INTEGRATION_KINDS.MESSENGER;
+  const mid = message?.mid || postback?.mid;
+  const attachments = message?.attachments;
+
+  debugInstagram(`Received message from ${userId} → page ${pageId}`);
+
+  let text = activity.text || message?.text;
+
+  if (!text && !message && !!postback) {
+    text = postback.title;
+    message = { mid: postback.mid };
+    if (postback.payload) {
+      message.payload = postback.payload;
+    }
+  }
+
+  if (message?.quick_reply) {
+    message.payload = message.quick_reply.payload;
+  }
+
+  const customer = await getOrCreateCustomer(
+    models,
+    subdomain,
+    pageId,
+    userId,
+    kind,
+  );
+
+  if (!customer) {
+    throw new Error('Customer not found');
+  }
+
+  let conversation = await models.InstagramConversations.findOne({
+    senderId: userId,
+    recipientId: pageId,
+  });
+
+  const bot = await checkIsBot(models, message, recipient.id);
+  const botId = bot?._id;
+  let isNewConversation = false;
+
+  if (!conversation) {
+    isNewConversation = true;
+    try {
+      conversation = await models.InstagramConversations.create({
+        timestamp,
+        senderId: userId,
+        recipientId: pageId,
+        content: text,
+        integrationId: integration._id,
+        isBot: !!botId,
+        botId,
+      });
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: conversation duplication'
+          : e.message,
+      );
+    }
+  } else {
+    const existingBot = await models.InstagramBots.findOne({ _id: botId });
+    if (existingBot) {
+      conversation.botId = botId;
+    }
+    conversation.content = text || '';
+    await conversation.save();
+  }
+
+  const formattedAttachments = (attachments || [])
+    .filter((att) => att.type !== 'fallback')
+    .map((att) => ({
+      type: att.type,
+      url: att.payload?.url ?? '',
+    }));
+
   try {
-    debugInstagram(
-      `Received message: ${activity.text} from ${activity.from.id}`,
-    );
-    const { recipient, from, timestamp, channelData } = activity;
-    let { message, postback } = channelData;
-    const pageId = recipient.id;
-    const userId = from.id;
-    const kind = INTEGRATION_KINDS.MESSENGER;
-    const mid = channelData.message?.mid || postback?.mid;
-    const attachments = channelData.message?.attachments;
-
-    let text = activity.text || message?.text;
-    let adData;
-
-    if (!text && !message && !!postback) {
-      text = postback.title;
-
-      message = {
-        mid: postback.mid,
-      };
-
-      if (postback.payload) {
-        message.payload = postback.payload;
-      }
-    }
-
-    if (message?.quick_reply) {
-      message.payload = message.quick_reply.payload;
-    }
-
-    const customer = await getOrCreateCustomer(
-      models,
-      subdomain,
-      pageId,
-      userId,
-      undefined,
-      kind,
-    );
-    if (!customer) {
-      throw new Error('Customer not found');
-    }
-
-    let conversation = await models.InstagramConversations.findOne({
-      senderId: userId,
-      recipientId: pageId,
+    const apiConversationResponse = await receiveInboxMessage(subdomain, {
+      action: 'create-or-update-conversation',
+      payload: JSON.stringify({
+        customerId: customer.erxesApiId,
+        integrationId: integration.erxesApiId,
+        content: text || '',
+        attachments: formattedAttachments,
+        conversationId: conversation.erxesApiId,
+        updatedAt: timestamp,
+      }),
     });
 
-    const bot = await checkIsBot(models, message, recipient.id);
-    const botId = bot?._id;
-
-    let isNewConversation = false;
-
-    // create conversation
-    if (!conversation) {
-      isNewConversation = true;
-      try {
-        conversation = await models.InstagramConversations.create({
-          timestamp,
-          senderId: userId,
-          recipientId: pageId,
-          content: text,
-          integrationId: integration._id,
-          isBot: !!botId,
-          botId,
-        });
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation duplication'
-            : e,
-        );
-      }
-    } else {
-      const bot = await models.InstagramBots.findOne({ _id: botId });
-      if (bot) {
-        conversation.botId = botId;
-      }
-      conversation.content = text || '';
+    if (apiConversationResponse.status === 'success') {
+      conversation.erxesApiId = apiConversationResponse.data._id;
       await conversation.save();
+    } else {
+      throw new Error(
+        `Conversation creation failed: ${JSON.stringify(apiConversationResponse)}`,
+      );
     }
+  } catch (e) {
+    if (isNewConversation) {
+      await models.InstagramConversations.deleteOne({ _id: conversation._id });
+    }
+    throw new Error(e.message);
+  }
 
-    const formattedAttachments = (attachments || [])
-      .filter((att) => att.type !== 'fallback')
-      .map((att) => ({
-        type: att.type,
-        url: att.payload ? att.payload.url : '',
-      }));
+  const existingMessage = await models.InstagramConversationMessages.findOne({
+    mid,
+  });
 
-    // save on api
+  if (!existingMessage) {
     try {
-      const data = {
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId: customer.erxesApiId,
-          integrationId: integration.erxesApiId,
-          content: text || '',
-          attachments: formattedAttachments,
-          conversationId: conversation.erxesApiId,
-          updatedAt: timestamp,
-        }),
+      const content =
+        text || (formattedAttachments.length > 0 ? HAS_ATTACHMENT : '');
+
+      const created = await models.InstagramConversationMessages.create({
+        conversationId: conversation._id,
+        mid,
+        createdAt: timestamp,
+        content,
+        customerId: customer.erxesApiId,
+        attachments: formattedAttachments,
+        botId,
+      });
+
+      const doc = {
+        ...created.toObject(),
+        conversationId: conversation.erxesApiId,
       };
 
-      const apiConversationResponse = await receiveInboxMessage(
-        subdomain,
-        data,
-      );
+      await pConversationClientMessageInserted(subdomain, doc);
 
-      if (apiConversationResponse.status === 'success') {
-        conversation.erxesApiId = apiConversationResponse.data._id;
-        await conversation.save();
-      } else {
-        throw new Error(
-          `Conversation creation failed: ${JSON.stringify(apiConversationResponse)}`,
-        );
-      }
-    } catch (e) {
-      if (isNewConversation) {
-        await models.InstagramConversations.deleteOne({ _id: conversation._id });
-      }
-      throw new Error(e);
-    }
-    // get conversation message
-    let conversationMessage =
-      await models.InstagramConversationMessages.findOne({
-        mid: mid,
-      });
-    if (!conversationMessage) {
       try {
-        const created = await models.InstagramConversationMessages.create({
-          conversationId: conversation._id,
-          mid: mid,
-          createdAt: timestamp,
-          content: text,
-          customerId: customer.erxesApiId,
-          attachments: formattedAttachments,
-          botId,
-        });
-
-        const doc = {
-          ...created.toObject(),
-          conversationId: conversation.erxesApiId,
-        };
-
-        await pConversationClientMessageInserted(subdomain, doc);
-        try {
-          await graphqlPubsub.publish(
-            `conversationMessageInserted:${conversation.erxesApiId}`,
-            {
-              conversationMessageInserted: {
-                ...created.toObject(),
-                conversationId: conversation.erxesApiId,
-              },
+        await graphqlPubsub.publish(
+          `conversationMessageInserted:${conversation.erxesApiId}`,
+          {
+            conversationMessageInserted: {
+              ...created.toObject(),
+              conversationId: conversation.erxesApiId,
             },
-          );
-        } catch (err) {
-          throw new Error(
-            'conversationMessageInserted Error publishing subscription:',
-          );
-        }
-
-        conversationMessage = created;
-
-        await triggerInstagramAutomation(subdomain, {
-          conversationMessage: conversationMessage.toObject(),
-          payload: message?.payload,
-          adData,
-        });
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation message duplication'
-            : e,
+          },
         );
+      } catch (err) {
+        debugError(`Error publishing conversationMessageInserted: ${err.message}`);
       }
+
+      await triggerInstagramAutomation(subdomain, {
+        conversationMessage: created.toObject(),
+        payload: message?.payload,
+      });
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: conversation message duplication'
+          : e.message,
+      );
     }
-  } catch (error) {
-    throw new Error(`Error processing Instagram message: ${error.message}.`);
   }
 };

@@ -5,6 +5,7 @@ import {
   fetchPagePosts,
   fetchPagePost,
 } from '@/integrations/instagram/utils';
+import { debugInstagram } from '@/integrations/instagram/debuggers';
 import {
   IKind,
   IDetailParams,
@@ -214,12 +215,16 @@ export const instagramQueries = {
   ) {
     const { conversationId, limit, skip, getFirst } = args;
 
-    const conversation = await models.Conversations.findOne({
+    const conversation = await models.InstagramConversations.findOne({
       erxesApiId: conversationId,
     });
     let messages: IInstagramConversationMessageDocument[] = [];
-    const query = await buildSelector(conversationId, models.Conversations);
-    if (conversation) {
+    const query = await buildSelector(
+      conversationId,
+      models.InstagramConversations,
+    );
+
+   if (conversation) {
       if (limit) {
         const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
@@ -253,9 +258,10 @@ export const instagramQueries = {
         .skip(skip || 0);
 
       if (search.length > 0) {
-        return [...comment, ...search].sort((a, b) =>
+        const combinedResult = [...comment, ...search].sort((a, b) =>
           a.createdAt > b.createdAt ? 1 : -1,
         );
+        return combinedResult;
       } else {
         return comment;
       }
@@ -425,7 +431,7 @@ export const instagramQueries = {
           instagramPageIds.map(async (pageId) => {
             const accessToken = facebookPageTokensMap[pageId];
             if (!accessToken) {
-              console.warn(`Access token missing for page ID: ${pageId}`);
+              debugInstagram(`Access token missing for page ID: ${pageId}`);
               return [];
             }
             return fetchPagePostsWithRateLimiting(pageId, accessToken, limit);

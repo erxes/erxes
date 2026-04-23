@@ -1,5 +1,12 @@
 import { IAttachment } from 'erxes-ui';
 
+export interface IInstagramPost {
+  _id: string;
+  content: string;
+  permalink_url: string;
+  attachments: IAttachment[];
+}
+
 export interface IInstagramConversationMessage {
   _id: string;
   content: string;

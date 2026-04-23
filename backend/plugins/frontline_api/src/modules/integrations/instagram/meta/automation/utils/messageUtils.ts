@@ -17,7 +17,7 @@ export const triggerInstagramAutomation = async (
   }: {
     conversationMessage: IInstagramConversationMessageDocument;
     payload: any;
-    adData: any;
+    adData?: any;
   },
 ) => {
   const target: any = { ...conversationMessage };

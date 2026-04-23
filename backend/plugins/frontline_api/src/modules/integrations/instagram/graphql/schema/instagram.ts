@@ -153,7 +153,8 @@ export const queries = `
 export const mutations = `
   instagramUpdateConfigs(configsMap: JSON!): JSON
   instagramRepair(_id: String!): JSON
-  instagramReplyToComment(conversationId: String, commentId: String, content: String): InstagramComment
+  instagramReplyToComment(conversationId: String, commentId: String, content: String): JSON
+  instagramResolveComment(_id: String!, isResolved: Boolean!): JSON
   instagramMessengerAddBot(${commonBotMutationParams}):JSON
   instagramMessengerUpdateBot(_id:String,${commonBotMutationParams}):JSON
   instagramMessengerRemoveBot(_id:String):JSON

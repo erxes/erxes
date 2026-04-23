@@ -1,4 +1,4 @@
-import * as strip from 'strip';
+import strip from 'strip';
 import { Model } from 'mongoose';
 
 import { IModels } from '~/connectionResolvers';
@@ -54,6 +54,7 @@ export const loadInstagramConversationMessageClass = (models: IModels) => {
       doc: IInstagramConversationMessage,
       userId?: string,
     ) {
+
       const conversation = await models.InstagramConversations.findOne({
         _id: doc.conversationId,
       });

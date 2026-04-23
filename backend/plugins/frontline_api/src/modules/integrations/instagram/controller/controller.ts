@@ -3,7 +3,6 @@ import { receiveComment } from '@/integrations/instagram/controller/receiveComme
 import { receiveMessage } from '@/integrations/instagram/controller/receiveMessage';
 import { debugError, debugInstagram } from '@/integrations/instagram/debuggers';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
-import { NextFunction, Response } from 'express';
 import { generateModels } from '~/connectionResolvers';
 
 export const instagramGetPost = async (req, res, next) => {

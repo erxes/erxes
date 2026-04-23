@@ -22,10 +22,12 @@ export const INSTAGRAM_REPLY_TO_COMMENT = gql`
       conversationId: $conversationId
       commentId: $commentId
       content: $content
-    ) {
-      commentId
-      content
-      conversationId
-    }
+    )
+  }
+`;
+
+export const INSTAGRAM_RESOLVE_COMMENT = gql`
+  mutation InstagramResolveComment($_id: String!, $isResolved: Boolean!) {
+    instagramResolveComment(_id: $_id, isResolved: $isResolved)
   }
 `;

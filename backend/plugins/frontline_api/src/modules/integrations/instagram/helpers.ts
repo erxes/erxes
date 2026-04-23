@@ -175,7 +175,7 @@ export const repairIntegrations = async (
       kind: integration.kind,
     });
   } catch (e) {
-    console.log(e);
+    debugError(`Error during repair integration: ${e.message}`);
   }
 
   await models.InstagramIntegrations.updateOne(

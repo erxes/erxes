@@ -19,7 +19,7 @@ export const loginMiddleware = async (req, res) => {
   const INSTAGRAM_PERMISSIONS = await getConfig(
     models,
     'INSTAGRAM_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
+    'pages_messaging,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
@@ -104,8 +104,8 @@ export const loginMiddleware = async (req, res) => {
     }
     const reactAppUrl = !DOMAIN.includes('zrok')
       ? DOMAIN
-      : 'http://localhost:3000';
-    const url = `${reactAppUrl}/settings/ig-authorization?igAuthorized=true`;
+      : 'http://localhost:3001';
+    const url = `${reactAppUrl}/settings/frontline/channels/ig-auth`;
 
     debugResponse(debugInstagram, req, url);
 

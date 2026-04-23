@@ -21,9 +21,7 @@ export const getOrCreateCustomer = async (
   subdomain: string,
   pageId: string,
   userId: string,
-  facebookPageId: string | undefined,
   kind: string,
-  facebookPageTokensMap?: { [key: string]: string },
 ) => {
   const integration = await models.InstagramIntegrations.findOne({
     instagramPageId: pageId,
@@ -145,7 +143,7 @@ export const getOrCreateComment = async (
     attachments: attachment,
     recipientId: pageId,
     senderId: userId,
-    createdAt: commentParams.post.updated_time,
+    createdAt: commentParams.post?.updated_time || new Date(),
     postId: commentParams.post_id,
     comment_id: commentParams.comment_id,
     content: commentParams.message,
@@ -246,45 +244,48 @@ export const getOrCreatePostConversation = async (
   models: IModels,
   pageId: string,
   postId: string,
-  params: ICommentParams,
 ) => {
   try {
-    let postConversation = await models.InstagramPostConversations.findOne({
-      postId,
+     let postConversation = await models.InstagramPostConversations.findOne({
+    postId
+  });
+  if (!postConversation) {
+    const integration = await models.InstagramIntegrations.findOne({
+      instagramPageId: { $in: pageId }
     });
 
-    const facebookPost = await fetchInstagramPostDetails(
-      pageId,
-      models,
-      params,
-    );
-    if (!postConversation) {
-      postConversation =
-        await models.InstagramPostConversations.create(facebookPost);
-      return postConversation;
-    } else {
-      const hasPostContentChanged =
-        facebookPost.content !== postConversation.content;
-
-      if (hasPostContentChanged) {
-        await models.InstagramPostConversations.updateOne(
-          { postId },
-          { $set: { content: facebookPost.content } },
-        );
-        const updatedPost = await models.InstagramPostConversations.findOne({
-          postId,
-        });
-        return updatedPost;
-      } else {
-        return postConversation; // Return the existing post conversation without changes
-      }
+    if (!integration) {
+      throw new Error("Integration not found");
     }
+    const { accountId } = integration;
+    const account = await models.InstagramAccounts.findOne({ _id: accountId });
+    if (!account) {
+      throw new Error("account not found");
+    }
+
+    const getPostDetail = await getPostLink(account.token, postId);
+    const instagramPost = {
+      postId: postId,
+      content: getPostDetail.caption,
+      recipientId: getPostDetail.ig_id,
+      senderId: getPostDetail.ig_id,
+      permalink_url: getPostDetail.permalink,
+      timestamp: getPostDetail.timestamp
+    };
+    postConversation = await models.InstagramPostConversations.create(instagramPost);
+  }
+  return postConversation;
+
   } catch (error) {
     throw new Error(
       `Failed to get or create post conversation: ${error.message}`,
     );
   }
 };
+
+
+
+
 
 export const getOrCreatePost = async (
   models: IModels,

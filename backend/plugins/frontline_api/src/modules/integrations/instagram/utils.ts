@@ -12,7 +12,7 @@ export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
-    graph.setVersion('19.0');
+    graph.setVersion('21.0');
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -143,7 +143,7 @@ export const subscribePage = async (
   pageToken,
 ): Promise<{ success: true } | any> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: ['conversations', 'feed', 'messages'],
+    subscribed_fields: ['messages'],
   });
 };
 
@@ -185,7 +185,7 @@ export const getPageAccessTokenInstagram = async (
       'Unable to retrieve access token or Instagram Business Account.',
     );
   } catch (error) {
-    console.error('Error fetching Page Access Token:', error.message);
+    debugError(`Error fetching Page Access Token: ${error.message}`);
     throw error;
   }
 };
@@ -303,18 +303,20 @@ const getIntegrationPageToken = async (
     erxesApiId: integrationId,
   });
   if (!integration) {
-    throw new Error('Integration not found');
+    throw new Error(`Integration not found for erxesApiId: ${integrationId}`);
   }
   const { facebookPageTokensMap = {}, facebookPageId } = integration;
   if (!facebookPageId) {
-    throw new Error('Facebook page ID is not defined.');
+    throw new Error('Facebook page ID is not defined on this integration.');
   }
   const pageAccessToken = getPageAccessTokenFromMap(
     facebookPageId,
     facebookPageTokensMap,
   );
   if (!pageAccessToken) {
-    throw new Error('Page access token not found.');
+    throw new Error(
+      `Page access token not found for facebookPageId: ${facebookPageId}`,
+    );
   }
   return pageAccessToken;
 };
@@ -332,7 +334,7 @@ export const sendReply = async (
     debugError(
       `Error occurred while trying to get page access token: ${e.message}`,
     );
-    return e;
+    throw e;
   }
 
   try {
@@ -344,9 +346,7 @@ export const sendReply = async (
     );
     return response;
   } catch (e) {
-    debugError(
-      `Error occurred while trying to send post request to instagram ${e.message} data: ${JSON.stringify(data)}`,
-    );
+    console.error(`[instagram] sendReply FAILED — error="${e?.message || JSON.stringify(e)}" data=${JSON.stringify(data)}`);
     throw new Error(e.message);
   }
 };

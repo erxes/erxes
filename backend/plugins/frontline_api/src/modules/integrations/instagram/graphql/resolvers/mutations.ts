@@ -28,22 +28,32 @@ export const instagramMutations = {
     params: IReplyParams,
     { models, user, subdomain }: IContext,
   ) {
-    const { commentId, content, attachments, conversationId } = params;
+    const { content, attachments, conversationId } = params;
+    let { commentId } = params;
 
-    const comment = await models.InstagramCommentConversation.findOne({
-      comment_id: commentId,
-    });
+    // Auto-resolve commentId from the inbox conversation's linked comment
+    if (!commentId && conversationId) {
+      const commentConv = await models.InstagramCommentConversation.findOne({
+        erxesApiId: conversationId,
+      });
+      if (commentConv) {
+        commentId = commentConv.comment_id;
+      }
+    }
+
+    const comment = commentId
+      ? await models.InstagramCommentConversation.findOne({
+          comment_id: commentId,
+        })
+      : null;
+
     const post = await models.InstagramPostConversations.findOne({
-      $or: [
-        { erxesApiId: conversationId },
-        { postId: comment ? comment.postId : '' },
-      ],
+      postId: comment ? comment.postId : undefined,
     });
+
     if (!post) {
       throw new Error('Post not found');
     }
-
-    const { recipientId } = post;
 
     let attachment: {
       url?: string;
@@ -54,25 +64,21 @@ export const instagramMutations = {
     if (attachments && attachments.length > 0) {
       attachment = {
         type: 'file',
-        payload: {
-          url: attachments[0].url,
-        },
+        payload: { url: attachments[0].url },
       };
     }
-
-    let data = {
-      message: content,
-      attachment_url: attachment.url,
-    };
 
     const id = comment ? comment.comment_id : post.postId;
 
-    if (comment && comment.comment_id) {
-      data = {
-        message: ` @[${comment.senderId}] ${content}`,
-        attachment_url: attachment.url,
-      };
-    }
+    const data = comment
+      ? {
+          message: `@${comment.senderId} ${content}`,
+          attachment_url: attachment.payload?.url,
+        }
+      : {
+          message: content,
+          attachment_url: attachment.url,
+        };
 
     try {
       const inboxConversation = await models.Conversations.findOne({
@@ -80,14 +86,14 @@ export const instagramMutations = {
       });
 
       if (!inboxConversation) {
-        throw new Error('conversation not found');
+        throw new Error('Conversation not found');
       }
 
       await sendReply(
         models,
         `${id}/comments`,
         data,
-        inboxConversation?.integrationId || undefined,
+        inboxConversation.integrationId || undefined,
       );
 
       await sendNotifications(subdomain, {
@@ -102,6 +108,18 @@ export const instagramMutations = {
     } catch (e) {
       throw new Error(e.message);
     }
+  },
+
+  async instagramResolveComment(
+    _root,
+    { _id, isResolved }: { _id: string; isResolved: boolean },
+    { models }: IContext,
+  ) {
+    await models.InstagramCommentConversation.updateOne(
+      { _id },
+      { $set: { isResolved } },
+    );
+    return { status: 'ok' };
   },
   async instagramMessengerAddBot(_root, args, { models }: IContext) {
     return await models.InstagramBots.addBot(args);

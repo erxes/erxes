@@ -6,6 +6,7 @@ import {
 } from '@/integrations/instagram/utils';
 import { IInstagramBotDocument } from '@/integrations/instagram/@types/bots';
 import { instagramBotSchema } from '@/integrations/instagram/db/definitions/bots';
+import { debugError } from '@/integrations/instagram/debuggers';
 const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   if (!doc.name) {
     throw new Error('Please provide a name of bot');
@@ -188,10 +189,7 @@ export const loadInstagramBotClass = (models: IModels) => {
       try {
         await this.disconnectBotPageMessenger(_id);
       } catch (error) {
-        console.error(
-          `Failed to disconnect bot ${_id} from instagram messenger:`,
-          error,
-        );
+        debugError(`Failed to disconnect bot ${_id} from instagram messenger: ${error.message}`);
       }
 
       await models.InstagramBots.deleteOne({ _id });
@@ -283,7 +281,7 @@ export const loadInstagramBotClass = (models: IModels) => {
           });
         } catch (e) {
           // log but don't throw — DB cleanup should still proceed
-          console.error(`Failed to remove Instagram messenger profile: ${e.message}`);
+          debugError(`Failed to remove Instagram messenger profile: ${e.message}`);
         }
       }
 

@@ -6,6 +6,7 @@ import {
   removeIntegration,
 } from '@/integrations/instagram/helpers';
 import { handleInstagramMessage } from '@/integrations/instagram/handleInstagramMessage';
+import { debugError } from '@/integrations/instagram/debuggers';
 
 export interface StatusRequest {
   integrationId: string;
@@ -26,7 +27,6 @@ export async function handleInstagramIntegration({ subdomain, data }) {
   } = {
     status: 'success',
   };
-
   try {
     if (type === 'instagram') {
       response.data = await handleInstagramMessage(models, data, subdomain);
@@ -36,6 +36,7 @@ export async function handleInstagramIntegration({ subdomain, data }) {
       response.data = await models.InstagramConfigs.find({});
     }
   } catch (e) {
+    debugError(`handleInstagramIntegration error [action=${action}]: ${e.message}`);
     response = {
       status: 'error',
       errorMessage: e.message,

@@ -251,11 +251,12 @@ export const sendMessage = async (
     // Send the actual message
     return await sendReply(
       models,
-      'me/messages',
+      `${recipientId}/messages`,
       {
         recipient: { id: senderId },
         message,
-        tag,
+        messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
+        ...(tag && { tag }),
       },
       integration.erxesApiId,
     );
@@ -297,16 +298,15 @@ async function trySendTypingOn(
   try {
     await sendReply(
       models,
-      'me/messages',
+      `${recipientId}/messages`,
       {
         recipient: { id: senderId },
         sender_action: 'typing_on',
-        tag,
       },
       erxesApiId,
     );
   } catch (err) {
-    console.warn(`[sendTypingOn] failed: ${err.message}`);
+    debugError(`[sendTypingOn] failed: ${err.message}`);
   }
 }
 
@@ -381,7 +381,7 @@ export const getData = async (
         throw new Error(
           e.message.includes('duplicate')
             ? 'Concurrent request: conversation duplication'
-            : e,
+            : e.message,
         );
       }
     }
@@ -412,7 +412,7 @@ export const getData = async (
       }
     } catch (e) {
       await models.Conversations.deleteOne({ _id: conversation._id });
-      throw new Error(e);
+      throw new Error(e.message);
     }
 
     const created = await models.ConversationMessages.addMessage({
@@ -429,7 +429,7 @@ export const getData = async (
       fromBot: true,
     });
 
-    pConversationClientMessageInserted(subdomain, {
+    await pConversationClientMessageInserted(subdomain, {
       ...created.toObject(),
       conversationId: conversation.erxesApiId,
     });
