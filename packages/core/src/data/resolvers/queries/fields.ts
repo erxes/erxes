@@ -199,30 +199,26 @@ const fieldQueries = {
           (pfv && pfv[pipelineId]) ?? group.config?.fieldVisibility;
 
         if (group.isDefinedByErxes) {
+          const allGroupFields = await models.Fields.find({
+            groupId: group._id,
+            contentType: query.contentType,
+          }).sort({ order: 1 });
 
-          if (fv && Object.keys(fv).length > 0) {
-            const shownFieldIds = Object.keys(fv).filter(
-              (id) => fv![id] === true,
-            );
+          const configuredIds = new Set(fv ? Object.keys(fv) : []);
 
-            if (shownFieldIds.length > 0) {
-              const groupFields = await models.Fields.find({
-                groupId: group._id,
-                contentType: query.contentType,
-                _id: { $in: shownFieldIds },
-              }).sort({ order: 1 });
-
-              allFields.push(...groupFields);
+          const visible = allGroupFields.filter((f) => {
+            const id = String(f._id);
+            if (configuredIds.has(id)) {
+              return fv![id] === true;
             }
-          } else {
-            const groupFields = await models.Fields.find({
-              groupId: group._id,
-              contentType: query.contentType,
-              isVisible: { $ne: false },
-            }).sort({ order: 1 });
+        
+            if (isVisibleToCreate !== undefined) {
+              return f.isVisibleToCreate === isVisibleToCreate;
+            }
+            return f.isVisible !== false;
+          });
 
-            allFields.push(...groupFields);
-          }
+          allFields.push(...visible);
         } else {
           const groupFields = await models.Fields.find({
             groupId: group._id,

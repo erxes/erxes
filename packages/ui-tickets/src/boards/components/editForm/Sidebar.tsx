@@ -57,6 +57,15 @@ class Sidebar extends React.Component<Props> {
               }}
             />
           </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__("Departments")}</ControlLabel>
+            <SelectDepartments
+              name="departmentIds"
+              label="Choose departments"
+              onSelect={onChangeStructure}
+              initialValue={item?.departmentIds}
+            />
+          </FormGroup>
           <ControlLabel>Assigned to</ControlLabel>
           <SelectTeamMembers
             label="Choose users"
@@ -68,29 +77,6 @@ class Sidebar extends React.Component<Props> {
               branchIds,
             }}
           />
-        </FormGroup>
-
-        <FormGroup>
-          {relations.map((relation) => {
-            if (
-              relation.type === "departmentIds" ||
-              relation.relationType === "tickets:department"
-            ) {
-              return (
-                <React.Fragment key={relation._id}>
-                  <ControlLabel>{__("Departments")}</ControlLabel>
-                  <SelectDepartments
-                    name="departmentIds"
-                    label="Choose departments"
-                    onSelect={onChangeStructure}
-                    initialValue={item?.departmentIds}
-                  />
-                </React.Fragment>
-              );
-            }
-
-            return null;
-          })}
         </FormGroup>
 
         {sidebar && sidebar(saveItem)}

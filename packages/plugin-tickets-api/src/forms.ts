@@ -34,11 +34,6 @@ const relations = (type) => {
       relationType: "core:company",
     },
     {
-      name: "departmentsIds",
-      label: "Departments",
-      relationType: "tickets:department",
-    },
-    {
       name: "sourceIds",
       label: "Source",
       relationType: "tickets:source",
