@@ -40,9 +40,9 @@ export const STEP_VISIBILITY_CONFIG: CategoryFieldConfig = {
   properties: { ecom: true, pos: true, res: true },
   slots: { ecom: false, pos: false, res: true },
   payments: { ecom: true, pos: true, res: true },
-  permission: { ecom: false, pos: true, res: true },
+  permission: { ecom: true, pos: true, res: true },
   product: { ecom: true, pos: true, res: true },
-  appearance: { ecom: false, pos: true, res: true },
+  appearance: { ecom: true, pos: true, res: true },
   screen: { ecom: true, pos: false, res: true },
   ebarimt: { ecom: true, pos: true, res: true },
   finance: { ecom: true, pos: true, res: true },
@@ -187,12 +187,6 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
     res: true,
   },
   remainderConfigs: {
-    ecom: false,
-    pos: true,
-    res: true,
-  },
-
-  serviceCharge: {
     ecom: false,
     pos: true,
     res: true,
