@@ -25,6 +25,8 @@ import {
 } from '../../../context/SelectAttributionContext';
 import { IAttribution } from '../../../types/attributionType';
 
+type SizeType = 'lg' | 'sm' | 'xl' | 'default' | 'xs';
+
 const SelectAttributionProvider = ({
   children,
   mode = 'single',
@@ -77,9 +79,11 @@ const SelectAttributionProvider = ({
     onValueChange?.(newSelectedAttributionIds);
   };
 
-  const attributionIds = Array.isArray(value) ? value : value && [value] || [];
+  const attributionIds = Array.isArray(value)
+    ? value
+    : (value && [value]) || [];
   const loading = attributionIds.some(
-    (id) => !currentAttribution.find((m) => m._id === id),
+    (id) => !currentAttribution.some((m) => m._id === id),
   );
 
   return (
@@ -213,12 +217,7 @@ const SelectAttributionContent = () => {
 
         {!loading &&
           [currentUser, ...users]
-            .filter(
-              (user) =>
-                !attributionIds.find(
-                  (attributionId) => attributionId === user._id,
-                ),
-            )
+            .filter((user) => !attributionIds.includes(user._id))
             .map((user) => (
               <SelectAttributionCommandItem key={user._id} attribution={user} />
             ))}
@@ -305,14 +304,14 @@ export const SelectAttributionFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'assignedTo'}>
       <Filter.BarName>
         <IconUser />
-        {label ? label : !iconOnly && 'Assigned To' || ''}
+        {label || (!iconOnly && 'Assigned To') || ''}
       </Filter.BarName>
       <SelectAttributionProvider
         mode={mode}
         value={assignedTo || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
           if (value && value.length > 0) {
-            setAssignedTo(value as string[] | string);
+            setAssignedTo(value);
           } else {
             setAssignedTo(null);
           }
@@ -338,11 +337,11 @@ export const SelectAttributionFilterBar = ({
 export const SelectAttributionInlineCell = React.forwardRef<
   React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
   Omit<React.ComponentProps<typeof SelectAttributionProvider>, 'children'> &
-  React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-    scope?: string;
-    placeholder?: string;
-    size?: AvatarProps['size'];
-  }
+    React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
+      scope?: string;
+      placeholder?: string;
+      size?: AvatarProps['size'];
+    }
 >(
   (
     {
@@ -431,7 +430,7 @@ export const SelectAttributionDetail = ({
   ...props
 }: Omit<React.ComponentProps<typeof SelectAttributionProvider>, 'children'> & {
   className?: string;
-  size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
+  size?: SizeType;
   placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -473,7 +472,7 @@ export const SelectAttributionRoot = ({
   ...props
 }: Omit<React.ComponentProps<typeof SelectAttributionProvider>, 'children'> & {
   className?: string;
-  size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
+  size?: SizeType;
   placeholder?: string;
   scope?: string;
 }) => {
@@ -509,7 +508,7 @@ export const SelectAttributionCustomDetail = ({
   ...props
 }: Omit<React.ComponentProps<typeof SelectAttributionProvider>, 'children'> & {
   className?: string;
-  size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
+  size?: SizeType;
 }) => {
   const [open, setOpen] = useState(false);
   return (
