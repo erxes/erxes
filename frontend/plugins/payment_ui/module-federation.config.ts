@@ -10,22 +10,26 @@ const coreLibraries = new Set([
   'jotai',
   'ui-modules',
   'react-i18next',
+  '@stripe/react-stripe-js',
+  '@stripe/stripe-js',
 ]);
 
 const config: ModuleFederationConfig = {
   name: 'payment_ui',
+
   exposes: {
     './config': './src/config.tsx',
     './paymentSettings': './src/modules/payment/Settings.tsx',
-    './widgets': './src/widgets/Widgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
     if (coreLibraries.has(libraryName)) {
-      return defaultConfig;
+      return {
+        ...defaultConfig,
+        singleton: true,
+        requiredVersion: false,
+      };
     }
-
-    // Returning false means the library is not shared.
     return false;
   },
 };

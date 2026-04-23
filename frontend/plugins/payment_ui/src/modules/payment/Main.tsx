@@ -7,14 +7,15 @@ const IndexPage = lazy(() =>
   })),
 );
 
-const paymentMain = () => {
+const PaymentMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/" element={<IndexPage />} />       
+        {/* Admin page */}
+        <Route path="/" element={<IndexPage />} />
       </Routes>
     </Suspense>
   );
 };
 
-export default paymentMain;
+export default PaymentMain;
