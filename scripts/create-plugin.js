@@ -37,18 +37,18 @@ async function createPlugin() {
 
   // Convert plugin name to kebab case
   const kebabCaseName = pluginName
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .replace(/[\s_]+/g, '-')
+    .replaceAll(/([a-z])([A-Z])/g, '$1-$2')
+    .replaceAll(/[\s_]+/g, '-')
     .toLowerCase();
 
-  const PascalCaseName = pluginName.replace(/(^\w|-\w)/g, (match) =>
-    match.replace('-', '').toUpperCase(),
+  const PascalCaseName = pluginName.replaceAll(/(^\w|-\w)/g, (match) =>
+    match.replaceAll('-', '').toUpperCase(),
   );
 
   // Convert module name to kebab case
   const kebabCaseModuleName = moduleName
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .replace(/[\s_]+/g, '-')
+    .replaceAll(/([a-z])([A-Z])/g, '$1-$2')
+    .replaceAll(/[\s_]+/g, '-')
     .toLowerCase();
 
   // Create frontend plugin
