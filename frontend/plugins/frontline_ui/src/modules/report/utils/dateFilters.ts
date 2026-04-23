@@ -94,24 +94,26 @@ export function getDateRange(value: string) {
         // Month format: YYYY-MMM
         const [year, month] = value.split('-');
         const monthIndex = MONTHS.indexOf(month);
-        fromDate = startOfDay(new Date(parseInt(year), monthIndex, 1));
-        toDate = endOfDay(new Date(parseInt(year), monthIndex + 1, 0));
+        fromDate = startOfDay(new Date(Number.parseInt(year), monthIndex, 1));
+        toDate = endOfDay(new Date(Number.parseInt(year), monthIndex + 1, 0));
       } else if (value.includes('quarter')) {
         // Quarter format: YYYY-quarterN
         const [year] = value.split('-');
         const quarterNumber = Number.parseInt(value.split('quarter')[1]);
         fromDate = startOfDay(
-          new Date(parseInt(year), (quarterNumber - 1) * 3, 1),
+          new Date(Number.parseInt(year), (quarterNumber - 1) * 3, 1),
         );
-        toDate = endOfDay(new Date(parseInt(year), quarterNumber * 3, 0));
+        toDate = endOfDay(
+          new Date(Number.parseInt(year), quarterNumber * 3, 0),
+        );
       } else if (value.includes('half')) {
         // Half year format: YYYY-halfN
         const [year] = value.split('-');
         const halfNumber = Number.parseInt(value.split('half')[1]);
         fromDate = startOfDay(
-          new Date(parseInt(year), (halfNumber - 1) * 6, 1),
+          new Date(Number.parseInt(year), (halfNumber - 1) * 6, 1),
         );
-        toDate = endOfDay(new Date(parseInt(year), halfNumber * 6, 0));
+        toDate = endOfDay(new Date(Number.parseInt(year), halfNumber * 6, 0));
       } else if (/^\d{4}-y$/.test(value)) {
         // Year format: YYYY-y
         const year = Number.parseInt(value);
