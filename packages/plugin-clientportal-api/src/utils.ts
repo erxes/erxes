@@ -797,7 +797,6 @@ export const fetchUserFromToki = async (
 
   const apiKey = clientPortal.tokiConfig.apiKey;
   const apiUrl = clientPortal.tokiConfig.production ? prodApiUrl : testApiUrl;
-  console.log({ apiUrl, token, apiKey });
 
   try {
     const response = await fetch(

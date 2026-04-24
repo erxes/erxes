@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.17.43](https://github.com/erxes/erxes/compare/2.17.42...2.17.43) (2026-04-24)
+
+### Bug Fixes
+
+* changeScore with score share ([0c412c0](https://github.com/erxes/erxes/commit/0c412c0c834316341abc529d85f770478dc83b62))
+* **configs:** await initFirebase and improve promise handling ([165c052](https://github.com/erxes/erxes/commit/165c052010d5ce9fd857a9872d36dbbcb2c6fc18))
+* ticket departmentIds not saved or filtered correctly  ([1c3c797](https://github.com/erxes/erxes/commit/1c3c797ee384dc231e2cae9a5f9467a196a81a6b))
+
 ## [2.17.42](https://github.com/erxes/erxes/compare/2.17.41...2.17.42) (2026-04-15)
 
 ### Features
