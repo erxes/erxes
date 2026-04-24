@@ -5,7 +5,6 @@ import { useMutation } from '@apollo/client';
 import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
-import { usePosEnv } from '@/pos/hooks/usePosEnv';
 import {
   NameField,
   TypeField,
@@ -65,6 +64,7 @@ const DEFAULT_FORM_VALUES: FormData = {
   pdomain: '',
   beginNumber: '',
 };
+const allAutoInitEnabled = process.env.ALL_AUTO_INIT === 'true';
 
 const Properties: FC<PropertiesProps> = ({
   posId,
@@ -72,13 +72,12 @@ const Properties: FC<PropertiesProps> = ({
   onSaveActionChange,
 }) => {
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
-  const { posEnv, loading: posEnvLoading } = usePosEnv();
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   const isPosType = posType === 'pos';
   const isEcomType = posType === 'ecommerce';
   const isRestaurantType = posType === 'restaurant';
-  const showOnServerField = !posEnvLoading && !posEnv?.ALL_AUTO_INIT;
+  const showOnServerField = !allAutoInitEnabled;
 
   const form = useForm<FormData>({ defaultValues: DEFAULT_FORM_VALUES });
   const { control, handleSubmit, reset, watch, formState } = form;
