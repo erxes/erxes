@@ -1,9 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { Button, Card, Input, Label } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
-import { SelectPipeline } from '../selects/SelectPipeline';
-import { SelectSalesBoard } from '../selects/SelectSalesBoard';
-import { SelectStage } from '../selects/SelectStage';
+import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import {
   MN_CONFIGS_CREATE,
   MN_CONFIGS_REMOVE,
@@ -224,37 +222,37 @@ const PlaceConfig: React.FC = () => {
                 <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
                   Select Board
                 </Label>
-                <SelectSalesBoard
-                  variant="form"
+                <SelectBoard
+                  mode="single"
                   value={formData.boardId}
-                  onValueChange={handleBoardChange}
+                  onValueChange={(v) => handleBoardChange(v as string)}
+                  placeholder="Choose board"
                 />
               </div>
 
               <div>
                 <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
-                  Choose board first
+                  Select Pipeline
                 </Label>
                 <SelectPipeline
-                  variant="form"
+                  mode="single"
                   boardId={formData.boardId}
                   value={formData.pipelineId}
-                  onValueChange={handlePipelineChange}
-                  disabled={!formData.boardId}
+                  onValueChange={(v) => handlePipelineChange(v as string)}
+                  placeholder="Choose pipeline"
                 />
               </div>
 
               <div>
                 <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
-                  Select stage
+                  Select Stage
                 </Label>
                 <SelectStage
-                  id="place-stage"
-                  variant="form"
+                  mode="single"
                   pipelineId={formData.pipelineId}
                   value={formData.stageId}
-                  onValueChange={(v) => updateField('stageId', v)}
-                  disabled={!formData.pipelineId}
+                  onValueChange={(v) => updateField('stageId', v as string)}
+                  placeholder="Choose stage"
                 />
               </div>
             </div>
@@ -287,7 +285,11 @@ const PlaceConfig: React.FC = () => {
                     condition={c}
                     onChange={updateCondition}
                     onRemove={deleteCondition}
-                    onAddCondition={index === formData.conditions.length - 1 ? addCondition : undefined}
+                    onAddCondition={
+                      index === formData.conditions.length - 1
+                        ? addCondition
+                        : undefined
+                    }
                   />
                 ))}
               </div>
