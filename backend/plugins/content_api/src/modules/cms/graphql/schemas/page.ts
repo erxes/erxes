@@ -97,4 +97,5 @@ export const mutations = `
     cmsPagesAdd(input: PageInput!): Page
     cmsPagesEdit(_id: String!, input: PageInput!): Page
     cmsPagesRemove(_id: String!): JSON
+    cpCmsPagesAdd(input: PageInput!): Page
 `;
