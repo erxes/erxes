@@ -243,9 +243,16 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
               <Sheet.Close />
             </Sheet.Header>
 
-            <Sheet.Content className="flex-1 min-h-0 p-0 overflow-y-auto">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <Tabs.Content value="slots" className="m-0">
+            <Sheet.Content className="flex-1 min-h-0 p-0 overflow-hidden">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="flex h-full min-h-0 flex-col"
+              >
+                <Tabs.Content
+                  value="slots"
+                  className="m-0 h-full min-h-0 overflow-hidden"
+                >
                   <SidebarList
                     nodes={nodes}
                     selectedNode={selectedNode}
@@ -256,7 +263,10 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
                   />
                 </Tabs.Content>
 
-                <Tabs.Content value="details" className="m-0">
+                <Tabs.Content
+                  value="details"
+                  className="m-0 h-full min-h-0 overflow-y-auto"
+                >
                   {selectedNode && (
                     <SidebarDetail
                       onSave={handleSidebarSave}
