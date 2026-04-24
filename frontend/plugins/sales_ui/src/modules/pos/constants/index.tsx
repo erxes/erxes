@@ -111,7 +111,6 @@ export const getSteps = (posType: string | null) => {
     { value: 'appearance', title: 'Brand Color & Logo' },
     { value: 'screen', title: 'Screen' },
     { value: 'ebarimt', title: 'Ebarimt' },
-    { value: 'finance', title: 'Erkhet' },
     { value: 'delivery', title: 'Delivery' },
     { value: 'sync', title: 'Sync card' },
   ];
