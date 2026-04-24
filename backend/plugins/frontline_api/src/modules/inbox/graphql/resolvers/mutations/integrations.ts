@@ -24,6 +24,13 @@ import {
   facebookRepairIntegrations,
   facebookUpdateIntegrations,
 } from '@/integrations/facebook/messageBroker';
+import {
+  instagramCreateIntegrations,
+  instagramRemoveIntegrations,
+  instagramRemoveAccount,
+  instagramRepairIntegrations,
+  instagramUpdateIntegrations,
+} from '@/integrations/instagram/messageBroker';
 import { getUniqueValue, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -66,8 +73,7 @@ export const sendCreateIntegration = async (
         return await imapCreateIntegration({ subdomain, data });
 
       case 'instagram':
-        // TODO: Implement Instagram integration
-        break;
+        return await instagramCreateIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         // TODO: Implement MobinetSms integration
@@ -95,7 +101,7 @@ export const sendUpdateIntegration = async (
       case 'calls':
         return await callUpdateIntegration({ subdomain, data });
       case 'instagram':
-        break;
+        return await instagramUpdateIntegrations({ subdomain, data });
       case 'imap':
         return await imapUpdateIntegration({ subdomain, data });
 
@@ -124,7 +130,7 @@ export const sendRemoveIntegration = async (
       case 'calls':
         return await callRemoveIntergration({ subdomain, data });
       case 'instagram':
-        break;
+        return await instagramRemoveIntegrations({ subdomain, data });
       case 'imap':
         return await imapRemoveIntegrations({ subdomain, data });
 
@@ -152,7 +158,7 @@ export const sendRemoveAccount = async (
         return await facebookRemoveAccount({ subdomain, data });
 
       case 'instagram':
-        break;
+        return await instagramRemoveAccount({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -178,7 +184,7 @@ export const sendRepairIntegration = async (
         return await facebookRepairIntegrations({ subdomain, data });
 
       case 'instagram':
-        break;
+        return await instagramRepairIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         break;

@@ -53,6 +53,19 @@ export const TR_JOURNAL_LABELS = {
 };
 
 export const TR_PERFECT_JOURNALS = [TrJournalEnum.INV_MOVE];
+export const ORIGIN_TR_JOURNALS = [
+  TrJournalEnum.MAIN,
+  TrJournalEnum.TAX,
+  TrJournalEnum.CASH,
+  TrJournalEnum.BANK,
+  TrJournalEnum.RECEIVABLE,
+  TrJournalEnum.PAYABLE,
+  TrJournalEnum.INV_INCOME,
+  TrJournalEnum.INV_OUT,
+  TrJournalEnum.INV_MOVE,
+  TrJournalEnum.INV_SALE,
+  TrJournalEnum.INV_SALE_RETURN,
+]
 
 export const TR_SIDES = {
   DEBIT: 'dt' as const,

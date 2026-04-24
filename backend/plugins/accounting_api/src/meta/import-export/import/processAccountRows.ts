@@ -83,9 +83,12 @@ export async function processAccountRows(
     const departmentIds: string[] = [];
     for (const row of rows) {
       if (row.code) codes.push(row.code);
-      if (row.categoryId) categoryIds.push(row.categoryId);
-      if (row.branchId) branchIds.push(row.branchId);
-      if (row.departmentId) departmentIds.push(row.departmentId);
+      if (row.categoryId && !categoryIds.includes(row.categoryId))
+        categoryIds.push(row.categoryId);
+      if (row.branchId && !branchIds.includes(row.branchId))
+        branchIds.push(row.branchId);
+      if (row.departmentId && !departmentIds.includes(row.departmentId))
+        departmentIds.push(row.departmentId);
     }
 
     const categories = await models.AccountCategories.find(
@@ -96,36 +99,36 @@ export async function processAccountRows(
     );
     const branches = branchIds.length
       ? await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'branches',
-          action: 'find',
-          defaultValue: [],
-          input: {
-            query: {
-              $or: [{ _id: { $in: branchIds } }, { code: { $in: branchIds } }],
-            },
-            fields: { _id: 1, code: 1 },
+        subdomain,
+        pluginName: 'core',
+        module: 'branches',
+        action: 'find',
+        defaultValue: [],
+        input: {
+          query: {
+            $or: [{ _id: { $in: branchIds } }, { code: { $in: branchIds } }],
           },
-        })
+          fields: { _id: 1, code: 1 },
+        },
+      })
       : [];
     const departments = departmentIds.length
       ? await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'departments',
-          action: 'find',
-          defaultValue: [],
-          input: {
-            query: {
-              $or: [
-                { _id: { $in: departmentIds } },
-                { code: { $in: departmentIds } },
-              ],
-            },
-            fields: { _id: 1, code: 1 },
+        subdomain,
+        pluginName: 'core',
+        module: 'departments',
+        action: 'find',
+        defaultValue: [],
+        input: {
+          query: {
+            $or: [
+              { _id: { $in: departmentIds } },
+              { code: { $in: departmentIds } },
+            ],
           },
-        })
+          fields: { _id: 1, code: 1 },
+        },
+      })
       : [];
 
     const existingDocs = await models.Accounts.find({
