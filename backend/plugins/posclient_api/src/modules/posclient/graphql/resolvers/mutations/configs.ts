@@ -309,6 +309,7 @@ const configMutations: Record<string, Resolver> = {
 
     return 'chosen';
   },
+  
   refetchRemainder: async (
     _root,
     { categoryId, searchValue }: { categoryId?: string; searchValue?: string },
