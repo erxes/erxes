@@ -1,4 +1,6 @@
+import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import { requireClientPortalId } from '@/cms/graphql/utils/clientPortal';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -35,7 +37,7 @@ const saveTagTranslations = async (
   );
 };
 
-export const contentCmsTagMutations = {
+export const contentCmsTagMutations : Record<string, Resolver> = {
   /**
    * Cms tag add
    */
@@ -57,6 +59,46 @@ export const contentCmsTagMutations = {
       const defaultLanguage = await getDefaultLanguage(
         models,
         tagInput.clientPortalId,
+      );
+
+      const fallback =
+        translations.find(
+          (translation: any) => translation?.language === defaultLanguage,
+        ) || translations[0];
+
+      if (fallback) {
+        tagInput.name = fallback.title || tagInput.name;
+      }
+    }
+
+    const tag = await models.PostTags.createTag(tagInput);
+
+    await saveTagTranslations(models, tag._id, translations || []);
+
+    return tag;
+  },
+
+  cpCmsTagsAdd: async (
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> => {
+    const { models } = context;
+    const clientPortalId = requireClientPortalId(context);
+    const { input } = args;
+    const { translations, clientPortalId: _ignored, ...tagInput } = input;
+    delete tagInput.language;
+
+    tagInput.clientPortalId = clientPortalId;
+
+    if (
+      (!tagInput.name || !String(tagInput.name).trim()) &&
+      Array.isArray(translations) &&
+      translations.length > 0
+    ) {
+      const defaultLanguage = await getDefaultLanguage(
+        models,
+        clientPortalId,
       );
 
       const fallback =
@@ -161,3 +203,8 @@ export const contentCmsTagMutations = {
     return models.PostTags.toggleStatus(_id);
   },
 };
+
+
+contentCmsTagMutations.cpCmsTagsAdd.wrapperConfig={
+  forClientPortal:true,
+}

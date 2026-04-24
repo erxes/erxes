@@ -52,4 +52,5 @@ export const mutations = `
     cmsTagsAdd(input: PostTagInput!): PostTag
     cmsTagsEdit(_id: String!, input: PostTagInput!): PostTag
     cmsTagsRemove(_id: String!): JSON
+    cpCmsTagsAdd(input: PostTagInput!): PostTag
 `;

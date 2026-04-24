@@ -53,7 +53,7 @@ export const inputs = `
     
     description: String
 
-    clientPortalId: String!
+    clientPortalId: String
   }
 
   input CustomFieldGroupInput {
@@ -61,7 +61,7 @@ export const inputs = `
     code: String
     order: Int
     parentId: String
-    clientPortalId: String!
+    clientPortalId: String
     customPostTypeIds: [String]
     enabledPageIds: [String]
     enabledCategoryIds: [String]
@@ -85,10 +85,12 @@ export const queries = `
 
 export const mutations = `
   cmsCustomPostTypesAdd(input: CustomPostTypeInput!): CustomPostType
+  cpCmsCustomPostTypesAdd(input: CustomPostTypeInput!): CustomPostType
   cmsCustomPostTypesEdit(_id: String!, input: CustomPostTypeInput!): CustomPostType
   cmsCustomPostTypesRemove(_id: String!): JSON
 
   cmsCustomFieldGroupsAdd(input: CustomFieldGroupInput!): CustomFieldGroup
+  cpCmsCustomFieldGroupsAdd(input: CustomFieldGroupInput!): CustomFieldGroup
   cmsCustomFieldGroupsEdit(_id: String!, input: CustomFieldGroupInput!): CustomFieldGroup
   cmsCustomFieldGroupsRemove(_id: String!): JSON
 `;
