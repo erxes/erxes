@@ -8,7 +8,6 @@ import { Permission } from '@/pos/components/permission';
 import { Products } from '@/pos/components/products';
 import { Appearance } from '@/pos/components/appearance';
 import { ScreenConfig } from '@/pos/components/screenConfig';
-import { EbarimtConfig } from '@/pos/components/ebarimtConfig';
 import { DeliveryConfig } from '@/pos/components/deliveryConfig';
 import { SyncCard } from '@/pos/components/syncCard';
 
@@ -90,14 +89,6 @@ export const MainContent: React.FC<MainContentProps> = ({
       case 'screen':
         return (
           <ScreenConfig
-            posId={posId}
-            posType={posType}
-            onSaveActionChange={handleSaveActionChange}
-          />
-        );
-      case 'ebarimt':
-        return (
-          <EbarimtConfig
             posId={posId}
             posType={posType}
             onSaveActionChange={handleSaveActionChange}

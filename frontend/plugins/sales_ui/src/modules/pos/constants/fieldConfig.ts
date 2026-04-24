@@ -273,14 +273,6 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
     res: true,
   },
 
-  // Ebarimt Config category fields
-
-  ebarimtSetup: {
-    ecom: true,
-    pos: true,
-    res: true,
-  },
-
   remainderInventorySync: {
     ecom: false,
     pos: true,
