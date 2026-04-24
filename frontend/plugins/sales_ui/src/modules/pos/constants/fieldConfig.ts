@@ -108,7 +108,7 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
     res: false,
   },
   onServer: {
-    ecom: false,
+    ecom: true,
     pos: true,
     res: true,
   },
@@ -270,22 +270,6 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
   printScreen: {
     ecom: true,
     pos: false,
-    res: true,
-  },
-
-  // Ebarimt Config category fields
-
-  ebarimtSetup: {
-    ecom: true,
-    pos: true,
-    res: true,
-  },
-
-  // Finance Config category fields
-
-  erkhetSetup: {
-    ecom: true,
-    pos: true,
     res: true,
   },
 
