@@ -5,13 +5,21 @@ import {
   IconCrane,
   IconGavel,
   IconHelpSquareRounded,
+  IconListCheck,
   IconRotateClockwise2,
   IconStopwatch,
   IconTrashX,
 } from '@tabler/icons-react';
 import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
 import { format } from 'date-fns-tz';
-import { Button, DatePicker, RecordTable, Spinner, Tooltip } from 'erxes-ui';
+import {
+  Button,
+  DatePicker,
+  Input,
+  RecordTable,
+  Spinner,
+  Tooltip,
+} from 'erxes-ui';
 import { IAdjustClosing } from '~/modules/adjustments/closing/types/AdjustClosing';
 import { ADJ_INV_STATUSES } from '~/modules/adjustments/inventories/types/AdjustInventory';
 import { useAdjustClosingRun } from '../hooks/useAdjustClosingRun';
@@ -22,7 +30,7 @@ import {
 import { useAdjustClosingPublish } from '../hooks/useAdjustClosingPublish';
 import { useAdjustClosingEntryRemove } from '../hooks/useAdjustClosingRemove';
 import { useAdjustClosingCancel } from '../hooks/useAdjustClosingCancel';
-import { adjustClosingDetailTableColumns } from './AdjustClosingDetailColumns';
+import { useAdjustClosingEdit } from '../hooks/useAdjustClosingEdit';
 
 interface AdjustClosingDetailProps {
   id?: string;
@@ -44,6 +52,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
     skip: !id,
   });
 
+  const { adjustClosingEdit } = useAdjustClosingEdit();
   const { runAdjust } = useAdjustClosingRun(id ?? '');
   const { publishAdjust } = useAdjustClosingPublish(id ?? '');
   const { cancelAdjust } = useAdjustClosingCancel(id ?? '');
@@ -61,6 +70,19 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const handlePublish = () => publishAdjust();
   const handleCancel = () => cancelAdjust();
   const handleDelete = () => removeAdjust(id);
+
+  const handlePercentChange = (
+    detailId: string,
+    entryId: string,
+    value: string,
+  ) => {
+    const percent = parseFloat(value);
+    if (isNaN(percent)) return;
+
+    adjustClosingEdit({
+      variables: { _id: id, detailId, entryId, percent },
+    });
+  };
 
   const renderEvents = () => {
     const status = adjustClosingDetail?.status || ADJ_INV_STATUSES.DRAFT;
@@ -118,6 +140,56 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
     }
   };
 
+  // 1. Салбар бүрийн хүснэгтийг рендерлэх функц
+  const renderDetailTable = (detail: any) => (
+    <div
+      key={detail._id}
+      className="mb-8 bg-card border rounded-lg overflow-hidden shadow-sm"
+    >
+      <div className="bg-muted/40 p-3 flex justify-between border-b text-sm font-medium">
+        <div className="flex gap-4">
+          <span>
+            Салбар: <b className="text-primary">{detail.branchId || 'Бүх'}</b>
+          </span>
+          <span>
+            Хэлтэс:{' '}
+            <b className="text-primary">{detail.departmentId || 'Бүх'}</b>
+          </span>
+        </div>
+      </div>
+
+      <table className="w-full text-sm text-left">
+        <thead className="bg-muted text-xs uppercase text-muted-foreground">
+          <tr>
+            <th className="p-3">Account ID</th>
+            <th className="p-3 text-right">Balance</th>
+            <th className="p-3 text-center w-32">Percent (%)</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {detail.entries.map((entry: any) => (
+            <tr key={entry._id} className="hover:bg-accent/30">
+              <td className="p-3 font-mono text-xs">{entry.accountId}</td>
+              <td className="p-3 text-right">
+                {new Intl.NumberFormat().format(entry.balance)}
+              </td>
+              <td className="p-3">
+                <Input
+                  type="number"
+                  className="h-8 text-center"
+                  defaultValue={entry.percent}
+                  onBlur={(e) =>
+                    handlePercentChange(detail._id, entry._id, e.target.value)
+                  }
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
     <>
       <div className="m-3 flex-auto">
@@ -127,16 +199,16 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
           <AdjustClosingStatusBar adjustClosing={adjustClosingDetail} />
         )}
 
-        <div className="flex justify-end items-center gap-6">
+        <div className="flex justify-end items-center gap-6 mt-4">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-accent-foreground">Status:</span>
-            <span className="text-primary font-bold">
+            <span className="text-primary font-bold uppercase">
               {adjustClosingDetail?.status}
             </span>
           </div>
 
           {adjustClosingDetail?.status && (
-            <span className="text-sm">
+            <span className="text-sm text-muted-foreground">
               {`${format(
                 adjustClosingDetail.updatedAt ?? adjustClosingDetail.createdAt,
                 'yyyy-MM-dd HH:mm:ss',
@@ -144,31 +216,31 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
             </span>
           )}
 
-          {renderEvents()}
+          <div className="flex gap-2">{renderEvents()}</div>
         </div>
       </div>
 
-      <RecordTable.Provider
-        columns={adjustClosingDetailTableColumns}
-        data={adjustClosingDetail?.entries ?? []}
-        className="m-3"
-      >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-              {!detailsLoading &&
-                adjustClosingDetailsCount > adjustClosingDetails?.length && (
-                  <RecordTable.RowSkeleton
-                    rows={4}
-                    handleInView={handleFetchMore}
-                  />
-                )}
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
+      <div className="m-3 space-y-4">
+        {adjustClosingDetail?.details &&
+        adjustClosingDetail.details.length > 0 ? (
+          adjustClosingDetail.details.map(renderDetailTable)
+        ) : (
+          <div className="p-10 text-center border-2 border-dashed rounded-lg text-muted-foreground">
+            No entries found. Please check your process.
+          </div>
+        )}
+
+        {!detailsLoading &&
+          adjustClosingDetailsCount > (adjustClosingDetails?.length || 0) && (
+            <Button
+              onClick={handleFetchMore}
+              variant="ghost"
+              className="w-full"
+            >
+              Load More
+            </Button>
+          )}
+      </div>
     </>
   );
 };

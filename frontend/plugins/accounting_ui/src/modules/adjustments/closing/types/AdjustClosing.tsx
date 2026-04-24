@@ -25,22 +25,24 @@ export interface IClosingDetailEntry {
   integrateTrId?: string;
 }
 
+export interface IAdjustClosingDetailItem {
+  _id: string;
+  branchId?: string;
+  departmentId?: string;
+  entries: IClosingDetailEntry[];
+  createdAt?: Date;
+}
+
 export interface IAdjustClosingDetail extends IAdjustClosing {
   _id: string;
+  details: IAdjustClosingDetailItem[];
 
   entries: IClosingDetailEntry[];
 
-  accountId: string;
-  balance?: number;
-  percent?: number;
-
-  mainAccTrId?: string;
-  integrateTrId?: string;
-
-  branchId?: string;
-  departmentId?: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
-
 export interface AdjustClosingDetailQueryData {
   adjustClosingDetail: IAdjustClosingDetail;
 }

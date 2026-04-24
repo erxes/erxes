@@ -5,6 +5,7 @@ import {
 } from '../../@types/adjustClosingEntry';
 import { IModels } from '~/connectionResolvers';
 import { adjustClosingSchema } from '../definitions/adjustClosingEntry';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export interface IAdjustClosingEntryModel
   extends Model<IAdjustClosingDocument> {
@@ -42,22 +43,110 @@ export const loadAdjustClosingClass = (models: IModels, subdomain: string) => {
     }
 
     /**
-     * Create Adjust Closing
+     * Хаалтын дэлгэрэнгүйг салбар хэлтэс болон дансны үлдэгдлээр тооцож үүсгэх
      */
-    public static async createAdjustClosing(doc: IAdjustClosing) {
-      const lastEntry = await models.AdjustClosings.findOne({})
-        .sort({ createdAt: -1 })
-        .lean();
+    public static async initDetails(subdomain: string, adj: IAdjustClosing) {
+      const tempAccounts = await models.Accounts.find({ isTemp: true }).lean();
+      const tempAccountIds = tempAccounts.map((a) => a._id);
 
-      if (lastEntry && lastEntry.status !== 'complete') {
-        throw new Error('Previous Adjust Closing is not published yet');
+      if (tempAccountIds.length === 0) return;
+
+      const balances = await models.Transactions.aggregate([
+        {
+          $match: {
+            accountId: { $in: tempAccountIds },
+            date: { $gte: adj.beginDate, $lte: adj.date },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              branchId: '$branchId',
+              departmentId: '$departmentId',
+              accountId: '$accountId',
+            },
+            balance: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$side', 'debit'] },
+                  '$amount',
+                  { $multiply: ['$amount', -1] },
+                ],
+              },
+            },
+          },
+        },
+        { $match: { balance: { $ne: 0 } } },
+      ]);
+
+      if (balances.length === 0) return;
+
+      const detailsMap: { [key: string]: any } = {};
+
+      for (const row of balances) {
+        const { branchId, departmentId, accountId } = row._id;
+        const key = `${branchId || 'none'}-${departmentId || 'none'}`;
+
+        if (!detailsMap[key]) {
+          detailsMap[key] = {
+            _id: Math.random().toString(36).substr(2, 9),
+            branchId,
+            departmentId,
+            entries: [],
+            createdAt: new Date(),
+          };
+        }
+
+        detailsMap[key].entries.push({
+          _id: Math.random().toString(36).substr(2, 9),
+          accountId: accountId,
+          balance: row.balance,
+          percent: 100,
+        });
       }
 
-      return models.AdjustClosings.create({
+      const details = Object.values(detailsMap);
+
+      await models.AdjustClosings.updateOne(
+        { _id: adj._id },
+        { $set: { details } },
+      );
+    }
+
+    /**
+     * Create Adjust Closing
+     */
+    public static async createAdjustClosing(
+      subdomain: string,
+      doc: IAdjustClosing,
+    ) {
+      const lastEntry = await models.AdjustClosings.findOne({})
+        .sort({ date: -1 })
+        .lean();
+
+      // if (lastEntry && lastEntry.status !== 'complete') {
+      //   throw new Error('Previous Adjust Closing is not published yet');
+      // }
+
+      const beginDate = lastEntry ? lastEntry.date : Date();
+
+      const adj = await models.AdjustClosings.create({
         ...doc,
+        beginDate,
         status: 'draft',
         createdAt: new Date(),
       });
+
+      const adjPlain = adj.toObject() as IAdjustClosing;
+
+      try {
+        await this.initDetails(subdomain, adjPlain);
+      } catch (error) {
+        await models.AdjustClosings.deleteOne({ _id: adj._id });
+        throw error;
+      }
+
+      return models.AdjustClosings.findById(adj._id).lean();
     }
 
     /**
