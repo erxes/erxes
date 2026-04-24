@@ -18,7 +18,7 @@ export const ProductPlacesRespondedPage = () => {
       const productPlacesResponded = data.data?.productPlacesResponded;
       if (!productPlacesResponded) return;
 
-      const parsedContent = productPlacesResponded.content;git branch
+      const parsedContent = productPlacesResponded.content;
       if (!parsedContent?.length) return;
 
       const printContents = parsedContent.map((receipt: any, index: number) =>
