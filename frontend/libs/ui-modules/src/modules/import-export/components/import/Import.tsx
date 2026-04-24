@@ -21,6 +21,8 @@ export const Import = ({
   collectionName,
   onFileUploaded,
   additionContent,
+  helperTriggerLabel = 'View import guide',
+  helperDescription = 'Import guide and field reference',
 }: {
   title?: string;
   pluginName: string;
@@ -28,6 +30,8 @@ export const Import = ({
   collectionName: string;
   onFileUploaded?: (file: File) => void;
   additionContent?: () => ReactNode;
+  helperTriggerLabel?: string;
+  helperDescription?: string;
 }) => {
   const inputId = useId();
   const contentType = `${pluginName}:${moduleName}.${collectionName}`;
@@ -65,12 +69,12 @@ export const Import = ({
             className="mt-1 w-full justify-start gap-2 border border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
           >
             <IconHelpCircle className="size-4" />
-            Гарын авлага харах
+            {helperTriggerLabel}
           </Button>
         </Dialog.Trigger>
         <Dialog.ContentCombined
           title={resolvedTitle}
-          description="Import guide and field reference"
+          description={helperDescription}
           className="w-[min(1100px,90vw)] max-w-[min(1100px,90vw)] sm:max-w-[min(1100px,90vw)] h-[85vh] overflow-hidden grid-rows-[auto_1fr]"
         >
           <ScrollArea className="h-full mx-6 px-6 pb-2">

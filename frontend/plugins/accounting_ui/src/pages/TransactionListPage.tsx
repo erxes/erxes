@@ -158,6 +158,8 @@ export const TransactionListPage = () => {
           collectionName="transactions"
           title='Import Transactions'
           additionContent={renderAdditionHelper}
+          helperTriggerLabel="Гарын авлага харах"
+          helperDescription="Импортын гарын авлага болон талбарын тайлбар"
         />
       </PageSubHeader>
       <TransactionTable />
