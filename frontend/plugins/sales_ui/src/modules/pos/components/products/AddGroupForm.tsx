@@ -128,7 +128,7 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
         variant="outline"
         size="sm"
         onClick={toggleMore}
-        className="flex gap-1 items-center text-muted-foreground"
+        className="mx-auto flex w-fit items-center justify-center gap-1 text-muted-foreground"
       >
         {showMore ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
         {showMore ? 'Hide more options' : 'More options'}

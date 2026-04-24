@@ -116,7 +116,7 @@ export const EcommerceFields = ({
           variant="outline"
           size="sm"
           onClick={toggleMore}
-          className="flex gap-1 items-center text-muted-foreground"
+          className="mx-auto flex w-fit items-center justify-center gap-1 text-muted-foreground"
         >
           {showMore ? (
             <IconChevronUp size={16} />
