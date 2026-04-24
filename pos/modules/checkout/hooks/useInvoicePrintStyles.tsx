@@ -1,31 +1,31 @@
-import { useMemo } from "react"
+import { useMemo } from 'react';
 
 const printTheme = {
   colors: {
-    primary: "#111111",
-    secondary: "#444444",
-    text: "#000000",
-    background: "#ffffff",
-    border: "#cfcfcf",
-    tableBorder: "#222222",
-    danger: "#111111",
-    success: "#111111",
-    headerBg: "#f6f6f6",
+    primary: '#111111',
+    secondary: '#444444',
+    text: '#000000',
+    background: '#ffffff',
+    border: '#cfcfcf',
+    tableBorder: '#222222',
+    danger: '#111111',
+    success: '#111111',
+    headerBg: '#f6f6f6',
   },
   spacing: {
-    xs: "4px",
-    sm: "8px",
-    md: "16px",
-    lg: "24px",
-    xl: "32px",
+    xs: '4px',
+    sm: '8px',
+    md: '16px',
+    lg: '24px',
+    xl: '32px',
   },
   typography: {
-    small: "11px",
-    base: "12px",
-    lg: "15px",
-    xl: "24px",
+    small: '11px',
+    base: '12px',
+    lg: '15px',
+    xl: '24px',
   },
-} as const
+} as const;
 
 export const useInvoicePrintStyles = () => {
   return useMemo(
@@ -33,14 +33,14 @@ export const useInvoicePrintStyles = () => {
       userInfo: {
         container: {
           padding: printTheme.spacing.sm,
-          backgroundColor: "white",
+          backgroundColor: 'white',
           color: printTheme.colors.text,
-          lineHeight: "1.45",
+          lineHeight: '1.45',
         },
 
         heading: {
           fontSize: printTheme.typography.lg,
-          fontWeight: "bold" as const,
+          fontWeight: 'bold' as const,
           color: printTheme.colors.primary,
           marginBottom: printTheme.spacing.md,
         },
@@ -56,7 +56,7 @@ export const useInvoicePrintStyles = () => {
 
         totalAmount: {
           fontSize: printTheme.typography.lg,
-          fontWeight: "bold" as const,
+          fontWeight: 'bold' as const,
           marginTop: printTheme.spacing.md,
         },
 
@@ -67,7 +67,7 @@ export const useInvoicePrintStyles = () => {
         },
 
         emptyCart: {
-          textAlign: "center" as const,
+          textAlign: 'center' as const,
           padding: printTheme.spacing.lg,
           color: printTheme.colors.secondary,
         },
@@ -76,7 +76,7 @@ export const useInvoicePrintStyles = () => {
           backgroundColor: printTheme.colors.background,
           padding: printTheme.spacing.md,
           color: printTheme.colors.primary,
-          lineHeight: "1.45",
+          lineHeight: '1.45',
           fontSize: printTheme.typography.base,
           marginBottom: printTheme.spacing.md,
           border: `1px solid ${printTheme.colors.border}`,
@@ -89,20 +89,20 @@ export const useInvoicePrintStyles = () => {
         },
 
         dateGrid: {
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
           gap: printTheme.spacing.lg,
         },
 
         dateLabel: {
-          fontWeight: "bold" as const,
+          fontWeight: 'bold' as const,
           color: printTheme.colors.primary,
           marginBottom: printTheme.spacing.sm,
         },
 
         dateValue: {
-          fontWeight: "500" as const,
-          marginBottom: "4px",
+          fontWeight: '500' as const,
+          marginBottom: '4px',
         },
 
         dateTime: {
@@ -112,8 +112,8 @@ export const useInvoicePrintStyles = () => {
 
         deadlineDate: {
           color: printTheme.colors.danger,
-          fontWeight: "bold" as const,
-          marginBottom: "4px",
+          fontWeight: 'bold' as const,
+          marginBottom: '4px',
         },
 
         deadlineNote: {
@@ -129,13 +129,13 @@ export const useInvoicePrintStyles = () => {
         },
 
         signatureLabel: {
-          fontWeight: "bold" as const,
+          fontWeight: 'bold' as const,
           marginBottom: printTheme.spacing.sm,
         },
 
         signatureLine: {
-          width: "192px",
-          height: "24px",
+          width: '192px',
+          height: '24px',
           borderBottom: `1px solid ${printTheme.colors.secondary}`,
           marginBottom: printTheme.spacing.sm,
         },
@@ -148,14 +148,14 @@ export const useInvoicePrintStyles = () => {
 
       table: {
         container: {
-          width: "100%",
+          width: '100%',
           marginTop: printTheme.spacing.md,
           marginBottom: printTheme.spacing.md,
         },
 
         table: {
-          width: "100%",
-          borderCollapse: "collapse" as const,
+          width: '100%',
+          borderCollapse: 'collapse' as const,
           fontSize: printTheme.typography.base,
         },
 
@@ -166,21 +166,21 @@ export const useInvoicePrintStyles = () => {
         headerCell: {
           border: `1px solid ${printTheme.colors.tableBorder}`,
           padding: `${printTheme.spacing.md} ${printTheme.spacing.sm}`,
-          fontWeight: "bold" as const,
+          fontWeight: 'bold' as const,
         },
 
         headerCellCenter: {
           border: `1px solid ${printTheme.colors.tableBorder}`,
           padding: `${printTheme.spacing.md} ${printTheme.spacing.sm}`,
-          textAlign: "center" as const,
-          fontWeight: "bold" as const,
+          textAlign: 'center' as const,
+          fontWeight: 'bold' as const,
         },
 
         headerCellRight: {
           border: `1px solid ${printTheme.colors.tableBorder}`,
           padding: `${printTheme.spacing.md} ${printTheme.spacing.sm}`,
-          textAlign: "right" as const,
-          fontWeight: "bold" as const,
+          textAlign: 'right' as const,
+          fontWeight: 'bold' as const,
         },
 
         cell: {
@@ -191,32 +191,32 @@ export const useInvoicePrintStyles = () => {
         cellCenter: {
           border: `1px solid ${printTheme.colors.tableBorder}`,
           padding: `10px ${printTheme.spacing.sm}`,
-          textAlign: "center" as const,
-          fontWeight: "500" as const,
+          textAlign: 'center' as const,
+          fontWeight: '500' as const,
         },
 
         cellRight: {
           border: `1px solid ${printTheme.colors.tableBorder}`,
           padding: `10px ${printTheme.spacing.sm}`,
-          textAlign: "right" as const,
+          textAlign: 'right' as const,
         },
 
         cellRightBold: {
           border: `1px solid ${printTheme.colors.tableBorder}`,
           padding: `10px ${printTheme.spacing.sm}`,
-          textAlign: "right" as const,
-          fontWeight: "500" as const,
+          textAlign: 'right' as const,
+          fontWeight: '500' as const,
         },
 
         productName: {
-          fontWeight: "500" as const,
-          marginBottom: "4px",
+          fontWeight: '500' as const,
+          marginBottom: '4px',
         },
 
         takeAwayLabel: {
           fontSize: printTheme.typography.small,
           color: printTheme.colors.success,
-          fontWeight: "500" as const,
+          fontWeight: '500' as const,
         },
       },
 
@@ -224,14 +224,14 @@ export const useInvoicePrintStyles = () => {
         container: {
           color: printTheme.colors.text,
           padding: printTheme.spacing.lg,
-          maxWidth: "100%",
-          margin: "0 auto",
-          backgroundColor: "white",
+          maxWidth: '100%',
+          margin: '0 auto',
+          backgroundColor: 'white',
           border: `1px solid ${printTheme.colors.border}`,
-          borderRadius: "8px",
+          borderRadius: '8px',
           marginTop: printTheme.spacing.xl,
           marginBottom: printTheme.spacing.xl,
-          fontFamily: "Arial, sans-serif",
+          fontFamily: 'Arial, sans-serif',
         },
 
         headerSection: {
@@ -242,8 +242,8 @@ export const useInvoicePrintStyles = () => {
 
         title: {
           fontSize: printTheme.typography.xl,
-          fontWeight: "bold" as const,
-          textAlign: "center" as const,
+          fontWeight: 'bold' as const,
+          textAlign: 'center' as const,
           marginBottom: printTheme.spacing.sm,
           color: printTheme.colors.primary,
         },
@@ -251,21 +251,21 @@ export const useInvoicePrintStyles = () => {
         contentWrapper: {
           backgroundColor: printTheme.colors.background,
           padding: printTheme.spacing.md,
-          borderRadius: "8px",
+          borderRadius: '8px',
           border: `1px solid ${printTheme.colors.border}`,
         },
       },
 
       columnWidths: {
-        index: "60px",
-        quantity: "120px",
-        unitPrice: "140px",
-        withoutVat: "140px",
-        totalPrice: "140px",
+        index: '60px',
+        quantity: '120px',
+        unitPrice: '140px',
+        withoutVat: '140px',
+        totalPrice: '140px',
       },
 
       theme: printTheme,
     }),
     []
-  )
-}
+  );
+};
