@@ -1,4 +1,9 @@
+import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import {
+  assertOwnedDocument,
+  requireClientPortalId,
+} from '@/cms/graphql/utils/clientPortal';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -35,7 +40,7 @@ const saveCategoryTranslations = async (
   );
 };
 
-export const contentCmsCategoryMutations = {
+export const contentCmsCategoryMutations : Record<string, Resolver> = {
   /**
    * Cms category add
    */
@@ -57,6 +62,59 @@ export const contentCmsCategoryMutations = {
       const defaultLanguage = await getDefaultLanguage(
         models,
         categoryInput.clientPortalId,
+      );
+
+      const fallback =
+        translations.find(
+          (translation: any) => translation?.language === defaultLanguage,
+        ) || translations[0];
+
+      if (fallback) {
+        categoryInput.name = fallback.title || categoryInput.name;
+        categoryInput.description =
+          fallback.content || categoryInput.description;
+        categoryInput.customFieldsData =
+          fallback.customFieldsData || categoryInput.customFieldsData;
+      }
+    }
+
+    const category = await models.Categories.createCategory(categoryInput);
+
+    await saveCategoryTranslations(models, category._id, translations || []);
+
+    return category;
+  },
+
+  cpCmsCategoriesAdd: async (
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> => {
+    const { models } = context;
+    const clientPortalId = requireClientPortalId(context);
+    const { input } = args;
+    const { translations, clientPortalId: _ignored, ...categoryInput } = input;
+    delete categoryInput.language;
+
+    categoryInput.clientPortalId = clientPortalId;
+
+    if (categoryInput.parentId) {
+      await assertOwnedDocument(
+        models.Categories,
+        categoryInput.parentId,
+        clientPortalId,
+        'Parent category not found',
+      );
+    }
+
+    if (
+      (!categoryInput.name || !String(categoryInput.name).trim()) &&
+      Array.isArray(translations) &&
+      translations.length > 0
+    ) {
+      const defaultLanguage = await getDefaultLanguage(
+        models,
+        clientPortalId,
       );
 
       const fallback =
@@ -184,3 +242,7 @@ export const contentCmsCategoryMutations = {
     return models.Categories.toggleStatus(_id);
   },
 };
+
+contentCmsCategoryMutations.cpCmsCategoriesAdd.wrapperConfig={
+  forClientPortal:true,
+}

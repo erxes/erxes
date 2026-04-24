@@ -198,8 +198,10 @@ export const mutations = `
   
       cpPostsIncrementViewCount(_id: String!): Post
       cpPostsReact(_id: String!, reaction: PostReactionType!, action: ReactionModifyType!): Post
+      cpCmsPostsAdd(input: PostInput!): Post
   
       cmsAddTranslation(input: TranslationInput!): Translation
       cmsEditTranslation(input: TranslationInput!): Translation
       cmsDeleteTranslation(_id: String!): JSON
+      cpCmsAddTranslation(input: TranslationInput!): Translation
   `;
