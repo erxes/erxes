@@ -1,17 +1,11 @@
-import {
-  useEffect,
-  useState,
-  useCallback,
-  type FC,
-  type ReactNode,
-} from 'react';
+import { useEffect, useCallback, type FC, type ReactNode } from 'react';
 import { InfoCard, Form, Button, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@apollo/client';
 import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { usePosEnv } from '@/pos/hooks/usePosEnv';
 import {
   NameField,
   TypeField,
@@ -35,33 +29,6 @@ interface PropertiesProps {
   posType?: string;
   onSaveActionChange?: (action: ReactNode | null) => void;
 }
-
-interface MoreOptionsButtonProps {
-  showMore: boolean;
-  onToggle: () => void;
-}
-
-const MoreOptionsButton = ({ showMore, onToggle }: MoreOptionsButtonProps) => (
-  <Button
-    type="button"
-    variant="outline"
-    size="sm"
-    className="flex gap-1 items-center text-muted-foreground"
-    onClick={onToggle}
-  >
-    {showMore ? (
-      <>
-        <IconChevronUp size={16} />
-        Hide more options
-      </>
-    ) : (
-      <>
-        <IconChevronDown size={16} />
-        More options
-      </>
-    )}
-  </Button>
-);
 
 const LoadingSkeleton = () => (
   <div className="p-6">
@@ -105,12 +72,13 @@ const Properties: FC<PropertiesProps> = ({
   onSaveActionChange,
 }) => {
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
+  const { posEnv } = usePosEnv();
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
-  const [showMoreFields, setShowMoreFields] = useState(false);
 
   const isPosType = posType === 'pos';
   const isEcomType = posType === 'ecommerce';
   const isRestaurantType = posType === 'restaurant';
+  const showOnServerField = !posEnv?.ALL_AUTO_INIT;
 
   const form = useForm<FormData>({ defaultValues: DEFAULT_FORM_VALUES });
   const { control, handleSubmit, reset, watch, formState } = form;
@@ -190,10 +158,6 @@ const Properties: FC<PropertiesProps> = ({
     },
     [posId, posEdit, reset],
   );
-
-  const toggleMoreFields = useCallback(() => {
-    setShowMoreFields((prev) => !prev);
-  }, []);
 
   useEffect(() => {
     if (!onSaveActionChange) {
@@ -281,14 +245,7 @@ const Properties: FC<PropertiesProps> = ({
                 </>
               )}
 
-              <div className="flex justify-center">
-                <MoreOptionsButton
-                  showMore={showMoreFields}
-                  onToggle={toggleMoreFields}
-                />
-              </div>
-
-              {isPosType && showMoreFields && (
+              {isPosType && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {isFieldVisible('description', posType) && (
                     <DescriptionField control={control} />
@@ -302,13 +259,11 @@ const Properties: FC<PropertiesProps> = ({
                   {isFieldVisible('chooseDepartment', posType) && (
                     <DepartmentField control={control} />
                   )}
-                  {isFieldVisible('onServer', posType) && (
-                    <OnServerField control={control} />
-                  )}
+                  {showOnServerField && <OnServerField control={control} />}
                 </div>
               )}
 
-              {isEcomType && showMoreFields && (
+              {isEcomType && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {isFieldVisible('description', posType) && (
                     <DescriptionField control={control} />
@@ -322,10 +277,11 @@ const Properties: FC<PropertiesProps> = ({
                   {isFieldVisible('chooseDepartment', posType) && (
                     <DepartmentField control={control} />
                   )}
+                  {showOnServerField && <OnServerField control={control} />}
                 </div>
               )}
 
-              {isRestaurantType && showMoreFields && (
+              {isRestaurantType && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {isFieldVisible('description', posType) && (
                     <DescriptionField control={control} />
@@ -342,9 +298,7 @@ const Properties: FC<PropertiesProps> = ({
                   {isFieldVisible('chooseDepartment', posType) && (
                     <DepartmentField control={control} />
                   )}
-                  {isFieldVisible('onServer', posType) && (
-                    <OnServerField control={control} />
-                  )}
+                  {showOnServerField && <OnServerField control={control} />}
                 </div>
               )}
             </form>
