@@ -14,8 +14,12 @@ import {
   TImportExportProducers,
   TGetExportDataInput,
   TGetExportHeadersInput,
+  TGetImportHeadersInput,
+  TInsertImportRowsInput,
 } from 'erxes-api-shared/core-modules';
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
+import { dealExportHandlers } from './modules/sales/meta/import-export/export/exportHandlers';
+import { dealImportHandlers } from './modules/sales/meta/import-export/import/importHandlers';
 
 startPlugin({
   name: 'sales',
@@ -69,6 +73,17 @@ startPlugin({
     notifications,
     afterProcess,
     importExport: {
+      import: {
+        configured: true,
+        hasGetImportHeaders: true,
+        hasInsertImportRows: true,
+        types: [
+          {
+            label: 'Deal',
+            contentType: 'sales:deal.deal',
+          },
+        ],
+      },
       export: {
         configured: true,
         hasGetExportHeaders: true,
@@ -78,28 +93,58 @@ startPlugin({
             label: 'POS Items',
             contentType: 'sales:pos.posItems',
           },
+          {
+            label: 'Deal',
+            contentType: 'sales:deal.deal',
+          },
         ],
       },
     },
   } as any,
   importExport: {
+    import: {
+      types: [
+        {
+          label: 'Deal',
+          contentType: 'sales:deal.deal',
+        },
+      ],
+      getImportHeaders: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { deal: dealImportHandlers },
+        methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+        extractModuleName: (input: TGetImportHeadersInput) => input.moduleName,
+        generateModels,
+      }),
+      insertImportRows: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { deal: dealImportHandlers },
+        methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+        extractModuleName: (input: TInsertImportRowsInput) => input.moduleName,
+        generateModels,
+      }),
+    },
     export: {
       types: [
         {
           label: 'POS Items',
           contentType: 'sales:pos.posItems',
         },
+        {
+          label: 'Deal',
+          contentType: 'sales:deal.deal',
+        },
       ],
       getExportHeaders: createCoreModuleProducerHandler({
         moduleName: 'importExport',
-        modules: { pos: posExportHandlers },
+        modules: { pos: posExportHandlers, deal: dealExportHandlers },
         methodName: TImportExportProducers.GET_EXPORT_HEADERS,
         extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
         generateModels,
       }),
       getExportData: createCoreModuleProducerHandler({
         moduleName: 'importExport',
-        modules: { pos: posExportHandlers },
+        modules: { pos: posExportHandlers, deal: dealExportHandlers },
         methodName: TImportExportProducers.GET_EXPORT_DATA,
         extractModuleName: (input: TGetExportDataInput) => input.moduleName,
         generateModels,
