@@ -243,6 +243,12 @@ export const types = `
     list: [GroupTourItem]
     total: Int
   }
+
+  type TourDateStatusSyncResult {
+    matchedCount: Int
+    modifiedCount: Int
+    skippedCount: Int
+  }
 `;
 
 export const queries = `
@@ -293,7 +299,7 @@ const params = `
   joinPercent: Float,
   advanceCheck: Boolean,
   status: String,
-  date_status: DATE_STATUS!
+  date_status: DATE_STATUS
   cost: Float,
   location: [BMSLocationInput],
   guides: [GuideItemInput],
@@ -320,6 +326,7 @@ export const mutations = `
   bmsTourRemove(ids: [String]): JSON
   bmsTourViewCount(_id: String): JSON
   bmsTourEdit(_id: String!, ${params}): Tour
+  bmsTourDateStatusSync(timezone: String): TourDateStatusSyncResult
 
   bmsTourCategoryAdd(${categoryParams}): TourCategory
   bmsTourCategoryRemove(_id: String, ids: [String]): JSON
