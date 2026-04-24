@@ -72,13 +72,13 @@ const Properties: FC<PropertiesProps> = ({
   onSaveActionChange,
 }) => {
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
-  const { posEnv } = usePosEnv();
+  const { posEnv, loading: posEnvLoading } = usePosEnv();
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   const isPosType = posType === 'pos';
   const isEcomType = posType === 'ecommerce';
   const isRestaurantType = posType === 'restaurant';
-  const showOnServerField = !posEnv?.ALL_AUTO_INIT;
+  const showOnServerField = !posEnvLoading && !posEnv?.ALL_AUTO_INIT;
 
   const form = useForm<FormData>({ defaultValues: DEFAULT_FORM_VALUES });
   const { control, handleSubmit, reset, watch, formState } = form;
