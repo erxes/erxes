@@ -42,7 +42,6 @@ export const userMutations: Record<string, Resolver> = {
   ) {
     const { type, userIds } = params;
 
-    // Зөвхөн true/false flag-аар шинэчлэх
     const updateField =
       type === 'email' ? { isEmailVerified: true } : { isPhoneVerified: true };
 
