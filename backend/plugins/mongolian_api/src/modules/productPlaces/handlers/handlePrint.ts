@@ -108,15 +108,15 @@ export const handlePrint = async (
   }
 
   if (!content.length) {
-    return;
-  }
+  return;
+}
 
-  await graphqlPubsub.publish(`productPlacesResponded:${user}`, {
-    productPlacesResponded: {
-      userId: user,
-      responseId: deal._id,
-      sessionCode: '',
-      content,
-    },
-  });
+await graphqlPubsub.publish(`productPlacesResponded:${user}`, {
+  productPlacesResponded: {
+    userId: user,
+    responseId: deal._id,
+    sessionCode: '',
+    content,
+  },
+});
 };
