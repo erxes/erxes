@@ -25,11 +25,15 @@ const Ebarimt = ({
 
     if (type === "B2B_RECEIPT")
       return (
-        <div>
-          {customerTin !== registerNumber ? <p>
-            <span className="text-[10px]">ТТД:</span>{" "}
-            <span className="font-semibold">{customerTin}</span>
-          </p> : ''}
+        <div className="space-y-0.5">
+          {customerTin !== registerNumber ? (
+            <p>
+              <span className="text-[10px]">ТТД:</span>{" "}
+              <span className="font-semibold">{customerTin}</span>
+            </p>
+          ) : (
+            ""
+          )}
           <p>
             <span className="text-[10px]">РД:</span>{" "}
             <span className="font-semibold">{registerNumber}</span>
@@ -62,9 +66,9 @@ const Ebarimt = ({
   }
 
   return (
-    <div className="flex items-center border-t pt-1 px-2 gap-2">
+    <div className="flex items-center gap-2 px-2 receipt-print__section">
       {!printType && !!qrData && <QRCodeSVG value={qrData || ""} />}
-      <div className="font-base text-[11px] ">{renderLotteryCode()}</div>
+      <div className="font-base text-[11px]">{renderLotteryCode()}</div>
     </div>
   )
 }
