@@ -91,6 +91,7 @@ export const queries = `
 
     cpPages(language: String): [Page]
     cpPageList(language: String, ${GQL_CURSOR_PARAM_DEFS}): PageList
+    cpCmsPageDetail(_id: String, slug: String, language: String): Page
 `;
 
 export const mutations = `

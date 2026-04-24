@@ -51,6 +51,7 @@ export const queries = `
     cmsCategory(_id: String, slug: String, language: String, clientPortalId: String): PostCategory
 
     cpCategories(clientPortalId: String, language: String): PostCategoryListResponse
+    cpCmsCategoryDetail(_id: String, slug: String, language: String): PostCategory
 `;
 
 export const mutations = `
