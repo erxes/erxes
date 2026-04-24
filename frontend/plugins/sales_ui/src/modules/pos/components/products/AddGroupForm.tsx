@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Button, Label } from 'erxes-ui';
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { Label } from 'erxes-ui';
 import { SelectProduct } from 'ui-modules';
 import { SelectCategory } from '@/pos/hooks/SelectCategory';
+import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { nanoid } from 'nanoid';
 
@@ -123,16 +123,7 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
         />
       </div>
 
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={toggleMore}
-        className="mx-auto flex w-fit items-center justify-center gap-1 text-muted-foreground"
-      >
-        {showMore ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
-        {showMore ? 'Hide more options' : 'More options'}
-      </Button>
+      <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
 
       {showMore && (
         <>

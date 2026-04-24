@@ -1,4 +1,4 @@
-import { Label, Button, Form } from 'erxes-ui';
+import { Label, Form } from 'erxes-ui';
 import { useState, useEffect, useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { PosFormData } from '@/pos/components/pos-create/PosCreate';
@@ -6,7 +6,7 @@ import { SelectBranches, SelectMember, SelectProduct } from 'ui-modules';
 import { SelectCategory } from '@/pos/hooks/SelectCategory';
 import { SelectPayment } from '@/pos/components/payment/SelectPayment';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import { nanoid } from 'nanoid';
 
 interface PosFieldsProps {
@@ -159,20 +159,7 @@ export const PosFields = ({ form, productGroupsRef }: PosFieldsProps) => {
           />
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={toggleMore}
-          className="mx-auto flex w-fit items-center justify-center gap-1 text-muted-foreground"
-        >
-          {showMore ? (
-            <IconChevronUp size={16} />
-          ) : (
-            <IconChevronDown size={16} />
-          )}
-          {showMore ? 'Hide more options' : 'More options'}
-        </Button>
+        <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
 
         {showMore && (
           <>
