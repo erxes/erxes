@@ -210,19 +210,19 @@ const onServerInitImap = async (app) => {
     ),
   );
 
-  const VERSION = getEnv({ name: 'VERSION' });
+  // const VERSION = getEnv({ name: 'VERSION' });
 
-  if (VERSION && VERSION === 'saas') {
-    console.log(
-      'SAAS mode: starting IMAP job distributor for all organizations',
-    );
+  // if (VERSION && VERSION === 'saas') {
+  //   console.log(
+  //     'SAAS mode: starting IMAP job distributor for all organizations',
+  //   );
 
-    startSaasDistributingJobs().catch((err) => {
-      console.error('[IMAP] Failed to start SAAS job distributors:', err);
-    });
-  } else {
-    startDistributingJobs('os');
-  }
+  //   startSaasDistributingJobs().catch((err) => {
+  //     console.error('[IMAP] Failed to start SAAS job distributors:', err);
+  //   });
+  // } else {
+  //   startDistributingJobs('os');
+  // }
 };
 
 export default onServerInitImap;
