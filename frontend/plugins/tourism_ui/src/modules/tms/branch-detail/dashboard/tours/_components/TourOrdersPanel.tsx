@@ -6,26 +6,26 @@ import {
   IconFilter,
   IconUsers,
 } from '@tabler/icons-react';
-import { useTourOrders, ITourOrder } from '../hooks/useTourOrders';
+import { useTourOrders, type ITourOrder } from '../hooks/useTourOrders';
 import { Card, Select, Separator, Spinner } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { CustomersInline } from 'ui-modules';
 import { OrderDetailSheet } from './OrderDetailSheet';
+import { OrderPaymentStatus } from './OrderPaymentStatus';
 
 interface Props {
   readonly tourId: string;
 }
 
-const ORDER_FILTER_OPTIONS = [
+const PAYMENT_FILTER_OPTIONS = [
   { value: 'all', label: 'All' },
-  { value: 'paid', label: 'Paid' },
   { value: 'pending', label: 'Pending' },
-  { value: 'prepaid', label: 'Prepaid' },
+  { value: 'partial', label: 'Partial' },
+  { value: 'paid', label: 'Paid' },
   { value: 'refunded', label: 'Refunded' },
-  { value: 'cancelled', label: 'Cancelled' },
 ] as const;
 
-type OrderFilterValue = (typeof ORDER_FILTER_OPTIONS)[number]['value'];
+type PaymentFilterValue = (typeof PAYMENT_FILTER_OPTIONS)[number]['value'];
 
 function formatDate(dateStr?: string): string {
   if (!dateStr) return '—';
@@ -36,120 +36,102 @@ function formatDate(dateStr?: string): string {
   });
 }
 
-function StatusBadge({ status }: Readonly<{ status?: string }>) {
-  const toneMap: Record<string, string> = {
-    paid: 'border-emerald-500/15 bg-emerald-500/6 text-emerald-200',
-    pending: 'border-amber-500/15 bg-amber-500/6 text-amber-200',
-    prepaid: 'border-sky-500/15 bg-sky-500/6 text-sky-200',
-    refunded: 'border-violet-500/15 bg-violet-500/6 text-violet-200',
-    cancelled: 'border-rose-500/15 bg-rose-500/6 text-rose-200',
-  };
-
-  const labelMap: Record<string, string> = {
-    paid: 'Paid',
-    pending: 'Pending',
-    prepaid: 'Prepaid',
-    refunded: 'Refunded',
-    cancelled: 'Cancelled',
-  };
-
-  const safeStatus = status ?? 'pending';
-  const cls =
-    toneMap[safeStatus] ?? 'border-border/60 bg-muted/60 text-muted-foreground';
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium ${cls}`}
-    >
-      <span className="size-1.5 rounded-full bg-current opacity-75" />
-      {labelMap[safeStatus] ?? 'Pending'}
-    </span>
-  );
-}
-
 function OrderRow({
   order,
   onClick,
-}: Readonly<{
-  order: ITourOrder;
-  onClick: () => void;
-}>) {
-  const hasCustomer = Boolean(order.customerId);
-  const additionalCustomersCount = Array.isArray(order.additionalCustomers)
-    ? order.additionalCustomers.length
-    : 0;
+}: Readonly<{ order: ITourOrder; onClick: () => void }>) {
+  const people = order.people;
+  const totalPeople =
+    (people?.adults ?? 0) + (people?.children ?? 0) + (people?.infants ?? 0);
+  const totalAmount = order.pricing?.totalAmount;
+  const hasCustomer = Boolean(order.primaryCustomerId);
 
   return (
     <CustomersInline.Provider
-      customerIds={order.customerId ? [order.customerId] : []}
-      placeholder="Unnamed customer"
+      customerIds={order.primaryCustomerId ? [order.primaryCustomerId] : []}
+      placeholder="Guest"
     >
       <Card
         className="overflow-hidden transition-all border cursor-pointer bg-background hover:bg-muted/30"
         onClick={onClick}
       >
         <div className="p-3 space-y-3">
+          {/* Top row: avatar + name + badges */}
           <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0 space-y-2">
-              <div className="flex items-center min-w-0 gap-3">
-                {hasCustomer ? (
-                  <CustomersInline.Avatar size="xl" />
-                ) : (
-                  <div className="flex items-center justify-center rounded-full size-10 bg-muted text-muted-foreground">
-                    <IconUsers className="w-5 h-5" />
-                  </div>
-                )}
-
-                <div className="min-w-0 space-y-1">
-                  <div className="text-sm font-semibold truncate text-foreground">
-                    {hasCustomer ? (
-                      <CustomersInline.Title />
-                    ) : (
-                      'Unknown customer'
-                    )}
-                  </div>
-                  <div className="font-mono text-[11px] text-muted-foreground truncate">
-                    Order #{order._id ?? 'N/A'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {order.numberOfPeople != null && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-[11px] font-medium text-muted-foreground">
-                    <IconUsers className="w-3.5 h-3.5" />
-                    {order.numberOfPeople} people
-                  </span>
-                )}
-
-                {additionalCustomersCount > 0 && (
-                  <span className="rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                    +{additionalCustomersCount} additional
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col items-end gap-2 shrink-0">
-              <StatusBadge status={order.status} />
-              {order.amount != null && (
-                <div className="text-right">
-                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Amount
-                  </div>
-                  <div className="mt-1 text-[28px] font-semibold leading-none text-foreground">
-                    {order.amount.toLocaleString()}
-                    <span className="ml-1 text-[12px] font-medium text-muted-foreground">
-                      USD
-                    </span>
-                  </div>
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              {hasCustomer ? (
+                <CustomersInline.Avatar size="xl" />
+              ) : (
+                <div className="flex items-center justify-center rounded-full size-10 bg-muted text-muted-foreground shrink-0">
+                  <IconUsers className="w-5 h-5" />
                 </div>
               )}
+              <div className="min-w-0 space-y-1">
+                <div className="text-sm font-semibold truncate text-foreground">
+                  {hasCustomer ? <CustomersInline.Title /> : 'Guest booking'}
+                </div>
+                <div className="font-mono text-[11px] text-muted-foreground truncate">
+                  #{order._id}
+                </div>
+              </div>
             </div>
+
+            <OrderPaymentStatus
+              orderStatus={order.status}
+              paymentStatus={order.payment?.status}
+            />
           </div>
 
+          {/* People + package pill row */}
+          <div className="flex flex-wrap gap-1.5">
+            {totalPeople > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-[11px] font-medium text-muted-foreground">
+                <IconUsers className="w-3 h-3" />
+                {people?.adults ? `${people.adults}A` : ''}
+                {people?.children ? ` ${people.children}C` : ''}
+                {people?.infants ? ` ${people.infants}I` : ''}
+              </span>
+            )}
+            {order.package?.title && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted text-[11px] font-medium text-muted-foreground max-w-40 truncate">
+                {order.package.title}
+              </span>
+            )}
+          </div>
+
+          {/* Amount */}
+          {totalAmount != null && (
+            <div className="flex items-end justify-between">
+              <div>
+                {order.prepaid?.enabled && (
+                  <div className="text-[10px] text-muted-foreground">
+                    Advance{' '}
+                    <span className="text-amber-300 font-medium">
+                      {order.prepaid.amount.toLocaleString()}
+                    </span>{' '}
+                    · Remaining{' '}
+                    <span className="text-foreground font-medium">
+                      {order.prepaid.remainingAmount.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Total
+                </div>
+                <div className="text-xl font-semibold leading-none text-foreground">
+                  {totalAmount.toLocaleString()}
+                  <span className="ml-1 text-[11px] font-normal text-muted-foreground">
+                    MNT
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {order.note && (
-            <div className="px-3 py-2 border rounded-lg bg-muted/50 border-border/60">
+            <div className="px-2.5 py-2 border rounded-lg bg-muted/50 border-border/60">
               <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
                 {order.note}
               </p>
@@ -159,15 +141,12 @@ function OrderRow({
 
         <Separator />
 
-        <div className="flex items-center justify-between px-3 text-xs h-11 text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <IconCalendarEventFilled className="w-4 h-4" />
+        <div className="flex items-center justify-between px-3 text-xs h-10 text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <IconCalendarEventFilled className="w-3.5 h-3.5" />
             <span>{formatDate(order.createdAt)}</span>
           </div>
-
-          <span className="text-[11px] text-muted-foreground">
-            View details
-          </span>
+          <span className="text-[11px]">View details →</span>
         </div>
       </Card>
     </CustomersInline.Provider>
@@ -176,21 +155,19 @@ function OrderRow({
 
 export const TourOrdersPanel = ({ tourId }: Props) => {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<OrderFilterValue>('all');
+  const [paymentFilter, setPaymentFilter] =
+    useState<PaymentFilterValue>('all');
   const { orders, refetch, loading } = useTourOrders({
     variables: { tourId },
     skip: !tourId,
   });
 
   const filteredOrders = useMemo(() => {
-    if (statusFilter === 'all') {
-      return orders;
-    }
-
+    if (paymentFilter === 'all') return orders;
     return orders.filter(
-      (order) => (order.status ?? 'pending') === statusFilter,
+      (order) => (order.payment?.status ?? 'pending') === paymentFilter,
     );
-  }, [orders, statusFilter]);
+  }, [orders, paymentFilter]);
 
   if (loading) {
     return (
@@ -204,12 +181,9 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
         <IconClipboardList className="w-8 h-8 text-muted-foreground" />
-
         <h3 className="text-base font-semibold">No bookings yet</h3>
-
         <p className="max-w-xs text-sm text-muted-foreground">
-          This tour doesn’t have any bookings yet. Once customers make a
-          reservation, they will appear here.
+          Once customers make a reservation, they will appear here.
         </p>
       </div>
     );
@@ -218,36 +192,36 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
   return (
     <>
       <div className="flex flex-col h-full p-3">
+        {/* Filter bar */}
         <div className="flex items-center justify-between gap-3 px-1 pb-3 mb-4 border-b border-border/60">
           <div className="flex items-center flex-1 min-w-0 gap-2">
             <Select
-              value={statusFilter}
-              onValueChange={(value) =>
-                setStatusFilter(value as OrderFilterValue)
-              }
+              value={paymentFilter}
+              onValueChange={(v) => setPaymentFilter(v as PaymentFilterValue)}
             >
-              <Select.Trigger className="h-9 max-w-[120px] rounded-md border border-border/60 bg-muted/30 px-3 text-sm text-foreground shadow-none">
+              <Select.Trigger className="h-9 max-w-[130px] rounded-md border border-border/60 bg-muted/30 px-3 text-sm text-foreground shadow-none">
                 <div className="flex items-center min-w-0 gap-2">
-                  <IconFilter className="w-4 h-4 text-muted-foreground" />
-                  <Select.Value placeholder="All statuses" />
+                  <IconFilter className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <Select.Value placeholder="Payment" />
                 </div>
               </Select.Trigger>
               <Select.Content>
-                {ORDER_FILTER_OPTIONS.map((option) => (
-                  <Select.Item key={option.value} value={option.value}>
-                    {option.label}
+                {PAYMENT_FILTER_OPTIONS.map((opt) => (
+                  <Select.Item key={opt.value} value={opt.value}>
+                    {opt.label}
                   </Select.Item>
                 ))}
               </Select.Content>
             </Select>
 
-            <span className="inline-flex items-center px-3 text-xs font-medium h-9 text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {filteredOrders.length}{' '}
-              {filteredOrders.length === 1 ? 'record found' : 'records found'}
+              {filteredOrders.length === 1 ? 'record' : 'records'}
             </span>
           </div>
         </div>
 
+        {/* List */}
         {filteredOrders.length ? (
           <div className="space-y-3 overflow-y-auto">
             {filteredOrders.map((order) => (
@@ -260,18 +234,19 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
           </div>
         ) : (
           <div className="flex items-center justify-center flex-1">
-            <div className="flex flex-col items-center justify-center w-full gap-2 px-4 text-center min-h-32">
+            <div className="flex flex-col items-center gap-2 px-4 text-center min-h-32">
               <IconClipboardList className="h-7 w-7 text-muted-foreground" />
               <p className="text-sm font-medium text-foreground">
                 No matching bookings
               </p>
               <p className="max-w-xs text-xs text-muted-foreground">
-                There are no bookings with the selected status right now.
+                No bookings match the selected payment status.
               </p>
             </div>
           </div>
         )}
       </div>
+
       <OrderDetailSheet
         orderId={selectedOrderId}
         open={!!selectedOrderId}

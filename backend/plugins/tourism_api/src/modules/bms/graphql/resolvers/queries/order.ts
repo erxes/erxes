@@ -2,6 +2,21 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
+const buildCustomerSelector = (customerId?: string) => {
+  if (!customerId) {
+    return {};
+  }
+
+  return {
+    $or: [
+      { primaryCustomerId: customerId },
+      { 'travelers.customerId': customerId },
+      { customerId },
+      { additionalCustomers: customerId },
+    ],
+  };
+};
+
 const orderQueries: Record<string, Resolver> = {
   async bmsOrders(
     _root,
@@ -13,7 +28,7 @@ const orderQueries: Record<string, Resolver> = {
       selector.tourId = tourId;
     }
     if (customerId) {
-      selector.customerId = customerId;
+      Object.assign(selector, buildCustomerSelector(customerId));
     }
 
     if (branchId) {
@@ -39,7 +54,7 @@ const orderQueries: Record<string, Resolver> = {
       selector.tourId = tourId;
     }
     if (customerId) {
-      selector.customerId = customerId;
+      Object.assign(selector, buildCustomerSelector(customerId));
     }
 
     if (branchId) {
@@ -67,6 +82,8 @@ const orderQueries: Record<string, Resolver> = {
     const selector: Record<string, string> = { tourId };
 
     const orders = await models.Orders.find(selector, {
+      primaryCustomerId: 1,
+      'travelers.customerId': 1,
       customerId: 1,
       additionalCustomers: 1,
     }).lean();
@@ -74,6 +91,12 @@ const orderQueries: Record<string, Resolver> = {
     return Array.from(
       new Set(
         orders.flatMap((order) => [
+          ...(order.primaryCustomerId ? [order.primaryCustomerId] : []),
+          ...(Array.isArray(order.travelers)
+            ? order.travelers
+                .map((traveler) => traveler.customerId)
+                .filter((customerId): customerId is string => !!customerId)
+            : []),
           ...(order.customerId ? [order.customerId] : []),
           ...(Array.isArray(order.additionalCustomers)
             ? order.additionalCustomers.filter(

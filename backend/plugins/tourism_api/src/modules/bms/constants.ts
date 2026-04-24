@@ -1,9 +1,15 @@
+export const ORDER_STATUS_TYPES = [
+  { label: 'Draft', value: 'draft' },
+  { label: 'Confirmed', value: 'confirmed' },
+  { label: 'Cancelled', value: 'cancelled' },
+  { label: 'Completed', value: 'completed' },
+];
+
 export const PAYMENT_STATUS_TYPES = [
-  { label: 'paid', value: 'paid' },
-  { label: 'pending', value: 'pending' },
-  { label: 'prepaid', value: 'prepaid' },
-  { label: 'refunded', value: 'refunded' },
-  { label: 'cancelled', value: 'cancelled' },
+  { label: 'Pending', value: 'pending' },
+  { label: 'Partial', value: 'partial' },
+  { label: 'Paid', value: 'paid' },
+  { label: 'Refunded', value: 'refunded' },
 ];
 
 export const TOUR_STATUS_TYPES = [

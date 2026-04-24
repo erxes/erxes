@@ -11,24 +11,97 @@ import {
   GET_TOUR_ORDER_DETAIL,
   GET_TOUR_ORDER_CUSTOMER_IDS,
 } from '../graphql/queries';
-import { EDIT_TOUR_ORDER } from '../graphql/mutation';
+import { EDIT_TOUR_ORDER, RECORD_ORDER_PAYMENT } from '../graphql/mutation';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export type OrderStatus = 'draft' | 'confirmed' | 'cancelled' | 'completed';
+
+export type PaymentStatus = 'pending' | 'partial' | 'paid' | 'refunded';
+
+export type TravelerType = 'adult' | 'child' | 'infant';
+
+export type PaymentMethod = 'cash' | 'card' | 'transfer' | 'qpay' | 'other';
+
+export interface ITourOrderPeople {
+  adults: number;
+  children: number;
+  infants: number;
+}
+
+export interface ITourOrderPackage {
+  packageId: string;
+  title: string;
+  minPersons?: number;
+  maxPersons?: number;
+  accommodationType?: string;
+}
+
+export interface ITourOrderPricing {
+  adultPrice: number;
+  childPrice: number;
+  infantPrice: number;
+  domesticFlight: number;
+  singleSupplement: number;
+  subtotal: number;
+  totalAmount: number;
+}
+
+export interface ITourOrderPrepaid {
+  enabled: boolean;
+  percent: number;
+  amount: number;
+  remainingAmount: number;
+}
+
+export interface IPaymentTransaction {
+  amount: number;
+  method: PaymentMethod;
+  note?: string;
+  paidAt: string;
+  recordedBy?: string;
+}
+
+export interface ITourOrderPayment {
+  status: PaymentStatus;
+  paidAmount: number;
+  method?: PaymentMethod;
+  transactions: IPaymentTransaction[];
+}
+
+export interface ITraveler {
+  customerId?: string;
+  firstName: string;
+  lastName: string;
+  type: TravelerType;
+  passportNumber?: string;
+  dateOfBirth?: string;
+  nationality?: string;
+}
 
 export interface ITourOrder {
   _id: string;
   branchId?: string;
-  customerId?: string;
+  primaryCustomerId?: string;
   tourId?: string;
-  amount?: number;
-  status?: string;
+  tourName?: string;
+  tourStartDate?: string;
+  tourEndDate?: string;
+  status?: OrderStatus;
   note?: string;
   internalNote?: string;
-  numberOfPeople?: number;
-  type?: string;
-  additionalCustomers?: any[];
-  isChild?: boolean;
-  parent?: string;
+  createdBy?: string;
   createdAt?: string;
+  modifiedAt?: string;
+  package?: ITourOrderPackage;
+  people?: ITourOrderPeople;
+  pricing?: ITourOrderPricing;
+  prepaid?: ITourOrderPrepaid;
+  payment?: ITourOrderPayment;
+  travelers?: ITraveler[];
 }
+
+// ─── Query / mutation types ───────────────────────────────────────────────────
 
 type OrderDetailQueryResult = {
   bmsOrderDetail: ITourOrder;
@@ -66,6 +139,8 @@ type TourOrderCustomerIdsQueryVariables = {
   tourId: string;
 };
 
+// ─── Hooks ────────────────────────────────────────────────────────────────────
+
 export const useTourOrderDetail = (orderId?: string, open?: boolean) => {
   const { data, loading, error, refetch } = useQuery<
     OrderDetailQueryResult,
@@ -93,8 +168,17 @@ export const useEditTourOrder = (
   options?: MutationHookOptions<{ bmsOrderEdit: ITourOrder }, any>,
 ) => {
   const [editOrder, { loading, error }] = useMutation(EDIT_TOUR_ORDER, options);
-
   return { editOrder, loading, error };
+};
+
+export const useRecordOrderPayment = (
+  options?: MutationHookOptions<{ bmsOrderRecordPayment: ITourOrder }, any>,
+) => {
+  const [recordPayment, { loading, error }] = useMutation(
+    RECORD_ORDER_PAYMENT,
+    options,
+  );
+  return { recordPayment, loading, error };
 };
 
 export const useTourOrders = (
@@ -141,9 +225,7 @@ export const useTourCustomers = (tourId?: string) => {
     error: idsError,
     refetch,
   } = useTourOrderCustomerIds({
-    variables: {
-      tourId: tourId || '',
-    },
+    variables: { tourId: tourId || '' },
     skip: !tourId,
   });
 
@@ -161,17 +243,13 @@ export const useTourCustomers = (tourId?: string) => {
   });
 
   const orderedCustomers = useMemo(() => {
-    if (!customerIds.length || !customers.length) {
-      return [];
-    }
-
+    if (!customerIds.length || !customers.length) return [];
     const customerMap = new Map(
       customers.map((customer) => [customer._id, customer]),
     );
-
     return customerIds
-      .map((customerId) => customerMap.get(customerId))
-      .filter((customer): customer is (typeof customers)[number] => !!customer);
+      .map((id) => customerMap.get(id))
+      .filter((c): c is (typeof customers)[number] => !!c);
   }, [customerIds, customers]);
 
   return {

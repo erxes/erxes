@@ -65,18 +65,65 @@ export const GET_TOUR_ORDER_DETAIL = gql`
     bmsOrderDetail(_id: $id) {
       _id
       branchId
-      customerId
+      primaryCustomerId
       tourId
-      amount
+      tourName
+      tourStartDate
+      tourEndDate
       status
       note
       internalNote
-      numberOfPeople
-      type
-      additionalCustomers
-      isChild
-      parent
+      createdBy
       createdAt
+      modifiedAt
+      package {
+        packageId
+        title
+        minPersons
+        maxPersons
+        accommodationType
+      }
+      people {
+        adults
+        children
+        infants
+      }
+      pricing {
+        adultPrice
+        childPrice
+        infantPrice
+        domesticFlight
+        singleSupplement
+        subtotal
+        totalAmount
+      }
+      prepaid {
+        enabled
+        percent
+        amount
+        remainingAmount
+      }
+      payment {
+        status
+        paidAmount
+        method
+        transactions {
+          amount
+          method
+          note
+          paidAt
+          recordedBy
+        }
+      }
+      travelers {
+        customerId
+        firstName
+        lastName
+        type
+        passportNumber
+        dateOfBirth
+        nationality
+      }
     }
   }
 `;
@@ -239,18 +286,40 @@ export const GET_TOUR_ORDERS = gql`
       list {
         _id
         branchId
-        customerId
+        primaryCustomerId
         tourId
-        amount
+        tourName
         status
         note
-        internalNote
-        numberOfPeople
-        type
-        additionalCustomers
-        isChild
-        parent
         createdAt
+        package {
+          packageId
+          title
+          accommodationType
+        }
+        people {
+          adults
+          children
+          infants
+        }
+        pricing {
+          subtotal
+          totalAmount
+        }
+        prepaid {
+          enabled
+          amount
+          remainingAmount
+        }
+        payment {
+          status
+          paidAmount
+        }
+        travelers {
+          firstName
+          lastName
+          type
+        }
       }
     }
   }

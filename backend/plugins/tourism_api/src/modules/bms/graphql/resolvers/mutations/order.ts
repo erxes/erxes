@@ -1,15 +1,22 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import { IOrderCreateInput } from '@/bms/@types/order';
 
 const orderMutations: Record<string, Resolver<any, any, IContext>> = {
-  bmsOrderAdd: async (_root, doc, { user, models }: IContext) => {
-    const order = await models.Orders.createOrder(doc?.order, user);
-    return order;
+  bmsOrderAdd: async (
+    _root,
+    { order }: { order: IOrderCreateInput },
+    { user, models }: IContext,
+  ) => {
+    return models.Orders.createOrder(order, user?._id);
   },
 
-  bmsOrderEdit: async (_root, { _id, ...doc }, { models }: IContext) => {
-    const updated = await models.Orders.updateOrder(_id, doc?.order as any);
-    return updated;
+  bmsOrderEdit: async (
+    _root,
+    { _id, order }: { _id: string; order: any },
+    { models }: IContext,
+  ) => {
+    return models.Orders.updateOrder(_id, order);
   },
 
   bmsOrderRemove: async (
@@ -18,18 +25,34 @@ const orderMutations: Record<string, Resolver<any, any, IContext>> = {
     { models }: IContext,
   ) => {
     await models.Orders.removeOrder(ids);
-
     return ids;
   },
 
-  cpBmsOrderAdd: async (_root, doc, { user, models }: IContext) => {
-    const order = await models.Orders.createOrder(doc?.order, user);
-    return order;
+  bmsOrderRecordPayment: async (
+    _root,
+    { _id, payment }: { _id: string; payment: any },
+    { user, models }: IContext,
+  ) => {
+    return models.Orders.recordPayment(_id, {
+      ...payment,
+      recordedBy: user?._id,
+    });
   },
 
-  cpBmsOrderEdit: async (_root, { _id, ...doc }, { models }: IContext) => {
-    const updated = await models.Orders.updateOrder(_id, doc?.order as any);
-    return updated;
+  cpBmsOrderAdd: async (
+    _root,
+    { order }: { order: IOrderCreateInput },
+    { user, models }: IContext,
+  ) => {
+    return models.Orders.createOrder(order, user?._id);
+  },
+
+  cpBmsOrderEdit: async (
+    _root,
+    { _id, order }: { _id: string; order: any },
+    { models }: IContext,
+  ) => {
+    return models.Orders.updateOrder(_id, order);
   },
 
   cpBmsOrderRemove: async (
@@ -38,7 +61,6 @@ const orderMutations: Record<string, Resolver<any, any, IContext>> = {
     { models }: IContext,
   ) => {
     await models.Orders.removeOrder(ids);
-
     return ids;
   },
 };

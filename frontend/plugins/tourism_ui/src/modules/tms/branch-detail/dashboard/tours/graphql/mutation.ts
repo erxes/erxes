@@ -157,22 +157,36 @@ export const REMOVE_TOUR = gql`
 `;
 
 export const EDIT_TOUR_ORDER = gql`
-  mutation BmsOrderEdit($id: String!, $order: BmsOrderInput) {
+  mutation BmsOrderEdit($id: String!, $order: BmsOrderUpdateInput!) {
     bmsOrderEdit(_id: $id, order: $order) {
       _id
-      branchId
-      customerId
-      tourId
-      amount
       status
       note
       internalNote
-      numberOfPeople
-      type
-      additionalCustomers
-      isChild
-      parent
-      createdAt
+      payment {
+        status
+        paidAmount
+      }
+    }
+  }
+`;
+
+export const RECORD_ORDER_PAYMENT = gql`
+  mutation BmsOrderRecordPayment($id: String!, $payment: BmsRecordPaymentInput!) {
+    bmsOrderRecordPayment(_id: $id, payment: $payment) {
+      _id
+      payment {
+        status
+        paidAmount
+        method
+        transactions {
+          amount
+          method
+          note
+          paidAt
+          recordedBy
+        }
+      }
     }
   }
 `;

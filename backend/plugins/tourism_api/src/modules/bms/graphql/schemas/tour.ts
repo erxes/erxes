@@ -177,36 +177,146 @@ export const types = `
     translations(language: String): [TourTranslation]
   }
 
+  enum ORDER_STATUS {
+    draft
+    confirmed
+    cancelled
+    completed
+  }
+
+  enum PAYMENT_STATUS {
+    pending
+    partial
+    paid
+    refunded
+  }
+
+  enum PAYMENT_METHOD {
+    cash
+    card
+    transfer
+    qpay
+    other
+  }
+
+  type BmsOrderPeople {
+    adults: Int!
+    children: Int!
+    infants: Int!
+  }
+
+  type BmsOrderPackage {
+    packageId: String!
+    title: String!
+    minPersons: Int
+    maxPersons: Int
+    accommodationType: String
+  }
+
+  type BmsOrderPricing {
+    adultPrice: Float!
+    childPrice: Float!
+    infantPrice: Float!
+    domesticFlight: Float!
+    singleSupplement: Float!
+    subtotal: Float!
+    totalAmount: Float!
+  }
+
+  type BmsOrderPrepaid {
+    enabled: Boolean!
+    percent: Float!
+    amount: Float!
+    remainingAmount: Float!
+  }
+
+  type BmsPaymentTransaction {
+    amount: Float!
+    method: PAYMENT_METHOD!
+    note: String
+    paidAt: Date!
+    recordedBy: String
+  }
+
+  type BmsOrderPayment {
+    status: PAYMENT_STATUS!
+    paidAmount: Float!
+    method: PAYMENT_METHOD
+    transactions: [BmsPaymentTransaction!]!
+  }
+
+  type BmsTraveler {
+    customerId: String
+    firstName: String!
+    lastName: String!
+    type: PASSENGER_TYPE!
+    passportNumber: String
+    dateOfBirth: Date
+    nationality: String
+  }
+
   type BmsOrder {
     _id: String!
-    branchId: String
-    customerId: String
-    tourId: String
-    amount: Float
-    status: String
+    branchId: String!
+    primaryCustomerId: String
+    tourId: String!
+    tourName: String
+    tourStartDate: Date
+    tourEndDate: Date
+    package: BmsOrderPackage
+    people: BmsOrderPeople
+    pricing: BmsOrderPricing
+    prepaid: BmsOrderPrepaid
+    payment: BmsOrderPayment
+    travelers: [BmsTraveler!]
+    status: ORDER_STATUS
     note: String
     internalNote: String
-    numberOfPeople: Int
-    type: String
-    additionalCustomers: [String]
-    isChild: Boolean
-    parent: String
+    createdBy: String
     createdAt: Date
+    modifiedAt: Date
+  }
+
+  input BmsOrderPeopleInput {
+    adults: Int!
+    children: Int!
+    infants: Int!
+  }
+
+  input BmsTravelerInput {
+    customerId: String
+    firstName: String!
+    lastName: String!
+    type: PASSENGER_TYPE!
+    passportNumber: String
+    dateOfBirth: Date
+    nationality: String
   }
 
   input BmsOrderInput {
-    branchId: String
-    customerId: String
-    tourId: String
-    amount: Float
-    status: String
+    branchId: String!
+    tourId: String!
+    packageId: String!
+    people: BmsOrderPeopleInput!
+    primaryCustomerId: String
+    singleSupplement: Boolean
+    includeDomesticFlight: Boolean
+    travelers: [BmsTravelerInput!]!
     note: String
     internalNote: String
-    numberOfPeople: Int
-    type: String
-    additionalCustomers: [String]
-    isChild: Boolean
-    parent: String
+  }
+
+  input BmsOrderUpdateInput {
+    status: ORDER_STATUS
+    note: String
+    internalNote: String
+    travelers: [BmsTravelerInput!]
+  }
+
+  input BmsRecordPaymentInput {
+    amount: Float!
+    method: PAYMENT_METHOD!
+    note: String
   }
   input GuideItemInput {
     guideId: String
@@ -327,13 +437,14 @@ export const mutations = `
   bmsTourCategoryTranslationUpsert(input: TourCategoryTranslationInput!): TourCategoryTranslation
   bmsTourCategoryTranslationDelete(_id: String!): JSON
 
-  bmsOrderAdd(order: BmsOrderInput): BmsOrder
-  bmsOrderEdit(_id: String!, order: BmsOrderInput): BmsOrder
-  bmsOrderRemove(ids: [String]): JSON
+  bmsOrderAdd(order: BmsOrderInput!): BmsOrder
+  bmsOrderEdit(_id: String!, order: BmsOrderUpdateInput!): BmsOrder
+  bmsOrderRemove(ids: [String!]!): JSON
+  bmsOrderRecordPayment(_id: String!, payment: BmsRecordPaymentInput!): BmsOrder
 
-  cpBmsOrderAdd(order: BmsOrderInput): BmsOrder
-  cpBmsOrderEdit(_id: String!, order: BmsOrderInput): BmsOrder
-  cpBmsOrderRemove(ids: [String]): JSON
+  cpBmsOrderAdd(order: BmsOrderInput!): BmsOrder
+  cpBmsOrderEdit(_id: String!, order: BmsOrderUpdateInput!): BmsOrder
+  cpBmsOrderRemove(ids: [String!]!): JSON
 
   bmsTourTranslationUpsert(input: TourTranslationInput!): TourTranslation
   bmsTourTranslationDelete(_id: String!): JSON
