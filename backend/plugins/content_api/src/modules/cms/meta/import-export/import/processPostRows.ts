@@ -1,4 +1,6 @@
 import { IModels } from '~/connectionResolvers';
+import { generateUniqueSlug } from '@/cms/utils/common';
+import { htmlToText } from 'html-to-text';
 
 const VALID_STATUSES = ['draft', 'published', 'scheduled', 'archived'];
 const VALID_AUTHOR_KINDS = ['user', 'portalUser'];
@@ -41,11 +43,12 @@ function preparePostDoc(row: any): any {
     doc.status = statusVal;
   }
 
-  const authorKind = (row.authorKind || row['Author Kind'] || '')
-    .toString()
-    .toLowerCase();
-  if (authorKind && VALID_AUTHOR_KINDS.includes(authorKind)) {
-    doc.authorKind = authorKind;
+  const authorKind = (row.authorKind || row['Author Kind'] || '').toString();
+  if (authorKind) {
+    const canonical = VALID_AUTHOR_KINDS.find(
+      (k) => k.toLowerCase() === authorKind.toLowerCase(),
+    );
+    if (canonical) doc.authorKind = canonical;
   }
 
   if (row.authorId || row['Author ID']) {
@@ -107,22 +110,48 @@ export async function processPostRows(
         continue;
       }
 
-      // Prevent duplicate slug
-      const existing = await models.Posts.findOne({
-        slug: doc.slug,
-        clientPortalId: doc.clientPortalId,
-      }).lean();
-
-      if (existing) {
-        errorRows.push({
-          ...row,
-          error: `Post with slug "${doc.slug}" already exists`,
-        });
-        continue;
+      // Bypass Posts.createPost to preserve user-provided publishedDate
+      // (createPost overwrites it when status === 'published').
+      // Replicate its other side-effects: unique slug, auto excerpt, count.
+      if (doc.slug) {
+        doc.slug = await generateUniqueSlug(
+          models.Posts,
+          doc.clientPortalId,
+          'slug',
+          doc.slug,
+        );
       }
 
-      const post = await models.Posts.createPost(doc);
-      successRows.push({ ...row, _id: post._id });
+      if (doc.content && !doc.excerpt) {
+        const plain = htmlToText(doc.content, { wordwrap: 130 });
+        doc.excerpt =
+          plain.length > 100 ? plain.substring(0, 100) + '...' : plain;
+      }
+
+      const getNextPostCount = (models.Posts as any).getNextPostCount;
+      if (doc.count === undefined && typeof getNextPostCount === 'function') {
+        doc.count = await getNextPostCount.call(
+          models.Posts,
+          doc.clientPortalId,
+        );
+      }
+
+      try {
+        const post = await models.Posts.create(doc);
+        successRows.push({ ...row, _id: post._id });
+      } catch (e: any) {
+        if (e?.code === 11000 && e?.message?.includes('slug')) {
+          errorRows.push({
+            ...row,
+            error: `Post with slug "${doc.slug}" already exists`,
+          });
+        } else {
+          errorRows.push({
+            ...row,
+            error: e?.message || 'Failed to import post',
+          });
+        }
+      }
     } catch (e: any) {
       errorRows.push({ ...row, error: e?.message || 'Failed to import post' });
     }

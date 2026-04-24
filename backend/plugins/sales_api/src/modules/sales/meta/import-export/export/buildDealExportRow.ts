@@ -45,10 +45,18 @@ export const buildDealExportRow = (
     branchIds: formatValue((deal.branchIds || []).join('; ')),
     departmentIds: formatValue((deal.departmentIds || []).join('; ')),
     number: formatValue(deal.number),
-    startDate: formatValue(deal.startDate ? new Date(deal.startDate) : ''),
-    closeDate: formatValue(deal.closeDate ? new Date(deal.closeDate) : ''),
-    createdAt: formatValue(deal.createdAt ? new Date(deal.createdAt) : ''),
-    updatedAt: formatValue(deal.updatedAt ? new Date(deal.updatedAt) : ''),
+    startDate: formatValue(
+      deal.startDate ? new Date(deal.startDate).toISOString() : '',
+    ),
+    closeDate: formatValue(
+      deal.closeDate ? new Date(deal.closeDate).toISOString() : '',
+    ),
+    createdAt: formatValue(
+      deal.createdAt ? new Date(deal.createdAt).toISOString() : '',
+    ),
+    updatedAt: formatValue(
+      deal.updatedAt ? new Date(deal.updatedAt).toISOString() : '',
+    ),
   };
 
   if (selectedFields?.length) {

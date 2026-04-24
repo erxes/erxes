@@ -12,6 +12,11 @@ const joinNames = (ids: any[] | undefined, map: Map<string, string>) => {
     .join('; ');
 };
 
+const joinIds = (ids: any[] | undefined) => {
+  if (!ids?.length) return '';
+  return ids.map((id) => String(id)).join('; ');
+};
+
 export const buildPostExportRow = (
   post: any,
   selectedFields?: string[],
@@ -21,8 +26,8 @@ export const buildPostExportRow = (
 
   const authorName =
     post.authorId && post.authorKind === 'user'
-      ? maps?.userMap?.get(String(post.authorId)) || String(post.authorId)
-      : formatValue(post.authorId);
+      ? maps?.userMap?.get(String(post.authorId)) || ''
+      : '';
 
   const allFields: Record<string, any> = {
     _id: formatValue(post._id),
@@ -34,23 +39,30 @@ export const buildPostExportRow = (
     excerpt: formatValue(post.excerpt),
     content: formatValue(post.content),
     authorKind: formatValue(post.authorKind),
-    authorId: authorName,
+    authorId: formatValue(post.authorId),
+    authorName: formatValue(authorName),
     webId: formatValue(post.webId),
-    categoryIds: formatValue(
+    categoryIds: formatValue(joinIds(post.categoryIds)),
+    categoryNames: formatValue(
       joinNames(post.categoryIds, maps?.categoryMap || new Map()),
     ),
-    tagIds: formatValue(joinNames(post.tagIds, maps?.tagMap || new Map())),
+    tagIds: formatValue(joinIds(post.tagIds)),
+    tagNames: formatValue(joinNames(post.tagIds, maps?.tagMap || new Map())),
     featured: formatValue(!!post.featured),
     viewCount: formatValue(post.viewCount ?? 0),
     publishedDate: formatValue(
-      post.publishedDate ? new Date(post.publishedDate) : '',
+      post.publishedDate ? new Date(post.publishedDate).toISOString() : '',
     ),
     scheduledDate: formatValue(
-      post.scheduledDate ? new Date(post.scheduledDate) : '',
+      post.scheduledDate ? new Date(post.scheduledDate).toISOString() : '',
     ),
     videoUrl: formatValue(post.videoUrl),
-    createdAt: formatValue(post.createdAt ? new Date(post.createdAt) : ''),
-    updatedAt: formatValue(post.updatedAt ? new Date(post.updatedAt) : ''),
+    createdAt: formatValue(
+      post.createdAt ? new Date(post.createdAt).toISOString() : '',
+    ),
+    updatedAt: formatValue(
+      post.updatedAt ? new Date(post.updatedAt).toISOString() : '',
+    ),
   };
 
   if (selectedFields?.length) {

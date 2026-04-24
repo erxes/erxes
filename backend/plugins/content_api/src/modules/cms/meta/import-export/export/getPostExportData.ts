@@ -57,17 +57,17 @@ export async function getPostExportData(
     if (p.authorId && p.authorKind === 'user') userIds.add(p.authorId);
   }
 
-  const [categories, tags, users] = await Promise.all([
+  const [categoriesResult, tagsResult, usersResult] = await Promise.allSettled([
     categoryIds.size
       ? models.Categories.find({ _id: { $in: Array.from(categoryIds) } })
           .select('_id name')
           .lean()
-      : [],
+      : Promise.resolve([]),
     tagIds.size
       ? models.PostTags.find({ _id: { $in: Array.from(tagIds) } })
           .select('_id name')
           .lean()
-      : [],
+      : Promise.resolve([]),
     userIds.size
       ? sendTRPCMessage({
           subdomain,
@@ -77,8 +77,13 @@ export async function getPostExportData(
           action: 'find',
           input: { query: { _id: { $in: Array.from(userIds) } } },
         })
-      : [],
+      : Promise.resolve([]),
   ]);
+
+  const categories =
+    categoriesResult.status === 'fulfilled' ? categoriesResult.value : [];
+  const tags = tagsResult.status === 'fulfilled' ? tagsResult.value : [];
+  const users = usersResult.status === 'fulfilled' ? usersResult.value : [];
 
   const categoryMap = new Map<string, string>();
   for (const c of categories as any[]) {

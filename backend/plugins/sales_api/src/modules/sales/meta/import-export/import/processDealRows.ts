@@ -91,8 +91,41 @@ export async function processDealRows(
         continue;
       }
 
-      const deal = await models.Deals.createDeal(doc);
-      successRows.push({ ...row, _id: deal._id });
+      // Idempotency: if `number` is provided, dedup on it.
+      if (doc.number) {
+        const existing = await models.Deals.findOne({ number: doc.number })
+          .select('_id')
+          .lean();
+        if (existing) {
+          errorRows.push({
+            ...row,
+            error: `Duplicate deal with number "${doc.number}"`,
+          });
+          continue;
+        }
+      }
+
+      try {
+        const deal = await models.Deals.createDeal(doc);
+        successRows.push({ ...row, _id: deal._id });
+      } catch (e: any) {
+        if (e?.name === 'ValidationError' || e?.message?.includes('validation failed')) {
+          errorRows.push({
+            ...row,
+            error: `Validation error: ${e.message}`,
+          });
+        } else if (e?.code === 11000) {
+          errorRows.push({
+            ...row,
+            error: `Duplicate value: ${e.message}`,
+          });
+        } else {
+          errorRows.push({
+            ...row,
+            error: e?.message || 'Failed to import deal',
+          });
+        }
+      }
     } catch (e: any) {
       errorRows.push({ ...row, error: e?.message || 'Failed to import deal' });
     }

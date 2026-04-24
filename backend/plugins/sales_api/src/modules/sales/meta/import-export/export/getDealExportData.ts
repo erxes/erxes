@@ -7,11 +7,17 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildDealExportRow } from './buildDealExportRow';
 
+const MAX_NAME_FILTER_LENGTH = 200;
+
+const escapeRegex = (s: string): string =>
+  s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export async function getDealExportData(
   data: GetExportData,
   { subdomain, models }: IImportExportContext<IModels>,
 ): Promise<Record<string, any>[]> {
-  const { cursor, limit, filters, ids, selectedFields } = data;
+  const { cursor, filters, ids, selectedFields } = data;
+  const limit = data.limit ?? 100;
 
   if (!models) {
     throw new Error('Models not available in context');
@@ -20,24 +26,37 @@ export async function getDealExportData(
   const query: any = {};
 
   if (filters && Object.keys(filters).length > 0) {
-    if ((filters as any).name) {
-      query.name = { $regex: (filters as any).name, $options: 'i' };
+    const f = filters as Record<string, any>;
+
+    if (f.name) {
+      const raw = String(f.name).slice(0, MAX_NAME_FILTER_LENGTH);
+      query.name = { $regex: escapeRegex(raw), $options: 'i' };
     }
-    if ((filters as any).stageId) query.stageId = (filters as any).stageId;
-    if ((filters as any).status) query.status = (filters as any).status;
-    if ((filters as any).priority) query.priority = (filters as any).priority;
-    if ((filters as any).assignedUserId) {
-      query.assignedUserIds = { $in: [(filters as any).assignedUserId] };
+    if (f.stageId) query.stageId = f.stageId;
+    if (f.status) query.status = f.status;
+    if (f.priority) query.priority = f.priority;
+    if (f.assignedUserId) {
+      query.assignedUserIds = { $in: [f.assignedUserId] };
     }
 
     // Pipeline filter → resolve stageIds
-    if ((filters as any).pipelineId) {
-      const stages = await models.Stages.find({
-        pipelineId: (filters as any).pipelineId,
-      })
+    if (f.pipelineId) {
+      const stages = await models.Stages.find({ pipelineId: f.pipelineId })
         .select('_id')
         .lean();
-      query.stageId = { $in: stages.map((s) => s._id) };
+      const pipelineStageIds = stages.map((s) => String(s._id));
+      const pipelineStageIdSet = new Set(pipelineStageIds);
+
+      if (f.stageId) {
+        // Explicit stageId filter: intersect with pipeline stages
+        const requested = Array.isArray(f.stageId) ? f.stageId : [f.stageId];
+        const intersected = requested
+          .map((id: any) => String(id))
+          .filter((id: string) => pipelineStageIdSet.has(id));
+        query.stageId = { $in: intersected };
+      } else {
+        query.stageId = { $in: pipelineStageIds };
+      }
     }
   }
 
@@ -90,7 +109,7 @@ export async function getDealExportData(
         .lean()
     : [];
 
-  const [users, tags] = await Promise.all([
+  const [usersResult, tagsResult] = await Promise.allSettled([
     userIds.size
       ? sendTRPCMessage({
           subdomain,
@@ -112,6 +131,9 @@ export async function getDealExportData(
         })
       : [],
   ]);
+
+  const users = usersResult.status === 'fulfilled' ? usersResult.value : [];
+  const tags = tagsResult.status === 'fulfilled' ? tagsResult.value : [];
 
   const stageMap = new Map<string, string>();
   const stagePipelineMap = new Map<string, string>();
