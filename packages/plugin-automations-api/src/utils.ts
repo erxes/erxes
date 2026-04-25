@@ -18,6 +18,7 @@ import { debugError } from "@erxes/api-utils/src/debuggers";
 import { setActionWait } from "./actions/wait";
 import { executeEmailAction } from "./common/email/executeEmailWorkflow";
 import { IModels } from "./connectionResolver";
+import { checkTargetMatchBySegment } from "./segments/checkTargetMatch";
 
 export const getEnv = ({
   name,
@@ -43,8 +44,22 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export const isInSegment = async (
   subdomain: string,
   segmentId: string,
-  targetId: string
+  targetId: string,
+  triggerType?: string
 ) => {
+  if (triggerType) {
+    const targetMatch = await checkTargetMatchBySegment({
+      subdomain,
+      segmentId,
+      targetId,
+      triggerType,
+    });
+
+    if (typeof targetMatch === "boolean") {
+      return targetMatch;
+    }
+  }
+
   await delay(15000);
 
   const response = await sendSegmentsMessage({
@@ -288,7 +303,7 @@ export const calculateExecution = async ({
       if (!isValid) {
         return;
       }
-    } else if (!(await isInSegment(subdomain, contentId, target._id))) {
+    } else if (!(await isInSegment(subdomain, contentId, target._id, type))) {
       return;
     }
   } catch (e) {

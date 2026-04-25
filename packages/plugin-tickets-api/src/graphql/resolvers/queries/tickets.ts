@@ -12,6 +12,7 @@ import {
   getItemList,
   IArchiveArgs,
 } from "./utils";
+import { sendCoreMessage } from "../../../messageBroker";
 const ticketQueries = {
   /**
    * Tickets list
@@ -19,7 +20,7 @@ const ticketQueries = {
   async tickets(
     _root,
     args: IListParams,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const filter = {
       ...(await generateTicketCommonFilters(models, subdomain, user._id, args)),
@@ -30,7 +31,7 @@ const ticketQueries = {
   async ticketsTotalCount(
     _root,
     args: IListParams,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const filter = {
       ...(await generateTicketCommonFilters(models, subdomain, user._id, args)),
@@ -56,11 +57,33 @@ const ticketQueries = {
   async ticketDetail(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const ticket = await models.Tickets.getTicket(_id);
 
     return checkItemPermByUser(subdomain, models, user, ticket);
+  },
+
+  async getIsCheckUserTicketFieldLabel(
+    _root,
+    { ticketId }: { ticketId: string },
+    { models, subdomain }: IContext
+  ) {
+    const ticket = await models.Tickets.getTicket(ticketId);
+
+    const customFieldIds = ticket.customFieldsData?.map((c) => c.field);
+
+    const field = await sendCoreMessage({
+      subdomain,
+      action: "fields.findOne",
+      data: {
+        query: { _id: { $in: customFieldIds }, type: "isCheckUserTicket" },
+      },
+      isRPC: true,
+      defaultValue: {},
+    });
+
+    return field.text || "Show only the user's assigned(created) ticket";
   },
 };
 

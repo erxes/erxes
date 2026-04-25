@@ -4,7 +4,7 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams,
+  copyParams
 } from "./common";
 
 export const types = ({ contacts, clientPortal }) => `
@@ -109,6 +109,7 @@ export const queries = `
   archivedTicketsCount(
     ${archivedTicketsParams}
   ): Int
+  getIsCheckUserTicketFieldLabel(ticketId:String!): String
 `;
 
 const ticketMutationParams = `
