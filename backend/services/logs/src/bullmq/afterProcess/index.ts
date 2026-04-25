@@ -16,7 +16,6 @@ async function processPluginRules(
   for (const rule of rules) {
     try {
       const handlerConfig = findMatchingHandler(rule, context);
-      console.log({ handlerConfig });
 
       if (!handlerConfig) {
         continue;
