@@ -16,7 +16,6 @@ interface FormSelectEbarimtProductRulesProps<T extends FieldValues> {
 export const FormSelectEbarimtProductRules = <T extends FieldValues>({
   name,
   label,
-  placeholder,
   control,
   kind,
   variant = 'form',
@@ -38,7 +37,6 @@ export const FormSelectEbarimtProductRules = <T extends FieldValues>({
               scope={scope}
               onValueChange={field.onChange}
               disabled={disabled}
-              placeholder={placeholder}
             />
           </Form.Control>
           <Form.Message />

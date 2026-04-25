@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { addEBarimtStageInConfigSchema } from '../constants/addEBarimtReturnConfigSchema';
+import { addEBarimtStageInConfigSchema } from '../constants/addEBarimtStageConfigSchema';
 
 export interface StageInEbarimtConfig {
   title: string;
-  destinationStageBoard: string;
+  boardId: string;
   pipelineId: string;
   stageId: string;
   posNo: string;
@@ -16,13 +16,11 @@ export interface StageInEbarimtConfig {
   defaultUnitedCode: string;
   headerText: string;
   branchNo: string;
-  HasVat: boolean;
+  hasVat: boolean;
   vatPercent: string;
   anotherRulesOfProductsOnVat: string;
-  vatPayableAccount: string;
 
-  HasAllCitytax: boolean;
-  allCitytaxPayableAccount: string;
+  hasCitytax: boolean;
   footerText: string;
   citytaxPercent: string;
   anotherRulesOfProductsOnCitytax: string;
