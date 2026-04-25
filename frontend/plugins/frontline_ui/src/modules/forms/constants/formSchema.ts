@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const FORM_GENERAL_SCHEMA = z.object({
   primaryColor: z.string(),
   appearance: z.string(),
+  loadType: z.string(),
   title: z.string(),
   description: z.string(),
   buttonText: z.string(),

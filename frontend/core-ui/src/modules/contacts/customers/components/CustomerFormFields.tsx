@@ -107,7 +107,7 @@ const emailValidationStatuses = [
   { label: 'Unknown', value: 'unknown' },
   { label: 'Disposable', value: 'disposable' },
   { label: 'Catch all', value: 'catchall' },
-  { label: 'Bat syntax', value: 'bad_syntax' },
+  { label: 'Bad syntax', value: 'bad_syntax' },
   { label: 'Not checked', value: 'not_checked' },
 ];
 

@@ -8,7 +8,7 @@ import {
   type ReactFlowInstance,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { cn, Spinner, Tabs } from 'erxes-ui';
+import { Button, cn, Sheet, Spinner, Tabs, useIsMobile } from 'erxes-ui';
 import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSlotManager } from '../hooks/customHooks';
@@ -52,7 +52,6 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
     edges,
     selectedNode,
     slotDetail,
-    sidebarView,
     slotsLoading,
     slotsSaving,
     hasSlots,
@@ -78,8 +77,11 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
 
   const [isDragging, setIsDragging] = useState(false);
   const [activeTab, setActiveTab] = useState('slots');
+  const [slotsSheetOpen, setSlotsSheetOpen] = useState(false);
 
+  const isMobile = useIsMobile();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const slotsButtonRef = useRef<HTMLButtonElement>(null);
   const [, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const nodeTypes = useMemo(() => ({ tableNode: TableNode }), []);
@@ -117,6 +119,7 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
     (event, node) => {
       handleNodeClick(node as CustomNode);
       setActiveTab('details');
+      setSlotsSheetOpen(true);
     },
     [handleNodeClick],
   );
@@ -142,6 +145,25 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
     setActiveTab('slots');
   }, [setSidebarView, setSelectedNode]);
 
+  const handleOpenSlots = useCallback(() => {
+    setSlotsSheetOpen(true);
+  }, []);
+
+  const handleSheetOpenChange = useCallback(
+    (next: boolean) => {
+      setSlotsSheetOpen(next);
+      if (!next) {
+        if (selectedNode) {
+          setSelectedNode(null);
+          setSidebarView('list');
+        }
+        setActiveTab('slots');
+        slotsButtonRef.current?.focus();
+      }
+    },
+    [selectedNode, setSelectedNode, setSidebarView],
+  );
+
   if (slotsLoading && !hasSlots) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-150px)]">
@@ -151,10 +173,10 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-screen border bg-background">
-      <div className="flex relative flex-1">
+    <div className="flex flex-col h-full min-h-0 border bg-background">
+      <div className="relative flex flex-1 min-h-0">
         <div
-          className="overflow-hidden flex-1 w-full h-full"
+          className="flex-1 w-full h-full overflow-hidden"
           ref={reactFlowWrapper}
         >
           <ReactFlowProvider>
@@ -187,50 +209,86 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
               />
 
               <NodeControls
+                ref={slotsButtonRef}
                 onAddSlot={handleAddSlot}
                 onArrangeNodes={arrangeNodesInGrid}
                 onSaveChanges={handleSaveAllChanges}
                 isCreating={isCreating}
                 saving={slotsSaving}
+                onOpenSlots={handleOpenSlots}
+                slotsOpen={slotsSheetOpen}
               />
             </ReactFlow>
           </ReactFlowProvider>
         </div>
 
-        {sidebarView !== 'hidden' && (
-          <div
+        <Sheet open={slotsSheetOpen} onOpenChange={handleSheetOpenChange}>
+          <Sheet.View
+            side={isMobile ? 'bottom' : 'right'}
+            aria-label="Slots"
             className={cn(
-              'w-80 border-l bg-background',
-              isDragging ? 'opacity-50' : 'opacity-100',
+              'flex flex-col p-0',
+              isMobile &&
+                'h-[90dvh] inset-x-0 bottom-0 rounded-b-none w-full max-w-full',
+              isDragging && 'opacity-50',
             )}
           >
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <Tabs.Content value="slots" className="m-0">
-                <SidebarList
-                  nodes={nodes}
-                  selectedNode={selectedNode}
-                  onNodeClick={onNodeClick}
-                  onAddSlot={handleAddSlot}
-                  onDuplicateSlot={handleDuplicateSlot}
-                  onDeleteSlot={handleDeleteSlot}
-                />
-              </Tabs.Content>
+            <Sheet.Header className="justify-between shrink-0">
+              <Sheet.Title>
+                {activeTab === 'details' ? 'Slot Detail' : 'Slots'}
+              </Sheet.Title>
+              <Sheet.Description className="sr-only">
+                Manage the slots available on this POS floor plan.
+              </Sheet.Description>
+              <Sheet.Close />
+            </Sheet.Header>
 
-              <Tabs.Content value="details" className="m-0">
-                {selectedNode && (
-                  <SidebarDetail
-                    onSave={handleSidebarSave}
-                    onCancel={handleSidebarCancel}
+            <Sheet.Content className="flex-1 min-h-0 p-0 overflow-hidden">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="flex h-full min-h-0 flex-col"
+              >
+                <Tabs.Content
+                  value="slots"
+                  className="m-0 h-full min-h-0 overflow-hidden"
+                >
+                  <SidebarList
+                    nodes={nodes}
+                    selectedNode={selectedNode}
+                    onNodeClick={onNodeClick}
+                    onAddSlot={handleAddSlot}
+                    onDuplicateSlot={handleDuplicateSlot}
+                    onDeleteSlot={handleDeleteSlot}
                   />
-                )}
-              </Tabs.Content>
-            </Tabs>
-          </div>
-        )}
+                </Tabs.Content>
+
+                <Tabs.Content
+                  value="details"
+                  className="m-0 h-full min-h-0 overflow-y-auto"
+                >
+                  {selectedNode && (
+                    <SidebarDetail
+                      onSave={handleSidebarSave}
+                      onCancel={handleSidebarCancel}
+                    />
+                  )}
+                </Tabs.Content>
+              </Tabs>
+            </Sheet.Content>
+
+            {activeTab === 'details' && selectedNode && (
+              <Sheet.Footer className="border-t shrink-0">
+                <Button variant="outline" onClick={handleSidebarCancel}>
+                  Cancel
+                </Button>
+                <Button variant="default" onClick={handleSidebarSave}>
+                  Save
+                </Button>
+              </Sheet.Footer>
+            )}
+          </Sheet.View>
+        </Sheet>
       </div>
     </div>
   );
