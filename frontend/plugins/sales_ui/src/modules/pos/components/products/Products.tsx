@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useMutation } from '@apollo/client';
 import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { ProductGroupsList } from '@/pos/components/products/ProductGroupsList';
 import { InitialProductCategories } from '@/pos/components/products/InitialProductCategories';
@@ -9,6 +8,7 @@ import { KioskExcludeProducts } from '@/pos/components/products/KioskExcludeProd
 import { ProductAndCategoryMapping } from '@/pos/components/products/ProductAndCategoryMapping';
 import { RemainderConfigs } from '@/pos/components/products/RemainderConfigs';
 import { ServiceCharge } from '@/pos/components/products/ServiceCharge';
+import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
@@ -51,25 +51,6 @@ const DEFAULT_FORM_VALUES: ProductsFormData = {
   serviceCharge: '',
   serviceChargeApplicableProductId: '',
 };
-
-const MoreOptionsButton = ({
-  showMore,
-  onToggle,
-}: {
-  showMore: boolean;
-  onToggle: () => void;
-}) => (
-  <Button
-    type="button"
-    variant="outline"
-    size="sm"
-    onClick={onToggle}
-    className="flex gap-1 items-center text-muted-foreground"
-  >
-    {showMore ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
-    {showMore ? 'Hide more options' : 'More options'}
-  </Button>
-);
 
 const sanitizeMappings = (mappings: CatProd[]) =>
   mappings.map((mapping) => {

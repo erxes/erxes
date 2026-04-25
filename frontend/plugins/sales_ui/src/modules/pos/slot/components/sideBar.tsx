@@ -13,14 +13,14 @@ const SidebarList: React.FC<SidebarListProps> = ({
   onDeleteSlot,
 }) => {
   return (
-    <div className="bg-background">
-      <div className="flex justify-between items-center p-4 border-b">
+    <div className="flex h-full min-h-0 flex-col bg-background">
+      <div className="flex shrink-0 justify-between items-center p-4 border-b">
         <h2 className="text-2xl text-foreground">ALL SLOTS</h2>
 
         <Badge variant="default">{nodes.length}</Badge>
       </div>
 
-      <ScrollArea className="h-[calc(100vh-4rem)]">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="p-4 space-y-3">
           {nodes.length > 0 ? (
             nodes.map((node) => (

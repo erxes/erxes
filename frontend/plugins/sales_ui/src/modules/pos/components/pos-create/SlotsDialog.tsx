@@ -46,12 +46,15 @@ export const SlotsDialog: React.FC<SlotsDialogProps> = ({
         </Dialog.Trigger>
       </div>
 
-      <Dialog.Content className="sm:max-w-4xl max-h-[90vh] flex flex-col">
+      <Dialog.Content className="flex h-[90vh] w-[calc(100vw-2rem)] flex-col max-w-7xl">
         <Dialog.Header>
           <Dialog.Title>Configure Slots</Dialog.Title>
+          <Dialog.Description className="sr-only">
+            Configure the floor plan slots for this POS.
+          </Dialog.Description>
         </Dialog.Header>
 
-        <div className="overflow-hidden flex-1 min-h-0 rounded-md border">
+        <div className="flex-1 min-h-0 overflow-hidden border rounded-md">
           <POSSlotsManager
             posId=""
             initialNodes={nodes}

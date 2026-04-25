@@ -1,6 +1,11 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { POST_REACTION_TYPES, PostReactionType } from '@/cms/@types/posts';
 import { IContext } from '~/connectionResolvers';
+import {
+  assertOwnedDocument,
+  assertOwnedDocuments,
+  requireClientPortalId,
+} from '@/cms/graphql/utils/clientPortal';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -44,6 +49,73 @@ export const postMutations: Record<string, Resolver> = {
       const defaultLanguage = await getDefaultLanguage(
         models,
         postInput.clientPortalId,
+      );
+
+      const fallback =
+        (defaultLanguage &&
+          translations.find((t: any) => t?.language === defaultLanguage)) ||
+        translations[0];
+
+      if (fallback) {
+        postInput.title = fallback.title || postInput.title;
+        postInput.content = fallback.content || postInput.content;
+        postInput.excerpt = fallback.excerpt || postInput.excerpt;
+        postInput.customFieldsData =
+          fallback.customFieldsData || postInput.customFieldsData;
+      }
+    }
+
+    const post = await models.Posts.createPost(postInput);
+
+    await saveTranslations(models, post._id, translations || []);
+
+    return post;
+  },
+
+  cpCmsPostsAdd: async (_parent, args, context: IContext) => {
+    const { models } = context;
+    const clientPortalId = requireClientPortalId(context);
+    const { input } = args;
+    const { translations, language, clientPortalId: _ignored, ...postInput } =
+      input;
+
+    postInput.clientPortalId = clientPortalId;
+
+    if (Array.isArray(postInput.categoryIds) && postInput.categoryIds.length) {
+      await assertOwnedDocuments(
+        models.Categories,
+        postInput.categoryIds,
+        clientPortalId,
+        'Category not found',
+      );
+    }
+
+    if (Array.isArray(postInput.tagIds) && postInput.tagIds.length) {
+      await assertOwnedDocuments(
+        models.PostTags,
+        postInput.tagIds,
+        clientPortalId,
+        'Tag not found',
+      );
+    }
+
+    if (postInput.webId) {
+      await assertOwnedDocument(
+        models.Web,
+        postInput.webId,
+        clientPortalId,
+        'Web not found',
+      );
+    }
+
+    if (
+      (!postInput.title || !String(postInput.title).trim()) &&
+      Array.isArray(translations) &&
+      translations.length > 0
+    ) {
+      const defaultLanguage = await getDefaultLanguage(
+        models,
+        clientPortalId,
       );
 
       const fallback =
@@ -225,5 +297,8 @@ export const postMutations: Record<string, Resolver> = {
 };
 
 postMutations.cpPostsReact.wrapperConfig = {
+  forClientPortal: true,
+};
+postMutations.cpCmsPostsAdd.wrapperConfig = {
   forClientPortal: true,
 };

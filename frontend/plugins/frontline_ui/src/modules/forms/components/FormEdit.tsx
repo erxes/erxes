@@ -16,9 +16,7 @@ export const FormEdit = ({ setName }: { setName?: (name: string) => void }) => {
     if (formDetail) {
       formSetSetup(formDetail);
       setName?.(formDetail.name);
-      setTimeout(() => {
-        setLoadingSetup(false);
-      }, 1000);
+      setLoadingSetup(false);
     }
   }, [formDetail, formSetSetup, setName]);
 
