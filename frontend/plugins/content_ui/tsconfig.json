@@ -2,7 +2,6 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "allowJs": false,
-    "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "paths": {
@@ -12,18 +11,15 @@
       "~": ["frontend/plugins/content_ui/src"],
       "@/*": ["frontend/plugins/content_ui/src/modules/*"],
       "@": ["frontend/plugins/content_ui/src/modules"],
-      "ui-modules": ["frontend/libs/ui-modules/src"]
+      "ui-modules": ["frontend/libs/ui-modules/src"],
+      "ui-modules/*": ["frontend/libs/ui-modules/src/*"]
     }
   },
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
+  "files": [
+    "rspack.config.ts",
+    "rspack.config.prod.ts",
+    "module-federation.config.ts"
   ],
+  "include": [],
   "extends": "../../../tsconfig.base.json"
 }

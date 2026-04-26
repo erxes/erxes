@@ -4,6 +4,7 @@ import {
   withModuleFederation,
 } from '@nx/rspack/module-federation';
 import { DefinePlugin } from '@rspack/core';
+import { quietDevLogs } from 'ui-modules/utils/quietDevLogs';
 
 import baseConfig from './module-federation.config';
 
@@ -48,25 +49,6 @@ export default composePlugins(
       type: 'css',
     });
 
-    config.devServer = {
-      ...(config.devServer),
-      client: {
-        ...(config.devServer?.client),
-        logging: 'error',
-      },
-      devMiddleware: {
-        ...(config.devServer?.devMiddleware),
-        stats: 'errors-warnings',
-      },
-    };
-
-    config.infrastructureLogging = {
-      ...(config.infrastructureLogging),
-      level: 'error',
-    };
-
-    config.stats = 'errors-warnings';
-
-    return config;
+    return quietDevLogs(config);
   },
 );

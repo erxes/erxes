@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
@@ -25,6 +26,7 @@
     "paths": {
       "erxes-ui": ["frontend/libs/erxes-ui/src/index.ts"],
       "ui-modules": ["frontend/libs/ui-modules/src/index.ts"],
+      "ui-modules/*": ["frontend/libs/ui-modules/src/*"],
       "erxes-api-shared": ["backend/erxes-api-shared/src/index.ts"],
       "erxes-api-shared/*": ["backend/erxes-api-shared/src/*"]
     }

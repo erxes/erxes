@@ -1,5 +1,6 @@
 import { composePlugins, withNx, withReact } from '@nx/rspack';
 import { withModuleFederation } from '@nx/rspack/module-federation';
+import { quietDevLogs } from 'ui-modules/utils/quietDevLogs';
 
 import baseConfig from './module-federation.config';
 
@@ -17,17 +18,14 @@ export default composePlugins(
   withNx(),
   withReact(),
   withModuleFederation(config, { dts: false }),
-  (config) => ({
-    ...config,
-    module: {
-      ...config.module,
-      rules: [
-        ...((config.module?.rules as unknown[]) || []),
-        {
-          test: /\.(png|jpg|jpeg|gif|webp)$/i,
-          type: 'asset/resource',
-        },
-      ],
-    },
-  }),
+  (config) => {
+    config.module = config.module ?? {};
+    config.module.rules = config.module.rules ?? [];
+    config.module.rules.push({
+      test: /\.(png|jpg|jpeg|gif|webp)$/i,
+      type: 'asset/resource',
+    });
+
+    return quietDevLogs(config);
+  },
 );

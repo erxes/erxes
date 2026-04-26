@@ -1,5 +1,6 @@
 import { composePlugins, withNx, withReact } from '@nx/rspack';
 import { withModuleFederation } from '@nx/rspack/module-federation';
+import { quietDevLogs } from 'ui-modules/utils/quietDevLogs';
 
 import baseConfig from './module-federation.config';
 
@@ -24,6 +25,6 @@ export default composePlugins(
       test: /\.(mp3|wav|ogg)$/,
       type: 'asset/resource',
     });
-    return config;
+    return quietDevLogs(config);
   },
 );
