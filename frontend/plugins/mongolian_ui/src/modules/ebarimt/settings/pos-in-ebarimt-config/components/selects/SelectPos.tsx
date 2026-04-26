@@ -161,7 +161,6 @@ const SelectPosRoot = ({
   disabled,
 }: {
   value: string;
-  id: string;
   variant: `${SelectTriggerVariant}`;
   scope?: string;
   onValueChange?: (value: string) => void;
