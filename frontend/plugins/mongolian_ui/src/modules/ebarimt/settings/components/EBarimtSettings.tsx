@@ -28,6 +28,12 @@ export const StageInEBarimtConfig = lazy(() =>
   })),
 );
 
+export const PosInEBarimtConfig = lazy(() =>
+  import('~/pages/PosInEBarimtConfigPage').then((m) => ({
+    default: m.PosInEBarimtConfig,
+  })),
+);
+
 export const ProductGroupPage = lazy(() =>
   import('~/pages/ProductGroupPage').then((m) => ({
     default: m.ProductGroupPage,
@@ -43,7 +49,8 @@ const EBarimtSettings = () => {
       <Routes>
         <Route index element={<EBarimtMainConfig />} />
         <Route path="/stage-in" element={<StageInEBarimtConfig />} />
-        <Route path="/return" element={<ReturnEbarimtConfig />} />
+        <Route path="/stage-return" element={<ReturnEbarimtConfig />} />
+        <Route path="/pos-in" element={<PosInEBarimtConfig />} />
         <Route
           path="/product-rules-on-tax"
           element={<AddProductRulesOnTaxPage />}
