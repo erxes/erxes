@@ -3,6 +3,7 @@ export const MnConfigCodes = [
   'remainderConfig',
   'stageInEbarimt',
   'returnEbarimtConfig',
+  'posInEbarimt',
   'ebarimtConfig',
   'returnStageInEbarimt',
   'ERKHET',

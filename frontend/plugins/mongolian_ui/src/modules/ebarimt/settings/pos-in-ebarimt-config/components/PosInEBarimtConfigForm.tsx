@@ -35,7 +35,8 @@ const PosInEbarimtConfigCard = ({
     defaultValues: {
       title: config.title || '',
       posId: config.posId || '',
-      posNo: config.posNo || '',
+      ebarimtUrl: config.ebarimtUrl || '',
+      posNo: config.posNo || '10003424',
       companyRD: config.companyRD || '',
       merchantTin: config.merchantTin || '',
       branchOfProvince: config.branchOfProvince || '',
@@ -306,6 +307,12 @@ const PosInEbarimtConfigCard = ({
               label="Skip Ebarimt"
               control={form.control}
               labelPosition="before"
+            />
+            <FormInput
+              name={'ebarimtUrl'}
+              label="Ebarimt URL"
+              placeholder="not must fill"
+              control={form.control}
             />
           </div>
 

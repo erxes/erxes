@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const addEBarimtPosInConfigSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   posId: z.string().min(1, 'Pos is required'),
+  ebarimtUrl: z.string().optional(),
   posNo: z.string().optional(),
   companyRD: z.string().optional(),
   merchantTin: z.string().optional(),
@@ -27,6 +28,7 @@ export const addEBarimtPosInConfigSchema = z.object({
 export interface PosInEbarimtConfig {
   title: string;
   posId: string;
+  ebarimtUrl?: string;
   posNo: string;
   companyRD: string;
   merchantTin: string;

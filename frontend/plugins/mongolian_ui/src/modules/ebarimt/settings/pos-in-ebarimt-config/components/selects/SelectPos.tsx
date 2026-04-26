@@ -11,7 +11,7 @@ import {
   SelectContent,
   SelectTriggerVariant,
 } from './SelectShared';
-import { useGetSalesPoss } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useGetSalesPoss';
+import { useGetPoslist } from '~/modules/ebarimt/settings/pos-in-ebarimt-config/hooks/useGetPosList';
 
 interface IPos {
   _id: string;
@@ -48,7 +48,7 @@ export const SelectPosProvider = ({
   onValueChange: (posId: string) => void;
   children: React.ReactNode;
 }) => {
-  const { poss, loading, error } = useGetSalesPoss();
+  const { poss, loading, error } = useGetPoslist();
 
   const handleValueChange = useCallback(
     (posId: string) => {
@@ -155,7 +155,6 @@ const SelectPosContent = () => {
 
 const SelectPosRoot = ({
   value,
-  id,
   variant,
   scope,
   onValueChange,
