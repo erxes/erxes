@@ -7,7 +7,7 @@ import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt
 import { TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import { Accordion, AlertDialog, Button, Card, Form, Separator } from 'erxes-ui';
+import { Accordion, AlertDialog, Button, Card, Form } from 'erxes-ui';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { addEBarimtStageInConfigSchema } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/constants/addEBarimtStageConfigSchema';
