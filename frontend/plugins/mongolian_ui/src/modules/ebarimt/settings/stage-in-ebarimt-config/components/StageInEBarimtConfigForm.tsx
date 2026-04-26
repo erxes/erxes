@@ -4,22 +4,21 @@ import { SelectStage } from '@/ebarimt/settings/stage-in-ebarimt-config/componen
 import { useEbarimtConfigState } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useEbarimtConfigState';
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
 import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useSaveStageInEbarimtConfig';
-import { TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
+import { TStageInEbarimtConfig, addEBarimtStageInConfigSchema } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Accordion, AlertDialog, Button, Card, Form } from 'erxes-ui';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { addEBarimtStageInConfigSchema } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/constants/addEBarimtStageConfigSchema';
 import {
   FormCheckbox,
   FormDistrictCode,
   FormInput,
   FormSelectEbarimtProductRules,
 } from './FormFields';
+import { FormArea } from './FormFields/FormInput';
 import { SelectBranchDistrict } from './selects/SelectBranchDistrict';
 import { SelectSubBranchDistrict } from './selects/SelectSubBranchDistrict';
-import { FormArea } from './FormFields/FormInput';
 
 const StageInEbarimtConfigCard = ({
   config,
