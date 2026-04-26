@@ -231,7 +231,6 @@ const PosInEbarimtConfigCard = ({
                 <FormSelectEbarimtProductRules
                   name="reverseVatRules"
                   label="Another Rules of Products on VAT"
-                  placeholder="Select VAT rule"
                   kind="vat"
                   control={form.control}
                 />
@@ -273,7 +272,6 @@ const PosInEbarimtConfigCard = ({
                 <FormSelectEbarimtProductRules
                   name={'reverseCtaxRules'}
                   label="Another rules of products on citytax"
-                  placeholder="Select Citytax rule"
                   kind="ctax"
                   control={form.control}
                 />

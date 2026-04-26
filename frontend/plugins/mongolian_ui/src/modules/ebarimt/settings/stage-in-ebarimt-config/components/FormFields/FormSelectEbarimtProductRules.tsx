@@ -5,7 +5,6 @@ import { SelectEbarimtProductRules } from '../selects/SelectEbarimtProductRules'
 interface FormSelectEbarimtProductRulesProps<T extends FieldValues> {
   name: FieldPath<T>;
   label: string;
-  placeholder?: string;
   control: Control<T>;
   kind: 'vat' | 'ctax';
   variant?: 'filter' | 'table' | 'card' | 'detail' | 'form' | 'icon';
