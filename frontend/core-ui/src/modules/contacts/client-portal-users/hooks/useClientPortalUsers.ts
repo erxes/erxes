@@ -7,10 +7,7 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { GET_CLIENT_PORTAL_USERS } from '@/contacts/client-portal-users/graphql/getClientPortalUsers';
-import {
-  ICPUser,
-  ICPUserListResponse,
-} from '@/contacts/client-portal-users/types/cpUser';
+import { ICPUserListResponse } from '@/contacts/client-portal-users/types/cpUser';
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
 import { cpUserTotalCountAtom } from '@/contacts/client-portal-users/states/cpUserCounts';
 import { useSetAtom } from 'jotai';
@@ -100,6 +97,7 @@ export const useClientPortalUsers = (
   };
 
   return {
+    filter,
     list: list || [],
     totalCount: totalCount ?? 0,
     pageInfo,

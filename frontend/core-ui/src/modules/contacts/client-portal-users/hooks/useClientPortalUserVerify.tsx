@@ -3,22 +3,31 @@ import { CP_USERS_VERIFY } from '../graphql/cpUsersVerify';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
+interface CPUsersVerifyResult {
+  clientPortalUsersVerify: {
+    success: boolean;
+  };
+}
+
 export interface CPUsersVerifyOptions {
   variables: {
     type: 'email' | 'phone';
     userIds: string[];
   };
   onError?: (error: ApolloError) => void;
-  onCompleted?: (data: any) => void;
+  onCompleted?: (data: CPUsersVerifyResult) => void;
 }
 
 export function useCPUsersVerify() {
   const { toast } = useToast();
   const { t } = useTranslation('contact');
 
-  const [cpUsersVerifyMutation, { loading }] = useMutation(CP_USERS_VERIFY, {
-    refetchQueries: ['getClientPortalUsers'], // Хүснэгтийн датаг шинэчлэх
-  });
+  const [cpUsersVerifyMutation, { loading }] = useMutation<CPUsersVerifyResult>(
+    CP_USERS_VERIFY,
+    {
+      refetchQueries: ['getClientPortalUsers'],
+    },
+  );
 
   const cpUsersVerify = (options: CPUsersVerifyOptions) => {
     return cpUsersVerifyMutation({

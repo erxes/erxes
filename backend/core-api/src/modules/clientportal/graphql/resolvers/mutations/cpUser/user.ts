@@ -38,8 +38,12 @@ export const userMutations: Record<string, Resolver> = {
   async clientPortalUsersVerify(
     _root: unknown,
     params: { type: 'email' | 'phone'; userIds: string[] },
-    { models }: IContext,
+    { models, cpUser }: IContext,
   ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
     const { type, userIds } = params;
 
     const updateField =

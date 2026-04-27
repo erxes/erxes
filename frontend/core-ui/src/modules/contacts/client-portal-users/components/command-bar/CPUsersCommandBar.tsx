@@ -26,7 +26,6 @@ export const CPCommandBar = () => {
 
         <CPUsersVerify clientIds={clientIds} type="email" />
 
-        <Separator.Inline />
         <Can action="contactsDelete">
           <>
             <Separator.Inline />
