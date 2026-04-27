@@ -275,6 +275,12 @@ const upload = multer({
  */
 const uploadStore = new Map<string, IUploadStatus>();
 
+// Tracks chunk uploads currently being merged. Guards against the
+// final-chunk-arrives-twice race where two requests synchronously pass
+// the chunks-complete check before either schedules `setImmediate`,
+// leading to a double merge + double upload.
+const mergingUploads = new Set<string>();
+
 /**
  * Tracks which chunks have been received for each in-progress upload session.
  * Keyed by server-generated UUID from /upload-chunked/init.
@@ -430,6 +436,13 @@ router.post(
      * via `setImmediate` so the 200 response is sent before the heavy I/O.
      */
     if (uploadInfo.chunks.size === uploadInfo.totalChunks) {
+      // Atomic check-and-set under Node's single-threaded event loop:
+      // both branches of a parallel last-chunk retry hit this synchronously
+      // without yielding, so only the first request acquires the slot.
+      if (mergingUploads.has(trustedId)) {
+        return null;
+      }
+      mergingUploads.add(trustedId);
       setImmediate(async () => {
         try {
           const latestInfo = chunkStore.get(trustedId);
@@ -508,6 +521,8 @@ router.post(
             error: err instanceof Error ? err.message : 'Processing failed',
             fileName: uploadInfo.fileName,
           });
+        } finally {
+          mergingUploads.delete(trustedId);
         }
       });
     }
