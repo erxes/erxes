@@ -78,16 +78,6 @@ export const ConversationDetail = () => {
     loading?: boolean;
   };
 
-  const conversationAllDetails = {
-    ...currentConversation,
-    ...conversationDetail,
-    integration,
-    loading,
-  } as IConversation & {
-    integration?: IIntegration;
-    loading?: boolean;
-  };
-
   return (
     <div className="flex h-full overflow-hidden">
       <div className="flex flex-col h-full overflow-hidden flex-auto">
@@ -109,7 +99,9 @@ export const ConversationDetail = () => {
               <>
                 {integration?.kind &&
                   ['messenger', 'lead'].includes(integration.kind) && (
-                    <ConversationMessages conversationId={conversationId || ''} />
+                    <ConversationMessages
+                      conversationId={conversationId || ''}
+                    />
                   )}
                 <ConversationIntegrationDetail />
               </>
