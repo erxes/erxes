@@ -2,12 +2,13 @@ import {
   IconArrowRight,
   IconDownload,
   IconFileSpreadsheet,
+  IconHelpCircle,
   IconHistory,
   IconUpload,
 } from '@tabler/icons-react';
-import { type ReactNode, type ComponentType, useId, useState } from 'react';
+import { type ReactNode, type ComponentType, useId } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Popover, ScrollArea, Sheet, cn } from 'erxes-ui';
+import { Button, Dialog, Popover, ScrollArea, Sheet, cn } from 'erxes-ui';
 import { Badge } from 'erxes-ui/components/badge';
 import { useImportUploadHandler } from '../../hooks/import/useImportUploadHandler';
 import { formatEntityLabel } from '../../utils/entityLabel';
@@ -20,13 +21,17 @@ export const Import = ({
   collectionName,
   onFileUploaded,
   additionContent,
+  helperTriggerLabel = 'View import guide',
+  helperDescription = 'Import guide and field reference',
 }: {
   title?: string;
   pluginName: string;
   moduleName: string;
   collectionName: string;
   onFileUploaded?: (file: File) => void;
-  additionContent?: () => ReactNode
+  additionContent?: () => ReactNode;
+  helperTriggerLabel?: string;
+  helperDescription?: string;
 }) => {
   const inputId = useId();
   const contentType = `${pluginName}:${moduleName}.${collectionName}`;
@@ -35,11 +40,10 @@ export const Import = ({
   const resolvedTitle =
     title === 'Upload CSV'
       ? `Import ${formatEntityLabel(collectionName, {
-        plural: true,
-        capitalize: true,
-      })}`
+          plural: true,
+          capitalize: true,
+        })}`
       : title;
-  const [showAddition, setShowAddition] = useState<boolean>(false)
   const {
     activeImports,
     isDragOver,
@@ -54,20 +58,34 @@ export const Import = ({
 
   const renderAdditionInfo = () => {
     if (!additionContent) {
-      return;
-    }
-
-    if (!showAddition) {
-      return <Button variant={'ghost'} onClick={() => setShowAddition(true)}>Show helper</Button>
+      return null;
     }
 
     return (
-      <div>
-        {additionContent()}
-        <Button variant={'ghost'} onClick={() => setShowAddition(false)}>Hide helper</Button>
-      </div>
+      <Dialog>
+        <Dialog.Trigger asChild>
+          <Button
+            variant="secondary"
+            className="mt-1 w-full justify-start gap-2 border border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
+          >
+            <IconHelpCircle className="size-4" />
+            {helperTriggerLabel}
+          </Button>
+        </Dialog.Trigger>
+        <Dialog.ContentCombined
+          title={resolvedTitle}
+          description={helperDescription}
+          className="w-[min(1100px,90vw)] max-w-[min(1100px,90vw)] sm:max-w-[min(1100px,90vw)] h-[85vh] overflow-hidden grid-rows-[auto_1fr]"
+        >
+          <ScrollArea className="h-full mx-6 px-6 pb-2">
+            <div className="pt-2 text-sm leading-relaxed">
+              {additionContent()}
+            </div>
+          </ScrollArea>
+        </Dialog.ContentCombined>
+      </Dialog>
     );
-  }
+  };
 
   return (
     <Popover>
@@ -98,8 +116,9 @@ export const Import = ({
                   <Badge variant="info">CSV only</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Download the template, add your {entityPluralLabel}, then upload
-                  the file to create or update {entityPluralLabel} in bulk.
+                  Download the template, add your {entityPluralLabel}, then
+                  upload the file to create or update {entityPluralLabel} in
+                  bulk.
                 </p>
                 {renderAdditionInfo()}
               </div>
@@ -174,7 +193,11 @@ export const Import = ({
               </Sheet.View>
             </Sheet>
 
-            <Button asChild variant="outline" className="w-full justify-between">
+            <Button
+              asChild
+              variant="outline"
+              className="w-full justify-between"
+            >
               <Link to={`/settings/import-export/import?type=${contentType}`}>
                 History
                 <IconArrowRight className="size-4" />

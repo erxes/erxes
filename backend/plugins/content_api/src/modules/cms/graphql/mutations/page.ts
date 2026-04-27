@@ -1,4 +1,9 @@
+import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import {
+  assertOwnedDocument,
+  requireClientPortalId,
+} from '@/cms/graphql/utils/clientPortal';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -33,7 +38,7 @@ const savePageTranslations = async (
   );
 };
 
-const mutations = {
+const mutations : Record<string, Resolver> = {
   async cmsPagesAdd(_parent: any, args: any, context: IContext): Promise<any> {
     const { user, models } = context;
     const { input } = args;
@@ -50,6 +55,55 @@ const mutations = {
       const defaultLanguage = await getDefaultLanguage(
         models,
         pageInput.clientPortalId,
+      );
+
+      const fallback =
+        (defaultLanguage &&
+          translations.find((t: any) => t?.language === defaultLanguage)) ||
+        translations[0];
+
+      if (fallback) {
+        pageInput.name = fallback.title || pageInput.name;
+        pageInput.description = fallback.content || pageInput.description;
+        pageInput.customFieldsData =
+          fallback.customFieldsData || pageInput.customFieldsData;
+      }
+    }
+
+    const page = await models.Pages.createPage(pageInput);
+
+    await savePageTranslations(models, page._id, translations || []);
+
+    return page;
+  },
+
+  async cpCmsPagesAdd(_parent: any, args: any, context: IContext): Promise<any> {
+    const { models } = context;
+    const clientPortalId = requireClientPortalId(context);
+    const { input } = args;
+    const { translations, language, clientPortalId: _ignored, ...pageInput } =
+      input;
+
+    pageInput.clientPortalId = clientPortalId;
+
+    if (pageInput.parentId) {
+      await assertOwnedDocument(
+        models.Pages,
+        pageInput.parentId,
+        clientPortalId,
+        'Parent page not found',
+      );
+    }
+
+    // If name is empty, derive from default-language translation
+    if (
+      (!pageInput.name || !String(pageInput.name).trim()) &&
+      Array.isArray(translations) &&
+      translations.length > 0
+    ) {
+      const defaultLanguage = await getDefaultLanguage(
+        models,
+        clientPortalId,
       );
 
       const fallback =
@@ -130,3 +184,7 @@ const mutations = {
 };
 
 export default mutations;
+
+mutations.cpCmsPagesAdd.wrapperConfig={
+  forClientPortal:true,
+}

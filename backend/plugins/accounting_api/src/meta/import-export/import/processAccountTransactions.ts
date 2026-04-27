@@ -1,49 +1,10 @@
 import { IModels } from '~/connectionResolvers';
 import {
-  ACCOUNT_CATEGORY_STATUSES,
   JOURNALS,
 } from '~/modules/accounting/@types/constants';
 import { ITransaction } from '~/modules/accounting/@types/transaction';
 import { nanoid } from 'nanoid';
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
-
-export async function prepareAccountDoc(
-  models: IModels,
-  row: any,
-) {
-  const doc: any = { ...row };
-
-  doc.createdAt = new Date();
-  doc.updatedAt = new Date();
-
-  if (!doc.code) {
-    throw new Error('code is required');
-  }
-
-  if (row.parentId) {
-    const parentCategory = await models.AccountCategories.findOne({
-      $or: [
-        { _id: row.parentId }, { code: row.parentId }]
-    }).lean();
-    if (!parentCategory) {
-      throw new Error(`Parent category (by _id or code) not found for line with code "${row.code}"`)
-    }
-
-    doc.parentId = parentCategory._id;
-    doc.order = `${parentCategory.order}${row.code}/`
-  } else {
-    doc.order = `${row.code}/`
-  }
-
-  const normalize = (val: any) => String(val).toLowerCase();
-
-  // STATUS
-  doc.status = ['deleted', 0, '0'].includes(normalize(row.status))
-    ? ACCOUNT_CATEGORY_STATUSES.ARCHIVED
-    : ACCOUNT_CATEGORY_STATUSES.ACTIVE;
-
-  return doc;
-}
 
 const savePtr = async (models: IModels, trDocs: ITransaction[], userId: string, ptrInfo) => {
   const { hasOld, parentId } = ptrInfo;
@@ -159,10 +120,10 @@ const getTrDoc = async (models: IModels, row: any, ptrInfo, relatedData) => {
   return {
     ptrId,
     parentId,
-    number,
     date,
-    description: row.description,
+    number,
     journal,
+    description: row.description,
     side: row.side,
     followInfos: await getFollowInfos(models, row, relatedData),
 
@@ -437,9 +398,6 @@ export async function processTransactionRows(
 ): Promise<{ successRows: any[]; errorRows: any[] }> {
   const successRows: any[] = [];
   const errorRows: any[] = [];
-  const currentSuccesRows: any[] = [];
-
-  const relatedData = await getRelatedDatas(subdomain, models, rows);
 
   try {
     let currentPtrInfo: any;
@@ -473,6 +431,8 @@ export async function processTransactionRows(
       currentTrDocs = [];
       currentSuccessRows = [];
     };
+
+    const relatedData = await getRelatedDatas(subdomain, models, rows);
 
     for (const row of rows) {
       try {

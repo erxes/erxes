@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -44,27 +44,24 @@
   </head>
   <body>
     <div class="container">
-      <div data-erxes-embed="GGQY5i"></div>
+      <div data-erxes-modal="G7Nzp1">
+        <button>Open Form Widget</button>
+      </div>
     </div>
 
     <!-- Widget Configuration -->
 
     <!-- Load the compiled widget script -->
-    <script src="./messengerBundle.js"></script>
     <script>
       window.erxesSettings = {
-        messenger: {
-          integrationId: 'l1LLS8hQgm7elf3YDVZID',
-        },
+        forms: [
+          {
+            form_id: 'G7Nzp1',
+            channel_id: 'JCwNcKRss4W94g8F5FKpw',
+          },
+        ],
       };
-
-      (function () {
-        const script = document.createElement('script');
-        script.src = 'http://localhost:4000/messengerBundle.js';
-        script.async = true;
-        const entry = document.getElementsByTagName('script')[0];
-        entry.parentNode.insertBefore(script, entry);
-      })();
     </script>
+    <script src="./formBundle.js"></script>
   </body>
 </html>

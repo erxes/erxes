@@ -175,7 +175,7 @@ const commonPostQuerySelectorPagination = `
   `;
 
 export const queries = `
-      cmsPost(_id: String, slug: String, identifier: String, language: String, clientPortalId: String): Post
+      cmsPost(_id: String, count: Int, slug: String, identifier: String, language: String, clientPortalId: String): Post
       cmsPosts(clientPortalId: String, ${commonPostQuerySelector}): [Post]
       cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList
       cmsMostViewedPosts(clientPortalId: String!, days: Int!, limit: Int, language: String, webId: String, type: String): [Post]
@@ -183,7 +183,7 @@ export const queries = `
   
       cpPosts(language: String, webId: String, ${commonPostQuerySelector}): [Post]
       cpPostList(language: String, webId: String, ${commonPostQuerySelector}): PostList
-      cpPost(_id: String, slug: String, identifier: String, language: String, clientPortalId: String): Post
+      cpPost(_id: String, count: Int, slug: String, identifier: String, language: String, clientPortalId: String): Post
       cpPostListWithPagination(language: String, ${commonPostQuerySelectorPagination}): PostListPagination
       cpMostViewedPosts(days: Int!, limit: Int, language: String, webId: String, type: String): [Post]
   `;
@@ -198,8 +198,10 @@ export const mutations = `
   
       cpPostsIncrementViewCount(_id: String!): Post
       cpPostsReact(_id: String!, reaction: PostReactionType!, action: ReactionModifyType!): Post
+      cpCmsPostsAdd(input: PostInput!): Post
   
       cmsAddTranslation(input: TranslationInput!): Translation
       cmsEditTranslation(input: TranslationInput!): Translation
       cmsDeleteTranslation(_id: String!): JSON
+      cpCmsAddTranslation(input: TranslationInput!): Translation
   `;

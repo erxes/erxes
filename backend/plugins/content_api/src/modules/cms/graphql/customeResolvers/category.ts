@@ -26,6 +26,17 @@ const PostCategory = {
       category.customFieldsData,
     );
   },
+
+  async translations(
+    category: IPostCategoryDocument,
+    _params,
+    { models }: IContext,
+  ) {
+    return models.Translations.find({
+      objectId: category._id,
+      type: 'category',
+    }).lean();
+  },
 };
 
 export { PostCategory };
