@@ -516,8 +516,6 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       sortDirection,
       searchValue,
     } = this.params;
-    const paramKeys = Object.keys(this.params).join(',');
-
     const _page = Number(page || 1);
     let _limit = Number(perPage || 20);
 
@@ -525,12 +523,14 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       _limit = 10000;
     }
 
-    if (
+    const simpleParamKeys = new Set(['page', 'perPage', 'type', 'searchValue']);
+    const isSimpleQuery =
       !unlimited &&
       page === 1 &&
       perPage === 20 &&
-      (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')
-    ) {
+      Object.keys(this.params).every(k => simpleParamKeys.has(k));
+
+    if (isSimpleQuery) {
       return this.findAllMongo(_limit);
     }
 

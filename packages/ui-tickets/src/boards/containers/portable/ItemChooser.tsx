@@ -125,6 +125,7 @@ class ItemChooserContainer extends React.Component<
           stageId={this.props.stageId}
           showSelect={true}
           getAssociatedItem={getAssociatedItem}
+          sourceConversationId={data.sourceConversationId}
         />
       ),
       newItem: this.state.newItem,
@@ -175,6 +176,7 @@ type WrapperProps = {
     mainTypeId?: string;
     mainType?: string;
     isRelated?: boolean;
+    sourceConversationId?: string;
   };
   onSelect: (datas: IItem[]) => void;
   showSelect?: boolean;
