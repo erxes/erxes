@@ -114,7 +114,10 @@ class AddFormContainer extends React.Component<FinalProps> {
             });
           }
 
-          this.afterSave(message, callback, data);
+          this.afterSave(message, callback, {
+            _id: data.conversationConvertToCard,
+            stageId: doc.stageId,
+          });
         })
         .catch((error) => {
           Alert.error(error.message);

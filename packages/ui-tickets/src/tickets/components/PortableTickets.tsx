@@ -7,6 +7,7 @@ type IProps = {
   mainType?: string;
   mainTypeId?: string;
   mainTypeName?: string;
+  sourceConversationId?: string;
 };
 
 export default (props: IProps) => {
@@ -17,7 +18,7 @@ export default (props: IProps) => {
       component={PortableItems}
       queryName={options.queriesName.itemsQuery}
       itemsQuery={options.queries.itemsQuery}
-      data={{ options }}
+      data={{ options, sourceConversationId: props.sourceConversationId }}
     />
   );
 };

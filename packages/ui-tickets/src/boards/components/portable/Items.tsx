@@ -11,6 +11,7 @@ import { IItem, IOptions } from "../../types";
 
 type IData = {
   options: IOptions;
+  sourceConversationId?: string;
 };
 
 type Props = {
@@ -112,7 +113,8 @@ class Items extends React.Component<Props, { openItemId?: string }> {
           options: data.options,
           mainType,
           mainTypeId,
-          items
+          items,
+          sourceConversationId: data.sourceConversationId
         }}
         callback={onChangeItem}
         showSelect={true}

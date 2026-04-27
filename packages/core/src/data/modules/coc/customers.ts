@@ -232,21 +232,40 @@ export class Builder extends CommonBuilder<IListArgs> {
       }
     );
 
-    const selector = {
+    const selector: any = {
       ...this.context.commonQuerySelector,
       status: { $ne: "deleted" },
       state: this.params.type || "customer",
-      $or: [
+      $and: [
         {
-          integrationId: { $in: [null, undefined, ""] }
-        },
-        {
-          integrationId: {
-            $in: activeIntegrations.map(integration => integration._id)
-          }
+          $or: [
+            { integrationId: { $in: [null, undefined, ""] } },
+            {
+              integrationId: {
+                $in: activeIntegrations.map((integration: { _id: string }) => integration._id)
+              }
+            }
+          ]
         }
       ]
     };
+
+    if (this.params.searchValue) {
+      const escapedSearch = this.params.searchValue.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
+      const searchRegex = new RegExp(escapedSearch, "i");
+      selector.$and.push({
+        $or: [
+          { searchText: searchRegex },
+          { firstName: searchRegex },
+          { lastName: searchRegex },
+          { primaryEmail: searchRegex },
+          { primaryPhone: searchRegex }
+        ]
+      });
+    }
 
     const customers = await this.models.Customers.find(selector)
       .sort({ createdAt: -1 })
