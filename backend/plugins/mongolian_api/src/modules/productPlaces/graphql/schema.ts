@@ -28,6 +28,6 @@ export const types = `
 
 export const subscriptions = `
   extend type Subscription {
-    productPlacesResponded(userId: String!, sessionCode: String!): ProductPlacesResponse!
+    productPlacesResponded(userId: String, sessionCode: String!): ProductPlacesResponse!
   }
 `;
