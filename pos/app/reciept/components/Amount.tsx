@@ -27,10 +27,10 @@ const Amount = () => {
   }, [items])
 
   return (
-    <div className="font-base text-[11px]">
-      <div className="flex items-center justify-between border-t font-semibold pt-1">
+    <div className="receipt-print__section font-base text-[11px]">
+      <div className="flex items-center justify-between font-semibold receipt-print__row">
         <p>Нийт үнэ</p>
-        <p>{formatNum(total)}</p>
+        <p className="receipt-print__value tabular-nums">{formatNum(total)}</p>
       </div>
       <Field text="Хөнгөлөлт" val={discountAmounts()} />
       <Field text="Бэлнээр" val={cash} />
@@ -58,9 +58,14 @@ const Field = ({
   }
 
   return (
-    <div className={cn("flex items-center justify-between", className)}>
+    <div
+      className={cn(
+        "receipt-print__row flex items-center justify-between",
+        className
+      )}
+    >
       <p>{text}</p>
-      <p>{formatNum(val)}</p>
+      <p className="receipt-print__value tabular-nums">{formatNum(val)}</p>
     </div>
   )
 }

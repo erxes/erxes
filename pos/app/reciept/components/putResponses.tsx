@@ -19,9 +19,9 @@ export const PutResponse = ({
   return (
     <div className={cn("space-y-1")}>
       {!type && (
-        <div className="flex items-center">
-          <p className="w-10 font-medium">ДДТД:</p>
-          <p className="font-normal">{id}</p>
+        <div className="flex items-center receipt-print__row">
+          <p className="font-semibold">ДДТД:</p>
+          <p className="font-normal tabular-nums">{id}</p>
         </div>
       )}
       <Stocks receipts={receipts || []} />
@@ -35,11 +35,11 @@ export const PutResponse = ({
 const PutResponses = () => {
   const [putResponses] = useAtom(putResponsesAtom)
   return (
-    <>
+    <div className="space-y-2">
       {(putResponses || []).map((putResponse) => (
         <PutResponse {...putResponse} key={putResponse.contentId} />
       ))}
-    </>
+    </div>
   )
 }
 

@@ -89,19 +89,19 @@ const Reciept = () => {
   }
 
   return (
-    <>
+    <div className="space-y-2 receipt-print">
       <EbarimtHeader />
       <PutResponses />
       <Amount />
       <Footer />
       <Button
         onClick={handleClick}
-        className="px-6 text-xs print:hidden w-full"
+        className="w-full px-6 text-xs print:hidden"
         variant="secondary"
       >
         хэвлэх
       </Button>
-    </>
+    </div>
   )
 }
 
