@@ -6,7 +6,6 @@ import { PerResponse } from '~/modules/productplaces/components/PerResponse';
 import { Response } from '~/modules/productplaces/components/Response';
 
 export const ProductPlacesRespondedPage = () => {
-  console.log(' ProductPlacesRespondedPage mounted');
   const currentUser = useAtomValue(currentUserState);
 
   useSubscription(PRODUCT_PLACES_RESPONDED, {
@@ -16,28 +15,10 @@ export const ProductPlacesRespondedPage = () => {
     },
     skip: !currentUser?._id,
     onData: ({ data }) => {
-      console.log(' Subscription data received:', data);
       const productPlacesResponded = data.data?.productPlacesResponded;
       if (!productPlacesResponded) return;
 
-      // Parse the JSON string returned by the subscription
-      let parsedPayload;
-      try {
-        parsedPayload = JSON.parse(productPlacesResponded);
-      } catch (e) {
-        console.error('Failed to parse payload', e);
-        return;
-      }
-
-      const { content } = parsedPayload;
-      let parsedContent;
-      try {
-        parsedContent = JSON.parse(content);
-      } catch (e) {
-        console.error('Failed to parse content', e);
-        return;
-      }
-
+      const parsedContent = productPlacesResponded.content;
       if (!parsedContent?.length) return;
 
       const printContents = parsedContent.map((receipt: any, index: number) =>
@@ -54,7 +35,7 @@ export const ProductPlacesRespondedPage = () => {
       }
     },
     onError: (error) => {
-      console.error(' Subscription error:', error);
+      console.error('Subscription error:', error);
     },
   });
 
