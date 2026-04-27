@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.17.45](https://github.com/erxes/erxes/compare/2.17.44...2.17.45) (2026-04-27)
+
+### Features
+
+* **pos:** update print text style and size and add category-based se… ([#7551](https://github.com/erxes/erxes/issues/7551)) ([450c968](https://github.com/erxes/erxes/commit/450c96840b66d60ea56b47b2d047afa44ca4f5f3))
+
+### Bug Fixes
+
+* **inbox:** link customer when adding ticket via Related tab + fix list refresh ([57e750b](https://github.com/erxes/erxes/commit/57e750b57d088926ee7ebf14c0a6180562adc01f))
+
 ## [2.17.44](https://github.com/erxes/erxes/compare/2.17.43...2.17.44) (2026-04-26)
 
 ### Features
