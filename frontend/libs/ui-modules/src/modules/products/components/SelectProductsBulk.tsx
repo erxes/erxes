@@ -6,9 +6,9 @@ import {
   Sheet,
   Separator,
   ScrollArea,
-  Tooltip,
   Spinner,
   cn,
+  useQueryState,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
@@ -131,16 +131,29 @@ const ProductsList = ({
   selectedProductIds,
   setSelectedProductIds,
 }: ProductsListProps) => {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(
+    () => localStorage.getItem('search') || '',
+  );
   const [debouncedSearch] = useDebounce(search, 500);
-  const [companyId, setCompanyId] = useState<string>('');
-  const [categoryId, setCategoryId] = useState<string>('');
+  const [companyId, setCompanyId] = useState<string>(
+    () => localStorage.getItem('companyId') || '',
+  );
+  const [categoryId, setCategoryId] = useState<string>(
+    () => localStorage.getItem('categoryId') || '',
+  );
+  const [pipelineId] = useQueryState<string>('pipelineId');
 
+  useEffect(() => {
+    localStorage.setItem('search', debouncedSearch);
+    localStorage.setItem('companyId', companyId);
+    localStorage.setItem('categoryId', categoryId);
+  }, [debouncedSearch, companyId, categoryId]);
   const { products, handleFetchMore, totalCount } = useProducts({
     variables: {
       searchValue: debouncedSearch,
       vendorId: companyId || undefined,
       categoryIds: categoryId ? [categoryId] : undefined,
+      pipelineId: pipelineId || undefined,
     },
   });
 
@@ -164,13 +177,15 @@ const ProductsList = ({
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center shrink-0">
             <SelectCompany
               mode="single"
               value={companyId || ''}
               onValueChange={(value) => {
-                setCompanyId(value as string);
+                if (companyId === value) setCompanyId('');
+                else setCompanyId(value as string);
               }}
+              className="max-w-40"
             />
 
             <SelectCategory
@@ -191,44 +206,42 @@ const ProductsList = ({
       <Separator />
       <ScrollArea>
         <div className="flex flex-col gap-1 p-4">
-          <Tooltip.Provider>
-            {products.map((product) => {
-              const isSelected = selectedProductIds.includes(product._id);
-              return (
-                <Tooltip key={product._id}>
-                  <Tooltip.Trigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        'min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left',
-                        isSelected && 'bg-primary/10 hover:bg-primary/10',
-                      )}
-                      onClick={() => handleProductSelect(product)}
-                    >
-                      <div>{product.name}</div>
-                      {isSelected ? (
-                        <IconCheck className="ml-auto" />
-                      ) : (
-                        <IconPlus className="ml-auto" />
-                      )}
-                    </Button>
-                  </Tooltip.Trigger>
-                  <Tooltip.Content>
-                    <span className="opacity-50">#</span> {product.code}
-                  </Tooltip.Content>
-                </Tooltip>
-              );
-            })}
+          {products.map((product) => {
+            const isSelected = selectedProductIds.includes(product._id);
+            return (
+              <Button
+                variant="ghost"
+                className={cn(
+                  'min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left',
+                  isSelected && 'bg-primary/10 hover:bg-primary/10',
+                )}
+                onClick={() => handleProductSelect(product)}
+              >
+                <div className="flex gap-1.5 items-center">
+                  {product.code && (
+                    <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
+                      {product.code}
+                    </span>
+                  )}
+                  <span>{product.name}</span>
+                </div>
+                {isSelected ? (
+                  <IconCheck className="ml-auto" />
+                ) : (
+                  <IconPlus className="ml-auto" />
+                )}
+              </Button>
+            );
+          })}
 
-            {products.length < totalCount && (
-              <div className="flex gap-2 items-center px-2 h-8" ref={bottomRef}>
-                <Spinner containerClassName="flex-none" />
-                <span className="animate-pulse text-accent-foreground">
-                  Loading more products...
-                </span>
-              </div>
-            )}
-          </Tooltip.Provider>
+          {products.length < totalCount && (
+            <div className="flex gap-2 items-center px-2 h-8" ref={bottomRef}>
+              <Spinner containerClassName="flex-none" />
+              <span className="animate-pulse text-accent-foreground">
+                Loading more products...
+              </span>
+            </div>
+          )}
         </div>
       </ScrollArea>
     </div>
