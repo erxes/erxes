@@ -1,34 +1,34 @@
-'use client';
+'use client'
 
-import { formatNum } from '@/lib/utils';
+import { formatNum } from '@/lib/utils'
 import {
   accountTypeAtom,
   companyRegisterAtom,
   invoiceExpiryDaysAtom,
   userBankAddressAtom,
   userNameAtom,
-} from '@/store';
-import { cartAtom, totalAmountAtom } from '@/store/cart.store';
-import { addDays } from 'date-fns';
-import { useAtomValue } from 'jotai';
-import { useMemo } from 'react';
-import { useInvoicePrintStyles } from '../../hooks/useInvoicePrintStyles';
+} from '@/store'
+import { cartAtom, totalAmountAtom } from '@/store/cart.store'
+import { addDays } from 'date-fns'
+import { useAtomValue } from 'jotai'
+import { useMemo } from 'react'
+import { useInvoicePrintStyles } from '../../hooks/useInvoicePrintStyles'
 
-const VAT_RATE = 0.1;
-const VAT_MULTIPLIER = 1 + VAT_RATE;
+const VAT_RATE = 0.1
+const VAT_MULTIPLIER = 1 + VAT_RATE
 
 const InvoiceInfo = () => {
-  const userName = useAtomValue(userNameAtom);
-  const userBankAddress = useAtomValue(userBankAddressAtom);
-  const company = useAtomValue(companyRegisterAtom);
-  const accountType = useAtomValue(accountTypeAtom);
-  const expiryDays = useAtomValue(invoiceExpiryDaysAtom);
-  const total = useAtomValue(totalAmountAtom);
-  const cartItems = useAtomValue(cartAtom);
+  const userName = useAtomValue(userNameAtom)
+  const userBankAddress = useAtomValue(userBankAddressAtom)
+  const company = useAtomValue(companyRegisterAtom)
+  const accountType = useAtomValue(accountTypeAtom)
+  const expiryDays = useAtomValue(invoiceExpiryDaysAtom)
+  const total = useAtomValue(totalAmountAtom)
+  const cartItems = useAtomValue(cartAtom)
 
-  const { userInfo, table, theme } = useInvoicePrintStyles();
+  const { userInfo, table, theme } = useInvoicePrintStyles()
 
-  const transactionDate = useMemo(() => new Date(), []);
+  const transactionDate = useMemo(() => new Date(), [])
   const deadlineDate = useMemo(
     () => addDays(transactionDate, expiryDays),
     [transactionDate, expiryDays]
@@ -37,17 +37,17 @@ const InvoiceInfo = () => {
 
   const totals = useMemo(() => {
     const totalWithoutVat = cartItems.reduce((sum, item) => {
-      const totalItemPrice = item.count * item.unitPrice;
+      const totalItemPrice = item.count * item.unitPrice
       return sum + totalItemPrice / VAT_MULTIPLIER;
     }, 0);
-    const vatAmount = total - totalWithoutVat;
+    const vatAmount = total - totalWithoutVat
 
     return {
       subtotal: Math.round(totalWithoutVat),
       vat: Math.round(vatAmount),
-      total: Math.round(total),
+      total: Math.round(total)
     };
-  }, [cartItems, total]);
+  }, [cartItems, total])
 
   return (
     <div style={userInfo.container}>
@@ -106,11 +106,10 @@ const InvoiceInfo = () => {
                       ...table.headerCellCenter,
                       width: '50px',
                       padding: '8px 6px',
-                    }}
-                  >
+                    }}>
                     #
                   </th>
-                  <th style={{ ...table.headerCell, padding: '8px 6px' }}>
+                  <th style={{...table.headerCell, padding: '8px 6px'}}>
                     Бүтээгдэхүүн
                   </th>
                   <th
@@ -118,8 +117,7 @@ const InvoiceInfo = () => {
                       ...table.headerCellCenter,
                       width: '80px',
                       padding: '8px 6px',
-                    }}
-                  >
+                    }}>
                     Тоо ширхэг
                   </th>
                   <th
@@ -127,8 +125,7 @@ const InvoiceInfo = () => {
                       ...table.headerCellRight,
                       width: '100px',
                       padding: '8px 6px',
-                    }}
-                  >
+                    }}>
                     Нэгжийн үнэ
                   </th>
                   <th
@@ -136,8 +133,7 @@ const InvoiceInfo = () => {
                       ...table.headerCellRight,
                       width: '100px',
                       padding: '8px 6px',
-                    }}
-                  >
+                    }}>
                     Нийт үнэ
                   </th>
                 </tr>
@@ -148,10 +144,10 @@ const InvoiceInfo = () => {
 
                   return (
                     <tr key={item._id}>
-                      <td style={{ ...table.cellCenter, padding: '6px' }}>
+                      <td style={{...table.cellCenter, padding: '6px'}}>
                         {index + 1}
                       </td>
-                      <td style={{ ...table.cell, padding: '6px' }}>
+                      <td style={{...table.cell, padding: '6px'}}>
                         <div>
                           <div style={table.productName}>
                             {item.productName}
@@ -168,13 +164,13 @@ const InvoiceInfo = () => {
                           )}
                         </div>
                       </td>
-                      <td style={{ ...table.cellCenter, padding: '6px' }}>
+                      <td style={{...table.cellCenter, padding: '6px'}}>
                         {item.count}
                       </td>
-                      <td style={{ ...table.cellRight, padding: '6px' }}>
+                      <td style={{...table.cellRight, padding: '6px'}}>
                         {formatNum(item.unitPrice)}₮
                       </td>
-                      <td style={{ ...table.cellRightBold, padding: '6px' }}>
+                      <td style={{...table.cellRightBold, padding: '6px'}}>
                         {formatNum(totalItemPrice)}₮
                       </td>
                     </tr>
@@ -184,7 +180,7 @@ const InvoiceInfo = () => {
                   style={{ borderTop: `2px solid ${theme.colors.tableBorder}` }}
                 >
                   <td
-                    style={{ ...table.cell, padding: '6px', border: 'none' }}
+                    style={{...table.cell, padding: '6px', border: 'none'}}
                     colSpan={3}
                   ></td>
                   <td
@@ -192,18 +188,17 @@ const InvoiceInfo = () => {
                       ...table.cellRight,
                       padding: '6px',
                       fontWeight: 'bold',
-                    }}
-                  >
+                    }}>
                     НӨАТ-гүй дүн:
                   </td>
-                  <td style={{ ...table.cellRightBold, padding: '6px' }}>
+                  <td style={{...table.cellRightBold, padding: '6px'}}>
                     {formatNum(totals.subtotal)}₮
                   </td>
                 </tr>
 
                 <tr>
                   <td
-                    style={{ ...table.cell, padding: '6px', border: 'none' }}
+                    style={{...table.cell, padding: '6px', border: 'none'}}
                     colSpan={3}
                   ></td>
                   <td
@@ -211,18 +206,17 @@ const InvoiceInfo = () => {
                       ...table.cellRight,
                       padding: '6px',
                       fontWeight: 'bold',
-                    }}
-                  >
+                    }}>
                     НӨАТ (10%):
                   </td>
-                  <td style={{ ...table.cellRightBold, padding: '6px' }}>
+                  <td style={{...table.cellRightBold, padding: '6px'}}>
                     {formatNum(totals.vat)}₮
                   </td>
                 </tr>
 
                 <tr style={{ backgroundColor: theme.colors.headerBg }}>
                   <td
-                    style={{ ...table.cell, padding: '8px', border: 'none' }}
+                    style={{...table.cell, padding: '8px', border: 'none'}}
                     colSpan={3}
                   ></td>
                   <td
@@ -231,8 +225,7 @@ const InvoiceInfo = () => {
                       padding: '8px',
                       fontWeight: 'bold',
                       fontSize: '14px',
-                    }}
-                  >
+                    }}>
                     Нийт төлбөр:
                   </td>
                   <td
@@ -241,8 +234,7 @@ const InvoiceInfo = () => {
                       padding: '8px',
                       fontSize: '14px',
                       color: theme.colors.text,
-                    }}
-                  >
+                    }}>
                     {formatNum(totals.total)}₮
                   </td>
                 </tr>
