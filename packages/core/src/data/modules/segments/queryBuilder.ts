@@ -841,19 +841,8 @@ export function elkConvertConditionToQuery(args: {
   // is set
   if (["is", "dateis"].includes(operator)) {
     positiveQuery = {
-      bool: {
-        must: [
-          {
-            exists: {
-              field
-            }
-          },
-          {
-            wildcard: {
-              [field]: "?*"
-            }
-          }
-        ]
+      exists: {
+        field
       }
     };
   }
@@ -861,19 +850,8 @@ export function elkConvertConditionToQuery(args: {
   // is not set
   if (["ins", "dateins"].includes(operator)) {
     negativeQuery = {
-      bool: {
-        must: [
-          {
-            exists: {
-              field
-            }
-          },
-          {
-            wildcard: {
-              [field]: "?*"
-            }
-          }
-        ]
+      exists: {
+        field
       }
     };
   }

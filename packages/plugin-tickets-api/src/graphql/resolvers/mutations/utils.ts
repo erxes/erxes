@@ -117,6 +117,21 @@ export const itemsAdd = async (
     });
   }
 
+  if (
+    extendedDoc?.isCheckUserTicket === false ||
+    extendedDoc?.isCheckUserTicket === true
+  ) {
+    const customFieldsData = await handleIsCheckUserTicketChange(subdomain, {
+      oldCustomFieldsData: [],
+      docCustomFieldsData: extendedDoc?.customFieldsData,
+      isCheckUserTicket: extendedDoc.isCheckUserTicket,
+    });
+
+    if (customFieldsData && customFieldsData?.length) {
+      extendedDoc.customFieldsData = customFieldsData;
+    }
+  }
+
   const item = await createModel(extendedDoc);
   const stage = await models.Stages.getStage(item.stageId);
 
@@ -246,6 +261,109 @@ export const changeItemStatus = async (
   });
 };
 
+const createPropertiesActivityLog = async ({
+  models,
+  subdomain,
+  pipelineId,
+  _id,
+  userId,
+  customFieldsData,
+}: {
+  models: IModels;
+  subdomain: string;
+  pipelineId: string;
+  _id: string;
+  userId: string;
+  customFieldsData: any[];
+}) => {
+  const pipeline = await models.Pipelines.getPipeline(pipelineId);
+  if (pipeline) {
+    await putActivityLog(subdomain, {
+      action: "createPropertiesLog",
+      data: {
+        contentId: _id,
+        userId: userId,
+        contentType: "ticket",
+        content: {
+          config: {
+            boardId: pipeline.boardId,
+            pipelineId: pipeline._id,
+          },
+          customFieldsData: customFieldsData || [],
+        },
+        action: "properties",
+        createdBy: userId,
+      },
+    });
+  }
+};
+
+const handleIsCheckUserTicketChange = async (
+  subdomain: string,
+  {
+    oldCustomFieldsData,
+    docCustomFieldsData,
+    isCheckUserTicket,
+  }: {
+    oldCustomFieldsData: any[];
+    docCustomFieldsData: any[];
+    isCheckUserTicket: boolean;
+  }
+) => {
+  const field = await sendCoreMessage({
+    subdomain,
+    action: "fields.findOne",
+    data: {
+      query: {
+        contentType: `tickets:ticket`,
+        type: "isCheckUserTicket",
+      },
+    },
+    isRPC: true,
+    defaultValue: null,
+  });
+
+  if (field) {
+    const customFieldsData = [
+      ...(oldCustomFieldsData || []),
+      ...(docCustomFieldsData || []),
+    ].reduce((acc, item) => {
+      const existingIndex = acc.findIndex(
+        (i) => String(i.field) === String(item.field)
+      );
+      if (existingIndex > -1) {
+        acc[existingIndex] = { ...acc[existingIndex], ...item };
+      } else {
+        acc.push(item);
+      }
+      return acc;
+    }, []);
+    const index = customFieldsData.findIndex(
+      (item) => String(item.field) === String(field._id)
+    );
+
+    if (index > -1) {
+      customFieldsData[index] = {
+        ...customFieldsData[index],
+        field: String(field._id),
+        value: isCheckUserTicket,
+      };
+    } else {
+      customFieldsData.push({
+        field: String(field._id),
+        value: isCheckUserTicket,
+      });
+    }
+
+    return await sendCoreMessage({
+      subdomain,
+      action: "fields.prepareCustomFieldsData",
+      data: customFieldsData,
+      isRPC: true,
+    });
+  }
+};
+
 export const itemsEdit = async (
   models: IModels,
   subdomain: string,
@@ -277,26 +395,14 @@ export const itemsEdit = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
-    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-    if (pipeline) {
-      await putActivityLog(subdomain, {
-        action: "createPropertiesLog",
-        data: {
-          contentId: _id,
-          userId: user._id,
-          contentType: type,
-          content: {
-            config: {
-              boardId: pipeline.boardId,
-              pipelineId: pipeline._id,
-            },
-            customFieldsData: extendedDoc.customFieldsData || [],
-          },
-          action: "properties",
-          createdBy: user._id,
-        },
-      });
-    }
+    await createPropertiesActivityLog({
+      models,
+      subdomain,
+      pipelineId: stage.pipelineId,
+      _id,
+      userId: user._id,
+      customFieldsData: extendedDoc.customFieldsData,
+    });
 
     extendedDoc.customFieldsData = await sendCoreMessage({
       subdomain,
@@ -306,6 +412,28 @@ export const itemsEdit = async (
     });
   }
 
+  if (
+    (doc.isCheckUserTicket === true || doc.isCheckUserTicket === false) &&
+    oldItem?.isCheckUserTicket !== extendedDoc.isCheckUserTicket
+  ) {
+    const customFieldsData = await handleIsCheckUserTicketChange(subdomain, {
+      oldCustomFieldsData: oldItem?.customFieldsData,
+      docCustomFieldsData: extendedDoc?.customFieldsData,
+      isCheckUserTicket: extendedDoc.isCheckUserTicket,
+    });
+
+    if (customFieldsData && customFieldsData?.length) {
+      extendedDoc.customFieldsData = customFieldsData;
+      await createPropertiesActivityLog({
+        models,
+        subdomain,
+        pipelineId: stage.pipelineId,
+        _id,
+        userId: user._id,
+        customFieldsData: extendedDoc.customFieldsData,
+      });
+    }
+  }
   const updatedItem = await modelUpate(_id, extendedDoc);
   // labels should be copied to newly moved pipeline
   if (doc.stageId) {

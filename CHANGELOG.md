@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.44](https://github.com/erxes/erxes/compare/2.17.43...2.17.44) (2026-04-26)
+
+### Features
+
+* **automations:** add checkTargetMatch functionality to automations consumers ([0b8720b](https://github.com/erxes/erxes/commit/0b8720b7de274bfcd4b4d25609770d6f48f08524))
+
 ## [2.17.43](https://github.com/erxes/erxes/compare/2.17.42...2.17.43) (2026-04-24)
 
 ### Bug Fixes

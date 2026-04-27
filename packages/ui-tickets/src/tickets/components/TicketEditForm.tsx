@@ -21,16 +21,16 @@ import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
 import queryString from "query-string";
 import { isEnabled } from "@erxes/ui/src/utils/core";
-import FormControl from "@erxes/ui/src/components/form/Control";
+import { IsCheckUserTicketField } from "./IsCheckUserTicketField";
 
 type Props = {
   options: IOptions;
   item: ITicket;
   relations: any;
   addItem: (doc: ITicketParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ITicketParams, callback?: (item) => void) => void;
-  copyItem: (itemId: string, callback: (item) => void) => void;
-  onUpdate: (item, prevStageId?: string) => void;
+  saveItem: (doc: ITicketParams, callback?: (item: ITicket) => void) => void;
+  copyItem: (itemId: string, callback: (item: ITicket) => void) => void;
+  onUpdate: (item: ITicket, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
   sendToBoard?: (item: any) => void;
@@ -58,7 +58,14 @@ export default function TicketEditForm(props: Props) {
   useEffect(() => {
     setSource(item.source);
   }, [item.source]);
-  function renderSidebarFields(saveItem) {
+  function renderSidebarFields(
+    saveItem: (
+      doc: {
+        [key: string]: any;
+      },
+      callback?: ((item: any) => void) | undefined
+    ) => void
+  ) {
     const sourceValues = INTEGRATION_KINDS.ALL.map((kind) => ({
       label: __(kind.text),
       value: kind.value,
@@ -78,7 +85,7 @@ export default function TicketEditForm(props: Props) {
       <Capitalize>{option.label}</Capitalize>
     );
 
-    const onSourceChange = (option) => {
+    const onSourceChange = (option: any) => {
       const value = option ? option.value : "";
 
       setSource(value);
@@ -88,7 +95,7 @@ export default function TicketEditForm(props: Props) {
       }
     };
 
-    const Option = (props) => {
+    const Option = (props: any) => {
       return (
         <components.Option {...props}>
           {sourceValueRenderer(props.data)}
@@ -96,7 +103,7 @@ export default function TicketEditForm(props: Props) {
       );
     };
 
-    const SingleValue = (props) => {
+    const SingleValue = (props: any) => {
       return (
         <components.SingleValue {...props}>
           {sourceValueRenderer(props.data)}
@@ -107,7 +114,7 @@ export default function TicketEditForm(props: Props) {
     return (
       <>
         <FormGroup>
-          {relations.map((relation) => {
+          {relations.map((relation: any) => {
             if (
               relation.type === "sourceIds" ||
               relation.relationType === "tickets:source"
@@ -130,21 +137,11 @@ export default function TicketEditForm(props: Props) {
             return null;
           })}
         </FormGroup>
-        {isCheckUserTicket !== null && (
-          <FormGroup controlId="isCheckUserTicket">
-            <ControlLabel>
-              Show only the user's assigned(created) ticket
-            </ControlLabel>
-            <FormControl
-              type="checkbox"
-              componentclass="checkbox"
-              checked={isCheckUserTicket}
-              onChange={(e) =>
-                onToggleChange((e.target as HTMLInputElement).checked)
-              }
-            />
-          </FormGroup>
-        )}
+        <IsCheckUserTicketField
+          ticketId={item._id}
+          isCheckUserTicket={isCheckUserTicket}
+          onToggleChange={onToggleChange}
+        />
       </>
     );
   }

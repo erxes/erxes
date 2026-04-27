@@ -173,11 +173,26 @@ class PipelineProviderInner extends React.Component<Props, State> {
           }
 
           if (action === "itemAdd") {
-            this.onAddItem(destinationStageId, item, aboveItemId);
+            const { segment, segmentData } = this?.props?.queryParams || {};
+            if (segment || segmentData) {
+              setTimeout(() => {
+                this.onAddItem(destinationStageId, item, aboveItemId);
+              }, 1000);
+            } else {
+              this.onAddItem(destinationStageId, item, aboveItemId);
+            }
           }
 
           if (action === "itemRemove") {
-            this.onRemoveItem(item._id, oldStageId);
+            const { segment, segmentData } = this?.props?.queryParams || {};
+
+            if (segment || segmentData) {
+              setTimeout(() => {
+                this.onRemoveItem(item._id, oldStageId);
+              }, 1000);
+            } else {
+              this.onRemoveItem(item._id, oldStageId);
+            }
           }
 
           if (action === "itemsRemove") {
@@ -192,9 +207,19 @@ class PipelineProviderInner extends React.Component<Props, State> {
           }
 
           if (action === "itemUpdate") {
-            this.setState({
-              itemMap: updateItemInfo(this.state, item)
-            });
+            const { segment, segmentData } = this?.props?.queryParams || {};
+
+            if (segment || segmentData) {
+              setTimeout(() => {
+                this.setState({
+                  itemMap: updateItemInfo(this.state, item)
+                });
+              }, 1000);
+            } else {
+              this.setState({
+                itemMap: updateItemInfo(this.state, item)
+              });
+            }
           }
 
           if (action === "itemOfConformitiesUpdate" && item._id) {
@@ -305,7 +330,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     }
   }
 
-  onDragStart = _start => {
+  onDragStart = (_start) => {
     const { isDragEnabled } = this.state;
     if (!isDragEnabled) {
       throw new Error("Not ready to move...");
@@ -482,13 +507,15 @@ class PipelineProviderInner extends React.Component<Props, State> {
    */
   onLoadStage = (stageId: string, items: IItem[]) => {
     const { itemMap, stageLoadMap, itemIds } = this.state;
-    const task = PipelineProviderInner.tickets.find(t => t.stageId === stageId);
+    const task = PipelineProviderInner.tickets.find(
+      (t) => t.stageId === stageId
+    );
 
     if (task) {
       task.isComplete = true;
     }
 
-    const newItemIds = [...itemIds, ...items.map(item => item._id)];
+    const newItemIds = [...itemIds, ...items.map((item) => item._id)];
 
     this.setState({
       itemIds: Array.from(new Set(newItemIds)),
@@ -583,7 +610,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const aboveIndex = this.findItemIndex(stageId, aboveItemId);
 
     if (aboveIndex !== undefined) {
-      const newArray = items.map(item => Object.assign({}, item));
+      const newArray = items.map((item) => Object.assign({}, item));
       newArray.splice(aboveIndex + 1, 0, { ...item });
 
       this.setState({
@@ -601,7 +628,9 @@ class PipelineProviderInner extends React.Component<Props, State> {
   onRemoveItem = (itemId: string, stageId: string) => {
     const { itemMap } = this.state;
 
-    const items = (itemMap[stageId] || []).filter(item => item._id !== itemId);
+    const items = (itemMap[stageId] || []).filter(
+      (item) => item._id !== itemId
+    );
 
     this.setState({
       itemMap: { ...itemMap, [stageId]: items }
@@ -647,7 +676,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       });
     } else {
       const items = [...itemMap[stageId]];
-      const index = items.findIndex(d => d._id === item._id);
+      const index = items.findIndex((d) => d._id === item._id);
 
       items[index] = item;
 

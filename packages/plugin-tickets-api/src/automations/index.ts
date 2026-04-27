@@ -8,6 +8,7 @@ import { actionCreate } from './actionCreate';
 import { getRelatedValue } from './getRelatedValue';
 import { sendCommonMessage } from '../messageBroker';
 import { getItems } from './getItems';
+import { publishTicketsPipelineItemsUpdated } from './publishPipelineChanged';
 
 export default {
   checkCustomTrigger: async ({ subdomain, data }) => {
@@ -44,8 +45,12 @@ export default {
       execution,
       triggerType.split('.')[0]
     );
+    const previousStageIds = relatedItems.reduce((stageIds, item) => {
+      stageIds[item._id] = item.stageId;
+      return stageIds;
+    }, {});
 
-    return setProperty({
+    const response: any = await setProperty({
       models,
       subdomain,
       getRelatedValue,
@@ -56,6 +61,20 @@ export default {
       sendCommonMessage,
       triggerType
     });
+
+    if (module === 'tickets:ticket' && !response?.error) {
+      await publishTicketsPipelineItemsUpdated({
+        models,
+        subdomain,
+        itemIds: (response?.result || [])
+          .map((item) => item?._id)
+          .filter((itemId) => itemId),
+        proccessId: execution?._id,
+        previousStageIds
+      });
+    }
+
+    return response;
   },
   replacePlaceHolders: async ({
     subdomain,
@@ -89,6 +108,15 @@ export default {
       complexFields: ['productsData']
     });
   },
+  checkTargetMatch: async ({ subdomain, data }) => {
+    const { targetId, selector } = data || {};
+    const models = await generateModels(subdomain);
+    const matched = await models.Tickets.findOne({
+      $and: [{ _id: targetId }, selector]
+    });
+
+    return Boolean(matched);
+  },
   constants: {
     triggers: [
       {
@@ -97,7 +125,8 @@ export default {
         icon: 'file-plus-alt',
         label: 'Ticket',
         description:
-          'Start with a blank workflow that enrolls and is triggered off ticket'
+          'Start with a blank workflow that enrolls and is triggered off ticket',
+        checkTargetMatch: true
       },
       {
         type: 'tickets:ticket.probability',

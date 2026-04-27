@@ -116,7 +116,7 @@ const TicketItem: FC<Props> = React.memo(
     );
   },
   (prevProps, nextProps) =>
-    prevProps.item._id === nextProps.item._id &&
+    prevProps.item === nextProps.item &&
     prevProps.isFormVisible === nextProps.isFormVisible
 );
 

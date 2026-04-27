@@ -25,4 +25,11 @@ export const automationsCunsomers = ({ name, automations }) => {
       data: await automations.checkCustomTrigger(args)
     }));
   }
+
+    if (automations?.checkTargetMatch) {
+    consumeRPCQueue(`${name}:automations.checkTargetMatch`, async args => ({
+      status: "success",
+      data: await automations.checkTargetMatch(args)
+    }));
+  }
 };

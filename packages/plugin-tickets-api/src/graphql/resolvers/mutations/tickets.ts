@@ -48,7 +48,7 @@ const ticketMutations = {
       subdomain,
       _id,
       "ticket",
-      oldTicket,
+      oldTicket.toObject(),
       doc,
       proccessId,
       user,
@@ -119,7 +119,7 @@ const ticketMutations = {
     { user, models, subdomain }: IContext
   ) {
     return itemsArchive(models, subdomain, stageId, "ticket", proccessId, user);
-  },
+  }
 };
 
 checkPermission(ticketMutations, "ticketsAdd", "ticketsAdd");
