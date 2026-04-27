@@ -161,7 +161,7 @@ export const ErxesForm = ({
         <InfoCard
           title={formData?.title || ''}
           description={formData?.description || ''}
-          className="p-2"
+          className="p-2 bg-background/40 [&_h3]:text-accent-foreground"
         >
           {stepsLength > 1 && (
             <ErxesSteps
