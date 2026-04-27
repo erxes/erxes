@@ -7,3 +7,6 @@ export * from './segments';
 export * from './forms';
 export * from './logs';
 export * from './notifications';
+export * from './client-portals';
+export * from './import-export';
+export * from './templates';

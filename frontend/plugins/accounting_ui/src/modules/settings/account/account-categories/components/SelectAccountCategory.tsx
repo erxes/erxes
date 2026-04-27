@@ -57,7 +57,7 @@ export const SelectAccountCategory = React.forwardRef<
         onOpenChange={setOpen}
         scope={`select-account-category.${recordId}`}
       >
-        <RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Trigger className="overflow-visible px-0">
           <SelectAccountCategoryTrigger
             ref={ref}
             {...props}
@@ -66,7 +66,7 @@ export const SelectAccountCategory = React.forwardRef<
           />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
-          <SelectAccountCommand
+          <SelectAccountCatCommand
             nullable={nullable}
             exclude={exclude}
             selected={selected}
@@ -86,7 +86,7 @@ export const SelectAccountCategory = React.forwardRef<
   );
 });
 
-export const SelectAccountCommand = ({
+export const SelectAccountCatCommand = ({
   selected,
   onSelect,
   focusOnMount,

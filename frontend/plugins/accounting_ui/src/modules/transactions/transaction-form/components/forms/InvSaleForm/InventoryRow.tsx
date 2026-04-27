@@ -7,6 +7,7 @@ import {
   Checkbox,
   cn,
   CurrencyField,
+  fixNum,
   Form,
   InputNumber,
   PopoverScoped,
@@ -14,13 +15,20 @@ import {
   RecordTableInlineCell,
   Table,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWatch } from 'react-hook-form';
-import { SelectProduct } from 'ui-modules';
+import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
 import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
-import { followTrDocsState, taxPercentsState } from '../../../states/trStates';
-import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
+import {
+  followTrDocsState,
+  showAdvancedViewState,
+  taxPercentsState,
+} from '../../../states/trStates';
+import {
+  ITransactionGroupForm,
+  TInvSaleJournal,
+} from '../../../types/JournalForms';
 import { fixSumDtCt, getTempId } from '../../utils';
 
 export const InventoryRow = ({
@@ -32,6 +40,7 @@ export const InventoryRow = ({
   journalIndex: number;
   form: ITransactionGroupForm;
 }) => {
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -44,16 +53,30 @@ export const InventoryRow = ({
 
   const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
 
+  const { unitPrice, count, _id } = detail;
+
+  const initProductId = useRef(detail.productId);
+  const initOutAccountId = useRef(trDoc.followInfos?.saleOutAccountId);
+  const initBranchId = useRef(trDoc.branchId);
+  const initDepartmentId = useRef(trDoc.departmentId);
+  const [unitCost, setUnitCost] = useState(
+    followTrDocs
+      .find(
+        (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invSaleOut',
+      )
+      ?.details.find((fd) => fd.originId === detail._id)?.unitPrice ?? 0,
+  );
+
+  const getFieldName = (name: string) => {
+    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
+  };
+
   useEffect(() => {
     const currOut = followTrDocs.find(
-      (ftr) =>
-        ftr.originId === trDoc._id &&
-        ftr.followType === 'invSaleOut'
+      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invSaleOut',
     );
     const currCost = followTrDocs.find(
-      (ftr) =>
-        ftr.originId === trDoc._id &&
-        ftr.followType === 'invSaleCost'
+      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invSaleCost',
     );
 
     const ptrId = currOut?.ptrId || currCost?.ptrId || getTempId();
@@ -62,16 +85,19 @@ export const InventoryRow = ({
       originId: trDoc._id,
       ptrId,
       parentId: trDoc.parentId,
-    }
+    };
 
     const invOutTr: ITransaction = fixSumDtCt({
       ...currOut,
       ...commonFollowTr,
       _id: currOut?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_OUT,
-      followType: 'invSaleOut',
+      side: TR_SIDES.CREDIT,
+      originType: 'invSaleOut',
       details: (trDoc.details || []).map((saleDetail) => {
-        const curOutDetail = currOut?.details.find(outDetail => outDetail.originId === saleDetail._id);
+        const curOutDetail = currOut?.details.find(
+          (outDetail) => outDetail.originId === saleDetail._id,
+        );
 
         if (!curOutDetail || saleDetail._id === detail._id) {
           return {
@@ -80,9 +106,10 @@ export const InventoryRow = ({
             productId: saleDetail.productId,
             account: trDoc.followExtras?.saleOutAccount,
             accountId: trDoc.followInfos?.saleOutAccountId,
-            side: TR_SIDES.CREDIT,
-            amount: 0,
-          } as ITrDetail
+            unitPrice: unitCost,
+            count: detail.count,
+            amount: fixNum(unitCost * (detail.count ?? 0)),
+          } as ITrDetail;
         }
         return curOutDetail;
       }),
@@ -93,9 +120,12 @@ export const InventoryRow = ({
       ...commonFollowTr,
       _id: currCost?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_COST,
-      followType: 'invSaleCost',
+      side: TR_SIDES.DEBIT,
+      originType: 'invSaleCost',
       details: (trDoc.details || []).map((saleDetail) => {
-        const curCostDetail = currCost?.details.find(costDetail => costDetail.originId === saleDetail._id);
+        const curCostDetail = currCost?.details.find(
+          (costDetail) => costDetail.originId === saleDetail._id,
+        );
 
         if (!curCostDetail || saleDetail._id === detail._id) {
           return {
@@ -104,28 +134,29 @@ export const InventoryRow = ({
             productId: saleDetail.productId,
             account: trDoc.followExtras?.saleCostAccount,
             accountId: trDoc.followInfos?.saleCostAccountId,
-            side: TR_SIDES.DEBIT,
-            amount: 0,
-          } as ITrDetail
+            unitPrice: unitCost,
+            count: detail.count,
+            amount: fixNum(unitCost * (detail.count ?? 0)),
+          } as ITrDetail;
         }
         return curCostDetail;
       }),
-    })
+    });
 
     setFollowTrDocs([
       ...(followTrDocs || []).filter(
         (ftr) =>
           !(
             ftr.originId === trDoc._id &&
-            ['invSaleOut', 'invSaleCost'].includes(ftr.followType || '')
-          )
+            ['invSaleOut', 'invSaleCost'].includes(ftr.originType || '')
+          ),
       ),
       invOutTr,
       invCostTr,
     ]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+  }, [detail, unitCost]);
 
   const [taxPercents] = useAtom(taxPercentsState);
 
@@ -151,20 +182,9 @@ export const InventoryRow = ({
     amountWithTax: ((detail.amount ?? 0) / 100) * (100 + rowPercent),
   });
 
-  const { unitPrice, count, _id } = detail;
-
-  const initProductId = useRef(detail.productId);
-  const initAccountId = useRef(detail.accountId);
-  const initBranchId = useRef(trDoc.branchId);
-  const initDepartmentId = useRef(trDoc.departmentId);
-
-  const getFieldName = (name: string) => {
-    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
-  };
-
   const { currentCostInfo, loading } = useGetAccCurrentCost({
     variables: {
-      accountId: detail.accountId,
+      accountId: trDoc.followInfos?.saleOutAccountId,
       branchId: trDoc.branchId,
       departmentId: trDoc.departmentId,
       productIds: [detail.productId],
@@ -173,25 +193,25 @@ export const InventoryRow = ({
       !detail.productId ||
       !trDoc.branchId ||
       !trDoc.departmentId ||
-      !detail.accountId ||
+      !trDoc.followInfos?.saleOutAccountId ||
       (initProductId.current &&
         detail.productId === initProductId.current &&
         initBranchId.current &&
         trDoc.branchId === initBranchId.current &&
         initDepartmentId.current &&
         trDoc.departmentId === initDepartmentId.current &&
-        initAccountId.current &&
-        detail.accountId === initAccountId.current),
+        initOutAccountId.current &&
+        trDoc.followInfos?.saleOutAccountId === initOutAccountId.current),
   });
 
   // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
   useEffect(() => {
     if (loading || !currentCostInfo) return;
 
-    const cost = currentCostInfo[detail.productId || ''];
-    if (cost === undefined) return;
+    const costInfo = currentCostInfo[detail.productId || ''];
+    if (costInfo === undefined) return;
 
-    form.setValue(getFieldName('unitPrice'), cost);
+    setUnitCost(fixNum(costInfo.unitCost ?? 0));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.productId, loading]);
@@ -272,7 +292,7 @@ export const InventoryRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
@@ -318,7 +338,6 @@ export const InventoryRow = ({
                 }}
                 defaultFilter={{ journals: [JournalEnum.MAIN] }}
                 variant="ghost"
-                inForm
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
             )}
@@ -443,11 +462,7 @@ export const InventoryRow = ({
 
       {trDoc.hasVat && (
         <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-          <Table.Cell
-            className={cn({
-              'border-t': detailIndex === 0,
-            })}
-          >
+          <Table.Cell>
             <RecordTableInlineCell className="justify-center">
               <Form.Field
                 control={form.control}
@@ -477,11 +492,7 @@ export const InventoryRow = ({
 
       {trDoc.hasCtax && (
         <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-          <Table.Cell
-            className={cn({
-              'border-t': detailIndex === 0,
-            })}
-          >
+          <Table.Cell>
             <RecordTableInlineCell className="justify-center">
               <Form.Field
                 control={form.control}
@@ -555,6 +566,58 @@ export const InventoryRow = ({
                   />
                 </RecordTableInlineCell.Content>
               </PopoverScoped>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+        </>
+      )}
+      {showAdvancedView && (
+        <>
+          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectBranches.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(branch) => field.onChange(branch)}
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectDepartments.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(department) =>
+                            field.onChange(department)
+                          }
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
             </Table.Cell>
           </RecordTableHotKeyControl>
         </>

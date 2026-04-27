@@ -62,7 +62,7 @@ export default {
     }));
   },
   participatorCount(conv: IConversationDocument) {
-    return (conv.participatedUserIds && conv.participatedUserIds.length) || 0;
+    return conv.participatedUserIds?.length ?? 0;
   },
 
   async messages(conv: IConversationDocument, _, { models }: IContext) {
@@ -70,7 +70,6 @@ export default {
       conversationId: conv._id,
     });
 
-    console.log('&&&&&&&&');
     return messages.filter((message) => message);
   },
 

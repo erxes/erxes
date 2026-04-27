@@ -1,4 +1,15 @@
-import { getEnv, startPlugin } from 'erxes-api-shared/utils';
+import initCallApp from '@/integrations/call/initApp';
+// import { initWebsocketService } from '@/integrations/call/webSocket';
+import onServerInitImap from '@/integrations/imap/initApp';
+import { startPlugin } from 'erxes-api-shared/utils';
+import {
+  createCoreModuleProducerHandler,
+  TImportExportProducers,
+  TInsertImportRowsInput,
+  TGetExportDataInput,
+  TGetExportHeadersInput,
+  TGetImportHeadersInput,
+} from 'erxes-api-shared/core-modules';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/init-trpc';
 import { afterProcess } from '~/meta/afterProcess';
@@ -6,8 +17,16 @@ import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
-import initCallApp from '@/integrations/call/initApp';
-import { initWebsocketService } from '@/integrations/call/webSocket';
+import { notifications } from './meta/notifications';
+import { ticketImportHandlers } from './meta/import-export/import/importHandlers';
+import { ticketExportHandlers } from './meta/import-export/export/exportHandlers';
+
+const ticketImportExportTypes = [
+  {
+    label: 'Ticket',
+    contentType: 'frontline:ticket.ticket',
+  },
+];
 
 startPlugin({
   name: 'frontline',
@@ -29,14 +48,15 @@ startPlugin({
   expressRouter: router,
   onServerInit: async (app) => {
     await initCallApp(app);
-    const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
-    if (CALL_WS_SERVER) {
-      await initWebsocketService();
-    }
+    await onServerInitImap(app);
+    // const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
+    // if (CALL_WS_SERVER) {
+    //   await initWebsocketService();
+    // }
   },
 
   apolloServerContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.models = models;
 
@@ -53,34 +73,74 @@ startPlugin({
     },
   },
 
+  importExport: {
+    import: {
+      types: ticketImportExportTypes,
+      insertImportRows: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { ticket: ticketImportHandlers },
+        methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+        extractModuleName: (input: TInsertImportRowsInput) => input.moduleName,
+        generateModels,
+      }),
+      getImportHeaders: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { ticket: ticketImportHandlers },
+        methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+        extractModuleName: (input: TGetImportHeadersInput) => input.moduleName,
+        generateModels,
+      }),
+    },
+    export: {
+      types: ticketImportExportTypes,
+      getExportData: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { ticket: ticketExportHandlers },
+        methodName: TImportExportProducers.GET_EXPORT_DATA,
+        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+        generateModels,
+      }),
+      getExportHeaders: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { ticket: ticketExportHandlers },
+        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
+        generateModels,
+      }),
+    },
+  },
+
   meta: {
     automations,
     afterProcess,
-    notificationModules: [
-      {
-        name: 'conversations',
-        description: 'Conversations',
-        icon: 'IconComment',
-        types: [
-          { name: 'conversationAddMessage', text: 'Message added' },
-          { name: 'conversationAssigneeChange', text: 'Assignee changed' },
-          { name: 'conversationCreated', text: 'Conversation created' },
-          { name: 'conversationParticipantAdded', text: 'Participant added' },
-          { name: 'conversationStateChange', text: 'State changed' },
-          { name: 'conversationTagged', text: 'Conversation tagged' },
-        ],
-      },
-      {
-        name: 'channels',
-        description: 'Channels',
-        icon: 'IconDeviceLaptop',
-        types: [
-          {
-            name: 'channelMembersChange',
-            text: 'Assignee change',
-          },
-        ],
-      },
-    ],
+    notifications,
+    tags: {
+      types: [
+        {
+          description: 'Inbox',
+          type: 'conversation',
+        },
+        {
+          description: 'Ticket',
+          type: 'ticket',
+        },
+        {
+          description: 'Form',
+          type: 'form',
+        },
+      ],
+    },
+    properties: {
+      types: [
+        {
+          description: 'Inbox',
+          type: 'conversation',
+        },
+        {
+          description: 'Tickets',
+          type: 'ticket',
+        },
+      ],
+    },
   },
 });

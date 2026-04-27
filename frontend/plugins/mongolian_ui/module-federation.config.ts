@@ -15,10 +15,11 @@ const coreLibraries = new Set([
 const config: ModuleFederationConfig = {
   name: 'mongolian_ui',
   exposes: {
-    './config': './src/config.ts',
-    './ebarimt': './src/modules/ebarimt/Main.tsx',
-    './ebarimtSettings': './src/modules/ebarimt/Settings.tsx',
+    './config': './src/config.tsx',
+    './mongolian': './src/modules/MongolianMain.tsx',
+    './mongolianSettings': './src/modules/MongolianSettings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './floatingWidget': './src/widgets/FloatingWidget.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
@@ -31,4 +32,7 @@ const config: ModuleFederationConfig = {
   },
 };
 
+/**
+ * Nx requires a default export of the config to allow correct resolution of the module federation graph.
+ **/
 export default config;

@@ -1,13 +1,16 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 const trDetailFields = `
   _id: String
   accountId: String
   transactionId: String
   originId: String
-  followType: String
+  originType: String
   originSubId: String
   followInfos: JSON
+  branchId: String
+  departmentId: String
 
-  side: String
   amount: Float
   currencyAmount: Float
   customRate: Float
@@ -29,8 +32,10 @@ const transactionFields = `
   date: Date
   description: String
   journal: String
-  followType: String
+  side: String
+  originType: String
   followInfos: JSON
+  relAccounts: JSON
 
   branchId: String
   departmentId: String
@@ -53,15 +58,13 @@ const transactionFields = `
 `;
 
 export const types = () => `
-  type FollowTrType {
-    type: String
-    id: String
-  }
-
   type AccTrDetail {
     ${trDetailFields}
-    follows: [FollowTrType]
+
     account: Account
+    branch: Branch
+    department: Department
+    product: Product
   }
 
   type AccCommonTransaction {
@@ -77,7 +80,6 @@ export const types = () => `
 
     originId: String
     originSubId: String
-    follows: [FollowTrType]
 
     details: [AccTrDetail]
     shortDetail: AccTrDetail
@@ -113,7 +115,6 @@ export const types = () => `
 
     originId: String
     originSubId: String
-    follows: [FollowTrType]
 
     details: AccTrDetail
     shortDetail: AccTrDetail
@@ -130,6 +131,18 @@ export const types = () => `
     branch: Branch
     department: Department
     customer: AccCustomer
+  }
+
+  type AccTransactionsListResponse {
+    list: [AccCommonTransaction],
+    pageInfo: PageInfo
+    totalCount: Int,
+  }
+
+  type AccTrRecordsListResponse {
+    list: [AccCommonTrRecord],
+    pageInfo: PageInfo
+    totalCount: Int,
   }
 
   input CommonTrDetailInput {
@@ -151,9 +164,11 @@ const trsQueryParams = `
   searchValue: String,
   number: String,
   ptrStatus: String,
+  customerType: String,
+  customerId: String,
 
   accountIds: [String],
-  accountType: String,
+  accountKind: String,
   accountExcludeIds: Boolean,
   accountStatus: String,
   accountCategoryId: String,
@@ -173,7 +188,18 @@ const trsQueryParams = `
   departmentId: String,
   currency: String,
   journal: String,
+  journals: [String],
   statuses: [String],
+  relAccounts: [String],
+
+  createdUserId: String
+  modifiedUserId: String
+  startDate: Date
+  endDate: Date
+  startUpdatedDate: Date
+  endUpdatedDate: Date
+  startCreatedDate: Date
+  endCreatedDate: Date
 `;
 
 const trRecsQueryParams = `
@@ -184,6 +210,10 @@ const trRecsQueryParams = `
 `;
 
 export const queries = `
+  accTransactionsMain(
+    ${trsQueryParams},
+    ${GQL_CURSOR_PARAM_DEFS}
+  ): AccTransactionsListResponse
   accTransactions(
     ${trsQueryParams},
     page: Int,
@@ -191,8 +221,13 @@ export const queries = `
     sortField: String
     sortDirection: Int
   ): [AccCommonTransaction]
-  accTransactionDetail(_id: String!): [AccCommonTransaction]
+  accTransactionsDetail(_id: String!): [AccCommonTransaction]
+  accTransactionDetail(_id:String!): AccCommonTransaction
   accTransactionsCount(${trsQueryParams}): Int
+  accTrRecordsMain(
+    ${trRecsQueryParams},
+    ${GQL_CURSOR_PARAM_DEFS}
+  ): AccTrRecordsListResponse
   accTrRecords(
     ${trRecsQueryParams},
     page: Int,

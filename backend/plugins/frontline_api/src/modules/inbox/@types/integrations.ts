@@ -12,12 +12,18 @@ export interface ILink {
   youtube?: string;
 }
 
+export interface IStep {
+  name: string;
+  description: string;
+  order: number;
+}
+
+export interface ILeadDataSteps {
+  [key: string]: IStep;
+}
+
 export interface ITicketData {
-  ticketLabel?: string;
-  ticketToggle?: boolean;
-  ticketStageId?: string;
-  ticketPipelineId?: string;
-  ticketBoardId?: string;
+  configId: string;
 }
 interface IOnboardingParams {
   brandName: string;
@@ -41,8 +47,7 @@ export interface IMessengerOnlineHours {
 }
 
 export interface IMessengerOnlineHoursDocument
-  extends IMessengerOnlineHours,
-    Document {}
+  extends IMessengerOnlineHours, Document {}
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -132,6 +137,10 @@ export interface ILeadData {
   successImage?: string;
   successImageSize?: string;
   verifyEmail?: boolean;
+  appearance?: string;
+  thanksImage?: string;
+  primaryColor?: string;
+  steps?: ILeadDataSteps;
 }
 
 export interface IWebhookData {
@@ -149,10 +158,7 @@ export interface IColorDefinition {
   foreground?: string;
 }
 export interface IUiOptions {
-  color?: string;
-  wallpaper?: string;
   logo?: string;
-  textColor?: string;
   primary?: IColorDefinition;
 }
 
@@ -168,12 +174,14 @@ export interface IIntegration {
   formId?: string;
   leadData?: ILeadData;
   messengerData?: IMessengerData;
-  ticketData?: ITicketData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
   isConnected?: boolean;
   departmentIds?: string[];
   visibility?: string;
+  configId?: string;
+  ticketConfigId?: string;
+  brandId?: string;
 }
 
 export interface IExternalLink {
@@ -183,6 +191,7 @@ export interface IExternalLink {
 export interface IIntegrationDocument extends IIntegration, Document {
   _id: string;
   createdUserId: string;
+  brandId: string;
   // TODO remove
   formData?: ILeadData;
   leadData?: ILeadDataDocument;

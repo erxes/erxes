@@ -1,4 +1,5 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import fetch from 'node-fetch';
 import { IModels } from '~/connectionResolvers';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IProductDocument } from '~/modules/posclient/@types/products';
@@ -35,14 +36,9 @@ export const checkRemainders = async (
       update: { $set: any };
     };
   }> = [];
-  if (config.erkhetConfig && config.erkhetConfig.getRemainder) {
+  if (config.erkhetConfig?.getRemainder) {
     const configs = config.erkhetConfig;
-    if (
-      configs &&
-      configs.getRemainderApiUrl &&
-      configs.apiKey &&
-      configs.apiSecret
-    ) {
+    if (configs?.getRemainderApiUrl && configs?.apiKey && configs?.apiSecret) {
       try {
         let account = configs.account;
         let location = configs.location;
@@ -57,22 +53,26 @@ export const checkRemainders = async (
         }
 
         if (account && location) {
-          const response = await fetch(
-            configs.getRemainderApiUrl +
-              '?' +
-              new URLSearchParams({
-                kind: 'remainder',
-                api_key: configs.apiKey,
-                api_secret: configs.apiSecret,
-                check_relate: products.length < 4 ? '1' : '',
-                accounts: account,
-                locations: location,
-                inventories: products.map((p) => p.code).join(','),
-              }),
-          );
-
-          const jsonRes = await response.json();
-          let responseByCode = {};
+          let jsonRes = {};
+          try {
+            const response = await fetch(
+              configs.getRemainderApiUrl +
+                '?' +
+                new URLSearchParams({
+                  kind: 'remainder',
+                  api_key: configs.apiKey,
+                  api_secret: configs.apiSecret,
+                  check_relate: products.length < 4 ? '1' : '',
+                  accounts: account,
+                  locations: location,
+                  inventories: products.map((p) => p.code).join(','),
+                }),
+            );
+            jsonRes = await response.json();
+          } catch (e) {
+            console.log(e.message);
+          }
+          const responseByCode = {};
 
           if (account && location) {
             const accounts = account.split(',') || [];
@@ -80,7 +80,7 @@ export const checkRemainders = async (
 
             for (const acc of accounts) {
               for (const loc of locations) {
-                const resp = (jsonRes[acc] || {})[loc] || {};
+                const resp = jsonRes[acc]?.[loc] || {};
                 for (const invCode of Object.keys(resp)) {
                   if (!Object.keys(responseByCode).includes(invCode)) {
                     responseByCode[invCode] = { rem: 0, rems: [] };
@@ -100,8 +100,8 @@ export const checkRemainders = async (
           }
           const remBranchId = getRemBranchId(config, paramBranchId);
           for (const product of products) {
-            product.remainders = (responseByCode[product.code] || {}).rems;
-            product.remainder = (responseByCode[product.code] || {}).rem;
+            product.remainders = responseByCode[product.code]?.rems;
+            product.remainder = responseByCode[product.code]?.rem;
             if (config.saveRemainder) {
               if (!product.remainderByToken) {
                 product.remainderByToken = {};
@@ -127,29 +127,22 @@ export const checkRemainders = async (
           }
         }
       } catch (e) {
-        debugError(`fetch remainder from erkhet, Error: ${e.message}`);
+        console.log(`fetch remainder from erkhet, Error: ${e.message}`);
       }
     }
 
     return products;
   }
 
-  const branchIds = paramBranchId
-    ? [paramBranchId]
-    : config.isOnline
-    ? config.allowBranchIds || []
-    : (config.branchId && [config.branchId]) || [];
-  const departmentIds = config.departmentId ? [config.departmentId] : [];
-  const productIds = products.map((p) => p._id);
-
   if (config.checkRemainder) {
     const branchIds = paramBranchId
       ? [paramBranchId]
       : config.isOnline
-      ? config.allowBranchIds || []
-      : (config.branchId && [config.branchId]) || [];
+        ? config.allowBranchIds || []
+        : (config.branchId && [config.branchId]) || [];
     const departmentIds = config.departmentId ? [config.departmentId] : [];
     const productIds = products.map((p) => p._id);
+
     const inventoryResponse = await sendTRPCMessage({
       subdomain,
       pluginName: 'accounting',
@@ -162,6 +155,7 @@ export const checkRemainders = async (
       },
       defaultValue: [],
     });
+
     const remBranchId = getRemBranchId(config, paramBranchId);
     const remainderByProductId = {};
     for (const rem of inventoryResponse) {
@@ -215,6 +209,7 @@ export const checkRemainders = async (
 
   return products;
 };
+
 export const syncRemainders = async (
   subdomain: string,
   models: IModels,
@@ -237,6 +232,3 @@ export const syncRemainders = async (
     await checkRemainders(subdomain, models, config, checkProducts);
   }
 };
-function debugError(arg0: string) {
-  throw new Error('Function not implemented.');
-}

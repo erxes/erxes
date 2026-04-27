@@ -1,25 +1,26 @@
+import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
+import { INTEGRATIONS } from '@/integrations/constants/integrations';
+import { IntegrationType } from '@/types/Integration';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Collapsible,
   Dialog,
   Form,
+  getPluginAssetsUrl,
   Input,
   Skeleton,
   Spinner,
   Textarea,
+  toast,
   useConfirm,
 } from 'erxes-ui';
-import { useFacebookUpdateConfigs } from '../hooks/useFacebookUpdateConfigs';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { facebookConfigSchema } from '../constants/FbConfigSchema';
-import { z } from 'zod';
-import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
-import { INTEGRATIONS } from '@/integrations/constants/integrations';
-import { IntegrationType } from '@/types/Integration';
-import { useFacebookGetConfigs } from '../hooks/useFacebookGetConfigs';
 import { useEffect } from 'react';
-import { getPluginAssetsUrl } from 'erxes-ui';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { facebookConfigSchema } from '../constants/FbConfigSchema';
+import { useFacebookGetConfigs } from '../hooks/useFacebookGetConfigs';
+import { useFacebookUpdateConfigs } from '../hooks/useFacebookUpdateConfigs';
 
 export const FacebookConfigUpdateCollapse = () => {
   return (
@@ -80,6 +81,12 @@ export const FacebookConfigUpdate = () => {
       updateConfigs({
         variables: {
           configsMap: data,
+        },
+        onCompleted: () => {
+          toast({
+            title: 'Facebook configs updated successfully',
+            variant: 'success',
+          });
         },
       });
     });

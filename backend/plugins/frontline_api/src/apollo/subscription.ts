@@ -14,16 +14,24 @@ export default {
       talkingCallReceived(extension: String): String
       agentCallReceived(extension: String): String
       queueRealtimeUpdate(extension: String): String
-      ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription 
+      ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription
       ticketPipelineListChanged: PipelineSubscription
       ticketChanged(_id: String!): TicketSubscription
       ticketListChanged(filter: ITicketFilter): TicketSubscription
       ticketStatusChanged(_id: String!): StatusSubscription
       ticketStatusListChanged: StatusSubscription
+      ticketActivityChanged(contentId: String!): TicketActivitySubscription
+
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
       // --- Ticket Pipeline ---
+      ticketActivityChanged: {
+        resolve: (payload) => payload.ticketActivityChanged,
+        subscribe: (_, { contentId }) =>
+          graphqlPubsub.asyncIterator(`ticketActivityChanged:${contentId}`),
+      },
+
       ticketPipelineChanged: {
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`ticketPipelineChanged:${_id}`),
@@ -125,40 +133,23 @@ export default {
        * Listen for new message insertion
        */
       conversationMessageInserted: {
-        resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
-          if (!payload) {
-            console.error(
-              `Subscription resolver error: conversationMessageInserted: payload is ${payload}`,
-            );
-            return;
-          }
-          if (!payload.conversationMessageInserted) {
-            console.error(
-              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted is ${payload.conversationMessageInserted}`,
-            );
-            return;
-          }
-          if (!payload.conversationMessageInserted._id) {
-            console.error(
-              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted._id is ${payload.conversationMessageInserted._id}`,
-            );
-            return;
-          }
-          return gatewayDataSource.queryAndMergeMissingData({
-            payload,
-            info,
-            queryVariables: { _id: payload.conversationMessageInserted._id },
-            buildQueryUsingSelections: (selections) => `
-                  query Subscription_GetMessage($_id: String!) {
-                    conversationMessage(_id: $_id) {
-                      ${selections}
-                    }
-                  }
-              `,
-          });
-        },
-        subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
+        resolve: (payload) => payload.conversationMessageInserted,
+        subscribe: withFilter(
+          (_, { _id }) =>
+            graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
+          async (payload, variables) => {
+            const conversationId =
+              payload.conversationMessageInserted.conversationId;
+            const id = variables._id || {};
+
+            if (!id) return false;
+
+            if (conversationId && id === conversationId) {
+              return true;
+            }
+            return false;
+          },
+        ),
       },
 
       /*
@@ -225,7 +216,6 @@ export default {
           },
           async (payload) => {
             const { conversation, integration } = payload;
-
             if (!conversation) {
               return false;
             }

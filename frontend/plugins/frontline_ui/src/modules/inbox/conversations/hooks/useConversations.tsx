@@ -8,14 +8,17 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '../graphql/subscriptions/inboxSubscriptions';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { currentUserState } from 'ui-modules';
+import { useNotificationSound } from './useNotificationSound';
 import {
   newMessagesCountState,
   resetNewMessagesState,
 } from '@/inbox/conversations/states/newMessagesCountState';
+import { refetchConversationsAtom } from '../states/refetchConversationState';
+import { activeConversationState } from '../states/activeConversationState';
 
 export const useConversations = (
   options?: QueryHookOptions<ICursorListResponse<IConversation>>,
@@ -31,6 +34,15 @@ export const useConversations = (
   const [refetchNewMessages, resetNewMessagesStates] = useAtom(
     resetNewMessagesState,
   );
+  const setRefetch = useSetAtom(refetchConversationsAtom);
+  const { play: playNotificationSound } = useNotificationSound();
+  const activeConversation = useAtomValue(activeConversationState);
+  const activeConversationRef = useRef(activeConversation);
+  activeConversationRef.current = activeConversation;
+
+  useEffect(() => {
+    setRefetch(() => refetch);
+  }, [setRefetch]);
 
   useEffect(() => {
     if (refetchNewMessages) {
@@ -81,12 +93,17 @@ export const useConversations = (
       updateQuery: (prev, { subscriptionData }) => {
         if (subscriptionData.data) {
           setNewMessagesCount((prev) => prev + 1);
+          const incomingId =
+            subscriptionData.data.conversationClientMessageInserted._id;
+          if (incomingId !== activeConversationRef.current?._id) {
+            playNotificationSound();
+          }
         }
         if (!subscriptionData.data || !prev) return prev;
         const newMessage =
           subscriptionData.data.conversationClientMessageInserted;
         const index = prev.conversations.list.findIndex(
-          (conversation) => conversation._id === newMessage._id,
+          (conversation) => conversation._id === newMessage?._id,
         );
         const list = [...prev.conversations.list];
         if (index === -1) {

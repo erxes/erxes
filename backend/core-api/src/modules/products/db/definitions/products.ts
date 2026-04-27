@@ -46,6 +46,11 @@ export const productSchema = schemaWrapper(
         optional: true,
         label: 'Custom fields data',
       },
+      propertiesData: {
+        type: Schema.Types.Mixed,
+        optional: true,
+        label: 'Properties data',
+      },
       attachment: { type: attachmentSchema },
       attachmentMore: { type: [attachmentSchema] },
       status: {
@@ -58,6 +63,12 @@ export const productSchema = schemaWrapper(
         index: true,
       },
       vendorId: { type: String, optional: true, label: 'Vendor' },
+      scopeBrandIds: {
+        type: [String],
+        optional: true,
+        label: 'Scope Brand Ids',
+        index: true,
+      },
       mergedIds: { type: [String], optional: true },
 
       uom: {
@@ -83,12 +94,14 @@ export const productSchema = schemaWrapper(
         optional: true,
         label: 'PDF attachment',
       },
+
+      inventories: { type: Object, optional: true },
+      discounts: { type: Object, optional: true },
     },
     {
       timestamps: true,
     },
   ),
-  { contentType: 'core:product' },
 );
 
 productSchema.index({ _id: 1, createdAt: 1 });

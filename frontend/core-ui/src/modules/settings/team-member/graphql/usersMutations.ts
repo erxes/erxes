@@ -19,6 +19,11 @@ const USERS_SET_ACTIVE_STATUS = gql`
     }
   }
 `;
+const TEAM_MEMBER_REMOVE = gql`
+  mutation TeamMemberRemove($_ids: [String!]!) {
+    usersSetActiveStatusBatch(_ids: $_ids)
+  }
+`;
 
 const USERS_CONFIRM_INVITATION = gql`
   mutation usersConfirmInvitation(
@@ -51,6 +56,10 @@ const USERS_INLINE_EDIT = gql`
     $links: JSON
     $branchIds: [String]
     $departmentIds: [String]
+    $password: String
+    $isOnboarded: Boolean
+    $propertiesData: JSON
+    $score: Float
   ) {
     usersEdit(
       _id: $_id
@@ -62,11 +71,16 @@ const USERS_INLINE_EDIT = gql`
       links: $links
       branchIds: $branchIds
       departmentIds: $departmentIds
+      password: $password
+      isOnboarded: $isOnboarded
+      propertiesData: $propertiesData
+      score: $score
     ) {
       _id
       username
       email
       positionIds
+      score
       details {
         shortName
         birthDate
@@ -77,10 +91,12 @@ const USERS_INLINE_EDIT = gql`
         middleName
         lastName
       }
+      propertiesData
       links
       employeeId
       branchIds
       departmentIds
+      isOnboarded
     }
   }
 `;
@@ -100,6 +116,7 @@ const mutations = {
   USERS_SET_ACTIVE_STATUS,
   USERS_INLINE_EDIT,
   USERS_RESET_PASSWORD,
+  TEAM_MEMBER_REMOVE,
 };
 
 export default mutations;

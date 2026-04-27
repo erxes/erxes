@@ -1,4 +1,4 @@
-import { IBranch, ICompany, ICustomer, IDepartment, ITag, IUser } from "ui-modules";
+import { IBranch, ICompany, ICustomer, IDepartment, IProductData, ITag, IUser } from "ui-modules";
 import { IPipeline, IPipelineLabel } from "./pipelines";
 
 import { IAttachment } from "./attachments";
@@ -8,7 +8,6 @@ export interface IItem {
     _id: string;
     name: string;
     order: number;
-    stageId: string;
     boardId?: string;
     startDate: Date;
     closeDate: Date;
@@ -24,7 +23,10 @@ export interface IItem {
     attachments?: IAttachment[];
     labels: IPipelineLabel[];
     pipeline: IPipeline;
+    pipelineId?: string;
     stage?: IStage;
+    stageId?: string;
+    columnId?: string;
     isWatched?: boolean;
     priority?: string;
     hasNotified?: boolean;
@@ -47,11 +49,12 @@ export interface IItem {
     tags: ITag[];
     tagIds: string[];
     customProperties?: any;
+    propertiesData?: Record<string, any>;
     departmentIds: string[];
     branchIds: string[];
   }
 
-  interface IPaymentsData {
+  export interface IPaymentsData {
     [key: string]: {
       currency?: string;
       amount?: number;
@@ -71,7 +74,8 @@ export interface IItem {
   }
   
 export interface IDeal extends IItem {
-    products?: any;
+    products?: any[];
+    productsData?: IProductData[];
     paymentsData?: IPaymentsData;
     departments?: IDepartment[];
     branches?: IBranch[];

@@ -14,7 +14,7 @@ export const CtaxForm = ({
   form,
   journalIndex,
   isWithTax,
-  isSameSide
+  isSameSide,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
@@ -24,17 +24,17 @@ export const CtaxForm = ({
   const [taxPercents, setTaxPercents] = useAtom(taxPercentsState);
   const trDoc = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}`
+    name: `trDocs.${journalIndex}`,
   });
 
   const hasCtax = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.hasCtax`
+    name: `trDocs.${journalIndex}.hasCtax`,
   });
 
   const mainSide = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.details.0.side`
+    name: `trDocs.${journalIndex}.side`,
   });
 
   const side = useMemo(() => {
@@ -52,7 +52,7 @@ export const CtaxForm = ({
 
   const details = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.details`
+    name: `trDocs.${journalIndex}.details`,
   });
 
   const { ctax: ctaxPercent = 0, sum: sumPercent } = taxPercents;
@@ -61,56 +61,78 @@ export const CtaxForm = ({
     if (handleCtax) {
       return trDoc.ctaxAmount ?? 0;
     }
-    const sumAmount = details.filter(d => !d.excludeCtax).reduce((sum, cur) => sum + (cur.amount ?? 0), 0);
+    const sumAmount = details
+      .filter((d) => !d.excludeCtax)
+      .reduce((sum, cur) => sum + (cur.amount ?? 0), 0);
     if (isWithTax) {
-      return sumAmount / (100 + sumPercent) * ctaxPercent;
+      return (sumAmount / (100 + sumPercent)) * ctaxPercent;
     }
 
-    return sumAmount / 100 * ctaxPercent;
-
-  }, [details, handleCtax, ctaxPercent, sumPercent, isWithTax, trDoc.ctaxAmount]);
-
+    return (sumAmount / 100) * ctaxPercent;
+  }, [
+    details,
+    handleCtax,
+    ctaxPercent,
+    sumPercent,
+    isWithTax,
+    trDoc.ctaxAmount,
+  ]);
 
   const { configs } = useMainConfigs();
   const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
 
   useEffect(() => {
     if (!trDoc.hasCtax) {
-      setFollowTrDocs((followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.followType === 'ctax')));
+      setFollowTrDocs(
+        (followTrDocs || []).filter(
+          (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'ctax'),
+        ),
+      );
       return;
     }
 
     if (side === TR_SIDES.DEBIT) {
-      setFollowTrDocs((followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.followType === 'ctax')));
+      setFollowTrDocs(
+        (followTrDocs || []).filter(
+          (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'ctax'),
+        ),
+      );
       return;
     }
 
-    const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: calcedAmount, sumCt: 0 } : { sumDt: 0, sumCt: calcedAmount };
+    const { sumDt, sumCt } =
+      side === TR_SIDES.DEBIT
+        ? { sumDt: calcedAmount, sumCt: 0 }
+        : { sumDt: 0, sumCt: calcedAmount };
 
-    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.followType === 'ctax');
+    const curr = followTrDocs.find(
+      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'ctax',
+    );
 
     const ctaxFtr = {
       ...curr,
       _id: curr?._id || getTempId(),
       journal: TrJournalEnum.TAX,
+      side,
       originId: trDoc._id,
-      followType: 'ctax',
-      details: [{
-        ...(curr?.details || [{}])[0],
-        accountId: configs?.CtaxPayableAccount,
-        side,
-        amount: calcedAmount
-      }],
+      originType: 'ctax',
+      details: [
+        {
+          ...(curr?.details || [{}])[0],
+          accountId: configs?.CtaxPayableAccount,
+          amount: calcedAmount,
+        },
+      ],
 
       sumDt,
       sumCt,
     };
 
     setFollowTrDocs([
-      ...(followTrDocs || []).filter(ftr => !(
-        ftr.originId === trDoc._id && ftr.followType === 'ctax'
-      )),
-      ctaxFtr
+      ...(followTrDocs || []).filter(
+        (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'ctax'),
+      ),
+      ctaxFtr,
     ]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,9 +143,9 @@ export const CtaxForm = ({
     setTaxPercents({
       ...taxPercents,
       ctax: ctaxPercent,
-      sum: (taxPercents.vat ?? 0) + ctaxPercent
+      sum: (taxPercents.vat ?? 0) + ctaxPercent,
     });
-  }
+  };
 
   // Тухайн баримт нь өмнө нь НӨАТтай гээгүй бөгөөд байгууллагын тохиргоонд НӨАТгүй гэсэн бол НӨАТ байх ёсгүй
   if (!trDoc.hasCtax && !configs?.HasCtax) {
@@ -171,7 +193,11 @@ export const CtaxForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>CTAX row</Form.Label>
-                <SelectCtax value={field.value || ''} onValueChange={field.onChange} onCallback={changeCtaxRow} />
+                <SelectCtax
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                  onCallback={changeCtaxRow}
+                />
                 <Form.Message />
               </Form.Item>
             )}
@@ -183,7 +209,7 @@ export const CtaxForm = ({
               <Form.Item>
                 <Form.Label>CTAX amount</Form.Label>
                 <CurrencyField.ValueInput
-                  value={handleCtax ? field.value ?? 0 : calcedAmount}
+                  value={handleCtax ? (field.value ?? 0) : calcedAmount}
                   onChange={field.onChange}
                   disabled={!handleCtax}
                 />

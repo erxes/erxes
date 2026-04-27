@@ -14,7 +14,7 @@ export const VatForm = ({
   form,
   journalIndex,
   isWithTax,
-  isSameSide
+  isSameSide,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
@@ -24,17 +24,17 @@ export const VatForm = ({
   const [taxPercents, setTaxPercents] = useAtom(taxPercentsState);
   const trDoc = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}`
+    name: `trDocs.${journalIndex}`,
   });
 
   const hasVat = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.hasVat`
+    name: `trDocs.${journalIndex}.hasVat`,
   });
 
   const mainSide = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.details.0.side`
+    name: `trDocs.${journalIndex}.side`,
   });
 
   const side = useMemo(() => {
@@ -52,7 +52,7 @@ export const VatForm = ({
 
   const details = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.details`
+    name: `trDocs.${journalIndex}.details`,
   });
 
   const { vat: vatPercent = 0, sum: sumPercent } = taxPercents;
@@ -61,52 +61,67 @@ export const VatForm = ({
     if (handleVat) {
       return trDoc.vatAmount ?? 0;
     }
-    const sumAmount = details.filter(d => !d.excludeVat).reduce((sum, cur) => sum + (cur.amount ?? 0), 0);
+    const sumAmount = details
+      .filter((d) => !d.excludeVat)
+      .reduce((sum, cur) => sum + (cur.amount ?? 0), 0);
     if (isWithTax) {
-      return sumAmount / (100 + sumPercent) * vatPercent;
+      return (sumAmount / (100 + sumPercent)) * vatPercent;
     }
 
-    return sumAmount / 100 * vatPercent;
-
+    return (sumAmount / 100) * vatPercent;
   }, [details, handleVat, vatPercent, sumPercent, isWithTax, trDoc.vatAmount]);
-
 
   const { configs } = useMainConfigs();
   const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
 
   useEffect(() => {
     if (!trDoc.hasVat) {
-      setFollowTrDocs((followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.followType === 'vat')));
+      setFollowTrDocs(
+        (followTrDocs || []).filter(
+          (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'vat'),
+        ),
+      );
       return;
     }
 
-    const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: calcedAmount, sumCt: 0 } : { sumDt: 0, sumCt: calcedAmount };
+    const { sumDt, sumCt } =
+      side === TR_SIDES.DEBIT
+        ? { sumDt: calcedAmount, sumCt: 0 }
+        : { sumDt: 0, sumCt: calcedAmount };
 
-    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.followType === 'vat');
+    const curr = followTrDocs.find(
+      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'vat',
+    );
 
     const vatFtr = {
       ...curr,
       _id: curr?._id || getTempId(),
       journal: TrJournalEnum.TAX,
+      side,
       originId: trDoc._id,
-      followType: 'vat',
-      details: [{
-        ...(curr?.details || [{}])[0],
-        accountId: trDoc.afterVat ?
-          side === 'dt' ? configs?.VatAfterReceivableAccount ?? '' : (configs?.VatAfterPayableAccount ?? '') :
-          side === 'dt' ? configs?.VatReceivableAccount : configs?.VatPayableAccount,
-        side,
-        amount: calcedAmount
-      }],
+      originType: 'vat',
+      details: [
+        {
+          ...(curr?.details || [{}])[0],
+          accountId: trDoc.afterVat
+            ? side === 'dt'
+              ? (configs?.VatAfterReceivableAccount ?? '')
+              : (configs?.VatAfterPayableAccount ?? '')
+            : side === 'dt'
+              ? configs?.VatReceivableAccount
+              : configs?.VatPayableAccount,
+          amount: calcedAmount,
+        },
+      ],
 
       sumDt,
       sumCt,
     };
     setFollowTrDocs([
       ...(followTrDocs || []).filter(
-        ftr => !(ftr.originId === trDoc._id && ftr.followType === 'vat')
+        (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'vat'),
       ),
-      vatFtr
+      vatFtr,
     ]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,9 +132,9 @@ export const VatForm = ({
     setTaxPercents({
       ...taxPercents,
       vat: vatPercent,
-      sum: (taxPercents.ctax ?? 0) + vatPercent
+      sum: (taxPercents.ctax ?? 0) + vatPercent,
     });
-  }
+  };
 
   // Тухайн баримт нь өмнө нь НӨАТтай гээгүй бөгөөд байгууллагын тохиргоонд НӨАТгүй гэсэн бол НӨАТ байх ёсгүй
   if (!trDoc.hasVat && !configs?.HasVat) {
@@ -182,7 +197,11 @@ export const VatForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>VAT row</Form.Label>
-                <SelectVat value={field.value || ''} onValueChange={field.onChange} onCallback={changeVatRow} />
+                <SelectVat
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                  onCallback={changeVatRow}
+                />
                 <Form.Message />
               </Form.Item>
             )}
@@ -194,7 +213,7 @@ export const VatForm = ({
               <Form.Item>
                 <Form.Label>VAT amount</Form.Label>
                 <CurrencyField.ValueInput
-                  value={handleVat ? field.value ?? 0 : calcedAmount}
+                  value={handleVat ? (field.value ?? 0) : calcedAmount}
                   onChange={field.onChange}
                   disabled={!handleVat}
                 />

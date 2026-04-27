@@ -4,8 +4,13 @@ import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router';
 import { PageHeader, PageHeaderStart } from 'ui-modules';
 import { SettingsPath } from '@/types/paths/SettingsPath';
+import { useTranslation } from 'react-i18next';
 
 export const ChangePasswordHeader = () => {
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'change-password',
+  });
+
   return (
     <PageHeader>
       <PageHeaderStart>
@@ -15,7 +20,7 @@ export const ChangePasswordHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to={SettingsPath.ChangePassword} aria-current="page">
                   <IconKey />
-                  Change password
+                  {t('_')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

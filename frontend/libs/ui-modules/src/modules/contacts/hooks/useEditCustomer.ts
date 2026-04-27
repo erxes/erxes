@@ -17,17 +17,22 @@ export const useCustomerEdit = () => {
     mutate({
       ...options,
       variables,
+      optimisticResponse: {
+        customersEdit: {
+          ...variables,
+          __typename: 'Customer',
+        },
+      },
       update: (cache, { data: { customersEdit } }) => {
         cache.modify({
           id: cache.identify(customersEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field as keyof ICustomer];
+              fields[field] = () => variables?.[field as keyof ICustomer];
               return fields;
             },
             {},
           ),
-          optimistic: true,
         });
       },
       onError: (error) => {

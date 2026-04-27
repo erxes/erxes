@@ -27,13 +27,16 @@ export const EditAccountForm = () => {
 
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
-    defaultValues: ACCOUNT_DEFAULT_VALUES,
+    defaultValues: accountDetail || ACCOUNT_DEFAULT_VALUES,
   });
   const { reset } = form;
 
   useEffect(() => {
     if (accountDetail) {
-      reset(accountDetail);
+      reset({
+        ...ACCOUNT_DEFAULT_VALUES,
+        ...accountDetail,
+      });
     }
   }, [accountDetail, reset]);
 
@@ -68,7 +71,7 @@ export const EditAccountForm = () => {
         loading={editLoading}
       />
       {loading && (
-        <div className="absolute inset-0 bg-background/10 backdrop-blur-sm flex items-center justify-center rounded-md">
+        <div className="absolute inset-0 bg-background/10 backdrop-blur-xs flex items-center justify-center rounded-md">
           <Spinner />
         </div>
       )}

@@ -1,62 +1,156 @@
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useBlockEditor } from '../hooks/useBlockEditor';
 import { BlockEditor } from './BlockEditor';
 import { Block } from '@blocknote/core';
 import { BlockEditorProps, IEditorProps } from '../types';
-import { usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/usePreviousHotkeyScope';
-import { Key } from 'erxes-ui/types/Key';
-import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { cn } from 'erxes-ui/lib';
+import { parseBlocks } from '../utils';
 
 export const Editor = ({
   onChange,
   initialContent,
   scope,
   className,
+  isHTML = false,
+  uploadFile,
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const {
-    goBackToPreviousHotkeyScope,
-    setHotkeyScopeAndMemorizePreviousScope,
-  } = usePreviousHotkeyScope();
+  const skipNextOnChangeRef = useRef(false);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastEditorOutputRef = useRef<string>('');
 
-  useScopedHotkeys(
-    `${Key.Escape}`,
-    () => {
-      if (ref.current) {
-        ref.current.focus();
-        goBackToPreviousHotkeyScope();
-      }
-    },
-    scope,
-  );
-
-  const [content, setContent] = useState<Block[]>(
-    initialContent ? JSON.parse(initialContent) : undefined,
-  );
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
+  const parsedInitialContent = parseBlocks(initialContent ?? '');
   const editor = useBlockEditor({
-    initialContent: content,
+    initialContent: parsedInitialContent || undefined,
+    uploadFile,
   });
 
-  const handleChange = async () => {
-    const content = await editor?.document;
-    setContent(content as Block[]);
-    onChange(JSON.stringify(content));
-  };
+  useEffect(() => {
+    if (!isHTML || !initialContent) return;
+
+    let isActive = true;
+
+    const syncHTMLContent = async () => {
+      // Skip if this change was emitted by the editor itself — no need to re-sync
+      if (initialContent === lastEditorOutputRef.current) return;
+
+      // Support legacy JSON content stored before isHTML mode was introduced
+      const parsed = parseBlocks(initialContent);
+      if (parsed) {
+        const currentSerialized = JSON.stringify(editor.document);
+        const nextSerialized = JSON.stringify(parsed);
+        if (isActive && currentSerialized !== nextSerialized) {
+          skipNextOnChangeRef.current = true;
+          editor.replaceBlocks(editor.document, parsed);
+        }
+        return;
+      }
+
+      try {
+        const blocks = await editor.tryParseHTMLToBlocks(initialContent);
+        if (!isActive) return;
+
+        const currentSerialized = JSON.stringify(editor.document);
+        const nextSerialized = JSON.stringify(blocks);
+        if (currentSerialized !== nextSerialized) {
+          skipNextOnChangeRef.current = true;
+          editor.replaceBlocks(editor.document, blocks);
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    syncHTMLContent();
+
+    return () => {
+      isActive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, initialContent, isHTML]);
+
+  useEffect(() => {
+    if (isHTML) return;
+
+    let isActive = true;
+    const syncContent = async () => {
+      const parsed = parseBlocks(initialContent ?? '');
+      if (parsed) {
+        const currentSerialized = JSON.stringify(editor.document);
+        const nextSerialized = JSON.stringify(parsed);
+
+        if (!isActive) return;
+
+        if (currentSerialized !== nextSerialized) {
+          skipNextOnChangeRef.current = true;
+          editor.replaceBlocks(editor.document, parsed);
+        }
+        return;
+      }
+
+      if (typeof initialContent !== 'string' || !initialContent.trim()) {
+        return;
+      }
+
+      try {
+        const blocks = await editor.tryParseHTMLToBlocks(initialContent);
+        if (!isActive) return;
+
+        const currentSerialized = JSON.stringify(editor.document);
+        const nextSerialized = JSON.stringify(blocks);
+
+        if (currentSerialized !== nextSerialized) {
+          skipNextOnChangeRef.current = true;
+          editor.replaceBlocks(editor.document, blocks);
+        }
+      } catch {
+        // ignore parsing errors for legacy/plain text content
+      }
+    };
+
+    syncContent();
+
+    return () => {
+      isActive = false;
+    };
+  }, [editor, initialContent, isHTML]);
+
+  const handleChange = useCallback(() => {
+    if (skipNextOnChangeRef.current) {
+      skipNextOnChangeRef.current = false;
+      return;
+    }
+
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+
+    debounceTimerRef.current = setTimeout(async () => {
+      const content = editor?.document;
+      if (!content) return;
+      if (isHTML) {
+        const htmlContent = await editor.blocksToHTMLLossy(content as Block[]);
+        lastEditorOutputRef.current = htmlContent;
+        onChange(htmlContent);
+      } else {
+        onChange(JSON.stringify(content));
+      }
+    }, 300);
+  }, [editor, isHTML, onChange]);
 
   return (
-    <>
-      <BlockEditor
-        onBlur={goBackToPreviousHotkeyScope}
-        onFocus={() => setHotkeyScopeAndMemorizePreviousScope(scope)}
-        variant="outline"
-        className={cn('h-28 rounded-md min-h-28 overflow-y-auto', className)}
-        {...props}
-        editor={editor}
-        onChange={handleChange}
-      />
-      <div ref={ref} tabIndex={-1} className="sr-only" />
-    </>
+    <BlockEditor
+      variant="outline"
+      className={cn(
+        'min-w-0 w-full overflow-x-hidden overflow-y-auto h-28 rounded-md min-h-28 styled-scroll shadow-xs transition-[color,box-shadow] pt-1',
+        className,
+      )}
+      {...props}
+      editor={editor}
+      onChange={handleChange}
+    />
   );
 };

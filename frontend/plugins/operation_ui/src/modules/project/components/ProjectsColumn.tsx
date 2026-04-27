@@ -17,7 +17,7 @@ import {
   PopoverScoped,
 } from 'erxes-ui';
 import { IProject } from '@/project/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ProjectHotKeyScope } from '@/project/constants/ProjectHotKeyScope';
 import { ITeam } from '@/team/types';
 import {
@@ -28,12 +28,16 @@ import {
 import clsx from 'clsx';
 import { SelectProjectPriority } from '@/project/components/select/SelectProjectPriority';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
+import { SelectMember } from 'ui-modules';
+import { useDebounce } from 'use-debounce';
+import { projectsMoreColumn } from './ProjectsMoreColumn';
 
 export const projectsColumns = (
   _teams: ITeam[] | undefined,
 ): ColumnDef<IProject>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IProject>;
   return [
+    projectsMoreColumn,
     checkBoxColumn,
     {
       id: 'name',
@@ -156,6 +160,72 @@ export const projectsColumns = (
             id={cell.row.original._id}
             value={cell.row.original.leadId}
             teamIds={cell.row.original.teamIds}
+          />
+        );
+      },
+      size: 240,
+    },
+    {
+      id: 'memberIds',
+      accessorKey: 'memberIds',
+      header: () => (
+        <RecordTable.InlineHead label="Members" icon={IconUsersGroup} />
+      ),
+      cell: ({ cell }) => {
+        const memberIds = cell.getValue() as string[];
+        const { updateProject } = useUpdateProject();
+        const [localMemberIds, setLocalMemberIds] = useState<string[]>(
+          memberIds || [],
+        );
+        const [debouncedMemberIds] = useDebounce(localMemberIds, 1000);
+        const serverMemberIdsString = JSON.stringify(memberIds || []);
+
+        useEffect(() => {
+          const currentServerIds = JSON.stringify(memberIds || []);
+          const currentDebouncedIds = JSON.stringify(debouncedMemberIds);
+          const currentLocalIds = JSON.stringify(localMemberIds);
+
+          if (
+            currentDebouncedIds !== currentServerIds &&
+            currentLocalIds !== currentServerIds
+          ) {
+            updateProject({
+              variables: {
+                _id: cell.row.original._id,
+                memberIds: debouncedMemberIds,
+              },
+            });
+          }
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [debouncedMemberIds]);
+
+        useEffect(() => {
+          const currentLocalIds = JSON.stringify(localMemberIds);
+          const currentDebouncedIds = JSON.stringify(debouncedMemberIds);
+
+          if (
+            currentLocalIds === currentDebouncedIds &&
+            currentLocalIds !== serverMemberIdsString
+          ) {
+            setLocalMemberIds(memberIds || []);
+          }
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [serverMemberIdsString]);
+
+        return (
+          <SelectMember.InlineCell
+            key={cell.row.original._id}
+            value={localMemberIds}
+            onValueChange={(value) => {
+              setLocalMemberIds(value as string[]);
+            }}
+            mode="multiple"
+            scope={clsx(
+              ProjectHotKeyScope.ProjectTableCell,
+              cell.row.original._id,
+              'Members',
+            )}
+            placeholder="Members not specified"
           />
         );
       },

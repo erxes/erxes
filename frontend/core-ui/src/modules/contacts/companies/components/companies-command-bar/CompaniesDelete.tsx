@@ -1,20 +1,13 @@
-import { Button, useConfirm, useToast } from 'erxes-ui';
+import { Button, useConfirm, useToast, RecordTable } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useRemoveCompanies } from '@/contacts/companies/hooks/useRemoveCompanies';
-import { Row } from '@tanstack/table-core';
-import { TCompany } from '@/contacts/types/companyType';
 
-export const CompaniesDelete = ({
-  companyIds,
-  rows,
-}: {
-  companyIds: string[];
-  rows: Row<TCompany>[];
-}) => {
+export const CompaniesDelete = ({ companyIds }: { companyIds: string[] }) => {
   const { confirm } = useConfirm();
   const { removeCompanies } = useRemoveCompanies();
   const { toast } = useToast();
+  const { table } = RecordTable.useRecordTable();
   return (
     <Button
       variant="secondary"
@@ -35,12 +28,11 @@ export const CompaniesDelete = ({
               });
             },
             onCompleted: () => {
-              rows.forEach((row) => {
-                row.toggleSelected(false);
-              });
+              table.setRowSelection({});
               toast({
                 title: 'Success',
-                variant: 'default',
+                variant: 'success',
+                description: 'Companies deleted successfully',
               });
             },
           });

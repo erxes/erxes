@@ -17,7 +17,7 @@ export const TBalanceTableRow = ({
     const hasChangedPtrId = rows[rowIndex - 1]?.original?.ptrId !== row.original.ptrId;
 
     return (
-      <React.Fragment key={`row-group-${row.original._id}`}>
+      <React.Fragment key={`row-group-${row.original._id}-${row.original.detail?._id}`}>
         {hasChangedPtrId ? (
           <RowComponent
             key={`${row.original.ptrId}_${rowIndex}`}

@@ -1,5 +1,12 @@
-import { wrapPermission } from '../../core-modules/permissions/utils';
-import { IResolverSymbol, Resolver } from '../../core-types/common';
+import {
+  wrapPermission,
+  wrapPublicResolver,
+} from '../../core-modules/permissions/utils';
+import {
+  IMainContext,
+  IResolverSymbol,
+  Resolver,
+} from '../../core-types/common';
 import { logHandler } from '../logs';
 
 const withLogging = (resolver: Resolver): Resolver => {
@@ -33,10 +40,15 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
       const mutationResolvers: any = {};
 
       for (const [mutationKey, mutationResolver] of Object.entries(resolver)) {
-        const isPublic = mutationResolver.skipPermission === true;
+        const { skipPermission, cpUserRequired, forClientPortal } =
+          mutationResolver.wrapperConfig || {};
+        const isPublic = skipPermission || forClientPortal || cpUserRequired;
 
         if (isPublic) {
-          mutationResolvers[mutationKey] = mutationResolver;
+          mutationResolvers[mutationKey] = wrapPublicResolver(
+            mutationResolver,
+            mutationResolver.wrapperConfig,
+          );
         } else {
           mutationResolvers[mutationKey] = withLogging(
             wrapPermission(mutationResolver, mutationKey),
@@ -52,10 +64,15 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
       const queryResolvers: any = {};
 
       for (const [queryKey, queryResolver] of Object.entries(resolver)) {
-        const isPublic = queryResolver.skipPermission === true;
+        const { skipPermission, cpUserRequired, forClientPortal } =
+          queryResolver.wrapperConfig || {};
+        const isPublic = skipPermission || forClientPortal || cpUserRequired;
 
         if (isPublic) {
-          queryResolvers[queryKey] = queryResolver;
+          queryResolvers[queryKey] = wrapPublicResolver(
+            queryResolver,
+            queryResolver.wrapperConfig,
+          );
         } else {
           queryResolvers[queryKey] = wrapPermission(queryResolver, queryKey);
         }
@@ -70,9 +87,13 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
 
   return wrappedResolvers;
 };
+type TResolverMap<TContext = any> = Record<
+  string,
+  Resolver<any, any, TContext & { subdomain: string } & IMainContext, any>
+>;
 
-export const markResolvers = (
-  resolvers: Record<string, Resolver>,
+export const markResolvers = <TContext = any>(
+  resolvers: TResolverMap<TContext>,
   symbols: IResolverSymbol,
 ) => {
   for (const key in resolvers) {

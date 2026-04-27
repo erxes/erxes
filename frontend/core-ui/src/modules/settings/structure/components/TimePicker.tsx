@@ -51,7 +51,7 @@ export const TimePicker: React.FC<
       placeholder={format(new Date(), 'hh:mm a')}
       className={cn(
         error ? 'border-destructive' : '',
-        'border rounded px-2 py-1 focus:outline-none min-w-[86px] text-sm h-8',
+        'border rounded px-2 py-1 focus:outline-hidden min-w-[86px] text-sm h-8',
         className,
       )}
       {...props}

@@ -1,27 +1,24 @@
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { NodeData } from '@/automations/types';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
+import { useFormContext } from 'react-hook-form';
 
 export const useDefaultTriggerContent = ({
   activeNode,
 }: {
   activeNode: NodeData;
 }) => {
-  const { control, getValues, setValue } =
-    useFormContext<TAutomationBuilderForm>();
-  const contentId = useWatch({
-    control,
-    name: `triggers.${activeNode.nodeIndex}`,
-  })?.config?.contentId;
+  const { watch } = useFormContext<TAutomationBuilderForm>();
+  const { setAutomationBuilderFormValue } = useAutomationFormController();
+
+  const { config } = watch(`triggers.${activeNode.nodeIndex}`) || {};
+  const { contentId } = config || {};
 
   const handleCallback = (contentId: string) => {
-    const triggers = getValues('triggers');
-    const updatedTriggers = triggers.map((trigger) =>
-      trigger.id === activeNode.id
-        ? { ...trigger, config: { ...(trigger?.config || {}), contentId } }
-        : trigger,
+    setAutomationBuilderFormValue(
+      `triggers.${activeNode.nodeIndex}.config.contentId`,
+      contentId,
     );
-    setValue('triggers', updatedTriggers);
   };
   return {
     contentId,

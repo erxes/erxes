@@ -1,6 +1,6 @@
 import { followTrDocsState } from '../states/trStates';
 import { IconGavel, IconTrashX } from '@tabler/icons-react';
-import { ITransaction } from '@/transactions/types/Transaction';
+import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
 import { TR_SIDES } from '../../types/constants';
 import { useAtomValue } from 'jotai';
@@ -13,17 +13,22 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
+import { useNavigate } from 'react-router-dom';
 
 const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
   trDocs?.forEach((tr) => {
-    if (!(tr?.details && tr?.details[0])) {
+    if (!tr?.details?.[0]) {
       return;
     }
 
-    if (tr?.details[0]?.side === TR_SIDES.DEBIT) {
-      sumDebit += tr?.details[0]?.amount ?? 0;
+    const perSum = tr.details.reduce(
+      (sum: number, det: ITrDetail) => sum + (det.amount ?? 0),
+      0,
+    );
+    if (tr.side === TR_SIDES.DEBIT) {
+      sumDebit += perSum;
     } else {
-      sumCredit += tr?.details[0]?.amount ?? 0;
+      sumCredit += perSum;
     }
   });
   return [sumDebit, sumCredit];
@@ -36,6 +41,7 @@ export const sumDtAndCt = (trDocs: TTrDoc[], followTrDocs: ITransaction[]) => {
 };
 
 export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
+  const navigate = useNavigate();
   const { trDocs } = useWatch({ control: form.control });
   const followTrDocs = useAtomValue(followTrDocsState);
   const [parentId] = useQueryState<string>('parentId');
@@ -53,11 +59,11 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
         cancelLabel: 'Cancel',
       },
     }).then(() => {
-      removeTransactions({
-        variables: {
-          parentId,
-        },
-      });
+      if (!parentId) {
+        const pathname = '/accounting/main';
+        return navigate(pathname);
+      }
+      removeTransactions(parentId);
     });
 
   return (
@@ -90,7 +96,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
           <CurrencyFormatedDisplay
             currencyValue={{
               currencyCode: CurrencyCode.MNT,
-              amountMicros: (sumCredit - sumDebit),
+              amountMicros: sumCredit - sumDebit,
             }}
           />
         </span>

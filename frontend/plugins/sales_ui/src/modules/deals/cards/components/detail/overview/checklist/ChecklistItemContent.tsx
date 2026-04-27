@@ -1,21 +1,63 @@
+import { Checkbox, toast, useConfirm } from 'erxes-ui';
 import { IconDotsVertical, IconRefresh, IconTrash } from '@tabler/icons-react';
+import {
+  useChecklistItemsEdit,
+  useChecklistItemsRemove,
+} from '@/deals/cards/hooks/useChecklists';
+import { useEffect, useRef, useState } from 'react';
 
-import { Checkbox } from 'erxes-ui';
+import { GET_CHECKLIST_DETAIL } from '~/modules/deals/graphql/queries/ChecklistQueries';
+import { GET_STAGE_DETAIL } from '~/modules/deals/graphql/queries/StagesQueries';
 import { IChecklistItem } from '@/deals/types/checklists';
-import { useChecklistItemsEdit } from '@/deals/cards/hooks/useChecklists';
-import { useState } from 'react';
+import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
 
 const ChecklistItemContent = ({
   item,
   index,
   setItems,
+  stageId,
+  dealId,
 }: {
   item: IChecklistItem;
   index: number;
   setItems: React.Dispatch<React.SetStateAction<IChecklistItem[]>>;
+  stageId?: string;
+  dealId?: string;
 }) => {
   const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
+  const { confirm } = useConfirm();
   const { salesChecklistItemsEdit } = useChecklistItemsEdit();
+  const { salesChecklistItemsRemove } = useChecklistItemsRemove({
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to remove item',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const { addDeals } = useDealsAdd();
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        activeMenuIndex === index &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node)
+      ) {
+        setActiveMenuIndex(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeMenuIndex, index]);
 
   const toggleChecked = (id: string) => {
     setItems((prev) =>
@@ -25,17 +67,73 @@ const ChecklistItemContent = ({
     );
   };
 
-  const handleRemove = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
+  const handleRemove = (id: string) => {
+    confirm({
+      message: `Are you sure?`,
+    }).then(() => {
+      salesChecklistItemsRemove({
+        variables: {
+          _id: id,
+        },
+        refetchQueries: [
+          {
+            query: GET_CHECKLIST_DETAIL,
+            variables: {
+              _id: dealId,
+            },
+          },
+        ],
+        onCompleted: () => {
+          setItems((prev) => prev.filter((item) => item._id !== id));
+          setActiveMenuIndex(null);
+        },
+      });
+    });
   };
 
   const onChangeChecked = (id: string) => {
-    toggleChecked(item._id);
+    toggleChecked(id);
 
     salesChecklistItemsEdit({
       variables: {
         _id: id,
         isChecked: !item.isChecked,
+      },
+    });
+  };
+
+  const onConvert = () => {
+    setActiveMenuIndex(null);
+    addDeals({
+      variables: {
+        name: item.content,
+        stageId: stageId,
+      },
+      refetchQueries: dealId
+        ? [
+            {
+              query: GET_STAGE_DETAIL,
+              variables: {
+                _id: stageId,
+              },
+            },
+          ]
+        : [],
+
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Checklist item converted to deal successfully',
+          variant: 'default',
+        });
+        handleRemove(item._id);
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to convert to deal',
+          variant: 'destructive',
+        });
       },
     });
   };
@@ -65,7 +163,13 @@ const ChecklistItemContent = ({
         </span>
       </div>
 
-      <div className="relative">
+      <div
+        className="relative"
+        ref={menuRef}
+        onClick={(e) => e.stopPropagation()}
+        onPointerUp={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <button
           onClick={(e) => {
             setActiveMenuIndex(activeMenuIndex === index ? null : index);
@@ -81,18 +185,15 @@ const ChecklistItemContent = ({
         {activeMenuIndex === index && (
           <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white border rounded shadow-md">
             <button
-              onClick={() => {
-                setActiveMenuIndex(null);
-              }}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 w-full text-sm"
+              onClick={onConvert}
+              className="flex items-center gap-2 px- py-2 hover:bg-gray-100 w-full text-sm"
             >
-              <IconRefresh size={16} />
+              <IconRefresh size={16} className="ml-3" />
               Convert to deal
             </button>
             <button
               onClick={() => {
-                handleRemove(index);
-                setActiveMenuIndex(null);
+                handleRemove(item._id);
               }}
               className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 w-full text-sm"
             >

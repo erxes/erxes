@@ -74,8 +74,8 @@ export const FilterDialogDateView = ({ filterKey }: { filterKey: string }) => {
             </ToggleGroup>
           </div>
         </Dialog.Header>
-        <div className="border-y border-muted py-6 flex justify-center h-[22rem] overflow-auto">
-          <Tabs.Content value="day" className="self-center outline-none">
+        <div className="border-y border-muted py-6 flex justify-center h-88 overflow-auto">
+          <Tabs.Content value="day" className="self-center outline-hidden">
             <CalendarTwoMonths
               mode="range"
               numberOfMonths={2}
@@ -89,7 +89,7 @@ export const FilterDialogDateView = ({ filterKey }: { filterKey: string }) => {
               onSelect={handleCalendarChange}
             />
           </Tabs.Content>
-          <Tabs.Content value="month" className="w-full outline-none">
+          <Tabs.Content value="month" className="w-full outline-hidden">
             <DateFilterRadioGroup
               items={MONTHS}
               onValueChange={handleRadioGroupChange}
@@ -97,7 +97,7 @@ export const FilterDialogDateView = ({ filterKey }: { filterKey: string }) => {
               className="grid grid-cols-2"
             />
           </Tabs.Content>
-          <Tabs.Content value="quarter" className="w-full outline-none">
+          <Tabs.Content value="quarter" className="w-full outline-hidden">
             <DateFilterRadioGroup
               items={QUARTERS}
               className="flex flex-col"
@@ -105,7 +105,7 @@ export const FilterDialogDateView = ({ filterKey }: { filterKey: string }) => {
               value={currentValue}
             />
           </Tabs.Content>
-          <Tabs.Content value="halfYear" className="w-full outline-none">
+          <Tabs.Content value="halfYear" className="w-full outline-hidden">
             <DateFilterRadioGroup
               items={['half-1', 'half-2']}
               className="flex flex-col"
@@ -113,7 +113,7 @@ export const FilterDialogDateView = ({ filterKey }: { filterKey: string }) => {
               value={currentValue}
             />
           </Tabs.Content>
-          <Tabs.Content value="year" className="w-full outline-none">
+          <Tabs.Content value="year" className="w-full outline-hidden">
             <DateFilterRadioGroup
               className="flex flex-col"
               onValueChange={handleRadioGroupChange}
@@ -219,7 +219,7 @@ const DateFilterRadioGroupItem = ({
   return (
     <Button
       variant="secondary"
-      className="shadow-none has-[[data-state=checked]]:border-ring has-[[data-state=checked]]:bg-primary has-[[data-state=checked]]:text-primary-foreground has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ring/70 capitalize"
+      className="shadow-none has-data-[state=checked]:border-ring has-data-[state=checked]:bg-primary has-data-[state=checked]:text-primary-foreground has-focus-visible:outline-solid has-focus-visible:outline-2 has-focus-visible:outline-ring/70 capitalize"
       onClick={() => {
         ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }}

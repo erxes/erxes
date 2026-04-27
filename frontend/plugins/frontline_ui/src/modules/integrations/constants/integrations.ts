@@ -4,7 +4,7 @@ export const INTEGRATIONS = {
   [IntegrationType.ERXES_MESSENGER]: {
     name: 'erxes Messenger',
     description:
-      'Connect and manage Facebook Messages right from your Team Inbox',
+      'Connect and manage erxes Messenger right from your Team Inbox',
     img: 'messenger.webp',
   },
   [IntegrationType.FACEBOOK_MESSENGER]: {
@@ -18,9 +18,31 @@ export const INTEGRATIONS = {
     description: 'Connect and manage Facebook Posts right from your Team Inbox',
     img: 'fb.svg',
   },
+  [IntegrationType.INSTAGRAM_MESSENGER]: {
+    name: 'Instagram Messenger',
+    description:
+      'Connect and manage Instagram Messages right from your Team Inbox',
+    img: 'ig.svg',
+  },
+  [IntegrationType.INSTAGRAM_POST]: {
+    name: 'Instagram Post',
+    description:
+      'Connect and manage Instagram Post comments right from your Team Inbox',
+    img: 'ig.svg'
+  },
   [IntegrationType.CALL]: {
     name: 'Call',
     description: 'Connect and manage calls right from your Team Inbox',
     img: 'grandstream.webp',
+  },
+  [IntegrationType.IMAP]: {
+    name: 'IMAP',
+    description: 'Connect and manage IMAP right from your Team Inbox',
+    img: 'email.webp',
+  },
+  [IntegrationType.MESSAGE_PRO]: {
+    name: 'MessagePro',
+    description: 'Connect and manage Message Pro right from your Team Inbox',
+    img: 'callpro.png',
   },
 };

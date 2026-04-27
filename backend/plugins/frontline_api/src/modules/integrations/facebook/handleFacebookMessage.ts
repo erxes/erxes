@@ -124,12 +124,12 @@ export const handleFacebookMessage = async (
         input: { _id: userId },
       });
 
-      if (!user) {
+      if (!user?._id) {
         throw new Error('User not found');
       }
 
       // Send notification about the reply to relevant users/devices
-      sendNotifications({
+      sendNotifications(subdomain, {
         user,
         conversations: [inboxConversation],
         type: 'conversationStateChange',

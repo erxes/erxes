@@ -60,7 +60,7 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
               {
                 name: 'Progress',
                 value: getProgress(milestone),
-                fill: 'hsl(var(--primary))',
+                fill: 'var(--primary)',
               },
             ]}
             startAngle={90}
@@ -73,7 +73,7 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
               tick={false}
             />
             <RadialBar
-              background={{ fill: 'hsl(var(--border))' }}
+              background={{ fill: 'var(--border)' }}
               dataKey="value"
               cornerRadius={10}
             />
@@ -99,7 +99,6 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
           <HoverCard.Trigger asChild>
             <div>
               <EditMilestone
-                projectId={projectId}
                 milestone={milestone}
                 extraContent={extraContent(milestone)}
                 isActive={activeMilestone === milestone._id}
@@ -111,26 +110,26 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
           {activeMilestone !== milestone._id && (
             <HoverCard.Content side="left" className="w-32 p-3">
               <div className="flex flex-col gap-1 text-muted-foreground">
-                <p className="text-sm flex items-center gap-1">
+                <p className="text-sm flex gap-1">
                   <ProgressDot status="total" />
-                  total:
-                  <span className="text-foreground ml-auto">
+                  <span className="text-foreground ml-1">
                     {milestone.totalScope || 0}
                   </span>
-                </p>
-                <p className="text-sm flex items-center gap-1">
-                  <ProgressDot status="completed" />
-                  completed:
-                  <span className="text-foreground ml-auto">
-                    {milestone.totalCompletedScope || 0}
-                  </span>
+                  scoped
                 </p>
                 <p className="text-sm flex items-center gap-1">
                   <ProgressDot status="started" />
-                  started:
-                  <span className="text-foreground ml-auto">
+                  <span className="text-foreground ml-1">
                     {milestone.totalStartedScope || 0}
                   </span>
+                  started
+                </p>
+                <p className="text-sm flex items-center gap-1">
+                  <ProgressDot status="completed" />
+                  <span className="text-foreground ml-1">
+                    {milestone.totalCompletedScope || 0}
+                  </span>
+                  completed
                 </p>
               </div>
             </HoverCard.Content>
@@ -149,6 +148,6 @@ const chartConfig = {
   },
   safari: {
     label: 'Done',
-    color: 'hsl(var(--primary))',
+    color: 'var(--primary)',
   },
 } satisfies ChartConfig;

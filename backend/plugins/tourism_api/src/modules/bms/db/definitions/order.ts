@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { PAYMENT_STATUS_TYPES } from '@/bms/constants';
-import { getEnum } from '@/bms/utils';
+import { getEnum } from '~/modules/bms/utils/utils';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export interface IOrder {
@@ -10,6 +10,7 @@ export interface IOrder {
   amount: number;
   status: string;
   note: string;
+  internalNote?: string;
   branchId?: string;
   numberOfPeople: number;
   type?: string;
@@ -30,6 +31,7 @@ export const orderSchema = new Schema({
   customerId: { type: String, optional: true, label: 'customerId' },
   tourId: { type: String, optional: true, label: 'tourId' },
   note: { type: String, optional: true, label: 'note' },
+  internalNote: { type: String, optional: true, label: 'internalNote' },
   amount: { type: Number, optional: true, label: 'amount' },
   status: {
     type: String,

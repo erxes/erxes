@@ -1,7 +1,7 @@
 import { TeamMember } from '@/settings/team-member/components/TeamMember';
 import { PageContainer, useQueryState } from 'erxes-ui';
-import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
 import { ResetPasswordDialog } from '@/settings/team-member/details/components/ResetPasswordDialog';
+import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
 
 export function TeamMemberPage() {
   const [userId] = useQueryState('user_id');

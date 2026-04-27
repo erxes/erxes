@@ -25,22 +25,11 @@ export const sendPosclientHealthCheck = async ({
     input: { channelToken: pos.token },
     defaultValue: { healthy: 'no' },
   });
-  // return await sendMessage({
-  //   subdomain,
-  //   isRPC: true,
-  //   isMQ: true,
-  //   serviceName: "",
-  //   action: `posclient:health_check_${pos.token}`,
-  //   data: { token: pos.token, thirdService: true },
-  //   timeout: 1000,
-  //   defaultValue: { healthy: "no" }
-  // });
 };
 
 export const sendPosclientMessage = async (args: any) => {
   const { action, pos, data, subdomain } = args;
   let lastAction = action;
-  let serviceName = 'posclient';
 
   const { ALL_AUTO_INIT } = process.env;
 
@@ -49,13 +38,12 @@ export const sendPosclientMessage = async (args: any) => {
     !pos.onServer
   ) {
     lastAction = `posclient:${action}_${pos.token}`;
-    serviceName = '';
     args.data.thirdService = true;
     args.isMQ = true;
 
     if (args.isRPC) {
       const response = await sendPosclientHealthCheck(args);
-      if (!response || response.healthy !== 'ok') {
+      if (response?.healthy !== 'ok') {
         throw new Error('syncing error not connected posclient');
       }
     }

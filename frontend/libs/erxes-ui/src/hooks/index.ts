@@ -4,3 +4,4 @@ export * from './use-toast';
 export * from './use-upload';
 export * from './use-query-state';
 export * from './use-is-matching-location';
+export * from './use-upload-new';

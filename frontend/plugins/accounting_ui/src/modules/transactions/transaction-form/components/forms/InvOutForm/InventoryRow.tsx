@@ -14,9 +14,14 @@ import {
   Table,
 } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
-import { SelectProduct } from 'ui-modules';
-import { ITransactionGroupForm, TInvOutJournal } from '../../../types/JournalForms';
+import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
+import {
+  ITransactionGroupForm,
+  TInvOutJournal,
+} from '../../../types/JournalForms';
 import { useEffect, useRef } from 'react';
+import { showAdvancedViewState } from '../../../states/trStates';
+import { useAtomValue } from 'jotai';
 
 export const InventoryRow = ({
   detailIndex,
@@ -27,6 +32,7 @@ export const InventoryRow = ({
   journalIndex: number;
   form: ITransactionGroupForm;
 }) => {
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -124,7 +130,7 @@ export const InventoryRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
@@ -170,7 +176,6 @@ export const InventoryRow = ({
                 }}
                 defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
                 variant="ghost"
-                inForm
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
             )}
@@ -278,6 +283,58 @@ export const InventoryRow = ({
             )}
           />
         </Table.Cell>
+        {showAdvancedView && (
+          <>
+            <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+              <Table.Cell>
+                <RecordTableInlineCell className="justify-center">
+                  <Form.Field
+                    control={form.control}
+                    name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Control>
+                          <SelectBranches.InlineCell
+                            mode="single"
+                            value={field.value ?? ''}
+                            onValueChange={(branch) => field.onChange(branch)}
+                            scope={AccountingHotkeyScope.TransactionFormPage}
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </RecordTableInlineCell>
+              </Table.Cell>
+            </RecordTableHotKeyControl>
+            <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+              <Table.Cell>
+                <RecordTableInlineCell className="justify-center">
+                  <Form.Field
+                    control={form.control}
+                    name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Control>
+                          <SelectDepartments.InlineCell
+                            mode="single"
+                            value={field.value ?? ''}
+                            onValueChange={(department) =>
+                              field.onChange(department)
+                            }
+                            scope={AccountingHotkeyScope.TransactionFormPage}
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </RecordTableInlineCell>
+              </Table.Cell>
+            </RecordTableHotKeyControl>
+          </>
+        )}
       </RecordTableHotKeyControl>
     </Table.Row>
   );

@@ -1,5 +1,5 @@
-import { sendTRPCMessage } from "erxes-api-shared/src/utils";
-import { toErkhet } from "./utils";
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { toErkhet } from './utils';
 
 export const productCategoryToErkhet = async (
   subdomain,
@@ -7,31 +7,31 @@ export const productCategoryToErkhet = async (
   mainConfig,
   syncLog,
   params,
-  action
+  action,
 ) => {
   const productCategory = params.updatedDocument || params.object;
   const oldProductCategory = params.object;
 
   const parentProductCategory = await sendTRPCMessage({
     subdomain,
-    pluginName: "core",
-    module: "categories",
-    action: "findOne",
+    pluginName: 'core',
+    module: 'categories',
+    action: 'findOne',
     input: { _id: productCategory.parentId },
-    defaultValue: null
+    defaultValue: null,
   });
 
   const sendData = {
     action,
-    oldCode: oldProductCategory.code || productCategory.code || "",
+    oldCode: oldProductCategory.code || productCategory.code || '',
     object: {
-      code: productCategory.code || "",
-      name: productCategory.name || "",
-      parentCode: parentProductCategory ? parentProductCategory.code : ""
-    }
+      code: productCategory.code || '',
+      name: productCategory.name || '',
+      parentCode: parentProductCategory ? parentProductCategory.code : '',
+    },
   };
 
-  await toErkhet(models, syncLog, mainConfig, sendData, "product-change");
+  await toErkhet(models, syncLog, mainConfig, sendData, 'product-change');
 };
 
 export const productToErkhet = async (
@@ -40,33 +40,33 @@ export const productToErkhet = async (
   mainConfig,
   syncLog,
   params,
-  action
+  action,
 ) => {
   const product = params.updatedDocument || params.object;
   const oldProduct = params.object;
 
   const productCategory = await sendTRPCMessage({
     subdomain,
-    pluginName: "core",
-    module: "categories",
-    action: "findOne",
+    pluginName: 'core',
+    module: 'categories',
+    action: 'findOne',
     input: { _id: product.categoryId },
-    defaultValue: null
+    defaultValue: null,
   });
 
   const weightField = await sendTRPCMessage({
     subdomain,
-    pluginName: "core",
-    module: "fields",
-    action: "findOne",
-    input: { query: { code: "weight" } },
-    defaultValue: null
+    pluginName: 'core',
+    module: 'fields',
+    action: 'findOne',
+    input: { query: { code: 'weight' } },
+    defaultValue: null,
   });
 
   let weight;
   if (weightField && weightField._id) {
     const weightData = (product.customFieldsData || []).find(
-      cfd => cfd.field === weightField._id
+      (cfd) => cfd.field === weightField._id,
     );
     if (weightData && weightData.value) {
       weight = Number(weightData.value) || undefined;
@@ -84,23 +84,23 @@ export const productToErkhet = async (
 
   const sendData = {
     action,
-    oldCode: oldProduct.code || product.code || "",
+    oldCode: oldProduct.code || product.code || '',
     object: {
-      code: product.code || "ш",
-      name: product.name || "",
-      nickname: product.shortName || "",
+      code: product.code || 'ш',
+      name: product.name || '',
+      nickname: product.shortName || '',
       measureUnit: product.uom,
       subMeasureUnit,
       ratioMeasureUnit,
-      barcodes: product.barcodes.join(","),
+      barcodes: product.barcodes.join(','),
       unitPrice: product.unitPrice || 0,
       costAccount: mainConfig.costAccount,
       saleAccount: mainConfig.saleAccount,
-      categoryCode: productCategory ? productCategory.code : "",
+      categoryCode: productCategory ? productCategory.code : '',
       defaultCategory: mainConfig.productCategoryCode,
-      weight
-    }
+      weight,
+    },
   };
 
-  await toErkhet(models, syncLog, mainConfig, sendData, "product-change");
+  await toErkhet(models, syncLog, mainConfig, sendData, 'product-change');
 };

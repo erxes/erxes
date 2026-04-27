@@ -1,4 +1,4 @@
-import { IAccountCategory } from "../account-categories/types/AccountCategory";
+import { IAccountCategory } from '../account-categories/types/AccountCategory';
 
 export interface IAccount {
   _id: string;
@@ -18,7 +18,10 @@ export interface IAccount {
   isTemp: boolean;
   isOutBalance: boolean;
   mergedIds?: string[];
-
+  extra?: {
+    bank?: BankEnum;
+    bankAccount?: string;
+  };
   category?: IAccountCategory;
 }
 
@@ -27,12 +30,25 @@ export enum AccountKind {
   PASSIVE = 'passive',
 }
 
+export enum AccountStatus {
+  ACTIVE = 'active',
+  DELETED = 'deleted',
+}
+
 export enum JournalEnum {
   MAIN = 'main',
+  TAX = 'tax',
   CASH = 'cash',
   BANK = 'bank',
   DEBT = 'debt',
+  EXCHANGE_DIFF = 'exchangeDiff',
   INVENTORY = 'inventory',
+  INV_FOLLOW = 'invFollow',
   FIXED_ASSET = 'fixedAsset',
-  TAX = 'tax',
+}
+export enum BankEnum {
+  XAC = 'xac',
+  GOLOMT = 'golomt',
+  KHAN = 'khan',
+  TDB = 'tdb',
 }

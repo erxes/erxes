@@ -4,9 +4,13 @@ import { ScrollArea } from 'erxes-ui';
 export const ProjectWidget = ({
   contentId,
   contentType,
+  customerIds,
+  companyIds,
 }: {
   contentId: string;
   contentType: string;
+  customerIds?: string[];
+  companyIds?: string[];
 }) => {
   return (
     <ScrollArea className="h-full flex-auto">

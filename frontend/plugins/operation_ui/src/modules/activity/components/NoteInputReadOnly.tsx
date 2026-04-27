@@ -30,7 +30,7 @@ export const NoteInputReadOnly = ({
 //       <DropdownMenu.Trigger asChild>
 //         <Button
 //           variant="secondary"
-//           className={'w-full font-medium size-8 flex-shrink-0'}
+//           className={'w-full font-medium size-8 shrink-0'}
 //           size="icon"
 //         >
 //           <IconDots />

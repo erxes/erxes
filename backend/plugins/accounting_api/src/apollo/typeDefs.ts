@@ -4,7 +4,7 @@ import { gql } from 'graphql-tag';
 import { mutations, queries, types } from './schema/schema';
 
 export const typeDefs = async (): Promise<DocumentNode> => {
-  return gql(`
+  return gql(`  
     ${apolloCommonTypes}
     ${types}
     extend type Query {

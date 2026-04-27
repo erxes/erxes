@@ -3,6 +3,7 @@ import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 import { IProductCategoryParams } from '@/products/@types';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 const generateFilter = async (
   models: IModels,
@@ -66,16 +67,24 @@ const generateFilter = async (
   return filter;
 };
 
-export const categoryQueries = {
+export const categoryQueries: Record<string, Resolver<any, any, IContext>> = {
   async productCategories(
     _parent: undefined,
     params: IProductCategoryParams,
     { models }: IContext,
   ) {
     const filter = await generateFilter(models, params);
-
     const sortParams: any = { order: 1 };
+    return await models.ProductCategories.find(filter).sort(sortParams).lean();
+  },
 
+  async cpProductCategories(
+    _parent: undefined,
+    params: IProductCategoryParams,
+    { models }: IContext,
+  ) {
+    const filter = await generateFilter(models, params);
+    const sortParams: any = { order: 1 };
     return await models.ProductCategories.find(filter).sort(sortParams).lean();
   },
 
@@ -85,7 +94,6 @@ export const categoryQueries = {
     { models }: IContext,
   ) {
     const filter = await generateFilter(models, params);
-
     return models.ProductCategories.countDocuments(filter);
   },
 
@@ -96,4 +104,16 @@ export const categoryQueries = {
   ) {
     return models.ProductCategories.findOne({ _id }).lean();
   },
+
+  async categoriesWithChilds(
+    _parent: undefined,
+    { ids }: { ids: string[] },
+    { models }: IContext,
+  ) {
+    return await models.ProductCategories.getChildCategories(ids);
+  },
+};
+
+categoryQueries.cpProductCategories.wrapperConfig = {
+  forClientPortal: true,
 };

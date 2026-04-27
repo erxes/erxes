@@ -1,41 +1,104 @@
-import { getContentType } from '@/automations/utils/automationBuilderUtils';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { TAutomationActionConfigFieldPrefix } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
+import { TAutomationVariableSourceNode } from '@/automations/components/builder/components/AutomationVariableBrowser';
+import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import { AutomationNodeType, AutomationNodesType } from '@/automations/types';
+import {
+  getConnectedPreviousActions,
+  getTriggerOfAction,
+} from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { KeyboardEvent, useMemo } from 'react';
+import { useForm, useFormContext, useWatch } from 'react-hook-form';
+import {
+  sendEmailConfigFormSchema,
+  TAutomationSendEmailConfig,
+} from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
+import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useActionTarget } from '@/automations/components/builder/nodes/hooks/useActionTarget';
+import { TAutomationAction } from 'ui-modules';
 
-type TSendEmailConfigFieldName = `actions.${number}.config`;
-
-export const useSendEmailSidebarForm = (currentActionIndex: number) => {
-  const configFieldName: TSendEmailConfigFieldName = `actions.${currentActionIndex}.config`;
-
-  const { control } = useFormContext<TAutomationBuilderForm>();
+export const useSendEmailSidebarForm = (
+  currentActionIndex: number,
+  currentAction: TAutomationAction,
+) => {
+  const configFieldNamePrefix: TAutomationActionConfigFieldPrefix = `${AutomationNodesType.Actions}.${currentActionIndex}.config`;
+  const { control: automationBuilderFormControl } =
+    useFormContext<TAutomationBuilderForm>();
+  const { actionFolks } = useAutomation();
   const [triggers = [], actions = [], config = {}] =
     useWatch<TAutomationBuilderForm>({
-      control,
-      name: ['triggers', 'actions', `${configFieldName}`],
+      control: automationBuilderFormControl,
+      name: ['triggers', 'actions', `${configFieldNamePrefix}`],
     });
+  const form = useForm<TAutomationSendEmailConfig>({
+    resolver: zodResolver(sendEmailConfigFormSchema),
+    defaultValues: {
+      fromEmailPlaceHolder: config?.fromEmailPlaceHolder || '',
+      toEmailsPlaceHolders: config?.toEmailsPlaceHolders || '',
+      ccEmailsPlaceHolders: config?.ccEmailsPlaceHolders || '',
+      subject: config?.subject || '',
+      content: config?.content || '',
+      html: config?.html || '',
+      type: config?.type || 'default',
+    },
+  });
 
-  const contentType = getContentType(
-    actions[currentActionIndex].id,
-    actions,
-    triggers,
-  )?.type;
+  const { type: triggerType } =
+    getTriggerOfAction(currentAction?.id, actions, triggers, actionFolks) || {};
+  const { selectedActionType } = useActionTarget({
+    actionId: currentAction?.id,
+    targetActionId: currentAction?.targetActionId,
+  });
+  const connectedPreviousActions = useMemo(
+    () => getConnectedPreviousActions(currentAction?.id, actions, actionFolks),
+    [actionFolks, actions, currentAction?.id],
+  );
 
-  return { control, config, contentType };
+  const availableVariableSourceNodes = useMemo<TAutomationVariableSourceNode[]>(
+    () => [
+      ...triggers.map((trigger) => ({
+        id: trigger.id,
+        type: trigger.type,
+        label: trigger.label,
+        icon: trigger.icon,
+        nodeType: AutomationNodeType.Trigger,
+      })),
+      ...connectedPreviousActions.map((action) => ({
+        id: action.id,
+        type: action.type,
+        label: action.label,
+        icon: action.icon,
+        nodeType: AutomationNodeType.Action,
+      })),
+    ],
+    [connectedPreviousActions, triggers],
+  );
+
+  return {
+    form,
+    contentType: selectedActionType || triggerType,
+    availableVariableSourceNodes,
+  };
 };
 
 export const useSendEmailCustomMailField = (currentActionIndex: number) => {
-  const configFieldName: TSendEmailConfigFieldName = `actions.${currentActionIndex}.config`;
-  const { control, setValue } = useFormContext<TAutomationBuilderForm>();
-  const config = useWatch({ control, name: configFieldName });
+  const configFieldNamePrefix: TAutomationActionConfigFieldPrefix = `${AutomationNodesType.Actions}.${currentActionIndex}.config`;
+  const { control } = useFormContext<TAutomationBuilderForm>();
+  const { setAutomationBuilderFormValue } = useAutomationFormController();
+  const config = useWatch({ control, name: configFieldNamePrefix });
 
   const removeMail = (mail: string) => {
-    setValue(
-      `${configFieldName}.customMails`,
+    setAutomationBuilderFormValue(
+      `${configFieldNamePrefix}.customMails`,
       (config?.customMails || []).filter((value: string) => value !== mail),
     );
   };
 
-  const onChange = (e: any, onChange: (...props: any[]) => void) => {
+  const onChange = (
+    e: KeyboardEvent<HTMLInputElement>,
+    onChange: (...props: any[]) => void,
+  ) => {
     const { value } = e.currentTarget;
     if (
       e.key === 'Enter' &&

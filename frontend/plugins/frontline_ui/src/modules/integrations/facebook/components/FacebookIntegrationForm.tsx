@@ -1,20 +1,19 @@
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
-import { FacebookGetAccounts } from './FacebookGetAccounts';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import {
+  FbIntegrationProvider,
+  useFbIntegrationContext,
+} from '../contexts/FbIntegrationContext';
 import {
   activeFacebookFormStepAtom,
   facebookFormSheetAtom,
   resetFacebookAddStateAtom,
 } from '../states/facebookStates';
+import { FacebookGetAccounts } from './FacebookGetAccounts';
 import { FacebookGetPages } from './FacebookGetPages';
 import { FacebookIntegrationSetup } from './FacebookIntegrationSetup';
-import { useAtom } from 'jotai';
-import {
-  FbIntegrationProvider,
-  useFbIntegrationContext,
-} from '../contexts/FbIntegrationContext';
 
 export const FacebookIntegrationFormSheet = ({
   isPost,
@@ -33,7 +32,7 @@ export const FacebookIntegrationFormSheet = ({
             <Button>
               <IconPlus />
               Add Facebook{' '}
-              {isPost ? 'Post integration' : 'Messenger integration'}
+              {isPost ? 'Post Integration' : 'Messenger integration'}
             </Button>
           </Sheet.Trigger>
           <Sheet.View>

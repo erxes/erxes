@@ -1,4 +1,5 @@
 import { SortOrder, FilterQuery, Model, Types, PipelineStage } from 'mongoose';
+import { fixNum } from '../utils';
 
 export interface CursorPaginateParams<T> {
   model: Model<T>;
@@ -11,15 +12,17 @@ export interface CursorPaginateParams<T> {
   query?: FilterQuery<T>;
 }
 
-export interface CursorPaginateParamsWithAggregation<T> {
+export interface CursorPaginateAggregationParams<T> {
   model: Model<T>;
-  pipeline: PipelineStage[];
+  pipeline?: PipelineStage[];
   params: {
     limit?: number;
     cursor?: string;
     direction?: 'forward' | 'backward';
     orderBy?: Record<string, SortOrder>;
   };
+  formatter?: Record<string, CursorFieldType>;
+  uniqConcatFields?: string[]; // optional: if unwinded then concat field names
 }
 
 export interface PageInfo {
@@ -66,12 +69,38 @@ export const decodeCursor = (cursor: string): any => {
   }
 };
 
+type CursorFieldType = 'date' | 'number' | 'boolean';
+const convertValue = (value: any, type: CursorFieldType) => {
+  if (value == null) return value;
+
+  switch (type) {
+    case 'date':
+      return new Date(value);
+    case 'number':
+      return fixNum(value, 10);
+    case 'boolean':
+      return value === 'true' || value === true;
+    default:
+      return value;
+  }
+};
+
 export const buildCursorQuery = (
   cursor: string,
   orderBy: Record<string, SortOrder>,
   direction: 'forward' | 'backward',
+  formatter?: Record<string, CursorFieldType>,
 ): Record<string, any> => {
   const cursorData = decodeCursor(cursor);
+
+  if (formatter) {
+    for (const key of Object.keys(formatter)) {
+      if (cursorData[key] !== undefined) {
+        cursorData[key] = convertValue(cursorData[key], formatter[key]);
+      }
+    }
+  }
+
   const sortFields = Object.keys(orderBy);
 
   if (sortFields.length === 0) {

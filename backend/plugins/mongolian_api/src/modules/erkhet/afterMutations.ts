@@ -61,10 +61,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
         const mainConfig = await getConfig(subdomain, 'ERKHET', {});
         if (
-          !mainConfig ||
-          !mainConfig.apiKey ||
-          !mainConfig.apiSecret ||
-          !mainConfig.apiToken
+          !mainConfig?.apiKey ||
+          !mainConfig?.apiSecret ||
+          !mainConfig?.apiToken
         ) {
           return;
         }
@@ -174,8 +173,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
             subdomain,
             pluginName: 'sales',
             method: 'query',
-            module: 'sales',
-            action: 'pipelines.findOne',
+            module: 'pipeline',
+            action: 'findOne',
             input: { stageId: destinationStageId },
             defaultValue: {},
           });
@@ -229,10 +228,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
         const mainConfig = await getConfig(subdomain, 'ERKHET', {});
         if (
-          !mainConfig ||
-          !mainConfig.apiKey ||
-          !mainConfig.apiSecret ||
-          !mainConfig.apiToken
+          !mainConfig?.apiKey ||
+          !mainConfig?.apiSecret ||
+          !mainConfig?.apiToken
         ) {
           return;
         }
@@ -308,10 +306,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
         const mainConfig = await getConfig(subdomain, 'ERKHET', {});
         if (
-          !mainConfig ||
-          !mainConfig.apiKey ||
-          !mainConfig.apiSecret ||
-          !mainConfig.apiToken
+          !mainConfig?.apiKey ||
+          !mainConfig?.apiSecret ||
+          !mainConfig?.apiToken
         ) {
           return;
         }
@@ -371,10 +368,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (type === 'core:product') {
       const mainConfig = await getConfig(subdomain, 'ERKHET', {});
       if (
-        !mainConfig ||
-        !mainConfig.apiKey ||
-        !mainConfig.apiSecret ||
-        !mainConfig.apiToken
+        !mainConfig?.apiKey ||
+        !mainConfig?.apiSecret ||
+        !mainConfig?.apiToken
       ) {
         return;
       }
@@ -419,10 +415,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (type === 'core:productCategory') {
       const mainConfig = await getConfig(subdomain, 'ERKHET', {});
       if (
-        !mainConfig ||
-        !mainConfig.apiKey ||
-        !mainConfig.apiSecret ||
-        !mainConfig.apiToken
+        !mainConfig?.apiKey ||
+        !mainConfig?.apiSecret ||
+        !mainConfig?.apiToken
       ) {
         return;
       }
@@ -468,10 +463,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (type === 'core:customer') {
       const mainConfig = await getConfig(subdomain, 'ERKHET', {});
       if (
-        !mainConfig ||
-        !mainConfig.apiKey ||
-        !mainConfig.apiSecret ||
-        !mainConfig.apiToken
+        !mainConfig?.apiKey ||
+        !mainConfig?.apiSecret ||
+        !mainConfig?.apiToken
       ) {
         return;
       }
@@ -496,10 +490,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (type === 'core:company') {
       const mainConfig = await getConfig(subdomain, 'ERKHET', {});
       if (
-        !mainConfig ||
-        !mainConfig.apiKey ||
-        !mainConfig.apiSecret ||
-        !mainConfig.apiToken
+        !mainConfig?.apiKey ||
+        !mainConfig?.apiSecret ||
+        !mainConfig?.apiToken
       ) {
         return;
       }
@@ -523,10 +516,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (type === 'core:user') {
       const mainConfig = await getConfig(subdomain, 'ERKHET', {});
       if (
-        !mainConfig ||
-        !mainConfig.apiKey ||
-        !mainConfig.apiSecret ||
-        !mainConfig.apiToken
+        !mainConfig?.apiKey ||
+        !mainConfig?.apiSecret ||
+        !mainConfig?.apiToken
       ) {
         return;
       }

@@ -1,7 +1,7 @@
-import React, { useEffect, useState, Suspense } from 'react';
 import { loadRemote } from '@module-federation/enhanced/runtime';
 import { Spinner } from 'erxes-ui';
-
+import React, { Suspense, useEffect, useState } from 'react';
+import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
 interface RemoteComponentProps {
   module?: string;
 }
@@ -9,12 +9,10 @@ interface RemoteComponentProps {
 export function RenderPluginsComponent({
   pluginName,
   remoteModuleName,
-  moduleName,
   props,
 }: {
   pluginName: string;
   remoteModuleName: string;
-  moduleName: string;
   props?: any;
 }) {
   const [Plugin, setPlugin] =
@@ -53,9 +51,13 @@ export function RenderPluginsComponent({
 
   if (hasError) {
     return (
-      <div className="flex items-center justify-center h-full text-red-500">
-        {hasError.message}
-      </div>
+      <RenderPluginsComponentErrorState
+        pluginName={pluginName}
+        remoteModuleName={remoteModuleName}
+        setPlugin={setPlugin}
+        setHasError={setHasError}
+        setIsLoading={setIsLoading}
+      />
     );
   }
 
@@ -81,11 +83,7 @@ export function RenderPluginsComponent({
         </div>
       }
     >
-      <Plugin
-        key={`${pluginName}-${remoteModuleName}`}
-        {...props}
-        moduleName={moduleName}
-      />
+      <Plugin key={`${pluginName}-${remoteModuleName}`} {...props} />
     </Suspense>
   );
 }

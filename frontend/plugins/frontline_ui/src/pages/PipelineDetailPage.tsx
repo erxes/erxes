@@ -1,16 +1,14 @@
-import { Breadcrumb } from 'erxes-ui';
-import { IconArrowLeft } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
 import { PipelineDetail } from '@/pipelines/components/PipelineDetail';
-import { useParams } from 'react-router-dom';
-import { Button } from 'erxes-ui';
+import { IconArrowLeft } from '@tabler/icons-react';
+import { Breadcrumb, Button } from 'erxes-ui';
+import { Link, useParams } from 'react-router-dom';
 
 export const PipelineDetailPage = () => {
   const { id: channelId } = useParams<{ id: string; pipelineId: string }>();
 
   return (
-    <div>
-      <div className="px-4 h-16 flex items-center">
+    <div className="overflow-y-auto">
+      <div className="px-4 h-16 flex items-center fixed mb-4">
         <Breadcrumb>
           <Breadcrumb.List>
             <Breadcrumb.Item>
@@ -28,8 +26,8 @@ export const PipelineDetailPage = () => {
           </Breadcrumb.List>
         </Breadcrumb>
       </div>
-      <div className="w-full h-[calc(100vh-4rem)] overflow-y-auto ">
-        <div className="mx-auto max-w-2xl ">
+      <div className="w-full  ">
+        <div className="mx-auto max-w-2xl mt-20">
           <PipelineDetail />
         </div>
       </div>

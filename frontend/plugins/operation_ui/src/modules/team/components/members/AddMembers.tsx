@@ -1,3 +1,7 @@
+import { MemberForm } from '@/team/components/members/MemberForm';
+import { useAddMemberForm } from '@/team/hooks/useAddMemberForm';
+import { useAddTeamMember } from '@/team/hooks/useAddTeamMember';
+import { TeamHotKeyScope, TTeamMemberForm } from '@/team/types';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import {
   Button,
@@ -7,17 +11,10 @@ import {
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
+  useToast,
 } from 'erxes-ui';
-
 import React, { useState } from 'react';
-// import { SubmitHandler } from 'react-hook-form';
-import { useAddMemberForm } from '@/team/hooks/useAddMemberForm';
-// import { useMemberCreate } from '@/team/hooks/useMemberCreate';
-import { TeamHotKeyScope, TTeamMemberForm } from '@/team/types';
-import { MemberForm } from '@/team/components/members/MemberForm';
-import { useAddTeamMember } from '@/team/hooks/useAddTeamMember';
 import { SubmitHandler } from 'react-hook-form';
-import { useToast } from 'erxes-ui';
 import { useParams } from 'react-router';
 
 export const AddMembers = () => {
@@ -74,7 +71,7 @@ export const AddMembers = () => {
           <Kbd>C</Kbd>
         </Button>
       </Dialog.Trigger>
-      <Dialog.Content>
+      <Dialog.Content className="max-w-xl">
         <Dialog.Header className="flex-row">
           <Dialog.Title className="flex items-center gap-2">
             {/* <IconTagPlus size={16} /> */}
@@ -99,9 +96,16 @@ export const AddMembers = () => {
             className="flex flex-col size-full gap-5"
           >
             <MemberForm form={form} />
-            <Button className="w-full" type="submit" disabled={loading}>
-              Add
-            </Button>
+            <div className="flex justify-end gap-2">
+              <Dialog.Close asChild>
+                <Button variant="secondary" type="button">
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Button type="submit" disabled={loading}>
+                Add
+              </Button>
+            </div>
           </form>
         </Form>
       </Dialog.Content>

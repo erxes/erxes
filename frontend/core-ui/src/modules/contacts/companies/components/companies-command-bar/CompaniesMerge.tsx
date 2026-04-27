@@ -33,7 +33,7 @@ const CompaniesMergeLogic = ({ companies }: CompaniesMergeProps) => {
 
   return (
     <CompaniesMergeSheet className="p-6 flex gap-2 h-full">
-      <div className="flex-[2] h-full flex flex-col gap-2">
+      <div className="flex-2 h-full flex flex-col gap-2">
         <div className="flex justify-between gap-2 mb-1 ">
           <span className="text-sm font-semibold text-muted-foreground w-full">
             {companies[0]?.primaryName}

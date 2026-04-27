@@ -3,21 +3,23 @@ import {
   IconPhone,
   IconSend,
   IconVideo,
-  IconX,
 } from '@tabler/icons-react';
-import { Avatar, Button, Input, Popover, Separator, Tooltip } from 'erxes-ui';
+import { Avatar, Button, Tooltip } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupGreetingAtom,
+  erxesMessengerSetupIntroAtom,
   erxesMessengerSetupSettingsAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { BrandsInline, MembersInline } from 'ui-modules';
+import { MembersInline } from 'ui-modules';
+import { EMPreviewChatInput } from './EMPreviewChatInput';
 
 export const EMPreviewMessages = () => {
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
+  const intro = useAtomValue(erxesMessengerSetupIntroAtom);
 
   return (
     <>
@@ -25,7 +27,6 @@ export const EMPreviewMessages = () => {
         <Button size="icon" variant="ghost" className="[&>svg]:size-5">
           <IconChevronLeft />
         </Button>
-        <BrandsInline brandIds={[config?.brandId || '']} placeholder="" />
         <div className="ml-auto flex items-center gap-1">
           <Tooltip.Provider>
             {settings?.showVideoCallRequest && (
@@ -48,7 +49,17 @@ export const EMPreviewMessages = () => {
                 </Tooltip>
               </>
             )}
-            <Tooltip delayDuration={100}>
+            {config?.ticketConfigId && (
+              <Tooltip delayDuration={100}>
+                <Tooltip.Trigger asChild>
+                  <Button size="icon" variant="ghost">
+                    <IconSend />
+                  </Button>
+                </Tooltip.Trigger>
+                <Tooltip.Content>Send ticket</Tooltip.Content>
+              </Tooltip>
+            )}
+            {/* <Tooltip delayDuration={100}>
               <Tooltip.Trigger asChild>
                 <Popover.Close asChild>
                   <Button size="icon" variant="ghost">
@@ -57,12 +68,15 @@ export const EMPreviewMessages = () => {
                 </Popover.Close>
               </Tooltip.Trigger>
               <Tooltip.Content>Close</Tooltip.Content>
-            </Tooltip>
+            </Tooltip> */}
           </Tooltip.Provider>
         </div>
       </div>
       <div className="p-4 flex-auto gap-2 flex flex-col justify-end">
-        <div className="flex items-end gap-2">
+        <div className="flex items-start self-end text-right gap-2 flex-row-reverse max-w-2/3 text-xs text-accent-foreground">
+          {intro?.welcome}
+        </div>
+        <div className="flex items-end gap-2 max-w-2/3">
           <MembersInline.Provider
             memberIds={
               greeting?.supporterIds?.length ? [greeting?.supporterIds[0]] : []
@@ -74,7 +88,9 @@ export const EMPreviewMessages = () => {
             variant="secondary"
             className="h-auto font-normal flex flex-col justify-start items-start text-left gap-1 p-3"
           >
-            <p>Hi, any questions?</p>
+            <p className="wrap-break-word">
+              {config?.botSetup?.greetingMessage || 'Hi, any questions?'}
+            </p>
             <div className="text-accent-foreground">few minutes ago</div>
           </Button>
         </div>
@@ -90,20 +106,49 @@ export const EMPreviewMessages = () => {
             <div className="text-accent-foreground">just now</div>
           </Button>
         </div>
+        {/* Away message */}
+        <div className="flex items-end gap-2 max-w-2/3">
+          <MembersInline.Provider
+            memberIds={
+              greeting?.supporterIds?.length ? [greeting?.supporterIds[0]] : []
+            }
+          >
+            <MembersInline.Avatar size="xl" />
+          </MembersInline.Provider>
+          <Button
+            variant="secondary"
+            className="h-auto font-normal flex flex-col justify-start items-start text-left gap-1 p-3"
+          >
+            <p className="wrap-break-word text-wrap">
+              {intro?.away ||
+                "We've received your message and will contact you shortly."}
+            </p>
+            <div className="text-accent-foreground">few minutes ago</div>
+          </Button>
+        </div>
+        {/* Thank you message */}
+        <div className="flex items-end gap-2 max-w-2/3">
+          <MembersInline.Provider
+            memberIds={
+              greeting?.supporterIds?.length ? [greeting?.supporterIds[0]] : []
+            }
+          >
+            <MembersInline.Avatar size="xl" />
+          </MembersInline.Provider>
+          <Button
+            variant="secondary"
+            className="h-auto font-normal flex flex-col justify-start items-start text-left gap-1 p-3"
+          >
+            <p className="wrap-break-word text-wrap ">
+              {intro?.thank ||
+                'Thank you for contacting us. We will get back to you as soon as possible.'}
+            </p>
+            <div className="text-accent-foreground">few minutes ago</div>
+          </Button>
+        </div>
       </div>
-      <Separator />
       <div className="relative">
-        <Input
-          placeholder="Send message..."
-          className="focus-visible:shadow-none shadow-none h-12 p-4 pr-12"
-        />
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute right-2 top-2 size-8"
-        >
-          <IconSend />
-        </Button>
+        <EMPreviewChatInput />
       </div>
     </>
   );

@@ -3,7 +3,7 @@ import {
   PROBABILITY_DEAL,
   VISIBILITIES,
 } from '@/deals/constants/stages';
-import { Checkbox, Form, Input, Select, Tooltip } from 'erxes-ui';
+import { Checkbox, Form, Input, Label, Select, Tooltip } from 'erxes-ui';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -49,6 +49,7 @@ const PipelineStageItem = (props: Props) => {
     transition,
     transform,
     wrapperStyle,
+    attributes,
     index,
     stage,
     control,
@@ -60,14 +61,15 @@ const PipelineStageItem = (props: Props) => {
   return (
     <div
       className={`
-        flex box-border origin-top-left touch-manipulation [transform:translate3d(var(--translate-x,0),var(--translate-y,0),0)_scaleX(var(--scale-x,1))_scaleY(var(--scale-y,1))]
+        flex box-border origin-top-left touch-manipulation transform-[translate3d(var(--translate-x,0),var(--translate-y,0),0)_scaleX(var(--scale-x,1))_scaleY(var(--scale-y,1))]
         ${fadeIn ? 'animate-fadeIn' : ''}
         ${
           dragOverlay
-            ? 'z-[999] [--scale:1.05] [--box-shadow:0_0_0_calc(1px/var(--scale-x,1))_rgba(63,63,68,0.05),0_1px_calc(3px/var(--scale-x,1))_0_rgba(34,33,81,0.15)] [--box-shadow-picked-up:0_0_0_calc(1px/var(--scale-x,1))_rgba(63,63,68,0.05),-1px_0_15px_0_rgba(34,33,81,0.01),0px_15px_15px_0_rgba(34,33,81,0.25)]'
+            ? 'z-999 [--scale:1.05] [--box-shadow:0_0_0_calc(1px/var(--scale-x,1))_rgba(63,63,68,0.05),0_1px_calc(3px/var(--scale-x,1))_0_rgba(34,33,81,0.15)] [--box-shadow-picked-up:0_0_0_calc(1px/var(--scale-x,1))_rgba(63,63,68,0.05),-1px_0_15px_0_rgba(34,33,81,0.01),0px_15px_15px_0_rgba(34,33,81,0.25)]'
             : ''
         }
       `}
+      {...attributes}
       style={
         {
           ...wrapperStyle,
@@ -89,7 +91,7 @@ const PipelineStageItem = (props: Props) => {
     >
       <div
         className={`
-          relative flex flex-grow items-center
+          relative flex grow items-center
           px-5 py-[18px] bg-white rounded
           shadow-md list-none select-none
           text-gray-800 font-normal text-base
@@ -102,7 +104,6 @@ const PipelineStageItem = (props: Props) => {
         `}
         style={style}
         data-cypress="draggable-item"
-        {...props}
         tabIndex={!handle ? 0 : undefined}
       >
         <span className="absolute top-1/2 left-0 h-full w-[3px] -translate-y-1/2 rounded-l-sm bg-purple-500" />
@@ -144,8 +145,8 @@ const PipelineStageItem = (props: Props) => {
                       </Select.Trigger>
                       <Select.Content>
                         {PROBABILITY_DEAL.map((option) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
+                          <Select.Item key={option} value={option}>
+                            {option}
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -201,7 +202,7 @@ const PipelineStageItem = (props: Props) => {
             </div>
             {showExtraFields && (
               <div className="flex flex-wrap justify-between gap-3 mt-2">
-                <Form.Item className="flex-1">
+                <Form.Item className="flex-1 min-w-[150px]">
                   <Form.Label>Code</Form.Label>
                   <Form.Control>
                     <Controller
@@ -220,19 +221,26 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1">
+                <Form.Item className="flex-1 min-w-[150px]">
                   <Form.Label>Age</Form.Label>
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.age`}
                       control={control}
-                      defaultValue={stage?.age || ''}
+                      defaultValue={stage?.age || 0}
                       render={({ field }) => (
                         <Input
                           {...field}
                           placeholder="Enter age"
                           className="input"
                           type="number"
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ''
+                                ? 0
+                                : Number(e.target.value),
+                            );
+                          }}
                         />
                       )}
                     />
@@ -240,7 +248,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1">
+                <Form.Item className="flex-1 min-w-[150px]">
                   <Form.Label>Can move members</Form.Label>
                   <Form.Control>
                     <Controller
@@ -259,7 +267,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1">
+                <Form.Item className="flex-1 min-w-[150px]">
                   <Form.Label>Can edit members</Form.Label>
                   <Form.Control>
                     <Controller
@@ -277,21 +285,25 @@ const PipelineStageItem = (props: Props) => {
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
-
-                <Form.Item className="flex flex-row items-center justify-center space-x-3 space-y-0">
+                <Form.Item className="flex-1 min-w-[150px] flex items-center justify-start gap-2 my-auto">
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.defaultTick`}
                       control={control}
-                      defaultValue={stage?.defaultTick || false}
+                      defaultValue={stage?.defaultTick ?? false}
                       render={({ field }) => (
                         <Checkbox
+                          id={`defaultTick-${index}`}
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          className="m-0"
                         />
                       )}
                     />
                   </Form.Control>
+                  <Label htmlFor={`defaultTick-${index}`}>
+                    Select products by default
+                  </Label>
                 </Form.Item>
               </div>
             )}

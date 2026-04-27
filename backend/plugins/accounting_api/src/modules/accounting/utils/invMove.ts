@@ -1,37 +1,48 @@
 import { IModels } from '~/connectionResolvers';
 import { IAccountDocument } from '../@types/account';
-import { JOURNALS, TR_DETAIL_FOLLOW_TYPES, TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
-import { ITransaction, ITransactionDocument, ITrDetail } from '../@types/transaction';
+import {
+  JOURNALS,
+  TR_DETAIL_FOLLOW_TYPES,
+  TR_FOLLOW_TYPES,
+  TR_SIDES,
+} from '../@types/constants';
+import {
+  ITransaction,
+  ITransactionDocument,
+  ITrDetail,
+} from '../@types/transaction';
 import { createOrUpdateTr } from './utils';
 
 class InvMoveInTrs {
   private readonly models: IModels;
   private readonly trDoc: ITransaction;
-  private moveInAccount: IAccountDocument;
+  private moveInAccount?: IAccountDocument;
+  private readonly userId: string;
 
-  constructor(
-    models: IModels,
-    trDoc: ITransaction
-  ) {
+  constructor(models: IModels, userId: string, trDoc: ITransaction) {
     this.models = models;
     this.trDoc = trDoc;
+    this.userId = userId;
   }
 
   public async checkValidation() {
-    const { moveInAccountId, moveInBranchId, moveInDepartmentId } = this.trDoc.followInfos;
+    const { moveInAccountId, moveInBranchId, moveInDepartmentId } =
+      this.trDoc.followInfos;
 
     if (!moveInBranchId || !moveInDepartmentId) {
-      throw new Error('Must fill move in branch and department')
+      throw new Error('Must fill move in branch and department');
     }
 
     if (!moveInAccountId) {
-      throw new Error('Must fill move in Account')
+      throw new Error('Must fill move in Account');
     }
 
-    const moveInAccount = await this.models.Accounts.findOne({ _id: moveInAccountId }).lean();
+    const moveInAccount = await this.models.Accounts.findOne({
+      _id: moveInAccountId,
+    }).lean();
 
     if (!moveInAccount?._id) {
-      throw new Error('Not found move in Account')
+      throw new Error('Not found move in Account');
     }
 
     this.moveInAccount = moveInAccount;
@@ -47,7 +58,9 @@ class InvMoveInTrs {
     }
 
     const oldTr = oldTrs.shift();
-    await this.models.Transactions.deleteMany({ _id: { $in: oldTrs.map(otr => otr._id) } });
+    await this.models.Transactions.deleteMany({
+      _id: { $in: oldTrs.map((otr) => otr._id) },
+    });
     return oldTr;
   }
 
@@ -55,8 +68,11 @@ class InvMoveInTrs {
     const { details } = transaction;
 
     const oldFollowInTrs = await this.models.Transactions.find({
-      originId: transaction._id, followType: TR_FOLLOW_TYPES.INV_MOVE_IN
-    }).sort({ createdAt: -1 }).lean();
+      originId: transaction._id,
+      originType: TR_FOLLOW_TYPES.INV_MOVE_IN,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
     const oldFollowInTr = await this.cleanFollowTrs(oldFollowInTrs);
 
@@ -71,13 +87,15 @@ class InvMoveInTrs {
       departmentId: this.trDoc.followInfos.moveInDepartmentId,
       customerType: transaction.customerType,
       customerId: transaction.customerId,
-      details: []
-    }
+      details: [],
+    };
 
     const followInDetails: ITrDetail[] = [];
 
     for (const detail of details) {
-      const oldInDetail = oldFollowInTr?.details.find(oldDet => oldDet.originId === detail._id);
+      const oldInDetail = oldFollowInTr?.details.find(
+        (oldDet) => oldDet.originId === detail._id,
+      );
 
       followInDetails.push({
         ...oldInDetail,
@@ -88,22 +106,27 @@ class InvMoveInTrs {
         amount: detail.amount,
         unitPrice: detail.unitPrice,
 
-        followType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
-        accountId: this.moveInAccount._id,
-        side: TR_SIDES.DEBIT
-      })
+        originType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
+        accountId: this.moveInAccount?._id ?? '',
+      });
     }
 
     const inTrDoc: ITransaction = {
       ...commonFollowTrDoc,
-      followType: TR_FOLLOW_TYPES.INV_MOVE_IN,
+      originType: TR_FOLLOW_TYPES.INV_MOVE_IN,
       journal: JOURNALS.INV_MOVE_IN,
-      details: followInDetails
-    }
+      side: TR_SIDES.DEBIT,
+      details: followInDetails,
+    };
 
-    const inTr = await createOrUpdateTr(this.models, inTrDoc, oldFollowInTr);
+    const invMoveInTr = await createOrUpdateTr(
+      this.models,
+      this.userId,
+      inTrDoc,
+      oldFollowInTr,
+    );
 
-    return [inTr]
+    return { invMoveInTr, oldFollowInTr };
   }
 }
 

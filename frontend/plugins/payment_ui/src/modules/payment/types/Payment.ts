@@ -1,11 +1,12 @@
 export interface IPayment {
   name: string;
   kind: string;
+  status?: 'active' | 'inactive';
   config: any;
   createdAt?: Date;
 }
 
-export interface IPaymentDocument extends IPayment, Document {
+export interface IPaymentDocument extends IPayment {
   _id: string;
 }
 

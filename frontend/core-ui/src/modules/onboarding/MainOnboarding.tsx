@@ -1,0 +1,92 @@
+import { WelcomeSection } from '@/onboarding/components/WelcomeSection';
+import { UserCredentialSection } from '@/onboarding/components/UserCredentialSection';
+import { ThemeSection } from '@/onboarding/components/ThemeSection';
+import { FinalSection } from '@/onboarding/components/FinalSection';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { UserMoreInfoForm } from '@/onboarding/components/UserMoreInfoSection';
+
+import { InviteTeamMemberSection } from '@/onboarding/components/InviteTeamMemberSection';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
+import { usePreviousHotkeyScope } from 'erxes-ui';
+import { OnboardingStepper } from '@/onboarding/components/OnboardingStepper';
+import { AppPath } from '@/types/paths/AppPath';
+import { LoadingScreen } from '@/auth/components/LoadingScreen';
+import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
+
+export const MainOnboarding = () => {
+  let stepCount = 5;
+  const { usersEdit } = useUserEdit();
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(1);
+  const currentUser = useAtomValue(currentUserState);
+  const isOwner = currentUser?.isOwner;
+  stepCount = stepCount + (isOwner ? 1 : 0);
+  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  useEffect(() => {
+    setHotkeyScopeAndMemorizePreviousScope('welcome');
+  }, [setHotkeyScopeAndMemorizePreviousScope]);
+  useEffect(() => {
+    if (currentUser?.isOnboarded) {
+      navigate(AppPath.Index, { replace: true });
+    }
+  }, [currentUser, navigate]);
+  if (!currentUser) {
+    return <LoadingScreen />;
+  }
+  return (
+    <>
+      {currentStep === 1 && (
+        <WelcomeSection
+          onContinue={() => {
+            setCurrentStep(2);
+          }}
+        />
+      )}
+
+      {currentStep === 2 && (
+        <UserCredentialSection onContinue={() => setCurrentStep(3)} />
+      )}
+
+      {currentStep === 3 && (
+        <ThemeSection onContinue={() => setCurrentStep(currentStep + 1)} />
+      )}
+
+      {currentStep === 4 && (
+        <UserMoreInfoForm onContinue={() => setCurrentStep(currentStep + 1)} />
+      )}
+
+      {currentStep === 5 + (isOwner ? 0 : 1) && (
+        <>
+          {isOwner && (
+            <InviteTeamMemberSection
+              onContinue={() => setCurrentStep(currentStep + 1)}
+            />
+          )}
+        </>
+      )}
+
+      {currentStep === 5 + (isOwner ? 1 : 0) && (
+        <FinalSection
+          onContinue={() => {
+            usersEdit({
+              variables: {
+                _id: currentUser._id,
+                isOnboarded: true,
+              },
+            });
+          }}
+        />
+      )}
+
+      <div className="flex items-center justify-center gap-2 absolute bottom-6">
+        <OnboardingStepper
+          stepCount={stepCount}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+        />
+      </div>
+    </>
+  );
+};

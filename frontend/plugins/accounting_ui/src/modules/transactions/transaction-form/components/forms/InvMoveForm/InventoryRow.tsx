@@ -15,11 +15,20 @@ import {
 } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
-import { ITransactionGroupForm, TInvMoveJournal } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TInvMoveJournal,
+} from '../../../types/JournalForms';
 import { useEffect, useRef } from 'react';
 import { fixSumDtCt, getTempId } from '../../utils';
-import { ITransaction, ITrDetail } from '~/modules/transactions/types/Transaction';
-import { TR_SIDES, TrJournalEnum } from '~/modules/transactions/types/constants';
+import {
+  ITransaction,
+  ITrDetail,
+} from '~/modules/transactions/types/Transaction';
+import {
+  TR_SIDES,
+  TrJournalEnum,
+} from '~/modules/transactions/types/constants';
 import { useAtom } from 'jotai';
 import { followTrDocsState } from '../../../states/trStates';
 
@@ -79,27 +88,28 @@ export const InventoryRow = ({
 
   useEffect(() => {
     const currIn = followTrDocs.find(
-      (ftr) =>
-        ftr.originId === trDoc._id &&
-        ftr.followType === 'invMoveIn'
+      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invMoveIn',
     );
 
     const commonFollowTr = {
       originId: trDoc._id,
       ptrId: trDoc.ptrId,
       parentId: trDoc.parentId,
-    }
+    };
 
     const invMoveInTr: ITransaction = fixSumDtCt({
       ...currIn,
       ...commonFollowTr,
       _id: currIn?._id || getTempId(),
       journal: TrJournalEnum.INV_MOVE_IN,
-      followType: 'invMoveIn',
+      side: TR_SIDES.DEBIT,
+      originType: 'invMoveIn',
       branchId: trDoc.followInfos.moveInBranchId,
       departmentId: trDoc.followInfos.moveInDepartmentId,
       details: (trDoc.details || []).map((moveDetail) => {
-        const curInDetail = currIn?.details.find(inDetail => inDetail.originId === moveDetail._id);
+        const curInDetail = currIn?.details.find(
+          (inDetail) => inDetail.originId === moveDetail._id,
+        );
 
         if (!curInDetail || moveDetail._id === detail._id) {
           return {
@@ -108,12 +118,10 @@ export const InventoryRow = ({
             productId: moveDetail.productId,
             account: trDoc.followExtras?.moveInAccount,
             accountId: trDoc.followInfos?.moveInAccountId,
-
-            side: TR_SIDES.DEBIT,
             count: moveDetail.count,
             unitPrice: moveDetail.unitPrice,
             amount: moveDetail.amount,
-          } as ITrDetail
+          } as ITrDetail;
         }
         return curInDetail;
       }),
@@ -124,8 +132,8 @@ export const InventoryRow = ({
         (ftr) =>
           !(
             ftr.originId === trDoc._id &&
-            ['invMoveIn'].includes(ftr.followType || '')
-          )
+            ['invMoveIn'].includes(ftr.originType || '')
+          ),
       ),
       invMoveInTr,
     ]);
@@ -187,7 +195,7 @@ export const InventoryRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
@@ -233,7 +241,6 @@ export const InventoryRow = ({
                 }}
                 defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
                 variant="ghost"
-                inForm
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
             )}

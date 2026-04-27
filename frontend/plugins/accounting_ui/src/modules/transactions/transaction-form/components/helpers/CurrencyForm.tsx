@@ -45,7 +45,7 @@ const CurrencyFormBody = ({
 
   const mainSide = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.details.0.side`,
+    name: `trDocs.${journalIndex}.side`,
   });
 
   const diffAmount: number = useMemo(() => {
@@ -78,7 +78,10 @@ const CurrencyFormBody = ({
   };
 
   useEffect(() => {
-    form.setValue(`trDocs.${journalIndex}.details.0.amount`, spotRate * (detail.currencyAmount ?? 0));
+    form.setValue(
+      `trDocs.${journalIndex}.details.0.amount`,
+      spotRate * (detail.currencyAmount ?? 0),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spotRate]);
 
@@ -98,34 +101,47 @@ const CurrencyFormBody = ({
       setFollowTrDocs(
         (followTrDocs || []).filter(
           (ftr) =>
-            !(ftr.originId === trDoc._id && ftr.followType === 'currencyDiff'),
+            !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
         ),
       );
       return;
     }
 
-    const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: diffAmount, sumCt: 0 } : { sumDt: 0, sumCt: diffAmount };
+    const { sumDt, sumCt } =
+      side === TR_SIDES.DEBIT
+        ? { sumDt: diffAmount, sumCt: 0 }
+        : { sumDt: 0, sumCt: diffAmount };
 
-    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.followType === 'currencyDiff');
+    const curr = followTrDocs.find(
+      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff',
+    );
 
     const currencyDiffFtr = {
       ...curr,
       _id: curr?._id || getTempId(),
-      journal: TrJournalEnum.TAX,
+      journal: TrJournalEnum.EXCHANGE_DIFF,
+      side,
       originId: trDoc._id,
-      followType: 'currencyDiff',
-      details: [{
-        ...(curr?.details || [{}])[0],
-        accountId: (detail?.followInfos as any)?.currencyDiffAccountId ?? '',
-        side,
-        amount: diffAmount
-      }],
+      originType: 'exchangeDiff',
+      details: [
+        {
+          ...(curr?.details || [{}])[0],
+          accountId: (detail?.followInfos as any)?.currencyDiffAccountId ?? '',
+          amount: diffAmount,
+        },
+      ],
 
       sumDt,
       sumCt,
     };
 
-    setFollowTrDocs([...(followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.followType === 'currencyDiff')), currencyDiffFtr]);
+    setFollowTrDocs([
+      ...(followTrDocs || []).filter(
+        (ftr) =>
+          !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
+      ),
+      currencyDiffFtr,
+    ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail, diffAmount, side]);
 
@@ -179,13 +195,14 @@ const CurrencyFormBody = ({
           name={`trDocs.${journalIndex}.details.0.followInfos.currencyDiffAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{`${diffAmount > 0 ? 'Loss' : 'Gain'
-                } account`}</Form.Label>
+              <Form.Label>{`${
+                diffAmount > 0 ? 'Loss' : 'Gain'
+              } account`}</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: ['main'] }}
+                  defaultFilter={{ journals: ['exchangeDiff'] }}
                 />
               </Form.Control>
               <Form.Message />
@@ -195,7 +212,7 @@ const CurrencyFormBody = ({
       )}
     </>
   );
-}
+};
 
 export const CurrencyForm = ({
   form,
@@ -211,16 +228,9 @@ export const CurrencyForm = ({
 
   const mainCurrency = 'MNT';
 
-  if (
-    !account?.currency ||
-    account?.currency === mainCurrency
-  ) {
+  if (!account?.currency || account?.currency === mainCurrency) {
     return null;
   }
 
-  return <CurrencyFormBody
-    form={form}
-    journalIndex={journalIndex}
-  />
-
+  return <CurrencyFormBody form={form} journalIndex={journalIndex} />;
 };

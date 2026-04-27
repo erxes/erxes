@@ -1,54 +1,53 @@
-import { getContentType } from '@/automations/utils/automationBuilderUtils';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
-import { useFormContext, useWatch } from 'react-hook-form';
-import { getFieldsProperties, groupFieldsByType, IAction } from 'ui-modules';
-import {
-  IConfig,
-  IManagePropertyFieldName,
-} from '../types/ManagePropertyTypes';
+import { TManagePropertiesForm } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
+import { useActionTarget } from '@/automations/components/builder/nodes/hooks/useActionTarget';
+import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import { useEffect, useMemo } from 'react';
+import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useGetFieldsProperties, TAutomationAction } from 'ui-modules';
 
 export const useManagePropertySidebarContent = (
-  currentActionIndex: number,
-  currentAction: IAction,
+  currentAction: TAutomationAction,
+  form: UseFormReturn<TManagePropertiesForm>,
 ) => {
-  const fieldName: IManagePropertyFieldName = `actions.${currentActionIndex}.config`;
-  const { setValue, control } = useFormContext<TAutomationBuilderForm>();
-  const [actions = [], triggers = [], config = {}] =
-    useWatch<TAutomationBuilderForm>({
-      control,
-      name: ['triggers', 'actions', `${fieldName}`],
-    });
-  const { module, rules = [{ field: '', operator: '' }] } = (config ||
-    {}) as IConfig;
+  const { actionFolks } = useAutomation();
+  const { triggers, actions } = useAutomationNodes();
+  const { control, setValue } = form;
+  const module = useWatch<TManagePropertiesForm>({
+    control,
+    name: 'module',
+  });
 
-  const propertyType =
-    module || getContentType(currentAction.id, actions, triggers)?.type || '';
+  const { selectedActionType } = useActionTarget({
+    actionId: currentAction.id,
+    targetActionId: currentAction?.targetActionId,
+  });
 
-  const {
-    propertyTypes,
-    fields = [],
-    loading,
-  } = getFieldsProperties(propertyType);
-  const groups = groupFieldsByType(fields || []);
+  const trigger = getTriggerOfAction(
+    currentAction.id,
+    actions,
+    triggers,
+    actionFolks,
+  );
 
-  const addRule = () => {
-    setValue(fieldName, {
-      ...config,
-      rules: [...(rules || []), { field: '', operator: '' }],
-    });
-  };
+  const propertyType = module || selectedActionType || trigger?.type || '';
+  const { propertyTypes } = useGetFieldsProperties(propertyType);
+  const isPropertyTypeValid = useMemo(
+    () => !!propertyTypes.find((p) => p.value === propertyType),
+    [propertyTypes, propertyType],
+  );
+
+  useEffect(() => {
+    if (!module) {
+      setValue('module', propertyType);
+    }
+  }, [module, setValue]);
 
   return {
-    addRule,
-    groups,
-    propertyTypes,
-    loading,
-    setValue,
-    control,
     propertyType,
-    fieldName,
-    rules,
-    fields,
+    propertyTypes,
     module,
+    isPropertyTypeValid,
   };
 };
