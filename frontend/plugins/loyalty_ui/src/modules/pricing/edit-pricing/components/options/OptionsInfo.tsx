@@ -336,7 +336,7 @@ export const OptionsInfo = ({
               </div>
 
               <section className="space-y-4">
-                <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   <Form.Field
                     control={control}
                     name="departmentIds"
