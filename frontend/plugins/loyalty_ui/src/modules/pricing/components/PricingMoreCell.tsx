@@ -10,11 +10,12 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useDeletePricing } from '@/pricing/hooks/useDeletePricing';
 import { IPricing } from '@/pricing/types';
 
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : 'Failed to delete pricing.';
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
 
 export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
   const pricing = row.original;
@@ -22,6 +23,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { deletePricing, loading } = useDeletePricing();
+  const { t } = useTranslation();
 
   const handleEdit = () => {
     navigate(`/settings/loyalty/pricing/${pricing._id}`);
@@ -29,21 +31,35 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${pricing.name}"?`,
-      options: { confirmationValue: 'delete' },
+      message: t('pricing.deleteConfirm', {
+        name: pricing.name,
+        defaultValue: 'Are you sure you want to delete "{{name}}"?',
+      }),
+      options: {
+        confirmationValue: t('pricing.deleteConfirmationValue', {
+          defaultValue: 'delete',
+        }),
+      },
     }).then(async () => {
       try {
         await deletePricing(pricing._id);
 
         toast({
-          title: 'Success',
-          description: 'Pricing deleted successfully.',
+          title: t('pricing.deleteSuccessTitle', { defaultValue: 'Success' }),
+          description: t('pricing.deleteSuccessDescription', {
+            defaultValue: 'Pricing deleted successfully.',
+          }),
           variant: 'success',
         });
       } catch (error: unknown) {
         toast({
-          title: 'Error',
-          description: getErrorMessage(error),
+          title: t('pricing.deleteErrorTitle', { defaultValue: 'Error' }),
+          description: getErrorMessage(
+            error,
+            t('pricing.deleteErrorDescription', {
+              defaultValue: 'Failed to delete pricing.',
+            }),
+          ),
           variant: 'destructive',
         });
       }
@@ -72,7 +88,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
                 onClick={handleEdit}
               >
                 <IconEdit className="size-4" />
-                Edit
+                {t('pricing.edit', { defaultValue: 'Edit' })}
               </Button>
             </Command.Item>
             <Command.Item asChild>
@@ -84,7 +100,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('pricing.delete', { defaultValue: 'Delete' })}
               </Button>
             </Command.Item>
           </Command.List>

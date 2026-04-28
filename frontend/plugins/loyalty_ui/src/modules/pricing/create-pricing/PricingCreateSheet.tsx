@@ -82,6 +82,20 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
     return `${year}-${month}-${day}`;
   };
 
+  const parseDateValue = (value?: string | null) => {
+    if (!value) {
+      return undefined;
+    }
+
+    const [year, month, day] = value.split('-').map(Number);
+
+    if (!year || !month || !day) {
+      return undefined;
+    }
+
+    return new Date(year, month - 1, day);
+  };
+
   const isDateRangeValid =
     !formValues.startDate ||
     !formValues.endDate ||
@@ -232,9 +246,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                       <Form.Label>Start date</Form.Label>
                       <Form.Control>
                         <DatePicker
-                          value={
-                            field.value ? new Date(field.value) : undefined
-                          }
+                          value={parseDateValue(field.value)}
                           placeholder="Select start date"
                           onChange={(value) =>
                             field.onChange(
@@ -257,9 +269,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                       <Form.Label>End date</Form.Label>
                       <Form.Control>
                         <DatePicker
-                          value={
-                            field.value ? new Date(field.value) : undefined
-                          }
+                          value={parseDateValue(field.value)}
                           placeholder="Select end date"
                           onChange={(value) =>
                             field.onChange(

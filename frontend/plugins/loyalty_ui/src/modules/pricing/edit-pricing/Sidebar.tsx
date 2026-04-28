@@ -6,7 +6,7 @@ interface PricingEditSidebarProps {
   activeTab: string;
 }
 
-const RULE_TABS = ['rules', 'common', 'quantity', 'price', 'expiry'];
+const RULE_TABS = new Set(['rules', 'common', 'quantity', 'price', 'expiry']);
 
 export const PricingEditSidebar = ({ activeTab }: PricingEditSidebarProps) => {
   return (
@@ -20,7 +20,7 @@ export const PricingEditSidebar = ({ activeTab }: PricingEditSidebarProps) => {
                 to={step.value}
                 isActive={
                   step.value === 'rules'
-                    ? RULE_TABS.includes(activeTab)
+                    ? RULE_TABS.has(activeTab)
                     : activeTab === step.value
                 }
               >

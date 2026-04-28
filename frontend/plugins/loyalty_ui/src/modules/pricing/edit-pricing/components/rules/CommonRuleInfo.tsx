@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Button, Form, InfoCard, Input, Select, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
@@ -34,7 +34,6 @@ export const CommonRuleInfo = ({
 }: CommonRuleInfoProps) => {
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
-  const [hasChanges, setHasChanges] = useState(false);
 
   const form = useForm<CommonRuleFormValues>({
     defaultValues: {
@@ -47,14 +46,7 @@ export const CommonRuleInfo = ({
   });
 
   const discountType = form.watch('discountType');
-
-  useEffect(() => {
-    const subscription = form.watch(() => {
-      setHasChanges(true);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [form]);
+  const { isDirty } = form.formState;
 
   useEffect(() => {
     if (!pricingDetail) {
@@ -69,7 +61,6 @@ export const CommonRuleInfo = ({
       priceAdjustFactor: pricingDetail.priceAdjustFactor ?? 0,
       bonusProductId: pricingDetail.bonusProduct || null,
     });
-    setHasChanges(false);
   }, [form, pricingDetail]);
 
   const handleSubmit = async (values: CommonRuleFormValues) => {
@@ -92,7 +83,6 @@ export const CommonRuleInfo = ({
     try {
       await editPricing(doc);
       form.reset(values);
-      setHasChanges(false);
       toast({
         title: 'Common rule updated',
         description: 'Changes have been saved successfully.',
@@ -112,7 +102,7 @@ export const CommonRuleInfo = ({
     }
 
     onSaveActionChange(
-      hasChanges ? (
+      isDirty ? (
         <Button
           type="submit"
           form="pricing-common-rule-form"
@@ -125,7 +115,7 @@ export const CommonRuleInfo = ({
     );
 
     return () => onSaveActionChange(null);
-  }, [hasChanges, loading, onSaveActionChange]);
+  }, [isDirty, loading, onSaveActionChange]);
 
   const content = (
     <Form {...form}>

@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { InfoCard, Tabs } from 'erxes-ui';
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { CommonRuleInfo } from '@/pricing/edit-pricing/components/rules/CommonRuleInfo';
 import { QuantityInfo } from '@/pricing/edit-pricing/components/quantity/QuantityInfo';
@@ -32,8 +32,13 @@ export const RulesInfo = ({
   activeStep,
   onSaveActionChange,
 }: RulesInfoProps) => {
-  const [, setSearchParams] = useSearchParams();
-  const currentRule = isPricingRuleType(activeStep) ? activeStep : 'common';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeRuleParam = searchParams.get('activeTab') || undefined;
+  const currentRule = isPricingRuleType(activeRuleParam)
+    ? activeRuleParam
+    : isPricingRuleType(activeStep)
+    ? activeStep
+    : 'common';
 
   const handleTabChange = (value: string) => {
     setSearchParams((prev) => {

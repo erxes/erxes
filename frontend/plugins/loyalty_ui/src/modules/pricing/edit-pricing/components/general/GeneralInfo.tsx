@@ -19,6 +19,7 @@ import {
   SelectSegment,
   SelectTags,
 } from 'ui-modules';
+import { type Control } from 'react-hook-form';
 
 interface GeneralInfoProps {
   pricingId?: string;
@@ -64,8 +65,59 @@ const getDateValue = (value: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+const parseDateValue = (value?: string | null) => {
+  if (!value) {
+    return undefined;
+  }
+
+  const [year, month, day] = value.split('-').map(Number);
+
+  if (!year || !month || !day) {
+    return undefined;
+  }
+
+  return new Date(year, month - 1, day);
+};
+
+const isDateRangeValid = (startDate: string | null, endDate: string | null) =>
+  !startDate || !endDate || startDate <= endDate;
+
 const normalizeMultipleValue = (value: string | string[]) =>
   Array.isArray(value) ? value : [value];
+
+const GeneralDateField = ({
+  control,
+  name,
+  label,
+  placeholder,
+}: {
+  control: Control<GeneralFormValues>;
+  name: 'startDate' | 'endDate';
+  label: string;
+  placeholder: string;
+}) => (
+  <Form.Field
+    control={control}
+    name={name}
+    render={({ field }) => (
+      <Form.Item className="min-w-0">
+        <Form.Label>{label}</Form.Label>
+        <Form.Control>
+          <DatePicker
+            value={parseDateValue(field.value)}
+            placeholder={placeholder}
+            onChange={(value) => {
+              field.onChange(
+                value instanceof Date ? getDateValue(value) : null,
+              );
+            }}
+          />
+        </Form.Control>
+        <Form.Message />
+      </Form.Item>
+    )}
+  />
+);
 
 export const GeneralInfo = ({
   pricingId,
@@ -147,6 +199,21 @@ export const GeneralInfo = ({
 
   const handleSubmit = async (values: GeneralFormValues) => {
     if (!pricingId) return;
+
+    if (!isDateRangeValid(values.startDate, values.endDate)) {
+      form.setError('endDate', {
+        type: 'validate',
+        message: 'End date must be after start date.',
+      });
+      toast({
+        title: 'Invalid date range',
+        description: 'End date must be after start date.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    form.clearErrors(['startDate', 'endDate']);
 
     const baseDoc: Parameters<typeof editPricing>[0] = {
       _id: pricingId,
@@ -292,78 +359,42 @@ export const GeneralInfo = ({
                 </div>
 
                 <Form.Field
-                    control={form.control}
-                    name="isPriority"
-                    render={({ field }) => (
-                      <Form.Item className="min-w-0">
-                        <Form.Label>Priority</Form.Label>
-                        <Form.Control>
-                          <div className="flex items-center h-9">
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={(checked) =>
-                                field.onChange(checked === true)
-                              }
-                            />
-                          </div>
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
+                  control={form.control}
+                  name="isPriority"
+                  render={({ field }) => (
+                    <Form.Item className="min-w-0">
+                      <Form.Label>Priority</Form.Label>
+                      <Form.Control>
+                        <div className="flex items-center h-9">
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={(checked) =>
+                              field.onChange(checked === true)
+                            }
+                          />
+                        </div>
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
 
                 <div className="grid w-full grid-cols-2 gap-4">
-                  <Form.Field
+                  <GeneralDateField
                     control={form.control}
                     name="startDate"
-                    render={({ field }) => (
-                      <Form.Item className="min-w-0">
-                        <Form.Label>Start date</Form.Label>
-                        <Form.Control>
-                          <DatePicker
-                            value={
-                              field.value ? new Date(field.value) : undefined
-                            }
-                            placeholder="Select start date"
-                            onChange={(value) => {
-                              field.onChange(
-                                value instanceof Date
-                                  ? getDateValue(value)
-                                  : null,
-                              );
-                            }}
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
+                    label="Start date"
+                    placeholder="Select start date"
                   />
 
-                  <Form.Field
+                  <GeneralDateField
                     control={form.control}
                     name="endDate"
-                    render={({ field }) => (
-                      <Form.Item className="min-w-0">
-                        <Form.Label>End date</Form.Label>
-                        <Form.Control>
-                          <DatePicker
-                            value={
-                              field.value ? new Date(field.value) : undefined
-                            }
-                            placeholder="Select end date"
-                            onChange={(value) => {
-                              field.onChange(
-                                value instanceof Date
-                                  ? getDateValue(value)
-                                  : null,
-                              );
-                            }}
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
+                    label="End date"
+                    placeholder="Select end date"
                   />
                 </div>
               </div>
-              
+
               <div className="flex flex-col w-full space-y-4">
                 <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
                   <Form.Field

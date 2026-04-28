@@ -68,8 +68,8 @@ const isoToTime = (isoString?: string): string | null => {
   const date = new Date(isoString);
   if (Number.isNaN(date.getTime())) return null;
 
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
 
   return `${hours}:${minutes}`;
 };
@@ -77,9 +77,9 @@ const isoToTime = (isoString?: string): string | null => {
 const timeToIso = (time: string): string => {
   const [hours, minutes] = time.split(':');
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(now.getUTCDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}T${hours.padStart(2, '0')}:${minutes.padStart(
     2,
@@ -102,7 +102,7 @@ const getRepeatRules = (pricingDetail?: IPricingPlanDetail) =>
   })) || []) as RepeatRuleConfig[];
 
 const normalizeIds = (values: string[] = []) =>
-  [...values].filter(Boolean).sort();
+  [...values].filter(Boolean).sort((a, b) => a.localeCompare(b));
 
 const normalizeRepeatRules = (rules: RepeatRuleConfig[] = []) =>
   rules.map((rule) => ({
@@ -291,7 +291,6 @@ export const OptionsInfo = ({
         boardId: boardId || '',
         pipelineId: pipelineId || '',
       });
-      setRepeatRules(repeatRules);
       setInitialSnapshot(
         getOptionsSnapshot({
           values: {
@@ -328,7 +327,6 @@ export const OptionsInfo = ({
               className="space-y-8"
               noValidate
             >
-
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
                 <Label className="mx-2">Location</Label>
@@ -424,7 +422,6 @@ export const OptionsInfo = ({
                 <div className="flex-1 border-t" />
               </div>
 
-
               <section className="space-y-4">
                 <div className="space-y-4">
                   <div className="flex justify-end">
@@ -454,6 +451,7 @@ export const OptionsInfo = ({
                               variant="outline"
                               size="icon"
                               type="button"
+                              aria-label="Edit repeat rule"
                               onClick={() => setEditingRule(rule)}
                             >
                               <IconEdit size={14} />
@@ -463,6 +461,7 @@ export const OptionsInfo = ({
                               size="icon"
                               type="button"
                               className="text-destructive"
+                              aria-label="Delete repeat rule"
                               onClick={() => handleRuleDelete(rule)}
                             >
                               <IconTrash size={14} />

@@ -28,8 +28,8 @@ const isoToTime = (isoString?: string): string | null => {
   try {
     const date = new Date(isoString);
     if (Number.isNaN(date.getTime())) return null;
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
     return `${hours}:${minutes}`;
   } catch {
     return null;
@@ -106,6 +106,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
                     <Button
                       variant="outline"
                       size="icon"
+                      aria-label="Edit repeat rule"
                       onClick={() => setEditingRule(rule)}
                     >
                       <IconEdit size={14} />
@@ -114,6 +115,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
                       variant="outline"
                       size="icon"
                       className="text-destructive"
+                      aria-label="Delete repeat rule"
                       onClick={() => handleRuleDelete(rule)}
                     >
                       <IconTrash size={14} />

@@ -58,6 +58,20 @@ const formatDateValue = (value?: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+const parseDateValue = (value?: string | null) => {
+  if (!value) {
+    return undefined;
+  }
+
+  const [year, month, day] = value.split('-').map(Number);
+
+  if (!year || !month || !day) {
+    return undefined;
+  }
+
+  return new Date(year, month - 1, day);
+};
+
 export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
   onRuleAdded,
   onRuleUpdated,
@@ -198,9 +212,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                           <Form.Label>Start Date</Form.Label>
                           <Form.Control>
                             <DatePicker
-                              value={
-                                field.value ? new Date(field.value) : undefined
-                              }
+                              value={parseDateValue(field.value)}
                               placeholder="Select start date"
                               onChange={(value) =>
                                 field.onChange(
@@ -223,9 +235,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                           <Form.Label>End Date</Form.Label>
                           <Form.Control>
                             <DatePicker
-                              value={
-                                field.value ? new Date(field.value) : undefined
-                              }
+                              value={parseDateValue(field.value)}
                               placeholder="Select end date"
                               onChange={(value) =>
                                 field.onChange(
