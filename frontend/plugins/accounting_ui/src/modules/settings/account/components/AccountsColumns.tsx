@@ -8,10 +8,16 @@ import {
   TextField,
   useQueryState,
   RecordTableInlineCell,
+  Popover,
+  Combobox,
+  Command,
+  useConfirm,
 } from 'erxes-ui';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { useAccountEdit } from '../hooks/useAccountEdit';
+import { useAccountsRemove } from '../hooks/useAccountsRemove';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 const AccountCategoryCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
   const { original } = cell.row;
@@ -85,13 +91,44 @@ export const AccountMoreColumnCell = ({
   cell: Cell<IAccount, unknown>;
 }) => {
   const [, setOpen] = useQueryState('accountId');
+  const { confirm } = useConfirm();
+  const { removeAccounts } = useAccountsRemove();
+
+  const handleEdit = () => {
+    setOpen(cell.row.original._id);
+  };
+
+  const handleDelete = () =>
+    confirm({
+      message: 'Are you sure you want to delete this account?',
+      options: {
+        okLabel: 'Delete',
+        cancelLabel: 'Cancel',
+      },
+    }).then(() => {
+      removeAccounts({
+        variables: { accountIds: [cell.row.original._id] },
+      });
+    });
+
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setOpen(cell.row.original._id);
-      }}
-    />
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
