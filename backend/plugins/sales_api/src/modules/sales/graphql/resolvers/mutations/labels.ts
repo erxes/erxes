@@ -10,8 +10,9 @@ export const pipelineLabelMutations: Record<string, Resolver> = {
   async salesPipelineLabelsAdd(
     _root: undefined,
     { ...doc }: IPipelineLabel,
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('pipelineLabelsAdd');
     return await models.PipelineLabels.createPipelineLabel({
       userId: user._id,
       ...doc,
@@ -23,6 +24,7 @@ export const pipelineLabelMutations: Record<string, Resolver> = {
     { ...doc }: IPipelineLabel,
     { user, models }: IContext,
   ) {
+    // Client portal – no permission check
     return await models.PipelineLabels.createPipelineLabel({
       userId: user._id,
       ...doc,
@@ -35,8 +37,9 @@ export const pipelineLabelMutations: Record<string, Resolver> = {
   async salesPipelineLabelsEdit(
     _root: undefined,
     { _id, ...doc }: IPipelineLabelDocument,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('pipelineLabelsEdit');
     return await models.PipelineLabels.updatePipelineLabel(_id, doc);
   },
 
@@ -46,8 +49,9 @@ export const pipelineLabelMutations: Record<string, Resolver> = {
   async salesPipelineLabelsRemove(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('pipelineLabelsRemove');
     return await models.PipelineLabels.removePipelineLabel(_id);
   },
 

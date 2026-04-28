@@ -15,8 +15,9 @@ export const pipelineMutations = {
   async salesPipelinesAdd(
     _root,
     { stages, ...doc }: IPipeline & { stages: IStageDocument[] },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('pipelinesAdd');
     if (doc.numberConfig || doc.numberSize) {
       await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
     }
@@ -42,8 +43,9 @@ export const pipelineMutations = {
   async salesPipelinesEdit(
     _root,
     { _id, stages, ...doc }: IPipelineDocument & { stages: IStageDocument[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('pipelinesEdit');
     if (doc.numberConfig || doc.numberSize) {
       await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
     }
@@ -68,8 +70,9 @@ export const pipelineMutations = {
   async salesPipelinesWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('pipelinesWatch');
     return models.Pipelines.watchPipeline(_id, isAdd, user._id);
   },
 
