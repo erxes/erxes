@@ -48,11 +48,13 @@ export const RulesInfo = ({
     expiry: null,
   });
   const activeRuleParam = searchParams.get('activeTab') || undefined;
-  const currentRule = isPricingRuleType(activeRuleParam)
-    ? activeRuleParam
-    : isPricingRuleType(activeStep)
-    ? activeStep
-    : 'common';
+  let currentRule: PricingRuleType = 'common';
+
+  if (isPricingRuleType(activeRuleParam)) {
+    currentRule = activeRuleParam;
+  } else if (isPricingRuleType(activeStep)) {
+    currentRule = activeStep;
+  }
 
   const handleTabChange = (value: string) => {
     setSearchParams((prev) => {

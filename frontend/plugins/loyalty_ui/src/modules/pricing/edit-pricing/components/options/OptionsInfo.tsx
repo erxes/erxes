@@ -66,6 +66,18 @@ const WEEKDAY_TO_LABEL: Record<string, string> = {
 const getWeekDayFromValue = (value: string) =>
   NUMBER_TO_WEEKDAY[value] || value;
 
+const getRepeatRuleType = (value?: string): RepeatRuleType => {
+  switch (value) {
+    case 'everyYear':
+    case 'everyMonth':
+    case 'everyWeek':
+    case 'everyDay':
+      return value;
+    default:
+      return 'everyDay';
+  }
+};
+
 const isoToTime = (isoString?: string): string | null => {
   if (!isoString) return null;
 
@@ -91,10 +103,12 @@ const timeToIso = (time: string): string => {
   )}:00.000Z`;
 };
 
-const getRepeatRules = (pricingDetail?: IPricingPlanDetail) =>
-  (pricingDetail?.repeatRules?.flatMap((rule, index): RepeatRuleConfig[] => {
+const getRepeatRules = (
+  pricingDetail?: IPricingPlanDetail,
+): RepeatRuleConfig[] =>
+  pricingDetail?.repeatRules?.flatMap((rule, index): RepeatRuleConfig[] => {
     const baseRule: Omit<RepeatRuleConfig, '_id' | 'weekDay' | 'monthDay'> = {
-      ruleType: (rule.type || 'everyDay') as RepeatRuleType,
+      ruleType: getRepeatRuleType(rule.type),
       startTime: isoToTime(rule.dayStartValue),
       endTime: isoToTime(rule.dayEndValue),
       startDate: rule.yearStartValue || null,
@@ -127,7 +141,7 @@ const getRepeatRules = (pricingDetail?: IPricingPlanDetail) =>
         monthDay: null,
       },
     ];
-  }) || []) as RepeatRuleConfig[];
+  }) || [];
 
 const normalizeIds = (values: string[] = []) =>
   [...values].filter(Boolean).sort((a, b) => a.localeCompare(b));
@@ -154,7 +168,7 @@ const getOptionsSnapshot = ({
   branchIds: normalizeIds(values.branchIds),
   boardId: values.boardId || '',
   pipelineId: values.pipelineId || '',
-  repeatRules: normalizeRepeatRules(repeatRules) as RepeatRuleConfig[],
+  repeatRules: normalizeRepeatRules(repeatRules),
 });
 
 export const OptionsInfo = ({
