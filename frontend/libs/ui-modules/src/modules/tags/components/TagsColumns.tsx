@@ -1,35 +1,34 @@
-import { useRemoveTag } from 'ui-modules/modules/tags/hooks/useRemoveTag';
-import { useTagsEdit } from 'ui-modules/modules/tags/hooks/useTagsEdit';
-import { useTagsAdd } from 'ui-modules/modules/tags/hooks/useTagsAdd';
-import { useTagContext } from 'ui-modules/modules/tags/components/TagProvider';
 import {
-  IconEdit,
-  IconTrash,
   IconArrowRight,
-  IconX,
   IconDropletsFilled,
+  IconEdit,
   IconPlus,
   IconTransform,
+  IconTrash,
+  IconX,
 } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/table-core';
 import {
-  Input,
+  Combobox,
   Command,
+  Input,
+  Popover,
+  RecordTable,
   RecordTableInlineCell,
   RecordTableTree,
   TextOverflowTooltip,
   Textarea,
   useConfirm,
   useQueryState,
-  RecordTable,
-  Combobox,
-  Popover,
 } from 'erxes-ui';
-import React, { useState } from 'react';
-import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
-import { ITag, ITagQueryResponse } from 'ui-modules/modules/tags/types/Tag';
 import { TFunction } from 'i18next';
-import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
+import { useTagContext } from 'ui-modules/modules/tags/components/TagProvider';
+import { useRemoveTag } from 'ui-modules/modules/tags/hooks/useRemoveTag';
+import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
+import { useTagsAdd } from 'ui-modules/modules/tags/hooks/useTagsAdd';
+import { useTagsEdit } from 'ui-modules/modules/tags/hooks/useTagsEdit';
+import { TTag, TTagQueryResponse } from 'ui-modules/modules/tags/types/Tag';
 
 const MoveTagPopover: React.FC<{
   tagId: string;
@@ -128,7 +127,7 @@ const NewItemCell: React.FC<NewItemCellProps> = ({ tagType }) => {
 
   const handleSave = () => {
     if (value.trim()) {
-      const newTag: ITagQueryResponse = {
+      const newTag: TTagQueryResponse = {
         name: value,
         type: tagType,
         isGroup: mode === 'adding-group',
@@ -183,7 +182,7 @@ const NewItemCell: React.FC<NewItemCellProps> = ({ tagType }) => {
 };
 
 interface TagMoreColumnCellProps {
-  cell: Cell<ITag, unknown>;
+  cell: Cell<TTag, unknown>;
   tagType: string;
 }
 
@@ -299,7 +298,7 @@ export const TagMoreColumnCell: React.FC<TagMoreColumnCellProps> = ({
   );
 };
 
-const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
+const NameCell: React.FC<{ cell: Cell<TTag, unknown>; tagType: string }> = ({
   cell,
   tagType,
 }) => {
@@ -385,7 +384,7 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
   );
 };
 
-const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
+const DescriptionCell: React.FC<{ cell: Cell<TTag, unknown> }> = ({ cell }) => {
   const { _id, description, name, isGroup } = cell.row.original;
   const [open, setOpen] = useState<boolean>(false);
   const [_description, setDescription] = useState<string>(description ?? '');
@@ -433,7 +432,7 @@ const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
 export const createTagsColumns = (
   tagType: string,
   t: TFunction,
-): ColumnDef<ITag>[] => [
+): ColumnDef<TTag>[] => [
   {
     id: 'name',
     header: t('name'),

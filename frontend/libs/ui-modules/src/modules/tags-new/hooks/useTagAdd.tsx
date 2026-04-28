@@ -21,22 +21,6 @@ export const useTagAdd = () => {
     addTag({
       ...options,
       variables,
-      optimisticResponse: {
-        tagsAdd: {
-          __typename: 'Tag',
-          _id: `new-tag-${Date.now()}`,
-          name: variables?.name,
-          colorCode: variables?.colorCode,
-          isGroup: variables?.isGroup || false,
-          parentId: variables?.parentId || null,
-          description: variables?.description || null,
-          type: variables?.type,
-          createdAt: new Date().toISOString(),
-          relatedIds: variables?.relatedIds || null,
-          objectCount: variables?.objectCount || null,
-          totalObjectCount: variables?.totalObjectCount || null,
-        },
-      },
       onError: (error) => {
         toast({
           title: error?.message || 'Failed to add tag',
