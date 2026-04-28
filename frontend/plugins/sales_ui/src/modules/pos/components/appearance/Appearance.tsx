@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { LogosAndFavicon } from '@/pos/components/appearance/LogosAndFavicon';
 import { MainColors } from '@/pos/components/appearance/MainColors';
 import { Infos } from '@/pos/components/appearance/Infos';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
@@ -197,25 +196,18 @@ const Appearance: React.FC<AppearanceProps> = ({
         >
           <section className="space-y-4">
             <Label>Logos and favicon</Label>
-
             <LogosAndFavicon control={control} posType={posType} />
           </section>
 
-          {isFieldVisible('mainColors', posType) && (
-            <section className="pt-6 space-y-4 border-t">
-              <Label>Main colors</Label>
+          <section className="pt-6 space-y-4 border-t">
+            <Label>Main colors</Label>
+            <MainColors control={control} />
+          </section>
 
-              <MainColors control={control} />
-            </section>
-          )}
-
-          {isFieldVisible('websitePhone', posType) && (
-            <section className="pt-6 space-y-4 border-t">
-              <Label>Infos</Label>
-
-              <Infos control={control} />
-            </section>
-          )}
+          <section className="pt-6 space-y-4 border-t">
+            <Label>Infos</Label>
+            <Infos control={control} />
+          </section>
         </form>
       </Form>
     );

@@ -4,7 +4,6 @@ import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { AdminPermissions } from '@/pos/components/permission/AdminPermissions';
 import { CashierPermissions } from '@/pos/components/permission/CashierPermissions';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
@@ -46,7 +45,6 @@ const parseLimit = (value: string): number => {
 
 const Permission: React.FC<PermissionProps> = ({
   posId,
-  posType,
   onSaveActionChange,
 }) => {
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
@@ -56,9 +54,6 @@ const Permission: React.FC<PermissionProps> = ({
   });
   const { control, handleSubmit, reset, formState } = form;
   const { isDirty } = formState;
-
-  const canEditAdmins = isFieldVisible('admin', posType);
-  const canEditCashiers = isFieldVisible('cashier', posType);
 
   useEffect(() => {
     if (!posDetail) {
@@ -101,32 +96,24 @@ const Permission: React.FC<PermissionProps> = ({
         await posEdit({
           variables: {
             _id: posId,
-            ...(canEditAdmins ? { adminIds: data.adminIds } : {}),
-            ...(canEditCashiers ? { cashierIds: data.cashierIds } : {}),
+            adminIds: data.adminIds,
+            cashierIds: data.cashierIds,
             permissionConfig: {
               ...currentPermissionConfig,
-              ...(canEditAdmins
-                ? {
-                    admins: {
-                      isTempBill: data.adminIsPrintTempBill,
-                      directDiscount: data.adminDirectDiscount,
-                      directDiscountLimit: parseLimit(
-                        data.adminDirectDiscountLimit,
-                      ),
-                    },
-                  }
-                : {}),
-              ...(canEditCashiers
-                ? {
-                    cashiers: {
-                      isTempBill: data.cashierIsPrintTempBill,
-                      directDiscount: data.cashierDirectDiscount,
-                      directDiscountLimit: parseLimit(
-                        data.cashierDirectDiscountLimit,
-                      ),
-                    },
-                  }
-                : {}),
+              admins: {
+                isTempBill: data.adminIsPrintTempBill,
+                directDiscount: data.adminDirectDiscount,
+                directDiscountLimit: parseLimit(
+                  data.adminDirectDiscountLimit,
+                ),
+              },
+              cashiers: {
+                isTempBill: data.cashierIsPrintTempBill,
+                directDiscount: data.cashierDirectDiscount,
+                directDiscountLimit: parseLimit(
+                  data.cashierDirectDiscountLimit,
+                ),
+              },
             },
           },
         });
@@ -145,8 +132,6 @@ const Permission: React.FC<PermissionProps> = ({
       }
     },
     [
-      canEditAdmins,
-      canEditCashiers,
       posDetail?.permissionConfig,
       posEdit,
       posId,
@@ -203,21 +188,17 @@ const Permission: React.FC<PermissionProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          {canEditAdmins && (
-            <section className="space-y-4">
-              <Label>Admins</Label>
+          <section className="space-y-4">
+            <Label>Admins</Label>
 
-              <AdminPermissions control={control} />
-            </section>
-          )}
+            <AdminPermissions control={control} />
+          </section>
 
-          {canEditCashiers && (
-            <section className="pt-6 space-y-4 border-t">
-              <Label>Cashiers</Label>
+          <section className="pt-6 space-y-4 border-t">
+            <Label>Cashiers</Label>
 
-              <CashierPermissions control={control} />
-            </section>
-          )}
+            <CashierPermissions control={control} />
+          </section>
         </form>
       </Form>
     );

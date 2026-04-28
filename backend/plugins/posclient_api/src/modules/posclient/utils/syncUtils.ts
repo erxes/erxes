@@ -1,3 +1,4 @@
+import { models } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IConfig, IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
@@ -14,9 +15,8 @@ export const getServerAddress = async (
 ) => {
   const { SERVER_DOMAIN } = process.env;
   if (SERVER_DOMAIN) {
-    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${
-      serviceName || 'sales'
-    }`;
+    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${serviceName || 'sales'
+      }`;
   }
   //uncomplete
   const posService = { address: '' }; //await getService(serviceName || 'pos');
@@ -52,8 +52,8 @@ export const importUsers = async (
 
 export const importSlots = async (
   models: IModels,
-  slots: any[],
   token: string,
+  slots: any[],
 ) => {
   const pos = await models.Configs.getConfig({ token });
   await models.PosSlots.deleteMany({ posId: pos.posId });
@@ -475,3 +475,39 @@ export const receivePosConfig = async (
   await importUsers(models, cashiers, token, false);
   return models.Configs.findOne({ _id: config._id }).lean();
 };
+
+export const preRemovePos = async (models: IModels, id: string, token: string) => {
+  const config = await models.Configs.findOne({
+    _id: id, token,
+  }).lean();
+
+  if (!config) {
+    return
+  }
+
+  const { adminIds, cashierIds } = config;
+
+  await models.PosUsers.updateMany(
+    { _id: { $in: [...adminIds, ...cashierIds] }, tokens: { $in: [token] } },
+    { $pull: { tokens: { $in: [token] } } },
+  );
+  await models.PosUsers.deleteMany({ tokens: { $size: 0 } });
+  await models.Covers.deleteMany({ posToken: token });
+  await models.PosSlots.deleteMany({ posToken: token });
+  await models.ProductCategories.updateMany(
+    { tokens: { $in: [token] } },
+    { $pull: { tokens: { $in: [token] } } },
+  );
+  await models.ProductCategories.deleteMany({ tokens: { $size: 0 } });
+  await models.Products.updateMany(
+    { tokens: { $in: [token] } },
+    { $pull: { tokens: { $in: [token] } } },
+  );
+  await models.Products.deleteMany({ tokens: { $size: 0 } });
+  await models.PutResponses.deleteMany({ posId: id });
+
+  const orderItems = await models.Orders.find({ posToken: token }, { _id: 1 });
+  await models.OrderItems.deleteMany({ orderId: { $in: orderItems.map(o => o._id) } });
+  await models.Orders.deleteMany({ posToken: token });
+
+}

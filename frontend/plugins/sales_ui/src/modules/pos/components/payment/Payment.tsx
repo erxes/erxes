@@ -4,7 +4,6 @@ import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { PaymentConfiguration } from '@/pos/components/payment/PaymentConfiguration';
 import { OtherPayment } from '@/pos/components/payment/OtherPayment';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { type PaymentType } from '@/pos/types/types';
@@ -42,7 +41,6 @@ const Payment: React.FC<PaymentProps> = ({
   const { control, handleSubmit, reset, setValue, watch, formState } = form;
   const { isDirty } = formState;
 
-  const canAddCustomPayment = isFieldVisible('addCustomPayment', posType);
   const paymentTypes = watch('paymentTypes');
 
   useEffect(() => {
@@ -106,20 +104,16 @@ const Payment: React.FC<PaymentProps> = ({
             _id: posId,
             paymentIds: data.paymentIds,
             erxesAppToken: data.erxesAppToken,
-            ...(canAddCustomPayment
-              ? {
-                  paymentTypes: data.paymentTypes.map(
-                    ({ _id, type, title, icon, config }) => ({
-                      _id,
-                      type,
-                      title,
-                      icon,
-                      config,
-                    }),
-                  ),
-                }
-              : {}),
-          },
+            paymentTypes: data.paymentTypes.map(
+              ({ _id, type, title, icon, config }) => ({
+                _id,
+                type,
+                title,
+                icon,
+                config,
+              }),
+            ),
+          }
         });
 
         toast({
@@ -135,7 +129,7 @@ const Payment: React.FC<PaymentProps> = ({
         });
       }
     },
-    [canAddCustomPayment, posEdit, posId, reset],
+    [posEdit, posId, reset],
   );
 
   useEffect(() => {
@@ -194,18 +188,16 @@ const Payment: React.FC<PaymentProps> = ({
             <PaymentConfiguration control={control} posType={posType} />
           </section>
 
-          {canAddCustomPayment && (
-            <section className="pt-6 space-y-4 border-t">
-              <Label>Other Payment</Label>
+          <section className="pt-6 space-y-4 border-t">
+            <Label>Other Payment</Label>
 
-              <OtherPayment
-                paymentTypes={paymentTypes}
-                onPaymentAdded={handlePaymentAdded}
-                onPaymentUpdated={handlePaymentUpdated}
-                onPaymentDeleted={handlePaymentDeleted}
-              />
-            </section>
-          )}
+            <OtherPayment
+              paymentTypes={paymentTypes}
+              onPaymentAdded={handlePaymentAdded}
+              onPaymentUpdated={handlePaymentUpdated}
+              onPaymentDeleted={handlePaymentDeleted}
+            />
+          </section>
         </form>
       </Form>
     );

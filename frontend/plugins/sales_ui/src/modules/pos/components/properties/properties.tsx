@@ -1,27 +1,27 @@
-import { useEffect, useCallback, type FC, type ReactNode } from 'react';
-import { InfoCard, Form, Button, toast } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { useMutation } from '@apollo/client';
-import { isFieldVisible } from '@/pos/constants';
+import {
+  AllowBranchesField,
+  AllowTypesField,
+  BeginNumberField,
+  BranchField,
+  BrandField,
+  DepartmentField,
+  DescriptionField,
+  FormData,
+  IsOnlineField,
+  MaxSkipNumberField,
+  NameField,
+  OnServerField,
+  OrderPasswordField,
+  PosDomainField,
+} from '@/pos/components/properties/PropertiesFields';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
-import {
-  NameField,
-  TypeField,
-  DescriptionField,
-  MaxSkipNumberField,
-  OrderPasswordField,
-  BranchField,
-  DepartmentField,
-  BrandField,
-  OnServerField,
-  IsOnlineField,
-  AllowBranchesField,
-  PosDomainField,
-  BeginNumberField,
-  AllowTypesField,
-  FormData,
-} from '@/pos/components/properties/PropertiesFields';
+import { usePosEnv } from '@/pos/hooks/usePosEnv';
+import { useMutation } from '@apollo/client';
+import { Button, Form, InfoCard, toast } from 'erxes-ui';
+import { useCallback, useEffect, useState, type FC, type ReactNode } from 'react';
+import { useForm } from 'react-hook-form';
+import { MoreOptionsButton } from '../MoreOptionsButton';
 
 interface PropertiesProps {
   posId?: string;
@@ -60,11 +60,10 @@ const DEFAULT_FORM_VALUES: FormData = {
   brandId: '',
   allowTypes: [],
   isOnline: false,
-  onServer: false,
+  onServer: true,
   pdomain: '',
   beginNumber: '',
 };
-const allAutoInitEnabled = process.env.ALL_AUTO_INIT === 'true';
 
 const Properties: FC<PropertiesProps> = ({
   posId,
@@ -73,11 +72,10 @@ const Properties: FC<PropertiesProps> = ({
 }) => {
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
+  const { posEnv } = usePosEnv()
 
-  const isPosType = posType === 'pos';
-  const isEcomType = posType === 'ecommerce';
-  const isRestaurantType = posType === 'restaurant';
-  const showOnServerField = !allAutoInitEnabled;
+  const [showMore, setShowMore] = useState(false);
+  const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
 
   const form = useForm<FormData>({ defaultValues: DEFAULT_FORM_VALUES });
   const { control, handleSubmit, reset, watch, formState } = form;
@@ -98,7 +96,7 @@ const Properties: FC<PropertiesProps> = ({
         brandId: posDetail.scopeBrandIds?.[0] || '',
         allowTypes: posDetail.allowTypes || [],
         isOnline: posDetail.isOnline || false,
-        onServer: posDetail.onServer || false,
+        onServer: posDetail.onServer || true,
         pdomain: posDetail.pdomain || '',
         beginNumber: posDetail.beginNumber || '',
       });
@@ -202,102 +200,33 @@ const Properties: FC<PropertiesProps> = ({
               className="space-y-6"
             >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {isFieldVisible('name', posType) && (
-                  <NameField control={control} />
-                )}
-
-                <TypeField control={control} />
-
-                {isPosType && isFieldVisible('chooseBranch', posType) && (
-                  <BranchField control={control} />
-                )}
-
-                {isEcomType && isFieldVisible('isOnline', posType) && (
-                  <IsOnlineField control={control} />
-                )}
+                <NameField control={control} />
+                <IsOnlineField control={control} />
+                <BranchField control={control} />
+                <DepartmentField control={control} />
               </div>
 
-              {isEcomType && isOnline && (
+              {isOnline ? (
                 <>
-                  {isFieldVisible('allowBranches', posType) && (
-                    <AllowBranchesField control={control} />
-                  )}
-                  {isFieldVisible('posDomain', posType) && (
-                    <PosDomainField control={control} />
-                  )}
-                  {isFieldVisible('beginNumber', posType) && (
-                    <BeginNumberField control={control} />
-                  )}
+                  <AllowBranchesField control={control} />
+                  <PosDomainField control={control} />
                 </>
+              ) : (
+                <AllowTypesField control={control} />
               )}
 
-              {isRestaurantType && (
-                <>
-                  {isFieldVisible('allowTypes', posType) && (
-                    <AllowTypesField control={control} />
-                  )}
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {isFieldVisible('chooseBranch', posType) && (
-                      <BranchField control={control} />
-                    )}
-                  </div>
-                </>
-              )}
+              <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
 
-              {isPosType && (
+              {showMore && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {isFieldVisible('description', posType) && (
-                    <DescriptionField control={control} />
+                  <BeginNumberField control={control} />
+                  <MaxSkipNumberField control={control} />
+                  <OrderPasswordField control={control} />
+                  <BrandField control={control} />
+                  {!isOnline && [true, 'true', 'True', 1, '1'].includes(posEnv?.ALLOW_OFFLINE_POS ?? '') && (
+                    <OnServerField control={control} />
                   )}
-                  {isFieldVisible('maxSkipNumber', posType) && (
-                    <MaxSkipNumberField control={control} />
-                  )}
-                  {isFieldVisible('orderPassword', posType) && (
-                    <OrderPasswordField control={control} />
-                  )}
-                  {isFieldVisible('chooseDepartment', posType) && (
-                    <DepartmentField control={control} />
-                  )}
-                  {showOnServerField && <OnServerField control={control} />}
-                </div>
-              )}
-
-              {isEcomType && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {isFieldVisible('description', posType) && (
-                    <DescriptionField control={control} />
-                  )}
-                  {isFieldVisible('brand', posType) && (
-                    <BrandField control={control} />
-                  )}
-                  {isFieldVisible('chooseBranch', posType) && (
-                    <BranchField control={control} />
-                  )}
-                  {isFieldVisible('chooseDepartment', posType) && (
-                    <DepartmentField control={control} />
-                  )}
-                  {showOnServerField && <OnServerField control={control} />}
-                </div>
-              )}
-
-              {isRestaurantType && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {isFieldVisible('description', posType) && (
-                    <DescriptionField control={control} />
-                  )}
-                  {isFieldVisible('maxSkipNumber', posType) && (
-                    <MaxSkipNumberField control={control} />
-                  )}
-                  {isFieldVisible('orderPassword', posType) && (
-                    <OrderPasswordField control={control} />
-                  )}
-                  {isFieldVisible('brand', posType) && (
-                    <BrandField control={control} />
-                  )}
-                  {isFieldVisible('chooseDepartment', posType) && (
-                    <DepartmentField control={control} />
-                  )}
-                  {showOnServerField && <OnServerField control={control} />}
+                  <DescriptionField control={control} />
                 </div>
               )}
             </form>
