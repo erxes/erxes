@@ -175,7 +175,7 @@ export const dealMutations: Record<string, Resolver> = {
   async dealsCopy(
     _root,
     { _id, processId }: { _id: string; processId: string },
-    { user, models, subdomain, checkPermission  }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsCopy');
     const item = await models.Deals.findOne({ _id }).lean();

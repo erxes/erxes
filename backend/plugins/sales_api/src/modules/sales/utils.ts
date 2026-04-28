@@ -1207,6 +1207,7 @@ export const PERMISSION_MAP = {
     dealsRemove: 'dealsRemove',
     dealsWatch: 'dealsWatch',
     dealsArchive: 'dealsArchive',
+    dealsCopy: 'dealsAdd', 
     dealsCreateProductsData: 'dealsEdit',
     dealsEditProductData: 'dealsEdit',
     dealsDeleteProductData: 'dealsEdit',
