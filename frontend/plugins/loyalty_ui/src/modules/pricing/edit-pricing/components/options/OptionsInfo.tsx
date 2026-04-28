@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Button, Form, InfoCard, Label, useToast } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
@@ -62,6 +63,9 @@ const WEEKDAY_TO_LABEL: Record<string, string> = {
   sunday: 'Sunday',
 };
 
+const getWeekDayFromValue = (value: string) =>
+  NUMBER_TO_WEEKDAY[value] || value;
+
 const isoToTime = (isoString?: string): string | null => {
   if (!isoString) return null;
 
@@ -88,18 +92,42 @@ const timeToIso = (time: string): string => {
 };
 
 const getRepeatRules = (pricingDetail?: IPricingPlanDetail) =>
-  (pricingDetail?.repeatRules?.map((rule, index) => ({
-    _id: `rule_${index}`,
-    ruleType: (rule.type || 'everyDay') as RepeatRuleType,
-    startTime: isoToTime(rule.dayStartValue),
-    endTime: isoToTime(rule.dayEndValue),
-    weekDay: rule.weekValue?.[0]?.value
-      ? NUMBER_TO_WEEKDAY[rule.weekValue[0].value] || rule.weekValue[0].value
-      : null,
-    monthDay: rule.monthValue?.[0]?.value || null,
-    startDate: rule.yearStartValue || null,
-    endDate: rule.yearEndValue || null,
-  })) || []) as RepeatRuleConfig[];
+  (pricingDetail?.repeatRules?.flatMap((rule, index): RepeatRuleConfig[] => {
+    const baseRule: Omit<RepeatRuleConfig, '_id' | 'weekDay' | 'monthDay'> = {
+      ruleType: (rule.type || 'everyDay') as RepeatRuleType,
+      startTime: isoToTime(rule.dayStartValue),
+      endTime: isoToTime(rule.dayEndValue),
+      startDate: rule.yearStartValue || null,
+      endDate: rule.yearEndValue || null,
+    };
+
+    if (rule.weekValue?.length) {
+      return rule.weekValue.map((weekValue, weekIndex) => ({
+        ...baseRule,
+        _id: `rule_${index}_week_${weekIndex}`,
+        weekDay: getWeekDayFromValue(weekValue.value),
+        monthDay: null,
+      }));
+    }
+
+    if (rule.monthValue?.length) {
+      return rule.monthValue.map((monthValue, monthIndex) => ({
+        ...baseRule,
+        _id: `rule_${index}_month_${monthIndex}`,
+        weekDay: null,
+        monthDay: monthValue.value,
+      }));
+    }
+
+    return [
+      {
+        ...baseRule,
+        _id: `rule_${index}`,
+        weekDay: null,
+        monthDay: null,
+      },
+    ];
+  }) || []) as RepeatRuleConfig[];
 
 const normalizeIds = (values: string[] = []) =>
   [...values].filter(Boolean).sort((a, b) => a.localeCompare(b));
@@ -136,6 +164,7 @@ export const OptionsInfo = ({
 }: OptionsInfoProps) => {
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [repeatRules, setRepeatRules] = useState<RepeatRuleConfig[]>([]);
   const [editingRule, setEditingRule] = useState<RepeatRuleConfig | null>(null);
@@ -205,13 +234,17 @@ export const OptionsInfo = ({
           size="sm"
           disabled={loading}
         >
-          {loading ? 'Saving...' : 'Save Changes'}
+          {loading
+            ? t('loyalty.options.saving', { defaultValue: 'Saving...' })
+            : t('loyalty.options.saveChanges', {
+                defaultValue: 'Save Changes',
+              })}
         </Button>
       ) : null,
     );
 
     return () => onSaveActionChange(null);
-  }, [hasChanges, loading, onSaveActionChange]);
+  }, [hasChanges, loading, onSaveActionChange, t]);
 
   const handleBoardChange = (value: string) => {
     setValue('boardId', value, { shouldDirty: true });
@@ -280,7 +313,7 @@ export const OptionsInfo = ({
         branchIds,
         boardId,
         pipelineId,
-        stageId: undefined,
+        stageId: null,
         isRepeatEnabled: nextRepeatRules.length > 0,
         repeatRules: nextRepeatRules,
       });
@@ -304,13 +337,21 @@ export const OptionsInfo = ({
       );
 
       toast({
-        title: 'Options updated',
-        description: 'Changes have been saved successfully.',
+        title: t('loyalty.options.updated', {
+          defaultValue: 'Options updated',
+        }),
+        description: t('loyalty.options.savedDescription', {
+          defaultValue: 'Changes have been saved successfully.',
+        }),
       });
     } catch {
       toast({
-        title: 'Failed to update options',
-        description: 'An unexpected error occurred.',
+        title: t('loyalty.options.updateFailed', {
+          defaultValue: 'Failed to update options',
+        }),
+        description: t('loyalty.options.unexpectedError', {
+          defaultValue: 'An unexpected error occurred.',
+        }),
         variant: 'destructive',
       });
     }
@@ -329,7 +370,9 @@ export const OptionsInfo = ({
             >
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">Location</Label>
+                <Label className="mx-2">
+                  {t('loyalty.options.location', { defaultValue: 'Location' })}
+                </Label>
                 <div className="flex-1 border-t" />
               </div>
 
@@ -340,7 +383,11 @@ export const OptionsInfo = ({
                     name="departmentIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>DEPARTMENTS</Form.Label>
+                        <Form.Label>
+                          {t('loyalty.options.departments', {
+                            defaultValue: 'DEPARTMENTS',
+                          })}
+                        </Form.Label>
                         <Form.Control>
                           <SelectDepartments.FormItem
                             mode="multiple"
@@ -357,7 +404,11 @@ export const OptionsInfo = ({
                     name="branchIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>BRANCHES</Form.Label>
+                        <Form.Label>
+                          {t('loyalty.options.branches', {
+                            defaultValue: 'BRANCHES',
+                          })}
+                        </Form.Label>
                         <Form.Control>
                           <SelectBranches.FormItem
                             mode="multiple"
@@ -373,7 +424,9 @@ export const OptionsInfo = ({
 
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">Pipeline</Label>
+                <Label className="mx-2">
+                  {t('loyalty.options.pipeline', { defaultValue: 'Pipeline' })}
+                </Label>
                 <div className="flex-1 border-t" />
               </div>
 
@@ -384,12 +437,18 @@ export const OptionsInfo = ({
                     name="boardId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>BOARD</Form.Label>
+                        <Form.Label>
+                          {t('loyalty.options.board', {
+                            defaultValue: 'BOARD',
+                          })}
+                        </Form.Label>
                         <Form.Control>
                           <SelectBoardFormItem
                             value={field.value}
                             onValueChange={handleBoardChange}
-                            placeholder="Choose a board"
+                            placeholder={t('loyalty.options.chooseBoard', {
+                              defaultValue: 'Choose a board',
+                            })}
                           />
                         </Form.Control>
                       </Form.Item>
@@ -401,13 +460,19 @@ export const OptionsInfo = ({
                     name="pipelineId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>PIPELINE</Form.Label>
+                        <Form.Label>
+                          {t('loyalty.options.pipelineUpper', {
+                            defaultValue: 'PIPELINE',
+                          })}
+                        </Form.Label>
                         <Form.Control>
                           <SelectPipelineFormItem
                             value={field.value}
                             onValueChange={field.onChange}
                             boardId={form.watch('boardId')}
-                            placeholder="Choose a pipeline"
+                            placeholder={t('loyalty.options.choosePipeline', {
+                              defaultValue: 'Choose a pipeline',
+                            })}
                           />
                         </Form.Control>
                       </Form.Item>
@@ -418,7 +483,9 @@ export const OptionsInfo = ({
 
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">Repeat</Label>
+                <Label className="mx-2">
+                  {t('loyalty.options.repeat', { defaultValue: 'Repeat' })}
+                </Label>
                 <div className="flex-1 border-t" />
               </div>
 
@@ -435,7 +502,10 @@ export const OptionsInfo = ({
 
                   {repeatRules.length === 0 ? (
                     <div className="py-6 text-sm text-center text-muted-foreground">
-                      No repeat rules yet. Click "Add rule" to add one.
+                      {t('loyalty.options.noRepeatRules', {
+                        defaultValue:
+                          'No repeat rules yet. Click "Add rule" to add one.',
+                      })}
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -451,7 +521,9 @@ export const OptionsInfo = ({
                               variant="outline"
                               size="icon"
                               type="button"
-                              aria-label="Edit repeat rule"
+                              aria-label={t('loyalty.options.editRepeatRule', {
+                                defaultValue: 'Edit repeat rule',
+                              })}
                               onClick={() => setEditingRule(rule)}
                             >
                               <IconEdit size={14} />
@@ -461,7 +533,12 @@ export const OptionsInfo = ({
                               size="icon"
                               type="button"
                               className="text-destructive"
-                              aria-label="Delete repeat rule"
+                              aria-label={t(
+                                'loyalty.options.deleteRepeatRule',
+                                {
+                                  defaultValue: 'Delete repeat rule',
+                                },
+                              )}
                               onClick={() => handleRuleDelete(rule)}
                             >
                               <IconTrash size={14} />

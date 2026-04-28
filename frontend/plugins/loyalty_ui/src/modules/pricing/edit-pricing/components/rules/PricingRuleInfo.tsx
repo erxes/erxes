@@ -103,6 +103,7 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
   const [editingRule, setEditingRule] = useState<T | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
+  const [enabled, setEnabled] = useState(false);
 
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
@@ -117,9 +118,10 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
       | undefined;
 
     setRules((detailRules?.map(mapRuleToConfig) || []) as T[]);
+    setEnabled(pricingDetail[enabledKey] ?? !!detailRules?.length);
     setHasChanges(false);
     setInitialLoaded(true);
-  }, [pricingDetail, rulesKey]);
+  }, [enabledKey, pricingDetail, rulesKey]);
 
   const markChanged = () => {
     if (initialLoaded) {
@@ -163,7 +165,7 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
     try {
       await editPricing({
         _id: pricingId,
-        [enabledKey]: mappedRules.length > 0,
+        [enabledKey]: enabled,
         [rulesKey]: mappedRules,
       } as Parameters<typeof editPricing>[0]);
       setHasChanges(false);
@@ -180,6 +182,7 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
     }
   }, [
     editPricing,
+    enabled,
     enabledKey,
     errorTitle,
     pricingId,

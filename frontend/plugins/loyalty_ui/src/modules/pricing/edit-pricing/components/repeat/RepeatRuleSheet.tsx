@@ -3,6 +3,7 @@ import { Button, DatePicker, Form, Select, Sheet } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { IconPlus } from '@tabler/icons-react';
 import { PricingTimeSelect } from '@/pricing/components/PricingTimeSelect';
+import { formatDateValue, parseDateValue } from '@/pricing/utils/date';
 
 export type RepeatRuleType =
   | 'everyYear'
@@ -28,6 +29,50 @@ interface RepeatRuleSheetProps {
   onEditComplete?: () => void;
 }
 
+const getRulePayload = (
+  values: RepeatRuleConfig,
+  id?: string,
+): RepeatRuleConfig => {
+  const basePayload: RepeatRuleConfig = {
+    _id: id,
+    ruleType: values.ruleType,
+    startDate: null,
+    endDate: null,
+    startTime: null,
+    endTime: null,
+    weekDay: null,
+    monthDay: null,
+  };
+
+  if (values.ruleType === 'everyYear') {
+    return {
+      ...basePayload,
+      startDate: values.startDate || null,
+      endDate: values.endDate || null,
+    };
+  }
+
+  if (values.ruleType === 'everyDay') {
+    return {
+      ...basePayload,
+      startTime: values.startTime || null,
+      endTime: values.endTime || null,
+    };
+  }
+
+  if (values.ruleType === 'everyWeek') {
+    return {
+      ...basePayload,
+      weekDay: values.weekDay || null,
+    };
+  }
+
+  return {
+    ...basePayload,
+    monthDay: values.monthDay || null,
+  };
+};
+
 const WEEK_DAYS = [
   { value: 'monday', label: 'Monday' },
   { value: 'tuesday', label: 'Tuesday' },
@@ -45,32 +90,6 @@ const MONTH_DAYS = [
     return { value: day, label: day };
   }),
 ];
-
-const formatDateValue = (value?: Date) => {
-  if (!value) {
-    return null;
-  }
-
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, '0');
-  const day = String(value.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-};
-
-const parseDateValue = (value?: string | null) => {
-  if (!value) {
-    return undefined;
-  }
-
-  const [year, month, day] = value.split('-').map(Number);
-
-  if (!year || !month || !day) {
-    return undefined;
-  }
-
-  return new Date(year, month - 1, day);
-};
 
 export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
   onRuleAdded,
@@ -112,10 +131,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
   };
 
   const handleSubmit = (values: RepeatRuleConfig) => {
-    const payload: RepeatRuleConfig = {
-      _id: editingRule?._id,
-      ...values,
-    };
+    const payload = getRulePayload(values, editingRule?._id);
 
     if (editingRule) {
       onRuleUpdated?.(payload);

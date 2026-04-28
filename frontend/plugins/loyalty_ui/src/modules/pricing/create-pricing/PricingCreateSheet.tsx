@@ -17,8 +17,13 @@ import {
   SelectProduct,
 } from 'ui-modules';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SelectCategory } from '@/pricing/components/SelectCategory';
+import {
+  formatDateValue,
+  isDateRangeValid,
+  parseDateValue,
+} from '@/pricing/utils/date';
 
 interface PricingCreateSheetProps {
   trigger?: React.ReactNode;
@@ -41,6 +46,56 @@ interface PricingFormValues {
   excludeTagIds: string[];
   bundleProductIds: string[];
 }
+
+type TargetFieldName =
+  | 'productCategoryIds'
+  | 'appliesProductIds'
+  | 'segmentId'
+  | 'vendorCompanyIds'
+  | 'productTagIds'
+  | 'bundleProductIds';
+
+const getTargetValidationError = (
+  values: PricingFormValues,
+): { field: TargetFieldName; message: string } | null => {
+  switch (values.appliesTo) {
+    case 'category':
+      return values.productCategoryIds.length
+        ? null
+        : {
+            field: 'productCategoryIds',
+            message: 'Select at least one category.',
+          };
+    case 'product':
+      return values.appliesProductIds.length
+        ? null
+        : {
+            field: 'appliesProductIds',
+            message: 'Select at least one product.',
+          };
+    case 'segment':
+      return values.segmentId
+        ? null
+        : { field: 'segmentId', message: 'Select a segment.' };
+    case 'vendor':
+      return values.vendorCompanyIds.length
+        ? null
+        : { field: 'vendorCompanyIds', message: 'Select at least one vendor.' };
+    case 'tag':
+      return values.productTagIds.length
+        ? null
+        : { field: 'productTagIds', message: 'Select at least one tag.' };
+    case 'bundle':
+      return values.bundleProductIds.length
+        ? null
+        : {
+            field: 'bundleProductIds',
+            message: 'Select at least one bundle product.',
+          };
+    default:
+      return null;
+  }
+};
 
 export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   const [open, setOpen] = useState(false);
@@ -70,38 +125,23 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   const appliesTo = form.watch('appliesTo');
   const formValues = form.watch();
 
-  const formatDateValue = (value?: Date) => {
-    if (!value) {
-      return null;
-    }
+  useEffect(() => {
+    form.clearErrors([
+      'productCategoryIds',
+      'appliesProductIds',
+      'segmentId',
+      'vendorCompanyIds',
+      'productTagIds',
+      'bundleProductIds',
+    ]);
+  }, [appliesTo, form]);
 
-    const year = value.getFullYear();
-    const month = String(value.getMonth() + 1).padStart(2, '0');
-    const day = String(value.getDate()).padStart(2, '0');
+  const targetValidationError = getTargetValidationError(formValues);
 
-    return `${year}-${month}-${day}`;
-  };
-
-  const parseDateValue = (value?: string | null) => {
-    if (!value) {
-      return undefined;
-    }
-
-    const [year, month, day] = value.split('-').map(Number);
-
-    if (!year || !month || !day) {
-      return undefined;
-    }
-
-    return new Date(year, month - 1, day);
-  };
-
-  const isDateRangeValid =
-    !formValues.startDate ||
-    !formValues.endDate ||
-    formValues.startDate <= formValues.endDate;
-
-  const isFormValid = formValues.name.trim().length > 0 && isDateRangeValid;
+  const isFormValid =
+    formValues.name.trim().length > 0 &&
+    isDateRangeValid(formValues.startDate, formValues.endDate) &&
+    !targetValidationError;
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
@@ -111,6 +151,34 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   };
 
   const handleSubmit = async (values: PricingFormValues) => {
+    if (!isDateRangeValid(values.startDate, values.endDate)) {
+      form.setError('endDate', {
+        type: 'validate',
+        message: 'End date must be after start date.',
+      });
+      toast({
+        title: 'Invalid date range',
+        description: 'End date must be after start date.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const targetError = getTargetValidationError(values);
+
+    if (targetError) {
+      form.setError(targetError.field, {
+        type: 'validate',
+        message: targetError.message,
+      });
+      toast({
+        title: 'Missing pricing target',
+        description: targetError.message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       const doc: Parameters<typeof createPricing>[0] = {
         name: values.name.trim(),
@@ -257,6 +325,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                           }
                         />
                       </Form.Control>
+                      <Form.Message />
                     </Form.Item>
                   )}
                 />
@@ -280,6 +349,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                           }
                         />
                       </Form.Control>
+                      <Form.Message />
                     </Form.Item>
                   )}
                 />
@@ -336,7 +406,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     name="productCategoryIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>PRODUCT CATEGORIES</Form.Label>
+                        <Form.Label>
+                          PRODUCT CATEGORIES{' '}
+                          <span className="text-destructive">*</span>
+                        </Form.Label>
                         <Form.Control>
                           <SelectCategory
                             mode="multiple"
@@ -348,6 +421,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                             }
                           />
                         </Form.Control>
+                        <Form.Message />
                       </Form.Item>
                     )}
                   />
@@ -369,6 +443,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                             }
                           />
                         </Form.Control>
+                        <Form.Message />
                       </Form.Item>
                     )}
                   />
@@ -390,6 +465,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                             }
                           />
                         </Form.Control>
+                        <Form.Message />
                       </Form.Item>
                     )}
                   />
@@ -402,7 +478,9 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   name="appliesProductIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>PRODUCTS</Form.Label>
+                      <Form.Label>
+                        PRODUCTS <span className="text-destructive">*</span>
+                      </Form.Label>
                       <Form.Control>
                         <SelectProduct
                           mode="multiple"
@@ -414,6 +492,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                           }
                         />
                       </Form.Control>
+                      <Form.Message />
                     </Form.Item>
                   )}
                 />
@@ -425,13 +504,16 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   name="segmentId"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>SEGMENT</Form.Label>
+                      <Form.Label>
+                        SEGMENT <span className="text-destructive">*</span>
+                      </Form.Label>
                       <Form.Control>
                         <SelectSegment
                           selected={field.value || undefined}
                           onSelect={(id) => field.onChange(id)}
                         />
                       </Form.Control>
+                      <Form.Message />
                     </Form.Item>
                   )}
                 />
@@ -443,7 +525,9 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   name="vendorCompanyIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>VENDORS</Form.Label>
+                      <Form.Label>
+                        VENDORS <span className="text-destructive">*</span>
+                      </Form.Label>
                       <Form.Control>
                         <SelectCompany
                           mode="multiple"
@@ -455,6 +539,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                           }
                         />
                       </Form.Control>
+                      <Form.Message />
                     </Form.Item>
                   )}
                 />
@@ -467,7 +552,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     name="productTagIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>PRODUCT TAGS</Form.Label>
+                        <Form.Label>
+                          PRODUCT TAGS{' '}
+                          <span className="text-destructive">*</span>
+                        </Form.Label>
                         <Form.Control>
                           <SelectTags
                             tagType="sales:product"
@@ -478,6 +566,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                             }
                           />
                         </Form.Control>
+                        <Form.Message />
                       </Form.Item>
                     )}
                   />
@@ -498,6 +587,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                             }
                           />
                         </Form.Control>
+                        <Form.Message />
                       </Form.Item>
                     )}
                   />
@@ -531,7 +621,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   name="bundleProductIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>PRODUCTS TO BUNDLE</Form.Label>
+                      <Form.Label>
+                        PRODUCTS TO BUNDLE{' '}
+                        <span className="text-destructive">*</span>
+                      </Form.Label>
                       <Form.Control>
                         <SelectProduct
                           mode="multiple"
@@ -543,6 +636,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                           }
                         />
                       </Form.Control>
+                      <Form.Message />
                     </Form.Item>
                   )}
                 />

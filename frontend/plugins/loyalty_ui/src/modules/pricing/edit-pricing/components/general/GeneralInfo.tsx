@@ -2,6 +2,11 @@ import { SelectCategory } from '@/pricing/components/SelectCategory';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import { IPricingPlanDetail } from '@/pricing/types';
 import {
+  formatDateValue,
+  isDateRangeValid,
+  parseDateValue,
+} from '@/pricing/utils/date';
+import {
   Button,
   Checkbox,
   DatePicker,
@@ -57,31 +62,6 @@ const appliesToApplyTypeMap: Record<GeneralFormValues['appliesTo'], string> = {
   bundle: 'bundle',
 };
 
-const getDateValue = (value: Date) => {
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, '0');
-  const day = String(value.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-};
-
-const parseDateValue = (value?: string | null) => {
-  if (!value) {
-    return undefined;
-  }
-
-  const [year, month, day] = value.split('-').map(Number);
-
-  if (!year || !month || !day) {
-    return undefined;
-  }
-
-  return new Date(year, month - 1, day);
-};
-
-const isDateRangeValid = (startDate: string | null, endDate: string | null) =>
-  !startDate || !endDate || startDate <= endDate;
-
 const normalizeMultipleValue = (value: string | string[]) =>
   Array.isArray(value) ? value : [value];
 
@@ -108,7 +88,7 @@ const GeneralDateField = ({
             placeholder={placeholder}
             onChange={(value) => {
               field.onChange(
-                value instanceof Date ? getDateValue(value) : null,
+                value instanceof Date ? formatDateValue(value) : null,
               );
             }}
           />

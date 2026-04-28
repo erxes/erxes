@@ -1,4 +1,10 @@
-import { type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import { InfoCard, Tabs } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { IPricingPlanDetail } from '@/pricing/types';
@@ -33,6 +39,14 @@ export const RulesInfo = ({
   onSaveActionChange,
 }: RulesInfoProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [saveActions, setSaveActions] = useState<
+    Record<PricingRuleType, ReactNode | null>
+  >({
+    common: null,
+    quantity: null,
+    price: null,
+    expiry: null,
+  });
   const activeRuleParam = searchParams.get('activeTab') || undefined;
   const currentRule = isPricingRuleType(activeRuleParam)
     ? activeRuleParam
@@ -48,47 +62,39 @@ export const RulesInfo = ({
     });
   };
 
-  const renderRuleContent = () => {
-    switch (currentRule) {
-      case 'quantity':
-        return (
-          <QuantityInfo
-            pricingId={pricingId}
-            pricingDetail={pricingDetail}
-            embedded
-            onSaveActionChange={onSaveActionChange}
-          />
-        );
-      case 'price':
-        return (
-          <PriceInfo
-            pricingId={pricingId}
-            pricingDetail={pricingDetail}
-            embedded
-            onSaveActionChange={onSaveActionChange}
-          />
-        );
-      case 'expiry':
-        return (
-          <ExpiryInfo
-            pricingId={pricingId}
-            pricingDetail={pricingDetail}
-            embedded
-            onSaveActionChange={onSaveActionChange}
-          />
-        );
-      case 'common':
-      default:
-        return (
-          <CommonRuleInfo
-            pricingId={pricingId}
-            pricingDetail={pricingDetail}
-            embedded
-            onSaveActionChange={onSaveActionChange}
-          />
-        );
+  const handleSaveActionChange = useCallback(
+    (ruleType: PricingRuleType) => (action: ReactNode | null) => {
+      setSaveActions((currentActions) =>
+        currentActions[ruleType] === action
+          ? currentActions
+          : {
+              ...currentActions,
+              [ruleType]: action,
+            },
+      );
+    },
+    [],
+  );
+
+  const saveActionHandlers = useMemo(
+    () => ({
+      common: handleSaveActionChange('common'),
+      quantity: handleSaveActionChange('quantity'),
+      price: handleSaveActionChange('price'),
+      expiry: handleSaveActionChange('expiry'),
+    }),
+    [handleSaveActionChange],
+  );
+
+  useEffect(() => {
+    if (!onSaveActionChange) {
+      return;
     }
-  };
+
+    onSaveActionChange(saveActions[currentRule]);
+
+    return () => onSaveActionChange(null);
+  }, [currentRule, onSaveActionChange, saveActions]);
 
   return (
     <div className="p-6">
@@ -103,7 +109,57 @@ export const RulesInfo = ({
               ))}
             </Tabs.List>
 
-            <div className="pt-4 border-t">{renderRuleContent()}</div>
+            <Tabs.Content
+              value="common"
+              forceMount
+              className="pt-4 border-t data-[state=inactive]:hidden"
+            >
+              <CommonRuleInfo
+                pricingId={pricingId}
+                pricingDetail={pricingDetail}
+                embedded
+                onSaveActionChange={saveActionHandlers.common}
+              />
+            </Tabs.Content>
+
+            <Tabs.Content
+              value="quantity"
+              forceMount
+              className="pt-4 border-t data-[state=inactive]:hidden"
+            >
+              <QuantityInfo
+                pricingId={pricingId}
+                pricingDetail={pricingDetail}
+                embedded
+                onSaveActionChange={saveActionHandlers.quantity}
+              />
+            </Tabs.Content>
+
+            <Tabs.Content
+              value="price"
+              forceMount
+              className="pt-4 border-t data-[state=inactive]:hidden"
+            >
+              <PriceInfo
+                pricingId={pricingId}
+                pricingDetail={pricingDetail}
+                embedded
+                onSaveActionChange={saveActionHandlers.price}
+              />
+            </Tabs.Content>
+
+            <Tabs.Content
+              value="expiry"
+              forceMount
+              className="pt-4 border-t data-[state=inactive]:hidden"
+            >
+              <ExpiryInfo
+                pricingId={pricingId}
+                pricingDetail={pricingDetail}
+                embedded
+                onSaveActionChange={saveActionHandlers.expiry}
+              />
+            </Tabs.Content>
           </Tabs>
         </InfoCard.Content>
       </InfoCard>

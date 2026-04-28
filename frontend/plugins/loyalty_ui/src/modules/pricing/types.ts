@@ -88,7 +88,7 @@ export interface IPricingPlanDetail {
   departmentIds?: string[];
   boardId?: string;
   pipelineId?: string;
-  stageId?: string;
+  stageId?: string | null;
 
   isQuantityEnabled?: boolean;
   quantityRules?: IPricingQuantityRule[];
