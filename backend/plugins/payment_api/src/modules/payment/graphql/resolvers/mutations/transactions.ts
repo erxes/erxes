@@ -1,5 +1,6 @@
 import { Resolver } from 'erxes-api-shared/src/core-types';
 import { IContext } from '~/connectionResolvers';
+import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api';
 
 const mutations: Record<string, Resolver> = {
   async paymentTransactionsAdd(
@@ -8,6 +9,7 @@ const mutations: Record<string, Resolver> = {
     { models, subdomain }: IContext,
   ) {
     const { input } = args;
+
     const invoice = await models.Invoices.getInvoice(
       { _id: input.invoiceId },
       true,
@@ -15,12 +17,29 @@ const mutations: Record<string, Resolver> = {
 
     const description = invoice.description || invoice.invoiceNumber;
 
-    return models.Transactions.createTransaction({
+    const transaction = await models.Transactions.createTransaction({
       ...input,
       subdomain,
       description,
       details: { ...input.details, ...invoice.data },
     });
+
+    const payment = await models.PaymentMethods.getPayment(input.paymentId);
+
+    if (payment?.kind === 'qpayQuickqr') {
+      try {
+        const api = new QPayQuickQrAPI(payment.config);
+
+        const response = await api.createInvoice(transaction);
+
+        transaction.response = response;
+        await transaction.save();
+      } catch (e) {
+        console.error('❌ QPay error:', e);
+      }
+    }
+
+    return transaction;
   },
 
   async cpPaymentTransactionsAdd(
@@ -29,6 +48,7 @@ const mutations: Record<string, Resolver> = {
     { models, subdomain }: IContext,
   ) {
     const { input } = args;
+
     const invoice = await models.Invoices.getInvoice(
       { _id: input.invoiceId },
       true,
@@ -36,12 +56,29 @@ const mutations: Record<string, Resolver> = {
 
     const description = invoice.description || invoice.invoiceNumber;
 
-    return models.Transactions.createTransaction({
+    const transaction = await models.Transactions.createTransaction({
       ...input,
       subdomain,
       description,
       details: { ...input.details, ...invoice.data },
     });
+
+    const payment = await models.PaymentMethods.getPayment(input.paymentId);
+
+    if (payment?.kind === 'qpayQuickqr') {
+      try {
+        const api = new QPayQuickQrAPI(payment.config);
+
+        const response = await api.createInvoice(transaction);
+
+        transaction.response = response;
+        await transaction.save();
+      } catch (e) {
+        console.error('❌ QPay error:', e);
+      }
+    }
+
+    return transaction;
   },
 };
 
