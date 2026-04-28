@@ -316,8 +316,8 @@ export const OptionsInfo = ({
 
     const departmentIds = values.departmentIds;
     const branchIds = values.branchIds;
-    const boardId = values.boardId || undefined;
-    const pipelineId = values.pipelineId || undefined;
+    const boardId = values.boardId || null;
+    const pipelineId = values.pipelineId || null;
     const nextRepeatRules = mappedRepeatRules;
 
     try {
