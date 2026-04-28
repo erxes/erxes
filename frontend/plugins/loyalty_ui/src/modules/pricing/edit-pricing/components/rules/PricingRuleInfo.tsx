@@ -62,28 +62,40 @@ interface PricingRuleInfoProps<T extends PricingRuleConfig> {
   RuleSheet: ComponentType<PricingRuleSheetProps<T>>;
 }
 
+const parseRuleNumber = (value: string) => {
+  if (value.trim() === '') {
+    return undefined;
+  }
+
+  const numberValue = Number(value);
+
+  return Number.isNaN(numberValue) ? undefined : numberValue;
+};
+
 const mapRuleToConfig = (
   rule: PricingRulePayload,
   index: number,
 ): PricingRuleConfig => ({
   _id: `rule_${index}`,
-  ruleType: rule.type || 'exact',
-  ruleValue: String(rule.value || ''),
-  discountType: (rule.discountType || 'default') as DiscountType,
-  discountValue: String(rule.discountValue || ''),
-  priceAdjustType: (rule.priceAdjustType || 'none') as PriceAdjustType,
-  priceAdjustFactor: String(rule.priceAdjustFactor || ''),
+  ruleType: rule.type ?? 'exact',
+  ruleValue: rule.value === undefined ? '' : String(rule.value),
+  discountType: (rule.discountType ?? 'default') as DiscountType,
+  discountValue:
+    rule.discountValue === undefined ? '' : String(rule.discountValue),
+  priceAdjustType: (rule.priceAdjustType ?? 'none') as PriceAdjustType,
+  priceAdjustFactor:
+    rule.priceAdjustFactor === undefined ? '' : String(rule.priceAdjustFactor),
   bonusProductId: rule.discountBonusProduct || null,
 });
 
 const mapConfigToRule = (rule: PricingRuleConfig): PricingRulePayload => ({
   type: rule.ruleType,
-  value: Number(rule.ruleValue) || 0,
+  value: parseRuleNumber(rule.ruleValue) ?? 0,
   discountType: rule.discountType,
-  discountValue: Number(rule.discountValue) || 0,
+  discountValue: parseRuleNumber(rule.discountValue) ?? 0,
   discountBonusProduct: rule.bonusProductId || '',
   priceAdjustType: rule.priceAdjustType,
-  priceAdjustFactor: Number(rule.priceAdjustFactor) || 0,
+  priceAdjustFactor: parseRuleNumber(rule.priceAdjustFactor) ?? 0,
 });
 
 export const PricingRuleInfo = <T extends PricingRuleConfig>({
