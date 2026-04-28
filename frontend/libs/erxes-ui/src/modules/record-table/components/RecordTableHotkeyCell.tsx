@@ -41,6 +41,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
       {
         enabled: isFocused,
         preventDefault: true,
+        enableOnFormTags: true,
       },
     );
 
