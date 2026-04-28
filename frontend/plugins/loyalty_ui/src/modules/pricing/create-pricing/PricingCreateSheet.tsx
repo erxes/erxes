@@ -1,12 +1,15 @@
-import { Button, Input, Select, Sheet, useToast, Form } from 'erxes-ui';
+import {
+  Button,
+  Checkbox,
+  DatePicker,
+  Input,
+  Select,
+  Sheet,
+  useToast,
+  Form,
+} from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useCreatePricing } from '@/pricing/hooks/useCreatePricing';
-import {
-  DISCOUNT_TYPES,
-  DiscountType,
-  PRICE_ADJUST_TYPES,
-  PriceAdjustType,
-} from '@/pricing/edit-pricing/components';
 import {
   SelectCompany,
   SelectSegment,
@@ -23,12 +26,10 @@ interface PricingCreateSheetProps {
 
 interface PricingFormValues {
   name: string;
-  status: 'active' | 'archived' | 'draft' | 'completed' | '';
-  discountType: DiscountType;
-  discountValue: number;
-  priceAdjustType: PriceAdjustType;
-  priceAdjustFactor: number;
-  bonusProductId: string;
+  status: 'draft';
+  isPriority: boolean;
+  startDate: string | null;
+  endDate: string | null;
   appliesTo: 'category' | 'product' | 'segment' | 'vendor' | 'tag' | 'bundle';
   productCategoryIds: string[];
   excludeCategoryIds: string[];
@@ -49,12 +50,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   const form = useForm<PricingFormValues>({
     defaultValues: {
       name: '',
-      status: '',
-      discountType: 'fixed',
-      discountValue: 0,
-      priceAdjustType: 'none',
-      priceAdjustFactor: 0,
-      bonusProductId: '',
+      status: 'draft',
+      isPriority: false,
+      startDate: null,
+      endDate: null,
       appliesTo: 'category',
       productCategoryIds: [],
       excludeCategoryIds: [],
@@ -68,12 +67,27 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
     },
   });
 
-  const discountType = form.watch('discountType');
   const appliesTo = form.watch('appliesTo');
-  const name = form.watch('name');
-  const status = form.watch('status');
+  const formValues = form.watch();
 
-  const isFormValid = name.trim() !== '' && status !== '';
+  const formatDateValue = (value?: Date) => {
+    if (!value) {
+      return null;
+    }
+
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const isDateRangeValid =
+    !formValues.startDate ||
+    !formValues.endDate ||
+    formValues.startDate <= formValues.endDate;
+
+  const isFormValid = formValues.name.trim().length > 0 && isDateRangeValid;
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
@@ -84,27 +98,25 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
 
   const handleSubmit = async (values: PricingFormValues) => {
     try {
-      const appliesToApplyTypeMap: Record<string, string> = {
-        category: 'category',
-        product: 'product',
-        segment: 'segment',
-        vendor: 'vendor',
-        tag: 'tag',
-        bundle: 'bundle',
-      };
-
-      const doc: any = {
+      const doc: Parameters<typeof createPricing>[0] = {
         name: values.name.trim(),
-        status: values.status || 'active',
-        type: values.discountType,
-        value: values.discountValue,
-        priceAdjustType: values.priceAdjustType,
-        priceAdjustFactor: values.priceAdjustFactor,
-        applyType: appliesToApplyTypeMap[values.appliesTo],
+        status: 'draft',
+        applyType: values.appliesTo,
+        isPriority: values.isPriority,
       };
 
-      if (values.discountType === 'bonus' && values.bonusProductId) {
-        doc.bonusProduct = values.bonusProductId;
+      if (values.startDate) {
+        doc.isStartDateEnabled = true;
+        doc.startDate = values.startDate;
+      } else {
+        doc.isStartDateEnabled = false;
+      }
+
+      if (values.endDate) {
+        doc.isEndDateEnabled = true;
+        doc.endDate = values.endDate;
+      } else {
+        doc.isEndDateEnabled = false;
       }
 
       if (values.appliesTo === 'category') {
@@ -162,7 +174,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <Sheet.Trigger asChild>{trigger ?? defaultTrigger}</Sheet.Trigger>
-      <Sheet.View className="flex-col p-0 h-full max-h-screen sm:max-w-md">
+      <Sheet.View className="flex-col h-full max-h-screen p-0 sm:max-w-md">
         <Sheet.Header className="px-5 shrink-0">
           <Sheet.Title className="text-lg font-bold">
             Create Pricing
@@ -175,7 +187,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
             onSubmit={form.handleSubmit(handleSubmit)}
             className="flex flex-col flex-1 min-h-0 bg-background"
           >
-            <div className="overflow-y-auto flex-1 px-5 py-5 space-y-4 min-h-0">
+            <div className="flex-1 min-h-0 px-5 py-5 space-y-4 overflow-y-auto">
               <Form.Field
                 control={form.control}
                 name="name"
@@ -193,149 +205,42 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
 
               <Form.Field
                 control={form.control}
-                name="status"
+                name="isPriority"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
-                      Status <span className="text-destructive">*</span>
-                    </Form.Label>
+                    <Form.Label>Priority</Form.Label>
                     <Form.Control>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger className="bg-background">
-                          <Select.Value placeholder="Select status" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value="active">Active</Select.Item>
-                          <Select.Item value="archived">Archived</Select.Item>
-                          <Select.Item value="draft">Draft</Select.Item>
-                          <Select.Item value="completed">Completed</Select.Item>
-                        </Select.Content>
-                      </Select>
+                      <div className="flex items-center h-9">
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) =>
+                            field.onChange(checked === true)
+                          }
+                        />
+                      </div>
                     </Form.Control>
                   </Form.Item>
                 )}
               />
 
-              <Form.Field
-                control={form.control}
-                name="discountType"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Discount type</Form.Label>
-                    <Form.Control>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger className="bg-background">
-                          <Select.Value placeholder="Select discount type" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          {DISCOUNT_TYPES.map((option) => (
-                            <Select.Item
-                              key={option.value}
-                              value={option.value}
-                            >
-                              {option.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
-
-              {discountType !== 'bonus' && (
-                <>
-                  <Form.Field
-                    control={form.control}
-                    name="discountValue"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Discount value</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value) || 0)
-                            }
-                            placeholder="0"
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="priceAdjustType"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Price adjust type</Form.Label>
-                        <Form.Control>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <Select.Trigger className="bg-background">
-                              <Select.Value placeholder="None" />
-                            </Select.Trigger>
-                            <Select.Content>
-                              {PRICE_ADJUST_TYPES.map((option) => (
-                                <Select.Item
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </Select.Item>
-                              ))}
-                            </Select.Content>
-                          </Select>
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="priceAdjustFactor"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Price adjust factor</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value) || 0)
-                            }
-                            placeholder="0"
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                </>
-              )}
-
-              {discountType === 'bonus' && (
+              <div className="grid grid-cols-2 gap-4">
                 <Form.Field
                   control={form.control}
-                  name="bonusProductId"
+                  name="startDate"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Bonus product</Form.Label>
+                      <Form.Label>Start date</Form.Label>
                       <Form.Control>
-                        <SelectProduct
-                          value={field.value}
-                          onValueChange={(value) =>
+                        <DatePicker
+                          value={
+                            field.value ? new Date(field.value) : undefined
+                          }
+                          placeholder="Select start date"
+                          onChange={(value) =>
                             field.onChange(
-                              Array.isArray(value) ? value[0] : value,
+                              formatDateValue(
+                                value instanceof Date ? value : undefined,
+                              ),
                             )
                           }
                         />
@@ -343,7 +248,38 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     </Form.Item>
                   )}
                 />
-              )}
+
+                <Form.Field
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>End date</Form.Label>
+                      <Form.Control>
+                        <DatePicker
+                          value={
+                            field.value ? new Date(field.value) : undefined
+                          }
+                          placeholder="Select end date"
+                          onChange={(value) =>
+                            field.onChange(
+                              formatDateValue(
+                                value instanceof Date ? value : undefined,
+                              ),
+                            )
+                          }
+                        />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
+              </div>
+
+              <div className="flex items-center my-4">
+                <div className="flex-1 border-t" />
+                <Form.Label className="mx-2">More Info</Form.Label>
+                <div className="flex-1 border-t" />
+              </div>
 
               <Form.Field
                 control={form.control}

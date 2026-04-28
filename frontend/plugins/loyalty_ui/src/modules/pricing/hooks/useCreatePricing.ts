@@ -4,11 +4,7 @@ import { PRICING_PLAN_ADD } from '@/pricing/graphql/mutations';
 interface ICreatePricingDoc {
   name: string;
   status: string;
-  type?: string;
-  value?: number;
-  priceAdjustType?: string;
-  priceAdjustFactor?: number;
-  bonusProduct?: string;
+  isPriority?: boolean;
   applyType?: string;
   categories?: string[];
   categoriesExcluded?: string[];
@@ -19,6 +15,10 @@ interface ICreatePricingDoc {
   tags?: string[];
   tagsExcluded?: string[];
   productsBundle?: string[][];
+  isStartDateEnabled?: boolean;
+  isEndDateEnabled?: boolean;
+  startDate?: string;
+  endDate?: string;
 }
 
 interface ICreatePricingVariables {

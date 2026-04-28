@@ -6,6 +6,8 @@ interface PricingEditSidebarProps {
   activeTab: string;
 }
 
+const RULE_TABS = ['rules', 'common', 'quantity', 'price', 'expiry'];
+
 export const PricingEditSidebar = ({ activeTab }: PricingEditSidebarProps) => {
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
@@ -16,7 +18,11 @@ export const PricingEditSidebar = ({ activeTab }: PricingEditSidebarProps) => {
               <PricingEditSidebarItem
                 key={step.value}
                 to={step.value}
-                isActive={activeTab === step.value}
+                isActive={
+                  step.value === 'rules'
+                    ? RULE_TABS.includes(activeTab)
+                    : activeTab === step.value
+                }
               >
                 {step.title}
               </PricingEditSidebarItem>
