@@ -35,6 +35,28 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     return cpUserService.updateUser(cpUser._id, params, models);
   },
 
+  async clientPortalUsersVerify(
+    _root: unknown,
+    params: { type: 'email' | 'phone'; userIds: string[] },
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    const { type, userIds } = params;
+
+    const updateField =
+      type === 'email' ? { isEmailVerified: true } : { isPhoneVerified: true };
+
+    await models.ClientPortal.updateMany(
+      { _id: { $in: userIds } },
+      { $set: updateField },
+    );
+
+    return { success: true };
+  },
+
   async clientPortalCustomerEdit(
     _root: unknown,
     params: Pick<
