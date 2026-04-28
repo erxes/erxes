@@ -1,16 +1,23 @@
-import { Dialog, isDeeplyEqual, Spinner, useQueryState, toast } from 'erxes-ui';
+import {
+  Sheet,
+  isDeeplyEqual,
+  Spinner,
+  useQueryState,
+  toast,
+  Button,
+} from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { ProductRulesOnTaxForm } from './ProductRulesOnTaxForm';
-
-import { EBarimtDialog } from '~/modules/ebarimt/put-response/layout/components/Dialog';
 import {
   productRulesOnTaxSchema,
   TProductRulesOnTaxForm,
 } from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxSchema.ts';
 import { useProductRulesOnTaxEdit } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxEdit';
 import { useProductRulesOnTaxRowDetail } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxRowDetail';
+
+const FORM_ID = 'edit-product-rules-form';
 
 export const EditProductRulesOnTax = () => {
   const [open, setOpen] = useQueryState<string>('product_rules_on_tax_id');
@@ -40,67 +47,47 @@ export const EditProductRulesOnTax = () => {
 
   useEffect(() => {
     if (productRulesOnTaxDetail) {
-      const productCategories =
-        productRulesOnTaxDetail.productCategoryIds?.join(', ') || '';
-      const excludeCategories =
-        productRulesOnTaxDetail.excludeCategoryIds?.join(', ') || '';
-      const products = productRulesOnTaxDetail.productIds?.join(', ') || '';
-      const excludeProducts =
-        productRulesOnTaxDetail.excludeProductIds?.join(', ') || '';
-      const tags = productRulesOnTaxDetail.tagIds?.join(', ') || '';
-      const excludeTags =
-        productRulesOnTaxDetail.excludeTagIds?.join(', ') || '';
-
       reset({
         title: productRulesOnTaxDetail.title || '',
         taxType: productRulesOnTaxDetail.taxType || '',
         taxCode: productRulesOnTaxDetail.taxCode || '',
         kind: productRulesOnTaxDetail.kind || '',
         percent: productRulesOnTaxDetail.taxPercent || 0,
-        productCategoryIds: productCategories,
-        excludeCategoryIds: excludeCategories,
-        productIds: products,
-        excludeProductIds: excludeProducts,
-        tagIds: tags,
-        excludeTagIds: excludeTags,
+        productCategoryIds:
+          productRulesOnTaxDetail.productCategoryIds?.join(', ') || '',
+        excludeCategoryIds:
+          productRulesOnTaxDetail.excludeCategoryIds?.join(', ') || '',
+        productIds: productRulesOnTaxDetail.productIds?.join(', ') || '',
+        excludeProductIds:
+          productRulesOnTaxDetail.excludeProductIds?.join(', ') || '',
+        tagIds: productRulesOnTaxDetail.tagIds?.join(', ') || '',
+        excludeTagIds: productRulesOnTaxDetail.excludeTagIds?.join(', ') || '',
         status: productRulesOnTaxDetail.status || '',
       });
     }
   }, [productRulesOnTaxDetail, reset]);
 
+  const handleClose = (isOpen: boolean) => {
+    if (!isOpen) setOpen(null);
+  };
+
   const handleSubmit = (data: TProductRulesOnTaxForm) => {
     if (!productRulesOnTaxDetail) return;
 
-    const productCategoryIds = data.productCategoryIds
-      ? data.productCategoryIds.split(',').map((s) => s.trim())
-      : [];
-    const excludeCategoryIds = data.excludeCategoryIds
-      ? data.excludeCategoryIds.split(',').map((s) => s.trim())
-      : [];
-    const productIds = data.productIds
-      ? data.productIds.split(',').map((s) => s.trim())
-      : [];
-    const excludeProductIds = data.excludeProductIds
-      ? data.excludeProductIds.split(',').map((s) => s.trim())
-      : [];
-    const tagIds = data.tagIds
-      ? data.tagIds.split(',').map((s) => s.trim())
-      : [];
-    const excludeTagIds = data.excludeTagIds
-      ? data.excludeTagIds.split(',').map((s) => s.trim())
-      : [];
+    const toArray = (val: string | undefined) =>
+      val ? val.split(',').map((s) => s.trim()) : [];
 
     const newData: any = {
       title: data.title,
       taxType: data.taxType,
       taxCode: data.taxCode,
       kind: data.kind,
-      productCategoryIds,
-      excludeCategoryIds,
-      productIds,
-      excludeProductIds,
-      tagIds,
-      excludeTagIds,
+      productCategoryIds: toArray(data.productCategoryIds),
+      excludeCategoryIds: toArray(data.excludeCategoryIds),
+      productIds: toArray(data.productIds),
+      excludeProductIds: toArray(data.excludeProductIds),
+      tagIds: toArray(data.tagIds),
+      excludeTagIds: toArray(data.excludeTagIds),
     };
 
     if (data.kind !== 'ctax') {
@@ -123,17 +110,13 @@ export const EditProductRulesOnTax = () => {
 
     const comparisonData = { ...newData };
     const comparisonInitial = { ...initialData };
-
     if (data.kind === 'ctax') {
       delete comparisonData.taxPercent;
       delete comparisonInitial.taxPercent;
     }
 
     if (isDeeplyEqual(comparisonData, comparisonInitial)) {
-      toast({
-        title: 'Success',
-        description: 'No changes made',
-      });
+      toast({ title: 'Success', description: 'No changes made' });
       reset();
       return closeDetail();
     }
@@ -166,25 +149,42 @@ export const EditProductRulesOnTax = () => {
   };
 
   return (
-    <Dialog
-      open={open !== null}
-      onOpenChange={(isOpen) => !isOpen && setOpen(null)}
-    >
-      <EBarimtDialog
-        title="Edit Product Rules On Tax"
-        description="Edit a product rules on tax"
-      >
-        <ProductRulesOnTaxForm
-          form={form}
-          onSubmit={handleSubmit}
-          loading={editLoading || loading}
-        />
-        {loading && (
-          <div className="absolute inset-0 bg-background/10 backdrop-blur-sm flex items-center justify-center rounded-md">
-            <Spinner />
-          </div>
-        )}
-      </EBarimtDialog>
-    </Dialog>
+    <Sheet open={open !== null} onOpenChange={handleClose}>
+      <Sheet.View side="right" className="bg-background sm:max-w-2xl">
+        <Sheet.Header>
+          <Sheet.Title>Edit Product Rules On Tax</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
+        <div className="flex-1 overflow-y-auto px-5 py-4 relative">
+          <ProductRulesOnTaxForm
+            form={form}
+            onSubmit={handleSubmit}
+            loading={editLoading || loading}
+            isSheet
+            formId={FORM_ID}
+          />
+          {loading && (
+            <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+              <Spinner />
+            </div>
+          )}
+        </div>
+        <Sheet.Footer className="gap-2 border-t bg-background">
+          <Sheet.Close asChild>
+            <Button variant="outline" size="lg">
+              Cancel
+            </Button>
+          </Sheet.Close>
+          <Button
+            type="submit"
+            form={FORM_ID}
+            size="lg"
+            disabled={editLoading || loading}
+          >
+            {editLoading ? <Spinner /> : 'Save'}
+          </Button>
+        </Sheet.Footer>
+      </Sheet.View>
+    </Sheet>
   );
 };

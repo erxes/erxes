@@ -11,7 +11,7 @@ export const EBarimtSidebar = () => {
             {Object.entries(SETTINGS_ROUTES).map(([path, label]) => (
               <EBarimtSidebarItem
                 key={path}
-                to={`/settings/mongolian/ebarimt/${path}`}
+                to={path ? `/settings/mongolian/ebarimt/${path}` : '/settings/mongolian/ebarimt'}
               >
                 {label}
               </EBarimtSidebarItem>
@@ -30,7 +30,9 @@ export const EBarimtSidebarItem = ({
   to: string;
   children: React.ReactNode;
 }) => {
-  const isActive = useLocation().pathname === to;
+  const pathname = useLocation().pathname.replace(/\/$/, '');
+  const normalizedTo = to.replace(/\/$/, '');
+  const isActive = pathname === normalizedTo;
   return (
     <Sidebar.MenuItem>
       <Sidebar.MenuButton asChild isActive={isActive}>

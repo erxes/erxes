@@ -2,12 +2,20 @@ import { useMutation } from '@apollo/client';
 import {
   CREATE_MN_CONFIG,
   UPDATE_MN_CONFIG,
+  GET_MN_CONFIGS,
 } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { useToast } from 'erxes-ui';
 
+const refetchOptions = [{ query: GET_MN_CONFIGS, variables: { code: 'posInEbarimt' } }];
+
 export const useSavePosInEbarimtConfig = () => {
-  const [createConfig] = useMutation(CREATE_MN_CONFIG);
-  const [updateConfig] = useMutation(UPDATE_MN_CONFIG);
+  const [createConfig, { loading: createLoading }] = useMutation(CREATE_MN_CONFIG, {
+    refetchQueries: refetchOptions,
+  });
+  const [updateConfig, { loading: updateLoading }] = useMutation(UPDATE_MN_CONFIG, {
+    refetchQueries: refetchOptions,
+  });
+  const loading = createLoading || updateLoading;
   const toast = useToast();
 
   const savePosInEbarimtConfig = async (
@@ -57,5 +65,5 @@ export const useSavePosInEbarimtConfig = () => {
     }
   };
 
-  return { savePosInEbarimtConfig };
+  return { savePosInEbarimtConfig, loading };
 };

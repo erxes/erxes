@@ -1,6 +1,5 @@
 export const PRODUCT_GROUP_ROW_PER_PAGE = 20;
 
 export const PRODUCT_GROUP_ROW_DEFAULT_VARIABLES = {
-  page: 1,
-  perPage: PRODUCT_GROUP_ROW_PER_PAGE,
+  limit: PRODUCT_GROUP_ROW_PER_PAGE,
 };

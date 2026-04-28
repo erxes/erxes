@@ -14,7 +14,7 @@ interface ResponseTemplateDropdownProps {
   suggestions: TemplateSuggestion[];
   selectedIndex: number;
   availableChannels?: IChannel[];
-  onSelect: (content: string) => void;
+  onSelect: (content: string, templateId?: string) => void;
 }
 
 const TemplateItem = ({
@@ -28,7 +28,7 @@ const TemplateItem = ({
   index: number;
   isSelected: boolean;
   channelName?: string;
-  onSelect: (content: string) => void;
+  onSelect: (content: string, templateId?: string) => void;
 }) => (
   <div
     key={suggestion._id}
