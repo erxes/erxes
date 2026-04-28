@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Minimal reset */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+/* Optional: basic styling */
+body {
+  font-family: sans-serif;
+  background: #f9fafb;
+}

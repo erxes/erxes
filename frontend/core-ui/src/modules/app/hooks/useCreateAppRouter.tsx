@@ -36,9 +36,6 @@ const UserConfirmInvitationPage = lazy(
 );
 const LoginPage = lazy(() => import('~/pages/auth/LoginPage'));
 const ResetPasswordPage = lazy(() => import('~/pages/auth/ResetPasswordPage'));
-const DeviceAuthorizePage = lazy(
-  () => import('~/pages/oauth/DeviceAuthorizePage'),
-);
 const CreateOwnerPage = lazy(
   () => import('~/pages/organization/CreateOwnerPage'),
 );
@@ -52,6 +49,17 @@ const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
 
   return <>{children}</>;
 };
+let PaymentWidget: any = () => <div />;
+
+if (process.env.ENABLED_PLUGINS_UI?.includes('payment')) {
+  PaymentWidget = lazy(() =>
+    new Function('return import("payment_ui/widgets")')().then(
+      (module: any) => ({
+        default: module.default,
+      }),
+    ),
+  );
+}
 
 export const useCreateAppRouter = () => {
   const isOS = useVersion();
@@ -71,11 +79,11 @@ export const useCreateAppRouter = () => {
             path={AppPath.ConfirmInvitation}
             element={<UserConfirmInvitationPage />}
           />
+          <Route
+            path="/pl:payment/widget/invoice/:id"
+            element={<PaymentWidget />}
+          />
           <Route element={<UserProvider />}>
-            <Route
-              path={AppPath.OAuthDevice}
-              element={<DeviceAuthorizePage />}
-            />
             <Route
               element={
                 <OnboardingGuard>
@@ -134,6 +142,29 @@ export const useCreateAppRouter = () => {
                   }
                 />
               )}
+
+              {isOS && (
+                <Route
+                  path={AppPath.BroadcastsCatchAll}
+                  element={
+                    <PermissionRouteGuard module="broadcast">
+                      <BroadcastRoutes />
+                    </PermissionRouteGuard>
+                  }
+                />
+              )}
+
+              {isOS && (
+                <Route
+                  path={AppPath.TemplatesCatchAll}
+                  element={<TemplateRoutes />}
+                />
+              )}
+
+              <Route
+                path={AppPath.ImportExportCatchAll}
+                element={<ImportExportRoutes />}
+              />
 
               <Route
                 path={AppPath.BroadcastsCatchAll}
