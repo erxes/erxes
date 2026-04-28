@@ -86,6 +86,7 @@ export const GET_FORM_DETAIL = gql`
       numberOfPages
       leadData
       title
+      integrationId
     }
   }
 `;

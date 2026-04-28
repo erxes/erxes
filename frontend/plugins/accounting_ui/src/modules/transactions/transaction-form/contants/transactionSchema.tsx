@@ -5,7 +5,7 @@ import { TR_SIDES, TrJournalEnum } from '../../types/constants';
 export const undefed = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((val) => (val === null ? undefined : val), schema.optional());
 
-//#region common:
+// #region common:
 export const vatSchema = z.object({
   hasVat: undefed(z.boolean()),
   handleVat: undefed(z.boolean()),
@@ -104,9 +104,9 @@ export const baseTransactionSchema = z.object({
 
   extraData: undefed(z.any()),
 });
-//#endregion common
+// #endregion common
 
-//#region Single trs
+// #region Single trs
 export const transactionMainSchema = z.object({
   journal: z.literal(TrJournalEnum.MAIN),
   ...baseTransactionSchema.shape,
@@ -176,9 +176,9 @@ export const transactionTaxSchema = z.object({
   journal: z.literal(TrJournalEnum.TAX),
   ...baseTransactionSchema.shape,
 });
-//#endregion Single trs
+// #endregion Single trs
 
-//#region Inventories
+// #region Inventories
 export const invDetailSchema = z
   .object({
     ...baseTrDetailSchema.shape,
@@ -224,6 +224,7 @@ export const transactionInvIncomeSchema = z
     ),
   });
 
+// #region invOut
 export const transactionInvOutSchema = z
   .object({
     journal: z.literal(TrJournalEnum.INV_OUT),
@@ -239,7 +240,8 @@ export const transactionInvOutSchema = z
       }),
     ),
   });
-
+// #endregion invOut
+// #region invMove
 export const transactionInvMoveSchema = z
   .object({
     journal: z.literal(TrJournalEnum.INV_MOVE),
@@ -265,7 +267,8 @@ export const transactionInvMoveSchema = z
       }),
     ),
   });
-
+// #endregion invMove
+// #region invSale
 export const transactionInvSaleSchema = z
   .object({
     journal: z.literal(TrJournalEnum.INV_SALE),
@@ -291,7 +294,8 @@ export const transactionInvSaleSchema = z
       }),
     ),
   });
-
+// #endregion invSale
+// #region invReturnSale
 export const transactionInvSaleReturnSchema = z
   .object({
     journal: z.literal(TrJournalEnum.INV_SALE_RETURN),
@@ -321,8 +325,10 @@ export const transactionInvSaleReturnSchema = z
       }),
     ),
   });
-//#endregion Inventories
+// #endregion invReturnSale
+// #endregion Inventories
 
+// #region core
 export const trDocSchema = z
   .discriminatedUnion('journal', [
     transactionMainSchema,
@@ -378,3 +384,4 @@ export const transactionGroupSchema = z.object({
   date: z.date(),
   trDocs: z.array(trDocSchema).min(1),
 });
+// #endregion core

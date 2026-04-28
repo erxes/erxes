@@ -1,5 +1,5 @@
-import { IconPlus, IconInfoCircle } from '@tabler/icons-react';
-import { Button, Input, Form, Sheet, Alert } from 'erxes-ui';
+import { IconPlus, IconInfoCircle, IconX } from '@tabler/icons-react';
+import { Button, Input, Form, Dialog, Alert } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -52,7 +52,6 @@ const GMAIL_CONFIG = {
   appPasswordGuide: 'https://support.google.com/accounts/answer/185833',
 };
 
-/* ── Shared FormField ────────────────────────────────────────────────── */
 
 export const ImapFormField = ({
   name,
@@ -86,7 +85,6 @@ export const ImapFormField = ({
   />
 );
 
-/* ── Gmail helper ────────────────────────────────────────────────────── */
 
 const GmailConfigHelper = () => (
   <Alert className="mb-4">
@@ -111,7 +109,6 @@ const GmailConfigHelper = () => (
   </Alert>
 );
 
-/* ── Add sheet ───────────────────────────────────────────────────────── */
 
 export const ImapIntegrationFormSheet = () => {
   const [isOpen, setIsOpen] = useAtom(imapFormSheetAtom);
@@ -157,69 +154,81 @@ export const ImapIntegrationFormSheet = () => {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <Sheet.Trigger asChild>
-        <Button className="h-9">
-          <IconPlus className="h-4 w-4 mr-2" />
-          Add IMAP Integration
-        </Button>
-      </Sheet.Trigger>
-
-      <Sheet.View className="sm:max-w-2xl">
-        <Sheet.Header>
-          <Sheet.Title>Add IMAP Integration</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-
-        <Sheet.Content className="px-6 py-4 overflow-y-auto max-h-[calc(100vh-180px)]">
-          <GmailConfigHelper />
-
-          <Form {...form}>
-            <form
-              id="imap-form"
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="grid grid-cols-1 gap-3"
-            >
-              {IMAP_FORM_FIELDS.map((field) => (
-                <ImapFormField key={field.name} {...field} control={form.control} />
-              ))}
-
-              <Form.Field
-                name="brandId"
-                control={form.control}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      Brand <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectBrand
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Select a brand"
-                        className="w-full h-10 rounded-lg border bg-background"
-                      />
-                    </Form.Control>
-                    <Form.Description>
-                      Choose the brand for this integration
-                    </Form.Description>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </form>
-          </Form>
-        </Sheet.Content>
-
-        <Sheet.Footer className="px-6 py-4">
-          <Button variant="outline" onClick={() => setIsOpen(false)} disabled={loading}>
-            Cancel
+    <div>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog.Trigger asChild>
+          <Button>
+            <IconPlus />
+            Add IMAP Integration
           </Button>
-          <Button type="submit" form="imap-form" disabled={loading}>
-            {loading ? 'Saving…' : 'Save'}
-          </Button>
-        </Sheet.Footer>
-      </Sheet.View>
-    </Sheet>
+        </Dialog.Trigger>
+
+        <Dialog.Content className="p-0 gap-0 max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+          <Dialog.Header className="flex-row items-center justify-between space-y-0 px-5 h-14 border-b flex-none">
+            <Dialog.Title>Add IMAP Integration</Dialog.Title>
+            <Dialog.Close asChild>
+              <Button variant="secondary" size="icon" className="ml-auto">
+                <IconX />
+              </Button>
+            </Dialog.Close>
+          </Dialog.Header>
+
+          <div className="flex-1 overflow-y-auto flex flex-col gap-4 py-6 px-6">
+            <GmailConfigHelper />
+
+            <Form {...form}>
+              <form
+                id="imap-form"
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="grid grid-cols-1 gap-3"
+              >
+                {IMAP_FORM_FIELDS.map((field) => (
+                  <ImapFormField key={field.name} {...field} control={form.control} />
+                ))}
+
+                <Form.Field
+                  name="brandId"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>
+                        Brand <span className="text-destructive">*</span>
+                      </Form.Label>
+                      <Form.Control>
+                        <SelectBrand
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select a brand"
+                          className="w-full h-10 rounded-lg border bg-background"
+                        />
+                      </Form.Control>
+                      <Form.Description>
+                        Choose the brand for this integration
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </form>
+            </Form>
+          </div>
+
+          <div className="flex items-center h-14 px-5 border-t flex-none">
+            <Dialog.Close asChild>
+              <Button
+                className="mr-auto text-muted-foreground"
+                variant="ghost"
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            </Dialog.Close>
+            <Button type="submit" form="imap-form" disabled={loading}>
+              {loading ? 'Saving…' : 'Save'}
+            </Button>
+          </div>
+        </Dialog.Content>
+      </Dialog>
+    </div>
   );
 };

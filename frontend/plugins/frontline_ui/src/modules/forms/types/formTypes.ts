@@ -9,7 +9,7 @@ export interface IFormFieldLogics {
 
 export interface IForm {
   _id: string;
-  channelId: string;
+  channelId?: string;
   name: string;
   title: string;
   code: string;
@@ -20,12 +20,13 @@ export interface IForm {
   buttonText: string;
   fields: IFormField[];
   leadData: ILeadData;
-  channelId?: string;
   channel?: IChannel;
+  integrationId?: string;
 }
 
 export interface ILeadData {
   appearance: string;
+  loadType: string;
   thankTitle: string;
   thankContent: string;
   thankImage: IAttachment;

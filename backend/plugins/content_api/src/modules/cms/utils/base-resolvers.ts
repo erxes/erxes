@@ -39,13 +39,10 @@ export class BaseQueryResolver {
   }
 
   protected buildTranslationMap(translations: any[]): Record<string, any> {
-    return translations.reduce(
-      (acc, translation) => {
-        acc[translation.objectId.toString()] = translation;
-        return acc;
-      },
-      {} as Record<string, any>,
-    );
+    return translations.reduce((acc, translation) => {
+      acc[translation.objectId.toString()] = translation;
+      return acc;
+    }, {} as Record<string, any>);
   }
 
   protected applyTranslationsToList<T extends { _id: string }>(
@@ -191,8 +188,8 @@ export class BaseQueryResolver {
       args.language,
       translationType,
     );
-    const translatedList = this.applyTranslationsToList(
-      list,
+    const translatedList = this.applyTranslationsToList<T>(
+      list as T[],
       translations,
       fieldMappings,
     );
@@ -364,6 +361,10 @@ export const FIELD_MAPPINGS = {
   CATEGORY: {
     name: 'title',
     description: 'content',
+    customFieldsData: 'customFieldsData',
+  },
+  TAG: {
+    name: 'title',
   },
   PAGE: {
     name: 'title',

@@ -5,4 +5,6 @@ export enum IntegrationType {
   ERXES_MESSENGER = 'messenger',
   CALL = 'calls',
   MESSAGE_PRO = 'message-pro',
+  INSTAGRAM_MESSENGER = 'instagram-messenger',
+  INSTAGRAM_POST = 'instagram-post',
 }

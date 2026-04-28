@@ -77,6 +77,8 @@ export interface NodeControlsProps {
   onSaveChanges?: () => void;
   isCreating?: boolean;
   saving?: boolean;
+  onOpenSlots?: () => void;
+  slotsOpen?: boolean;
 }
 
 export interface MiniMapToggleProps {

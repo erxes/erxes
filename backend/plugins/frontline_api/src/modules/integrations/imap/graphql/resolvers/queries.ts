@@ -1,11 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 
-/* ── email-body parsing helpers ─────────────────────────────────────── */
 
-/**
- * Returns the "new content" div from a Gmail-formatted reply, or undefined
- * if the pattern is not present.
- */
 export const extractNewContent = (html: string): string | undefined => {
   const start = html.indexOf('<div dir="ltr">');
   if (start === -1) return undefined;
@@ -14,9 +9,7 @@ export const extractNewContent = (html: string): string | undefined => {
   return html.substring(start, end + '</div><br>'.length);
 };
 
-/**
- * Returns the quoted-reply block from a Gmail-formatted reply, or undefined.
- */
+
 export const extractQuotedReply = (html: string): string | undefined => {
   const start = html.indexOf('<div class="gmail_quote">');
   if (start === -1) return undefined;
@@ -25,17 +18,14 @@ export const extractQuotedReply = (html: string): string | undefined => {
   return html.substring(start, end);
 };
 
-/** Normalise a body that contains only a literal "false" node. */
 const sanitiseBody = (body: string): string =>
   body === '<div dir="ltr">false</div>\n' ? '<div dir="ltr"></div>\n' : body;
 
-/** Map Mongoose address objects → frontend-friendly `{name, email}` pairs. */
 const convertEmails = (
   emails: { name?: string; address?: string }[] | undefined,
 ) =>
   (emails ?? []).map(({ name, address }) => ({ name, email: address }));
 
-/* ── resolvers ──────────────────────────────────────────────────────── */
 
 export const imapQueries = {
   async imapConversationDetail(

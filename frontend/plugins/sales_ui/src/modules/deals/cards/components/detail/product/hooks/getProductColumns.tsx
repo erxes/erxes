@@ -1,4 +1,3 @@
-
 import {
   Checkbox,
   CurrencyCode,
@@ -22,8 +21,6 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import { useUpdateProductRecord } from '../hooks/useProductRecord';
 import { calculateProductValues } from '../hooks/useProductCalculations';
-import { useAtomValue } from 'jotai';
-import { onLocalChangeAtom } from '../productTableAtom';
 
 export const ProductNumberField = ({
   value,
@@ -35,7 +32,7 @@ export const ProductNumberField = ({
 
   return (
     <NumberField
-     key={`${_id}-${field}-${value}`}
+      key={`${_id}-${field}-${value}`}
       value={value}
       scope={`product-${_id}-${field}`}
       onSave={(value) => {
@@ -51,10 +48,8 @@ export const ProductCalculatedNumberField = ({
   _id,
   product,
 }: INumberFieldContainerProps & { product: IProductData }) => {
-
   const { updateRecord } = useUpdateProductRecord();
- const onLocalChange = useAtomValue(onLocalChangeAtom);
- 
+
   return (
     <NumberField
       value={value}
@@ -63,7 +58,6 @@ export const ProductCalculatedNumberField = ({
         const base = { ...product, [field]: value };
         const updates = calculateProductValues(field, base);
         const fullUpdate = { [field]: value, ...updates };
-        onLocalChange?.(_id, fullUpdate);
         updateRecord(product, fullUpdate);
       }}
     />
@@ -128,12 +122,10 @@ export const ProductAssigneeField = ({
 export const ProductCurrencyField = ({
   value,
   field,
-  _id,
   product,
 }: {
   value: CurrencyCode;
   field: string;
-  _id: string;
   product: IProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
@@ -152,12 +144,10 @@ export const ProductCurrencyField = ({
 export const ProductUOMField = ({
   value,
   field,
-  _id,
   product,
 }: {
   value: string;
   field: string;
-  _id: string;
   product: IProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
@@ -173,12 +163,10 @@ export const ProductUOMField = ({
 export const ProductBranchField = ({
   value,
   field,
-  _id,
   product,
 }: {
   value: string;
   field: string;
-  _id: string;
   product: IProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
@@ -197,12 +185,10 @@ export const ProductBranchField = ({
 export const ProductDepartmentField = ({
   value,
   field,
-  _id,
   product,
 }: {
   value: string;
   field: string;
-  _id: string;
   product: IProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
@@ -266,7 +252,6 @@ export const currency: ColumnDef<IProductData> = {
         <ProductCurrencyField
           value={cell.getValue() as CurrencyCode}
           field="currency"
-          _id={cell.row.original._id}
           product={cell.row.original}
         />
       </RecordTableInlineCell>
@@ -284,7 +269,6 @@ export const uom: ColumnDef<IProductData> = {
         <ProductUOMField
           value={cell.getValue() as string}
           field="uom"
-          _id={cell.row.original._id}
           product={cell.row.original}
         />
       </RecordTableInlineCell>
@@ -301,7 +285,6 @@ export const branch: ColumnDef<IProductData> = {
       <ProductBranchField
         value={cell.getValue() as string}
         field="branchId"
-        _id={cell.row.original._id}
         product={cell.row.original}
       />
     );
@@ -320,7 +303,6 @@ export const department: ColumnDef<IProductData> = {
         <ProductDepartmentField
           value={cell.getValue() as string}
           field="departmentId"
-          _id={cell.row.original._id}
           product={cell.row.original}
         />
       </RecordTableInlineCell>

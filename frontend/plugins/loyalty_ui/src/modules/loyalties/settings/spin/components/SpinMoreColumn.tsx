@@ -9,8 +9,9 @@ import {
   useToast,
   useQueryState,
 } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconTicket } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useNavigate } from 'react-router';
 import { useDeleteSpin } from '../hooks/useDeleteSpin';
 import { ISpin } from '../types/spinTypes';
 
@@ -24,9 +25,14 @@ export const SpinMoreColumnCell = ({
   const { removeSpin, loading } = useDeleteSpin();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleEdit = (spinId: string) => {
     setEditSpinId(spinId);
+  };
+
+  const handleSeeSpins = () => {
+    navigate(`/loyalty/spins?voucherCampaignId=${_id}`);
   };
   const handleDelete = () => {
     if (!_id) return;
@@ -67,6 +73,9 @@ export const SpinMoreColumnCell = ({
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
               <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="see-spins" onSelect={handleSeeSpins}>
+              <IconTicket /> See spins
             </Command.Item>
             <Command.Item asChild>
               <Button

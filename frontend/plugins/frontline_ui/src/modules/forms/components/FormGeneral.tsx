@@ -14,6 +14,7 @@ export const FormGeneral = () => {
     defaultValues: {
       primaryColor: '',
       appearance: 'iframe',
+      loadType: 'embedded',
       title: 'title',
       description: '',
       channelId: '',
@@ -21,7 +22,7 @@ export const FormGeneral = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof FORM_GENERAL_SCHEMA>) => null;
+  const onSubmit = (_values: z.infer<typeof FORM_GENERAL_SCHEMA>) => null;
 
   return (
     <FormMutateLayout
@@ -93,6 +94,31 @@ export const FormGeneral = () => {
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value="messenger" className="flex-auto">
                     Messenger
+                  </ToggleGroup.Item>
+                </ToggleGroup>
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="loadType"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Load type</Form.Label>
+              <Form.Control>
+                <ToggleGroup
+                  type="single"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  variant="outline"
+                  className="max-w-96"
+                >
+                  <ToggleGroup.Item value="embedded" className="flex-auto">
+                    Embedded
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="popup" className="flex-auto">
+                    Popup
                   </ToggleGroup.Item>
                 </ToggleGroup>
               </Form.Control>

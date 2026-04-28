@@ -1,116 +1,88 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { BaseQueryResolver, FIELD_MAPPINGS } from '@/cms/utils/base-resolvers';
 import { IContext } from '~/connectionResolvers';
-import { IPostTagDocument } from '@/cms/@types/posts';
 import { Resolver } from 'erxes-api-shared/core-types';
 
-const getTagList = async (args: any, context: IContext) => {
-  const { models } = context;
-  const { searchValue, status, language } = args;
-  const clientPortalId = context.clientPortal?._id || args.clientPortalId;
-  const query = {
-    clientPortalId,
-    ...(status && { status }),
-  };
+class TagQueryResolver extends BaseQueryResolver {
+  private buildTagQuery(args: any, context: IContext, forClientPortal = false) {
+    const { searchValue, status } = args;
+    const clientPortalId = forClientPortal
+      ? context.clientPortal._id
+      : args.clientPortalId;
+    const query: any = {
+      clientPortalId,
+      ...(status && { status }),
+    };
 
-  if (searchValue) {
-    query.$or = [
-      { name: { $regex: searchValue, $options: 'i' } },
-      { slug: { $regex: searchValue, $options: 'i' } },
-    ];
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { slug: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
+    return { query, clientPortalId };
   }
 
-  const { list, totalCount, pageInfo } = await cursorPaginate({
-    model: models.PostTags,
-    params: args,
-    query,
-  });
+  async cmsTags(_parent: any, args: any, context: IContext): Promise<any> {
+    const { models } = context;
+    const { language } = args;
+    const { query, clientPortalId } = this.buildTagQuery(args, context);
 
-  if (!language) {
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+      models.PostTags,
+      query,
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.TAG,
+      'tag',
+    );
+
     return { tags: list, totalCount, pageInfo };
   }
 
-  const tagIds = list.map((tag) => tag._id);
-
-  const translations = await models.Translations.find({
-    objectId: { $in: tagIds },
-    language,
-  }).lean();
-
-  // ✅ Build a translation map for O(1) lookup
-  const translationMap = translations.reduce(
-    (acc, t) => {
-      acc[t.objectId.toString()] = t;
-      return acc;
-    },
-    {} as Record<string, any>,
-  );
-
-  const tagsWithTranslations = list.map((tag) => {
-    const translation = translationMap[tag._id.toString()];
-    return {
-      ...tag,
-      ...(translation && {
-        name: translation.title || tag.name,
-      }),
-    };
-  });
-
-  return { tags: tagsWithTranslations, totalCount, pageInfo };
-};
-
-export const contentCmsTagQueries: Record<string, Resolver> = {
-  /**
-   * Cms tags list
-   */
-  async cmsTags(_parent: any, args: any, context: IContext): Promise<any> {
-    return getTagList(args, context);
-  },
-
-  /**
-   * Cms tag
-   */
   async cmsTag(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
     const { _id, slug, language, clientPortalId } = args;
-    if (!_id && !slug) {
-      return null;
-    }
 
-    let tag: IPostTagDocument | null = null;
-    if (slug) {
-      tag = await models.PostTags.findOne({ slug, clientPortalId });
-    } else {
-      tag = await models.PostTags.findOne({ _id });
-    }
+    if (!_id && !slug) return null;
 
-    if (!tag) {
-      return null;
-    }
+    const query = slug
+      ? { slug, ...(clientPortalId ? { clientPortalId } : {}) }
+      : { _id };
 
-    if (!language) {
-      return tag;
-    }
-
-    const translation = await models.Translations.findOne({
-      objectId: tag._id,
+    return this.getItemWithTranslation(
+      models.PostTags,
+      query,
       language,
-      type: 'tag',
-    });
+      FIELD_MAPPINGS.TAG,
+      clientPortalId,
+      'tag',
+    );
+  }
 
-    return {
-      ...tag,
-      ...(translation && {
-        name: translation.title || tag.name,
-      }),
-    };
-  },
-
-  /**
-   * Cms tag list for client portal
-   */
   async cpCmsTags(_parent: any, args: any, context: IContext): Promise<any> {
-    return getTagList(args, context);
-  },
+    const { models } = context;
+    const { language } = args;
+    const { query, clientPortalId } = this.buildTagQuery(args, context, true);
+
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+      models.PostTags,
+      query,
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.TAG,
+      'tag',
+    );
+
+    return { tags: list, totalCount, pageInfo };
+  }
+}
+
+export const contentCmsTagQueries: Record<string, Resolver> = {
+  cmsTags: (_parent: any, args: any, context: IContext) =>
+    new TagQueryResolver(context).cmsTags(_parent, args, context),
+  cmsTag: (_parent: any, args: any, context: IContext) =>
+    new TagQueryResolver(context).cmsTag(_parent, args, context),
+  cpCmsTags: (_parent: any, args: any, context: IContext) =>
+    new TagQueryResolver(context).cpCmsTags(_parent, args, context),
 };
 
 contentCmsTagQueries.cpCmsTags.wrapperConfig = {

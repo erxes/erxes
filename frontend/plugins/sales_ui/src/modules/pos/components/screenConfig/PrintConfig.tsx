@@ -1,51 +1,35 @@
-import { useState, useEffect } from 'react';
+import { Control, Controller } from 'react-hook-form';
 import { Label, Switch } from 'erxes-ui';
+import type { ScreenConfigFormData } from './ScreenConfig';
 
 interface PrintConfigProps {
-  kitchenIsPrint?: boolean;
-  waitingIsPrint?: boolean;
-  onChange: (data: {
-    kitchenIsPrint: boolean;
-    waitingIsPrint: boolean;
-  }) => void;
+  control: Control<ScreenConfigFormData>;
 }
 
-export const PrintConfig: React.FC<PrintConfigProps> = ({
-  kitchenIsPrint,
-  waitingIsPrint,
-  onChange,
-}) => {
-  const [kitchenPrint, setKitchenPrint] = useState(kitchenIsPrint ?? false);
-  const [waitingPrint, setWaitingPrint] = useState(waitingIsPrint ?? false);
-
-  useEffect(() => {
-    setKitchenPrint(kitchenIsPrint ?? false);
-    setWaitingPrint(waitingIsPrint ?? false);
-  }, [kitchenIsPrint, waitingIsPrint]);
-
+export const PrintConfig: React.FC<PrintConfigProps> = ({ control }) => {
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div className="flex gap-2 items-center">
-        <Switch
-          checked={kitchenPrint}
-          onCheckedChange={(checked) => {
-            setKitchenPrint(checked);
-            onChange({ kitchenIsPrint: checked, waitingIsPrint: waitingPrint });
-          }}
-        />
-        <Label>KITCHEN PRINT</Label>
-      </div>
+      <Controller
+        name="kitchenIsPrint"
+        control={control}
+        render={({ field }) => (
+          <div className="flex gap-2 items-center">
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+            <Label>KITCHEN PRINT</Label>
+          </div>
+        )}
+      />
 
-      <div className="flex gap-2 items-center">
-        <Switch
-          checked={waitingPrint}
-          onCheckedChange={(checked) => {
-            setWaitingPrint(checked);
-            onChange({ kitchenIsPrint: kitchenPrint, waitingIsPrint: checked });
-          }}
-        />
-        <Label>WAITING PRINT</Label>
-      </div>
+      <Controller
+        name="waitingIsPrint"
+        control={control}
+        render={({ field }) => (
+          <div className="flex gap-2 items-center">
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+            <Label>WAITING PRINT</Label>
+          </div>
+        )}
+      />
     </div>
   );
 };

@@ -26,8 +26,10 @@ import {
   isInternalState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 
 import { AssignMemberInEditor } from 'ui-modules';
 import { Block } from '@blocknote/core';
@@ -47,8 +49,16 @@ export const MessageInput = ({
 }) => {
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
+  const setOnlyInternal = useSetAtom(onlyInternalState);
   const hideInput = useAtomValue(hideMessageInputState);
+  const { integration } = useConversationContext();
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
+  useEffect(() => {
+    const isLead = integration?.kind === 'lead';
+    setOnlyInternal(isLead);
+    if (isLead) setIsInternalNote(true);
+  }, [integration?.kind, setOnlyInternal, setIsInternalNote]);
+
   const { channels: availableChannels } = useGetChannels();
   const { responses } = useGetResponses({});
   const [content, setContent] = useState<Block[]>();
@@ -299,7 +309,7 @@ export const MessageInput = ({
             suggestions={suggestions}
             selectedIndex={selectedIndex}
             availableChannels={availableChannels}
-            onSelect={(content: string, templateId: string) => {
+            onSelect={(content: string, templateId?: string) => {
               handleTemplateSelect(content, templateId);
               setShowSuggestions(false);
             }}

@@ -62,7 +62,6 @@ export function findMatchingHandler(
   context: AfterProcessContext,
 ): RuleHandlerConfig | null {
   const config = handlerRegistry[rule.type];
-  console.log({ rule });
   if (!config) {
     return null;
   }

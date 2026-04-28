@@ -146,6 +146,8 @@ const createIframe = (settings: Settings) => {
     iframe.style.margin = '0 auto';
     iframe.style.height = '100%';
     iframe.allowFullscreen = true;
+    iframe.allowTransparency = true;
+    iframe.style.background = 'transparent';
   }
 
   iframe.src = INTEGRATION_URL;
@@ -170,6 +172,11 @@ const createIframe = (settings: Settings) => {
   // after iframe load send connection info
   iframe.onload = () => {
     iframe.style.display = 'inherit';
+
+    if (iframe.contentDocument?.body) {
+      iframe.contentDocument.body.style.background = 'transparent';
+      iframe.contentDocument.body.style.backgroundColor = 'transparent';
+    }
 
     const handlerSelector = `[data-erxes-modal="${settings.form_id}"]`;
 
@@ -258,6 +265,14 @@ const getSettings = (settings: Settings) =>
       s.channel_id === settings.channel_id && s.form_id === settings.form_id,
   );
 
+// Returns true if this form setting has a popup/modal trigger in the DOM.
+// Popup forms should always be initialised eagerly (iframe lives on body, hidden).
+// Embed forms should only be initialised once their placeholder element exists,
+// because moving an iframe node in the DOM forces a reload.
+const isPopupForm = (settings: Settings): boolean =>
+  document.querySelectorAll(`[data-erxes-modal="${settings.form_id}"]`).length >
+  0;
+
 const initForm = (settings: Settings) => {
   const key = getMappingKey(settings);
   if (!iframesMapping[key]) {
@@ -266,7 +281,20 @@ const initForm = (settings: Settings) => {
 };
 
 const initForms = () => {
-  formSettings.forEach(initForm);
+  formSettings.forEach((settings: Settings) => {
+    const embedContainer = document.querySelector(
+      `[data-erxes-embed="${settings.form_id}"]`,
+    );
+
+    // Initialise immediately if:
+    //   a) the embed placeholder is already in the DOM, or
+    //   b) this is a popup/modal form (no embed placeholder expected)
+    // Otherwise defer to the MutationObserver so the iframe is created directly
+    // inside the embed target and never needs to be moved (which would reload it).
+    if (embedContainer || isPopupForm(settings)) {
+      initForm(settings);
+    }
+  });
 };
 
 // Watch for embed containers added after initial load (e.g. React/SPA rendering)
@@ -277,6 +305,9 @@ const observeEmbedContainers = () => {
         `[data-erxes-embed="${settings.form_id}"]`,
       );
       if (embedContainer) {
+        // Embed placeholder just appeared — create the iframe directly inside it.
+        // We intentionally skip this in initForms when the placeholder is absent
+        // so that we never have to move an already-loaded iframe (which reloads it).
         initForm(settings);
       }
     });

@@ -5,6 +5,7 @@ export const InsertImportRowsInput = z.object({
   moduleName: z.string(),
   collectionName: z.string(),
   rows: z.array(z.any()),
+  userId: z.string(),
 });
 export const GetExportHeadersInput = z.object({
   moduleName: z.string(),

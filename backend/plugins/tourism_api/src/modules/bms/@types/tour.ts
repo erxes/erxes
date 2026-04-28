@@ -46,7 +46,7 @@ export interface ITour {
   groupSize: number;
   guides: IGuideItem[];
   status: string;
-  date_status: string;
+  date_status?: string;
   cost: number;
   branchId: string;
   tagIds?: string[];

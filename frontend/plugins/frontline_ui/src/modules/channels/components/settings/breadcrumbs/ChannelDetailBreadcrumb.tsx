@@ -11,7 +11,7 @@ export const ChannelDetailBreadcrumb = ({
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
-    if (id === 'fb-auth') {
+    if (id === 'fb-auth' || id === 'ig-auth') {
       window.close();
     }
   }, [id]);

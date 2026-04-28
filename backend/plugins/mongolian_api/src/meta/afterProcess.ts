@@ -20,7 +20,7 @@ export const afterProcess: AfterProcessConfigs = {
 
   afterMutation: async (ctx, input) => {
     const { mutationName, args, result, userId } = input?.data ?? {};
-    console.log({ mutationName, args, result, userId });
+
     if (!mutationName) return;
 
     const { itemId, destinationStageId, sourceStageId } = args || {};

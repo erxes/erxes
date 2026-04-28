@@ -56,6 +56,7 @@ export const formSetupValuesAtom = atom((get) => {
       numberOfPages: content.steps.length,
       leadData: {
         appearance: general.appearance,
+        loadType: general.loadType,
         thankTitle: confirmation.title,
         thankContent: confirmation.description,
         thankImage: confirmation.image,
@@ -120,6 +121,7 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
     buttonText: payload.buttonText,
     primaryColor: payload.leadData.primaryColor,
     appearance: payload.leadData.appearance,
+    loadType: payload.leadData.loadType || 'embedded',
   };
 
   const content = {

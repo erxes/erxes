@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useWidgetConnect } from './hooks/useWidgetConnect';
-import { hexToOklch, Skeleton } from 'erxes-ui';
+import { Dialog, hexToOklch, Skeleton } from 'erxes-ui';
 import { Container } from './components/container';
 import { ErxesFormProvider } from './context/erxesFormContext';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -20,6 +20,10 @@ export const Form = () => {
   const activeStep = useAtomValue(activeStepAtom);
   const setBrowserInfo = useSetAtom(browserInfoAtom);
   const showConfirmation = useAtomValue(showConfirmationAtom);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const loadType = form?.leadData?.loadType;
+  const isPopup = loadType === 'popup';
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -29,6 +33,9 @@ export const Form = () => {
         }
         if (event.data.message === 'sendingBrowserInfo') {
           setBrowserInfo(event.data.browserInfo || {});
+        }
+        if (event.data.action === 'showPopup') {
+          setIsPopupOpen(true);
         }
       }
     };
@@ -65,6 +72,26 @@ export const Form = () => {
     setTimeout(() => setSettingAppearance(false));
   }, [form?.leadData?.primaryColor]);
 
+  // Notify parent about connection so it can wire up [data-erxes-modal] click handlers
+  useEffect(() => {
+    if (!form) return;
+    postMessage('fromForms', 'connected', {
+      connectionInfo: {
+        widgetsLeadConnect: { form: { leadData: form.leadData } },
+      },
+      settings,
+    });
+  }, [form?._id]);
+
+  // Keep the parent container class in sync for popup mode
+  useEffect(() => {
+    if (!isPopup || !settings.form_id) return;
+    postMessage('fromForms', 'changeContainerClass', {
+      className: isPopupOpen ? 'erxes-modal-iframe' : 'erxes-modal-iframe hidden',
+      settings,
+    });
+  }, [isPopup, isPopupOpen, settings.form_id]);
+
   const { steps } = form?.leadData || {};
 
   const stepsArray = Object.values(steps || {});
@@ -77,34 +104,46 @@ export const Form = () => {
     return null;
   }
 
+  const formContent = (
+    <ErxesFormProvider form={form}>
+      {showConfirmation ? (
+        <ErxesFormFinal />
+      ) : (
+        !loading &&
+        form &&
+        stepsArray.length > 0 &&
+        stepsArray.map(
+          (step) =>
+            activeStep === step.order && (
+              <ErxesFormValues
+                key={step.name}
+                step={step}
+                stepsLength={stepsArray.length}
+                isLastStep={
+                  step.order ===
+                  stepsArray.reduce(
+                    (acc, curr) => (curr.order > acc ? curr.order : acc),
+                    0,
+                  )
+                }
+              />
+            ),
+        )
+      )}
+    </ErxesFormProvider>
+  );
+
+  if (isPopup) {
+    return (
+      <Dialog open={isPopupOpen} onOpenChange={setIsPopupOpen}>
+        <Dialog.Content className='p-0'>{formContent}</Dialog.Content>
+      </Dialog>
+    );
+  }
+
   return (
     <Container settings={settings} loading={loading}>
-      <ErxesFormProvider form={form}>
-        {showConfirmation ? (
-          <ErxesFormFinal />
-        ) : (
-          !loading &&
-          form &&
-          stepsArray.length > 0 &&
-          stepsArray.map(
-            (step) =>
-              activeStep === step.order && (
-                <ErxesFormValues
-                  key={step.name}
-                  step={step}
-                  stepsLength={stepsArray.length}
-                  isLastStep={
-                    step.order ===
-                    stepsArray.reduce(
-                      (acc, curr) => (curr.order > acc ? curr.order : acc),
-                      0,
-                    )
-                  }
-                />
-              ),
-          )
-        )}
-      </ErxesFormProvider>
+      {formContent}
     </Container>
   );
 };

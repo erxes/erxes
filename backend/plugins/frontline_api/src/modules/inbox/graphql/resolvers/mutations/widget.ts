@@ -1071,7 +1071,7 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetTicketCreated(
     _root,
     doc: ITicketWidget,
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const { statusId, ...restFields } = doc;
     const status = await models.Status.findOne({ _id: statusId });
@@ -1108,6 +1108,7 @@ export const widgetMutations: Record<string, Resolver> = {
         stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc),
         number: Date.now().toString(),
+        createdBy: user?._id,
       });
       await sendTRPCMessage({
         subdomain,

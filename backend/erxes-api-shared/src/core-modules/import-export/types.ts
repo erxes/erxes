@@ -24,6 +24,7 @@ export interface InsertImportRowsInputData {
   moduleName: string;
   collectionName: string;
   rows: any[];
+  userId: string;
 }
 export interface BatchSkipRowInputData {
   moduleName: string;
@@ -141,6 +142,7 @@ export interface ImportJobData {
     importId: string;
     entityType: string;
     fileKey: string;
+    userId: string;
   };
 }
 

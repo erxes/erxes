@@ -9,8 +9,17 @@ type Props = {
 const ConfigHeader: React.FC<Props> = ({ title, onNew, disabled }) => {
   return (
     <div className="flex items-center justify-between">
-      <h2 className="text-xl font-semibold">{title}</h2>
-      <Button variant="outline" onClick={onNew} disabled={disabled}>
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Manage product placement configurations for different stages
+        </p>
+      </div>
+      <Button
+        onClick={onNew}
+        disabled={disabled}
+        className="text-sm"
+      >
         + New Config
       </Button>
     </div>

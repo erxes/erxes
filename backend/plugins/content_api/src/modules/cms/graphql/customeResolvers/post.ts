@@ -65,9 +65,10 @@ export default {
   },
 
   async customFieldsMap(post: any, _params, { models, subdomain }: IContext) {
+    const postType = post.type || 'post';
     const query: any = {
       $or: [
-        { customPostTypeIds: post.type },
+        { customPostTypeIds: postType },
         { enabledCategoryIds: { $in: post.categoryIds || [] } },
         { enabledPostIds: { $in: [post._id] } },
       ],

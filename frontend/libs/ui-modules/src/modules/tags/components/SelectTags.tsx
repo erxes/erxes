@@ -1,5 +1,6 @@
 import { IconPlus, IconTag, IconTagPlus } from '@tabler/icons-react';
 import {
+  Badge,
   Button,
   Combobox,
   Command,
@@ -514,8 +515,9 @@ export const SelectTagsDetail = React.forwardRef<
 
 SelectTagsDetail.displayName = 'SelectTagsDetail';
 
+const MAX_VISIBLE_TAGS = 2;
+
 export const ConversationTagList = ({
-  placeholder,
   renderAsPlainText,
   ...props
 }: Omit<React.ComponentProps<typeof TagBadge>, 'onClose'> & {
@@ -528,42 +530,43 @@ export const ConversationTagList = ({
   const selectedTagIds = Array.isArray(value) ? value : [value];
 
   if (!value?.length) {
-    return (
-      <div className="flex items-center justify-center gap-2">
-        <IconTagPlus className="size-4 text-muted-foreground" />
-        <Combobox.Value placeholder={placeholder || ''} />
-      </div>
-    );
+    return null;
   }
 
+  const visibleIds = selectedTagIds.slice(0, MAX_VISIBLE_TAGS);
+  const overflowCount = selectedTagIds.length - MAX_VISIBLE_TAGS;
+
   return (
-    <ScrollArea className="flex-1">
-      <div className="flex flex-nowrap gap-2">
-        {selectedTagIds.map((tagId) => (
-          <TagBadge
-            key={tagId}
-            tagId={tagId}
-            tag={selectedTags.find((t) => t._id === tagId)}
-            renderAsPlainText={renderAsPlainText}
-            variant="secondary"
-            onCompleted={(tag) => {
-              if (!tag) return;
-              if (selectedTagIds.includes(tag._id)) {
-                setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
-              }
-              if (!selectedTags.includes(tag)) {
-                setSelectedTags([...selectedTags, tag]);
-              }
-            }}
-            onClose={() =>
-              onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
+    <div className="flex items-center gap-1 min-w-0">
+      {visibleIds.map((tagId) => (
+        <TagBadge
+          key={tagId}
+          tagId={tagId}
+          tag={selectedTags.find((t) => t._id === tagId)}
+          renderAsPlainText={renderAsPlainText}
+          variant="secondary"
+          className="max-w-24 shrink truncate"
+          onCompleted={(tag) => {
+            if (!tag) return;
+            if (selectedTagIds.includes(tag._id)) {
+              setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
             }
-            {...props}
-          />
-        ))}
-      </div>
-      <ScrollArea.Bar orientation="horizontal" />
-    </ScrollArea>
+            if (!selectedTags.includes(tag)) {
+              setSelectedTags([...selectedTags, tag]);
+            }
+          }}
+          onClose={() =>
+            onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
+          }
+          {...props}
+        />
+      ))}
+      {overflowCount > 0 && (
+        <Badge variant="secondary" className="shrink-0 text-xs">
+          +{overflowCount}
+        </Badge>
+      )}
+    </div>
   );
 };
 
@@ -602,13 +605,13 @@ export const SelectTagsConversationDetail = React.forwardRef<
         }}
         {...{ targetIds, tagType, value, mode, options }}
       >
-        <div className="flex gap-2 items-center overflow-x-hidden p-0.5">
+        <div className="flex gap-2 items-center p-0.5">
           <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
             <Popover.Trigger asChild>
               <Button
                 ref={ref}
                 {...props}
-                className="w-min text-sm font-medium shadow-xs"
+                className="shrink-0 w-min text-sm font-medium shadow-xs"
                 variant="outline"
               >
                 {t('add-tags')}

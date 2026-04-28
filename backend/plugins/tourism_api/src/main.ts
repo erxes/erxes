@@ -1,5 +1,6 @@
-import { startPlugin } from 'erxes-api-shared/utils';
+import { redis, startPlugin } from 'erxes-api-shared/utils';
 import { appRouter } from '~/trpc/init-trpc';
+import { initMQWorkers } from '~/worker';
 
 import { generateModels } from './connectionResolvers';
 import { typeDefs } from './apollo/typeDefs';
@@ -28,5 +29,8 @@ startPlugin({
 
       return context;
     },
+  },
+  onServerInit: async () => {
+    await initMQWorkers(redis);
   },
 });

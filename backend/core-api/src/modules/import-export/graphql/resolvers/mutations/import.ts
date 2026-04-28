@@ -72,6 +72,7 @@ export const importMutations = {
           importId: importDoc._id,
           entityType,
           fileKey,
+          userId: user._id,
         },
       },
       getImportExportJobOptions({
@@ -196,6 +197,7 @@ export const importMutations = {
           importId: importDoc._id,
           entityType: importDoc.entityType,
           fileKey: importDoc.fileKey,
+          userId: user._id,
         },
       },
       getImportExportJobOptions({
@@ -257,6 +259,7 @@ export const importMutations = {
           importId: importDoc._id,
           entityType: importDoc.entityType,
           fileKey: importDoc.fileKey,
+          userId: user._id,
         },
       },
       getImportExportJobOptions({

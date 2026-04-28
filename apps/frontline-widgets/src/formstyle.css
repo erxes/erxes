@@ -6,11 +6,16 @@
 [id^='erxes-container'] > iframe {
   border: none;
 }
+[id^='erxes-container'] > html,
+body {
+  background-color: transparent !important;
+  background: transparent !important;
+}
 
 /*loader*/
 [data-erxes-embed] {
   position: relative;
-  background: rgba(0, 0, 0, 0.03);
+  background: transparent;
   border-radius: 4px;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
 }

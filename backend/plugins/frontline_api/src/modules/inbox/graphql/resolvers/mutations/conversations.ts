@@ -8,13 +8,14 @@ import {
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
+import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
-import * as strip from 'strip';
+import strip from 'strip';
 
 interface DispatchConversationData {
   action: string;
@@ -37,8 +38,7 @@ export const dispatchConversationToService = async (
         return await handleFacebookIntegration({ subdomain, data });
 
       case 'instagram':
-        // TODO: Implement Instagram logic
-        break;
+        return await handleInstagramIntegration({ subdomain, data });
 
       case 'calls':
         break;
@@ -332,6 +332,12 @@ export const conversationMutations = {
           integrationId,
         },
       );
+
+      if (response?.status === 'error') {
+        throw new Error(
+          response.errorMessage || 'Failed to send message to external service',
+        );
+      }
 
       // Case: external service handled it, do not save locally
       if (response?.data?.data) {

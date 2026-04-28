@@ -9,8 +9,9 @@ import {
   useToast,
   useQueryState,
 } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconTicket } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useNavigate } from 'react-router';
 import { useDeleteAssignment } from '../hooks/useDeleteAssignment';
 import { IAssignment } from '../types/assignmentTypes';
 
@@ -24,9 +25,14 @@ export const AssignmentMoreColumnCell = ({
   const { removeAssignment, loading } = useDeleteAssignment();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleEdit = (assignmentId: string) => {
     setEditAssignmentId(assignmentId);
+  };
+
+  const handleSeeAssignments = () => {
+    navigate(`/loyalty/assignments?assignmentCampaignId=${_id}`);
   };
   const handleDelete = () => {
     if (!_id) return;
@@ -67,6 +73,9 @@ export const AssignmentMoreColumnCell = ({
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
               <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="see-assignments" onSelect={handleSeeAssignments}>
+              <IconTicket /> See assignments
             </Command.Item>
             <Command.Item asChild>
               <Button

@@ -66,7 +66,7 @@ export const TagsList = () => {
           className="h-full shadow-xs rounded-lg [&>div>div]:last:mb-10 relative"
           ref={scrollAreaRef}
         >
-          {!addingTag?.parentId && <TagsListRowForm />}
+          {addingTag && !addingTag.parentId && <TagsListRowForm />}
           {loading ? (
             Array.from({ length: 15 }).map((_, i) => (
               <TagsListRowSkeleton key={i} />

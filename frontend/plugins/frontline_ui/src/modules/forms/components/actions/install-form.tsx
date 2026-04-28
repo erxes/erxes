@@ -1,6 +1,6 @@
 import { IconCopy, IconCheck, IconCode } from '@tabler/icons-react';
 import { useState } from 'react';
-import { Badge, Button, Dialog, DropdownMenu, toast } from 'erxes-ui';
+import { Badge, Button, cn, Dialog, DropdownMenu, toast } from 'erxes-ui';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 import { Link } from 'react-router';
 
@@ -43,7 +43,7 @@ function CopyButton({
         </>
       ) : (
         <>
-          <IconCopy className="w-4 h-4 mr-2" />
+          <IconCopy className={cn({ 'mr-2': label !== '' }, 'w-4 h-4')} />
           {label}
         </>
       )}
@@ -83,6 +83,7 @@ export function FormInstallScript({
 </script>`;
 
   const embed = `<div data-erxes-embed="${formId}"></div>`;
+  const modal = `data-erxes-modal="${formId}"`;
 
   return (
     <>
@@ -156,7 +157,17 @@ export function FormInstallScript({
                 <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
                   <code>{embed}</code>
                 </pre>
-                <CopyButton text={embed} label="Copy embed code" />
+                <CopyButton text={embed} label="" />
+              </div>
+              <p className="text-xs text-muted-foreground pl-7">
+                If your form style is a popup, additionally paste this code
+                after the main code.
+              </p>
+              <div className="relative pl-7">
+                <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
+                  <code>{modal}</code>
+                </pre>
+                <CopyButton text={modal} label="" />
               </div>
             </div>
 

@@ -7,9 +7,6 @@ interface IIn {
   $in: string[];
 }
 
-interface IOR {
-  $or: IDateFilter[];
-}
 
 interface IExists {
   $exists: boolean;
@@ -54,14 +51,6 @@ interface IUnassignedFilter {
   assignedUserId: IExists;
 }
 
-interface IDateFilter {
-  [key: string]: IDate;
-}
-
-interface IDate {
-  $gte: Date;
-  $lte: Date;
-}
 
 export default class Builder {
   public models: IModels;
@@ -334,20 +323,24 @@ export default class Builder {
     };
   }
 
-  public dateFilter(startDate: string, endDate: string): IOR {
+  public dateFilter(startDate: string, endDate: string) {
     return {
-      $or: [
+      $and: [
         {
-          createdAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
-          },
-        },
-        {
-          updatedAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
-          },
+          $or: [
+            {
+              createdAt: {
+                $gte: fixDate(startDate),
+                $lte: fixDate(endDate),
+              },
+            },
+            {
+              updatedAt: {
+                $gte: fixDate(startDate),
+                $lte: fixDate(endDate),
+              },
+            },
+          ],
         },
       ],
     };

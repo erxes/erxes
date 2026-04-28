@@ -1,20 +1,22 @@
-import { Button, Label, Select } from 'erxes-ui';
-import SelectBranches from '../selects/SelectBranches';
+import { Button, Input, Label, Select, } from 'erxes-ui';
+import { IconTrash } from '@tabler/icons-react';
+import { SelectProductCategories } from '~/modules/ebarimt/settings/product-rules-on-tax/components/selects/SelectProductCategories';
 import SelectDepartments from '../selects/SelectDepartments';
-import SelectProductCategories from '../selects/SelectProductCategories';
+import SelectBranches from '../selects/SelectBranches';
 import SelectProducts from '../selects/SelectProducts';
+import SelectProductTags from '../selects/SelectProductTags';
 import SelectSegments from '../selects/SelectSegments';
-import SelectProductTags from '../selects/SelectTags';
 
 type Props = {
   condition: any;
   onChange: (id: string, condition: any) => void;
   onRemove: (id: string) => void;
+  onAddCondition?: () => void;
 };
 
 const CLEAR_VALUE = '__clear__';
 
-const PerConditions = ({ condition, onChange, onRemove }: Props) => {
+const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props) => {
   const onChangeConfig = (key: string, value: any) => {
     onChange(condition.id, { ...condition, [key]: value });
   };
@@ -26,102 +28,118 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
   return (
     <div className="rounded border p-4 space-y-6 bg-white">
       <div className="grid grid-cols-2 gap-6">
-        {/* LEFT */}
         <div className="space-y-4">
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Product Category</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Product Category
+            </Label>
             <SelectProductCategories
               value={condition.productCategoryIds ?? []}
-              onChange={(ids) => onChangeConfig('productCategoryIds', ids)}
+              onValueChange={(ids) => onChangeConfig('productCategoryIds', ids)}
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Exclude categories</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Exclude categories
+            </Label>
             <SelectProductCategories
               value={condition.excludeCategoryIds ?? []}
-              onChange={(ids) => onChangeConfig('excludeCategoryIds', ids)}
+              onValueChange={(ids) => onChangeConfig('excludeCategoryIds', ids)}
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Product Tags</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Product Tags
+            </Label>
             <SelectProductTags
               value={condition.productTagIds ?? []}
-              onChange={(ids) => onChangeConfig('productTagIds', ids)}
+              onValueChange={(ids) => onChangeConfig('productTagIds', ids)}
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Exclude tags</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Exclude tags
+            </Label>
             <SelectProductTags
               value={condition.excludeTagIds ?? []}
-              onChange={(ids) => onChangeConfig('excludeTagIds', ids)}
+              onValueChange={(ids) => onChangeConfig('excludeTagIds', ids)}
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Exclude products</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Exclude products
+            </Label>
             <SelectProducts
               value={condition.excludeProductIds ?? []}
-              onChange={(ids) => onChangeConfig('excludeProductIds', ids)}
+              onValueChange={(ids) => onChangeConfig('excludeProductIds', ids)}
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Segment</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Segment
+            </Label>
             <SelectSegments
               contentTypes={['core:product']}
-              value={condition.segmentIds?.[0] || undefined}
-              onChange={(id) => onChangeConfig('segmentIds', id ? [id] : [])}
+              value={condition.segmentId || ''}
+              onValueChange={(segmentId) => onChangeConfig('segmentId', segmentId)}
             />
           </div>
         </div>
 
-        {/* RIGHT */}
         <div className="space-y-4">
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Low Count</Label>
-            <input
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Low Count
+            </Label>
+            <Input
               type="number"
-              className="w-full p-2 border rounded"
               value={condition.ltCount ?? ''}
               onChange={(e) => onNumberChange('ltCount', e.target.value)}
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Great Count</Label>
-            <input
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Great Count
+            </Label>
+            <Input
               type="number"
-              className="w-full p-2 border rounded"
               value={condition.gtCount ?? ''}
               onChange={(e) => onNumberChange('gtCount', e.target.value)}
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Low Unit Price</Label>
-            <input
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Low Unit Price
+            </Label>
+            <Input
               type="number"
-              className="w-full p-2 border rounded"
               value={condition.ltUnitPrice ?? ''}
               onChange={(e) => onNumberChange('ltUnitPrice', e.target.value)}
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Great Unit Price</Label>
-            <input
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Great Unit Price
+            </Label>
+            <Input
               type="number"
-              className="w-full p-2 border rounded"
               value={condition.gtUnitPrice ?? ''}
               onChange={(e) => onNumberChange('gtUnitPrice', e.target.value)}
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Sub uom type</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Sub uom type
+            </Label>
             <Select
               value={condition.subUomType ?? ''}
               onValueChange={(v) =>
@@ -142,11 +160,12 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
         </div>
       </div>
 
-      {/* Branch / Department */}
       <div className="rounded border p-4">
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Set branch</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Set branch
+            </Label>
             <SelectBranches
               value={condition.branchId || ''}
               onChange={(branchId) => onChangeConfig('branchId', branchId)}
@@ -154,8 +173,10 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
             />
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-sm font-medium">Set department</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              Set department
+            </Label>
             <SelectDepartments
               value={condition.departmentId || ''}
               onChange={(departmentId) =>
@@ -167,12 +188,24 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        {onAddCondition && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-6 px-4"
+            onClick={onAddCondition}
+          >
+            + Add Condition
+          </Button>
+        )}
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
+          className="h-6 px-4"
           onClick={() => onRemove(condition.id)}
         >
+          <IconTrash size={16} className="" />
           Delete
         </Button>
       </div>

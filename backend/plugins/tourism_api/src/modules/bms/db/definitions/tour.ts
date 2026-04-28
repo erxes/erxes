@@ -158,7 +158,8 @@ export const tourSchema = new Schema({
   },
   date_status: {
     type: String,
-    default: '',
+    enum: getEnum(TOUR_STATUS_TYPES),
+    default: 'unscheduled',
     optional: true,
     label: 'date status',
     selectOptions: getEnum(TOUR_STATUS_TYPES),

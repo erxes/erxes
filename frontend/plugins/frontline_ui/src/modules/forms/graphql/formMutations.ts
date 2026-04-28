@@ -10,6 +10,7 @@ export const FORMS_ADD = gql`
     $buttonText: String
     $numberOfPages: Int
     $leadData: JSON
+    $integrationId: String
   ) {
     formsAdd(
       name: $name
@@ -20,6 +21,7 @@ export const FORMS_ADD = gql`
       buttonText: $buttonText
       numberOfPages: $numberOfPages
       leadData: $leadData
+      integrationId: $integrationId
     ) {
       _id
     }
@@ -61,6 +63,7 @@ export const FORM_EDIT = gql`
     $buttonText: String
     $numberOfPages: Int
     $leadData: JSON
+    $integrationId: String
   ) {
     formsEdit(
       _id: $id
@@ -72,6 +75,7 @@ export const FORM_EDIT = gql`
       buttonText: $buttonText
       numberOfPages: $numberOfPages
       leadData: $leadData
+      integrationId: $integrationId
     ) {
       _id
     }
@@ -81,5 +85,16 @@ export const FORM_EDIT = gql`
 export const FORM_TOGGLE_STATUS = gql`
   mutation FormsToggleStatus($ids: [String]!, $status: String) {
     formsToggleStatus(_ids: $ids, status: $status)
+  }
+`;
+
+export const CRAETE_LEAD_INTEGRATION = gql`
+  mutation IntegrationsCreateLeadIntegration(
+    $name: String!
+    $channelId: String
+  ) {
+    integrationsCreateLeadIntegration(name: $name, channelId: $channelId) {
+      _id
+    }
   }
 `;
