@@ -1,4 +1,4 @@
-import { AiAgentConnectionForm } from '@/automations/components/settings/components/agents/components/form/AiAgentConnectionForm';
+import { AiAgentConnectionForm } from '@/automations/components/settings/components/agents/components/form/connection/AiAgentConnectionForm';
 import { AiAgentContextForm } from '@/automations/components/settings/components/agents/components/form/AiAgentContextForm';
 import { AiAgentGeneralForm } from '@/automations/components/settings/components/agents/components/form/AiAgentGeneralForm';
 import { AiAgentRuntimeForm } from '@/automations/components/settings/components/agents/components/form/AiAgentRuntimeForm';
@@ -104,6 +104,13 @@ export const AutomationAiAgentDetail = ({
                 <Card className="p-4">
                   <AiAgentConnectionForm
                     existingApiKeyMask={detail?.connection?.config?.apiKey}
+                    existingGatewayTokenMask={
+                      detail?.connection?.provider === 'cloudflare-ai-gateway'
+                        ? String(
+                            detail?.connection?.config?.gatewayToken || '',
+                          ) || undefined
+                        : undefined
+                    }
                   />
                 </Card>
                 <Card className="p-4">

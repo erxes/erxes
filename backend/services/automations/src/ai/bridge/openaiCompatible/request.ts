@@ -42,7 +42,9 @@ export const normalizeOpenAiCompatibleBaseUrl = (
 
 const buildHeaders = (connection: TAiBridgeConnection) => {
   return {
-    Authorization: `Bearer ${connection.config.apiKey}`,
+    ...(connection.config.apiKey?.trim()
+      ? { Authorization: `Bearer ${connection.config.apiKey}` }
+      : {}),
     'Content-Type': 'application/json',
     ...(connection.config.headers || {}),
   };
@@ -62,7 +64,7 @@ export const requestOpenAiCompatible = async <TJson = any>({
     () => controller.abort(),
     runtime.timeoutMs || AI_AGENT_DEFAULTS.timeoutMs,
   );
-
+  console.log({ body });
   try {
     const response = await fetch(
       `${normalizeOpenAiCompatibleBaseUrl(connection)}${path}`,

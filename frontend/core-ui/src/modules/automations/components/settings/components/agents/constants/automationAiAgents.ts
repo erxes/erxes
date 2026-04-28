@@ -1,4 +1,4 @@
-import { IconRobot } from '@tabler/icons-react';
+import { IconCloud, IconRobot } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
 
 export type TAiAgentKind = {
@@ -11,9 +11,16 @@ export type TAiAgentKind = {
 
 export const AI_AGENT_KINDS: TAiAgentKind[] = [
   {
+    type: 'cloudflare-ai-gateway',
+    label: 'Cloudflare AI Gateway',
+    description: 'Use the platform-managed AI Gateway or override it.',
+    icon: IconCloud,
+    image: 'cloudflare.webp',
+  },
+  {
     type: 'openai',
-    label: 'OpenAI',
-    description: 'Connect OpenAI  with your own credentials.',
+    label: 'OpenAI Direct',
+    description: 'Connect OpenAI with organization-owned credentials.',
     icon: IconRobot,
     image: 'openai.webp',
   },

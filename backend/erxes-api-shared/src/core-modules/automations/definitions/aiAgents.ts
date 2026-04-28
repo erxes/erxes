@@ -20,16 +20,48 @@ export interface IAiAgentFileVersion {
 }
 
 export interface IAiAgentConnectionConfig {
-  apiKey: string;
+  apiKey?: string;
   baseUrl?: string;
   headers?: Record<string, string>;
   [key: string]: any;
 }
 
-export interface IAiAgentConnection {
-  provider: string;
+export interface ICloudflareAiGatewayAgentConnection {
+  provider: 'cloudflare-ai-gateway';
+  model: string;
+  config: IAiAgentConnectionConfig & {
+    accountId?: string;
+    gatewayId?: string;
+    gatewayToken?: string;
+    mode?: 'compat' | 'openai-provider';
+  };
+}
+
+export interface IOpenAIAgentConnection {
+  provider: 'openai';
   model: string;
   config: IAiAgentConnectionConfig;
+}
+
+export type IAiAgentConnection =
+  | ICloudflareAiGatewayAgentConnection
+  | IOpenAIAgentConnection;
+
+export interface ILegacyAiAgentConnectionConfig {
+  apiKey?: string;
+  baseUrl?: string;
+  headers?: Record<string, string>;
+  accountId?: string;
+  gatewayId?: string;
+  gatewayToken?: string;
+  mode?: 'compat' | 'openai-provider';
+  cloudflare?: {
+    accountId?: string;
+    gatewayId?: string;
+    gatewayToken?: string;
+    mode?: 'compat' | 'openai-provider';
+  };
+  [key: string]: any;
 }
 
 export interface IAiAgentRuntime {
@@ -89,9 +121,10 @@ const aiAgentConnectionSchema = new Schema<IAiAgentConnection>(
     provider: {
       type: String,
       required: true,
-      enum: ['openai'],
+      enum: ['cloudflare-ai-gateway', 'openai'],
+      default: 'cloudflare-ai-gateway',
     },
-    model: { type: String, required: true },
+    model: { type: String, required: true, default: 'openai/gpt-5-mini' },
     config: {
       type: Object,
       default: () => ({}),

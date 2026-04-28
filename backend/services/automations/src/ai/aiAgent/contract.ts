@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import {
-  AI_AGENT_DEFAULTS,
   AI_AGENT_LIMITS,
-  AI_AGENT_SUPPORTED_PROVIDERS,
+  AI_AGENT_DEFAULTS,
 } from './constants';
+import { aiAgentConnectionSchema } from './connection';
 
 const aiAgentFileVersionSchema = z.object({
   key: z.string().trim().min(1),
@@ -21,28 +21,6 @@ const aiAgentFileSchema = z.object({
   type: z.string().optional(),
   uploadedAt: z.union([z.string(), z.date()]).optional(),
   versions: z.array(aiAgentFileVersionSchema).default([]),
-});
-
-const openAiCompatibleConfigSchema = z
-  .object({
-    apiKey: z
-      .string()
-      .trim()
-      .min(1, 'Connection apiKey is required')
-      .max(AI_AGENT_LIMITS.maxSecretChars),
-    baseUrl: z.string().url().default(AI_AGENT_DEFAULTS.baseUrl),
-    headers: z.record(z.string(), z.string()).default({}),
-  })
-  .passthrough();
-
-const aiAgentConnectionSchema = z.object({
-  provider: z.enum(AI_AGENT_SUPPORTED_PROVIDERS),
-  model: z
-    .string()
-    .trim()
-    .min(1, 'Connection model is required')
-    .max(AI_AGENT_LIMITS.maxModelChars),
-  config: openAiCompatibleConfigSchema,
 });
 
 const aiAgentRuntimeSchema = z

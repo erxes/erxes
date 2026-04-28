@@ -57,6 +57,7 @@ export const runAiAction = async ({
       aiContext,
       memory,
     }),
+    subdomain,
   );
 
   const result = parseAiActionResult({

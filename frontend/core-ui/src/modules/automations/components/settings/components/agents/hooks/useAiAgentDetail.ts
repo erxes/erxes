@@ -18,6 +18,10 @@ export interface AiAgentInput {
       apiKey?: string;
       baseUrl?: string;
       headers?: Record<string, string>;
+      accountId?: string;
+      gatewayId?: string;
+      gatewayToken?: string;
+      mode?: 'compat' | 'openai-provider';
     };
   };
   runtime?: {

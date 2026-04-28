@@ -28,6 +28,8 @@ type TAiAgentMutationDoc = TPlainObject & {
   connection?: TAiAgentConnection;
 };
 
+type TSecretPath = string[];
+
 const toPlainObject = (value?: unknown | null) => {
   if (!value || typeof value !== 'object') {
     return value;
@@ -57,13 +59,64 @@ const mergeAiAgentConnectionSecrets = (
   const currentConfig = currentConnection.config || {};
   const incomingConfig = incomingConnection.config || {};
 
-  const incomingApiKey = doc.connection?.config?.apiKey;
-  const shouldPreserveApiKey =
-    incomingApiKey === '' ||
-    incomingApiKey === undefined ||
-    incomingApiKey === MASKED_SECRET_VALUE;
+  const getPathValue = (source: TPlainObject, path: TSecretPath) => {
+    return path.reduce<unknown>((current, key) => {
+      if (!current || typeof current !== 'object') {
+        return undefined;
+      }
 
-  if (!shouldPreserveApiKey) {
+      return (current as TPlainObject)[key];
+    }, source);
+  };
+
+  const setPathValue = (
+    source: TPlainObject,
+    path: TSecretPath,
+    value: unknown,
+  ) => {
+    const [key, ...rest] = path;
+
+    if (!rest.length) {
+      source[key] = value;
+      return;
+    }
+
+    const next =
+      source[key] && typeof source[key] === 'object'
+        ? (source[key] as TPlainObject)
+        : {};
+
+    source[key] = next;
+    setPathValue(next, rest, value);
+  };
+
+  const deletePathValue = (source: TPlainObject, path: TSecretPath) => {
+    const [key, ...rest] = path;
+
+    if (!rest.length) {
+      delete source[key];
+      return;
+    }
+
+    const next = source[key];
+
+    if (next && typeof next === 'object') {
+      deletePathValue(next as TPlainObject, rest);
+    }
+  };
+
+  const secretPaths: TSecretPath[] = [['apiKey'], ['gatewayToken']];
+  const shouldPreserveSecrets = secretPaths.filter((path) => {
+    const incomingValue = getPathValue(incomingConfig, path);
+
+    return (
+      incomingValue === '' ||
+      incomingValue === undefined ||
+      incomingValue === MASKED_SECRET_VALUE
+    );
+  });
+
+  if (!shouldPreserveSecrets.length) {
     return doc;
   }
 
@@ -76,10 +129,14 @@ const mergeAiAgentConnectionSecrets = (
     },
   };
 
-  if (currentConfig?.apiKey !== undefined) {
-    mergedConnection.config.apiKey = currentConfig.apiKey;
-  } else {
-    delete mergedConnection.config.apiKey;
+  for (const key of shouldPreserveSecrets) {
+    const currentValue = getPathValue(currentConfig, key);
+
+    if (currentValue !== undefined) {
+      setPathValue(mergedConnection.config, key, currentValue);
+    } else {
+      deletePathValue(mergedConnection.config, key);
+    }
   }
 
   return {

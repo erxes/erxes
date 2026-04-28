@@ -27,7 +27,12 @@ const toPlainObject = (value: unknown) => {
 const maskSensitiveValue = (key: string, value: unknown) => {
   const normalizedKey = key.replace(/[_-]/g, '').toLowerCase();
 
-  if (!SENSITIVE_KEYS.has(normalizedKey)) {
+  if (
+    !SENSITIVE_KEYS.has(normalizedKey) &&
+    !normalizedKey.endsWith('token') &&
+    !normalizedKey.endsWith('secret') &&
+    !normalizedKey.endsWith('password')
+  ) {
     return value;
   }
 
