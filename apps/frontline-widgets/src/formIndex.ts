@@ -175,6 +175,7 @@ const createIframe = (settings: Settings) => {
 
     if (iframe.contentDocument?.body) {
       iframe.contentDocument.body.style.background = 'transparent';
+      iframe.contentDocument.body.style.backgroundColor = 'transparent';
     }
 
     const handlerSelector = `[data-erxes-modal="${settings.form_id}"]`;
