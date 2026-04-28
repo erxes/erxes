@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Button, Combobox, Command, Filter, Popover } from 'erxes-ui';
 import {
   IProduct,
@@ -81,16 +82,32 @@ export const filterProducts = (
     );
   }
 
-  if (filters.branchIds) {
-    result = result.filter((p) =>
-      filters.branchIds?.includes(p.branchId || ''),
-    );
+  if (filters.productVendorIds?.length) {
+    result = result.filter((p) => {
+      const vendor = (p as any).vendor as { _id: string } | undefined;
+      return vendor !== undefined && filters.productVendorIds?.includes(vendor._id) === true;
+    });
   }
 
-  if (filters.departmentIds) {
-    result = result.filter((p) =>
-      filters.departmentIds?.includes(p.departmentId || ''),
+  if (filters.branchIds?.length) {
+    const hasBranchIds = result.some((p) => typeof p.branchId === 'string');
+    if (hasBranchIds) {
+      result = result.filter(
+        (p) => !!p.branchId && filters.branchIds?.includes(p.branchId) === true,
+      );
+    }
+  }
+
+  if (filters.departmentIds?.length) {
+    const hasDepartmentIds = result.some(
+      (p) => typeof p.departmentId === 'string',
     );
+    if (hasDepartmentIds) {
+      result = result.filter(
+        (p) =>
+          !!p.departmentId && filters.departmentIds?.includes(p.departmentId) === true,
+      );
+    }
   }
 
   return result;
@@ -183,7 +200,7 @@ export const ProductFilterBar = ({
         </SelectCompany.Provider>
       )}
 
-      {branchIds && (
+      {branchIds && branchIds.length > 0 && (
         <SelectBranches
           mode="multiple"
           value={branchIds}
@@ -205,7 +222,7 @@ export const ProductFilterBar = ({
         </SelectBranches>
       )}
 
-      {departmentIds && (
+      {departmentIds && departmentIds.length > 0 && (
         <SelectDepartments
           mode="multiple"
           value={departmentIds}
@@ -240,6 +257,11 @@ const ProductFilterView = ({
   const updateFilter = (key: keyof ProductFilterState, value: any) => {
     onChange({ ...filters, [key]: value });
   };
+
+  const vendorIds = useMemo(
+    () => filters.productVendorIds ?? [],
+    [filters.productVendorIds],
+  );
 
   return (
     <>
@@ -279,7 +301,7 @@ const ProductFilterView = ({
       <Filter.View filterKey="productVendorIds">
         <SelectCompany.Provider
           mode="multiple"
-          value={filters.productVendorIds || []}
+          value={vendorIds}
           onValueChange={(value) => {
             updateFilter(
               'productVendorIds',

@@ -210,6 +210,7 @@ const ProductsList = ({
             const isSelected = selectedProductIds.includes(product._id);
             return (
               <Button
+                key={product._id}
                 variant="ghost"
                 className={cn(
                   'min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left',
