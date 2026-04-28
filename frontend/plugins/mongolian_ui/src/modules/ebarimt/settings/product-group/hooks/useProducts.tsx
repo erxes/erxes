@@ -1,29 +1,33 @@
 import { useQuery } from '@apollo/client';
-import { GET_PRODUCT_GROUP } from '@/ebarimt/settings/product-group/graphql/queries/getProductGroup';
+import { GET_MAIN_PRODUCT } from '@/ebarimt/settings/product-group/graphql/queries/mainProduct';
 
 export interface IProduct {
   _id: string;
   name: string;
-  code: string;
   type: string;
-  category?: {
-    _id: string;
-    name: string;
-  };
 }
 
-export const useProducts = (searchValue?: string) => {
+export const useProducts = () => {
   const { data, loading, error } = useQuery<{
     products: IProduct[];
-  }>(GET_PRODUCT_GROUP, {
+  }>(GET_MAIN_PRODUCT, {
     variables: {
-      searchValue,
-      perPage: 100,
+      perPage: 500,
+      page: 1,
     },
   });
 
+  const productsById = (data?.products || []).reduce<Record<string, IProduct>>(
+    (acc, p) => {
+      acc[p._id] = p;
+      return acc;
+    },
+    {},
+  );
+
   return {
     products: data?.products || [],
+    productsById,
     loading,
     error,
   };

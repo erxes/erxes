@@ -8,7 +8,13 @@ export const useAddProductGroup = () => {
   const [_addProductGroup, { loading }] = useMutation(
     EBARIMT_PRODUCT_GROUP_ADD,
     {
-      refetchQueries: ['EbarimtProductGroups'],
+      refetchQueries: [
+        {
+          query: GET_PRODUCT_GROUP,
+          variables: PRODUCT_GROUP_ROW_DEFAULT_VARIABLES,
+        },
+      ],
+      awaitRefetchQueries: true,
     },
   );
 
@@ -16,36 +22,6 @@ export const useAddProductGroup = () => {
     return _addProductGroup({
       ...options,
       variables: { ...options?.variables },
-      update: (cache, { data }) => {
-        if (!data?.ebarimtProductGroupCreate) return;
-
-        const newGroup = data.ebarimtProductGroupCreate;
-
-        const existing = cache.readQuery<{
-          ebarimtProductGroups: {
-            list: IProductGroup[];
-            totalCount: number;
-            pageInfo: any;
-          };
-        }>({
-          query: GET_PRODUCT_GROUP,
-          variables: PRODUCT_GROUP_ROW_DEFAULT_VARIABLES,
-        });
-
-        if (!existing?.ebarimtProductGroups) return;
-
-        cache.writeQuery({
-          query: GET_PRODUCT_GROUP,
-          variables: PRODUCT_GROUP_ROW_DEFAULT_VARIABLES,
-          data: {
-            ebarimtProductGroups: {
-              ...existing.ebarimtProductGroups,
-              list: [newGroup, ...existing.ebarimtProductGroups.list],
-              totalCount: existing.ebarimtProductGroups.totalCount + 1,
-            },
-          },
-        });
-      },
     });
   };
 

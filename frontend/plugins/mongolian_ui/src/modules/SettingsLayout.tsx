@@ -5,17 +5,21 @@ import { SettingsHeader } from 'ui-modules';
 export const SettingsLayout = ({
   sidebar,
   breadcrumbs,
+  actions,
   children,
 }: {
   sidebar: React.ReactNode;
   breadcrumbs?: React.ReactNode;
+  actions?: React.ReactNode;
   children: React.ReactNode;
 }) => {
   return (
     <Sidebar.Provider>
       <Filter id="mongolian-settings">
         <div className="flex flex-col flex-auto overflow-hidden">
-          <SettingsHeader breadcrumbs={breadcrumbs} />
+          <SettingsHeader breadcrumbs={breadcrumbs}>
+            {actions && <div className="ml-auto">{actions}</div>}
+          </SettingsHeader>
           <div className="flex flex-auto overflow-hidden">
             {sidebar}
             <Suspense

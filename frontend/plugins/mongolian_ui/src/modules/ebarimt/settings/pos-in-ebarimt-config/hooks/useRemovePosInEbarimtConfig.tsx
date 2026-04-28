@@ -1,9 +1,11 @@
 import { useMutation } from '@apollo/client';
-import { REMOVE_MN_CONFIG } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
+import { REMOVE_MN_CONFIG, GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { useToast } from 'erxes-ui';
 
 export const useRemovePosInEbarimtConfig = () => {
-  const [removeConfig] = useMutation(REMOVE_MN_CONFIG);
+  const [removeConfig] = useMutation(REMOVE_MN_CONFIG, {
+    refetchQueries: [{ query: GET_MN_CONFIGS, variables: { code: 'posInEbarimt' } }],
+  });
   const { toast } = useToast();
 
   const removePosInEbarimtConfig = async (configId: string) => {

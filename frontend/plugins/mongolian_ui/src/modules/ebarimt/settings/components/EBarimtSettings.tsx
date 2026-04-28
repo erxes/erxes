@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { EBarimtSidebar } from '@/ebarimt/settings/components/EBarimtSidebar';
 import { EBarimtBreadcrumb } from '@/ebarimt/settings/components/EBarimtBreadcrumb';
+import { EBarimtTopbar } from '@/ebarimt/settings/components/EBarimtTopbar';
 import { SettingsLayout } from '~/modules/SettingsLayout';
 
 export const EBarimtMainConfig = lazy(() =>
@@ -45,6 +46,7 @@ const EBarimtSettings = () => {
     <SettingsLayout
       sidebar={<EBarimtSidebar />}
       breadcrumbs={<EBarimtBreadcrumb />}
+      actions={<EBarimtTopbar />}
     >
       <Routes>
         <Route index element={<EBarimtMainConfig />} />

@@ -6,9 +6,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useEbarimtReturnConfigSave } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigSave';
 import { useEbarimtReturnConfigState } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigState';
 import { useRemoveEbarimtReturnConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useRemoveEbarimtReturnConfig';
-import { SelectSalesBoard } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectSalesBoard';
-import { SelectPipeline } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectPipeline';
-import { SelectStage } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectStage';
+import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { addEBarimtReturnConfigSchema } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types/addEBarimtReturnConfigSchema';
 import { ReturnEbarimtConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types';
 
@@ -37,7 +35,6 @@ const ReturnEbarimtConfigCard = ({
     },
   });
 
-  const selectedBoardId = form.watch('destinationStageBoard');
   const selectedPipelineId = form.watch('pipelineId');
 
   const handleSubmit = (data: ReturnEbarimtConfig) => {
@@ -45,8 +42,8 @@ const ReturnEbarimtConfigCard = ({
   };
 
   const handleBoardChange = useCallback(
-    (value: string) => {
-      form.setValue('destinationStageBoard', value);
+    (value: string | string[]) => {
+      form.setValue('destinationStageBoard', Array.isArray(value) ? value[0] : value);
       form.setValue('pipelineId', '');
       form.setValue('stageId', '');
     },
@@ -54,8 +51,8 @@ const ReturnEbarimtConfigCard = ({
   );
 
   const handlePipelineChange = useCallback(
-    (value: string) => {
-      form.setValue('pipelineId', value);
+    (value: string | string[]) => {
+      form.setValue('pipelineId', Array.isArray(value) ? value[0] : value);
       form.setValue('stageId', '');
     },
     [form],
@@ -91,7 +88,7 @@ const ReturnEbarimtConfigCard = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Destination Stage Board</Form.Label>
-                  <SelectSalesBoard
+                  <SelectBoard.FormItem
                     value={field.value}
                     onValueChange={handleBoardChange}
                   />
@@ -106,11 +103,10 @@ const ReturnEbarimtConfigCard = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Pipeline</Form.Label>
-                  <SelectPipeline
+                  <SelectPipeline.FormItem
                     value={field.value}
+                    boardId={form.watch('destinationStageBoard')}
                     onValueChange={handlePipelineChange}
-                    boardId={selectedBoardId}
-                    disabled={!selectedBoardId}
                   />
                   <Form.Message />
                 </Form.Item>
@@ -123,13 +119,10 @@ const ReturnEbarimtConfigCard = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Stage</Form.Label>
-                  <SelectStage
-                    id="stageId"
-                    variant="form"
+                  <SelectStage.FormItem
                     value={field.value}
-                    onValueChange={field.onChange}
                     pipelineId={selectedPipelineId}
-                    disabled={!selectedPipelineId}
+                    onValueChange={(v) => field.onChange(Array.isArray(v) ? v[0] : v)}
                   />
                   <Form.Message />
                 </Form.Item>

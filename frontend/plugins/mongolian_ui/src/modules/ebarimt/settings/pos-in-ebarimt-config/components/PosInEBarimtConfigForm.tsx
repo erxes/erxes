@@ -116,7 +116,6 @@ const PosInEbarimtConfigCard = ({
                 <Form.Item>
                   <Form.Label>Pos</Form.Label>
                   <SelectPos
-                    id="posId"
                     variant="form"
                     value={field.value}
                     onValueChange={field.onChange}
