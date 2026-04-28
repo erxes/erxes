@@ -107,7 +107,7 @@ export const AddProductGroupForm = ({
   });
   const { addProductGroup, loading } = useAddProductGroup();
 
-  const onSubmit = (data: TProductGroupForm) => {
+  const onSubmitHandle = (data: TProductGroupForm) => {
     addProductGroup({
       variables: {
         mainProductId: data.mainProductId,
@@ -134,5 +134,5 @@ export const AddProductGroupForm = ({
     });
   };
 
-  return <ProductGroupForm form={form} onSubmit={onSubmit} loading={loading} />;
+  return <ProductGroupForm form={form} onSubmit={onSubmitHandle} loading={loading} />;
 };

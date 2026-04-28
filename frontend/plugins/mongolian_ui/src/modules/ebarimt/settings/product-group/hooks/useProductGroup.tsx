@@ -2,7 +2,6 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import { PRODUCT_GROUP_ROW_DEFAULT_VARIABLES } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
 import { GET_PRODUCT_GROUP } from '@/ebarimt/settings/product-group/graphql/queries/getProductGroup';
 import { EBARIMT_PRODUCT_GROUP_ADD } from '@/ebarimt/settings/product-group/graphql/mutations/productGroupMutations';
-import { IProductGroup } from '@/ebarimt/settings/product-group/constants/productGroupDefaultValues';
 
 export const useAddProductGroup = () => {
   const [_addProductGroup, { loading }] = useMutation(

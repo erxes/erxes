@@ -136,7 +136,7 @@ export const AddProductRulesOnTaxForm = ({
   });
   const { addProductRulesOnTax, loading } = useAddProductRulesOnTax();
 
-  const onSubmit = (data: TProductRulesOnTaxForm) => {
+  const onSubmitHandle = (data: TProductRulesOnTaxForm) => {
     const toArray = (val: string | undefined) =>
       val ? val.split(',').map((s) => s.trim()) : [];
 
@@ -179,6 +179,6 @@ export const AddProductRulesOnTaxForm = ({
   };
 
   return (
-    <ProductRulesOnTaxForm form={form} onSubmit={onSubmit} loading={loading} />
+    <ProductRulesOnTaxForm form={form} onSubmit={onSubmitHandle} loading={loading} />
   );
 };
