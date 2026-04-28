@@ -15,6 +15,7 @@ import {
 import { IPricing } from '@/pricing/types';
 import { MembersInline } from 'ui-modules';
 import { Link } from 'react-router-dom';
+import { PricingMoreCell } from '@/pricing/components/PricingMoreCell';
 
 export const pricingColumns: ColumnDef<IPricing>[] = [
   RecordTable.checkboxColumn as ColumnDef<IPricing>,
@@ -131,5 +132,10 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
         </RelativeDateDisplay>
       );
     },
+  },
+  {
+    id: 'more',
+    cell: (cell) => <PricingMoreCell {...cell} />,
+    size: 33,
   },
 ];
