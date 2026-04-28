@@ -146,6 +146,8 @@ const createIframe = (settings: Settings) => {
     iframe.style.margin = '0 auto';
     iframe.style.height = '100%';
     iframe.allowFullscreen = true;
+    iframe.allowTransparency = true;
+    iframe.style.background = 'transparent';
   }
 
   iframe.src = INTEGRATION_URL;
@@ -170,6 +172,10 @@ const createIframe = (settings: Settings) => {
   // after iframe load send connection info
   iframe.onload = () => {
     iframe.style.display = 'inherit';
+
+    if (iframe.contentDocument?.body) {
+      iframe.contentDocument.body.style.background = 'transparent';
+    }
 
     const handlerSelector = `[data-erxes-modal="${settings.form_id}"]`;
 
