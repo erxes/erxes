@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Select, cn } from 'erxes-ui';
+import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 
 const TAGS_QUERY = gql`
   query tagsQuery(
@@ -27,66 +27,178 @@ const TAGS_QUERY = gql`
 
 type Tag = { _id: string; name: string };
 
-type Props = {
-  value?: string[];
-  onChange: (ids: string[]) => void;
-  type?: string;
-  disabled?: boolean;
+interface SelectTagsContextType {
+  value: string[];
+  onValueChange: (ids: string[]) => void;
+  loading?: boolean;
+  error?: any;
+  tags?: Tag[];
+}
+
+const SelectTagsContext = createContext<SelectTagsContextType | null>(null);
+
+const useSelectTagsContext = () => {
+  const context = useContext(SelectTagsContext);
+  if (!context) {
+    throw new Error(
+      'useSelectTagsContext must be used within SelectTagsProvider',
+    );
+  }
+  return context;
 };
 
-const MULTI_VALUE = '__multi__';
-
-export default function SelectProductTags({
-  value = [],
-  onChange,
+export const SelectTagsProvider = ({
+  value,
+  onValueChange,
   type = 'core:product',
-  disabled,
-}: Props) {
-  const { data, loading } = useQuery(TAGS_QUERY, {
+  children,
+}: {
+  value: string[];
+  onValueChange: (ids: string[]) => void;
+  type?: string;
+  children: React.ReactNode;
+}) => {
+  const { data, loading, error } = useQuery(TAGS_QUERY, {
     variables: { type, ids: [] },
   });
 
   const tags: Tag[] = useMemo(() => data?.tags?.list || [], [data]);
-  const selectedSet = useMemo(() => new Set(value), [value]);
 
-  const selectedLabels = useMemo(() => {
-    if (!value.length) return '';
+  const contextValue = useMemo(
+    () => ({
+      value: value || [],
+      onValueChange,
+      tags,
+      loading,
+      error,
+    }),
+    [value, onValueChange, tags, loading, error],
+  );
 
-    const map = new Map(tags.map((t) => [t._id, t.name]));
-    return value.map((id) => map.get(id) || id).join(', ');
-  }, [value, tags]);
+  return (
+    <SelectTagsContext.Provider value={contextValue}>
+      {children}
+    </SelectTagsContext.Provider>
+  );
+};
 
-  const toggle = (id: string) => {
-    if (!id) return;
+const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { value, tags } = useSelectTagsContext();
+  const selectedNames = useMemo(
+    () =>
+      value
+        .map((id) => tags?.find((t) => t._id === id)?.name)
+        .filter(Boolean)
+        .join(', '),
+    [value, tags],
+  );
 
-    if (selectedSet.has(id)) {
-      onChange(value.filter((x) => x !== id));
-    } else {
-      onChange([...value, id]);
+  if (!selectedNames) {
+    return (
+      <span className="text-accent-foreground/80">
+        {placeholder || 'Choose product tag'}
+      </span>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <p className={cn('font-medium text-sm line-clamp-1')}>
+        {selectedNames}
+      </p>
+    </div>
+  );
+};
+
+const SelectTagsItem = ({ tag }: { tag: Tag }) => {
+  const { onValueChange, value } = useSelectTagsContext();
+  const selectedSet = new Set(value);
+
+  return (
+    <Command.Item
+      value={tag._id}
+      onSelect={() => {
+        const newValue = selectedSet.has(tag._id)
+          ? value.filter((x) => x !== tag._id)
+          : [...value, tag._id];
+        onValueChange(newValue);
+      }}
+    >
+      <span className="font-medium">
+        {selectedSet.has(tag._id) && '✓ '}
+        {tag.name}
+      </span>
+      <Combobox.Check checked={selectedSet.has(tag._id)} />
+    </Command.Item>
+  );
+};
+
+const SelectTagsContent = () => {
+  const { tags, loading, error } = useSelectTagsContext();
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-24">
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      );
     }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-24 text-destructive">
+          Error: {error.message}
+        </div>
+      );
+    }
+
+    return tags?.map((t) => <SelectTagsItem key={t._id} tag={t} />);
   };
 
   return (
-    <Select value={MULTI_VALUE} onValueChange={toggle} disabled={disabled}>
-      <Select.Trigger className="w-full">
-        <span
-          className={cn(
-            'text-sm line-clamp-1',
-            !selectedLabels && 'text-accent-foreground/70',
-          )}
-        >
-          {loading ? 'Loading...' : selectedLabels || 'Choose product tag'}
-        </span>
-      </Select.Trigger>
-
-      <Select.Content>
-        {tags.map((t) => (
-          <Select.Item key={t._id} value={t._id}>
-            {selectedSet.has(t._id) ? '✓ ' : ''}
-            {t.name}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
+    <Command>
+      <Command.Input placeholder="Search tag" />
+      <Command.Empty>
+        <span className="text-muted-foreground">No tags found</span>
+      </Command.Empty>
+      <Command.List>{renderContent()}</Command.List>
+    </Command>
   );
-}
+};
+
+const SelectTagsRoot = ({
+  value,
+  onValueChange,
+  type = 'core:product',
+  disabled,
+}: {
+  value: string[];
+  onValueChange: (ids: string[]) => void;
+  type?: string;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleValueChange = useCallback(
+    (ids: string[]) => {
+      onValueChange(ids);
+    },
+    [onValueChange],
+  );
+
+  return (
+    <SelectTagsProvider value={value} onValueChange={handleValueChange} type={type}>
+      <PopoverScoped open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger disabled={disabled}>
+          <SelectTagsValue />
+        </Combobox.Trigger>
+        <Combobox.Content>
+          <SelectTagsContent />
+        </Combobox.Content>
+      </PopoverScoped>
+    </SelectTagsProvider>
+  );
+};
+
+export default SelectTagsRoot;

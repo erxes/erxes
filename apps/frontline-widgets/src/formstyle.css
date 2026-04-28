@@ -5,13 +5,17 @@
 
 [id^='erxes-container'] > iframe {
   border: none;
-  height: 100% !important;
+}
+[id^='erxes-container'] > html,
+body {
+  background-color: transparent !important;
+  background: transparent !important;
 }
 
 /*loader*/
 [data-erxes-embed] {
   position: relative;
-  background: rgba(0, 0, 0, 0.03);
+  background: transparent;
   border-radius: 4px;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
 }
@@ -41,6 +45,14 @@
   min-width: 100%; /* Full width */
   border: none;
   height: 100% !important;
+}
+
+.erxes-modal-iframe > iframe,
+.erxes-slide-right-iframe > iframe,
+.erxes-slide-left-iframe > iframe,
+.erxes-dropdown-iframe > iframe,
+.erxes-shoutbox-iframe > iframe {
+  height: 100%;
 }
 
 .erxes-slide-right-iframe,

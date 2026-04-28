@@ -1,13 +1,12 @@
 import { Control } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 import React from 'react';
-import { options } from '../../constants';
 import { TPosItemFormData } from '../types/posItemType';
 
 interface PosItemsFormProps {
   control: Control<TPosItemFormData>;
-  summary?: Record<string, number>;
-  paidAmounts?: Array<{ type: string; amount: number }>;
+  // paidAmounts from backend: [{ type, amount, title }]
+  paidAmounts?: Array<{ type: string; amount: number; title?: string }>;
 }
 
 const formatNumberWithCommas = (value: string | number | undefined) => {
@@ -16,29 +15,23 @@ const formatNumberWithCommas = (value: string | number | undefined) => {
   return num.toLocaleString('en-US');
 };
 
-export const PosItemsForm = ({
-  control,
-  summary,
-  paidAmounts,
-}: PosItemsFormProps) => {
-  const paymentTypes = React.useMemo(() => {
-    const summaryKeys = Object.keys(summary || {});
-    const paidKeys = (paidAmounts || []).map((p) => p.type);
-
-    const standardPaymentTypes = options.map((opt) => opt.value);
-
-    return Array.from(
-      new Set([...standardPaymentTypes, ...summaryKeys, ...paidKeys]),
-    )
-      .filter((key) => key !== '_id')
-      .sort((a, b) => a.localeCompare(b));
-  }, [summary, paidAmounts]);
+export const PosItemsForm = ({ control, paidAmounts }: PosItemsFormProps) => {
+  // Build ordered list from paidAmounts, deduplicated by type
+  const paymentEntries = React.useMemo(() => {
+    const seen = new Set<string>();
+    return (paidAmounts || [])
+      .filter(({ type }) => {
+        if (!type || type === '_id' || seen.has(type)) return false;
+        seen.add(type);
+        return true;
+      })
+      .map(({ type, title }) => ({ type, label: title || type }));
+  }, [paidAmounts]);
 
   return (
     <div className="flex flex-col gap-3">
-      {paymentTypes.map((paymentType) => {
-        const paymentOption = options.find((opt) => opt.value === paymentType);
-        const label = paymentOption?.label || paymentType;
+      {paymentEntries.map(({ type, label }) => {
+        const paymentType = type;
 
         return (
           <Form.Field

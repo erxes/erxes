@@ -147,7 +147,7 @@ export type Resolver<
   context: Context,
   info: GraphQLResolveInfo,
 ) => Promise<Result> | Result) &
-  IResolverSymbol;
+  Partial<IResolverSymbol>;
 
 export interface ILocationOption {
   lat: number;

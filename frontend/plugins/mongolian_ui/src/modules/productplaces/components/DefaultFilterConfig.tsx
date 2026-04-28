@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Label } from 'erxes-ui';
+import { Button, Input, Label, useToast } from 'erxes-ui';
 import SelectSegments from '../selects/SelectSegments';
 import SelectUsers from '../selects/SelectUsers';
 
@@ -30,6 +30,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
   save,
   delete: deleteConfig,
 }) => {
+  const { toast } = useToast();
   const [filters, setFilters] = useState<FilterConfig[]>([]);
 
   useEffect(() => {
@@ -84,19 +85,44 @@ const DefaultFilterConfig: React.FC<Props> = ({
   };
 
   const handleSave = () => {
-    save({ filters });
+    try {
+      save({ filters });
+      toast({
+        title: 'Success',
+        description: 'Filter configuration saved successfully',
+        variant: 'default',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to save filter configuration',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleDeleteAll = () => {
     if (!window.confirm('Delete all filter configs?')) return;
-    deleteConfig();
-    setFilters([]);
+    try {
+      deleteConfig();
+      setFilters([]);
+      toast({
+        title: 'Success',
+        description: 'Filter configuration deleted successfully',
+        variant: 'default',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to delete filter configuration',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
     <div className="w-full h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
-        {/* HEADER */}
         <div className="space-y-2">
           <h2 className="text-xl font-semibold">
             Default Filter Configuration
@@ -107,7 +133,6 @@ const DefaultFilterConfig: React.FC<Props> = ({
           </p>
         </div>
 
-        {/* ACTIONS */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Button type="button" onClick={addFilter}>
             + Add Filter
@@ -128,7 +153,6 @@ const DefaultFilterConfig: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* FILTER LIST */}
         {filters.length === 0 ? (
           <div className="bg-white rounded-xl border p-10 text-center text-muted-foreground shadow-sm">
             No filter configurations. Click "Add Filter" to create one.
@@ -140,7 +164,6 @@ const DefaultFilterConfig: React.FC<Props> = ({
                 key={filter.title}
                 className="bg-white rounded-xl border p-6 shadow-sm space-y-6"
               >
-                {/* Header */}
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-base">{filter.title}</h3>
 
@@ -154,12 +177,10 @@ const DefaultFilterConfig: React.FC<Props> = ({
                   </Button>
                 </div>
 
-                {/* Title + Segment */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Title</Label>
-                    <input
-                      className="w-full rounded-md border px-3 py-2"
+                    <Input
                       value={filter.title}
                       onChange={(e) =>
                         updateFilter(index, 'title', e.target.value)
@@ -173,14 +194,13 @@ const DefaultFilterConfig: React.FC<Props> = ({
                     <SelectSegments
                       contentTypes={SEGMENT_CONTENT_TYPES}
                       value={filter.segmentId}
-                      onChange={(segmentId) =>
+                      onValueChange={(segmentId) =>
                         updateFilter(index, 'segmentId', segmentId || '')
                       }
                     />
                   </div>
                 </div>
 
-                {/* Users */}
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">Assigned Users</Label>
 

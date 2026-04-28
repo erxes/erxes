@@ -85,6 +85,43 @@ class PageQueryResolver extends BaseQueryResolver {
 
     return list;
   }
+
+  async cpPageList(_parent: any, args: any, context: IContext) {
+    const { models, clientPortal } = context;
+    const { language } = args;
+    const clientPortalId = clientPortal._id;
+
+    const query: any = { clientPortalId };
+
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+      models.Pages,
+      query,
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.PAGE,
+      'page',
+    );
+
+    return { pages: list, totalCount, pageInfo };
+  }
+
+  async cpCmsPageDetail(_parent: any, args: any, context: IContext) {
+    const { models, clientPortal } = context;
+    const { _id, slug, language } = args;
+    const clientPortalId = clientPortal?._id;
+
+    if (!_id && !slug) return null;
+
+    const query = slug ? { slug, clientPortalId } : { _id, clientPortalId };
+
+    return this.getItemWithTranslation(
+      models.Pages,
+      query,
+      language,
+      FIELD_MAPPINGS.PAGE,
+      clientPortalId,
+      'page',
+    );
+  }
 }
 
 const queries: Record<string, Resolver> = {
@@ -99,8 +136,16 @@ const queries: Record<string, Resolver> = {
 
   cpPages: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cpPages(_parent, args, context),
+
+  cpPageList: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cpPageList(_parent, args, context),
+
+  cpCmsPageDetail: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cpCmsPageDetail(_parent, args, context),
 };
 
 queries.cpPages.wrapperConfig = { forClientPortal: true };
+queries.cpPageList.wrapperConfig = { forClientPortal: true };
+queries.cpCmsPageDetail.wrapperConfig = { forClientPortal: true };
 
 export default queries;

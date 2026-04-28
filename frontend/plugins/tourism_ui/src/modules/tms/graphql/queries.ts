@@ -27,6 +27,8 @@ export const GET_BRANCH_LIST = gql`
         generalManagerIds
         managerIds
         paymentIds
+        prepaid
+        prepaidPercent
         token
         erxesAppToken
         permissionConfig
@@ -55,6 +57,8 @@ export const BRANCH_LIST_DETAIL = gql`
       generalManagerIds
       managerIds
       paymentIds
+      prepaid
+      prepaidPercent
       token
       erxesAppToken
       permissionConfig

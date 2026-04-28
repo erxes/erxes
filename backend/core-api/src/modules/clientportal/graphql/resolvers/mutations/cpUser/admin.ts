@@ -9,7 +9,7 @@ import type {
 import { getCPUserByIdOrThrow } from '~/modules/clientportal/services/helpers/userUtils';
 import { validatePassword } from '~/modules/clientportal/services/helpers/validators';
 
-export const adminMutations: Record<string, Resolver> = {
+export const adminMutations: Record<string, Resolver<any, any, IContext>> = {
   async cpUsersAdd(
     _root: unknown,
     params: CpUsersAddParams,

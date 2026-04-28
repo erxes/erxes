@@ -24,7 +24,7 @@ export const useScopedHotkeys = (
 
   const enableOnFormTags = isDefined(options?.enableOnFormTags)
     ? options.enableOnFormTags
-    : true;
+    : false;
 
   const preventDefault = isDefined(options?.preventDefault)
     ? options.preventDefault === true

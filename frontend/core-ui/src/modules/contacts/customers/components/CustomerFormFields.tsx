@@ -107,14 +107,16 @@ const emailValidationStatuses = [
   { label: 'Unknown', value: 'unknown' },
   { label: 'Disposable', value: 'disposable' },
   { label: 'Catch all', value: 'catchall' },
-  { label: 'Bat syntax', value: 'bad_syntax' },
+  { label: 'Bad syntax', value: 'bad_syntax' },
   { label: 'Not checked', value: 'not_checked' },
 ];
 
 export const EmailValidationStatusField = ({
   control,
+  disabled,
 }: {
   control: Control<CustomerFormType>;
+  disabled?: boolean;
 }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
@@ -124,7 +126,7 @@ export const EmailValidationStatusField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>{t('email-verification-status')}</Form.Label>
-          <Select onValueChange={field.onChange} value={field.value}>
+          <Select onValueChange={field.onChange} value={field.value} disabled={disabled}>
             <Form.Control>
               <Select.Trigger>
                 <Select.Value placeholder={'Choose'}>

@@ -23,6 +23,14 @@ export const generateIntegrationUrl = (): string => {
   return '';
 };
 
+// Capture the integration URL synchronously at module load time while
+// document.currentScript is still available. After this point (e.g. inside
+// DOMContentLoaded callbacks) document.currentScript is always null, so
+// calling generateIntegrationUrl() there would fall back to the last <script>
+// in the DOM — which is often the inline install script whose .src is '',
+// causing iframe.src to be set to '' and the iframe to reload the host page.
+const INTEGRATION_URL = generateIntegrationUrl();
+
 export const setErxesProperty = (name: string, value: any) => {
   const erxes = window.Erxes || {};
 
@@ -136,11 +144,13 @@ const createIframe = (settings: Settings) => {
     iframe.style.display = 'none';
     iframe.style.width = '100%';
     iframe.style.margin = '0 auto';
-    iframe.style.height = 'auto';
+    iframe.style.height = '100%';
     iframe.allowFullscreen = true;
+    iframe.allowTransparency = true;
+    iframe.style.background = 'transparent';
   }
 
-  iframe.src = generateIntegrationUrl();
+  iframe.src = INTEGRATION_URL;
 
   container.appendChild(iframe);
 
@@ -148,6 +158,7 @@ const createIframe = (settings: Settings) => {
   const embedContainer = document.querySelector(
     `[data-erxes-embed="${formId}"]`,
   );
+  console.log('embedContainer', embedContainer);
 
   if (embedContainer) {
     embedContainer.appendChild(container);
@@ -161,6 +172,11 @@ const createIframe = (settings: Settings) => {
   // after iframe load send connection info
   iframe.onload = () => {
     iframe.style.display = 'inherit';
+
+    if (iframe.contentDocument?.body) {
+      iframe.contentDocument.body.style.background = 'transparent';
+      iframe.contentDocument.body.style.backgroundColor = 'transparent';
+    }
 
     const handlerSelector = `[data-erxes-modal="${settings.form_id}"]`;
 
@@ -249,9 +265,66 @@ const getSettings = (settings: Settings) =>
       s.channel_id === settings.channel_id && s.form_id === settings.form_id,
   );
 
-formSettings.forEach((formSettings: Settings) => {
-  iframesMapping[getMappingKey(formSettings)] = createIframe(formSettings);
-});
+// Returns true if this form setting has a popup/modal trigger in the DOM.
+// Popup forms should always be initialised eagerly (iframe lives on body, hidden).
+// Embed forms should only be initialised once their placeholder element exists,
+// because moving an iframe node in the DOM forces a reload.
+const isPopupForm = (settings: Settings): boolean =>
+  document.querySelectorAll(`[data-erxes-modal="${settings.form_id}"]`).length >
+  0;
+
+const initForm = (settings: Settings) => {
+  const key = getMappingKey(settings);
+  if (!iframesMapping[key]) {
+    iframesMapping[key] = createIframe(settings);
+  }
+};
+
+const initForms = () => {
+  formSettings.forEach((settings: Settings) => {
+    const embedContainer = document.querySelector(
+      `[data-erxes-embed="${settings.form_id}"]`,
+    );
+
+    // Initialise immediately if:
+    //   a) the embed placeholder is already in the DOM, or
+    //   b) this is a popup/modal form (no embed placeholder expected)
+    // Otherwise defer to the MutationObserver so the iframe is created directly
+    // inside the embed target and never needs to be moved (which would reload it).
+    if (embedContainer || isPopupForm(settings)) {
+      initForm(settings);
+    }
+  });
+};
+
+// Watch for embed containers added after initial load (e.g. React/SPA rendering)
+const observeEmbedContainers = () => {
+  const observer = new MutationObserver(() => {
+    formSettings.forEach((settings: Settings) => {
+      const embedContainer = document.querySelector(
+        `[data-erxes-embed="${settings.form_id}"]`,
+      );
+      if (embedContainer) {
+        // Embed placeholder just appeared — create the iframe directly inside it.
+        // We intentionally skip this in initForms when the placeholder is absent
+        // so that we never have to move an already-loaded iframe (which reloads it).
+        initForm(settings);
+      }
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initForms();
+    observeEmbedContainers();
+  });
+} else {
+  initForms();
+  observeEmbedContainers();
+}
 
 // listen for messages from widget
 window.addEventListener('message', async (event: MessageEvent) => {
@@ -312,8 +385,11 @@ window.addEventListener('message', async (event: MessageEvent) => {
     container.className = data.className;
   }
 
-  if (message === 'changeContainerStyle' && container) {
-    container.style = data.style;
+  if (message === 'changeContainerStyle' && iframe) {
+    const heightMatch = (data.style as string).match(/height:\s*([\d.]+px)/);
+    if (heightMatch) {
+      iframe.style.height = heightMatch[1];
+    }
   }
 
   return null;

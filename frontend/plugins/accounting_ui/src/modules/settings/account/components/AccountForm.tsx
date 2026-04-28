@@ -30,6 +30,10 @@ export const AccountForm = ({
     control: form.control,
     name: 'status',
   });
+  const journal = useWatch({
+    control: form.control,
+    name: 'journal',
+  });
 
   return (
     <Form {...form}>
@@ -168,6 +172,37 @@ export const AccountForm = ({
             </Form.Item>
           )}
         />
+        {journal === JournalEnum.BANK && (
+          <>
+            <Form.Field
+              control={form.control}
+              name="extra.bank"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Bank</Form.Label>
+                  <Form.Control>
+                    <Input placeholder="Enter bank name" {...field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="extra.bankAccount"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Bank Account</Form.Label>
+                  <Form.Control>
+                    <Input placeholder="Enter bank account number" {...field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </>
+        )}
 
         <Form.Field
           control={form.control}

@@ -166,6 +166,7 @@ export const EDIT_TOUR_ORDER = gql`
       amount
       status
       note
+      internalNote
       numberOfPeople
       type
       additionalCustomers

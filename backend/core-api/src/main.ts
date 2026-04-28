@@ -11,7 +11,7 @@ import {
   leaveErxesGateway,
 } from 'erxes-api-shared/utils';
 import express from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import * as http from 'http';
 import * as path from 'path';
 import { appRouter } from '~/init-trpc';
@@ -20,7 +20,7 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
-import initImportExport from './meta/import-export/import';
+import initImportExport from './meta/import-export';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
 
@@ -70,9 +70,9 @@ const fileLimiter = rateLimit({
     const xff = req.headers['x-forwarded-for'];
     if (xff) {
       const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
-      return parts[parts.length - 1].trim();
+      return ipKeyGenerator(parts[parts.length - 1].trim());
     }
-    return req.ip || 'unknown';
+    return ipKeyGenerator(req.ip || 'unknown');
   },
   handler: (_req, res) => {
     res.status(429).json({

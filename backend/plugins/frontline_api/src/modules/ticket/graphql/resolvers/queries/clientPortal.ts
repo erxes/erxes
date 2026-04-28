@@ -45,7 +45,7 @@ export const cpTicketQueries = {
   },
 };
 
-markResolvers(cpTicketQueries, {
+markResolvers<IContext>(cpTicketQueries, {
   wrapperConfig: {
     forClientPortal: true,
     cpUserRequired: true,

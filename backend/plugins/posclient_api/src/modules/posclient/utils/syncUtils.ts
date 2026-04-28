@@ -32,7 +32,7 @@ export const importUsers = async (
   models: IModels,
   users: IPosUserDocument[],
   token: string,
-  isAdmin: boolean = false,
+  isAdmin = false,
 ) => {
   for (const user of users) {
     await models.PosUsers.createOrUpdateUser(
@@ -143,8 +143,11 @@ export const importProducts = async (
 ) => {
   const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
 
-  const attachmentUrlChanger = (attachment) => {
-    return attachment?.url?.includes('http')
+  const attachmentUrlChanger = (attachment?: any) => {
+    if (!attachment) {
+      return;
+    }
+    return attachment.url?.includes('http')
       ? attachment
       : { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` };
   };
@@ -153,11 +156,13 @@ export const importProducts = async (
     const categories = group.categories || [];
 
     for (const category of categories) {
-      if (category._id) {
+      const { products, ...categoryDoc } = category;
+
+      if (categoryDoc._id) {
         await models.ProductCategories.updateOne(
-          { _id: category._id },
+          { _id: categoryDoc._id },
           {
-            $set: { ...category, products: undefined },
+            $set: { ...categoryDoc },
             $addToSet: { tokens: token },
           },
           { upsert: true },
@@ -172,13 +177,14 @@ export const importProducts = async (
         };
       }[] = [];
 
-      for (const product of category.products) {
+      for (const product of products) {
+        const { _id, ...productDoc } = product;
         bulkOps.push({
           updateOne: {
-            filter: { _id: product._id },
+            filter: { _id },
             update: {
               $set: {
-                ...product,
+                ...productDoc,
                 [`prices.${token}`]: product.unitPrice,
                 [`taxRules.${token}`]: product.taxRule || null,
                 uom: product.uom || 'ш',

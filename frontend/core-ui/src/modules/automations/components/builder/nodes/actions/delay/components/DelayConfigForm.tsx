@@ -3,6 +3,7 @@ import { TAutomationActionProps } from 'ui-modules';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { FormProvider } from 'react-hook-form';
 import { useDelay } from '@/automations/components/builder/nodes/actions/delay/hooks/useDelay';
+import { useTranslation } from 'react-i18next';
 
 export const DelayConfigForm = ({
   handleSave,
@@ -15,6 +16,7 @@ export const DelayConfigForm = ({
     handleIntervalChange,
     handleSubmit,
   } = useDelay(currentAction?.config || {});
+  const { t } = useTranslation('automations');
   return (
     <FormProvider {...form}>
       <AutomationConfigFormWrapper onSave={handleSubmit(handleSave)}>
@@ -24,7 +26,7 @@ export const DelayConfigForm = ({
             control={control}
             render={({ field }) => (
               <Form.Item className="flex-1">
-                <Form.Label>Wait for</Form.Label>
+                <Form.Label>{t('wait-for')}</Form.Label>
                 <Input
                   {...field}
                   type="number"
@@ -40,7 +42,7 @@ export const DelayConfigForm = ({
             control={control}
             render={({ field }) => (
               <Form.Item className="flex-1">
-                <Form.Label>Time unit</Form.Label>
+                <Form.Label>{t('time-unit')}</Form.Label>
                 <Select
                   value={field.value}
                   onValueChange={(value) =>
@@ -48,14 +50,14 @@ export const DelayConfigForm = ({
                   }
                 >
                   <Select.Trigger id="time-unit" className="mt-1">
-                    <Select.Value placeholder="Select unit" />
+                    <Select.Value placeholder={t('select-unit')} />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="minute">Minutes</Select.Item>
-                    <Select.Item value="hour">Hours</Select.Item>
-                    <Select.Item value="day">Days</Select.Item>
-                    <Select.Item value="month">Month</Select.Item>
-                    <Select.Item value="year">Year</Select.Item>
+                    <Select.Item value="minute">{t('minutes')}</Select.Item>
+                    <Select.Item value="hour">{t('hours')}</Select.Item>
+                    <Select.Item value="day">{t('days')}</Select.Item>
+                    <Select.Item value="month">{t('month')}</Select.Item>
+                    <Select.Item value="year">{t('year')}</Select.Item>
                   </Select.Content>
                 </Select>
                 <Form.Message />

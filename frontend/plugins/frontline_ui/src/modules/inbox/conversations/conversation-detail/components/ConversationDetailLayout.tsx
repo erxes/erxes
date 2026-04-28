@@ -9,9 +9,15 @@ export const ConversationDetailLayout = ({
 }) => {
   return (
     <Resizable.PanelGroup direction="vertical">
-      <Resizable.Panel defaultSize={70}>{children}</Resizable.Panel>
-      <Resizable.Handle className="bg-transparent hover:bg-border" />
-      <Resizable.Panel defaultSize={30}>{input}</Resizable.Panel>
+      <Resizable.Panel defaultSize={input ? 70 : 100}>
+        <div className="relative h-full overflow-hidden">{children}</div>
+      </Resizable.Panel>
+      {input && (
+        <>
+          <Resizable.Handle className="bg-transparent hover:bg-border" />
+          <Resizable.Panel defaultSize={30}>{input}</Resizable.Panel>
+        </>
+      )}
     </Resizable.PanelGroup>
   );
 };

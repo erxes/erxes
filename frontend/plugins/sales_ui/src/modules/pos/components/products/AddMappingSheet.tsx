@@ -86,13 +86,13 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
 
   const handleCategorySelect: React.ReactEventHandler<HTMLButtonElement> &
     ((categoryId: string) => void) = (value) => {
-      const categoryId =
-        typeof value === 'string' ? value : value?.currentTarget?.value;
+    const categoryId =
+      typeof value === 'string' ? value : value?.currentTarget?.value;
 
-      if (categoryId) {
-        form.setValue('categoryId', categoryId);
-      }
-    };
+    if (categoryId) {
+      form.setValue('categoryId', categoryId);
+    }
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -115,9 +115,7 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
         <Sheet.Content className="p-6">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="categoryId">
-                PRODUCT CATEGORY <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="categoryId">PRODUCT CATEGORY</Label>
               <SelectCategory
                 selected={form.watch('categoryId')}
                 onSelect={handleCategorySelect}
@@ -134,12 +132,21 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name">PRODUCT NAME CONTAINS</Label>
+              <Label htmlFor="name">
+                PRODUCT NAME CONTAINS <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="name"
-                {...form.register('name')}
+                {...form.register('name', {
+                  required: 'Product name is required',
+                })}
                 placeholder="Enter product name pattern"
               />
+              {form.formState.errors.name && (
+                <p className="text-sm text-red-500">
+                  {form.formState.errors.name.message as string}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">

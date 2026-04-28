@@ -1,24 +1,19 @@
+import { IconCheck, IconPlus } from '@tabler/icons-react';
 import {
   Button,
-  Select,
   cn,
+  DatePicker,
   EnumCursorDirection,
   Input,
   ScrollArea,
+  Select,
   Separator,
   Sheet,
   Spinner,
   Tooltip,
-  DatePicker,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-import { ITransaction } from '~/modules/transactions/types/Transaction';
 import { useInView } from 'react-intersection-observer';
-import { IconCheck, IconPlus } from '@tabler/icons-react';
-import { useTransactions } from '~/modules/transactions/hooks/useTransactions';
-import { useDebounce } from 'use-debounce';
-import { TrJournalEnum } from '~/modules/transactions/types/constants';
-import { useOneTrDetail } from '../../../hooks/useOneTrDetail';
 import {
   CompaniesInline,
   CustomersInline,
@@ -31,6 +26,11 @@ import {
   SelectDepartmentsInlineCell,
   SelectMember,
 } from 'ui-modules';
+import { useDebounce } from 'use-debounce';
+import { useTransactions } from '~/modules/transactions/hooks/useTransactions';
+import { TrJournalEnum } from '~/modules/transactions/types/constants';
+import { ITransaction } from '~/modules/transactions/types/Transaction';
+import { useTransactionDetail } from '../../../hooks/useTransactionDetail';
 
 interface SelectProductsProps {
   onSelect: (saleTrId: string, saleTr?: ITransaction) => void;
@@ -256,7 +256,7 @@ const SelectedTrDetail = ({
 }) => {
   const [trDetail, setTrDetail] = useState<ITransaction | undefined>();
 
-  const { transaction, loading } = useOneTrDetail({
+  const { transaction, loading } = useTransactionDetail({
     variables: { _id: selectedTrId },
     skip: !selectedTrId,
   });

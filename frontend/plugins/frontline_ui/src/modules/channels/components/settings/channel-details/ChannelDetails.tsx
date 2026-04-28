@@ -1,4 +1,3 @@
-// import { IntegrationsSection } from '@/channels/components/channel-details/IntegrationsSection';
 import { MemberSection } from '@/channels/components/settings/channel-details/MemberSection';
 import { UpdateChannelForm } from '@/channels/components/settings/channel-details/UpdateChannelForm';
 import { useGetChannel } from '@/channels/hooks/useGetChannel';

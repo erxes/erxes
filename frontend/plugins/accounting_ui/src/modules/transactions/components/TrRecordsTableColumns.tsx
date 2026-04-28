@@ -1,23 +1,28 @@
-import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
+import {
+  IconCalendar,
+  IconEdit,
+  IconFile,
+  IconMoneybag,
+  IconTrash,
+} from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
-  CurrencyCode,
-  CurrencyFormatedDisplay,
-  RecordTable,
-  RecordTableInlineCell,
-  fixNum,
-  Popover,
   Combobox,
   Command,
+  CurrencyCode,
+  CurrencyFormatedDisplay,
+  fixNum,
+  Popover,
+  RecordTable,
+  RecordTableInlineCell,
   useConfirm,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router';
 import { ProductsInline } from 'ui-modules';
+import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
 import { TR_JOURNAL_LABELS, TR_SIDES, TrJournalEnum } from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
-import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 const NumberCell = ({ row }: any) => {
   const { number } = row.original;

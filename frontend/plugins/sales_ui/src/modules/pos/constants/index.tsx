@@ -53,12 +53,12 @@ export const ALLOW_TYPES = [
 ] as const;
 
 export const options = [
-  { value: 'debtAmount', label: 'Debt Account' },
-  { value: 'cashAmount', label: 'Cash Account' },
-  { value: 'cardAmount', label: 'Card Account' },
-  { value: 'card2Amount', label: 'Card Account Additional' },
-  { value: 'mobileAmount', label: 'Mobile Account' },
-  { value: 'debtBarterAmount', label: 'Barter Account' },
+  { value: 'debtAmount', label: 'Зээлийн данс' },
+  { value: 'cashAmount', label: 'Бэлэн мөнгө данс' },
+  { value: 'cardAmount', label: 'Картын данс' },
+  { value: 'card2Amount', label: 'Картын данс нэмэлт' },
+  { value: 'mobileAmount', label: 'Мобайл данс' },
+  { value: 'debtBarterAmount', label: 'Бартер данс' },
 ];
 
 export const DefaultNode: CustomNode = {
@@ -110,8 +110,6 @@ export const getSteps = (posType: string | null) => {
     { value: 'product', title: 'Product & Service' },
     { value: 'appearance', title: 'Brand Color & Logo' },
     { value: 'screen', title: 'Screen' },
-    { value: 'ebarimt', title: 'Ebarimt' },
-    { value: 'finance', title: 'Erkhet' },
     { value: 'delivery', title: 'Delivery' },
     { value: 'sync', title: 'Sync card' },
   ];

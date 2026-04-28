@@ -162,10 +162,12 @@ const generateFilterSubsQuery = async (params: any) => {
   }
 
   if (params?.closeFrom) {
+    if (!filter.items) filter.items = {};
     filter.items.closeDate = { $gte: new Date(params.closeFrom) };
   }
 
   if (params?.closeTo) {
+    if (!filter.items) filter.items = {};
     filter.items.closeDate = {
       ...(filter?.items?.closeDate || {}),
       $lte: new Date(params.closeTo),
@@ -348,7 +350,7 @@ export const posOrderRecordsQuery = async (
         )
       : '';
     order.user = userById[order.userId];
-    order.posName = posByToken[order.posToken].name;
+    order.posName = posByToken[order.posToken]?.name || '';
 
     if (order.customerType === 'company') {
       const company = companyById[order.customerId || ''];

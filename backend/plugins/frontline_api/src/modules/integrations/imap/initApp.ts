@@ -1,4 +1,9 @@
-import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
+import {
+  getEnv,
+  getSubdomain,
+  getSaasOrganizations,
+  getSaasCoreConnection,
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { routeErrorHandling, findAttachmentParts, toUpper } from './utils';
 import { imapListen } from './messageBroker';
@@ -13,55 +18,62 @@ dotenv.config();
 
 const { NODE_ENV } = process.env;
 
-const startDistributingJobs = async (subdomain: string) => {
+const distributeJobsForSubdomain = async (subdomain: string) => {
   const models = await generateModels(subdomain);
+  let lock;
 
-  const distributeJob = async () => {
-    let lock;
+  try {
+    lock = await redlock.acquire(
+      [`${subdomain}:imap:work_distributor`],
+      60000,
+    );
+  } catch (e) {
+    console.log(e);
+    lock = null;
+  }
 
-    try {
-      lock = await redlock.acquire(
-        [`${subdomain}:imap:work_distributor`],
-        60000,
-      );
-    } catch (e) {
-      console.log(
-        'Could not acquire Redis lock, proceeding without distributed lock:',
-        e.message,
-      );
-      lock = null;
-    }
-
-    try {
-      const integrations = await models.ImapIntegrations.find({
-        healthStatus: 'healthy',
+  try {
+    const integrations = await models.ImapIntegrations.find({
+      healthStatus: 'healthy',
+    });
+    for (const integration of integrations) {
+      imapListen({
+        subdomain,
+        data: {
+          _id: integration._id,
+        },
       });
-
-      console.log(
-        `Found ${integrations.length} healthy IMAP integrations to process`,
-      );
-
-      for (const integration of integrations) {
-        console.log(`Starting listener for integration: ${integration._id}`);
-        imapListen({
-          subdomain,
-          data: {
-            _id: integration._id,
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Job distribution error:', error);
-    } finally {
-      if (lock && typeof lock.unlock === 'function') {
-        try {
-          await lock.unlock();
-        } catch (unlockError) {
-          console.error('Lock unlock error:', unlockError);
-        }
+    }
+  } catch (error) {
+    console.error(`Job distribution error for ${subdomain}:`, error);
+  } finally {
+    if (lock && typeof lock.unlock === 'function') {
+      try {
+        await lock.unlock();
+      } catch (unlockError) {
+        console.error('Lock unlock error:', unlockError);
       }
     }
-  };
+  }
+};
+
+const startDistributingJobs = async (subdomain: string) => {
+  if (NODE_ENV === 'production') {
+    await new Promise((resolve) => setTimeout(resolve, 60000));
+  }
+
+  while (true) {
+    try {
+      await distributeJobsForSubdomain(subdomain);
+      await new Promise((resolve) => setTimeout(resolve, 10 * 60 * 1000));
+    } catch (error) {
+      console.error('distributeWork error', error);
+    }
+  }
+};
+
+const startSaasDistributingJobs = async () => {
+  await getSaasCoreConnection();
 
   if (NODE_ENV === 'production') {
     await new Promise((resolve) => setTimeout(resolve, 60000));
@@ -69,7 +81,11 @@ const startDistributingJobs = async (subdomain: string) => {
 
   while (true) {
     try {
-      await distributeJob();
+      const organizations = await getSaasOrganizations();
+      const subdomains = organizations
+        .map((org) => org.subdomain)
+        .filter(Boolean);
+      await Promise.all(subdomains.map(distributeJobsForSubdomain));
       await new Promise((resolve) => setTimeout(resolve, 10 * 60 * 1000));
     } catch (error) {
       console.error('distributeWork error', error);
@@ -128,7 +144,6 @@ const onServerInitImap = async (app) => {
               function (err, results) {
                 if (err) {
                   imap.end();
-                  console.log('read-mail-attachment =============', err);
                   return next(err);
                 }
 
@@ -195,17 +210,19 @@ const onServerInitImap = async (app) => {
     ),
   );
 
-  const VERSION = getEnv({ name: 'VERSION' });
+  // const VERSION = getEnv({ name: 'VERSION' });
 
-  if (VERSION && VERSION === 'saas') {
-    console.log(
-      'SAAS mode detected, but organization handling not implemented',
-    );
-    // startDistributingJobs('os');
-  } else {
-    console.log('Starting IMAP job distributor for default subdomain');
-    startDistributingJobs('os');
-  }
+  // if (VERSION && VERSION === 'saas') {
+  //   console.log(
+  //     'SAAS mode: starting IMAP job distributor for all organizations',
+  //   );
+
+  //   startSaasDistributingJobs().catch((err) => {
+  //     console.error('[IMAP] Failed to start SAAS job distributors:', err);
+  //   });
+  // } else {
+  //   startDistributingJobs('os');
+  // }
 };
 
 export default onServerInitImap;

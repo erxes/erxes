@@ -15,6 +15,7 @@ const accountInputParamsDefs = `
   $isTemp: Boolean,
   $isOutBalance: Boolean,
   $scopeBrandIds: [String],
+  $extra: JSON
   $status: String,
 `;
 
@@ -32,6 +33,7 @@ const accountInputParams = `
   isTemp: $isTemp,
   isOutBalance: $isOutBalance,
   scopeBrandIds: $scopeBrandIds,
+  extra: $extra
   status: $status,
 `;
 

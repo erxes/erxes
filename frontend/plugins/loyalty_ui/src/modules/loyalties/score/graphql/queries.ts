@@ -11,6 +11,8 @@ export const SCORE_LOG_LIST_QUERY = gql`
     $orderType: String
     $fromDate: String
     $toDate: String
+    $boardId: String
+    $pipelineId: String
     $stageId: String
     $number: String
     $description: String
@@ -25,6 +27,8 @@ export const SCORE_LOG_LIST_QUERY = gql`
       orderType: $orderType
       fromDate: $fromDate
       toDate: $toDate
+      boardId: $boardId
+      pipelineId: $pipelineId
       stageId: $stageId
       number: $number
       description: $description

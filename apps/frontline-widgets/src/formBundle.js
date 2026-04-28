@@ -1,51 +1,21 @@
-'use strict';
-(() => {
-  var C = Object.defineProperty;
-  var x = Object.getOwnPropertySymbols;
-  var L = Object.prototype.hasOwnProperty,
-    A = Object.prototype.propertyIsEnumerable;
-  var y = (e, t, n) =>
-      t in e
-        ? C(e, t, { enumerable: !0, configurable: !0, writable: !0, value: n })
-        : (e[t] = n),
-    c = (e, t) => {
-      for (var n in t || (t = {})) L.call(t, n) && y(e, n, t[n]);
-      if (x) for (var n of x(t)) A.call(t, n) && y(e, n, t[n]);
-      return e;
-    };
-  var l = (e, t, n) =>
-    new Promise((d, r) => {
-      var o = (a) => {
-          try {
-            s(n.next(a));
-          } catch (m) {
-            r(m);
-          }
-        },
-        i = (a) => {
-          try {
-            s(n.throw(a));
-          } catch (m) {
-            r(m);
-          }
-        },
-        s = (a) => (a.done ? d(a.value) : Promise.resolve(a.value).then(o, i));
-      s((n = n.apply(e, t)).next());
-    });
-  var b = `[id^='erxes-container'] {
+"use strict";(()=>{var A=Object.defineProperty;var b=Object.getOwnPropertySymbols;var M=Object.prototype.hasOwnProperty,B=Object.prototype.propertyIsEnumerable;var I=(e,t,o)=>t in e?A(e,t,{enumerable:!0,configurable:!0,writable:!0,value:o}):e[t]=o,g=(e,t)=>{for(var o in t||(t={}))M.call(t,o)&&I(e,o,t[o]);if(b)for(var o of b(t))B.call(t,o)&&I(e,o,t[o]);return e};var l=(e,t,o)=>new Promise((d,r)=>{var n=i=>{try{a(o.next(i))}catch(m){r(m)}},s=i=>{try{a(o.throw(i))}catch(m){r(m)}},a=i=>i.done?d(i.value):Promise.resolve(i.value).then(n,s);a((o=o.apply(e,t)).next())});var S=`[id^='erxes-container'] {
   z-index: 1000000000;
   border: none;
 }
 
 [id^='erxes-container'] > iframe {
   border: none;
-  height: 100% !important;
+}
+[id^='erxes-container'] > html,
+body {
+  background-color: transparent !important;
+  background: transparent !important;
 }
 
 /*loader*/
 [data-erxes-embed] {
   position: relative;
-  background: rgba(0, 0, 0, 0.03);
+  background: transparent;
   border-radius: 4px;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
 }
@@ -75,6 +45,14 @@
   min-width: 100%; /* Full width */
   border: none;
   height: 100% !important;
+}
+
+.erxes-modal-iframe > iframe,
+.erxes-slide-right-iframe > iframe,
+.erxes-slide-left-iframe > iframe,
+.erxes-dropdown-iframe > iframe,
+.erxes-shoutbox-iframe > iframe {
+  height: 100%;
 }
 
 .erxes-slide-right-iframe,
@@ -270,185 +248,4 @@
   -webkit-animation-name: fadeInRight;
   animation-name: fadeInRight;
 }
-`;
-  var I = (e) => localStorage.getItem(e);
-  var S = document.createElement('style');
-  S.textContent = b;
-  document.head.appendChild(S);
-  var B = () => {
-      let e =
-        document.currentScript ||
-        (() => {
-          let t = document.getElementsByTagName('script');
-          return t[t.length - 1];
-        })();
-      return e && e instanceof HTMLScriptElement
-        ? e.src.replace('/formBundle.js', '/form')
-        : '';
-    },
-    p = (e, t) => {
-      let n = window.Erxes || {};
-      ((n[e] = t), (window.Erxes = n));
-    },
-    M = () =>
-      l(void 0, null, function* () {
-        if (window.location.hostname === 'localhost')
-          return {
-            url: window.location.pathname,
-            hostname: window.location.href,
-            language: navigator.language,
-            userAgent: navigator.userAgent,
-            countryCode: 'MN',
-          };
-        let e;
-        try {
-          e = yield (yield fetch('https://geo.erxes.io')).json();
-        } catch (t) {
-          e = {
-            city: '',
-            remoteAddress: '',
-            region: '',
-            country: '',
-            countryCode: '',
-          };
-        }
-        return {
-          remoteAddress: e.network,
-          region: e.region,
-          countryCode: e.countryCode,
-          city: e.city,
-          country: e.countryName,
-          url: window.location.pathname,
-          hostname: window.location.origin,
-          language: navigator.language,
-          userAgent: navigator.userAgent,
-        };
-      }),
-    P = (e, t) =>
-      l(void 0, null, function* () {
-        let { message: n, fromErxes: d, source: r, key: o, value: i } = e.data;
-        if (
-          d &&
-          t != null &&
-          t.contentWindow &&
-          (n === 'requestingBrowserInfo' &&
-            t.contentWindow.postMessage(
-              {
-                fromPublisher: !0,
-                source: r,
-                message: 'sendingBrowserInfo',
-                browserInfo: yield M(),
-              },
-              '*',
-            ),
-          n === 'setLocalStorageItem')
-        ) {
-          let s = JSON.parse(localStorage.getItem('erxes') || '{}');
-          ((s[o] = i), localStorage.setItem('erxes', JSON.stringify(s)));
-        }
-      }),
-    u = document.createElement('meta');
-  u.name = 'viewport';
-  u.content = 'initial-scale=1, width=device-width';
-  document.getElementsByTagName('head')[0].appendChild(u);
-  var N = (e) => {
-      let t = e.form_id,
-        n = `erxes-container-${t}`,
-        d = `erxes-iframe-${t}`,
-        r = document.getElementById(n);
-      r || ((r = document.createElement('div')), (r.id = n));
-      let o = document.getElementById(d);
-      (o ||
-        ((o = document.createElement('iframe')),
-        (o.id = d),
-        (o.style.display = 'none'),
-        (o.style.width = '100%'),
-        (o.style.margin = '0 auto'),
-        (o.style.height = 'auto'),
-        (o.allowFullscreen = !0)),
-        (o.src = B()),
-        r.appendChild(o));
-      let i = document.querySelector(`[data-erxes-embed="${t}"]`);
-      return (
-        i ? i.appendChild(r) : document.body.appendChild(r),
-        (o.onload = () => {
-          o.style.display = 'inherit';
-          let s = `[data-erxes-modal="${e.form_id}"]`,
-            a = o.contentWindow;
-          if (!a) return;
-          let m = c({}, e);
-          (m.onAction && delete m.onAction,
-            a.postMessage(
-              {
-                fromPublisher: !0,
-                hasPopupHandlers: document.querySelectorAll(s).length > 0,
-                settings: m,
-                storage: I('erxes'),
-              },
-              '*',
-            ));
-        }),
-        { container: r, iframe: o }
-      );
-    },
-    w = (e, t) => {
-      let n = Object.keys(f).find((o) => {
-        let i = JSON.parse(o);
-        return e === i.form_id;
-      });
-      if (!n) return;
-      let { iframe: d } = f[n],
-        r = d.contentWindow;
-      r && r.postMessage(c({ fromPublisher: !0, formId: e }, t), '*');
-    };
-  p('showPopup', (e) => {
-    w(e, { action: 'showPopup' });
-  });
-  p('callFormSubmit', (e) => {
-    w(e, { action: 'callSubmit' });
-  });
-  p('sendExtraFormContent', (e, t) => {
-    w(e, { action: 'extraFormContent', html: t });
-  });
-  var k = window.erxesSettings.forms || [],
-    f = {},
-    v = (e) => JSON.stringify({ form_id: e.form_id, channel_id: e.channel_id }),
-    R = (e) =>
-      k.find((t) => t.channel_id === e.channel_id && t.form_id === e.form_id);
-  k.forEach((e) => {
-    f[v(e)] = N(e);
-  });
-  window.addEventListener('message', (e) =>
-    l(void 0, null, function* () {
-      let t = e.data || {},
-        { fromErxes: n, source: d, message: r, settings: o } = t;
-      if (!o || d !== 'fromForms') return null;
-      let { container: i, iframe: s } = f[v(o)] || {};
-      P(e, s);
-      let a = R(o);
-      if (!a || !(n && d === 'fromForms')) return null;
-      if (
-        (r === 'submitResponse' && a.onAction && a.onAction(t),
-        r === 'connected' &&
-          t.connectionInfo.widgetsLeadConnect.form.leadData.loadType ===
-            'popup')
-      ) {
-        let E = `[data-erxes-modal="${o.form_id}"]`,
-          h = document.querySelectorAll(E);
-        for (let g = 0; g < h.length; g++)
-          h[g].addEventListener('click', () => {
-            s == null ||
-              s.contentWindow.postMessage(
-                { fromPublisher: !0, action: 'showPopup', formId: o.form_id },
-                '*',
-              );
-          });
-      }
-      return (
-        r === 'changeContainerClass' && i && (i.className = t.className),
-        r === 'changeContainerStyle' && i && (i.style = t.style),
-        null
-      );
-    }),
-  );
-})();
+`;var k=e=>localStorage.getItem(e);var C=document.createElement("style");C.textContent=S;document.head.appendChild(C);var P=()=>{let e=document.currentScript||(()=>{let t=document.getElementsByTagName("script");return t[t.length-1]})();return e&&e instanceof HTMLScriptElement?e.src.replace("/formBundle.js","/form"):""},R=P(),p=(e,t)=>{let o=window.Erxes||{};o[e]=t,window.Erxes=o},T=()=>l(void 0,null,function*(){if(window.location.hostname==="localhost")return{url:window.location.pathname,hostname:window.location.href,language:navigator.language,userAgent:navigator.userAgent,countryCode:"MN"};let e;try{e=yield(yield fetch("https://geo.erxes.io")).json()}catch(t){e={city:"",remoteAddress:"",region:"",country:"",countryCode:""}}return{remoteAddress:e.network,region:e.region,countryCode:e.countryCode,city:e.city,country:e.countryName,url:window.location.pathname,hostname:window.location.origin,language:navigator.language,userAgent:navigator.userAgent}}),q=(e,t)=>l(void 0,null,function*(){let{message:o,fromErxes:d,source:r,key:n,value:s}=e.data;if(d&&(t!=null&&t.contentWindow)&&(o==="requestingBrowserInfo"&&t.contentWindow.postMessage({fromPublisher:!0,source:r,message:"sendingBrowserInfo",browserInfo:yield T()},"*"),o==="setLocalStorageItem")){let a=JSON.parse(localStorage.getItem("erxes")||"{}");a[n]=s,localStorage.setItem("erxes",JSON.stringify(a))}}),w=document.createElement("meta");w.name="viewport";w.content="initial-scale=1, width=device-width";document.getElementsByTagName("head")[0].appendChild(w);var D=e=>{let t=e.form_id,o=`erxes-container-${t}`,d=`erxes-iframe-${t}`,r=document.getElementById(o);r||(r=document.createElement("div"),r.id=o);let n=document.getElementById(d);n||(n=document.createElement("iframe"),n.id=d,n.style.display="none",n.style.width="100%",n.style.margin="0 auto",n.style.height="100%",n.allowFullscreen=!0,n.allowTransparency=!0,n.style.background="transparent"),n.src=R,r.appendChild(n);let s=document.querySelector(`[data-erxes-embed="${t}"]`);return console.log("embedContainer",s),s?s.appendChild(r):document.body.appendChild(r),n.onload=()=>{var f;n.style.display="inherit",(f=n.contentDocument)!=null&&f.body&&(n.contentDocument.body.style.background="transparent",n.contentDocument.body.style.backgroundColor="transparent");let a=`[data-erxes-modal="${e.form_id}"]`,i=n.contentWindow;if(!i)return;let m=g({},e);m.onAction&&delete m.onAction,i.postMessage({fromPublisher:!0,hasPopupHandlers:document.querySelectorAll(a).length>0,settings:m,storage:k("erxes")},"*")},{container:r,iframe:n}},h=(e,t)=>{let o=Object.keys(c).find(n=>{let s=JSON.parse(n);return e===s.form_id});if(!o)return;let{iframe:d}=c[o],r=d.contentWindow;r&&r.postMessage(g({fromPublisher:!0,formId:e},t),"*")};p("showPopup",e=>{h(e,{action:"showPopup"})});p("callFormSubmit",e=>{h(e,{action:"callSubmit"})});p("sendExtraFormContent",(e,t)=>{h(e,{action:"extraFormContent",html:t})});var x=window.erxesSettings.forms||[],c={},L=e=>JSON.stringify({form_id:e.form_id,channel_id:e.channel_id}),F=e=>x.find(t=>t.channel_id===e.channel_id&&t.form_id===e.form_id),O=e=>document.querySelectorAll(`[data-erxes-modal="${e.form_id}"]`).length>0,_=e=>{let t=L(e);c[t]||(c[t]=D(e))},v=()=>{x.forEach(e=>{(document.querySelector(`[data-erxes-embed="${e.form_id}"]`)||O(e))&&_(e)})},E=()=>{new MutationObserver(()=>{x.forEach(t=>{document.querySelector(`[data-erxes-embed="${t.form_id}"]`)&&_(t)})}).observe(document.body,{childList:!0,subtree:!0})};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",()=>{v(),E()}):(v(),E());window.addEventListener("message",e=>l(void 0,null,function*(){let t=e.data||{},{fromErxes:o,source:d,message:r,settings:n}=t;if(!n||d!=="fromForms")return null;let{container:s,iframe:a}=c[L(n)]||{};q(e,a);let i=F(n);if(!i||!(o&&d==="fromForms"))return null;if(r==="submitResponse"&&i.onAction&&i.onAction(t),r==="connected"&&t.connectionInfo.widgetsLeadConnect.form.leadData.loadType==="popup"){let f=`[data-erxes-modal="${n.form_id}"]`,y=document.querySelectorAll(f);for(let u=0;u<y.length;u++)y[u].addEventListener("click",()=>{a==null||a.contentWindow.postMessage({fromPublisher:!0,action:"showPopup",formId:n.form_id},"*")})}if(r==="changeContainerClass"&&s&&(s.className=t.className),r==="changeContainerStyle"&&a){let m=t.style.match(/height:\s*([\d.]+px)/);m&&(a.style.height=m[1])}return null}));})();
