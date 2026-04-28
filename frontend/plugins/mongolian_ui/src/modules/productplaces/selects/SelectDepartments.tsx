@@ -1,8 +1,6 @@
-import { useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Select } from 'erxes-ui';
-
-const CLEAR_VALUE = '__clear__';
+import { Combobox, Command, PopoverScoped } from 'erxes-ui';
 
 const DEPARTMENTS_QUERY = gql`
   query departments(
@@ -30,30 +28,46 @@ type Department = {
   title: string;
 };
 
-type Props = {
-  value?: string;
-  onChange: (departmentId: string) => void;
+interface SelectDepartmentsContextType {
+  value: string;
+  onValueChange: (departmentId: string) => void;
+  loading?: boolean;
+  error?: any;
+  departments?: Department[];
+}
 
-  ids?: string[];
-  excludeIds?: boolean;
-  searchValue?: string;
-  status?: string;
-  withoutUserFilter?: boolean;
+const SelectDepartmentsContext = createContext<SelectDepartmentsContextType | null>(null);
 
-  disabled?: boolean;
+const useSelectDepartmentsContext = () => {
+  const context = useContext(SelectDepartmentsContext);
+  if (!context) {
+    throw new Error(
+      'useSelectDepartmentsContext must be used within SelectDepartmentsProvider',
+    );
+  }
+  return context;
 };
 
-export default function SelectDepartments({
-  value = '',
-  onChange,
+export const SelectDepartmentsProvider = ({
+  value,
+  onValueChange,
   ids = [],
   excludeIds,
   searchValue,
   status,
   withoutUserFilter,
-  disabled,
-}: Props) {
-  const { data, loading } = useQuery(DEPARTMENTS_QUERY, {
+  children,
+}: {
+  value: string;
+  onValueChange: (departmentId: string) => void;
+  ids?: string[];
+  excludeIds?: boolean;
+  searchValue?: string;
+  status?: string;
+  withoutUserFilter?: boolean;
+  children: React.ReactNode;
+}) => {
+  const { data, loading, error } = useQuery(DEPARTMENTS_QUERY, {
     variables: {
       ids,
       excludeIds,
@@ -68,25 +82,144 @@ export default function SelectDepartments({
     [data],
   );
 
-  return (
-    <Select
-      value={value || ''}
-      onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
-      disabled={disabled}
-    >
-      <Select.Trigger className="w-full">
-        <Select.Value placeholder={loading ? 'Loading...' : 'Choose department'} />
-      </Select.Trigger>
-
-      <Select.Content>
-        <Select.Item value={CLEAR_VALUE}>Clear department</Select.Item>
-
-        {departments.map((d) => (
-          <Select.Item key={d._id} value={d._id}>
-            {d.title}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
+  const contextValue = useMemo(
+    () => ({
+      value: value || '',
+      onValueChange,
+      departments,
+      loading,
+      error,
+    }),
+    [value, onValueChange, departments, loading, error],
   );
-}
+
+  return (
+    <SelectDepartmentsContext.Provider value={contextValue}>
+      {children}
+    </SelectDepartmentsContext.Provider>
+  );
+};
+
+const SelectDepartmentsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { value, departments } = useSelectDepartmentsContext();
+  const selectedDepartment = departments?.find((d) => d._id === value);
+
+  if (!selectedDepartment) {
+    return (
+      <span className="text-accent-foreground/80">
+        {placeholder || 'Choose department'}
+      </span>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <p className="font-medium text-sm">{selectedDepartment.title}</p>
+    </div>
+  );
+};
+
+const SelectDepartmentsItem = ({ department }: { department: Department }) => {
+  const { onValueChange, value } = useSelectDepartmentsContext();
+
+  return (
+    <Command.Item
+      value={department._id}
+      onSelect={() => {
+        onValueChange(department._id === value ? '' : department._id);
+      }}
+    >
+      <span className="font-medium">{department.title}</span>
+      <Combobox.Check checked={value === department._id} />
+    </Command.Item>
+  );
+};
+
+const SelectDepartmentsContent = () => {
+  const { departments, loading, error } = useSelectDepartmentsContext();
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-24">
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-24 text-destructive">
+          Error: {error.message}
+        </div>
+      );
+    }
+
+    return departments?.map((d) => (
+      <SelectDepartmentsItem key={d._id} department={d} />
+    ));
+  };
+
+  return (
+    <Command>
+      <Command.Input placeholder="Search department" />
+      <Command.Empty>
+        <span className="text-muted-foreground">No departments found</span>
+      </Command.Empty>
+      <Command.List>{renderContent()}</Command.List>
+    </Command>
+  );
+};
+
+const SelectDepartmentsRoot = ({
+  value,
+  onChange,
+  ids = [],
+  excludeIds,
+  searchValue,
+  status,
+  withoutUserFilter,
+  disabled,
+}: {
+  value?: string;
+  onChange: (departmentId: string) => void;
+  ids?: string[];
+  excludeIds?: boolean;
+  searchValue?: string;
+  status?: string;
+  withoutUserFilter?: boolean;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleValueChange = useCallback(
+    (id: string) => {
+      onChange(id);
+      setOpen(false);
+    },
+    [onChange],
+  );
+
+  return (
+    <SelectDepartmentsProvider
+      value={value || ''}
+      onValueChange={handleValueChange}
+      ids={ids}
+      excludeIds={excludeIds}
+      searchValue={searchValue}
+      status={status}
+      withoutUserFilter={withoutUserFilter}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger disabled={disabled}>
+          <SelectDepartmentsValue />
+        </Combobox.Trigger>
+        <Combobox.Content>
+          <SelectDepartmentsContent />
+        </Combobox.Content>
+      </PopoverScoped>
+    </SelectDepartmentsProvider>
+  );
+};
+
+export default SelectDepartmentsRoot;

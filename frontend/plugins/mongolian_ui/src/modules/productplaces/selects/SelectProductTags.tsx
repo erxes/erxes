@@ -2,17 +2,15 @@ import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 
-const TAGS_QUERY = gql`
+const PRODUCT_TAGS_QUERY = gql`
   query tagsQuery(
     $type: String
-    $parentId: String
     $searchValue: String
     $ids: [String]
     $excludeIds: Boolean
   ) {
     tags(
       type: $type
-      parentId: $parentId
       searchValue: $searchValue
       ids: $ids
       excludeIds: $excludeIds
@@ -25,29 +23,29 @@ const TAGS_QUERY = gql`
   }
 `;
 
-type Tag = { _id: string; name: string };
+type ProductTag = { _id: string; name: string };
 
-interface SelectTagsContextType {
+interface SelectProductTagsContextType {
   value: string[];
   onValueChange: (ids: string[]) => void;
   loading?: boolean;
   error?: any;
-  tags?: Tag[];
+  productTags?: ProductTag[];
 }
 
-const SelectTagsContext = createContext<SelectTagsContextType | null>(null);
+const SelectProductTagsContext = createContext<SelectProductTagsContextType | null>(null);
 
-const useSelectTagsContext = () => {
-  const context = useContext(SelectTagsContext);
+const useSelectProductTagsContext = () => {
+  const context = useContext(SelectProductTagsContext);
   if (!context) {
     throw new Error(
-      'useSelectTagsContext must be used within SelectTagsProvider',
+      'useSelectProductTagsContext must be used within SelectProductTagsProvider',
     );
   }
   return context;
 };
 
-export const SelectTagsProvider = ({
+export const SelectProductTagsProvider = ({
   value,
   onValueChange,
   type = 'core:product',
@@ -58,45 +56,45 @@ export const SelectTagsProvider = ({
   type?: string;
   children: React.ReactNode;
 }) => {
-  const { data, loading, error } = useQuery(TAGS_QUERY, {
+  const { data, loading, error } = useQuery(PRODUCT_TAGS_QUERY, {
     variables: { type, ids: [] },
   });
 
-  const tags: Tag[] = useMemo(() => data?.tags?.list || [], [data]);
+  const productTags: ProductTag[] = useMemo(() => data?.tags?.list || [], [data]);
 
   const contextValue = useMemo(
     () => ({
       value: value || [],
       onValueChange,
-      tags,
+      productTags,
       loading,
       error,
     }),
-    [value, onValueChange, tags, loading, error],
+    [value, onValueChange, productTags, loading, error],
   );
 
   return (
-    <SelectTagsContext.Provider value={contextValue}>
+    <SelectProductTagsContext.Provider value={contextValue}>
       {children}
-    </SelectTagsContext.Provider>
+    </SelectProductTagsContext.Provider>
   );
 };
 
-const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
-  const { value, tags } = useSelectTagsContext();
+const SelectProductTagsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { value, productTags } = useSelectProductTagsContext();
   const selectedNames = useMemo(
     () =>
       value
-        .map((id) => tags?.find((t) => t._id === id)?.name)
+        .map((id) => productTags?.find((t) => t._id === id)?.name)
         .filter(Boolean)
         .join(', '),
-    [value, tags],
+    [value, productTags],
   );
 
   if (!selectedNames) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Choose product tag'}
+        {placeholder || 'Choose product tags'}
       </span>
     );
   }
@@ -110,8 +108,8 @@ const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-const SelectTagsItem = ({ tag }: { tag: Tag }) => {
-  const { onValueChange, value } = useSelectTagsContext();
+const SelectProductTagsItem = ({ tag }: { tag: ProductTag }) => {
+  const { onValueChange, value } = useSelectProductTagsContext();
   const selectedSet = new Set(value);
 
   return (
@@ -133,8 +131,8 @@ const SelectTagsItem = ({ tag }: { tag: Tag }) => {
   );
 };
 
-const SelectTagsContent = () => {
-  const { tags, loading, error } = useSelectTagsContext();
+const SelectProductTagsContent = () => {
+  const { productTags, loading, error } = useSelectProductTagsContext();
 
   const renderContent = () => {
     if (loading) {
@@ -153,21 +151,23 @@ const SelectTagsContent = () => {
       );
     }
 
-    return tags?.map((t) => <SelectTagsItem key={t._id} tag={t} />);
+    return productTags?.map((t) => (
+      <SelectProductTagsItem key={t._id} tag={t} />
+    ));
   };
 
   return (
     <Command>
-      <Command.Input placeholder="Search tag" />
+      <Command.Input placeholder="Search product tag" />
       <Command.Empty>
-        <span className="text-muted-foreground">No tags found</span>
+        <span className="text-muted-foreground">No product tags found</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>
   );
 };
 
-const SelectTagsRoot = ({
+const SelectProductTagsRoot = ({
   value,
   onValueChange,
   type = 'core:product',
@@ -188,17 +188,17 @@ const SelectTagsRoot = ({
   );
 
   return (
-    <SelectTagsProvider value={value} onValueChange={handleValueChange} type={type}>
+    <SelectProductTagsProvider value={value} onValueChange={handleValueChange} type={type}>
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Combobox.Trigger disabled={disabled}>
-          <SelectTagsValue />
+          <SelectProductTagsValue />
         </Combobox.Trigger>
         <Combobox.Content>
-          <SelectTagsContent />
+          <SelectProductTagsContent />
         </Combobox.Content>
       </PopoverScoped>
-    </SelectTagsProvider>
+    </SelectProductTagsProvider>
   );
 };
 
-export default SelectTagsRoot;
+export default SelectProductTagsRoot;
