@@ -9,6 +9,7 @@ import {
   Spinner,
   cn,
   useQueryState,
+  fixNum,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
@@ -219,12 +220,12 @@ const ProductsList = ({
                 onClick={() => handleProductSelect(product)}
               >
                 <div className="flex gap-1.5 items-center">
-                  {product.code && (
-                    <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
-                      {product.code}
-                    </span>
-                  )}
+                  <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
+                    {product.code}
+                  </span>
                   <span>{product.name}</span>
+                  <span>{product.currency ?? ''}:{fixNum(product.unitPrice).toLocaleString()}</span>
+                  <span>({product.remainder?.remainder})</span>
                 </div>
                 {isSelected ? (
                   <IconCheck className="ml-auto" />

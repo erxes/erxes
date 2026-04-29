@@ -42,6 +42,7 @@ export const GET_PRODUCTS = gql`
         type
         barcodes
         subUoms
+        remainder
       }
       totalCount
       ${GQL_PAGE_INFO}

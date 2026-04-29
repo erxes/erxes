@@ -16,6 +16,7 @@ export interface IProduct {
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
   currency: CurrencyCode;
+  remainder: any;
 }
 export interface IBundleRuleItem {
   code: string;
