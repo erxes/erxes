@@ -82,11 +82,11 @@ const CalcAmountEffectComponent = ({
   });
 
   const sumAmountExpenses = expenses
-    ?.filter((ex) => ex.rule === 'amount')
-    .reduce((sum, cur) => fixNum(sum + (cur.amount ?? 0)), 0);
+    ?.filter((ex: { rule: string; }) => ex.rule === 'amount')
+    .reduce((sum: number, cur: { amount?: number; }) => fixNum(sum + (cur.amount ?? 0)), 0);
   const sumCountExpenses = expenses
-    ?.filter((ex) => ex.rule === 'count')
-    .reduce((sum, cur) => fixNum(sum + (cur.amount ?? 0)), 0);
+    ?.filter((ex: { rule: string; }) => ex.rule === 'count')
+    .reduce((sum: number, cur: { amount?: number; }) => fixNum(sum + (cur.amount ?? 0)), 0);
 
   const sumAmountDetails = details.reduce(
     (sum, cur) => fixNum(sum + (cur.count ?? 0) * (cur.unitPrice ?? 0)),
