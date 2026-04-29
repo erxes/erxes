@@ -40,12 +40,8 @@ const TemplateItem = ({
     className={`
       px-4 py-3 cursor-pointer
       transition-all duration-150
-      hover:bg-gray-50 dark:hover:bg-gray-800/70
-      ${
-        isSelected
-          ? 'bg-blue-50/70 dark:bg-blue-900/20 ring-1 ring-blue-500/20'
-          : ''
-      }
+      hover:bg-primary/10
+      ${isSelected ? 'bg-info/70 ring-1 ring-info/20' : ''}
       group
     `}
   >
@@ -55,12 +51,8 @@ const TemplateItem = ({
           <div
             className={`
               font-medium truncate
-              ${
-                isSelected
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-gray-900 dark:text-gray-100'
-              }
-              group-hover:text-blue-500 dark:group-hover:text-blue-400
+              ${isSelected ? 'text-info' : 'text-foreground'}
+              group-hover:text-info
             `}
           >
             {suggestion.name}
@@ -69,8 +61,8 @@ const TemplateItem = ({
             <span
               className="
               inline-flex items-center px-2 py-0.5 rounded-full
-              text-xs font-medium bg-gray-100 dark:bg-gray-700
-              text-gray-600 dark:text-gray-300
+              text-xs font-medium bg-accent
+              text-accent-foreground
             "
             >
               {channelName || 'Channel'}
@@ -78,18 +70,18 @@ const TemplateItem = ({
           )}
         </div>
 
-        <div className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
+        <div className="text-sm text-muted-foreground mt-1 line-clamp-2">
           {suggestion.preview}
         </div>
       </div>
 
       <div
         className="
-        flex-shrink-0 flex items-center justify-center
+        shrink-0 flex items-center justify-center
         w-6 h-6 rounded-full
-        bg-gray-100 dark:bg-gray-800
-        text-xs text-gray-500 dark:text-gray-400
-        group-hover:bg-gray-200 dark:group-hover:bg-gray-700
+        bg-muted
+        text-xs text-muted-foreground
+        group-hover:bg-accent
         transition-colors
       "
       >
@@ -99,7 +91,7 @@ const TemplateItem = ({
 
     {suggestion.updatedAt &&
       !isNaN(new Date(suggestion.updatedAt).getTime()) && (
-        <div className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+        <div className="mt-1.5 text-xs text-muted-foreground">
           Updated{' '}
           {formatDistanceToNow(new Date(suggestion.updatedAt), {
             addSuffix: true,
@@ -121,22 +113,22 @@ export const ResponseTemplateDropdown = ({
       md:left-6 md:right-6
       top-[72px]
       z-50
-      bg-white/95 dark:bg-gray-900/95
-      border border-gray-200 dark:border-gray-700
+      bg-background/95
+      border border-border
       rounded-lg shadow-lg
-      max-h-[320px] overflow-y-auto
+      max-h-80 overflow-y-auto
       backdrop-blur-sm
       transform transition-all duration-200
       mx-2 md:mx-0
     "
   >
-    <div className="sticky top-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm z-10 border-b border-gray-100 dark:border-gray-800 px-4 py-2">
-      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+    <div className="sticky top-0 bg-background/90 backdrop-blur-sm z-10 border-b border-border px-4 py-2">
+      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
         Response Templates
       </div>
     </div>
 
-    <div className="divide-y divide-gray-100 dark:divide-gray-800">
+    <div className="divide-y divide-border">
       {suggestions.map((suggestion, index) => (
         <TemplateItem
           key={suggestion._id}
@@ -151,10 +143,10 @@ export const ResponseTemplateDropdown = ({
       ))}
     </div>
 
-    <div className="sticky bottom-0 bg-gradient-to-t from-white to-white/70 dark:from-gray-900 dark:to-gray-900/70 border-t border-gray-100 dark:border-gray-800 px-4 py-2">
-      <div className="text-xs text-center text-gray-500 dark:text-gray-400">
+    <div className="sticky bottom-0 bg-linear-to-t from-primary/10 to-background border-t border-border px-4 py-2">
+      <div className="text-xs text-center text-muted-foreground">
         Press{' '}
-        <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">
+        <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono">
           Enter
         </kbd>{' '}
         to select

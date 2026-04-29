@@ -1,4 +1,10 @@
-import { cn, IAttachment, readImage, RelativeDateDisplay, Button } from 'erxes-ui';
+import {
+  cn,
+  IAttachment,
+  readImage,
+  RelativeDateDisplay,
+  Button,
+} from 'erxes-ui';
 import { useIgMessengerMessageContext } from '../context/IgMessengerMessageContext';
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
@@ -27,8 +33,7 @@ export const IgMessengerMessage = () => {
             className={cn(
               'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
               userId && 'bg-primary/10 hover:bg-primary/10',
-              internal &&
-                'bg-yellow-50 hover:bg-yellow-50 dark:bg-yellow-950 dark:hover:bg-yellow-950',
+              internal && 'bg-warning/20 hover:bg-warning/5',
               separatePrevious && 'mt-8',
             )}
             asChild
@@ -92,9 +97,7 @@ export const IgMessageWrapper = ({
 const IgAttachments = ({ attachments }: { attachments?: IAttachment[] }) => {
   if (!attachments?.length) return null;
 
-  const images = attachments.filter((att) =>
-    att.type?.startsWith('image'),
-  );
+  const images = attachments.filter((att) => att.type?.startsWith('image'));
 
   if (!images.length) return null;
 
