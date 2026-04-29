@@ -31,6 +31,52 @@ import {
 } from '../../../types/JournalForms';
 import { fixSumDtCt, getTempId } from '../../utils';
 
+const findFollowTr = (
+  followTrDocs: ITransaction[] = [],
+  originId: string,
+  originType: string,
+) =>
+  followTrDocs.find(
+    (ftr) => ftr.originId === originId && ftr.originType === originType,
+  );
+
+const findFollowDetail = (details: ITrDetail[] = [], originId?: string) =>
+  details.find((detail) => detail.originId === originId);
+
+const buildSaleFollowDetails = ({
+  account,
+  accountId,
+  activeDetail,
+  currentTr,
+  trDoc,
+  unitCost,
+}: {
+  account?: any;
+  accountId?: string;
+  activeDetail: ITrDetail;
+  currentTr?: ITransaction;
+  trDoc: TInvSaleJournal;
+  unitCost: number;
+}) =>
+  (trDoc.details || []).map((saleDetail) => {
+    const currentDetail = findFollowDetail(currentTr?.details, saleDetail._id);
+
+    if (currentDetail && saleDetail._id !== activeDetail._id) {
+      return currentDetail;
+    }
+
+    return {
+      ...saleDetail,
+      ...currentDetail,
+      productId: saleDetail.productId,
+      account,
+      accountId,
+      unitPrice: unitCost,
+      count: activeDetail.count,
+      amount: fixNum(unitCost * (activeDetail.count ?? 0)),
+    } as ITrDetail;
+  });
+
 export const InventoryRow = ({
   detailIndex,
   journalIndex,
@@ -74,12 +120,8 @@ export const InventoryRow = ({
 
   useEffect(() => {
     setFollowTrDocs((prev) => {
-      const currOut = (prev || []).find(
-        (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invSaleOut',
-      );
-      const currCost = (prev || []).find(
-        (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invSaleCost',
-      );
+      const currOut = findFollowTr(prev || [], trDoc._id, 'invSaleOut');
+      const currCost = findFollowTr(prev || [], trDoc._id, 'invSaleCost');
 
       const ptrId = currOut?.ptrId || currCost?.ptrId || getTempId();
 
@@ -89,59 +131,37 @@ export const InventoryRow = ({
         parentId: trDoc.parentId,
       };
 
-      const invOutTr: ITransaction = fixSumDtCt({
+      const invOutTr = fixSumDtCt({
         ...currOut,
         ...commonFollowTr,
         _id: currOut?._id || getTempId(),
         journal: TrJournalEnum.INV_SALE_OUT,
         side: TR_SIDES.CREDIT,
         originType: 'invSaleOut',
-        details: (trDoc.details || []).map((saleDetail) => {
-          const curOutDetail = currOut?.details.find(
-            (outDetail) => outDetail.originId === saleDetail._id,
-          );
-
-          if (!curOutDetail || saleDetail._id === detail._id) {
-            return {
-              ...saleDetail,
-              ...curOutDetail,
-              productId: saleDetail.productId,
-              account: trDoc.followExtras?.saleOutAccount,
-              accountId: trDoc.followInfos?.saleOutAccountId,
-              unitPrice: unitCost,
-              count: detail.count,
-              amount: fixNum(unitCost * (detail.count ?? 0)),
-            } as ITrDetail;
-          }
-          return curOutDetail;
+        details: buildSaleFollowDetails({
+          account: trDoc.followExtras?.saleOutAccount,
+          accountId: trDoc.followInfos?.saleOutAccountId,
+          activeDetail: detail as ITrDetail,
+          currentTr: currOut,
+          trDoc,
+          unitCost,
         }),
       });
 
-      const invCostTr: ITransaction = fixSumDtCt({
+      const invCostTr = fixSumDtCt({
         ...currCost,
         ...commonFollowTr,
         _id: currCost?._id || getTempId(),
         journal: TrJournalEnum.INV_SALE_COST,
         side: TR_SIDES.DEBIT,
         originType: 'invSaleCost',
-        details: (trDoc.details || []).map((saleDetail) => {
-          const curCostDetail = currCost?.details.find(
-            (costDetail) => costDetail.originId === saleDetail._id,
-          );
-
-          if (!curCostDetail || saleDetail._id === detail._id) {
-            return {
-              ...saleDetail,
-              ...curCostDetail,
-              productId: saleDetail.productId,
-              account: trDoc.followExtras?.saleCostAccount,
-              accountId: trDoc.followInfos?.saleCostAccountId,
-              unitPrice: unitCost,
-              count: detail.count,
-              amount: fixNum(unitCost * (detail.count ?? 0)),
-            } as ITrDetail;
-          }
-          return curCostDetail;
+        details: buildSaleFollowDetails({
+          account: trDoc.followExtras?.saleCostAccount,
+          accountId: trDoc.followInfos?.saleCostAccountId,
+          activeDetail: detail as ITrDetail,
+          currentTr: currCost,
+          trDoc,
+          unitCost,
         }),
       });
 

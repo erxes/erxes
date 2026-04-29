@@ -12,6 +12,7 @@ import {
   ITransactionGroupForm,
   TInvSaleJournal,
 } from '../../../types/JournalForms';
+import { ITrDetail } from '~/modules/transactions/types/Transaction';
 import {
   AccountField,
   AssignToField,
@@ -24,6 +25,11 @@ import { CustomerFields } from '../../helpers/CustomerFields';
 import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
+
+const updateFollowDetailsAccount = (
+  details: ITrDetail[] = [],
+  account: IAccount,
+) => details.map((detail) => ({ ...detail, account, accountId: account._id }));
 
 export const InvSaleForm = ({
   form,
@@ -47,11 +53,7 @@ export const InvSaleForm = ({
         ftr.originId === trDoc._id && ftr.originType === 'invSaleOut'
           ? {
               ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
+              details: updateFollowDetailsAccount(ftr.details, account),
             }
           : ftr,
       ),
@@ -62,18 +64,13 @@ export const InvSaleForm = ({
     form.setValue(`trDocs.${index}.followExtras.saleCostAccount`, account);
 
     setFollowTrDocs((prev) =>
-      (prev || []).map(
-        (ftr) =>
-          (ftr.originId === trDoc._id &&
-            ftr.originType === 'invSaleCost' && {
+      (prev || []).map((ftr) =>
+        ftr.originId === trDoc._id && ftr.originType === 'invSaleCost'
+          ? {
               ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
-            }) ||
-          ftr,
+              details: updateFollowDetailsAccount(ftr.details, account),
+            }
+          : ftr,
       ),
     );
   };

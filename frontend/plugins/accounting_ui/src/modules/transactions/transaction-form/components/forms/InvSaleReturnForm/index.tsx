@@ -35,6 +35,11 @@ import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
 import { SelectSaleSheet } from './SelectSaleSheet';
 
+const updateFollowDetailsAccount = (
+  details: ITrDetail[] = [],
+  account: IAccount,
+) => details.map((detail) => ({ ...detail, account, accountId: account._id }));
+
 export const InvSaleReturnForm = ({
   form,
   index,
@@ -55,18 +60,13 @@ export const InvSaleReturnForm = ({
     form.setValue(`trDocs.${index}.followExtras.saleOutAccount`, account);
 
     setFollowTrDocs((prev) =>
-      (prev || []).map(
-        (ftr) =>
-          (ftr.originId === trDoc._id &&
-            ftr.originType === 'invSaleReturnOut' && {
+      (prev || []).map((ftr) =>
+        ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnOut'
+          ? {
               ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
-            }) ||
-          ftr,
+              details: updateFollowDetailsAccount(ftr.details, account),
+            }
+          : ftr,
       ),
     );
   };
@@ -75,18 +75,13 @@ export const InvSaleReturnForm = ({
     form.setValue(`trDocs.${index}.followExtras.saleCostAccount`, account);
 
     setFollowTrDocs((prev) =>
-      (prev || []).map(
-        (ftr) =>
-          (ftr.originId === trDoc._id &&
-            ftr.originType === 'invSaleReturnCost' && {
+      (prev || []).map((ftr) =>
+        ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnCost'
+          ? {
               ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
-            }) ||
-          ftr,
+              details: updateFollowDetailsAccount(ftr.details, account),
+            }
+          : ftr,
       ),
     );
   };

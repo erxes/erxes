@@ -32,6 +32,37 @@ import {
 import { useSetAtom } from 'jotai';
 import { followTrDocsState } from '../../../states/trStates';
 
+const getFollowDetail = (details: ITrDetail[] = [], originId?: string) =>
+  details.find((detail) => detail.originId === originId);
+
+const buildInvMoveInDetails = ({
+  currIn,
+  detail,
+  trDoc,
+}: {
+  currIn?: ITransaction;
+  detail: ITrDetail;
+  trDoc: TInvMoveJournal;
+}) =>
+  (trDoc.details || []).map((moveDetail) => {
+    const curInDetail = getFollowDetail(currIn?.details, moveDetail._id);
+
+    if (curInDetail && moveDetail._id !== detail._id) {
+      return curInDetail;
+    }
+
+    return {
+      ...moveDetail,
+      ...curInDetail,
+      productId: moveDetail.productId,
+      account: trDoc.followExtras?.moveInAccount,
+      accountId: trDoc.followInfos?.moveInAccountId,
+      count: moveDetail.count,
+      unitPrice: moveDetail.unitPrice,
+      amount: moveDetail.amount,
+    } as ITrDetail;
+  });
+
 export const InventoryRow = ({
   detailIndex,
   journalIndex,
@@ -92,49 +123,28 @@ export const InventoryRow = ({
         (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invMoveIn',
       );
 
-      const commonFollowTr = {
+      const invMoveInTr = fixSumDtCt({
+        ...currIn,
         originId: trDoc._id,
         ptrId: trDoc.ptrId,
         parentId: trDoc.parentId,
-      };
-
-      const invMoveInTr: ITransaction = fixSumDtCt({
-        ...currIn,
-        ...commonFollowTr,
         _id: currIn?._id || getTempId(),
         journal: TrJournalEnum.INV_MOVE_IN,
         side: TR_SIDES.DEBIT,
         originType: 'invMoveIn',
         branchId: trDoc.followInfos.moveInBranchId,
         departmentId: trDoc.followInfos.moveInDepartmentId,
-        details: (trDoc.details || []).map((moveDetail) => {
-          const curInDetail = currIn?.details.find(
-            (inDetail) => inDetail.originId === moveDetail._id,
-          );
-
-          if (!curInDetail || moveDetail._id === detail._id) {
-            return {
-              ...moveDetail,
-              ...curInDetail,
-              productId: moveDetail.productId,
-              account: trDoc.followExtras?.moveInAccount,
-              accountId: trDoc.followInfos?.moveInAccountId,
-              count: moveDetail.count,
-              unitPrice: moveDetail.unitPrice,
-              amount: moveDetail.amount,
-            } as ITrDetail;
-          }
-          return curInDetail;
+        details: buildInvMoveInDetails({
+          currIn,
+          detail: detail as ITrDetail,
+          trDoc,
         }),
       });
 
       return [
         ...(prev || []).filter(
           (ftr) =>
-            !(
-              ftr.originId === trDoc._id &&
-              ['invMoveIn'].includes(ftr.originType || '')
-            ),
+            !(ftr.originId === trDoc._id && ftr.originType === 'invMoveIn'),
         ),
         invMoveInTr,
       ];
