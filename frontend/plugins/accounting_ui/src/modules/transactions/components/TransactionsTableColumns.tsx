@@ -157,7 +157,7 @@ const AccountCell = ({ row }: any) => {
 
   const codes = Object.keys(infoByCode);
 
-  const handleEdit = () => {
+  const handleEditAccount = () => {
     navigate(
       `/accounting/transaction/edit?parentId=${parentId}&trId=${
         originId || _id
@@ -166,7 +166,7 @@ const AccountCell = ({ row }: any) => {
   };
 
   return (
-    <RecordTableInlineCell onClick={handleEdit} className="cursor-pointer">
+    <RecordTableInlineCell onClick={handleEditAccount} className="cursor-pointer">
       {codes.map((code, i) => {
         const count = infoByCode[code];
         const tot = count > 1 ? `(${count})` : '';
