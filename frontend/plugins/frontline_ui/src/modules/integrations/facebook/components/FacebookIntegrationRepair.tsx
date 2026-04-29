@@ -1,6 +1,6 @@
 import { IIntegrationDetail } from '@/integrations/types/Integration';
 import { IconTool } from '@tabler/icons-react';
-import { toast } from 'erxes-ui';
+import { Spinner, toast } from 'erxes-ui';
 import { CellContext } from '@tanstack/react-table';
 import { useFbIntegrationsRepair } from '../hooks/useFbIntegrationsRepair';
 import { useParams } from 'react-router-dom';
@@ -25,7 +25,7 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
   return (
     <div onClick={handleRepair} className="flex items-center gap-2 w-full">
       {loading ? (
-        <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+        <Spinner className="size-4 text-primary" />
       ) : (
         <IconTool size={16} />
       )}

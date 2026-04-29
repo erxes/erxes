@@ -341,7 +341,7 @@ export function TopicItem(props: {
           <DropdownMenu.Separator />
           <DropdownMenu.Item
             onClick={() => handleDeleteTopic(topic)}
-            className="text-red-600"
+            className="text-destructive"
           >
             Delete Topic
           </DropdownMenu.Item>
