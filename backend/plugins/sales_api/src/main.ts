@@ -16,6 +16,7 @@ import {
   TGetExportHeadersInput,
 } from 'erxes-api-shared/core-modules';
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
+import { permissions } from '~/meta/permissions';
 
 startPlugin({
   name: 'sales',
@@ -81,6 +82,7 @@ startPlugin({
         ],
       },
     },
+    permissions,
   } as any,
   importExport: {
     export: {
