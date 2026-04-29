@@ -15,7 +15,6 @@ export const AccountField = ({
 }: ICommonFieldProps & {
   filter?: any;
   allDetails?: boolean;
-  labelTxt?: string;
 }) => {
   const details = useWatch({
     control: form.control,
@@ -52,7 +51,7 @@ export const AccountField = ({
       name={`trDocs.${index}.details.${detIndex ?? 0}.accountId`}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{labelTxt || 'Account'}</Form.Label>
+          <Form.Label>{labelTxt || 'Данс'}</Form.Label>
           <Form.Control>
             <SelectAccount
               value={field.value || ''}
@@ -72,6 +71,7 @@ export const SideField = ({
   form,
   index,
   sides,
+  labelTxt,
 }: ICommonFieldProps & {
   sides: {
     label: string;
@@ -83,7 +83,7 @@ export const SideField = ({
     name={`trDocs.${index}.side`}
     render={({ field }) => (
       <Form.Item>
-        <Form.Label>Side</Form.Label>
+        <Form.Label>{labelTxt || 'Тал'}</Form.Label>
         <Select value={field.value} onValueChange={field.onChange}>
           <Form.Control>
             <Select.Trigger className="h-8">
@@ -103,13 +103,18 @@ export const SideField = ({
   />
 );
 
-export const AmountField = ({ form, index, detIndex }: ICommonFieldProps) => (
+export const AmountField = ({
+  form,
+  index,
+  detIndex,
+  labelTxt,
+}: ICommonFieldProps) => (
   <Form.Field
     control={form.control}
     name={`trDocs.${index}.details.${detIndex ?? 0}.amount`}
     render={({ field }) => (
       <Form.Item>
-        <Form.Label>Amount</Form.Label>
+        <Form.Label>{labelTxt || 'Дүн'}</Form.Label>
         <Form.Control>
           <CurrencyField.ValueInput
             value={field.value}
@@ -121,13 +126,13 @@ export const AmountField = ({ form, index, detIndex }: ICommonFieldProps) => (
   />
 );
 
-export const AssignToField = ({ form, index }: ICommonFieldProps) => (
+export const AssignToField = ({ form, index, labelTxt }: ICommonFieldProps) => (
   <Form.Field
     control={form.control}
     name={`trDocs.${index}.assignedUserIds`}
     render={({ field }) => (
       <Form.Item>
-        <Form.Label>Assign To</Form.Label>
+        <Form.Label>{labelTxt || 'Хариуцагч'}</Form.Label>
         <Form.Control>
           <SelectMember.FormItem
             onValueChange={(users) => field.onChange(users || [])}
@@ -141,7 +146,7 @@ export const AssignToField = ({ form, index }: ICommonFieldProps) => (
   />
 );
 
-export const BranchField = ({ form, index }: ICommonFieldProps) => {
+export const BranchField = ({ form, index, labelTxt }: ICommonFieldProps) => {
   const details = useWatch({
     control: form.control,
     name: `trDocs.${index}.details`,
@@ -163,7 +168,7 @@ export const BranchField = ({ form, index }: ICommonFieldProps) => {
       name={`trDocs.${index}.branchId`}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Branch</Form.Label>
+          <Form.Label>{labelTxt || 'Салбар'}</Form.Label>
           <Form.Control>
             <SelectBranches.FormItem
               mode="single"
@@ -178,7 +183,11 @@ export const BranchField = ({ form, index }: ICommonFieldProps) => {
   );
 };
 
-export const DepartmentField = ({ form, index }: ICommonFieldProps) => {
+export const DepartmentField = ({
+  form,
+  index,
+  labelTxt,
+}: ICommonFieldProps) => {
   const details = useWatch({
     control: form.control,
     name: `trDocs.${index}.details`,
@@ -200,7 +209,7 @@ export const DepartmentField = ({ form, index }: ICommonFieldProps) => {
       name={`trDocs.${index}.departmentId`}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Department</Form.Label>
+          <Form.Label>{labelTxt || 'Хэлтэс'}</Form.Label>
           <Form.Control>
             <SelectDepartments.FormItem
               mode="single"
@@ -215,13 +224,17 @@ export const DepartmentField = ({ form, index }: ICommonFieldProps) => {
   );
 };
 
-export const DescriptionField = ({ form, index }: ICommonFieldProps) => (
+export const DescriptionField = ({
+  form,
+  index,
+  labelTxt,
+}: ICommonFieldProps) => (
   <Form.Field
     control={form.control}
     name={`trDocs.${index}.description`}
     render={({ field }) => (
       <Form.Item>
-        <Form.Label>Description</Form.Label>
+        <Form.Label>{labelTxt || 'Тайлбар'}</Form.Label>
         <Form.Control>
           <Input {...field} value={field.value ?? ''} />
         </Form.Control>
@@ -239,10 +252,10 @@ export const BankField = ({ form, index }: ICommonFieldProps) => {
         name={`trDocs.${index}.extraData.bank`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Bank</Form.Label>
+            <Form.Label>Банк</Form.Label>
             <Form.Control>
               <Input
-                placeholder="Enter bank name"
+                placeholder="Банкны нэр оруулах"
                 value={field.value ?? ''}
                 onChange={field.onChange}
               />
@@ -257,10 +270,10 @@ export const BankField = ({ form, index }: ICommonFieldProps) => {
         name={`trDocs.${index}.extraData.bankAccount`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Bank Account</Form.Label>
+            <Form.Label>Банкны данс</Form.Label>
             <Form.Control>
               <Input
-                placeholder="Enter bank account number"
+                placeholder="Банкны дансны дугаар оруулах"
                 value={field.value ?? ''}
                 onChange={field.onChange}
               />

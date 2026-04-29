@@ -131,12 +131,12 @@ export const InvSaleReturnForm = ({
           onSelect={onChangeSaleTr}
         >
           <Form.Item>
-            <Form.Label>Sale Transaction</Form.Label>
+            <Form.Label>Борлуулалтын гүйлгээ</Form.Label>
             <Form.Control>
               <Button variant="ghost" className="">
                 <IconBookDownload />
                 {trDoc.followInfos?.saleTransactionId ||
-                  'Select Sale Transaction'}
+                  'Борлуулалтын гүйлгээ сонгох'}
               </Button>
             </Form.Control>
             <Form.Message />
@@ -150,7 +150,7 @@ export const InvSaleReturnForm = ({
             kind: AccountKind.PASSIVE,
           }}
           allDetails={true}
-          labelTxt="Sale Account"
+          labelTxt="Борлуулалтын данс"
         />
         <BranchField form={form} index={index} />
         <DepartmentField form={form} index={index} />
@@ -159,7 +159,7 @@ export const InvSaleReturnForm = ({
           name={`trDocs.${index}.followInfos.saleOutAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Inventory Account</Form.Label>
+              <Form.Label>Бараа материалын данс</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
@@ -177,7 +177,7 @@ export const InvSaleReturnForm = ({
           name={`trDocs.${index}.followInfos.saleCostAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Cost Account</Form.Label>
+              <Form.Label>Өртгийн данс</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}

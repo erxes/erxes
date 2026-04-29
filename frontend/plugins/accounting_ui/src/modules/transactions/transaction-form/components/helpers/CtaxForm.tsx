@@ -173,7 +173,7 @@ export const CtaxForm = ({
                 onCheckedChange={field.onChange}
               />
             </Form.Control>
-            <Form.Label variant="peer">Has CTAX</Form.Label>
+            <Form.Label variant="peer">НХАТ-тэй</Form.Label>
           </Form.Item>
         )}
       />
@@ -190,7 +190,7 @@ export const CtaxForm = ({
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label variant="peer">Handle CTAX</Form.Label>
+                <Form.Label variant="peer">НХАТ гараар тооцох</Form.Label>
               </Form.Item>
             )}
           />
@@ -199,7 +199,7 @@ export const CtaxForm = ({
             name={`trDocs.${journalIndex}.ctaxRowId`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>CTAX row</Form.Label>
+                <Form.Label>НХАТ-ын мөр</Form.Label>
                 <SelectCtax
                   value={field.value || ''}
                   onValueChange={field.onChange}
@@ -214,7 +214,7 @@ export const CtaxForm = ({
             name={`trDocs.${journalIndex}.ctaxAmount`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>CTAX amount</Form.Label>
+                <Form.Label>НХАТ-ын дүн</Form.Label>
                 <CurrencyField.ValueInput
                   value={handleCtax ? field.value ?? 0 : calcedAmount}
                   onChange={field.onChange}

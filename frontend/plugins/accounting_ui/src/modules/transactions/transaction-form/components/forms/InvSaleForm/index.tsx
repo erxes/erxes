@@ -86,7 +86,7 @@ export const InvSaleForm = ({
             kind: AccountKind.PASSIVE,
           }}
           allDetails={true}
-          labelTxt="Sale Account"
+          labelTxt="Борлуулалтын данс"
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
@@ -98,7 +98,7 @@ export const InvSaleForm = ({
           name={`trDocs.${index}.followInfos.saleOutAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Inventory Account</Form.Label>
+              <Form.Label>Бараа материалын данс</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
@@ -116,7 +116,7 @@ export const InvSaleForm = ({
           name={`trDocs.${index}.followInfos.saleCostAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Cost Account</Form.Label>
+              <Form.Label>Өртгийн данс</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}

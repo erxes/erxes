@@ -237,13 +237,13 @@ export const TransactionsTabsList = ({
             )}
             asChild
           >
-            <div>{'T Balance'}</div>
+            <div>{'Т баланс'}</div>
           </Tabs.Trigger>
 
           {!isPerfect && (
             <div className="inline-flex items-center justify-center rounded-sm px-3 text-sm font-medium hover:bg-accent capitalize py-1 gap-2 pr-1 h-8">
               <AddTransaction inForm onClick={handleAddTransaction}>
-                <div>{'+ New Transaction'}</div>
+                <div>{'+ Шинэ гүйлгээ'}</div>
               </AddTransaction>
             </div>
           )}
@@ -254,16 +254,18 @@ export const TransactionsTabsList = ({
           <Button
             onClick={() => {
               window.open(
-                `/accounting/transaction/print?_id=${fields[Number(activeJournal ?? '0')]?._id}`,
+                `/accounting/transaction/print?_id=${
+                  fields[Number(activeJournal ?? '0')]?._id
+                }`,
                 '_blank',
               );
             }}
             variant="secondary"
           >
-            Print Document
+            Баримт хэвлэх
           </Button>
         ) : (
-          <Button variant="secondary">Save transaction template</Button>
+          <Button variant="secondary">Гүйлгээний загвар хадгалах</Button>
         )}
       </div>
       {fields.map((field, index) => (

@@ -151,7 +151,7 @@ const CurrencyFormBody = ({
   return (
     <>
       <Form.Item>
-        <Form.Label>Spot Rate</Form.Label>
+        <Form.Label>Спот ханш</Form.Label>
         <CurrencyField.ValueInput value={spotRate} disabled />
         <Form.Message />
       </Form.Item>
@@ -161,7 +161,7 @@ const CurrencyFormBody = ({
         name={`trDocs.${journalIndex}.details.0.currencyAmount`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Currency amount</Form.Label>
+            <Form.Label>Валютын дүн</Form.Label>
             <CurrencyField.ValueInput
               value={field.value ?? 0}
               onChange={(value) =>
@@ -177,7 +177,7 @@ const CurrencyFormBody = ({
         name={`trDocs.${journalIndex}.details.0.customRate`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Custom Rate</Form.Label>
+            <Form.Label>Гараар оруулсан ханш</Form.Label>
             <CurrencyField.ValueInput
               value={field.value ?? 0}
               onChange={field.onChange}
@@ -187,7 +187,9 @@ const CurrencyFormBody = ({
         )}
       />
       <Form.Item>
-        <Form.Label>{`${diffAmount > 0 ? 'Loss' : 'Gain'} amount`}</Form.Label>
+        <Form.Label>{`Ханшийн ${
+          diffAmount > 0 ? 'алдагдлын' : 'ашгийн'
+        } дүн`}</Form.Label>
         <CurrencyField.ValueInput value={diffAmount} disabled={true} />
         <Form.Message />
       </Form.Item>
@@ -198,9 +200,9 @@ const CurrencyFormBody = ({
           name={`trDocs.${journalIndex}.details.0.followInfos.currencyDiffAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{`${
-                diffAmount > 0 ? 'Loss' : 'Gain'
-              } account`}</Form.Label>
+              <Form.Label>{`Ханшийн ${
+                diffAmount > 0 ? 'алдагдлын' : 'ашгийн'
+              } данс`}</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}

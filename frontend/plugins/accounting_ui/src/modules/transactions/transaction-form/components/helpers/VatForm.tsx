@@ -167,7 +167,7 @@ export const VatForm = ({
                 onCheckedChange={field.onChange}
               />
             </Form.Control>
-            <Form.Label variant="peer">Has VAT</Form.Label>
+            <Form.Label variant="peer">НӨАТ-тэй</Form.Label>
           </Form.Item>
         )}
       />
@@ -184,7 +184,7 @@ export const VatForm = ({
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label variant="peer">Handle VAT</Form.Label>
+                <Form.Label variant="peer">НӨАТ гараар тооцох</Form.Label>
               </Form.Item>
             )}
           />
@@ -199,7 +199,7 @@ export const VatForm = ({
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label variant="peer">After VAT</Form.Label>
+                <Form.Label variant="peer">Дараа НӨАТ тооцох</Form.Label>
               </Form.Item>
             )}
           />
@@ -208,7 +208,7 @@ export const VatForm = ({
             name={`trDocs.${journalIndex}.vatRowId`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>VAT row</Form.Label>
+                <Form.Label>НӨАТ-ын мөр</Form.Label>
                 <SelectVat
                   value={field.value || ''}
                   onValueChange={field.onChange}
@@ -223,7 +223,7 @@ export const VatForm = ({
             name={`trDocs.${journalIndex}.vatAmount`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>VAT amount</Form.Label>
+                <Form.Label>НӨАТ-ын дүн</Form.Label>
                 <CurrencyField.ValueInput
                   value={handleVat ? field.value ?? 0 : calcedAmount}
                   onChange={field.onChange}

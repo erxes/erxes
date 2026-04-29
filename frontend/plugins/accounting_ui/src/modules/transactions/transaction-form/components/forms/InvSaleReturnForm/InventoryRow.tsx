@@ -32,7 +32,7 @@ import {
 import { fixSumDtCt, getTempId } from '../../utils';
 
 const findFollowTr = (
-  followTrDocs: ITransaction[] = [],
+  followTrDocs: ITransaction[],
   originId: string,
   originType: string,
 ) =>
