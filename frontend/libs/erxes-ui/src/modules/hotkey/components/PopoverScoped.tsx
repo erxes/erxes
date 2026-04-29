@@ -32,10 +32,14 @@ export const PopoverScoped = ({
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
   const currentHotkeyScope = useAtomValue(currentHotkeyScopeState);
+  const isOpen = open ?? _open;
 
   useScopedHotkeys(
     Key.Enter,
     () => {
+      if (!isOpen) {
+        return;
+      }
       onEnter?.();
       if (closeOnEnter) {
         _setOpen(false);
@@ -46,9 +50,10 @@ export const PopoverScoped = ({
       }
     },
     scope ? scope + '.Popover' : currentHotkeyScope.scope,
-    dependencies,
+    [isOpen, ...(dependencies || [])],
     {
-      preventDefault: false,
+      enableOnFormTags: closeOnEnter,
+      preventDefault: isOpen && closeOnEnter,
       ...options,
     },
   );
@@ -57,7 +62,7 @@ export const PopoverScoped = ({
     <Popover
       modal
       {...props}
-      open={open ?? _open}
+      open={isOpen}
       onOpenChange={(op) => {
         _setOpen(op);
         onOpenChange?.(op, 'close');

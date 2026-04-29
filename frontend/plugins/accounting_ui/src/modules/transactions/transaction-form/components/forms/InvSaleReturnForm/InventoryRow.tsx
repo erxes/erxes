@@ -313,7 +313,11 @@ export const InventoryRow = ({
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell
           className={cn({
             'border-t': detailIndex === 0,
@@ -341,7 +345,11 @@ export const InventoryRow = ({
         </Table.Cell>
       </RecordTableHotKeyControl>
 
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -361,7 +369,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -389,7 +401,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -418,7 +434,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -447,7 +467,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -478,7 +502,11 @@ export const InventoryRow = ({
       </RecordTableHotKeyControl>
 
       {trDoc.hasVat && (
-        <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
           <Table.Cell>
             <RecordTableInlineCell className="justify-center">
               <Form.Field
@@ -508,7 +536,11 @@ export const InventoryRow = ({
       )}
 
       {trDoc.hasCtax && (
-        <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
           <Table.Cell>
             <RecordTableInlineCell className="justify-center">
               <Form.Field
@@ -539,7 +571,11 @@ export const InventoryRow = ({
 
       {(trDoc.hasVat || trDoc.hasCtax) && (
         <>
-          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
             <Table.Cell>
               <PopoverScoped
                 scope={`trDocs.${journalIndex}.details.${detailIndex}.untiPriceWithTax`}
@@ -562,7 +598,11 @@ export const InventoryRow = ({
             </Table.Cell>
           </RecordTableHotKeyControl>
 
-          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
             <Table.Cell>
               <PopoverScoped
                 scope={`trDocs.${journalIndex}.details.${detailIndex}.amountWithTax`}
@@ -584,7 +624,11 @@ export const InventoryRow = ({
       )}
       {showAdvancedView && (
         <>
-          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
             <Table.Cell>
               <RecordTableInlineCell className="justify-center">
                 <Form.Field
@@ -607,7 +651,11 @@ export const InventoryRow = ({
               </RecordTableInlineCell>
             </Table.Cell>
           </RecordTableHotKeyControl>
-          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
             <Table.Cell>
               <RecordTableInlineCell className="justify-center">
                 <Form.Field

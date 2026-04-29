@@ -156,14 +156,18 @@ export const ExpenseRow = ({
           </Button>
         </div>
       </Table.Cell>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={expenseIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={expenseIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.title`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.title`}
+                scope={AccountingHotkeyScope.TransactionFormSubPage}
                 closeOnEnter
               >
                 <Form.Control>
@@ -183,14 +187,18 @@ export const ExpenseRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={expenseIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={expenseIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.rule`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.rule`}
+                scope={AccountingHotkeyScope.TransactionFormSubPage}
                 closeOnEnter
               >
                 <Select value={field.value} onValueChange={field.onChange}>
@@ -213,14 +221,18 @@ export const ExpenseRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={expenseIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={expenseIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.amount`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.amount`}
+                scope={AccountingHotkeyScope.TransactionFormSubPage}
                 closeOnEnter
               >
                 <Form.Control>
@@ -239,14 +251,18 @@ export const ExpenseRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={expenseIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={expenseIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.accountId`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.amount`}
+                scope={AccountingHotkeyScope.TransactionFormSubPage}
                 closeOnEnter
               >
                 <SelectAccount

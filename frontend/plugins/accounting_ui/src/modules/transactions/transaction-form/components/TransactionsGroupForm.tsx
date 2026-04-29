@@ -28,7 +28,7 @@ const FormFields = memo(
             <Form.Item>
               <Form.Label>Number</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Input {...field} value={field.value ?? ''} />
               </Form.Control>
             </Form.Item>
           )}
