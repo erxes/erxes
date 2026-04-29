@@ -1,5 +1,19 @@
 
 
+## [3.0.18](https://github.com/erxes/erxes/compare/3.0.17...3.0.18) (2026-04-28)
+
+
+### Bug Fixes
+
+* **loyalty:** go to settings and action ([#7562](https://github.com/erxes/erxes/issues/7562)) ([d1c9899](https://github.com/erxes/erxes/commit/d1c9899006c025a9a90a6e0ba945ec4407015582))
+* **mongolin:** product-places-ui-enhancement ([#7539](https://github.com/erxes/erxes/issues/7539)) ([5641427](https://github.com/erxes/erxes/commit/5641427782559f5ee7113b1489fe3f14d8f1a123))
+
+
+### Reverts
+
+* revert tags logic ([5567dd9](https://github.com/erxes/erxes/commit/5567dd9795ea9ebc4733f2771fd6034ab74b003f))
+* tags ui ([eb66ca3](https://github.com/erxes/erxes/commit/eb66ca31a45e04f5ea2f0510cb9bc287b3dccb5e))
+
 ## [3.0.17](https://github.com/erxes/erxes/compare/3.0.16...3.0.17) (2026-04-27)
 
 
