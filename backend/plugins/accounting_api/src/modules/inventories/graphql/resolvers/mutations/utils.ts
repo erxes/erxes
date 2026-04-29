@@ -277,7 +277,7 @@ export const updateLiveRemainders = async ({
   productCategoryId,
   productIds,
 }: IUpdateRemaindersParams & { subdomain: string; models: IModels }) => {
-  const productFilter: any = {};
+  const productFilter: any = { status: { $ne: 'deleted' } };
   if (productIds?.length) {
     productFilter._id = { $in: productIds };
   }
@@ -294,6 +294,7 @@ export const updateLiveRemainders = async ({
       fields: { _id: 1, [`inventories.${branchId}.${departmentId}`]: 1 },
       sort: { code: 1 },
     },
+    defaultValue: []
   });
 
   // Get product ids
