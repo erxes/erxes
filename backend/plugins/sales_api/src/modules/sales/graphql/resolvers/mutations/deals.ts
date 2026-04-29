@@ -177,7 +177,7 @@ export const dealMutations: Record<string, Resolver> = {
     { _id, processId }: { _id: string; processId: string },
     { user, models, subdomain, checkPermission }: IContext,
   ) {
-    await checkPermission('dealsCopy');
+    await checkPermission('dealsAdd');
     const item = await models.Deals.findOne({ _id }).lean();
 
     if (!item) {
