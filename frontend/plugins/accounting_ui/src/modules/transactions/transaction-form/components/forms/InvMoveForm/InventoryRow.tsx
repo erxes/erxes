@@ -29,7 +29,7 @@ import {
   TR_SIDES,
   TrJournalEnum,
 } from '~/modules/transactions/types/constants';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { followTrDocsState } from '../../../states/trStates';
 
 export const InventoryRow = ({
@@ -84,62 +84,73 @@ export const InventoryRow = ({
         detail.accountId === initAccountId.current),
   });
 
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   useEffect(() => {
-    const currIn = followTrDocs.find(
-      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invMoveIn',
-    );
+    setFollowTrDocs((prev) => {
+      const currIn = (prev || []).find(
+        (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invMoveIn',
+      );
 
-    const commonFollowTr = {
-      originId: trDoc._id,
-      ptrId: trDoc.ptrId,
-      parentId: trDoc.parentId,
-    };
+      const commonFollowTr = {
+        originId: trDoc._id,
+        ptrId: trDoc.ptrId,
+        parentId: trDoc.parentId,
+      };
 
-    const invMoveInTr: ITransaction = fixSumDtCt({
-      ...currIn,
-      ...commonFollowTr,
-      _id: currIn?._id || getTempId(),
-      journal: TrJournalEnum.INV_MOVE_IN,
-      side: TR_SIDES.DEBIT,
-      originType: 'invMoveIn',
-      branchId: trDoc.followInfos.moveInBranchId,
-      departmentId: trDoc.followInfos.moveInDepartmentId,
-      details: (trDoc.details || []).map((moveDetail) => {
-        const curInDetail = currIn?.details.find(
-          (inDetail) => inDetail.originId === moveDetail._id,
-        );
+      const invMoveInTr: ITransaction = fixSumDtCt({
+        ...currIn,
+        ...commonFollowTr,
+        _id: currIn?._id || getTempId(),
+        journal: TrJournalEnum.INV_MOVE_IN,
+        side: TR_SIDES.DEBIT,
+        originType: 'invMoveIn',
+        branchId: trDoc.followInfos.moveInBranchId,
+        departmentId: trDoc.followInfos.moveInDepartmentId,
+        details: (trDoc.details || []).map((moveDetail) => {
+          const curInDetail = currIn?.details.find(
+            (inDetail) => inDetail.originId === moveDetail._id,
+          );
 
-        if (!curInDetail || moveDetail._id === detail._id) {
-          return {
-            ...moveDetail,
-            ...curInDetail,
-            productId: moveDetail.productId,
-            account: trDoc.followExtras?.moveInAccount,
-            accountId: trDoc.followInfos?.moveInAccountId,
-            count: moveDetail.count,
-            unitPrice: moveDetail.unitPrice,
-            amount: moveDetail.amount,
-          } as ITrDetail;
-        }
-        return curInDetail;
-      }),
+          if (!curInDetail || moveDetail._id === detail._id) {
+            return {
+              ...moveDetail,
+              ...curInDetail,
+              productId: moveDetail.productId,
+              account: trDoc.followExtras?.moveInAccount,
+              accountId: trDoc.followInfos?.moveInAccountId,
+              count: moveDetail.count,
+              unitPrice: moveDetail.unitPrice,
+              amount: moveDetail.amount,
+            } as ITrDetail;
+          }
+          return curInDetail;
+        }),
+      });
+
+      return [
+        ...(prev || []).filter(
+          (ftr) =>
+            !(
+              ftr.originId === trDoc._id &&
+              ['invMoveIn'].includes(ftr.originType || '')
+            ),
+        ),
+        invMoveInTr,
+      ];
     });
-
-    setFollowTrDocs([
-      ...(followTrDocs || []).filter(
-        (ftr) =>
-          !(
-            ftr.originId === trDoc._id &&
-            ['invMoveIn'].includes(ftr.originType || '')
-          ),
-      ),
-      invMoveInTr,
-    ]);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+  }, [
+    detail,
+    trDoc._id,
+    trDoc.ptrId,
+    trDoc.parentId,
+    trDoc.details,
+    trDoc.followExtras?.moveInAccount,
+    trDoc.followInfos.moveInAccountId,
+    trDoc.followInfos.moveInBranchId,
+    trDoc.followInfos.moveInDepartmentId,
+    setFollowTrDocs,
+  ]);
 
   // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
   useEffect(() => {

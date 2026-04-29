@@ -5,7 +5,7 @@ import {
   JournalEnum,
 } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useWatch } from 'react-hook-form';
 import { followTrDocsState } from '../../../states/trStates';
 import {
@@ -37,13 +37,13 @@ export const InvSaleForm = ({
     name: `trDocs.${index}`,
   }) as TInvSaleJournal;
 
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   const onChangeOutAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.saleOutAccount`, account);
 
-    setFollowTrDocs(
-      (followTrDocs || []).map((ftr) =>
+    setFollowTrDocs((prev) =>
+      (prev || []).map((ftr) =>
         ftr.originId === trDoc._id && ftr.originType === 'invSaleOut'
           ? {
               ...ftr,
@@ -61,8 +61,8 @@ export const InvSaleForm = ({
   const onChangeCostAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.saleCostAccount`, account);
 
-    setFollowTrDocs(
-      (followTrDocs || []).map(
+    setFollowTrDocs((prev) =>
+      (prev || []).map(
         (ftr) =>
           (ftr.originId === trDoc._id &&
             ftr.originType === 'invSaleCost' && {

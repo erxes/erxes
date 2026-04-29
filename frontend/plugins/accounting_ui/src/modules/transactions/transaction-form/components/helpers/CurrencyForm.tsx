@@ -1,7 +1,7 @@
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { useGetExchangeRate } from '../../hooks/useGetExchangeRate';
 import { CurrencyField, Form } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { TrJournalEnum, TR_SIDES } from '../../../types/constants';
@@ -64,7 +64,7 @@ const CurrencyFormBody = ({
     return mainSide;
   }, [mainSide, diffAmount]);
 
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   const handleCurrencyAmount = (
     value: number,
@@ -98,8 +98,8 @@ const CurrencyFormBody = ({
 
   useEffect(() => {
     if (!diffAmount) {
-      setFollowTrDocs(
-        (followTrDocs || []).filter(
+      setFollowTrDocs((prev) =>
+        (prev || []).filter(
           (ftr) =>
             !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
         ),
@@ -112,38 +112,41 @@ const CurrencyFormBody = ({
         ? { sumDt: diffAmount, sumCt: 0 }
         : { sumDt: 0, sumCt: diffAmount };
 
-    const curr = followTrDocs.find(
-      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff',
-    );
-
-    const currencyDiffFtr = {
-      ...curr,
-      _id: curr?._id || getTempId(),
-      journal: TrJournalEnum.EXCHANGE_DIFF,
-      side,
-      originId: trDoc._id,
-      originType: 'exchangeDiff',
-      details: [
-        {
-          ...(curr?.details || [{}])[0],
-          accountId: (detail?.followInfos as any)?.currencyDiffAccountId ?? '',
-          amount: diffAmount,
-        },
-      ],
-
-      sumDt,
-      sumCt,
-    };
-
-    setFollowTrDocs([
-      ...(followTrDocs || []).filter(
+    setFollowTrDocs((prev) => {
+      const curr = (prev || []).find(
         (ftr) =>
-          !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
-      ),
-      currencyDiffFtr,
-    ]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail, diffAmount, side]);
+          ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff',
+      );
+
+      const currencyDiffFtr = {
+        ...curr,
+        _id: curr?._id || getTempId(),
+        journal: TrJournalEnum.EXCHANGE_DIFF,
+        side,
+        originId: trDoc._id,
+        originType: 'exchangeDiff',
+        details: [
+          {
+            ...(curr?.details || [{}])[0],
+            accountId:
+              (detail?.followInfos as any)?.currencyDiffAccountId ?? '',
+            amount: diffAmount,
+          },
+        ],
+
+        sumDt,
+        sumCt,
+      };
+
+      return [
+        ...(prev || []).filter(
+          (ftr) =>
+            !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
+        ),
+        currencyDiffFtr,
+      ];
+    });
+  }, [detail, diffAmount, side, trDoc._id, setFollowTrDocs]);
 
   return (
     <>

@@ -6,7 +6,7 @@ import {
 } from '@/settings/account/types/Account';
 import { IconBookDownload } from '@tabler/icons-react';
 import { Button, Form } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { CustomerType } from 'ui-modules';
@@ -47,15 +47,15 @@ export const InvSaleReturnForm = ({
     name: `trDocs.${index}`,
   }) as TInvSaleReturnJournal;
 
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
   const [replaceDetails, setReplaceDetails] = useState<ITrDetail[]>(
     trDoc.details as any[],
   );
   const onChangeOutAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.saleOutAccount`, account);
 
-    setFollowTrDocs(
-      (followTrDocs || []).map(
+    setFollowTrDocs((prev) =>
+      (prev || []).map(
         (ftr) =>
           (ftr.originId === trDoc._id &&
             ftr.originType === 'invSaleReturnOut' && {
@@ -74,8 +74,8 @@ export const InvSaleReturnForm = ({
   const onChangeCostAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.saleCostAccount`, account);
 
-    setFollowTrDocs(
-      (followTrDocs || []).map(
+    setFollowTrDocs((prev) =>
+      (prev || []).map(
         (ftr) =>
           (ftr.originId === trDoc._id &&
             ftr.originType === 'invSaleReturnCost' && {

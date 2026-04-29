@@ -1,7 +1,7 @@
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
 import { Checkbox, CurrencyField, Form } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useWatch } from 'react-hook-form';
 import { TrJournalEnum, TR_SIDES } from '../../../types/constants';
@@ -72,12 +72,12 @@ export const VatForm = ({
   }, [details, handleVat, vatPercent, sumPercent, isWithTax, trDoc.vatAmount]);
 
   const { configs } = useMainConfigs();
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   useEffect(() => {
-    if (!trDoc.hasVat) {
-      setFollowTrDocs(
-        (followTrDocs || []).filter(
+    if (!hasVat) {
+      setFollowTrDocs((prev) =>
+        (prev || []).filter(
           (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'vat'),
         ),
       );
@@ -89,43 +89,55 @@ export const VatForm = ({
         ? { sumDt: calcedAmount, sumCt: 0 }
         : { sumDt: 0, sumCt: calcedAmount };
 
-    const curr = followTrDocs.find(
-      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'vat',
-    );
+    setFollowTrDocs((prev) => {
+      const curr = (prev || []).find(
+        (ftr) => ftr.originId === trDoc._id && ftr.originType === 'vat',
+      );
 
-    const vatFtr = {
-      ...curr,
-      _id: curr?._id || getTempId(),
-      journal: TrJournalEnum.TAX,
-      side,
-      originId: trDoc._id,
-      originType: 'vat',
-      details: [
-        {
-          ...(curr?.details || [{}])[0],
-          accountId: trDoc.afterVat
-            ? side === 'dt'
-              ? (configs?.VatAfterReceivableAccount ?? '')
-              : (configs?.VatAfterPayableAccount ?? '')
-            : side === 'dt'
+      const vatFtr = {
+        ...curr,
+        _id: curr?._id || getTempId(),
+        journal: TrJournalEnum.TAX,
+        side,
+        originId: trDoc._id,
+        originType: 'vat',
+        details: [
+          {
+            ...(curr?.details || [{}])[0],
+            accountId: trDoc.afterVat
+              ? side === 'dt'
+                ? configs?.VatAfterReceivableAccount ?? ''
+                : configs?.VatAfterPayableAccount ?? ''
+              : side === 'dt'
               ? configs?.VatReceivableAccount
               : configs?.VatPayableAccount,
-          amount: calcedAmount,
-        },
-      ],
+            amount: calcedAmount,
+          },
+        ],
 
-      sumDt,
-      sumCt,
-    };
-    setFollowTrDocs([
-      ...(followTrDocs || []).filter(
-        (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'vat'),
-      ),
-      vatFtr,
-    ]);
+        sumDt,
+        sumCt,
+      };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasVat, side, calcedAmount]);
+      return [
+        ...(prev || []).filter(
+          (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'vat'),
+        ),
+        vatFtr,
+      ];
+    });
+  }, [
+    hasVat,
+    side,
+    calcedAmount,
+    trDoc.afterVat,
+    trDoc._id,
+    configs?.VatAfterPayableAccount,
+    configs?.VatAfterReceivableAccount,
+    configs?.VatPayableAccount,
+    configs?.VatReceivableAccount,
+    setFollowTrDocs,
+  ]);
 
   const changeVatRow = (vatRow: IVatRow) => {
     const vatPercent = vatRow.percent ?? 0;
@@ -213,7 +225,7 @@ export const VatForm = ({
               <Form.Item>
                 <Form.Label>VAT amount</Form.Label>
                 <CurrencyField.ValueInput
-                  value={handleVat ? (field.value ?? 0) : calcedAmount}
+                  value={handleVat ? field.value ?? 0 : calcedAmount}
                   onChange={field.onChange}
                   disabled={!handleVat}
                 />
