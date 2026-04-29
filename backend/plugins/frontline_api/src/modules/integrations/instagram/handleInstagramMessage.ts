@@ -32,21 +32,7 @@ export const handleInstagramMessage = async (
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
   if (doc.internal) {
-    const conversation = await models.InstagramConversations.findOne({
-      erxesApiId: doc.conversationId,
-    });
-
-    if (!conversation) {
-      throw new Error('Conversation not found');
-    }
-
-    return models.InstagramConversationMessages.addMessage(
-      {
-        ...doc,
-        conversationId: conversation._id,
-      },
-      doc.userId,
-    );
+    return models.ConversationMessages.addMessage(doc, doc.userId);
   }
 
  if (action === 'reply-post') {
