@@ -1,14 +1,18 @@
+import { useWatch } from 'react-hook-form';
 import {
   BOARD_NAMES_CONFIGS,
   BOARD_NUMBERS,
 } from '@/deals/constants/pipelines';
 import { Checkbox, Form, Input } from 'erxes-ui';
-
+import { SelectMember } from 'ui-modules';
 import Attribution from './Attribution';
 
 const PipelineConfig = ({ form }: { form: any }) => {
   const { control } = form;
-
+  const [isCheckUser, isCheckDepartment] = useWatch({
+    control: form.control,
+    name: ['isCheckUser', 'isCheckDepartment'],
+  });
   return (
     <>
       <div className="flex flex-wrap gap-4 justify-between mb-4">
@@ -123,6 +127,23 @@ const PipelineConfig = ({ form }: { form: any }) => {
           </Form.Item>
         )}
       />
+
+      {(isCheckUser || isCheckDepartment) && (
+        <Form.Field
+          control={control}
+          name="excludeCheckUserIds"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Users eligible to see all deals</Form.Label>
+              <SelectMember.FormItem
+                mode="multiple"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            </Form.Item>
+          )}
+        />
+      )}
     </>
   );
 };
