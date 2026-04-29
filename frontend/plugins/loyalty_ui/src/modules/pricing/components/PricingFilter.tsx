@@ -84,7 +84,9 @@ export const PricingFilterBar = ({
         />
       )}
 
-      {productId && <SelectProduct.FilterBar queryKey="productId" />}
+      {productId && (
+        <SelectProduct.FilterBar filterKey="productId" label="Product" />
+      )}
 
       {isPriority && (
         <Filter.BarItem queryKey="isPriority">
@@ -220,7 +222,7 @@ export const PricingFilterView = () => {
       </Filter.View>
       <SelectBranches.FilterView mode="single" filterKey="branchId" />
       <SelectDepartments.FilterView mode="single" filterKey="departmentId" />
-      <SelectProduct.FilterView queryKey="productId" />
+      <SelectProduct.FilterView filterKey="productId" />
       <Filter.View filterKey="status">
         <StatusFilterContent />
       </Filter.View>

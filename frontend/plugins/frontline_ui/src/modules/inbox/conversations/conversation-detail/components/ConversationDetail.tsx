@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Separator, Skeleton, useQueryState } from 'erxes-ui';
+import { Separator, useQueryState } from 'erxes-ui';
 
 import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationHeader } from './ConversationHeader';
@@ -68,20 +68,6 @@ export const ConversationDetail = () => {
     return <NoConversationSelected />;
   }
 
-  if (loading) {
-    return (
-      <div className="flex flex-col">
-        <div className="h-12 border-b flex-none flex items-center px-6">
-          <Skeleton className="w-32 h-4" />
-          <Skeleton className="w-32 h-4 ml-auto" />
-        </div>
-        <div className="relative h-full">
-          <InboxMessagesSkeleton />
-        </div>
-      </div>
-    );
-  }
-
   const conversationAllDetails = {
     ...currentConversation,
     ...conversationDetail,
@@ -100,16 +86,26 @@ export const ConversationDetail = () => {
           <Separator />
           <ConversationDetailLayout
             input={
-              <MessageInputIntegrationWrapper>
-                <MessageInput conversationId={conversationId || ''} />
-              </MessageInputIntegrationWrapper>
+              integration?.kind === 'imap' ? null : (
+                <MessageInputIntegrationWrapper>
+                  <MessageInput conversationId={conversationId || ''} />
+                </MessageInputIntegrationWrapper>
+              )
             }
           >
-            {integration?.kind &&
-              ['messenger', 'lead'].includes(integration.kind) && (
-                <ConversationMessages conversationId={conversationId || ''} />
-              )}
-            <ConversationIntegrationDetail />
+            {loading ? (
+              <InboxMessagesSkeleton />
+            ) : (
+              <>
+                {integration?.kind &&
+                  ['messenger', 'lead'].includes(integration.kind) && (
+                    <ConversationMessages
+                      conversationId={conversationId || ''}
+                    />
+                  )}
+                <ConversationIntegrationDetail />
+              </>
+            )}
           </ConversationDetailLayout>
           <ConversationMarkAsReadEffect />
         </ConversationProvider>
