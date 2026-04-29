@@ -225,18 +225,14 @@ const ProductsList = ({
                   <span className="truncate">{product.name}</span>
                   <span className="ml-auto flex items-center gap-2 shrink-0">
                     <span className="text-xs tabular-nums font-medium">
-                      {product.currency && (
-                        <span className="text-muted-foreground font-normal mr-0.5">
-                          {product.currency}
-                        </span>
-                      )}
+                      <span className="text-muted-foreground font-normal mr-0.5">
+                        {product.currency ?? ''}
+                      </span>
                       {fixNum(product.unitPrice).toLocaleString()}
                     </span>
-                    {product.remainder?.remainder !== undefined && (
-                      <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
-                        {product.remainder.remainder} pcs
-                      </span>
-                    )}
+                    <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
+                      {product.remainder.remainder ?? 0} {product.uom ?? ''}
+                    </span>
                   </span>
                 </div>
                 <IconPlus className="ml-2 shrink-0" />
