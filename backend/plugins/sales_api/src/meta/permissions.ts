@@ -132,8 +132,8 @@ export const permissions: IPermissionConfig = {
     },
   ],
 
-  // ‼️ Optional but recommended: seed a default admin group so that system admins
-  //    automatically have all sales permissions without manual setup.
+  //optional but recommended: seed a default admin group so that system admins
+  //automatically have all sales permissions without manual setup.
   defaultGroups: [
     {
       id: 'sales:admin',
