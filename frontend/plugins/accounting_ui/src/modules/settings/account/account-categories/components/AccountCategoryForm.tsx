@@ -1,6 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 import { TAccountCategoryForm } from '../types/AccountCategory';
-import { Button, Dialog, Form, Input, Spinner, Textarea } from 'erxes-ui';
+import { Button, Form, Input, Sheet, Spinner, Textarea } from 'erxes-ui';
 import { SelectAccountCategory } from './SelectAccountCategory';
 
 export const AccountCategoryForm = ({
@@ -11,6 +11,7 @@ export const AccountCategoryForm = ({
   form: UseFormReturn<TAccountCategoryForm>;
   handleSubmit: (data: TAccountCategoryForm) => void;
   loading: boolean;
+  onClose?: () => void;
 }) => {
   return (
     <Form {...form}>
@@ -70,17 +71,17 @@ export const AccountCategoryForm = ({
             </Form.Item>
           )}
         />
-        <Dialog.Footer className="col-span-2 mt-4">
-          <Dialog.Close asChild>
+        <Sheet.Footer className="col-span-2 mt-4">
+          <Sheet.Close asChild>
             <Button variant="outline" type="button" size="lg">
               Cancel
             </Button>
-          </Dialog.Close>
+          </Sheet.Close>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
             Save Account Category
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
   );

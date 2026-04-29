@@ -1,5 +1,10 @@
-import { Dialog, isDeeplyEqual, Spinner, useQueryState } from 'erxes-ui';
-import { AccountingDialog } from '@/layout/components/Dialog';
+import {
+  Sheet,
+  ScrollArea,
+  isDeeplyEqual,
+  Spinner,
+  useQueryState,
+} from 'erxes-ui';
 import { useAccountCategoryDetail } from '../hooks/useAccountCategoryDetail';
 import { TAccountCategoryForm } from '../types/AccountCategory';
 import { useForm } from 'react-hook-form';
@@ -13,18 +18,37 @@ import { AccountCategoryForm } from './AccountCategoryForm';
 export const EditAccountCategory = () => {
   const [open, setOpen] = useQueryState<string>('accountCategoryId');
   return (
-    <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog
-        title="Edit Account Category"
-        description="Edit an account category"
-      >
-        <EditAccountCategoryForm />
-      </AccountingDialog>
-    </Dialog>
+    <Sheet
+      open={open !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
+    >
+      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
+        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
+          <Sheet.Title>Edit Account Category</Sheet.Title>
+          <Sheet.Close />
+          <Sheet.Description className="sr-only">
+            Edit Account Category Details
+          </Sheet.Description>
+        </Sheet.Header>
+        <Sheet.Content className="overflow-hidden flex-auto">
+          <ScrollArea className="h-full">
+            <div className="p-5">
+              <EditAccountCategoryForm onClose={() => setOpen(null)} />
+            </div>
+          </ScrollArea>
+        </Sheet.Content>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
-export const EditAccountCategoryForm = () => {
+export const EditAccountCategoryForm = ({
+  onClose,
+}: {
+  onClose?: () => void;
+}) => {
   const { accountCategoryDetail, closeDetail, loading } =
     useAccountCategoryDetail();
   const { editAccountCategory, loading: editLoading } =
@@ -70,6 +94,7 @@ export const EditAccountCategoryForm = () => {
         form={form}
         handleSubmit={handleSubmit}
         loading={editLoading}
+        onClose={onClose || closeDetail}
       />
       {loading && (
         <div className="absolute inset-0 bg-background/10 backdrop-blur-xs flex items-center justify-center rounded-md">

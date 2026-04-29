@@ -1,4 +1,10 @@
-import { IconCalendar, IconEdit, IconFile, IconMoneybag, IconTrash } from '@tabler/icons-react';
+import {
+  IconCalendar,
+  IconEdit,
+  IconFile,
+  IconMoneybag,
+  IconTrash,
+} from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {

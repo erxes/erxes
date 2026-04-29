@@ -1,4 +1,10 @@
-import { IconCalendar, IconEdit, IconFile, IconMoneybag, IconTrash } from '@tabler/icons-react';
+import {
+  IconCalendar,
+  IconEdit,
+  IconFile,
+  IconMoneybag,
+  IconTrash,
+} from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
@@ -135,7 +141,8 @@ const DateCell = ({ getValue }: any) => {
 };
 
 const AccountCell = ({ row }: any) => {
-  const { details } = row.original;
+  const { details, parentId, _id, originId } = row.original;
+  const navigate = useNavigate();
 
   const name0 = details[0].account?.name;
 
@@ -150,8 +157,16 @@ const AccountCell = ({ row }: any) => {
 
   const codes = Object.keys(infoByCode);
 
+  const handleEditAccount = () => {
+    navigate(
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${
+        originId || _id
+      }`,
+    );
+  };
+
   return (
-    <RecordTableInlineCell>
+    <RecordTableInlineCell onClick={handleEditAccount} className="cursor-pointer">
       {codes.map((code, i) => {
         const count = infoByCode[code];
         const tot = count > 1 ? `(${count})` : '';
