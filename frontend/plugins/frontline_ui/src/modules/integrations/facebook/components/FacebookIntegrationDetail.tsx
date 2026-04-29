@@ -12,7 +12,7 @@ import {
   toast,
   Label,
 } from 'erxes-ui';
-import { SelectBrand } from 'ui-modules';
+import { SelectBrands } from 'ui-modules';
 import { IconEdit } from '@tabler/icons-react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { z } from 'zod';
@@ -173,11 +173,9 @@ export const FacebookIntegrationEditForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Brand</Form.Label>
-                  <SelectBrand
+                  <SelectBrands.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
-                    placeholder="Select a brand"
-                    className="w-full h-10 rounded-lg border bg-background"
                   />
                   <Form.Message />
                 </Form.Item>

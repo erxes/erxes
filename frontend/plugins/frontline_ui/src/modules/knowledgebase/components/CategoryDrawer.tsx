@@ -108,7 +108,7 @@ export function CategoryDrawer({
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <Sheet.View className="sm:max-w-lg p-0 flex flex-col h-full">
-        <Sheet.Header className="border-b gap-3 flex-shrink-0">
+        <Sheet.Header className="border-b gap-3 shrink-0">
           <Sheet.Title>
             {isEditing ? 'Edit Category' : 'New Category'}
           </Sheet.Title>
@@ -120,7 +120,7 @@ export function CategoryDrawer({
             onSubmit={form.handleSubmit(onSubmit, (error) => {
               console.error(error);
             })}
-            className="flex-1 overflow-y-auto p-4 space-y-4 bg-white"
+            className="flex-1 overflow-y-auto p-4 space-y-4 bg-background"
           >
             <Form.Field
               control={form.control}
@@ -199,7 +199,7 @@ export function CategoryDrawer({
           </form>
         </Form>
 
-        <div className="border-t gap-3 p-4 bg-white flex-shrink-0 flex justify-end">
+        <div className="border-t gap-3 p-4 bg-background shrink-0 flex justify-end">
           <Button onClick={onClose} variant="outline">
             Cancel
           </Button>
@@ -213,8 +213,8 @@ export function CategoryDrawer({
                 ? 'Saving...'
                 : 'Creating...'
               : isEditing
-                ? 'Save Changes'
-                : 'Create Category'}
+              ? 'Save Changes'
+              : 'Create Category'}
           </Button>
         </div>
       </Sheet.View>
