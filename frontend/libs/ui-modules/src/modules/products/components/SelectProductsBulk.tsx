@@ -7,12 +7,11 @@ import {
   Separator,
   ScrollArea,
   Spinner,
-  cn,
   useQueryState,
   fixNum,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
+import { IconPlus, IconX } from '@tabler/icons-react';
 import { useProducts } from '../hooks/useProducts';
 import { useInView } from 'react-intersection-observer';
 import { AddProduct } from './AddProduct';
@@ -44,7 +43,7 @@ export const SelectProductsBulk = ({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>{children}</Sheet.Trigger>
-      <Sheet.View className="sm:max-w-5xl">
+      <Sheet.View className="sm:max-w-6xl">
         <Sheet.Header>
           <div>
             <Sheet.Title>Select Products</Sheet.Title>
@@ -167,6 +166,10 @@ const ProductsList = ({
     setSelectedProductIds((prev) => [...prev, product._id]);
   };
 
+  const unselectedProducts = products.filter(
+    (p) => !selectedProductIds.includes(p._id),
+  );
+
   return (
     <div className="flex overflow-hidden flex-col border-r">
       <div className="p-4">
@@ -207,31 +210,36 @@ const ProductsList = ({
       <Separator />
       <ScrollArea>
         <div className="flex flex-col gap-1 p-4">
-          {products.map((product) => {
-            const isSelected = selectedProductIds.includes(product._id);
+          {unselectedProducts.map((product) => {
             return (
               <Button
                 key={product._id}
                 variant="ghost"
-                className={cn(
-                  'min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left',
-                  isSelected && 'bg-primary/10 hover:bg-primary/10',
-                )}
+                className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
                 onClick={() => handleProductSelect(product)}
               >
-                <div className="flex gap-1.5 items-center">
-                  <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
+                <div className="flex flex-1 gap-2 items-center min-w-0">
+                  <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
                     {product.code}
                   </span>
-                  <span>{product.name}</span>
-                  <span>{product.currency ?? ''}:{fixNum(product.unitPrice).toLocaleString()}</span>
-                  <span>({product.remainder?.remainder})</span>
+                  <span className="truncate">{product.name}</span>
+                  <span className="ml-auto flex items-center gap-2 shrink-0">
+                    <span className="text-xs tabular-nums font-medium">
+                      {product.currency && (
+                        <span className="text-muted-foreground font-normal mr-0.5">
+                          {product.currency}
+                        </span>
+                      )}
+                      {fixNum(product.unitPrice).toLocaleString()}
+                    </span>
+                    {product.remainder?.remainder !== undefined && (
+                      <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
+                        {product.remainder.remainder} pcs
+                      </span>
+                    )}
+                  </span>
                 </div>
-                {isSelected ? (
-                  <IconCheck className="ml-auto" />
-                ) : (
-                  <IconPlus className="ml-auto" />
-                )}
+                <IconPlus className="ml-2 shrink-0" />
               </Button>
             );
           })}
