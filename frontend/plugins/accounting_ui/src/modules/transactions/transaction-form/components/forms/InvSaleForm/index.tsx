@@ -27,7 +27,7 @@ import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
 
 const updateFollowDetailsAccount = (
-  details: ITrDetail[] = [],
+  details: ITrDetail[],
   account: IAccount,
 ) => details.map((detail) => ({ ...detail, account, accountId: account._id }));
 

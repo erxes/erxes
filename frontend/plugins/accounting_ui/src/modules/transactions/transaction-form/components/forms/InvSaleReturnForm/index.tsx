@@ -36,7 +36,7 @@ import { InventoryForm } from './InventoryForm';
 import { SelectSaleSheet } from './SelectSaleSheet';
 
 const updateFollowDetailsAccount = (
-  details: ITrDetail[] = [],
+  details: ITrDetail[],
   account: IAccount,
 ) => details.map((detail) => ({ ...detail, account, accountId: account._id }));
 
