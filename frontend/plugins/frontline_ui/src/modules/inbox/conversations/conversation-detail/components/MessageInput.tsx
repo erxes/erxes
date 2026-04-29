@@ -301,7 +301,7 @@ export const MessageInput = ({
         onDragOver={(e) => e.preventDefault()}
         className={cn(
           'flex flex-col h-full py-4 gap-1 max-w-2xl mx-auto bg-sidebar shadow-xs rounded-lg transition-colors duration-150',
-          isInternalNote && 'bg-yellow-50 dark:bg-yellow-950',
+          isInternalNote && 'bg-warning/20',
         )}
       >
         {showSuggestions && (
@@ -348,18 +348,18 @@ export const MessageInput = ({
         )}
 
         {attachments.length > 0 && (
-          <div className="px-6 mt-2 text-sm text-gray-500 space-y-1">
+          <div className="px-6 mt-2 text-sm text-muted-foreground space-y-1">
             {attachments.map((file, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-md"
+                className="flex items-center justify-between bg-muted px-3 py-1 rounded-md"
               >
                 <span role="img" aria-label="file">
                   📁 {file.name} ({Math.round(file.size / 1024)} KB)
                 </span>
                 <button
                   onClick={() => handleDeleteAttachment(file.name)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-destructive hover:text-red-700"
                 >
                   <IconX size={14} />
                 </button>

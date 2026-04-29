@@ -1,4 +1,4 @@
-import { toast, useConfirm } from 'erxes-ui';
+import { Spinner, toast, useConfirm } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
 import { useMutation } from '@apollo/client';
@@ -42,11 +42,7 @@ export const RemoveIntegration = ({
       onClick={handleRemove}
       className="flex items-center gap-2 w-full text-destructive"
     >
-      {loading ? (
-        <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
-      ) : (
-        <IconTrash size={16} />
-      )}
+      {loading ? <Spinner className="size-4" /> : <IconTrash size={16} />}
       Remove
     </div>
   );
