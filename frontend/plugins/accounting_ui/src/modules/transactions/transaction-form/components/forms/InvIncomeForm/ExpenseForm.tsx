@@ -88,7 +88,7 @@ export const ExpenseForm = ({
                     onClick={handleAppend}
                   >
                     <IconPlus />
-                    {`Add expense`}
+                    {`Зардал нэмэх`}
                   </Button>
                   <Button
                     variant="link"
@@ -120,10 +120,10 @@ const ExpenseTableHeader = ({
     <Table.Header>
       <Table.Row>
         <Table.Head className="w-10"></Table.Head>
-        <Table.Head>Expense</Table.Head>
-        <Table.Head>Rule</Table.Head>
-        <Table.Head>Amount</Table.Head>
-        <Table.Head>Account</Table.Head>
+        <Table.Head>Зардал</Table.Head>
+        <Table.Head>Дүрэм</Table.Head>
+        <Table.Head>Дүн</Table.Head>
+        <Table.Head>Данс</Table.Head>
       </Table.Row>
     </Table.Header>
   );

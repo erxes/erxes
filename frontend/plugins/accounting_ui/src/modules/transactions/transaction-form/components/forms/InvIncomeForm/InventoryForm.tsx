@@ -84,7 +84,7 @@ export const InventoryForm = ({
         />
         <RemoveButton form={form} journalIndex={journalIndex} />
         <div>
-          <Label className="mr-3">Advanced view</Label>
+          <Label className="mr-3">Дэлгэрэнгүй харагдац</Label>
           <Switch
             checked={showAdvancedView}
             onCheckedChange={(checked) => {
@@ -128,23 +128,23 @@ const InventoryTableHeader = ({
             />
           </div>
         </Table.Head>
-        <Table.Head>Account</Table.Head>
-        <Table.Head>Inventory</Table.Head>
-        <Table.Head>Quantity</Table.Head>
-        <Table.Head>Unit Price</Table.Head>
-        <Table.Head>Amount</Table.Head>
-        {trDoc.hasVat && <Table.Head>HasVat</Table.Head>}
-        {trDoc.hasCtax && <Table.Head>HasCtax</Table.Head>}
+        <Table.Head>Данс</Table.Head>
+        <Table.Head>Бараа материал</Table.Head>
+        <Table.Head>Тоо хэмжээ</Table.Head>
+        <Table.Head>Нэгж үнэ</Table.Head>
+        <Table.Head>Дүн</Table.Head>
+        {trDoc.hasVat && <Table.Head>НӨАТ</Table.Head>}
+        {trDoc.hasCtax && <Table.Head>НХАТ</Table.Head>}
         {(trDoc.hasVat || trDoc.hasCtax) && (
           <>
-            <Table.Head>Unit with tax</Table.Head>
-            <Table.Head>Amount with tax</Table.Head>
+            <Table.Head>Татвартай нэгж үнэ</Table.Head>
+            <Table.Head>Татвартай дүн</Table.Head>
           </>
         )}
         {showAdvancedView && (
           <>
-            <Table.Head>Branch</Table.Head>
-            <Table.Head>Department</Table.Head>
+            <Table.Head>Салбар</Table.Head>
+            <Table.Head>Хэлтэс</Table.Head>
           </>
         )}
       </Table.Row>

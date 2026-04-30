@@ -26,9 +26,9 @@ const FormFields = memo(
           name="number"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Number</Form.Label>
+              <Form.Label>Дугаар</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Input {...field} value={field.value ?? ''} />
               </Form.Control>
             </Form.Item>
           )}
@@ -38,7 +38,7 @@ const FormFields = memo(
           name="date"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Date</Form.Label>
+              <Form.Label>Огноо</Form.Label>
               <Form.Control>
                 <DatePicker
                   value={field.value}
@@ -141,7 +141,7 @@ export const TransactionsGroupForm = () => {
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <h3 className="text-lg font-bold">
-          {parentId ? `Edit` : `Create`} Transaction
+          {parentId ? `Гүйлгээ засах` : `Гүйлгээ үүсгэх`}
         </h3>
         <FormFields form={form} />
         <TransactionsTabsList form={form} />
