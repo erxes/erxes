@@ -182,7 +182,7 @@ export const ReportForm = () => {
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label>Out of Balance</Form.Label>
+                <Form.Label>Баланс бус</Form.Label>
               </Form.Item>
             )}
           />

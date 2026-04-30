@@ -42,7 +42,7 @@ export const AddDetailRowButton = ({
         onClick={() => append(detailDefaultValues)}
       >
         <IconPlus />
-        Хоосон мөр нэмэх
+        Шинэ мөр
       </Button>
       <SelectProductsBulk
         productIds={

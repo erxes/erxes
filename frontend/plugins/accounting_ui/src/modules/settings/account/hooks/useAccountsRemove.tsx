@@ -10,7 +10,7 @@ export const useAccountsRemove = () => {
       ...options,
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: 'Алдаа',
           description: error.message,
           variant: 'destructive',
         });
@@ -18,8 +18,8 @@ export const useAccountsRemove = () => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Accounts deleted successfully',
+          title: 'Амжилттай',
+          description: 'Дансыг устгалаа',
         });
         options.onCompleted?.(data);
       },

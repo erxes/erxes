@@ -37,13 +37,13 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
   transactionMoreColumn,
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Branch" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Салбар" />,
     accessorKey: 'branch',
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -53,7 +53,7 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Department" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
     accessorKey: 'department',
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -63,9 +63,7 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
   },
   {
     id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
     accessorKey: 'description',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>{getValue() as string}</RecordTableInlineCell>

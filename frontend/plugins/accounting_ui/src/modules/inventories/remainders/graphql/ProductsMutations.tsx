@@ -16,8 +16,6 @@ const safeRemInputParams = `
 
 export const RE_CALC_REMAINDERS = gql`
   mutation ReCalcRemainders(${safeRemInputParamDefs}) {
-    reCalcRemainders(${safeRemInputParams}) {
-      _id
-    }
+    reCalcRemainders(${safeRemInputParams}) 
   }
 `;

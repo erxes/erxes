@@ -34,7 +34,7 @@ export const accountSchema = z
       if (!data.extra?.bank) {
         ctx.addIssue({
           path: ['extra', 'bank'],
-          message: 'Bank is required for bank journal',
+          message: 'Банкны журналд банк заавал шаардлагатай',
           code: z.ZodIssueCode.custom,
         });
       }
@@ -42,7 +42,7 @@ export const accountSchema = z
       if (!data.extra?.bankAccount) {
         ctx.addIssue({
           path: ['extra', 'bankAccount'],
-          message: 'Bank account is required for bank journal',
+          message: 'Банкны журналд банкны данс заавал шаардлагатай',
           code: z.ZodIssueCode.custom,
         });
       }

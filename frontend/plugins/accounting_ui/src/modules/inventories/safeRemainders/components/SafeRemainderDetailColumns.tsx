@@ -116,9 +116,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
     id: 'product',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
     accessorKey: 'product',
     cell: ({ row }) => <ProductCell row={row} />,
     size: 300,
@@ -126,14 +124,16 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'preCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Live Remainder" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Бодит үлдэгдэл" />
     ),
     accessorKey: 'preCount',
     cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'uom',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="UOM" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Хэмжих нэгж" />
+    ),
     accessorKey: 'uom',
     cell: ({ row }) => (
       <RecordTableInlineCell>{row.original.uom ?? ''}</RecordTableInlineCell>
@@ -143,7 +143,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Checked" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Тоолсон" />
     ),
     size: 33,
     cell: ({ row }) => (
@@ -166,7 +166,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Үлдэгдэл" />
     ),
     accessorKey: 'remainder',
     cell: ({ row }) => (
@@ -188,7 +188,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'diff',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Diff" />,
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Зөрүү" />,
     accessorKey: 'diff',
     cell: ({ row }) => (
       <RecordTableHotKeyControl

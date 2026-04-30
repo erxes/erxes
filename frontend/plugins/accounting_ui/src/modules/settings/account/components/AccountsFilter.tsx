@@ -7,12 +7,7 @@ import {
   IconSearch,
   IconToggleRightFilled,
 } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Filter,
-  useMultiQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { AccountsTotalCount } from './AccountsTotalCount';
 import {
   AccountsFilterCategory,
@@ -28,7 +23,7 @@ import {
   FilterBarIsTemp,
   FilterBarJournal,
   FilterBarKind,
-  FilterBarStatus
+  FilterBarStatus,
 } from './filters/FilterHelpers';
 
 const AccountsFilterPopover = () => {
@@ -37,15 +32,23 @@ const AccountsFilterPopover = () => {
     code?: string;
     name?: string;
     categoryId?: string;
-    currency?: string
+    currency?: string;
     kind?: string;
     journal?: string;
     status?: string;
     isTemp?: string;
     isOutBalance?: string;
   }>([
-    'searchValue', 'code', 'name', 'categoryId', 'currency',
-    'kind', 'journal', 'status', 'isTemp', 'isOutBalance'
+    'searchValue',
+    'code',
+    'name',
+    'categoryId',
+    'currency',
+    'kind',
+    'journal',
+    'status',
+    'isTemp',
+    'isOutBalance',
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -60,7 +63,7 @@ const AccountsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder="Шүүх"
                 variant="secondary"
                 className="bg-background"
               />
@@ -99,7 +102,7 @@ const AccountsFilterPopover = () => {
                 </Filter.Item>
                 <Filter.Item value="isOutBalance">
                   <IconToggleRightFilled />
-                  Is Out Balance
+                  Баланс бус
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconToggleRightFilled />
@@ -155,7 +158,7 @@ export const AccountsFilter = () => {
   const { code, name, searchValue } = queries;
 
   return (
-    <Filter id="accounts-filter" >
+    <Filter id="accounts-filter">
       <Filter.Bar>
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>

@@ -4,7 +4,6 @@ import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { ADJUST_INVENTORIES_QUERY } from '../graphql/adjustInventoryQueries';
 
-
 export const useAdjustInventoryAdd = (options?: OperationVariables) => {
   const navigate = useNavigate();
 
@@ -29,16 +28,16 @@ export const useAdjustInventoryAdd = (options?: OperationVariables) => {
           title: 'Success',
           description: 'Adjust Inventory created successfully',
         });
-        options?.onCompleted()
+        options?.onCompleted();
       },
       refetchQueries: [
         {
           query: ADJUST_INVENTORIES_QUERY,
           variables: {
-            "page": 1,
-            "perPage": 20
-          }
-        }
+            page: 1,
+            perPage: 20,
+          },
+        },
       ],
       awaitRefetchQueries: true,
       update: (_cache, { data }) => {
@@ -46,7 +45,7 @@ export const useAdjustInventoryAdd = (options?: OperationVariables) => {
 
         const pathname = newId
           ? `/accounting/adjustment/inventory/edit?id=${newId}`
-          : "/accounting/adjustment/inventory";
+          : '/accounting/adjustment/inventory';
 
         navigate(pathname);
       },

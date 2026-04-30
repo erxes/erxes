@@ -44,27 +44,25 @@ export interface IConversationMemberProgress {
 }
 
 export interface IConversationSourceProgressItem {
-  count: number;
   source: string;
+  count: number;
 }
 
 export interface IConversationSourceProgress {
-  conversationSourceProgress: {
-    new: IConversationSourceProgressItem[];
-    open: IConversationSourceProgressItem[];
-    closed: IConversationSourceProgressItem[];
-  }[];
+  new: IConversationSourceProgressItem[];
+  open: IConversationSourceProgressItem[];
+  closed: IConversationSourceProgressItem[];
+  resolved: IConversationSourceProgressItem[];
 }
 
 export interface IConversationTagProgressItem {
-  count: number;
   tagId: string;
+  count: number;
 }
 
 export interface IConversationTagProgress {
-  conversationTagProgress: {
-    new: IConversationTagProgressItem[];
-    open: IConversationTagProgressItem[];
-    closed: IConversationTagProgressItem[];
-  }[];
+  new: IConversationTagProgressItem[];
+  open: IConversationTagProgressItem[];
+  closed: IConversationTagProgressItem[];
+  resolved: IConversationTagProgressItem[];
 }
