@@ -6,11 +6,14 @@ import { ReportsList } from '~/modules/journal-reports/components/ReportsList';
 export const JournalReports = () => {
   return (
     <AccountingLayout>
-      <AccountingHeader returnLink='/accounting/journal-reports' returnText='Reports' />
+      <AccountingHeader
+        returnLink="/accounting/journal-reports"
+        returnText="Reports"
+      />
       <div className="flex flex-auto overflow-hidden">
         <ReportsList />
         <ReportForm />
-      </div >
+      </div>
     </AccountingLayout>
   );
 };

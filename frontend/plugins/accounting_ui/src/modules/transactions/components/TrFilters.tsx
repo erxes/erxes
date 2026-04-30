@@ -2,7 +2,7 @@ import {
   AccountsFilterCurrency,
   AccountsFilterTrJournal,
   FilterBarCurrency,
-  FilterBarTrJournal
+  FilterBarTrJournal,
 } from '@/settings/account/components/filters/FilterHelpers';
 import {
   IconCalendar,
@@ -15,12 +15,7 @@ import {
   IconSearch,
   IconToggleRightFilled,
 } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Filter,
-  useMultiQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 import { useTransactionsQueryParams } from '../hooks/useTransactionVars';
@@ -39,71 +34,80 @@ const TransactionsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder="Шүүлтүүр"
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  Хайх
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconNumber />
-                  Number
+                  Дугаар
                 </Filter.Item>
                 <Filter.Item value="date" inDialog>
                   <IconCalendar />
-                  Date
+                  Огноо
                 </Filter.Item>
-                <SelectBranches.FilterItem value="branchId" label="Branch" />
-                <SelectDepartments.FilterItem value="departmentId" label="Department" />
+                <SelectBranches.FilterItem value="branchId" label="Салбар" />
+                <SelectDepartments.FilterItem
+                  value="departmentId"
+                  label="Хэлтэс"
+                />
                 <Filter.Item value="currency">
                   <IconCoins />
-                  Currency
+                  Валют
                 </Filter.Item>
                 <Filter.Item value="journal">
                   <IconNotebook />
-                  Journal
+                  Журнал
                 </Filter.Item>
                 <Filter.Item value="statuses" disabled={true}>
                   <IconToggleRightFilled />
-                  Statuses
+                  Төлөв
                 </Filter.Item>
 
                 <Command.Separator className="my-1" />
-                <SelectAccount.FilterItem value='accountIds' />
+                <SelectAccount.FilterItem value="accountIds" />
                 <Filter.Item value="accountKind" disabled={true}>
                   <IconToggleRightFilled />
-                  Account Kind
+                  Дансны төрөл
                 </Filter.Item>
                 <Filter.Item value="accountStatus" disabled={true}>
                   <IconToggleRightFilled />
-                  Account Status
+                  Дансны төлөв
                 </Filter.Item>
                 <Filter.Item value="accountCategoryId" disabled={true}>
                   <IconLayoutGridAdd />
-                  Account Category
+                  Дансны ангилал
                 </Filter.Item>
                 <Filter.Item value="accountSearchValue" inDialog>
                   <IconSearch />
-                  Account Search
+                  Данс хайх
                 </Filter.Item>
                 <Filter.Item value="isOutBalance" disabled={true}>
                   <IconToggleRightFilled />
-                  Is Out Balance
+                  Баланс бус эсэх
                 </Filter.Item>
 
                 <Command.Separator className="my-1" />
-                <SelectMember.FilterItem value='createdUserId' label='Created by' />
-                <SelectMember.FilterItem value='modifiedUserId' label='Modified by' />
+                <SelectMember.FilterItem
+                  value="createdUserId"
+                  label="Үүсгэсэн"
+                />
+                <SelectMember.FilterItem
+                  value="modifiedUserId"
+                  label="Өөрчилсөн"
+                />
                 <Filter.Item value="updatedDate" inDialog>
                   <IconCalendar />
-                  Updated
+                  Өөрчилсөн
                 </Filter.Item>
                 <Filter.Item value="createdDate" inDialog>
                   <IconCalendar />
-                  Created
+                  Үүсгэсэн
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -111,18 +115,21 @@ const TransactionsFilterPopover = () => {
           <Filter.View filterKey="date">
             <Filter.DateView filterKey="date" />
           </Filter.View>
-          <SelectBranches.FilterView mode='single' filterKey='branchId' />
-          <SelectDepartments.FilterView mode='single' filterKey='departmentId' />
+          <SelectBranches.FilterView mode="single" filterKey="branchId" />
+          <SelectDepartments.FilterView
+            mode="single"
+            filterKey="departmentId"
+          />
           <Filter.View filterKey="currency">
             <AccountsFilterCurrency />
           </Filter.View>
           <Filter.View filterKey="journal">
             <AccountsFilterTrJournal />
           </Filter.View>
-          <SelectAccount.FilterView mode='multiple' queryKey='accountIds' />
+          <SelectAccount.FilterView mode="multiple" queryKey="accountIds" />
 
-          <SelectMember.FilterView mode='single' queryKey='createdUserId' />
-          <SelectMember.FilterView mode='single' queryKey='modifiedUserId' />
+          <SelectMember.FilterView mode="single" queryKey="createdUserId" />
+          <SelectMember.FilterView mode="single" queryKey="modifiedUserId" />
           <Filter.View filterKey="updatedDate">
             <Filter.DateView filterKey="updatedDate" />
           </Filter.View>
@@ -155,9 +162,11 @@ const TransactionsFilterPopover = () => {
   );
 };
 
-export const TransactionsFilter = (
-  { afterBar }: { afterBar?: React.ReactNode }
-) => {
+export const TransactionsFilter = ({
+  afterBar,
+}: {
+  afterBar?: React.ReactNode;
+}) => {
   const [queries] = useMultiQueryState<{
     number: string;
     searchValue: string;
@@ -167,12 +176,12 @@ export const TransactionsFilter = (
   const { number, searchValue, accountSearchValue } = queries;
 
   return (
-    <Filter id="accounts-filter" >
+    <Filter id="accounts-filter">
       <Filter.Bar>
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            Хайх
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -181,7 +190,7 @@ export const TransactionsFilter = (
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Number
+            Дугаар
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -190,39 +199,55 @@ export const TransactionsFilter = (
         <Filter.BarItem queryKey="date">
           <Filter.BarName>
             <IconCalendar />
-            Date
+            Огноо
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
-        <SelectBranches.FilterBar label='Branch' filterKey='branchId' mode='single' />
-        <SelectDepartments.FilterBar label='Department' filterKey='departmentId' mode='single' />
+        <SelectBranches.FilterBar
+          label="Салбар"
+          filterKey="branchId"
+          mode="single"
+        />
+        <SelectDepartments.FilterBar
+          label="Хэлтэс"
+          filterKey="departmentId"
+          mode="single"
+        />
         <FilterBarCurrency />
         <FilterBarTrJournal />
 
-        <SelectAccount.FilterBar queryKey='accountIds' mode='multiple' />
+        <SelectAccount.FilterBar queryKey="accountIds" mode="multiple" />
         <Filter.BarItem queryKey="accountSearchValue">
           <Filter.BarName>
             <IconLabelFilled />
-            Account Search
+            Данс хайх
           </Filter.BarName>
           <Filter.BarButton filterKey="accountSearchValue" inDialog>
             {accountSearchValue}
           </Filter.BarButton>
         </Filter.BarItem>
 
-        <SelectMember.FilterBar queryKey='createdUserId' label='Created By' mode='single' />
-        <SelectMember.FilterBar queryKey='modifiedUserId' label='Modified By' mode='single' />
+        <SelectMember.FilterBar
+          queryKey="createdUserId"
+          label="Үүсгэсэн"
+          mode="single"
+        />
+        <SelectMember.FilterBar
+          queryKey="modifiedUserId"
+          label="Өөрчилсөн"
+          mode="single"
+        />
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendar />
-            Created date
+            Үүсгэсэн огноо
           </Filter.BarName>
           <Filter.Date filterKey="createdDate" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updatedDate">
           <Filter.BarName>
             <IconCalendar />
-            Updated date
+            Өөрчилсөн огноо
           </Filter.BarName>
           <Filter.Date filterKey="updatedDate" />
         </Filter.BarItem>

@@ -15,7 +15,7 @@ export const AccountCategoriesCommandbar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {table.getFilteredSelectedRowModel().rows.length} сонгосон
         </CommandBar.Value>
         <Separator.Inline />
         <AccountCategoriesDelete />
@@ -31,10 +31,10 @@ export const AccountCategoriesDelete = () => {
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete these account categories?',
+      message: 'Эдгээр дансны ангиллыг устгахдаа итгэлтэй байна уу?',
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: 'Устгах',
+        cancelLabel: 'Болих',
       },
     }).then(() => {
       const accountCategoryIds = table
@@ -45,7 +45,7 @@ export const AccountCategoriesDelete = () => {
           variables: { _id: accountCategoryId },
           onError: (error: Error) => {
             toast({
-              title: 'Error',
+              title: 'Алдаа',
               description: error.message,
               variant: 'destructive',
             });
@@ -53,8 +53,8 @@ export const AccountCategoriesDelete = () => {
           onCompleted: () => {
             table.setRowSelection({});
             toast({
-              title: 'Success',
-              description: 'Account categories deleted successfully',
+              title: 'Амжилттай',
+              description: 'Дансны ангиллыг устгалаа',
             });
           },
         });
@@ -65,7 +65,7 @@ export const AccountCategoriesDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Delete
+      Устгах
     </Button>
   );
 };
